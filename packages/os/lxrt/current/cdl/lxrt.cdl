@@ -58,10 +58,11 @@ more information on the available types."
 	cdl_option ORONUM_RTAI_VERSION {
 	    display "RTAI version"
 	    flavor data
-	    legal_values 2 3
-	    default_value {2}
+	    #legal_values {"2" "3"}
+	    default_value {"2"}
 	    description "
-        Select the RTAI version you are using."
+        Select the RTAI version you are using.
+Legal values are 2 and 3."
 	}
 
 	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
