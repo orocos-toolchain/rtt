@@ -66,6 +66,10 @@ namespace ORO_Execution
 
         typedef std::vector<StateMachine*> ChildList;
 
+        /**
+         * The destructor is virtual since ParsedStateMachine still inherits
+         * this class.
+         */
         virtual ~StateMachine() {}
 
         /**
@@ -86,20 +90,12 @@ namespace ORO_Execution
         inline bool inError() const { return error; }
 
         /**
-         * Get the status of this StateMachine.
-         */
-        //        Status getStatus() { return status; }
-
-        /**
          * Start this StateMachine. The Initial state will be entered.
-         *
          */
         bool activate();
 
         /**
-         * Stop this StateMachine. The current state (which should be 
-         * the Final state) is left.
-         *
+         * Stop this StateMachine. The current state is left.
          */
         bool deactivate();
 
@@ -155,6 +151,11 @@ namespace ORO_Execution
         StateInterface* nextState();
 
         /**
+         * Lookup a State by name. Returns null if not found.
+         */
+        StateInterface* getState( const std::string & name ) const;
+
+        /**
          * Request a state transition to a new state.
          * If the transition is not set by transitionSet(), acquiering
          * the state will fail.
@@ -174,8 +175,7 @@ namespace ORO_Execution
          * requestNextState(). You should only call requestState() or requestNextState()
          * if executePending returns true.
          *
-         * Due to the pending requests, the currentState() may have changed,
-         * and this->getStatus() may have changed.
+         * Due to the pending requests, the currentState() may have changed.
          * 
          * @param stepping provide true if the pending programs should 
          * be executed one step at a time.
@@ -251,12 +251,12 @@ namespace ORO_Execution
         /**
          * Get the parent, returns zero if no parent.
          */
-        virtual StateMachine* getParent() 
+        StateMachine* getParent() 
         {
             return _parent;
         }
 
-        virtual void setParent(StateMachine* parent)
+        void setParent(StateMachine* parent)
         {
             _parent = parent;
         }
@@ -264,12 +264,12 @@ namespace ORO_Execution
         /**
          * Get a list of all child state machines.
          */
-        virtual const ChildList& getChildren()
+        const ChildList& getChildren()
         {
             return _children;
         }
 
-        virtual void addChild( StateMachine* child ) {
+        void addChild( StateMachine* child ) {
             _children.push_back( child );
         }
 
@@ -277,7 +277,7 @@ namespace ORO_Execution
          * This method must be overloaded to get a useful
          * hierarchy.
          */
-        virtual const std::string& getName() const {
+        const std::string& getName() const {
             return _name;
         }
 

@@ -126,6 +126,9 @@ namespace ORO_Execution
         void startWhileStatement( ConditionInterface* cond, int linenumber );
         void endWhileBlock(int linenumber);
 
+        bool inLoop();
+        bool breakLoop();
+
         /**
          * Add a new command from the build CommandNode under a condition.
          *
@@ -284,6 +287,11 @@ namespace ORO_Execution
          */
         std::stack<CommandNode> branch_stack;
 
+        /**
+         * Save the after-while nodes in a break stack to
+         * support the break statement.
+         */
+        std::stack<CommandNode> break_stack;
     };
 }
 

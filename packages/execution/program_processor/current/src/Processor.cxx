@@ -78,6 +78,7 @@ namespace ORO_Execution
                     action = &StateInfo::goactive;
                     sstate = StateMachineStatus::activating;
                 } else {
+                    // wait for start() or requestState()
                     action = 0;
                     sstate = StateMachineStatus::active;
                 }
@@ -128,7 +129,21 @@ namespace ORO_Execution
                         action = 0;
                         sstate = StateMachineStatus::active;
                     }
+                } else {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
                 }
+            }
+
+            void requestState() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+                // if we got here, all pending programs are done, wait for next command.
+                sstate = StateMachineStatus::active;
+                action = 0;
             }
 
             void singleStep() {
@@ -139,6 +154,19 @@ namespace ORO_Execution
                         sstate = StateMachineStatus::error;
                 }
                 action = 0; // unset self.
+            }
+
+            // make from this state a single transition to the next state (or handle() )
+            void singleTransition() {
+                if ( state->executePending(true) ) {   // if all steps done,
+                    state->requestNextState(true);
+                    action = &StateInfo::requestState; // handle remainder in requestState
+                }
+                else {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                }
+                // if pending not done, retry next time.
             }
 
             bool stepping;
@@ -189,7 +217,14 @@ namespace ORO_Execution
                     }
                 }
             }
-            //StateInfo( const StateInfo& ) {}
+            void request() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+
+            }
         };
 
 
@@ -390,15 +425,60 @@ namespace ORO_Execution
     {
         state_iter it =
             states->find( name );
+        if ( it == states->end() )
+            return false;
 
-        if ( it != states->end() && it->second.sstate == StateMachineStatus::paused) {
+        // if paused or active, step single instruction/transition or run one state transition/handle program
+        if ( it->second.sstate == StateMachineStatus::paused ) {
             it->second.action = &StateInfo::singleStep;
+            return true;
+        }
+        if ( it->second.sstate == StateMachineStatus::active ) {
+            it->second.action = &StateInfo::singleTransition;
             return true;
         }
         return false;
     }
 
-	bool Processor::steppedStateMachine(const std::string& name)
+	bool Processor::requestModeStateMachine(const std::string& name)
+    {
+        state_iter it =
+            states->find( name );
+
+        // only go to request mode from an active state machine.
+        if ( it != states->end() && it->second.state->isActive() && it->second.sstate != StateMachineStatus::error )
+            {
+                // go into run status to reach the transition evaluation point
+                it->second.sstate = StateMachineStatus::running;
+                it->second.action = &StateInfo::requestState;
+                it->second.stepping = true;
+                return true;
+            }
+        return false;
+    }
+
+    bool Processor::requestStateStateMachine(const std::string& name, const std::string& state)
+    {
+        state_iter it =
+            states->find( name );
+
+        // only go to request mode from an active (thus not running,paused etc) state machine.
+        if ( it != states->end() && it->second.sstate == StateMachineStatus::active )
+            {
+                // request the SM the transition :
+                StateInterface* target = it->second.state->getState(state);
+                if ( target == 0 || it->second.state->requestState( target ) ==  false )
+                    return false;
+                // go into run status to reach the next transition evaluation point
+                it->second.sstate = StateMachineStatus::running;
+                it->second.action = &StateInfo::requestState;
+                it->second.stepping = true;
+                return true;
+            }
+        return false;
+    }
+
+	bool Processor::steppedModeStateMachine(const std::string& name)
     {
         state_iter it =
             states->find( name );
@@ -410,7 +490,7 @@ namespace ORO_Execution
         return it != states->end();
     }
 
-	bool Processor::continuousStateMachine(const std::string& name)
+	bool Processor::continuousModeStateMachine(const std::string& name)
     {
         state_iter it =
             states->find( name );

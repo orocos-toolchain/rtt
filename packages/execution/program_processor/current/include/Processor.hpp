@@ -172,13 +172,27 @@ namespace ORO_Execution
         /**
          * Put a StateMachine in the default, state-at-a-time, mode.
          */
-        bool steppedStateMachine(const std::string& name);
+        bool steppedModeStateMachine(const std::string& name);
+
+        /**
+         * Put a StateMachine in the request Mode, where the user
+         * request to go to a given state.
+         */
+        bool requestModeStateMachine(const std::string& name);
+
+        /**
+         * Request to go to a specified \a state in StateMachine \a name.
+         * Works only if the StateMachineStatus is 'active'.
+         * @return false if name not found, or StateMachineStatus not active or transition to state is not possible.
+         *         true otherwise, and transition is in progress.
+         */
+        bool requestStateStateMachine( const std::string& name, const std::string& state);
 
         /**
          * Put a StateMachine in the traverse-as-many-states-as-possible mode
          * (until no transition succeeds).
          */
-        bool continuousStateMachine(const std::string& name);
+        bool continuousModeStateMachine(const std::string& name);
 
         ProgramStatus::status getProgramStatus(const std::string& name) const;
         StateMachineStatus::status getStateMachineStatus(const std::string& name) const;

@@ -130,6 +130,17 @@ namespace ORO_Execution
         return current;
     }
 
+    StateInterface* StateMachine::getState(const std::string& name) const
+    {
+        TransitionMap::const_iterator it = stateMap.begin();
+        while ( it != stateMap.end() ) {
+            if ( it->first->getName() == name )
+                return it->first;
+            ++it;
+        }
+        return 0;
+    }
+
     bool StateMachine::requestState( StateInterface * s_n )
     {
         // bad idea, user, don't run this if we're not active...
@@ -143,6 +154,20 @@ namespace ORO_Execution
 
         // to current state
         if ( current == s_n )
+        {
+            changeState( s_n );
+            return true;
+        }
+
+        // to final state
+        if ( finistate == s_n )
+        {
+            changeState( s_n );
+            return true;
+        }
+
+        // to inital state from final state
+        if ( initstate == s_n && current == finistate)
         {
             changeState( s_n );
             return true;

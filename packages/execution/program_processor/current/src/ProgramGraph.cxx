@@ -519,6 +519,7 @@ namespace ORO_Execution
         CommandNode after_while_node = add_vertex( *graph );
         put(vertex_exec, *graph, after_while_node, VertexNode::normal_node );
         branch_stack.push( after_while_node );
+        break_stack.push( after_while_node );
         branch_stack.push( build );
         // add edge from build to next if condition == true
         addConditionEdge( cond, next );
@@ -535,7 +536,23 @@ namespace ORO_Execution
         addConditionEdge( new ConditionTrue(), start_of_while );
         CommandNode after_while_node =  branch_stack.top();
         branch_stack.pop();
+        break_stack.pop();
         moveTo( after_while_node, next, linenumber );
+    }
+
+    bool ProgramGraph::inLoop()
+    {
+        return break_stack.size() != 0;
+    }
+
+    bool ProgramGraph::breakLoop()
+    {
+        if ( !inLoop() )
+            return false;
+
+        // go from build to last nested exit point.
+        addConditionEdge( new ConditionTrue(), break_stack.top() );
+        return true;
     }
 
     void ProgramGraph::prependCommand( CommandInterface* command, int line_nr )
