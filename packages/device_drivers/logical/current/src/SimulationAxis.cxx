@@ -78,11 +78,15 @@ SimulationEncoder::setDrive(double velocity)
 
 
 
+
 SimulationAxis::SimulationAxis(double initial, double min, double max):
   _enable(false),
   _velocity(0),
   _max_drive_value(std::numeric_limits<double>::max()),
-  _encoder(initial, min, max)
+  _encoder(initial, min, max),
+  _is_locked(true),
+  _is_stopped(false),
+  _is_driven(false)
 {}
 
 
@@ -92,60 +96,87 @@ SimulationAxis::~SimulationAxis()
 
 
 
-bool
-SimulationAxis::enable()
-{
-  _enable = true;
-  return true;
-}
-
-
 bool 
-SimulationAxis::disable()
+SimulationAxis::drive( double vel )
 {
-  // stop moving
-  _encoder.setDrive(0);
-
-  // disable
-  _enable = false;
-
-  return true;
-}
-
-
-
-bool 
-SimulationAxis::drive( double v )
-{
-  // drive was not enabled
-  if (!_enable)
-    return false;
-
-  // tell encoders we are moving
-  else{
-    
-    if ( (v < -_max_drive_value) || (v > _max_drive_value) )
-    {
+  if (_is_stopped || _is_driven){
+    if ( (vel < -_max_drive_value) || (vel > _max_drive_value) ){
       std::cerr << "(SimulationAxis)  Maximum drive value exceeded. Axis.disable()" << std::endl;
-        this->disable();
-        return false;
+      stop();
+      lock();
+      return false;
     }
-    
-    _encoder.setDrive(v);
+    else{
+      _encoder.setDrive(vel);
+      _is_stopped = false;
+      _is_driven  = true;
+      return true;
+    }
+  }
+  else
+    return false;
+}
 
+bool
+SimulationAxis::stop()
+{
+  if (_is_driven){
+    _encoder.setDrive(0);
+    _is_driven  = false;
+    _is_stopped = true;
     return true;
   }
+  else if (_is_stopped)
+    return true;
+  else
+    return false;
 }
-
-
-
-HomingInterface* 
-SimulationAxis::getHomingInterface()
+  
+bool
+SimulationAxis::lock()
 {
-  // we don't have a homing interface yet :-)
-  return NULL;
+  if (_is_stopped){
+    _is_locked  = true;
+    _is_stopped = false;
+    return true;
+  }
+  else if (_is_locked)
+    return true;
+  else
+    return false;
+}
+      
+bool
+SimulationAxis::unlock()
+{
+  if (_is_locked){
+    _is_locked  = false;
+    _is_stopped = true;
+    return true;
+  }
+  else if (_is_stopped)
+    return true;
+  else
+    return false;
 }
 
+bool
+SimulationAxis::isLocked() const
+{
+  return _is_locked;
+}
+
+bool
+SimulationAxis::isStopped() const
+{
+  return _is_stopped;
+}
+
+bool
+SimulationAxis::isDriven() const
+{
+  return _is_driven;
+}
 
 
 const SensorInterface<double>* 
@@ -158,4 +189,10 @@ SimulationAxis::getSensor(const std::string& name) const
 }
 
 
-
+std::vector<std::string> 
+SimulationAxis::sensorList() const
+{
+  std::vector<std::string> result;
+  result.push_back("Position");
+  return result;
+}

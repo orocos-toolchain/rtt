@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include "device_drivers/Axis.hpp"
-#include "device_drivers/HomePositionDetector.hpp"
 #include "device_drivers/DigitalInput.hpp"
 #include "device_drivers/DigitalOutput.hpp"
 #include "device_drivers/AnalogDrive.hpp"
@@ -37,90 +36,119 @@ namespace ORO_DeviceDriver
     using namespace ORO_CoreLib;
 
     Axis::Axis( AnalogDrive* a ) 
-        : act( a ), homeswitch(0), brakeswitch(0),
-          hpd(0)
+      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true)
     {
-        lock();
+      stop();
+      lock();
     }
 
     Axis::~Axis()
     {
-        lock();
-        delete act;
-        delete brakeswitch;
-        delete homeswitch;
-        for (SensList::iterator it = sens.begin();
-             it != sens.end();
-             ++it)
-            {
-                delete it->second.sensor;
-                delete it->second.low;
-                delete it->second.high;
-            }
-        delete hpd;
+      stop();
+      lock();
+
+      delete act;
+      delete brakeswitch;
+      for (SensList::iterator it = sens.begin(); it != sens.end(); ++it)
+	delete it->second;
     }
 
-    void Axis::drive( double vel )
+
+    bool Axis::drive( double vel )
     {
-        // All sensors may limit the drive
-#if 0
-        for (SensList::iterator it = sens.begin();
-             it != sens.end();
-             ++it)
-            {
-                if ( it->second.high->isOn() && vel > 0 ||
-                     it->second.low->isOn()  && vel < 0 )
-                    {
-                        vel = 0.0;
-                        break;
-                    }
-            }
-#endif
+      if (_is_stopped || _is_driven){
         act->driveSet( vel );
+	_is_stopped = false;
+	_is_driven  = true;
+	return true;
+      }
+      else
+	return false;
     }
 
-    void Axis::stop()
+
+    bool Axis::stop()
     {
-        act->enableDrive();
+      if (_is_driven){
         act->driveSet( 0 );
+	_is_driven  = false;
+	_is_stopped = true;
+	return true;
+      }
+      else if (_is_stopped)
+	return true;
+      else
+	return false;
+    }
+  
+
+    bool Axis::lock()
+    {
+      if (_is_stopped){
         if ( brakeswitch )
-            brakeswitch->switchOff();
-    }
-
-    bool Axis::isEnabled() const
-    {
-        return act->enableGet()->isOn() && ( brakeswitch ? ! brakeswitch->isOn() : true );
-    }
-
-    void Axis::lock()
-    {
-        act->driveSet( 0 );
-        if (brakeswitch)
             brakeswitch->switchOn();
         act->disableDrive();
+	_is_locked  = true;
+	_is_stopped = false;
+	return true;
+      }
+      else if (_is_locked)
+	return true;
+      else
+	return false;
+    }
+  
+      
+    bool Axis::unlock()
+    {
+      if (_is_locked){
+        if ( brakeswitch )
+            brakeswitch->switchOff();
+        act->enableDrive();
+        act->driveSet( 0 );
+	_is_locked  = false;
+	_is_stopped = true;
+	return true;
+      }
+      else if (_is_stopped)
+	return true;
+      else
+	return false;
     }
 
-    void Axis::sensorSet(const std::string& name,  SensorInterface<double>* _sens,
-                         DigitalInput* lowlimit, DigitalInput* highlimit )
+
+  
+    bool Axis::isLocked() const
+    {
+        return _is_locked;
+    }
+
+
+    bool Axis::isStopped() const
+    {
+        return _is_stopped;
+    }
+
+
+    bool Axis::isDriven() const
+    {
+        return _is_driven;
+    }
+
+
+    void Axis::setSensor(const std::string& name,  SensorInterface<double>* _sens)
     {
         if (sens.count(name) != 0)
             return;
-        sens.insert(make_pair(name, SensorInfo( _sens, lowlimit, highlimit)) );
-
-        // special treatment for "Position" sensor.
-        if ( name == "Position" )
-            {
-                if ( homeswitch == 0 )
-                    homeswitch =  new DigitalInput( hpd = new HomePositionDetector( _sens ), 0 );
-            }
+        sens.insert(make_pair(name, _sens) );
     }
 
-    SensorInterface<double>* Axis::sensorGet(const std::string& name) const
+    const SensorInterface<double>* Axis::getSensor(const std::string& name) const
     {
         if (sens.count(name) == 0)
             return 0;
         else
-            return sens.find(name)->second.sensor;
+            return sens.find(name)->second;
     }
 
     std::vector<std::string> Axis::sensorList() const
@@ -131,21 +159,23 @@ namespace ORO_DeviceDriver
         return result;
     }
 
-    AnalogDrive* Axis::driveGet() const
+    AnalogDrive* Axis::getDrive() const
     {
         return act;
     }
 
-    void Axis::brakeSet( DigitalOutput* brk )
-        { brakeswitch = brk; }
+    void Axis::setDrive(AnalogDrive* a)
+    {
+      delete act;
+      act = a;
+    }
 
-    DigitalOutput* Axis::brakeGet() const
+    void Axis::setBrake( DigitalOutput* brk )
+    {
+      delete brakeswitch;
+      brakeswitch = brk;
+    }
+
+    DigitalOutput* Axis::getBrake() const
         { return brakeswitch; }
-
-    void Axis::homeswitchSet( DigitalInput* swtch )
-        { delete homeswitch; homeswitch = swtch; }
-
-    const DigitalInput* Axis::homeswitchGet() const
-        { return homeswitch; }
-
 };

@@ -55,12 +55,15 @@ public:
   SimulationAxis(double initial=0, double min=-10, double max=10);
   virtual ~SimulationAxis();
 
-  virtual bool enable();
-  virtual bool disable();
-
+  virtual bool stop();
+  virtual bool lock();
+  virtual bool unlock();
   virtual bool drive( double v );
-  virtual ORO_DeviceInterface::HomingInterface* getHomingInterface();
+  virtual bool isLocked() const;
+  virtual bool isStopped() const;
+  virtual bool isDriven() const;
   virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const;
+  virtual std::vector<std::string> sensorList() const;
 
   void   setMaxDriveValue( double v_max ) { _max_drive_value = v_max; }
 private:
@@ -68,6 +71,7 @@ private:
   double      _velocity;
   double      _max_drive_value;
   SimulationEncoder  _encoder;
+  bool _is_locked, _is_stopped, _is_driven;
   
   
 }; // class

@@ -28,8 +28,7 @@
 #ifndef DEVICEDRIVERS_AXIS_HPP
 #define DEVICEDRIVERS_AXIS_HPP
 
-#include <device_interface/EncoderInterface.hpp>
-#include <device_interface/SensorInterface.hpp>
+#include <device_interface/AxisInterface.hpp>
 
 #include <string>
 #include <map>
@@ -37,7 +36,6 @@
 
 namespace ORO_DeviceDriver
 {
-    class HomePositionDetector;
     class AnalogDrive;
     class DigitalInput;
     class DigitalOutput;
@@ -69,58 +67,41 @@ namespace ORO_DeviceDriver
 
         /**
          * @brief Disable the Drive and destruct the Axis object.
-         * @post Drive, Encoder and DigitalInput objects are deleted.
+         * @post Drive, Sensors and DigitalInput objects are deleted.
          */
         virtual ~Axis();
 
-        /**
-         * @brief Stop the Axis (electronically), brakes disabled,
-         * drive enabled and set to zero.
-         */
-        void stop();
-
-        /**
-         * @brief Lock the Axis (mechanically), brakes enabled, drive
-         * disabled.
-         */
-        void lock();
-
-        /**
-         * @brief Return true if the drive is enabled, and brakes are off.
-         */
-        bool isEnabled() const;
-
-        /**
-         * @brief Drive a certain 'physical unit' (eg velocity, torque,...).
-         */
-        void drive( double v );
+        virtual bool stop();
+        virtual bool lock();
+        virtual bool unlock();
+        virtual bool drive( double v );
+        virtual bool isLocked() const;
+        virtual bool isStopped() const;
+        virtual bool isDriven() const;
 
         /**
          * @brief Add a brake to the Axis. It is aggregated.
          */
-        void brakeSet( DigitalOutput* brk );
+        void setBrake( DigitalOutput* brk );
 
         /**
          * @brief Get the brake of the Axis,
          * returns the inverse drive status (drive on -> brake off) if none present.
          */
-        DigitalOutput* brakeGet() const;
+        DigitalOutput* getBrake() const;
 
         /**
-         * @brief Set the Homing Switch of the Axis, it is aggregated.
+         * @brief Sets the drive used
          */
-        void homeswitchSet( DigitalInput* swtch );
+        void setDrive( AnalogDrive* a);
 
         /**
-         * @brief Retrieve the homing switch of this Axis, returns a
-         * HomePositionDetector based DigitalInput if none present,
-         * but a "Position" Sensor is present. Returns a null if not
-         * applicable.
+         * @brief Returns the drive used
          */
-        const DigitalInput* homeswitchGet() const;
+        AnalogDrive* getDrive() const;
 
-        /**
-         */
+        virtual const SensorInterface<double>* getSensor(const std::string& name) const;
+
         /** 
          * @brief Add a sensor to the Axis (position, velocity, torque,...). The sensor
          * is aggregated.
@@ -130,48 +111,27 @@ namespace ORO_DeviceDriver
          * @param lowlim The LowLimit switch, disabling negative drive commands if \a lowlim->isOn()
          * @param highlim The HighLimit switch, disabling positive drive commands if \a highlim->isOn()
          */
-        void sensorSet(const std::string& name, SensorInterface<double>* _sens, DigitalInput* lowlim, DigitalInput* highlim );
+        void setSensor(const std::string& name, SensorInterface<double>* _sens);
 
-        /**
-         * @brief Retrieve a sensor from the Axis.
-         */
-        SensorInterface<double>* sensorGet(const std::string& name) const;
+        virtual std::vector<std::string> sensorList() const;
 
-        std::vector<std::string> sensorList() const;
-
-        /**
-         * @brief Returns the drive used
-         */
-        AnalogDrive* driveGet() const;
 
     private:
-        struct SensorInfo
-        {
-            SensorInfo( SensorInterface<double>* _sens, DigitalInput* lowlim, DigitalInput* highlim )
-                : sensor(_sens), low(lowlim), high(highlim)
-            {}
-            SensorInterface<double>* sensor;
-            DigitalInput* low;
-            DigitalInput* high;
-        };
-
         /**
          * Our actuator (motor)
          */
         AnalogDrive* act;
 
-        DigitalInput* homeswitch;
-
         DigitalOutput* brakeswitch;
 
-        HomePositionDetector* hpd;
-
-        typedef std::map< std::string,SensorInfo > SensList;
+        typedef std::map< std::string,SensorInterface<double>* > SensList;
 
         /**
          * All sensors (position, torque, ... )
          */
         SensList sens;
+
+        bool _is_locked, _is_stopped, _is_driven;
     };
 
 }
