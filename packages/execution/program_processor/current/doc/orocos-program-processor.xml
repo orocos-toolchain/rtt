@@ -501,10 +501,10 @@
 	Another thread instructs the processor to execute all queued commands
 	(and programs) synchronically calling the
 	<programlisting>
-  proc->doStep();
+  proc->step();
 	</programlisting>
-	function. This must happend periodically to empty the command
-	queue and advance the program execution.
+	function. The easiest way to do this is to create a Task which
+	runs the Processor.
       </para>
     </sect2>
     <sect2>

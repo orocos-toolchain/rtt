@@ -129,7 +129,7 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect2[*])"  
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
@@ -143,9 +143,9 @@
 
   <chapter>
     <title>The Motion Control Components</title>
-    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/common/current/doc/orocos-motioncontrol.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/common/current/doc/orocos-motioncontrol.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

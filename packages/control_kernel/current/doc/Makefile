@@ -35,6 +35,10 @@ pngimages: $(PNGIMGS)
 %.html:%.xml
 	xsltproc -o $@ /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $<
 
+#	saxoncat -X -o $@ $< /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl
+
+#	xsltproc -o $@ /usr/share/xml/docbook/stylesheet/nwalsh/html/docbook.xsl $<
+
 %.fo:%.xml
 	xsltproc -o $@ orocos.xsl $<
 
