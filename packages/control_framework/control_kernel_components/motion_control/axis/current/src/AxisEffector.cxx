@@ -151,7 +151,7 @@ namespace ORO_ControlKernel {
     {
         if ( axes.count(name) != 1 )
             return false;
-        return axes[name].first->lock();
+        return axes[name].first->stop() && axes[name].first->lock();
     }
 
     bool AxisEffector::switchOn( const std::string& name )
