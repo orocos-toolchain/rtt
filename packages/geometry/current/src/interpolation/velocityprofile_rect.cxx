@@ -101,11 +101,23 @@ double VelocityProfile_Rectangular::Duration() const {
 }
 
 double VelocityProfile_Rectangular::Pos(double time) const {
-	return v*time+p;
+    if (time < 0) {
+        return p;
+    } else if (time>d) {
+        return v*d+p;
+    } else {
+        return v*time+p;
+    }
 }
 
 double VelocityProfile_Rectangular::Vel(double time) const {
-	return v;
+    if (time < 0) {
+        return 0;
+    } else if (time>d) {
+        return 0;
+    } else {
+        return v;
+    }
 }
 
 double VelocityProfile_Rectangular::Acc(double time) const {
