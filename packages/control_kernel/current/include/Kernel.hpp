@@ -506,7 +506,7 @@ namespace ORO_ControlKernel
         bool unloadController(DefaultController* c) {
             if ( isRunning() )
                 return false;
-            vector<DefaultController*>::iterator itl = find( controllers.begin(), controllers.end(), c);
+            std::vector<DefaultController*>::iterator itl = std::find( controllers.begin(), controllers.end(), c);
             if ( itl != controllers.end() )
                 {
                     controllers.erase( c );
@@ -521,7 +521,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoaded(DefaultController* c) {
-            return ( find(controllers.begin(), controllers.end(), c) != controllers.end() );
+            return ( std::find(controllers.begin(), controllers.end(), c) != controllers.end() );
         }
 
         bool selectController(DefaultController* c) { 
@@ -609,7 +609,7 @@ namespace ORO_ControlKernel
         bool unloadGenerator(DefaultGenerator* c) {
             if ( isRunning() )
                 return false;
-            vector<DefaultGenerator*>::iterator itl = find( generators.begin(), generators.end(), c);
+            std::vector<DefaultGenerator*>::iterator itl = std::find( generators.begin(), generators.end(), c);
             if ( itl != generators.end() )
                 {
                     generators.erase( c );
@@ -624,7 +624,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoaded(DefaultGenerator* c) {
-            return ( find(generators.begin(), generators.end(), c) != generators.end() );
+            return ( std::find(generators.begin(), generators.end(), c) != generators.end() );
         }
 
         void selectGenerator(DefaultGenerator* c) { 
@@ -709,7 +709,7 @@ namespace ORO_ControlKernel
         bool unloadEstimator(DefaultEstimator* c) {
             if ( isRunning() )
                 return false;
-            vector<DefaultEstimator*>::iterator itl = find( estimators.begin(), estimators.end(), c);
+            std::vector<DefaultEstimator*>::iterator itl = std::find( estimators.begin(), estimators.end(), c);
             if ( itl != estimators.end() )
                 {
                     estimators.erase( c );
@@ -722,7 +722,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoaded(DefaultEstimator* c) {
-            return ( find(estimators.begin(), estimators.end(), c) != estimators.end() );
+            return ( std::find(estimators.begin(), estimators.end(), c) != estimators.end() );
         }
 
         void selectEstimator(DefaultEstimator* c) { 
@@ -805,7 +805,7 @@ namespace ORO_ControlKernel
         bool unloadSensor(DefaultSensor* c) {
             if ( isRunning() )
                 return false;
-            vector<DefaultSensor*>::iterator itl = find( sensors.begin(), sensors.end(), c);
+            std::vector<DefaultSensor*>::iterator itl = std::find( sensors.begin(), sensors.end(), c);
             if ( itl != sensors.end() )
                 {
                     sensors.erase( c );
@@ -817,7 +817,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoaded(DefaultSensor* c) {
-            return ( find(sensors.begin(), sensors.end(), c) != sensors.end() );
+            return ( std::find(sensors.begin(), sensors.end(), c) != sensors.end() );
         }
 
         void selectSensor(DefaultSensor* c) { 
@@ -901,7 +901,7 @@ namespace ORO_ControlKernel
         bool unloadEffector(DefaultEffector* c) {
             if ( isRunning() )
                 return false;
-            vector<DefaultEffector*>::iterator itl = find( effectors.begin(), effectors.end(), c);
+            std::vector<DefaultEffector*>::iterator itl = std::find( effectors.begin(), effectors.end(), c);
             if ( itl != effectors.end() )
                 {
                     effectors.erase( c ); 
@@ -913,7 +913,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoaded(DefaultEffector* c) {
-            return ( find(effectors.begin(), effectors.end(), c) != effectors.end() );
+            return ( std::find(effectors.begin(), effectors.end(), c) != effectors.end() );
         }
 
         bool selectEffector(DefaultEffector* c) { 
@@ -989,11 +989,11 @@ namespace ORO_ControlKernel
 
         bool startup;
 
-        vector<DefaultController*> controllers;
-        vector<DefaultGenerator*>  generators;
-        vector<DefaultEffector*>   effectors;
-        vector<DefaultEstimator*>  estimators;
-        vector<DefaultSensor*>     sensors;
+        std::vector<DefaultController*> controllers;
+        std::vector<DefaultGenerator*>  generators;
+        std::vector<DefaultEffector*>   effectors;
+        std::vector<DefaultEstimator*>  estimators;
+        std::vector<DefaultSensor*>     sensors;
     };
 
     template <class C, class S, class I, class M, class O, class E >

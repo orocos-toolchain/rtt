@@ -26,6 +26,7 @@
 #include "EventCompleterInterface.hpp"
 #include "CallbackInterface.hpp"
 
+#include <algorithm>
 #include <vector>
 
 namespace ORO_CoreLib

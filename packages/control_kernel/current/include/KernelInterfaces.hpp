@@ -6,10 +6,10 @@
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <corelib/PropertyComposition.hpp>
+#include <corelib/Event.hpp>
 #include "ModuleControlInterface.hpp"
 #include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
-
 
 namespace ORO_ControlKernel
 {
@@ -278,11 +278,11 @@ namespace ORO_ControlKernel
             running = false;
         }
     
-        EventRegistrationInterface* eventGet(const std::string& name)
+        HandlerRegistrationInterface* eventGet(const std::string& name)
         {
-            if ( name == string("kernelStarted") )
+            if ( name == std::string("kernelStarted") )
                 return &kernelStarted;
-            if ( name == string("kernelStopped") )
+            if ( name == std::string("kernelStopped") )
                 return &kernelStopped;
             return &nullEvent;
         }
