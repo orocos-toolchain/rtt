@@ -703,7 +703,7 @@
   using namespace ORO_CoreLib;
 
   // ... start the processor of a_task :
-  TaskNonPreemptible periodicTask(0.001, a_processor);
+  TaskNonPreemptible periodicTask(0.001, &a_processor);
   periodicTask.start(); </programlisting></para>
       <para>
 	Which will start the processor of ATask with a timer frequency
@@ -819,9 +819,9 @@
 
   TaskContext* a_task = ...
   Parser parser;
-  std::istream input("ProgramBar.ops");
+  std::ifstream input("ProgramBar.ops");
 
-  std::vector&lt;ProgramInterface*&gt; result =
+  std::vector&lt;ProgramGraph*&gt; result =
       parser.parseProgram( input, a_task );
 
   // load a program
@@ -870,9 +870,9 @@
 
   TaskContext* a_task = ...
   Parser parser;
-  std::istream input("StateContextBar.osd");
+  std::ifstream input("StateContextBar.osd");
 
-  std::vector&lt;StateContext*&gt; result =
+  std::vector&lt;ParsedStateContext*&gt; result =
       parser.parseStateContext( input, a_task );
 
   // load a state context
