@@ -182,6 +182,9 @@ namespace ORO_ControlKernel
          * @{
          */
 
+        /**
+         * @brief Change the time integrative constant of a channel.
+         */
         void changeTi(int channel, double newTi )
         {
             if (channel <0 || channel >= num_chans)
@@ -191,6 +194,9 @@ namespace ORO_ControlKernel
             recalculate( channel, _K.get()[channel] );
         }
 
+        /**
+         * @brief Change the time derivative constant of a channel.
+         */
         void changeTd(int channel, double newTd )
         {
             if (channel <0 || channel >= num_chans)
@@ -200,12 +206,35 @@ namespace ORO_ControlKernel
             recalculate( channel, _K.get()[channel] );
         }
 
+        /**
+         * @brief Change the proportional gain of a channel.
+         */
         void changeK(int channel, double newK )
         {
             if (channel <0 || channel >= num_chans)
                 return;
         
             recalculate( channel, newK );
+        }
+
+        /**
+         * @brief Reset the controller, ie, set uI of all channels to zero.
+         */
+        void resetController()
+        {
+            for (int i=0; i < num_chans; ++i)
+                resetChannel(i);
+        }
+
+        /**
+         * @brief Reset a channel, ie, set uI of this channel to zero.
+         */
+        void resetChannel(int channel)
+        {
+            if (channel <0 || channel >= num_chans)
+                return;
+            uI[channel] = 0;
+            uD[channel] = 0;
         }
         /**
          * @}
@@ -375,6 +404,17 @@ namespace ORO_ControlKernel
                                "Change the Integration Ti constant.",
                                "Channel","The Channel number (starting from 0).",
                                "Ti","The new Integration time constant (Ti)."
+                               ) ); 
+            ret->add( "resetController",
+                      command( &PID_Controller::resetController,
+                               &PID_Controller::true_gen,
+                               "Reset the whole controller (ie all integration uI and derivative uD = 0)."
+                               ) ); 
+            ret->add( "resetChannel",
+                      command( &PID_Controller::resetChannel,
+                               &PID_Controller::true_gen,
+                               "Reset the uI (integration) and uD (derivative) of a channel to zero.",
+                               "Channel","The Channel number (starting from 0)."
                                ) ); 
             return ret;
         }
