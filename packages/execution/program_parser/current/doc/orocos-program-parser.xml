@@ -934,7 +934,7 @@ start:  cycle = cycle + 1
 	implement two virtual methods: 
 	<programlisting>
 virtual CommandFactoryInterface* createCommandFactory();
-virtual DataSourceFactory* createDataSourceFactory();
+virtual DataSourceFactoryInterface* createDataSourceFactory();
 	</programlisting>
 	These will each be called once during the startup of the
 	kernel, and they should return a CommandFactory and a
@@ -955,15 +955,17 @@ class Robot
 {
 public:
   void moveToHomePosition();
-  bool isAtHomePosition();
+  // A Termination condition must be const :
+  bool isAtHomePosition() const;
   
   void moveTo( const Vector&amp; position );
-  bool isAtPosition( const Vector&amp; position );
+  bool isAtPosition( const Vector&amp; position ) const;
   
-  Vector position();
-  double movingSpeed();
+  // A DataSource must be const :
+  Vector position() const;
+  double movingSpeed() const;
   
-  double distanceTo( const Vector&amp; position );
+  double distanceTo( const Vector&amp; position ) const;
 };
 	</programlisting>
 	Then the code needed to export this API to the &orocos;
@@ -974,7 +976,7 @@ public:
 
 using namespace ORO_CoreLib;
 
-DataSourceFactory* Robot::createDataSourceFactory()
+DataSourceFactoryInterface* Robot::createDataSourceFactory()
 {
   TemplateDataSourceFactory&lt;Robot&gt;* ret =
     newDataSourceFactory( this );
@@ -1025,7 +1027,8 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	function data().
       </para>
       <para>
-	The data function requires a pointer to a member function
+	The data function requires a pointer to a <emphasis>const</emphasis>
+	member function
 	having a number of arguments, and returning the appropriate
 	data.  The function's signature will automatically define the
 	signature in the exported API.  After the member function
@@ -1047,7 +1050,8 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	The command function requires two member pointers instead of
 	one.  The first one is a function that does the actual
 	work that the command will invoke, and the second is a bool
-	function having the same arguments as the first one or no
+	<emphasis>const </emphasis>function having the
+	same arguments as the first one, the first argument or no
 	arguments at all.
 	This last function will be called to see
 	whether the associated command is finished.  The rest of the
