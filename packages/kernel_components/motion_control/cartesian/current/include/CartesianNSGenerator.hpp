@@ -240,7 +240,7 @@ namespace ORO_ControlKernel
             if ( this->kernel()->isRunning() && trajectoryDone() )
                 {
                     Frame pos = targetPosition();
-                    cout <<"MoveTo : from "<< pos <<" to "<<endl<< new_pos <<endl;
+                    //cout <<"MoveTo : from "<< pos <<" to "<<endl<< new_pos <<endl;
                     delete cur_tr;
                     cur_tr = new Trajectory_Segment( new Path_Line( pos, new_pos,
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
@@ -312,7 +312,7 @@ namespace ORO_ControlKernel
                         time = max_vel.get() / max_acc.get();
                     Frame new_pos = pos;
                     new_pos.Integrate(end_twist, 1./time);
-                    cout <<"Move : with twist "<< end_twist <<endl;
+                    //cout <<"Move : with twist "<< end_twist <<endl;
                     cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, new_pos,
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
                                                      interpol->Clone(), time );
@@ -347,7 +347,7 @@ namespace ORO_ControlKernel
                              Equal( mp_base_frame,
                                     task_f_DObj->Get() * traj_DObj->Get()->Pos(0) * tool_mp_frame.Inverse(),0.01))))
                         {
-                            cout << "Load Trajectory"<<endl;
+                            //cout << "Load Trajectory"<<endl;
                             delete cur_tr;
                             // get a clone of the new trajectory (so we become the owner).
                             cur_tr = traj_DObj->Get()->Clone();
@@ -357,10 +357,10 @@ namespace ORO_ControlKernel
                             _time = 0;
                             return true;
                         }
-                    else
-                        cout << "Trajectory not loaded"<<endl;
+//                     else
+//                         cout << "Trajectory not loaded"<<endl;
                 }
-            cout << "exit loadTrajectory()"<<endl;
+            //cout << "exit loadTrajectory()"<<endl;
             return false;
         }
 
