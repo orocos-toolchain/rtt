@@ -63,15 +63,15 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
 
   this->checkSensorAndDSP();
 
+  rtos_printf("(WrenchSensorJR3) Task started with period %f\n",samplePeriod);
   this->start();
-  rtos_printf("(WrenchSensorJR3)  task started\n");
 }
   
 
 JR3WrenchSensor::~JR3WrenchSensor( )
 {
   this->stop();
-  rtos_printf("(WrenchSensorJR3)  task stopped\n");
+  rtos_printf("(WrenchSensorJR3) Task stopped\n");
 }
 
 
@@ -89,7 +89,7 @@ void JR3WrenchSensor::checkSensorAndDSP()
 
 void JR3WrenchSensor::offsetSet(const ForceArray& newOffset)
 {
-  rtos_printf("(WrenchSensorJR3)  OffsetSet\n");
+  rtos_printf("(WrenchSensorJR3) OffsetSet\n");
   // Copy
   _currentOffset = newOffset;
   // And adjust
@@ -107,7 +107,7 @@ void JR3WrenchSensor::offsetSet(const ForceArray& newOffset)
 
 void JR3WrenchSensor::offsetAdd(const ForceArray& extraOffset)
 {
-  rtos_printf("(WrenchSensorJR3)  OffsettAdd\n");
+  rtos_printf("(WrenchSensorJR3) OffsettAdd\n");
   // First calculate the new offset (see above)
   _currentOffset.Fx += extraOffset.Fx;
   _currentOffset.Fy -= extraOffset.Fy;
@@ -276,7 +276,7 @@ void JR3WrenchSensor::chooseFilter(float period)
         _filterToReadFrom = Filter6;
     }
     
-    rt_std::cout << "(WrenchSensorJR3)  JR3WrenchSensor chooseFilter: " << _filterToReadFrom << rt_std::endl;
+    rtos_printf("(WrenchSensorJR3) JR3WrenchSensor chooseFilter: %i\n",_filterToReadFrom);
 };
 
 }; //namespace ORO_DeviceDriver
