@@ -52,7 +52,7 @@
  unsigned int cp_trns_int;
 
 
-//#define LVD_DEBUG
+#define LVD_DEBUG
 
 #ifdef LVD_DEBUG
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
@@ -219,6 +219,7 @@ Cp_EXPORT _U08 * Cp_PREFIX CpCoreBufferData(_U08 ubChannelV, _U08 ubBufferV)
 #if   CP_FULL_CAN == 1
 Cp_EXPORT _U08 Cp_PREFIX   CpCoreBufferSend(_U08 ubChannelV, _U08 ubBufferV)
 {
+   DEBUG("CpCorBufferSend\n");
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
    if( ubChannelV >= CP_CHANNEL_MAX) return (CpErr_CHANNEL);
@@ -237,6 +238,7 @@ Cp_EXPORT _U08 Cp_PREFIX   CpCoreBufferSend(_U08 ubChannelV, _U08 ubBufferV)
 _U08 Cp_PREFIX CpCoreBufferTransmit(_U08 ubChannelV, 
                                     CpStruct_CAN * pCanMsgV)
 {
+   DEBUG("CpCorBufferTransmit\n");
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
    if( (ubChannelV + 1) > CP_CHANNEL_MAX) return (CpErr_CHANNEL);
@@ -415,8 +417,9 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 	write_reg_bcan(PCAN_ACR3,b);
 
 	/* Set bus timing parameters */
-	write_reg_bcan(PCAN_BTR0,BTR_1MB & 0xFF);
-	write_reg_bcan(PCAN_BTR1,BTR_1MB >> 8);
+    // WAS : BTR_1MB
+	write_reg_bcan(PCAN_BTR0,BTR_500KB & 0xFF);
+	write_reg_bcan(PCAN_BTR1,BTR_500KB >> 8);
 
 	/* Set output control register */
 	b = (BYTE_t) OCR_PUSHPULL;
@@ -430,6 +433,8 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 
 	/* Command: enable receive interrupt, error warning limit, enable transmit interrupt */
 	cr = PCAN_IER_RIE|PCAN_IER_EIE|PCAN_IER_TIE;
+    /* Additional interrupts enabled. for testing */
+    cr |= PCAN_IER_BEIE|PCAN_IER_ALIE|PCAN_IER_EPIE|PCAN_IER_WUIE|PCAN_IER_DOIE;
 	write_reg_bcan(PCAN_IER,cr);
 
 	CpVar_CAN_Status[ubChannelV] = CP_MODE_START;
@@ -502,7 +507,26 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 			  cr = 0;
 			  do { write_reg_bcan(PCAN_MODR,cr); } while ( (read_reg_bcan(PCAN_MODR) & PCAN_MODR_RM) == PCAN_MODR_RM );
 			}
+            
 		}
+    else if ((Ir & PCAN_IR_BEI) == PCAN_IR_BEI) {
+        // Bus-error interrupt
+        DEBUG("Bus-error interrupt\n");
+    }
+    else if ((Ir & PCAN_IR_ALI) == PCAN_IR_ALI) {
+        DEBUG("Arbitration lost interrupt\n");
+        
+    }
+    else if ((Ir & PCAN_IR_EPI) == PCAN_IR_EPI) {
+        DEBUG("Error-passive interrupt\n");
+    }
+    else if ((Ir & PCAN_IR_WUI) == PCAN_IR_WUI) {
+        DEBUG("Wake-up interrupt\n");
+    }
+    else if ((Ir & PCAN_IR_DOI) == PCAN_IR_DOI) {
+        DEBUG("Data-overrun interrupt\n");
+    }
+
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 	rt_enable_irq(CAN_IRQ_LINE);
 #endif
@@ -806,6 +830,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
        // enable interrupts
        rt_global_restore_flags(lflags);
+       DEBUG("Last Msg not sent !\n");
 #endif
        return (CpErr_OK);// we will handle it in the interrupt handler...
    }
@@ -823,6 +848,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
        // enable interrupts
        rt_global_restore_flags(lflags);
 #endif
+       DEBUG("Fifo CpFifoPop error !\n");
        return (ubErrCodeT);
    }
 
@@ -859,6 +885,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 	 for (i=0; i < len;i++) Data[i] = CpMacGetData(&canMsgT,i);
 
   	 write_data_bcan(cm,Data_ptr,len);
+     DEBUG("Extended message Transmitted !\n");
    }
    else
    {
@@ -887,6 +914,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 	 for (i=0; i < len;i++) Data[i] = CpMacGetData(&canMsgT,i);
 
   	 write_data_bcan(cm,Data_ptr,len);
+     DEBUG("Standard message Transmitted !\n");
    }
    
    /* Issue transmit request */
