@@ -9,7 +9,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-motioncontrol.html
 
-docpdf: pngimages orocos-motioncontrol.pdf
+docpdf: epsimages orocos-motioncontrol.pdf
 
 docps: epsimages orocos-motioncontrol.ps
 

@@ -78,7 +78,11 @@ namespace ORO_ControlKernel
         }
     };
  
-    struct CartesianSetPoints { Frame mp_base_frame; Frame task_frame; Double6D q6; };
+    struct CartesianSetPoints {
+        Frame mp_base_frame;
+        //Frame task_frame;
+        //Double6D q6;
+    };
 
     /**
      * Specifying an empty ServedTypes allows you to be compatible
@@ -110,8 +114,9 @@ namespace ORO_ControlKernel
          * Constructor.
          */
         CartesianGenerator() 
-            :end_pos("End Position","One of many variables which can be reported."),
-             timestamp(0), _time(0), cur_tr(0), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity())
+            : Base("CartesianGenerator"),
+              end_pos("End Position","One of many variables which can be reported."),
+              timestamp(0), _time(0), cur_tr(0), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity())
         {}
 
         /**
@@ -160,7 +165,7 @@ namespace ORO_ControlKernel
         {
             if ( cur_tr )
                 {
-                    result.task_frame = task_frame;
+                    //result.task_frame = task_frame;
                     end_pos = result.mp_base_frame = task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse();
                 }
         }
@@ -240,6 +245,8 @@ namespace ORO_ControlKernel
             return cur_tr != 0;
         }
 
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
         DataSourceFactory* createDataSourceFactory()
         {
             TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
@@ -272,6 +279,7 @@ namespace ORO_ControlKernel
                                "Load a new trajectory." ) );
             return ret;
         }
+#endif
     protected:
         Property<Frame> end_pos;
         InputType    input;
@@ -316,7 +324,8 @@ namespace ORO_ControlKernel
         typedef typename Base::ModelType ModelType;
             
         CartesianEstimator() 
-            : kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0)
+            : Base("CartesianEstimator"),
+              kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0)
         {
             kine = KinematicsFactory::create( kineName );
             if (kine)
@@ -403,7 +412,10 @@ namespace ORO_ControlKernel
     };
 
     // Send velocities to the drives :
-    struct CartesianDriveOutputs { Twist mp_base_twist; Double6D q_dot; };
+    struct CartesianDriveOutputs {
+        //Twist mp_base_twist;
+        Double6D q_dot;
+    };
 
 /**
  * Specifying an empty ServedTypes allows you to be compatible
@@ -430,7 +442,7 @@ struct CartNSDriveOutputs
         typedef typename Base::OutputType OutputType;
             
         CartesianController(KinematicsInterface* k) 
-            : gain("Gain","The error gain.",0),
+            :  Base("CartesianController"),gain("Gain","The error gain.",0),
               end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints","")
         {}
             
@@ -530,7 +542,7 @@ struct CartNSDriveOutputs
         typedef typename Base::OutputType OutputType;
             
         CartesianEffector(SimulatorInterface* _sim) 
-            : endTwist("Twist","The End Effector twist"), sim(_sim)
+            :  Base("CartesianEffector"),endTwist("Twist","The End Effector twist"), sim(_sim)
         {}
 
         /**
@@ -593,7 +605,9 @@ struct CartNSDriveOutputs
         typedef typename Base::InputType InputType;
             
         CartesianSensor(SimulatorInterface* _sim = 0) 
-            :q6("JointPositions",""), sim(_sim)
+            : Base("CartesianSensor"),
+              sensorError(Event::SYNASYN, "CartesianSensor::SensorError"),
+              q6("JointPositions",""), sim(_sim)
         {}
             
         virtual bool componentStartup()
@@ -637,6 +651,7 @@ struct CartNSDriveOutputs
 
             
     protected:
+        Event sensorError;
         Property<Double6D> q6;
         InputType input;
         SimulatorInterface* sim;

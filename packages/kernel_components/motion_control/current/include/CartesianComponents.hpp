@@ -438,8 +438,9 @@ namespace ORO_ControlKernel
              */
             typedef typename Base::InputType InputType;
             
-            CartesianSensor(SimulatorInterface* _sim = 0) 
-                 :q6("JointPositions",""), sim(_sim)
+            CartesianSensor(SimulatorInterface* _sim = 0)
+                 :sensorError(Event::SYNASYN, "CartesianSensor::SensorError"),
+                  q6("JointPositions",""), sim(_sim)
             {}
             
             /**
@@ -475,7 +476,8 @@ namespace ORO_ControlKernel
             }
 
             
-        protected:
+    protected:
+        Event sensorError;
             Property<Double6D> q6;
             InputType input;
             SimulatorInterface* sim;
