@@ -207,7 +207,7 @@ namespace ORO_OS
         double s = periods;
         period = long(s) + long( (s - long(s) )* 1000*1000*1000);
 
-        pthread_create( &thread, 0, ComponentThread, this);
+        pthread_create( &thread, 0, periodicThread, this);
         rt_sem_wait(confDone);
     }
     
