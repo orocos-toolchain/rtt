@@ -2887,12 +2887,12 @@ private:
   do programs.MyProgram.stop()	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateMachines from within a program or another 
-	  State Context :
-	<programlisting>  do states.SecondContext.activate()
-  do states.SecondContext.start()
+	  State Machine :
+	<programlisting>  do states.SecondMachine.activate()
+  do states.SecondMachine.start()
   //...
-  do states.SecondContext.stop()
-  do states.SecondContext.deactivate()	</programlisting>
+  do states.SecondMachine.stop()
+  do states.SecondMachine.deactivate()	</programlisting>
 	  Consult the Program Parser and Task Infrastructure manuals
 	  for all details.
 	</para>
@@ -3143,8 +3143,8 @@ CommandFactoryInterface* createCommandFactory()
 	    documentation for a detailed list of commands
 	    which a Kernel adds to its interface,
 	    but here are a few examples :</para>
-	  <programlisting>  do Kernel.selectGenerator( "CartesianGenerator" )
-  do Kernel.selectController( "CartesianController" ) </programlisting>
+	  <programlisting>  do Kernel.selectComponent( "CartesianGenerator" )
+  do Kernel.selectComponent( "CartesianController" ) </programlisting>
 	</sect4>
       </sect3>
       <sect3>
@@ -3156,7 +3156,7 @@ CommandFactoryInterface* createCommandFactory()
 	</para>
 	<example>
 	  <title>"state.osd" : StateMachine with name "MyState"</title>
-	  <programlisting>StateMachine MachineContext
+	  <programlisting>StateMachine Machine
 {
     /**
      * This state is entered when the StateMachine is loaded.
@@ -3173,8 +3173,8 @@ CommandFactoryInterface* createCommandFactory()
      */
     state startup_state {
 	entry {
-	    do Kernel.selectSensor("HWSensor")
-	    do Kernel.selectGenerator("MoveToGenerator")
+	    do Kernel.selectComponent("HWSensor")
+	    do Kernel.selectComponent("MoveToGenerator")
 	    }
 	transitions {
 	    select stop_state
@@ -3182,13 +3182,13 @@ CommandFactoryInterface* createCommandFactory()
     }
 
     /**
-     * This state is only reached when the State Context
+     * This state is only reached when the State Machine
      * is stopped.
      */
     final state fini_state {
 	entry {
-	    do Kernel.selectSensor("Default")
-	    do Kernel.selectGenerator("Default")
+	    do Kernel.selectComponent("Default")
+	    do Kernel.selectComponent("Default")
 	    }
     }
 
@@ -3199,8 +3199,8 @@ CommandFactoryInterface* createCommandFactory()
     state stop_state {
 	entry {
 	    // The Default Effector and Controller do nothing
-	    do Kernel.selectController("Default")
-	    do Kernel.selectEffector("Default")
+	    do Kernel.selectComponent("Default")
+	    do Kernel.selectComponent("Default")
 	transitions {
 	    if HMI.start_pushed() then
 		 select run_state
@@ -3217,8 +3217,8 @@ CommandFactoryInterface* createCommandFactory()
 	    // make sure we are not moving
 	    do MoveToGenerator.safeStop()
 	    // Select components controlling the machine
-	    do Kernel.selectController("PID")
-	    do Kernel.selectEffector("HWEffector")
+	    do Kernel.selectComponent("PID")
+	    do Kernel.selectComponent("HWEffector")
 	    }
 
 	transitions {
@@ -3249,7 +3249,7 @@ CommandFactoryInterface* createCommandFactory()
     }
 }
 
-RootContext MainContext mainContext  </programlisting>
+RootMachine MainMachine mainMachine  </programlisting>
 	</example>
 	<example>
 	  <title>"program.ops" : Program with name "MyProgram"</title>
@@ -3275,7 +3275,7 @@ function HMILoadTrajectory {
  * without a program.
  */
 function ResetAxes {
-	do Kernel.selectGenerator("HomingGenerator")
+	do Kernel.selectComponent("HomingGenerator")
 	do HomingGenerator.home()
 }
 
