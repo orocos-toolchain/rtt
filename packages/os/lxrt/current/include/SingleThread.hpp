@@ -105,7 +105,7 @@ namespace ORO_OS
             return !goRealtime; 
         }
 
-        bool isHardRealtime()   { return rt_is_hard_real_time(rt_task); }
+        bool isHardRealtime();
 
     protected:
         /**

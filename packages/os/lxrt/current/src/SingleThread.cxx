@@ -163,6 +163,11 @@ namespace ORO_OS
                 ;
     }
 
+    bool SingleThread::isHardRealtime()
+    {
+        return rt_is_hard_real_time(rt_task);
+    }
+
     bool SingleThread::start() 
     {
         if ( isRunning() ) return false;
