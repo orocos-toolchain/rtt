@@ -64,7 +64,8 @@ new_packages:
 configure_packages:
 	cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
-	configtool ecos.ecc
+	ln -sf ecos.ecc orocos.ecc &&\
+	configtool orocos.ecc
 
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
