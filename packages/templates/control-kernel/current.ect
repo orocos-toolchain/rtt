@@ -7,8 +7,17 @@ cdl_savefile_command cdl_component { value_source user_value wizard_value inferr
 cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
 cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
 
-cdl_configuration template_control_kernel {
-    description "A template for the Orocos Control Kernel." ;
-    package     OROPKG_CONTROL_KERNEL current ;
+cdl_configuration template_control_framework {
+    description "The Orocos Control Kernel Framework." ;
+    package	OROPKG_CONTROL_FRAMEWORK current;
+    package	OROPKG_CONTROL_KERNEL current;
+    package     OROPKG_CONTROL_KERNEL_COMPONENTS current ;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_MOTION_CONTROL current;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_MOTION_CONTROL_AXIS current;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_MOTION_CONTROL_N_AXIS current;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_MOTION_CONTROL_CARTESIAN current;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_HARDWARE current;
+    package	OROPKG_CONTROL_KERNEL_COMPONENTS_PROCESS_CONTROL current;
+    package     OROPKG_CONTROL_KERNEL_SERVER current ;
 };
 
