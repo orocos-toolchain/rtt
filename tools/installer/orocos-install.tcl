@@ -101,9 +101,12 @@ namespace eval ecos_install {
         # Where we get the install data from. A list of built-in options, but this is *not*
         # meant to be a rehash of the mirrors list.
 	# 	   
+	# By PS : This script is for pre-testing the packages before release,
+	# The official tcl script and db are on the www.orocos.org server.
+	#
         variable metadata_url { \
-				 "http://www.orocos.org/orocos-install.db"\
 			         "http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-install.db"\
+				 "http://www.orocos.org/orocos-install.db"\
 				 "http://localhost/orocos-install.db"\
 				}
 
