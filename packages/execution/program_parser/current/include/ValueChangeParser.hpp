@@ -28,8 +28,9 @@
 #ifndef VALUECHANGEPARSER_HPP
 #define VALUECHANGEPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 
+#include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 
 namespace ORO_Execution

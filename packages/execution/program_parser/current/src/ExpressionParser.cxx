@@ -25,6 +25,10 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "execution/parser-debug.hpp"
+#include "execution/parse_exception.hpp"
+
+#pragma implementation
 #include "execution/ExpressionParser.hpp"
 
 #include "execution/ParseContext.hpp"

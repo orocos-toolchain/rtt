@@ -28,10 +28,13 @@
 #ifndef ARGUMENTSPARSER_HPP
 #define ARGUMENTSPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 
 #include <corelib/PropertyBag.hpp>
+#include "CommonParser.hpp"
 #include "ParseContext.hpp"
+
+#pragma interface
 
 namespace ORO_Execution
 {

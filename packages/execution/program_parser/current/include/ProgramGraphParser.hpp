@@ -25,8 +25,9 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 
+#include "CommonParser.hpp"
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
 #include "ParseContext.hpp"
@@ -83,9 +84,7 @@ namespace ORO_Execution
 
       void seencallfunclabel( iter_t begin, iter_t end );
 
-      void seentargetlabel( iter_t begin, iter_t end );
-
-      void seenlabel( iter_t begin, iter_t end );
+      void seencontinue( );
 
       void startofnewstatement();
       void seencommandcall();
@@ -102,14 +101,21 @@ namespace ORO_Execution
       void seenreturnstatement();
       void seenreturnlabel();
 
+      void seenifstatement();
+      void endifblock();
+      void endifstatement();
+
+      void seenwhilestatement();
+      void endwhilestatement();
+
       void startofprogram();
       void programdef( iter_t begin, iter_t end );
       void seenprogramend();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart,
-          callstatement, labelpart, statement, line, content, program,
+          callstatement, statement, line, content, program,
           production, valuechange, returnstatement, function, funcstatement,
-          gotopart, returnpart, callpart;
+          continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement;
 
       ConditionParser conditionparser;
       CommonParser commonparser;

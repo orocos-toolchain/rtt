@@ -28,9 +28,12 @@
 #ifndef COMMANDPARSER_HPP
 #define COMMANDPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 #include <corelib/PropertyBag.hpp>
+#include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
+
+#pragma interface
 
 namespace ORO_Execution
 {

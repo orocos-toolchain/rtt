@@ -308,8 +308,6 @@ const string applestring = &quot;apples&quot;
 var int counter = 0
 // add 1 to the counter variable
 set counter = counter + 1
-// equivalent to the above
-set counter to 1 + counter
 
 // make the name "counterPlusOne" an alias for the
 // expression counter + 1.  After this, using
@@ -419,11 +417,12 @@ program prog_name {
 	<title>Command Call Statements</title>
 	<para>
 	  A command call statement is a statement that calls a certain
-	  command, and checks where to go next..  It looks like:
+	  command, and defines some reactions. It looks like:
 	  <programlisting>
 do comp.action( args ) until {
-  if condition then goto label
-  if condition2 then goto label2
+  if condition then continue
+  if condition2 then call func()
+  if condition3 then return
 }
 	  </programlisting>
 	  It calls the command "action", on the component "comp", with
@@ -433,6 +432,13 @@ do comp.action( args ) until {
 	  in the until part.  If none are true, then it waits another
 	  tick, and checks them again..
 	</para>
+	<note>
+	  <para>
+	    These if .. then clauses are different from the
+	    if/then/else statement later in this tekst and purely
+	    meant to detect alternative end conditions of a command.
+	  </para>
+	</note>
 	<para>
 	  Sometimes, you want to continue executing the command, while
 	  checking the termination conditions, instead of only
@@ -441,7 +447,7 @@ do comp.action( args ) until {
 	  <programlisting>
 // continue moving to the right until you hit the wall..
 do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
-      until { if robot.hitWall() then goto stop }
+      until { if robot.hitWall() then return }
 	  </programlisting>
 	  The example above may be a bit stupid, but it only serves to
 	  show the use of the sync keyword..
@@ -449,9 +455,11 @@ do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
 	<para>
 	  A termination clause always looks like
 	  <programlisting>
-if condition then goto label
+if condition then continue
 // or
 if condition then call func_name
+// or
+if condition then return
 	  </programlisting>
 	  condition can be any kind of expression, that is of type
 	  boolean.  One special condition is provided, the keyword
@@ -459,15 +467,10 @@ if condition then call func_name
 	  termination condition", and the condition "done" is
 	  equivalent to that condition.  You can also combine the
 	  "done" condition with other expressions, as if it were a
-	  normal boolean expression.  Label is a label specifying a
-	  place in the program to jump to when the condition becomes
-	  true.  Two special labels are provided: "next" jumps to the
-	  next statement, and "stop" jumps to the end of the program.
-	  You can also define your own labels by putting "labelname:"
-	  before a certain statement, where labelname is a valid
-	  identifier.  From then on, you can use labelname as a label
-	  which will refer to the specified position in the program.
-	  the call statement calls a function and is explained 
+	  normal boolean expression. "continue" means to go to the
+	  next statement, return means to end the current program
+	  or function.
+	  The "call func_name" statement calls a function and is explained 
 	  in the next section
 	</para>
 	<para>
@@ -477,8 +480,8 @@ if condition then call func_name
 	  <programlisting>
 do comp.action( args )
 // the implicitly generated termination list always looks like
-// "if done then goto next"
-do comp.action( args ) until { if done then goto next }
+// "if done then continue"
+do comp.action( args ) until { if done then continue }
 	  </programlisting>
 	</para>
       </sect3>
@@ -508,38 +511,55 @@ set variablename = expression
 	</para>
       </sect3>
       <sect3>
+	<title>The if then else Statement</title>
+	A Program script can contain if..then..else blocks, very similar
+	to C syntax.
+	  <programlisting>
+if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
+[ else <emphasis>statement</emphasis> ]
+// or :
+if <emphasis>condition</emphasis> then {
+  <emphasis>statement</emphasis>
+  // ...
+} else {
+  <emphasis>statement</emphasis>
+  // ...
+}
+	  </programlisting>
+	It is thus possible to group statements. Each statement can
+	be another if clause. An else is always referring to the last
+	if, just like in C/C++. If you like, you can also write
+	parentheses around the condition.
+      </sect3>
+      <sect3>
+	<title>The while Statement</title>
+	<para>
+	  The while statement is the only looping primitive in 
+	  the Orocos script language. Fortunately, other
+	  loop primitives (for, do ) can be easily written as
+	  a while statement.
+	  <programlisting>
+while <emphasis>condition</emphasis> 
+    <emphasis>statement</emphasis>
+// or :
+while <emphasis>condition</emphasis> {
+    <emphasis>statement</emphasis>
+    // ...
+}
+	  </programlisting>
+	  As with the if statement, you can optionally put
+	  parentheses around the condition.
+	</para>
+      </sect3>
+      <sect3>
 	<title>The 'nothing' Command</title>
 	<para>
 	  A special command 'nothing' is provided, and I'm sure you
 	  can already guess what it does..  It is useful to implement
 	  statements, where the termination list is really the only
 	  useful thing to do.  Control structures can be implemented
-	  this way.  Here is an example of an &orocos; program
-	  calculating the faculty function using this.
-	  <example>
-	    <title>Simple Faculty Program</title>
-	  <programlisting>
-program faculty {
-  // n is the number of which we want to calculate the faculty
-  const int n = 8
-  // i is a counter
-  var int i = n
-  // ret is the variable in which we are building the result..
-  var int ret = 1
-
-begin: set ret = ret * i
-  set i to i - 1
-  do nothing until { 
-    // we're done
-    if i &lt;= 1 then goto next
-    // not done yet..
-    if true then goto begin
-  }
-  // send the result somewhere..
-  do test.command( ret )
-}
-	  </programlisting>
-</example>	</para>
+	  this way.
+	</para>
       </sect3>
     </sect2>
     <sect2>
@@ -611,7 +631,7 @@ state Waiting {
 	</para>
       </sect3>
       <sect3>
-	<title>The <function>entry</function>and
+	<title>The <function>entry</function> and
 	  <function>exit</function> Statements</title>
 	<para>When a state is entered for the first time, the entry
 	  function is called. When it is left, the exit function is
@@ -871,18 +891,16 @@ program DemoRun {
 	// We actually wait here until a 
 	// Trajectory is present in the HMI.
 	do nothing until {
-	   if HMI.trajectoryPresent then goto next
+	   if HMI.trajectoryPresent then continue
 	}
 
-start:  set cycle = cycle + 1
-	do HMI.display("Cycle nr: %d.\n", cycle )
-	call ResetAxes
-	call HMIRequestTrajectory
-	call runTrajectory
+	while HMI.cycle {
+	    do HMI.display("Cycle nr: %d.\n", cycle )
+	    call ResetAxes
+	    call HMIRequestTrajectory
+	    call runTrajectory
 
-	do HeartBeat.sleep( 5.0 ) // wait 5s
-	do nothing until {
-	    if HMI.cycle then goto start
+	    do HeartBeat.sleep( 5.0 ) // wait 5s
 	}
 
 	call ExitProgram
@@ -989,10 +1007,11 @@ public:
 	Then the code needed to export this API to the &orocos;
 	scripting framework would look like this:
 	<programlisting>
-#include "TemplateDataSourceFactory.hpp"
-#include "TemplateCommandFactory.hpp"
+#include &lt;execution/TemplateDataSourceFactory.hpp&gt;
+#include &lt;execution/TemplateCommandFactory.hpp&gt;
 
 using namespace ORO_CoreLib;
+using namespace ORO_Execution;
 
 class Robot
 {

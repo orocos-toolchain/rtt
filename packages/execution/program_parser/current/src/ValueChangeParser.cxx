@@ -24,6 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#include "execution/parse_exception.hpp"
 #include "execution/ValueChangeParser.hpp"
 
 #include "execution/ParseContext.hpp"

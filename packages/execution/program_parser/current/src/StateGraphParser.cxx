@@ -24,6 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#include "execution/parse_exception.hpp"
 #include "execution/StateGraphParser.hpp"
 
 #include "execution/Processor.hpp"
@@ -46,24 +49,25 @@ namespace ORO_Execution
     using boost::bind;
     using namespace ORO_CoreLib;
     using namespace ORO_Execution::detail;
-    
-    enum GraphSyntaxErrors
-        {
-            state_expected,
-            handle_expected,
-            transition_expected,
-        };
 
-    assertion<GraphSyntaxErrors> expect_state(state_expected);
-    assertion<GraphSyntaxErrors> expect_handle(handle_expected);
-    assertion<GraphSyntaxErrors> expect_transition(transition_expected);
-    assertion<std::string> expect_end("Ending brace expected ( or could not find out what this line means ).");
-    assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
-    assertion<std::string> expect_comma("Expected a comma separator.");
-    assertion<std::string> expect_ident("Expected a valid identifier.");
-    assertion<std::string> expect_open("Open brace expected.");
-    assertion<std::string> expect_semicolon("Semi colon expected after statement.");
-    
+    namespace {
+        enum GraphSyntaxErrors
+            {
+                state_expected,
+                handle_expected,
+                transition_expected,
+            };
+
+        assertion<GraphSyntaxErrors> expect_state(state_expected);
+        assertion<GraphSyntaxErrors> expect_handle(handle_expected);
+        assertion<GraphSyntaxErrors> expect_transition(transition_expected);
+        assertion<std::string> expect_end("Ending brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
+        assertion<std::string> expect_comma("Expected a comma separator.");
+        assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_semicolon("Semi colon expected after statement.");
+    }
 
     StateGraphParser::StateGraphParser( iter_t& positer,
                                         Processor* proc,

@@ -24,6 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#include "execution/parse_exception.hpp"
+
+#pragma implementation
 #include "execution/CommandParser.hpp"
 
 #include <boost/bind.hpp>

@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
 

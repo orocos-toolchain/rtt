@@ -28,12 +28,15 @@
 #ifndef CONDITIONPARSER_HPP
 #define CONDITIONPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
+#include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 #include "DataSource.hpp"
 
 #include <memory>
 #include <stack>
+
+#pragma interface
 
 namespace ORO_Execution
 {

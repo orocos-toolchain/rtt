@@ -24,8 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#include "execution/parser-types.hpp"
+#include "execution/parse_exception.hpp"
 #include "execution/Parser.hpp"
-#include "execution/parser-common.hpp"
 #include "execution/ProgramGraphParser.hpp"
 #include "execution/StateGraphParser.hpp"
 #include "execution/ConditionParser.hpp"

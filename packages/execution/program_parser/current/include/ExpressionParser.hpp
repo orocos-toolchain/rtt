@@ -28,11 +28,14 @@
 #ifndef EXPRESSIONPARSER_HPP
 #define EXPRESSIONPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
+#include "CommonParser.hpp"
 #include "DataSource.hpp"
 #include "corelib/Time.hpp"
 
 #include <stack>
+
+#pragma interface
 
 namespace ORO_Execution
 {

@@ -28,9 +28,10 @@
 #ifndef VALUEPARSER_HPP
 #define VALUEPARSER_HPP
 
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 #include "AssignVariableCommand.hpp"
 #include <corelib/CommandInterface.hpp>
+#include "CommonParser.hpp"
 
 #include <memory>
 #include <map>

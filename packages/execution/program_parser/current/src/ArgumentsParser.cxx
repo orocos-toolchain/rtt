@@ -24,6 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#pragma implementation
 #include "execution/ArgumentsParser.hpp"
 
 #include <boost/bind.hpp>

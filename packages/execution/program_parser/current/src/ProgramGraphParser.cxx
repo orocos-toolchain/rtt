@@ -24,6 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#include "execution/parser-debug.hpp"
+#include "execution/parse_exception.hpp"
 #include "execution/ProgramGraphParser.hpp"
 
 #include "execution/Processor.hpp"
@@ -42,6 +45,18 @@ namespace ORO_Execution
   using ORO_CoreLib::CommandNOP;
   using ORO_CoreLib::ConditionTrue;
 
+    namespace {
+        assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
+        assertion<std::string> expect_comma("Expected a comma separator.");
+        assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_semicolon("Semi colon expected after statement.");
+        assertion<std::string> expect_ifblock("Expected a statement (block) after if .. then.");
+        assertion<std::string> expect_elseblock("Expected a statement (block) after else.");
+    }
+
+
   ProgramGraphParser::ProgramGraphParser( iter_t& positer,
                                 Processor* proc,
                                 const GlobalFactory* e )
@@ -56,7 +71,6 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( jumpdestination );
     BOOST_SPIRIT_DEBUG_RULE( terminationpart );
     BOOST_SPIRIT_DEBUG_RULE( callstatement );
-    BOOST_SPIRIT_DEBUG_RULE( labelpart );
     BOOST_SPIRIT_DEBUG_RULE( statement );
     BOOST_SPIRIT_DEBUG_RULE( line );
     BOOST_SPIRIT_DEBUG_RULE( content );
@@ -66,9 +80,12 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( function );
     BOOST_SPIRIT_DEBUG_RULE( returnstatement );
     BOOST_SPIRIT_DEBUG_RULE( funcstatement );
-    BOOST_SPIRIT_DEBUG_RULE( gotopart );
+    BOOST_SPIRIT_DEBUG_RULE( continuepart );
     BOOST_SPIRIT_DEBUG_RULE( callpart );
     BOOST_SPIRIT_DEBUG_RULE( returnpart );
+    BOOST_SPIRIT_DEBUG_RULE( ifstatement );
+    BOOST_SPIRIT_DEBUG_RULE( ifblock );
+    BOOST_SPIRIT_DEBUG_RULE( elseblock );
     
     newline = ch_p( '\n' );
 
@@ -83,22 +100,22 @@ namespace ORO_Execution
     function = (
        *newline
        >> str_p( "function" ) 
-       >> commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ]
+       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> *newline
-       >> ch_p( '{' )
+       >> expect_open( ch_p( '{' ) )
        >> content
-       >> ch_p( '}' )
+       >> expect_close( ch_p( '}' ) )
        >> *newline ) [ bind( &ProgramGraphParser::seenfunctionend, this ) ];
 
     // a program looks like "program { content }".
     program = (
       *newline
       >> str_p( "program" )[ bind( &ProgramGraphParser::startofprogram, this)]
-      >> !commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ]
+      >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> *newline
-      >> ch_p( '{' )
+      >> expect_open( ch_p( '{' ) )
       >> content
-      >> ch_p( '}' )
+      >> expect_close( ch_p( '}' ) )
       >> *newline ) [ bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
@@ -108,30 +125,16 @@ namespace ORO_Execution
     // necessary, because comment's are skipped, but newline's
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
-    line = !( statement | valuechange ) >> newline;
+    line = !( statement ) >> newline;
 
-    valuechange = !labelpart >> (
+    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement; 
+
+    valuechange = (
         valuechangeparser.constantDefinitionParser()
       | valuechangeparser.variableDefinitionParser()
       | valuechangeparser.aliasDefinitionParser()
       | valuechangeparser.variableAssignmentParser()
         )[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
-    // the only type of statement currently ( ever ? ) is the call
-    // statement, see above..
-    statement = !labelpart >> callstatement | funcstatement | returnstatement; 
-
-    // the label part of a statement.  Statements can be given
-    // labels.  The label then identifies the spot in the
-    // program.  It can then be jumped to from a termination
-    // clause.
-    //
-    // It looks like:
-    //   "label: <statement>"
-    // and should be put in front of a statement..
-    labelpart =
-         commonparser.identifier[
-           bind( &ProgramGraphParser::seenlabel, this, _1, _2 ) ]
-      >> ':';
 
     // a call statement: "do xxx until { terminationclauses }"
     callstatement = (
@@ -162,34 +165,36 @@ namespace ORO_Execution
         >> *(newline >> !terminationclause)
         >> ch_p( '}' );
 
-    // a termination clause: "if xxx then goto|call yyy" where xxx is
-    // a condition, and yyy is a label.
+    ifstatement = (str_p("if") >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ]
+                   >> expect_then( str_p("then")[bind(&ProgramGraphParser::seenifstatement, this)] )
+                   >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endifblock, this) ] )
+                   >> !( *newline >> str_p("else") >> expect_elseblock(ifblock) )
+                   )[ bind(&ProgramGraphParser::endifstatement, this) ];
+
+    // ifblock is used for a group of statements or one statement (see also whilestatement)
+    ifblock = ( *newline >> ch_p('{') >> *line >> expect_close( ch_p('}') ) ) | ( *newline >> statement );
+
+    whilestatement =
+        (str_p("while")
+         >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] )
+        [bind(&ProgramGraphParser::seenwhilestatement, this)]
+         >> ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ];
+
+    // a termination clause: "if xxx then call yyy" where xxx is
+    // a condition, and yyy is an identifier.
     terminationclause =
         str_p( "if" )
             >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ]
-            >> "then" 
-            >> (gotopart | callpart | returnpart);
+            >> expect_then( str_p("then") ) >> *newline
+            >> (callpart | returnpart | continuepart);
 
-    gotopart =  str_p("goto")
-        >> jumpdestination[ bind( &ProgramGraphParser::seentargetlabel,
-                                  this, _1, _2 ) ] ;
+    continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
+
     callpart = str_p("call")
         >> commonparser.identifier[ bind( &ProgramGraphParser::seencallfunclabel,
                                           this, _1, _2 ) ] ;
     returnpart = str_p("return")[ bind( &ProgramGraphParser::seenreturnlabel, this)];
 
-    // a label, a string identifying a place for a termination
-    // clause to jump to..  There are two special cases: "next"
-    // means go to the next statement, And "stop" means go to
-    // the end of the program.  All other labels "xxx" should
-    // have been defined by putting "xxx:" before a statement.
-    // It is currently only possible to use labels defined
-    // before the current line, or on this line.  You can't jump
-    // forward, only backward.  Maybe this is too big a
-    // limitation, and there should be a way to jump forward,
-    // but I don't think so..
-    jumpdestination =
-      str_p( "next" ) | str_p( "stop" ) | commonparser.identifier;
   }
 
   void ProgramGraphParser::seencallstatement()
@@ -264,7 +269,6 @@ namespace ORO_Execution
               program_graph->returnFunction( new ConditionTrue, mfunc);
               program_graph->proceedToNext(  mpositer.get_position().line );
           }
-      mcurlabel.clear();
   }
 
   void ProgramGraphParser::seenreturnlabel()
@@ -302,7 +306,6 @@ namespace ORO_Execution
       // The exit node of the function is already connected
       // to program->nextNode().
       program_graph->proceedToNext(mpositer.get_position().line);
-      mcurlabel.clear();
   }
 
   void ProgramGraphParser::startofnewstatement()
@@ -311,6 +314,32 @@ namespace ORO_Execution
       //int ln = mpositer.get_position().line;
       //mcurrentnode->setLineNumber( ln );
   }
+
+
+    void ProgramGraphParser::seenifstatement() {
+        assert(mcondition);
+        program_graph->startIfStatement( mcondition, mpositer.get_position().line );
+        mcondition = 0;
+    }
+
+    void ProgramGraphParser::endifblock() {
+        program_graph->endIfBlock();
+    }
+
+
+    void ProgramGraphParser::endifstatement() {
+        program_graph->endElseBlock();
+    }
+
+    void ProgramGraphParser::seenwhilestatement() {
+        assert(mcondition);
+        program_graph->startWhileStatement( mcondition, mpositer.get_position().line );
+        mcondition = 0;
+    }
+
+    void ProgramGraphParser::endwhilestatement() {
+        program_graph->endWhileBlock();
+    }
 
   void ProgramGraphParser::seenprogramend()
   {
@@ -342,6 +371,15 @@ namespace ORO_Execution
       program_graph->reset();
       return program_graph;
     }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            std::cerr << "Parse error at line "
+                      << mpositer.get_position().line
+                      << ": " << e.descriptor << std::endl;
+            delete program_graph;
+            program_graph = 0;
+            return 0;
+        }
     catch( const parse_exception& e )
     {
       std::cerr << "Parse error at line "
@@ -365,7 +403,6 @@ namespace ORO_Execution
       "done", new ParsedAliasValue<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
     commandparser.reset();
-    mcurlabel.clear();
   }
 
   void ProgramGraphParser::seenvaluechange()
@@ -377,12 +414,6 @@ namespace ORO_Execution
     valuechangeparser.reset();
     if ( ac )
     {
-      // a value change can have a label too..
-      if ( !mcurlabel.empty() )
-          {
-              program_graph->setLabel( mcurlabel );
-              mcurlabel.clear();
-          }
       program_graph->setCommand( ac );
       // Since a valuechange does not add edges, we use this variant
       // to create one.
@@ -399,34 +430,18 @@ namespace ORO_Execution
           assert( mcondition );
           assert( mcallfunc );
           program_graph->appendFunction( mcondition, mcallfunc);
+          mcondition = 0;
+
     }
 
-    void ProgramGraphParser::seentargetlabel( iter_t begin, iter_t end )
+    void ProgramGraphParser::seencontinue( )
     {
-        // Used for "goto xyz"
-        std::string str( begin, end );
-        if ( !mcondition )
-            throw parse_exception( "Condition Error on call to label \"" +str+"\".");
+        // Used for "continue"
+        assert ( mcondition );
 
-        CommandNode target;
-        if ( str == "next" )
-            target = program_graph->nextNode();
-        else if ( str == mcurlabel )
-            target = program_graph->currentNode();
-        else
-            if ( !program_graph->hasLabel( str )  )
-                throw parse_exception( "Label \"" + str + "\" not defined." );
-            else
-                target = program_graph->findNode( str ).first;
-                    
-        // connect to target under condition.
-        program_graph->addConditionEdge( mcondition, target );
+        // connect to next node under given condition.
+        program_graph->addConditionEdge( mcondition, program_graph->nextNode() );
+
+        mcondition = 0;
       }
-
-    void ProgramGraphParser::seenlabel( iter_t begin, iter_t end )
-    {
-        std::string label( begin, end );
-        mcurlabel = label;
-    }
-
 }

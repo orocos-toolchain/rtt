@@ -26,8 +26,9 @@
  ***************************************************************************/ 
  
  
-#include "parser-common.hpp"
+#include "parser-types.hpp"
 
+#include "CommonParser.hpp"
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
 #include "ParseContext.hpp"
