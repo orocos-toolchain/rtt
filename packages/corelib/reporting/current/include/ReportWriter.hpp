@@ -31,7 +31,7 @@
 #include "ReportCollectorInterface.hpp"
 #include "WriteInterface.hpp"
 #include "ReportExporterInterface.hpp"
-#include "TaskPreemptible.hpp"
+#include "RunnableInterface.hpp"
 #include "TimeService.hpp"
 
 #include <vector>
@@ -41,14 +41,16 @@ namespace ORO_CoreLib
 {
 
     /**
-     * @brief Implements an Active ReportCollectorInterface.
+     * @brief A class which periodically collects string messages ('reports')
+     * from StringExporterInterface objects and writes them out to a WriteInterface object.
      *
-     * Listens to added Exporters and publishes their info
-     * on a WriteInterface object.
+     * Should run in a TaskNonRealTime if the WriteInterface is a non realtime
+     * device, like WriteCout. Use this class in conjunction with ReportingPropertyBag for
+     * example, which generates the reports.
      */
     class ReportWriter 
         : public StringCollectorInterface,
-          public TaskPreemptible
+          public RunnableInterface
     {
         public:
 
@@ -78,7 +80,7 @@ namespace ORO_CoreLib
             virtual void resetTime( Seconds s=0);
 
         private:
-            ReportWriter() : TaskPreemptible(0) {}
+            ReportWriter() {}
 
             WriteInterface* rtf;
 

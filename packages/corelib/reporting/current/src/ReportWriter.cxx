@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include "corelib/ReportWriter.hpp"
-#include "corelib/FifoRTOut.hpp"
 #include "corelib/TimeService.hpp"
 //#include "corelib/rtconversions.hpp"
 
@@ -36,15 +35,12 @@ namespace ORO_CoreLib
      ReportWriter::ReportWriter(WriteInterface* f, double period)
          :TaskPreemptible(period), rtf(f), localTime( TimeService::Instance()->getTicks() )
      {
-         rtos_printf("Creating ReportWriter\n");
          expList.reserve(DEFAULT_EXPLIST_SIZE);
          message.reserve(DEFAULT_MESSAGE_SIZE);
      }
 
      ReportWriter::~ReportWriter()
      {
-         stop();
-         rtos_printf("Destroying ReportWriter\n");
      }
      void ReportWriter::exporterAdd(StringExporterInterface* exp)
      {

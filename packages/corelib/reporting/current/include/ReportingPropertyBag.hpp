@@ -42,9 +42,14 @@ namespace ORO_CoreLib
 {
     /**
      * This PropertyBag is extended to report its contents
-     * as a Report Server. You can use it as a normal PropertyBag
+     * as a Report Server, it reports to a ReportWriter the contents of the bag.
+     * You can use it as a normal PropertyBag
      * and use the add()/remove() methods to insert or remove a Property
-     * from the bag.
+     * from the bag. If this ReportingPropertyBag instance is added to the
+     * ReportWriter, the latter will periodically write out the contents of
+     * the PropertyBag.
+     *
+     * @warning This class is not tested for realtime safeness.
      *
      */
     class ReportingPropertyBag
