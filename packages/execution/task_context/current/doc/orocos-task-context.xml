@@ -63,7 +63,7 @@
 
   </articleinfo>
 
-  <sect1 id="intro">
+  <sect1 id="task-context-intro">
     <title>Introduction</title>
     <para>
       This manual documents how multi-threaded tasks can be defined in &orocos;
@@ -1043,7 +1043,7 @@ $ ./taskclient
     </para>
     <screen>
  In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) : 1 + 1
+ (type 'quit' for exit) :<command> 1 + 1</command>
       Got : 1 + 1
    = 2
     </screen>
@@ -1053,18 +1053,18 @@ $ ./taskclient
     </para>
     <screen>
  In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :peers
+ (type 'quit' for exit) :<command>peers</command>
 
   This task's peer tasks are :
 T2
 this
 
  In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :switch T2
+ (type 'quit' for exit) :<command>switch T2</command>
  Switching to  T2
 
  In Task T2. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :peers
+ (type 'quit' for exit) :<command>peers</command>
 
   This task's peer tasks are :
 T1
@@ -1072,7 +1072,7 @@ T3
 this
 
  In Task T2. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :back
+ (type 'quit' for exit) :<command>back</command>
 
  In Task T1. Enter a command. (Status of previous command : none )
  (type 'quit' for exit) :
@@ -1083,7 +1083,7 @@ this
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :help
+ (type 'quit' for exit) :<command>help</command>
 
   To switch to another task, type 'switch &lt;path-to-taskname&gt;'
   and type 'back' to go back to the previous task (History size is 20).
@@ -1122,11 +1122,11 @@ this
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :switch states.machine.axis_y
+ (type 'quit' for exit) :<command>switch states.machine.axis_y</command>
    Switched to : axis_y
 
  In Task axis_y. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :this
+ (type 'quit' for exit) :<command>this</command>
       Got :this
   Command     : activate - Activate this StateContext
 
@@ -1145,13 +1145,13 @@ this
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :this
+ (type 'quit' for exit) :<command>this</command>
       Got :this
 Parse Error : Invalid Expression.
 Syntactic error: Task 'MyAxisKernel' has no dataobject or method 'this'.
 
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :AxisPositionGenerator
+ (type 'quit' for exit) :<command>AxisPositionGenerator</command>
       Got :AxisPositionGenerator
   Command     : move - Move an axis to a position with a given velocity
   Argument 1 : AxisNr - The Axis number (starting from 1).
@@ -1175,7 +1175,7 @@ Syntactic error: Task 'MyAxisKernel' has no dataobject or method 'this'.
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :AxisPositionGenerator.isReady(1)
+ (type 'quit' for exit) :<command>AxisPositionGenerator.isReady(1)</command>
       Got :AxisPositionGenerator.isReady(1)
    = true
     </screen>
@@ -1185,7 +1185,7 @@ Syntactic error: Task 'MyAxisKernel' has no dataobject or method 'this'.
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :AxisPositionGenerator.move(1, 10., 100.)
+ (type 'quit' for exit) :<command>AxisPositionGenerator.move(1, 10., 100.)</command>
       Got :AxisPositionGenerator.move(1, 10., 100.)
 
  In Task MyAxisKernel. Enter a command. (Status of previous command : queued )

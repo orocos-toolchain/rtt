@@ -756,8 +756,8 @@
 	more kernels are cascaded, the output of the higher-level
 	control kernel is an input for the lower-level kernel, and
 	vice versa, and this situation requires a much more careful
-	design. The <link linkend="standard-control-kernel">next
-	  section</link> presents the simplest case, and later
+	design. <xref linkend="standard-control-kernel" />
+	 presents the simplest case, and later
 	sections discuss more advanced building blocks.
       </para>
     </sect2>
@@ -1896,7 +1896,7 @@ public:
       </sect3>
     </sect2>
     <sect2>
-	<title>Support Components</title>\
+	<title>Support Components</title>
 	<para>
 	  Support Components do
 	  not operate in the data flow and thus do not have 'select' semantics
@@ -1922,7 +1922,7 @@ public:
 	    </listitem>
 	  </itemizedlist>
 	  They need to be accessible by other parts of the kernel and
-	  may use features (see <xref linkend="control-kernel-extensions">Extensions</xref> )
+	  may use features (see <xref linkend="control-kernel-extensions" /> )
 	  the kernel provides to its standard components. As we will show
 	  later, it allows for example the components
 	  to use the Property system of the kernel.
@@ -3356,13 +3356,17 @@ CascadeControlKernel<>
     // "Input" DataObject.
   };
 	</programlisting>
-	<note>If you were using Extensions/Aspects such as 
-	<function>exportReports()</function> or
-    <function>updateProperties()</function>, you will need an extra
-    template parameter <classname>MakeAspect</classname>.  See <link
-	linkend="control-kernel-extensions">Section 4.3</link> for
-    more information.
-       </note>
+
+	<para>
+	  <note>
+	    <para>If you were using Extensions/Aspects such as 
+	      <function>exportReports()</function> or
+	      <function>updateProperties()</function>, you will need an extra
+	      template parameter <classname>MakeAspect</classname>.  See <xref
+		linkend="control-kernel-extensions" /> for
+	      more information.</para>
+	  </note>
+	</para>
       </example>
     </sect2>
     <sect2>
@@ -3401,7 +3405,7 @@ CascadeControlKernel<>
 
   <appendix>
     <title>Left-Overs</title>
-    <sect2 id="prop-intro">
+    <sect1 id="prop-intro">
       <title>Properties</title>
       <para>
 	Properties are a way to represent configuration options in
@@ -3433,7 +3437,7 @@ Property&lt; A &gt; a_prop;
 	  which can be found in the file <filename>geometry
 	    MotionProperties.hpp</filename> file.</para>
       </example>      
-    </sect2>
+    </sect1>
   </appendix>
   <appendix>
     <title>Legal Notices</title>

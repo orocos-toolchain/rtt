@@ -22,14 +22,14 @@
     </authorgroup>
     <copyright>
       <year>2002-2004</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
       <para>
 	This document explains the design and implementation of the
-	ControlKernel component.
+	Motion Control Kernel Components.
       </para>
     </abstract>
 

@@ -27,10 +27,11 @@
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
-  <abstract>
+    <abstract>
       <para>
-	This document explains the design and implementation of the
-	Program Processor.
+	The Program Processor is the 'execution engine'
+	of Programs and State Contexts. It can execute
+	any number of Programs and State Contexts in parallel.
       </para>
     </abstract>
 
@@ -102,57 +103,36 @@
 
   
   <sect1>
-    <title>Introduction</title>
+    <title>Introduction to the Program Processor</title>
     <para>
-      This section explains installation, and gives an overview of the
-features and interface of the &orocos; &interf; package.
+      &orocos; is meant for building realtime systems. You will find
+      many usefull classes in the Orocos CoreLib to build
+      them, but they would only act as a noninteractive whole. The
+      Execution package allows a user to configure a system, execute
+      user-defined programs on that system and interactively
+      accept commands. A
+      <classname>StateContext</classname> will hold the
+      user-programmable state machine (representing the system
+      logic). A <classname>ProgramGraph</classname> will hold the
+      user-defined program to be executed. A
+      <classname>Processor</classname> will then represent an
+      execution engine which loads the sytem configuration and
+      program definition and executes that program. Loading
+      a program is however a non-realtime operation, since it performs dynamic
+      memory allocations. Execution of the programs will happen in real time.
     </para>
-    <sect2>
-      <title>What is Orocos Execution : Program Processor ?</title>
-      <para>
-	&orocos; is meant for building realtime systems. You will find
-	all necessary components in other &orocos; packages to build
-	them, but they would only act as a noninteractive whole. The
-	Execution package allows a user to configure a system and execute
-	user-defined programs on that system. A
-	<classname>StateContext</classname> will hold the
-	user-programmable state machine (representing the system
-	logic). A <classname>ProgramGraph</classname> will hold the
-	user-defined program to be executed. A
-	<classname>Processor</classname> will then represent an
-	execution engine which loads the sytem configuration and
-	program definition and executes that program. While a big part
-	of &interf; will run close to the realtime system, loading
-	will be a non-realtime operation, since it performs dynamic
-	memory allocations. Execution of the programs will happen in real time.
-      </para>
-      <para>
-	The Program Processor is not what the user will use directly.
-	The user will mainly use the <ulink url="orocos-program-parser.html">
-	  Orocos Program Parser</ulink> with the <ulink url="orocos-task-context.html">
-	  Orocos Task Infrastructure</ulink>. The Parser
-	generates ProgramGraphs and StateGraphs from user friendly
-	text files, which can then be executed in realtime.
-      </para>
-    </sect2>
-
-    <sect2>
-      <title>Installation</title>
-      <para>
-	&orocos; uses the eCos tools for configuration and building.
-	Therefore the configuration and building process is pretty
-	well standardised. We refer to the Orocos Base installation
-	instructions for the advised configuration and installation
-	procedure. 
-      </para>
-      <para>
-      Further information can be found in the &orocos; Installation Manual.
-      </para>
-    </sect2>
+    <para>
+      The Program Processor is not what the user will use directly.
+      The user will mainly use the <ulink url="orocos-program-parser.html">
+	Orocos Program Parser</ulink> with the <ulink url="orocos-task-context.html">
+	Orocos Task Infrastructure</ulink>. The Parser
+      generates ProgramGraphs and StateGraphs from user friendly
+      text files, which can then be executed in realtime.
+    </para>
   </sect1>
-
+  
   <sect1>
-    <title>Processing Programs and StateContexts</title>
+    <title>Executing Programs and StateContexts</title>
     <sect2>
       <title>Processor</title>
       <para>
@@ -222,8 +202,10 @@ features and interface of the &orocos; &interf; package.
 	    <imagedata fileref="Commands.eps" format="EPS"/>
 	  </imageobject>
 	  <caption>
-	    Tasks of different threads communicate by sending
-	    commands to each others Processors.
+	    <para>
+	      Tasks of different threads communicate by sending
+	      commands to each others Processors.
+	    </para>
 	  </caption>
 	</mediaobject>
       </figure>
@@ -235,27 +217,93 @@ features and interface of the &orocos; &interf; package.
       </para>
     </sect2>
     <sect2>
-	<title>State Context and State</title>
-	<para>
-	  The <classname>StateContext</classname> is a collection
-	  of states, linked to each other and is defined in
-	  the <ulink url="orocos-corelib.html">Orocos CoreLib</ulink>
-	  . It represents a  state machine of the
-	  realtime system's logic. Every device has some
-	  configurations in which a specific action must be taken
-	  (on entry, during or on exit) and transitions between states are defined
-	  by boundary conditions. Every such state is defined by
-	  the <classname>StateInterface</classname> in the CoreLib
-	  API. A state itself is defined by three methods : 
-	  onEntry(), handle() and onExit(). They are called by
-	  the Processor when this state is entered, handled or 
-	  left. There is always exactly one handle called 
-	  in each execution step, also when a state transition
-	  takes place. In that case, first the onExit() method
-	  of the old state is called, then the onEntry() method
-	  of the new state and as last in that step, the handle()
-	  method.
+      <title>A ProgramGraph</title>
+      <para>
+	The <classname>ProgramGraph</classname> is a tree composed
+	of command nodes ( See : <classname>CommandInterface</classname> class ),
+	where each node contains one or more
+	statements. A Program keeps track of the start node
+	and the node to be executed next. As such a program is executed
+	one node at a time and the transition to the next node
+	is done on a given condition ( See :
+	<classname>ConditionInterface</classname> class). The
+	ProgramGraph has a builder interface for constructing
+	nodes and conditions, which is used by other packages to construct valid
+	programs.
       </para>
+	<figure><title>Executing Program Statements</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="ProgramTransitions.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="ProgramTransitions.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      <para>
+	Programs are generated from a script, this is explained in 
+	the <ulink url="orocos-program-parser.html">Orocos
+	  Program Parser</ulink> Manual. The Parser is able to
+	convert Orocos Program Scripts to a Program which can
+	be loaded in the Processor.
+      </para>
+	<figure><title>Using a Program</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="ProgramStates.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="ProgramStates.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      <para>
+	Loading, unloading and deleting a Program may throw
+	an exception. The <exceptionname>program_load_exception</exceptionname>
+	and <exceptionname>program_unload_exception</exceptionname>
+	should be try'ed and catch'ed on load and unload or deletion
+	of a Program.
+      </para>
+    </sect2>
+    <sect2>
+      <title>State Context and State</title>
+      <para>
+	The <classname>StateContext</classname> is a collection of
+	states, linked to each other and is defined in the <ulink
+	  url="orocos-corelib.html">Orocos CoreLib</ulink> . It
+	represents a state machine of the realtime system's logic and
+	may access internal and external data for deciding on its
+	state transitions. Every 'device' has some states or
+	configurations in which a specific action must be taken (on
+	entry, during or on exit) and transitions between states are
+	defined by boundary conditions. Every such state is defined by
+	the <classname>StateInterface</classname> in the CoreLib API.
+	A state itself is defined by three methods : onEntry(),
+	handle() and onExit(). They are called by the Processor when
+	this state is entered, handled or left. There is always
+	exactly one handle() called in each periodic execution step
+	for each StateContext, also when a state transition takes
+	place. In that case, first the onExit() method of the old
+	state is called, then the onEntry() method of the new state
+	and as last in that step, the handle() method of the new
+	state.
+      </para>
+      <para>
+	As transitions define when a state will be left, preconditions
+	are used to define when a state should not be entered, and
+	an alternative must be provided.
+      </para>
+	<figure><title>Executing a StateContext</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="StateTransitions.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="StateTransitions.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
       <para>To see how a State Context can be used in Orocos, we refer
 	to the <ulink url="orocos-program-parser.html">Orocos
 	  Program Parser</ulink> Manual. The Parser is able to
@@ -280,62 +328,28 @@ features and interface of the &orocos; &interf; package.
 	of a State Context.
       </para>
     </sect2>
-    <sect2>
-	<title>State Transitions</title>
-	<para>
-	  State Transitions are the edges of the state diagram. They
-	  define a condition on which a new state is entered. The
-	  processor expects an instance of
-	  <classname>ConditionInterface</classname> which encapsulates
-	  the logic (see also in CoreLib and below). Transitions
-	  can be ordered by priority, so that it is defined in which
-	  order they are checked. A multiple of
-	  conditions can lead to the same state.
-	</para>
-      </sect2>
-      <sect2>
-	<title>A Program</title>
-	<para>
-	  A Program is defined by the ProgramInterface. A Program
-	  implementation also provides an interface to build a program.
-	</para>
-	<para>
-	  The <classname>ProgramGraph</classname> is a tree composed
-	  of command nodes.  A Program keeps track of the start node
-	  and the node to be executed next. As such a program can be
-	  executed in steps, and reset to the beginning. The
-	  ProgramGraph has a builder interface for constructing
-	  programs, which is used by other packages to construct valid
-	  programs.
-	</para>
-	<para>
-	  Programs are generated from a script, this is explained in 
-	  the <ulink url="orocos-program-parser.html">Orocos
-	  Program Parser</ulink> Manual. The Parser is able to
-	  convert Orocos Program Scripts to a Program which can
-	  be loaded in the Processor.
-	</para>
-	<figure><title>Using a Program</title>
-	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="ProgramStates.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="ProgramStates.eps" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
+  </sect1>
+  <sect1>
+    <title>StateContext and Program Implementation Details</title>
+    <para>
+      This section gives a short description of the inside
+      of Programs and StateContexts, and can be skipped by most users.
+    </para>
+    <sect2 id="progproc-condition">
+      <title>( State ) Transitions : Condition Edge</title>
       <para>
-	Loading, unloading and deleting a Program may throw
-	an exception. The <exceptionname>program_load_exception</exceptionname>
-	and <exceptionname>program_unload_exception</exceptionname>
-	should be try'ed and catch'ed on load and unload or deletion
-	of a Program.
-      </para>
+	The <classname>ConditionEdge</classname> defines an edge
+	of the state diagram. It contains
+	a condition on which a next state is entered. The 
+	<classname>ConditionInterface</classname> encapsulates
+	that logic (see also in CoreLib and below). Conditions
+	can be ordered by priority, so that it is defined in which
+	order they are checked. A multiple of
+	conditions can lead to the same state.
+	</para>
       </sect2>
-
-      <sect2>
-	<title>The Command Node</title>
+      <sect2 id="progproc-command">
+	<title>Statements : Command Node</title>
 	<para>
 	  The <classname>CommandNode</classname> contains a
 	  <classname>Command</classname> and is connected by edges of
@@ -343,9 +357,9 @@ features and interface of the &orocos; &interf; package.
 	  are connect one node with another and allow the transition
 	  if the contained condition evaluates to true. When a program
 	  is executed, it executes the command and runs through the
-	  list of edges, checking until a <classname>
-	    Condition</classname> is found valid and the next program
-	  node to be executed is thus found. If no condition is
+	  list of edges of that node. When a <classname>
+	    Condition</classname> is found valid, the next program
+	  node to be executed is found. If no condition is
 	  fulfilled, the same command node will be executed again.
 	  Also a line number can be associated with each command node,
 	  as a reference to the input file formatted by the user.

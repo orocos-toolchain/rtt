@@ -228,7 +228,7 @@
 	  with the name "AOut_1" in the Outputs, so it must be
 	  created by the Controller Component. The GenericEffector
 	  will check the existence of this DataObject in its
-	  componentStartup method (thus when it is selected).
+	  componentStartup method (thus when it is started).
 	  The analog_output_card must implement the <classname>
 	  AnalogOutInterface</classname>.
 	  If there is already an "AOut_1" DataObject, addAnalogOutput

@@ -30,9 +30,8 @@ doc-dist:
 	@rm -rf eps
 	@mkdir  orocos-docs
 	@mkdir  eps
-	@find . -name "*.pdf" -o -name "*.ps" | xargs rm
 	@echo "Copying..."
-	@mv $$(find . -name "*.eps") eps
+	@cp $$(find . -name "*.eps") eps
 	@mv $$(find . -name "*.tgz") orocos-docs
 	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz )
 	@echo "Done !"
@@ -40,6 +39,9 @@ doc-dist:
 html-dist:
 	@echo "Making html docs..."
 	@for i in $$(find . -name Makefile); do make dochtml -C $$(dirname $$i); done
+
+doc-dist-clean:
+	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.eps" | xargs rm
 
 doxy-dist:
 	@echo "Running Configure..."
