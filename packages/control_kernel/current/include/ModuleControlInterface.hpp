@@ -26,8 +26,11 @@ namespace ORO_ControlKernel
     using namespace ORO_CoreLib;
 
     /**
+     * @brief This interface defines the methods of the Data Flow
+     * for each Component.
+     *
      * A ModuleControlInterface allows you to control roughly the
-     * inner workings of a Module. These methods can be seen as the
+     * Data Flow of a Component. These methods can be seen as the
      * external 'triggers' to set a certain behaviour in action.
      * push() and pull() are meant to trigger external communication
      * with other components, while calculate() should perform its

@@ -27,6 +27,7 @@
 #include <corelib/Event.hpp>
 #include <os/MutexLock.hpp>
 #include <asm/atomic.h>
+#include "DataObjectReporting.hpp"
 #undef LOCK
 
 namespace ORO_ControlKernel
@@ -94,14 +95,15 @@ namespace ORO_ControlKernel
 
         mutable _DataType cache;
         
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObjectLocked by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLocked(const std::string& _name = std::string()) : name(_name) {}
+        DataObjectLocked(const std::string& _name, const std::string& _prefix = "") : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -109,6 +111,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -178,14 +185,15 @@ namespace ORO_ControlKernel
         _DataType copy;
 
         mutable _DataType cache;
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObjectPriorityGet by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPrioritySet(const std::string& _name = std::string()) : name(_name) {}
+        DataObjectPrioritySet(const std::string& _name, const std::string& _prefix = "") : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -193,6 +201,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -273,14 +286,15 @@ namespace ORO_ControlKernel
         _DataType copy;
 
         mutable _DataType cache;
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObjectPriorityGet by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPriorityGet(const std::string& _name = std::string()) : name(_name) {}
+        DataObjectPriorityGet(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -288,6 +302,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -390,14 +409,15 @@ namespace ORO_ControlKernel
 
         mutable _DataType cache;
 
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObjectBuffer by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectBuffer(const std::string& _name = std::string()) 
+        DataObjectBuffer(const std::string& _name, const std::string& _prefix  = std::string()) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)
@@ -414,6 +434,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -488,14 +513,15 @@ namespace ORO_ControlKernel
          */
         _DataType data;
 
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObject by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObject(const std::string& _name = std::string()) : name(_name) {}
+        DataObject(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -503,6 +529,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -544,14 +575,15 @@ namespace ORO_ControlKernel
         _DataType data;
         mutable Event    updated;
 
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObject by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectUpdated(const std::string& _name = std::string()) : name(_name) {}
+        DataObjectUpdated(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -559,6 +591,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         /**
          * The type of the data.
@@ -650,14 +687,15 @@ namespace ORO_ControlKernel
          * Time of last measurement.
          */
         mutable HeartBeatGenerator::ticks timeStamp;
-        const std::string name;
+        std::string name;
     public:
         /** 
          * Construct a DataObject by name.
          * 
          * @param _name The name of this DataObject.
+         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataRefreshed(const std::string& _name = std::string()) : name(_name) {}
+        DataRefreshed(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -665,6 +703,11 @@ namespace ORO_ControlKernel
          * @return The name
          */
         const std::string& getName() const { return name;}
+
+        void setName( const std::string& _name )
+        {
+            name = _name;
+        }
 
         typedef _DataType DataType;
 

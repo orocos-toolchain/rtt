@@ -109,17 +109,20 @@ namespace ORO_ControlKernel
          *
          * Optionally, specify the names of the data objects.
          */
-        BaseKernel(const std::string& inp_name=std::string("Inputs"),
-                   const std::string& mod_name=std::string("Models"),
-                   const std::string& com_name=std::string("Commands"),
-                   const std::string& setp_name=std::string("SetPoints"),
-                   const std::string& out_name=std::string("Outputs") )
+        BaseKernel(const std::string& inp_prefix=std::string("Default"),
+                   const std::string& mod_prefix=std::string("Default"),
+                   const std::string& com_prefix=std::string("Default"),
+                   const std::string& setp_prefix=std::string("Default"),
+                   const std::string& out_prefix=std::string("Default") )
             : _Extension(this),
               controller(&dummy_controller), generator(&dummy_generator),
               estimator(&dummy_estimator), effector(&dummy_effector), sensor(&dummy_sensor),
 
-              local_setpoints(setp_name), local_commands(com_name),
-              local_inputs(inp_name), local_models(mod_name), local_outputs(out_name),
+              local_setpoints(this->getKernelName()+"::SetPoints",setp_prefix),
+              local_commands(this->getKernelName()+"::Commands",com_prefix),
+              local_inputs(this->getKernelName()+"::Inputs",inp_prefix),
+              local_models(this->getKernelName()+"::Models",mod_prefix),
+              local_outputs(this->getKernelName()+"::Outputs",out_prefix),
 
               setpoints(&local_setpoints), commands(&local_commands),
               inputs(&local_inputs), models(&local_models), outputs(&local_outputs),
@@ -221,6 +224,10 @@ namespace ORO_ControlKernel
 
         virtual bool initialize() 
         { 
+            // we do this unconditionally for now, better is only doing it
+            // if the kernelname was really updated.
+            nameUpdated();
+
             if ( !Extension::initialize() )
                 return false;
                 
@@ -990,6 +997,19 @@ namespace ORO_ControlKernel
          */
         void setOutputs(OutputData* o) { externalOutputs=true; outputs = o; }
     protected:
+
+        /**
+         * This function is called if the kernel name is updated.
+         * All DataObject names must be modified
+         */
+        virtual void nameUpdated()
+        {
+            local_setpoints.setName( this->getKernelName() + "::SetPoints" );
+            local_commands.setName( this->getKernelName() + "::Commands" );
+            local_models.setName( this->getKernelName() + "::Models" );
+            local_inputs.setName( this->getKernelName() + "::Inputs" );
+            local_outputs.setName( this->getKernelName() + "::Outputs" );
+        }
 
         /**
          * The default Components, They write defaults to the DataObjects.

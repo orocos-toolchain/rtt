@@ -8,6 +8,7 @@ an open controller."
     include_dir control_kernel
 
     compile KernelInterfaces.cxx ComponentConfigurator.cxx KernelConfig.cxx
+    compile DataServer.cxx
 
     cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
 	display "Control Kernel Extensions"

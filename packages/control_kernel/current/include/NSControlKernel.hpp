@@ -102,7 +102,8 @@ namespace ORO_ControlKernel
                                   detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
                                   _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
                                                 prefix + "::SetPoints", prefix + "::Outputs")
-        {}
+        {
+        }
 
         /**
          * @brief Create a nameserved control kernel.

@@ -43,23 +43,29 @@
 #include <corelib/NameServer.hpp>
 #include <boost/type_traits.hpp>
 #include "DataObjectInterfaces.hpp"
+#include "DataObjectReporting.hpp"
 
 namespace ORO_ControlKernel
 {
+
     /**
      * @brief An Interface for registering DataObject members 
      * into a public namespace. One nameserver will be
      * created for each _DataObjectType.
      *
-     * It is intended to be a base class of a 'normal'
-     * DataObject, so that the DataObject offers a
-     * NameServer interface. The DataObjectServer can do
+     * It is intended to be a class using a 'normal'
+     * DataObject, so that the DataObject gets a
+     * NameServer. The DataObjectServer can do
      * standard prefixing of object names, so that an
      * automatic scope is added for each acces through this
      * DataObjectServer instance.
+     *
+     * @param _DataObjectType The Type of the DataObject.
+     * For example DataObject< Geometry::Frame >
      */
     template< class _DataObjectType >
     class DataObjectServer
+        : public DataObjectReporting
     {
         static ORO_CoreLib::NameServer< _DataObjectType* > ns;
         std::string prefix;
@@ -76,24 +82,120 @@ namespace ORO_ControlKernel
 
         /**
          * Create a 'stub' like object which grants access
-         * to the global DataObjectServer. This 'stub' can be given
+         * to the global DataObject NameServer. This 'stub' can be given
          * a prefix to add a scope-like qualifier to the name, thus
          * avoiding name clashes. The use of the prefix is fully
          * transparent and does not need to be known to the user.
          *
+         * @param _name The unique name of this DataObjectServer.
+         * The _name must have the form : ControlKernelName::DOSName
          * @param _prefix The 'scope'/prefix to automatically add to
-         *        each lookup.
+         *        each lookup. This allows different DOS'es to work
+         *        in the same namespace, although being in different kernels.
          */
-        DataObjectServer(const std::string _prefix = std::string() ) 
-            : prefix(_prefix) {}
+        DataObjectServer(const std::string& _name, const std::string& _prefix = _name ) 
+            : DataObjectReporting( _name ), prefix( _prefix ) {}
+
+        virtual ~DataObjectServer() {}
 
         /**
-         * Change the prefix of this server.
+         * @brief Change the prefix of this server.
          *
          * @param _prefix The new prefix.
          */
-        void changePrefix(const std::string& _prefix) { prefix = _prefix; }
+        virtual void changePrefix(const std::string& _prefix) { prefix = _prefix; }
 
+        virtual void exportReports( PropertyBag& bag ) const
+        {
+            // this is only done once on startup. The reporting extension
+            // assumes they are updated with the updateReports() method.
+            //PropertyBagIntrospector inspector( bag );
+            //this->inspectReports( &inspector );
+            typename NameServer< _DataObjectType* >::name_iterator it1( ns.getNameBegin() );
+            typename NameServer< _DataObjectType* >::name_iterator it2( ns.getNameEnd() );
+
+            for ( ; it1 != it2; ++it1)
+                {
+                    // MemberType is *not* a pointer !
+                    // the object is copied into the Property
+                    if ( (*it1).find( prefix ) == 0 )
+                        {
+                            MemberType val;
+                            ns.getObject( *it1 )->Get(val);
+                            bag.add( new Property<MemberType>( std::string( (*it1), prefix.length() ),
+                                                               std::string( "" ), val ) );
+                        }
+                }
+        }
+
+        /**
+         * Sends all data in this server stub to an introspector.
+         */
+        virtual void inspectReports( PropertyIntrospection* introspector ) const
+        {
+            // iterate over all ns elements, having 'prefix'
+            // add them to the bag.
+            // maybe it is better to use the 'native' container
+            // iterators instead of the name_iterators
+            typename NameServer< _DataObjectType* >::name_iterator it1( ns.getNameBegin() );
+            typename NameServer< _DataObjectType* >::name_iterator it2( ns.getNameEnd() );
+
+            // How to give a 'bag' name == prefix to the introspector ??
+            for ( ; it1 != it2; ++it1)
+                {
+                    // MemberType is *not* a pointer !
+                    // the object is copied into the Property, then decomposed and then
+                    // the property is destructed again.
+                    // the name of the property is without prefix.
+                    if ( (*it1).find( prefix ) == 0 )
+                        {
+                            MemberType val;
+                            ns.getObject( *it1 )->Get(val);
+                            decomposeProperty( introspector,
+                                               Property<MemberType>( std::string( (*it1), prefix.length() ),
+                                                                     std::string( "" ), val ) );
+                        }
+                }
+        }
+
+        /**
+         * Update the all elements in the given bag with new reports
+         * of data in this server.
+         */
+        void refreshReports( PropertyBag& bag ) const
+        {
+            // The bag is filled with placeholders, ready to get the
+            // updates.
+            // try to update all ns elements having 'prefix'
+            PropertyBag::iterator it1(bag.getProperties().begin()), it2(bag.getProperties().end() );
+            for ( ; it1 != it2; ++it1 )
+                {
+                    // @todo : We could automagically store every data element
+                    // in a property object. This would eliminate two copy operations !
+                    // from DO to t below and from t to the Property.
+                    // But since data is already stored in a DataObject, which controls access...
+                    // it is hard to get around it. A Refval Property could eliminate
+                    // one copy operation.
+                    DataObjectType* dot;
+                    if ( 0 != ( dot = ns.getObject( prefix + (*it1)->getName() ) ) )
+                        {
+                            MemberType t;
+                            dot->Get(t);
+                            // we are hosting this element.
+                            // try to update the bag !
+                            refreshProperty( bag,
+                                             Property<MemberType>( (*it1)->getName(),
+                                                                   "", t ) );
+                        }
+                }
+        }
+
+        virtual void cleanupReports( PropertyBag& bag ) const
+        {
+            flattenPropertyBag( bag );
+            deleteProperties( bag );
+        }
+            
         /**
          * Get a member variable of a DataObject.
          * @param m Returns the resulting contents of a DataObject.
@@ -222,6 +324,9 @@ namespace ORO_ControlKernel
      * This class holds one nameserved element of a DataObject.
      * Evenmore, it offers the DataObject Interface for a nameserved
      * element.
+     *
+     * It forms a list of subclasses each holding their DataObject
+     * in a DataObjectServer.
      */
     template<typename First, typename Rest>
     struct NameSubClass< NameList<First,Rest> >
@@ -234,9 +339,9 @@ namespace ORO_ControlKernel
         using NameSubClass<Rest>::Set;
 
         template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& prefix, const pair_type& t, index_type index) 
-            : DataObjectServer<First>(prefix), 
-              NameSubClass<Rest>(prefix, t, index + 1 )
+        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
+            : DataObjectServer<First>(name,prefix), 
+              NameSubClass<Rest>(name, prefix, t, index + 1 )
         {
             // t contains start and end iterator of the multimap
             for ( typename pair_type::first_type it = t.first;
@@ -246,13 +351,16 @@ namespace ORO_ControlKernel
                     // if the index is equal to our index
                     if ( it->first == index )
                         {
-                            First*  item = new First();
+                            First*  item = new First( it->second );
                             fv.push_back( item );
                             DataObjectServer<First>::reg( item, it->second );
                         }
                 }
         }
 
+        /**
+         * The destructor cleans up all its DataObjectServer instances.
+         */
         ~NameSubClass() 
         { 
             for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
@@ -261,7 +369,49 @@ namespace ORO_ControlKernel
                     delete *it;
                 }
         }
-        void changePrefix(const std::string& prefix) { DataObjectServer<First>::changePrefix(prefix); }
+
+        /**
+         * Change the local name prefix.
+         */
+        void changePrefix(const std::string& prefix)
+        {
+            DataObjectServer<First>::changePrefix(prefix);
+            NameSubClass<Rest>::changePrefix(prefix);
+        }
+
+        virtual void setName( const std::string& name )
+        {
+            DataObjectServer<First>::setName(name);
+            NameSubClass<Rest>::setName(name);
+        }
+
+        virtual void refreshReports( PropertyBag& bag ) const
+        {
+            // Delegate to the subclass's implementation.
+            DataObjectServer<First>::refreshReports(bag);
+            NameSubClass<Rest>::refreshReports(bag);
+        }
+
+        void exportReports( PropertyBag& bag ) const
+        {
+            // Delegate to the subclass's implementation.
+            DataObjectServer<First>::exportReports(bag);
+            NameSubClass<Rest>::exportReports(bag);
+        }
+
+        virtual void inspectReports(PropertyIntrospection* i) const
+        {
+            // Delegate to the subclass's implementation.
+            DataObjectServer<First>::inspectReports(i);
+            NameSubClass<Rest>::inspectReports(i);
+        }
+
+        virtual void cleanupReports( PropertyBag& bag ) const
+        {
+            DataObjectServer<First>::cleanupReports(bag);
+            NameSubClass<Rest>::cleanupReports(bag);
+        }
+
     private:
         /**
          * The nameserved DataObject.
@@ -284,9 +434,12 @@ namespace ORO_ControlKernel
         using DataObjectServer<First>::Get;
         using DataObjectServer<First>::Set;
 
+        typedef DataObjectServer<First>    Server;
+        typedef DataObjectServer<nil_type> NextServer;
+
         template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& prefix, const pair_type& t, index_type index) 
-            : DataObjectServer<First>(prefix)
+        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
+            : DataObjectServer<First>(name, prefix)
         {
             // t contains start and end iterator of the multimap
             for ( typename pair_type::first_type it = t.first;
@@ -311,7 +464,6 @@ namespace ORO_ControlKernel
                     delete *it;
                 }
         }
-        void changePrefix(const std::string& prefix) { DataObjectServer<First>::changePrefix(prefix); }
     private:
         std::vector< First* > fv;
     };
@@ -323,26 +475,41 @@ namespace ORO_ControlKernel
     template< template<class Cont> class First, typename Rest>
     struct NameSubClass< NameList< First<nil_type>, Rest > >
     {
+        typedef DataObjectServer<nil_type> Server;
+        typedef DataObjectServer<nil_type> NextServer;
+
         bool Get( First<nil_type>& ) {}
         bool Set( First<nil_type>& ) {}
         template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
+        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) {}
         void changePrefix(const std::string& prefix) { }
+        void setName(const std::string& prefix) { }
+        virtual void refreshReports( PropertyBag& bag ) const {}
+        virtual void inspectReports( PropertyIntrospection* introspector ) const {}
+        virtual void exportReports( PropertyBag& bag ) const  {}
+        virtual void cleanupReports( PropertyBag& bag ) const {}
     };
 
     /**
      * NameSubClass specialisation.
      * When a plain nil_type is encountered on all but last template slot.
      */
-    template<typename First>
-    struct NameSubClass< NameList< typename has_nil<First>::type, nil_type> >
-    {
-        bool Get( First& ) {}
-        bool Set( First& ) {}
-        template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
-        void changePrefix(const std::string& prefix) { }
-    };
+//     template<typename First>
+//     struct NameSubClass< NameList< typename has_nil<First>::type, nil_type> >
+//     {
+//         typedef DataObjectServer<nil_type> Server;
+//         typedef DataObjectServer<nil_type> NextServer;
+
+//         bool Get( First& ) {}
+//         bool Set( First& ) {}
+//         template< typename pair_type, typename index_type>
+//         NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
+//         void changePrefix(const std::string& prefix) { }
+// //         DataObjectServer<nil_type>* nextServer()
+// //         {
+// //             return 0;
+// //         }
+//     };
 
     template< typename _T0= nil_type,
               typename _T1= nil_type,
@@ -430,17 +597,6 @@ namespace ORO_ControlKernel
         typedef NameSubClass< NameList<DataObjectBuffer<typename C::T0>, NameList<DataObjectBuffer<typename C::T1>, NameList<DataObjectBuffer<typename C::T2>, NameList<DataObjectBuffer<typename C::T3>, NameList<DataObjectBuffer<typename C::T4>,NameList<DataObjectBuffer<typename C::T5>,NameList<DataObjectBuffer<typename C::T6>, NameList<DataObjectBuffer<typename C::T7>, NameList<DataObjectBuffer<typename C::T8>, NameList< DataObjectBuffer<typename C::T9> > > > > > > > > > > > tree;
     };
 
-    // Deprecated, erase when code is stable :
-//     template< typename C>
-//     struct NakedContainer
-//     {
-//         template< typename D>
-//         struct DataObjectType { typedef DataObject<D> type; };
-//         // without data objects (original):
-//         typedef C NamesTypes;
-//         typedef NameSubClass< NameList<typename C::T0, NameList<typename C::T1, NameList<typename C::T2, NameList<typename C::T3, NameList<typename C::T4,NameList<typename C::T5,NameList<typename C::T6, NameList<typename C::T7, NameList<typename C::T8, NameList< typename C::T9> > > > > > > > > > > tree;
-//     };
-
         /**
          * @brief The templated nameserved dataobject. It can be of any DataType/DataObjectType.
          *
@@ -451,14 +607,12 @@ namespace ORO_ControlKernel
          * NameContainer is one of the specialised containers for holding type info of
          * the objects to be served.
          */
-    template<typename _NameContainer>
-    class NameServedDataObject
-        : public _NameContainer::NamesTypes, 
-//          public MemberFromBase<typename _NameContainer::NamesTypes::reverse_iterator>,  // deprecated
+        template<typename _NameContainer>
+        class NameServedDataObject
+            : public _NameContainer::NamesTypes, 
           public _NameContainer::tree, 
           public _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type // To provide the generic DataObjectInterface
     {
-        //NameContainer nc;
     public :
         using _NameContainer::tree::Get;
         using _NameContainer::tree::Set;
@@ -471,14 +625,20 @@ namespace ORO_ControlKernel
          *
          * This constructs the nameserver for data objects for use
          * within a kernel.
+         * @param name The unique name of the DataObject.
          * @param prefix The scope of the nameserver, to avoid clashes with
          *        other nameservers (the user does not see this).
          */
-        NameServedDataObject(const std::string& prefix = std::string()) 
+        NameServedDataObject(const std::string& name, const std::string& prefix = name ) 
             : _NameContainer::NamesTypes(), 
-              // MemberFromBase<typename _NameContainer::NamesTypes::reverse_iterator>( rend() ), // deprecated
-              _NameContainer::tree( prefix, std::make_pair( begin(), end() ), 0 )
+            _NameContainer::tree(name, prefix, std::make_pair( begin(), end() ), 0 ),
+            DefaultDataObject( name, prefix )
         {
+        }
+
+        void setName( const std::string& name)
+        {
+            _NameContainer::tree::setName(name);
         }
 
         void changePrefix(const std::string& prefix)

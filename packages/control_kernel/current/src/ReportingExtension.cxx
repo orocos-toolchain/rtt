@@ -176,12 +176,58 @@ namespace ORO_ControlKernel
                 if ( ic != comp_map.end() )
                     {
                         // The component is in our map, add to reporting.
-                        ic->second->exportReports( 
-                                                  ic->second->getReports()->value() );
+                        ic->second->exportReports( ic->second->getReports()->value() );
                         reporter->exporterAdd( ic->second->getExporter() );
                     }
             }
-                
+
+        // iterate over all xml-listed dataobjects :
+        for ( RepList::iterator it = rep_dos.begin(); it != rep_dos.end(); ++it )
+            {
+                unsigned int pos;
+                // see if xml-listed data_server is present in this kernel :
+                DataObjectReporting* do_server;
+                if ( (do_server = DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ) ) )
+                    {
+                        // The user gave a "DataObject" identifier
+                        // Check for double registration
+                        if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
+                            {
+                                active_dos.push_back( do_server );
+                                reporter->exporterAdd( do_server->getExporter() );
+                            }
+                        else
+                            {
+                                // This server exists. Request it to export all reports,
+                                // but remove the old entry, whatever it was.
+                                do_server->cleanupReports( do_server->getReports()->value() );
+                            }
+                        do_server->exportReports( do_server->getReports()->value() );
+                    }
+                else if ( (pos = (*it).find("::")) != std::string::npos && (do_server =
+                          DataObjectReporting::nameserver.getObject( base->getKernelName()
+                                                                     +"::" + std::string( *it, 0, pos ) )) )
+                    {
+                        PropertyBag tmp_bag;
+                        PropertyBase* new_item;
+                        // The user gave a "DataObject::DataName" identifier, we need to add one item.
+                        // check if it is the first registration...
+                        if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
+                            {
+                                active_dos.push_back( do_server );
+                                reporter->exporterAdd( do_server->getExporter() );
+                            }
+                        do_server->exportReports( tmp_bag );
+
+                        std::cout << "Trying to find "<< std::string( *it, pos+2 ) <<std::endl;
+                        // if the DataName is in the server, but not in the reports yet, add it to the reports.
+                        if ( (new_item = tmp_bag.find( std::string( *it, pos+2 ) ) ) &&
+                             do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0)
+                            do_server->getReports()->value().add( new_item->clone() );
+
+                        do_server->cleanupReports( tmp_bag );
+                    }
+            }
         if (serverOwner)
             reporterTask->start();
         return true;
@@ -190,6 +236,9 @@ namespace ORO_ControlKernel
     void ReportingExtension::step()
     {
         // copy contents, if possible, on frequency of reporter.
+        for ( DosList::iterator it = active_dos.begin(); it != active_dos.end(); ++it )
+            (*it)->refreshReports( (*it)->getReports()->value() );
+
         if ( reporter && serverOwner )
             {
                 if ( count % interval == 0 )
@@ -205,15 +254,21 @@ namespace ORO_ControlKernel
     {
                 
         // stop reporter.
-        if (reporter && serverOwner )
+        if (reporter )
             {
-                reporterTask->stop();
+                if (serverOwner)
+                    reporterTask->stop();
                 for ( ExpList::iterator it = exporters.begin(); it != exporters.end(); ++it )
                     reporter->exporterRemove( *it );
                 for ( CompMap::iterator it = comp_map.begin(); it != comp_map.end(); ++it )
                     {
                         reporter->exporterRemove( it->second->getExporter() );
                         it->second->removeReports();
+                    }
+                for ( DosList::iterator it = active_dos.begin(); it != active_dos.end(); ++it )
+                    {
+                        (*it)->cleanupReports( (*it)->getReports()->value() );
+                        reporter->exporterRemove( (*it)->getExporter() );
                     }
                 delete reporterTask;
                 delete reporter;
@@ -227,6 +282,8 @@ namespace ORO_ControlKernel
         delete splitStream;
         delete config;
         delete nh_config;
+
+        active_dos.clear();
     }
 
     /**
@@ -301,6 +358,7 @@ namespace ORO_ControlKernel
         // a bit harsh, yeah...
         exporters.clear();
         rep_comps.clear();
+        rep_dos.clear();
                 
         // Reporting exporters, look them up by name.
         PropertyBase* exportbase = bag.find("Exporters");
@@ -311,8 +369,16 @@ namespace ORO_ControlKernel
                 while ( it != res->value().getProperties().end() )
                     {
                         Property<std::string>* compName = dynamic_cast<Property<std::string>* >( *it );
-                        if ( compName && compName->getName() == "Component" )
+                        if ( !compName )
+                            std::cout << "[Reporting] Warning : Expected property \""<<
+                                (*it)->getName() <<"\" to be of type string."<<endl;
+                        else if ( compName->getName() == "Component" )
                             rep_comps.push_back( compName->value() );
+                        else if ( compName->getName() == "DataObject" )
+                            rep_dos.push_back( compName->value() );
+                        else
+                            std::cout << "[Reporting] Warning : Expected \"Component\" Or \"DataObject\", got "<<
+                                compName->getName() << endl;
                         ++it;
                     }
             }

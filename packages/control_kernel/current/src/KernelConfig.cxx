@@ -12,8 +12,6 @@ namespace ORO_ControlKernel
     
     KernelConfig::KernelConfig( KernelBaseFunction& _k, const std::string& _filename)
         : filename( _filename ),
-          priority("priority","The priority of the kernel."),
-          frequency("frequency","The periodic execution frequency in Hz"),
           baseBag(0), extensionBag(0), kernel(&_k)
     {
         XMLPlatformUtils::Initialize();

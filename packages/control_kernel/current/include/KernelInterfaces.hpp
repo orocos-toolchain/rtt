@@ -38,7 +38,11 @@ namespace ORO_ControlKernel
     {
 
         /**
-         * This interface allows us to manage extensions for configuration.
+         * @brief This interface is the base class of all Extensions.
+         *
+         * An Extension to the ControlKernel has a name and properties,
+         * which define the behaviour of the Extension. Extensions 
+         * communicate with components through their ComponentAspectInterface.
          */
         struct ExtensionInterface
             :public NameServerRegistrator<ExtensionInterface*,std::string>
@@ -82,10 +86,15 @@ namespace ORO_ControlKernel
         };
     
         /**
+         * @brief An Aspect is a base class of a component, implementing a
+         * functionality like reporting, configuration,...
+         *
          * A template class for Aspects, which can be used, optionally, by Extensions of the
-         * kernel. This interface instructs the Aspect to register itself with a certain
+         * ControlKernel. This interface instructs the Aspect to register itself with a certain
          * Extension. You must use this as a base class for every Aspect you want to provide
          * to a component.
+         *
+         * The base class of most Extensions is the ExtensionInterface.
          */
         template< class _Extension >
         struct ComponentAspectInterface
@@ -104,41 +113,48 @@ namespace ORO_ControlKernel
         
             /**
              * Instructs the component to enable an aspect so that this aspect can
-             * deliver a service to the Extension <ext> of thekernel. 
+             * deliver a service to the Extension <ext> of the ControlKernel. 
              * This will be called when the component is connected/added to the kernel.
              */
             virtual bool enableAspect( Extension* ext ) = 0;
 
             /**
-             * Disable this aspect and no longer use the extension of the kernel.
+             * Disable this aspect and no longer use the Extension of the kernel.
              */
             virtual void disableAspect() = 0;
 
+            /**
+             * Return the name of this Aspect instance.
+             */
             virtual const std::string& getName() { return aspectName; }
 
             const std::string aspectName;
         };
-
     }
 
     class KernelBaseFunction;
 
     /**
-     * The most logical aspect of a Component is that it belongs
-     * to a Kernel and can be controlled.
+     * @brief The Base class of each ControlKernel Component
+     *
+     * The most fundamental aspect of a Component is that it belongs
+     * to a ControlKernel and can be notified of the kernel's status.
      * This aspect introduces the ability to detect if the component
-     * is placed in a kernel and to return a pointer to this kernel.
-     * It is the aspect of the DefaultExtension.
+     * is placed in a ControlKernel and to return a pointer to this kernel.
+     * It is the aspect of the KernelBaseFunction.
      * 
      */
     class ComponentBaseInterface 
-        :public ModuleControlInterface
+        :public ModuleControlInterface,
+         public detail::ComponentAspectInterface< KernelBaseFunction >
     {
     public:
         /**
          * Constructor.
          */
-        ComponentBaseInterface(const std::string&) : kern(0) {}
+        ComponentBaseInterface(const std::string& name)
+            : detail::ComponentAspectInterface< KernelBaseFunction >( name + std::string("::Base") ),
+              kern(0) {}
 
         virtual ~ComponentBaseInterface() {}
             
@@ -193,29 +209,30 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @brief The DefaultBase is defined for ControlKernels that do not know of 
-     * Component Aspects.
-     * It will be used as default template parameter for the components.
+     * @brief The DefaultBase is defined for
+     * ControlKernels that do not know of 
+     * Component Aspects. It will be used as default
+     * template parameter for the components.
      *
-     * A Component Aspect is the base classe that a Component
+     * A Component Aspect is the base class that a Component
      * must have to be able to be queried by the respective Kernel Extension.
-     * As a consequence, Extensions themselves define the base class they 
-     * require. This base class is passed through by the kernel to the Component.
+     * As a consequence, Extensions themselves define the component base class they 
+     * require. That class is passed through by the kernel to the Component.
      * This relieves the burden of figuring it out manually from the shoulders of the user.
      */
     typedef ComponentBaseInterface DefaultBase;
 
     /**
-     * Each extension to the BaseKernel needs 
-     * to implement the RunnableInterface and define a
-     * common Aspect (DefaultBase). 
+     * @brief The 'Extension' that updates the components.
+     *
      * This Extension is actually the base functionality
-     * of a kernel, updating the components, storing general properties,
-     * generating kernel events.
+     * of a ControlKernel, updating the components, storing general properties,
+     * generating kernel events. The Aspect it uses is the 
+     * ComponentBaseInterface.
      * 
      */
     struct KernelBaseFunction
-        :public RunnableInterface
+        :public ORO_CoreLib::RunnableInterface
     {
         friend class ComponentBaseInterface;
         
@@ -227,6 +244,8 @@ namespace ORO_ControlKernel
 
         KernelBaseFunction( KernelBaseFunction* _base=0 )
             : running(false), 
+              name("name","The name of the kernel.", "Default"),
+              //              priority("priority","The priority of the kernel."),
               frequency("frequency","The periodic execution frequency of this kernel",0), mytask(0),
               kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN)
         {}
@@ -256,6 +275,16 @@ namespace ORO_ControlKernel
         virtual void setTask( TaskInterface* task )
         {
             mytask = task;
+        }
+
+        const std::string& getKernelName() const
+        {
+            return name.get();
+        }
+
+        void setKernelName( const std::string& _name)
+        {
+            name = _name;
         }
 
         /**
@@ -292,6 +321,7 @@ namespace ORO_ControlKernel
 
         virtual bool updateProperties(const PropertyBag& bag)
         {
+            composeProperty(bag, name);
             return composeProperty(bag, frequency);
         }
         
@@ -353,6 +383,8 @@ namespace ORO_ControlKernel
          * Flag to keep track of running state.
          */
         bool running;
+
+        Property<std::string> name;
 
         /**
          * The periodicity of this kernel.

@@ -22,6 +22,8 @@
 
 
 #include "KernelInterfaces.hpp"
+#include "DataServer.hpp"
+
 #include <corelib/PropertyExporter.hpp>
 #include <corelib/PropertyReporter.hpp>
 #include <corelib/marshalling/MarshallerAdaptors.hpp>
@@ -30,6 +32,7 @@
 #include <corelib/marshalling/TableHeaderMarshaller.hpp>
 #include <corelib/marshalling/EmptyHeaderMarshaller.hpp>
 #include <corelib/TaskNonRealTime.hpp>
+
 
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_STDIOSTREAM
@@ -116,9 +119,11 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * An extension for reporting properties to a human readable
+     * A ControlKernel extension for periodically reporting component
+     * properties to a human readable
      * text format. It can report to a file or to the screen.
      * This extension is purely meant for text based data gathering.
+     * It can also report DataObjects when used in the NSControlKernel.
      *
      */
     class ReportingExtension
@@ -236,6 +241,8 @@ namespace ORO_ControlKernel
          */
         typedef std::vector<PropertyExporterInterface*> ExpList;
 
+        typedef std::vector<DataObjectReporting*> DosList;
+
         /**
          * All external exporters that want to be reported.
          */
@@ -246,6 +253,15 @@ namespace ORO_ControlKernel
          */
         RepList rep_comps;
 
+        /**
+         * All DataObjects listed in the property file that may be reported.
+         */
+        RepList rep_dos;
+
+        /**
+         * All DataObjects actively reporting data.
+         */
+        DosList active_dos;
         /**
          * True if we own the report server.
          */

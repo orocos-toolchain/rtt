@@ -55,8 +55,7 @@ namespace ORO_ControlKernel
         bool configure();
     protected:
         std::string filename;
-        Property<std::string> priority;
-        Property<double>      frequency;
+
         /**
          * A bag containing all extensions properties.
          */
