@@ -122,3 +122,20 @@ void DistanceSensor::scaleSet (const SensorData & scale)
 }
 
   
+void DistanceSensor::calibrate() {
+  unsigned int d;
+  _aIn->read(_chan,d);
+  SensorData data = (double (d - _aIn->binaryLowest()) / _aIn->resolution(_chan)) + _aIn->lowest(_chan);
+
+  _offset = -data;
+  // thus data+_offset = 0
+}
+
+bool DistanceSensor::isCalibrated() const
+{
+    return true;
+}
+
+void DistanceSensor::unCalibrate() {
+    _offset = 0;
+}

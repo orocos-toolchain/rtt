@@ -55,6 +55,9 @@ namespace ORO_DeviceDriver
     virtual void offsetSet (const SensorData &);
     virtual void scaleSet (const SensorData &);
   
+      virtual void calibrate();
+      virtual bool isCalibrated() const;
+      virtual void unCalibrate();
   protected:
     AnalogInInterface<unsigned int> * _aIn;
     int _chan;
