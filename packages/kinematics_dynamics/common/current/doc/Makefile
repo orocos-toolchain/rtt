@@ -1,8 +1,9 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-kinematics-doc.tgz \
 	orocos-kinematics.html \
-	orocos-kinematics.pdf
+	orocos-kinematics.pdf \
+	orocos-kinematics.ps
 
 docxml: dochtml docpdf
 
