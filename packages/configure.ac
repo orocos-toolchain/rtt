@@ -1,4 +1,5 @@
 # Process this file with autoconf to produce a configure script.
+PACKAGES_INIT([Orocos Packages],0,10,0)
 
 if ! test -e configure.ac; then
    echo "
@@ -6,9 +7,7 @@ if ! test -e configure.ac; then
    the original packages directory, where it is generated.
    It will create packages for you in-place.
 "
-
-
-PACKAGES_INIT("Orocos Packages",0,10,0)
+fi
 
 AC_CHECK_PROGS(PYTHON, python python1.5,no)
 if test $PYTHON = no; then

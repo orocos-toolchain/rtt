@@ -118,11 +118,23 @@ m4_define([ACX_VERSION_POST],[
  MAJOR_VERSION=acx_major_version
  MINOR_VERSION=acx_minor_version
  MICRO_VERSION=acx_micro_version
- # XXX need to find the global SVN repos number here !
- BUILD=$(svn info . |grep Revision | sed -e's/Revision: //')
+
+ SVN=$(which svn)
+
+ if test x$SVN != xno; then
+ echo "{ print $""1  }" > print-svn.awk
+ SVN_VERSION=$(svn log http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 2>/dev/null \
+	| head -2 |tail -1 | awk -f print-svn.awk )
+ fi;
+ rm print-svn.awk
+
+ if test x$SVN != xno; then
+	 BUILD=-$SVN_VERSION
+ fi;
+
  DATE=`date +"%Y%m%d_%k%M"`
  VERSION=acx_version
- VERSION="$VERSION-$BUILD"
+ VERSION="$VERSION$BUILD"
  PACKAGE_VERSION=$VERSION
  AC_SUBST(MAJOR_VERSION)
  AC_SUBST(MINOR_VERSION)
