@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @mainpage Orocos Online API Documentation
+ * @mainpage <a href="http://www.orocos.org">Orocos</a> Online API Documentation
  * 
  * @section intro Introduction
  * This is the Online API documentation of all available
@@ -44,10 +44,33 @@
  * defined within this namespace. At the bottom of that page,
  * you'll find a more elaborate description of the namespace.
  *
- * You will most likely also need to read the online manuals.
+ * You will most likely also need to read the <a href="http://www.orocos.org/documentation.php">online manuals</a>.
  *
- * @section comps Control Kernel Components
+ * @section corelib Orocos Realtime Services
+ * The classes in the following namespaces form the application
+ * independent core services : ORO_OS, ORO_CoreLib, ORO_DeviceInterface and ORO_Execution,
+ * which define the portable framework using the ORO_CoreLib::Event, ORO_CoreLib::PeriodicTask, ORO_Execution::TaskContext,
+ * ORO_CoreLib::DataObject, the script ORO_Execution::Parser, command ORO_Execution::Processor and many other classes.
+ *
+ * @section apps Applications
+ * The following application frameworks are available : 
+ *
+ * @subsection comps Motion Control Kernel and Components
  * The <a href="modules.html"><tt>Modules</tt></a> page contains
  * a summary of all available components for the Orocos Control
- * Kernel framework.
+ * Kernel framework. There are components for kinematics ( using ORO_KinDyn ),
+ * 1D and 6D ORO_Geometry::Path and ORO_Geometry::VelocityProfile planning in a
+ * ORO_Geometry::Trajectory ( using ORO_Geometry ), and mere signal processing
+ * ( using ORO_SignalProcessing ).
+ *
+ * @note The Control Kernel Client GUI is not documented in this document.
+ * It comes with its own documentation and you can fetch it from the 
+ * <a href="http://www.orocos.org/Download.php">Download</a> page.
+ *
+ * @subsection can CANOpen Device Communication
+ * The CAN namespace contains device independent
+ * implementations for realtime CAN communication using a CAN::CANPieController
+ * and device driver in the ORO_DeviceDriver namespace. Device implementations
+ * are available for some Beckhoff modules.
+ *
  */

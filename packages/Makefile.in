@@ -49,9 +49,7 @@ html-dist:
 doc-dist-clean:
 	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.eps" | xargs rm
 
-doxy-dist:
-	@echo "Running Configure..."
-	@./configure >/dev/null || (echo "./configure failed!" ; exit 1)
+doxy-dist: configure
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
 	@rm -rf doc/api
 	@mkdir -p doc/api	
