@@ -22,6 +22,7 @@ is very powerful."
     compile StateContextBuilder.cxx
     compile PeerParser.cxx 
     compile FunctionFactory.cxx
+    compile TaskBrowser.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

@@ -67,6 +67,11 @@ namespace ORO_Execution
         return expressionparser.setStack( tc );
     }
 
+    TaskContext* ConditionParser::setContext(TaskContext* tc){
+        context = tc;
+        return expressionparser.setContext( tc );
+    }
+
   void ConditionParser::reset()
   {
       // not strictly needed because its a smart_ptr

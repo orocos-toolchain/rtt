@@ -147,6 +147,7 @@ namespace ORO_Execution
        * @return the previous TaskContext.
        */
       TaskContext* setStack( TaskContext* tc);
+      TaskContext* setContext( TaskContext* tc);
 
     rule_t& parser();
 

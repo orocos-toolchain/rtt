@@ -37,8 +37,10 @@ namespace ORO_Execution {
     using ORO_CoreLib::StateInterface;
 
     class StateDescription;
+    class StateContextCommands;
     class Processor;
     class TaskAttributeBase;
+    class TaskContext;
 
     class ParsedStateContext
         : public StateContextTree
@@ -101,6 +103,10 @@ namespace ORO_Execution {
         std::vector<std::string> getParameterNames() const;
         std::vector<std::string> getReadOnlyValuesNames() const;
 
+        /**
+         * Return a DataSource which contains the scoped name
+         * of this StateContext.
+         */
         DataSource<std::string>* getNameDS() const;
 
         // Set the name of this context.  This also sets subcontexts'
@@ -110,6 +116,17 @@ namespace ORO_Execution {
 
         const std::string& getText() const { return _text; }
         void setText(const std::string& text) { _text = text; }
+
+        TaskContext* getTaskContext() const {
+            return context;
+        }
+        void setTaskContext(TaskContext* tc) {
+            context = tc;
+        }
+        /**
+         * Call this function if the state context is parsed.
+         */
+        void finish();
     private:
         VariableDataSource<std::string>::shared_ptr nameds;
 
@@ -122,6 +139,9 @@ namespace ORO_Execution {
         VisibleReadOnlyValuesMap visiblereadonlyvalues;
 
         std::string _text;
+
+        TaskContext* context;
+        StateContextCommands* sc_coms;
     };
 }
 

@@ -92,9 +92,11 @@ namespace ORO_Execution
 
     TaskContext* DataCallParser::setContext( TaskContext* tc )
     {
+        //std::cerr<< "DataCallParser: context: "<< tc->getName()<<std::endl;
         TaskContext* ret = context;
         context = tc;
         peerparser.setContext(tc);
+        peerparser.reset();
         // do not change the expressionparser ! (we do not own it)
         return ret;
     }
@@ -104,6 +106,7 @@ namespace ORO_Execution
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
+      peerparser.reset();
 
       // this is slightly different from CommandParser
     const GlobalDataSourceFactory& gdsf =
@@ -114,9 +117,9 @@ namespace ORO_Execution
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mobject );
     if ( ! dfi && ! mfi )
         if ( mobject != "this")
-            throw_( iter_t(), std::string("Task '")+context->getName()+"' has no object '"+mobject+"'." );
+            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
         else
-            throw_( iter_t(), std::string("Task '")+context->getName()+"' has no object or function '"+mmethod+"'." );
+            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no dataobject or method '"+mmethod+"'." );
         //      throw parse_exception_no_such_component( mobject );
 
     // One of both must have the method
@@ -488,6 +491,15 @@ namespace ORO_Execution
     {
         valueparser.setStack( tc );
         return context;
+    }
+
+    TaskContext* ExpressionParser::setContext( TaskContext* tc )
+    {
+        TaskContext* ret = context;
+        context = tc;
+        valueparser.setContext( tc );
+        datacallparser.setContext(tc);
+        return ret;
     }
 
 

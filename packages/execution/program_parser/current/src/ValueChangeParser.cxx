@@ -116,6 +116,12 @@ namespace ORO_Execution
         return expressionparser.setStack( tc );
     }
 
+    TaskContext* ValueChangeParser::setContext( TaskContext* tc )
+    {
+        context = tc;
+        return expressionparser.setContext( tc );
+    }
+
   void ValueChangeParser::seenconstantdefinition()
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();

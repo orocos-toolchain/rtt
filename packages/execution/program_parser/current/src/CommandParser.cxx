@@ -96,7 +96,17 @@ namespace ORO_Execution
 
     TaskContext* CommandParser::setStack( TaskContext* tc )
     {
+        //std::cerr<< "Commands: stack: "<< tc->getName()<<std::endl;
         return expressionparser.setStack( tc );
+    }
+
+    TaskContext* CommandParser::setContext( TaskContext* tc )
+    {
+        //std::cerr<< "Commands: context: "<< tc->getName()<<std::endl;
+        context = tc;
+        peerparser.setContext(tc);
+        peerparser.reset();
+        return expressionparser.setContext( tc );
     }
 
   void CommandParser::seennopcommand()
@@ -109,6 +119,7 @@ namespace ORO_Execution
   {
       mcurobject =  peerparser.object();
       peer = peerparser.peer();
+      peerparser.reset();
 
     const GlobalCommandFactory& gcf =
       peer->commandFactory;
@@ -263,7 +274,8 @@ namespace ORO_Execution
     // dispatch a TryCommand to other processor, overthere, the result is ignored,
     // it is interpreted here, with the implcond. Other condition branches
     // must be guarded likewise with wrapCondition().
-    if ( peer != context ) {
+    // we compare processors, as dispatching is not done if the processor is shared.
+    if ( peer->getProcessor() != context->getProcessor() ) {
         tcom = new TryCommand( com );
         com = new CommandDispatch( peer->getProcessor(), tcom, tcom->result().get() );
          // compose impl term cond with accept filter and do not invert the result :

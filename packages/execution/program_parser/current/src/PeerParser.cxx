@@ -13,16 +13,15 @@ namespace ORO_Execution
 
         void PeerParser::done()
         {
+            //std::cerr<<"Peerparser operating in "<<  context->getName()<<std::endl;
             // now first find the task / object which matches mcurobject :
             _peer = context;
             // if size() > 1, it must be a peer 
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
+                //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
                 callqueue.pop();
             }
-            // this-wrapping
-            if ( callqueue.empty() )
-                callqueue.push("this");
 
             // Something went wrong, a subtask was not found
             if ( callqueue.size() > 1 ) {
@@ -32,19 +31,25 @@ namespace ORO_Execution
                 std::string path = callqueue.front();
                 while ( !callqueue.empty() )
                     callqueue.pop();
-                throw parse_exception_semantic_error( "Task or object '"+path+"' is not known to '" + object + "'" );
+                throw parse_exception_semantic_error( "From TaskContext '"+context->getName()+"', arrived in TaskContext '"+_peer->getName()+"' : Task or object '"+path+"' is not known to Task '" + object + "'" );
             }
-            // from here on : callqueue contains "this", "objectname" or "peername"
-            // and peer contains the peer context containing it.
+            if ( callqueue.empty() )
+                callqueue.push("this");
+            // from here on : callqueue contains "this" or "objectname".
             // check if it is an object of the peer, or a method of the peer itself.
+            // Warning : We can not throw because it is allowed to parse nothing.
+            // in that case, just assign "this" to mcurobj.
             if ( _peer->commandFactory.getObjectFactory( callqueue.front() )
                  ||
                  _peer->methodFactory.getObjectFactory( callqueue.front() )
                  ||
                  _peer->dataFactory.getObjectFactory( callqueue.front() ) )
                 mcurobject = callqueue.front(); // it is an objectname or this
-            else
-                mcurobject = "this"; // it is a peername
+            else {
+                // we should only get here if we parsed nothing.
+                // put "this" in mcurobject.
+                mcurobject = callqueue.front();
+            }
             callqueue.pop();
         }
 
@@ -60,6 +65,7 @@ namespace ORO_Execution
 
     TaskContext* PeerParser::setContext( TaskContext* tc )
     {
+        //std::cerr<< "Peers: context: "<< tc->getName()<<std::endl;
         TaskContext* ret = context;
         context = tc;
         return ret;
@@ -75,6 +81,8 @@ namespace ORO_Execution
     {
         std::string name( begin, --end ); // compensate for extra "."
         callqueue.push( name );
+        //std::cerr << "seen " << name <<std::endl;
+        ++end;
     }
 
     rule_t& PeerParser::parser()

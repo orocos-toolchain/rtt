@@ -64,12 +64,15 @@ namespace ORO_Execution
    */
   class StateGraphParser
   {
+      // Our task we are loaded in :
       TaskContext* context;
+      // The TC of the current StateContext
+      TaskContext* curcontext ;
       our_pos_iter_t& mpositer;
 
       typedef std::map<std::string, ParsedStateContext*> contextnamemap_t;
       typedef std::map<std::string, TaskAttributeBase*> contextparams_t;
-      typedef std::map<std::string, DataSourceBase*> contextparamvalues_t;
+      typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
       typedef std::map<std::string, StateContextBuilder*> contextbuilders_t;
       typedef std::map<std::string, detail::EventHandle*> handlemap;
@@ -77,7 +80,8 @@ namespace ORO_Execution
       contextnamemap_t rootcontexts;
       contextbuilders_t contextbuilders;
       ParsedStateContext* curtemplatecontext;
-      std::vector<CommandInterface*> preentrycommands;
+      std::vector<CommandInterface*> varinitcommands;
+      std::vector<CommandInterface*> paraminitcommands;
       ParsedStateContext* curinstantiatedcontext;
       StateContextBuilder* curcontextbuilder;
       std::string curinstcontextname;

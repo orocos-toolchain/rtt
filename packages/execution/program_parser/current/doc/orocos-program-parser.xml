@@ -1011,8 +1011,8 @@ StateContext MyStateContext
 	  <para>
 	    When a state is entered for the first time, the entry
 	    function is called. When it is left, the exit function is
-	    called. They both contain unconditional component commands
-	    and event configuration statements. The component commands
+	  called. They both contain <emphasis>unconditional</emphasis> task commands
+	    and/or event configuration statements. The task commands
 	    are the same as in programs. There are two event
 	    configuration statements : <function>connect</function>
 	    and <function>disconnect</function>. They have the
@@ -1026,7 +1026,7 @@ StateContext SomeStateContext
     state someState
     {
         entry {
-	    connect handle_name( "EventName", Component.command( args ) )
+	    connect handle_name( "EventName", task.command( args ) )
 	}
         exit {
 	    disconnect handle_name
@@ -1039,8 +1039,8 @@ StateContext SomeStateContext
 	    command with its arguments. The arguments will be
 	    evaluated when the command is called. From that moment on,
 	    whenever the event "EventName" is raised (this is done
-	    inside the component or kernel implementation), the
-	    command will be executed synchronically. The disconnect
+	    in another task), the
+	    command will be executed in the states context (and thus thread). The disconnect
 	    statement cancels a previously connected handle and may be
 	    called at any time on any handle. Each handle must be
 	    declared beforehand on top of the state script, before any
@@ -1054,7 +1054,7 @@ StateContext SomeStateContext
 	    The handle function is called directly after the entry
 	    function or when no transition can be found to another state
 	    in the next execution step.  The handle function contains
-	    only component commands.  To leave a state, the transitions
+	    only task commands.  To leave a state, the transitions
 	    function defines <function>select</function>
 	    statements. These can be guarded by if...then clauses :
 	    <programlisting>
@@ -1133,10 +1133,10 @@ StateContext SomeStateContext
     }
 }
 
-RootContext SomeStateContext someSCinst
+RootContext SomeStateContext someSCinstance
 	    </programlisting>
 	    This makes an instantiation of the StateContext type
-	    SomeStateContext by the name of 'someSCinst'.
+	    SomeStateContext by the name of 'someSCinstance'.
 	  </para>
 	</sect3>
 	<sect3>

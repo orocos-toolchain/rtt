@@ -39,7 +39,8 @@ namespace ORO_Execution {
 
   StateContextBuilder::~StateContextBuilder()
   {
-      delete templatecontext;
+      // template is owned by __states TC.
+      //delete templatecontext;
   }
 
   ParsedStateContext* StateContextBuilder::build()

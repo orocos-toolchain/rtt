@@ -99,6 +99,7 @@ namespace ORO_Execution
        * looked up.
        * @return the previous TaskContext.
        */
+      TaskContext* setContext( TaskContext* tc);
       TaskContext* setStack( TaskContext* tc);
 
       bool foundObject() {

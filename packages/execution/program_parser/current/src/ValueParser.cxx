@@ -73,11 +73,20 @@ namespace ORO_Execution
         c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
         ), '"' )[ bind( &ValueParser::seenstring, this ) ];
     named_constant =
-        ( "done" | (!peerparser.parser() >> commonparser.identifier ) ) [
-        bind( &ValueParser::seennamedconstant, this, _1, _2 ) ];
+        ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
+          |
+          (peerparser.parser() >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
+        ;
   }
 
     void ValueParser::setStack( TaskContext* tc ) {
+        //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
+        context = tc;
+        peerparser.setContext( tc );
+        peerparser.reset();
+    }
+
+    void ValueParser::setContext( TaskContext* tc ) {
         //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
         context = tc;
         peerparser.setContext( tc );
@@ -101,9 +110,11 @@ namespace ORO_Execution
   {
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
-    if ( !peer->attributeRepository.isDefined( name ) )
+    if ( !peer->attributeRepository.isDefined( name ) ) {
+        //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
         throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
         //      throw parse_exception_undefined_value( name );
+    }
     else
       ret = peer->attributeRepository.getValue(name);
     peerparser.reset();

@@ -81,6 +81,7 @@ namespace ORO_Execution
   public:
     ValueParser( TaskContext* tc );
 
+      void setContext( TaskContext* tc);
       void setStack( TaskContext* tc );
 
     ~ValueParser();

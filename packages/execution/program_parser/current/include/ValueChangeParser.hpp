@@ -90,6 +90,7 @@ namespace ORO_Execution
        * and looked up.
        * @return the previous TaskContext.
        */
+     TaskContext* setContext( TaskContext* tc );
      TaskContext* setStack( TaskContext* tc );
 
     /**

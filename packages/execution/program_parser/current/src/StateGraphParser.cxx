@@ -202,7 +202,8 @@ namespace ORO_Execution
         // a DataSourceFactory that allows the user to refer to data
         // in a subcontext.
         class SubContextDataSourceFactory
-            : public MapDataSourceFactory
+            : public DataSourceFactoryInterface
+        //: public MapDataSourceFactory
         {
             ParsedStateContext* mpsc;
             DataSource<StateContextTree*>::shared_ptr mpscds;
@@ -233,23 +234,25 @@ namespace ORO_Execution
         {
         }
 
+        // The MapDSFactory is replaced by the TaskContext of the StateContext.
         SubContextDataSourceFactory::SubContextDataSourceFactory(
             ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name )
-            : MapDataSourceFactory( psc->getReadOnlyValues() ), mpsc( psc ), mpscds( pscds ), mscn( name )
+            : //MapDataSourceFactory( psc->getReadOnlyValues() ),
+            mpsc( psc ), mpscds( pscds ), mscn( name )
         {
-          assert( !MapDataSourceFactory::hasMember( "inState" ) );
+            //assert( !MapDataSourceFactory::hasMember( "inState" ) );
         }
 
         std::vector<std::string> SubContextDataSourceFactory::getNames() const
         {
-            std::vector<std::string> ret = MapDataSourceFactory::getNames();
+            std::vector<std::string> ret; // = MapDataSourceFactory::getNames();
             ret.push_back( "inState" );
             return ret;
         }
 
         bool SubContextDataSourceFactory::hasMember( const std::string& s ) const
         {
-            return s == "inState" || MapDataSourceFactory::hasMember( s );
+            return s == "inState" ;//|| MapDataSourceFactory::hasMember( s );
         }
 
         std::vector<ArgumentDescription> SubContextDataSourceFactory::getArgumentList( const std::string& method ) const
@@ -262,22 +265,26 @@ namespace ORO_Execution
                 return ret;
             }
             else
-                return MapDataSourceFactory::getArgumentList( method );
+                return std::vector<ArgumentDescription>(); //MapDataSourceFactory::getArgumentList( method );
         }
 
         PropertyBag SubContextDataSourceFactory::getArgumentSpec( const std::string& method ) const
         {
+            if ( !hasMember( method ) )
+                throw name_not_found_exception();
             if ( method == "inState" )
             {
                 PropertyBag ret;
                 ret.add( new Property<std::string>( instateparamname, instateparamdesc, "" ) );
                 return ret;
             }
-            else return MapDataSourceFactory::getArgumentSpec( method );
+            else return PropertyBag();//MapDataSourceFactory::getArgumentSpec( method );
         }
 
         DataSourceBase* SubContextDataSourceFactory::create( const std::string& name, const PropertyBag& args ) const
         {
+            if ( !hasMember( name ) )
+                throw name_not_found_exception();
             if ( name == "inState" )
             {
                 PropertyBag::PropertyContainerType props = args.getProperties();
@@ -289,11 +296,13 @@ namespace ORO_Execution
                 DataSource<std::string>* arg = new VariableDataSource<std::string>( prop->get() );
                 return new InStateDataSource( mpscds.get(), arg );
             }
-            else return MapDataSourceFactory::create( name, args );
+            else return 0; // MapDataSourceFactory::create( name, args );
         }
 
         DataSourceBase* SubContextDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase*>& args ) const
         {
+            if ( !hasMember( name ) )
+                throw name_not_found_exception();
             if ( name == "inState" )
             {
                 if ( args.size() != 1 )
@@ -303,7 +312,7 @@ namespace ORO_Execution
                     throw wrong_types_of_args_exception( 1 );
                 return new InStateDataSource( mpscds.get(), arg );
             }
-            else return MapDataSourceFactory::create( name, args );
+            else return 0 ;//MapDataSourceFactory::create( name, args );
         }
 
         std::string SubContextDataSourceFactory::getDescription( const std::string& source ) const
@@ -313,13 +322,14 @@ namespace ORO_Execution
             else if ( source == "inState" )
                 return "Return whether this statecontext is in the given state ?";
             else
-                return "Member variable \"" + source + "\" of SubContext \"" + mscn + "\"";
+                return "na"; //"Member variable \"" + source + "\" of SubContext \"" + mscn + "\"";
         }
     }
 
     StateGraphParser::StateGraphParser( iter_t& positer,
                                         TaskContext* tc )
         : context( tc ),
+          curcontext( 0 ),
           mpositer( positer ),
           curtemplatecontext( 0 ),
           curinstantiatedcontext( 0 ),
@@ -563,24 +573,20 @@ namespace ORO_Execution
         }
 
         // Lookup our SC :
-        TaskContext* __s = context->getPeer("__states");
-        assert(__s);
-        __s = __s->getPeer( curcontextname );
-        assert(__s);
+        // context is the task.
+//         TaskContext* __s = context->getPeer("states");
+//         assert(__s);
+//         __s = __s->getPeer( curcontextname );
+//         assert(__s);
 
-        // Insert the new state:
-        if ( __s->hasPeer( def ) )
-            throw parse_exception_semantic_error("State " + def + " redefined.");
-
-        TaskContext* stck = new TaskContext(def, context->getProcessor() );
-        // state can access state context and task context :
-        __s->connectPeers( stck );
-        stck->addPeer(context);
+        // We store the vars of a state in the SC-Task.
+        // for now, everything is on the stack of the SC,
+        // states have no own stack.
         // variables are always on foo's 'stack'
-        valuechangeparser.setStack(stck);
-        commandparser.setStack(stck);
-        expressionparser.setStack(stck);
-        conditionparser.setStack(stck);
+//         valuechangeparser.setStack(stck);
+//         commandparser.setStack(stck);
+//         expressionparser.setStack(stck);
+//         conditionparser.setStack(stck);
     }
 
     void StateGraphParser::seenstateend()
@@ -605,10 +611,10 @@ namespace ORO_Execution
         curinitialstateflag = false;
         curfinalstateflag = false;
 
-        valuechangeparser.setStack(context);
-        commandparser.setStack(context);
-        expressionparser.setStack(context);
-        conditionparser.setStack(context);
+//         valuechangeparser.setStack(context);
+//         commandparser.setStack(context);
+//         expressionparser.setStack(context);
+//         conditionparser.setStack(context);
     }
 
     void StateGraphParser::inprogram(const std::string& name)
@@ -798,8 +804,6 @@ namespace ORO_Execution
             throw parse_exception_semantic_error("No initial state defined.");
         if ( curtemplatecontext->getFinalState() == 0 )
             throw parse_exception_semantic_error("No final state defined.");
-        assert( dynamic_cast<StateDescription*>( curtemplatecontext->getInitialState() ) );
-        StateDescription* initstate = static_cast<StateDescription*>( curtemplatecontext->getInitialState() );
 
         if ( curtemplatecontext->getStateList().empty() )
             throw parse_exception_semantic_error("No states defined in this state context !");
@@ -814,35 +818,34 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error("State " + it->first + " not defined, but referenced to.");
         }
 
-//         FunctionGraph* initentryprogram = initstate->getEntryProgram();
-//         if ( ! initentryprogram )
-//         {
-//             initentryprogram = emptyProgram("entry");
-//             initstate->setEntryProgram( initentryprogram );
-//         }
         // prepend the commands for initialising the subcontext
-        // parameters..
-        if ( preentrycommands.size() > 1 )
+        // variables..
+        assert( curtemplatecontext->getInitCommand() == 0);
+        if ( varinitcommands.size() > 1 )
             {
                 CommandComposite* comcom = new CommandComposite;
-                for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-                      i != preentrycommands.end(); ++i )
+                for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
+                      i != varinitcommands.end(); ++i )
                     comcom->add( *i );
-                initstate->setInitCommand( comcom );
+                curtemplatecontext->setInitCommand( comcom );
             }
-        else if (preentrycommands.size() == 1 )
-            initstate->setInitCommand( *preentrycommands.begin() );
+        else if (varinitcommands.size() == 1 )
+            curtemplatecontext->setInitCommand( *varinitcommands.begin() );
+        // test :
+//         if (curtemplatecontext->getInitCommand() )
+//             curtemplatecontext->getInitCommand()->execute();
 
-//         for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-//               i != preentrycommands.end(); ++i )
-//             initentryprogram->prependCommand( *i, mpositer.get_position().line );
-        preentrycommands.clear();
+        varinitcommands.clear();
 
+        // by ps : no longer needed, they are now in curcontext.
         // remove the data factories we added to the context again..
-        std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
-        for ( std::vector<std::string>::iterator i = subcontextnames.begin();
-              i != subcontextnames.end(); ++i )
-            context->dataFactory.unregisterObject( *i );
+//         std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
+//         for ( std::vector<std::string>::iterator i = subcontextnames.begin();
+//               i != subcontextnames.end(); ++i )
+//             context->dataFactory.unregisterObject( *i );
+
+        // finally : 
+        curtemplatecontext->finish();
 
         StateContextBuilder* scb = new StateContextBuilder( curtemplatecontext );
         contextbuilders[curcontextname] = scb;
@@ -851,6 +854,7 @@ namespace ORO_Execution
         curtemplatecontext = 0;
         curcontextname.clear();
         valueparser.clear();
+        curcontext = 0;
     }
 
     std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end )
@@ -938,36 +942,44 @@ namespace ORO_Execution
         curcontextbuilder = 0;
         delete curinstantiatedcontext;
         curinstantiatedcontext = 0;
+        // Ownership is transfered to __states.
+        // but if not null, delete it :
         if ( curtemplatecontext )
         {
           // remove the data factories we added to the context again..
           std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
-          for ( std::vector<std::string>::iterator i = subcontextnames.begin();
-                i != subcontextnames.end(); ++i )
-            context->dataFactory.unregisterObject( *i );
+          // remove all 'this' data factories
+          curtemplatecontext->getTaskContext()->dataFactory.unregisterObject( "this" );
           delete curtemplatecontext;
           curtemplatecontext = 0;
         }
-        for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-              i != preentrycommands.end(); ++ i )
-          delete *i;
-        preentrycommands.clear();
+        // should be empty in most cases :
+        for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
+              i != varinitcommands.end(); ++ i )
+            delete *i;
+        varinitcommands.clear();
+        for ( std::vector<CommandInterface*>::iterator i = paraminitcommands.begin();
+              i != paraminitcommands.end(); ++ i )
+            delete *i;
+        paraminitcommands.clear();
         for ( contextbuilders_t::iterator i = contextbuilders.begin();
               i != contextbuilders.end(); ++i )
           delete i->second;
         contextbuilders.clear();
 
-        valuechangeparser.setStack(context);
-        commandparser.setStack(context);
-        expressionparser.setStack(context);
-        conditionparser.setStack(context);
+//         valuechangeparser.setStack(context);
+//         commandparser.setStack(context);
+//         expressionparser.setStack(context);
+//         conditionparser.setStack(context);
     }
 
     void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
         assert( curcontextname.empty() );
+        // the 'type' of the SC :
         curcontextname = std::string ( begin, end );
 
         // store the SC in the TaskContext current.__states
+        // __states is a storage for template SC's
         TaskContext* __s = context->getPeer("__states");
         if ( __s == 0 ) {
             // install the __states if not yet present.
@@ -975,21 +987,26 @@ namespace ORO_Execution
             context->addPeer( __s );
         }
 
+        // check if the type exists already :
         if ( __s->hasPeer( curcontextname ) )
             throw parse_exception_semantic_error("State Context " + curcontextname + " redefined.");
 
+        curtemplatecontext = new ParsedStateContext();
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
-        TaskContext* sc = new TaskContext(curcontextname, context->getProcessor() );
-        __s->addPeer( sc );
-        sc->addPeer(context);
-        // variables are always on sc's 'stack'
-        valuechangeparser.setStack(sc);
-        commandparser.setStack(sc);
-        expressionparser.setStack(sc);
-        conditionparser.setStack(sc);
+        curcontext = new TaskContext(curcontextname, context->getProcessor() );
+        __s->addPeer( curcontext );   // store in __states.
+        curcontext->addPeer(context,"task"); // necessary for parsing
+        curtemplatecontext->setTaskContext( curcontext ); // store.
 
-        curtemplatecontext = new ParsedStateContext();
+        // Everything is stored in curcontext
+        valuechangeparser.setContext(curcontext);
+        commandparser.setContext(curcontext);
+        expressionparser.setContext(curcontext);
+        conditionparser.setContext(curcontext);
+
+        // set the 'type' name :
+        curtemplatecontext->setName( curcontextname );
     }
 
     void StateGraphParser::saveText( iter_t begin, iter_t end ) {
@@ -1014,34 +1031,22 @@ namespace ORO_Execution
         if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
             throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
+        // recursively set the name of this SC and all subs :
         curinstantiatedcontext->setName( curinstcontextname );
-        assert( curinstantiatedcontext->getInitialState() );
-        StateDescription* initialstate = dynamic_cast<StateDescription*>( curinstantiatedcontext->getInitialState() );
-        assert( initialstate );
-//         FunctionGraph* entryprog = initialstate->getEntryProgram();
-//         if ( !entryprog )
-//         {
-//             // it's possible that the initial state does not have an entryprogram
-//             entryprog = emptyProgram("entry");
-//             initialstate->setEntryProgram( entryprog );
-//         }
 
-        // prepend the commands for initialising the subcontext
-        // parameters ( for root contexts, we do it in their own
-        // initstate's entry method instead of in the entry method of the
-        // initstate of their parent.
-        if ( preentrycommands.size() > 1 )
-            {
-                CommandComposite* comcom = new CommandComposite;
-                for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-                      i != preentrycommands.end(); ++i )
-                    comcom->add( *i );
-                initialstate->setInitCommand( comcom );
-            }
-        else if (preentrycommands.size() == 1 )
-            initialstate->setInitCommand( *preentrycommands.begin() );
-        
-        preentrycommands.clear();
+        // add it to the "states" (all instantiated) of the current context :
+        TaskContext* __s = context->getPeer("states");
+        if ( __s == 0 ) {
+            // install the __states if not yet present.
+            __s = new TaskContext("states", context->getProcessor() );
+            context->addPeer( __s );
+        }
+
+        // check if the type exists already :
+        if ( __s->hasPeer( curinstcontextname ) )
+            throw parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' .");
+        __s->addPeer( curinstantiatedcontext->getTaskContext() );
+
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
     }
@@ -1059,12 +1064,19 @@ namespace ORO_Execution
         TaskAliasAttribute<std::string>* pv = new TaskAliasAttribute<std::string>( curinstantiatedcontext->getNameDS() );
         context->attributeRepository.setValue( curinstcontextname, pv );
 
+        // first create the TaskContext which represents this subcontext.
+        // add it to the current context.
+        // XXX memleak.
+        //StateContextTask* sct = new StateContextTask(curinstcontextname, current->getProcessor(), dsc );
+        // add the new subcontext to this task's  :
+        curcontext->addPeer( curinstantiatedcontext->getTaskContext() );
+
         // we add a SubContextDataSourceFactory for this subcontext to
         // the global data source factory, so that we can support
         // subcontext introspection...
         SubContextDataSourceFactory* scdsf =
             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
-        context->dataFactory.registerObject( curinstcontextname, scdsf );
+        curtemplatecontext->getTaskContext()->dataFactory.registerObject( "this", scdsf );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -1092,7 +1104,7 @@ namespace ORO_Execution
     }
 
     void StateGraphParser::seencontextinstargumentvalue() {
-        DataSourceBase* value = expressionparser.getResult();
+        DataSourceBase::shared_ptr value = expressionparser.getResult();
         // let's not forget this...
         expressionparser.dropResult();
         if ( curinstcontextparams.find( curcontextinstargumentname ) != curinstcontextparams.end() )
@@ -1103,9 +1115,13 @@ namespace ORO_Execution
         curcontextinstargumentname.clear();
     }
 
-    void StateGraphParser::seencontextinstantiation() {
+    void StateGraphParser::seencontextinstantiation()
+    {
+        // Create a full depth copy (including subcontexts)
         ParsedStateContext* nsc = curcontextbuilder->build();
 
+        // we stored the attributes which are params of nsc 
+        // in the build operation :
         contextparams_t params = nsc->getParameters();
 
         // first run over the given parameters to see if they all exist in
@@ -1114,7 +1130,7 @@ namespace ORO_Execution
         {
             contextparams_t::iterator j = params.find( i->first );
             if ( j == params.end() )
-                throw parse_exception_semantic_error( "No argument \"" + i->first + "\" in this state context." );
+                throw parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this state context." );
         }
 
         for ( contextparams_t::iterator i = params.begin(); i != params.end(); ++i )
@@ -1123,18 +1139,44 @@ namespace ORO_Execution
             if ( j == curinstcontextparams.end() )
                 throw parse_exception_semantic_error(
                     "No value given for argument \"" + i->first + "\" in instantiation of this state context." );
-            preentrycommands.push_back( i->second->assignCommand( j->second, true ) );
+            try {
+                paraminitcommands.push_back( i->second->assignCommand( j->second.get(), true ) );
+            }
+            catch( const bad_assignment& e )
+                {
+                    throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
+                }
+
         }
 
         curinstantiatedcontext = nsc;
+
+        // prepend the commands for initialising the subcontext
+        // parameters
+        if ( paraminitcommands.size() > 0 )
+            {
+                CommandComposite* comcom = new CommandComposite;
+                for ( std::vector<CommandInterface*>::iterator i = paraminitcommands.begin();
+                      i != paraminitcommands.end(); ++i )
+                    comcom->add( *i );
+                // init the vars as last (if any), so that they can be inited by an expression containing the params :
+                if ( curinstantiatedcontext->getInitCommand() )
+                    comcom->add( curinstantiatedcontext->getInitCommand() );
+                curinstantiatedcontext->setInitCommand( comcom );
+            }
+        paraminitcommands.clear();
+
         curcontextbuilder = 0;
         curinstcontextparams.clear();
+
+        // set the TaskContext name to the instance name :
+        curinstantiatedcontext->getTaskContext()->setName(curinstcontextname);
     }
 
     void StateGraphParser::seencontextvariable() {
         CommandInterface* assigncommand = valuechangeparser.assignCommand();
-        preentrycommands.push_back( assigncommand );
-        curtemplatecontext->addReadOnlyVar( valuechangeparser.lastParsedDefinitionName(), valuechangeparser.lastDefinedValue()->toDataSource() );
+        varinitcommands.push_back( assigncommand );
+        //curtemplatecontext->addReadOnlyVar( valuechangeparser.lastParsedDefinitionName(), valuechangeparser.lastDefinedValue()->toDataSource() );
     }
 
   void StateGraphParser::seencontextparam() {

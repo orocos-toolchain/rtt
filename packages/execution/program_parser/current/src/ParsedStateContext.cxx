@@ -31,8 +31,82 @@
 #include "execution/StateDescription.hpp"
 #include "execution/TaskVariable.hpp"
 #include "execution/mystd.hpp"
+#include "execution/TaskContext.hpp"
+#include "execution/TemplateCommandFactory.hpp"
 
 namespace ORO_Execution {
+
+    /**
+     * When a ParsedStateContext is finished, these commands
+     * are added to its TaskContext, such that it can be
+     * controlled through scripting.
+     * The commands are directed to its Processor.
+     */
+    struct StateContextCommands
+    {
+        // owns us :
+        ParsedStateContext* _sc;
+        VariableDataSource<StateContextCommands*>::shared_ptr _this;
+        //Processor* pcache;
+    public:
+
+        // ctxname is the unscoped name 'myctxt'
+        StateContextCommands(ParsedStateContext* sc)
+            : _sc(sc), _this( new VariableDataSource<StateContextCommands*>(this) ) //, pcache( _sc->getTaskContext()->getProcessor() )
+        {
+            sc->getTaskContext()->commandFactory.registerObject("this", this->createCommandFactory() );
+        }
+
+        CommandFactoryInterface* createCommandFactory() {
+            // Add the state specific methods :
+            // Special trick : we store the 'this' pointer in a DataSource, such that when
+            // the created commands are copied, they also get the new this pointer.
+            // This requires template specialisations on the TemplateFactory level.
+            TemplateCommandFactory< DataSource<StateContextCommands*> >* fact = newCommandFactory( static_cast< DataSource<StateContextCommands*>* >(_this.get()) );
+            fact->add("activate",commandDS(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext"));
+            fact->add("deactivate",commandDS(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext", false));
+            fact->add("start",commandDS(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext"));
+            fact->add("stop",commandDS(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext", false));
+            return fact;
+        }
+
+        StateContextCommands* copy(ParsedStateContext* newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+        {
+            // if this gets copied, all created commands will use the new instance of StateContextCommands to
+            // call the member functions. Further more, all future commands for the copy will also call the new instance
+            // while future commands for the original will still call the original. 
+            StateContextCommands* tmp = new StateContextCommands( newsc );
+            //tmp->_this = _this->copy(replacements); 
+            replacements[ _this.get() ] = tmp->_this.get(); // put DS in map 
+            tmp->_this->set(tmp);                  // reset new DS to new this.
+            return tmp;
+        }
+
+        bool isActive() const {
+            return _sc->isActive();
+        }
+
+        bool isRunning() const {
+            return _sc->getTaskContext()->getProcessor()->getStateContextStatus( _sc->getName() ) == Processor::StateContextStatus::running;
+        }
+
+        bool activate() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->activateStateContext( _sc->getName() );
+        }
+        bool start() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->startStateContext( _sc->getName() );
+        }
+        bool stop() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->stopStateContext( _sc->getName() );
+        }
+        bool deactivate() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->deactivateStateContext( _sc->getName() );
+        }
+    };
 
     using ORO_CoreLib::ConditionInterface;
 
@@ -48,18 +122,32 @@ namespace ORO_Execution {
         return static_cast<ParsedStateContext*>( i->second->get() );
     }
 
-    ParsedStateContext* ParsedStateContext::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const {
+    ParsedStateContext* ParsedStateContext::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    {
+        /* Recursive copy :
+         * First copy this SC, then its child SC's
+         */
         std::map<const StateInterface*, StateDescription*> statemapping;
         ParsedStateContext* ret = new ParsedStateContext( this->getText() );
 
-        ret->nameds = nameds->copy( replacements );
+        // first update the context's stack :
+        // this allows us to reference all the ds's of this SC lateron.
+        ret->setTaskContext( new TaskContext( this->getTaskContext()->getName(), this->getTaskContext()->getProcessor() ) );
+        AttributeRepository* dummy = this->getTaskContext()->attributeRepository.copy( replacements );
+        ret->getTaskContext()->attributeRepository = *dummy;
+        delete dummy;
+        // next, add the 'this' factories, since they were not copied with the TC.
 
+        ret->nameds = nameds->copy( replacements );
+        ret->sc_coms = sc_coms->copy( ret, replacements );
+
+        // the parameters of the SC, similar to FunctionGraph's Arguments.
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
               i != parametervalues.end(); ++i )
         {
           TaskAttributeBase* npvb = i->second->copy( replacements );
           ret->parametervalues[i->first] = npvb;
-          replacements[i->second->toDataSource()] = npvb->toDataSource();
+//           replacements[i->second->toDataSource()] = npvb->toDataSource();
         }
 
         for ( SubContextNameMap::const_iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
@@ -71,12 +159,20 @@ namespace ORO_Execution {
             assert( dynamic_cast<ParsedStateContext*>(  i->second->get() ) );
             ParsedStateContext* oldcontext = static_cast<ParsedStateContext*>(  i->second->get() );
             ParsedStateContext* newcontext = oldcontext->copy( replacements );
+
             DataSource<StateContextTree*>::shared_ptr ncds = new VariableDataSource<StateContextTree*>( newcontext );
             ret->subcontexts[i->first] = ncds;
             ret->addChild( newcontext ); // also copy tree info to StateContextTree !
             newcontext->setParent( ret );
             replacements[i->second.get()] = ncds.get();
         }
+
+        // Copy the InitCommand :
+        if (this->initc) {
+            ret->setInitCommand( this->initc->copy(replacements) );
+            // test :
+            //ret->getInitCommand()->execute();
+        } 
 
         // First make a copy of all states.  All states are either
         // known by their name or by a transition from or to them...
@@ -120,11 +216,12 @@ namespace ORO_Execution {
             }
         }
 
-        for ( VisibleReadOnlyValuesMap::const_iterator i = visiblereadonlyvalues.begin();
-              i != visiblereadonlyvalues.end(); ++i )
-        {
-          ret->visiblereadonlyvalues[i->first] = i->second->copy( replacements );
-        }
+        // put in attributeRepository
+//         for ( VisibleReadOnlyValuesMap::const_iterator i = visiblereadonlyvalues.begin();
+//               i != visiblereadonlyvalues.end(); ++i )
+//         {
+//           ret->visiblereadonlyvalues[i->first] = i->second->copy( replacements );
+//         }
 
         ret->finistate = statemapping[finistate];
         ret->initstate = statemapping[initstate];
@@ -142,6 +239,8 @@ namespace ORO_Execution {
         for ( SubContextNameMap::iterator i = subcontexts.begin();
               i != subcontexts.end(); ++i )
             delete i->second->get();
+        delete context;
+        delete sc_coms;
     }
 
     std::vector<std::string> ParsedStateContext::getStateList() const {
@@ -156,14 +255,14 @@ namespace ORO_Execution {
     }
 
     ParsedStateContext::ParsedStateContext()
-        : StateContextTree( 0 ) // no parent
+        : StateContextTree( 0 ), context(0), sc_coms(0) // no parent, no task
     {
         nameds = new VariableDataSource<std::string>( "" );
     };
 
     ParsedStateContext::ParsedStateContext(const std::string& text)
-        : StateContextTree( 0 ) // no parent
-          ,_text(text)
+        : StateContextTree( 0 ) // no parent, no task
+          ,_text(text), context(0), sc_coms(0)
     {
         nameds = new VariableDataSource<std::string>( "" );
     };
@@ -184,15 +283,15 @@ namespace ORO_Execution {
 
     void ParsedStateContext::addReadOnlyVar( const std::string& name, DataSourceBase* var )
     {
-        assert( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() );
-        visiblereadonlyvalues[name] = var;
+        //assert( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() );
+        //visiblereadonlyvalues[name] = var;
     }
     void ParsedStateContext::addParameter( const std::string& name, TaskAttributeBase* var )
     {
         assert( parametervalues.find( name ) == parametervalues.end() );
         parametervalues[name] = var;
         // every parameter is also a readonly var...
-        visiblereadonlyvalues[name] = var->toDataSource();
+        // visiblereadonlyvalues[name] = var->toDataSource();
     }
     DataSourceBase* ParsedStateContext::getReadOnlyVar( const std::string& name ) const
     {
@@ -214,6 +313,7 @@ namespace ORO_Execution {
 
     ParsedStateContext::VisibleReadOnlyValuesMap ParsedStateContext::getReadOnlyValues() const
     {
+        assert(false);
         return visiblereadonlyvalues;
     }
 
@@ -229,7 +329,8 @@ namespace ORO_Execution {
 
     bool ParsedStateContext::inState( const std::string& name ) const
     {
-        assert( getState( name ) != 0 );
+        if ( getState( name ) == 0 )
+            return false;
         return currentState() == getState( name );
     }
 
@@ -240,13 +341,25 @@ namespace ORO_Execution {
 
     void ParsedStateContext::setName( const std::string& name )
     {
+        // set the StateContextTree name
         this->_name = name;
+        // set the datasource's name
         nameds->set( name );
         for ( SubContextNameMap::iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
         {
             std::string subname = name + "." + i->first;
             ParsedStateContext* psc = static_cast<ParsedStateContext*>( i->second->get() );
             psc->setName( subname );
+            this->getTaskContext()->addPeer( psc->getTaskContext() );
         }
     }
+
+    void ParsedStateContext::finish()
+    {
+        // finish is only called on newly created PSCs.
+        assert( sc_coms == 0);
+        // Add the factory :
+        sc_coms = new StateContextCommands( this );
+    }
+
 }

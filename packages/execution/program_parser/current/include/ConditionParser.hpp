@@ -63,6 +63,7 @@ namespace ORO_Execution
     ConditionParser( TaskContext* );
     ~ConditionParser();
 
+      TaskContext* setContext(TaskContext* tc);
       TaskContext* setStack(TaskContext* tc);
 
     rule_t& parser()
