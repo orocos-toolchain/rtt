@@ -175,11 +175,26 @@ namespace ORO_OS
         }
 
         sem = rt_sem_init( rt_get_name(0), 0 );
-        confDone = rt_sem_init( rt_get_name(0), 0 );
-
-        if ( confDone == 0 || sem == 0) {
+        if ( sem == 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore(s) for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'sem' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+#endif
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+            delete h;
+            delete static_cast<Event<bool(void)>*>(stopEvent);
+#endif
+            throw std::bad_alloc();
+        }
+
+        confDone = rt_sem_init( rt_get_name(0), 0 );
+        if ( confDone == 0 ) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'confDone' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+#endif
+            rt_sem_delete( sem );
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+            delete h;
+            delete static_cast<Event<bool(void)>*>(stopEvent);
 #endif
             throw std::bad_alloc();
         }
