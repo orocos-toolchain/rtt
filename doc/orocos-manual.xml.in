@@ -15,7 +15,7 @@
 <book>
   <bookinfo>
     <title>
-      The OROCOS Project Total Guide
+      The Complete OROCOS Software Guide
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -32,9 +32,10 @@
 
     <abstract>
       <para>
-	This document explains all
-	of <ulink url="http://www.orocos.org">&orocos;</ulink>,
-	the <emphasis>Open RObot COntrol Software</emphasis> project.
+	This document gives an introduction to 
+	the <ulink url="http://www.orocos.org">&orocos;</ulink>
+	<emphasis> ( Open RObot COntrol Software ) </emphasis> project.
+	It bundles the Installation and Software manuals.
       </para>
     </abstract>
 
