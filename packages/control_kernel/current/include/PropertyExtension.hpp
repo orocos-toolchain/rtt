@@ -44,14 +44,6 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Get the name of the component with the aspect.
-         */
-        const std::string& getName() const
-        {
-            return aspectName;
-        }
-    
-        /**
          * Update the Component's properties with a bag.
          */
         virtual bool updateProperties( const PropertyBag& bag)
@@ -153,7 +145,9 @@ namespace ORO_ControlKernel
                 ComponentConfigurator cc;
                 if ( !cc.configure( (*it)->value(), target) && base )
                 {
-                    cout << "Aborting initialize ! Fix your config file first."<<endl;
+                    cout << "Aborting initialize ! Component "<< (*it)->getName()
+                         << " does not accept its properties."<< endl 
+                         << "Fix your config file first."<< endl;
                     return false;
                 }
             }
