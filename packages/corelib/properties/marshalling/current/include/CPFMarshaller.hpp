@@ -111,13 +111,22 @@ namespace ORO_CoreLib
                 }
                 *(this->s) << "\n</properties>\n";
 			}
-	
+
+			std::string escape(std::string s)
+			{
+				int n;
+				while ((n = s.find("<")) != s.npos)
+					s.replace(n,1,std::string("&lt;"));
+				while ((n = s.find(">")) != s.npos)
+					s.replace(n,1,std::string("&gt;"));
+				return s;
+			}
+
 			virtual void serialize(const Property<PropertyBag> &b) 
 			{
 				PropertyBag v = b.get();
-                *(this->s) <<"<struct name=\""<<b.getName()<<"\" type=\""<< v.getType()<< "\">\n"
-                           <<"<description>"  <<b.getDescription() << "</description>\n";
-
+                *(this->s) <<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n"
+                           <<"<description>"  <<escape(b.getDescription()) << "</description>\n";
                 for (
                     PropertyBag::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
