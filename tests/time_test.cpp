@@ -89,22 +89,22 @@ void
 TimeTest::testTimeProgress()
 {
     // A time measurement takes time :
-    TimeService::ticks t = hbg->ticksGet();
+    TimeService::ticks t = hbg->getTicks();
     Seconds s;
-    CPPUNIT_ASSERT( t !=  hbg->ticksGet() );
+    CPPUNIT_ASSERT( t !=  hbg->getTicks() );
     CPPUNIT_ASSERT( 0 !=  hbg->ticksSince(t) );
     CPPUNIT_ASSERT( 0 !=  hbg->secondsSince(t) );
 
     // With Re-init of t :
     t = 0;
-    CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) , hbg->ticksGet( t ) );
+    CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) , hbg->getTicks( t ) );
     t = 0;
-    CPPUNIT_ASSERT_EQUAL( Seconds(0.0) , hbg->secondsGet( t ) );
+    CPPUNIT_ASSERT_EQUAL( Seconds(0.0) , hbg->getSeconds( t ) );
 
     // Stop Time Progress:
     hbg->enableSystemClock( false );
-    t = hbg->ticksGet();
-    CPPUNIT_ASSERT_EQUAL( t ,  hbg->ticksGet() );
+    t = hbg->getTicks();
+    CPPUNIT_ASSERT_EQUAL( t ,  hbg->getTicks() );
     CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) ,  hbg->ticksSince(t) );
     CPPUNIT_ASSERT_EQUAL( Seconds(0.0) ,  hbg->secondsSince(t) );
 
@@ -112,13 +112,13 @@ TimeTest::testTimeProgress()
     nsecs   change_ns = 123456789;
 
     hbg->secondsChange( change_S );
-    CPPUNIT_ASSERT( t !=  hbg->ticksGet() ); // ticks must have changed
+    CPPUNIT_ASSERT( t !=  hbg->getTicks() ); // ticks must have changed
     CPPUNIT_ASSERT_EQUAL( change_ns,  TimeService::ticks2nsecs( hbg->ticksSince(t) ) );
     CPPUNIT_ASSERT_EQUAL( change_S,  hbg->secondsSince(t) );
 
     // Restart Time Progress
     hbg->enableSystemClock( true );
-    CPPUNIT_ASSERT( t !=  hbg->ticksGet() );
+    CPPUNIT_ASSERT( t !=  hbg->getTicks() );
     CPPUNIT_ASSERT( TimeService::ticks(0) !=  hbg->ticksSince(t) );
     CPPUNIT_ASSERT( Seconds(0.0) !=  hbg->secondsSince(t) );
     

@@ -138,7 +138,7 @@ void TasksThreadTest::testThreadConfig()
 
 void TasksThreadTest::testExceptionRecovery()
 {
-    Logger::LogLevel ll = Logger::log().getLogLevel();
+    //Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel( Logger::Never );
     CPPUNIT_ASSERT(t_task_np->start());
     CPPUNIT_ASSERT(t_task_np_bad->start());
@@ -146,7 +146,7 @@ void TasksThreadTest::testExceptionRecovery()
 
     sleep(1);
     // thread should stop :
-    Logger::log().setLogLevel( ll );
+    Logger::log().setLogLevel( Logger::Warning );
     CPPUNIT_ASSERT( !ZeroTimeThread::Instance()->isRunning() );
 
     CPPUNIT_ASSERT( !t_task_np->isRunning() );
