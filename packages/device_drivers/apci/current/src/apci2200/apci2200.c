@@ -211,4 +211,9 @@ void apci2200_watchdog_init( apci2200_device* dev, short access_mode, short time
     }
 }
 
-
+EXPORT_SYMBOL(apci2200_get_device);
+EXPORT_SYMBOL(apci2200_get_input_status);
+EXPORT_SYMBOL(apci2200_set_output_on);
+EXPORT_SYMBOL(apci2200_get_output_status);
+EXPORT_SYMBOL(apci2200_get_number_off_digital_outputs);
+EXPORT_SYMBOL(apci2200_set_output_off);
