@@ -1,0 +1,12 @@
+#!/bin/sh
+./autogen.sh
+cd packages
+./autogen.sh
+./configure
+make db
+cd ..
+mkdir build
+cd build
+../configure --prefix=/scratch/test --with-gnulinux
+make new_packages
+make all_packages
