@@ -536,11 +536,10 @@ principle, each Package could be a separate, independent project in
 itself, and the couplings with &orocos; are loose. 
 </para>
 <para>
-The following Packages exist, are will be created in the near future:
-motion specification, kinematics and dynamics, robotics device
-drivers, task specification, task sequencing, user interfacing,
-simulation, control, framework core, generic control core.
-robots, XY tables, pan-tilt units.
+The following Packages exist, or will be created in the near future:
+corelib, kinematics and dynamics, device interface, device drivers,
+control kernel, applications, estimation, execution, kernel components,
+operating system, robots, XY tables, pan-tilt units.
 </para>
 <para>
 The directories of each Package contain a detailed documentation of
@@ -608,7 +607,8 @@ available in the CORBA world.
 &orocos; imposes a consistent framework interface for its components;
 i.e., they use the same API to be activated/deactivated, configured
 and accessed in an application that runs in the &orocos; Core. Most
-&orocos; Packages will contain one or more Components.
+&orocos; Packages will contain one or more Components in the idl 
+subdirectory.
 </para>
 <para>
 The documentation of the Core Package contains more details.
@@ -662,31 +662,28 @@ between robot systems were also released in 2002.
 </sect1>
 
 
-<sect1 id="installtion">
+<sect1 id="installation">
     <title>Installation and configuration</title>
 
     <sect2>
-      <title>Supported platforms</title>
+      <title>Supported platforms (targets)</title>
       <para>
 	&orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
 	(<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
 	userspace, and RTLinux (<ulink
 	  url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink>). So,
 	you can first write your software as a normal program, using the framework
-	for testing and debugging purposes. But, of course, you will not have realtime functionality
-	in userspace. After testing, you can make your program into a kernel module
-	and load it as a realtime application. Only recompilation is needed.
-	<note><para>To make this possible, you must use &orocos; libraries and
-	  header files.</para> </note>
+	for testing and debugging purposes in plain userspace and recompile
+      later to another target.
       </para>
       <para>
 	RTAI and LXRT is the best supported platform at this moment. RTLinux can
-only partially use all &orocos; features, because it lacks a decent
-kernel space memory manager.
+	only partially use all &orocos; features, because it lacks a decent
+	kernel space memory manager.
       </para>
-</sect2>
+    </sect2>
 
-<sect2>
+    <sect2>
       <title>The versioning scheme</title>
       <para>
 &orocos; uses the well-known even/stable uneven/unstable version
@@ -749,182 +746,160 @@ When you get something similar, proceed with calling the <command>
 	  ./autogen.sh
 	</screen>
 The next steps are exactly the same as when you install the system
-starting from a so-called &ldquo;tarball&rdquo;, as explained in the
+starting from a so-called &ldquo;epk&rdquo; package, as explained in the
 next section. Of course, you don't have to apply the
-<command>tar</command> command when installing from CVS.
+<command>ecosadmin.tcl</command> command when installing from CVS.
       </para>
 
     </sect2>
     <sect2>
-      <title>Installing Orocos from the tar.gz package</title>
+      <title>Installing Orocos from the epk packages</title>
       <para>
-First, get the tarball from the &orocos; web site; it is a file named
-like <filename>orocos-core-0.9.0.tar.gz</filename>. Extract the
-package into an appropriate directory:
+	Orocos has switched to a less common system for 
+	distribution and configuration. It it taken from the eCos operating
+	system, but, apart from the name, has nothing to do with it when used
+	with &orocos;. The tools you will need are ecosconfig and configtool.
+	In Debian, one can install them using :
 <screen>
-	  tar xvzf orocos-core-0.9.0.tar.gz
-	  cd orocos-core-0.9.0
+	  apt-get -t unstable install ecosconfig
 </screen>
-</para>
-<para>
-	&orocos; uses the GNU Autotools for configuration and building.
-	Therefore, the configuration and building
-	process is pretty well standardised, and you can use the familiar procedure.
-        (We assume here that you already set up a properly working operating
-	system/Linux kernel; if not, take a look at the
-<ulink url="http://www.linux.org/docs/ldp/howto/Kernel-HOWTO.html">Linux kernel
-	  HOWTO</ulink> and <xref linkend="general_setup_rtai"/> for more
-	information.)
+	Other distributions might need to build ecosconfig themselves from
+	this tarball : <ulink url="http://people.mech.kuleuven.ac.be/psoetens/ecos/
+	  ecosconfig-2.0.tar.gz">ecosconfig-2.0.tar.gz</ulink>. 
+	</para>
+      <note>The graphical configtool program uses the libwxgtk2.4 library</note>
+      <para>
+	These tools both serve the
+	same purpose : to control package configuration and installation. Ecosconfig
+	is command-line based, configtool is a graphical tool. The eCos folks wrote an
+	(eCos-oriented) manual which explains them in great detail in <ulink url=
+	  "http://sources.redhat.com/ecos/docs-latest/user-guide/ecos-user-guide.html">
+	  the user guide</ulink> and how packages work internally is written in the
+	<ulink url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html">
+	  eCos Component Writer Guide</ulink>.
+      </para>
+      <note>
+	In the eCos operating system, a target is a hardware platform, in Orocos,
+	a target is RTAI, GNU/Linux, LXRT and so on, so you can skip all hardware
+	specific sections in the eCos manuals.
+      </note>
+      <para>
+	When these tools are present, proceed as follows :
+      </para>
+	<orderedlist>
+	  <listitem><para>Download Orocos-Host.tar.gz from the Orocos webpage</para></listitem>
+	  <listitem><para>Extract it using : tar -xvzf orocos-0.10.0.tar.gz</para></listitem>
+	  <listitem><para>Setup the base environment : 
+	      <command>cd orocos-0.10.0; ./autogen.sh; </command></para></listitem>
+	  <listitem><para>Setup the packages environment :
+	      <command>cd orocos-0.10.0/packages; ./autogen.sh;</command></para></listitem>
+	  <listitem><para>Download the required Orocos .epk packages</para></listitem>
+	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
+	      <command>cd orocos-0.10.o/packages; tclsh ecosadmin.tcl add &lt;filename.epk&gt;</command>
+	      This action is also documented in the ecos manuals and equivalent to the installation
+	      of any eCos package, see 
+<ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
+	      the ecos userguide</ulink> for the synopsis.
+	    </para></listitem>
+	  <listitem><para>When all packages are installed, generate the ecos.db file using:
+	    <command>cd orocos-0.10.0/packages; ./configure ; make db</command>
+	    This command generates an index of all installed packages, the configure command
+	    may detect installed software on your system and generate support packages
+	    to reflect this. When you install new relevant software, you must rerun <command> configure </command>
+	    and <command>make db</command>.</para></listitem>
+	  <listitem><para>Finally, you can now choose between using the plain ecos tools or 
+	    our supplied make targets which enhance convenience : 
+	      <screen> 
+		mkdir orocos-0.10.0/build 
+		cd orocos-0.10.0/build
+		../configure --with-&lt;target&gt;
+		make new_packages 
+		make configure_packages
+	        make build_packages
+	      </screen>
+	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
+	    </para></listitem>
+	  <listitem><para></para></listitem>
+	  <listitem><para></para></listitem>
+	</orderedlist>
+      <para>
+	Each package will have been installed in a packages/package-name/version/ directory,
+	allowing multiple versions to be installed next to each other. The CVS version is
+	always called 'current', and considered as the most recent version.
+      </para>
+      <para>
+	The make build_packages command will have made a directory packages-&lt;target&gt;
+	where the building takes place. The results of the build are in the
+	packages-&lt;target&gt;/install directory. You will find the header files and a 
+	library called libtarget.a (literally). These files allow you to build external
+	applications with &orocos;. Of course a package itself can also be an application,
+	resulting in an executable in the packages-&lt;target&gt;/install/bin directory.
       </para>
       <sect3>
 	<title>Using &orocos; concurrently for multiple targets</title>
 	<para>
-	  The easiest way to configure, build and use &orocos; for multiple
-	  targets is by using different build directories for each target in the
-	  package root directory.  The following example shows how you can try
-	  to build for every supported platform. You'll probably like to choose one
-	  or two instead of all. It's the idea that counts.
-	  <note> <para>The following examples will only work for the operating systems
-	    you have installed.</para> </note>
+	  When you want to build for another target, simply re-invoke ../configure --with-&lt;target&gt;
+	  from the build directory and a new packages-&lt;target&gt; directory will be made.
 	</para>
-	
-	<screen>
-	  tar xvzf orocos-core-0.9.0.tar.gz
-	  cd orocos-core-0.9.0
-	  mkdir build-rtai
-	  mkdir bulid-lxrt
-	  mkdir build-rtlinux
-	  mkdir build-gnulinux
-	  cd build-rtai
-	  ../configure --with-rtai
-	  cd build-lxrt
-	  ../configure --with-lxrt
-	  cd ../build-rtlinux
-	  ../configure --with-rtlinux
-	  cd ../build-gnulinux
-	  ../configure
-	</screen>
-
-	<note>
-<para>
-If this step fails, it means that you have not everyting installed
-which is needed for a basic &orocos; build. Most users don't have the
-Boost library (<filename>libboost-dev</filename> or
-l<filename>ibboost-devel</filename>) installed.  Please install this
-package from the binary or source package repository of your Linux
-distribution, or download and install it from the <ulink
-url="http://www.boost.org">Boost project.</ulink> As soon as the
-configure step succeeds, all the rest will succeed too. Please use the
-mailinglist at <email>orocos@mail.mech.kuleuven.ac.be</email> for
-technical support.
-</para>
-</note>
-	
 	<para>
-	  The following commands build &orocos; for those different
-	  targets, and perform the basic tests.
+	  If this step fails, it means that you have not everyting installed
+	  which is needed for a basic &orocos; build. Most users don't have the
+	  Boost library (<filename>libboost-dev</filename> or
+	  <filename>libboost-devel</filename>) installed.  Please install this
+	  package from the binary or source package repository of your Linux
+	  distribution, or download and install it from the <ulink
+	    url="http://www.boost.org">Boost project.</ulink> As soon as the
+	  configure step succeeds, all the rest will succeed too. Please use the
+	  mailinglist at <email>orocos@mail.mech.kuleuven.ac.be</email> for
+	  technical support.
 	</para>
-	
-	<screen>
-	  cd ../build-gnulinux
-	  make
-	  make check
-	  cd ../build-rtlinux
-	  make
-	  make check
-	  cd ../build-rtai
-	  make 
-	  make check
-	  cd ../build-lxrt
-	  make 
-	  make check
-	</screen>
 	<para>
-	  You can use the <command>make check</command> command to start building
-	  test programs and executing them. The <command>make docs</command> or
+	  You can use the <command>make check_packages</command> command to start building
+	  a test program in applications/testcase. 
+	  The <command>make docs</command> or
 	  <command>doxygen</command> commands build API documentation.
 	</para>
       </sect3>
       <sect3>
 	<title>Installing an Orocos Package </title>
-	<para>After you have compiled the &orocos; Package, you have to
-install it, so that other packages can use its include files and its
-compiled libraries. There are two install instructions:</para>
-<screen>
-make install
-make modules_install
-</screen>
-<para>
-The <command>make install</command> command installs the header files
-for <emphasis>all</emphasis> operating systems and the necessary
-<filename>liborocos_core-gnulinux.a</filename> for the
-<parameter>gnulinux</parameter> target.
-The <command>make module_install</command> command installs the kernel
-modules and some special files other packages will need to build their
-own kernel modules. The special files will be installed in the 
-<filename class="directory">/prefix/share/orocos/</filename>
-directory, the kernel modules will be installed in the
-<filename class="directory">/lib/modules/kernel.version/orocos</filename>
-directory.
-</para>
-<para>
-If you build for RTAI or RTLinux, you have to do this at
-least once as a normal user, so that the special files will get
-installed.  You have to be root if you also want to have the kernel
-modules installed in the appropriate directory.
-</para>
-<tip>
- <para>If other packages complain about a missing
-<filename>crt.o</filename>, you probably forgot the 
-<command>make modules_install</command> command.
-	  </para>
-	</tip>
-      </sect3>
-</sect2>
-
-<sect2>
-<title>Configuration</title>
-<sect3>
-<title>Configuring an Orocos Package</title>
-<para>
-	  By default, &orocos; will be built to install in
-	  <filename class="directory">/usr/local/orocos</filename>.
-	  You can use the standard <parameter>prefix</parameter> flag to specify a
-	  different path; for example:
-	  <userinput>./configure --prefix=/i/want/orocos/over/there</userinput>.
-	  By running <command>./configure --help</command> you can see the possible flags
-	  you can pass to
-	  the configure script. You can choose to build for userspace GNU/Linux, for
-	  RTLinux, or for RTAI.
+	<para>
+	  This step is hardly needed, since the build-directory is also
+	  the installation directory. The ecostools allow to define a separate
+	  installation directory, but this is documented in the eCos docs.
+	  Kernel modules can be found in the install/modules directory and
+	  might need manual installation.
 	</para>
+      </sect3>
+    </sect2>
 
+    <sect2>
+      <title>Configuration</title>
+      <sect3>
+	<title>Configuring an Orocos Package</title>
+	<para>
+	  By default, &orocos; will be built to install in
+	  <filename class="directory">packages-&lt;target&gt;/install</filename>.
+	  You can modify this by passing a --prefix= option to ecosconfig or
+	  change it in the GUI.
+	</para>
+	<note>ecosconfig and configtool both use a different namingscheme
+	  for installation and build directories. configtool uses the
+	  &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
+	  subdirectories while ecosconfig uses the current dir to build and
+	  the install directory for installation.
+	</note>
 	<para>
 	  Just running <command>./configure</command> or <command>./configure
-	    --with-gnulinux</command> builds
-	  for userspace GNU/Linux. The necessary compilation flags will be determined
-	  automatically.
-	</para>
+	    --with-gnulinux</command> selects the os/gnulinux target.</para>
 
 	<para>
 	  When running <command>./configure --with-rtlinux</command> the configure
-	  scripts will search for RTLinux and it will configure the source
-	  tree for it. The configure script will automatically determine the
-	  correct flags to build &orocos; with. If it cannot find RTLinux,
-it will notify you and you can run
-<command>./configure --with-rtlinux=/usr/src/rtlinux-3.1</command>, or
-use a similar indication of where the compiler can find the RTLinux
-you are using.
+	  script will select the os/rtlinux target.
 	</para>
 
 	<para>
 	  When running <command>./configure --with-rtai</command>, the
-configure scripts will search for RTAI and it will configure the
-source tree for it. The configure script will automatically determine
-the correct flags to build &orocos; with. If it cannot find RTAI it
-will notify you of this and you can run
-<command>./configure --with-rtai=/usr/src/rtai-24.1.11</command>, or a
-similar indication of where the compiler can find the location of the
-	  RTAI you are using.
+configure script will select the os/rtai target
 	  <tip>
 	    <para>
 	      Read <xref linkend="general_setup_rtai"/> about possible patches you
@@ -932,17 +907,16 @@ similar indication of where the compiler can find the location of the
 	    </para>
 	  </tip>
 	</para>
-
+	<para>
+	  When running <command>./configure --with-lxrt</command> the configure
+	  script will select the os/lxrt target.
+	</para>
       </sect3>
 
       <sect3>
 	<title>Compiler flags</title>
 	<para>
-	  By default, the configuration script takes your default system compilation
-	  flags and adds the necessary &orocos;
-	  flags. On most systems, this means that the <parameter>-O2</parameter> flag will be used by default.
-	  You can override this
-	  by using <command>./configure CXXFLAGS=-O0</command>.
+	  You must set the compiler flags in the configtool GUI.
 	</para>
       </sect3>
     </sect2>
@@ -954,7 +928,7 @@ similar indication of where the compiler can find the location of the
 	are not familiar with RTAI instalation
 </para>
 <para>
-We recommend using RTAI version 24.1.11. You can obtain it from 
+We recommend using RTAI version 24.1.11 or later. You can obtain it from 
 <ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
 <screen>
 	  export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
@@ -969,7 +943,7 @@ Read The README.* files in the
 <filename class="directory">rtai</filename> directory for detailed
 instructions.  First, you need to patch your Linux kernel. A patch per
 kernel version can be found in the rtai/patches directory. You should
-apply the <filename>patch-X.Y.Z-adeos-r6</filename> patch to a clean
+apply the <filename>patch-X.Y.Z-adeos-rx</filename> patch to a clean
 Linux kernel.  We refer to the RTAI installation instructions for more
 details.
       </para>
@@ -984,13 +958,6 @@ details.
     </screen>
     Next do <command>make menuconfig; make dep; make;</command>
     </para>
-<para>
-As a last measure, take a look at the main RTAI Makefile (e.g.
-	<filename>/usr/src/rtai/Makefile</filename>), and check whether the
-line <literal>SUBDIRS</literal> contains
-<parameter>rtai_cpp</parameter>. If not, add it before you start the 
-building process. 
-      </para>
       <sect3>
         <title> RTAI settings </title>
         <para>
@@ -1130,8 +1097,6 @@ reasons, RTLinux is less supported and might lead to unstability.
 	</para>
       </sect3>
     </sect2> 
-
-    
   </sect1>
 
 <sect1 id="started">
