@@ -139,6 +139,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateContext</revremark>
       </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>7 Febrary 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Wrote down difference between starting and selecting a Component.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -1176,7 +1182,12 @@
   { 
   public:
       MyGenerator( const std::string& name = "MyGeneratorName")
-	  : Generator( name ) {}
+	  : Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >( name ) {}
       void pull() 
       { 
           // ... 
@@ -1197,7 +1208,8 @@
 	<para>
 	  This defines a class <classname>MyGenerator</classname>,
 	  which is derived from the <type>ORO_ControlKernel::Generator</type> class,
-	  and implements the three Data Flow method calls,
+	  and implements the three <classname>DataFlowInterface</classname>
+	  ( which is a base class from <classname>Generator</classname> ) method calls,
 	  <function>pull()</function>,
 	  <function>calculate()</function>, and
 	  <function>push()</function>. (More on these method calls
@@ -1205,7 +1217,7 @@
 	  text.)
 	</para>
 	<para>
-	  The Generator base class needs at least four template
+	  The <classname>Generator</classname> base class needs at least four template
 	  parameters in a specified order. The first three denote
 	  what objects the Component expects in the Data Flow.
 	  The last template argument denotes what the Generator
@@ -1221,8 +1233,7 @@
 	  files must be changed if the name changes.
 	</para>
 	<screen>
-MyGenerator  my_gen;
-	</screen>
+  MyGenerator  my_gen;</screen>
 	<para>
 	  The above line has created one instance of
 	  <classname>MyGenerator</classname> called my_gen and using
@@ -1233,34 +1244,62 @@ MyGenerator  my_gen;
 	  The next line could then be:
 	</para>
 	<screen>
-first_kernel.loadGenerator( &amp;my_gen );
-	</screen>
+  first_kernel.loadGenerator( &amp;my_gen );</screen>
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
-	  To introduce this Generator in the Data Flow instead 
-	  (thus let it generate SetPoints) of the current one,
-	  it must be selected :
-	</para>
-	<screen>
-first_kernel.selectGenerator( &amp;my_gen );
-	</screen>
-	<note>
-	  <para>
-<!-- 	    One can only select a component after the kernel is started ! -->
-	    Selection is enabling a Data Flow Component to operate on the
-	    Data Objects. Only one Component per type can do this. This
-	    does not mean that a not selected component is not accessible.
-	    It can still accept commands, report variables etc.
-	  </para>
-	</note>
-	<para>
-	  Only one Data Flow Component per type can be selected at a time and only a
-	  previously loaded Component can be selected in a running kernel.
 	  Components can be configured when they are loaded or when
 	  the kernel is started. Any component not loaded at that time
 	  will not be configured by that Control Kernel and is thus
-	  not usable when the Control Kernel is running. The above
-	  methods are available for all Components of the kernel.
+	  not usable when the Control Kernel is running.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Starting and Stopping a Component (startup and shutdown)</title>
+	<para>
+	  To introduce the Generator in the Data Flow 
+	  (thus let it generate SetPoints),
+	  it must be started :
+	</para>
+	<screen>
+  first_kernel.startup( &amp;my_gen );</screen>
+	<para>
+	  Starting is enabling a Data Flow Component to operate on the
+	  Data Objects, ie, the <classname>DataFlowInterface</classname> of the Component is called. This
+	  does not mean that a not started component is not accessible.
+	  It can still accept commands, report variables etc.
+	</para>
+	<para>
+	  Likewise, it can be shutdown :
+	</para>
+	<programlisting>
+  first_kernel.shutdown( &amp;my_gen );</programlisting>
+	<para>
+	  Which will stop its participation in the Data Flow processing.
+	  The above methods can be applied to all types of Components of the kernel.
+	  They are equivalent to the <function>start<emphasis>ComponentType</emphasis></function> and
+	  <function>stop<emphasis>ComponentType</emphasis></function> kernel methods.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Real-time Component Switching ( select )</title>
+	<para>
+	  It can be usefull to switch one component in realtime with another,
+	  for example, when the Controller or Generator needs to be switched 
+	  due to a realtime configuration change. To allow a component to be
+	  switched with another one, it must be <emphasis>'selected'</emphasis> :
+	</para>
+	<programlisting>  first_kernel.selectGenerator( &amp;my_gen );</programlisting>
+	<para>
+	  A selected component is started, but also stops the previously
+	  selected component of the same type ( here : Generator ). This has
+	  no effect on components which are started or stopped with the normal
+	  method calls. Thus a startGenerator(X) followed with selectGenerator(Y)
+	  will have both generators X and Y running in the kernel. If
+	  some time later a startGenerator(A) followed with selectGenerator(B) is
+	  called, components X, A and B will be running and Y will be stopped.
+	</para>
+	<para>
+	  Selecting and startup/shutdown calls should not be mixed for the same component.
 	</para>
       </sect3>
       <sect3>
@@ -1407,15 +1446,15 @@ class MyGenerator
   DataObjectInterface<Frame>* end_f_dobj;
 
 public:
-  // ...
+  // See earlier code examples for constructor ...
 
   bool componentLoaded()
   {
     // called when the component is loaded into the kernel.
     // Early Resolving of Write DataObjects :
-    if ( !BaseGen::SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
-         !BaseGen::SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
-         !BaseGen::SetPoint::dObj()->Get("Velocity", velocity_dobj )
+    if ( !SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
+         !SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
+         !SetPoint::dObj()->Get("Velocity", velocity_dobj )
 	)
     { 
 	  // Error, "Velocity", "EndPosition" or "BasePosition" not found !
@@ -1428,8 +1467,8 @@ public:
   {
     // called when the component is started in the kernel.
     // Early Resolving of Expect DataObjects :
-    if ( !BaseGen::Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
-	  !BaseGen::Input::dObj()->Get("EndPosition", input_f_dobj ))
+    if ( !Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
+	  !Input::dObj()->Get("EndPosition", input_f_dobj ))
     { 
 	  // Error, "Temperature" or "EndPosition"  not found !
 	  return false;
@@ -1463,8 +1502,8 @@ public:
       <sect3 id="pull-calculate-push">
 	<title>Inserting Functionality in Components</title> 
 	<para>
-	  As seen above, each Component has standardized,
-	  application-independent methods <function>pull()</function>,
+	  As seen above, each Component has the <classname>DataFlowInterface</classname>
+	   methods <function>pull()</function>,
 	  <function>calculate()</function>, and
 	  <function>push()</function>, for data exchange and data
 	  processing during its normal control loop activity. The
