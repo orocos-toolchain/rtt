@@ -42,8 +42,8 @@ namespace ORO_ControlKernel
       _is_accel(num_axes),
       _vel_profile(num_axes),
       _properties_read(false),
-      _max_acc("_max_acc", "Maximum Acceleration in Trajectory"),
-      _max_jerk("_max_jerk", "Maximum Jerk in Trajectory")
+      _max_acc("max_acc", "Maximum Acceleration in Trajectory"),
+      _max_jerk("max_jerk", "Maximum Jerk in Trajectory")
 
 
   {
@@ -156,7 +156,8 @@ namespace ORO_ControlKernel
 
     // Instantiate Motion Profiles
     for( unsigned int i=0; i<_num_axes; i++)
-      _vel_profile.push_back( new VelocityProfile_Trap( _max_acc.value()[i], _max_jerk.value()[i]) );
+      _vel_profile[i] = new VelocityProfile_Trap( _max_acc.value()[i], _max_jerk.value()[i]);
+
     return true;
   }
 
@@ -199,6 +200,7 @@ namespace ORO_ControlKernel
 	_time_passed[i] = 0;
 	_is_moving[i] = true;
 	_is_accel[i]=true;
+	if(!_vel_profile[i]) std::cout << "_vel_profile " << i << "NULL!" << std::endl;
 	_vel_profile[i]->SetProfile(_velocity_local[i],_velocity_desired[i]);
 	if(_velocity_local.size()!=_num_axes || _duration[i] < 0)   
 	  returnValue=false;
@@ -227,6 +229,12 @@ namespace ORO_ControlKernel
     _velocity_desired[axis]=velocity; 
     _is_moving[axis] = true;
     _is_accel[axis]=true;
+    /*    
+      if(!_vel_profile[axis]) 
+      std::cout << "_vel_profile " << axis << "NULL!" << std::endl;
+      else
+      std::cout << "_vel_profile" << axis << " succesfully setted!" << std::endl;
+    */
     _vel_profile[axis]->SetProfile(_velocity_local[axis],_velocity_desired[axis]);
     if(_velocity_local.size()!=_num_axes || _duration[axis] < 0)   
       return false;
