@@ -88,13 +88,11 @@ namespace ORO_ControlKernel
 
   private:
     unsigned int                                                          _num_axes;
-    std::vector<double>                                                   _duration;
-    std::vector<double>                                                   _velocity_local,_velocity_desired;
+    std::vector<double>                                                   _duration_desired, _duration_trajectory;
+    std::vector<double>                                                   _velocity_local;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_velocity_DOI;
-    ORO_CoreLib::TimeService::ticks                                       _get_time;
     std::vector<ORO_CoreLib::TimeService::ticks>                          _time_begin;
     std::vector<ORO_CoreLib::TimeService::Seconds>                        _time_passed;
-    std::vector<bool>                                                     _is_moving, _new_values, _is_accel;
     std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _vel_profile;
     bool                                                                  _properties_read;
     ORO_ControlKernel::Property< std::vector<double> >                    _max_acc, _max_jerk;
