@@ -613,11 +613,11 @@ namespace ORO_CoreLib
                 if ( f_bag != 0  && f_bag->get().getType() == string("MotCon::Frame") )
                     {
                         // pass this bag to the vector Composers
-                        VectorComposer vas_pos( *f_bag );
+                        VectorComposer vas_pos( f_bag->get() );
 #ifdef OROSEM_GEOMETRY_EULERPROPERTIES
-                        EulerZYXComposer vas_rot(*f_bag);
+                        EulerZYXComposer vas_rot( f_bag->get() );
 #else
-                        RotationComposer vas_rot(*f_bag);
+                        RotationComposer vas_rot( f_bag->get() );
 #endif
                         return vas_pos.getResult( f.value().p,"Position" ) && vas_rot.getResult( f.value().M, "Rotation" );
                     }
