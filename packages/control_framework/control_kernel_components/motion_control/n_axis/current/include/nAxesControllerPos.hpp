@@ -98,12 +98,12 @@ namespace ORO_ControlKernel
   private:
     unsigned int                                                          _num_axes;
 
-    std::vector<double>                                                   _position_meas, _position_meas_old, _position_desi, _position_change;
-    std::vector<double>                                                   _velocity_out, _offset_measurement;
+    std::vector<double>                                                   _position_meas, _position_desi, _velocity_out, _offset_measurement;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_position_desi_DOI,  *_velocity_DOI;
-    double                                                                _treshold_moving, _num_samples, _num_samples_taken;
-
-    bool                                                                  _properties_read, _is_measuring, _is_moving, _is_initialized;
+    int                                                                   _num_samples, _num_samples_taken;
+    double                                                                _time_sleep;
+    ORO_CoreLib::TimeService::ticks                                       _time_begin;
+    bool                                                                  _properties_read, _is_measuring;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
   }; // class
