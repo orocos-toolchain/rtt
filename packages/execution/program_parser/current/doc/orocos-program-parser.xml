@@ -1798,8 +1798,8 @@ StateMachine ParentStateMachine
        */
       state startup_state {
   	entry {
-  	    do Kernel.selectComponent("HWSensor")
-  	    do Kernel.selectComponent("MoveToGenerator")
+  	    do Kernel.startComponent("HWSensor")
+  	    do Kernel.startComponent("MoveToGenerator")
   	    }
   	transitions {
   	    select stop_state
@@ -1812,8 +1812,8 @@ StateMachine ParentStateMachine
        */
       final state fini_state {
   	entry {
-  	    do Kernel.selectComponent("Default")
-  	    do Kernel.selectComponent("Default")
+  	    do Kernel.stopComponent("HWSensor")
+  	    do Kernel.stopComponent("MoveToGenerator")
   	    }
       }
   
@@ -1823,9 +1823,10 @@ StateMachine ParentStateMachine
        */
       state stop_state {
   	entry {
-  	    // The Default Effector and Controller do nothing
-  	    do Kernel.selectComponent("Default")
-  	    do Kernel.selectComponent("Default")
+  	    // stop some components
+  	    do Kernel.stopComponent("HWEffector")
+  	    do Kernel.stopComponent("PIDController")
+	    do PIDController.reset()
   	transitions {
   	    if HMI.start_pushed() &amp;&amp; error == 0 then
   		 select run_state
@@ -1842,8 +1843,8 @@ StateMachine ParentStateMachine
   	    // make sure we are not moving
   	    do MoveToGenerator.safeStop()
   	    // Select components controlling the machine
-  	    do Kernel.selectComponent("PID")
-  	    do Kernel.selectComponent("HWEffector")
+  	    do Kernel.startComponent("PIDController")
+  	    do Kernel.startComponent("HWEffector")
   	    }
   
   	transitions {
@@ -1925,11 +1926,6 @@ StateMachine ParentStateMachine
   	// trajectory is done.
   }
   
-  function ExitProgram() {
-  	do HMI.display("Program Ended\n")
-  	stop
-  }
-
   program DemoRun {
   	do HMI.display("Program Started\n")
   	var int cycle = 0
@@ -1946,10 +1942,10 @@ StateMachine ParentStateMachine
   	    do HMIRequestTrajectory()
   	    do runTrajectory()
   
-  	    do HeartBeat.sleep( 5.0 ) // wait 5s
+  	    do Timer.sleep( 5.0 ) // wait 5s
   	}
   
-  	call ExitProgram()
+  	do HMI.display("Program Ended\n")
   }  </programlisting>
     </example>
   </sect1>
