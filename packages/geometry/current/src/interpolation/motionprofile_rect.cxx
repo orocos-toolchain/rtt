@@ -29,21 +29,45 @@ void MotionProfile_Rectangular::SetProfile(
 {
 	double diff;
 	diff = pos2-pos1;          // increment per sec.
-	v    = (diff>0)?maxvel:-maxvel;
-	p    = pos1;               // start pos    
-	d    = diff/v;
+    if ( diff != 0 )
+        {
+            v    = (diff>0)?maxvel:-maxvel;
+            p    = pos1;               // start pos    
+            d    = diff/v;
+        }
+    else
+        {
+            v = 0;
+            p = pos1;
+            d = 0;
+        }
 }
+
+    void MotionProfile_Rectangular::SetMax( double vMax )
+    {
+        maxvel = vMax;
+    }
+    
 
 void MotionProfile_Rectangular::
 	SetProfileDuration(double pos1,double pos2,double duration)
 {
 	double diff;
 	diff = pos2-pos1;          // increment per sec.
-	v    = diff/duration;
-    if (v > maxvel) 
-        v=maxvel;
-	p    = pos1;               // start pos    
-	d    = diff/v;
+    if ( diff != 0 )
+        {
+            v    = diff/duration;
+            if (v > maxvel) 
+                v=maxvel;
+            p    = pos1;               // start pos    
+            d    = diff/v;
+        }
+    else
+        {
+            v    = 0;
+            p    = pos1;
+            d    = duration;
+        }
 }
 
 double MotionProfile_Rectangular::Duration() const {

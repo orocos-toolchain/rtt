@@ -23,7 +23,7 @@ namespace ORO_Geometry {
 Trajectory_Composite::Trajectory_Composite():duration(0.0) {
 }
 
-double Trajectory_Composite::Duration(){
+double Trajectory_Composite::Duration() const {
 	return duration;
 }
 
