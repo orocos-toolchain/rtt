@@ -42,9 +42,9 @@ docs: $(DOC)
 
 docxml: dochtml docpdf docps
 
-dochtml: $(HTMLDOCS)
+dochtml: pngimages $(HTMLDOCS)
 
-docpdf: pngimages $(PDFDOCS)
+docpdf: epsimages $(PDFDOCS)
 
 docps: epsimages $(PSDOCS)
 
