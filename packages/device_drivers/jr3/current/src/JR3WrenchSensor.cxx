@@ -102,7 +102,7 @@ void JR3WrenchSensor::offsetSet(const ORO_Geometry::Wrench& newOffset)
 
 
 
-void JR3WrenchSensor::offsetAdd(const ORO_Geometry::Wrench&& extraOffset)
+void JR3WrenchSensor::offsetAdd(const ORO_Geometry::Wrench& extraOffset)
 {
   // First calculate the new offset (see above)
   _currentOffset.Fx += extraOffset.force[0];
