@@ -29,9 +29,6 @@
 
 namespace ORO_KinDyn
 {
-    SerialmZXXmZXmZ::~SerialmZXXmZXmZ() 
-    {}
-
     bool SerialmZXXmZXmZ::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
     {
         Double6D q = original_q;
@@ -142,6 +139,6 @@ namespace ORO_KinDyn
 
         zxxzxz.configurationGet(q,c);
     }
-
-
+    
 }
+

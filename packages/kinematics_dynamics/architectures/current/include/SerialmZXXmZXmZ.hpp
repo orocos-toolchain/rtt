@@ -46,8 +46,6 @@ namespace ORO_KinDyn
     {
 
     public:
-        virtual ~SerialmZXXmZXmZ();
-
         virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
         virtual bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
@@ -84,5 +82,6 @@ namespace ORO_KinDyn
         SerialZXXZXZ zxxzxz;
     };
 }
+
 
 #endif
