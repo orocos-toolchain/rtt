@@ -64,8 +64,9 @@ namespace ORO_Execution
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
-        if ( ! t )
-          throw bad_assignment();
+        if ( ! t ) {
+            throw bad_assignment();
+        }
         return new AssignVariableCommand<T>( data.get(), t );
       };
     TaskVariable<T>* clone() const

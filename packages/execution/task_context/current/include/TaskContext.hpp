@@ -62,15 +62,28 @@ namespace ORO_Execution
          */
         int queueCommand( CommandInterface* c);
 
+        /**
+         * Get the name of this TaskContext.
+         */
         const std::string& getName()
         {
             return _task_name;
         }
 
         /**
-         * Add a one-way connection from this task to a peer task.
+         * Change the name of this TaskContext.
          */
-        bool addPeer( TaskContext* peer );
+        void setName(const std::string& n)
+        {
+            _task_name = n;
+        }
+        /**
+         * Add a one-way connection from this task to a peer task.
+         * @param peer The peer to add.
+         * @param alias An optional alias (another name) for the peer.
+         * defaults to \a peer->getName()
+         */
+        bool addPeer( TaskContext* peer, std::string alias = "" );
 
         /**
          * Remove a one-way connection from this task to a peer task.
@@ -91,6 +104,9 @@ namespace ORO_Execution
 
         std::vector<std::string> getPeerList() const;
 
+        /**
+         * Return true if it knows a peer by that name.
+         */
         bool hasPeer( const std::string& peer_name ) const;
 
         TaskContext* getPeer(const std::string& peer_name ) const;
@@ -102,6 +118,8 @@ namespace ORO_Execution
         {
             return _task_proc;
         }
+
+        void debug(bool);
 
         /**
          * The commandFactory of this TaskContext.

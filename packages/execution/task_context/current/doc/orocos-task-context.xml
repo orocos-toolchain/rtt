@@ -972,8 +972,8 @@
       public TaskContext
   {
   public:
-      TaskDeviceInterface(const std::string&amp; name)
-        : TaskContext( name )
+      TaskDeviceInterface()
+        : TaskContext( "DeviceInterface" )
       {
          this->setup();
       }
@@ -1014,7 +1014,9 @@
   };</programlisting>
 	<para>
 	  The above listing just combines all factories which were introduced
-	  in the previous sections. </para>
+	  in the previous sections. Also note that the TaskContext's name
+	  is fixed to "DeviceInterface". This is not obligatory though.
+	</para>
       </sect3>
       <sect3>
 	<title>Step 2 : Inherit from the new interface</title>
@@ -1029,9 +1031,6 @@
     : public TaskDeviceInterface
   {
   public:
-    MyDevice_1()
-      : TaskDeviceInterface("mydevice")
-    {}
 
     bool setParameter(int parnr, double value) {
       // ...
@@ -1040,14 +1039,25 @@
     }
     // etc.
   };
-
-  // now add it to the supervising task :
+	</programlisting>
+      </sect3>
+      <sect3>
+	<title>Step 3 : Add the task to other tasks</title>
+	<para>
+	  The new TaskContext can now be added to other tasks.
+	  If needed, an alias can be given such that the
+	  peer task knows this task under another name.
+	  This allows the user to access different incarnations
+	  of the same interface from a task.
+	</para>
+	<programlisting>
+	  // now add it to the supervising task :
   MyDevice_1 mydev;
-  supervisor.addPeer( &amp;mydev );
+  supervisor.addPeer( &amp;mydev, "device" );
 	</programlisting>
 	<para>
 	  From now on, the "supervisor" task will be able to access
-	  "mydevice". If the implementation changes, the same interface
+	  "device". If the implementation changes, the same interface
 	  can be reused whithout changing the programs in the supervisor.
 	</para>
 	<para>
@@ -1059,7 +1069,7 @@
 	</para>
       </sect3>
       <sect3>
-	<title>Step 3 : Use the task's interface</title>
+	<title>Step 4 : Use the task's interface</title>
 	<para>To make the example complete, here is an example
 	script which could run in the supervisor task :
 	</para>
@@ -1068,18 +1078,18 @@
   {
      const int par1 = 0
      const int par2 = 1
-     do mydevice.setParameter(par1, supervisor.par1 )
-     do mydevice.setParameter(par2, supervisor.par2 )
+     do device.setParameter(par1, supervisor.par1 )
+     do device.setParameter(par2, supervisor.par2 )
 
-     while ( mydevice.getError() == 0 ) 
+     while ( device.getError() == 0 ) 
      {
-	if ( this.updateDevice("mydevice") == true )
-           do mydevice.updateData() until {
-	        if done || ( mydevice.getError() != 0 ) then
+	if ( this.updateDevice("device") == true )
+           do device.updateData() until {
+	        if done || ( device.getError() != 0 ) then
 	           continue
 	   }
      }
-     do this.handleError("mydevice", mydevice.getError() )
+     do this.handleError("device", device.getError() )
   }</programlisting>
 	<para>
 	  When the supervisor starts the program "ControlDevice",
@@ -1103,7 +1113,7 @@
 	    take apropriate action.</para>
 	  </listitem>
 	  <listitem>
-	    <para>The  "<function>mydevice.updateData()</function>" call waits
+	    <para>The  "<function>device.updateData()</function>" call waits
 	    for completion of the remote command, but can be given other
 	    completion or error conditions to watch for.</para>
 	  </listitem>

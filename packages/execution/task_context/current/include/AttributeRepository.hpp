@@ -7,6 +7,7 @@
 namespace ORO_Execution
 {
     class TaskAttributeBase;
+    class DataSourceBase;
 
     /**
      * @brief A class for keeping track of values/variables.
@@ -14,11 +15,11 @@ namespace ORO_Execution
      * It stores types in a map,
      * so that they can be referenced to later on.
      */
-  class AttributeRepository
+  struct AttributeRepository
   {
     typedef std::map<const std::string, TaskAttributeBase*> map_t;
     map_t values;
-  public:
+
     AttributeRepository();
     ~AttributeRepository();
       /**
@@ -45,6 +46,17 @@ namespace ORO_Execution
      * returns 0.
      */
     TaskAttributeBase* getValue( const std::string& name );
+
+      /**
+       * Return a new copy of this repository with the copy operation semantics.
+       * @see CommandInterface
+       */
+      AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const;
+
+//       const AttributeRepository& operator=(const AttributeRepository& orig) {
+//           this->values = orig.values;
+//       }
+          
   };
 }
 
