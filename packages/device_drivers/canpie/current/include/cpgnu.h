@@ -55,7 +55,7 @@ _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
 
  _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 {
-    return CpErr_OK;
+    return !CpErr_OK;
 }
 
  _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)

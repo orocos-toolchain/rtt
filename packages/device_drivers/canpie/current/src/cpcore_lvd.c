@@ -46,6 +46,12 @@
 #include <rtai_sched.h>
 #endif
 
+// Holds the number of interrupts processed.
+ unsigned int cp_recv_int;
+ unsigned int cp_emcy_int;
+ unsigned int cp_trns_int;
+
+
 //#define LVD_DEBUG
 
 #ifdef LVD_DEBUG
@@ -466,26 +472,31 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 	if ( (Ir & PCAN_IR_RI) == PCAN_IR_RI) 
 	{
 		DEBUG("Receive Interrupt\n");
+        /* Read the new message */
 		CpCoreMsgReceive(0);
+        ++cp_recv_int;
 	}
 	else if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
         {
             DEBUG("Transmit Interrupt\n");
+            /* Transmit any messages still in fifo */
             CpCoreMsgTransmit(0);
+            ++cp_trns_int;
         }
     else if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
 		{
 			DEBUG("Emergency Interrupt\n");
 			if ((read_reg_bcan(PCAN_SR) & PCAN_SR_ES) == PCAN_SR_ES)
 			{
+                ++cp_emcy_int;
 			  /* error warning limit */
 			  //----------------------------------------------------------------
 			  //	check for error handler
 			  //
-			  if(CpInt_ErrorHandler[0])
-			   {
-			     error = (* CpInt_ErrorHandler[0] )(0);
-			   }
+/* 			  if(CpInt_ErrorHandler[0]) */
+/* 			   { */
+/* 			     error = (* CpInt_ErrorHandler[0] )(0); */
+/* 			   } */
 
 			  /* clear reset mode bit : Switch to bus-on state */
 			  cr = 0;
@@ -796,7 +807,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
        // enable interrupts
        rt_global_restore_flags(lflags);
 #endif
-       return (CpErr_GENERIC);
+       return (CpErr_OK);// we will handle it in the interrupt handler...
    }
 
    // ------------------------------------

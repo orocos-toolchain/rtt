@@ -34,6 +34,9 @@ static struct rt_fun_entry rt_apci_fun[] = {
     [ CP_USER_INT_FUNCTIONS ] = { 0, CpUserIntFunctions }
 };
 
+extern unsigned int cp_recv_int;
+extern unsigned int cp_emcy_int;
+extern unsigned int cp_trns_int;
 
 		
 /* init module */
@@ -44,6 +47,7 @@ int init_module(void)
     printk("Recompile canpie with a different index\n");
     return -EACCES;
   }
+  cp_recv_int = cp_emcy_int = cp_trns_int = 0;
   printk("CANPie Loaded\n");
   return(0);
 }
@@ -52,6 +56,7 @@ int init_module(void)
 void cleanup_module(void)
 {
   reset_rt_fun_ext_index(rt_apci_fun, ORONUM_CANPIE_LXRT_IDX);
+  printk("CANPie Interrupt Statistics : #RECV: %d, #TRNS: %d, #EMCY: %d\n",cp_recv_int, cp_trns_int, cp_emcy_int);
   printk("CANPie Unloaded\n");
 }
 
