@@ -7,9 +7,8 @@ cdl_savefile_command cdl_component { value_source user_value wizard_value inferr
 cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
 cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
 
-cdl_configuration template_minimal {
-    description "This is a minimal configuration." ;
-    package     OROPKG_CORELIB current ;
-    package     OROPKG_OS current ;
+cdl_configuration template_kernel_components {
+    description "Some application specific kernel components." ;
+    package     OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL current ;
 };
 

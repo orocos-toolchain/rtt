@@ -16,7 +16,9 @@ clean:
 	find support -name "*.cdl" | xargs rm -f
 	rm -f ecos.db
 
-orocos-dist:
+orocos-dist: doc-dist
+
+doc-dist:
 	@echo "Making doc tarballs..."
 	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) dist; done
 	@rm -rf orocos-docs
