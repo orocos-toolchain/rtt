@@ -176,10 +176,10 @@ namespace ORO_Execution
               // either use the implicit termination condition, or use
               // true..
               ConditionInterface* cond = implcond ? implcond : new ConditionTrue;
-              program_graph->proceedToNext( cond );
+              program_graph->proceedToNext( cond, mpositer.get_position().line );
           }
       else
-          program_graph->proceedToNext();
+          program_graph->proceedToNext( mpositer.get_position().line );
 
     // the done condition is no longer valid..
     context.valueparser.removeValue( "done" );
@@ -206,7 +206,7 @@ namespace ORO_Execution
       assert( mfunc );
       // Fake a 'return' statement at the last line.
       program_graph->returnFunction( new ConditionTrue, mfunc );
-      program_graph->proceedToNext();
+      program_graph->proceedToNext( mpositer.get_position().line );
       program_graph->endFunction( mfunc );
       // close the function.
       mfunc = 0;
@@ -224,12 +224,12 @@ namespace ORO_Execution
       if ( mfunc == 0 )
           {
               program_graph->returnProgram( new ConditionTrue );
-              program_graph->proceedToNext();
+              program_graph->proceedToNext( mpositer.get_position().line );
           }
       else
           {
               program_graph->returnFunction( new ConditionTrue, mfunc);
-              program_graph->proceedToNext();
+              program_graph->proceedToNext(  mpositer.get_position().line );
           }
       mcurlabel.clear();
   }
@@ -268,7 +268,7 @@ namespace ORO_Execution
 
       // The exit node of the function is already connected
       // to program->nextNode().
-      program_graph->proceedToNext();
+      program_graph->proceedToNext(mpositer.get_position().line);
       mcurlabel.clear();
   }
 
@@ -283,7 +283,7 @@ namespace ORO_Execution
   {
       // Fake a 'return' statement at the last line.
       program_graph->returnProgram( new ConditionTrue );
-      program_graph->proceedToNext();
+      program_graph->proceedToNext( mpositer.get_position().line );
       program_graph->endProgram();
   }
 
@@ -352,7 +352,7 @@ namespace ORO_Execution
       program_graph->setCommand( ac );
       // Since a valuechange does not add edges, we use this variant
       // to create one.
-      program_graph->proceedToNext( new ConditionTrue );
+      program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
     }
   }
 

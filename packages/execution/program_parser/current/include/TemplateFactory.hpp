@@ -104,13 +104,13 @@ namespace ORO_Execution
     TemplateFactoryPart( const char* desc )
       : mdesc( desc )
       {
-      };
+      }
 
     virtual ~TemplateFactoryPart() {};
     std::string description() const
       {
         return mdesc;
-      };
+      }
     virtual PropertyBag getArgumentSpec() const = 0;
     virtual ResultT produce( ComponentT* com,
                              const PropertyBag& args ) const = 0;
@@ -129,12 +129,12 @@ namespace ORO_Execution
     TemplateFactoryFunctorPart0( fun_t f, const char* desc )
       : TemplateFactoryPart<ComponentT,ResultT>( desc ), fun( f )
       {
-      };
+      }
 
     PropertyBag getArgumentSpec() const
       {
         return PropertyBag();
-      };
+      }
 
     ResultT produce( ComponentT* c, const PropertyBag& bag ) const
       {
@@ -142,7 +142,7 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception(
             bag.getProperties().size(), 0 );
         return fun( c );
-      };
+      }
 
     ResultT produce(
       ComponentT* comp,
@@ -151,7 +151,7 @@ namespace ORO_Execution
         if ( ! args.empty() )
           throw wrong_number_of_args_exception( args.size(), 0 );
         return fun( comp );
-      };
+      }
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT,
@@ -171,14 +171,14 @@ namespace ORO_Execution
       : TemplateFactoryPart<ComponentT,ResultT>( desc ),
         fun( f ), arg1name( a1n ), arg1desc( a1d )
       {
-      };
+      }
 
     PropertyBag getArgumentSpec() const
       {
         PropertyBag ret;
         ret.add( new Property<first_argument_type>( arg1name, arg1desc ) );
         return ret;
-      };
+      }
     ResultT produce( ComponentT* c, const PropertyBag& bag ) const
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
@@ -189,7 +189,7 @@ namespace ORO_Execution
         if ( ! arg1 )
           throw wrong_types_of_args_exception( 1 );
         return fun( c, arg1->get() );
-      };
+      }
     ResultT produce(
       ComponentT* comp,
       const std::vector<DataSourceBase*>& args ) const
@@ -201,7 +201,7 @@ namespace ORO_Execution
         if ( ! a )
           throw wrong_types_of_args_exception( 1 );
         return fun( comp, a );
-      };
+      }
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT,
@@ -227,14 +227,15 @@ namespace ORO_Execution
         arg1name( a1n ), arg1desc( a1d ), arg2name( a2n ),
         arg2desc( a2d )
       {
-      };
+      }
 
     PropertyBag getArgumentSpec() const
       {
         PropertyBag ret;
         ret.add( new Property<first_argument_type>( arg1name, arg1desc ) );
         ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
-      };
+        return ret;
+      }
     ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
@@ -247,8 +248,8 @@ namespace ORO_Execution
           dynamic_cast<Property<second_argument_type>*>( props[1] );
         if ( !arg2 ) throw wrong_types_of_args_exception( 2 );
         return fun( comp, arg1->get(), arg2->get() );
-      };
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args )
+      }
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
       {
         if ( args.size() != 2 )
           throw wrong_number_of_args_exception( args.size(), 2 );
@@ -259,7 +260,7 @@ namespace ORO_Execution
           dynamic_cast<DataSource<second_argument_type>*>( args[1] );
         if ( !b ) throw wrong_types_of_args_exception( 2 );
         return fun( comp, a, b );
-      };
+      }
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT,
@@ -293,7 +294,7 @@ namespace ORO_Execution
         arg2name( a2n ), arg2desc( a2d ),
         arg3name( a3n ), arg3desc( a3d )
       {
-      };
+      }
 
     PropertyBag getArgumentSpec() const
       {
@@ -302,7 +303,7 @@ namespace ORO_Execution
         ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
         ret.add( new Property<third_argument_type>( arg3name, arg3desc ) );
         return ret;
-      };
+      }
 
     ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
       {
@@ -319,8 +320,8 @@ namespace ORO_Execution
           dynamic_cast<Property<third_argument_type>*>( props[2] );
         if ( !arg3 ) throw wrong_types_of_args_exception( 3 );
         return fun( comp, arg1->get(), arg2->get(), arg3->get() );
-      };
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args )
+      }
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
       {
         if ( args.size() != 3 )
           throw wrong_number_of_args_exception( args.size(), 3 );
@@ -334,7 +335,7 @@ namespace ORO_Execution
           dynamic_cast<DataSource<third_argument_type>*>( args[2] );
         if ( !c ) throw wrong_types_of_args_exception( 3 );
         return fun( comp, a, b, c );
-      };
+      }
   };
     /**
      * @}
@@ -351,7 +352,7 @@ namespace ORO_Execution
   {
     return new TemplateFactoryFunctorPart0<ComponentT, ResultT, FunctorT>(
       fun, desc );
-  };
+  }
 
   template<typename ComponentT, typename ResultT,
            typename Arg1T, typename FunctorT>
@@ -360,7 +361,7 @@ namespace ORO_Execution
   {
     return new TemplateFactoryFunctorPart1<ComponentT, ResultT, FunctorT,
       Arg1T>( fun, desc, an, ad );
-  };
+  }
 
   template<typename ComponentT, typename ResultT,
            typename Arg1T, typename Arg2T, typename FunctorT>
@@ -370,7 +371,7 @@ namespace ORO_Execution
   {
     return new TemplateFactoryFunctorPart2<ComponentT, ResultT, FunctorT,
       Arg1T, Arg2T>( fun, desc, an, ad, bn, bd );
-  };
+  }
 
   template<typename ComponentT, typename ResultT,
            typename Arg1T, typename Arg2T, typename Arg3T,
@@ -382,7 +383,7 @@ namespace ORO_Execution
   {
     return new TemplateFactoryFunctorPart3<ComponentT, ResultT, FunctorT,
       Arg1T, Arg2T, Arg3T>( fun, desc, an, ad, bn, bd, cn, cd);
-  };
+  }
   /**
    * @}
    */
@@ -403,13 +404,13 @@ namespace ORO_Execution
     TemplateFactory( ComponentT* com )
       : comp( com )
       {
-      };
+      }
 
     ~TemplateFactory()
       {
         for ( typename map_t::iterator i = data.begin(); i != data.end(); ++i )
           delete i->second;
-      };
+      }
 
     std::vector<std::string> getNames() const
       {
@@ -418,19 +419,19 @@ namespace ORO_Execution
                         std::back_inserter( ret ),
                         mystl::select1st<typename map_t::value_type>() );
         return ret;
-      };
+      }
 
     bool hasName( const std::string& name ) const
       {
         return data.find( name ) != data.end();
-      };
+      }
 
     ResultT produce( const std::string& name, const PropertyBag& args ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->produce( comp, args );
-      };
+      }
 
     ResultT produce( const std::string& name,
                      const std::vector<DataSourceBase*>& args ) const
@@ -438,21 +439,21 @@ namespace ORO_Execution
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->produce( comp, args );
-      };
+      }
 
     PropertyBag getArgumentSpec( const std::string& name ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->getArgumentSpec();
-      };
+      }
 
     std::string getDescription( const std::string& name ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->description();
-      };
+      }
 
     void add( const std::string& name,
               TemplateFactoryPart<ComponentT, ResultT>* part )
@@ -461,7 +462,7 @@ namespace ORO_Execution
         if ( i != data.end() )
           delete i->second;
         data[name] = part;
-      };
+      }
   };
 }
 

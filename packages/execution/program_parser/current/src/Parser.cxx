@@ -3,6 +3,7 @@
 #include "execution/ProgramGraphParser.hpp"
 #include "execution/StateGraphParser.hpp"
 #include "execution/ConditionParser.hpp"
+#include "execution/CommandParser.hpp"
 #include "corelib/ConditionInterface.hpp"
 
 #include <iostream>
@@ -82,5 +83,33 @@ namespace ORO_Execution
     ConditionInterface* ret = parser.getParseResult();
     parser.reset();
     return ret;
+  };
+
+  std::pair<CommandInterface*, ConditionInterface*>
+  Parser::parseCommand( std::string& s,
+                        const GlobalFactory* e )
+  {
+      // This code is copied from parseCondition
+
+    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+    our_pos_iter_t parseend;
+
+    ParseContext pc( 0, e );
+    CommandParser parser( pc );
+    try
+    {
+      parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+    }
+    catch( const parse_exception& e )
+    {
+      std::cerr << "Parse error at line "
+                << parsebegin.get_position().line
+                << ": " << e.what() << std::endl;
+      return std::pair<CommandInterface*,ConditionInterface*>(0,0);
+    };
+    CommandInterface* ret = parser.getCommand();
+    ConditionInterface* cond_ret = parser.getImplTermCondition();
+    parser.reset();
+    return std::make_pair( ret, cond_ret );
   };
 }

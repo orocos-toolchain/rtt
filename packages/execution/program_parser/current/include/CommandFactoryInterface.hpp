@@ -63,6 +63,12 @@ namespace ORO_Execution
             virtual std::vector<std::string> commandNames() const = 0;
 
             /**
+             * Return the description of a given command.
+             * @param com The command to get the description from.
+             */
+            virtual std::string getDescription( const std::string& com ) const = 0;
+
+            /**
              * We need to be able to find out what types of arguments
              * a method needs.  This method returns a PropertyBag
              * containing Property's of the types of the arguments..

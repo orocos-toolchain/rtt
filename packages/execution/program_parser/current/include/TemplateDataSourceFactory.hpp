@@ -95,6 +95,7 @@ namespace ORO_Execution
             return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->clone() );
         }
   };
+
   /**
    * @}
    */
@@ -293,7 +294,7 @@ namespace ORO_Execution
   TemplateFactoryPart<
     typename boost::remove_const<ComponentT>::type,
     DataSourceBase*>*
-  data( ResultT (ComponentT::*var), const char* desc )
+  data( ResultT (ComponentT::*var) , const char* desc )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,
       DataSourceBase*>( fun_datasource_gen<ComponentT, ResultT>(
@@ -303,7 +304,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)(), const char* desc )
+  data( ResultT (ComponentT::*fun)() const, const char* desc )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,
       DataSourceBase*>( fun_datasource_gen<ComponentT, ResultT>(
@@ -313,7 +314,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)( Arg1T ), const char* desc,
+  data( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,

@@ -40,6 +40,7 @@ namespace ORO_Execution
 
       our_pos_iter_t& mpositer;
       std::string minit;
+      std::string mfini;
 
       // A map of all States
       typedef std::map<std::string, StateDescription*> statemap;
@@ -75,6 +76,7 @@ namespace ORO_Execution
       void handledecl( iter_t s, iter_t f);
 
       void initstate( iter_t s, iter_t f);
+      void finistate( iter_t s, iter_t f);
       void statedef( iter_t s, iter_t f);
       void seenstateend();
 

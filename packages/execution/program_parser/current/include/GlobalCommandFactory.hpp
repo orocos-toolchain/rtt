@@ -27,7 +27,8 @@ namespace ORO_Execution
 	{
 
     /**
-     * This class is sort of a registry for command factories..
+     * @brief This class is sort of a registry for command factories..
+     *
      * Components can register their factory with us under a certain
      * name, and then the parser can come and ask us for the factory
      * by a certain name..  For example, if the parser sees a call to

@@ -74,10 +74,12 @@ namespace ORO_Execution
 
     varline = !vardec >> newline;
 
-    vardec = ( str_p("Event Handle")
+    vardec = ( str_p("Event_Handle")
                >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::handledecl, this, _1, _2) ]))
-               | ( str_p("Initial State")
-                   >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::initstate, this, _1, _2) ])
+               | ( str_p("Initial_State")
+                   >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::initstate, this, _1, _2) ]) )
+               | ( str_p("Final_State")
+                   >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::finistate, this, _1, _2) ])
                    );
     
     // a function is very similar to a program, but it also has a name
@@ -169,14 +171,17 @@ namespace ORO_Execution
         minit = std::string(s,f);
     }
 
+    void StateGraphParser::finistate( iter_t s, iter_t f)
+    {
+        mfini = std::string(s,f);
+    }
+
     void StateGraphParser::statedef( iter_t s, iter_t f)
     {
-        // This is a bit clumsy, but ok, because we indicate
-        // that the initial state must be set before the first
-        // state definition.
-        
-        if ( mstates.size() > 1 && minit == std::string("") )
-            throw parse_exception("Initial State not set.");
+        if ( minit == std::string("") )
+            throw parse_exception("Initial State not set. Write on top : Initial State statename");
+        if ( mfini == std::string("") )
+            throw parse_exception("Final State not set. Write on top : Final State statename");
 
         std::string def(s, f);
         if ( mstates.count( def ) != 0 )
@@ -307,7 +312,12 @@ namespace ORO_Execution
         for( statemap::iterator it= mstates.begin(); it != mstates.end(); ++it)
             if ( !it->second->isDefined() )
                 throw parse_exception("State " + it->first + " not defined, but referenced to.");
-                
+
+        // Check if Final State is ok.
+        if ( mstates.count( mfini ) == 0 || !mstates[mfini]->isDefined() )
+            throw parse_exception("Final State " + mfini + " not defined.");
+        
+        state_graph->finalState( mstates[mfini] );
     }
 
     void StateGraphParser::seensink()

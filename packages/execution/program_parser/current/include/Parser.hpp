@@ -21,6 +21,7 @@
 #define PROGRAMPARSER_HPP
 
 #include <iosfwd>
+#include <utility>
 
 namespace ORO_CoreLib
 {
@@ -72,6 +73,12 @@ namespace ORO_Execution
      */
     ORO_CoreLib::ConditionInterface* parseCondition(
       std::string& s, const GlobalFactory* ext );
+
+      /**
+       * Parses a command in s.
+       */
+      std::pair<CommandInterface*,ConditionInterface*>
+      parseCommand( std::string&s, const GlobalFactory* gFact);
   };
 };
 #endif
