@@ -7,6 +7,6 @@ make db
 cd ..
 mkdir build
 cd build
-../configure --prefix=/scratch/test --with-gnulinux
+../configure --with-gnulinux
 make new_packages
 make all_packages
