@@ -21,7 +21,7 @@
 #ifndef TESTCASE_HPP
 #define TESTCASE_HPP
 
-#include <corelib/RunnableInterface.hpp>
+#include <os/RunnableInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
 //#include <corelib/ConditionVariableInterface.hpp>
 #include <corelib/TaskPreemptible.hpp>
@@ -36,6 +36,8 @@
 namespace UnitTesting
 {
 
+    // This is evil, we should use the one from CoreLib
+    using ORO_OS::RunnableInterface;
     using namespace ORO_CoreLib;
 
     /**
