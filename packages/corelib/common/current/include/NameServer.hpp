@@ -33,8 +33,6 @@ namespace ORO_CoreLib
      * declared in the private section of the class and you should register your object
      * in the constructor of your nameserved class.<br>
      * <tt>
-     * reasoning
-     *  -> static ... type specific
      *
      * advantages:
      *  -> with this system you can ask a specific class for component "X" (
@@ -76,23 +74,23 @@ namespace ORO_CoreLib
 
     public:
         /**
-         * Construct an empty NameServer.
+         * @brief Construct an empty NameServer.
          */
         NameServer() : objects()
         {}
 
         /**
-         * Destruct a nameserver.
+         * @brief Destruct a nameserver.
          */
         ~NameServer()
         {}
 
         /**
-         * Determine if a given name is registered
+         * @brief Determine if a given name is registered
          *
          * @param s the name to check
          *
-         * @returns true if <s> is registered, false otherwise
+         * @return true if <s> is registered, false otherwise
          */
         bool isNameRegistered( const NameType& s ) const
         {
@@ -100,11 +98,11 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Determine if a given object is registered
+         * @brief Determine if a given object is registered
          *
          * @param o the object to check
          *
-         * @returns true if <o> is registered, false otherwise
+         * @return true if <o> is registered, false otherwise
          */
         bool isObjectRegistered( const ValueType o ) const
         {
@@ -118,34 +116,26 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Get the object registered for a name.
+         * @brief Get the object registered for a name.
          *
          * @param s the name of the object you need
          * 
-         * @returns the object the name is registered with,
+         * @return the object the name is registered with,
          *  if the name isn't registered, it will return 0
          */
         ValueType getObject( const NameType& s ) const
         {
-            if ( isNameRegistered( s ) )
-                {
-                    const_iterator itc = objects.find( s );
-                    return ( *itc ).second;
-                }
-
-            else
-                {
-                    return 0;
-                }
+            const_iterator itc = objects.find( s );
+            return  itc == objects.end() ? 0 : ( *itc ).second;
         }
 
         /**
-         * Get the object registered earlier by that name.
+         * @brief Get the object registered earlier by that name.
          *
          * @param s the name of the object you need.
          * @deprecated by GetObject()
          * 
-         * @returns the object the name is registered with,
+         * @return the object the name is registered with,
          *  if the name isn't registered, it will return 0
          */
         ValueType getObjectByName( const NameType& s ) const
@@ -154,11 +144,11 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Get the name registered for a object.
+         * @brief Get the name registered for a object.
          *
          * @param s the object of the name you need
          * 
-         * @returns the name the object is registered with,
+         * @return the name the object is registered with,
          *  if the object isn't registered, it will return 0
          */
         const NameType& 
@@ -174,12 +164,12 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Get the name registered for a object.
+         * @brief Get the name registered for a object.
          *
          * @param s the object of the name you need
          * @deprecated by getName()
          * 
-         * @returns the name the object is registered with,
+         * @return the name the object is registered with,
          *  if the object isn't registered, it will return 0
          */
         const NameType&
@@ -189,7 +179,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Register an object with a name
+         * @brief Register an object with a name.
          *
          * @param obj  The instance you wish to register with a name
          * @param name The name of the object
@@ -200,7 +190,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Remove an object from the nameserver registrations
+         * @brief Remove an object from the nameserver registrations.
          *
          * @param obj the object you want removed
          * 
@@ -210,6 +200,9 @@ namespace ORO_CoreLib
         {
             iterator i(objects.begin());
 
+            /**
+             * @todo might be improved by using equal_range
+             */
             while ( i != objects.end() )
                 {
                     for ( i = objects.begin();
@@ -226,21 +219,21 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Remove a name from the nameserver registrations
+         * @brief Remove a name from the nameserver registrations.
          *
          * @param name the name of the object you want remove
          * 
          */
         void unregisterName( const NameType& name )
         {
-            iterator i = objects.find( name );
+            iterator i( objects.find( name ) );
 
             if ( i != objects.end() )
                 objects.erase( i );
         }
 
         /**
-         * An Iterator to iterate over the registered objects
+         * @brief An Iterator to iterate over the registered objects.
          *
          * On dereference it will give you a ValueType (an object)
          */
@@ -291,9 +284,9 @@ namespace ORO_CoreLib
         };
 
         /**
-         * An Iterator to iterate over the registered names
+         * @brief An Iterator to iterate over the registered names.
          *
-         * on dereference it will give you a NameType (a name)
+         * On dereference it will give you a NameType (a name).
          */
 #if __GNUC__ == 2
         class name_iterator : public bidirectional_iterator<NameType, int>
@@ -343,22 +336,22 @@ namespace ORO_CoreLib
         };
 
         /**
-         * Get an iterator to the beginning of the names list.
+         * @brief Get an iterator to the beginning of the names list.
          */
         name_iterator getNameBegin() { return name_iterator( objects.begin() ); }
 
         /**
-         * Get an iterator to the end of the names list.
+         * @brief Get an iterator to the end of the names list.
          */
         name_iterator getNameEnd()   { return name_iterator( objects.end() ); }
 
         /**
-         * Get an iterator to the beginning of the objects list.
+         * @brief Get an iterator to the beginning of the objects list.
          */
         value_iterator getValueBegin() { return value_iterator( objects.begin() ); }
             
         /**
-         * Get an iterator to the end of the objects list.
+         * @brief Get an iterator to the end of the objects list.
          */
         value_iterator getValueEnd()   { return value_iterator( objects.end() ); }
 
