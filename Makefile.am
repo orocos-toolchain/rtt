@@ -4,7 +4,7 @@ ECOS_REP=@abs_srcdir@/packages
 
 EXTRA_DIST = \
 	packages/ecosadmin.tcl packages/ecosdbgen.py packages/ecospkggen.py \
-	packages/configure.ac packages/configure packages/bootstrap.sh \
+	packages/configure.ac packages/configure bootstrap.sh \
 	packages/aclocal.m4 packages/acinclude.m4 \
 	packages/Makefile.in packages/Doxyfile.in \
 	doc/CODING_STYLE.txt \

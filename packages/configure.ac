@@ -8,7 +8,7 @@ if ! test -e configure.ac; then
 "
 
 
-PACKAGES_INIT("Orocos Packages",0,11,0)
+PACKAGES_INIT("Orocos Packages",0,10,0)
 
 DETECT_BOOSTPKG
 DETECT_BOOST_GRAPHPKG

@@ -60,6 +60,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Initial version</revremark>
       </revision>
+      <revision>
+	<revnumber>0.02</revnumber>
+	<date>21 Jan 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>ecostools updates</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -257,7 +263,7 @@ cd orocos-base-0.10.0
 	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
 	      <screen><command>
 cd orocos-base-0.10.0/packages
-./ecosadmin.tcl add /path/to/filename.epk;
+./ecosadmin.tcl add /path/to/filename.epk
 		</command></screen>
 	      This action is also documented in the eCos manuals and equivalent to the installation
 	      of any eCos package, see 
@@ -578,44 +584,6 @@ configure script will select the os/rtai target
 	  installation.
 	  In the configuration process, make sure that you enable the following
 	  options:
-	  <screen>
-	    --- Code maturity level options
-	    [*] Prompt for experimental code
-	    --- Scheduler
-	    &lt;*&gt; UP Scheduler
-	    --- Features
-	    [*] Enable floating point support
-	    &lt;*&gt; RTAI Math library support
-	    [*] Strange APIC support
-	    --- Subsystems
-            &lt;*&gt; RT memory manager
-            [*]   Use vmalloc() instead of kmalloc()
-            &lt;M&gt; FIFOs
-            &lt;M&gt; Shared Memory
-            &lt;M&gt; POSIX API
-            &lt; &gt; Watchdog
-            &lt;M&gt; LXRT - Realtime in User Space
-            &lt;M&gt; NEWLXRT - Native Linux Hard Realtime (NEW)
-            &lt;M&gt; C++ support
-            [*]   New rtai_cpp interface (EXPERIMENTAL)
-            &lt;M&gt; Tasklets
-            &lt;M&gt; Bits
-            &lt;M&gt; Typed mailboxes
-            &lt; &gt; Real-Time serial driver (rt_com)
-            &lt; &gt; Real-Time serial driver (spdrv) (NEW)
-            &lt; &gt; Real-Time networking (rtnet) (EXPERIMENTAL)
-<!---	    &lt;M&gt; POSIX API
-	    &lt;M&gt; RT memory manager
-	    [*]   Use vmalloc() instead of kmalloc()
-	    &lt;M&gt; FIFOs
-	    &lt;M&gt; LXRT - Realtime in User Space
-	    &lt; &gt;   LXRT Real-Time Workshop wrapper
-	    &lt; &gt;   LXRT rt_com wrapper
-	    &lt; &gt;   LXRT FIFOs wrapper
-	    &lt;M&gt; C++ support
-	    [*]   New rtai_cpp interface (EXPERIMENTAL)
-	    &lt;M&gt; Tasklets
--->
 	  <itemizedlist>
 	    <listitem>
 	      <para>Floating Point support</para>
@@ -633,7 +601,6 @@ configure script will select the os/rtai target
 	      <para>C++ support</para>
 	    </listitem>
 	  </itemizedlist>
-	  </screen>
 	  After configuring you can run 'make' in your RTAI directory
 	</para>
       </sect2>
@@ -677,7 +644,8 @@ configure script will select the os/rtai target
 	    ./setsched newlxrt
 	  </screen>
 	  next you can 'make  install'. 
-	  Make sure that the following RTAI kernel modules are loaded for using:
+	  Make sure that the following RTAI kernel modules are loaded
+	  ( this may vary if you are using RTAI 3.0 ) :
 	  <itemizedlist>
 	    <listitem><para>rtai_fifos_lxrt</para></listitem>
 	    <listitem><para>rtai_lxrt</para></listitem>
