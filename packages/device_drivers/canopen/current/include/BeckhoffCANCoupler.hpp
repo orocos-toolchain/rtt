@@ -44,6 +44,7 @@ namespace Beckhoff
             ssiTerminals.addTerminal(5);
             ssiTerminals.addTerminal(6);
             analogOutputs.addTerminal(7,2);
+            resetNode();
         }
 
         virtual ~BeckhoffCANCoupler()
@@ -53,7 +54,7 @@ namespace Beckhoff
 
         void configInit()
         {
-            //resetNode();
+            enterPreop();
             ssiTerminals.configInit();
         }
 
@@ -83,7 +84,7 @@ namespace Beckhoff
             StartUpmsg.setData(0,0x01);
             StartUpmsg.setData(1,0x00);
             bus->write(&StartUpmsg);
-            sleep(2); // give bus time to reset
+            sleep(1);
         }
 
         void resetNode()
@@ -101,16 +102,29 @@ namespace Beckhoff
 
         void stopNode()
         {
-            bus->removeDevice(this);
-            cout << "Sending Stop..."<<endl;
-            // XXX move this to configStep and remove sleep(1)
+            cout << "Sending stop..."<<endl;
             CANMessage Resetmsg;
             Resetmsg.setStdId(0x00);
             Resetmsg.setDLC(0x02);
-            Resetmsg.setData(0,0x80);
+            Resetmsg.setData(0,0x02);
             Resetmsg.setData(1,0x00);
             bus->write(&Resetmsg);
-            sleep(2); // give bus time to reset
+            sleep(1); // give bus time to reset
+        }
+
+
+        void enterPreop()
+        {
+            bus->removeDevice(this);
+            cout << "Sending Preop..."<<endl;
+            // XXX move this to configStep and remove sleep(1)
+            CANMessage preopmsg;
+            preopmsg.setStdId(0x00);
+            preopmsg.setDLC(0x02);
+            preopmsg.setData(0,0x80);
+            preopmsg.setData(1,0x00);
+            bus->write(&preopmsg);
+            sleep(1); // give bus time to reset
         }
 
         virtual void process(const CANMessage* msg)
@@ -123,25 +137,24 @@ namespace Beckhoff
             if ( msg->getStdId() == 0x380 + nodeId() )
                 {
                     ssiTerminals.update( msg );
-                } 
-            else
-             if ( msg->getStdId() == 0x80 )
-                 {
-                     /*
-                     // write douts on sync.
-                     CANMessage msg(this, 0x200 + nodeId(), 0, 1);
-                     msg.setData(0, digitalOutputs.outputStatusGet() );
-                     bus->write(&msg);
-                     // write aouts on sync.
-                     msg.setStdId( 0x300 + nodeId() );
-                     msg.setDLC(4);
-                     msg.setData(0, analogOutputs.value(0) );
-                     msg.setData(1, analogOutputs.value(0) >> 8 );
-                     msg.setData(2, analogOutputs.value(1) );
-                     msg.setData(3, analogOutputs.value(1) >> 8 );
-                     bus->write(&msg);
-                     */
-                 }
+                }
+        }
+
+        void writeOutputs()
+        {
+            // write douts on sync.
+            CANMessage msg(this, 0x200 + nodeId(), 0, 1);
+            msg.setData(0, digitalOutputs.checkSequence(0,8) );
+            bus->write(&msg);
+            //write aouts on sync.
+            
+            msg.setStdId( 0x300 + nodeId() );
+            msg.setDLC(4);
+            msg.setData(0, analogOutputs.value(0) );
+            msg.setData(1, analogOutputs.value(0) >> 8 );
+            msg.setData(2, analogOutputs.value(1) );
+            msg.setData(3, analogOutputs.value(1) >> 8 );
+            bus->write(&msg);
         }
 
         virtual unsigned int nodeId() const { return node_id;}

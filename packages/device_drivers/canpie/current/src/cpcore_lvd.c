@@ -422,8 +422,8 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 	do { write_reg_bcan(PCAN_MODR,cr); } while ( (read_reg_bcan(PCAN_MODR) & PCAN_MODR_RM) == PCAN_MODR_RM);
 	DEBUG("ok\n");
 
-	/* Command: enable receive interrupt, error warning limit */
-	cr = PCAN_IER_RIE|PCAN_IER_EIE;
+	/* Command: enable receive interrupt, error warning limit, enable transmit interrupt */
+	cr = PCAN_IER_RIE|PCAN_IER_EIE|PCAN_IER_TIE;
 	write_reg_bcan(PCAN_IER,cr);
 
 	CpVar_CAN_Status[ubChannelV] = CP_MODE_START;
@@ -468,8 +468,12 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 		DEBUG("Receive Interrupt\n");
 		CpCoreMsgReceive(0);
 	}
-	else 
-		if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
+	else if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
+        {
+            DEBUG("Transmit Interrupt\n");
+            CpCoreMsgTransmit(0);
+        }
+    else if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
 		{
 			DEBUG("Emergency Interrupt\n");
 			if ((read_reg_bcan(PCAN_SR) & PCAN_SR_ES) == PCAN_SR_ES)
@@ -784,14 +788,29 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    // turn off interrupts
    lflags = rt_global_save_flags_and_cli();
 #endif
+
+   /* check if previous message has been sent already */
+   if ((read_reg_bcan(PCAN_SR) & PCAN_SR_TBS) != PCAN_SR_TBS) 
+   {
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+       // enable interrupts
+       rt_global_restore_flags(lflags);
+#endif
+       return (CpErr_GENERIC);
+   }
+
+   // ------------------------------------
+   // From here one, we are sure the message can be transmited.
+   // ------------------------------------
+
    //----------------------------------------------------------------
    //	get message from FIFO
    //
    ubErrCodeT = CpFifoPop(ubChannelV,CP_FIFO_TRM,&canMsgT);
    if (ubErrCodeT) {
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-     // enable interrupts
-     rt_global_restore_flags(lflags);
+       // enable interrupts
+       rt_global_restore_flags(lflags);
 #endif
        return (ubErrCodeT);
    }
@@ -803,15 +822,6 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 	{
 		(* CpInt_TransmitHandler[ubChannelV] )(ubChannelV, &canMsgT);
 	}
-
-   /* check if previous message has been sent already */
-   if ((read_reg_bcan(PCAN_SR) & PCAN_SR_TBS) != PCAN_SR_TBS) 
-   {
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-       rt_global_restore_flags(lflags);
-#endif
-       return (CpErr_GENERIC);
-   }
 
    if (CpMacIsExtended(&canMsgT))
    {

@@ -15,7 +15,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#include "corelib/DistanceSensor.hpp"
+#include "device_drivers/DistanceSensor.hpp"
 
 using namespace ORO_CoreLib;
 using namespace CBDeviceDriver;

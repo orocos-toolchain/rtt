@@ -1,10 +1,10 @@
  
-#include <fdi/DigitalOutInterface.hpp>
+#include <device_interface/DigitalOutInterface.hpp>
 
 namespace CBDeviceDriver
 {
 
-    using namespace ORO_CoreLib;
+    using namespace ORO_DeviceInterface;
 
     /**
      * A DigitalOut represents any on/off output. Examples are
@@ -19,8 +19,8 @@ namespace CBDeviceDriver
              * @param dig_out The digital output device to use
              * @param relay_nr The bit number to use on <dig_out>
              */
-            DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr )
-                    : board( dig_out ), relaynumber( relay_nr )
+            DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert )
+                : board( dig_out ), relaynumber( relay_nr ), invert(_invert)
             {}
 
             /**
@@ -34,7 +34,7 @@ namespace CBDeviceDriver
              */
             void switchOn()
             {
-                board->switchOn( relaynumber );
+                board->setBit( relaynumber, !invert );
             }
 
             /**
@@ -42,7 +42,7 @@ namespace CBDeviceDriver
              */
             void switchOff()
             {
-                board->switchOff( relaynumber );
+                board->setBit( relaynumber, invert );
             }
 
             /**
@@ -52,12 +52,13 @@ namespace CBDeviceDriver
              */
             bool isOn()
             {
-                return board->checkBit( relaynumber );
+                return invert ^ board->checkBit( relaynumber );
             }
 
         private:
-            DigitalOutInterface *board;
-            unsigned int relaynumber;
+        DigitalOutInterface *board;
+        unsigned int relaynumber;
+        bool invert;
     };
 };
 

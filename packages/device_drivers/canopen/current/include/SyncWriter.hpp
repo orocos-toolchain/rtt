@@ -12,7 +12,7 @@ namespace CAN
     {
         CANOpenBus* bus;
     public:
-        Syncer( CANOpenBus* _bus) : bus(_bus) {}
+        SyncWriter( CANOpenBus* _bus) : bus(_bus) {}
         bool initialize() { return true; }
         void step() { bus->sync(); }
         void finalize() {}

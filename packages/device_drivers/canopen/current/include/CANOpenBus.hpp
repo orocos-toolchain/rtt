@@ -113,7 +113,8 @@ namespace CAN
                         {
                             list<CANDeviceInterface*>::iterator _next = (++itd)--;
                             (*itd)->process(msg); // eventually check the node id (in CANOpenBus)
-                            itd = _next;
+                            itd = _next;          // XXX What if itd just removed _next (or everything)?
+                                                  // can be 'solved' if only self-removal is allowed.
                         }
                 }
         }

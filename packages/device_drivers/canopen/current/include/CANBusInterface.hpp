@@ -33,8 +33,27 @@ namespace CAN
          *
          * @param dev The device to be removed from the bus.
          * @post      The device will no longer receive messages from the bus.
+         * @invar     During a process(), the device may only remove itself.
          */
         virtual void removeDevice(CANDeviceInterface* dev) = 0;
+
+		/**
+		 * Register a CANListenerInterface instance to the bus.
+		 *
+		 * @param dev The listener to be added to the bus.
+         * @return True if the operation succeeded, false otherwise.
+		 * @post      The listener will receive all messages on the bus.
+		 */
+        virtual bool addListener(CANListenerInterface* dev) = 0;
+
+        /**
+         * Remove a CANListenerInterface from the bus.
+         *
+         * @param dev The listener to be removed from the bus.
+         * @post      The listener will no longer receive messages from the bus.
+         * @invar     During a process(), the listener may only remove itself.
+         */
+        virtual void removeListener(CANListenerInterface* dev) = 0;
 
         /**
          * Write a CANMessage to the bus. CANDevices can use this to put data

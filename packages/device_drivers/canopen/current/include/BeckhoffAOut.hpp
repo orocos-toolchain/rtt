@@ -10,7 +10,7 @@ namespace Beckhoff
      * A BeckHoff terminal for 4 analog outputs.
      */
     class BeckhoffAOut
-        : AnalogOutInterface<unsigned int>
+        : public AnalogOutInterface<unsigned int>
     {
     public:
         BeckhoffAOut()
@@ -47,7 +47,7 @@ namespace Beckhoff
 
         // in bits per MU
         virtual double resolution(unsigned int chan) const 
-        { return binaryRange() / (lowest(chan ) + highest(chan)); }
+        { return binaryRange() / 20.; }
              
         /**
          * Returns the value of a channel <chan>.

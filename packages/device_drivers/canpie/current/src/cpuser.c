@@ -36,6 +36,11 @@
 #include "can/cpfilter.h"
 #include "can/cpuser.h"
 
+#include <pkgconf/system.h>
+#if (defined OROPKG_OS_RTAI) || (defined OROPKG_OS_LXRT)
+#include <rtai_sched.h>
+#endif
+
 /*------------------------------------------------------------------------
 ** CpUserAppInit()
 **
@@ -261,6 +266,7 @@ _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
 _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 {
    _U32  err_code = 0;
+   unsigned long lflags;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -278,7 +284,16 @@ _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 #endif
 
    //--- get message from FIFO --------------------------------------
+
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+   // Turn off interrupts.
+   lflags = rt_global_save_flags_and_cli();
+#endif
    err_code = CpFifoPop(channel, CP_FIFO_RCV, msgPtr);
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+   // restore interrupts.
+   rt_global_restore_flags(lflags);
+#endif
    if (err_code) return (err_code); 
 
 
@@ -293,6 +308,7 @@ _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 {
    _U32  err_code = 0;
+   unsigned long lflags;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -303,7 +319,16 @@ _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 #endif
 
    //--- put message into FIFO --------------------------------------
+
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+   // Turn off interrupts.
+   lflags = rt_global_save_flags_and_cli();
+#endif
    err_code = CpFifoPush(channel, CP_FIFO_TRM, msgPtr);
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+   // restore interrupts.
+   rt_global_restore_flags(lflags);
+#endif
    if (err_code) return (err_code);
 
 

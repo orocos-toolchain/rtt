@@ -1,0 +1,13 @@
+
+cdl_package OROPKG_DEVICE_DRIVERS_LOGICAL {
+    display "C++ Interfaces to Logical Devices"
+    parent OROPKG_DEVICE_DRIVERS
+
+    include_dir device_drivers
+
+    compile Axis.cxx
+    compile DigitalInput.cxx                   DigitalOutput.cxx
+    compile Drive.cxx
+    #compile SwitchEndLimit.cxx DistanceSensor.cxx
+
+}

@@ -6,7 +6,7 @@
 namespace CBDeviceDriver
 {
 
-    using namespace ORO_CoreLib;
+    using namespace ORO_DeviceInterface;
 
     /**
      * A class representing an on/off switch, derived

@@ -16,7 +16,7 @@
 *                                                                         *
 ***************************************************************************/
 
-#include "Axis.hpp"
+#include "device_drivers/Axis.hpp"
 #include <os/rtstreams.hpp>
 #include <corelib/EventInterfaces.hpp>
 
@@ -52,9 +52,30 @@ namespace CBDeviceDriver
         return double( encoder->turnGet()*encoder->resolution() +  encoder->positionGet() ) / mm_to_inc + posOffset;
     }
 
-    void Axis::positionSet( double offset )
+    void Axis::positionSet( double newpos )
     {
-        posOffset = offset;
+        posOffset = positionGet() - newpos;
+    }
+
+    void Axis::callibrate( double calpos, double sign )
+    {
+        double currentPos;
+        if ( sign < 0 )
+            {
+                if ( mm_to_inc > 0)
+                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet()) / mm_to_inc;
+                else
+                    currentPos = calpos - encoder->positionGet() / mm_to_inc;
+            }
+        else
+            {
+                if ( mm_to_inc > 0)
+                    currentPos =  calpos + encoder->positionGet() / mm_to_inc;
+                else
+                    currentPos = calpos + (encoder->resolution() - encoder->positionGet() ) / mm_to_inc;
+            }
+
+        positionSet( currentPos );
     }
 
     void Axis::turnSet( int t )
@@ -68,8 +89,8 @@ namespace CBDeviceDriver
     }
 
     void Axis::reset()
-    {
-        act->offsetSet( 0 );
+    { 
+        act->disableDrive();
         act->stop();
     }
 

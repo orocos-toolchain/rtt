@@ -22,7 +22,7 @@ namespace CAN
          * and possibly data.
          * */
         CANRequest(CANMessage* _write, CANMessage* _expect, Seconds _timeout = 0 )
-            : write(_write), expected(_expect), result(0), timestamp(0), timeout(_timeout)
+            : bus(0), write(_write), expected(_expect), result(0), timestamp(0), timeout(_timeout)
         {
         }
 

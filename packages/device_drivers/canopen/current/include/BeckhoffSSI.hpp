@@ -19,6 +19,7 @@ namespace Beckhoff
     using namespace CAN;
     using std::vector;
     using namespace std;
+    using namespace ORO_DeviceInterface;
 
 	/**
      * TODO : extend so that # of terminals can be larger than 2.
@@ -26,10 +27,12 @@ namespace Beckhoff
 	class BeckhoffSSI
         : public DigitalInInterface, 
           //public EncoderAbsoluteInterface, // leave out because of channel issue
+          // Counter... or 
           public ConfigurationInterface
     {
         static const unsigned int SSI_TERMINALS = 2;
-        unsigned int ssi_value[SSI_TERMINALS];
+        int ssi_value[SSI_TERMINALS];
+        int ssi_turn[SSI_TERMINALS];
         unsigned int ref[SSI_TERMINALS];
         unsigned int terminals[SSI_TERMINALS];
 
@@ -43,35 +46,45 @@ namespace Beckhoff
             : coupler(_node), bus(_bus), i(-1), status(false), totalTerminals(0)
         {
             requests.reserve(SSI_TERMINALS*10);
+            for ( unsigned int j=0; j < SSI_TERMINALS; ++j)
+                {
+                    ssi_turn[j] = 0;
+                    ssi_value[j] = 0;
+                }
+        }
+
+        int resolution()
+        {
+            return 4096;
         }
 
         void update( const CANMessage* msg )
         {
             //rt_std::cout << "Update !" << rt_std::endl;
             unsigned long data = 0;
+            long new_ssi_value;
             typedef unsigned long ul;
             if (msg->getDLC() == 4 || msg->getDLC() == 8)
             {
-                //rt_std::cout << msg->getData(0)<< msg->getData(1) << msg->getData(2) << msg->getData(3)<<rt_std::endl;
-                //data = lower_u32(msg->v_MsgData);
-                //ssi_value[0] = data & 0xFFF;
-                //ref[0]       = (data >> 12) & 0x1;
-                // we get 24 bits per ssi module
                 data = ul(msg->getData(0)) + (ul(msg->getData(1)) << 8) + (ul(msg->getData(2)) <<16) + (ul(msg->getData(3)) << 24);
-                //rt_std::cout << long(data) << rt_std::endl;
-                ssi_value[0] = ( data >> 12 ) & 0xFFF;
+                new_ssi_value = ul( ( data >> 12 ) & 0xFFF );
+                if ( new_ssi_value - ssi_value[0] > resolution()/2 )
+                    --ssi_turn[0];
+                if ( ssi_value[0] - new_ssi_value > resolution()/2 )
+                    ++ssi_turn[0];
+                ssi_value[0] = new_ssi_value;
                 ref[0]       = ( data >> 11) & 0x1;
-                //rt_std::cout << ssi_value[0] << " " << ref[0]<< rt_std::endl;
             }
             
             if (msg->getDLC() == 8)
             {
-                //data = higher_u32(msg->v_MsgData);
-                // we get 24 bits per ssi module
-                //ssi_value[1] = data & 0xFFF;
-                //ref[1]       = (data >> 12) & 0x1;
                 data = ul(msg->getData(4)) + (ul(msg->getData(5)) << 8) + (ul(msg->getData(6)) <<16) + (ul(msg->getData(7)) << 24);
-                ssi_value[1] = ( data >> 12 ) & 0xFFF;
+                new_ssi_value = ul( ( data >> 12 ) & 0xFFF );
+                if ( new_ssi_value - ssi_value[1] > resolution()/2 )
+                    --ssi_turn[1];
+                if ( ssi_value[1] - new_ssi_value > resolution()/2 )
+                    ++ssi_turn[1];
+                ssi_value[1] = new_ssi_value;
                 ref[1]       = ( data >> 11) & 0x1;
             }
         }
@@ -82,14 +95,38 @@ namespace Beckhoff
             ++totalTerminals;
         }
 
-        int read( unsigned int channel, unsigned int& counter)
+        int positionGet( unsigned int channel, int& counter)
         {
             if (channel <0 || channel > SSI_TERMINALS)
                 return -1;
             counter = ssi_value[channel];
             return 0;
         }
-        
+
+        int positionSet( unsigned int channel, int counter)
+        {
+            if (channel <0 || channel > SSI_TERMINALS)
+                return -1;
+            ssi_value[channel] = counter;
+            return 0;
+        }
+
+        int turnGet( unsigned channel, int& turn)
+        {
+            if (channel <0 || channel > SSI_TERMINALS)
+                return -1;
+            turn = ssi_turn[channel];
+            return 0;
+        }
+            
+        int turnSet( unsigned channel, int turn)
+        {
+            if (channel <0 || channel > SSI_TERMINALS)
+                return -1;
+            ssi_turn[channel] = turn;
+            return 0;
+        }
+            
         virtual bool isOn( unsigned int bit = 0) const
         { return ref[bit]; }
 

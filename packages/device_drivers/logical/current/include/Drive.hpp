@@ -26,12 +26,14 @@
 #include <device_interface/AnalogOutInterface.hpp>
 #include <device_interface/DigitalOutInterface.hpp>
 //#include <device_interface/ActuatorInterface.hpp>
+#include <iostream>
 
 namespace CBDeviceDriver
 
 {
     using namespace ORO_CoreLib;
     using namespace ORO_DeviceInterface;
+    using namespace std;
 
     /**
      * Uses a channel of a certain analog output which is connected to
@@ -41,6 +43,7 @@ namespace CBDeviceDriver
     class Drive // VelocityDrive
     //: public ActuatorInterface<double>
     {
+        typedef double InputStruct;
 
         public:
             /**
@@ -87,10 +90,14 @@ namespace CBDeviceDriver
                 if ( v+offset > maxDriveGet() )
                     mySpeed = maxDriveGet();
 
-                unsigned int res = ( unsigned int ) ( ( mySpeed - minDriveGet() + offset ) * resolution );
+                unsigned int res = mySubDevice->binaryLowest() + unsigned ( ( mySpeed - minDriveGet() + offset ) * resolution );
 
                 //rtos_printf("res: %d, copy %d \n",res,(int)(copy*1000) );
-                mySubDevice->write( myChannel, res );
+                //cout <<"Offset:"<<offset<<" "<<( mySpeed - minDriveGet() + offset ) * resolution << endl;
+                //cout.setf ( ios_base::hex, ios_base::basefield );  // set hex as the basefield
+                //cout.setf ( ios_base::showbase );                  // activate showbase
+                //cout <<"RES: "<< res << "," << (res & mySubDevice->binaryRange()) <<endl;
+                mySubDevice->write( myChannel, res & mySubDevice->binaryRange() );
 
                 return 0;
             }
@@ -117,7 +124,7 @@ namespace CBDeviceDriver
 
             virtual void stop()
             {
-                drive( zeroGet() );
+                driveSet( zeroGet() );
             }
 
             virtual void offsetSet( const InputStruct& o )

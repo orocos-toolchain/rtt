@@ -18,12 +18,13 @@
 #ifndef __DISTANCE_SENSOR_H__
 #define __DISTANCE_SENSOR_H__
 
-#include <fdi/AnalogInInterface.hpp>
-#include <fdi/SensorInterface.hpp>
+#include <device_interface/AnalogInInterface.hpp>
+#include <device_interface/SensorInterface.hpp>
 
 namespace CBDeviceDriver
 {
-  using namespace ORO_CoreLib;
+    using namespace ORO_CoreLib;
+    using namespace ORO_DeviceInterface;
 
   typedef double SensorData;
   /** Sensor that measures (1D-)distance.

@@ -22,9 +22,11 @@
 
 //#include <device_interfac/ActuatorInterface.hpp>
 #include <device_interface/EncoderIncrementalInterface.hpp>
-#include <device_drivers/Encoder.hpp>
+//#include <device_drivers/Encoder.hpp>
+#include <can/Encoder.hpp>
 //#include <fdi/SwitchHomingInterface.hpp>
-#include "DigitalIn.hpp"
+#include "DigitalInput.hpp"
+#include "Drive.hpp"
 
 #include <corelib/EventListenerInterface.hpp>
 #include <corelib/EventCompleterInterface.hpp>
@@ -36,6 +38,7 @@ namespace CBDeviceDriver
 {
 
     using namespace ORO_CoreLib;
+    using namespace CAN;
     using namespace std;
     /**
      * Axis is an example of how you can easily implement
@@ -63,11 +66,11 @@ namespace CBDeviceDriver
          * 
          * @post the actuator is stopped
          */
-        Axis( Drive* a, double _v_to_u,  Encoder* e, double _mm_to_inc,  DigitalInput* s , bool _invert ) 
-            : act( a ), encoder( e ), swt( s ), v_to_u(_v_to_u), mm_to_inc(_mm_to_inc), invert(_invert), posOffset(0)
+        Axis( Drive* a, double _v_to_u,  Encoder* e, double _mm_to_inc,  DigitalInput* s ) 
+            : act( a ), encoder( e ), swt( s ), v_to_u(_v_to_u), mm_to_inc(_mm_to_inc), posOffset(0)
         {
             act->disableDrive();
-            act->reset();
+            this->reset();
         }
 
         virtual ~Axis();
@@ -89,7 +92,9 @@ namespace CBDeviceDriver
 
         double positionGet();
 
-        void positionSet( double offset );
+        void positionSet( double newpos );
+        
+        void callibrate( double cal_pos, double direction);
 
         double velocity();
 
@@ -121,11 +126,11 @@ namespace CBDeviceDriver
         /**
          * Our homing switch
          */
-        DigitalIn* swt;
+        DigitalInput* swt;
 
         double v_to_u;
         double mm_to_inc;
-        bool invert;
+        double posOffset;
 
     };
 
