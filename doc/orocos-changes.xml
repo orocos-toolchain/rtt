@@ -284,6 +284,16 @@
 	  is not running or not accepting commands.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+          To make the creation of a 'rotation' object in the scripting
+          language easier, we now use RollPitchYow angles instead of
+          ZYZ-Euler angles.
+          Example: "var rotation myrotation = rotation(R,P,Y)", with R
+          the rotation around the fixed x-axis, P the rotation around the
+          fixed y-axis and Y the rotation around the fixed z-axis.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="interfacing">
