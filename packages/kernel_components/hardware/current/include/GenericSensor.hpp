@@ -34,8 +34,8 @@
 //#include <device_interface/PositionInterface.hpp>
 //#include <device_interface/SensorInterface.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -45,6 +45,13 @@
 #include <string>
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+
+#ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
+#error "This Component only works with the new kernel infrastructure."
+#endif
 
 #pragma interface
 
@@ -58,7 +65,7 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     using namespace ORO_DeviceInterface;
@@ -75,7 +82,34 @@ namespace ORO_ControlKernel
     {
         GenericInput()
         {
-            this->insert( make_pair(4,"ChannelMeasurements") );
+            this->insert( std::make_pair(4,"ChannelMeasurements") );
+        }
+
+        void addDouble(const std::string& name )
+        {
+            this->insert( std::make_pair(2, name) );
+        }
+
+        void removeDouble(const std::string& name )
+        {
+            for(iterator t= this->begin(); t != this->end(); ++t)
+                if ( t->first == 2 && t->second == name ) {
+                    this->erase( t );
+                    break;
+                }
+        }
+        void addUint(const std::string& name )
+        {
+            this->insert( std::make_pair(0, name) );
+        }
+
+        void removeUint(const std::string& name )
+        {
+            for(iterator t= this->begin(); t != this->end(); ++t)
+                if ( t->first == 0 && t->second == name ) {
+                    this->erase( t );
+                    break;
+                }
         }
     };
 
@@ -86,7 +120,7 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_sensor
      */
     template <class Base = Sensor< Writes<GenericInput>,
-                                   MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase> >
+                                   MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase> >
     class GenericSensor
         : public Base
     {
@@ -117,6 +151,15 @@ namespace ORO_ControlKernel
                 return false;
             // kind-of resize of the vector in the dataobject:
             chan_DObj->Set(chan_meas); 
+
+            // Get the inserted Analog Inputs
+            for (AInMap::iterator itl = a_in.begin(); itl != a_in.end(); ++itl) {
+                if ( !Base::Input::dObj()->Get(itl->first+"_raw", get<1>(itl->second) ) )
+                    std::cout << "Raw Analog Input not found in load !"<<std::endl;
+                if ( !Base::Input::dObj()->Get(itl->first,get<2>( itl->second) ) )
+                    std::cout << "Analog Input not found in load !"<<std::endl;
+            }
+
             return true;
         }
 
@@ -156,15 +199,17 @@ namespace ORO_ControlKernel
             if ( a_in.count(DO_name) != 0  || this->kernel()->isRunning() )
                 return false;
 
-            typedef typename Base::Input::template DataObject<double>::type doubleType;
-            typedef typename Base::Input::template DataObject<unsigned int>::type uintType;
+            // Before Reload, Add All DataObjects :
+            this->Base::Input::dObj()->addDouble( DO_name );
+            this->Base::Input::dObj()->addUint( DO_name+"_raw" );
 
-            DataObjectInterface<double>* doi =  new doubleType( DO_name );
-            DataObjectInterface<unsigned int>* raw_doi = new uintType( DO_name+"_raw" );
-            Base::Input::dObj()->reg( doi );
-            Base::Input::dObj()->reg( raw_doi );
+            a_in[DO_name] =
+                tuple<AnalogInput<unsigned int>*,
+                DataObjectInterface<unsigned int>*,
+                DataObjectInterface<double>* >( new AnalogInput<unsigned int>( input, channel ), 0, 0 );
 
-            a_in[DO_name] = make_tuple( new AnalogInput<unsigned int>( input, channel ), raw_doi, doi );
+            if (this->inKernel() )
+                this->kernel()->reload(this);
 
             return true;
         }
@@ -178,13 +223,6 @@ namespace ORO_ControlKernel
                 return false;
 
             tuple<AnalogInput<unsigned int>*, DataObjectInterface<unsigned int>*, DataObjectInterface<double>* > res = a_in[DO_name];
-
-            Base::Input::dObj()->deReg( get<1>(res) );
-            Base::Input::dObj()->deReg( get<2>(res) );
-
-            delete get<0>(res);
-            delete get<1>(res);
-            delete get<2>(res);
 
             a_in.erase(DO_name);
             return true;
@@ -318,7 +356,7 @@ namespace ORO_ControlKernel
          */
 
     protected:
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {

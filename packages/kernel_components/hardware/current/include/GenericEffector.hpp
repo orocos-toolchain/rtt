@@ -31,14 +31,18 @@
 #include <device_drivers/AnalogOutput.hpp>
 #include <device_drivers/DigitalOutput.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
+#include "control_kernel/ExecutionExtension.hpp"
 #endif
 
 #include <map>
 #include <control_kernel/DataServer.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
 
 #pragma interface
 
@@ -52,11 +56,12 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     using namespace ORO_DeviceInterface;
     using namespace ORO_DeviceDriver;
+    using namespace ORO_ControlKernel;
     using boost::bind;
     using std::make_pair;
     using std::pair;
@@ -75,7 +80,11 @@ namespace ORO_ControlKernel
      * can also use simulated hardware.
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base = GenericEffector< Expects<GenericOutput>, MakeExtension<KernelBaseFunction,ExecutionExtension>::Result::CommonBase > >
+    template <class Base = Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                                           ,ExecutionExtension
+#endif
+                                                                           >::CommonBase > >
     class GenericEffector
         : public Base
     {
@@ -324,7 +333,7 @@ namespace ORO_ControlKernel
          */
         
     protected:
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {

@@ -10,4 +10,6 @@ Components."
     include_dir kernel_components
 
     compile GenericSensor.cxx GenericEffector.cxx
+
+    requires OROPKG_CONTROL_KERNEL
 }
