@@ -344,5 +344,15 @@ namespace ORO_Execution
         return ret;
     }
 
+    bool Processor::isCommandProcessed( CommandInterface* c )
+    {
+        return command != c;
+    }
+
+    void Processor::abandonCommand( CommandInterface* c )
+    {
+        if ( command == c )
+            command = 0;
+    }
 }
 

@@ -78,6 +78,8 @@ namespace ORO_Execution
 			virtual void doStep();
 			virtual bool nextStep(const std::string& name);
 			virtual bool process(CommandInterface* c);
+      virtual bool isCommandProcessed( CommandInterface* c );
+      virtual void abandonCommand( CommandInterface* c );
 
       std::vector<std::string> getProgramList();
       std::vector<std::string> getStateContextList();
