@@ -29,7 +29,7 @@ class Generator:
     def __init__(self, db):
         self.db = db
         self.packages = []
-        self.bin_exts = ['gif','jpg','png', 'dia'] # Add your own binary files extensions here
+        self.bin_exts = ['gif','jpg','png', 'dia','pdf', 'ps', 'eps'] # Add your own binary files extensions here
         if verbose:
             self.opt_flag = ' -v '
         else:
