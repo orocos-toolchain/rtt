@@ -1,0 +1,84 @@
+
+/**
+ * Orocos State Description Script
+ */
+
+EventHandle handle1
+EventHandle handle2
+
+InitialState INIT
+
+state INIT {
+	
+	// entry : Do stuff, configure, ...
+	entry {
+		// Component selections
+		Ckernel.selectGenerator( "CartesianGenerator" )
+		Ckernel.selectEstimator( "CartesianEstimator" ) 
+		Ckernel.selectController( "CartesianController" )
+		Ckernel.selectSensor( "CartesianSensors" )
+		Ckernel.selectEffector( "CartesianEffectors" )
+
+		handle1 = connect( CartesianSensor::Overload, CartesianGenerator.moveTo( homepos ) )
+		handle2 = connect( CartesianSensor::Overload, CartesianGenerator.moveTo( startpos ) )
+	}
+
+	// Activity to be done when the state is requested
+	handle {
+	}
+
+	// undo stuff when leaving.
+	exit {
+		disconnect handle2
+	}
+
+	// Transitions to be checked before the state is handled.
+	transitions {
+		// Switch to next state if start pressed.
+		if HMI.startPushed() then
+			select START
+	}
+}
+
+state WAIT {
+	handle {
+		if HMI.loadPushed() then
+			select LOAD
+		if HMI.haltPushed() then
+			select HALT
+	}
+}
+
+state LOAD {
+	entry {
+		Ckernel.loadProgram( "MainProgram" )
+	}
+
+	handle {
+		if Ckernel.programDone then
+			select WAIT
+	}
+
+	exit {}
+}
+
+state HALT {
+	entry {
+		Ckernel.stop()
+	}
+	
+	handle {
+		select INIT
+	}
+}
+
+state START {
+	entry {
+		Ckernel.start()
+	}
+
+	handle {
+		select WAIT
+	}
+}
+	

@@ -385,9 +385,9 @@ namespace ORO_Execution
         ), desc );
   };
 
-  template<typename ComponentT, typename Arg1T>
+  template<typename ComponentT, typename ResT, typename Arg1T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( void (ComponentT::*comf)( Arg1T ),
+  command( ResT (ComponentT::*comf)( Arg1T ),
            bool (ComponentT::*conf)( Arg1T ),
            const char* desc, const char* arg1name, const char* arg1desc )
   {

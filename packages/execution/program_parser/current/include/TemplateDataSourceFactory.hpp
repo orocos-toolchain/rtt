@@ -15,7 +15,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
+
+#ifndef TEMPLATE_DATASOURCE_FACTORY_HPP 
+#define TEMPLATE_DATASOURCE_FACTORY_HPP
  
 #include "DataSource.hpp"
 #include "DataSourceFactory.hpp"
@@ -325,3 +327,5 @@ namespace ORO_Execution
    * @}
    */
 }
+
+#endif

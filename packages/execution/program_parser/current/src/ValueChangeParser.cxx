@@ -64,10 +64,9 @@ namespace ORO_Execution
          "set"
       >> commonparser.identifier[
            bind( &ValueChangeParser::storename, this, _1, _2 ) ]
-      >> ( ch_p( '=' ) | "to" )
+      >> ch_p( '=' ) 
       >> expressionparser.parser() )[
            bind( &ValueChangeParser::seenvariableassignment, this ) ];
-
   };
 
   void ValueChangeParser::seenconstantdefinition()

@@ -22,6 +22,11 @@
 
 #include <iosfwd>
 
+namespace ORO_CoreLib
+{
+    class StateContext;
+}
+
 namespace ORO_Execution
 {
     class ProgramGraph;
@@ -38,6 +43,7 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
+  using ORO_CoreLib::StateContext;
   using ORO_CoreLib::PropertyBase;
   using ORO_CoreLib::CommandInterface;
   using ORO_CoreLib::ConditionInterface;
@@ -48,10 +54,16 @@ namespace ORO_Execution
   {
   public:
     /**
-     * Reads out the stream, parses it, and returns a new @ref ProgramGraph..
+     * Reads out the stream, parses it, and returns a new @ref ProgramGraph ..
      */
-    ProgramGraph* parseProgram( std::istream& s, Processor*,
-                           const GlobalFactory* );
+      ProgramGraph* parseProgram( std::istream& s, Processor*,
+                                  const GlobalFactory* );
+
+    /**
+     * Reads out the stream, parses it, and returns a new @ref StateContext ..
+     */
+      StateContext* parseStateContext( std::istream& s, Processor*,
+                                       const GlobalFactory* );
 
     /**
      * parses the string as a condition, and returns a new

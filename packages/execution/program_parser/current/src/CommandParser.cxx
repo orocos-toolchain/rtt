@@ -58,13 +58,13 @@ namespace ORO_Execution
         >> commonparser.lexeme_identifier[
           bind( &CommandParser::seenmethodname, this, _1, _2 ) ]
         ];
-  };
+  }
 
   void CommandParser::seennopcommand()
   {
     retcommand = new CommandNOP;
     implicittermcondition = new ConditionTrue;
-  };
+  }
 
   void CommandParser::seenstartofcall()
   {
@@ -80,7 +80,7 @@ namespace ORO_Execution
     argsparser = new ArgumentsParser( expressionparser, context,
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();
-  };
+  }
 
   void CommandParser::seencallcommand()
   {
@@ -140,7 +140,7 @@ namespace ORO_Execution
 
     retcommand = com;
     implicittermcondition = implcond;
-  };
+  }
 
   CommandParser::~CommandParser()
   {
@@ -150,5 +150,5 @@ namespace ORO_Execution
     delete argsparser;
     delete retcommand;
     delete implicittermcondition;
-  };
+  }
 }

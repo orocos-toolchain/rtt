@@ -1,10 +1,17 @@
 
 cdl_package OROPKG_EXECUTION_PROGRAM_PARSER {
     display "Script-to-Program parser"
+    description "
+Converts text files (scripts) to realtime binary programs
+for the Program Processor using the Boost::Spirit
+library. It takes a lot of time to compile, but
+is very powerfull."
+
     include_dir execution
 
     parent OROPKG_EXECUTION
 
+    compile StateGraphParser.cxx
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
     compile Types.cxx DataSourceCondition.cxx Operators.cxx CommandFactoryInterface.cxx

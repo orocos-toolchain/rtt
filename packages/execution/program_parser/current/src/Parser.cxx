@@ -1,6 +1,7 @@
 #include "execution/Parser.hpp"
 #include "execution/parser-common.hpp"
 #include "execution/ProgramGraphParser.hpp"
+#include "execution/StateGraphParser.hpp"
 #include "execution/ConditionParser.hpp"
 #include "corelib/ConditionInterface.hpp"
 
@@ -30,6 +31,30 @@ namespace ORO_Execution
     ProgramGraph* ret = gram.parse( parsebegin, parseend );
     if ( ret )
       std::cerr << "Program Parsed Successfully !" << std::endl;
+    return ret;
+  };
+
+  StateContext* Parser::parseStateContext( std::istream& s, Processor* proc,
+                                           const GlobalFactory* ext )
+  {
+      // This code is copied from parseProgram()
+
+    our_buffer_t program;
+
+    s.unsetf( std::ios_base::skipws );
+
+    std::istream_iterator<char> streambegin( s );
+    std::istream_iterator<char> streamend;
+    std::copy( streambegin, streamend, std::back_inserter( program ) );
+
+    our_pos_iter_t parsebegin( program.begin(), program.end(), "teststring" );
+    our_pos_iter_t parseend;
+
+    // The internal parser.
+    StateGraphParser gram( parsebegin, proc, ext );
+    StateGraph* ret = gram.parse( parsebegin, parseend );
+    if ( ret )
+      std::cerr << "State Parsed Successfully !" << std::endl;
     return ret;
   };
 
