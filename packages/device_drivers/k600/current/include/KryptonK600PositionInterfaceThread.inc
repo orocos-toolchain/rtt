@@ -123,6 +123,7 @@ namespace ORO_DeviceDriver
     // In the while loop, we might be waiting for the sem, so first
     // post it...
     SEM * udp_message_arrived;
+    this->prepareForExit = true;
     udp_message_arrived = (SEM *) rt_get_adr(nam2num("KEDSEM"));
     rt_sem_signal (udp_message_arrived);
   }
