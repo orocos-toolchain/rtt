@@ -89,6 +89,7 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
 #endif
+                task->finalize();
             }
         }
 
