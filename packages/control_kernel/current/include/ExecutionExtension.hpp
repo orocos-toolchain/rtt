@@ -35,7 +35,14 @@
 #include <execution/Processor.hpp>
 #include <execution/GlobalFactory.hpp>
 
+#include <map>
+#include <string>
+
 #pragma interface
+
+namespace ORO_Execution {
+    class ParsedStateContext;
+}
 
 namespace ORO_ControlKernel
 {
@@ -45,7 +52,8 @@ namespace ORO_ControlKernel
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
     using ORO_Execution::GlobalFactory;
-
+    using ORO_Execution::ParsedStateContext;
+    using ORO_Execution::ProgramInterface;
     class ExecutionExtension;
 
     /**
@@ -143,6 +151,9 @@ namespace ORO_ControlKernel
         void loadStateContext(
           std::istream& state_stream, const std::string& filename );
 
+        ParsedStateContext* getStateContext(const std::string& name);
+        ProgramInterface* getProgram(const std::string& name);
+
         /**
          * Delete the given StateContext...
          */
@@ -167,10 +178,16 @@ namespace ORO_ControlKernel
         bool stopProgram(const std::string& name);
 
         /**
-         * Resets the execution of a stopped program to the first instruction.
+         * Pauses the execution of a running program.
          * @param name The name of the Program.
          */
-        bool resetProgram(const std::string& name);
+        bool pauseProgram(const std::string& name);
+
+        /**
+         * Steps a single instruction of a paused program.
+         * @param name The name of the Program.
+         */
+        bool stepProgram(const std::string& name);
 
         /**
          * Activate a previously loaded StateContext.
@@ -240,6 +257,8 @@ namespace ORO_ControlKernel
 
         virtual DataSourceFactoryInterface* createDataSourceFactory();
 
+        
+
     protected:
         virtual bool initialize();
 
@@ -259,6 +278,8 @@ namespace ORO_ControlKernel
         ControlKernelInterface* base;
 
         Property<int> interval;
+
+        std::map<std::string,ParsedStateContext*> parsed_states;
     };
 
 }

@@ -87,7 +87,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     bool ExecutionExtension::startProgram(const std::string& name)
     {
-        proc.resetProgram(name);
         return proc.startProgram(name);
     }
 
@@ -101,19 +100,44 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.stopProgram(name);
     }
 
-    bool ExecutionExtension::resetProgram(const std::string& name)
+    bool ExecutionExtension::pauseProgram(const std::string& name)
     {
-        return proc.resetProgram(name);
+        return proc.pauseProgram(name);
+    }
+
+    bool ExecutionExtension::stepProgram(const std::string& name)
+    {
+        return proc.stepProgram(name);
     }
 
     bool ExecutionExtension::loadProgram( std::istream& prog_stream )
     {
         initKernelCommands();
         Parser    parser;
-        program = parser.parseProgram( prog_stream, &proc, this );
-        if (program == 0)
-            return false;
-        return proc.loadProgram( program );
+        std::vector<ProgramGraph*> pg_list;
+        try {
+            pg_list = parser.parseProgram( prog_stream, &proc, this );
+        }
+        catch( const file_parse_exception& exc )
+        {
+          // no reason to catch this other than clarity
+          throw;
+        }
+        if ( pg_list.empty() )
+        {
+          throw program_load_exception( "No Programs defined in inputfile." );
+        }
+        for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, &proc, _1) );
+        return true;
+    }
+
+    namespace {
+        void recursiveRegister( std::map<std::string, ParsedStateContext*>& m, ParsedStateContext* parent ) {
+            std::vector<StateContextTree*>::const_iterator chit;
+            m[parent->getName()] = parent;
+            for( chit = parent->getChildren().begin(); chit != parent->getChildren().end(); ++chit)
+                recursiveRegister(m, dynamic_cast<ParsedStateContext*>(*chit) );
+        }
     }
 
     void ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& filename )
@@ -136,8 +160,20 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
         // this can throw a program_load_exception
         std::vector<ParsedStateContext*>::iterator it;
-        for( it= contexts.begin(); it !=contexts.end(); ++it)
+        for( it= contexts.begin(); it !=contexts.end(); ++it) {
             getProcessor()->loadStateContext( *it );
+            recursiveRegister( parsed_states, *it );
+        }
+    }
+
+    ParsedStateContext* ExecutionExtension::getStateContext(const std::string& name) {
+        if ( parsed_states.count(name) == 0 )
+            return 0;
+        return parsed_states[ name ];
+    }
+
+    ProgramInterface* ExecutionExtension::getProgram(const std::string& name) {
+        return getProcessor()->getProgram(name);
     }
 
     bool ExecutionExtension::activateStateContext(const std::string& name)
@@ -162,6 +198,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     bool ExecutionExtension::deleteStateContext( const std::string& name )
     {
+        parsed_states.erase( name );
         return proc.deleteStateContext( name );
     }
 
@@ -258,11 +295,16 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                     //bind(&ExecutionExtension::foo, _1, mem_fn(&ExecutionExtension::isProgramRunning), std::logical_not<bool>() ),
                     &ExecutionExtension::true_gen ,
                     "Stop a program", "Name", "The Name of the Started Program" ) ); // true ==  invert the result.
-        ret->add( "resetProgram",
+        ret->add( "stepProgram",
                   command
-                  ( &ExecutionExtension::resetProgram ,
+                  ( &ExecutionExtension::stepProgram ,
                     &ExecutionExtension::true_gen ,
-                    "Reset a program", "Name", "The Name of the Stopped Program" ) );
+                    "Step a single program instruction", "Name", "The Name of the Paused Program" ) );
+        ret->add( "pauseProgram",
+                  command
+                  ( &ExecutionExtension::pauseProgram ,
+                    &ExecutionExtension::true_gen ,
+                    "Pause a program", "Name", "The Name of the Started Program" ) );
         ret->add( "activateStateContext",
                   command
                   ( &ExecutionExtension::activateStateContext ,
