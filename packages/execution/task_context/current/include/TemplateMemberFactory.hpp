@@ -350,6 +350,25 @@ namespace ORO_Execution
   {
     return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( g, a, a2 );
   };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type>*
+  newFunctorDataSource( FunctorT g, DataSource<Arg1T>* a, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3 )
+  {
+    return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( g, a, a2, a3 );
+  };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+  DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type>*
+  newFunctorDataSource( FunctorT g, DataSource<Arg1T>* a, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4 )
+  {
+    return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( g, a, a2, a3, a4 );
+  };
+
   /**
    * @}
    */
