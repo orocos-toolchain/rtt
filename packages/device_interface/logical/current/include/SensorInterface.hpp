@@ -29,6 +29,8 @@
 #ifndef SENSORINTERFACE_HPP
 #define SENSORINTERFACE_HPP
 
+#pragma interface
+
 namespace ORO_DeviceInterface
 {
 
@@ -48,6 +50,9 @@ namespace ORO_DeviceInterface
     class SensorInterface
     {
         public:
+        virtual ~SensorInterface()
+        {}
+
         typedef SensorData DataType;
 
         /**
@@ -96,6 +101,7 @@ namespace ORO_DeviceInterface
          */
         virtual void unCalibrate() = 0;
     };
+
 }
 
 #endif // SENSORINTERFACE_HPP

@@ -28,6 +28,10 @@
 #ifndef ENCODERINTERFACE_HPP
 #define ENCODERINTERFACE_HPP
 
+#include <corelib/NameServer.hpp>
+#include <corelib/NameServerRegistrator.hpp>
+
+#pragma interface
 
 namespace ORO_DeviceInterface
 {
@@ -44,39 +48,62 @@ namespace ORO_DeviceInterface
      * increments.
      */
     class EncoderInterface
+        : private ORO_CoreLib::NameServerRegistrator<EncoderInterface*>
     {
     public:
+        /**
+         * @brief Create a EncoderInterface with a name.
+         *
+         * When <name> is not "", and unique, it can be retrieved
+         * through EncoderInterface::nameserver .
+         */
+        EncoderInterface( const std::string& name )
+            : ORO_CoreLib::NameServerRegistrator<EncoderInterface*>( nameserver, name, this )
+        { }
+
+        /**
+         * @brief Create a not nameserverd EncoderInterface instance.
+         */
+        EncoderInterface()
+        { }
+
+        /**
+         * The NameServer of this interface.
+         * @see NameServer
+         */
+        static ORO_CoreLib::NameServer<EncoderInterface*> nameserver;
+
         virtual ~EncoderInterface() {}
 
         /**
-         * Get the position within the current turn.
+         * @brief Get the position within the current turn.
          */
         virtual int positionGet() const = 0;
 
         /**
-         * Get the current turn.
+         * @brief Get the current turn.
          */
         virtual int turnGet() const = 0;
            
         /**
-         * Set the position within the current turn.
+         * @brief Set the position within the current turn.
          */
         virtual void positionSet( int p) = 0;
 
         /**
-         * Set the current turn.
+         * @brief Set the current turn.
          */
         virtual void turnSet( int t ) = 0;
 
         /**
-         * Return the position resolution. This number
+         * @brief Return the position resolution. This number
          * can be negative or positive and denotes the
          * the maximal or minimal value positionGet().
          */
         virtual int resolution() const = 0;
 
         /**
-         * Returns true if after a positive turn increment,
+         * @brief Returns true if after a positive turn increment,
          * position increments positively.
          *
          * Meaning from 0 to |resolution()| or from
