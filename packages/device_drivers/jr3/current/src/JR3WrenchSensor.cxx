@@ -87,34 +87,31 @@ void JR3WrenchSensor::checkSensorAndDSP()
 }
 
 
-void JR3WrenchSensor::offsetSet(const ForceArray& newOffset)
+void JR3WrenchSensor::offsetSet(const ORO_Geometry::Wrench& newOffset)
 {
-  rtos_printf("(WrenchSensorJR3) OffsetSet\n");
-  // Copy
-  _currentOffset = newOffset;
-  // And adjust
-  _currentOffset.Fy = -_currentOffset.Fy;
-  _currentOffset.Ty = -_currentOffset.Ty;
+  _currentOffset.Fx =  newOffset.force[0];
+  _currentOffset.Fy = -newOffset.force[1];
+  _currentOffset.Fy =  newOffset.force[2];
   // All the torques are in dNm (Nm*10), so scale:
-  _currentOffset.Tx *= 10.0;
-  _currentOffset.Ty *= 10.0;
-  _currentOffset.Tz *= 10.0;
+  _currentOffset.Ty =  newOffset.torque[0]*10;
+  _currentOffset.Ty = -newOffset.torque[1]*10;
+  _currentOffset.Ty =  newOffset.torque[2]*10;
   
   JR3DSP_set_offsets(&_currentOffset, _dsp);
 }
 
 
 
-void JR3WrenchSensor::offsetAdd(const ForceArray& extraOffset)
+void JR3WrenchSensor::offsetAdd(const ORO_Geometry::Wrench&& extraOffset)
 {
-  rtos_printf("(WrenchSensorJR3) OffsettAdd\n");
   // First calculate the new offset (see above)
-  _currentOffset.Fx += extraOffset.Fx;
-  _currentOffset.Fy -= extraOffset.Fy;
-  _currentOffset.Fz += extraOffset.Fz;
-  _currentOffset.Tx += extraOffset.Tx*10.0;
-  _currentOffset.Ty -= extraOffset.Ty*10.0;
-  _currentOffset.Tz += extraOffset.Tz*10.0;
+  _currentOffset.Fx += extraOffset.force[0];
+  _currentOffset.Fy -= extraOffset.force[1];
+  _currentOffset.Fz += extraOffset.force[2];
+  // All the torques are in dNm (Nm*10), so scale:
+  _currentOffset.Tx += extraOffset.torque[0]*10.0;
+  _currentOffset.Ty -= extraOffset.torque[1]*10.0;
+  _currentOffset.Tz += extraOffset.torque[2]*10.0;
   
   JR3DSP_set_offsets(&_currentOffset, _dsp);
 }

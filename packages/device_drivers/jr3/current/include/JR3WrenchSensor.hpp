@@ -94,8 +94,8 @@ public:
     void checkSensorAndDSP();
 
     // Set/Add offset
-    void offsetSet( const ForceArray& offsets );
-    void offsetAdd( const ForceArray& offsets );
+    void offsetSet( const ORO_Geometry::Wrench& offsets );
+    void offsetAdd( const ORO_Geometry::Wrench& offsets );
 
 protected:
     virtual void step() { refresh(); };
