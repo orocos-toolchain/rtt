@@ -90,26 +90,20 @@ namespace ORO_Execution
          */
         virtual bool stopProgram(const std::string& name) = 0;
             
-//         /**
-//          * Start configuration mode.
-//          */
-//         virtual bool startConfiguration() = 0;
-                        
-//         /**
-//          * End configuration mode and start loading mode, only
-//          * if a configuration has been loaded.
-//          */
-//         virtual bool endConfiguration() = 0; 
-
         /**
          * Discard the data currently loaded.
          */
         virtual bool deleteProgram(const std::string& name) = 0;
-            
-//         /**
-//          * Retreat to init mode (data and configuration were discarded).
-//          */
-//         virtual bool abort() = 0;
+
+        /**
+         * Return true if the Program has successfully started.
+         */
+        virtual bool isProgramRunning( const std::string& name) const;
+
+        /**
+         * Return true if the StateContext has successfully started.
+         */
+        virtual bool isStateContextRunning( const std::string& name) const;
 
         /**
          * In stepping mode, do the next step.

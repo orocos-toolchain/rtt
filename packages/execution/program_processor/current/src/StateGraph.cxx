@@ -42,6 +42,8 @@ namespace ORO_Execution
         cmap[n].execute();
 
         tie(ei, ei_end) = boost::out_edges( n, graph );
+        // We must find a way to sort the edges in the same order
+        // as they are added to the graph.
         while ( ei != ei_end )
             {
                 if ( emap[*ei].evaluate() ) // on Success :

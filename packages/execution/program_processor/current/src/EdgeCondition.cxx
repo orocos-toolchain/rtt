@@ -6,8 +6,10 @@ namespace ORO_Execution
 {
 	using namespace ORO_CoreLib;
 
+    int EdgeCondition::condition_counter = 0;
+
 	EdgeCondition::EdgeCondition(ConditionInterface* cond )
-        : condition( cond )
+        : condition( cond ), rank(condition_counter++)
 	{
 	}
 

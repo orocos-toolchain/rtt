@@ -44,6 +44,7 @@ namespace ORO_Execution
 	 */
 	class EdgeCondition
 	{
+        static int condition_counter;
     public:
         typedef property<edge_condition_t, EdgeCondition,
                          property< boost::edge_index_t, int> > EdgeProperty;
@@ -52,7 +53,7 @@ namespace ORO_Execution
          * EdgeCondition specifies a condition to
          * check.
          */
-        EdgeCondition() : condition ( new ConditionTrue ) {}
+        EdgeCondition() : condition ( new ConditionTrue ), rank(condition_counter++) {}
 
         /**
          * EdgeCondition specifies a condition to
@@ -61,10 +62,10 @@ namespace ORO_Execution
          */
         EdgeCondition(ConditionInterface* cond );
 
-        virtual ~EdgeCondition();
+        ~EdgeCondition();
 
         EdgeCondition( const EdgeCondition& orig )
-            : condition( orig.getCondition()->clone() )
+            : condition( orig.getCondition()->clone() ), rank(condition_counter++)
         {}
 
         /**
@@ -73,25 +74,26 @@ namespace ORO_Execution
          * of ConditionInterface::reset() for more
          * details..
          */
-        virtual void reset();
+        void reset();
 
         /**
          * Evaluates the condition coupled with this termination clause.
          */
-        virtual bool evaluate();
+        bool evaluate();
 
         /**
          * Return the condition coupled with this termination clause.
          */
-        virtual ConditionInterface* getCondition() const;
+        ConditionInterface* getCondition() const;
 
+        int getRank() const { return rank; }
     protected:
 
-        virtual void setCondition(ConditionInterface* cond);
+        void setCondition(ConditionInterface* cond);
 
     private:
         ConditionInterface* condition;
-
+        int rank;
 	};
 
 }

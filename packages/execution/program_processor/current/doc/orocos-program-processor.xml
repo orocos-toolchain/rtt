@@ -59,6 +59,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>States workings updated</revremark>
   </revision>
+  <revision>
+    <revnumber>0.14</revnumber>
+    <date>31 March 2004</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>New Program and StateContext implementation</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
@@ -83,8 +89,6 @@
       This chapter explains installation, and gives an overview of the
 features and interface of the &orocos; &interf; package.
     </para>
-
-
     <sect1>
       <title>What is Orocos Execution : Program Processor ?</title>
       <para>
@@ -96,7 +100,7 @@ features and interface of the &orocos; &interf; package.
 	<classname>StateContext</classname> will hold the
 	user-programmable state machine (representing the system
 	logic). A <classname>ProgramGraph</classname> will hold the
-	user-defined data to be executed. A
+	user-defined program to be executed. A
 	<classname>Processor</classname> will then represent an
 	execution engine which loads the sytem configuration and
 	program definition and executes that program. While a big part
@@ -106,9 +110,10 @@ features and interface of the &orocos; &interf; package.
       </para>
       <para>
 	The Program Processor is not what the user will use directly.
-	The user will mainly use the Program Parser. The Parser
-	generates ProgramGraphs and StateGraphs which can then be
-	executed in realtime.
+	The user will mainly use the <ulink url="orocos-program-parser.html">
+	  Orocos Program Parser</ulink>. The Parser
+	generates ProgramGraphs and StateGraphs from user friendly
+	text files, which can then be executed in realtime.
       </para>
     </sect1>
 
@@ -127,53 +132,44 @@ features and interface of the &orocos; &interf; package.
     </sect1>
 </chapter>
 
-  <chapter><title>Short Introduction</title>
+  <chapter>
+    <title>Processing Programs and StateContexts</title>
     <sect1>
       <title>Main Components</title>
       <para>
 	This section gives an overview of the services used for
 	&interf;.
       </para>
-      <note>
-	<para>	We refer to the source code documentation or the
-	doxygen generated files for the	most recent
-	documentation about which functions exist and do what. 
-	</para>
-      </note>
       <sect2>
 	<title>Processor</title>
 	<para>
 	  The <classname>Processor</classname> is the core component
 	  of &interf;. It represents an execution engine which is
 	  capable of loading a system configuration and loading and
-	  executing programs on that configured system.  Thus the
-	  Processor is always associated with 3 variables, namely the
-	  state of the system, the data to be executed and its own
-	  state. The Processor is at all times in one of the following
-	  <classname>ProcessorStates</classname>: initialisation
-	  state, system configuration state, load program state and
-	  execution state.
+	  executing programs on that configured system. A system
+	  configuration (or part of) is defined in a State Context
+	  ( a State Context is a collection of Orocos States ).
+	  Multiple State Contexts can be loaded and started/stopped in
+	  parallel. A Program is a sequence of commands, connected
+	  to each other through condition evaluation. Also programs
+	  can be loaded and run in parallell.
 	</para>
-	<figure><title>States of the Program Processor</title>
-	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="PPstates.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="PPstates.eps" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
+	<para>
+	  The Processor is commanded to do things with Programs
+	  and State Contexts. The available commands are presented
+	  in the figures in the next sections.
+	</para>
       </sect2>
-
       <sect2>
 	<title>State Context and State</title>
 	<para>
-	  The <classname>StateContext</classname> is the gateway to
-	  the configuration of the state machine representing the
-	  system logic. Every machine has physical and logical
+	  The <classname>StateContext</classname> is a collection
+	  of states, linked to each other and is defined in
+	  the <ulink url="orocos-corelib.html">Orocos CoreLib</ulink>
+	  . It represents a  state machine of the
+	  system logic. Every device has physical and logical
 	  configurations in which a specific action must be taken
-	  (on entry, during or on exit) and transitions are defined
+	  (on entry, during or on exit) and transitions between states are defined
 	  by boundary conditions. Every such state is defined by
 	  the <classname>StateInterface</classname> in the CoreLib
 	  API. A state itself is defined by three methods : 
@@ -186,6 +182,22 @@ features and interface of the &orocos; &interf; package.
 	  of the new state and as last in that step, the handle()
 	  method.
 	</para>
+	<para>To see how a state can be entered in Orocos, we refer
+	  to the <ulink url="orocos-program-parser.html">Orocos
+	  Program Parser</ulink> Manual. The Parser is able to
+	  convert Orocos State Descriptions to a State Context
+	  wich can be loaded in the Processor.
+	</para>
+	<figure><title>Using a StateContext</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="ContextStates.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="ContextStates.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
       </sect2>
       <sect2>
 	<title>State Transitions</title>
@@ -215,6 +227,23 @@ features and interface of the &orocos; &interf; package.
 	  programs, which is used by other packages to construct valid
 	  programs.
 	</para>
+	<para>
+	  Programs are generated from a script, this is explained in 
+	  the <ulink url="orocos-program-parser.html">Orocos
+	  Program Parser</ulink> Manual. The Parser is able to
+	  convert Orocos Program Scripts to a Program which can
+	  be loaded in the Processor.
+	</para>
+	<figure><title>Using a Program</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="ProgramStates.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="ProgramStates.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
       </sect2>
 
       <sect2>

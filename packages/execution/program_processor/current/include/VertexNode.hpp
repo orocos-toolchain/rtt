@@ -44,6 +44,8 @@ namespace ORO_Execution
 	class ProcessorInterface;
     class StateDescription;
 
+    using ORO_CoreLib::CommandInterface;
+
 	/**
 	 * This class represents elements in a program tree.
 	 */

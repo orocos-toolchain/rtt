@@ -21,9 +21,6 @@
 #define PROCESSOR_HPP
 
 #include "ProcessorInterface.hpp"
-#include "ProcessorControlInterface.hpp"
-#include "ProcessorState.hpp"
-#include "ProcessorStateInit.hpp"
 
 #include <list>
 
@@ -65,6 +62,9 @@ namespace ORO_Execution
 			virtual bool stopProgram(const std::string& name);
 			virtual bool resetProgram(const std::string& name);
 			virtual bool deleteProgram(const std::string& name);
+
+        virtual bool isProgramRunning( const std::string& name) const;
+        virtual bool isStateContextRunning( const std::string& name) const;
 
 			virtual void doStep();
 			virtual bool nextStep(const std::string& name);
@@ -111,6 +111,8 @@ namespace ORO_Execution
 
         typedef std::list<ProgramInfo>::iterator program_iter;
         typedef std::list<StateInfo>::iterator state_iter;
+        typedef std::list<ProgramInfo>::const_iterator cprogram_iter;
+        typedef std::list<StateInfo>::const_iterator cstate_iter;
         std::list<ProgramInfo> programs;
         std::list<StateInfo>   states;
 

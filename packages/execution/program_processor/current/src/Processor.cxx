@@ -11,30 +11,11 @@ namespace ORO_Execution
     Processor::Processor()
         :command(0)
     {
-//         currentState = new ProcessorStateInit(this);
     }
 
     Processor::~Processor()
     {
-//         delete currentState;
     }
-
-//     void Processor::changeState(ProcessorState* newState)
-//     {
-//         delete currentState;
-//     	currentState = newState;
-//     }
-
-//     void Processor::resetState()
-//     {
-//         delete currentState;
-//     	currentState = new ProcessorStateInit( this );
-//     }
-
-	//forward every action to its state
-//  bool Processor::startConfiguration(){ return currentState->startConfiguration();}
-// 	bool Processor::abort(){ return currentState->abort();}
-// 	bool Processor::endConfiguration(){return currentState->endConfiguration();}
 
 	bool Processor::loadProgram(const std::string& name, ProgramInterface* pi)
     {
@@ -68,6 +49,15 @@ namespace ORO_Execution
         if ( it != programs.end() )
             it->running = true;
         return it != programs.end();
+    }
+
+	bool Processor::isProgramRunning(const std::string& name) const
+    {
+        cprogram_iter it =
+            find_if(programs.begin(), programs.end(), bind(program_lookup, _1, name) );
+        if ( it != programs.end() )
+            return it->running;
+        return false;
     }
 
 	bool Processor::startStepping(const std::string& name)
@@ -124,6 +114,14 @@ namespace ORO_Execution
         return it != states.end();
     }
 
+	bool Processor::isStateContextRunning(const std::string& name) const
+    {
+        cstate_iter it =
+            find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
+        if ( it != states.end() )
+            return it->running;
+        return false;
+    }
 
 	bool Processor::stopStateContext(const std::string& name)
     {
