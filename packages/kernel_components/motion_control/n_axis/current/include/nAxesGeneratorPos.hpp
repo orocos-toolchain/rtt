@@ -73,7 +73,7 @@ namespace ORO_ControlKernel
     nAxesGeneratorPos(unsigned int num_axes, std::string name);
     virtual ~nAxesGeneratorPos();
 
-    bool moveTo(const std::vector<double>& position, double time);
+    bool moveTo(const std::vector<double>& position, double time=0);
     
     virtual bool componentLoaded();
     virtual bool componentStartup();
