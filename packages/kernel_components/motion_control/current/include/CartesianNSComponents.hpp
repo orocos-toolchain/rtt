@@ -15,6 +15,13 @@
 #include <corelib/EventInterfaces.hpp>
 #include <kernel_components/Simulator.hpp>
 
+#include <pkgconf/system.h>
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateCommandFactory.hpp"
+#endif
+
+
 /**
  * @file CartesianNSComponents.hpp
  *
@@ -29,6 +36,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
+    using namespace ORO_Execution;
 
     struct CartesianCommands     { Trajectory* trajectory; Frame task_frame; Frame tool_mp_frame; };
 
@@ -84,7 +92,7 @@ namespace ORO_ControlKernel
          */
         CartesianGenerator() 
             :end_pos("End Position","One of many variables which can be reported."),
-             timestamp(0), time(0), cur_tr(0), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity())
+             timestamp(0), _time(0), cur_tr(0), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity())
         {}
 
         /**
@@ -102,7 +110,7 @@ namespace ORO_ControlKernel
             if ( !Base::Command::dObj()->Get(string("Trajectory"), com_tr) )
                 return false;
             Base::Input::dObj()->Get(input);
-            Base::Command::dObj()->Get(command);
+            Base::Command::dObj()->Get(_command);
             Base::Model::dObj()->Get(model);
 
             // stay as is.
@@ -110,6 +118,8 @@ namespace ORO_ControlKernel
             //cout << "Result :"<< result.mp_base_frame<<endl;
             Base::SetPoint::dObj()->Set(result);
 
+            // record the startup time. 
+            timestamp = HeartBeatGenerator::Instance()->ticksGet();
             return true;
         }            
                 
@@ -118,10 +128,10 @@ namespace ORO_ControlKernel
          */
         virtual void pull()
         {
-            Base::Command::dObj()->Get( command );
+            Base::Command::dObj()->Get( _command );
             Base::Model::dObj()->Get(model);
             mp_base_frame = model.mp_base_frame;
-            time = HeartBeatGenerator::Instance()->secondsSince(timestamp);
+            _time = HeartBeatGenerator::Instance()->secondsSince(timestamp);
         }
             
         /**
@@ -132,7 +142,7 @@ namespace ORO_ControlKernel
             if ( cur_tr )
                 {
                     result.task_frame = task_frame;
-                    end_pos = result.mp_base_frame = task_frame * cur_tr->Pos(time) * tool_mp_frame.Inverse();
+                    end_pos = result.mp_base_frame = task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse();
                 }
         }
             
@@ -144,11 +154,21 @@ namespace ORO_ControlKernel
             Base::SetPoint::dObj()->Set(result);
         }
             
-        bool trajectDone()
+        bool trajectoryDone()
         {
             if (cur_tr)
-                return time > cur_tr->Duration();
+                return _time > cur_tr->Duration();
             return true;
+        }
+        
+        Frame position()
+        {
+            return result.mp_base_frame;
+        }
+
+        double time()
+        {
+            return _time;
         }
 
         /**
@@ -157,17 +177,21 @@ namespace ORO_ControlKernel
          */
         void loadTrajectory()
         {
-            if ( kernel()->isRunning() && trajectDone() )
-                if ( command.trajectory !=0 && 
-                     Equal( task_frame * cur_tr->Pos(time) * tool_mp_frame.Inverse(), 
-                            command.task_frame * command.trajectory->Pos(0) * tool_mp_frame.Inverse(),0.01) )
+            if ( kernel()->isRunning() && trajectoryDone() )
+                if ( _command.trajectory !=0 && 
+                     Equal( task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse(), 
+                            _command.task_frame * _command.trajectory->Pos(0) * tool_mp_frame.Inverse(),0.01) )
                     {
+                        cout << "Load Trajectory"<<endl;
                         // get new trajectory
-                        cur_tr = command.trajectory;
-                        task_frame = command.task_frame;
-                        tool_mp_frame = command.tool_mp_frame;
+                        cur_tr = _command.trajectory;
+                        task_frame = _command.task_frame;
+                        tool_mp_frame = _command.tool_mp_frame;
                         timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                        _time = 0;
                     }
+                else cout << "Trajectory not loaded"<<endl;
+            cout << "exit loadTrajectory()"<<endl;
         }
 
         /**
@@ -176,25 +200,68 @@ namespace ORO_ControlKernel
         void home()
         {
             // XXX insert proper delete code.
-            if ( kernel()->isRunning() && trajectDone() )
+            if ( kernel()->isRunning() && trajectoryDone() )
                 {
-                    //cout <<"Home : from "<< model.mp_base_frame <<" to "<<command.task_frame<<endl;
-                    cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, command.task_frame, new RotationalInterpolation_SingleAxis(),1.0 ), new VelocityProfile_Trap(1,10),10.0);
+                    cout <<"Home : from "<< model.mp_base_frame <<" to "<<_command.task_frame<<endl;
+                    _time = 0;
+                    cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, _command.task_frame, new RotationalInterpolation_SingleAxis(),1.0 ), new VelocityProfile_Trap(1,10),10.0);
                     task_frame = Frame::Identity(); //only used for storing the homing pos
                     tool_mp_frame = Frame::Identity();
                     timestamp = HeartBeatGenerator::Instance()->ticksGet();
                 }
         }
-            
+
+        bool isHomed()
+        {
+            return trajectoryDone();
+        }
+
+        bool isTrajectoryLoaded()
+        {
+            return cur_tr != 0;
+        }
+
+        DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
+                newDataSourceFactory( this );
+            ret->add( "position", 
+                      data( &CartesianGenerator<Base>::position, "The current position "
+                            "of the robot." ) );
+            ret->add( "time",
+                      data( &CartesianGenerator<Base>::time, 
+                            "The current time in the movement "
+                            ) );
+            ret->add( "trajectoryDone",
+                      data( &CartesianGenerator<Base>::trajectoryDone,
+                            "The state of the current trajectory "
+                            ) ); 
+            return ret;
+        }
+
+        CommandFactoryInterface* createCommandFactory()
+        {
+            TemplateCommandFactory< CartesianGenerator<Base> >* ret =
+                newCommandFactory( this );
+            ret->add( "home", 
+                      command( &CartesianGenerator<Base>::home,
+                               &CartesianGenerator<Base>::isHomed,
+                               "Move the robot to its home position" ) );
+            ret->add( "loadTrajectory",
+                      command( &CartesianGenerator<Base>::loadTrajectory,
+                               &CartesianGenerator<Base>::isTrajectoryLoaded,
+                               "Load a new trajectory." ) );
+            return ret;
+        }
     protected:
         Property<Frame> end_pos;
         InputType    input;
-        CommandType  command;
+        CommandType  _command;
         ModelType    model;
         SetPointType result;
 
         HeartBeatGenerator::ticks timestamp;
-        Seconds      time;
+        Seconds      _time;
 
         Trajectory*  cur_tr;
         Trajectory*  com_tr;
