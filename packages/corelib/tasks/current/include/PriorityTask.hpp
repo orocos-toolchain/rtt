@@ -61,7 +61,7 @@ namespace ORO_CoreLib
          * <s> seconds and <ns> nanoseconds
          */
         PriorityTask(secs s, nsecs ns, RunnableInterface* r=0 )
-            :RealTimeTask(sec, nsec, r)
+            :RealTimeTask(s, ns, r)
         {
             pt = PriorityThread<Priority>::Instance();
         }

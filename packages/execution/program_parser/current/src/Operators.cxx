@@ -122,6 +122,8 @@ namespace mystl
       delete *a;
   };
 
+#if 0
+    /** This does not work with RedHat 8.0 **/
   // the STL lacks a functor multiplying two objects of distinct
   // types.. std::multiplies<T> requires that a and b are both of type
   // T when calling operator()(a,b).  So I wrote my own replacement.
@@ -150,6 +152,32 @@ namespace mystl
         return a/b;
       };
   };
+#else
+  template<typename R, typename A, typename B>
+  struct multiplies
+  {
+    typedef R result_type;
+    typedef A first_argument_type;
+    typedef B second_argument_type;
+
+    result_type operator()( A a, B b ) const
+      {
+        return a*b;
+      };
+  };
+  template<typename R, typename A, typename B>
+  struct divides
+  {
+    typedef R result_type;
+    typedef A first_argument_type;
+    typedef B second_argument_type;
+
+    result_type operator()( A a, B b ) const
+      {
+        return a/b;
+      };
+  };
+#endif
 };
 
 namespace ORO_Execution
@@ -414,10 +442,10 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", std::multiplies<Vector>() ) );
     add( newBinaryOperator( "+", std::plus<Vector>() ) );
     add( newBinaryOperator( "-", std::minus<Vector>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<int, Vector>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<Vector, int>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<double, Vector>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<Vector, double>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Vector,int, Vector>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Vector,Vector, int>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Vector,double, Vector>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Vector,Vector, double>() ) );
 
     // constructors:
     add( newTernaryOperator( "vectorxyz", mystl::ptr_fun( &vectorxyz ) ) );
@@ -434,9 +462,9 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", std::multiplies<Double6D>() ) );
     add( newBinaryOperator( "+", std::plus<Double6D>() ) );
     add( newBinaryOperator( "-", std::minus<Double6D>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<double, Double6D>() ) );
-    add( newBinaryOperator( "*", mystl::multiplies<Double6D, double>() ) );
-    add( newBinaryOperator( "*", mystl::divides<Double6D, double>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Double6D, double, Double6D>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Double6D, Double6D, double>() ) );
+    add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
   };
 
