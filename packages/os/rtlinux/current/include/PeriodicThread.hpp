@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:44:18 CEST 2002  ComponentActive.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:44:18 CEST 2002  PeriodicThread.hpp 
 
-                       ComponentActive.hpp -  description
+                       PeriodicThread.hpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -18,12 +18,12 @@
 
 
 
-#ifndef COMPONENTTHREADED_H
-#define COMPONENTTHREADED_H
+#ifndef PERIODIC_THREAD_H
+#define PERIODIC_THREAD_H
 
 #include "os/cpp.hpp"
 #include <os/fosi.h>
-#include "ComponentActiveInterface.hpp"
+#include "PeriodicThreadInterface.hpp"
 #include "RunnableInterface.hpp"
 
 namespace ORO_OS
@@ -37,15 +37,15 @@ namespace ORO_OS
       *        of two runs.
       */
 
-    class ComponentThreaded : public ComponentActiveInterface
+    class PeriodicThread : public PeriodicThreadInterface
     {
             friend void* ComponentThread( void* t );
             RunnableInterface* runner;
 
         public:
-            ComponentThreaded(int priority, const string& name="", RunnableInterface* r = 0 );
+            PeriodicThread(int priority, const string& name="", RunnableInterface* r = 0 );
 
-            virtual ~ComponentThreaded();
+            virtual ~PeriodicThread();
             /**
              * Start the thread
              */

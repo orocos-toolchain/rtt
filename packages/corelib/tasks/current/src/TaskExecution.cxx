@@ -25,7 +25,7 @@ namespace ORO_CoreLib
 {
 
     TaskExecution::TaskExecution(int priority, const std::string& name, double periodicity)
-        : ComponentThreaded( priority, name, periodicity)
+        : PeriodicThread( priority, name, periodicity)
     {
     }
 

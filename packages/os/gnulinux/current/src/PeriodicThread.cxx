@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:42:36 CEST 2002  ComponentThreaded.cpp 
+ tag: Peter Soetens  Mon Jun 10 14:42:36 CEST 2002  PeriodicThread.cpp 
 
-                       ComponentThreaded.cpp -  description
+                       PeriodicThread.cpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -29,7 +29,7 @@
 #include "corelib/EventCompleterInterface.hpp"
 #endif
 
-#include "os/ComponentThreaded.hpp"
+#include "os/PeriodicThread.hpp"
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
 #include "corelib/CompletionProcessor.hpp"
@@ -39,9 +39,9 @@ namespace ORO_OS
 
         class Finalizer : public ORO_CoreLib::EventCompleterInterface
         {
-            ComponentThreaded* parent;
+            PeriodicThread* parent;
         public:
-            Finalizer( ComponentThreaded* ct ) : parent( ct )
+            Finalizer( PeriodicThread* ct ) : parent( ct )
             {}
 
             virtual void completeEvent();
@@ -62,7 +62,7 @@ namespace ORO_OS
     void *ComponentThread( void *t )
     {
         rtos_printf( "Component thread created\n" );
-        ComponentThreaded* comp = ( ComponentThreaded* ) t;
+        PeriodicThread* comp = ( PeriodicThread* ) t;
 
         while ( 1 )
         {
@@ -82,7 +82,7 @@ namespace ORO_OS
         return 0;
     }
 
-    ComponentThreaded::ComponentThreaded(int , const std::string& name, double period, RunnableInterface* r )
+    PeriodicThread::PeriodicThread(int , const std::string& name, double period, RunnableInterface* r )
             : runner( r ), periodMark( 0 ), running( false ), timeToQuit(false)
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
               , finalizer( new Finalizer(this) )
@@ -96,7 +96,7 @@ namespace ORO_OS
         pthread_create( &thread, threadAttributeGet(), ComponentThread, this );
     }
 
-    ComponentThreaded::~ComponentThreaded()
+    PeriodicThread::~PeriodicThread()
     {
         if ( isRunning() )
             stop();
@@ -112,7 +112,7 @@ namespace ORO_OS
         delete finalizer;
     }
 
-    bool ComponentThreaded::start()
+    bool PeriodicThread::start()
     {
         if ( isRunning() )
             return false;
@@ -127,7 +127,7 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::stop()
+    bool PeriodicThread::stop()
     {
         if ( !isRunning() )
             return false;
@@ -137,7 +137,7 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::setToStop()
+    bool PeriodicThread::setToStop()
     {
         // finalize will be called in the thread of the
         // Completion processor
@@ -150,7 +150,7 @@ namespace ORO_OS
     }
 
 
-    int ComponentThreaded::periodSet( double s )
+    int PeriodicThread::periodSet( double s )
     {
         if ( isRunning() )
             return -1;
@@ -162,7 +162,7 @@ namespace ORO_OS
         return 0;
     }
 
-    int ComponentThreaded::periodSet( const secs s, const nsecs ns )
+    int PeriodicThread::periodSet( const secs s, const nsecs ns )
     {
         if ( isRunning() )
             return -1;
@@ -174,7 +174,7 @@ namespace ORO_OS
         return 0;
     }
 
-    int ComponentThreaded::periodSet( TIME_SPEC p )
+    int PeriodicThread::periodSet( TIME_SPEC p )
     {
         if ( isRunning() )
             return -1;
@@ -184,27 +184,27 @@ namespace ORO_OS
         return 0;
     }
 
-    void ComponentThreaded::step()
+    void PeriodicThread::step()
     {}
 
-    bool ComponentThreaded::initialize()
+    bool PeriodicThread::initialize()
     { return true; }
 
-    void ComponentThreaded::finalize()
+    void PeriodicThread::finalize()
     {}
 
-    void ComponentThreaded::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    ComponentThreaded::Seconds ComponentThreaded::periodGet() const
+    PeriodicThread::Seconds PeriodicThread::periodGet() const
     {
         return ( double ) period.tv_sec + ( double ) period.tv_nsec / ( 1000.0 * 1000.0 * 1000.0 );
     }
 
-    void ComponentThreaded::terminate()
+    void PeriodicThread::terminate()
     {
         // by PS : use this when proper 2-phase stuff works
         timeToQuit = true;
@@ -212,14 +212,14 @@ namespace ORO_OS
         //pthread_cancel( thread );
     }
 
-    void ComponentThreaded::periodWait()
+    void PeriodicThread::periodWait()
     {
         rtos_nanosleep( &period, NULL ); // stay posix compatible
     }
 
     // this is non POSIX and will be removed later on
     // when time events come in
-    void ComponentThreaded::periodWaitRemaining()
+    void PeriodicThread::periodWaitRemaining()
     {
         if ( periodMark == 0 )
         {
@@ -240,19 +240,19 @@ namespace ORO_OS
 
     }
 
-    pthread_attr_t* ComponentThreaded::threadAttributeGet()
+    pthread_attr_t* PeriodicThread::threadAttributeGet()
     {
         return & threadAttribute;
     }
 
 
-    void ComponentThreaded::taskNameSet( const char* nm )
+    void PeriodicThread::taskNameSet( const char* nm )
     {
         if ( strlen( nm ) < TASKNAME_SIZE )
             snprintf( taskName, TASKNAME_SIZE - 1, "%s", nm );
     }
 
-    const char* ComponentThreaded::taskNameGet() const
+    const char* PeriodicThread::taskNameGet() const
     {
         return taskName;
     }

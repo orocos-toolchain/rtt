@@ -17,7 +17,7 @@ namespace ORO_CoreLib
      *
      * It Uses the Singleton pattern, since there will be only one EVER.
      *
-     * @see ComponentThreaded
+     * @see PeriodicThread
      */
     template< int Priority >
     class PriorityThread

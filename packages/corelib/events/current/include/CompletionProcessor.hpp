@@ -24,14 +24,14 @@
 #include "EventListenerInterface.hpp"
 
 #include "os/Mutex.hpp"
-#include "os/ComponentThreaded.hpp"
+#include "os/PeriodicThread.hpp"
 
 #include "pkgconf/system.h"
 
 #ifndef ORODAT_CORELIB_CPBASE_H
 // a good alternative when not defined :
-#define ORODAT_CORELIB_CPBASE ORO_OS::ComponentThreaded
-#define ORODAT_CORELIB_CPBASE_H "os/ComponentThreaded.hpp"
+#define ORODAT_CORELIB_CPBASE ORO_OS::PeriodicThread
+#define ORODAT_CORELIB_CPBASE_H "os/PeriodicThread.hpp"
 #endif
 
 // Load alternate base for CP

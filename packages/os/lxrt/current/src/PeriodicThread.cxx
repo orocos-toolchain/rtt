@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 10 14:43:12 CEST 2002  ComponentThreaded.cpp 
+  tag: Peter Soetens  Mon Jun 10 14:43:12 CEST 2002  PeriodicThread.cpp 
 
-                        ComponentThreaded.cpp -  description
+                        PeriodicThread.cpp -  description
                            -------------------
     begin                : Mon June 10 2002
     copyright            : (C) 2002 Peter Soetens
@@ -18,7 +18,7 @@
  
  
 
-#include <os/ComponentThreaded.hpp>
+#include <os/PeriodicThread.hpp>
 
 // extern package config headers.
 #include "pkgconf/system.h"
@@ -49,10 +49,10 @@ namespace ORO_OS
          */
         class Finalizer : public ORO_CoreLib::EventCompleterInterface
         {
-            ComponentThreaded* parent;
+            PeriodicThread* parent;
 
         public:
-            Finalizer( ComponentThreaded* ct ) : parent( ct )
+            Finalizer( PeriodicThread* ct ) : parent( ct )
             {}
 
             void completeEvent()
@@ -76,7 +76,7 @@ namespace ORO_OS
 
         //lock_all(8*1024, 512*1024);// stack,heap
 
-        ComponentThreaded* task = static_cast<ORO_OS::ComponentThreaded*> (t);
+        PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
 
         mytask_name = nam2num( task->taskNameGet() );
 
@@ -152,7 +152,7 @@ namespace ORO_OS
     }
             
 
-    ComponentThreaded::ComponentThreaded(int _priority, const std::string& name, Seconds period, RunnableInterface* r) :
+    PeriodicThread::PeriodicThread(int _priority, const std::string& name, Seconds period, RunnableInterface* r) :
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         finalizer(new Finalizer(this) ), 
 #else   
@@ -175,7 +175,7 @@ namespace ORO_OS
         rt_sem_wait(confDone);
     }
     
-    ComponentThreaded::~ComponentThreaded() 
+    PeriodicThread::~PeriodicThread() 
     {
         if (isRunning()) stop();
 
@@ -188,7 +188,7 @@ namespace ORO_OS
         rtos_printf("%s destroyed\n", taskName );
     }
 
-    bool ComponentThreaded::start() 
+    bool PeriodicThread::start() 
     {
         if ( isRunning() ) return false;
 
@@ -208,7 +208,7 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::stop() 
+    bool PeriodicThread::stop() 
     {
         if ( !isRunning() ) return false;
 
@@ -234,12 +234,12 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::isRunning() const
+    bool PeriodicThread::isRunning() const
     {
         return running;
     }
 
-    void ComponentThreaded::configure()
+    void PeriodicThread::configure()
     {
         rt_set_period(rt_task, nano2count( period ));
         if ( goRealtime && !isHardRealtime() )
@@ -257,17 +257,17 @@ namespace ORO_OS
     }
         
 
-    void ComponentThreaded::step()
+    void PeriodicThread::step()
     {
     }
 
-    bool ComponentThreaded::initialize()
+    bool PeriodicThread::initialize()
     { return true; }
 
-    void ComponentThreaded::finalize()
+    void PeriodicThread::finalize()
     {}
 
-    int ComponentThreaded::periodSet( double s )
+    int PeriodicThread::periodSet( double s )
     {
         if ( isRunning() )
             return -1;
@@ -277,42 +277,42 @@ namespace ORO_OS
         return 0;
     }
 
-    int ComponentThreaded::periodSet(secs s, nsecs ns) 
+    int PeriodicThread::periodSet(secs s, nsecs ns) 
     {
         if ( isRunning() ) return -1;
         period = ns + 1000*1000*1000*s;
         return 0;
     }
 
-    int ComponentThreaded::periodSet( TIME_SPEC p) 
+    int PeriodicThread::periodSet( TIME_SPEC p) 
     {
         if (isRunning()) return -1;
         period = 1000*1000*1000* p.tv_sec + p.tv_nsec;
         return 0;
     }
 
-    void ComponentThreaded::periodGet(secs& s, nsecs& ns) const
+    void PeriodicThread::periodGet(secs& s, nsecs& ns) const
     {
         s = period/(1000*1000*1000);
         ns = period - s*1000*1000*1000;
     }
 
-    double ComponentThreaded::periodGet() const
+    double PeriodicThread::periodGet() const
     {
         return double(period)/(1000.0*1000.0*1000.0);
     }
 
-    void ComponentThreaded::periodWait()
+    void PeriodicThread::periodWait()
     {
         rt_task_wait_period();
     }
 
-    void ComponentThreaded::periodWaitRemaining()
+    void PeriodicThread::periodWaitRemaining()
     {
         rt_task_wait_period();
     }
 
-    void ComponentThreaded::terminate()
+    void PeriodicThread::terminate()
     {
         // avoid callling twice.
         if (prepareForExit) return;
@@ -325,7 +325,7 @@ namespace ORO_OS
         if ( pthread_join(thread,0) != 0 ) rtos_printf("Error : %s failed to join\n",taskName);
     }
 
-    bool ComponentThreaded::setToStop()
+    bool PeriodicThread::setToStop()
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         ORO_CoreLib::CompletionProcessor::Instance()->queue( finalizer );
@@ -335,12 +335,12 @@ namespace ORO_OS
 #endif
     }
 
-    void ComponentThreaded::taskNameSet(const char* nm)
+    void PeriodicThread::taskNameSet(const char* nm)
     {
         snprintf(taskName,TASKNAMESIZE,"%s",nm);
     }
 
-    const char* ComponentThreaded::taskNameGet() const
+    const char* PeriodicThread::taskNameGet() const
     {
         return taskName;
     }

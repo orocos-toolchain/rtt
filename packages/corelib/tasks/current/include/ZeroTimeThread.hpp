@@ -36,7 +36,7 @@ namespace ORO_CoreLib
      *
      * It Uses the Singleton pattern, since there will be only one EVER.
      *
-     * @see ComponentThreaded
+     * @see PeriodicThread
      */
     class ZeroTimeThread
         : public TaskExecution

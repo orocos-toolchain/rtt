@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  ComponentThreaded.hpp 
+  tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  PeriodicThread.hpp 
 
-                        ComponentThreaded.hpp -  description
+                        PeriodicThread.hpp -  description
                            -------------------
     begin                : Mon June 10 2002
     copyright            : (C) 2002 Peter Soetens
@@ -17,8 +17,8 @@
     ***************************************************************************/
  
 
-#ifndef COMPONENT_THREADED_HPP
-#define COMPONENT_THREADED_HPP
+#ifndef PERIODIC_THREAD_HPP
+#define PERIODIC_THREAD_HPP
 
 // Our own package config headers.
 #include "pkgconf/os.h"
@@ -27,7 +27,7 @@
 #include <os/fosi.h>
 
 #include <os/RunnableInterface.hpp>
-#include <os/ComponentActiveInterface.hpp>
+#include <os/PeriodicThreadInterface.hpp>
 
 #include <string>
 
@@ -42,16 +42,16 @@ namespace ORO_OS
      *	The periodicity is the time between the starting
      *	of two runs.
      */
-    class ComponentThreaded 
-        : public ComponentActiveInterface 
+    class PeriodicThread 
+        : public PeriodicThreadInterface 
     {
         friend void* ComponentThread( void* t );
 
     public:
 
-        ComponentThreaded(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
+        PeriodicThread(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
     
-        virtual ~ComponentThreaded();
+        virtual ~PeriodicThread();
         /**
          * Start the thread
          */

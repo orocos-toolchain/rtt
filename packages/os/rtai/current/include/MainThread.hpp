@@ -22,7 +22,7 @@
 
 #include "fosi.h"
 #include "rtstl/rtstl.hpp"
-#include "ComponentThreaded.hpp"
+#include "PeriodicThread.hpp"
 #include "Time.hpp"
 
 namespace ORO_OS
@@ -62,7 +62,7 @@ namespace ORO_OS
      * This is RTAI specific
      */
     class MainThread
-                : protected SchedPolicy, public ComponentThreaded
+                : protected SchedPolicy, public PeriodicThread
     {
             static MainThread* mt;
 
@@ -98,14 +98,14 @@ namespace ORO_OS
              * Starts a task and returns when the
              * task effectively runs
              */
-            void startTask( ComponentThreaded* t )
+            void startTask( PeriodicThread* t )
             {}
 
             /**
              * Stops a task and returns when the
              * task has effectively stopped
              */
-            void stopTask ( ComponentThreaded* t )
+            void stopTask ( PeriodicThread* t )
             {}
 
             /**
@@ -142,7 +142,7 @@ namespace ORO_OS
             }
 
             MainThread()
-                :ComponentThreaded(10, "MainThread") //priority=10
+                :PeriodicThread(10, "MainThread") //priority=10
             {
                 periodSet( 0, usecs_to_nsecs(1000) ); // 1ms = 1000us
             }

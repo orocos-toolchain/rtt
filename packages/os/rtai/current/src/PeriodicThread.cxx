@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:43:12 CEST 2002  ComponentThreaded.cpp 
+ tag: Peter Soetens  Mon Jun 10 14:43:12 CEST 2002  PeriodicThread.cpp 
 
-                       ComponentThreaded.cpp -  description
+                       PeriodicThread.cpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -18,7 +18,7 @@
 
 
 // TODO: check if the RunnableInterface always gets initialized and finalized.
-#include "corelib/ComponentThreaded.hpp"
+#include "corelib/PeriodicThread.hpp"
 #include "rtstl/rtstreams.hpp"
 #include "corelib/CompletionProcessor.hpp"
 #include "corelib/Time.hpp"
@@ -33,7 +33,7 @@ namespace ORO_OS
      *        expected it to block, so i believe the bug is inthere
      */
 
-    int ComponentThreaded::run()
+    int PeriodicThread::run()
     {
         //cout << "GO !" << endl;
 
@@ -63,7 +63,7 @@ namespace ORO_OS
         return 0;
     }
 
-    ComponentThreaded::ComponentThreaded(int priority, const std::string& name, RunnableInterface* r )
+    PeriodicThread::PeriodicThread(int priority, const std::string& name, RunnableInterface* r )
             : Task( 8192, priority, 1, 0, 0 ),  // STACK, PRIORITY, FPU, SIGNAL,CPU_NR
             periodMark( 0 ), running( false ), stopped( true ), finalizer( this ), prepareForExit( false ), runComp( r )
     {
@@ -71,12 +71,12 @@ namespace ORO_OS
         periodSet( 0, msecs_to_nsecs(10) ); // 10 ms
     }
 
-    ComponentThreaded::~ComponentThreaded()
+    PeriodicThread::~PeriodicThread()
     {
         terminate();
     }
 
-    bool ComponentThreaded::start()
+    bool PeriodicThread::start()
     {
         if ( isRunning() )
             return false;
@@ -95,7 +95,7 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::stop()
+    bool PeriodicThread::stop()
     {
         if ( !isRunning() )
             return false;
@@ -123,19 +123,19 @@ namespace ORO_OS
         return true;
     }
 
-    void ComponentThreaded::setToStop()
+    void PeriodicThread::setToStop()
     {
         // finalize will be called in the thread of the
         // Completion processor
         CompletionProcessor::Instance() ->queue( &finalizer );
     }
 
-    bool ComponentThreaded::isRunning() const
+    bool PeriodicThread::isRunning() const
     {
         return running;
     }
 
-    int ComponentThreaded::periodSet( secs s, nsecs ns )
+    int PeriodicThread::periodSet( secs s, nsecs ns )
     {
         if ( isRunning() )
             return -1;
@@ -147,7 +147,7 @@ namespace ORO_OS
         return 0;
     }
 
-    int ComponentThreaded::periodSet( TIME_SPEC p )
+    int PeriodicThread::periodSet( TIME_SPEC p )
     {
         if ( isRunning() )
             return -1;
@@ -157,29 +157,29 @@ namespace ORO_OS
         return 0;
     }
 
-    void ComponentThreaded::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    ComponentThreaded::Seconds ComponentThreaded::periodGet() const
+    PeriodicThread::Seconds PeriodicThread::periodGet() const
     {
         return double ( period.tv_sec ) + double ( period.tv_nsec ) / ( 1000.0 * 1000.0 * 1000.0 );
     }
 
-    void ComponentThreaded::periodWait()
+    void PeriodicThread::periodWait()
     {
         Time time( period.tv_sec * secs_to_nsecs(1) + period.tv_nsec );
         sleep( Count( time.to_count() ) );
     }
 
-    void ComponentThreaded::periodWaitRemaining()
+    void PeriodicThread::periodWaitRemaining()
     {
         wait_period();
     }
 
-    void ComponentThreaded::terminate()
+    void PeriodicThread::terminate()
     {
         if ( prepareForExit )
             return ;
@@ -209,24 +209,24 @@ namespace ORO_OS
             }
     }
 
-    void ComponentThreaded::taskNameSet( const char* nm )
+    void PeriodicThread::taskNameSet( const char* nm )
     {
         if ( strlen( nm ) < (unsigned int) TASKNAME_SIZE )
             sprintf( taskName, "%s", nm );
     }
 
-    const char* ComponentThreaded::taskNameGet() const
+    const char* PeriodicThread::taskNameGet() const
     {
         return taskName;
     }
 
-    void ComponentThreaded::step()
+    void PeriodicThread::step()
     {}
 
-    bool ComponentThreaded::initialize()
+    bool PeriodicThread::initialize()
     { return true; }
 
-    void ComponentThreaded::finalize()
+    void PeriodicThread::finalize()
     {}
 
 }

@@ -21,7 +21,7 @@
 #ifndef TASKEXECUTION_HPP
 #define TASKEXECUTION_HPP
 
-#include "os/ComponentThreaded.hpp"
+#include "os/PeriodicThread.hpp"
 #include "EventInterfaces.hpp"
 #include "EventPeriodic.hpp"
 #include "os/Mutex.hpp"
@@ -34,15 +34,15 @@ namespace ORO_CoreLib
     using ORO_OS::MutexLock;
 
     /**
-     * This ComponentThreaded is the base class for the ZeroTimeThread
+     * This PeriodicThread is the base class for the ZeroTimeThread
      * and the ZeroLatencyThread.
      *
      * You can not instantiate it.
      *
-     * @see ComponentThreaded
+     * @see PeriodicThread
      */
     class TaskExecution
-        : public ORO_OS::ComponentThreaded
+        : public ORO_OS::PeriodicThread
     {
         /**
          * Friends which can call our constructor

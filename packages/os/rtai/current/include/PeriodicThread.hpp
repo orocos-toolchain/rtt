@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  ComponentThreaded.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  PeriodicThread.hpp 
 
-                       ComponentThreaded.hpp -  description
+                       PeriodicThread.hpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -17,13 +17,13 @@
 ***************************************************************************/
 
 
-#ifndef COMPONENT_THREADED_HPP
-#define COMPONENT_THREADED_HPP
+#ifndef PERIODIC_THREAD_HPP
+#define PERIODIC_THREAD_HPP
 
 #include "os/cpp.hpp"
 #include "os/fosi.h"
 #include "Task.hpp"
-#include "ComponentActiveInterface.hpp"
+#include "PeriodicThreadInterface.hpp"
 #include "RunnableInterface.hpp"
 
 #include "EventInterfaces.hpp"
@@ -39,15 +39,15 @@
 namespace ORO_OS
 {
 
-    class ComponentThreaded
-                : public ComponentActiveInterface,
+    class PeriodicThread
+                : public PeriodicThreadInterface,
                 private Task
     {
 
     public:
 
         /**
-         * Constructs a ComponentThreaded with a priority and an optional
+         * Constructs a PeriodicThread with a priority and an optional
          * RunnableInterface which it must execute.
          *
          * @param priority 
@@ -55,9 +55,9 @@ namespace ORO_OS
          * @param r
          *        The RunnableInterface it will run when present
          */
-        ComponentThreaded(int priority, const std::string& name="", RunnableInterface* r = 0 );
+        PeriodicThread(int priority, const std::string& name="", RunnableInterface* r = 0 );
 
-            virtual ~ComponentThreaded();
+            virtual ~PeriodicThread();
             /**
              * Start the thread
              */
@@ -162,10 +162,10 @@ namespace ORO_OS
          */
         class Finalizer : public EventCompleterInterface
             {
-                    ComponentThreaded* parent;
+                    PeriodicThread* parent;
 
                 public:
-                    Finalizer( ComponentThreaded* ct ) : parent( ct )
+                    Finalizer( PeriodicThread* ct ) : parent( ct )
                     {}
 
                     void completeEvent()

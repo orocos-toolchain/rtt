@@ -41,7 +41,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003</year>
+      <year>2003, 2004</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -59,6 +59,12 @@
 	<date>28 Oct 2003</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Initial version copied from corelib documentation.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.2</revnumber>
+	<date>31 March 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>PeriodicThread and SingleThread.</revremark>
       </revision>
     </revhistory>
 
@@ -124,7 +130,7 @@
       example, we all know that a thread can be created, started,
       paused, scheduled, etc., but each OS uses other function calls
       to do this. &orocos; prefers C++ interfaces, which led to the
-      <classname>ComponentActive</classname> class interface as the
+      <classname>PeriodicThread</classname> class interface as the
       abstraction of a thread.  Each OS implements in its <filename
 	class="directory">os/&lt;OS-name-here&gt;</filename> directory
       the specific system calls to get the desired effect. The
@@ -209,7 +215,7 @@
 	      <entry align="center" valign="middle">OS Abstraction
 		classes</entry>
 	      <entry align="center" valign="middle">
-		Mutex.hpp, MutexLock.hpp, ComponentThreaded.hpp,
+		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp,
 		EvenInterrupt.hpp
 	      </entry>
 	      <entry align="left" valign="middle">
@@ -301,7 +307,7 @@
 	      <entry align="center" valign="middle">OS Abstraction
 		classes</entry>
 	      <entry align="center" valign="middle">
-		Mutex.hpp, MutexLock.hpp, ComponentThreaded.hpp,
+		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp,
 		EvenInterrupt.hpp, main.h
 	      </entry>
 	      <entry align="left" valign="middle">
@@ -400,10 +406,12 @@
     </sect1>
     <sect1>
       <title>The Orocos Thread System</title>
+      <sect2>
+	<title>Periodic Threads</title>
       <para>
-	An &orocos; component, which must execute a task periodically,
+	An &orocos; thread, which must execute a task periodically,
 	is defined by the
-	<classname>ComponentActiveInterface</classname>. The most
+	<classname>PeriodicThreadInterface</classname>. The most
 	common operations are <methodname>start()</methodname>,
 	<methodname>stop()</methodname> and setting the periodicity.
 	What is executed is defined in the <classname>
@@ -420,15 +428,62 @@
       </para>
       <para>
 	&orocos; delivers one implementation of the
-	<classname>ComponentActiveInterface</classname> : <classname>
-	  ComponentThreaded</classname>, which creates a thread
+	<classname>PeriodicThreadInterface</classname> : <classname>
+	  PeriodicThread</classname>, which creates a thread
 	according to the operating system you are compiling for.
 	However, you are encouraged <emphasis>NOT</emphasis> to use it
 	! The CoreLib uses this class as a basis to provide a more
 	fundamental task-based (as opposite to thread based)
 	execution mechanism which allows to write applications
-	more efficiently.
+	more efficiently. It is provided in the corelib/task package.
       </para>
+	<para>
+	  Common uses are :
+	  <itemizedlist>
+	  <listitem>
+	    <para>Running periodic control tasks.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Fetching periodic progress reports.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Running the corelib periodic tasks.</para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Non Periodic Threads</title>
+	<para>
+	  For non-periodic threads, which block or do lenghty calculations in their step() method,
+	  the <classname>SingleThread</classname> class can be used.
+	  The corelib/task package does not use the SingleThread.
+	  Porting applications to Orocos might benifit this class
+	  in a first adaptation step. It only has a start()
+	  method, which will provoke one single call to step() (see
+	  above). It can be re-started each time the step
+	  function returns. The initialise() and finalise() functions
+	  are called as above.
+	</para>
+	<para>
+	  Common uses are :
+	  <itemizedlist>
+	  <listitem>
+	    <para>Listening for data on a network socket.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Reading a file or files from harddisk.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Waiting for user input.</para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	  The user of this class must be aware that he must provide himself
+	  the locking primitives (like ORO_OS::Mutex) to provide thread safety.
+	</para>
+      </sect2>
     </sect1>
   </chapter>
 </book>

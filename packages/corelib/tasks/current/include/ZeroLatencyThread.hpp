@@ -34,7 +34,7 @@ namespace ORO_CoreLib
      * low (zero) latency timespan.
      * It Uses the Singleton pattern, since there will be only one.
      *
-     * @see ComponentThreaded, ZeroTimeThread
+     * @see PeriodicThread, ZeroTimeThread
      */
     class ZeroLatencyThread
         : public TaskExecution

@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:42:38 CEST 2002  ComponentThreaded.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:42:38 CEST 2002  PeriodicThread.hpp 
 
-                       ComponentThreaded.hpp -  description
+                       PeriodicThread.hpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -18,8 +18,8 @@
 
 
 
-#ifndef COMPONENTTHREADED_HPP
-#define COMPONENTTHREADED_HPP
+#ifndef PERIODIC_THREAD_HPP
+#define PERIODIC_THREAD_HPP
 
 // Our own package config headers.
 #include "pkgconf/os.h"
@@ -27,7 +27,7 @@
 
 // code headers
 #include "os/fosi.h"
-#include "os/ComponentActiveInterface.hpp"
+#include "os/PeriodicThreadInterface.hpp"
 #include "RunnableInterface.hpp"
 
 #include <string>
@@ -43,7 +43,7 @@ namespace ORO_OS
      *        The periodicity is the time between the starting
      *        of two runs.
      */
-    class ComponentThreaded : public ComponentActiveInterface
+    class PeriodicThread : public PeriodicThreadInterface
     {
         friend void *ComponentThread( void *t );
 
@@ -57,12 +57,12 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own RunnableInterface functions are executed.
          */
-        ComponentThreaded(int priority, const std::string& name="", double period=0.01, RunnableInterface* r = 0 );
+        PeriodicThread(int priority, const std::string& name="", double period=0.01, RunnableInterface* r = 0 );
 
         /**
          * Destructor. Stops the thread safely (if needed).
          */
-        virtual ~ComponentThreaded();
+        virtual ~PeriodicThread();
 
             /**
              * Start the thread

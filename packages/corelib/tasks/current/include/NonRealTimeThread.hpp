@@ -25,7 +25,7 @@
 #include "EventListenerInterface.hpp"
 
 #include "os/Mutex.hpp"
-#include "os/ComponentThreaded.hpp"
+#include "os/PeriodicThread.hpp"
 #include "TaskExecution.hpp"
 
 #include "pkgconf/corelib_tasks.h"

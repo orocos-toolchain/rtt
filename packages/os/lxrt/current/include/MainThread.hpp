@@ -21,7 +21,7 @@
 #define MAINTHREAD_HPP
 
 #include "fosi.h"
-#include "ComponentThreaded.hpp"
+#include "PeriodicThread.hpp"
 
 //#include <os/Time.hpp>
 
@@ -152,7 +152,7 @@ namespace ORO_OS
              * Starts a task and returns when the
              * task effectively runs
              */
-            void startTask( ComponentThreaded* t )
+            void startTask( PeriodicThread* t )
             {
                 t->start();
             }
@@ -161,7 +161,7 @@ namespace ORO_OS
              * Stops a task and returns when the
              * task has effectively stopped
              */
-            void stopTask ( ComponentThreaded* t )
+            void stopTask ( PeriodicThread* t )
             {
                 t->stop();
             }

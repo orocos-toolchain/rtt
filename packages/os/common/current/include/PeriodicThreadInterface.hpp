@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:41:46 CEST 2002  ComponentActiveInterface.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:41:46 CEST 2002  PeriodicThreadInterface.hpp 
 
-                       ComponentActiveInterface.hpp -  description
+                       PeriodicThreadInterface.hpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -33,12 +33,12 @@ namespace ORO_OS
       *        The periodicity is the time between the starting
       *        of two runs.
       */
-    class ComponentActiveInterface :
+    class PeriodicThreadInterface :
                 protected RunnableInterface
     {
 
         public:
-            virtual ~ComponentActiveInterface()
+            virtual ~PeriodicThreadInterface()
             {}
 
             typedef double Seconds;
@@ -110,11 +110,11 @@ namespace ORO_OS
             virtual const char* taskNameGet() const = 0 ;
 
             /**
-             * This method terminates the ComponentActive in a safe
+             * This method terminates the PeriodicThread in a safe
              * way. After the last step(), finalize will be called
              * and the component cannot be restarted.
              *
-             * @post The ComponentActive is no longer running
+             * @post The PeriodicThread is no longer running
              * @post This instance should no longer be used
              */
             virtual void terminate() = 0;

@@ -179,13 +179,17 @@ namespace ORO_CoreLib
         }
 
         /**
-         * @brief Register an object with a name.
+         * @brief Register an object with a name. If an object with such
+         * a name already exists, the present one will not be overwritten,
+         * and this call is a no-op.
          *
          * @param obj  The instance you wish to register with a name
          * @param name The name of the object
          */
         void registerObject( const ValueType obj, const NameType& name )
         {
+            if ( isNameRegistered( name ) )
+                return;
             objects[ name ] = obj;
         }
 

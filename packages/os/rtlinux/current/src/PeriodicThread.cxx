@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:44:13 CEST 2002  ComponentThreaded.cpp 
+ tag: Peter Soetens  Mon Jun 10 14:44:13 CEST 2002  PeriodicThread.cpp 
 
-                       ComponentThreaded.cpp -  description
+                       PeriodicThread.cpp -  description
                           -------------------
    begin                : Mon June 10 2002
    copyright            : (C) 2002 Peter Soetens
@@ -18,7 +18,7 @@
 
 
 
-#include "corelib/ComponentThreaded.hpp" 
+#include "os/PeriodicThread.hpp" 
 //#include <time.h>
 #include "corelib/Time.hpp"
 
@@ -28,7 +28,7 @@ namespace ORO_OS
     void *ComponentThread( void *t )
     {
         rtos_printf( "Component thread created\n" );
-        ComponentThreaded* comp = ( ComponentThreaded* ) t;
+        PeriodicThread* comp = ( PeriodicThread* ) t;
         // must become a check on condition objects
         //    pthread_attr_setfp_np(comp->threadAttributeGet(), 1);
         //pthread_setfp_np(pthread_self(),1);
@@ -49,10 +49,10 @@ namespace ORO_OS
         }
     }
 
-    ComponentThreaded::ComponentThreaded(int priority, const string& name, RunnableInterface* r = 0 )
+    PeriodicThread::PeriodicThread(int priority, const string& name, RunnableInterface* r = 0 )
             : runner( r )
     {
-        rtos_printf( "ComponentThreaded Constructor\n" );
+        rtos_printf( "PeriodicThread Constructor\n" );
         running = 0;
         taskNameSet( name.c_str() );
         periodSet( 0, msecs_to_nsecs(10) ); // 10 ms
@@ -73,7 +73,7 @@ namespace ORO_OS
         //    rt_task_resume(&thread);
     }
 
-    ComponentThreaded::~ComponentThreaded()
+    PeriodicThread::~PeriodicThread()
     {
         if ( isRunning() )
             stop();
@@ -88,7 +88,7 @@ namespace ORO_OS
         pthread_attr_destroy( threadAttributeGet() );
     }
 
-    bool ComponentThreaded::start()
+    bool PeriodicThread::start()
     {
 
         if ( isRunning() )
@@ -104,7 +104,7 @@ namespace ORO_OS
         return true;
     }
 
-    bool ComponentThreaded::stop()
+    bool PeriodicThread::stop()
     {
         if ( !isRunning() )
             return false;
@@ -119,19 +119,19 @@ namespace ORO_OS
         return true;
     }
 
-    void ComponentThreaded::setToStop()
+    void PeriodicThread::setToStop()
     {
         // finalize will be called in the thread of the
         // Completion processor
         stop();
     }
 
-    bool ComponentThreaded::isRunning() const
+    bool PeriodicThread::isRunning() const
     {
         return running;
     }
 
-    int ComponentThreaded::periodSet( secs s, nsecs ns )
+    int PeriodicThread::periodSet( secs s, nsecs ns )
     {
         if ( isRunning() )
             return -1;
@@ -143,20 +143,20 @@ namespace ORO_OS
         return 0;
     }
 
-    void ComponentThreaded::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    double ComponentThreaded::periodGet() const
+    double PeriodicThread::periodGet() const
     {
         return ( double ) period.tv_sec + ( double ) period.tv_nsec / ( 1000.0 * 1000.0 * 1000.0 );
     }
 
     // this is non POSIX and will be removed later on
     // when time events come in
-    void ComponentThreaded::periodWaitRemaining()
+    void PeriodicThread::periodWaitRemaining()
     {
         if ( periodMark == 0 )
         {
@@ -177,41 +177,41 @@ namespace ORO_OS
 
     }
 
-    void ComponentThreaded::periodWait()
+    void PeriodicThread::periodWait()
     {
         rtos_nanosleep( &period, NULL );
     }
 
-    void ComponentThreaded::terminate()
+    void PeriodicThread::terminate()
     {
-        rtos_printf( "Called fake terminate() in ComponentThreaded, task %s", taskNameGet() );
+        rtos_printf( "Called fake terminate() in PeriodicThread, task %s", taskNameGet() );
     }
 
-    pthread_attr_t* ComponentThreaded::threadAttributeGet()
+    pthread_attr_t* PeriodicThread::threadAttributeGet()
     {
         return & threadAttribute;
     }
 
 
-    void ComponentThreaded::taskNameSet( const char* nm )
+    void PeriodicThread::taskNameSet( const char* nm )
     {
         snprintf( taskName, 31, "%s", nm );
     }
 
-    const char* ComponentThreaded::taskNameGet() const
+    const char* PeriodicThread::taskNameGet() const
     {
         return taskName;
     }
 
-    void ComponentThreaded::step()
+    void PeriodicThread::step()
     {
         periodWait();
     }
 
-    bool ComponentThreaded::initialize()
+    bool PeriodicThread::initialize()
     {   return true; }
 
-    void ComponentThreaded::finalize()
+    void PeriodicThread::finalize()
     {}
 
 }
