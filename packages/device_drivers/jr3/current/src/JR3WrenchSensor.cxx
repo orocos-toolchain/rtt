@@ -52,6 +52,8 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensor
 
     switch(type)
     {
+        case Undefined:
+            break;
         case _200N20:
             _highload_wrench(0) = 200;
             _highload_wrench(1) = 200;
@@ -240,6 +242,8 @@ void JR3WrenchSensor::refresh()
     
     switch (_type)
     {
+        case Undefined:
+            break;
         case _200N20:
             if (    ((*_writeBuffer)(0) > 200 ) || ((*_writeBuffer)(0) < -200)
                  || ((*_writeBuffer)(1) > 200 ) || ((*_writeBuffer)(1) < -200)
@@ -248,12 +252,12 @@ void JR3WrenchSensor::refresh()
                  || ((*_writeBuffer)(4) >  20 ) || ((*_writeBuffer)(4) <  -20)
                  || ((*_writeBuffer)(5) >  20 ) || ((*_writeBuffer)(5) <  -20) )   _maximumload_event.fire();
             else
-                if (    (_(*_writeBuffer)(0) > _highload_wrench(0) ) || (_(*_writeBuffer)(0) < -_highload_wrench(0) )
-                     || (_(*_writeBuffer)(1) > _highload_wrench(1) ) || (_(*_writeBuffer)(1) < -_highload_wrench(1) ) 
-                     || (_(*_writeBuffer)(2) > _highload_wrench(2) ) || (_(*_writeBuffer)(2) < -_highload_wrench(2) )
-                     || (_(*_writeBuffer)(3) > _highload_wrench(3) ) || (_(*_writeBuffer)(3) < -_highload_wrench(3) )
-                     || (_(*_writeBuffer)(4) > _highload_wrench(4) ) || (_(*_writeBuffer)(4) < -_highload_wrench(4) )
-                     || (_(*_writeBuffer)(5) > _highload_wrench(5) ) || (_(*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
+                if (    ((*_writeBuffer)(0) > _highload_wrench(0) ) || ((*_writeBuffer)(0) < -_highload_wrench(0) )
+                     || ((*_writeBuffer)(1) > _highload_wrench(1) ) || ((*_writeBuffer)(1) < -_highload_wrench(1) ) 
+                     || ((*_writeBuffer)(2) > _highload_wrench(2) ) || ((*_writeBuffer)(2) < -_highload_wrench(2) )
+                     || ((*_writeBuffer)(3) > _highload_wrench(3) ) || ((*_writeBuffer)(3) < -_highload_wrench(3) )
+                     || ((*_writeBuffer)(4) > _highload_wrench(4) ) || ((*_writeBuffer)(4) < -_highload_wrench(4) )
+                     || ((*_writeBuffer)(5) > _highload_wrench(5) ) || ((*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
             break;
 
         case _100N5:
@@ -264,12 +268,12 @@ void JR3WrenchSensor::refresh()
                  || ((*_writeBuffer)(4) >   5 ) || ((*_writeBuffer)(4) <   -5)
                  || ((*_writeBuffer)(5) >   5 ) || ((*_writeBuffer)(5) <   -5) )   _maximumload_event.fire();
             else
-                if (    (_(*_writeBuffer)(0) > _highload_wrench(0) ) || (_(*_writeBuffer)(0) < -_highload_wrench(0) )
-                     || (_(*_writeBuffer)(1) > _highload_wrench(1) ) || (_(*_writeBuffer)(1) < -_highload_wrench(1) ) 
-                     || (_(*_writeBuffer)(2) > _highload_wrench(2) ) || (_(*_writeBuffer)(2) < -_highload_wrench(2) )
-                     || (_(*_writeBuffer)(3) > _highload_wrench(3) ) || (_(*_writeBuffer)(3) < -_highload_wrench(3) )
-                     || (_(*_writeBuffer)(4) > _highload_wrench(4) ) || (_(*_writeBuffer)(4) < -_highload_wrench(4) )
-                     || (_(*_writeBuffer)(5) > _highload_wrench(5) ) || (_(*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
+                if (    ((*_writeBuffer)(0) > _highload_wrench(0) ) || ((*_writeBuffer)(0) < -_highload_wrench(0) )
+                     || ((*_writeBuffer)(1) > _highload_wrench(1) ) || ((*_writeBuffer)(1) < -_highload_wrench(1) ) 
+                     || ((*_writeBuffer)(2) > _highload_wrench(2) ) || ((*_writeBuffer)(2) < -_highload_wrench(2) )
+                     || ((*_writeBuffer)(3) > _highload_wrench(3) ) || ((*_writeBuffer)(3) < -_highload_wrench(3) )
+                     || ((*_writeBuffer)(4) > _highload_wrench(4) ) || ((*_writeBuffer)(4) < -_highload_wrench(4) )
+                     || ((*_writeBuffer)(5) > _highload_wrench(5) ) || ((*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
             break;
     }
 
