@@ -40,7 +40,7 @@ namespace ORO_OS
     {
         std::cout <<"Sched Policy Init"<<std::endl;
 
-        if ( getuid() == 0 ) {
+        if ( getuid() != 0 ) {
             std::cout <<"You are not root. This program requires that you are root."<< std::endl;
             exit(1);
         }
