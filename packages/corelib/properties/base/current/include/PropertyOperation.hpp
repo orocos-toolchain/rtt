@@ -226,7 +226,7 @@ namespace ORO_CoreLib
              */
             bool comply( const Property<T>* _complier )
             {
-                incentor->copy( _complier );
+                incentor->copy( *_complier );
                 return true;
             }
 
