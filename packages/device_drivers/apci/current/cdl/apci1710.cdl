@@ -123,7 +123,7 @@ Only LXRT currently supports userspace code to call the kernel module."
 	display "Incremental encoder support"
 	flavor bool
 	default_value 1
-	compile EncoderIncrementalapci1710.cxx
+	#compile EncoderIncrementalapci1710.cxx
 
 	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_INC_COUNTER {
 	    display "Counter type"
