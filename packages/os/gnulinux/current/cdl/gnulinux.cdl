@@ -14,6 +14,7 @@ debugging other packages."
 
     compile fosi.c
     compile ComponentThreaded.cxx
+    compile SingleThread.cxx
     compile main.cxx
 
     implements OROINT_OS_STDCXXLIB

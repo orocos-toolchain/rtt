@@ -7,7 +7,7 @@ cdl_package OROPKG_OS_RTAI {
 
     requires OROPKG_OS_RTAI_STDLIB
 
-    compile ComponentOneShot.cxx ComponentThreaded.cxx
+    compile ComponentThreaded.cxx
     compile EventInterrupt.cxx MainThread.cxx Task.cxx
     compile cpp.cxx fosi.c
 
