@@ -85,7 +85,7 @@ int echo_rcv(int s,void *arg)
   msg.msg_controllen=0;
 
   // ret= rt_socket_recvmsg(sock, &msg, 0);
-  ret= rt_socket_recv(sock, buffer, sizeof(buffer), 0);
+  ret= recv_rt(sock, buffer, sizeof(buffer), 0);
   if ( (ret>0) && (msg.msg_namelen==sizeof(struct sockaddr_in)) ) 
     {
       // rt_printk("Krypton Handler: Received Message: %s\n",msg.msg_iov->iov_base);
@@ -110,14 +110,15 @@ int init_module(void)
 {
   int ret;
   unsigned long local_ip  = rt_inet_aton(local_ip_s);
-
+  struct rtnet_callback   callback  = {echo_rcv, NULL};
+  
   rt_printk ("Loading module krypton_handler.o: ");
   rt_printk ("local ip address = %s, ", local_ip_s);
   rt_printk ("local port = %d\n", rcv_port);
 
   /* create rt-socket */
   rt_printk("Krypton Handler: creating rtsocket\n");
-  if ((sock=rt_socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+  if ((sock=socket_rt(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
     rt_printk("socket not created\n");
     return -ENOMEM;
   }
@@ -128,7 +129,7 @@ int init_module(void)
   local_addr.sin_family = AF_INET;
   local_addr.sin_port = htons(rcv_port);
   local_addr.sin_addr.s_addr = local_ip;
-  if ( (ret=rt_socket_bind(sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)))<0 ) {
+  if ( (ret=bind_rt(sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)))<0 ) {
     rt_printk("can't bind rtsocket\n");
     return ret;
   }
@@ -140,8 +141,9 @@ int init_module(void)
   UDP_mbx = rt_named_mbx_init("KEDMBX", BUFSIZE);
 
   /* set up receiving */
-  rt_socket_callback(sock, echo_rcv, NULL);
-
+  //rt_socket_callback(sock, echo_rcv, NULL);
+  ioctl_rt(sock, RTNET_RTIOC_CALLBACK, &callback);
+  
   /* Signalling once just for fun */
   // rt_sem_signal(alert_encoderdriver_sem);
 
@@ -153,7 +155,7 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-  while (rt_socket_close(sock) == -EAGAIN) {
+  while (close_rt(sock) == -EAGAIN) {
     set_current_state(TASK_INTERRUPTIBLE);
     schedule_timeout(1*HZ); /* wait a second */
   }
