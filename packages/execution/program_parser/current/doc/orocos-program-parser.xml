@@ -559,7 +559,7 @@ state myInit {
 	  // statements and event configuration
 	  }
 	  transitions {
-	  // (conditional) select statements
+	  // Ordered (conditional) select statements
 	  }
 }
 
@@ -648,7 +648,7 @@ transitions {
     select WAIT
 }
 	  </programlisting>
-	  The transitions are checked unordered.
+	  The transitions are checked in the same order as listed.
 	  A transition is allowed to select the current state, but
 	  the onExit and onEntry functions will not be called in that
 	  case.

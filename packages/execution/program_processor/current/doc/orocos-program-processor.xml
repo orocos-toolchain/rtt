@@ -80,7 +80,7 @@
     </legalnotice>
 
   </bookinfo>
-
+  
 
   
   <chapter>
@@ -206,9 +206,9 @@ features and interface of the &orocos; &interf; package.
 	  define a condition on which a new state is entered. The
 	  processor expects an instance of
 	  <classname>ConditionInterface</classname> which encapsulates
-	  the logic (see also in CoreLib and below). When multiple
-	  conditions are true, an arbitrary one will be choosen to
-	  make the transition to the next state. A multiple of
+	  the logic (see also in CoreLib and below). Transitions
+	  can be ordered by priority, so that it is defined in which
+	  order they are checked. A multiple of
 	  conditions can lead to the same state.
 	</para>
       </sect2>
