@@ -117,14 +117,22 @@
       </listitem>
       <listitem>
 	<para>
-	  The Property extension is far more robust against and informative about
-	  missing or malformed configuration files.
+	  The ReportingExtension logs to different files for different kernels by default.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The Property extension has implemented the 'SaveProperties' property flag
-	  which writes out the properties of each component to a file.
+	  The PropertyExtension is far more robust against and informative about
+	  missing or malformed configuration files. Also, if no configuration
+	  file is listed, it tries to configure the components with an empty
+	  PropertyBag. This can be overriden with setting 'IgnoreMissingFiles'
+	  to 1.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The PropertyExtension has implemented the 'SaveProperties' property flag
+	  which enables a write out of the properties of each component to a file.
 	</para>
       </listitem>
     </itemizedlist>
@@ -148,7 +156,7 @@
 	  KernelClient version 0.4 has been released to take advantage
 	  of the new logging infrastructure (locally and remotely).
 	  Furthermore, a shutdown command is available to shutdown the 
-	  server process (ie controller).
+	  server process (ie remote kernel).
 	</para>
       </listitem>
     </itemizedlist>

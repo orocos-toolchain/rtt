@@ -2528,6 +2528,18 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	    1
 	</value>
     </simple>
+    <simple name="IgnoreMissingFiles"   type="boolean">
+        <description>Ignore missing files in PropertyFiles sequence</description><value>0</value>
+    </simple>
+    <simple name="SaveProperties"   type="boolean">
+        <description>Save Component Properties on kernel.stop()</description><value>0</value>
+    </simple>
+    <simple name="SaveFilePrefix"   type="string">
+        <description>The suffix of the filename to store the components state into</description><value>saved_</value>
+    </simple>
+    <simple name="SaveFileExtension"   type="string">
+        <description>The extension of the filename to store the components state into</description><value>cpf</value>
+    </simple>
 
 </properties>
 ]]>

@@ -2,9 +2,8 @@ OROCOS v0.18.2 Release Notes
    http://www.orocos.org
 ----------------------------
 
-This release is a bugfix and usability release. With this release,
-the graphical Control Kernel frontend has been made available
-on Orocos' Downloads page.
+This release is a bugfix and usability release. This release also
+includes the graphical Control Kernel frontend v0.4.
 
 Feature improvements and bugfixes in comparison to 0.18.1 can be found in :
   <http://www.orocos.org/releases/orocos-changes-0.18.2.html>
