@@ -38,8 +38,8 @@ namespace ORO_ControlKernel
   public:
     nAxesSensorForcesensorInput_pos_force()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"FSposition"));
-      this->insert(ORO_ControlKernel::make_pair(1,"FSforce"));
+      this->insert(ORO_ControlKernel::make_pair(0,"ForcesensorPosition"));
+      this->insert(ORO_ControlKernel::make_pair(1,"ForcesensorForce"));
     }
   }; // class
 
