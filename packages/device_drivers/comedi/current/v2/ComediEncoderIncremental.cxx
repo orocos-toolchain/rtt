@@ -70,10 +70,11 @@ namespace ORO_DeviceDriver
 
     insn.insn=INSN_CONFIG;
     insn.n=1; // Irrelevant for config
-    config_data[0] = GPCT_QUADRATURE_ENCODER;
+    config_data[0] = INSN_CONFIG_GPCT_QUADRATURE_ENCODER;
     // Should become an option
     config_data[1] = GPCT_X4;
     config_data[2] = GPCT_IndexPhaseHighHigh;
+#define GPCT_CONTINU_COUNTING_WHEN_INDEX_ARRIVES 0;
     config_data[3] = GPCT_CONTINU_COUNTING_WHEN_INDEX_ARRIVES;
 
     insn.data=config_data;
