@@ -17,7 +17,7 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
 
     cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
 	display "Property updating"
-	description "Properties can be updated."
+	description "Properties can be updated. Do not disable this option."
 	active_if 1
 	default_value 1
     }
