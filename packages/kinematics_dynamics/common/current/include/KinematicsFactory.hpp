@@ -71,7 +71,7 @@ namespace ORO_KinDyn
 	  return ki;
 	}
 	else{
-	  ORO_CoreLib::Logger::log() << ORO_CoreLib::Logger::Error << "(KinematicsFactory) No robot kinematics available for the chosen robot" << ORO_CoreLib::Logger::endl;
+	  ORO_CoreLib::Logger::log() << ORO_CoreLib::Logger::Error << "(KinematicsFactory) No robot kinematics available for " << name << ORO_CoreLib::Logger::endl;
 	  return NULL;
 	}
 	  
