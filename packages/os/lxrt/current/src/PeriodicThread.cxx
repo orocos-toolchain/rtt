@@ -79,8 +79,11 @@ namespace ORO_OS
 
         mytask_name = nam2num( task->getName() );
 
-        // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
-        if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
+        task->reconfigScheduler();
+
+        // init lxrt task :
+        // name, priority, stack_size, msg_size, policy.
+        if (!(mytask = rt_task_init(mytask_name, task->priority, 0, 0 ))) {
             std::cerr << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<std::endl;
             std::cerr << "Exiting this thread." <<std::endl;
             exit (-1); // return is no usefull since the main would remain blocked on sem.
@@ -88,11 +91,10 @@ namespace ORO_OS
 
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created with priority "<<task->priority<<"."<<Logger::endl;
 #endif
     
         task->rt_task = mytask;
-        task->sem     = rt_sem_init( rt_get_name(0), 0 );
 
         // locking of all memory for this process
         mlockall(MCL_CURRENT|MCL_FUTURE);
@@ -100,35 +102,42 @@ namespace ORO_OS
         period_ns = task->period;
         period = nano2count(period_ns);
         rt_task_make_periodic_relative_ns(mytask, 0, period_ns);
-    
-        //we were made periodic.
-        rt_sem_signal(task->confDone);
 
-        /**
-         * The real task starts here.
-         */
-        while(1) 
-            {
-                while(!task->isRunning() && !task->prepareForExit ) 
+        while ( !task->prepareForExit ) {
+            try {
+                /**
+                 * The real task starts here.
+                 */
+                while(1) 
                     {
-                        // consider this the 'configuration state'
-                        task->stopped = true;
-                        rt_sem_wait( task->sem );
-                        task->configure();
-                        // end of configuration
+                        if( !task->running ) { // more efficient than calling isRunning()
+                            // consider this the 'configuration state'
+                            rt_sem_signal(task->confDone); // signal we are ready for command
+                            rt_sem_wait( task->sem );      // wait for command.
+                            task->configure();             // check for reconfigure
+                            if ( task->prepareForExit )    // check for exit
+                                {
+                                    break; // break while(1) {}
+                                }
+                            // end of configuration
+                        } else {
+                            // task->isRunning()
+                            task->step(); // one cycle
+
+                            if (task->wait_for_step)
+                                task->periodWaitRemaining();
+                        }
                     }
-
-                if ( task->prepareForExit ) 
-                    {
-                        break; // break while(1) {}
-                    }
-                task->stopped = false;
-
-                task->step(); // one cycle
-
-                if (task->wait_for_step)
-                    task->periodWait();
+            } catch( ... ) {
+                // set state to not running
+                task->running = false;
+                if ( task->isHardRealtime() )
+                    rt_make_soft_real_time();
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+#endif
             }
+        }
     
         /**
          * Cleanup stuff
@@ -140,34 +149,22 @@ namespace ORO_OS
         Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" exiting."<<Logger::endl;
 #endif
 
-        rt_sem_delete(task->sem);
         rt_task_delete(mytask);
 
         return 0;
     }
 
-    /**
-     * Generates unique ids starting with an underscore.
-     * XXX use rt_get_adr(0).
-     */
-    unsigned long rt_generate_unique_id()
-    {
-        static unsigned long id = nam2num("_AAAAA");
-        while ( rt_get_adr(id) )
-            ++id;
-        return id;
-    }
-            
-
-    PeriodicThread::PeriodicThread(int _priority, const std::string& name, Seconds period, RunnableInterface* r) :
-        running(false), stopped(true), goRealtime(false), priority(_priority), prepareForExit(false),
-        runComp(r), wait_for_step(true)
+    PeriodicThread::PeriodicThread(int _priority, std::string name, Seconds periods, RunnableInterface* r) :
+        running(false), goRealtime(false), priority(_priority), prepareForExit(false),
+        runComp(r), wait_for_step(true), sched_type( OROSEM_OS_LXRT_SCHEDTYPE )
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new ORO_CoreLib::Handle();
         stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
-        if ( !name.empty() && rt_get_adr(nam2num( name.c_str() )) == 0 )
+        if ( name.empty() )
+            name = "PeriodicThread";
+        if ( rt_get_adr(nam2num( name.c_str() )) == 0 )
             setName(name.c_str());
         else {
             unsigned long nname = nam2num( name.c_str() );
@@ -176,9 +173,20 @@ namespace ORO_OS
             num2nam( nname, taskName); // set taskName to new name
         }
 
+        sem = rt_sem_init( rt_get_name(0), 0 );
         confDone = rt_sem_init( rt_get_name(0), 0 );
 
-        setPeriod(period);
+        if ( confDone == 0 || sem == 0) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore(s) for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+#endif
+            throw std::bad_alloc();
+        }
+
+        // Do not call setPeriod(), since the semaphores are not yet used !
+        double s = periods;
+        period = long(s) + long( (s - long(s) )* 1000*1000*1000);
+
         pthread_create( &thread, 0, ComponentThread, this);
         rt_sem_wait(confDone);
     }
@@ -189,6 +197,7 @@ namespace ORO_OS
 
         terminate();
         rt_sem_delete(confDone);
+        rt_sem_delete(sem);
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h->disconnect();
@@ -208,7 +217,7 @@ namespace ORO_OS
 
     bool PeriodicThread::start() 
     {
-        if ( isRunning() ) return false;
+        if ( running ) return false;
 
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" started."<<Logger::endl;
@@ -230,17 +239,14 @@ namespace ORO_OS
         running=true;
 
         rt_sem_signal(sem);
-
-        // twice make_periodic causes crash
-        //rt_task_suspend(rt_task);
-        //rt_task_make_periodic_relative_ns(rt_task, 0, nano2count( secs_to_nsecs(period.tv_sec) + period.tv_nsec) );
+        // do not wait, we did our job.
 
         return true;
     }
 
     bool PeriodicThread::stop() 
     {
-        if ( !isRunning() ) return false;
+        if ( !running ) return false;
 
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" stopping...";
@@ -248,10 +254,15 @@ namespace ORO_OS
 
         running=false;
         int cnt = 0;
+        int ret = -1;
 
-        while ( stopped == false && cnt < 1000 )
+        // wait until the loop detects running == false
+        // we wait one second in total.
+        while ( ret != 0 && cnt < 1000 )
             {
-                rt_sleep( nano2count(1000000) );
+                // given time in argument is relative to 'now'
+                ret = rt_sem_wait_timed( confDone, nano2count(1000000) );
+                // if ret == 0, confDone was signaled.
                 cnt++;
             } 
 #ifdef OROPKG_CORELIB_REPORTING
@@ -282,6 +293,13 @@ namespace ORO_OS
     { 
         if ( !running ) 
             {
+                if ( isHardRealtime() ) {
+#ifdef OROPKG_CORELIB_REPORTING
+                    Logger::log() << Logger::Debug << "Thread "<< taskName <<" already Hard Realtime...";
+#endif
+                    return true;
+                }
+
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Debug << "Making "<< taskName <<" Hard Realtime...";
 #endif
@@ -303,6 +321,12 @@ namespace ORO_OS
     { 
         if ( !running ) 
             {
+                if ( !isHardRealtime() ) {
+#ifdef OROPKG_CORELIB_REPORTING
+                    Logger::log() << Logger::Debug << "Thread "<< taskName <<" already Soft Realtime...";
+#endif
+                    return true;
+                }
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Debug << "Making "<< taskName <<" Soft Realtime...";
 #endif
@@ -330,14 +354,17 @@ namespace ORO_OS
             {
                 //std::cout <<"Going HRT!"<<std::endl;
                 rt_make_hard_real_time();
-                rt_sem_signal( confDone );
             }
         else if ( !goRealtime && isHardRealtime() )
             {
                 rt_make_soft_real_time();
-                rt_sem_signal( confDone );
                 //std::cout <<"Returning to SRT!"<<std::endl;
             }
+        if ( !isHardRealtime() ) { // reconfigure scheduler type.
+            int type = sched_getscheduler(0);
+            if ( type != sched_type )
+                this->reconfigScheduler();
+        }
     }
         
 
@@ -368,6 +395,10 @@ namespace ORO_OS
 
         period = long(s) + long( (s - long(s) )* 1000*1000*1000);
 
+        // signal change to thread.
+        rt_sem_signal(sem);
+        rt_sem_wait(confDone);
+
         return true;
     }
 
@@ -375,14 +406,17 @@ namespace ORO_OS
     {
         if ( isRunning() ) return false;
         period = ns + 1000*1000*1000*s;
+
+        // signal change to thread.
+        rt_sem_signal(sem);
+        rt_sem_wait(confDone);
+
         return true;
     }
 
     bool PeriodicThread::setPeriod( TIME_SPEC p) 
     {
-        if (isRunning()) return false;
-        period = 1000*1000*1000* p.tv_sec + p.tv_nsec;
-        return true;
+        return this->setPeriod( p.tv_sec, p.tv_nsec );
     }
 
     void PeriodicThread::getPeriod(secs& s, nsecs& ns) const
@@ -394,11 +428,6 @@ namespace ORO_OS
     double PeriodicThread::getPeriod() const
     {
         return double(period)/(1000.0*1000.0*1000.0);
-    }
-
-    void PeriodicThread::periodWait()
-    {
-        rt_task_wait_period();
     }
 
     void PeriodicThread::continuousStepping(bool yes_no)
@@ -454,6 +483,38 @@ namespace ORO_OS
     {
         return taskName;
     }
-   
-};
+
+    bool PeriodicThread::setScheduler( int sched ) {
+        if ( this->isHardRealtime() || this->isRunning() || ( sched != SCHED_OTHER && sched != SCHED_FIFO && sched != SCHED_RR ))
+            return false;
+        sched_type = sched;
+        // signal change to thread.
+        rt_sem_signal(sem);
+        rt_sem_wait(confDone);
+        
+        return true;
+    }
+
+    void PeriodicThread::reconfigScheduler() {
+        // ONLY CALL FROM SRT !
+
+        // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
+        struct sched_param mysched;
+        mysched.sched_priority = sched_get_priority_max(this->sched_type) - this->priority;
+        // check lower bounds :
+        if (this->sched_type == SCHED_OTHER && mysched.sched_priority != 0 ) {
+            mysched.sched_priority = 0; // SCHED_OTHER must be zero
+        } else if (this->sched_type == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
+            mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
+        }
+        // check upper bound
+        if ( mysched.sched_priority > 99)
+            mysched.sched_priority = 99;
+        // set scheduler
+        if (sched_setscheduler(0, this->sched_type, &mysched) < 0) {
+            // can this ever happen ?
+            std::cerr << this->taskName << " : CANNOT INIT SCHEDULER to " << this->sched_type << " with priority "<< mysched.sched_priority <<std::endl;
+        }
+    }
+}
     

@@ -66,7 +66,7 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own RunnableInterface functions are executed.
          */
-        PeriodicThread(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
+        PeriodicThread(int priority, std::string name, double period=0.01, RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
@@ -112,6 +112,7 @@ namespace ORO_OS
          * Read the name of this task
          */
         virtual const char* getName() const;
+
         /**
          * Exit the thread 
          * @pre  this is only called from within the thread
@@ -129,7 +130,14 @@ namespace ORO_OS
         bool makeSoftRealtime();
         bool isHardRealtime();
 
-    protected:
+        /**
+         * Set the scheduler of the thread to \a sched.
+         * @param sched One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.
+         * @pre this->isRunning() == true && this->isHardRealtime() == false
+         * @return true if the preconditions were met, false otherwise.
+         */
+        bool setScheduler( int sched );
+     protected:
         virtual void continuousStepping(bool yes_no);
         virtual bool setToStop();
 
@@ -137,15 +145,17 @@ namespace ORO_OS
          * Do configuration actions when the thread is stopped.
          */
         void configure();
+
+        /**
+         * Called from within the thread to reconfigure the linux scheduler.
+         */
+        void reconfigScheduler();
+
         /**
          * Set the periodicity of this thread
          */
         bool setPeriod(  TIME_SPEC p );
 
-        /**
-         * Wait for the full period getPeriod()
-         */
-        void periodWait();
         /**
          * Wait only for the remaining period, being
          * getPeriod() - (time_now - start_time_of_this_period)
@@ -162,11 +172,6 @@ namespace ORO_OS
          * the thread will stop
          */
         bool running;
-
-        /**
-         * Signals if rt_task is stopped or not
-         */
-        bool stopped;
 
         /**
          * True when the thread should go realtime.
@@ -204,6 +209,11 @@ namespace ORO_OS
         void* stopEvent;
 
         bool wait_for_step;
+
+        /**
+         * The linux scheduler of this thread. One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.
+         */
+        int sched_type;
     };
 
 }

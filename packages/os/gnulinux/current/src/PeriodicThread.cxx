@@ -62,28 +62,39 @@ namespace ORO_OS
 
     void *ComponentThread( void *t )
     {
-        PeriodicThread* comp = ( PeriodicThread* ) t;
+        PeriodicThread* task = ( PeriodicThread* ) t;
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" created."<<Logger::endl;
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
 #endif
-        while ( 1 )
-        {
-            while ( !comp->isRunning() && !comp->timeToQuit ) {
-                sem_post( &comp->msyncer );
-                sem_wait( &comp->tsyncer );
+        while ( ! task->timeToQuit ) {
+            try {
+                while ( 1 )
+                    {
+                        if ( !task->running ) {
+                            sem_post( &task->msyncer );
+                            sem_wait( &task->tsyncer );
+                            if (task->timeToQuit)
+                                break;
+                        } else {
+                            task->step(); // one cycle
+
+                            if (task->wait_for_step)
+                                task->periodWaitRemaining();
+                        }
+                    }
+            } catch( ... ) {
+                // set state to not running
+                task->running = false;
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+#endif
             }
-            if (comp->timeToQuit)
-                break;
-
-            comp->step(); // one cycle
-
-            if (comp->wait_for_step)
-                comp->periodWaitRemaining();
         }
+
         
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" exiting."<<Logger::endl;
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" exiting."<<Logger::endl;
 #endif
         return 0;
     }
@@ -108,6 +119,7 @@ namespace ORO_OS
         if ( isRunning() )
             stop();
 
+        // uses pthread_join to sync.
         terminate();
 
         // should wait until step is completed and exit then... ( FSM )
