@@ -34,6 +34,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <os/MutexLock.hpp>
+#include <os/Semaphore.hpp>
 #include <iostream>
 
 namespace ORO_Execution
@@ -193,14 +194,18 @@ namespace ORO_Execution
 
 
     Processor::Processor(int queue_size)
-        :funcs( queue_size ),
+        : programs( new ProgMap() ),
+          states( new StateMap() ),
+          funcs( queue_size ),
          f_it( funcs.begin() ),
          accept(false), a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
          f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(queue_size) ),
-         coms_processed(0)
+         coms_processed(0),
+         statemonitor( new ORO_OS::MutexRecursive() ),
+         progmonitor( new ORO_OS::Mutex() ),
+         queuesem( new ORO_OS::Semaphore(0) ),
+         doloop(false)
     {
-        programs = new ProgMap();
-        states   = new StateMap();
     }
 
     Processor::~Processor()
@@ -209,6 +214,9 @@ namespace ORO_Execution
         delete states;
         delete a_queue;
         delete f_queue;
+        delete statemonitor;
+        delete progmonitor;
+        delete queuesem;
     }
 
      Processor::ProgramStatus::status Processor::getProgramStatus(const std::string& name) const
@@ -236,7 +244,7 @@ namespace ORO_Execution
             programs->find( pi->getName() );
         if ( it != programs->end() )
             return false;
-        MutexLock lock( progmonitor );
+        MutexLock lock( *progmonitor );
         programs->insert( make_pair( pi->getName(), Processor::ProgramInfo(pi) ) );
         pi->reset();
         return true;
@@ -298,7 +306,7 @@ namespace ORO_Execution
 
         if ( it != programs->end() && it->second.pstate == ProgramStatus::stopped )
             {
-                MutexLock lock( progmonitor );
+                MutexLock lock( *progmonitor );
                 delete it->second.program;
                 programs->erase(it);
                 return true;
@@ -362,7 +370,7 @@ namespace ORO_Execution
                 this->recursiveLoadStateMachine( *it );
             }
         
-        MutexLock lock( statemonitor );
+        MutexLock lock( *statemonitor );
         states->insert( make_pair( sc->getName(), Processor::StateInfo(sc)));
     }
 
@@ -568,7 +576,7 @@ namespace ORO_Execution
 
         assert( it2 != states->end() ); // we checked that this is possible
 
-        MutexLock lock( statemonitor );
+        MutexLock lock( *statemonitor );
         states->erase(it2);
     }
 
@@ -659,9 +667,36 @@ namespace ORO_Execution
         }
     };
 
+    void Processor::loop()
+    {
+        doloop = true;
+        while ( doloop )
+            {
+                queuesem->wait();
+                // execute step with semaphore management.
+                this->step();
+            }
+    }
+
+    void Processor::breakloop()
+    {
+        if (doloop) {
+            doloop = false;
+            queuesem->signal();
+        }
+    }
+
+    void Processor::resumeloop()
+    {
+        if ( doloop )
+            queuesem->signal();
+    }
+
+
     bool Processor::initialize()
     {
         a_queue->clear();
+        f_queue->clear();
         accept = true;
         return true;
     }
@@ -671,11 +706,11 @@ namespace ORO_Execution
         accept = false;
         // stop all programs and SCs.
         {
-            MutexLock lock( progmonitor );
+            MutexLock lock( *progmonitor );
             for_each(programs->begin(), programs->end(), _stopProgram());
         }
         {
-            MutexLock lock( statemonitor );
+            MutexLock lock( *statemonitor );
             for_each(states->begin(), states->end(), _stopState() );
         }
     }
@@ -683,13 +718,13 @@ namespace ORO_Execution
 	void Processor::step()
     {
         {
-            MutexLock lock( statemonitor );
+            MutexLock lock( *statemonitor );
             // Evaluate all states->
             for_each(states->begin(), states->end(), _executeState() );
         }
 
         {
-            MutexLock lock( progmonitor );
+            MutexLock lock( *progmonitor );
             //Execute all normal programs->
             for_each(programs->begin(), programs->end(), _executeProgram() );
 
@@ -703,6 +738,9 @@ namespace ORO_Execution
             while ( !f_queue->isEmpty() ) {
                 ProgramInterface* foo;
                 f_queue->dequeue( foo );
+                // decrement semaphore if looping, but be sure not to block in any case
+                if ( doloop )
+                    queuesem->trywait();
                 // find an empty spot to store :
                 while( *f_it != 0 ) {
                     ++f_it;
@@ -727,6 +765,9 @@ namespace ORO_Execution
             CommandInterface* com;
             int res = a_queue->dequeueCounted( com );
             if ( res ) {
+                // decrement semaphore if looping, but be sure not to block in any case
+                if ( doloop )
+                    queuesem->trywait();
                 // note : the command's result is discarded.
                 // Wrap your command (ie CommandDispatch) to keep track
                 // of the result of enqueued commands.
@@ -750,15 +791,23 @@ namespace ORO_Execution
 
     int Processor::process( CommandInterface* c )
     {
-        if (accept)
-            return a_queue->enqueueCounted( c );
+        if (accept && c) {
+            int result = a_queue->enqueueCounted( c );
+            if ( doloop )
+                queuesem->signal();
+            return result;
+        }
         return 0;
     }
 
     bool Processor::runFunction( ProgramInterface* f )
     {
-        if (accept)
-            return f_queue->enqueue( f );
+        if (accept && f) {
+            int result = f_queue->enqueue( f );
+            if ( doloop )
+                queuesem->signal();
+            return result != 0;
+        }
         return false;
     }
 

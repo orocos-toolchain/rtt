@@ -125,7 +125,7 @@ namespace ORO_Execution
       /**
        * Create a deep copy of this DataSource, unless it is already cloned and place the association (parent, clone) in \a alreadyCloned.
        */
-      virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+      virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
 
       /**
        * Return usefull type info in a human readable format.
@@ -281,7 +281,7 @@ namespace ORO_Execution
        */
       virtual DataSource<T>* clone() const = 0;
 
-      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
 
       virtual std::string getType() const;
 
@@ -350,7 +350,7 @@ namespace ORO_Execution
           return new VariableDataSource<T>(mdata);
       }
 
-      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
           if ( i == alreadyCloned.end() ) {
               VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
@@ -410,7 +410,7 @@ namespace ORO_Execution
           return new VariableDataSource<T>(mdata);
       }
 
-      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
           if ( i == alreadyCloned.end() ) {
               VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
@@ -498,7 +498,7 @@ namespace ORO_Execution
           return new BinaryDataSource<function>(ma.get(), mb.get(), fun);
       }
 
-      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           return new BinaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), fun );
       }
   };
@@ -552,7 +552,7 @@ namespace ORO_Execution
           return new TernaryDataSource<function>(ma.get(), mb.get(), mc.get(), fun);
       }
 
-      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           return new TernaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), mc->copy( alreadyCloned ), fun );
       }
 
@@ -629,7 +629,7 @@ namespace ORO_Execution
                                                 fun);
       }
 
-      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           return new SixaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ),
                                                  mc->copy( alreadyCloned ), md->copy( alreadyCloned ),
                                                  me->copy( alreadyCloned ), mf->copy( alreadyCloned ), fun );
@@ -671,7 +671,7 @@ namespace ORO_Execution
           return new UnaryDataSource<function>(ma.get(), fun);
       }
 
-    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
           return new UnaryDataSource<function>( ma->copy( alreadyCloned ), fun );
       }
   };

@@ -193,6 +193,7 @@ namespace ORO_Execution
             find_method( startpos );
         }
 
+        // Only complete peers and objects, not "this" methods.
         std::vector<std::string> comps = peer->commandFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this" )

@@ -128,12 +128,21 @@ namespace ORO_Execution
       peer->methodFactory;
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
-    if ( ! cfi && ! mfi )
-      throw parse_exception_no_such_component( peer->getName()+"."+mcurobject, mcurmethod );
 
-    // One of both must have the method
+    // In case the object is not found :
+    if ( ! cfi && ! mfi ) {
+        if ( mcurobject == "this" )
+            mcurobject = mcurmethod;
+        else
+            mcurobject = mcurobject + "." + mcurmethod;
+        throw parse_exception_no_such_component( peer->getName(), mcurobject );
+    }
+
+    // In case the method/command is not found :
     if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) ) )
         throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
+
+    // we found it !
     argsparser = new ArgumentsParser( expressionparser, peer,
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();

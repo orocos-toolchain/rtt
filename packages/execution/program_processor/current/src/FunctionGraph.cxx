@@ -72,6 +72,7 @@ namespace ORO_Execution
 
         // Copy over the TAB pointers.
         args = orig.getArguments();
+        this->finish();
     }
 
     void FunctionGraph::finish()
@@ -240,11 +241,20 @@ namespace ORO_Execution
         typedef std::vector<vd_t> o2cvect_t;
         typedef boost::iterator_property_map<o2cvect_t::iterator, indexmap_t, vd_t, vd_t&> o2cmap_t;
         FunctionGraph* ret = new FunctionGraph( getName() );
+
+        // clear out unneccessary vertices ( we will copy new ones below )
+        remove_vertex( ret->start, ret->program );
+        remove_vertex( ret->exit, ret->program );
+
         indexmap_t indexmap = get( vertex_index, program );
         // here we assume that the indexing of program is set properly...
         o2cvect_t o2cvect( num_vertices( program ) );
         o2cmap_t o2cmap( o2cvect.begin(), indexmap );
 
+//         std::cerr << "Start copy of " <<std::endl;
+//         this->debugPrintout();
+//         std::cerr << "Empty ret: " <<std::endl;
+//         ret->debugPrintout();
         // The replacementdss map contains mappings from this->datasource to copy->datasource, 
         // thus we can rebuild a vector<TaskAttributeBase*>, which will be automagically be
         // found by copy_graph.
@@ -263,6 +273,10 @@ namespace ORO_Execution
 
         // so that ret itself can be copied again :
         ret->finish();
+
+//         std::cerr << "Resulted in :" <<std::endl;
+//         ret->debugPrintout();
+
         return ret;
     }
 

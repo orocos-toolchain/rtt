@@ -59,7 +59,7 @@ namespace ORO_Execution
       void reset();
       ConditionInterface* condition() const;
       virtual DataSourceCondition* clone() const;
-      virtual DataSourceCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+      virtual DataSourceCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
   };
 }
 

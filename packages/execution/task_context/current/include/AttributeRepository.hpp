@@ -31,6 +31,7 @@
 
 #include <memory>
 #include <map>
+#include "TaskAttribute.hpp"
 
 namespace ORO_Execution
 {
@@ -57,13 +58,18 @@ namespace ORO_Execution
 
     bool isDefined( const std::string& name ) const;
 
-      /**
-       * Helper functions to add a constant.
-       */
-    void addConstant( const std::string& name, bool value );
-    void addConstant( const std::string& name, double value );
-    void addConstant( const std::string& name, int value );
-    void addConstant( const std::string& name, const std::string& value );
+      template<class T>
+      void addConstant( const std::string& name, T value )
+      {
+          setValue( name, new TaskConstant<T>( value ) );
+      }
+
+      template<class T>
+      void addAttribute( const std::string& name, T value )
+      {
+          setValue( name, new TaskAttribute<T>( value ));
+      }
+
       /**
        * The most common way to add or remove a variable to the repository.
        */

@@ -65,7 +65,7 @@ namespace ORO_Execution
       return new DataSourceCondition( cond->clone() );
   }
 
-  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
   {
       return new DataSourceCondition( cond->copy( alreadyCloned ) );
   }

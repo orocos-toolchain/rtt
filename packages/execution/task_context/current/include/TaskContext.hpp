@@ -64,6 +64,8 @@ namespace ORO_Execution
         typedef std::map< std::string, TaskContext* > PeerMap;
         PeerMap         _task_map;
 
+        // non copyable
+        TaskContext( TaskContext& );
     public:
         typedef std::vector< std::string > PeerList;
 

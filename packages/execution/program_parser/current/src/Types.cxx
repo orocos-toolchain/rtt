@@ -67,18 +67,18 @@ namespace ORO_Execution
 
     TaskAttributeBase* buildConstant() const
       {
-        return new TaskConstant<T>();
+        return new ParsedConstant<T>();
       }
     TaskAttributeBase* buildVariable() const
       {
-        return new TaskVariable<T>();
+        return new ParsedVariable<T>();
       }
     TaskAttributeBase* buildAlias( DataSourceBase* b ) const
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new TaskAliasAttribute<T>( ds );
+        return new ParsedAlias<T>( ds );
       }
   };
 
@@ -95,12 +95,12 @@ namespace ORO_Execution
 
     TaskAttributeBase* buildConstant() const
       {
-        return new TaskConstant<T>();
+        return new ParsedConstant<T>();
       }
 
     TaskAttributeBase* buildVariable() const
       {
-        return new TaskIndexVariable<T, IndexType, SetType, Pred>();
+        return new ParsedIndexVariable<T, IndexType, SetType, Pred>();
       }
 
     TaskAttributeBase* buildAlias( DataSourceBase* b ) const
@@ -108,7 +108,7 @@ namespace ORO_Execution
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new TaskAliasAttribute<T>( ds );
+        return new ParsedAlias<T>( ds );
       }
   };
 
@@ -129,7 +129,7 @@ namespace ORO_Execution
           // which checks capacities.
           _T t_init(size, SetType());
           //t_init.reserve( size );
-          return new TaskIndexContainerVariable<T, IndexType, SetType, Pred>( t_init );
+          return new ParsedIndexContainerVariable<T, IndexType, SetType, Pred>( t_init );
       }
   };
 

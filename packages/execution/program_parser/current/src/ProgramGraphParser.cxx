@@ -299,7 +299,7 @@ namespace ORO_Execution
       implcond_v.clear();
 
       context->attributeRepository.setValue(
-      "done", new TaskAliasAttribute<bool>(
+      "done", new ParsedAlias<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
       dc = 0;
   }
@@ -426,7 +426,6 @@ namespace ORO_Execution
           FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() ); // execute in the processor which has the command.
           cfi->addFunction( mfunc->getName() , mfunc);
           rootc->commandFactory.registerObject("this", cfi );
-
           // remove from mfuncs :
           mfuncs.erase( mfunc->getName() );
       } else {

@@ -34,25 +34,23 @@
 namespace ORO_Execution
 {
   /**
-   * This class represents a variable held in ValueParser..  It is
-   * the only TaskAttribute that does something useful in its
-   * assignCommand() method..
+   * This class represents a variable held in ValueParser.
    */
   template<typename T>
-  class TaskVariable
-    : public TaskAttribute<T>
+  class ParsedVariable
+    : public TaskAttributeBase
   {
   public:
     typename VariableDataSource<T>::shared_ptr data;
-    TaskVariable()
+    ParsedVariable()
       : data( new VariableDataSource<T>() )
       {
       }
-    TaskVariable(T t)
+    ParsedVariable(T t)
       : data( new VariableDataSource<T>( t ) )
       {
       }
-    TaskVariable( typename VariableDataSource<T>::shared_ptr d )
+    ParsedVariable( VariableDataSource<T>* d )
       : data( d )
       {
       }
@@ -69,32 +67,32 @@ namespace ORO_Execution
         }
         return new AssignVariableCommand<T>( data.get(), t );
       };
-    TaskVariable<T>* clone() const
+    ParsedVariable<T>* clone() const
       {
-        return new TaskVariable<T>( data );
+        return new ParsedVariable<T>( data.get() );
       }
-    TaskVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
       {
-        return new TaskVariable<T>( data->copy( replacements ) );
+        return new ParsedVariable<T>( data->copy( replacements ) );
       }
   };
 
   template<typename T, typename Index, typename SetType, typename Pred>
-  class TaskIndexVariable
-    : public TaskAttribute<T>
+  class ParsedIndexVariable
+    : public TaskAttributeBase
   {
   protected:
     typename VariableDataSource<T>::shared_ptr data;
   public:
-    TaskIndexVariable()
+    ParsedIndexVariable()
         : data( new VariableDataSource<T>( ) )
       {
       }
-    TaskIndexVariable( T t)
+    ParsedIndexVariable( T t)
         : data( new VariableDataSource<T>( t ) )
       {
       }
-    TaskIndexVariable( typename VariableDataSource<T>::shared_ptr d )
+    ParsedIndexVariable( typename VariableDataSource<T>::shared_ptr d )
       : data( d )
       {
       }
@@ -125,13 +123,13 @@ namespace ORO_Execution
         return new AssignIndexCommand<T, Index, SetType, Pred>(data.get(), ind ,t );
       }
 
-    TaskIndexVariable<T, Index, SetType,Pred>* clone() const
+    ParsedIndexVariable<T, Index, SetType,Pred>* clone() const
       {
-        return new TaskIndexVariable( data );
+        return new ParsedIndexVariable( data );
       }
-    TaskIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    ParsedIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
       {
-        return new TaskIndexVariable( data->copy( replacements ) );
+        return new ParsedIndexVariable( data->copy( replacements ) );
       }
   };
 
@@ -139,15 +137,15 @@ namespace ORO_Execution
      * Overload assignCommand to check for container size.
      */
   template<typename T, typename Index, typename SetType, typename Pred>
-  struct TaskIndexContainerVariable
-      : public TaskIndexVariable<T,Index,SetType,Pred>
+  struct ParsedIndexContainerVariable
+      : public ParsedIndexVariable<T,Index,SetType,Pred>
   {
-    TaskIndexContainerVariable( T t)
-        : TaskIndexVariable<T,Index,SetType,Pred>( t )
+    ParsedIndexContainerVariable( T t)
+        : ParsedIndexVariable<T,Index,SetType,Pred>( t )
       {
       }
-    TaskIndexContainerVariable( typename VariableDataSource<T>::shared_ptr d )
-        : TaskIndexVariable<T,Index,SetType,Pred>( d )
+    ParsedIndexContainerVariable( typename VariableDataSource<T>::shared_ptr d )
+        : ParsedIndexVariable<T,Index,SetType,Pred>( d )
       {
       }
     CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
@@ -158,6 +156,15 @@ namespace ORO_Execution
           throw bad_assignment();
         return new AssignContainerCommand<T>( data.get(), t );
       }
+
+    ParsedIndexContainerVariable<T, Index, SetType,Pred>* clone() const
+      {
+        return new ParsedIndexContainerVariable( data );
+      }
+    ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+      {
+        return new ParsedIndexContainerVariable( data->copy( replacements ) );
+      }
   };
 
 
@@ -165,39 +172,39 @@ namespace ORO_Execution
   /**
    * This represents a constant value, does not allow assignment,
    * only initialization.
-   * It inherits from TaskVariable, purely for implementation reuse,
+   * It inherits from ParsedVariable, purely for implementation reuse,
    * not for semantic correctness :-).
    */
   template<typename T>
-  class TaskConstant
-    : public TaskVariable<T>
+  class ParsedConstant
+    : public ParsedVariable<T>
   {
   public:
-    TaskConstant()
-      : TaskVariable<T>()
+    ParsedConstant()
+      : ParsedVariable<T>()
       {
       }
-    TaskConstant(T t)
-      : TaskVariable<T>(t)
+    ParsedConstant(T t)
+      : ParsedVariable<T>(t)
       {
       }
-    TaskConstant( typename VariableDataSource<T>::shared_ptr d )
-      : TaskVariable<T>( d )
+    ParsedConstant( VariableDataSource<T>* d )
+      : ParsedVariable<T>( d )
       {
       }
     CommandInterface* assignCommand( DataSourceBase* rhs, bool init ) const
       {
         if ( init )
-          return TaskVariable<T>::assignCommand( rhs, init );
+          return ParsedVariable<T>::assignCommand( rhs, init );
         else return 0;
       }
-    TaskConstant<T>* clone() const
+    ParsedConstant<T>* clone() const
       {
-        return new TaskConstant<T>( this->data );
+        return new ParsedConstant<T>( this->data.get() );
       }
-    TaskConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
       {
-        return new TaskConstant<T>( this->data->copy( replacements ) );
+        return new ParsedConstant<T>( this->data->copy( replacements ) );
       }
   };
 }

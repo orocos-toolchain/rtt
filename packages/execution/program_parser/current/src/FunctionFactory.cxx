@@ -96,7 +96,7 @@ namespace ORO_Execution
             std::vector< ArgumentDescription > mlist;
             for ( std::vector<TaskAttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
-                mlist.push_back( ArgumentDescription( "arg", "argdesc" ) );
+                mlist.push_back( ArgumentDescription( "arg", (*it)->toDataSource()->getType() ) );
             return mlist;
         }
 

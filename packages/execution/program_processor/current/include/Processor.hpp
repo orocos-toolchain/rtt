@@ -30,13 +30,19 @@
 
 #include "corelib/RunnableInterface.hpp"
 #include "corelib/CommandInterface.hpp"
-#include <os/Mutex.hpp>
 
 #include <list>
 #include <string>
 #include <vector>
 
 #include <pkgconf/execution_program_processor.h>
+
+namespace ORO_OS
+{
+    class Semaphore;
+    class Mutex;
+    class MutexRecursive;
+}
 
 namespace ORO_CoreLib
 {
@@ -90,7 +96,7 @@ namespace ORO_Execution
      * control methods instead of string based.
      */
     class Processor
-         : public ORO_CoreLib::RunnableInterface
+        : public ORO_CoreLib::RunnableInterface
     {
     public:
         /**
@@ -115,33 +121,124 @@ namespace ORO_Execution
 
         virtual ~Processor();
 
+        /**
+         * Pause the execution of a program.
+         */
         bool pauseProgram(const std::string& name);
 
+        /**
+         * Load a new State Machine.
+         */
         bool loadStateMachine( StateMachine* sc );
+
+        /**
+         * Unload a deactivated State Machine.
+         */
         bool unloadStateMachine( const std::string& name );
+        /**
+         * Activate a State Machine, enter the initial state.
+         */
         bool activateStateMachine(const std::string& name);
+        /**
+         * Completely deactivate a state machine ( executes exit of current state and stops ).
+         */
         bool deactivateStateMachine(const std::string& name);
+        /**
+         * Start evaluating a state machine.
+         */
         bool startStateMachine(const std::string& name);
+        /**
+         * Pause execution of a state machine.
+         */
         bool pauseStateMachine(const std::string& name);
+        /**
+         * Stop evaluating a state context and go to the final state.
+         */
         bool stopStateMachine(const std::string& name);
+        /**
+         * Execute one statement of a state machine program or
+         * evaluate one transition.
+         */
         bool stepStateMachine(const std::string& name);
+        /**
+         * Reset to the initial state
+         */
         bool resetStateMachine(const std::string& name);
+        /**
+         * Discard a state context.
+         */
         bool deleteStateMachine(const std::string& name);
+
+        /**
+         * Put a StateMachine in the default, state-at-a-time, mode.
+         */
         bool steppedStateMachine(const std::string& name);
+
+        /**
+         * Put a StateMachine in the traverse-as-many-states-as-possible mode
+         * (until no transition succeeds).
+         */
         bool continuousStateMachine(const std::string& name);
 
         ProgramStatus::status getProgramStatus(const std::string& name) const;
         StateMachineStatus::status getStateMachineStatus(const std::string& name) const;
 
+        /**
+         * Load a new Program.
+         */
         bool loadProgram( ProgramInterface* pi ) ;
+
+        /**
+         * Start executing a Program.
+         */
         bool startProgram(const std::string& name);
+
+        /**
+         * Stop execution and reset logic to the beginning of the associated program.
+         */
         bool stopProgram(const std::string& name);
+
+        /**
+         * Execute one statement of a program.
+         */
         bool stepProgram(const std::string& name);
+
+        /**
+         * Completely discard a loaded Program.
+         */
         bool deleteProgram(const std::string& name);
 
+        /**
+         * Return true if a Program is successfully running.
+         */
         bool isProgramRunning( const std::string& name) const;
+        /**
+         * Return true if the StateMachine is successfully running.
+         */
         bool isStateMachineRunning( const std::string& name) const;
+
+        /**
+         * Check if a StateMachine is in Stepped mode.
+         * @return true if it is so, false if it is continuous.
+         */
         bool isStateMachineStepped(const std::string& name) const;
+
+        /**
+         * Use this method to run the Processor in blocked (non periodic) mode.
+         * @see breakloop(), resumeloop()
+         */
+        virtual void loop();
+
+        /**
+         * Instruct the Processor to resume ( awake ) its loop and check pending programs
+         * and commands.
+         */
+        void resumeloop();
+
+        /**
+         * Call this method to let the endless \a loop() return.
+         */
+        void breakloop();
 
         virtual bool initialize();
         virtual void step();
@@ -201,9 +298,11 @@ namespace ORO_Execution
         /**
          * Guard state list
          */
-        ORO_OS::MutexRecursive statemonitor;
-        ORO_OS::Mutex progmonitor;
-        ORO_OS::Mutex procmonitor;
+        ORO_OS::MutexRecursive* statemonitor;
+        ORO_OS::Mutex* progmonitor;
+
+        ORO_OS::Semaphore* queuesem;
+        bool doloop;
     };
 
 }

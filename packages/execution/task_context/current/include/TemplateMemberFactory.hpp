@@ -77,7 +77,7 @@ namespace ORO_Execution
         {
             return new FunctorDataSource0( gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
         {
           return new FunctorDataSource0<FunctorT>( gen );
         }
@@ -113,7 +113,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->copy( alreadyCloned ) );
       }
@@ -146,7 +146,7 @@ namespace ORO_Execution
         {
             return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
         {
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
@@ -177,7 +177,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
@@ -208,7 +208,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( gen, arg1.get(), arg2.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
       }
@@ -241,7 +241,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1.get(), arg2.get(), arg3.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
       }
@@ -278,7 +278,7 @@ namespace ORO_Execution
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
       {
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
       }

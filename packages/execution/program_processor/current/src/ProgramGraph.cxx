@@ -386,11 +386,16 @@ namespace ORO_Execution
 
         // set the init command on the build node 
         //assert( build not used by other than NOP )
+        assert( dynamic_cast<CommandNOP*>( this->getCommand(build) ));
         this->setCommand( icom );
 
         boost::copy_graph( fn->getGraph(), *graph,
                            boost::vertex_copy( GraphVertexCopier( fn->getGraph(), *graph, replacementdss ) ).
                            edge_copy( GraphEdgeCopier( fn->getGraph(), *graph, replacementdss ) ) );
+
+        // cleanup newlist, the (var)DS's are stored in the assignCommand
+        for (unsigned int i=0; i < newlist.size(); ++i)
+            delete newlist[i];
 
         // the subgraph has been copied but is now 'floating' in the current graph.
         // we search func start and exit points and connect them to
@@ -439,6 +444,10 @@ namespace ORO_Execution
         connectToNext( funcExit, new ConditionTrue );
 
         return funcExit;
+//         // try to solve call in function bug with arguments
+//         boost::property_map<Graph, vertex_command_t>::type
+//             cmap = get(vertex_command, *graph);
+//         return proceedToNext( cmap[funcExit].getLineNumber() );
     }
 
     ProgramGraph::CommandNode ProgramGraph::setFunction( FunctionGraph* fn,

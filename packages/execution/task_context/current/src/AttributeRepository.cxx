@@ -72,31 +72,6 @@ namespace ORO_Execution
     values[name] = v.release();
   }
 
-  void AttributeRepository::addConstant( const std::string& name, bool value )
-  {
-    setValue( name, new TaskAliasAttribute<bool>(
-                new VariableDataSource<bool>( value ) ) );
-  }
-
-  void AttributeRepository::addConstant( const std::string& name, int value )
-  {
-    setValue( name, new TaskAliasAttribute<int>(
-                new VariableDataSource<int>( value ) ) );
-  }
-
-  void AttributeRepository::addConstant( const std::string& name, double value )
-  {
-    setValue( name, new TaskAliasAttribute<double>(
-                new VariableDataSource<double>( value ) ) );
-  }
-
-  void AttributeRepository::addConstant( const std::string& name,
-                                 const std::string& value )
-  {
-    setValue( name, new TaskAliasAttribute<std::string>(
-                new VariableDataSource<std::string>( value ) ) );
-  }
-
   void AttributeRepository::removeValue( const std::string& name )
   {
     map_t::iterator i = values.find( name );

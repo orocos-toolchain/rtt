@@ -120,10 +120,10 @@ namespace ORO_Execution
     std::string value( begin, end );
     assert( value == "true" || value == "false" );
     if ( value == "true" )
-      ret = new TaskAliasAttribute<bool>(
+      ret = new ParsedAlias<bool>(
         new VariableDataSource<bool>( true ) );
     else
-      ret = new TaskAliasAttribute<bool>(
+      ret = new ParsedAlias<bool>(
         new VariableDataSource<bool>( false ) );
     deleter.reset( ret );
   }
@@ -148,28 +148,28 @@ namespace ORO_Execution
 
     void ValueParser::seennull()
     {
-        ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( '\0' ) );
+        ret = new ParsedAlias<char>( new VariableDataSource<char>( '\0' ) );
         // make the new TaskVariable managed by the auto_ptr..
         deleter.reset( ret );
     }
 
     void ValueParser::seencharconstant( iter_t c )
     {
-        ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( *c ) );
+        ret = new ParsedAlias<char>( new VariableDataSource<char>( *c ) );
         // make the new TaskVariable managed by the auto_ptr..
         deleter.reset( ret );
     }
 
   void ValueParser::seenintconstant( int i )
   {
-    ret = new TaskAliasAttribute<int>( new VariableDataSource<int>( i ) );
+    ret = new ParsedAlias<int>( new VariableDataSource<int>( i ) );
     // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
   }
 
   void ValueParser::seendoubleconstant( double i )
   {
-    ret = new TaskAliasAttribute<double>( new VariableDataSource<double>( i ) );
+    ret = new ParsedAlias<double>( new VariableDataSource<double>( i ) );
     // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
   }
@@ -201,7 +201,7 @@ namespace ORO_Execution
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new TaskAliasAttribute<const std::string&>(
+    ret = new ParsedAlias<const std::string&>(
       new VariableDataSource<const std::string&>( mcurstring ) );
     deleter.reset( ret );
     mcurstring.clear();
