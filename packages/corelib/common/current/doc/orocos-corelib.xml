@@ -893,13 +893,19 @@ contains the latest &orocos;-approved header files:
         just an example of objects that can be marshalled. We wrote however specific
         marshallers for properties and property bags. These are the 
         SimpleMarshaller, XMLMarshaller, XMLRPCMarshaller, INIMarshaller and
-        the CPFMarshaller (for CORBA). You will need the xerces library for the XML
+        the CPFMarshaller (for CORBA). You will need the <ulink
+        url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink> library for the XML
         related marshalling.
 	</para>
 	<para>
 	  The marshaller uses the <classname>PropertyIntrospectionInterface</classname>
 	  for inspecting the type of a Property. This mechanism is called 
-	  double dispatching.
+	  double dispatching. Double dispatching is an extension of the standard C++
+      single dispatching also known as virtual functions. When a virtual
+      function is called, the method which will be invoked is dependent on the
+      object on which it gets invoked. With double dispatching, after the first
+      dispatching on the object itself, there's a second dispatching done on one
+      of the parameters of the function.
 	</para>
       </sect2>
     </sect1>
