@@ -33,6 +33,7 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testSyncListenerThreadCompleter );
     CPPUNIT_TEST( testCompletionProcessor );
     CPPUNIT_TEST( testTask );
+    CPPUNIT_TEST( testBlockingTask );
     CPPUNIT_TEST_SUITE_END();
 
     ORO_CoreLib::Event<void( void )>* t_event;
@@ -58,6 +59,7 @@ public:
     void testSyncListenerThreadCompleter();
     void testCompletionProcessor();
     void testTask();
+    void testBlockingTask();
 };
 
 #endif  // EVENTTEST_H

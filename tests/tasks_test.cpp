@@ -123,12 +123,14 @@ TasksTest::setUp()
     t_task_nrt = new TaskNonRealTime( NonRealTimeThread::Instance()->getPeriod() );
     t_task_prio = new PriorityTask<15>( PriorityThread<15>::Instance()->getPeriod() );
     t_task_sim = new TaskSimulation( SimulationThread::Instance()->getPeriod() );
+    t_task_nonper = new TaskNonPeriodic( 15 );
 
     t_run_int_np =   new TestRunnableInterface(true);
     t_run_int_p =    new TestRunnableInterface(true);
     t_run_int_nrt =  new TestRunnableInterface(true);
     t_run_int_prio = new TestRunnableInterface(true);
     t_run_int_sim =  new TestRunnableInterface(true);
+    t_run_int_nonper =  new TestRunnableInterface(true);
 
     t_run_allocate = new TestAllocate();
     t_self_remove  = new TestSelfRemove();
@@ -147,11 +149,13 @@ TasksTest::tearDown()
     delete t_task_nrt;
     delete t_task_prio;
     delete t_task_sim;
+    delete t_task_nonper;
     delete t_run_int_np;
     delete t_run_int_p;
     delete t_run_int_nrt;
     delete t_run_int_prio;
     delete t_run_int_sim;
+    delete t_run_int_nonper;
 
     delete t_run_allocate;
     delete t_self_remove;
@@ -193,6 +197,25 @@ void TasksTest::testTimer()
     CPPUNIT_ASSERT( tti->removeTask( t_task_p ) );
     CPPUNIT_ASSERT( tti->removeTask( t_task_sim ) );
     tti->tick();
+
+}
+
+void TasksTest::testNonPeriodic()
+{
+    t_task_nonper->run( t_run_int_nonper );
+    CPPUNIT_ASSERT( t_task_nonper->start() );
+    sleep(1);
+    CPPUNIT_ASSERT( t_run_int_nonper->stepped );
+    CPPUNIT_ASSERT( t_run_int_nonper->init );
+    CPPUNIT_ASSERT( t_run_int_nonper->fini );
+    CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
+    t_task_nonper->run( 0 );
+    CPPUNIT_ASSERT( t_task_nonper->start() );
+    // now blocks on events :
+    CPPUNIT_ASSERT( t_task_nonper->isRunning() );
+    CPPUNIT_ASSERT( t_task_nonper->stop() );
+    sleep(1);
+    CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
 
 }
 

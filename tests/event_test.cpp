@@ -23,6 +23,7 @@
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/TaskSimulation.hpp>
 #include <corelib/SimulationThread.hpp>
+#include <corelib/TaskNonPeriodic.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -86,7 +87,7 @@ struct Runner : public RunnableInterface
     int data;
     Event<void(int)>& e;
     Handle h;
-    Runner( Event<void(int)>& e_) : e(e_) {}
+    Runner( Event<void(int)>& e_ ) : e(e_) {}
     bool initialize() {
         result = false;
         // connect sync and async handler with event
@@ -97,6 +98,13 @@ struct Runner : public RunnableInterface
     void step() {
         e.fire( 123456 );
     }
+
+    // blocking implementation
+    void loop() {
+        e.fire( 123456 );
+        this->getTask()->processor()->loop(); // wait for our own event.
+    }
+
     void finalize() {
         h.disconnect();
     }
@@ -117,7 +125,19 @@ void EventTest::testTask()
     TaskSimulation task(0.01, &runobj);
     SimulationThread::Instance()->start();
     task.start();
-    //CPPUNIT_ASSERT( runobj.data == 123456 );
+    sleep(1);
+    task.stop();
+    SimulationThread::Instance()->stop();
+
+    CPPUNIT_ASSERT( runobj.result );
+}
+
+void EventTest::testBlockingTask()
+{
+    Event<void(int)> event;
+    Runner runobj(event);
+    TaskNonPeriodic task(15, &runobj);
+    task.start();
     sleep(1);
     task.stop();
     SimulationThread::Instance()->stop();

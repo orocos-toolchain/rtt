@@ -36,11 +36,12 @@ class FunctionTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( FunctionTest );
     CPPUNIT_TEST( testSimpleFunction );
-    CPPUNIT_TEST( testExportFunction );
     CPPUNIT_TEST( testRecFunction );
-    CPPUNIT_TEST( testParseFunction );
+    CPPUNIT_TEST( testCallFunction );
+    CPPUNIT_TEST( testExportFunction );
     CPPUNIT_TEST( testFunctionStack );
-    CPPUNIT_TEST( testFunctionArgs );
+    CPPUNIT_TEST( testFunctionCallArgs );
+    CPPUNIT_TEST( testFunctionExportArgs );
     CPPUNIT_TEST( testFunctionFail );
     CPPUNIT_TEST_SUITE_END();
 
@@ -72,11 +73,12 @@ public:
     void tearDown();
 
     void testSimpleFunction();
-    void testExportFunction();
     void testRecFunction();
-    void testParseFunction();
+    void testCallFunction();
+    void testExportFunction();
     void testFunctionStack();
-    void testFunctionArgs();
+    void testFunctionCallArgs();
+    void testFunctionExportArgs();
     void testFunctionFail();
 
 };

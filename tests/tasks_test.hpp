@@ -27,6 +27,7 @@
 #include <corelib/TaskNonPreemptible.hpp>
 #include <corelib/PriorityTask.hpp>
 #include <corelib/TaskSimulation.hpp>
+#include <corelib/TaskNonPeriodic.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -51,6 +52,9 @@ class TasksTest : public CppUnit::TestFixture
     // Self Removal Test :
     CPPUNIT_TEST( testSelfRemove );
 
+    // non periodic Test :
+    CPPUNIT_TEST( testNonPeriodic );
+
     CPPUNIT_TEST_SUITE_END();
 
     TaskNonRealTime*    t_task_nrt;
@@ -58,12 +62,14 @@ class TasksTest : public CppUnit::TestFixture
     TaskPreemptible*    t_task_p;
     TaskSimulation*     t_task_sim;
     PriorityTask<15>*   t_task_prio;
+    TaskNonPeriodic*    t_task_nonper;
 
     TestRunnableInterface*  t_run_int_np;
     TestRunnableInterface*  t_run_int_p;
     TestRunnableInterface*  t_run_int_nrt;
     TestRunnableInterface*  t_run_int_sim;
     TestRunnableInterface*  t_run_int_prio;
+    TestRunnableInterface*  t_run_int_nonper;
 
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;
@@ -82,6 +88,8 @@ public:
     void testSelfRemove();
 
     void testTimer();
+
+    void testNonPeriodic();
 
     void testAllocation();
     void testRemoveAllocate();

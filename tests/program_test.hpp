@@ -42,6 +42,7 @@ class ProgramTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testProgramTry );
     CPPUNIT_TEST( testProgramUntil );
     CPPUNIT_TEST( testProgramUntilFail );
+    CPPUNIT_TEST( testTaskProgram );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
@@ -73,6 +74,7 @@ public:
     void tearDown();
 
     void testParseProgram();
+    void testTaskProgram();
     void testProgramCondition();
     void testProgramFailure();
     void testProgramAnd();

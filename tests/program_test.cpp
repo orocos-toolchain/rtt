@@ -51,6 +51,8 @@ ProgramTest::setUp()
     gtc.commandFactory.registerObject("this", this->createCommandFactory() );
     gtc.dataFactory.registerObject("this", this->createDataSourceFactory() );
 
+    gtc.attributeRepository.addAttribute("tvar_i", -1);
+    gtc.attributeRepository.addConstant("tconst_i", -1);
     i = 0;
 }
 
@@ -270,6 +272,27 @@ void ProgramTest::testProgramTry()
         + "}";
     this->doProgram( prog, &gtc );
     this->finishProgram( &gtc, "progtry");
+}
+
+void ProgramTest::testTaskProgram()
+{
+    // see if checking a remote condition works
+    string prog = string("export function foo {\n")
+        + "  do assert( task.tvar_i == +2 ) \n"
+        + "  do assert( task.tvar_i != task.tconst_i ) \n"
+        + "  set task.tvar_i = +4\n"
+        + "  do assert( task.tvar_i == +4 ) \n"
+        + "}\n"
+        + "program x { \n"
+        + "do assert( task.tvar_i == -1 ) \n"
+        + "do assert( task.tvar_i == task.tconst_i ) \n"
+        + "set task.tvar_i = +2\n"
+        + "do assert( task.tvar_i == +2 )\n"
+        + "do foo()\n"
+        + "}";
+    this->doProgram( prog, &gtc );
+    CPPUNIT_ASSERT_EQUAL( 4, dynamic_cast<TaskAttribute<int>*>( gtc.attributeRepository.getValue("tvar_i") )->toDataSource()->get() );
+    this->finishProgram( &gtc, "x");
 }
 
 void ProgramTest::testProgramUntil()

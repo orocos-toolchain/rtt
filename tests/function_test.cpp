@@ -166,7 +166,7 @@ void FunctionTest::testRecFunction()
         + " do this.foo()\n" // recursive is forbidden.
         + "}\n"
         + "program x { \n"
-        + "   call foo\n"
+        + "   do foo\n"
         + "}";
 
     stringstream progs(prog);
@@ -195,17 +195,15 @@ void FunctionTest::testRecFunction()
     CPPUNIT_ASSERT_MESSAGE( "Recursive 'do' function was accepted, while it is illegal.", false );
 }
 
-void FunctionTest::testParseFunction()
+void FunctionTest::testCallFunction()
 {
-    string prog = string("export function foo(int a, string b, bool c) { \n")
+    string prog = string("function foo(int a, string b, bool c) { \n")
         + " do test.assert( test.isTrue( true ) )\n"
         + " if true then\n"
         + "    return\n"
         + " do test.assert(false)\n"  // do not reach
         + "}\n"
         + "program x { \n"
-        + "   do foo(2, \"hello2\", false)\n"
-        + "   do this.foo(2, \"hello2\", false)\n"
         + "   call foo( 1, \"hello\", true)\n"
         + "}";
 
@@ -228,7 +226,7 @@ void FunctionTest::testFunctionStack()
         + "program x { \n"
         +"  var double b = 1.234\n" // we switch val's of a and b here
         +"  var double a = 4.321\n"
-        + "   call foo\n"
+        + "   do foo()\n"
         +"  do test.assert( b == 1.234 )\n"
         +"  do test.assert( a == 4.321 )\n"
         + "   do foo()\n"
@@ -243,7 +241,7 @@ void FunctionTest::testFunctionStack()
 }
 
 
-void FunctionTest::testFunctionArgs()
+void FunctionTest::testFunctionExportArgs()
 {
     // Test if the foo args are init'ed correctly.
     string prog =
@@ -256,10 +254,37 @@ void FunctionTest::testFunctionArgs()
         + " do test.assert( !c )\n"
         + " do test.assert( a == -1 )\n"
         + " do test.assert( b == \"B\" )\n"
+        + " do fooA(1, \"A\", true)\n"
         + "}\n"
         + "program x { \n"
         + "   do fooA(1, \"A\", true)\n"
         + "   do fooB(-1, \"B\", false)\n"
+//         + "   call fooA(1.0, \"A\", true)\n"
+//         + "   call fooB(-1, \"B\", false)\n"
+        + "}";
+
+    this->doFunction( prog, &gtc );
+    this->finishFunction( &gtc, "x");
+}
+
+void FunctionTest::testFunctionCallArgs()
+{
+    // Test if the foo args are init'ed correctly.
+    string prog =
+        string("function fooA(int a, string b, bool c) { \n")
+        + " do test.assert( c )\n"
+        + " do test.assert( a == 1 )\n"
+        + " do test.assert( b == \"A\" )\n"
+        + "}\n"
+        + "function fooB(int a, string b, bool c) { \n"
+        + " do test.assert( !c )\n"
+//         + " call fooA(1, \"A\", true)\n" this crashes us XXX
+        + " do test.assert( a == -1 )\n"
+        + " do test.assert( b == \"B\" )\n"
+        + "}\n"
+        + "program x { \n"
+        + "   call fooA(1, \"A\", true)\n"
+        + "   call fooB(-1, \"B\", false)\n"
 //         + "   call fooA(1.0, \"A\", true)\n"
 //         + "   call fooB(-1, \"B\", false)\n"
         + "}";
