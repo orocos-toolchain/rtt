@@ -632,7 +632,7 @@ ORO_main( int argc, char** argv)
       <title>Priority Inversions</title>
       <para>
 	A Priority inversion is the term used to indicate a scheduling situation
-	in which a high priority thread is blocked on a resource which is hold
+	in which a high priority thread is blocked on a resource which is held
 	by a low priority thread, while a medium priority thread is running,
 	preventing the low priority thread to free the resource for the high
 	priority thread. 
@@ -654,7 +654,9 @@ ORO_main( int argc, char** argv)
       <para>
 	In essence, Orocos does not know of priority inversions and does not
 	know if the underlying Operating System properly solves this common
-	situation. Therefore, we try to provide as much as possible lock-free
+	situation. Furthermore, it can be prooven that there are situations 
+	where priority inheritance does not work.
+	Therefore, we try to provide as much as possible lock-free
 	implementations of inter-thread messaging. <xref linkend="core-priority-inversion-table"/>
 	lists the know uses of Orocos which <emphasis>might</emphasis> lead
 	to priority inversion. 
