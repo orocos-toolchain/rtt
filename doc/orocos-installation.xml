@@ -148,13 +148,13 @@
       <para>
 	The next step requires that you use
 	<ulink url="http://www.gnu.org/software/automake/">automake</ulink>
-	version 1.6.3 and
+	version 1.7.3 and
 	<ulink url="http://www.gnu.org/software/autoconf/">autconf</ulink>
-	version 2.54. You can check your
+	version 2.54 or later. You can check your
 	versions with the <parameter>--version</parameter> option:
 	<screen>
 	  $ automake --version
-	  automake (GNU automake) 1.6.3
+	  automake (GNU automake) 1.7.3
 	  ...
 	  $ autoconf --version
 	  autoconf (GNU Autoconf) 2.54
@@ -163,22 +163,14 @@
 	  <para> You need these programs if you intend to modify the makefiles</para>
 	</note>
 	When you get something similar, proceed with calling the <command>
-	  ./autogen.sh </command> command in the packages directory
+	  ./autogen.sh </command> command in the base directory
 	, in order to initialize the <filename>autoconf</filename> 
 	and <filename>automake</filename> files:
 	<screen>
-	  cd packages
 	  ./autogen.sh
-	  ./configure
-	  make db
 	</screen>
 	The configure script will detect the installed software on your
-	system and generate the appropriate scripts. A <command>make db</command>
-	command will create a new database containing a list of all the packages.
-	This command generates an index of all installed packages, the configure command
-	may detect installed software on your system and generate support packages
-	to reflect this. When you install new relevant software, you must rerun <command> configure </command>
-	and <command>make db</command>.
+	system and generate the appropriate scripts.
       </para>
       <para>
 	The next steps are exactly the same as when you install the system
@@ -202,7 +194,10 @@
 	  and <command>configtool</command>. In Debian, you can
 	  download a package for testing and unstable from <ulink
 	    url="http://www.orocos.org/downloads.html"> The Orocos
-	    Download Page</ulink>
+	    Download Page</ulink> or use the official Debian version
+	  using
+	  <screen>apt-get install ecosconfig</screen>
+	  (recommended).
 	  <screen>
 	    dpkg -i ecosconfig_2.0-0pre3_i386.deb
 	  </screen> 
@@ -241,7 +236,7 @@
 	<title>Quick Installation Instructions</title>
 	<para>
 	  It is possible to download Orocos with the <ulink url="http://www.orocos.org/orocos-install.tcl">
-	    orocos-install.tcl</ulink> script.
+	    orocos-install.tcl</ulink> script, this is recommended.
 	  This script will perform the steps 1-5 below for you. Your instructions
 	  thus start from step 6.
 	  When you downloaded the tools and packages manually, proceed as follows :
@@ -280,7 +275,7 @@ cd orocos-0.16.0/build
 ../configure --with-&lt;target&gt;
 make new_packages 
 make configure_packages
-make all_packages
+make all
 	      </screen>
 	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
 	    </para>
@@ -290,6 +285,26 @@ make all_packages
 		  you installed missing libraries (like boost, xerces,...).
 		</para>
 	      </note>
+	    <para>
+	      For convenience, Orocos can also be used as a regular configure/make 
+	      system. It is thus allowed to :
+	      <screen> 
+mkdir orocos-0.16.0/build 
+cd orocos-0.16.0/build
+../configure --with-&lt;target&gt;
+make all
+make check
+make install
+	      </screen>
+	      but this will use the default Orocos configuration. If you want to
+	      add/remove packages and configure options, you need to run
+	      <command>make configure_packages</command> and
+	      <command>make</command> again.
+	    </para>
+	    <para>
+	      Be warned, <command>make new_packages</command> will overwrite any
+	      existing configuration !
+	    </para>
 	  </listitem>
 	</orderedlist>
 	<para>
@@ -304,22 +319,18 @@ make all_packages
       <sect3>
 	<title>Using the pre-defined make targets</title>
 	<para>
-	  The make all_packages command will have made a directory
-	  <filename>packages-&lt;target&gt;</filename> where the
+	  The <command>make all</command> command will have made a directory
+	  <filename>packages</filename> where the
 	  building takes place. The results of the build are in the
-	  <filename>packages-&lt;target&gt;/install</filename>
+	  <filename>packages/install</filename>
 	  directory. You will find the header files and a library called
 	  <filename>libtarget.a</filename> (literally). These files
-	  allow you to build external applications with &orocos;. Of
-	  course a package itself can also be an application, resulting
-	  in an executable in the
-	  <filename>packages-&lt;target&gt;/install/bin</filename>
-	  directory.
+	  allow you to build external applications with &orocos;.
 	</para>
 	<para>
-	  The make configure_packages will pop up a graphical frontend
+	  The <command>make configure_packages</command> will pop up a graphical frontend
 	  to configuration. When you save and exit, a file
-	  <filename>packages-&lt;target&gt;/ecos.ecc</filename> will
+	  <filename>packages/ecos.ecc</filename> will
 	  be generated which contains all your custom options.
 	  <tip>
 	    <para>Make a copy of the ecos.ecc file so that you always have
@@ -352,25 +363,35 @@ make all_packages
 		<screen><command>ecosadmin.tcl add filename.epk</command></screen> in the 
 		packages directory.
 	      </para>
+	      <para>
+		This only adds a package to the repository, it does not mean it is
+		automatically compiled ! Adding a package to a configuration in
+		the next steps will assure that it is compiled.
+	      </para>
 	    </listitem>
 	    <listitem>
 	      <para>
 		Go to the eCos build directory. In Orocos this is :
-		<screen><filename>orocos-base-0.16.0/build/packages-&lt;target&gt;
+		<screen><filename>orocos-0.16.0/build/packages
 		  </filename></screen> But technically, it can be any directory
 		where you create an ecos.ecc configuration file.
 	      </para>
 	    </listitem>
 	    <listitem>
-	      <para>Start a new build using the 
-		<screen><command>ecosconfig new gnulinux corelib-os</command></screen>
-		command. Where gnulinux or lxrt is the target name and
-		corelib-os is the template name. A template selects some
-		standard packages in a convenient way. All this information
-		(with default options) is written in the <filename>ecos.ecc</filename> file
+	      <para>Start a new build using the
+		<screen><command>ecosconfig new gnulinux
+		    corelib-os</command></screen> command. Where
+		<option>gnulinux</option> or <option>lxrt</option> is
+		the target name and <option>corelib-os</option> is the
+		template name. A template selects a number of packages
+		which belong together. You are allowed to put your own
+		template in
+		<filename>orocos-0.16.0/packages/templates</filename>.
+		All this information (with default options)
+		is written in the <filename>ecos.ecc</filename> file
 		<warning>
-		  <para>This will overwrite any previous ecos.ecc configuration
-		  file in that directory !</para>
+		  <para>This will overwrite any previous ecos.ecc
+		    configuration file in that directory !</para>
 		</warning>
 	      </para>
 	    </listitem>
@@ -426,8 +447,9 @@ ecosconfig add support_$(basename $i .cdl); done
       <sect3>
 	<title>Using &orocos; concurrently for multiple targets</title>
 	<para>
-	  When you want to build for another target, simply re-invoke ../configure --with-&lt;target&gt;
-	  from the build directory and a new packages-&lt;target&gt; directory will be made.
+	  When you want to build for another target,
+	  create a new build-&lttarget&gt directory and simply re-invoke ../configure --with-&lt;target&gt;
+	  from that build directory.
 	</para>
 	<para>
 	  If this step fails, it means that you have not everyting installed
@@ -496,7 +518,7 @@ ecosconfig add support_$(basename $i .cdl); done
 	<title>Configuring an Orocos Package</title>
 	<para>
 	  By default, &orocos; will be built to install in
-	  <filename class="directory">packages-&lt;target&gt;/install</filename>.
+	  <filename class="directory">packages/install</filename>.
 	  You can modify this by passing a --prefix= option to ecosconfig or
 	  change it in the GUI.
 	</para>
@@ -573,7 +595,7 @@ configure script will select the os/rtai target
 	instructions.  First, you need to patch your Linux kernel. A patch per
 	kernel version can be found in the rtai-core/arch/i386/patches directory. You should
 	apply
-	the <filename>hal10-X.Y.Z.patch</filename> for RTAI 3.0 to a clean
+	the <filename>hal12-X.Y.Z.patch</filename> for RTAI 3.0 to a clean
 	Linux kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>

@@ -39,7 +39,6 @@ test_new_packages: .new-pkg-stamp
 
 .new-pkg-stamp:
 	$(MAKE) -C . new_packages
-	touch .new-pkg-stamp
 
 # This sets up a new packages build directory.
 # You only need to do this once.
@@ -55,6 +54,7 @@ new_packages:
 	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
 	ecosconfig check
+	touch .new-pkg-stamp
 
 
 # This configures the selected packages with
