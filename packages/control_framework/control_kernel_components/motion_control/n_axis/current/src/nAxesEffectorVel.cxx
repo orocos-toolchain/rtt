@@ -69,7 +69,7 @@ namespace ORO_ControlKernel
   bool nAxesEffectorVel::componentStartup()
   {
     // get interface to Output data type
-    if ( !nAxesEffectorVel_typedef::Output::dObj(   )->Get("Velocity", _velocity_DOI) ){
+    if ( !Output::dObj(   )->Get("Velocity", _velocity_DOI) ){
       cerr << "nAxesEffectorVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

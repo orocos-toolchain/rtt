@@ -68,7 +68,7 @@ namespace ORO_ControlKernel
   bool nAxesControllerPosVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !nAxesControllerPosVel_typedef::Output::dObj()->Get("Velocity", _velocity_DOI) ){
+    if ( !Output::dObj()->Get("Velocity", _velocity_DOI) ){
       cerr << "nAxesControllerPosVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
@@ -89,9 +89,9 @@ namespace ORO_ControlKernel
       return false;
     }
 
-    if ( !nAxesControllerPosVel_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !nAxesControllerPosVel_typedef::SetPoint::dObj()->Get("Position", _position_desi_DOI) ||
-	 !nAxesControllerPosVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
+    if ( !Input::dObj(   )->Get("Position", _position_meas_DOI) ||
+	 !SetPoint::dObj()->Get("Position", _position_desi_DOI) ||
+	 !SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
       cerr << "nAxesControllerPosVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
