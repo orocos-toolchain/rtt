@@ -31,12 +31,20 @@
 #include <sys/mman.h>
 #include <iostream>
 #include "os/fosi.h"
+#include <unistd.h>
+#include <sys/types.h>
 
 namespace ORO_OS
 {
     SchedPolicy::SchedPolicy()
     {
         std::cout <<"Sched Policy Init"<<std::endl;
+
+        if ( getuid() == 0 ) {
+            std::cout <<"You are not root. This program requires that you are root."<< std::endl;
+            exit(1);
+        }
+
         /* check to see if rtai_lxrt module is loaded */
 //         struct module_info modInfo;
 //         size_t retSize;
