@@ -8,10 +8,12 @@ cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_
 cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
 
 
-cdl_configuration template_default {
-    description "This is a standard configuration with two OSes included.";
+cdl_configuration template_corelib-os {
+    description "This is the CoreLib with two OSes included.";
     package     OROPKG_CORELIB current ;
     package     OROPKG_OS current ;
+    package     OROPKG_OS_LXRT current ;
+    package     OROPKG_OS_GNULINUX current ;
     package     OROPKG_CORELIB_EVENTS current;
     package     OROPKG_CORELIB_BUFFERS current;
     package     OROPKG_CORELIB_TASKS current;

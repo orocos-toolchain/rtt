@@ -1,0 +1,16 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration template_execution {
+    description "All Orocos execution related packages." ;
+	package OROPKG_EXECUTION current;
+	package OROPKG_EXECUTION_PROGRAM_PROCESSOR current;
+	package OROPKG_EXECUTION_PROGRAM_PARSER current;
+};
+
