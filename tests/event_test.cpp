@@ -140,7 +140,6 @@ void EventTest::testBlockingTask()
     task.start();
     sleep(1);
     task.stop();
-    SimulationThread::Instance()->stop();
 
     CPPUNIT_ASSERT( runobj.result );
 }

@@ -278,7 +278,10 @@ void FunctionTest::testFunctionCallArgs()
         + "}\n"
         + "function fooB(int a, string b, bool c) { \n"
         + " do test.assert( !c )\n"
-//         + " call fooA(1, \"A\", true)\n" this crashes us XXX
+        + " var int i = 1\n"
+        + " var string s = \"A\"\n"
+        + " var bool tf = true\n"
+        + " call fooA(i, s, tf)\n"
         + " do test.assert( a == -1 )\n"
         + " do test.assert( b == \"B\" )\n"
         + "}\n"
