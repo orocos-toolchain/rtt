@@ -283,19 +283,23 @@ namespace ORO_Execution
             bind( &ExpressionParser::seen_unary, this, "!" ) ]
         | atomicexpression;
 
+    // note the order is important: commonparser.identifier throws a
+    // useful "cannot use x as identifier" error if it fails, so we
+    // must first show all non-identifier rules.
     atomicexpression = (
-        // either a property of a component
-        datacallparser.parser()[
-          bind( &ExpressionParser::seendatacall, this ) ]
+        // either a 'constructor' call
+        constructorexp
+        // or a parenthesis group.
+      | groupexp
+        // or a time expression
+      | time_expression
         // or a constant or user-defined value..
       | context.valueparser.parser()[
           bind( &ExpressionParser::seenvalue, this ) ]
-        // or a 'constructor' call
-      | constructorexp
-        // or a parenthesis group.
-      | groupexp
-        | time_expression ) >> ( !indexexp );
-
+        // or a property of a component
+      | datacallparser.parser()[
+          bind( &ExpressionParser::seendatacall, this ) ]
+        ) >> ( !indexexp );
     // take index of an atomicexpression
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
