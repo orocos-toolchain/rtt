@@ -136,7 +136,7 @@ namespace ORO_Execution
             catch( const bad_assignment& e) {
                 delete icom;
                 int parnb = (dit - args.begin());
-                throw wrong_types_of_args_exception(parnb);
+                throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
             }
             // the command gets ownership of the new function :
             CommandExecFunction* ecom = new CommandExecFunction( copy, proc );

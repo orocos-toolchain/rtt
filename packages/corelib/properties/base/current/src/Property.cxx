@@ -27,6 +27,7 @@
 
 #pragma implementation
 #include "corelib/Property.hpp"
+#include "corelib/PropertyIntrospection.hpp"
 
 namespace ORO_CoreLib {
 
@@ -39,4 +40,15 @@ namespace ORO_CoreLib {
      template class Property<const std::string&>;
      template class Property<PropertyBag>;
 
+    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
+                           ORO_CoreLib::Property<const std::string&> const& nt) {
+        Property<std::string> msg(nt.getName(), nt.getDescription(), nt.get() );
+        pi->introspect( msg );
+    }
+
+    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
+                           ORO_CoreLib::Property<float> const& f) {
+        Property<double> msg(f.getName(), f.getDescription(), f.get() );
+        pi->introspect( msg );
+    }
 }

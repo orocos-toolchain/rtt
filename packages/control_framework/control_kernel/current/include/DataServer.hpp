@@ -58,10 +58,14 @@
 #include "Typelist.h"
 #include <boost/shared_ptr.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/MotionProperties.hpp>
-#endif
+namespace ORO_CoreLib
+{
+    // this is quite optional, since we will most likely never want to report
+    // 'nothing'
+    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
+                           ORO_CoreLib::Property<Loki::NullType> const& nt);
+
+}
 
 namespace ORO_ControlKernel
 {
@@ -118,7 +122,7 @@ namespace ORO_ControlKernel
          * transparent and does not need to be known to the user.
          *
          * @param _name The unique name of this DataObjectServer.
-         * The _name must have the form : ControlKernelName::DOSName
+         * The _name must have the form : ControlKernelName::DOSName, for example MyKernel::Inputs
          * @param _prefix The 'scope'/prefix to automatically add to
          *        each lookup. This allows different DOS'es to work
          *        in the same namespace, although being in different kernels.
@@ -141,7 +145,7 @@ namespace ORO_ControlKernel
          *
          * @param _prefix The new prefix.
          */
-        virtual void changePrefix(const std::string& _prefix) { prefix = _prefix; }
+//         virtual void changePrefix(const std::string& _prefix) { prefix = _prefix; }
 
         virtual void exportReports( PropertyBag& bag ) const
         {
@@ -369,6 +373,9 @@ namespace ORO_ControlKernel
 
     template<typename First > class NameSubClass;
 
+#if 0
+    // Deprecated, old control kernel
+
     /**
      * Similar to CompositeExtension, it allows users
      * to compose data objects so that multiple components,
@@ -386,6 +393,7 @@ namespace ORO_ControlKernel
          */
         typedef typename Loki::TL::Append<typename First::Result, typename Second::Result>::Result Result;
     };
+#endif
 
     /**
      * This class holds one nameserved element of a DataObject.
@@ -470,11 +478,11 @@ namespace ORO_ControlKernel
         /**
          * Change the local name prefix.
          */
-        void changePrefix(const std::string& prefix)
-        {
-            ServerType::changePrefix(prefix);
-            NameSubClass<Rest>::changePrefix(prefix);
-        }
+//         void changePrefix(const std::string& prefix)
+//         {
+//             ServerType::changePrefix(prefix);
+//             NameSubClass<Rest>::changePrefix(prefix);
+//         }
 
 //         virtual void setName( const std::string& name )
 //         {
@@ -752,10 +760,10 @@ namespace ORO_ControlKernel
             this->_NameContainer::tree::recursiveReload( std::make_pair( b, e ), 0 );
         }
 
-        void changePrefix(const std::string& prefix)
-        {
-            _NameContainer::tree::changePrefix(prefix);
-        }
+//         void changePrefix(const std::string& prefix)
+//         {
+//             _NameContainer::tree::changePrefix(prefix);
+//         }
 
         /**
          * @brief This allows the user to retrieve a DataObject<T> of type T.
@@ -810,7 +818,7 @@ namespace ORO_ControlKernel
                 NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
-            virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
+//             virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
 
         virtual void refreshReports( PropertyBag& bag ) const
         {
@@ -856,9 +864,9 @@ namespace ORO_ControlKernel
             NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
                 ServerType(name, prefix)
             {}
-            virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
+//             virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
         };            
-            
+
         // Container case
         template< template<class> class First>
         struct NameFrontEnd< First<nil_type> >
@@ -882,6 +890,8 @@ namespace ORO_ControlKernel
             void cleanupReports( PropertyBag& bag ) const {}
         };
 
+#if 0
+        // deprecated, old compiler
 
         /**
          * @brief This specialisation detects the use of the CompositeDataObject
@@ -981,6 +991,7 @@ namespace ORO_ControlKernel
             //typedef typename _NameContainer<F>::NamesTypes::DataType DataType;
             typedef nil_type DataType;
         };
+#endif
 
         /**
          * A Typelist operation that wraps each type T

@@ -149,7 +149,7 @@ namespace ORO_Execution
     catch( const bad_assignment& e )
     {
       throw parse_exception_semantic_error(
-        "Attempt to initialize a constant with a value of a different type." );
+        "Attempt to initialize a const "+var->toDataSource()->getType()+" with a "+expr->getType()+"." );
     }
     assert( assigncommand );
     lastdefinedvalue = var;
@@ -180,9 +180,16 @@ namespace ORO_Execution
     expressionparser.dropResult();
     TaskAttributeBase* alias;
     alias = type->buildAlias( expr.get() );
-    if ( ! alias )
-      throw parse_exception_semantic_error(
-        "Attempt to define an alias to an expression of a different type." );
+    if ( ! alias ) {
+        // build variable to get type info workaround :
+        TaskAttributeBase* orig = type->buildVariable();
+        std::string tname;
+        if (orig)
+            tname = orig->toDataSource()->getType();
+        delete orig;
+        throw parse_exception_semantic_error(
+        "Attempt to define an alias of type "+tname+" to an expression of type "+expr->getType()+"." );
+    }
     context->attributeRepository.setValue( valuename, alias );
     lastdefinedvalue = alias;
     lastparseddefname = valuename;
@@ -228,9 +235,8 @@ namespace ORO_Execution
     }
     catch( const bad_assignment& e )
     {
-      throw parse_exception_semantic_error(
-        "Attempt to initialize a variable with a value "
-        "of a different type." );
+      throw parse_exception_semantic_error
+          ( "Attempt to initialize a var "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
     }
     assert( assigncommand );
   }
@@ -256,7 +262,7 @@ namespace ORO_Execution
         }
         catch( const bad_assignment& e) {
             throw parse_exception_semantic_error(
-                "Attempted to assign index of \""+ valuename +"\" with wrong type.");
+                "Impossible to assign "+valuename+"[ "+index_ds->getType()+" ] to value of type "+expr->getType()+".");
         }
         if ( !assigncommand )
             throw parse_exception_semantic_error(
@@ -269,8 +275,8 @@ namespace ORO_Execution
         }
         catch( const bad_assignment& e )
             {
-                throw parse_exception_semantic_error(
-                    "Attempt to assign a value to a variable of a different type." );
+                throw parse_exception_semantic_error
+                    ( "Attempt to assign variable of type "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
             }
         if ( ! assigncommand )
             throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\"." );

@@ -381,7 +381,7 @@ namespace ORO_Execution
                 delete newlist[i];
             delete icom;
             int parnb = (dit - fnargs.begin());
-            throw wrong_types_of_args_exception(parnb);
+            throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
         }
 
         // set the init command on the build node 

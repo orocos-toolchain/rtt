@@ -32,6 +32,8 @@
 #include <boost/type_traits.hpp>
 
 #include <map>
+#include <vector>
+#include <string>
 
 namespace
 {
@@ -44,6 +46,21 @@ namespace
     typedef typename boost::remove_const<
       typename boost::remove_reference<T>::type>::type type;
   };
+}
+
+namespace ORO_CoreLib
+{
+    template<unsigned int S, class T>
+    class MultiVector;
+}
+
+namespace ORO_Geometry
+{
+    class Frame;
+    class Vector;
+    class Rotation;
+    class Twist;
+    class Wrench;
 }
 
 namespace ORO_Execution
@@ -109,7 +126,128 @@ namespace ORO_Execution
        * Create a deep copy of this DataSource, unless it is already cloned and place the association (parent, clone) in \a alreadyCloned.
        */
       virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+
+      /**
+       * Return usefull type info in a human readable format.
+       */
+      virtual std::string getType() const = 0;
   };
+
+    namespace detail {
+        struct ValueType {};
+
+        template< class T>
+        struct DataSourceTypeInfo;
+
+        template<>
+        struct DataSourceTypeInfo<ValueType> {
+            static const std::string type;
+            static const std::string qual;
+            static const std::string& getType() { return type; }
+            static const std::string& getQualifier() { return qual; }
+        };
+
+        template< class T>
+        struct DataSourceTypeInfo<const T&> {
+            static const std::string qual;
+            static const std::string& getType()  { return DataSourceTypeInfo< remove_cr<T> >::getType(); }
+            static const std::string& getQualifier() { return qual; }
+        };
+
+        template< class T >
+        const std::string DataSourceTypeInfo<const T&>::qual("const&");
+
+        template<>
+        struct DataSourceTypeInfo<bool> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<int> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<double> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<char> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_Geometry::Frame> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_Geometry::Vector> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_Geometry::Rotation> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_Geometry::Twist> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_Geometry::Wrench> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<std::string> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<ORO_CoreLib::MultiVector<6, double> > {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo< std::vector<double> > {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template< class T>
+        struct DataSourceTypeInfo {
+            static const std::string& getType() { return DataSourceTypeInfo<ValueType>::getType(); }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+    }
 
   /**
    * DataSource is a base class representing a generic way to get a
@@ -144,11 +282,28 @@ namespace ORO_Execution
       virtual DataSource<T>* clone() const = 0;
 
       virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+
+      virtual std::string getType() const;
+
+      static  std::string GetType();
   };
 
   template<typename T>
   DataSource<T>::~DataSource()
   {
+  }
+
+  template< typename T>
+  std::string DataSource<T>::getType() const
+  {
+      return DataSource<T>::GetType();
+  }
+
+  template< typename T>
+  std::string DataSource<T>::GetType()
+  {
+      return detail::DataSourceTypeInfo< T >::getQualifier() +" "
+          + detail::DataSourceTypeInfo< typename remove_cr<T>::type >::getType();
   }
 
   /**

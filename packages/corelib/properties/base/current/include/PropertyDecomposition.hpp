@@ -29,8 +29,13 @@
 #define PROPERTYDECOMPOSITION_HPP
 
 
-#include "PropertyIntrospection.hpp"
 #include "Property.hpp"
+#include "VectorComposition.hpp"
+
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/MotionProperties.hpp>
+#endif
 
 namespace ORO_CoreLib
 {
@@ -73,9 +78,26 @@ namespace ORO_CoreLib
      *  } 
      * \endcode 
      *  @see PropertyComposition.hpp
+     * @note If you see this message apearing, and do not know why or where it is generated,
+     *  comment (//... ) this function and recompile, a compile time error will be generated
+     *  at places where this function would have been used. Reasons why the compiler uses this function
+     *  instead of yours are : 
+     *  <il><li>Your decomposeProperty function does not live in 
+     *  the ORO_CoreLib namespace. Solution : put it in the ORO_CoreLib namespace.</li>
+     *  <li>There is no decomposeProperty function for your class. Solution : write your own
+     *  decomposeProperty function.</li>
+     *  <li> At compile time, your decomposeProperty function could not be 'seen' by the compiler.
+     *  Solution : write using ORO_CoreLib::decomposeProperty; at top of the file causing this
+     *  error.</li><il>
 	 */
 	template<typename T>
-	void decomposeProperty(PropertyIntrospection *pi, const Property<T> &b);
+	void decomposeProperty(PropertyIntrospection *pi, const Property<T> &b)
+	{
+		Property<std::string> error(b.getName(),
+                                    "PropertyIntrospection Error. "+ std::string("Unknown type, see ") + std::string(__FILE__) + std::string(" for more information "),
+                                    std::string("Err") );
+		pi->introspect(error);
+	} 
 	
 }
 

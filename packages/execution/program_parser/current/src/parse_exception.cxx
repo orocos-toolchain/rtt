@@ -50,7 +50,7 @@ namespace ORO_Execution
     stream << "Wrong type of argument provided for argument number "
            << margnumber << " in call of function \""
            << mcomponentname << "." << mmethodname
-           << "\".";
+           << "\". Expected type "<<mexpected<<", got type "<< mreceived <<".";
     return stream.str();
   }
 

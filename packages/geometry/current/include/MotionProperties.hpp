@@ -28,7 +28,6 @@
 #ifndef MOTIONPROPERTIES_HPP
 #define MOTIONPROPERTIES_HPP
 
-#include <corelib/Property.hpp>
 #include "frames.h"
 #include <corelib/MultiVector.hpp>
 
@@ -42,6 +41,11 @@
 
 namespace ORO_CoreLib
 {
+    template<class T>
+    class Property;
+    class PropertyBag;
+    class PropertyIntrospection;
+
     /**
      * Additional functionality for handling a Property<Double6D>
      */

@@ -30,6 +30,7 @@
 
 #include "PropertyBag.hpp"
 #include "Property.hpp"
+#include "PropertyIntrospection.hpp"
 #include <stack>
 
 #pragma interface
@@ -46,6 +47,8 @@ namespace ORO_CoreLib
     {
         std::stack<PropertyBag*> mystack;
     public:
+        using PropertyIntrospection::introspect;
+
         /**
          * @brief Create a new Introspector, saving the results in a bag.
          *

@@ -30,6 +30,7 @@
 #define PI_PROPERTIES_EMPTYHEADER_SERIALIZER
 
 #include <corelib/Property.hpp>
+#include "corelib/PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace ORO_CoreLib

@@ -534,7 +534,7 @@ namespace ORO_Execution
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    ( rootc->getName(), mcallfunc->getName(), e.whicharg );
+                    ( rootc->getName(), mcallfunc->getName(), e.whicharg, e.expected_, e.received_ );
             }
         catch( ... )
             {

@@ -28,13 +28,14 @@
 #ifndef VECTOR_COMPOSITION_HPP
 #define VECTOR_COMPOSITION_HPP
 
-#include "PropertyIntrospection.hpp"
-#include "Property.hpp"
-#include "PropertyBag.hpp"
 #include <vector>
 
 namespace ORO_CoreLib
 {
+    class PropertyIntrospection;
+    class PropertyBag;
+    template<class T>
+    class Property;
 
     /**
      * A decomposeProperty method for decomposing a Property< vector<double> >
@@ -43,6 +44,8 @@ namespace ORO_CoreLib
      * Property<double>'s to have a different name.
      */
     void decomposeProperty(PropertyIntrospection *pi, const Property< std::vector<double> >& c);
+
+    void decomposeProperty(PropertyIntrospection *pi, const Property< const std::vector<double>& >& c);
 
     /**
      * A composeProperty method for composing a property of a vector<double>

@@ -35,6 +35,24 @@ namespace ORO_Execution
     void DataSourceBase::reset()
     {
     }
+
+    namespace detail {
+        const std::string DataSourceTypeInfo<ValueType>::type("unknown type");
+        const std::string DataSourceTypeInfo<ValueType>::qual("");
+        const std::string DataSourceTypeInfo<bool>::type("bool");
+        const std::string DataSourceTypeInfo<int>::type("int");
+        const std::string DataSourceTypeInfo<double>::type("double");
+        const std::string DataSourceTypeInfo<char>::type("char");
+        const std::string DataSourceTypeInfo<ORO_CoreLib::MultiVector<6,double> >::type("Double6D");
+        const std::string DataSourceTypeInfo<std::string>::type("std::string");
+        const std::string DataSourceTypeInfo<std::vector<double> >::type("std::vector<double> (array)");
+
+        const std::string DataSourceTypeInfo<ORO_Geometry::Frame>::type("Frame");
+        const std::string DataSourceTypeInfo<ORO_Geometry::Vector>::type("Vector");
+        const std::string DataSourceTypeInfo<ORO_Geometry::Rotation>::type("Rotation");
+        const std::string DataSourceTypeInfo<ORO_Geometry::Twist>::type("Twist");
+        const std::string DataSourceTypeInfo<ORO_Geometry::Wrench>::type("Wrench");
+    }
 }
 
 void intrusive_ptr_add_ref( ORO_Execution::DataSourceBase* p )

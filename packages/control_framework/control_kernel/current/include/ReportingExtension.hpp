@@ -47,11 +47,6 @@
 #include <fstream>
 #endif
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/MotionProperties.hpp>
-#endif
-
 #pragma interface
 
 namespace ORO_ControlKernel

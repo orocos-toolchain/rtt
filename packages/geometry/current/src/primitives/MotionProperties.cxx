@@ -24,8 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "geometry/MotionProperties.hpp"
 
+#include <corelib/Property.hpp>
+#include <corelib/PropertyIntrospection.hpp>
+#include "geometry/MotionProperties.hpp"
 #include <pkgconf/geometry.h>
 
 namespace ORO_CoreLib

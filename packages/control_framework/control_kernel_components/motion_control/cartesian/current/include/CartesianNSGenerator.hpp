@@ -40,7 +40,6 @@
 #include <geometry/velocityprofile_rect.h>
 #include <geometry/velocityprofile_dirac.h>
 #include <geometry/rotational_interpolation_sa.h>
-#include <geometry/MotionProperties.hpp>
 #include <corelib/TimeService.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/PropertyExtension.hpp>

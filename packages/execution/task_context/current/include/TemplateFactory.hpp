@@ -209,7 +209,7 @@ namespace ORO_Execution
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
         if ( ! arg1 )
-          throw wrong_types_of_args_exception( 1 );
+          throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
         return fun( c, arg1->get() );
       }
 
@@ -222,7 +222,7 @@ namespace ORO_Execution
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
         if ( ! a )
-          throw wrong_types_of_args_exception( 1 );
+          throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
         return fun( comp, a );
       }
   };
@@ -276,10 +276,10 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 2, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( ! arg1 ) throw wrong_types_of_args_exception( 1 );
+        if ( ! arg1 ) throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
         Property<second_argument_type>* arg2 =
           dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 ) throw wrong_types_of_args_exception( 2 );
+        if ( !arg2 ) throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
         return fun( comp, arg1->get(), arg2->get() );
       }
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
@@ -288,10 +288,12 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 2, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
-        if ( !a ) throw wrong_types_of_args_exception( 1 );
+        if ( !a ) 
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
         DataSource<second_argument_type>* b =
           dynamic_cast<DataSource<second_argument_type>*>( args[1] );
-        if ( !b ) throw wrong_types_of_args_exception( 2 );
+        if ( !b ) 
+            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
         return fun( comp, a, b );
       }
   };
@@ -357,13 +359,16 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 3, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( !arg1 ) throw wrong_types_of_args_exception( 1 );
+        if ( !arg1 ) 
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
         Property<second_argument_type>* arg2 =
           dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 ) throw wrong_types_of_args_exception( 2 );
+        if ( !arg2 ) 
+            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
         Property<third_argument_type>* arg3 =
           dynamic_cast<Property<third_argument_type>*>( props[2] );
-        if ( !arg3 ) throw wrong_types_of_args_exception( 3 );
+        if ( !arg3 ) 
+            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), props[2]->getName() );
         return fun( comp, arg1->get(), arg2->get(), arg3->get() );
       }
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
@@ -372,13 +377,16 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 3, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
-        if ( !a ) throw wrong_types_of_args_exception( 1 );
+        if ( !a )
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
         DataSource<second_argument_type>* b =
           dynamic_cast<DataSource<second_argument_type>*>( args[1] );
-        if ( !b ) throw wrong_types_of_args_exception( 2 );
+        if ( !b )
+            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
         DataSource<third_argument_type>* c =
           dynamic_cast<DataSource<third_argument_type>*>( args[2] );
-        if ( !c ) throw wrong_types_of_args_exception( 3 );
+        if ( !c )
+            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
         return fun( comp, a, b, c );
       }
   };
@@ -453,16 +461,20 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 4, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( !arg1 ) throw wrong_types_of_args_exception( 1 );
+        if ( !arg1 )
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
         Property<second_argument_type>* arg2 =
           dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 ) throw wrong_types_of_args_exception( 2 );
+        if ( !arg2 )
+            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
         Property<third_argument_type>* arg3 =
           dynamic_cast<Property<third_argument_type>*>( props[2] );
-        if ( !arg3 ) throw wrong_types_of_args_exception( 3 );
+        if ( !arg3 )
+            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), props[2]->getName() );
         Property<fourth_argument_type>* arg4 =
           dynamic_cast<Property<fourth_argument_type>*>( props[3] );
-        if ( !arg4 ) throw wrong_types_of_args_exception( 4 );
+        if ( !arg4 )
+            throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), props[3]->getName() );
         return fun( comp, arg1->get(), arg2->get(), arg3->get(), arg4->get() );
       }
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
@@ -471,16 +483,20 @@ namespace ORO_Execution
           throw wrong_number_of_args_exception( 3, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
-        if ( !a ) throw wrong_types_of_args_exception( 1 );
+        if ( !a )
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
         DataSource<second_argument_type>* b =
           dynamic_cast<DataSource<second_argument_type>*>( args[1] );
-        if ( !b ) throw wrong_types_of_args_exception( 2 );
+        if ( !b )
+            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
         DataSource<third_argument_type>* c =
           dynamic_cast<DataSource<third_argument_type>*>( args[2] );
-        if ( !c ) throw wrong_types_of_args_exception( 3 );
+        if ( !c )
+            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
         DataSource<fourth_argument_type>* d =
           dynamic_cast<DataSource<fourth_argument_type>*>( args[3] );
-        if ( !d ) throw wrong_types_of_args_exception( 4 );
+        if ( !d )
+            throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), args[3]->getType() );
         return fun( comp, a, b, c, d );
       }
   };

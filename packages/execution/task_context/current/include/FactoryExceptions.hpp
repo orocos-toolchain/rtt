@@ -50,11 +50,13 @@ namespace ORO_Execution
 
   struct wrong_types_of_args_exception
   {
-    // this contains the number of the argument that had the wrong
-    // type.  The first argument has number 1.
-    int whicharg;
-    wrong_types_of_args_exception( int w )
-      : whicharg( w )
+      // this contains the number of the argument that had the wrong
+      // type.  The first argument has number 1.
+      int whicharg;
+      std::string expected_;
+      std::string received_;
+      wrong_types_of_args_exception( int w, const std::string& expected, const std::string& received )
+          : whicharg( w ), expected_(expected), received_(received)
       {
       };
   };

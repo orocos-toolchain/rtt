@@ -30,6 +30,7 @@
 
 #include "PropertyBag.hpp"
 #include "Property.hpp"
+#include "PropertyIntrospection.hpp"
 #include "ReportExporterInterface.hpp"
 #include "TimeService.hpp"
 

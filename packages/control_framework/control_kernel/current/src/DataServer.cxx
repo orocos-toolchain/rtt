@@ -29,3 +29,14 @@
 
 #pragma implementation
 #include "control_kernel/DataServer.hpp"
+
+namespace ORO_CoreLib
+{
+    // decomposeProperty for the NullType.
+    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
+                           ORO_CoreLib::Property<Loki::NullType> const& nt) {
+        Property<std::string> error(nt.getName(), nt.getDescription(), std::string("NullType") );
+        pi->introspect(error);
+    }
+        
+}

@@ -219,7 +219,7 @@ namespace ORO_Execution
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    ( mcurobject, mcurmethod, e.whicharg );
+                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
             }
         catch( ... )
             {
@@ -247,7 +247,7 @@ namespace ORO_Execution
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    ( mcurobject, mcurmethod, e.whicharg );
+                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
             }
         catch( ... )
             {

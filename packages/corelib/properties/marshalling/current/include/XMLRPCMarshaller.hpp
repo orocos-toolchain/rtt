@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <corelib/Property.hpp>
+#include "corelib/PropertyIntrospection.hpp"
 #include <corelib/Marshaller.hpp>
 #include "StreamProcessor.hpp"
 

@@ -29,6 +29,7 @@
 #define PI_PROPERTIES_SIMPLE_MARSHALLER
 
 #include <corelib/Property.hpp>
+#include "corelib/PropertyIntrospection.hpp"
 
 #include <iostream>
 #include <vector>

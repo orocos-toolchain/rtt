@@ -45,6 +45,7 @@
 #include <iostream>
 
 #include <corelib/Property.hpp>
+#include "corelib/PropertyIntrospection.hpp"
 #include <corelib/Logger.hpp>
 #include "StreamProcessor.hpp"
 

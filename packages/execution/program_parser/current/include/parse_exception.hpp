@@ -334,12 +334,14 @@ namespace ORO_Execution
     std::string mcomponentname;
     std::string mmethodname;
     int margnumber;
+    std::string mexpected;
+    std::string mreceived;
   public:
     parse_exception_wrong_type_of_argument(
       const std::string& componentname, const std::string& methodname,
-      int argnumber )
+      int argnumber, const std::string& expected, const std::string& received )
       : mcomponentname( componentname ), mmethodname( methodname ),
-        margnumber( argnumber )
+        margnumber( argnumber ), mexpected( expected), mreceived( received )
       {
       };
 

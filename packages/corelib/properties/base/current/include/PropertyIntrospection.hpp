@@ -29,16 +29,13 @@
 #define PI_PROPERTYINTROSPECTION_HPP
 
 #include <string>
+#include "PropertyDecomposition.hpp"
 
 namespace ORO_CoreLib
 {
 
     class PropertyBag;
-    class PropertyIntrospection;
 	template<typename T> class Property;
-    
-	template<typename T>
-	void decomposeProperty(PropertyIntrospection *m, const Property<T> &b);
 
 	/**
 	 * An interface which all classes which wish to introspect
@@ -103,7 +100,7 @@ namespace ORO_CoreLib
              * 
              *    decomposeProperty( PropertyIntrospection*, const Property<YourType>& )
              *
-             * An Property<std::string> will be generated containing an error message
+             * An link time error will be generated
              * when this function is not found.
              */
             template< class T >

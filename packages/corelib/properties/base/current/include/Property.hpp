@@ -33,7 +33,6 @@
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "PropertyOperation.hpp"
-#include "PropertyDecomposition.hpp"
 #include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING

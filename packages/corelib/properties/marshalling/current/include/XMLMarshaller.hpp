@@ -29,6 +29,7 @@
 #define PI_PROPERTIES_XMLSERIALIZER
 
 #include <corelib/Property.hpp>
+#include "corelib/PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace ORO_CoreLib

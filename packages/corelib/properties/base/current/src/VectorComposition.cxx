@@ -25,6 +25,10 @@
  *                                                                         *
  ***************************************************************************/
 
+
+#include "corelib/Property.hpp"
+#include "corelib/PropertyBag.hpp"
+#include "corelib/PropertyIntrospection.hpp"
 #include "corelib/VectorComposition.hpp"
 #include "corelib/Logger.hpp"
 #include <iostream>
@@ -70,6 +74,40 @@ namespace ORO_CoreLib
     deleteProperties( result.value() );
   }
 
+  void decomposeProperty(PropertyIntrospection *pi, const Property<const std::vector<double>& >& c)
+  {
+    Property<PropertyBag> result(c.getName(),"std::vector<double>", PropertyBag("std::vector<double>") );
+
+    std::vector<double> vec = c.get();
+    Property<int>* dimension = new Property<int>("dim","Dimension of the Vector", vec.size() );
+
+    result.value().add( dimension );
+
+    std::string data_name = "d00";
+
+    for ( int i=0; i < dimension->get() ; i++)
+    {
+        result.value().add( new Property<double>(data_name,"",vec[i]) ); // Put variables in the bag
+
+        // change last number of string
+        if(i < 100)
+        {
+            if( data_name[2] == '9')
+            {
+                data_name[2] = '0';
+                data_name[1] += 1;
+            }
+            else
+            {
+                data_name[2] += 1;
+            }
+        }
+    }
+
+    pi->introspect(result); // introspect the bag.
+    deleteProperties( result.value() );
+  }
+    
 
 
   // A composeProperty method for composing a property of a vector<double>

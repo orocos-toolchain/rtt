@@ -29,7 +29,6 @@
 #define CARTESIAN_NS_EFFECTOR_HPP
 
 #include <geometry/frames.h>
-#include <geometry/MotionProperties.hpp>
 #include <control_kernel/Simulator.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>

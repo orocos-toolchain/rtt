@@ -184,7 +184,7 @@ namespace ORO_Execution
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    (obj, meth, e.whicharg );
+                    (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
         catch( ... )
             {
@@ -208,7 +208,7 @@ namespace ORO_Execution
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    (obj, meth, e.whicharg );
+                    (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
         catch( ... )
             {
@@ -584,7 +584,7 @@ namespace ORO_Execution
       OperatorRegistry::instance().applyUnary( op, arg.get() );
     if ( ! ret )
       throw parse_exception_semantic_error( "Cannot apply unary operator \"" + op +
-                                            "\" to value." );
+                                            "\" to " + ret->getType() +"." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -606,8 +606,8 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyBinary( op, arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( "Cannot apply binary operator \"" + op +
-                                            "\" to value." );
+      throw parse_exception_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
+                                            " "+arg1->getType() +"." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -634,7 +634,7 @@ namespace ORO_Execution
                                                  arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_semantic_error( "Cannot apply ternary operator \"" + op +
-                                            "\" to value." );
+                                            "\" to "+ arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -671,7 +671,8 @@ namespace ORO_Execution
                                                   arg3.get(), arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_semantic_error( "Cannot apply sixary operator \"" + op +
-                                            "\" to value." );
+                                            "\" to "+ arg6->getType()+", " + arg5->getType()+", " + arg4->getType() +", " +
+                                            arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
     ret->ref();
     parsestack.push( ret );
   };
