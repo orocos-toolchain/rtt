@@ -13,6 +13,7 @@ support for all packages used in Orocos."
     hardware
 
     compile ComponentThreaded.cxx
+    compile SingleThread.cxx
     compile MainThread.cxx
     compile main.cxx
 
