@@ -13,6 +13,7 @@ which encapsulates the command to be executed."
     requires OROPKG_SUPPORT_BOOST_GRAPH
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_CORELIB_STATE
+    requires OROPKG_EXECUTION
 
     compile VertexNode.cxx EdgeCondition.cxx
     compile FunctionGraph.cxx ProgramGraph.cxx 

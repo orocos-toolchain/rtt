@@ -67,11 +67,32 @@ apt-get install libboost-signals-dev
 and rerun the configure script
 ])
 ])
+# Check for boost Spirit
+AC_CHECK_HEADERS([boost/spirit.hpp],
+[
+   ORO_BOOST_PARSER_DETECT=1
+],
+[
+   ORO_BOOST_PARSER_DETECT=0
+AC_MSG_WARN([
+
+Could not find the Boost Spirit Library headers.
+Please install Boost and Boost Spirit.
+
+You can find Boost at http://www.boost.org/
+or if you are a Debian GNU/Linux user, just do:
+
+apt-get install libboost-dev
+
+and rerun the configure script
+])
+])
 AC_LANG_C
 
 AC_SUBST(ORO_BOOST_DETECT)
 AC_SUBST(ORO_BOOST_GRAPH_DETECT)
 AC_SUBST(ORO_BOOST_SIGNALS_DETECT)
+AC_SUBST(ORO_BOOST_PARSER_DETECT)
 ])
 
 

@@ -1,5 +1,7 @@
 
-db:
+.PHONY: db clean orocos-dist doc-dist html-dist doc-dist-clean doxy-dist
+
+db: configure
 	@find support -name "*.cdl" | xargs rm -f
 	@./config.status
 	@echo "Generating ecos.db file ..."
@@ -10,6 +12,10 @@ db:
 	@tar -czf support.epk pkgadd.db
 	@./ecosadmin.tcl add support.epk
 	@rm -f support.epk
+
+configure: acinclude.m4 configure.ac
+	./autogen.sh
+	./config.status --recheck
 
 clean:
 	@echo "Cleaning up..."

@@ -12,9 +12,6 @@ task programs."
     
     parent OROPKG_EXECUTION
 
-    requires OROPKG_SUPPORT_BOOST_GRAPH
-    requires OROPKG_SUPPORT_BOOST
-    requires OROPKG_CORELIB_STATE
     requires OROPKG_EXECUTION
     requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
 

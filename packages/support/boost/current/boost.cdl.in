@@ -18,4 +18,10 @@ be used by other packages."
 	active_if @ORO_BOOST_SIGNALS_DETECT@
 	calculated @ORO_BOOST_SIGNALS_DETECT@
     }
+
+    cdl_option OROPKG_SUPPORT_BOOST_PARSER {
+	display "Boost Parser Library (Spirit)"
+	active_if @ORO_BOOST_PARSER_DETECT@
+	calculated @ORO_BOOST_PARSER_DETECT@
+    }
 }
