@@ -503,7 +503,6 @@ emergencyStop.fire(); // User not notified
 	<ulink url="http://www.boost.org/libs/bind/bind.html">bind manual</ulink>.
       </para>
     </example>
-  </para>
     <para>
       Whether your <function>handle()</function> and <function>complete()</function>
       methods contain deterministic code or not is up to you. It depends on the choice of the
