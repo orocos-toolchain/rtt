@@ -27,12 +27,13 @@
 #ifndef COMEDISUBDEVICEDOUT_HPP
 #define COMEDISUBDEVICEDOUT_HPP
 
-#include <fdi/DigitalOutInterface.hpp>
+#include <device_interface/DigitalOutInterface.hpp>
 #include "ComediDevice.hpp"
 
 namespace CBDeviceDriver
 {
   using namespace ORO_CoreLib;
+  using namespace ORO_DeviceInterface;
 
   /**
    * This logical device represents one subdevice of a Comedi device.

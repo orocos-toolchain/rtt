@@ -18,19 +18,23 @@
  
 /* Klaas Gadeyne August 2003: implemented some non/badly implemented
    stuff.  Added comedilib.h include header
-   Added range information.
+   Added range information.  
+   Klaas Gadeyne November 2003: Not foolproof yet!  Should work with
+   new build system for gnulinux and lxrt
 */ 
 
 #ifndef COMEDISUBDEVICEAIN_HPP
 #define COMEDISUBDEVICEAIN_HPP
 
-#include <fdi/AnalogInInterface.hpp>
+#include <device_interface/AnalogInInterface.hpp>
 #include "ComediDevice.hpp"
+#include <pkgconf/system.h>
 
 namespace CBDeviceDriver
 {
 
   using namespace ORO_CoreLib;
+  using namespace ORO_DeviceInterface;
 
   /**
    * This logical device represents one subdevice of a Comedi device.
@@ -133,7 +137,7 @@ namespace CBDeviceDriver
 			_sd_range[chan], &range);
       return (double) range.min / 1000000;
 #else
-#ifdef USE_LXRT
+#ifdef OROPKG_OS_LXRT
 #define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
@@ -169,7 +173,7 @@ namespace CBDeviceDriver
 			_sd_range[chan], &range);
       return (double) range.max / 1000000;
 #else
-#ifdef USE_LXRT
+#ifdef OROPKG_OS_LXRT
 #define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 

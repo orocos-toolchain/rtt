@@ -22,13 +22,14 @@
 #ifndef COMEDISUBDEVICEAOUT_HPP
 #define COMEDISUBDEVICEAOUT_HPP
 
-#include <fdi/AnalogOutInterface.hpp>
+#include <device_interface/AnalogOutInterface.hpp>
 #include "ComediDevice.hpp"
 
 namespace CBDeviceDriver
 {
 
   using namespace ORO_CoreLib;
+  using namespace ORO_DeviceInterface;
 
   /**
    * This logical device represents one subdevice of a Comedi device.
@@ -131,7 +132,7 @@ namespace CBDeviceDriver
 			_sd_range[chan], &range);
       return (double) range.min / 1000000;
 #else
-#ifdef USE_LXRT
+#ifdef OROPKG_OS_LXRT
 #define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
@@ -167,7 +168,7 @@ namespace CBDeviceDriver
 			_sd_range[chan], &range);
       return (double) range.max / 1000000;
 #else
-#ifdef USE_LXRT
+#ifdef OROPKG_OS_LXRT
 #define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
