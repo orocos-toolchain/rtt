@@ -206,15 +206,22 @@ namespace ORO_ControlKernel
         bool fail = true;
         for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
             {
-                fail = fail && this->writeProperties( tg->second->getLocalStore().getName() ) ; // keep track of configuration
+                // be sure to run through all components, even if there is a failure.
+                fail = this->writeProperties( tg->second->getLocalStore().getName() ) && fail ; // keep track of configuration
             }
         return fail;
     }
 
     bool PropertyExtension::writeProperties( const std::string& compname )
     {
-        if ( myMap.find( compname ) == myMap.end() || ( kernel()->base() && kernel()->base()->isStarted( compname ) ) );
+        if ( myMap.find( compname ) == myMap.end() ){
+            Logger::log() << Logger::Error << "PropertyExtension::writeProperties: Unknown Component: "<< compname << Logger::endl;
             return false;
+        }
+        if ( ( kernel()->base() && kernel()->base()->isStarted( compname ) ) ) {
+            Logger::log() << Logger::Info << "PropertyExtension::writeProperties: Can not write properties of a running Component : "<< compname << Logger::endl;
+            return false;
+        }
 
         PropertyComponentInterface* comp = myMap[ compname ];
         PropertyBag allProps;
@@ -241,6 +248,7 @@ namespace ORO_ControlKernel
                 CPFDemarshaller demarshaller( filename );
                 if ( demarshaller.deserialize( allProps ) == false ) {
                     // Parse error, abort writing of this file.
+                    Logger::log() << Logger::Error << "PropertyExtension: While updating "<< compname <<" : Failed to read "<< filename << Logger::endl;
                     return false;
                 }
             }
@@ -252,7 +260,8 @@ namespace ORO_ControlKernel
         PropertyBag compProps;
         // collect component properties
         comp->exportProperties( compProps );
-        // merge with target file contents.
+        // merge with target file contents,
+        // override allProps.
         copyProperties( allProps, compProps );
         // serialize and cleanup
         std::ofstream file( filename.c_str() );
@@ -263,13 +272,14 @@ namespace ORO_ControlKernel
                 Logger::log() << Logger::Info << "PropertyExtension: Wrote "<< filename <<Logger::endl;
             }
         else {
-            Logger::log() << Logger::Error << "PropertyExtension: Failed to Write "<< filename <<Logger::endl;
+            Logger::log() << Logger::Error << "PropertyExtension: Could not open file "<< filename <<" for writing."<<Logger::endl;
             flattenPropertyBag( allProps );
             deleteProperties( allProps );
             return false;
         }
+        // allProps contains copies (clone()), thus may be safely deleted :
         flattenPropertyBag( allProps );
-        deleteProperties( allProps );
+        deleteProperties( allProps ); 
         return true;
     }
         
