@@ -1,6 +1,12 @@
 
 cdl_package OROPKG_DEVICE_INTERFACE_ENCODER {
     display "C++ Interface to encoder cards"
+    description "
+There is only one interface for encoders :
+EncoderInterface. It can be used for absolute
+and incremental encoders and is turn/position
+based."
+
     parent OROPKG_DEVICE_INTERFACE
     include_dir device_interface
     compile encoder.cxx

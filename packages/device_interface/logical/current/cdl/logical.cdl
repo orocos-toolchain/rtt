@@ -1,6 +1,12 @@
 
 cdl_package OROPKG_DEVICE_INTERFACE_LOGICAL {
     display "Logical device abstraction interfaces"
+
+    description "
+The Logical Device Interfaces are not yet
+stabilised. This package contains some experimental
+interfaces, but is strictly not needed by applications."
+
     parent OROPKG_DEVICE_INTERFACE
     include_dir device_interface
 }
