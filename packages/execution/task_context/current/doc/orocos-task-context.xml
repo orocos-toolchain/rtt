@@ -1225,83 +1225,83 @@ T1.      T3.      back     help     peers    quit     switch   test.
 	When tasks need to synchronise, you have a wide range of
 	options to use. 
       </para>
-      <sect3>
-	<title>Waiting in States</title>
-	<para>
-	  A (sub-)State Machine can pause itself and an extra function
-	  in the task's interface can provide the key to progress to
-	  another state. First the StateMachine is loaded in an .osd file  :
-	</para>
-	<programlisting>
-  StateMachine X {
-     // ...
-     state y {
-        entry {
-           // pause myself, no transitions are checked.
-           do this.pause()
-        }
-        transitions {
-	   // guard this transition.
-           if task.checkSomeCondition() then
-              select z
-        }
-     }
-     state z {
-       // ...
-     }
-  }
+<!--       <sect3> -->
+<!-- 	<title>Waiting in States</title> -->
+<!-- 	<para> -->
+<!-- 	  A (sub-)State Machine can pause itself and an extra function -->
+<!-- 	  in the task's interface can provide the key to progress to -->
+<!-- 	  another state. First the StateMachine is loaded in an .osd file  : -->
+<!-- 	</para> -->
+<!-- 	<programlisting> -->
+<!--   StateMachine X { -->
+<!--      // ... -->
+<!--      state y { -->
+<!--         entry { -->
+<!--            // pause myself, no transitions are checked. -->
+<!--            do this.pause() -->
+<!--         } -->
+<!--         transitions { -->
+<!-- 	   // guard this transition. -->
+<!--            if task.checkSomeCondition() then -->
+<!--               select z -->
+<!--         } -->
+<!--      } -->
+<!--      state z { -->
+<!--        // ... -->
+<!--      } -->
+<!--   } -->
 
-  RootMachine X x</programlisting>
-	<para>Then, load an ops file which contains :</para>
-	<programlisting>
-  export function progress() {
-    // Check if we may progress :
-    if this.states.x.inState("y") then {
-        // continue :
-        do this.states.x.start()
-        // OR try single transition :
-        do this.states.x.step()
-    }
-  }</programlisting>
-	<para>
-	  A peer task then calls <function>progress()</function>
-	  which in turn checks if the function is applicable.
-	  But even then, the responsibility of the transition
-	  lies within the State Machine.
-	</para>
-	<para>
-	  Off course, the example can be simplified by setting/
-	  resetting a boolean flag between function and 
-	  State Machine.
-	</para>
-	<programlisting>
-  StateMachine X {
-     // ...
-     state y {
-        transitions {
-           if task.progressflag == true then
-                select z
-        }
-     }
-     state z {
-       // ...
-     }
-  }
+<!--   RootMachine X x</programlisting> -->
+<!-- 	<para>Then, load an ops file which contains :</para> -->
+<!-- 	<programlisting> -->
+<!--   export function progress() { -->
+<!--     // Check if we may progress : -->
+<!--     if this.states.x.inState("y") then { -->
+<!--         // continue : -->
+<!--         do this.states.x.start() -->
+<!--         // OR try single transition : -->
+<!--         do this.states.x.step() -->
+<!--     } -->
+<!--   }</programlisting> -->
+<!-- 	<para> -->
+<!-- 	  A peer task then calls <function>progress()</function> -->
+<!-- 	  which in turn checks if the function is applicable. -->
+<!-- 	  But even then, the responsibility of the transition -->
+<!-- 	  lies within the State Machine. -->
+<!-- 	</para> -->
+<!-- 	<para> -->
+<!-- 	  Off course, the example can be simplified by setting/ -->
+<!-- 	  resetting a boolean flag between function and  -->
+<!-- 	  State Machine. -->
+<!-- 	</para> -->
+<!-- 	<programlisting> -->
+<!--   StateMachine X { -->
+<!--      // ... -->
+<!--      state y { -->
+<!--         transitions { -->
+<!--            if task.progressflag == true then -->
+<!--                 select z -->
+<!--         } -->
+<!--      } -->
+<!--      state z { -->
+<!--        // ... -->
+<!--      } -->
+<!--   } -->
 
-  RootMachine X x</programlisting>
-	<para>Then, load an ops file which contains :</para>
-	<programlisting>
-  export function progress() {
-    // Check if we may progress :
-    if this.states.x.inState("y") then {
-          set task.progressflag = true
-    }
-  }</programlisting>
-	<para>
-	  When the user or another program calls the progress() command,
-	  the flag will be set.
-	</para>
-      </sect3>
+<!--   RootMachine X x</programlisting> -->
+<!-- 	<para>Then, load an ops file which contains :</para> -->
+<!-- 	<programlisting> -->
+<!--   export function progress() { -->
+<!--     // Check if we may progress : -->
+<!--     if this.states.x.inState("y") then { -->
+<!--           set task.progressflag = true -->
+<!--     } -->
+<!--   }</programlisting> -->
+<!-- 	<para> -->
+<!-- 	  When the user or another program calls the progress() command, -->
+<!-- 	  the flag will be set. -->
+<!-- 	</para> -->
+<!--       </sect3> -->
       <sect3>
 	<title>Requesting States</title>
 	<para>
