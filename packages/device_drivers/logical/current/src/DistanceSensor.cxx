@@ -16,6 +16,7 @@
 //  
 
 #include "device_drivers/DistanceSensor.hpp"
+#include <os/fosi.h>
 
 using namespace ORO_CoreLib;
 using namespace ORO_DeviceDriver;

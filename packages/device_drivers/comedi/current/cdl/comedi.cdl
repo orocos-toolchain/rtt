@@ -4,7 +4,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_COMEDI {
     cdl_option OROPKG_DEVICE_DRIVERS_COMEDI_CFLAGS_ADD {
         display "Comedi include path"
 	flavor data
-        default_value { "/usr/realtime/include" }
+        default_value { "-I/usr/realtime/include" }
     }
 
     include_dir comedi
