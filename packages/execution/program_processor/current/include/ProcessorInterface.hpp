@@ -89,7 +89,7 @@ namespace ORO_Execution
         virtual bool startProgram(const std::string& name) = 0;
 
         /**
-         * Start stepping mode.
+         * Start stepping mode of a program.
          */
         virtual bool startStepping(const std::string& name) = 0;
 
@@ -112,6 +112,24 @@ namespace ORO_Execution
          * Return true if the StateContext has successfully started.
          */
         virtual bool isStateContextRunning( const std::string& name) const = 0;
+
+        /**
+         * Check if a StateContext is in Stepped mode.
+         * @return true if it is so, false if it is continuous.
+         */
+        virtual bool isStateContextStepped(const std::string& name) const = 0;
+
+        /**
+         * Put a StateContext in the state-at-a-time mode.
+         */
+        virtual bool steppedStateContext(const std::string& name) = 0;
+
+        /**
+         * Put a StateContext in the traverse-as-many-states-as-possible mode
+         * (until no transition succeeds).
+         */
+        virtual bool continuousStateContext(const std::string& name) = 0;
+
 
         /**
          * In stepping mode, do the next step.

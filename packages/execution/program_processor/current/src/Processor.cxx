@@ -67,7 +67,7 @@ namespace ORO_Execution
     {
         program_iter it =
             find_if(programs.begin(), programs.end(), bind(program_lookup, _1, name) );
-        if ( it != programs.end() && it->running == false )
+        if ( it != programs.end() && it->running == false && it->stepping == false)
             {
                 it->program->reset();
                 return true;
@@ -115,7 +115,7 @@ namespace ORO_Execution
     {
         program_iter it =
             find_if(programs.begin(), programs.end(), bind(program_lookup, _1, name) );
-        if ( it != programs.end() && it->running == false )
+        if ( it != programs.end() && it->running == false && it->stepping == false)
             {
                 delete it->program;
                 programs.erase(it);
@@ -146,6 +146,28 @@ namespace ORO_Execution
         return it != states.end();
     }
 
+	bool Processor::steppedStateContext(const std::string& name)
+    {
+        state_iter it =
+            find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
+        if ( it != states.end() )
+            {
+                it->stepping = true;
+            }
+        return it != states.end();
+    }
+
+	bool Processor::continuousStateContext(const std::string& name)
+    {
+        state_iter it =
+            find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
+        if ( it != states.end() )
+            {
+                it->stepping = false;
+            }
+        return it != states.end();
+    }
+
 	bool Processor::isStateContextRunning(const std::string& name) const
     {
         cstate_iter it =
@@ -155,14 +177,23 @@ namespace ORO_Execution
         return false;
     }
 
+	bool Processor::isStateContextStepped(const std::string& name) const
+    {
+        cstate_iter it =
+            find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
+        if ( it != states.end() )
+            return it->stepping;
+        return false;
+    }
+
 	bool Processor::stopStateContext(const std::string& name)
     {
         state_iter it =
             find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
         if ( it != states.end() )
             {
-                it->final   = true;
                 it->running = false;
+                it->final   = true;
             }
         return it != states.end();
     }
@@ -214,7 +245,15 @@ namespace ORO_Execution
                 s.init = false;
             }
         else if (s.running)
-            s.state->requestNextState();
+            {
+                if (s.stepping)
+                    s.state->requestNextState(); // one state at a time
+                else {
+                    ORO_CoreLib::StateInterface* cur_s = s.state->currentState();
+                    while ( cur_s != s.state->requestNextState() ) // go until no transition found.
+                        cur_s = s.state->currentState();
+                }
+            }
     }
 
     void executeProgram( Processor::ProgramInfo& p)

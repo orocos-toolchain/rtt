@@ -54,9 +54,6 @@ namespace ORO_Execution
 
             virtual ~Processor();
 
-//             virtual bool startConfiguration();
-// 			virtual bool abort();
-// 			virtual bool endConfiguration();
 			virtual bool startStepping(const std::string& name);
 
 			virtual bool loadStateContext(const std::string& name, StateContext* sc);
@@ -64,6 +61,8 @@ namespace ORO_Execution
             virtual bool stopStateContext(const std::string& name);
             virtual bool resetStateContext(const std::string& name);
             virtual bool deleteStateContext(const std::string& name);
+        virtual bool steppedStateContext(const std::string& name);
+        virtual bool continuousStateContext(const std::string& name);
 
 			virtual bool loadProgram(const std::string& name, ProgramInterface* pi) ;
 			virtual bool startProgram(const std::string& name);
@@ -73,6 +72,7 @@ namespace ORO_Execution
 
         virtual bool isProgramRunning( const std::string& name) const;
         virtual bool isStateContextRunning( const std::string& name) const;
+        virtual bool isStateContextStepped(const std::string& name) const;
 
 			virtual void doStep();
 			virtual bool nextStep(const std::string& name);
@@ -94,28 +94,17 @@ namespace ORO_Execution
         {
             StateInfo(const std::string& _name, StateContext* s)
                 : state(s),
-                  init(false),running(false),final(false),
+                  init(false),running(false),final(false), stepping(true),
                   name(_name) {}
             StateContext* state;
             bool init;
             bool running;
             bool final;
+            bool stepping;
             std::string name;
         };
 
     private:
-
-        //friend class ProcessorState;
-        //state setters
-        //virtual void changeState(ProcessorState* newState);
-        //virtual void resetState();
-
-        /**
-         * current state of this processor
-         *
-         * @invar currentState != 0
-         */
-        //ProcessorState* currentState;
 
         typedef std::list<ProgramInfo>::iterator program_iter;
         typedef std::list<StateInfo>::iterator state_iter;
