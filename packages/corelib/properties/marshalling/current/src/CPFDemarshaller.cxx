@@ -119,6 +119,8 @@ namespace ORO_CoreLib
                             ( new Property<std::string>( name, description, value_string ) );
                         tag_stack.pop();
                         value_string.clear(); // cleanup
+                        description.clear();
+                        name.clear();
                         break;
 
                     case TAG_SEQUENCE:
@@ -131,6 +133,9 @@ namespace ORO_CoreLib
                             ( new Property<PropertyBag>( pn, description, *pb ) );
                             delete pb;
                             tag_stack.pop();
+                            description.clear();
+                            name.clear();
+                            type.clear();
                         }
                         break;
 
@@ -159,7 +164,6 @@ namespace ORO_CoreLib
                     {
 
                         tag_stack.push( TAG_SIMPLE );
-
                         for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                         {
                             std::string an;

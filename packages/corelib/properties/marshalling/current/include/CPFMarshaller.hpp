@@ -44,153 +44,164 @@ namespace ORO_CoreLib
      */
     template<typename output_stream>
     class CPFMarshaller 
-    : public Marshaller, public PropertyIntrospection, public StreamProcessor<output_stream>
+        : public Marshaller, public PropertyIntrospection, public StreamProcessor<output_stream>
     {
-        public:
+        /**
+         * Write-out formatting of a property.
+         */
+        template<class T>
+        void doWrite( const Property<T> &v, const std::string& type )
+        { 
+            *(this->s) << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+            if ( !v.getDescription().empty() )
+                *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
+            *(this->s) << "<value>" << v.get() << "</value></simple>\n";
+        }
+
+        /**
+         * Specialisation in case of a string.
+         */
+        void doWrite( const Property<std::string> &v, const std::string& type )
+        { 
+            *(this->s) << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+            if ( !v.getDescription().empty() )
+                *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
+            *(this->s) << "<value>" << this->escape( v.get() ) << "</value></simple>\n";
+        }
+    public:
         /**
          * Construct a CPFMarshaller.
          */
-            CPFMarshaller(output_stream &os) :
-                    StreamProcessor<output_stream>(os)
-            {
-            }
+        CPFMarshaller(output_stream &os) :
+            StreamProcessor<output_stream>(os)
+        {
+        }
+        
+        virtual void serialize(const Property<bool> &v) 
+        { 
+            doWrite( v, "boolean");
+        }
 
-			virtual void serialize(const Property<bool> &v) 
-			{ 
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"boolean\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
+        virtual void serialize(const Property<char> &v) 
+        { 
+            doWrite( v, "char");
+        }
 
-			virtual void serialize(const Property<char> &v) 
-			{ 
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"char\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
+        virtual void serialize(const Property<int> &v) 
+        { 
+            doWrite( v, "long");
+        }
+			
+        virtual void serialize(const Property<unsigned int> &v) 
+        { 
+            doWrite( v, "ulong");
+        }
+			
+        virtual void serialize(const Property<double> &v) 
+        {
+            doWrite( v, "double");
+        }
+			
+        virtual void serialize(const Property<std::string> &v) 
+        {
+            doWrite( v, "string");
+        }
+			
+        virtual void serialize(const PropertyBag &v) 
+        {
+            *(this->s) <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                       <<"<!DOCTYPE properties SYSTEM \"cpf.dtd\">\n";
+            *(this->s) << "<properties>\n";
 
-			virtual void serialize(const Property<int> &v) 
-			{ 
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"long\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
-			
-			virtual void serialize(const Property<unsigned int> &v) 
-			{ 
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"ulong\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
-			
-			virtual void serialize(const Property<double> &v) 
-			{
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"double\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
-			
-			virtual void serialize(const Property<std::string> &v) 
-			{
-                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"string\">"
-					<< "<description>"<<v.getDescription() << "</description>"
-					<< "<value>" << v.get() << "</value></simple>\n";
-			}
-			
-            virtual void serialize(const PropertyBag &v) 
-			{
-                *(this->s) <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                           <<"<!DOCTYPE properties SYSTEM \"cpf.dtd\">\n";
-                *(this->s) << "<properties>\n";
-
-                for (
-                    std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
-                    i != v.getProperties().end();
-                    i++ )
+            for (
+                 std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
+                 i != v.getProperties().end();
+                 i++ )
                 {
                     (*i)->identify(this);
                 }
-                *(this->s) << "\n</properties>\n";
-			}
+            *(this->s) << "\n</properties>\n";
+        }
 
-            std::string escape(std::string s)
-            {
-                std::string::size_type n=0;
-                // replace amps first.
-                while ((n = s.find("&",n)) != s.npos) {
-                    s.replace(n, 1, std::string("&amp;"));
-                    n += 5;
-                }
-
-                n=0;
-                while ((n = s.find("<",n)) != s.npos) {
-                    s.replace(n, 1, std::string("&lt;"));
-                    n += 4;
-                }
-
-                n=0;
-                while ((n = s.find(">",n)) != s.npos) {
-                    s.replace(n, 1, std::string("&gt;"));
-                    n += 4;
-                }
-
-                // TODO: Added escapes for other XML entities
-                return s;
+        std::string escape(std::string s)
+        {
+            std::string::size_type n=0;
+            // replace amps first.
+            while ((n = s.find("&",n)) != s.npos) {
+                s.replace(n, 1, std::string("&amp;"));
+                n += 5;
             }
 
-			virtual void serialize(const Property<PropertyBag> &b) 
-			{
-				PropertyBag v = b.get();
-                *(this->s) <<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n"
-                           <<"<description>"  <<escape(b.getDescription()) << "</description>\n";
-                for (
-                    PropertyBag::const_iterator i = v.getProperties().begin();
-                    i != v.getProperties().end();
-                    ++i )
+            n=0;
+            while ((n = s.find("<",n)) != s.npos) {
+                s.replace(n, 1, std::string("&lt;"));
+                n += 4;
+            }
+
+            n=0;
+            while ((n = s.find(">",n)) != s.npos) {
+                s.replace(n, 1, std::string("&gt;"));
+                n += 4;
+            }
+
+            // TODO: Added escapes for other XML entities
+            return s;
+        }
+
+        virtual void serialize(const Property<PropertyBag> &b) 
+        {
+            PropertyBag v = b.get();
+            *(this->s) <<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n";
+            if ( !b.getDescription().empty() )
+                *(this->s) <<"<description>"  <<escape(b.getDescription()) << "</description>\n";
+            for (
+                 PropertyBag::const_iterator i = v.getProperties().begin();
+                 i != v.getProperties().end();
+                 ++i )
                 {
                     (*i)->identify(this);
                 }
-                *(this->s) <<"</struct>\n";
-			}
+            *(this->s) <<"</struct>\n";
+        }
 
-			virtual void introspect(const Property<bool> &v) 
-			{ 
-                serialize(v);
-			}
+        virtual void introspect(const Property<bool> &v) 
+        { 
+            serialize(v);
+        }
 
-			virtual void introspect(const Property<char> &v) 
-			{ 
-                serialize(v);
-			}
+        virtual void introspect(const Property<char> &v) 
+        { 
+            serialize(v);
+        }
 
-			virtual void introspect(const Property<int> &v) 
-			{ 
-                serialize(v);
-			}
+        virtual void introspect(const Property<int> &v) 
+        { 
+            serialize(v);
+        }
 			
-			virtual void introspect(const Property<unsigned int> &v) 
-			{ 
-                serialize(v);
-			}
+        virtual void introspect(const Property<unsigned int> &v) 
+        { 
+            serialize(v);
+        }
 			
-			virtual void introspect(const Property<double> &v) 
-			{
-                serialize(v);
-			}
+        virtual void introspect(const Property<double> &v) 
+        {
+            serialize(v);
+        }
 
-			virtual void introspect(const Property<std::string> &v) 
-			{
-                serialize(v);
-			}
+        virtual void introspect(const Property<std::string> &v) 
+        {
+            serialize(v);
+        }
 			
-            virtual void introspect(const Property<PropertyBag> &v) 
-			{
-				serialize(v);
-            }
-            virtual void flush()
-			{
-                this->s->flush();
-            }
+        virtual void introspect(const Property<PropertyBag> &v) 
+        {
+            serialize(v);
+        }
+        virtual void flush()
+        {
+            this->s->flush();
+        }
             
 	};
 }

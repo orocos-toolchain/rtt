@@ -190,10 +190,13 @@ namespace ORO_CoreLib
             }
 
             /**
-             * Update the value, leave the rest.
+             * Update the value, optionally also the description if current
+             * description is empty.
              */
             void update( const Property<T>& orig)
             {
+                if ( _description.empty() )
+                    _description = orig.getDescription();
                 ORO_CoreLib::update( _value, orig.get() );
             }
 
