@@ -95,7 +95,7 @@ namespace ORO_CoreLib
           beat( TimeService::Instance() ), maxsteps_(0)
     {
         this->continuousStepping( true );
-        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"ms periodicity";
+        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"s periodicity";
         Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_SIM_PRIORITY << Logger::endl;
     }
 
