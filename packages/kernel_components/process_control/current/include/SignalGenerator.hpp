@@ -73,20 +73,25 @@ namespace ORO_ControlKernel
      * for each channel.
      * @ingroup kcomps kcomp_generator
      */
-    template< class Base = Generator< Expects<NoCommand>, Expects<NoInput>, Expects<NoModel>, Writes<SignalSetPoint>, 
-                                      MakeAspect<KernelBaseFunction
-#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-                                                 , ExecutionExtension
-#endif
-                                                 >::CommonBase > >
     class SignalGenerator
-        : public Base
+        : public Generator< Expects<NoCommand>, Expects<NoInput>, Expects<NoModel>, Writes<SignalSetPoint>, 
+                            MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                       , ExecutionExtension
+#endif
+                                       >::Result >
     {
+        typedef Generator< Expects<NoCommand>, Expects<NoInput>, Expects<NoModel>, Writes<SignalSetPoint>, 
+                           MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                      , ExecutionExtension
+#endif
+                                      >::Result > Base;
     public:
         /**
          * @brief Create a signalgenerator with a fixed number of channels.
          */
-        SignalGenerator(unsigned int num_channels =  1) 
+        SignalGenerator(int num_channels =  1) 
             : Base("SignalGenerator"),
               max_chans("Channels", "The number of channels", num_channels)
         {
@@ -136,7 +141,7 @@ namespace ORO_ControlKernel
          * @param frequence The frequence of the sine in Hz.
          * @param phase The phase shift of the sine (in degrees).
          */
-        bool sine( unsigned int chan_num, double frequence, double phase )
+        bool sine( int chan_num, double frequence, double phase )
         {
             if (chan_num >= max_chans )
                 return false;
@@ -148,7 +153,7 @@ namespace ORO_ControlKernel
         /**
          * @brief Multiply the output of a channel with a special value.
          */
-        bool scaleValue( unsigned int chan_num, double factor )
+        bool scaleValue( int chan_num, double factor )
         {
             if (chan_num >= max_chans )
                 return false;
@@ -161,7 +166,7 @@ namespace ORO_ControlKernel
          *
          * @return true if chan_num was valid.
          */
-        bool enableChannel( unsigned int chan_num )
+        bool enableChannel( int chan_num )
         {
             if (chan_num >= max_chans )
                 return false;
@@ -176,7 +181,7 @@ namespace ORO_ControlKernel
          *
          * @return true if chan_num was valid.
          */
-        bool disableChannel( unsigned int chan_num )
+        bool disableChannel( int chan_num )
         {
             if (chan_num >= max_chans )
                 return false;
@@ -184,14 +189,14 @@ namespace ORO_ControlKernel
             return true;
         }
 
-        bool isEnabled( unsigned int chan_num ) const
+        bool isEnabled( int chan_num ) const
         {
             if (chan_num >= max_chans )
                 return false;
             return channel[chan_num].enable;
         }
 
-        bool isFrozen( unsigned int chan_num ) const
+        bool isFrozen( int chan_num ) const
         {
             if (chan_num >= max_chans )
                 return false;
@@ -205,7 +210,7 @@ namespace ORO_ControlKernel
          * when unfreezed. During freeze, it keeps generating its
          * last setpoint.
          */
-        bool freezeChannel( unsigned int chan_num)
+        bool freezeChannel( int chan_num)
         {
             // we can only freeze if the channel is enabled.
             if (chan_num >= max_chans || channel[chan_num].enable==false || channel[chan_num].freeze == true)
@@ -219,7 +224,7 @@ namespace ORO_ControlKernel
          * @brief Unfreeze the channel, it will continue to generate
          * new setpoints.
          */
-        bool unfreezeChannel( unsigned int chan_num)
+        bool unfreezeChannel( int chan_num)
         {
             // we can only freeze if the channel is enabled.
             if (chan_num >= max_chans || channel[chan_num].enable==false || channel[chan_num].freeze == false)
@@ -233,14 +238,14 @@ namespace ORO_ControlKernel
         /**
          * @brief Return the current setpoint of a channel.
          */
-        double channelValue( unsigned int chan_num ) const
+        double channelValue( int chan_num ) const
         {
             if (chan_num >= max_chans )
                 return 0;
             return set_point[chan_num];
         }
 
-        bool isValidChannel( unsigned int chan_num ) const
+        bool isValidChannel( int chan_num ) const
         {
             if (chan_num >= max_chans )
                 return false;
@@ -268,56 +273,55 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< SignalGenerator<Base> >* ret =
+            TemplateDataSourceFactory< SignalGenerator >* ret =
                 newDataSourceFactory( this );
             ret->add( "channelValue", 
-                      data( &SignalGenerator<Base>::channelValue, "The current value "
+                      data( &SignalGenerator::channelValue, "The current value "
                             "of the channel.",
                             "Channel", "The number of the channel") );
             return ret;
         }
 
-        template< class T >
-        bool true_gen( T t ) const { return true; }
+        bool true_gen() const { return true; }
 
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< SignalGenerator<Base> >* ret =
+            TemplateCommandFactory< SignalGenerator >* ret =
                 newCommandFactory( this );
             ret->add( "enableChannel", 
-                      command( &SignalGenerator<Base>::enableChannel,
-                               &SignalGenerator<Base>::isValidChannel,
+                      command( &SignalGenerator::enableChannel,
+                               &SignalGenerator::true_gen,
                                "Turn on a channel.",
                                "Channel", "The channel to turn on."
                                ) );
             ret->add( "disableChannel", 
-                      command( &SignalGenerator<Base>::disableChannel,
-                               &SignalGenerator<Base>::isValidChannel,
+                      command( &SignalGenerator::disableChannel,
+                               &SignalGenerator::true_gen,
                                "Turn off a channel.",
                                "Channel", "The channel to turn off."
                                ) );
             ret->add( "freezeChannel", 
-                      command( &SignalGenerator<Base>::freezeChannel,
-                               &SignalGenerator<Base>::isFrozen,
+                      command( &SignalGenerator::freezeChannel,
+                               &SignalGenerator::isFrozen,
                                "Freeze a channel.",
                                "Channel", "The channel to freeze."
                                ) );
             ret->add( "resumeChannel", 
-                      command( &SignalGenerator<Base>::unfreezeChannel,
-                               &SignalGenerator<Base>::isFrozen,
+                      command( &SignalGenerator::unfreezeChannel,
+                               &SignalGenerator::isFrozen,
                                "Resume a channel.",
                                "Channel", "The channel to resume, after a freeze.", true
                                ) );
             ret->add( "scaleValue", 
-                      command( &SignalGenerator<Base>::scaleValue,
-                               &SignalGenerator<Base>::isValidChannel,
+                      command( &SignalGenerator::scaleValue,
+                               &SignalGenerator::true_gen,
                                "Scale the output of a channel.",
                                "Channel", "The channel number.",
                                "Factor", "The scale factor."
                                ) );
             ret->add( "sine", 
-                      command( &SignalGenerator<Base>::sine,
-                               &SignalGenerator<Base>::isValidChannel,
+                      command( &SignalGenerator::sine,
+                               &SignalGenerator::true_gen,
                                "Generate a sine on a channel.",
                                "Channel", "The channel number.",
                                "Frequence", "The frequency in Hz.",
@@ -328,7 +332,7 @@ namespace ORO_ControlKernel
 #endif
 
     protected:
-        Property<unsigned int> max_chans;
+        Property<int> max_chans;
 
         /**
          * Holds all info about the state of a channel.
@@ -348,13 +352,11 @@ namespace ORO_ControlKernel
             HeartBeatGenerator::ticks freezetime;
         };
 
-        typedef typename std::vector<Channel>::iterator chaniter;
+        typedef std::vector<Channel>::iterator chaniter;
         std::vector<Channel> channel;
         std::vector<double> set_point;
         DataObjectInterface< std::vector<double> >* setp_DObj;
     };
-
-    extern template class SignalGenerator<>;
 
 }
 

@@ -1,11 +1,9 @@
-#include "Channel_P_Controller.hpp"
 
 /*****************************************
- * Implementation of controller class Channel_P_Controller
+ * Implementation of controller class P_Controller
  *****************************************/
-template <class Base> 
-Channel_P_Controller<Base>::Channel_P_Controller(unsigned int num_axes) 
-  : Base("Channel_P_Controller"),
+P_Controller::P_Controller(unsigned int num_axes) 
+  : Base("P_Controller"),
     _num_axes(num_axes),
     _controller_gain("k", "Proportional Gain", 1.0)
 {
@@ -15,17 +13,14 @@ Channel_P_Controller<Base>::Channel_P_Controller(unsigned int num_axes)
   _measPos.resize(_num_axes, 0.0);
 }
 
-template <class Base> 
-Channel_P_Controller<Base>::~Channel_P_Controller(){};
+P_Controller::~P_Controller(){};
 
-template <class Base> 
-bool Channel_P_Controller<Base>::componentLoaded()
+bool P_Controller::componentLoaded()
 {
     return Base::Output::dObj()->Get("ChannelValues",outp_dObj);
 }
 
-template <class Base> 
-bool Channel_P_Controller<Base>::componentStartup()
+bool P_Controller::componentStartup()
 {
     if ( Base::SetPoint::dObj()->Get("ChannelValues",setp_dObj) &&
          Base::Input::dObj()->Get("ChannelMeasurements", inp_dObj) )
@@ -38,16 +33,15 @@ bool Channel_P_Controller<Base>::componentStartup()
 
 
 
-template <class Base>             
-void Channel_P_Controller<Base>::pull()      
+void P_Controller::pull()      
 {
   _refPos    = setp_dObj->Get();
   // No estimator in this kernel: Read directly from SensorInputs
   _measPos   = inp_dObj->Get();
 }
 
-template <class Base> 
-void Channel_P_Controller<Base>::calculate() 
+
+void P_Controller::calculate() 
 {
   for (unsigned int i=0; i< _num_axes; i++)
     {
@@ -56,17 +50,15 @@ void Channel_P_Controller<Base>::calculate()
     }
 }
 
-template <class Base>
-bool Channel_P_Controller<Base>::updateProperties(const PropertyBag& bag)
+bool P_Controller::updateProperties(const PropertyBag& bag)
 {
   composeProperty(bag, _controller_gain);
-  std::cerr << "Channel_P_Controller::updateProperties() : _K = " << _controller_gain.value() << std::endl;
+  std::cerr << "P_Controller::updateProperties() : _K = " << _controller_gain.value() << std::endl;
   return true;
 }
 
 
-template <class Base> 
-void Channel_P_Controller<Base>::push()      
+void P_Controller::push()      
 {
   outp_dObj->Set(_result);
 }

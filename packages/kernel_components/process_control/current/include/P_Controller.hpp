@@ -15,8 +15,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#ifndef __CHANNEL_P_CONTROLLER_H__
-#define __CHANNEL_P_CONTROLLER_H__
+#ifndef __P_CONTROLLER_H__
+#define __P_CONTROLLER_H__
 
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
@@ -25,18 +25,18 @@
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
 
-#pragma interface
+//#pragma interface
 
 namespace ORO_ControlKernel
 {
 
     /**
-     * The output of the Channel_P_Controller.
+     * The output of the P_Controller.
      */
-    struct Channel_P_Controller_Output
+    struct P_Controller_Output
         : ServedTypes< std::vector<double> > 
     {
-        Channel_P_Controller_Output() {
+        P_Controller_Output() {
             this->insert(std::make_pair(0, "ChannelValues"));
         }
     };
@@ -57,10 +57,10 @@ namespace ORO_ControlKernel
    *  - Out: Velocity sendpoints to send to the effector
    *  @ingroup kcomps kcomp_controller 
    */
-  template <class Base = Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<Channel_P_Controller_Output>, MakeExtension<PropertyExtension, KernelBaseFunction>::CommonBase > >
-  class Channel_P_Controller
-    : public Base
+  class P_Controller
+    : public Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction>::Result >
   {
+      typedef Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction>::Result > Base;
   protected:
       typedef std::vector<double> ChannelType;
       DataObjectInterface<ChannelType>* inp_dObj;
@@ -78,8 +78,8 @@ namespace ORO_ControlKernel
       Property<double> _controller_gain;
 
   public:
-      Channel_P_Controller(unsigned int _num_axes);
-      virtual ~Channel_P_Controller();
+      P_Controller(unsigned int _num_axes);
+      virtual ~P_Controller();
 
       // Redefining virtual members
       virtual bool updateProperties(const PropertyBag& bag);
@@ -92,11 +92,8 @@ namespace ORO_ControlKernel
 
   };
 
-
-#include "Channel_P_Controller.inc"
-
-    extern template class Channel_P_Controller<>;
+#include "P_Controller.inc"
 
 }
 
-#endif // __N_AXES_P_CONTROLLER_H__
+#endif

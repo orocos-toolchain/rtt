@@ -4,6 +4,5 @@
 
 namespace ORO_ControlKernel {
 
-    template class SignalTracker<>;
 
 }

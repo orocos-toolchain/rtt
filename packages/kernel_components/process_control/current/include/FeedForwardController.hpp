@@ -33,12 +33,6 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
 
-#include <pkgconf/control_kernel.h>
-#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
-#endif
-
 #pragma interface
 
 namespace ORO_ControlKernel
@@ -65,10 +59,10 @@ namespace ORO_ControlKernel
      * setpoint values to the output dataobject.
      * @ingroup kcomps kcomp_controller
      */
-    template< class Base = Controller<Expects<NoInput>, Expects<NoModel>, Expects<FFSetPoint>, Writes<FFOutput> > >
     class FeedForwardController
-        : public Base
+        : public Controller<Expects<NoInput>, Expects<NoModel>, Expects<FFSetPoint>, Writes<FFOutput> >
     {
+        typedef Controller<Expects<NoInput>, Expects<NoModel>, Expects<FFSetPoint>, Writes<FFOutput> > Base;
     public:
         /**
          * Forward a fixed number of channels from Setpoints to Outputs.
@@ -128,8 +122,6 @@ namespace ORO_ControlKernel
         DataObjectInterface< std::vector<double> >* setp_DObj;
         DataObjectInterface< std::vector<double> >* outp_DObj;
     };
-
-    extern template class FeedForwardController<>;
 
 }
 
