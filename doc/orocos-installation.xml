@@ -1,0 +1,650 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+
+<book>
+  <bookinfo>
+    <title>
+      The OROCOS Project Installation Guide 
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Herman</firstname>
+	<surname>Bruyninckx</surname>
+      </author>
+      
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+
+      <author>
+	<firstname>Panagiotis</firstname>
+	<surname>Issaris</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002</year>
+      <holder>Herman Bruyninckx, Peter Soetens, Panagiotis Issaris</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains how the
+	packages of <ulink url="http://www.orocos.org">&orocos;</ulink>,
+	the <emphasis>Open RObot COntrol Software</emphasis> project
+	must be installed and configured.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>28 Oct 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </bookinfo>
+
+  <chapter>
+    <title> Setting up your first &orocos; source tree </title>
+    <sect1 id="installation">
+      <title>Installation and configuration</title>
+
+      <sect2>
+	<title>Supported platforms (targets)</title>
+	<para>
+	  &orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
+	  (<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
+	  userspace, and very limited RTLinux (<ulink
+	    url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink>, RTLinux
+	  is now a commercial product ). So,
+	  you can first write your software as a normal program, using the framework
+	  for testing and debugging purposes in plain userspace Linux and recompile
+	  later to another target.
+	</para>
+	<para>
+	  RTAI and LXRT is the best supported platform at this moment. RTLinux can
+	  only partially use all &orocos; features, because it lacks a decent
+	  kernel space memory manager. Furthermore, Since no one is using the 
+	  FSMLabs RTLinux port, it is no longer updated.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The versioning scheme</title>
+	<para>
+	  &orocos; uses the well-known even/stable uneven/unstable version
+	  numbering scheme, just as the Linux kernel and many other projects. A
+	  particular version is represented by three numbers separated by dots.
+	  An <emphasis>even</emphasis> middle number indicates a
+	  <emphasis>stable</emphasis> version. For example :
+	  <itemizedlist>
+	    <listitem><para>0.1.4 : Release 0, unstable (1), revision 4.</para></listitem>
+	    <listitem><para>1.2.1 : Release 1, stable   (2), revision 1.</para></listitem>
+	  </itemizedlist>
+	  This numbering allows to develop and release two kinds of versions,
+	  where the unstable version is mainly for testing new features and designs and
+	  the stable version is for people wanting to run a reliable system.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Installing Orocos from Subversion ( similar to CVS )</title>
+	<para>
+	  Installing &orocos; from &cvs; gets you the latest and greatest, but requires
+	  some familiarity
+	  with the tools we use.  This section will do its best to help you through
+	  the Subversion (SVN) installation  process.
+	</para>
+	<para>
+	  The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
+	  Package Tree from the Subversion tree.
+	  <screen width="60">
+	    EXPORT SVN_SSH='ssh -lanoncvs'
+	    svn svn+ssh://cvs.mech.kuleuven.ac.be:/repos/svn co orocos/orocos-trunk
+	    cd orocos/orocos-trunk
+	</screen>
+	  Make sure you have &ldquo;<application>svn</application>&rdquo;
+	  installed; enter &ldquo;anon&rdquo; as password when asked for.
+	</para>
+	<para>
+	  The next step requires that you use
+	  <ulink url="http://www.gnu.org/software/automake/">automake</ulink>
+	  version 1.6.3 and
+	  <ulink url="http://www.gnu.org/software/autoconf/">autconf</ulink>
+	  version 2.54. You can check your
+	  versions with the <parameter>--version</parameter> option:
+	<screen>
+	  $ automake --version
+	  automake (GNU automake) 1.6.3
+	  ...
+	  $ autoconf --version
+	  autoconf (GNU Autoconf) 2.54
+	</screen>
+	  <note>
+	    You need these programs if you intend to modify the makefiles
+	  </note>
+	  When you get something similar, proceed with calling the <command>
+	    ./autogen.sh </command> command in the packages directory
+	  , in order to initialize the <filename>autoconf</filename> 
+	  and <filename>automake</filename> files:
+	  <screen>
+	    cd packages
+	    ./autogen.sh
+	    ./configure
+	    make db
+	  </screen>
+	  The configure script will detect the installed software on your
+	  system and generate the appropriate scripts. A <command>make db</command>
+	  command will create a new database containing a list of all the packages.
+	</para>
+	<para>
+	  The next steps are exactly the same as when you install the system
+	  starting from a so-called &ldquo;epk&rdquo; package, as explained in the
+	  next section. Of course, you don't have to apply the
+	  <command>ecosadmin.tcl</command> command when installing from CVS.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Installing Orocos from the epk packages</title>
+	<para>
+	  Orocos has switched to a less common system for 
+	  distribution and configuration. It it taken from the eCos operating
+	  system, but, apart from the name, has nothing to do with it when used
+	  with &orocos;. The tools you will need are ecosconfig and configtool.
+	  In Debian, one can install them using :
+	  <screen>
+	    apt-get -t unstable install ecosconfig
+	  </screen>
+	  Other distributions might need to build ecosconfig themselves from
+	  this tarball : <ulink url="http://people.mech.kuleuven.ac.be/psoetens/ecos/
+	    ecosconfig-2.0.tar.gz">ecosconfig-2.0.tar.gz</ulink>. 
+	</para>
+	<note>The graphical configtool program uses the libwxgtk2.4 library</note>
+	<para>
+	  These tools both serve the
+	  same purpose : to control package configuration and installation. Ecosconfig
+	  is command-line based, configtool is a graphical tool. The eCos folks wrote an
+	  (eCos-oriented) manual which explains them in great detail in <ulink url=
+	    "http://sources.redhat.com/ecos/docs-latest/user-guide/ecos-user-guide.html">
+	    the user guide</ulink> and how packages work internally is written in the
+	  <ulink url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html">
+	    eCos Component Writer Guide</ulink>.
+	</para>
+	<note>
+	  In the eCos operating system, a target is a hardware platform, in Orocos,
+	  a target is RTAI, GNU/Linux, LXRT and so on, so you can skip all hardware
+	  specific sections in the eCos manuals.
+	</note>
+	<para>
+	  When these tools are present, proceed as follows :
+	</para>
+	<orderedlist>
+	  <listitem><para>Download Orocos-Host.tar.gz from the Orocos webpage</para></listitem>
+	  <listitem><para>Extract it using : tar -xvzf orocos-0.10.0.tar.gz</para></listitem>
+	  <listitem><para>Setup the base environment : 
+	      <command>cd orocos-0.10.0; ./autogen.sh; </command></para></listitem>
+	  <listitem><para>Setup the packages environment :
+	      <command>cd orocos-0.10.0/packages; ./autogen.sh;</command></para></listitem>
+	  <listitem><para>Download the required Orocos .epk packages</para></listitem>
+	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
+	      <command>cd orocos-0.10.0/packages; tclsh ecosadmin.tcl add &lt;filename.epk&gt;</command>
+	      This action is also documented in the ecos manuals and equivalent to the installation
+	      of any eCos package, see 
+<ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
+	      The eCos Userguide</ulink> for the synopsis.
+	    </para></listitem>
+	  <listitem><para>When all packages are installed, generate the ecos.db file using:
+	    <command>cd orocos-0.10.0/packages; ./configure ; make db</command>
+	    This command generates an index of all installed packages, the configure command
+	    may detect installed software on your system and generate support packages
+	    to reflect this. When you install new relevant software, you must rerun <command> configure </command>
+	    and <command>make db</command>.</para></listitem>
+	  <listitem><para>Finally, you can now choose between using the plain ecos tools or 
+	    our supplied make targets which enhance convenience : 
+	      <screen> 
+		mkdir orocos-0.10.0/build 
+		cd orocos-0.10.0/build
+		../configure --with-&lt;target&gt;
+		make new_packages 
+		make configure_packages
+	        make build_packages
+	      </screen>
+	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
+	    </para></listitem>
+	  <listitem><para></para></listitem>
+	  <listitem><para></para></listitem>
+	</orderedlist>
+      <para>
+	Each package will have been installed in a packages/package-name/version/ directory,
+	allowing multiple versions to be installed next to each other. The CVS version is
+	always called 'current', and considered as the most recent version.
+      </para>
+      <para>
+	The make build_packages command will have made a directory packages-&lt;target&gt;
+	where the building takes place. The results of the build are in the
+	packages-&lt;target&gt;/install directory. You will find the header files and a 
+	library called libtarget.a (literally). These files allow you to build external
+	applications with &orocos;. Of course a package itself can also be an application,
+	resulting in an executable in the packages-&lt;target&gt;/install/bin directory.
+      </para>
+      <sect3>
+	<title>Using &orocos; concurrently for multiple targets</title>
+	<para>
+	  When you want to build for another target, simply re-invoke ../configure --with-&lt;target&gt;
+	  from the build directory and a new packages-&lt;target&gt; directory will be made.
+	</para>
+	<para>
+	  If this step fails, it means that you have not everyting installed
+	  which is needed for a basic &orocos; build. Most users don't have the
+	  Boost library (<filename>libboost-dev</filename> or
+	  <filename>libboost-devel</filename>) installed.  Please install this
+	  package from the binary or source package repository of your Linux
+	  distribution, or download and install it from the <ulink
+	    url="http://www.boost.org">Boost project.</ulink> As soon as the
+	  configure step succeeds, all the rest will succeed too. Please use the
+	  mailinglist at <email>orocos@mail.mech.kuleuven.ac.be</email> for
+	  technical support.
+	</para>
+	<para>
+	  You can use the <command>make check_packages</command> command to start building
+	  a test program in applications/testcase. 
+	  The <command>make docs</command> or
+	  <command>doxygen</command> commands build API documentation.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Installing an Orocos Package </title>
+	<para>
+	  This step is hardly needed, since the build-directory is also
+	  the installation directory. The ecostools allow to define a separate
+	  installation directory, but this is documented in the eCos docs.
+	  Kernel modules can be found in the install/modules directory and
+	  might need manual installation.
+	</para>
+	  <para>You can find the resulting build products on the following places:</para>
+	  <table frame="all">
+	    <title>Build Products Locations</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>What</entry>
+		  <entry>Where</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>Executable programs</entry>
+		  <entry>install/bin</entry>
+		</row>
+		<row>
+		  <entry>Orocos library</entry>
+		  <entry>install/lib</entry>
+		</row>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Orocos header files</entry>
+		  <entry>install/include</entry>
+		</row>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Orocos kernel modules</entry>
+		  <entry>install/modules</entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Configuration</title>
+      <sect3>
+	<title>Configuring an Orocos Package</title>
+	<para>
+	  By default, &orocos; will be built to install in
+	  <filename class="directory">packages-&lt;target&gt;/install</filename>.
+	  You can modify this by passing a --prefix= option to ecosconfig or
+	  change it in the GUI.
+	</para>
+	<note>ecosconfig and configtool both use a different namingscheme
+	  for installation and build directories. configtool uses the
+	  &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
+	  subdirectories while ecosconfig uses the current dir to build and
+	  the install directory for installation.
+	</note>
+	<para>
+	  Just running <command>./configure</command> or <command>./configure
+	    --with-gnulinux</command> selects the os/gnulinux target.</para>
+
+	<para>
+	  When running <command>./configure --with-rtlinux</command> the configure
+	  script will select the os/rtlinux target.
+	</para>
+
+	<para>
+	  When running <command>./configure --with-rtai</command>, the
+configure script will select the os/rtai target
+	  <tip>
+	    <para>
+	      Read <xref linkend="general_setup_rtai"/> about possible patches you
+	      should apply to RTAI before a run will compile.
+	    </para>
+	  </tip>
+	</para>
+	<para>
+	  When running <command>./configure --with-lxrt</command> the configure
+	  script will select the os/lxrt target.
+	</para>
+      </sect3>
+
+      <sect3>
+	<title>Compiler flags</title>
+	<para>
+	  You must set the compiler flags in the configtool GUI.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2 id="general_setup_rtai">
+      <title >Configuring for RTAI</title>
+	<para>
+	  Read first the 'Getting Started' section from 
+	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this page</ulink> if you
+	  are not familiar with RTAI instalation
+	</para>
+	<para>
+	  We recommend using RTAI version 24.1.12 or later. You can obtain it from 
+	  <ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
+	  <screen>
+	    export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
+	    cvs login
+      
+	    password: anoncvs
+
+	    cvs -z3 co stable
+	    cvs -z3 up 
+	  </screen>
+	  Read The README.* files in the
+	  <filename class="directory">rtai</filename> directory for detailed
+	  instructions.  First, you need to patch your Linux kernel. A patch per
+	  kernel version can be found in the rtai/patches directory. You should
+	  apply the <filename>patch-X.Y.Z-adeos-rx</filename> patch to a clean
+	  Linux kernel.  We refer to the RTAI installation instructions for more
+	  details.
+	</para>
+	<para>
+	</screen>
+	  Next do <command>make menuconfig; make dep; make;</command>
+	</para>
+	<sect3>
+	  <title> RTAI settings </title>
+	  <para>
+	    RTAI comes with extensive documentation for configuration and
+	    installation.
+	    In the configuration process, make sure that you enable the following
+	    options:
+	    <screen>
+	    --- Code maturity level options
+	    [*] Prompt for experimental code
+	    --- Scheduler
+	    &lt;*&gt; UP Scheduler
+	    --- Features
+	    [*] Enable floating point support
+	    &lt;*&gt; RTAI Math library support
+	    [*] Strange APIC support
+	    --- Subsystems
+            &lt;*&gt; RT memory manager
+            [*]   Use vmalloc() instead of kmalloc()
+            &lt;M&gt; FIFOs
+            &lt;M&gt; Shared Memory
+            &lt;M&gt; POSIX API
+            &lt; &gt; Watchdog
+            &lt;M&gt; LXRT - Realtime in User Space
+            &lt;M&gt; NEWLXRT - Native Linux Hard Realtime (NEW)
+            &lt;M&gt; C++ support
+            [*]   New rtai_cpp interface (EXPERIMENTAL)
+            &lt;M&gt; Tasklets
+            &lt;M&gt; Bits
+            &lt;M&gt; Typed mailboxes
+            &lt; &gt; Real-Time serial driver (rt_com)
+            &lt; &gt; Real-Time serial driver (spdrv) (NEW)
+            &lt; &gt; Real-Time networking (rtnet) (EXPERIMENTAL)
+<!---	    &lt;M&gt; POSIX API
+	    &lt;M&gt; RT memory manager
+	    [*]   Use vmalloc() instead of kmalloc()
+	    &lt;M&gt; FIFOs
+	    &lt;M&gt; LXRT - Realtime in User Space
+	    &lt; &gt;   LXRT Real-Time Workshop wrapper
+	    &lt; &gt;   LXRT rt_com wrapper
+	    &lt; &gt;   LXRT FIFOs wrapper
+	    &lt;M&gt; C++ support
+	    [*]   New rtai_cpp interface (EXPERIMENTAL)
+	    &lt;M&gt; Tasklets
+-->
+	  </screen>
+	    After configuring you can run 'make' in your RTAI directory
+	  </para>
+	</sect3>
+	<sect3>
+	  <title> Loading RTAI without LXRT (not recommended)</title>
+	  <para>
+	    To enable RTAI without LXRT run in your rtai directory one of the programs
+	    <screen>
+	      ./setsched up    # for uniprocessor systems OR
+	      ./setsched smp   # for smp systems
+	    </screen>
+	    next you can 'make  install'. 
+	    Make sure that the following RTAI kernel modules are loaded:
+	    <itemizedlist>
+	      <listitem><para>rtai_cpp</para></listitem>
+	      <listitem><para>rtai_sched_ext</para></listitem>
+	      <listitem><para>rtai_bits</para></listitem>
+	      <listitem><para>rtai_tbx</para></listitem>
+	      <listitem><para>rtai_pthread</para></listitem>
+	      <listitem><para>rtai_sched</para></listitem>
+	      <listitem><para>rtai_fifos</para></listitem>
+	      <listitem><para>rtai_utils</para></listitem>
+	      <listitem><para>rt_mem_mgr</para></listitem>
+	      <listitem><para>rtai</para></listitem>
+	      <listitem><para>adeos</para></listitem>
+	    </itemizedlist>
+	    For example, by executing as root:
+	    <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>.
+        </para>
+	</sect3>
+	<sect3>
+	  <title> Loading RTAI with (NEW)LXRT (recommended)</title>
+	  <para>
+	    NEWLXRT is a all-in-one scheduler that works for kernel and userspace.
+	    So if you use this, you can still run kernel programs but have the ability
+	    to run realtime programs in userspace. Orocos provides you the libraries
+	    to build these programs. When we say LXRT, we mean NEWLXRT.
+	    To enable RTAI with NEWLXRT run in your rtai directory the program
+	    <screen>
+	      ./setsched newlxrt
+	    </screen>
+	    next you can 'make  install'. 
+	    Make sure that the following RTAI kernel modules are loaded for using:
+	    <itemizedlist>
+	      <listitem><para>rtai_fifos_lxrt</para></listitem>
+	      <listitem><para>rtai_lxrt</para></listitem>
+	      <listitem><para>rtai_sched</para></listitem>
+	      <listitem><para>rtai_fifos</para></listitem>
+	      <listitem><para>rt_mem_mgr</para></listitem>
+	      <listitem><para>rtai</para></listitem>
+	      <listitem><para>adeos</para></listitem>
+	    </itemizedlist>
+	    For example, by executing as root:
+	    <command>modprobe rtai_lxrt; modprobe rtai_fifos_lxrt</command>.
+	  </para>
+	  <para>For a more detailed description of what (NEW)LXRT really is,
+	    you can read the LXRT HOWTO 
+	    <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">here</ulink>
+	  </para>
+	</sect3>
+      </sect2>
+      <sect2>
+      <title>Configuring for RTLinux</title>
+	<para>
+	  The latest free release of RTLinux was 3.2. RTLinux has no memory
+	  management, and this puts a limit on our use of STL (Standard Template
+	  Library) vectors in realtime. (In fact, we need maps too.) For these
+	  reasons, RTLinux is less supported and might lead to unstability. 
+	</para>
+	<para>
+	  For a recent kernel patch, look at <ulink
+	    url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to
+	    newer Linux kernels</ulink> webpage. The RTLinux 
+	  <ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more
+	  information.
+	</para>
+	
+	<sect3>
+	  <title>Loading RTLinux</title>
+	  <para>
+	    The following RTLinux kernel modules should be loaded in the specified order:
+	    <orderedlist>
+	      <listitem><para>rtl</para></listitem>
+	      <listitem><para>rtl_time</para></listitem>
+	      <listitem><para>rtl_posixio</para></listitem>
+	      <listitem><para>rtl_fifo</para></listitem>
+	      <listitem><para>rtl_sched</para></listitem>
+	    </orderedlist>
+	    You can use the <command>modprobe</command> or <command>insmod</command> as root
+	    to load these needed kernel modules.
+	  </para>
+	</sect3>
+      </sect2> 
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <sect1 id="started">
+      <title>Getting started with the code</title>
+      <para>
+	This Section provides the semantics of the services available in the
+	&orocos; Packages.
+      </para>
+      <sect2>
+	<title>A quick test</title>
+	<para>
+	  To quickly test &orocos; code, you can run <command>make check_packages</command> 
+	  in your build directory. This will require
+	  the TestCases application to be present in you applications directory.
+	  A test program will be built which tests some basic functionalities
+	  of the CoreLib. The resulting file is <command>install/bin/testcase</command>.
+        </para>
+      </sect2>
+      <sect2>
+	<title> What about main() ?</title>
+	<para>
+	  The first question asked by many users is : How do I write a
+	  test program to see how it works? 
+	</para>
+        <para>
+	  Building a sample application with &orocos; is quite simple,
+	  but some care must be taken in initialising the realtime
+	  environment. First of all, you need to provide a function
+	  <function>int ORO_main(int argc, const char* argv)
+	    {...}</function> which contains your program. If you link
+	  with the install/lib/libtarget.a library, this function will
+	  be called after the basic environment is set up. To put in
+	  other words, the libtarget.a library already contains a
+	  main() function which will call the user-defined ORO_main()
+	  function.
+	</para>
+	<example>
+	  <title>A Makefile for an Orocos application</title>
+	  <para>
+	    You can then simply compile your program with a Makefile
+	    resembling this one : 
+	    <programlisting> 
+	      all: myprogram.cpp
+	           gcc myprogram.cpp -Iorocos/install/include -Lorocos/install/lib -ltarget.a -lstdc++ -lpthreads -o myprogram 
+	    </programlisting>
+	    As you can see, your application does not have to be
+	    inside the packages directory at all. Applications can
+	    be developped fully out of the Orocos (build) directory.
+	  </para>
+	</example>
+<!--         The short answer is: modify a program in the -->
+<!--         <filename class="directory">tests</filename> directory.  The even -->
+<!--         shorter answer is: <emphasis>There is no main (Neo realized that -->
+<!--         too!). </emphasis>  -->
+<!--         In the current implementation, realtime execution in the kernel -->
+<!--         of your program is provided by inserting kernel modules into the -->
+<!--         kernel using the commands <command>insmod</command> and -->
+<!--         <command>rmmod</command> as the root user. <command>insmod</command> -->
+<!--         will call a function <function>init_module()</function> and -->
+<!--         <command>rmmod</command> will call a function -->
+<!--         <function>cleanup_module()</function>. You must -->
+<!--         provide them, so that when they are called, they start your realtime -->
+<!--         program. You can see an example in <filename>src/module.c</filename>. -->
+<!--         As you will see, <filename>module.c</filename> calls our real C++ -->
+<!--         function which then starts or stops our program. -->
+<!--         <filename>src/moduleStartStop.c</filename> is another example we use -->
+<!--         for starting and stopping the framework in kernel space. -->
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <sect1>
+      <title>Examples</title>
+      <para>
+	Examples can be found in the applications package.
+      </para>
+    </sect1>
+  </chapter>
+  <!--
+  Having a glossary would be very helpfull for those trying to understand
+  &orocos;.
+
+  <glossary>
+  <glossentry id="gnu">
+  <glossterm>Concurrent Versioning System</glossterm>
+  <acronym>CVS</acronym>
+  <glossdef>
+  <para>
+  CVS is a version control system, which allows you to keep old versions
+  of files (usually source code), keep a log of who, when, and why
+  changes occurred, etc., like RCS or SCCS.  Unlike the simpler systems,
+  CVS does not just operate on one file at a time or one directory at a
+  time, but operates on hierarchical collections of directories
+  consisting of version controlled files.
+      </para>
+  <glossseealso otherterm="gnu">GNU</glossseealso>
+    </glossdef>
+  </glossentry>
+</glossary>
+  -->
+
+</book>

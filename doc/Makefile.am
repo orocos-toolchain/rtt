@@ -1,7 +1,7 @@
 SUBDIRS = .
 
 
-EXTRA_DIST = orocos-core.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia io-overview.dia \
+EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia io-overview.dia \
 	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
 	execution-collaboration.dia execution-sequence.dia \
     tasks_threads-conceptual.dia fdi.dia FDIvsFOSI.dia orocos-core.html  \
@@ -19,7 +19,7 @@ docs: $(DOC)
 
 docxml: dochtml docpdf
 
-dochtml: orocos-core.html orocos-overview.html #orocos-realtime.html pngimages  
+dochtml: orocos-installation.html orocos-overview.html #orocos-realtime.html pngimages  
 
 docpdf: pngimages orocos-core.pdf orocos-overview.pdf #orocos-realtime.pdf
 
