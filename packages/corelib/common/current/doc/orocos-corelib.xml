@@ -104,6 +104,12 @@ of the &orocos; framework.
 	<authorinitials>ps</authorinitials>
 	<revremark>Added Logging Framework.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.18.2</revnumber>
+	<date>13 Jan 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added section about Priority Inversions.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -622,6 +628,125 @@ ORO_main( int argc, char** argv)
 	</programlisting>
       </para>
     </sect2>
+    <sect2 id="core-priority-inversions">
+      <title>Priority Inversions</title>
+      <para>
+	A Priority inversion is the term used to indicate a scheduling situation
+	in which a high priority thread is blocked on a resource which is hold
+	by a low priority thread, while a medium priority thread is running,
+	preventing the low priority thread to free the resource for the high
+	priority thread. 
+      </para>
+      <para>
+	The result is an inverted priority because a medium priority thread
+	is running while the high priority thread should be runnen, hence, 
+	the medium priority thread has, in practice, a higher priority than
+	the high priority thread.
+      </para>
+      <para>
+	There are roughly said two solution to this problem. 1. Do 
+	not block on resources from high priority threads. 2. Use priority
+	inheritance, where a thread gets the priority of the highest priority
+	thread being blocked on a resource it holds. Once it releases the
+	resource, its priority goes back to normal and the high priority thread
+	can resume.
+      </para>
+      <para>
+	In essence, Orocos does not know of priority inversions and does not
+	know if the underlying Operating System properly solves this common
+	situation. Therefore, we try to provide as much as possible lock-free
+	implementations of inter-thread messaging. <xref linkend="core-priority-inversion-table"/>
+	lists the know uses of Orocos which <emphasis>might</emphasis> lead
+	to priority inversion. 
+      </para>
+      <table id="core-priority-inversion-table">
+	<title>Classes Possibly Subject to Priority Inversion</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row>
+	      <entry>Class/method</entry>
+	      <entry>Rationale</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>BufferCircular, BufferSimple, DataObjectLocked</entry>
+	      <entry>
+		<para>Uses Mutex for serialising concurrent access. Alternative
+		Lock-free implementations are possible.</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry>Event::fire()</entry>
+	      <entry>
+		<para>Uses Mutex for serialising concurrent access.
+		No Alternative implementation is possible, callback execution
+		<emphasis>must</emphasis> be serialised.</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry>RealtimeTask::start(), RealtimeTask::stop()</entry>
+	      <entry>
+		<para>( Applies to PriorityTask, NonRealtimeTask, TaskPreemptible and
+		TaskNonPreemptible).
+		Uses Mutex for serialising concurrent access.
+		Alternative implementation might be possible in certain
+		cases.</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry>Logger</entry>
+	      <entry>
+		<para>Uses Mutex for serialising concurrent access.
+		  No Alternative implementation is possible, IO
+		  <emphasis>must</emphasis> be serialised.</para>
+	      </entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+      <para><xref linkend="core-lock-free-table"/> shows communication infrastructure
+	in Orocos which is especially designed to be lock-free and which is thus 
+	not subject to priority inversions. It is our aim to shrink the former
+	table and grow the latter in Orocos' development lifetime.</para>
+      <table id="core-lock-free-table">
+	<title>Classes Not Subject to Priority Inversion</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row>
+	      <entry>Class/method</entry>
+	      <entry>Rationale</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>DataObjectBuffered</entry>
+	      <entry>
+		<para>Uses a single writer, multiple reader Lock-free implementation.
+		  A read only returns the last written value.
+		  Used by the ControlKernel application to communicate data between
+		  Components. ( Should be renamed to DataObjectLockFree )</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry>AtomicQueue</entry>
+	      <entry>
+		<para>Uses Compare And Swap (CAS) to store object pointers
+		in an atomic queue. Used by the Processor class to queue incomming Commands.</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry>BufferLockFree</entry>
+	      <entry>
+		<para>Uses a many writers, multiple readers Lock-free CAS implementation.
+		  A read returns the oldest written value in a FIFO way.
+		</para>
+	      </entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </sect2>
   </sect1>
   <sect1 id="corelib-events">
     <title>Events</title>
@@ -651,7 +776,8 @@ ORO_main( int argc, char** argv)
       same signature as the Event. The raise method of an Orocos Event is
       called <methodname>fire()</methodname>.
     </para>
-    <example><title>Using Events</title>
+    <example id="core-event-example">
+      <title>Using Events</title>
       <para>
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
@@ -688,6 +814,8 @@ NotifyUser      notify;
 Event<void(void)> emergencyStop;
 Handle emergencyHandle;
 
+// boost::bind is a way to connect the method of an object instance to
+// an event.
 std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
 emergencyHandle = 
    emergencyStop.connect( bind( &SafetyStopRobot::handle, &safety),
@@ -719,12 +847,24 @@ emergencyStop.fire(); // User not notified
 	   Putting the robot in a safe state fast !
       </screen>
       <para>
-	Off course, the <emphasis>Putting the robot in a safe state fast !</emphasis>
-	sentence should be replaced with the actual call to stop the robot.
-      </para>
-      <para>
 	If you want to find out how boost::bind works, see the Boost
 	<ulink url="http://www.boost.org/libs/bind/bind.html">bind manual</ulink>.
+	You must use bind if you want to call C++ class member functions to 
+	'bind' the member function to an object :
+	<programlisting>
+  ClassName object;
+  boost::bind( &amp;ClassName::FunctionName, &amp;object)	</programlisting>
+	Where ClassName::FunctionName must have the same signature as the Event.
+	When the Event is <function>fire( args )</function>'d,
+	<programlisting>
+  object->FunctionName( args )</programlisting>
+	is executed by the Event.
+      </para>
+      <para>When you want to call free ( C ) functions, you do not need bind :
+	<programlisting>
+  Event&lt;void(void)> event;
+  void foo() { ... }
+  event.connect( &amp;foo );</programlisting>
       </para>
     </example>
     <para>
@@ -769,6 +909,14 @@ emergencyStop.fire(); // User not notified
 	four additional threads for executing the asynchronous
 	callbacks.
       </para>
+      <note>
+	<para>
+	  For brevity, we will not use boost::bind in the following
+	  examples and only use 'free' ( C ) functions as callbacks.
+	  Asynchronous callbacks are bound in the same way as synchronous
+	  callbacks ( <xref linkend="core-event-example"/> ).
+	</para>
+      </note>
       <para>
 	In the example above, there was aparantly no thread choosen.
 	The default thread which executes asynchronous callbacks
@@ -1169,6 +1317,22 @@ emergencyStop.fire(); // User not notified
       </para>
     </sect2>
   </sect1>
+  <sect1>
+    <title>Buffers and DataObjects</title>
+    <para>
+      Orocos provides some basic inter-thread buffering mechanisms in the
+      <filename>corelib/buffers</filename> package. The user should be aware of
+      <xref linkend="core-priority-inversions">priority inversions</xref>
+      when using the 'locked' buffers (which use a Mutex).
+    </para>
+    <para>
+      The difference between Buffers and DataObjects is that DataObjects
+      are single writer / many readers, while buffers allow many writers and readers.
+      Furthermore, a DataObject always returns the last value written (and a
+      write always succeeds), while a buffer
+      may implement a FIFO queue to store all written values (and thus can get full).
+    </para>
+  </sect1>
   <sect1 id="core-logging">
     <title>Logging</title>
     <para>
@@ -1178,15 +1342,27 @@ emergencyStop.fire(); // User not notified
 	the Realtime Periodic Tasks !</emphasis> <xref linkend="core-reporting"/> is meant for that.  
     </para>
     <para>
-      There are currently 7 loglevels :
+      There are currently 8 loglevels :
       <table>
 	<title>Logger Log Levels</title>
 	<tgroup cols="3">
+	  <thead>
+	    <row>
+	      <entry>ORO_LOGLEVEL</entry>
+	      <entry>Logger::enum</entry>
+	      <entry>Description</entry>
+	    </row>
+	  </thead>
 	  <tbody>
+	    <row>
+	      <entry>-1</entry>
+	      <entry>na</entry>
+	      <entry>Completely disable logging</entry>
+	    </row>
 	    <row>
 	      <entry>0</entry>
 	      <entry>Logger::Never</entry>
-	      <entry>Never log anything</entry>
+	      <entry>Never log anything (to console)</entry>
 	    </row>
 	    <row>
 	      <entry>1</entry>
@@ -1206,7 +1382,7 @@ emergencyStop.fire(); // User not notified
 	    <row>
 	      <entry>4</entry>
 	      <entry>Logger::Warning</entry>
-	      <entry>Only log Warnings or worse errors. System will try to resume anyway.</entry>
+	      <entry>[Default] Only log Warnings or worse errors. System will try to resume anyway.</entry>
 	    </row>
 	    <row>
 	      <entry>5</entry>
@@ -1230,10 +1406,14 @@ emergencyStop.fire(); // User not notified
       The default is level 4, thus only warnings and errors are printed.
     </para>
     <para>
-      The fixed log level for the <filename>orocos.log</filename> file is <parameter>Logger::Info</parameter>.
+      The <emphasis>minimum</emphasis> log level for the <filename>orocos.log</filename>
+      file is <parameter>Logger::Info</parameter>. It will get more verbose if
+      you increase <envar>ORO_LOGLEVEL</envar>, but will not go below Info. 
       This file is always created if the logging infrastructure is used. You can inspect this file
       if you want to know the most usefull information of what is happening inside Orocos.
     </para>
+    <para>If you want to disable logging completely, use <screen>export ORO_LOGLEVEL=-1</screen>
+      before you start your program.</para>
     <para>
       For using the <classname>Logger</classname> class in your own application, consult
       the API documentation.

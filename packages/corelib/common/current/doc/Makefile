@@ -42,7 +42,7 @@ epsimages: execution-collaboration.eps execution-sequence.eps  io-overview.eps t
 
 
 %.txt:%.fo
-	fop $< $@
+	fop $< -txt $@
 
 %.eps:%.dia
 	dia -t eps --nosplash $<
