@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_DEVICE_INTERFACE_LOGICAL {
-    display "Logical device abstraction interfaces"
+    display "Device Interfaces Logical"
 
     description "
 The Logical Device Interfaces are not yet

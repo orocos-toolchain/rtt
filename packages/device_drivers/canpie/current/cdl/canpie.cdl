@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
-    display "CANPie CAN Layer 2 Abstraction"
+    display "Device Drivers CANPie CAN Layer 2 Abstraction"
 
     description " CANPie is written and copyright by Uwe Koppe of 
      MicroControl Hmbg ( http://www.microcontrol.net/ ).

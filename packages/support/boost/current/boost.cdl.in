@@ -1,5 +1,5 @@
 cdl_package OROPKG_SUPPORT_BOOST {
-    display "Boost Library"
+    display "Support Boost Library"
     parent OROPKG_SUPPORT
 
     description " 

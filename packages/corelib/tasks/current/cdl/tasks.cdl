@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_TASKS {
-    display "Periodic Task/Thread Infrastructure"
+    display "CoreLib Periodic Task/Thread Infrastructure"
     description "
 This packages allows you to create Periodic Tasks and (realtime) Threads.
 Tasks of equal priority are serialised in the same thread.

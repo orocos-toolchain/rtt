@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_TIMING {
-    display "Time measurement infrastructure"
+    display "CoreLib Time measurement infrastructure"
     description "This package contains the 
 TimeService which will be used to keep track of system
 time and defines time conversions."

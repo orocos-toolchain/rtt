@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_INTERFACE {
-    display "C++ Hardware Device Interfaces"
+    display "Device Interfaces"
     description "
 This package groups together all the hardware
 abstraction interfaces. If you want to introduce

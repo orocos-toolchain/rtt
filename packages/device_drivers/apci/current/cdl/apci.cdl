@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS_APCI {
-    display "The APCI device drivers"
+    display "Device Drivers APCI"
 	description "
   These are device drivers ( as Linux Kernel Modules ) for the APCI
   1710, 2200 and 1032 card, both for gnulinux and lxrt." 

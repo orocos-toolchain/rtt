@@ -1,5 +1,5 @@
 cdl_package OROPKG_OS_RTLINUX {
-  display "RTLINUX OS abstraction layer"
+  display "OS abstraction layer RTLINUX"
   include_dir os
 
   compile PeriodicThread.cxx EventInterrupt.cxx cpp.cxx

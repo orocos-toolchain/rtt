@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB {
-    display "Core classes and Interfaces (CoreLib)"
+    display "CoreLib, core classes and Interfaces"
     description "
 This is the basic library application-independent
 realtime library of Orocos. It requires that 

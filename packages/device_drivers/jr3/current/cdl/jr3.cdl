@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
-    display "JR3 Force-Torque Sensor"
+    display "Device Drivers JR3 Force-Torque Sensor"
 
     include_dir jr3
 #    include_files JR3Sensor.hpp

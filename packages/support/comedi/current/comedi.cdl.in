@@ -1,5 +1,5 @@
 cdl_package OROPKG_SUPPORT_COMEDI {
-    display "Comedi installation"
+    display "Support Comedi installation"
     parent OROPKG_SUPPORT
 
     description " 

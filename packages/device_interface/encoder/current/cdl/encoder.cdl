@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_DEVICE_INTERFACE_ENCODER {
-    display "C++ Interface to encoder cards"
+    display "Device Interface to encoder cards"
     description "
 There is only one interface for encoders :
 EncoderInterface. It can be used for absolute

@@ -1,5 +1,5 @@
 cdl_package OROPKG_SUPPORT_RTAI {
-    display "RTAI Installation"
+    display "Support RTAI Installation"
     parent OROPKG_SUPPORT
 
     description " 

@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_REPORTING {
-    display "Reporting and Logging Infrastructure"
+    display "CoreLib Reporting and Logging Infrastructure"
     description "This package adds binary to text reporting
 of internal data in a separate thread. It is mainly used for
 logging and data gathering. See the README for a short 

@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_EVENTS {
-    display "Synchronous-Asynchronous Event system"
+    display "CoreLib Synchronous-Asynchronous Event system"
     description "
 This package provides an Event implementation for
 synchronous and asynchronous event handling."

@@ -1,7 +1,7 @@
 
 
 cdl_package OROPKG_OS_GNULINUX {
-    display "GNU/Linux OS Abstraction Layer"
+    display "OS Abstraction Layer GNU/Linux"
     description "
 This package is used if you want to compile
 Orocos for 'User Space', not realtime. The

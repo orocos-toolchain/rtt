@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_COMMANDS {
-    display "Command abstraction interface definition"
+    display "CoreLib Command abstraction interface definition"
     description "
       This Package is required for logical program execution.
       It provides utilities and the interface for the CommandInterface."

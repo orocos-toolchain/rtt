@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_STATE {
-    display "State infrastructure"
+    display "CoreLib State infrastructure"
     description "
 This package contains classes describing
 States and how transitions between states

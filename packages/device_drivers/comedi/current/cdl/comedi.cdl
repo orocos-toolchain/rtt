@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS_COMEDI {
-    display "Comedi implementation of IO"
+    display "Device Drivers Comedi implementation of IO"
 
     cdl_option OROPKG_DEVICE_DRIVERS_COMEDI_CFLAGS_ADD {
         display "Comedi include path"

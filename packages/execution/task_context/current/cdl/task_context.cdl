@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_EXECUTION_TASK_CONTEXT {
-    display "Task Context Infrastructure"
+    display "Execution Task Context Infrastructure"
     description "
 A Package that provides realtime-safe inter-task
 communication and task browsing. A Task Context

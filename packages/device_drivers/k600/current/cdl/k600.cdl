@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS_K600 {
-    display "Real-time drivers for Krypton K600 Measuring device"
+    display "Device Drivers Real-time for Krypton K600 Measuring device"
 
     parent   OROPKG_DEVICE_DRIVERS
 

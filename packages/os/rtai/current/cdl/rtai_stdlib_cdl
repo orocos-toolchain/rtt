@@ -1,7 +1,7 @@
 
 cdl_package OROPKG_OS_RTAI_STDLIB
 {
-    display "The Standard Library function implementation"
+    display "OS Abstraction Standard Library function implementation"
     install_dir ./
     parent OROPKG_OS
 

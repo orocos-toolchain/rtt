@@ -1,5 +1,5 @@
 cdl_package OROPKG_SUPPORT_READLINE {
-    display "Readline Library"
+    display "Support Readline Library"
     parent OROPKG_SUPPORT
 
     description " 

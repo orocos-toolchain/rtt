@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_EXECUTION_PROGRAM_PROCESSOR {
-    display "Program processing infrastructure"
+    display "Execution Program processing infrastructure"
     description "
 A Package that provides realtime-safe program execution,
 with each program statement represented by an object
@@ -8,12 +8,11 @@ which encapsulates the command to be executed."
 
     include_dir execution
     
-    parent OROPKG_EXECUTION
-
+    parent   OROPKG_EXECUTION
+    requires OROPKG_EXECUTION
     requires OROPKG_SUPPORT_BOOST_GRAPH
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_CORELIB_STATE
-    requires OROPKG_EXECUTION
     requires OROPKG_EXECUTION_TASK_CONTEXT
 
     compile VertexNode.cxx EdgeCondition.cxx

@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_PROPERTIES {
-    display "Generic Property system"
+    display "CoreLib Generic Property system"
     description "This package provides an implementation
        of any-type properties. Properties are
        an abstraction of the internal, configurable data of

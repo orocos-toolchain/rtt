@@ -1,7 +1,7 @@
 
 
 cdl_package OROPKG_OS_LXRT {
-    display "RTAI/LXRT OS Abstraction Layer"
+    display "OS Abstraction Layer RTAI/LXRT"
     description "
 Use this package if you want to compile 
 Orocos for RTAI Realtime Userspace. It has

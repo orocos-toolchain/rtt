@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_PROPERTIES_MARSHALLING {
-    display "Property Marshalling and Demarshalling"
+    display "CoreLib Property Marshalling and Demarshalling"
     description "This package contains implementations of
 many types of Marshaller and Demarshallers. They are used
 to convert binary information to text (or another format) and vice

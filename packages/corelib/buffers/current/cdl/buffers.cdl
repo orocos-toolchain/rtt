@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_CORELIB_BUFFERS {
-    display "Communication buffers"
+    display "CoreLib Communication buffers"
     description "
 This package contains some buffers we have written when we
 needed buffered data. It is not heavily tested, but might

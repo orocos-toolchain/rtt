@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_EXECUTION {
-    display "Program and Task Execution Infrastructure"
+    display "Execution Program and Task Execution Infrastructure"
     description "
 This Package groups infrastructure for parsing and
 executing realtime program and task logic in the Orocos Framework."

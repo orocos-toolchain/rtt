@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "cpf.dtd">
-<!-- Properties of the ExecutionExtension -->
-<properties>
-    <simple name="Interval"  type="short">
-	<description>The relative interval of executing a program step.</description>
-	<value>1</value>
-    </simple>
-</properties>

@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS {
-    display "Custom device drivers"
+    display "Device Drivers"
     description "
 This package groups home made C and C++ device drivers
 for a variety of hardware. Examples are : CANOpen

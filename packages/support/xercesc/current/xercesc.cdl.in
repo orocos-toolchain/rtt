@@ -1,5 +1,5 @@
 cdl_package OROPKG_SUPPORT_XERCESC {
-    display "Xerces Library"
+    display "Support Xerces Library"
 
     parent OROPKG_SUPPORT
 

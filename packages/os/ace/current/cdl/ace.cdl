@@ -1,7 +1,7 @@
 
 
 cdl_package OROPKG_OS_ACE {
-    display "ACE OS abstraction layer"
+    display "OS abstraction layer ACE"
     description "
 This package is used if you want to compile
 Orocos for 'ACE'. All OS'es supported by

@@ -1,7 +1,7 @@
 
 
 cdl_package OROPKG_OS_RTAI {
-    display "RTAI OS abstraction layer"
+    display "OS abstraction layer RTAI"
     include_dir os
     parent OROPKG_OS
 

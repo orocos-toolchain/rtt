@@ -1,6 +1,6 @@
 
 cdl_package OROPKG_DEVICE_DRIVERS_LOGICAL {
-    display "C++ Interfaces to Logical Devices"
+    display "Device Drivers C++ Interfaces to Logical Devices"
     description "
 This package has some 'common' implementations
 for addressing single channels of devices. For

@@ -1,5 +1,5 @@
 cdl_package OROPKG_DEVICE_DRIVERS_CANOPEN {
-    display "CANOpen implementation based on CANPie"
+    display "Device Drivers CANOpen implementation based on CANPie"
     description "
 This package was made for controlling a Beckhoff
 based CANOpen bus for an industrial partner."
