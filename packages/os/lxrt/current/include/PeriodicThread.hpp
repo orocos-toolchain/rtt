@@ -53,7 +53,7 @@ namespace ORO_OS
     class PeriodicThread 
         : public PeriodicThreadInterface 
     {
-        friend void* ComponentThread( void* t );
+        friend void* periodicThread( void* t );
 
     public:
 
@@ -137,10 +137,23 @@ namespace ORO_OS
          * @return true if the preconditions were met, false otherwise.
          */
         bool setScheduler( int sched );
+
+        /**
+         * Set the periodicity of this thread
+         */
+        bool setPeriod(  TIME_SPEC p );
+
      protected:
         virtual void continuousStepping(bool yes_no);
         virtual bool setToStop();
 
+        /**
+         * Wait only for the remaining period, being
+         * getPeriod() - (time_now - start_time_of_this_period)
+         */
+        void periodWaitRemaining();
+
+     private:
         /**
          * Do configuration actions when the thread is stopped.
          */
@@ -150,17 +163,6 @@ namespace ORO_OS
          * Called from within the thread to reconfigure the linux scheduler.
          */
         void reconfigScheduler();
-
-        /**
-         * Set the periodicity of this thread
-         */
-        bool setPeriod(  TIME_SPEC p );
-
-        /**
-         * Wait only for the remaining period, being
-         * getPeriod() - (time_now - start_time_of_this_period)
-         */
-        void periodWaitRemaining();
 
         /**
          * Periodicity of the thread in ns.

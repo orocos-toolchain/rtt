@@ -79,12 +79,6 @@ namespace ORO_OS
          */
         virtual const char* taskNameGet() const;
 
-        virtual void step();
-    
-        virtual bool initialize();
-
-        virtual void finalize();
-
         bool makeHardRealtime() 
         { 
             return false;
@@ -98,6 +92,13 @@ namespace ORO_OS
         bool isHardRealtime()   { return false; }
 
     protected:
+        virtual void step();
+    
+        virtual bool initialize();
+
+        virtual void finalize();
+
+    private:
         /**
          * When set to 1, the thread will run, when set to 0
          * the thread will stop

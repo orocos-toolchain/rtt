@@ -62,7 +62,7 @@ namespace ORO_OS
     using ORO_CoreLib::Logger;
 #endif
 
-    void *ComponentThread(void* t) 
+    void *periodicThread(void* t) 
     {
         RTIME period, period_ns;
 

@@ -54,33 +54,42 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" created."<<Logger::endl;
 #endif
-        sem_init( &task->sem, 0, 0 );
         sem_post( &task->confDone );
 
         /**
          * The real task starts here.
          */
-        while(1) 
-            {
+        while ( !task->prepareForExit ) {
+            try {
+                while(1) {
+                    task->running = false;
+                    // for now, we always wait in soft RT.
+                    // An extra check before here could
+                    // make the switch again...
+                    sem_wait( &task->sem );
+
+                    if ( task->prepareForExit )
+                        break;
+
+                    if ( task->runComp != 0 )
+                        task->runComp->step();
+                    else
+                        task->step();
+
+                    if ( task->runComp != 0 )
+                        task->runComp->finalize();
+                    else
+                        task->finalize();
+                }
+            } catch( ... ) {
+                // set state to not running
                 task->running = false;
-                // for now, we always wait in soft RT.
-                // An extra check before here could
-                // make the switch again...
-                sem_wait( &task->sem );
-
-                if ( task->prepareForExit )
-                    break;
-
-                if ( task->runComp != 0 )
-                    task->runComp->step();
-                else
-                    task->step();
-
-                if ( task->runComp != 0 )
-                    task->runComp->finalize();
-                else
-                    task->finalize();
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Fatal << "Single Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+#endif
+                task->finalize();
             }
+        }
     
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" exiting."<<Logger::endl;
@@ -88,8 +97,6 @@ namespace ORO_OS
         /**
          * Cleanup stuff
          */
-        sem_destroy( &task->sem);
-
         sem_post( &task->confDone );
         return 0;
     }
@@ -108,6 +115,7 @@ namespace ORO_OS
 #endif
 
         sem_init( &confDone, 0, 0);
+        sem_init( &sem, 0, 0 );
         pthread_create( &thread, 0, singleThread_f, this);
         sem_wait( &confDone );
     }
@@ -120,7 +128,9 @@ namespace ORO_OS
         
         // Wait for the 'ok' answer of the thread.
         sem_wait( &confDone );
-        sem_destroy(&confDone);
+        sem_destroy( &confDone );
+        sem_destroy( &sem );
+
 
         if ( pthread_join(thread,0) != 0 ) 
 #ifdef OROPKG_CORELIB_REPORTING

@@ -43,7 +43,7 @@ namespace ORO_OS
 {
     /**
      * @brief This Thread abstraction class represents
-     * a thread which can be started many times
+     * a single-shot thread which can be started many times
      * and stops each time the step() function returns.
      *
      */
@@ -52,7 +52,10 @@ namespace ORO_OS
         friend void* singleThread_f( void* t );
 
     public:
-
+        /**
+         * Create a single-shot Thread with priority \a priority, a \a name and optionally,
+         * an object to execute.
+         */
         SingleThread(int priority, const std::string& name, RunnableInterface* r=0);
     
         virtual ~SingleThread();
@@ -79,12 +82,6 @@ namespace ORO_OS
          */
         virtual const char* taskNameGet() const;
 
-        virtual void step();
-    
-        virtual bool initialize();
-
-        virtual void finalize();
-
         bool makeHardRealtime() 
         { 
             // This construct is so because
@@ -106,8 +103,15 @@ namespace ORO_OS
         }
 
         bool isHardRealtime();
-
     protected:
+
+        virtual void step();
+    
+        virtual bool initialize();
+
+        virtual void finalize();
+
+    private:
         /**
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
