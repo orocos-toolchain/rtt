@@ -42,11 +42,15 @@ namespace ORO_OS
 
     class SchedPolicy
     {
+        static const int SELECT_THIS_PID=0;
         public:
             SchedPolicy()
             {
                 std::cout <<"Sched Policy Init"<<std::endl;
-                init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
+                struct sched_param param;
+                param.sched_priority = 99;
+                sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_LXRT_SCHEDTYPE, &param);
+                //init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
                 unsigned long name = nam2num("MAINTHREAD");
                 if( !(rt_task = rt_task_init(name, 10,0,0)) ) // priority, stack, msg_size
                 {

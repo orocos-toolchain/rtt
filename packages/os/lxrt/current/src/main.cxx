@@ -8,7 +8,7 @@
 #include <os/startstop.h>
 #include <os/main.h>
 
-int main(int argc, const char* argv)
+int main(int argc, const char** argv)
 {
     __os_init(argc, argv);
 

@@ -24,7 +24,12 @@
 #include "os/fosi.h"
 #include <sys/mman.h> // fixes include bug in rtai_tasklets.h
 #include <rtai_tasklets.h>
+
+#if RTAI_VERSION_MAJOR == 3
+#include <rtai_usi.h>
+#else
 #include <../usi/rtai_usi.h>
+#endif
 
 namespace ORO_OS
 {

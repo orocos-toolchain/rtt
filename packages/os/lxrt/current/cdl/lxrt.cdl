@@ -66,7 +66,7 @@ more information on the available types."
 	    flavor data
 	    no_define
 	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
-	    default_value { "/usr/local/home/psoetens/src/rtai/stable" }
+	    default_value { "/usr/local/realtime" }
 	    description "
 This option allows you to specify your RTAI installation
 directory once. It will be automatically used in the CFLAGS
@@ -78,7 +78,7 @@ fill in your own directory."
 	    display "Global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value { "-g -pipe -Wall -Wstrict-prototypes -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
+	    default_value { " -pipe -Wall -Wstrict-prototypes -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
 	    description   "
           This option controls the global compiler flags which
           are used to compile all packages by
@@ -90,7 +90,7 @@ fill in your own directory."
 	    display "Global linker flags"
 	    flavor  data
 	    no_define
-	    default_value { "-g -L" . CYGBLD_RTAIDIR . "/lxrt/lib -llxrt" }
+	    default_value { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib ". CYGBLD_RTAIDIR. "/lib -llxrt" }
 	    description   "
           This option controls the global linker flags. Individual
           packages may define options which override these global flags."

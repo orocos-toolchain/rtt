@@ -42,7 +42,11 @@ extern "C" {
 #endif
 
   // include custom redirect-like include
-#include "rtai_config.h"
+#include <rtai_config.h>
+#if RTAI_VERSION_MAJOR == 3
+#include <rtai_lxrt.h>
+#include <rtai_posix.h>
+#else
 #define KEEP_STATIC_INLINE
 #include <rtai_declare.h>
 #include <rtai_usp_posix.h>
@@ -55,6 +59,7 @@ extern "C" {
      * defined symbols. Missing defines from rtai_lxrt.h need to be redefined in other headerfile.
      */
 //#include <rtai_fifos_lxrt_user.h> 
+#endif
 
 int lock_all(int stk, int heap);
 
