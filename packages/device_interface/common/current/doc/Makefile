@@ -24,7 +24,7 @@ epsimages: fdi.eps
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc --stringparam fop.extensions 1 /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc orocos.xsl $< > $@
 
 %.ps:%.fo
 	fop $< $@
