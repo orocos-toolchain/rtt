@@ -5,8 +5,6 @@ SUBDIRS = .
 #global includes
 INCLUDES = -I$(top_builddir)/packages/install/include $(TARGET_FLAGS)
 LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread $(TARGET_LIBS)
-CXXFLAGS= $(CPPUNIT_CFLAGS) -g
-
 AM_CXXFLAGS= $(CPPUNIT_CFLAGS) -g
 
 # Rules for the test code (use `make check` to execute)

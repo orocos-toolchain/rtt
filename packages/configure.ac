@@ -23,16 +23,16 @@ The Packaging system requires tcl 8.3
 ])
 fi;
 
-AC_MSG_CHECKING(to build profiling)
-AC_ARG_ENABLE(profiling,
-     [  --enable-profiling    Enable profiling tests (default=no) ],
-     [ case "${enableval}" in
-       yes) profs=yes ;;
-       no)  profs=no ;;
-       *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
-     esac],[ profs=no ])
-AM_CONDITIONAL(DOPROFTESTS, test x$profs = xyes)
-AC_MSG_RESULT( $profs )
+# AC_MSG_CHECKING(to build profiling)
+# AC_ARG_ENABLE(profiling,
+#      [  --enable-profiling    Enable profiling tests (default=no) ],
+#      [ case "${enableval}" in
+#        yes) profs=yes ;;
+#        no)  profs=no ;;
+#        *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
+#      esac],[ profs=no ])
+# AM_CONDITIONAL(DOPROFTESTS, test x$profs = xyes)
+# AC_MSG_RESULT( $profs )
 
 # the support top directory
 PACKAGES=support/common/current/support.cdl

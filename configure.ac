@@ -90,6 +90,11 @@ AC_MSG_RESULT( $profs )
 # Setup the packages
 echo "Running configure in packages..."
 cd $ECOS_REP
+# make sure configure is up-to-date
+ORO_AUTOCONF=$(which autoconf)
+if test x$ORO_AUTOCONF != x; then
+autoconf
+fi
 echo "./configure $ACX_MY_ARGS"
 # make distcheck hack :
 chmod u+w . -R
