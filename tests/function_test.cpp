@@ -205,6 +205,7 @@ void FunctionTest::testParseFunction()
         + "}\n"
         + "program x { \n"
         + "   do foo(2, \"hello2\", false)\n"
+        + "   do this.foo(2, \"hello2\", false)\n"
         + "   call foo( 1, \"hello\", true)\n"
         + "}";
 

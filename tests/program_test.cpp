@@ -46,6 +46,11 @@ ProgramTest::setUp()
     gtc.commandFactory.registerObject("test", this->createCommandFactory() );
     gtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
 
+    // also this functions
+    gtc.methodFactory.registerObject("this", this->createMethodFactory() );
+    gtc.commandFactory.registerObject("this", this->createCommandFactory() );
+    gtc.dataFactory.registerObject("this", this->createDataSourceFactory() );
+
     i = 0;
 }
 
@@ -136,6 +141,7 @@ CommandFactoryInterface* ProgramTest::createCommandFactory()
 void ProgramTest::testParseProgram()
 {
     // a program which should never fail
+    // test this methods, commands etc.
     string prog = string("program x { do test.instantDone() \n")
         + " and test.instantDone()"
         + " and test.instantDone()\n"
@@ -147,6 +153,13 @@ void ProgramTest::testParseProgram()
         + " do test.assert( test.i == 0 )\n"
         + " if test.increase() + test.increase() + test.increase() != 6  then \n "
         + "    do test.assert( false )\n"
+        + " do assert( isTrue( true ) )\n"
+        + " do instantDone() \n"
+        + " and instantDone() and instantDone()\n"
+        + " do reset()\n"
+        + " do assert( i == 0 )\n"
+        + " if increase() + increase() + increase() != 6  then \n "
+        + "    do assert( false )\n"
         + " if true then\n"
         + "    return\n"
         + " do test.assert(false)\n"  // do not reach
@@ -228,12 +241,12 @@ void ProgramTest::testProgramTry()
 {
     // see if checking a remote condition works
     string prog = string("program progtry { try test.instantFail()\n")
-        + "try test.instantDone() \n"
+        + "try instantDone() \n"
         + "and test.instantFail() \n"
         + "and test.instantDone() \n"
         + "try test.instantDone() \n"
         + "and test.instantFail() \n"
-        + "and test.totalFail() until { \n"
+        + "and totalFail() until { \n"
         + "  if true then continue }\n"
         + "try test.instantDone() \n"
         + "and test.instantFail() \n"
@@ -241,7 +254,7 @@ void ProgramTest::testProgramTry()
         + "  try test.instantDone() \n"
         + "  and test.instantDone() \n"
         + "  and test.instantDone() catch {\n"
-        + "      do test.instantFail()\n"
+        + "      do instantFail()\n"
         + "  }\n"
         + "}\n"
         + "do test.reset() \n"
@@ -268,7 +281,7 @@ void ProgramTest::testProgramUntil()
         + "until { \n"
         + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
         + "} \n"
-        + "do test.neverDone()\n"
+        + "do neverDone()\n"
         + "until { \n"
         + " if done then continue \n" 
         + " if test.increase() == 10 then continue \n" // we continue after 10 checks
