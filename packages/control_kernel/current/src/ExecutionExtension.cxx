@@ -107,14 +107,21 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         return proc.stepProgram(name);
     }
 
-    bool ExecutionExtension::loadProgram( const std::string& filename )
+    bool ExecutionExtension::loadProgram( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
         Parser    parser;
         std::vector<ProgramGraph*> pg_list;
-        std::ifstream prog_stream(filename.c_str());
+        std::ifstream file_stream;
+        std::stringstream text_stream( file );
+        std::istream *prog_stream;
+        if ( file.empty() ) {
+            file_stream.open(filename.c_str());
+            prog_stream = &file_stream;
+        } else
+            prog_stream = &text_stream;
         try {
-            pg_list = parser.parseProgram( prog_stream, &tc, filename );
+            pg_list = parser.parseProgram( *prog_stream, &tc, filename );
         }
         catch( const file_parse_exception& exc )
         {
@@ -138,14 +145,21 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         }
     }
 
-    void ExecutionExtension::loadStateContext( const std::string& filename )
+    void ExecutionExtension::loadStateContext( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
         Parser    parser;
         std::vector<ParsedStateContext*> contexts;
-        std::ifstream state_stream(filename.c_str());
+        std::ifstream file_stream;
+        std::stringstream text_stream( file );
+        std::istream *prog_stream;
+        if ( file.empty() ) {
+            file_stream.open(filename.c_str());
+            prog_stream = &file_stream;
+        } else
+            prog_stream = &text_stream;
         try {
-          contexts = parser.parseStateContext( state_stream, &tc, filename );
+          contexts = parser.parseStateContext( *prog_stream, &tc, filename );
         }
         catch( const file_parse_exception& exc )
         {

@@ -141,7 +141,7 @@ namespace ORO_ControlKernel
          * @throw program_load_exception ( defined in
          * this header ) if loading fails...
          */
-        bool loadProgram( const std::string&  filename );
+        bool loadProgram( const std::string&  filename, const std::string& file = "" );
 
         /**
          * Load the StateContexts from the given file.
@@ -152,7 +152,7 @@ namespace ORO_ControlKernel
          * @throw program_load_exception ( defined in
          * this header ) if loading fails...
          */
-        void loadStateContext( const std::string& filename );
+        void loadStateContext( const std::string& filename, const std::string& file = "" );
 
         ParsedStateContext* getStateContext(const std::string& name);
         ProgramInterface* getProgram(const std::string& name);
