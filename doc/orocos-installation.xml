@@ -178,7 +178,7 @@
 	The next steps are exactly the same as when you install the system
 	starting from a so-called &ldquo;epk&rdquo; package, as explained in the
 	next section. Of course, you don't have to apply the
-	<command>ecosadmin.tcl</command> command when installing from CVS.
+	<command>ecosadmin.tcl</command> command when installing from &svn;.
       </para>
     </sect1>
     <sect1>
