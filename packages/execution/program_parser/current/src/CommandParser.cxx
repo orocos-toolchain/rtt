@@ -41,7 +41,6 @@
 #include "execution/GlobalCommandFactory.hpp"
 #include "execution/CommandFactoryInterface.hpp"
 
-#include "execution/GlobalFactory.hpp"
 #include "execution/AsynchCommandDecorator.hpp"
 
 #include "execution/TaskContext.hpp"

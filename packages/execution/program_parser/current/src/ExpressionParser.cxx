@@ -31,7 +31,6 @@
 #pragma implementation
 #include "execution/ExpressionParser.hpp"
 
-#include "execution/ParseContext.hpp"
 #include "execution/ArgumentsParser.hpp"
 #include "execution/Operators.hpp"
 #include "execution/TaskVariable.hpp"

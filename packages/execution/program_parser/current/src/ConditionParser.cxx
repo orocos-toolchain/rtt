@@ -39,8 +39,6 @@
 
 #include <boost/bind.hpp>
 
-#include "execution/ParseContext.hpp"
-
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
 #include "execution/TryCommand.hpp"
