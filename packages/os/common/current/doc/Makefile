@@ -10,8 +10,8 @@ docps: epsimages orocos-os.ps
 
 doctxt: orocos-os.txt
 
-pngimages:
-epsimages:
+pngimages: FDIvsFOSI.png
+epsimages: FDIvsFOSI.eps
 
 
 #orocos-control-kernel.html: 

@@ -315,27 +315,31 @@
     <title>Threads and Realtime Execution of Your Program</title>
     <sect1>
       <title>Starting your program</title>
-      <para>
-	All tasks in the realtime system have to be performed by some
-	thread.  The OS abstraction expects an
-	<function>ORO_main()</function> function (which the user has
-	written) and will call that after all system initialisation
-	has been done. This can include thread creation or setting up
-	the realtime primitives. Inside ORO_main() the user may
-	expect that the system is properly set up and can be used.
-	The resulting libtarget.a 
-	library will contain the real main() function which will call
-	the ORO_main() function.
-      </para>
-      <note>
-	Using global objects which use the OS functions before 
-	ORO_main() entered (because they are constructed before
-	main() ), can come into conflict with an uninitialised system.
-	It is therefor advised not to use static global objects which
-	use the OS primitives. Events in the CoreLib 
-	are an example of such objects.
-      </note>
-      <para>
+      <sect2>
+	<title>Normal Usage</title>
+	<para>
+	  All tasks in the realtime system have to be performed by
+	  some thread.  The OS abstraction expects an
+	  <function>ORO_main()</function> function (which the user has
+	  written) and will call that after all system initialisation
+	  has been done. This can include thread creation or setting
+	  up the realtime primitives. Inside ORO_main() the user may
+	  expect that the system is properly set up and can be used.
+	  The resulting libtarget.a library will contain the real
+	  main() function which will call the ORO_main() function.
+	</para>
+	<note>
+	  Using global objects which use the OS functions before 
+	  ORO_main() entered (because they are constructed before
+	  main() ), can come into conflict with an uninitialised system.
+	  It is therefor advised not to use static global objects which
+	  use the OS primitives. Events in the CoreLib 
+	  are an example of such objects.
+	</note>
+      </sect2> 
+      <sect2>
+	<title>Starting Kernel Applications</title>
+	<para>
 	<emphasis> Starting an application is a bit more complex in
 	  the kernel (RTAI, RTLinux)</emphasis>. For a program to be
 	executed in kernelspace-realtime, it has to be compiled into a
@@ -376,10 +380,11 @@
 	  local data is destroyed, that is why we allocate global
 	  variables.
 	</para>
-      <note>
-	Writing kernel applications is doing it the hard way and
-	is not advised for beginners. Use LXRT instead.
-      </note>
+	<note>
+	  Writing kernel applications is doing it the hard way and
+	  is not advised for beginners. Use LXRT instead.
+	</note>
+      </sect2>    
     </sect1>
     <sect1>
       <title>The Orocos Thread System</title>
