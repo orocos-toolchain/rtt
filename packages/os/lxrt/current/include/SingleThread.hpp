@@ -122,7 +122,7 @@ namespace ORO_OS
         /**
          * The realtime task
          */
-        RT_TASK* rt_task;
+        RTOS_TASK* rt_task;
 
         /**
          * The userspace thread carying the rt_task.
@@ -153,13 +153,13 @@ namespace ORO_OS
         /**
          * The semaphore used for starting the thread.
          */
-        SEM* sem;
+        RTOS_SEM* sem;
 
         /**
          * The semaphore used for communicating between
          * the thread and the constructor/destructor.
          */
-        SEM* confDone;
+        RTOS_SEM* confDone;
 
         /**
          * The possible Runnable to run in this Component
