@@ -5,6 +5,7 @@ namespace CAN
 {
     class CANDeviceInterface;
     class CANMessage;
+    class CANControllerInterface;
     
 	/**
 	 * An interface describing a CANBus.
@@ -12,6 +13,11 @@ namespace CAN
 	struct CANBusInterface 
     {
         virtual ~CANBusInterface() {}
+
+        /**
+         * Specify the controller for this bus.
+         */
+        virtual void setController( CANControllerInterface* c) = 0;
 
 		/**
 		 * Register a CANDeviceInterface instance to the bus.

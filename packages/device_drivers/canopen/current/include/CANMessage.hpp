@@ -10,6 +10,12 @@
 
 namespace CAN
 {
+    struct CANDummyDevice : public CANDeviceInterface
+    {
+        virtual void process(const CANMessage* msg)
+        { return ; }
+        virtual unsigned int nodeId() const { return 255; }
+    };
 
     typedef ::CpStruct_CAN CANBase;
 
@@ -45,7 +51,7 @@ namespace CAN
         /**
          * Create an empty CANMessage
          */
-        CANMessage() : origin(0) { clear(); }
+        CANMessage() : origin( &candevice_dummy ) { clear(); }
 
         /**
          * Create an empty CANMessage
@@ -164,6 +170,11 @@ namespace CAN
 		 * The sender of this message.
 		 */
 		CANDeviceInterface *origin;
+    private:
+        /**
+         * Used for dummy CANMessage origin.
+         */
+        static CANDummyDevice candevice_dummy;
 	};
 			
 }

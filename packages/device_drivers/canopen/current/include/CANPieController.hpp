@@ -2,9 +2,11 @@
 #define CANPIECONTROLLER_HPP
 
 #include "CANControllerInterface.hpp"
+#include <iostream>
 
+#include <pkgconf/system.h>
 #ifdef OROPKG_CORELIB_TASKS
-#include <corelib/TaskEventDriven.hpp>
+#include <corelib/TaskNonPreemptible.hpp>
 #endif
 
 // the functions are implemented 
@@ -17,7 +19,11 @@
 
 namespace CAN
 {
+    using std::cout;
+    using std::endl;
+#ifdef OROPKG_CORELIB_TASKS
     using namespace ORO_CoreLib;
+#endif
 	/**
      * A Controller which interacts with the CANPie platform to
      * address the physical controller.
@@ -25,7 +31,7 @@ namespace CAN
 	class CANPieController
         : public CANControllerInterface
 #ifdef OROPKG_CORELIB_TASKS
-          ,public TaskEventDriven
+          ,public TaskNonPreemptible
 #endif
     {
     public:
@@ -34,15 +40,12 @@ namespace CAN
          * indicate if received messages are put on the bus with
          * an interrupt or if they are polled.
          */
-        CANPieController(int channel, CANBusInterface* _bus, bool interrupt = false) :
+        CANPieController( double period,  bool interrupt = false) :
 #ifdef OROPKG_CORELIB_TASKS
-             TaskEventDriven(), 
+             TaskNonPreemptible( period ), 
 #endif
-             CANPieChannel(channel), bus(_bus), process_in_int(interrupt)
+             CANPieChannel(0),  process_in_int(interrupt)
         {
-            controller[channel] = this;
-            CANPieStatus = CpUserAppInit(channel, 6, 6, 10);
-            CpUserIntFunctions((unsigned char)channel, ReceiveIntHandler, 0 , 0);
         }
             
         virtual ~CANPieController()
@@ -59,11 +62,25 @@ namespace CAN
         void step() 
         {
             while ( readFromBuffer(CANmsg) )
-                bus->write(&CANmsg); // we own CANmsg;
+                {
+                    CANmsg.origin = this;
+                    bus->write(&CANmsg); // we own CANmsg;
+                }
         }
         
         void finalise() {}
 #endif
+
+        virtual void addBus( unsigned int chan, CANBusInterface* _bus)
+        {
+            CANPieChannel = chan;
+            bus = _bus;
+            controller[CANPieChannel] = this;
+            CANPieStatus = CpUserAppInit(CANPieChannel, 32, 64, 10);
+            cout << "Bus status :"<<CANPieStatus<<endl;
+            CpUserIntFunctions( CANPieChannel, ReceiveIntHandler, 0 , 0);
+            bus->setController( this );
+        }
 
         virtual void process(const CANMessage* msg)
         {
@@ -75,7 +92,7 @@ namespace CAN
             return 0;
         }
 
-        static unsigned char ReceiveIntHandler(unsigned char channel, CpStruct_CAN* msg)
+        static unsigned int ReceiveIntHandler(unsigned int channel, CpStruct_CAN* msg)
         {
             return controller[int(channel)]->receive(msg);
             //return CP_CALLBACK_PUSH_FIFO; // let the object itself decide.

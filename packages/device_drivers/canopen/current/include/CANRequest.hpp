@@ -6,6 +6,7 @@
 
 #include <corelib/HeartBeatGenerator.hpp>
 #include <corelib/Time.hpp>
+#include <os/rtstreams.hpp>
 
 namespace CAN
 {
@@ -88,7 +89,7 @@ namespace CAN
          */
         bool isExpired() const
         {
-            if (timeout == 0)
+            if ( timeout == 0 )
                 return false;
             else
                 return HeartBeatGenerator::Instance()->secondsSince(timestamp) > timeout;

@@ -3,10 +3,16 @@
 
 #include "CANBusInterface.hpp"
 #include "CANControllerInterface.hpp"
+#include "CANMessage.hpp"
+
+#include <list>
+#include <algorithm>
+#include <os/rtstreams.hpp>
 
 namespace CAN
 {
-    using std::vector;
+    using std::list;
+    using std::find;
     
 	/**
 	 * A CAN Open Bus in its simplest (but effective) form, making use of
@@ -16,6 +22,8 @@ namespace CAN
 	class CANOpenBus
         :public CANBusInterface
     {
+        CANMessage syncMsg;
+
         public:
         /**
          * Create a CANBus instance with no devices attached to it.
@@ -24,10 +32,19 @@ namespace CAN
          *
          * @param _controller The Controller of the bus.
          */
-        CANOpenBus( CANControllerInterface* _controller)
-            : controller( _controller )
+        CANOpenBus()
+            : controller( 0 )
         {
-            listeners.reserve(MAX_DEVICES);
+            syncMsg.setStdId( 0x80 );
+        }
+
+        /**
+         * Write a SYNC message to the bus.
+         */
+
+        void sync()
+        {
+            this->write( &syncMsg );
         }
 
         void setController(CANControllerInterface* contr)
@@ -36,6 +53,15 @@ namespace CAN
         }
         
         virtual bool addDevice(CANDeviceInterface* dev)
+        {
+            if ( devices.size() < MAX_DEVICES)
+                devices.push_back(dev);
+            else
+                return false;
+            return true;
+        }
+
+        virtual bool addListener(CANListenerInterface* dev)
         {
             if ( listeners.size() < MAX_DEVICES)
                 listeners.push_back(dev);
@@ -46,7 +72,15 @@ namespace CAN
 
         virtual void removeDevice(CANDeviceInterface* dev)
         {
-            vector<CANDeviceInterface*>::iterator itl;
+            list<CANDeviceInterface*>::iterator itl;
+            itl = find(devices.begin(), devices.end(), dev);
+            if ( itl != devices.end() )
+                devices.erase(itl);
+        }
+
+        virtual void removeListener(CANListenerInterface* dev)
+        {
+            list<CANListenerInterface*>::iterator itl;
             itl = find(listeners.begin(), listeners.end(), dev);
             if ( itl != listeners.end() )
                 listeners.erase(itl);
@@ -54,18 +88,40 @@ namespace CAN
 
         virtual void write(const CANMessage *msg)
         {
+            rt_std::cout <<"Writing...";
+            // All listeners are notified.
+            list<CANListenerInterface*>::iterator itl = listeners.begin();
+            while ( itl != listeners.end() )
+                {
+                    list<CANListenerInterface*>::iterator next = (++itl)--;
+                    (*itl)->process(msg); // eventually check the node id (in CANOpenBus)
+                    itl = next;
+                }
+
             if ( controller == 0 )
                 return;
-            if (msg->origin->nodeId() !=  controller->nodeId() )
-                controller->process(msg);
+            if (msg->origin == 0 || msg->origin->nodeId() !=  controller->nodeId() )
+                {
+                    rt_std::cout <<"to controller !\n";
+                    controller->process(msg);
+                }
             else
-                for (vector<CANDeviceInterface*>::iterator itl = listeners.begin(); itl != listeners.end(); ++itl)
-                    (*itl)->process(msg); // eventually check the node id (in CANOpenBus)
+                {
+                    rt_std::cout <<"to devicelist !\n";
+                    list<CANDeviceInterface*>::iterator itd = devices.begin();
+                    while ( itd != devices.end() )
+                        {
+                            list<CANDeviceInterface*>::iterator _next = (++itd)--;
+                            (*itd)->process(msg); // eventually check the node id (in CANOpenBus)
+                            itd = _next;
+                        }
+                }
         }
 
         static const unsigned int MAX_DEVICES = 127;
     protected:
-        vector<CANDeviceInterface*> listeners;
+        list<CANDeviceInterface*> devices;
+        list<CANListenerInterface*> listeners;
 
         CANControllerInterface* controller;
 	};
