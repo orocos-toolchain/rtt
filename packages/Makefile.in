@@ -44,7 +44,7 @@ doc-dist:
 
 html-dist:
 	@echo "Making html docs..."
-	@for i in $$(find . -name Makefile); do make dochtml -C $$(dirname $$i); done
+	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl dochtml; done
 
 doc-dist-clean:
 	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.eps" | xargs rm
