@@ -36,6 +36,7 @@ namespace ORO_CoreLib {
      template class Property<int>;
      template class Property<unsigned int>;
      template class Property<std::string>;
+     template class Property<const std::string&>;
      template class Property<PropertyBag>;
 
 }

@@ -323,7 +323,6 @@ namespace ORO_CoreLib
     inline
     void copy(PropertyBag& a, const PropertyBag& b)
     {
-        std::cout << "Copy Bag "<<std::endl;
         copyProperties(a,b);
     }
 
@@ -337,22 +336,22 @@ namespace ORO_CoreLib
     {
         PropertyBagOwner()
             {
-            };
+            }
         PropertyBagOwner( const PropertyBag& b )
             : bag( b )
             {
-            };
+            }
         PropertyBag bag;
         ~PropertyBagOwner()
             {
                 deleteProperties( bag );
-            };
+            }
         PropertyBagOwner& operator=( const PropertyBag& b )
             {
                 deleteProperties( bag );
                 bag = b;
                 return *this;
-            };
+            }
     private:
         // don't copy PropertyBagOwner's !
         PropertyBagOwner( const PropertyBagOwner& );

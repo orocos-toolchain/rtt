@@ -34,6 +34,7 @@
 #include "PropertyBag.hpp"
 #include "PropertyOperation.hpp"
 #include "PropertyDecomposition.hpp"
+#include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING
 #include <string>
@@ -82,29 +83,28 @@ namespace ORO_CoreLib
      * @param T The type of the data contained within the Property.
 	 */
     template<typename T>
-    class Property : public PropertyBase
+    class Property
+        : public PropertyBase
     {
         public:
+        /**
+         * The bare type (without const or references) of this property.
+         */
+        typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type value_t;
+        /**
+         * A property stores a _writable_ value, even if the T given is a const.
+         */
+        typedef value_t prop_t;
 
 			/**
 			 * The constructor which initializes the property's value.
 			 * @param name The name which will be used to refer to the
 			 * property.
 			 * @param description The description of the property.
-			 * @param value The initial value of the property.
+			 * @param value The initial value of the property (optional).
 			 */
-            Property(const std::string& name, const std::string& description, const T& value)
+            Property(const std::string& name, const std::string& description, prop_t value = value_t() )
 				: PropertyBase(name, description), _value(value)
-            {}
-
-			/**
-			 * The constructor which does not initialize the property's value.
-			 * @param name The name which will be used to refer to the
-			 * property.
-			 * @param description The description of the property.
-			 */
-			Property(const std::string& name, const std::string& description)
-				: PropertyBase(name, description)
             {}
 
             /**
@@ -121,18 +121,7 @@ namespace ORO_CoreLib
 			 * @param value The value to be set.
 			 * @return A reference to newly set property value.
 			 */
-            T& operator=(const T &value)
-            {
-                _value = value;
-                return _value;
-            }
-
-			/**
-			 * Set the property's value.
-			 * @param value The value to be set.
-			 * @return A reference to newly set property value.
-			 */
-            T& operator=(T &value)
+            const value_t& operator=(const value_t &value)
             {
                 _value = value;
                 return _value;
@@ -152,7 +141,7 @@ namespace ORO_CoreLib
 			 * Get a copy of the value of the property.
 			 * @return A copy of the value of the property.
 			 */
-            operator T() const
+            operator value_t() const
             {
                 return _value;
             }
@@ -161,7 +150,7 @@ namespace ORO_CoreLib
 			 * Get the value of the property.
 			 * @return The value of the property.
 			 */
-            const T& get() const
+            const value_t& get() const
             {
                 return _value;
             }
@@ -169,7 +158,7 @@ namespace ORO_CoreLib
             /**
              * Acces to the value of the Property.
              */
-            T& set()
+            value_t& set()
             {
                 return _value;
             }
@@ -177,7 +166,7 @@ namespace ORO_CoreLib
             /**
              * Acces to the value of the Property.
              */
-            T& value()
+            value_t& value()
             {
                 return _value;
             }
@@ -232,7 +221,7 @@ namespace ORO_CoreLib
                 return new Property<T>( _name, _description );
             }
         protected:
-            T _value;
+            prop_t _value;
         private:
     };
 
@@ -252,6 +241,7 @@ namespace ORO_CoreLib
     extern template class Property<int>;
     extern template class Property<unsigned int>;
     extern template class Property<std::string>;
+    extern template class Property<const std::string &>;
     extern template class Property<PropertyBag>;
 
 }
