@@ -27,6 +27,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
+  using namespace ORO_Execution;
 
 
   nAxesSensorForcesensor::nAxesSensorForcesensor(unsigned int num_axes,
@@ -75,6 +76,16 @@ namespace ORO_ControlKernel
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
     _kinematics->positionForward(temp, _world_MP );
+
+    // calculate average measurement if requested
+    if (_is_measuring){
+      if (_counter_measurements < _num_measurements){
+	_average_measurement += ( _force/_num_measurements );
+	_counter_measurements++;
+      }
+      else
+	_is_measuring = false;
+    }
   }
 
 
@@ -108,7 +119,55 @@ namespace ORO_ControlKernel
 
   bool nAxesSensorForcesensor::componentStartup()
   {
+    _is_measuring = false;
     return true;
+  }
+  
+
+  CommandFactoryInterface* nAxesSensorForcesensor::createCommandFactory()
+  {
+    TemplateCommandFactory<nAxesSensorForcesensor>* my_commandFactory = newCommandFactory( this );
+    my_commandFactory->add( "averageMeasure", command( &nAxesSensorForcesensor::startMeasuring,
+						       &nAxesSensorForcesensor::finishedMeasuring,
+						       "calculate the average force during num_meas samples",
+						       "num_meas", "Number of measurements to take"));
+    return my_commandFactory;
+  }
+
+
+  MethodFactoryInterface* nAxesSensorForcesensor::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesSensorForcesensor>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "finishedMeasuring", method( &nAxesSensorForcesensor::finishedMeasuring, "Arrived at new position" ));
+
+    return my_methodFactory;
+  }
+
+
+
+  bool nAxesSensorForcesensor::startMeasuring(unsigned int num_meas)
+  {
+    if (_is_measuring)
+      return false;
+    else{
+      _num_measurements = num_meas;
+      _counter_measurements = 0;
+      SetToZero(_average_measurement);
+      _is_measuring = true;
+      return true;
+    }
+  }
+
+  
+  bool nAxesSensorForcesensor::finishedMeasuring() const
+  {
+    return !_is_measuring;
+  }
+  
+
+  Wrench nAxesSensorForcesensor::getMeasurement()
+  {
+    return _average_measurement;
   }
   
 

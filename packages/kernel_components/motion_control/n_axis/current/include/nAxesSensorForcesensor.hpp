@@ -23,6 +23,10 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <execution/TemplateCommandFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <device_interface/AxisInterface.hpp>
 #include <kindyn/KinematicsComponent.hpp>
@@ -50,14 +54,12 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorForcesensorInput_pos_force>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorForcesensor_typedef;
+				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::ExecutionExtension,
+								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorForcesensor_typedef;
   
 
   /// Component returns force measurement and frame of froce sensor
-  /** This component reads the force sensor and the joint angles of an
-      n-axes manipulator. It then uses the kinematics to calcualte the
-      frame of the force sensor, which it returns together with the
-      force measurement
+  /** This component reads the force sensor
   */
   class nAxesSensorForcesensor
     : public nAxesSensorForcesensor_typedef
@@ -75,17 +77,28 @@ namespace ORO_ControlKernel
     virtual bool componentLoaded();
     virtual bool componentStartup();
 
+
     virtual void pull();
     virtual void calculate();
     virtual void push();
 
+    virtual CommandFactoryInterface* createCommandFactory();
+    virtual MethodFactoryInterface*  createMethodFactory();
+    bool nAxesSensorForcesensor::startMeasuring(unsigned int num_meas);
+    bool nAxesSensorForcesensor::finishedMeasuring() const;
+    ORO_Geometry::Wrench nAxesSensorForcesensor::getMeasurement();
+    
+
   private:
-    unsigned int                                                          _num_axes;
+    unsigned int                                                          _num_axes, _num_measurements, _counter_measurements;
     std::vector<ORO_DeviceInterface::AxisInterface*>                      _axes;
     std::vector< const ORO_DeviceInterface::SensorInterface<double>* >    _position_sensors;
     ORO_DeviceInterface::SensorInterface<ORO_Geometry::Wrench>*           _forcesensor;
     ORO_KinDyn::KinematicsComponent*                                      _kinematics;
     std::vector<double>                                                   _position_joint;
+    bool                                                                  _is_measuring;
+    ORO_Geometry::Wrench                                                  _average_measurement;
+    
 
     ORO_Geometry::Frame                                                   _MP_FS, _world_MP;
     ORO_Geometry::Wrench                                                  _force;
