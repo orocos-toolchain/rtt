@@ -120,7 +120,7 @@ private:
     ORO_Geometry::Wrench       _buffer2;
     mutable ORO_OS::Mutex      _readLock;
     
-    ORO_CoreLib::Event<void(void)> _maximumload_event;
+    ORO_CoreLib::Event<void(void)>* _maximumload_event;
   
     // The offsets currently in use
     ForceArray       _currentOffset;
