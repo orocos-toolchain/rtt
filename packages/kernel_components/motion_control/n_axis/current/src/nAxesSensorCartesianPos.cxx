@@ -31,12 +31,14 @@ namespace ORO_ControlKernel
   nAxesSensorCartesianPos::nAxesSensorCartesianPos(unsigned int num_axes, 
 						   std::vector<AxisInterface*> axes,
 						   ORO_KinDyn::KinematicsComponent* kin,
+						   const Frame& offset,
 						   std::string name)
     : nAxesSensorCartesianPos_typedef(name),
       _num_axes(num_axes), 
       _axes(axes),
       _kinematics(kin),
       _position_joint(num_axes),
+      _offset(offset),
       _position_sensors(num_axes)
   {
     assert(_axes.size() == num_axes);
@@ -67,8 +69,9 @@ namespace ORO_ControlKernel
     ORO_CoreLib::Double6D temp;
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
-    
+
     _kinematics->positionForward(temp, _position_out_local );
+    _position_out_local = _position_out_local * _offset;
   }
 
 
