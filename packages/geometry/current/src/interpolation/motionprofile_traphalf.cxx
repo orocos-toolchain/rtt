@@ -25,6 +25,11 @@ namespace ORO_Geometry {
 MotionProfile_TrapHalf::MotionProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting):
 		  maxvel(_maxvel),maxacc(_maxacc),starting(_starting) {}
 
+void MotionProfile_TrapHalf::SetMax(double _maxvel,double _maxacc, bool _starting)
+{
+    maxvel = _maxvel; maxacc = _maxacc; starting = _starting;
+}
+
 void MotionProfile_TrapHalf::PlanProfile1(double v,double a) {
 	a3 = 0;
 	a2 = 0;

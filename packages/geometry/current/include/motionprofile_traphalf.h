@@ -58,6 +58,8 @@ class MotionProfile_TrapHalf : public MotionProfile
 		 */
 		MotionProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting);
 
+        void SetMax(double _maxvel,double _maxacc, bool _starting );
+
 		/**
 		 * Can throw a Error_MotionPlanning_Not_Feasible
 		 */
