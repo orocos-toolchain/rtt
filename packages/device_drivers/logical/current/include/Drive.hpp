@@ -23,23 +23,23 @@
 #ifndef DRIVE_HPP
 #define DRIVE_HPP
 
-#include <fdi/AnalogOutInterface.hpp>
-#include <fdi/DigitalOutInterface.hpp>
-#include <fdi/ActuatorInterface.hpp>
+#include <device_interface/AnalogOutInterface.hpp>
+#include <device_interface/DigitalOutInterface.hpp>
+//#include <device_interface/ActuatorInterface.hpp>
 
 namespace CBDeviceDriver
 
 {
-
     using namespace ORO_CoreLib;
+    using namespace ORO_DeviceInterface;
 
     /**
      * Uses a channel of a certain analog output which is connected to
      * a hardware drive with velocity control, controlling an actuator
      * and the enabling/braking of the drive.
      */
-    class Drive
-        : public ActuatorInterface<double>
+    class Drive // VelocityDrive
+    //: public ActuatorInterface<double>
     {
 
         public:
@@ -75,7 +75,7 @@ namespace CBDeviceDriver
                 return !enableDevice->checkBit(enableBit);
             }
 
-            virtual int drive( const InputStruct& v )
+            virtual int driveSet( double v )
             {
                 // res is in bits/[Volt|Ampere|...]
                 InputStruct resolution = mySubDevice->resolution(myChannel);
@@ -95,7 +95,7 @@ namespace CBDeviceDriver
                 return 0;
             }
 
-            virtual InputStruct speedGet() const
+            virtual InputStruct driveGet() const
             {
                 return mySpeed;
             }

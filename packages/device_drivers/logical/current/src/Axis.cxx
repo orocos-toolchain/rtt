@@ -16,8 +16,8 @@
 *                                                                         *
 ***************************************************************************/
 
-#include "corelib/Axis.hpp"
-#include <rtstl/rtstreams.hpp>
+#include "Axis.hpp"
+#include <os/rtstreams.hpp>
 #include <corelib/EventInterfaces.hpp>
 
 
@@ -29,14 +29,42 @@ namespace CBDeviceDriver
 
     Axis::~Axis()
     {
-        calTask.stop();
-        homeTask.stop();
-        act->stop();
+        act->disableDrive();
     }
 
-    void Axis::callibrate()
+    void Axis::move( double vel )
     {
-        calTask.start();
+        act->driveSet( vel * v_to_u );
+    }
+
+    void Axis::enable()
+    {
+        act->enableDrive();
+    }
+
+    void Axis::disable()
+    {
+        act->disableDrive();
+    }
+
+    double Axis::positionGet()
+    {
+        return double( encoder->turnGet()*encoder->resolution() +  encoder->positionGet() ) / mm_to_inc + posOffset;
+    }
+
+    void Axis::positionSet( double offset )
+    {
+        posOffset = offset;
+    }
+
+    void Axis::turnSet( int t )
+    {
+        encoder->turnSet( t );
+    }
+
+    double Axis::velocity()
+    {
+        return act->driveGet() / v_to_u;
     }
 
     void Axis::reset()
@@ -45,22 +73,17 @@ namespace CBDeviceDriver
         act->stop();
     }
 
-    void Axis::home()
-    {
-        homeTask.start();
-    }
-
-    ActuatorInterface<double>* Axis::actuatorGet()
+    Drive* Axis::actuatorGet()
     {
         return act;
     }
 
-    EncoderIncrementalInterface* Axis::encoderGet()
+    Encoder* Axis::encoderGet()
     {
-        return encincr;
+        return encoder;
     }
 
-    SwitchHomingInterface* Axis::switchGet()
+    DigitalInput* Axis::switchGet()
     {
         return swt;
     }

@@ -1,7 +1,7 @@
 #ifndef DIGITALINPUT_HPP
 #define DIGITALINPUT_HPP
 
-#include <fdi/DigitalInInterface.hpp>
+#include <device_interface/DigitalInInterface.hpp>
 
 namespace CBDeviceDriver
 {
@@ -22,8 +22,8 @@ namespace CBDeviceDriver
              * @param dig_in The digital input device to use to read the status.
              * @param bit_nr The bit number to use on the device.
              */
-            DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr )
-                :board(dig_in), bitnumber(bit_nr) 
+            DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr, bool _invert )
+                :board(dig_in), bitnumber(bit_nr) , invert(_invert)
             {
             }
 
@@ -39,12 +39,13 @@ namespace CBDeviceDriver
              */
             bool isOn()
             {
-                return board->isOn(bitnumber);
+                return invert ^ board->isOn(bitnumber);
             }
 
         private:
-            DigitalInInterface *board;
-            int bitnumber;
+        DigitalInInterface *board;
+        int bitnumber;
+        bool invert;
     };
 };
 
