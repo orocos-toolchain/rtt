@@ -65,7 +65,7 @@ namespace ORO_Execution
   };
 
   std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, const std::string& filename, Processor* proc,
-                                                              GlobalFactory* ext, std::ostream& errorstream )
+                                                              GlobalFactory* ext )
   {
       // This code is copied from parseProgram()
 
@@ -82,7 +82,16 @@ namespace ORO_Execution
 
     // The internal parser.
     StateGraphParser gram( parsebegin, proc, ext );
-    std::vector<ParsedStateContext*> ret = gram.parse( parsebegin, parseend, errorstream );
+    std::vector<ParsedStateContext*> ret;
+    try {
+      ret = gram.parse( parsebegin, parseend );
+    }
+    catch( const parse_exception& exc )
+    {
+      throw file_parse_exception(
+        exc.copy(), parsebegin.get_position().file,
+        parsebegin.get_position().line, parsebegin.get_position().column );
+    }
     return ret;
   };
 
@@ -102,10 +111,7 @@ namespace ORO_Execution
     }
     catch( const parse_exception& e )
     {
-      std::cerr << "Parse error at line "
-                << parsebegin.get_position().line
-                << ": " << e.what() << std::endl;
-      return 0;
+      throw;
     };
     ConditionInterface* ret = parser.getParseResult();
     parser.reset();
@@ -114,8 +120,7 @@ namespace ORO_Execution
 
   std::pair<CommandInterface*, ConditionInterface*>
   Parser::parseCommand( const std::string& _s,
-                        GlobalFactory* e,
-                        std::ostream& errorstream )
+                        GlobalFactory* e )
   {
     // we need a writable version of the string..
     std::string s( _s );
@@ -128,14 +133,14 @@ namespace ORO_Execution
     CommandParser parser( pc );
     try
     {
-      parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+      boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
+      if ( ! ret.hit )
+        throw parse_exception_syntactic_error( "No command found" );
     }
     catch( const parse_exception& e )
     {
-      errorstream << "Parse error at line "
-                  << parsebegin.get_position().line
-                  << ": " << e.what() << std::endl;
-      return std::pair<CommandInterface*,ConditionInterface*>(0,0);
+      // hm, no reason to catch here really
+      throw;
     };
     CommandInterface* ret = parser.getCommand();
     ConditionInterface* cond_ret = parser.getImplTermCondition();

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parse_exception.hpp 
+  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parse_exception.hpp
 
                         parse_exception.hpp -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -33,20 +33,302 @@
 
 namespace ORO_Execution
 {
+  class parse_exception;
+
   /**
-   * @brief This is the exception class that is thrown by all of the parsers
-   * to indicate a parse error.  It holds a string describing what
-   * went wrong.
+   * This is an exception class that keeps a parse_exception pointer
+   * along with the location in the file and the file where it
+   * occurred.
+   */
+  class file_parse_exception
+  {
+    parse_exception* mpe;
+    std::string mfile;
+    int mline;
+    int mcolumn;
+    // make this private to prevent the compiler from adding it...
+    file_parse_exception& operator=( const file_parse_exception& rhs );
+  public:
+    file_parse_exception( const file_parse_exception& rhs );
+    file_parse_exception( parse_exception* pe, const std::string& file,
+                          int line, int column )
+      : mpe( pe ), mfile( file ), mline( line ), mcolumn( column )
+      {
+      }
+    ~file_parse_exception();
+
+    const std::string what() const;
+  };
+
+  /**
+   * This is the uppermost exception class in the parser system.
+   * Throughout the parser system, exceptions are thrown that inherit
+   * from this.
    */
   class parse_exception
   {
-    const std::string mwhat;
+    // make these private
+    parse_exception& operator=( const parse_exception& );
+  protected:
+    parse_exception() {};
   public:
-    parse_exception( const std::string& what )
-      : mwhat( what ) {}
-    const char* what() const throw () { return mwhat.c_str(); }
+    virtual ~parse_exception() {};
+    virtual const std::string what() const = 0;
+    virtual parse_exception* copy() const = 0;
   };
 
+  class parse_exception_illegal_identifier
+    : public parse_exception
+  {
+    std::string mident;
+  public:
+    parse_exception_illegal_identifier( const std::string& ident )
+      : mident( ident )
+      {
+      };
+
+    const std::string what() const
+      {
+        return "The string \"" + mident + "\" cannot be used as an identifer.";
+      }
+
+    parse_exception_illegal_identifier* copy() const
+      {
+        return new parse_exception_illegal_identifier( *this );
+      }
+
+    const std::string& identifier() const
+      {
+        return mident;
+      }
+  };
+
+  /**
+   * parse_exception class that is used for various semantic errors
+   * for which it was not worth defining a proper exception class.
+   */
+  class parse_exception_semantic_error
+    : public parse_exception
+  {
+    std::string mdesc;
+  public:
+    parse_exception_semantic_error( const std::string& desc )
+      : mdesc( desc )
+      {
+      };
+
+    const std::string what() const
+      {
+        return "Semantic error: " + mdesc;
+      }
+
+    parse_exception_semantic_error* copy() const
+      {
+        return new parse_exception_semantic_error( *this );
+      }
+
+    const std::string& desc() const
+      {
+        return mdesc;
+      }
+  };
+
+  /**
+   * parse_exception class that is used for various syntactic errors
+   * for which it was not worth defining a proper exception class.
+   */
+  class parse_exception_syntactic_error
+    : public parse_exception
+  {
+    std::string mdesc;
+  public:
+    parse_exception_syntactic_error( const std::string& desc )
+      : mdesc( desc )
+      {
+      };
+
+    const std::string what() const
+      {
+        return "Syntactic error: " + mdesc;
+      }
+
+    parse_exception_syntactic_error* copy() const
+      {
+        return new parse_exception_syntactic_error( *this );
+      }
+
+    const std::string& desc() const
+      {
+        return mdesc;
+      }
+  };
+
+  class parse_exception_no_such_component
+    : public parse_exception
+  {
+    std::string mname;
+  public:
+    parse_exception_no_such_component( const std::string& name )
+      : mname( name )
+      {
+      }
+
+    const std::string what() const
+      {
+        return "No component registered by the name \"" + mname + "\".";
+      }
+
+    parse_exception_no_such_component* copy() const
+      {
+        return new parse_exception_no_such_component( *this );
+      }
+
+    const std::string& componentName() const
+      {
+        return mname;
+      }
+  };
+
+  class parse_exception_no_such_method_on_component
+    : public parse_exception
+  {
+    std::string mcomponentname;
+    std::string mmethodname;
+  public:
+    parse_exception_no_such_method_on_component(
+      const std::string& componentname, const std::string& methodname )
+      : mcomponentname( componentname ), mmethodname( methodname )
+      {
+      };
+
+    const std::string what() const
+      {
+        return "No method \"" + mmethodname + "\" registered for the component \"" + mcomponentname + "\".";
+      }
+
+    parse_exception_no_such_method_on_component* copy() const
+      {
+        return new parse_exception_no_such_method_on_component( *this );
+      }
+
+    const std::string& componentName() const
+      {
+        return mcomponentname;
+      }
+
+    const std::string& methodName() const
+      {
+        return mmethodname;
+      }
+  };
+
+  class parse_exception_wrong_number_of_arguments
+    : public parse_exception
+  {
+    std::string mcomponentname;
+    std::string mmethodname;
+    int mexpectednumber;
+    int mreceivednumber;
+  public:
+    parse_exception_wrong_number_of_arguments(
+      const std::string& componentname, const std::string& methodname,
+      int expectednumber, int receivednumber )
+      : mcomponentname( componentname ), mmethodname( methodname ),
+        mexpectednumber( expectednumber ),
+        mreceivednumber( receivednumber )
+      {
+      };
+
+    const std::string what() const;
+
+    parse_exception_wrong_number_of_arguments* copy() const
+      {
+        return new parse_exception_wrong_number_of_arguments( *this );
+      }
+
+    const std::string& componentName() const
+      {
+        return mcomponentname;
+      }
+
+    const std::string& methodName() const
+      {
+        return mmethodname;
+      }
+
+    int expectedNumber() const
+      {
+        return mexpectednumber;
+      }
+
+    int receivedNumber() const
+      {
+        return mreceivednumber;
+      }
+  };
+
+  class parse_exception_wrong_type_of_argument
+    : public parse_exception
+  {
+    std::string mcomponentname;
+    std::string mmethodname;
+    int margnumber;
+  public:
+    parse_exception_wrong_type_of_argument(
+      const std::string& componentname, const std::string& methodname,
+      int argnumber )
+      : mcomponentname( componentname ), mmethodname( methodname ),
+        margnumber( argnumber )
+      {
+      };
+
+    const std::string what() const;
+
+    parse_exception_wrong_type_of_argument* copy() const
+      {
+        return new parse_exception_wrong_type_of_argument( *this );
+      }
+
+    const std::string& componentName() const
+      {
+        return mcomponentname;
+      }
+
+    const std::string& methodName() const
+      {
+        return mmethodname;
+      }
+
+    int argumentNumber() const
+      {
+        return margnumber;
+      }
+  };
+
+  class parse_exception_undefined_value
+    : public parse_exception
+  {
+    std::string mname;
+  public:
+    parse_exception_undefined_value( const std::string& name )
+      : mname( name )
+      {
+      }
+
+    const std::string what() const throw()
+      {
+        return "Use of undefined value: \"" + mname + "\".";
+      }
+
+    parse_exception_undefined_value* copy() const throw()
+      {
+        return new parse_exception_undefined_value( *this );
+      }
+
+    const std::string& name() {
+      return mname;
+    }
+  };
 }
 
 #endif

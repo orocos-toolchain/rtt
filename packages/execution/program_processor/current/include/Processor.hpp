@@ -34,7 +34,6 @@
 
 namespace ORO_Execution
 {
-
     /**
      * This class represents a controllable execution engine.
      * (see interfaces)

@@ -33,6 +33,7 @@
 #include <execution/DataSourceFactoryInterface.hpp>
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
+#include <execution/parse_exception.hpp>
 #include <execution/ParsedStateContext.hpp>
 
 #include <corelib/PropertyComposition.hpp>
@@ -113,19 +114,23 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.loadProgram( program );
     }
 
-    std::pair<bool,std::string> ExecutionExtension::loadStateContexts( std::istream& state_stream, const std::string& filename )
+    void ExecutionExtension::loadStateContexts( std::istream& state_stream, const std::string& filename )
     {
         initKernelCommands();
         Parser    parser;
         typedef std::vector<ParsedStateContext*> contexts_t;
-        std::ostringstream errorstream;
-        contexts_t contexts = parser.parseStateContext( state_stream, filename, &proc, this, errorstream );
-        std::string error = errorstream.str();
+        contexts_t contexts;
+        try {
+          contexts = parser.parseStateContext( state_stream, filename, &proc, this );
+        }
+        catch( const file_parse_exception& exc )
+        {
+          // no reason to catch this other than clarity
+          throw;
+        }
         if ( contexts.empty() )
         {
-            if ( error.empty() )
-                error = "No StateContexts instantiated in file \"" + filename + "\".";
-            return make_pair( false, error );
+          throw statecontext_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
         }
         contexts_t::iterator i;
         for ( i = contexts.begin(); i != contexts.end(); ++i )
@@ -142,9 +147,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
             // the previous contexts.
             for ( contexts_t::iterator j = contexts.begin(); j != i; ++j )
                 ( *j )->unregisterFromProcessor( getProcessor () );
-            return make_pair( false, error );
+            throw statecontext_load_exception( error );
         }
-        return make_pair( true, std::string() );
     }
 
     bool ExecutionExtension::startStateContext(const std::string& name)

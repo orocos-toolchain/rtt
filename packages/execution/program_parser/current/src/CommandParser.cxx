@@ -103,11 +103,9 @@ namespace ORO_Execution
       context.globalfactory->commandFactory();
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     if ( ! cfi )
-      throw parse_exception( "Object \"" + mcurobject +
-                             "\" not registered." );
+      throw parse_exception_no_such_component( mcurobject );
     if ( ! cfi->hasCommand( mcurmethod ) )
-      throw parse_exception( "No match for call to \"" + mcurmethod +
-                             "\" on object \"" + mcurobject + "\"." );
+      throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
     argsparser = new ArgumentsParser( expressionparser, context,
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();
@@ -134,17 +132,13 @@ namespace ORO_Execution
     }
     catch( const wrong_number_of_args_exception& e )
     {
-      throw parse_exception(
-        "Wrong number of arguments in call to \"" + mcurobject + "." +
-        mcurmethod + "\":\n Got " + boost::lexical_cast<std::string>( e.received ) + " argument(s), but " +
-        boost::lexical_cast<std::string>( e.wanted ) + " needed." );
+      throw parse_exception_wrong_number_of_arguments(
+        mcurobject, mcurmethod, e.wanted, e.received );
     }
     catch( const wrong_types_of_args_exception& e )
     {
-      throw parse_exception(
-        "Wrong type of arg provided for argument " +
-        boost::lexical_cast<std::string>( e.whicharg ) + " in call to \"" +
-        mcurobject + "." + mcurmethod + "\"." );
+      throw parse_exception_wrong_type_of_argument(
+        mcurobject, mcurmethod, e.whicharg );
     }
     catch( ... )
     {
@@ -162,9 +156,9 @@ namespace ORO_Execution
     // and mcurobject.mcurmethod should exist, we checked that in
     // seenstartofcall() already, so com should really be valid..
     if ( ! com )
-      throw parse_exception( "Something weird went wrong in calling "
-                             "method \"" + mcurmethod +
-                             "\" on object \"" + mcurobject + "\"." );
+      throw parse_exception_semantic_error(
+        "Something weird went wrong in calling method \"" + mcurmethod +
+        "\" on object \"" + mcurobject + "\"." );
 
     if ( masync )
       com = new AsynchCommandDecorator( com );

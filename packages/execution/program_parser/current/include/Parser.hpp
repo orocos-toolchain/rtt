@@ -66,30 +66,35 @@ namespace ORO_Execution
   {
   public:
     /**
-     * Reads out the stream, parses it, and returns a new @ref ProgramGraph ..
+     * Reads out the stream, parses it, and returns a new @ref
+     * ProgramGraph..
+     * Throws exceptions of type parse_exception.
      */
       ProgramGraph* parseProgram( std::istream& s, Processor*,
                                   GlobalFactory* );
 
     /**
-     * Reads out the stream, parses it, and returns a new @ref StateContext ..
+     * Reads out the stream, parses it, and returns a new @ref
+     * StateContext ..
+     * Throws exceptions of type file_parse_exception.
      */
-      std::vector<ParsedStateContext*> parseStateContext( std::istream& s, const std::string& filename, Processor*,
-                                                          GlobalFactory*, std::ostream& errorstream );
+      std::vector<ParsedStateContext*> parseStateContext(
+          std::istream& s, const std::string& filename, Processor*,
+          GlobalFactory* );
 
     /**
      * parses the string as a condition, and returns a new
-     * ConditionInterface or 0 on parse failure..  Use ext to get the
-     * data from the components..
+     * ConditionInterface..  Will throw parse_exception on
+     * failure... Use ext to get the data from the components..
      */
     ORO_CoreLib::ConditionInterface* parseCondition(
       std::string& s, GlobalFactory* ext );
 
       /**
-       * Parses the command in s. errors are sent down errorstream.
+       * Parses the command in s. Throws exceptions of type parse_exception.
        */
       std::pair<CommandInterface*,ConditionInterface*>
-      parseCommand( const std::string&s, GlobalFactory* gFact, std::ostream& errorstream = std::cerr );
+      parseCommand( const std::string&s, GlobalFactory* gFact );
   };
 };
 #endif

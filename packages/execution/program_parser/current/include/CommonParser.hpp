@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  CommonParser.hpp 
+  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  CommonParser.hpp
 
                         CommonParser.hpp -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -40,8 +40,13 @@ namespace ORO_Execution
       std::string lastparsedident;
   public:
       symbols<nil_t> keywords;
+      // the normal identifier throws an error if it fails to match
+      // because a keyword was used.  Normally this is no problem, but
+      // if it really is, use notassertingidentifier.
       rule_t identifier;
+      rule_t notassertingidentifier;
       lexeme_rule_t lexeme_identifier;
+      lexeme_rule_t lexeme_notassertingidentifier;
 
       CommonParser();
 

@@ -533,11 +533,6 @@ namespace ORO_Execution
                        >> expect_end( str_p(")") );
     }
 
-    void StateGraphParser::syntaxerr()
-    {
-        throw parse_exception("Syntax error at line " + mpositer.get_position().line);
-    }
-
     void StateGraphParser::seeninitialstate()
     {
         curinitialstateflag = true;
@@ -558,7 +553,7 @@ namespace ORO_Execution
             assert( dynamic_cast<StateDescription*>( curtemplatecontext->getState( def ) ) );
             StateDescription* existingstate = static_cast<StateDescription*>( curtemplatecontext->getState( def ) );
             if ( existingstate->isDefined() )
-                throw parse_exception("state " + def + " redefined.");
+                throw parse_exception_semantic_error("state " + def + " redefined.");
             else
                 curstate = existingstate;
         }
@@ -573,13 +568,13 @@ namespace ORO_Execution
         if ( curinitialstateflag )
         {
             if ( curtemplatecontext->getInitialState() )
-                throw parse_exception( "Attempt to define more than one initial state." );
+                throw parse_exception_semantic_error( "Attempt to define more than one initial state." );
             else curtemplatecontext->setInitialState( curstate );
         }
         if ( curfinalstateflag )
         {
             if ( curtemplatecontext->getFinalState() )
-                throw parse_exception( "Attempt to define more than one final state." );
+                throw parse_exception_semantic_error( "Attempt to define more than one final state." );
             else curtemplatecontext->setFinalState( curstate );
         }
         assert( curprogram == 0 );
@@ -662,12 +657,12 @@ namespace ORO_Execution
         const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
-            throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
+            throw parse_exception_semantic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
 
         std::string event_id( res->toDataSource()->get() );
         Event<void(void)>* eoi = Event<void(void)>::nameserver.getObject(event_id);
         if (eoi == 0 )
-            throw parse_exception("Event \""+ event_id+ "\" can not be emitted because it is not created yet.");
+            throw parse_exception_semantic_error("Event \""+ event_id+ "\" can not be emitted because it is not created yet.");
 
         assert( curprogram );
         curprogram->setCommand( new CommandEmitEvent( eoi ) );
@@ -678,7 +673,7 @@ namespace ORO_Execution
     {
         std::string h_name(s, f);
         if ( curhandles.count( h_name ) != 0 )
-            throw parse_exception("Event Handle " + h_name + " redefined.");
+            throw parse_exception_semantic_error("Event Handle " + h_name + " redefined.");
 
         curhandles[ h_name ] = new detail::EventHandle;
     }
@@ -687,7 +682,7 @@ namespace ORO_Execution
     {
         std::string h_name(s, f);
         if ( curhandles.count( h_name ) == 0 )
-            throw parse_exception("Event Handle " + h_name + " not declared.");
+            throw parse_exception_semantic_error("Event Handle " + h_name + " not declared.");
 
         curhand = curhandles[ h_name ];
     }
@@ -706,7 +701,7 @@ namespace ORO_Execution
     {
         std::string h_name(s, f);
         if ( curhandles.count( h_name ) == 0 )
-            throw parse_exception("Event Handle " + h_name + " not declared.");
+            throw parse_exception_semantic_error("Event Handle " + h_name + " not declared.");
 
         assert( curprogram );
         curprogram->setCommand( curhandles[ h_name ]->createDisconnect() );
@@ -719,11 +714,11 @@ namespace ORO_Execution
         const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
-            throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
+            throw parse_exception_syntactic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
 
         std::string ev_name( res->toDataSource()->get() );
         if ( !Event<void(void)>::nameserver.isNameRegistered(ev_name) )
-            throw parse_exception("Event " + ev_name + " not known.");
+            throw parse_exception_semantic_error("Event " + ev_name + " not known.");
 
         curevent = Event<void(void)>::nameserver.getObject( ev_name );
     }
@@ -773,14 +768,14 @@ namespace ORO_Execution
 
         // Check if the Initial and Final States are ok.
         if ( curtemplatecontext->getInitialState() == 0 )
-            throw parse_exception("No initial state defined.");
+            throw parse_exception_semantic_error("No initial state defined.");
         if ( curtemplatecontext->getFinalState() == 0 )
-            throw parse_exception("No final state defined.");
+            throw parse_exception_semantic_error("No final state defined.");
         assert( dynamic_cast<StateDescription*>( curtemplatecontext->getInitialState() ) );
         StateDescription* initstate = static_cast<StateDescription*>( curtemplatecontext->getInitialState() );
 
         if ( curtemplatecontext->getStateList().empty() )
-            throw parse_exception("No states defined in this state context !");
+            throw parse_exception_semantic_error("No states defined in this state context !");
 
         // Check if all States are defined.
         const std::map<std::string, StateDescription*>& states = curtemplatecontext->getStates();
@@ -789,7 +784,7 @@ namespace ORO_Execution
             assert( dynamic_cast<StateDescription*>( it->second ) );
             StateDescription* sd = static_cast<StateDescription*>( it->second );
             if ( !sd->isDefined() )
-                throw parse_exception("State " + it->first + " not defined, but referenced to.");
+                throw parse_exception_semantic_error("State " + it->first + " not defined, but referenced to.");
         }
 
         ProgramGraph* initentryprogram = initstate->getEntryProgram();
@@ -820,7 +815,7 @@ namespace ORO_Execution
         context.valueparser.clear();
     }
 
-    std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end, std::ostream& errorstream )
+    std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end )
     {
         skip_parser_t skip_parser = SKIP_PARSER;
         iter_pol_t iter_policy( skip_parser );
@@ -835,13 +830,13 @@ namespace ORO_Execution
         try {
             if ( ! production.parse( scanner ) )
             {
-                errorstream << "Syntax error at line "
-                            << mpositer.get_position().line
-                            << std::endl;
                 // on error, we clear all remaining data, cause we can't
                 // guarantee consistency...
                 clear();
-                return std::vector<ParsedStateContext*> ();
+                throw file_parse_exception(
+                    new parse_exception_syntactic_error( "Syntax error" ),
+                    mpositer.get_position().file, mpositer.get_position().line,
+                    mpositer.get_position().column );
             }
             std::vector<ParsedStateContext*> ret = mystd::values( rootcontexts );
             rootcontexts.clear();
@@ -849,33 +844,32 @@ namespace ORO_Execution
         }
         catch( const parser_error<std::string, iter_t>& e )
         {
-            errorstream << "Parse error at line "
-                        << mpositer.get_position().line
-                        << ": " << e.descriptor << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
-            return std::vector<ParsedStateContext*>();
+            throw file_parse_exception(
+                new parse_exception_syntactic_error( e.descriptor ),
+                mpositer.get_position().file, mpositer.get_position().line,
+                mpositer.get_position().column );
         }
         catch( const parser_error<GraphSyntaxErrors, iter_t>& e )
         {
-            errorstream << "Parse error at line "
-                        << mpositer.get_position().line
-                        << ": " << "expected one of : entry, handle, exit, transitions" << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
-            return std::vector<ParsedStateContext*> ();
+            throw file_parse_exception(
+                new parse_exception_syntactic_error( "Expected one of: entry, handle, exit, transitions" ),
+                mpositer.get_position().file, mpositer.get_position().line,
+                mpositer.get_position().column );
         }
         catch( const parse_exception& e )
         {
-            errorstream << "Parse error at line "
-                        << mpositer.get_position().line
-                        << ": " << e.what() << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
-            return std::vector<ParsedStateContext*> ();
+            throw file_parse_exception(
+                e.copy(), mpositer.get_position().file,
+                mpositer.get_position().line, mpositer.get_position().column );
         }
     }
 
@@ -944,7 +938,7 @@ namespace ORO_Execution
 
     void StateGraphParser::seenrootcontextinstantiation() {
         if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
-            throw parse_exception( "Root context \"" + curinstcontextname + "\" already defined." );
+            throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
         curinstantiatedcontext->setName( curinstcontextname );
         assert( curinstantiatedcontext->getInitialState() );
@@ -972,9 +966,9 @@ namespace ORO_Execution
 
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
-            throw parse_exception( "SubContext \"" + curinstcontextname + "\" already defined." );
+            throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
         if ( context.globalfactory->dataFactory().factory( curinstcontextname ) != 0 )
-            throw parse_exception(
+            throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );
         DataSource<StateContext*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
@@ -999,7 +993,7 @@ namespace ORO_Execution
         std::string name( begin, end );
         contextbuilders_t::iterator i = contextbuilders.find( name );
         if ( i == contextbuilders.end() )
-            throw parse_exception( "StateContext \"" + name + "\" not defined." );
+            throw parse_exception_semantic_error( "StateContext \"" + name + "\" not defined." );
         curcontextbuilder = i->second;
     }
 
@@ -1020,7 +1014,7 @@ namespace ORO_Execution
         // let's not forget this...
         expressionparser.dropResult();
         if ( curinstcontextparams.find( curcontextinstargumentname ) != curinstcontextparams.end() )
-            throw parse_exception(
+            throw parse_exception_semantic_error(
                 "In initialisation of StateContext \"" + curinstcontextname +
                 "\": Parameter \"" + curcontextinstargumentname +"\" initialised twice..." );
         curinstcontextparams[curcontextinstargumentname] = value;
@@ -1038,14 +1032,15 @@ namespace ORO_Execution
         {
             contextparams_t::iterator j = params.find( i->first );
             if ( j == params.end() )
-                throw parse_exception( "No argument \"" + i->first + "\" in this state context." );
+                throw parse_exception_semantic_error( "No argument \"" + i->first + "\" in this state context." );
         }
 
         for ( contextparams_t::iterator i = params.begin(); i != params.end(); ++i )
         {
             contextparamvalues_t::iterator j = curinstcontextparams.find( i->first );
             if ( j == curinstcontextparams.end() )
-                throw parse_exception( "No value given for argument \"" + i->first + "\" in instantiation of this state context." );
+                throw parse_exception_semantic_error(
+                    "No value given for argument \"" + i->first + "\" in instantiation of this state context." );
             preentrycommands.push_back( i->second->assignCommand( j->second, true ) );
         }
 
@@ -1095,14 +1090,15 @@ namespace ORO_Execution
     assert( curtemplatecontext != 0 );
     ParsedStateContext* psc = curtemplatecontext->getSubContext( curscvccontextname );
     if ( ! psc )
-      throw parse_exception(
+      throw parse_exception_semantic_error(
         "Use of unknown subcontext \"" + curscvccontextname +
         "\"in subcontext parameter assignment." );
     ParsedValueBase* pvb = psc->getParameter( curscvcparamname );
     if ( !pvb )
-      throw parse_exception( "Subcontext \"" + curscvccontextname +
-                             "\" does not have a parameter by the name \"" +
-                             curscvcparamname + "\"." );
+      throw parse_exception_semantic_error(
+          "Subcontext \"" + curscvccontextname +
+          "\" does not have a parameter by the name \"" +
+          curscvcparamname + "\"." );
 
     DataSourceBase* rhs = expressionparser.getResult();
     assert( rhs );

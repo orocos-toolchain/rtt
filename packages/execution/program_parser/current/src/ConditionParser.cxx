@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ConditionParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ConditionParser.cxx
 
                         ConditionParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -96,7 +96,7 @@ namespace ORO_Execution
     else
     {
       // we only want boolean expressions..
-      throw parse_exception(
+      throw parse_exception_semantic_error(
         "Attempt to use a non-boolean value as a condition." );
     };
   };

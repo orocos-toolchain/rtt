@@ -181,7 +181,6 @@ namespace ORO_Execution
       void seensink();
       void finished();
       void seenvaluechange();
-      void syntaxerr();
 
       void seenstatecontextname( iter_t begin, iter_t end );
       void seenrootcontextinstantiation();
@@ -209,13 +208,10 @@ namespace ORO_Execution
     StateGraphParser( iter_t& positer, Processor* proc, GlobalFactory* ext );
     ~StateGraphParser();
 
-    // tries to parse, returns the generated program on success, 0 on
-    // failure..  should not throw..  This returns a map of names to
-    // statecontexts containing all the defined root contexts, given
-    // by the name they have been instantiated by.  On all returned
-    // contexts setName() will have been called with the correct name.
-    // If an error happens, then an empty vector will be returned, and
-    // an error message will be sent down errorstream.
-    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end, std::ostream& errorstream = std::cerr );
+    // tries to parse, returns the instantiated root contexts.  On all
+    // returned contexts setName() will have been called with the
+    // correct name.
+    // will throw an file_parse_exception on error
+    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end );
   };
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:06 CEST 2004  parse_exception.cxx 
+  tag: Peter Soetens  Thu Jul 15 11:21:06 CEST 2004  parse_exception.cxx
 
                         parse_exception.cxx -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -27,3 +27,49 @@
 
 #pragma implementation
 #include "execution/parse_exception.hpp"
+
+#include <sstream>
+
+namespace ORO_Execution
+{
+  // implemented here to avoid having to include sstream in the header
+  const std::string parse_exception_wrong_number_of_arguments::what() const
+  {
+    std::ostringstream stream;
+    stream << "Wrong number of arguments in call of function \""
+           << mcomponentname << "." << mmethodname
+           << "\": expected " << mexpectednumber
+           << ", received " << mreceivednumber << ".";
+    return stream.str();
+  }
+
+  // implemented here to avoid having to include sstream in the header
+  const std::string parse_exception_wrong_type_of_argument::what() const
+  {
+    std::ostringstream stream;
+    stream << "Wrong type of argument provided for argument number "
+           << margnumber << " in call of function \""
+           << mcomponentname << "." << mmethodname
+           << "\".";
+    return stream.str();
+  }
+
+  file_parse_exception::~file_parse_exception()
+  {
+    delete mpe;
+  }
+
+  file_parse_exception::file_parse_exception( const file_parse_exception& rhs )
+    : mpe( rhs.mpe->copy() ), mfile( rhs.mfile ), mline( rhs.mline ),
+      mcolumn( rhs.mcolumn )
+  {
+  }
+
+  const std::string file_parse_exception::what() const
+  {
+    std::ostringstream stream;
+    stream << "Parse error at line "
+           << mline << ": " << mpe->what();
+    return stream.str();
+  }
+}

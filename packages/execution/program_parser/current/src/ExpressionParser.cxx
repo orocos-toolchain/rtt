@@ -41,7 +41,6 @@
 
 #include "corelib/ConditionDuration.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 namespace ORO_Execution
@@ -78,7 +77,7 @@ namespace ORO_Execution
     // details..
     datacall = (
          lexeme_d[
-              commonparser.lexeme_identifier[
+              commonparser.lexeme_notassertingidentifier[
                 bind( &DataCallParser::seenobjectname, this, _1, _2 ) ]
            >> "."
            >> commonparser.lexeme_identifier[
@@ -96,10 +95,9 @@ namespace ORO_Execution
     // called..
     const DataSourceFactoryInterface* fact = gdsf.factory( mobject );
     if ( !fact )
-      throw parse_exception( "Object \"" + mobject + "\"not registered." );
+      throw parse_exception_no_such_component( mobject );
     if ( ! fact->hasData( mmethod ) )
-      throw parse_exception( "No match for method \"" + mmethod +
-                             "\" on object \"" + mobject + "\"." );
+      throw parse_exception_no_such_method_on_component( mobject, mmethod );
     // create an argument parser for the call..
     ArgumentsParser* argspar =
       new ArgumentsParser( expressionparser, context,
@@ -134,8 +132,8 @@ namespace ORO_Execution
     PropertyBagOwner argsspec( fact->getArgumentSpec( meth ) );
     bool needargs = !argsspec.bag.getProperties().empty();
     if ( ! argspar->parsed() && needargs )
-      throw parse_exception(
-        "Call to \"" + obj + "." + meth + "\" requires arguments" );
+      throw parse_exception_wrong_number_of_arguments(
+        obj, meth, argsspec.bag.getProperties().size(), 0 );
 
     try
     {
@@ -143,16 +141,13 @@ namespace ORO_Execution
     }
     catch( const wrong_number_of_args_exception& e )
     {
-      throw parse_exception(
-        "Wrong number of arguments in call to \"" + obj + "." + meth + "\": " +
-        boost::lexical_cast<std::string>( e.wanted ) + " needed." );
+      throw parse_exception_wrong_number_of_arguments(
+        obj, meth, e.wanted, e.received );
     }
     catch( const wrong_types_of_args_exception& e )
     {
-      throw parse_exception(
-        "Wrong type of arg provided for argument " +
-        boost::lexical_cast<std::string>( e.whicharg ) + " in call to \"" +
-        obj + "." + meth + "\"." );
+      throw parse_exception_wrong_type_of_argument(
+        obj, meth, e.whicharg );
     }
     catch( ... )
     {
@@ -294,11 +289,11 @@ namespace ORO_Execution
         // or a time expression
       | time_expression
         // or a constant or user-defined value..
+      | datacallparser.parser()[
+          bind( &ExpressionParser::seendatacall, this ) ]
       | context.valueparser.parser()[
           bind( &ExpressionParser::seenvalue, this ) ]
         // or a property of a component
-      | datacallparser.parser()[
-          bind( &ExpressionParser::seendatacall, this ) ]
         ) >> ( !indexexp );
     // take index of an atomicexpression
     indexexp =
@@ -454,8 +449,8 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyUnary( op, arg.get() );
     if ( ! ret )
-      throw parse_exception( "Cannot apply unary operator \"" + op +
-                             "\" to value." );
+      throw parse_exception_semantic_error( "Cannot apply unary operator \"" + op +
+                                            "\" to value." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -477,8 +472,8 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyBinary( op, arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception( "Cannot apply binary operator \"" + op +
-                             "\" to value." );
+      throw parse_exception_semantic_error( "Cannot apply binary operator \"" + op +
+                                            "\" to value." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -504,8 +499,8 @@ namespace ORO_Execution
       OperatorRegistry::instance().applyTernary( op, arg3.get(),
                                                  arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception( "Cannot apply ternary operator \"" + op +
-                             "\" to value." );
+      throw parse_exception_semantic_error( "Cannot apply ternary operator \"" + op +
+                                            "\" to value." );
     ret->ref();
     parsestack.push( ret );
   };
@@ -541,8 +536,8 @@ namespace ORO_Execution
                                                   arg6.get(), arg5.get(), arg4.get(),
                                                   arg3.get(), arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception( "Cannot apply sixary operator \"" + op +
-                             "\" to value." );
+      throw parse_exception_semantic_error( "Cannot apply sixary operator \"" + op +
+                                            "\" to value." );
     ret->ref();
     parsestack.push( ret );
   };

@@ -121,7 +121,7 @@ namespace ORO_Execution
     }
     catch( const bad_assignment& e )
     {
-      throw parse_exception(
+      throw parse_exception_semantic_error(
         "Attempt to initialize a constant with a value of a different type." );
     }
     assert( assigncommand );
@@ -134,8 +134,8 @@ namespace ORO_Execution
   {
     std::string name( begin, end );
     if ( context.valueparser.isDefined( name ) )
-      throw parse_exception( "Identifier \"" + name +
-                             "\" is already defined." );
+      throw parse_exception_semantic_error( "Identifier \"" + name +
+                                            "\" is already defined." );
     valuename = name;
   };
 
@@ -144,7 +144,7 @@ namespace ORO_Execution
     std::string name( begin, end );
     type = TypeInfoRepository::instance().type( name );
     if ( type == 0 )
-      throw parse_exception( "\"" + name + "\" is an unknown type..." );
+      throw parse_exception_semantic_error( "\"" + name + "\" is an unknown type..." );
   };
 
   void ValueChangeParser::seenaliasdefinition()
@@ -154,7 +154,7 @@ namespace ORO_Execution
     ParsedValueBase* alias;
     alias = type->buildAlias( expr.get() );
     if ( ! alias )
-      throw parse_exception(
+      throw parse_exception_semantic_error(
         "Attempt to define an alias to an expression of a different type." );
     context.valueparser.setValue( valuename, alias );
     lastdefinedvalue = alias;
@@ -174,8 +174,9 @@ namespace ORO_Execution
     }
     catch( const bad_assignment& e )
     {
-      throw parse_exception( "Attempt to initialize a variable with a value "
-                             "of a different type." );
+      throw parse_exception_semantic_error(
+        "Attempt to initialize a variable with a value "
+        "of a different type." );
     }
     assert( assigncommand );
     lastdefinedvalue = var;
@@ -201,7 +202,8 @@ namespace ORO_Execution
   {
     ParsedValueBase* var = context.valueparser.getValue( valuename );
     if ( !var )
-      throw parse_exception( "Variable \"" + valuename + "\" not defined." );
+      throw parse_exception_semantic_error(
+        "Variable \"" + valuename + "\" not defined." );
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     if ( index_ds ) {
@@ -209,10 +211,12 @@ namespace ORO_Execution
             assigncommand = var->assignIndexCommand( index_ds.get(), expr.get() );
         }
         catch( const bad_assignment& e) {
-            throw parse_exception("Attempted to assign index of \""+ valuename +"\" with wrong type.");
+            throw parse_exception_semantic_error(
+                "Attempted to assign index of \""+ valuename +"\" with wrong type.");
         }
         if ( !assigncommand )
-            throw parse_exception( "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
+            throw parse_exception_semantic_error(
+                "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
         // allow to restart over...
         index_ds = 0;
     } else {
@@ -221,11 +225,11 @@ namespace ORO_Execution
         }
         catch( const bad_assignment& e )
             {
-                throw parse_exception(
-                                      "Attempt to assign a value to a variable of a different type." );
+                throw parse_exception_semantic_error(
+                    "Attempt to assign a value to a variable of a different type." );
             }
         if ( ! assigncommand )
-            throw parse_exception( "Cannot set constant or alias \"" + valuename + "\"." );
+            throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\"." );
     }
     assert(assigncommand);
   }

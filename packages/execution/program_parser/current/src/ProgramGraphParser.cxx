@@ -254,7 +254,7 @@ namespace ORO_Execution
       // referencing.
       std::string funcdef(begin, end);
       if ( mfuncs.count(funcdef) != 0 )
-          throw parse_exception("function " + funcdef + " redefined.");
+          throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
       mfunc = mfuncs[funcdef] = program_graph->startFunction();
   }
@@ -309,7 +309,7 @@ namespace ORO_Execution
       // store the part after 'call'
       std::string fname(begin, end);
       if ( mfuncs.count(fname) == 0 )
-          throw parse_exception("calling function " + fname + " but it is not defined.");
+          throw parse_exception_semantic_error("calling function " + fname + " but it is not defined.");
 
       mcallfunc = mfuncs[ fname ];
   }

@@ -112,14 +112,18 @@ namespace ORO_Execution {
         // identifier..
         RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords]);
         lexeme_identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        notassertingidentifier = identifier_base;
         identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        lexeme_notassertingidentifier = identifier_base;
 
         BOOST_SPIRIT_DEBUG_RULE( identifier );
+        BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
+        BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
     }
 
     void CommonParser::seenillegalidentifier()
     {
-        throw parse_exception( "The string \"" + lastparsedident + "\" cannot be used as an identifier." );
+        throw parse_exception_illegal_identifier( lastparsedident );
     }
 }

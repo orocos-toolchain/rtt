@@ -112,9 +112,7 @@ namespace ORO_Execution
     std::string name( begin, end );
     map_t::iterator i = values.find( name );
     if ( i == values.end() )
-    {
-      throw parse_exception( "Value \"" + name + "\" is not defined..." );
-    }
+      throw parse_exception_undefined_value( name );
     else
       ret = i->second;
     deleter.reset( 0 );
