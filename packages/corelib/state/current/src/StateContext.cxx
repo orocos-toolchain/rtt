@@ -3,18 +3,57 @@
 
 namespace ORO_CoreLib
 {
-        StateContext::StateContext() : current( 0 )
+        StateContext::StateContext()
+            : initstate(0), finistate(0), current( 0 )
         {}
 
-        StateContext::StateContext( StateInterface* s_init ) : current( 0 )
+        StateContext::StateContext( StateInterface* s_init, StateInterface* s_fini )
+            : initstate(s_init), finistate(s_fini), current( 0 )
         {
             enterState( s_init );
         }
 
         void StateContext::initState( StateInterface* s_init )
         {
+            initstate=s_init;
             if ( current == 0 )
                 enterState( s_init );
+        }
+
+        void StateContext::finalState( StateInterface* s_fini )
+        {
+            finistate = s_fini;
+        }
+
+        bool StateContext::requestInitialState()
+        {
+            // first check if we are in initstate, so this
+            // even works if current == initstate == finistate, 
+            // which is legal.
+            if ( current == initstate )
+                {
+                    current->handle();
+                    return true;
+                }
+            else if ( current == finistate )
+                {
+                    leaveState( current );
+                    enterState( initstate );
+                    return true;
+                }
+            return false;
+        }
+
+        void StateContext::requestFinalState()
+        {
+            // If we are already in Final state, just handle again.
+            if ( current == finistate )
+                current->handle();
+            else
+                {
+                    leaveState( current );
+                    enterState( finistate );
+                }
         }
 
         StateInterface* StateContext::requestNextState()

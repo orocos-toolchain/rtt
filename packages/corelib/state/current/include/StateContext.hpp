@@ -58,22 +58,38 @@ namespace ORO_CoreLib
         StateContext();
 
         /**
-         * Create a StateContext instance with a given initial state.
+         * Create a StateContext instance with a given initial and final state.
          *
          * @param s_init
          *        The first state which must be entered.
+         * @param s_fini
+         *        The final state
          * @post The StateContext is in state <s_init>
          */
-        StateContext( StateInterface* s_init );
+        StateContext( StateInterface* s_init, StateInterface* s_fini );
 
         /**
          * Enter the initial state of the StateContext.
+         * You may use this state as any other state.
          *
          * @param s_init
          *        The first state of the StateContext.
          * @post  The StateContext has entered and handled <s_init>.
          */
         void initState( StateInterface* s_init );
+
+        /**
+         * Enter the final state of the StateContext. The transition
+         * from any state to final is assumed to be valid at any time.
+         * The transition from final to initial state is assumed to 
+         * be valid any time. This method of working allows resetting
+         * a state context.
+         * You may use this state as any other state.
+         *
+         * @param s_fini
+         *        The final state of the StateContext.
+         */
+        void finalState( StateInterface* s_fini );
 
         /**
          * Search from the current state a candidate next state.
@@ -87,6 +103,25 @@ namespace ORO_CoreLib
          * @return The current state.
          */
         StateInterface* requestNextState();
+
+        /**
+         * Request going to the Final State. This will always
+         * proceed.
+         *
+         */
+        void requestFinalState();
+
+        /**
+         * Request going to the Initial State. This function will only
+         * proceed if the current state is the Final State or the
+         * Initial State. If it fails, one can try 
+         * to requestNextState() which may lead to the
+         * initial state anyway if the transition is set.
+         * This path is not tried by this function.
+         *
+         * @return The true on success, false if not allowed.
+         */
+        bool requestInitialState();
 
         /**
          * Search from the current state a candidate next state.
@@ -145,6 +180,16 @@ namespace ORO_CoreLib
         void leaveState( StateInterface* s );
 
         void enterState( StateInterface* s );
+
+        /**
+         * The Initial State.
+         */
+        StateInterface* initstate;
+
+        /**
+         * The Final State.
+         */
+        StateInterface* finistate;
 
         /**
          * The current state the Context is in
