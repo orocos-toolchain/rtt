@@ -5,7 +5,7 @@ FOP_STYLESHEET=orocos.xsl
 dist: dochtml docpdf docps
 	tar -czf orocos-program-processor-doc.tgz \
 	orocos-program-processor.html orocos-program-processor.pdf \
-	ProgramStates.png ContextStates.png orocos-program-processor.ps \
+	ProgramStates.png MachineStates.png orocos-program-processor.ps \
 	Functor.png Commands.png StateTransitions.png ProgramTransitions.png
 
 docxml: dochtml docpdf
@@ -18,9 +18,9 @@ docps: epsimages orocos-program-processor.ps
 
 doctxt: orocos-program-processor.txt
 
-epsimages: ProgramStates.eps ContextStates.eps Functor.eps Commands.eps StateTransitions.eps ProgramTransitions.eps
+epsimages: ProgramStates.eps MachineStates.eps Functor.eps Commands.eps StateTransitions.eps ProgramTransitions.eps
 
-pngimages: ProgramStates.png ContextStates.png Functor.png Commands.png StateTransitions.png ProgramTransitions.png
+pngimages: ProgramStates.png MachineStates.png Functor.png Commands.png StateTransitions.png ProgramTransitions.png
 
 %.html:%.xml
 	xsltproc $(HTML_STYLESHEET) $< > $@
