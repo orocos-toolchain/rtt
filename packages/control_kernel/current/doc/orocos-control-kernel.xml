@@ -101,10 +101,16 @@
 	<revremark>Added DataObject Reporting</revremark>
       </revision>
       <revision>
-	<revnumber>0.15</revnumber>
+	<revnumber>0.15b</revnumber>
 	<date>2 June 2004</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Many clarifications based on feedback (drawings, code examples)</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.16</revnumber>
+	<date>18 June 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>New DataFlow Components</revremark>
       </revision>
     </revhistory>
 
@@ -771,7 +777,7 @@
 	  url="http://www.orocos.org/documents/motconframe.pdf">software 
 	  pattern for control</ulink>, that we believe is common to
 	all possible feedback control applications. The Control Kernel
-	contains <link linkend="components">Components</link> and
+	contains <link linkend="components">Data Flow Components</link> and
 	<link linkend="data-objects">DataObjects</link> as its
 	building blocks, according to the <link
 	  linkend="formal-rules">formally imposed structure</link> of
@@ -780,7 +786,7 @@
 	  <listitem>
 	    <para>
 	      <emphasis role="strong"> <link
-		  linkend="components">Components</link> </emphasis>
+		  linkend="components">Data Flow Components</link> </emphasis>
 	      contain the functionality (&ldquo;algorithms&rdquo;) of
 	      the control application. They are indicated by
 	      rectangles in
@@ -791,7 +797,7 @@
 	    <para>
 	      <emphasis role="strong"> <link
 		  linkend="data-objects">DataObjects</link>
-	      </emphasis> contain the data that Components exchange
+	      </emphasis> contain the data that Data Flow Components exchange
 	      between each other. They are indicated by ovals in
 	      <xref linkend="fig-standard-control-kernel"/>.
 	    </para>
@@ -808,7 +814,7 @@
 	become available).
       </para>
       <para>
-	The feedback loop has five Components and five DataObjects:
+	The feedback loop has five Data Flow Components and five DataObjects:
 	the <emphasis role="strong">Sensor</emphasis> gathers data
 	from the interfaces to the &ldquo;real world&rdquo;; the
 	<emphasis role="strong">Estimator</emphasis> processes the
@@ -837,7 +843,7 @@
       </para>
       <para>
 	Some control applications do not need one or more of the
-	above-mentioned Components or DataObjects, which is not a
+	above-mentioned Data Flow Components or DataObjects, which is not a
 	problem, because they can just be left &ldquo;empty&rdquo;.
       </para>
       <para>
@@ -853,7 +859,7 @@
 	advantage: it allows for a straightforward <link
 	  linkend="sync-async"><emphasis role="strong">synchronous
 	    execution</emphasis></link> of all functionalities in the
-	Components. That means that one must provide only one single
+	Data Flow Components. That means that one must provide only one single
 	operating system thread to run all Components, and the order
 	in which they run follows from the arrows in the Figure.
 	Indeed, the <emphasis>graph</emphasis> shown in the Figure is
@@ -875,7 +881,8 @@
 	<emphasis>can</emphasis> be distributed, by cutting through
 	one or more of the DataObjects. In that case, the
 	implementation of the cut DataObjects must take care of the
-	network-transparant copying of its content.
+	network-transparant copying of its content. The Data Object
+	Interface thus decouples Data Flows between Components.
       </para>
 	<figure id="fig-standard-control-kernel"  pgwide="0">
 	  <title>
@@ -894,7 +901,7 @@
 	</figure>
     </sect1>
     <sect1 id="creating-standard-control-kernel">
-      <title>Creating a Standard Control Kernel </title>
+      <title>Creating a Standard Control Kernel</title>
       <para>
 	When you start thinking about a control application, you
 	mostly have a concrete control scheme in mind. This scheme
@@ -903,91 +910,47 @@
 	(Sensors) over algorithms to data sinks (Effectors).
       </para>
       <para>
-	Identifying what is exactly in the five above-mentioned
-	DataObjects is the first step for creating a Control Kernel.
-	In &orocos;, these five types must be given as a template
-	parameter to the <classname>StandardControlKernel</classname>.
-	The simplest invocation is when only a double is passed on in
-	every part of the data flow (e.g. in the case of a single axis
-	controller). The Application Builders of this simple Control
-	Kernel then write the following code to define the data flow:
+	The data flow is established by the Control Kernel.
+	The <classname>StandardControlKernel</classname> is an
+	implementation  with non distributed
+	Data Flow Components. It allows efficient stand alone
+	control applications.
+	The Application Builder of this simple Control
+	Kernel then writes the following code to define the kernel :
       </para>
       <programlisting>
 <![CDATA[
-  // All DataObjects contain only 1 double
-  class Input { double input; };
-  class Model { double model; };
-  class Command { double command; };
-  class Setpoint { double setpoint; };
-  class Output { double output; };
 
   #include <control_kernel/StandardControlKernel.hpp>
-  typedef StandardControlKernel< Command, SetPoint,
-	                         Input, Model, Output> My1DKernel;
+  typedef StandardControlKernel<> MyKernel;
 ]]>
       </programlisting>
       <para>
-	This defines the type <type>My1DKernel</type> as being a
-	<classname>StandardControlKernel</classname> where only a
-	double is exchanged between all components. The meaning of the
-	template parameters is as follows:
-      </para>
-      <programlisting>
-StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, OutputType&gt;;
-      </programlisting>
-      <para>
-	Which you can remember by the acronym CSIMO ;-). If that
-	doesn't work, looking at the data flow from left to right
-	in the <ulink
-	  url="http://www.orocos.org/documents/motconframe.pdf">software 
-	  pattern for control</ulink>) might help to find the correct
-	order.  But do not worry, you only need to do this once for
-	your application. Next you can create an instance of your new
+	This defines the type <type>MyKernel</type> as being a
+	<classname>StandardControlKernel&lt;&gt;</classname>.
+	The StandardControlKernel can be given template parameter,
+	but this is explained in the next chapter.
+	Next you can create an instance of your new
 	Control Kernel:
       </para>
       <programlisting>
-	My1DKernel first_kernel;
+	MyKernel first_kernel;
       </programlisting>
       <para>
 	This creates a control kernel with five
-	DataObjects for each DataType (being all doubles) and five
-	default components which do just nothing (in this simplistic example). Other kernels may
-	define other DataObjects and/or other default components. It
-	is the Application Builders' task to replace the default components with
-	&ldquo;functional&rdquo; components, actually doing something with the
-	data. Each component can be loaded and unloaded with 
-	appropriate method calls on the standard kernel.
-      </para>
-      <para>
-	When one defines a control kernel one must first define its
-	DataObjects. Once the control kernel type is determined (in
-	the typedef), the DataObjects type can no longer be changed.
-	This means that if you change the type of the data exchanged
-	by two Components, you have in fact changed the application. 
-      </para>
-      <para>
-	You are not forced to use all DataObjects. If you need for example
-	no Commands or no Models, you can specify the empty class, for example :
-      <programlisting>
-<![CDATA[
-  class Input { double input; };
-  class NoModel { };
-  class Command { };
-  class Setpoint { double setpoint; };
-  class Output { double output; };
-
-  #include <control_kernel/StandardControlKernel.hpp>
-  typedef StandardControlKernel< NoCommand, SetPoint,
-	                         Input, NoModel, Output> MySimpleKernel;
-]]>
-</programlisting>
-	which shows empty model and command DataObjects.
+	DataObjects for local data exchange and five
+	"Default Data Flow Components" which do nothing. Other kernels may
+	define other DataObjects and/or other default Components. It
+	is the Application Builders' task to replace the default Data Flow Components with
+	&ldquo;functional&rdquo; Components, actually doing something with the
+	data. This is explained in the <link linkend="components">
+	Data Flow Components</link> chapter.
       </para>
     </sect1>
     <sect1 id="non-core-standard-control-kernel">
       <title>The non-core parts</title>
       <para>
-	Besides the Components and DataObjects needed in the <link
+	Besides the Data Flow Components and DataObjects needed in the <link
 	  linkend="standard-control-kernel-core">realtime feedback
 	  loop</link>, a control application typically also contains
 	some other parts. Some of them have realtime needs, others
@@ -1039,7 +1002,8 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 		role="strong">HeartBeat</emphasis> is needed in a
 	      distributed control system, in order to keep the clocks
 	      of all processors synchronized to a virtual
-	      &ldquo;network time&rdquo;.
+	      &ldquo;network time&rdquo; (The Orocos CoreLib HeartBeatGenerator
+	      already implements a part of this functionality).
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -1051,14 +1015,15 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 	to cope with the <link
 	  linkend="communication-flows">communication flows</link>
 	between the <link linkend="sync-async">synchronous and
-	  asynchronous</link> parts of the application: the Components
+	  asynchronous</link> parts of the application: the Data Flow Components
 	in the feedback loop can run synchronously in one single
 	thread, but (most of) the additional Component functionality
 	need to live in another thread. Hence, thread-safe exchange of
 	data between both parts of the application is required; and
 	this implies some form of <emphasis
 	  role="strong">locking</emphasis> within the DataObjects that
-	connect a non-realtime Component to a realtime Component.
+	connect a non-realtime Data Flow Component to a realtime
+	Data Flow Component.
       </para>
 
       <figure id="fig-control-pattern"  pgwide="0">
@@ -1097,12 +1062,12 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 	connected.
       </para>
       <para>
-	Components access DataObjects always in the same generic way
+	Data Flow Components access DataObjects always in the same generic way
 	with <function>Get()</function> and <function>Set()</function>
 	methods, acting on a <emphasis>Port</emphasis> of the
 	DataObject. (A Port acts more or less like a
 	&ldquo;proxy&rdquo; of the DataObject; this will be explained
-	in the <link linkend="components">Components</link> section.)
+	in the <link linkend="components">Data Flow Components</link> section.)
 	The <emphasis>implementation</emphasis> of the
 	<function>Get()</function> and <function>Set()</function>
 	methods within the DataObjects depends on the synchronization
@@ -1121,12 +1086,12 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 	Section.
       </para>
       <para>
-	The data guarded by the DataObjects can be any valid C++ type,
+	The data inside the DataObjects can be any valid C++ type,
 	so mostly people use classes or structs, because these carry
 	more semantics than just (vectors of) doubles. The default
 	constructor of the data is called when the DataObject is
 	constructed.  Here is an example of creating and using a
-	DataObject.
+	DataObject outside of a Control Kernel :
 	<example>
 	  <title>Accessing a DataObject</title>
 	  <programlisting>
@@ -1143,7 +1108,7 @@ contents  = my_Do.Get(); // equivalent
 	</example>
       </para>
       <para>
-	The virtual <function>DataObjectInterface</function> interface
+	The virtual <classname>DataObjectInterface</classname> interface
 	provides the <function>Get()</function> and
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and
@@ -1215,7 +1180,7 @@ contents  = my_Do.Get(); // equivalent
 	      the reader. If the reader is preempted with a write and
 	      a read, the last read will return a newer value, while
 	      the first read continues to read the uncorrupted old
-	      value.  The depth of this buffer must be readers+2, for
+	      value.  The depth of this buffer must be readers+3, for
 	      the algorithm to succeed in doing every write. Apart
 	      from memory consumption, it is one of the best
 	      thread-safe DataObject implementations.
@@ -1225,27 +1190,29 @@ contents  = my_Do.Get(); // equivalent
       </para>
     </sect1>
     <sect1 id="components">
-      <title>Components</title>
+      <title>Data Flow Components</title>
       <para>
-	The Components of a Control Kernel contain functional
+	The Data Flow Components of a Control Kernel contain functional
 	algorithms, that process the data exchanged through the
 	connected DataObjects. The Control Kernel provides standard
-	Components and standard interfaces to DataObjects, but the
+	Data Flow Components and standard interfaces to DataObjects, but the
 	Application Builders must still fill in the concrete
-	functionality in the Components. This Section explains how to
+	functionality (algorithm) in the Data Flow Components.
+	This Section explains how to
 	do this, and also discusses other features offered by
-	Components.
+	Data Flow Components.
       </para>
       <sect2>
-	<title>Creating your own Components</title>
+	<title>Creating your own Data Flow Component</title>
 	<para>
 	  As mentioned before, creating a
 	  <classname>StandardControlKernel</classname> makes
-	  <classname>DefaultComponents</classname> which do nothing.
+	  <classname>DefaultComponents</classname> which do not
+	  act on the Data Flow.
 	  The control kernel is equiped with
 	  <function>loadController()</function>,
 	  <function>unloadGenerator()</function>, &hellip; methods
-	  which allow a clean insertion of a new component
+	  which allow a clean insertion of a new Component
 	  (<emphasis>i.c.</emphasis> the Controller Component) and
 	  which guarantee a clean removal of a component
 	  (<emphasis>i.c.</emphasis> the Generator Component).
@@ -1254,14 +1221,23 @@ contents  = my_Do.Get(); // equivalent
 	</para>
 	<programlisting>
 <![CDATA[
-  #include <control_kernel/StandardControlKernel.hpp>
+  #include <control_kernel/BaseComponents.hpp>
 
-  template < class _DefaultGenerator >
+  using namespace ORO_ControlKernel;
+
+  // Definition of MG_InputData, MG_CommandData and MG_SetPointData,
+  // see later.
+
   class MyGenerator 
-      : public _DefaultGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >
   { 
   public:
-      MyGenerator : _DefaultGenerator("MyGeneratorName") {}
+      MyGenerator : Generator("MyGeneratorName") {}
       void pull() 
       { 
           // ... 
@@ -1281,8 +1257,8 @@ contents  = my_Do.Get(); // equivalent
 	</programlisting>
 	<para>
 	  This defines a class <classname>MyGenerator</classname>,
-	  with one template argument, <type>_DefaultGenerator</type>,
-	  and three standard method calls,
+	  which is derived from the <type>ORO_ControlKernel::Generator</type> class,
+	  and implements the three Data Flow method calls,
 	  <function>pull()</function>,
 	  <function>calculate()</function>, and
 	  <function>push()</function>. (More on these method calls
@@ -1290,35 +1266,25 @@ contents  = my_Do.Get(); // equivalent
 	  text.)
 	</para>
 	<para>
-	  The template argument <type>_DefaultGenerator</type> must be
-	  supplied on object creation and it is a base class of
-	  <classname>MyGenerator</classname>. The use of the template
-	  argument <type>_DefaultGenerator</type> might look a bit
-	  strange to people not familiar with templates, but the aim
-	  of this construct is to allow the changing of the base class
-	  of a Component, without having to adjust the code each time.
+	  The Generator base class needs at least four template
+	  parameters in a specified order. The first three denote
+	  what objects the Component expects in the Data Flow.
+	  The last template argument denotes what the Generator
+	  will write in the Data Flow (ie SetPointData). Depending
+	  on the Component type (Sensor, Generator,...), other
+	  parameters must be passed.
+	</para>
+	<para>
 	  The name ("MyGeneratorName") of the component must be unique within 
 	  the type (Generator) in one kernel.
-	  As you can guess, the <type>_DefaultGenerator</type> type is
-	  supplied by the Control Kernel. You can access it like
-	  this:</para>
-	<screen>
-My1DKernel::DefaultGenerator
-	</screen>
-	<para>
-	  These <type>Default&hellip;</type> types exist for all
-	  Components. Of course, the type is useless in that form, it
-	  must be supplied to your own Component implementation:
 	</para>
 	<screen>
-MyGenerator&lt; My1DKernel::DefaultGenerator &gt;  my_gen;
+MyGenerator  my_gen;
 	</screen>
 	<para>
 	  The above line has created an instance of
 	  <classname>MyGenerator</classname> called my_gen and which
-	  now has the <classname>DefaultGenerator</classname> as base
-	  class. Since <classname>MyGenerator</classname> is a
-	  subclass of <classname>DefaultGenerator</classname>, it can
+	  It can
 	  be used with the <function>loadGenerator()</function> method
 	  call of the <classname>StandardControlKernel</classname>.
 	  The next line could then be:
@@ -1338,7 +1304,7 @@ first_kernel.selectGenerator( &amp;my_gen );
 	  <para>One can only select a component after the kernel is started !</para>
 	</note>
 	<para>
-	  Only one Component per type can be selected and only a
+	  Only one Data Flow Component per type can be selected at a time and only a
 	  previously loaded Component can be selected in a running kernel. This is because
 	  all loaded components are configured just before the Control
 	  Kernel is running. Any component not loaded at that time
@@ -1346,14 +1312,194 @@ first_kernel.selectGenerator( &amp;my_gen );
 	  not usable when the Control Kernel is running. The above
 	  methods are available for all Components of the kernel.
 	</para>
+      </sect2>
+      <sect2>
+	<title>Defining the Data Flow with DataObjects</title>
 	<para>
-	    A template file is provided from which you
-	    can copy/paste to start writing your own Components. This
-	    file is called <filename>ComponentTemplates.hpp</filename>
-	    and is provided with this package. You will see that for
-	    each Component different DataObjects can be accessed and
-	    different types will be defined to facilitate that access.
+	  A Data Flow Component implementation must derive from its
+	  Component base class which gets the data types as 
+	  template parameters using <classname>Expects&lt;...&gt;</classname>
+	  and <classname>Writes&lt;...&gt;</classname>, as seen in the previous
+	  section.
+	  A DataType is defined
+	  in a special way. An example shows what a DataType is :
+	</para>
+	<example>
+	  <title>A Nameserved DataType</title>
+	  <para>
+	    The SetPoint Data is produced by the Generator Component. A
+	    Generator must thus provide a
+	    specification of the setpoints it produces. Producing two
+	    frames (&ldquo;BasePosition&rdquo; and
+	    &ldquo;EndPosition&rdquo;) and a double
+	    (&ldquo;Velocity&rdquo;) in the SetPoint DataObject is done
+	    as follows:
 	  </para>
+	  <programlisting>
+<![CDATA[
+struct MG_SetPointData
+: public ServedTypes<Frame, double>
+{
+  MG_SetPointData()
+  {
+    this->insert( make_pair(0, "EndPosition"));
+    this->insert( make_pair(0, "BasePosition"));
+    this->insert( make_pair(1, "Velocity"));
+  }
+};
+]]>
+	  </programlisting>
+	  <para>
+	    The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
+	    listed in the ServedTypes list. So "EndPosition" and
+	    "BasePosition" are of type Frame and "Velocity" is of type double.
+	  </para>
+	</example>
+	<para>
+	  In the <type>ServedTypes</type> list, you can specify from
+	  zero to ten different types which the Component will produce. Each
+	  type may only occur once in that list. If you don't want to
+	  produce any type, you should make an empty list, denoted by
+	  ServedTypes&lt;&gt;, which means that this Component does not
+	  introduce new data in the Data Flow.
+	</para>
+	<para>
+	  The <function>insert()</function> function adds a (number,
+	  name) pair for each object one wants to create. The number
+	  denotes the n'th type listed in ServedTypes&lt;...&gt;,
+	  starting from zero. In the example, two <type>Frames</type>
+	  are created, with each their own name and one
+	  <type>double</type>, which holds the temperature. The number
+	  of objects created with <function>insert()</function> is not
+	  restrained, although the number of <type>ServedTypes</type>
+	  is.
+	</para>
+	<para>
+	  The Expect Parameter is built in the same way as the Writes
+	  Parameter, except that it has an empty constructor, thus
+	  only the ServedTypes are listed. The names
+	  of the DataObjects are resolved inside the Component.
+	</para>
+	<example>
+	  <title>Expecting a kind of DataObject</title>
+	  <para>
+	    This example shows how a Data Flow Component
+	    indicates which kind of data it expects.
+	  </para>
+	  <programlisting>
+<![CDATA[
+struct MG_InputData
+: public ServedTypes<Frame, double>
+{
+};
+]]>
+	  </programlisting>
+	  <para>
+	    In this case, one or more Frames and one or more doubles
+	    are expected.
+	  </para>
+	</example>
+	<para>
+	  If a type of DataObject is not used (for example the Model),
+	  then, the Component uses the Expects&lt;NoModel&gt; construct.
+	</para>
+	<para>
+	  To get hold of a pointer to the DataObject from 
+	  within the component, it must be resolved by name ( using a string ).
+	  For DataObjects a Component writes, it is done in the 
+	  <methodname>componentLoaded()</methodname> method, for
+	  DataObjects a Components expects (reads), it is done
+	  in the <methodname>componentStartup</methodname> method.
+	  Besides the methods the resolving happens in, the 
+	  manner is the identical.
+	</para>
+	<example>
+	  <title>Early resolving of the DataObject</title>
+	  <para>
+	    This example demonstrates that the Component can
+	    get a pointer to the DataObject, which then in turn
+	    must be accessed like a normal DataObject to
+	    <function>Get()</function> or <function>Set()</function> the Data.
+	  </para>
+	<programlisting>
+	  <![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >
+{ 
+  // Our internal copy of the data
+  Frame end_frame;
+  Frame base_frame;	    
+  double tool_temp;
+  Frame input_f;
+
+  // Pointers to the DataObjects
+  DataObjectInterface<double>* tool_temp_dobj;
+  DataObjectInterface<Frame>* input_f_dobj;
+
+  DataObjectInterface<double>* velocity_dobj;
+  DataObjectInterface<Frame>* base_f_dobj;
+  DataObjectInterface<Frame>* end_f_dobj;
+
+public:
+  MyGenerator() :
+     Generator("MyGenerator")
+  {}
+
+  bool componentLoaded()
+  {
+    // called when the component is loaded into the kernel.
+    // Early Resolving of Write DataObjects :
+    if ( !Generator::SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
+         !Generator::SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
+         !Generator::SetPoint::dObj()->Get("Velocity", velocity_dobj )
+	)
+    { 
+	  // Error, "Velocity", "EndPosition" or "BasePosition" not found !
+	  return false;
+    }
+    return true;
+  }
+
+  bool componentStartup()
+  {
+    // called when the component is started in the kernel.
+    // Early Resolving of Expect DataObjects :
+    if ( !Generator::Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
+	  !Generator::Input::dObj()->Get("EndPosition", input_f_dobj ))
+    { 
+	  // Error, "Temperature" or "EndPosition"  not found !
+	  return false;
+    }
+    return true;
+  }
+
+  // ... 
+  void pull() 
+  { 
+      // Get the data from the previously resolved DataObjects :
+      input_f_dobj->Get( input_f );
+      tool_temp = tool_temp_dobj->Get();
+  } 
+  // ...
+  void push()
+  {
+      // Writeout the resulting data.
+      end_f_dobj->Set(end_frame);
+      base_f_dobj->Set(base_frame);
+      velocity_dobj->Set( velocity );	    
+  }
+
+};
+]]>
+	  </programlisting>
+	</example>
+	<para>
+	</para>
       </sect2>
       <sect2 id="pull-calculate-push">
 	<title>Inserting Functionality in Components</title> 
@@ -1391,59 +1537,6 @@ first_kernel.selectGenerator( &amp;my_gen );
 	  user at &ldquo;low frequency&rdquo; but must produce a new
 	  setpoint for the Controller Component at a &ldquo;high
 	  frequency&rdquo;.
-	</para>
-	<para>
-	  A Component has access to the DataObjects it is connected to
-	  via <emphasis role="strong">Ports</emphasis>. The example
-	  below is that of a Generator Component, that has
-	  standardized <type>Inputs</type> and <type>SetPoints</type>
-	  Ports, which it can access via the (also standardized)
-	  <function>dObj()</function> method:
-	</para>
-	<programlisting>
-<![CDATA[
-  template < class _DefaultGenerator >
-  class MyGenerator 
-      : public _DefaultGenerator 
-  { 
-    // ... 
-    _DefaultGenerator::InputType inputReading;
-    _DefaultGenerator::SetPointType localResult;
-  public:
-    MyGenerator : _DefaultGenerator("MyGeneratorName") {}
-
-    void pull() 
-    { 
-      inputReading = _DefaultGenerator::Inputs::dObj()->Get(); 
-    } 
-
-    void calculate()
-    { 
-      // ... calculate the setpoint 
-    } 
-
-    void push() 
-    {
-      _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
-    }
-  };
-]]>
-</programlisting>
-	<para>
-	  This means that the DefaultGenerator has Ports and one
-	  DataObject associated with each port. In the example, only
-	  the Inputs and SetPoints Ports are accessed and the
-	  <function>dObj()</function> call gives you a pointer back to
-	  the DataObject of that Port. From there, you can perform the
-	  standardized <function>Set()</function> and
-	  <function>Get()</function> operations, described in the
-	  <link linkend="data-objects">DataObject section</link>.
-	</para>
-	<para>
-	  The DefaultGenerator also contains the type information of
-	  the data of each DataObject. InputType is the type of data
-	  of the Inputs Port and SetPointType is the Type of the
-	  SetPointsPort. Similar names are provided for all other Ports.
 	</para>
       </sect2>
 
@@ -2455,14 +2548,13 @@ private:
 	  </para>
 	  <programlisting>
 <![CDATA[
-template < class _DefaultGenerator >
 class MyGenerator 
-    : public _DefaultGenerator 
+    : public Generator< ... >
 { 
 public:
   // In constructor:
   MyGenerator() :
-     _DefaultGenerator("MyGenerator"),
+     Generator("MyGenerator"),
      end_pos("End Position","One of many variables which can be reported.")
 
   // Hook in Generator Component:
@@ -2482,13 +2574,7 @@ private:
 	</example>
       </sect2>
       <sect2>
-	<title>Reporting DataObjects (NSControlKernel only)</title>
-	<note>
-	  <para>This is only available when using the more advanced
-	    <link linkend="multiple-dataobjects">NSControlKernel</link>, not
-	  the StandardControlKernel.
-	  </para>
-	</note>
+	<title>Reporting DataObjects</title>
 	<para>
 	  As shown in the example CPF file, also DataObjects can generate
 	  automatically reports. Because DataObjects need to be refered
@@ -2588,8 +2674,7 @@ private:
 <![CDATA[
 	// adding the extension to the KernelBaseFunction: 
 typedef CompositeExtension<KernelBaseFunction, ExecutionExtension> ExecExtension; 
-typedef StandardControlKernel< Command, SetPoint,
-	                       Input, Model, Output, ExecExtension> MyExecKernel;
+typedef StandardControlKernel<ExecExtension> MyExecKernel;
 ]]>
 MyExecKernel my_kernel;
 // ... load components, then :
@@ -2823,6 +2908,7 @@ start:  set cycle = cycle + 1
       </sect2>
     </sect1>
   </chapter>
+<!--
   <chapter id="multiple-dataobjects">
     <title>Multiple Ports per DataObject and Nameserved DataObjects</title>
     <para>
@@ -3134,7 +3220,7 @@ public:
       </para>
     </sect1>
   </chapter>
-
+-->
   <chapter id="cascaded-control-kernels">
     <title>Cascaded Control Kernels</title>
     <para>
@@ -3174,6 +3260,7 @@ public:
       must be implemented in applications, and what programming
       primitives are offered to help Application Builders.
     </para>
+<!--
     <sect1>
       <title>Cascading Control Kernels</title>
       <sect2>
@@ -3306,14 +3393,11 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	</example>
       </sect2>
     </sect1>
+-->
     <sect1>
-      <title>Cascading Name Serving Control Kernels</title>
-      <para>Cascading NS Control kernels is in fact easier than its
-	non-nameserved counterpart. Only one type of Kernel is to be used
-	(so no inner Kernel) and sharing data is mainly based on names
-	instead of exchanging DataObjects. There is only one implementation of the
-	NSControlKernel which is meant for cascading and that is the
-	CascadeNSControlKernel.
+      <title>Cascading Control Kernels</title>
+      <para>
+	...
       </para>
       <figure id="fig-cascade" pgwide="0">
 	<title>
@@ -3331,7 +3415,7 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	</mediaobject>
       </figure>
       <sect2 id="cascade-ns">
-	<title>The CascadeNSControlKernel</title>
+	<title>The CascadeControlKernel</title>
 	<para>
 	  This Kernel is usable for the most complex cascades imaginable.
 	  Each cascaded Kernel can have all Components and all DataObjects
@@ -3343,8 +3427,8 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	  ambiguous.
 	</para>
 	<para>
-	  From the public interface, the CascadeNSControlKernel does not
-	  look differently than the NSControlKernel. However, its
+	  From the public interface, the CascadeControlKernel does not
+	  look differently than the StandardControlKernel. However, its
 	  DataObjects are chosen in such a way that they are fully
 	  thread safe and non blocking by using the DataObjectBuffer
 	  implementation. In this Kernel however, you want the prefix
@@ -3361,10 +3445,10 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	</para>
 	<para>
 	  <example>
-	    <title>Cascading Three Nameserved Kernels</title>
+	    <title>Cascading Three Control Kernels</title>
 	    <para>
 	      This example demonstrates a three-layer Kernel layout with
-	      the CascadeNSControlKernel. The Model may be calculated 
+	      the CascadeControlKernel. The Model may be calculated 
 	      anywhere and different parts of the Model may be calculated
 	      in different Kernels. Again, only one Component in one Kernel
 	      may write to a specific nameserved DataObject, while all
@@ -3372,16 +3456,17 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	    </para>
 	    <programlisting>
 <![CDATA[
-// The highest priority kernel
-CascadeNSControlKernel<Casc1CommandT, Casc1SetPointT, Casc1InputT, Casc1ModelT, Casc1OutputT> 
-    casc1Kernel("InnerLoop", "my_cascade" );
+// The highest priority kernel is standard
+StandardControlKernel<> 
+    innerKernel("InnerLoop", "my_cascade" );
 
-// A cascade.
-CascadeNSControlKernel<Casc2CommandT, Casc2SetPointT, Casc2InputT, Casc2ModelT, Casc2OutputT>
+// A cascade, its outputs get in the command dataobject
+// of "InnerLoop"
+CascadeControlKernel<>
     casc2Kernel("MiddleLoop", "my_cascade" );
 
 // same as above
-CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, Casc3OutputT> 
+CascadeControlKernel<> 
     casc3Kernel("OuterLoop", "my_cascade" );
 
 // ... repeat as much as you want
@@ -3394,11 +3479,8 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 ]]>
 	    </programlisting>
 	    <para>
-	      As you can see, the types of all three Kernels are (can
-	      be) completely different. But what is not shown above
-	      is that they introduce the same ServedTypes and the
-	      CascadeNSControlKernel knows it has to put the output of
-	      the one Kernel in the namespace of the Commands of all the
+	      The CascadeControlKernel knows it has to put the Outputs of
+	      the Kernel in the namespace of the Commands of all the
 	      other Kernels. "my_cascade" is the namespace prefix of the kernel,
 	      not the name. So all three will place their DataObjects
 	      in the "my_cascade" namespace.
