@@ -1752,6 +1752,49 @@ first_kernel.selectGenerator( &amp;my_gen );
 	  </listitem>
 	</itemizedlist>
       </sect2>
+      <sect2>
+	<title>Support Components</title>
+	<para>
+	  There are components which have nothing to do with the
+	  control loop (ie Data Flow) but still need to be integrated
+	  in the realtime kernel. Examples are :
+	  <itemizedlist>
+	    <listitem>
+	      <para>User interfacing components (HMI)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Synchronisation components (the HeartBeat) </para>
+	    </listitem>
+	  </itemizedlist>
+	  They need to be accessible by other parts of the kernel and
+	  may use features (see <xref linkend="control-kernel-extensions">Extensions</xref> )
+	  the kernel provides to its standard components. As we will show
+	  later, it allows for example the components
+	  to use the Property system of the kernel.
+	</para>
+	<para>
+	  In short, Support Components are with one foot in the
+	  kernel and one foot outside, providing or using user services.
+	</para>
+	<para>
+	  Support Components must be loaded in the kernel as regular
+	  components and are started when the kernel is started. For
+	  example :
+	  <programlisting>
+#include &lt;kernel_components/HMIConsoleOutput.hpp&gt;
+//...
+
+HMIConsoleOutput&lt;KernelType::DefaultSupport&gt; hmi_out;
+kernel.loadSupport( &amp;hmi_out );
+
+// When the kernel is started, hmi_out is automatically selected.
+	  </programlisting>
+	  All Support components are selected when the kernel is 
+	  started, thus no <function>selectSupport()</function>
+	  function exists. In the example above, the HMIConsoleOutput
+	  component will become visisble in the Command Interpreter.
+	</para>
+      </sect2>
     </sect1>
     <sect1 id="kernel-configuration">
       <title>Control Kernel Configuration</title>
@@ -2493,7 +2536,7 @@ private:
     </sect1>
 
     <sect1 id="scripting-extension">
-      <title>The Execution Extension</title>
+      <title>Command Interpreter and Command Processing : ExecutionExtension</title>
       <para>
 	The Execution Extension allows the kernel to execute &orocos;
 	program scripts and &orocos; state descriptions
