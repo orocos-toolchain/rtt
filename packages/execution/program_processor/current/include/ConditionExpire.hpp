@@ -34,50 +34,57 @@
 
 namespace ORO_Execution
 {
-
-	using namespace ORO_CoreLib;
-
     /**
-     * A conditional that evaluates true until
-     * a certain time is reached
+     * A conditional that evaluates \a true until
+     * a certain time has elapsed since construction
+     * or the last \a reset()
      */
 
     class ConditionExpire
-                : public ConditionInterface
+        : public ORO_CoreLib::ConditionInterface
     {
-            typedef HeartBeatGenerator::ticks ticks;
+        typedef ORO_CoreLib::HeartBeatGenerator::ticks ticks;
 
-        public:
-            /**
-             * Create a Condition that evaluates to false when t is reached
-             * @param t the time in HeartBeatGenerator::ticks on and after which the condition
-             *          will evaluate to false
-             */
-            ConditionExpire( ticks t ) : time( t ), hb( HeartBeatGenerator::Instance() )
-            {}
+    public:
+        /**
+         * Create a Condition that evaluates to false when t is reached
+         * @param t the time in HeartBeatGenerator::ticks on and after which the condition
+         *          will evaluate to false
+         */
+        ConditionExpire( ticks t )
+            : time( t ), hb( ORO_CoreLib::HeartBeatGenerator::Instance() )
+        {
+            timestamp = hb->ticksGet();
+        }
+        
+        virtual ~ConditionExpire()
+        {}
 
-            virtual ~ConditionExpire()
-            {}
+        virtual bool evaluate()
+        {
+            return ( time > hb->ticksSince(timestamp) );
+        }
 
-            virtual bool evaluate()
-            {
-                return ( time < hb->ticksGet() );
-            }
+        virtual void reset()
+        {
+            timestamp = hb->ticksGet();
+        }
 
-            virtual ConditionInterface* clone() const
-            {
-                return new ConditionExpire( time );
-            }
+        virtual ORO_CoreLib::ConditionInterface* clone() const
+        {
+            return new ConditionExpire( time );
+        }
 
-        private:
-            /**
-             * The expiration time, expressed in ticks
-             */
-            ticks time;
-            /**
-             * A local reference to the HeartBeat Generator
-             */
-            HeartBeatGenerator *hb;
+    private:
+        /**
+         * The expiration time, expressed in ticks
+         */
+        ticks time;
+        ticks timestamp;
+        /**
+         * A local reference to the HeartBeat Generator
+         */
+        ORO_CoreLib::HeartBeatGenerator *hb;
     };
 
 }

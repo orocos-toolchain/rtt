@@ -2,6 +2,7 @@
 #define FUNCTIONFACTORY_HPP
 
 #include "CommandFactoryInterface.hpp"
+#include "corelib/Property.hpp"
 #include <map>
 #include <string>
 
