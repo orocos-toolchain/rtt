@@ -57,7 +57,6 @@ namespace ORO_Execution
         FunctionGraph* mentry;
         FunctionGraph* mexit;
         FunctionGraph* mhandle;
-        CommandInterface* initc;
         bool inited;
         std::string name;
     public:
@@ -67,7 +66,7 @@ namespace ORO_Execution
          */
         StateDescription(const std::string& _name )
             : mentry(0), mexit(0), mhandle(0),
-              initc(0), inited(false), name(_name)
+               inited(false), name(_name)
         {
         }
 
@@ -139,14 +138,6 @@ namespace ORO_Execution
 
         StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
 
-        /**
-         * This was added for extra (non-user visible) initialisation
-         * before the state is entered.
-         */
-        void setInitCommand( CommandInterface* c)
-        {
-            initc = c;
-        }
     };
 };
 

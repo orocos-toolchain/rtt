@@ -190,6 +190,8 @@ namespace ORO_Execution
         ret->current = o2cmap[current];
         ret->previous = o2cmap[previous];
 
+        // so that ret itself can be copied again :
+        ret->finish();
         return ret;
     }
 

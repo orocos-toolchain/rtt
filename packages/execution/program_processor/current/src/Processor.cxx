@@ -34,6 +34,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <os/MutexLock.hpp>
+#include <iostream>
 
 namespace ORO_Execution
 {
@@ -94,14 +95,14 @@ namespace ORO_Execution
             }
 
             void stop() {
-                state->requestFinalState();
                 action = 0;
-                sstate = StateContextStatus::stopped;
+                state->requestFinalState();
+                    sstate = StateContextStatus::stopped;
             }
             void reset() {
-                state->requestInitialState();
                 action = 0;
-                sstate = StateContextStatus::active;
+                state->requestInitialState();
+                    sstate = StateContextStatus::active;
             }
             bool stepping;
             std::string name;
@@ -172,6 +173,7 @@ namespace ORO_Execution
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, pi->getName() ) );
         if ( it != programs->end() )
             return false;
+        MutexLock lock( progmonitor );
         programs->push_back( Processor::ProgramInfo(pi->getName(), pi) );
         pi->reset();
         return true;
@@ -226,6 +228,7 @@ namespace ORO_Execution
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
         if ( it != programs->end() && it->pstate == ProgramStatus::stopped )
             {
+                MutexLock lock( progmonitor );
                 delete it->program;
                 programs->erase(it);
                 return true;
@@ -288,6 +291,7 @@ namespace ORO_Execution
                 this->recursiveLoadStateContext( *it );
             }
         
+        MutexLock lock( statemonitor );
         states->push_back(Processor::StateInfo(sc->getName(), sc));
     }
 
@@ -296,7 +300,6 @@ namespace ORO_Execution
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::active || it->sstate == StateContextStatus::paused) {
-            MutexLock lock( statemonitor );
             it->action = bind( &StateInfo::start, &(*it) );
             return true;
         }
@@ -373,7 +376,6 @@ namespace ORO_Execution
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::running )
             {
-                MutexLock lock( statemonitor );
                 it->action = bind( &StateInfo::pause, &(*it) );
                 return true;
             }
@@ -388,7 +390,6 @@ namespace ORO_Execution
                                      || it->sstate == StateContextStatus::active
                                      || it->sstate == StateContextStatus::running) )
             {
-                MutexLock lock( statemonitor );
                 it->action = bind( &StateInfo::stop, &(*it) );
                 return true;
             }
@@ -402,7 +403,6 @@ namespace ORO_Execution
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::stopped )
             {
-                MutexLock lock( statemonitor );
                 it->action = bind( &StateInfo::reset, &(*it) );
                 return true;
             }
@@ -477,6 +477,7 @@ namespace ORO_Execution
                     bind(state_lookup, _1, sc->getName() ) );
         assert( it2 != states->end() ); // we checked that this is possible
 
+        MutexLock lock( statemonitor );
         states->erase(it2);
     }
 
@@ -493,7 +494,6 @@ namespace ORO_Execution
                     throw program_unload_exception( error );
                 }
                 StateContextTree* todelete = it->state;
-                MutexLock lock( statemonitor );
                 // same pre-conditions for delete as for unload :
                 recursiveCheckUnloadStateContext( *it );
                 recursiveUnloadStateContext( it->state ); // this invalidates it !
@@ -509,6 +509,14 @@ namespace ORO_Execution
             s.action();
     }
 
+    void _stopState( Processor::StateInfo& s)
+    {
+        if ( s.sstate == Processor::StateContextStatus::paused
+            || s.sstate == Processor::StateContextStatus::active
+            || s.sstate == Processor::StateContextStatus::running )
+            s.stop();
+    }
+
     void _executeProgram( Processor::ProgramInfo& p)
     {
         if (p.pstate == Processor::ProgramStatus::running) {
@@ -516,6 +524,14 @@ namespace ORO_Execution
                 p.pstate = Processor::ProgramStatus::error;
             if ( p.program->isFinished() )
                 p.pstate = Processor::ProgramStatus::stopped;
+        }
+    }
+
+    void _stopProgram( Processor::ProgramInfo& p)
+    {
+        if (p.pstate == Processor::ProgramStatus::running) {
+            p.pstate = Processor::ProgramStatus::stopped;
+            p.program->reset();
         }
     }
 
@@ -541,6 +557,15 @@ namespace ORO_Execution
     void Processor::finalize()
     {
         accept = false;
+        // stop all programs and SCs.
+        {
+            MutexLock lock( progmonitor );
+            for_each(programs->begin(), programs->end(), _stopProgram);
+        }
+        {
+            MutexLock lock( statemonitor );
+            for_each(states->begin(), states->end(), _stopState );
+        }
     }
 
 	void Processor::step()
