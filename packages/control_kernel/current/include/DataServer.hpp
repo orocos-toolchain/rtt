@@ -97,7 +97,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Set a member variable of a DataObject.
+         * @brief Set a member variable of a DataObject.
          * @return true if it could be set, false otherwise.
          */
         bool Set( const std::string& name, const MemberType& m)
@@ -112,7 +112,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Register a member with a certain name.
+         * @brief Register a DataObject with a certain name.
          */
         void reg( DataObjectType_ptr m, const std::string& name)
         {
@@ -120,7 +120,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Deregister a member.
+         * @brief Deregister a DataObject.
          */
         void deReg( DataObjectType_ptr m )
         {

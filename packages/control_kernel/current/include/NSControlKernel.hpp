@@ -1,5 +1,5 @@
-#ifndef NAMESCONTROLKERNEL_HPP
-#define NAMESCONTROLKERNEL_HPP
+#ifndef NSCONTROLKERNEL_HPP
+#define NSCONTROLKERNEL_HPP
 
 #include "BaseKernel.hpp"
 #include "DataServer.hpp"
@@ -11,9 +11,9 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::NameServerRegistrator;
 
     /**
-     * @brief The NamesControlKernel is a more advanced version than the DefaultControlKernel.
+     * @brief The NSControlKernel is a more advanced version than the StandardControlKernel.
      *
-     * As it has very much in common with the DefaultControlKernel, the way of addressing
+     * As it has very much in common with the StandardControlKernel, the way of addressing
      * DataObjects is done through nameserving (strings). The basic interface to dataobjects
      * is defined by the DataObjectServer. The Get and Set methods of that class are extended
      * with an extra parameter which denotes the name of the object you need. The kernel
@@ -51,41 +51,50 @@ namespace ORO_ControlKernel
      * @endverbatim
      *
      * Next, you can pass this class name as the _InputType parameter of the 
-     * NamesControlKernel. The UnServedType< T > class can be used to convert
-     * your DefaultControlKernel components first, with substituting T with the
+     * NSControlKernel. The UnServedType< T > class can be used to convert
+     * your StandardControlKernel components first, with substituting T with the
      * type you used in that kernel.
      *
      * See the manual for more information.
      */
     template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
-    class NamesControlKernel
+    class NSControlKernel
         : public detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >, 
                                      detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >, 
                                      detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >, 
                                      detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >, 
                                      detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >, 
                                      _Extension >,
-          public NameServerRegistrator< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
+          public NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
     {
     public:
 
         /**
-         * Set up a control kernel.
+         * @brief Set up a control kernel.
          */
-        NamesControlKernel()
+        NSControlKernel()
         {}
 
         /**
-         * Create a nameserved control kernel.
+         * @brief Create a nameserved control kernel.
          */
-        NamesControlKernel(const std::string& name)
-            :NameServerRegistrator< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
+        NSControlKernel(const std::string& name)
+            :NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
         {}
 
         /**
-         * The NamesControlKernel nameserver.
+         * @brief The NSControlKernel nameserver.
          */
-        static NameServer< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* > nameserver;
+        static NameServer< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* > nameserver;
+
+        /**
+         * @brief Add a DataObject to the Outputs.
+         */
+        template< class _DataObjecType>
+        void addOutputs(_DataObjectType* o, const std::string& name)
+        {
+            getOutputs()->reg( o, name );
+        }
             
     protected:
 
@@ -103,8 +112,7 @@ namespace ORO_ControlKernel
     };
 
     template <class C, class S, class I, class M, class O, class E >
-    //NamesControlKernel<C,S,I,M,O,E>::NameServer<NamesControlKernel<C,S,I,M,O,E>* > nameserver;
-    NameServer<NamesControlKernel<C,S,I,M,O,E>*> NamesControlKernel<C,S,I,M,O,E>::nameserver;
+    NameServer<NSControlKernel<C,S,I,M,O,E>*> NSControlKernel<C,S,I,M,O,E>::nameserver;
 
                 
 }

@@ -83,7 +83,13 @@
 	<revnumber>0.12</revnumber>
 	<date>11 Dec 2003</date>
 	<authorinitials>ps</authorinitials>
-	<revremark> Added NamesControlKernel docs</revremark>
+	<revremark> Added NSControlKernel docs</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.13</revnumber>
+	<date>17 Dec 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added Cascade/ModelControlKernel docs</revremark>
       </revision>
     </revhistory>
 
@@ -101,8 +107,6 @@
 
   </bookinfo>
 
-
-  
   <chapter>
     <title>Introduction</title>
     <para>
@@ -312,7 +316,7 @@
       </sect2>
     </sect1>
   </chapter>
-  <chapter><title>The (Default) Control Kernel</title>
+  <chapter><title>The (Standard) Control Kernel</title>
     <sect1>
       <title>Purpose</title>
       <para>
@@ -326,7 +330,7 @@
 	sending the outputs to the hardware (Effector Component).
 	Depending on the application, other components implementations
 	will be used, together with other types of data being
-	exchanged. The Default Control control kernel is providing the
+	exchanged. The Standard Control control kernel is providing the
 	infrastructure, but does not do any calculations or accesses
 	no external resources. It provides infrastructure for loading
 	components, exchanging data between components and defines
@@ -362,22 +366,22 @@
 	Output data to send to the system's effectors. Identifying
 	what is exactly in these five data types is the first step for
 	creating a control kernel. In Orocos, these five types must be
-	given as a template parameter to the DefaultControlKernel. The
+	given as a template parameter to the StandardControlKernel. The
 	most simple invocation is when only a double is passed on
 	(think one axis control):
       </para>
       <programlisting>
-	#include &lt;control_kernel/DefaultControlKernel.hpp&gt;
-	typedef DefaultControlKernel &lt;double, double, double, double, double&gt; My1DKernel;
+	#include &lt;control_kernel/StandardControlKernel.hpp&gt;
+	typedef StandardControlKernel &lt;double, double, double, double, double&gt; My1DKernel;
       </programlisting>
       <para>
 	What is shown above is defining the type My1DKernel as being a
-	DefaultControlKernel where only a double is exchanged between
+	StandardControlKernel where only a double is exchanged between
 	each component. The meaning of the template parameters is like
 	this :
       </para>
       <programlisting>
-	DefaultControlKernel &lt;InputType, ModelType, CommandType, SetPointType, OutputType&gt;;
+	StandardControlKernel &lt;InputType, ModelType, CommandType, SetPointType, OutputType&gt;;
       </programlisting>
       <para>
 	Which you can remember by the acronym IMCSO ;-). If that
@@ -495,7 +499,7 @@
       <title>Components</title>
       <sect2>
 	<title>Defining your own Component</title>
-	<para>As mentioned before, the DefaultControlKernel will have
+	<para>As mentioned before, the StandardControlKernel will have
 	  made DefaultComponents which do nothing. The control kernel
 	  is equiped with loadController(), unloadGenerator(),..
 	  methods which allow a clean insertion of a new component and
@@ -503,7 +507,7 @@
 	  Defining a Component of your own goes like this :
 	</para>
 	<screen>
-	  #include &lt;control_kernel/DefaultControlKernel.hpp&gt;
+	  #include &lt;control_kernel/StandardControlKernel.hpp&gt;
 
 
 	  template &lt; class _DefaultGenerator &gt; 
@@ -545,7 +549,7 @@
 	  called my_gen and which now has the DefaultGenerator as base
 	  class. Since MyGenerator is a subclass of DefaultGenerator,
 	  it can be used with the setGenerator() method call of the
-	  DefaultControlKernel. The next line could then be :</para>
+	  StandardControlKernel. The next line could then be :</para>
 	<screen>
 	  first_kernel.loadGenerator( &amp;my_gen );
 	</screen>
@@ -807,7 +811,7 @@
       <title>Introduction</title>
       <para>
 	As the previous chapter explained, there are some problems
-	with de DefaultControlKernel with respect to its DataObjects. 
+	with de StandardControlKernel with respect to its DataObjects. 
 	The disadvantages are listed again :
 	<itemizedlist>
 	  <listitem>
@@ -821,7 +825,7 @@
 	  DataObject are referenced directly by the variable name,
 	  instead of some abstraction means.</para></listitem>
 	</itemizedlist>
-	The advantages of the DefaultControlKernel are :
+	The advantages of the StandardControlKernel are :
 	<itemizedlist>
 	  <listitem>
 	    <para>It is easy to use and understand.</para></listitem>
@@ -829,17 +833,19 @@
 	    <para>It has almost zero overhead for small kernels.</para></listitem>
 	</itemizedlist>
       </para>
-      <para> The NamesControlKernel aims to solve the disadvantages
+      <para> The <classname>NSControlKernel</classname>
+	(which stands for Name Served Control Kernel) 
+	aims to solve the disadvantages
 	by introducing nameserving on DataObject member level and
 	tries to keep the advantages of the former too. 
       </para>
       <para>
-	The NamesControlKernel allows the user to compose
+	The NSControlKernel allows the user to compose
 	their DataObjects out of different types. Each type,
 	being it int, Frame, vector,... can have several instances
 	with each their own name in the DataObject. In addition,
 	the user can choose to still use the not-nameserved (unserved)
-	type as in the DefaultControlKernel. But that is optional.
+	type as in the StandardControlKernel. But that is optional.
       </para>
       <para>The overhead is only little. The lookup (resolving)
 	of the names can happen at startuptime, and from then on,
@@ -883,7 +889,7 @@
 	want to nameserve any type is denoted by ServedTypes&lt;&gt;.
 	You can only have one UnServedType, which is empty in the
 	example. This is the DataObject you get when you call the
-	old Get() method like in the DefaultControlKernel.
+	old Get() method like in the StandardControlKernel.
       </para>
       <para>
 	The next important part is the constructor. The user must use
@@ -896,17 +902,17 @@
 	number of ServedTypes is.
       </para>
       <para> 
-	You must do this for all five datatypes of the NamesControlKernel,
-	just like you did with the DefaultControlKernel. Once the five
+	You must do this for all five datatypes of the NSControlKernel,
+	just like you did with the StandardControlKernel. Once the five
 	classes are defined, one can define the kernel :
       </para>
       <programlisting>
-	#include &lt;control_kernel/NamesControlKernel.hpp&gt;
-	typedef NamesControlKernel &lt;MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput&gt; MyNamesKernel;
+	#include &lt;control_kernel/NSControlKernel.hpp&gt;
+	typedef NSControlKernel &lt;MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput&gt; MyNamesKernel;
       </programlisting>
       <para>
 	This kernel can be used in exactly the same way
-	as the DefaultControlKernel. It has the same functions
+	as the StandardControlKernel. It has the same functions
 	and behaves in exactly the same way. The only difference is
 	that the Components and external classes can query DataObjects
 	by name.
@@ -918,13 +924,13 @@
 	Going further with the earlier examples, Assume that we 
 	want to access the Nameserved Model from within the Generator.
 	The example below shows what code you need to add to this
-	component to be able to use it in the NamesControlKernel.
+	component to be able to use it in the NSControlKernel.
       </para>
       <warning>
 	<para>
 	  Once a component uses the functions of a nameserver,
-	  it can no longer be used in the DefaultControlKernel.
-	  The NamesControlKernel can accept all DefaultControlKernel
+	  it can no longer be used in the StandardControlKernel.
+	  The NSControlKernel can accept all StandardControlKernel
 	  components but not vice versa.
 	</para>
       </warning>
@@ -1041,14 +1047,114 @@
     </sect1>
   </chapter>
   <chapter>
-    <title>Extending the Default Control Kernel</title>
+    <title>Cascading Multiple ControlKernels</title>
+    <sect1>
+      <title>Introduction</title>
+      <para>
+	Most applications will need more than one layer of control. Usually
+	a fast high priority kernel is doing fine grained control while a
+	slower, lower priority kernel is taking care of the the more coarse
+	grained planning. This chapter explains how to combine multiple
+	kernels so that they can be used for implementing cascaded control loops.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Cascading Standard Control Kernels</title>
+      <sect2>
+	<title>The CascadeControlKernel</title>
+	<para>
+	  Imagine an application with 3 cascaded control loops, thus
+	  it needs three kernels.
+	  Each kernel wants to use the same sensor and model information 
+	  and only one kernel may send signals to the hardware. Furthermore,
+	  the model is updated by the most inner control kernel.
+	  The CascadeControlKernel is designed for such situations, where
+	  model calculation is done at the highest frequency.
+	</para>
+	<para>What this implies is that the innermost kernel has all
+	  components present, while each additional cascaded kernel
+	  has only a Generator and a Controller component. Estimator,
+	  Sensor and Effector will not be available. The inputs, model
+	  and outputs are shared with the innermost kernel, which is the
+	  only kernel which writes data into these dataobjects. All
+	  the others only read from these data objects. The innermost
+	  kernel is implemented by the <classname>CascadeInnerControlKernel
+	  </classname> class. Each cascaded kernel is implemented by
+	  the <classname>CascadeControlKernel</classname> class.
+	</para>
+	<para>The CascadeInnerControlKernel can thus be used as a normal
+	  standalone kernel, since it has all the components present.
+	  The CascadeControlKernel can only exist on top of an
+	  CascadeInnerControlComponent, which is reflected by its
+	  constructor. It must also have the same DataTypes for its
+	  Model and Inputs as the CascadeInnerControlKernel. The DataType
+	  of the Output must match the Command DataType of the
+	  CascadeInnerControlKernel.
+	</para>
+	<example>
+	  <title>Cascaded Standard Control Kernel</title>
+	  <para>This example shows a cascade of three
+	    control kernels.
+	  </para>
+	  <programlisting><![CDATA[
+// The only inner kernel ...
+CascadeInnerControlKernel<InnerCommandT, InnerSetPointT, InputT, ModelT, OutputT> innerKernel;
+
+// A cascade.
+// InnerCommandT is used as output type.
+// Further, we pass the dataobjects of the innerkernel to the constructor
+CascadeControlKernel<Casc1CommandT, Casc1SetPointT, InputT, ModelT, InnerCommandT>
+    casc1Kernel( innerKernel.getInputs(), innerKernel.getModels(), innerKernel.getCommands() );
+
+// same as above, but the Casc1CommandT is used as output type
+CascadeControlKernel<Casc2CommandT, Casc2SetPointT, InputT, ModelT, Casc1CommandT> 
+    casc2Kernel( innerKernel.getInputs(), innerKernel.getModels(), casc1Kernel.getCommands() );
+
+// ... repeat as much as you want
+
+// Load and Select components...
+]]>
+	  </programlisting>
+	  <para>As one can see, all three share the same inputs and model, which
+	    are calculated at the lowest layer. The
+	    output of each cascaded kernel is connected to the commands of its
+	    lower kernel.
+	  </para>
+	</example>
+      </sect2>
+      <sect2>
+	<title>The ModelControlKernel</title>
+	<para>A CascadeControlKernel can not be used if the calculation of
+	  the model is to time intensive to be done at the lowest level.
+	  The ModelControlKernel inverts the location of the estimator component
+	  from the lowest to a higher level (but maybe not the highest). In
+	  robotics for example, this kernel configuration
+	  is most suitable for calculating the inverse kinematics. 
+	</para>
+	<para></para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Cascading NS Control Kernels</title>
+      <sect2>
+	<title>The CascadeNSControlKernel</title>
+	<para></para>
+      </sect2>
+      <sect2>
+	<title>The ModelNSControlKernel</title>
+	<para></para>
+      </sect2>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title>Extending Control Kernels</title>
     <sect1>
       <title>Control Kernel Extensions</title>
       <para>
-	Extending the Default Control Kernel, composing extensions
+	Extending a Control Kernel, composing extensions
       </para>
       <para>
-	The DefaultControlKernel has only little features. It can be
+	The StandardControlKernel has only little features. It can be
 	used to write a closed control cycle, but it offers no
 	facilities to report data, configure it at run time etc. To
 	add extra functionality to the Control Kernel, an Opt-In
@@ -1093,17 +1199,17 @@
 	the Aspect interface.
       </para>
       <para>
-	How does one add an extension to the Default Control Kernel ?
+	How does one add an extension to the Standard Control Kernel ?
 	It happens by adding an extra template parameter on creation.
 	To revisit the My1DKernel example :
       </para>
       <screen>
 	// equivalent typedef as before : 
-	typedef DefaultControlKernel&lt;double, double, double, double, double,	KernelBaseFunction&gt; My1DKernel; 
+	typedef StandardControlKernel&lt;double, double, double, double, double,	KernelBaseFunction&gt; My1DKernel; 
 
 	// adding a new extension to the KernelBaseFunction : 
 	typedef CompositeExtension&lt;KernelBaseFunction, PropertyExtension&gt; MyExtension; 
-	typedef DefaultControlKernel &lt;double, double, double, double, double, MyExtension&gt; My1DPropertyKernel;
+	typedef StandardControlKernel &lt;double, double, double, double, double, MyExtension&gt; My1DPropertyKernel;
       </screen>
       <para>
 	As can be seen, Extensions are composed using the
@@ -1121,7 +1227,7 @@
 	// ... // A control kernel with two additional Extensions :
 	typedef CompositeExtension&lt; MyFirstExtension,
 	ReportingExtension&gt; MySecondExtension; typedef
-	DefaultControlKernel &lt;double, double, double, double,
+	StandardControlKernel &lt;double, double, double, double,
 	double, MySecondExtension&gt; My1DPropRepKernel;
       </screen>
       <para>
@@ -1230,8 +1336,8 @@
 	  with that information. The KernelConfigurator parses the
 	  file and passes the result to the
 	  <methodname>updateKernelProperties()</methodname> method of
-	  the DefaultControlKernel. If you want to add your own
-	  configuration options to a DefaultControlKernel subclass,
+	  the StandardControlKernel. If you want to add your own
+	  configuration options to a StandardControlKernel subclass,
 	  you can override this method, with your own which parses the
 	  extra properties and then call the method of the base class
 	  with the rest of the bag.
@@ -1287,7 +1393,7 @@
 	  to recompile your program each time you want to change an
 	  option. The CPF format is defined in the
 	  <filename>cpf.dtd</filename> file and is equal to the CORBA
-	  3 standard's property file format. The DefaultControlKernel and
+	  3 standard's property file format. The StandardControlKernel and
 	  each extension have an own CPF file, which defines the
 	  values some (or all) properties should take. There may be
 	  more properties than listed in the CPF file and vice versa.

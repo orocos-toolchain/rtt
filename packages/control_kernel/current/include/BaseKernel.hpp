@@ -85,8 +85,12 @@ namespace ORO_ControlKernel
          * @brief Set up the base kernel.
          */
         BaseKernel()
-            : _Extension(this), controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
-              effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
+            : _Extension(this),
+              controller(&dummy_controller), generator(&dummy_generator),
+              estimator(&dummy_estimator), effector(&dummy_effector), sensor(&dummy_sensor),
+              setpoints(&local_setpoints), commands(&local_commands),
+              inputs(&local_inputs), models(&local_models), outputs(&local_outputs),
+              startup(false)
         {
             // Load the default (empty) components.
             loadController(controller);
@@ -267,16 +271,16 @@ namespace ORO_ControlKernel
         bool loadController(DefaultController* c) {
             if ( isRunning() )
                 return false;
-            c->writeTo(&outputs);
-            c->readFrom(&setpoints);
-            c->readFrom(&models);
-            c->readFrom(&inputs);
+            c->writeTo(outputs);
+            c->readFrom(setpoints);
+            c->readFrom(models);
+            c->readFrom(inputs);
             if ( ! c->enableAspect(this) )
                 {
-                    c->disconnect(&models);
-                    c->disconnect(&outputs);
-                    c->disconnect(&setpoints);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(outputs);
+                    c->disconnect(setpoints);
+                    c->disconnect(inputs);
                     return false;
                 }
             else
@@ -294,10 +298,10 @@ namespace ORO_ControlKernel
                 {
                     controllers.erase( c );
                     c->disableAspect();
-                    c->disconnect(&models);
-                    c->disconnect(&outputs);
-                    c->disconnect(&setpoints);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(outputs);
+                    c->disconnect(setpoints);
+                    c->disconnect(inputs);
                     return true;
                 }
             return false;
@@ -380,16 +384,16 @@ namespace ORO_ControlKernel
         bool loadGenerator(DefaultGenerator* c) {
             if ( isRunning() )
                 return false;
-            c->writeTo(&setpoints);
-            c->readFrom(&models);
-            c->readFrom(&inputs);
-            c->readFrom(&commands);
+            c->writeTo(setpoints);
+            c->readFrom(models);
+            c->readFrom(inputs);
+            c->readFrom(commands);
             if ( ! c->enableAspect(this) )
                 {
-                    c->disconnect(&models);
-                    c->disconnect(&commands);
-                    c->disconnect(&setpoints);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(commands);
+                    c->disconnect(setpoints);
+                    c->disconnect(inputs);
                     return false;
                 }
             else
@@ -407,10 +411,10 @@ namespace ORO_ControlKernel
                 {
                     generators.erase( c );
                     c->disableAspect();
-                    c->disconnect(&models);
-                    c->disconnect(&setpoints);
-                    c->disconnect(&commands);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(setpoints);
+                    c->disconnect(commands);
+                    c->disconnect(inputs);
                     return true;
                 }
             return false;
@@ -492,12 +496,12 @@ namespace ORO_ControlKernel
         bool loadEstimator(DefaultEstimator* c) {
             if ( isRunning() )
                 return false;
-            c->writeTo(&models);
-            c->readFrom(&inputs);
+            c->writeTo(models);
+            c->readFrom(inputs);
             if ( ! c->enableAspect(this) )
                 {
-                    c->disconnect(&models);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(inputs);
                     return false;
                 }
             else
@@ -515,8 +519,8 @@ namespace ORO_ControlKernel
                 {
                     estimators.erase( c );
                     c->disableAspect();
-                    c->disconnect(&models);
-                    c->disconnect(&inputs);
+                    c->disconnect(models);
+                    c->disconnect(inputs);
                     return true;
                 }
             return false;
@@ -597,10 +601,10 @@ namespace ORO_ControlKernel
         bool loadSensor(DefaultSensor* c) {
             if ( isRunning() )
                 return false;
-            c->writeTo(&inputs);
+            c->writeTo(inputs);
             if ( ! c->enableAspect(this) )
                 {
-                    c->disconnect(&inputs);
+                    c->disconnect(inputs);
                     return false;
                 }
             else
@@ -618,7 +622,7 @@ namespace ORO_ControlKernel
                 {
                     sensors.erase( c );
                     c->disableAspect();
-                    c->disconnect(&inputs);
+                    c->disconnect(inputs);
                     return true;
                 }
             return false;
@@ -700,10 +704,10 @@ namespace ORO_ControlKernel
         bool loadEffector(DefaultEffector* c) {
             if ( isRunning() )
                 return false;
-            c->readFrom(&outputs);
+            c->readFrom(outputs);
             if ( ! c->enableAspect(this) )
                 {
-                    c->disconnect(&outputs);
+                    c->disconnect(outputs);
                     return false;
                 }
             else
@@ -721,7 +725,7 @@ namespace ORO_ControlKernel
                 {
                     effectors.erase( c ); 
                     c->disableAspect();
-                    c->disconnect(&outputs);
+                    c->disconnect(outputs);
                     return true;
                 }
             return false;
@@ -745,30 +749,54 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Returns the commands DataObject for this ControlKernel.
+         * @brief Returns the commands DataObject for this ControlKernel.
          */
-        CommandData* getCommands() { return &commands; }
+        CommandData* getCommands() { return commands; }
 
         /**
-         * Returns the setpoints DataObject for this ControlKernel.
+         * @brief Returns the setpoints DataObject for this ControlKernel.
          */
-        SetPointData* getSetpoints() { return &setpoints; }
+        SetPointData* getSetpoints() { return setpoints; }
 
         /**
-         * Returns the models DataObject for this ControlKernel.
+         * @brief Returns the models DataObject for this ControlKernel.
          */
-        ModelData* getModels() { return &models; }
+        ModelData* getModels() { return models; }
 
         /**
-         * Returns the inputs DataObject for this ControlKernel.
+         * @brief Returns the inputs DataObject for this ControlKernel.
          */
-        InputData* getInputs() { return &inputs; }
+        InputData* getInputs() { return inputs; }
 
         /**
-         * Returns the outputs DataObject for this ControlKernel.
+         * @brief Returns the outputs DataObject for this ControlKernel.
          */
-        OutputData* getOutputs() { return &outputs; }
+        OutputData* getOutputs() { return outputs; }
 
+        /**
+         * @brief Sets the commands DataObject for this ControlKernel.
+         */
+        void setCommands(CommandData* c) { commands = c ; }
+
+        /**
+         * @brief Sets the setpoints DataObject for this ControlKernel.
+         */
+        void setSetpoints(SetPointData* s) { setpoints = s; }
+
+        /**
+         * @brief Sets the models DataObject for this ControlKernel.
+         */
+        void setModels(ModelData* m) { models = m; }
+
+        /**
+         * @brief Sets the inputs DataObject for this ControlKernel.
+         */
+        void setInputs(InputData* i) { inputs = i; }
+
+        /**
+         * @brief Sets the outputs DataObject for this ControlKernel.
+         */
+        void setOutputs(OutputData* o) { outputs = o; }
     protected:
 
         /**
@@ -790,13 +818,27 @@ namespace ORO_ControlKernel
         DefaultSensor     *sensor;
 
         /**
-         * The user specified Data Objects.
+         * @brief The local (default) Data Objects.
+         *
+         * These are our local instances. The user
+         * can assign others to the kernel of the
+         * same type.
          */
-        SetPointData setpoints;
-        CommandData  commands;
-        InputData    inputs;
-        ModelData    models;
-        OutputData   outputs;
+        SetPointData local_setpoints;
+        CommandData  local_commands;
+        InputData    local_inputs;
+        ModelData    local_models;
+        OutputData   local_outputs;
+
+        /**
+         * @brief The user specified Data Objects.
+         *
+         */
+        SetPointData* setpoints;
+        CommandData*  commands;
+        InputData*    inputs;
+        ModelData*    models;
+        OutputData*   outputs;
 
         bool startup;
 

@@ -87,10 +87,10 @@ class InputKernel
 };
 
 /**
- * Proposal for rewriting the DefaultControlKernel :
+ * Proposal for rewriting the StandardControlKernel :
  */
 template <class I, class M, class C, class S, class O, class Ext=DefaultExt>
-class DefaultControlKernel
+class StandardControlKernel
     : public BaseKernel<DataObject<I>, DataObject<M>, DataObjectLocked<C>, DataObject<S>, DataObject<0>, Ext>
 {
     using BaseKernel::Inputs;
