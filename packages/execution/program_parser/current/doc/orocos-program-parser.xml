@@ -358,7 +358,7 @@
 	<sect4>
 	  <title>Operators</title>
 	  <para>
-	    Expressions can be combined using the c-style operators
+	    Expressions can be combined using the C-style operators
 	    that you are already familiar with if you have ever
 	    programmed in C, C++ or Java.  All operators are
 	    supported, except for the if-then-else operator ("a?b:c"),
