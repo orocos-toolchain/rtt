@@ -17,7 +17,7 @@ configure: acinclude.m4 configure.ac
 	./autogen.sh
 	./config.status --recheck
 
-clean:
+clean: doc-dist-clean
 	@echo "Cleaning up..."
 	rm -f support.epk pkgadd.db
 	find support -name "*.cdl" | xargs rm -f
@@ -31,7 +31,7 @@ orocos-dist: doc-dist
 
 doc-dist:
 	@echo "Making doc tarballs..."
-	@for i in $$(find . -path "*doc*" -name Makefile); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/../doc/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl dist; done
+	@for i in $$(find . -path "*doc*" -name Makefile); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/../doc/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl doc-dist; done
 	@rm -rf orocos-docs
 	@rm -rf jpg
 	@mkdir  orocos-docs
@@ -44,10 +44,13 @@ doc-dist:
 
 html-dist:
 	@echo "Making html docs..."
-	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl dochtml; done
+	@for i in $$(find . -path "*doc*" -name Makefile); do make -C $$(dirname $$i) HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl dochtml; done
 
 doc-dist-clean:
-	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.eps" | xargs rm
+	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.jpg" | xargs rm
+
+doc-clean:
+	@for i in $$(find . -path "*doc*" -name Makefile); do make -C $$(dirname $$i) doc-clean; done
 
 html-dist-clean:
 	@find . -name "*.png" -o -name "*.html" | xargs rm

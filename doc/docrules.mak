@@ -11,9 +11,9 @@ JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
 
-.PHONY=dist docxml dochtml docpdf docps doctxt epsimages pngimages
+.PHONY=doc-dist docxml dochtml docpdf docps doctxt epsimages pngimages
 
-dist: $(HTMLDOCS) $(PDFDOCS) $(PNGIMGS)
+doc-dist: $(HTMLDOCS) $(PDFDOCS) $(PNGIMGS)
 	$(MAKE) -C . dochtml docpdf
 	tar -czf $(PKGNAME)-doc.tgz \
 	$(HTMLDOCS) \
@@ -68,6 +68,6 @@ pngimages: $(PNGIMGS)
 %.jpg:%.png
 	convert -quality 100 $< $@
 
-clean-local:
+doc-clean:
 	rm -f $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PNGIMGS) $(JPGIMGS) $(EPSIMGS) $(TXTDOCS)
 
