@@ -29,7 +29,8 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::NameServerRegistrator;
 
     /**
-     * StandardControlKernel is an example container class with standard Components and user specified DataObjects.
+     * @brief StandardControlKernel is an example container class with standard Components and user specified DataObjects.
+     *
      * This is the main class you should be using as a starting point. It is the most simple implementation of
      * a control kernel, new features will be added here first.
      *
@@ -42,6 +43,9 @@ namespace ORO_ControlKernel
      * of arbitrary interfaces. These Component extensions are called 'Aspects'. Furthermore, the extension defines
      * functionality which will be executed after the StandardControlKernel's functionality is done. This allows you
      * to add data reporting, logic control etc to be executed after the control loop has finished.
+     *
+     * @deprecated By the NSControlKernel. This class will probably be removed and the NSControlKernel will be
+     * called the StandardControlKernel... in Orocos 0.16.0
      */
     template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
     class StandardControlKernel

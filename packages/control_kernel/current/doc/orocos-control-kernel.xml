@@ -1525,7 +1525,7 @@ void push()
 	  Kernel, and for each Component in that Kernel. Each Control
 	  Kernel thus causes NameServers to be created for each of its
 	  Component types, because this prevents name clashing. If a
-	  Component is created twice with the same name,
+	  Component is created twice with the same name in the same kernel,
 	  only the first one will show up in the NameServer. Name
 	  serving is described in more detail in the CoreLib
 	  documentation.
@@ -2736,6 +2736,36 @@ struct MyNamesModel
       </para>
     </sect1>
     <sect1>
+      <title>Adopting DataObjects for use with multiple components</title>
+      <para>
+	As seen before, each component defines the DataObject it writes to.
+	But if two generators (or any kind)
+	write to different DataObjects, both DataObject
+	definitions must be merged. You can do this manually by looking at
+	both DataObject description classes and handcrafting a new class 
+	which creates both. If you feel unsure how to do that, you can 
+	also use the CompositeDataObject&lt;DOType1, DOType2&gt; template
+	as in the following case :
+	<programlisting>
+  //... GeneratorA Defines :
+  struct GeneratorASetpoints { // ... };
+
+  //... GeneratorB Defines :
+  struct GeneratorBSetpoints { // ... };
+
+  //.. Allow to use both Generators in one kernel
+  typedef CompositeDataObject&lt;GeneratorASetpoints,
+	  GeneratorBSetpoints&gt; GeneratorABSetpoints;
+
+  NSControlKernel&lt;GeneratorABSetpoints,.... &gt; mykernel;
+
+  mykernel.loadGenerator( generator_a );
+  mykernel.loadGenerator( generator_b );
+	</programlisting>
+	A resulting CompositeDataObject can be nested into another one.
+      </para>
+    </sect1>
+    <sect1>
       <title>Accessing a Nameserved DataType Directly</title>
       <para>
 	Going further with the earlier examples, assume that we 
@@ -2901,6 +2931,12 @@ void push()
       <title>Cascading Control Kernels</title>
       <sect2>
 	<title>The CascadeControlKernel</title>
+	<warning>
+	  <para>
+	    This ControlKernel type might become deprecated by the
+	    <xref linkend="cascade-ns">CascadeNSControlKernel</xref>
+	  </para>
+	</warning>
 	<para>
 	  Imagine an application with three cascaded control loops, thus
 	  it needs three Control Kernels.
@@ -2964,6 +3000,12 @@ CascadeControlKernel<Casc2CommandT, Casc2SetPointT, InputT, ModelT, Casc1Command
       </sect2>
       <sect2>
 	<title>The ModelControlKernel</title>
+	<warning>
+	  <para>
+	    This ControlKernel type might become deprecated by the
+	    <xref linkend="cascade-ns">CascadeNSControlKernel</xref>
+	  </para>
+	</warning>
 	<para>A CascadeControlKernel can not be used if the calculation of
 	  the Model is too time intensive to be done at the lowest level.
 	  The ModelControlKernel inverts the location of the Estimator Component
@@ -3041,7 +3083,7 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2>
+      <sect2 id="cascade-ns">
 	<title>The CascadeNSControlKernel</title>
 	<para>
 	  This Kernel is usable for the most complex cascades imaginable.

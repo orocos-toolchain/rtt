@@ -30,8 +30,17 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::NameServerRegistrator;
 
     /**
-     * A SupportComponent does not 'run' actually in the control loop,
+     * @defgroup kcomps All Available Control Kernel Components.
+     */
+
+    /**
+     * @defgroup kcomp_support All Available ControlKernel Support Components
+     */
+
+    /**
+     * @brief A SupportComponent does not 'run' actually in the control loop,
      * but it gets the same functionality as any other control component.
+     * @ingroup kcomps kcomp_support
      */
     template < class _Aspect = DefaultBase >
     class SupportComponent
@@ -57,9 +66,14 @@ namespace ORO_ControlKernel
     template < class A >
     NameServer<SupportComponent<A>*> SupportComponent<A>::nameserver;
 
-     /**
-     * A controller defined by the topological connections to Data Objects and
+    /**
+     * @defgroup kcomp_controller All Available ControlKernel Controller Components
+     */
+
+    /**
+     * @brief A controller defined by the topological connections to Data Objects and
      * its ports to it.
+     * @ingroup kcomps kcomp_controller
      */
     template <class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultBase >
     class Controller
@@ -138,8 +152,13 @@ namespace ORO_ControlKernel
     NameServer<Controller<S,I,M,O,A>*> Controller<S,I,M,O,A>::nameserver;
 
     /**
-     * A generator defined by the topological connections to Data Objects and
+     * @defgroup kcomp_generator All Available ControlKernel Generator Components
+     */
+
+    /**
+     * @brief A generator defined by the topological connections to Data Objects and
      * its ports to it.
+     * @ingroup kcomps kcomp_generator
      */
     template <class _CommandType, class _InputType, class _ModelType, class _SetPointType, class _Aspect = DefaultBase >
     class Generator
@@ -194,8 +213,13 @@ namespace ORO_ControlKernel
 	NameServer<Generator<C,I,M,S,A>*> Generator<C,I,M,S,A>::nameserver;
 
     /**
-     * An estimator defined by the topological connections to Data Objects and
+     * @defgroup kcomp_estimator All Available ControlKernel Estimator Components
+     */
+
+    /**
+     * @brief An estimator defined by the topological connections to Data Objects and
      * its ports to it.
+     * @ingroup kcomps kcomp_estimator
      */
     template <class _InputType, class _ModelType, class _Aspect = DefaultBase >
     class Estimator
@@ -236,8 +260,13 @@ namespace ORO_ControlKernel
 
 
     /**
-     * An effector defined by the topological connections to Data Objects and
+     * @defgroup kcomp_effector All Available ControlKernel Effector Components
+     */
+
+    /**
+     * @brief An effector defined by the topological connections to Data Objects and
      * its ports to it.
+     * @ingroup kcomps kcomp_effector
      */
     template <class _OutputType, class _Aspect = DefaultBase >
     class Effector
@@ -270,8 +299,13 @@ namespace ORO_ControlKernel
     NameServer<Effector<O,A>*> Effector<O,A>::nameserver;
 
     /**
-     * A sensor defined by the topological connections to Data Objects and
+     * @defgroup kcomp_sensor All Available ControlKernel Sensor Components
+     */
+
+    /**
+     * @brief A sensor defined by the topological connections to Data Objects and
      * its ports to it.
+     * @ingroup kcomps kcomp_sensor
      */
     template <class _InputType, class _Aspect = DefaultBase >
     class Sensor
