@@ -43,6 +43,7 @@
 #endif
 
 #include "CartesianNSDataObjects.hpp"
+#include <geometry/MotionProperties.hpp>
 
 #pragma interface
 

@@ -102,7 +102,7 @@ namespace ORO_ControlKernel
          *
          * The Kernel specifies the port type, the user the extension and aspect.
          */
-        typedef typename Extension::CommonBase CommonBase;
+        typedef ComponentBaseInterface CommonBase;
 
         typedef CPort CommandPortType;
         typedef OPort OutputPortType;

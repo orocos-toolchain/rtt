@@ -4,7 +4,7 @@
 #include "DataSourceFactoryInterface.hpp"
 
 #define MEMBER data
-#define MEMBER_CONST const
+#define MEMBER_CONST 
 #define FACTORY_INTERFACE DataSourceFactoryInterface
 #define TEMPLATE_FACTORY_NAME TemplateDataSourceFactory
 #define NEW_MEMBER_FACTORY newDataSourceFactory

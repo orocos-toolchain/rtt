@@ -42,10 +42,12 @@
 #include <corelib/marshalling/EmptyHeaderMarshaller.hpp>
 #include <corelib/TaskNonRealTime.hpp>
 
-
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_STDIOSTREAM
 #include <fstream>
+#endif
+#ifdef OROPKG_GEOMETRY
+#include <geometry/MotionProperties.hpp>
 #endif
 
 #pragma interface
@@ -90,7 +92,7 @@ namespace ORO_ControlKernel
          * @param bag The bag to which you must add your properties
          *            which will then get reported.
          */
-        virtual void exportReports( PropertyBag& bag) {}
+        virtual void exportReports( PropertyBag& bag)=0;
 
     private:
         /**
