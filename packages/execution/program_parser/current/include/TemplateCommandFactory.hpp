@@ -17,7 +17,7 @@
  * code necessary to add a CommandFactory to an OROCOS component.  If
  * you're not interested in the implementation details ( warning:
  * template code, may seem a bit messy ), then skip forward to the
- * documentation of the @ref newTemplateCommandFactory function.
+ * documentation of the @ref newCommandFactory function.
  */
 namespace ORO_Execution
 {
@@ -471,7 +471,7 @@ namespace ORO_Execution
    */
   template<typename ComponentT>
   TemplateCommandFactory<ComponentT>*
-  newTemplateCommandFactory( ComponentT* comp )
+  newCommandFactory( ComponentT* comp )
   {
     return new TemplateCommandFactory<ComponentT>(
       comp );

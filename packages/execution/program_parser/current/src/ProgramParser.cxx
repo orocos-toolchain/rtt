@@ -1,6 +1,7 @@
 #include "execution/ProgramParser.hpp"
 
 #include "execution/ProgramNode.hpp"
+#include "execution/Processor.hpp"
 #include "execution/TerminationClause.hpp"
 #include "corelib/CommandNOP.hpp"
 #include "execution/Program.hpp"

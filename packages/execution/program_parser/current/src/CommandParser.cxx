@@ -39,8 +39,8 @@ namespace ORO_Execution
       bind( &CommandParser::seennopcommand, this ) ];
 
     // a function call: "x.y( arg1, arg2, ..., argN )"
-    // a command can optionally be declared asynchronous by
-    // putting the word "async" in front of it..
+    // a command can optionally be declared synchronous by
+    // putting the word "sync" in front of it..
     callcommand =
          !str_p( "sync" ) [
            bind( &CommandParser::seensync, this ) ]

@@ -526,15 +526,15 @@ begin: set ret = ret * i
       </para>
     </sect2>
     <sect2 id="exporting-api-the-extension">
-      <title>The MotionScriptableExtension</title>
+      <title>The ExecutionExtension</title>
       <para>
 	The part of the kernel that the parser talks to to get hold of
-	the API's of the components is the MotionScriptableExtension.
+	the API's of the components is the ExecutionExtension.
 	It is an &orocos; kernel extension that talks to the kernel
 	components and keeps a list of their data and command
 	factories.  If you are composing an &orocos; kernel, then you
-	need to make the MotionScriptableExtension part of the kernel
-	in the normal way.  Check the motioncontrol documentation for
+	need to make the ExecutionExtension part of the kernel
+	in the normal way.  Check the control kernel documentation for
 	more details.
       </para>
     </sect2>
@@ -588,7 +588,7 @@ using namespace ORO_CoreLib;
 DataSourceFactory* Robot::createDataSourceFactory()
 {
   TemplateDataSourceFactory&lt;Robot&gt;* ret =
-    newTemplateDataSourceFactory( this );
+    newDataSourceFactory( this );
   ret-&gt;add( &quot;position&quot;, 
             data( &amp;Robot::position, &quot;The current position &quot;
                                     &quot;of the robot.&quot; ) );
@@ -601,12 +601,13 @@ DataSourceFactory* Robot::createDataSourceFactory()
                   &quot;The distance between the current &quot;
                   &quot;position of the robot and pos.&quot;, &quot;pos&quot;,
                   &quot;Query position&quot; ) ); 
+  return ret;
 }
 
 CommandFactoryInterface* Robot::createCommandFactory()
 {
   TemplateCommandFactory&lt;Robot&gt;* ret =
-    newTemplateCommandFactory( this );
+    newCommandFactory( this );
   ret-&gt;add( &quot;moveToHomePosition&quot;, 
             command( &amp;Robot::moveToHomePosition,
                      &amp;Robot::isAtHomePosition,
@@ -616,6 +617,7 @@ CommandFactoryInterface* Robot::createCommandFactory()
                      &amp;Robot::isAtPosition,
                      &quot;Move the Robot to a specified position.&quot;, &quot;pos&quot;,
                      &quot;The position to move the robot to.&quot; ) );
+  return ret;
 }
 	</programlisting>
 	This probably deserves some explanation...
@@ -624,7 +626,7 @@ CommandFactoryInterface* Robot::createCommandFactory()
 	The first statement 
 	<programlisting>
 TemplateDataSourceFactory&lt;Robot&gt;* ret =
-  newTemplateDataSourceFactory( this );
+  newDataSourceFactory( this );
 	</programlisting>
 	constructs a new TemplateDataSourceFactory, this should be
 	straightforward.  After this factory is constructed, we add
@@ -663,6 +665,11 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	also requires a constant C string describing the function, and
 	two constant C strings giving a description and name for every
 	argument.
+      </para>
+      <para>
+	If a component has only commands, or only data, the unneeded
+	factory function can be left out and the parser will not query
+	the component for the left out factory.
       </para>
     </sect2>
   </sect1>

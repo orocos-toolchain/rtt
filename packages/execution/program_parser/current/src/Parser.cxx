@@ -29,7 +29,7 @@ namespace ORO_Execution
     ProgramParser gram( parsebegin, proc, ext );
     Program* ret = gram.parse( parsebegin, parseend );
     if ( ret )
-      std::cerr << "cool !" << std::endl;
+      std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;
   };
 
