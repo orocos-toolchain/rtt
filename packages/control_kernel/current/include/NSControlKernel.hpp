@@ -33,9 +33,9 @@ namespace ORO_ControlKernel
      * struct MyInputTypes 
      *   : public ServedTypes<PosXY, MouseVelocities>, public UnServedType<NormalInputs>
      * {
-     *   /**
-     *    * Obliged giving of names to all ServedTypes
-     *    *\/
+     *   //
+     *   // Obliged giving of names to all ServedTypes
+     *   //
      *   InputTypes() 
      *   {
      *       // two objects of PosXY :

@@ -7,6 +7,7 @@
 #include <execution/SystemContext.hpp>
 #include <execution/SystemState.hpp>
 #include <execution/Program.hpp>
+#include <execution/Parser.hpp>
 #include <execution/GlobalFactory.hpp>
 #include <execution/CommandFactoryInterface.hpp>
 #include <execution/GlobalCommandFactory.hpp>
@@ -18,6 +19,7 @@ namespace ORO_ControlKernel
     using ORO_Execution::CommandFactoryInterface;
     using ORO_Execution::DataSourceFactory;
     using ORO_Execution::Program;
+    using ORO_Execution::Parser;
     using ORO_Execution::SystemContext;
     using ORO_Execution::SystemState;
     using ORO_Execution::Processor;
@@ -65,39 +67,38 @@ namespace ORO_ControlKernel
         public GlobalFactory
     {
         Program* program;
-        SystemContext* sys_context;
     public:
         typedef ExecutionComponentInterface CommonBase;
 
-        ExecutionExtension()
-            : detail::ExtensionInterface( "Execution" ), program(0), sys_context( new SystemContext(  new SystemState ) )
+        ExecutionExtension( KernelBaseFunction* _base=0 )
+            : detail::ExtensionInterface( "Execution" ), program(0)
         {
         }
 
         virtual ~ExecutionExtension()
         {
-            delete sys_context;
         }
 
-        bool initialise() 
+        bool initialize() 
         { 
-            proc.startConfiguration();
-            proc.loadSystemContext(sys_context);
-            proc.endConfiguration();
-            proc.loadProgram(program);
-            proc.startExecution();
-            return true; 
+            return proc.startConfiguration() &&
+                proc.loadSystemContext( new SystemContext(  new SystemState ) ) &&
+                proc.endConfiguration() &&
+                proc.loadProgram(program) && // pass ownership to the processor
+                proc.startExecution();
         }
 
         /**
          * Set a Program to be used the next time the kernel is started.
-         * Ownership of the Program remains with the setter.
          *
-         * @param p The program to be executed.
+         * @param p A stream containing the program script to be executed.
          */
-        void setProgram(Program* p)
+        bool loadProgram( std::istream& prog_stream )
         {
-            program = p;
+            program = parser.parseProgram( prog_stream, &proc, this );
+            if (program == 0) 
+                return false;
+            return true;
         }
 
         /**
@@ -113,7 +114,7 @@ namespace ORO_ControlKernel
 
         void step() { proc.doStep(); }
 
-        void finalise() 
+        void finalize() 
         {
             proc.stopExecution();
         }
@@ -122,6 +123,7 @@ namespace ORO_ControlKernel
 
     private:
         Processor proc;
+        Parser    parser;
     };
 }
 
