@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parser-types.hpp 
+  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parser-types.hpp
 
                         parser-types.hpp -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -88,11 +88,13 @@ namespace ORO_Execution
   // a macro using GCC's C++ extension typeof that is used to not have
   // to specify impossibly long type names..  See the Boost.Spirit
   // documentation for more details, as that's where I got it from..
+  // we use __typeof__ instead of typeof because it is not disabled by
+  // using gcc -ansi
 #   define RULE( name, def ) \
-      typeof( (def) ) name = (def)
+      __typeof__( (def) ) name = (def)
 
   // here are the typedef's for the scanner, and the rule types..
-  typedef typeof( SKIP_PARSER ) skip_parser_t;
+  typedef __typeof__( SKIP_PARSER ) skip_parser_t;
   typedef skip_parser_iteration_policy<skip_parser_t> iter_pol_t;
   typedef scanner_policies<iter_pol_t> scanner_pol_t;
   typedef scanner<iter_t, scanner_pol_t> scanner_t;
