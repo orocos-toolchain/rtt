@@ -25,7 +25,7 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	decoupling.sgml        general-dynamics-doc.sgml  \
 	kindyn-doc.sgml       robot-api.sgml 
 
-DIAS=
+DIAS=ApplicationStack.dia
 
 HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS))
 PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))

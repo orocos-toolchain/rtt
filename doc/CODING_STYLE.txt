@@ -16,8 +16,6 @@ The following coding style is used in Orocos:
     
 * Static class methods start with uppercase
 
-* Static class variables usually with an underscore, unless they are exported
-
  Documentation
 -------------
 
@@ -39,8 +37,7 @@ The following coding style is used in Orocos:
 * At least the class type must be documented, or the class is not included
   in the documentation.
 
-* Dia/XML is the favored format for storing diagrams. Be sure to save as
-  uncompressed data.
+* Dia is the favored format for storing diagrams.
 
 * American spelling is favored (not favoured :-) over Brittish spelling.
 

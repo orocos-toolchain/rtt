@@ -12,11 +12,11 @@
 
 <article>
  <articleinfo>
- <title>
-  The OROCOS Project 
- </title>
- <subtitle><emphasis>Open RObot COntrol Software</emphasis>
-</subtitle>
+    <title>
+      The OROCOS Project 
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
     <authorgroup>
       <author>
 	<firstname>Herman</firstname>
@@ -28,26 +28,18 @@
 	<surname>Soetens</surname>
       </author>
 
-      <author>
-	<firstname>Panagiotis</firstname>
-	<surname>Issaris</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004</year>
-      <holder>Herman Bruyninckx, Peter Soetens, Panagiotis Issaris</holder>
+      <year>2002,2003,2004,2005</year>
+      <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 
     <abstract>
       <para>
-This document explains the goals, vision, design, implementation and
-packages of 
-<ulink url="http://www.orocos.org">&orocos;</ulink>,
-the <emphasis>Open RObot COntrol Software</emphasis> project. 
+	This document explains the goals, vision, design, implementation and
+	packages of 
+	<ulink url="http://www.orocos.org">&orocos;</ulink>,
+	the <emphasis>Open RObot COntrol Software</emphasis> project. 
       </para>
     </abstract>
 
@@ -57,6 +49,13 @@ the <emphasis>Open RObot COntrol Software</emphasis> project.
 	<date>05 Dec 2002</date>
 	<authorinitials>hb</authorinitials>
 	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.19.2</revnumber>
+	<date>11 March 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Application Stack figure, removed confusing
+	  objects and components section, adapted vision :-)</revremark>
       </revision>
     </revhistory>
 
@@ -72,479 +71,542 @@ the <emphasis>Open RObot COntrol Software</emphasis> project.
       </para>
     </legalnotice>
 
-</articleinfo>
+  </articleinfo>
 
-<sect1 id="whatis">
-<title>What is Orocos?</title>
-<para>
-&ldquo;&orocos;&rdquo; is the acronym of the
-<emphasis><ulink url="http://www.orocos.org">Open Robot Control
-Software</ulink></emphasis> project. The project's aim is to develop
-a general-purpose, free software, and modular <emphasis>framework</emphasis>
-for <emphasis>robot control</emphasis> (including extensive and
-high-quality documentation).
-</para>
-<para>
-A framework is a set of source code from which applications in a
-particular domain can be made <citation>Johnson97</citation>). So, the
-framework is not an application
-in itself, but it provides the infrastructure and the functionalities to
-build applications.  Usually, application builders must fill
-in some &ldquo;hot spots&rdquo; that are specific to their
-application, and hence, which cannot be provided by the framework.
-</para>
-<para>
-&orocos; works in a &ldquo;bottom-up&rdquo; fashion, so current
-activities are currently more focused on developing 
-<emphasis>basic infrastructure</emphasis> than on implementing
-advanced control, planning or sensor processing algorithms.
-</para>
-<para>
-&orocos; is a free software project, hence its code and documentation
-are released under Free Software licenses.
-</para>
-<para>
-Your feedback and suggestions are greatly appreciated. Please, use the
-project's 
-<ulink
-url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
-</para>
-</sect1>
+  <sect1 id="whatis">
+    <title>What is Orocos?</title>
+    <para>
+      &ldquo;&orocos;&rdquo; is the acronym of the
+      <emphasis><ulink url="http://www.orocos.org">Open Robot Control
+	  Software</ulink></emphasis> project. The project's aim is to develop
+      a general-purpose, free software, and modular <emphasis>framework</emphasis>
+      for <emphasis>robot control</emphasis> (including extensive and
+      high-quality documentation).
+    </para>
+    <para>
+      A framework is a set of source code from which applications in a
+      particular domain can be made <citation>Johnson97</citation>). So, the
+      framework is not an application
+      in itself, but it provides the infrastructure and the functionalities to
+      build applications.  Usually, application builders must fill
+      in some &ldquo;hot spots&rdquo; that are specific to their
+      application, and hence, which cannot be provided by the framework.
+    </para>
+    <para>
+      &orocos; works in a &ldquo;bottom-up&rdquo; fashion, so current
+      activities are currently more focused on developing 
+      <emphasis>basic infrastructure</emphasis> than on implementing
+      advanced control, planning or sensor processing algorithms.
+    </para>
+    <para>
+      &orocos; is a free software project, hence its code and documentation
+      are released under Free Software licenses.
+    </para>
+    <para>
+      Your feedback and suggestions are greatly appreciated. Please, use the
+      project's 
+      <ulink
+	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
+    </para>
+  </sect1>
+  <sect1 id="audience">
+    <title>Target audience</title>
+    <para>
+      Robotics is a very broad field, and many roboticists are pursuing
+      quite different goals, dealing with different levels of
+      complexity, real-time control constraints, application areas, user
+      interaction, etc.  So, because the robotics community is not
+      homogeneous, &orocos; targets
+      four different categories of &ldquo;Users&rdquo; (or, in the first
+      place, &ldquo;Developers&rdquo;):
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <emphasis>Framework Builders.</emphasis>
+	  </para>
+	  <para>
+	    These developers do not work on any specific robotics application, but
+	    they provide the infrastructure code to support applications. This
+	    level of supporting code is most often neglected in robot software
+	    projects, because in the (rather limited) scope of each individual 
+	    project, putting a lot of effort in a generic support platform is
+	    often considered to be &ldquo;overkill&rdquo;, or even not taken into
+	    consideration at all. However, because of the large scope of the
+	    &orocos; project, the supporting code (the &ldquo;Framework&rdquo;)
+	    gets a lot of attention. The hope is, of course, that this work will
+	    pay of by facilitating the developments for the other
+	    &ldquo;Users&rdquo;.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <emphasis>Component Builders.</emphasis>
+	  </para>
+	  <para>
+	    These developers implement basic robotics functionality, on top of the
+	    generic Framework. The functionality is offered as a
+	    &ldquo;service&rdquo;, in the form of a <emphasis>(Software)
+	      Component</emphasis>, <citation>Szyperski98</citation>. Such a
+	    component is not (necessarily) a full application in itself, but the
+	    Component Builders do their best to
+	    provide high-quality functionality, in an application-independent way.
+	    That is, the <emphasis>programming interface</emphasis> to the robotics
+	    functionality is rich and well documented, and the component can be
+	    used as a stand-alone part in various applications.
+	  </para>
+	  <para>
+	    Components come in roughly three different types. The simplest is an
+	    object-oriented <emphasis>class hierarchy</emphasis>, offering direct
+	    access to the objects data and functionality. The medium-level
+	    component provides <emphasis>monitored access</emphasis> to the
+	    objects' functionality, in the sense that it guarantees that different
+	    accesses do not interfere with each other, and that the object always
+	    remains in a consistent state. The highest-level Component has the
+	    properties as described in the <emphasis>CORBA Component
+	      Model</emphasis>. 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <emphasis>Application Builders.</emphasis>
+	  </para>
+	  <para>
+	    These developers use the &orocos;' Framework and Components, and
+	    integrate them into one particular application. That means that they
+	    add a specific, application-dependent
+	    <emphasis>architecture</emphasis> and <emphasis>API</emphasis> on top
+	    of the functionalities offered by the Framework and the Components.
+	    An example Orocos application is the Orocos Control Kernel, which
+	    provides an application framework for (motion) control, with a set
+	    of components which implement control or planning algorithms.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <emphasis>End Users.</emphasis>
+	  </para>
+	  <para>
+	    These people use the products of the Application Builders to program
+	    and run their particular tasks.
+	  </para>
+	</listitem>
+      </orderedlist>
+      The focus in the &orocos; project lies primarily with the Framework
+      Builders and the Component Builders. But, since all contributors
+      are motivated by their own particular applications, the needs of
+      the Application Builders are also taken into account, albeit
+      indirectly. 
+    </para>
+    <para>
+      End Users do not directly belong to the target audience of
+      the &orocos; project, because &orocos; concentrates on the common
+      <emphasis>framework</emphasis>, independent of any application
+      architecture. Serving the needs of the End Users is left to
+      (commercial and non-commercial) Application Builders.
+    </para>
+  </sect1>
+  <sect1 id="vision">
+    <title>Vision</title>
+    <para>
+      <blockquote>
+	<para>
+	  <emphasis> The long-term goal of &orocos; is to provide
+	    <emphasis>all necessary</emphasis> software
+	    <emphasis>infrastructure</emphasis>, for <emphasis>all
+	      possible</emphasis> robots (manipulator arms, mobile
+	    robots, humanoids, rehabilitation devices, etc.) and
+	    industrial machines ( machinetools, automation systems,
+	    etc.) </emphasis>
+	</para>
+      </blockquote> This is a very ambitious goal, and will inevitably
+      lead to a very large code tree, various sub-projects, and
+      contributors that are only interested in one or two of these
+      sub-projects. So, the danger of arriving at a chaotic and
+      incoherent project is real. This danger will be fought by
+      adhering to a clear &ldquo;roadmap&rdquo;, or
+      &ldquo;vision&rdquo; for both of the following aspects
+      (discussed in more detail in the following Sections):
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <emphasis>Software engineering requirements.</emphasis>
+	  </para>
+	  <para>
+	    What quality and approach are expected from contributions
+	    to the project?
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <emphasis>Structure of the source code.</emphasis>
+	  </para>
+	  <para>
+	    How is the project structured into sub-projects?
+	  </para>
+	</listitem>
+      </orderedlist> The project maintainers will <emphasis>strictly
+	impose</emphasis> adherence to the project's vision and
+      roadmap when considering incorporation of contributions to the
+      project. However, they always welcome a motivated discussion
+      about these topics on the project's <ulink
+	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+	mailinglist. </ulink>
+    </para>
+    <sect2 id="proj-dev-req">
+      <title>Software engineering requirements</title>
+      <para>
+	&orocos; has a vision on <emphasis>how</emphasis> developers should
+	design, implement and present new functionality, in order to guarantee
+	the project's coherence and scalability. These are the software
+	engineering guidelines that support the implementation of the
+	project's vision:
+	<orderedlist>
 
-<sect1 id="audience">
-<title>Target audience</title>
-<para>
-Robotics is a very broad field, and many roboticists are pursuing
-quite different goals, dealing with different levels of
-complexity, real-time control constraints, application areas, user
-interaction, etc.  So, because the robotics community is not
-homogeneous, &orocos; targets
-four different categories of &ldquo;Users&rdquo; (or, in the first
-place, &ldquo;Developers&rdquo;):
-<orderedlist>
+	  <listitem>
+	    <para>
+	      <emphasis>Object-oriented design.</emphasis>
+	    </para>
+	    <para>
+	      This seems an obvious requirement for modern-day software development.
+	      However, the experience within the project has learned that designing
+	      an appropriate class hierarchy is a <emphasis>major</emphasis>
+	      challenge, mainly because of the diversity of the field.
+	    </para>
+	  </listitem>
 
-<listitem>
-<para>
-<emphasis>Framework Builders.</emphasis>
-</para>
-<para>
-These developers do not work on any specific robotics application, but
-they provide the infrastructure code to support applications. This
-level of supporting code is most often neglected in robot software
-projects, because in the (rather limited) scope of each individual 
-project, putting a lot of effort in a generic support platform is
-often considered to be &ldquo;overkill&rdquo;, or even not taken into
-consideration at all. However, because of the large scope of the
-&orocos; project, the supporting code (the &ldquo;Framework&rdquo;)
-gets a lot of attention. The hope is, of course, that this work will
-pay of by facilitating the developments for the other
-&ldquo;Users&rdquo;.
-</para>
-</listitem>
+	  <listitem>
+	    <para>
+	      <emphasis>Extreme decoupling and modularity.</emphasis>
+	    </para>
+	    <para>
+	      This is the fundamental criterium to keep in mind when designing
+	      and/or refactoring the project's class hierarchy.
+	      Object classes encapsulate data and activities, and the choice of
+	      classes should be such that:
+	      <itemizedlist>
 
-<listitem>
-<para>
-<emphasis>Component Builders.</emphasis>
-</para>
-<para>
-These developers implement basic robotics functionality, on top of the
-generic Framework. The functionality is offered as a
-&ldquo;service&rdquo;, in the form of a <emphasis>(Software)
-Component</emphasis>, <citation>Szyperski98</citation>. Such a
-component is not (necessarily) a full application in itself, but the
-Component Builders do their best to
-provide high-quality functionality, in an application-independent way.
-That is, the <emphasis>programming interface</emphasis> to the robotics
-functionality is rich and well documented, and the component can be
-used as a stand-alone part in various applications.
-</para>
-<para>
-Components come in roughly three different types. The simplest is an
-object-oriented <emphasis>class hierarchy</emphasis>, offering direct
-access to the objects data and functionality. The medium-level
-component provides <emphasis>monitored access</emphasis> to the
-objects' functionality, in the sense that it guarantees that different
-accesses do not interfere with each other, and that the object always
-remains in a consistent state. The highest-level Component has the
-properties as described in the <emphasis>CORBA Component
-Model</emphasis>. 
-</para>
-</listitem>
+		<listitem>
+		  <para>
+		    The implementation of one class should not rely on knowing something
+		    about the internals of another class. Relying on such knowledge is
+		    called <emphasis>coupling</emphasis> between both classes, and this
+		    must be avoided at all costs, because it prevents the independent
+		    evolution or re-implementation of the classes.
+		  </para>
+		</listitem>
 
-<listitem>
-<para>
-<emphasis>Application Builders.</emphasis>
-</para>
-<para>
-These developers use the &orocos;' Framework and Components, and
-integrate them into one particular application. That means that they
-add a specific, application-dependent
-<emphasis>architecture</emphasis> and <emphasis>API</emphasis> on top
-of the functionalities offered by the Framework and the Components.
-</para>
-</listitem>
+		<listitem>
+		  <para>
+		    Every class should have an interface that fits more or less on one
+		    single page. Elaborate interfaces are a sign that the implemented
+		    functionality may better be split into multiple objects.
+		  </para>
+		</listitem>
 
-<listitem>
-<para>
-<emphasis>End Users.</emphasis>
-</para>
-<para>
-These people use the products of the Application Builders to program
-and run their particular tasks.
-</para>
-</listitem>
+	      </itemizedlist>
+	      The strong desire to <emphasis>decouple</emphasis> software parts
+	      wherever possible is a key feature of the project; it may seem a bit
+	      of an overkill for each individual application built with the &orocos;
+	      code (and hence a burden for the individual contributor), but for the
+	      whole project it is expected to become its major competitive advantage.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <para>
+	      <emphasis>Small and shallow interfaces.</emphasis>
+	    </para>
+	    <para>
+	      It is useful to separate the <emphasis>interface</emphasis> of a
+	      certain functionality from its <emphasis>implementation</emphasis> (as
+	      a class or as a component). The interfaces are what Application
+	      Builders and End Users need to construct their programs; the
+	      class and component implementations are contructed by the Framework and
+	      Component Builders.
+	    </para>
+	    <para>
+	      Separated interfaces give more flexibility in changing
+	      implementations, and in allowing &ldquo;third-party&rdquo; providers
+	      of components. They also allow to discuss functionality without being
+	      biased by possible implementations problems or opportunities.
+	    </para>
+	    <para>
+	      &orocos; prefers interfaces that are:
+	      <itemizedlist>
 
-</orderedlist>
-The focus in the &orocos; project lies primarily with the Framework
-Builders and the Component Builders. But, since all contributors
-are motivated by their own particular applications, the needs of
-the Application Builders are also taken into account, albeit
-indirectly. 
-</para>
-<para>
-End Users do not directly belong to the target audience of
-the &orocos; project, because &orocos; concentrates on the common
-<emphasis>framework</emphasis>, independent of any application
-architecture. Serving the needs of the End Users is left to
-(commercial and non-commercial) Application Builders.
-</para>
-</sect1>
+		<listitem>
+		  <para><emphasis>Small.</emphasis>
+		    This improves the focus of the interface, and hence (hopefully) its
+		    quality. In this sense, it corresponds to the minimality requirement
+		    discussed below.  Another motivation is that &orocos; wants to avoid
+		    &ldquo;exceptions&rdquo; in implementations of the interfaces: when
+		    the interface is large, the chance increases that a particular
+		    developer will not be able to provide a <emphasis>complete</emphasis>
+		    implementation. In that case, the implementation must return an
+		    exception &ldquo;functionality not implemented&rdquo;, and this
+		    complicates the execution logic of the component that uses the
+		    interface, and reduces the real-time performance.
+		  </para>
+		</listitem>
 
+		<listitem>
+		  <para><emphasis>Shallow.</emphasis>
+		    In an object-oriented paradigm, much functionality is provided by
+		    class <emphasis>hierarchies</emphasis>. Every hierarchy may seem
+		    natural in the context on one particular application, but it will most
+		    certainly not be natural in other applications. For example, a
+		    robotics engineer may find it normal to have a &ldquo;robot&rdquo;
+		    object at the top of a large and deep hierarchy. But that same word
+		    &ldquo;robot&rdquo; will not be well received by machine tool builders
+		    that construct milling machines, or laser cutters. Although most of
+		    the functionality of motion control and task execution will be the
+		    same in both application areas. Therefore, class hierarchies should
+		    not be deep.
+		  </para>
+		</listitem>
 
-<sect1 id="vision">
-<title>Vision</title>
-<para>
-<blockquote>
-<para>
-<emphasis>
-The long-term goal of &orocos; is to provide
-<emphasis>all possible</emphasis> software, for 
-<emphasis>all possible</emphasis> robots (manipulator arms, mobile
-robots, humanoids, rehabilitation devices, etc.).
-</emphasis>
-</para>
-</blockquote>
-This is a very ambitious goal, and will inevitably lead to a very
-large code tree, various sub-projects, and contributors that are only
-interested in one or two of these sub-projects. So, the danger of
-arriving at a chaotic and incoherent project is real.
-This danger will be fought by adhering to a clear
-&ldquo;roadmap&rdquo;, or &ldquo;vision&rdquo; for both of the
-following aspects (discussed in more detail in the following Sections):
-<orderedlist>
+	      </itemizedlist>
+	      In addition to the technical reasons to use small and shallow
+	      interfaces, they are a key feature for free software projects that
+	      expect significant contributions from their community: the complexity
+	      of the whole system can only be tackled by restricting the scope of
+	      each individual piece of code. An <emphasis>increased
+		flexibility</emphasis> is a derived property that comes for free.
+	    </para>
+	  </listitem>
 
-<listitem>
-<para>
-<emphasis>Software engineering requirements.</emphasis>
-</para>
-<para>
-What quality and approach are expected from contributions to the project?
-</para>
-</listitem>
+	  <listitem>
+	    <para>
+	      <emphasis>Distributable.</emphasis>
+	    </para>
+	    <para>
+	      Future machine control systems will most certainly use multiple
+	      processors, connected through a network with sensors and actuators
+	      that most probably will have their own embedded intelligence.
+	      Hence, the robot/machine control software will have to be scalable and
+	      distributable.
+	    </para>
+	    <para>
+	      Having a design that is modular and maximally decoupled fulfills already
+	      more than half of the requirements for such distributed control
+	      systems. The other half will come from making software components
+	      with an internal design that allows their different parts to cooperate
+	      over a network.
+	    </para>
+	    <para>
+	      Two software aspects are important in this respect: the ubiquitous use
+	      of <emphasis>events</emphasis> for synchronization, and of a
+	      <emphasis>virtual (network) time</emphasis> (instead of the time
+	      delivered by the local processor). Both events and virtual time are
+	      general <emphasis>abstractions</emphasis>, that are easily mapped on
+	      corresponding primitives of the particular operating system the
+	      component is running on. For example, a hardware interrupt is also an
+	      event, and for the logic of a component it almost never matters
+	      whether the event comes from the hardware or from a local
+	      &ldquo;stub&rdquo; of remote hardware.
+	      So, make sure that your components don't use system calls 
+	      that tie them to a particular operating system or a particular device.
+	    </para>
+	    <para>
+	      &orocos; provides <emphasis>abstraction layers</emphasis> for both the
+	      operating system and the interfacing hardware. These abstractions
+	      follow the principles of minimality and decoupling. Especially for the
+	      operating system abstraction this is a big advantage, because typical
+	      (real-time) OSs tend to have way too large and too primitive APIs,
+	      that are easily abused.
+	    </para>
+	  </listitem>
 
-<listitem>
-<para>
-<emphasis>Directory structure of the source code.</emphasis>
-</para>
-<para>
-How is the project structured into sub-projects?
-</para>
-</listitem>
+	  <listitem>
+	    <para>
+	      <emphasis>Minimalistic.</emphasis>
+	    </para>
+	    <para>
+	      Developers should only offer features that are
+	      <emphasis>absolutely</emphasis> necessary: practical experience has
+	      learned that the availability of superfluous APIs leads to
+	      implementations with similar functionality but with different
+	      implementations. And, worse, to implementations where the programmers
+	      do not know very well what parts of the available functionality to
+	      use.  Both effects lead to <emphasis>sub-optimal</emphasis> results,
+	      and applications that are more difficult to re-use and maintain.
+	    </para>
+	    <para>
+	    </para>
+	  </listitem>
 
-</orderedlist>
-The project maintainers will <emphasis>strictly impose</emphasis>
-adherence to the project's vision and roadmap when considering
-incorporation of contributions to the project. However, they always
-welcome a motivated discussion about these topics on the project's
-<ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">
- mailinglist.
-</ulink>
-</para>
+	  <listitem>
+	    <para>
+	      <emphasis>Platform independent.</emphasis>
+	    </para>
+	    <para>
+	      Because of its Free Software nature, Linux is the normal environment
+	      for both host development and target runtimes. This can in practice
+	      lead very quickly to an unperceived bias towards Linux, that would
+	      compromise the portability to other operating systems. Developers must
+	      try to use only portable language constructs.
+	    </para>
+	    <para>
+	      Of course, sooner or later, the project will be confronted with the
+	      trade-off between portability and the choice for a particular desired
+	      feature that can not be supported by all initially targeted platforms.
+	      These trade-offs must be discussed on the mailinglist.
+	    </para>
+	  </listitem>
 
+	  <listitem>
+	    <para>
+	      <emphasis>Thorough large-scale design.</emphasis>
+	    </para>
+	    <para>
+	      Developers must <emphasis>always</emphasis> consider that their
+	      designs will possibly be used in a very complex, distributed and hard
+	      real-time implementation. Therefore, the design of such large-scale
+	      robotics systems must be made clear before starting the implementation
+	      of classes and components. And the implementators must provide
+	      contributions that can safely and efficiently work in such
+	      large-scale systems.
+	    </para>
+	    <para>
+	      One particular item is <emphasis>real-time</emphasis>: if an algorithm
+	      <emphasis>is</emphasis> inherently real-time (i.e., it has a
+	      deterministic execution time), then its implementation
+	      <emphasis>must</emphasis> be implemented with constructs that are
+	      real-time safe. For example, all variables and temporary objects must
+	      be allocated before execution of the functionality proper, and no
+	      exceptions or run-time type checking must be used. (So, Java
+	      and C++ programmers need to be careful.)
+	    </para>
+	  </listitem>
 
-<sect3 id="proj-dev-req">
-<title>Software engineering requirements</title>
-<para>
-&orocos; has a vision on <emphasis>how</emphasis> developers should
-design, implement and present new functionality, in order to guarantee
-the project's coherence and scalability. These are the software
-engineering guidelines that support the implementation of the
-project's vision:
-<orderedlist>
-
-<listitem>
-<para>
-<emphasis>Object-oriented design.</emphasis>
-</para>
-<para>
-This seems an obvious requirement for modern-day software development.
-However, the experience within the project has learned that designing
-an appropriate class hierarchy is a <emphasis>major</emphasis>
-challenge, mainly because of the diversity of the field.
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Extreme decoupling and modularity.</emphasis>
-</para>
-<para>
-This is the fundamental criterium to keep in mind when designing
-and/or refactoring the project's class hierarchy.
-Object classes encapsulate data and activities, and the choice of
-classes should be such that:
- <itemizedlist>
-
- <listitem>
- <para>
-The implementation of one class should not rely on knowing something
-about the internals of another class. Relying on such knowledge is
-called <emphasis>coupling</emphasis> between both classes, and this
-must be avoided at all costs, because it prevents the independent
-evolution or re-implementation of the classes.
- </para>
- </listitem>
-
- <listitem>
- <para>
-Every class should have an interface that fits more or less on one
-single page. Elaborate interfaces are a sign that the implemented
-functionality may better be split into multiple objects.
- </para>
- </listitem>
-
- </itemizedlist>
-The strong desire to <emphasis>decouple</emphasis> software parts
-wherever possible is a key feature of the project; it may seem a bit
-of an overkill for each individual application built with the &orocos;
-code (and hence a burden for the individual contributor), but for the
-whole project it is expected to become its major competitive advantage.
-</para>
-</listitem>
- 
-<listitem>
-<para>
-<emphasis>Small and shallow interfaces.</emphasis>
-</para>
-<para>
-It is useful to separate the <emphasis>interface</emphasis> of a
-certain functionality from its <emphasis>implementation</emphasis> (as
-a class or as a component). The interfaces are what Application
-Builders and End Users need to construct their programs; the
-class and component implementations are contructed by the Framework and
-Component Builders.
-</para>
-<para>
-Separated interfaces give more flexibility in changing
-implementations, and in allowing &ldquo;third-party&rdquo; providers
-of components. They also allow to discuss functionality without being
-biased by possible implementations problems or opportunities.
-</para>
-<para>
-&orocos; prefers interfaces that are:
- <itemizedlist>
-
- <listitem>
- <para><emphasis>Small.</emphasis>
-This improves the focus of the interface, and hence (hopefully) its
-quality. In this sense, it corresponds to the minimality requirement
-discussed below.  Another motivation is that &orocos; wants to avoid
-&ldquo;exceptions&rdquo; in implementations of the interfaces: when
-the interface is large, the chance increases that a particular
-developer will not be able to provide a <emphasis>complete</emphasis>
-implementation. In that case, the implementation must return an
-exception &ldquo;functionality not implemented&rdquo;, and this
-complicates the execution logic of the component that uses the
-interface, and reduces the real-time performance.
-</para>
- </listitem>
-
- <listitem>
- <para><emphasis>Shallow.</emphasis>
-In an object-oriented paradigm, much functionality is provided by
-class <emphasis>hierarchies</emphasis>. Every hierarchy may seem
-natural in the context on one particular application, but it will most
-certainly not be natural in other applications. For example, a
-robotics engineer may find it normal to have a &ldquo;robot&rdquo;
-object at the top of a large and deep hierarchy. But that same word
-&ldquo;robot&rdquo; will not be well received by machine tool builders
-that construct milling machines, or laser cutters. Although most of
-the functionality of motion control and task execution will be the
-same in both application areas. Therefore, class hierarchies should
-not be deep.
-</para>
- </listitem>
-
- </itemizedlist>
-In addition to the technical reasons to use small and shallow
-interfaces, they are a key feature for free software projects that
-expect significant contributions from their community: the complexity
-of the whole system can only be tackled by restricting the scope of
-each individual piece of code. An <emphasis>increased
-flexibility</emphasis> is a derived property that comes for free.
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Distributable.</emphasis>
-</para>
-<para>
-Future robot control systems will most certainly use multiple
-processors, connected through a network with sensors and actuators
-that most probably will have their own embedded intelligence.
-Hence, the robot control software will have to be scalable and
-distributable.
-</para>
-<para>
-Having a design that is modular and maximally decoupled fulfills already
-more than half of the requirements for such distributed control
-systems. The other half will come from making software components
-with an internal design that allows their different parts to cooperate
-over a network.
-</para>
-<para>
-Two software aspects are important in this respect: the ubiquitous use
-of <emphasis>events</emphasis> for synchronization, and of a
-<emphasis>virtual (network) time</emphasis> (instead of the time
-delivered by the local processor). Both events and virtual time are
-general <emphasis>abstractions</emphasis>, that are easily mapped on
-corresponding primitives of the particular operating system the
-component is running on. For example, a hardware interrupt is also an
-event, and for the logic of a component it almost never matters
-whether the event comes from the hardware or from a local
-&ldquo;stub&rdquo; of remote hardware.
-So, make sure that your components don't use system calls 
-that tie them to a particular operating system or a particular device.
-</para>
-<para>
-&orocos; provides <emphasis>abstraction layers</emphasis> for both the
-operating system and the interfacing hardware. These abstractions
-follow the principles of minimality and decoupling. Especially for the
-operating system abstraction this is a big advantage, because typical
-(real-time) OSs tend to have way too large and too primitive APIs,
-that are easily abused.
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Minimalistic .</emphasis>
-</para>
-<para>
-Developers should only offer features that are
-<emphasis>absolutely</emphasis> necessary: practical experience has
-learned that the availability of superfluous APIs leads to
-implementations with similar functionality but with different
-implementations. And, worse, to implementations where the programmers
-do not know very well what parts of the available functionality to
-use.  Both effects lead to <emphasis>sub-optimal</emphasis> results,
-and applications that are more difficult to re-use and maintain.
-</para>
-<para>
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Platform independent.</emphasis>
-</para>
-<para>
-Because of its Free Software nature, Linux is the normal environment
-for both host development and target runtimes. This can in practice
-lead very quickly to an unperceived bias towards Linux, that would
-compromise the portability to other operating systems. Developers must
-try to use only portable language constructs.
-</para>
-<para>
-Of course, sooner or later, the project will be confronted with the
-trade-off between portability and the choice for a particular desired
-feature that can not be supported by all initially targeted platforms.
-These trade-offs must be discussed on the mailinglist.
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Thorough large-scale design.</emphasis>
-</para>
-<para>
-Developers must <emphasis>always</emphasis> consider that their
-designs will possibly be used in a very complex, distributed and hard
-real-time implementation. Therefore, the design of such large-scale
-robotics systems must be made clear before starting the implementation
-of classes and components. And the implementators must provide
-contributions that can safely and efficiently work in such
-large-scale systems.
-</para>
-<para>
-One particular item is <emphasis>real-time</emphasis>: if an algorithm
-<emphasis>is</emphasis> inherently real-time (i.e., it has a
-deterministic execution time), then its implementation
-<emphasis>must</emphasis> be implemented with constructs that are
-real-time safe. For example, all variables and temporary objects must
-be allocated before execution of the functionality proper, and no
-exceptions or run-time type checking must be used. (So, Java
-and C++ programmers need to be careful.)
-</para>
-</listitem>
-
-</orderedlist>
-</para>
-<para>
-All these requirements illustrate the project's emphasis on
-<emphasis>design</emphasis>: most things in robotics have already been
-tried out in various ways, so the &orocos; implementation should
-<emphasis>at least</emphasis> be as good as the best of these
-tried-out predecessors. In addition, &orocos; aims at a number of
-extra features, such as &ldquo;ultimate generality&rdquo;.
-This generality is the reason why the project follows a development
-approach which is maybe a bit different from traditional free software
-projects: the trade-off during the current development is towards
-having a very well thought-out and very general design, and not in the
-first place towards adding as many functionality features as possible.
-This approach is motivated by the observation that all existing robot
-control software packages are very difficult to use in applications
-that are different from the first application they were built for. And
-that sharing source or binary code is very hard in practice, because
-of ill-defined interfaces, that are most often also strongly coupled
-to one particular application.
-</para>
-<para>
-The development approach of the project follows from the
-above-mentioned vision: the project works in a &ldquo;bottom-up&rdquo;
-fashion, on small interfaces at a time, <emphasis>but</emphasis> while
-keeping the long-term goal in mind. So, it is currently building the
-lowest levels of the framework, such as the hard real-time
-&ldquo;Core&rdquo;, motion control functionality, primitives for
-communication between &orocos; components, robot kinematics, etc.
-</para>
-</sect3>
-
-
-<sect3 id="proj-structure">
-<title>Code directory structure: the Packages</title>
-<para>
-The functionality available in &orocos; is structured in a number of
-sub-projects; each of these is called a
-<emphasis>(&orocos;) Package</emphasis>.
-A Package contains a coherent and related set of functionality, in the
-form of documentation, and <emphasis>class libraries</emphasis> and
-<emphasis>components</emphasis>, <xref linkend="objects-components"/>.  In
-principle, each Package could be a separate, independent project in
-itself, and the couplings with &orocos; are loose. 
-</para>
-<para>
-The following Packages exist, or will be created in the near future:
-corelib, kinematics and dynamics, device interface, device drivers,
-control kernel, applications, estimation, execution, kernel components,
-operating system, robots, XY tables, pan-tilt units.
-</para>
-<para>
-The directories of each Package contain a detailed documentation of
-the Package in their local <filename class="directory">/doc</filename>
-directories.
-</para>
+	</orderedlist>
+      </para>
+      <para>
+	All these requirements illustrate the project's emphasis on
+	<emphasis>design</emphasis>: most things in robotics have already been
+	tried out in various ways, so the &orocos; implementation should
+	<emphasis>at least</emphasis> be as good as the best of these
+	tried-out predecessors. In addition, &orocos; aims at a number of
+	extra features, such as &ldquo;ultimate generality&rdquo;.
+	This generality is the reason why the project follows a development
+	approach which is maybe a bit different from traditional free software
+	projects: the trade-off during the current development is towards
+	having a very well thought-out and very general design, and not in the
+	first place towards adding as many functionality features as possible.
+	This approach is motivated by the observation that all existing robot
+	control software packages are very difficult to use in applications
+	that are different from the first application they were built for. And
+	that sharing source or binary code is very hard in practice, because
+	of ill-defined interfaces, that are most often also strongly coupled
+	to one particular application.
+      </para>
+      <para>
+	The development approach of the project follows from the
+	above-mentioned vision: the project works in a &ldquo;bottom-up&rdquo;
+	fashion, on small interfaces at a time, <emphasis>but</emphasis> while
+	keeping the long-term goal in mind. So, it is currently building the
+	lowest levels of the framework, such as the hard real-time
+	&ldquo;Core&rdquo;, motion control functionality, primitives for
+	communication between &orocos; components, robot kinematics, etc.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Project Software</title>
+    <para>
+      The Orocos project spawned a couple of largely independent
+      software projects. The documentation you are reading is about
+      the Realtime Control Software located on the Orocos.org webpage.
+      The other projects are :
+      <itemizedlist>
+	<listitem>
+	  <para>At KTH Stockholm, several releases have been made for
+	    component-based robotic systems, and the project has been
+	    renamed to <ulink
+	      url="http://orca-robotics.sourceforge.net/">Orca</ulink>.</para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Although not a project funded partner, the FAW Ulm
+	    maintains Free CORBA communication patterns for modular
+	    robotics : <ulink
+	      url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <sect2>
+      <title>Orocos Realtime Control Software Structure</title>
+      <para>
+	The realtime control software is structured in layers on top
+	of the hardware target (CPU) and the devices (IO).
+      </para>
+      <figure id="fig-orocos-app-stack">
+	<title>
+	  Realtime Control Software Overview
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="ApplicationStack.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="ApplicationStack.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <para>
+	Every Orocos layer in <xref linkend="fig-orocos-app-stack" /> is
+	documented seperately. All Orocos software communicates
+	through Operating System abstractions with the underlying OS
+	or through Device Interfaces with the IO hardware. On the left
+	side on top of the OS Abstraction is the Core Library, which
+	presents infrastructure for writing realtime (periodic) tasks,
+	including many communication primitives. On top of that is the
+	Task Infrastructure, which allows to define browsable task objects
+	which are capable of receiving (remote) commands, process 
+	programs and hierarchical state machines and share realtime data
+	with other tasks. Your application may use that infrastructure
+	to define its own tasks and set up communication between them.
+      </para>
+      <para>
+	On the right side, lives the Device Abstraction stack.
+	The Operating System already provides a device driver model,
+	Orocos device drivers map that model to machine or robot control specific
+	Device Interfaces. An Orocos Device combines a number of these interface
+	into an object representing a physical entity. It may represent
+	a complete machine, or just a mere Sensor or Axis, such that your
+	application can communicate with physical meaningful devices (
+	instead of IO ports).
+      </para>
+      <para>
+	Because of the Openness of Orocos, your application does not need
+	to <emphasis>take-all-or-leave-all</emphasis>. You can pick out
+	the level of abstraction which suits you best for a given application.
+      </para>
+    </sect2>
+    <sect2 id="proj-structure">
+      <title>Code directory structure: the Packages</title>
+      <para>
+	The functionality available in &orocos; is structured in a number of
+	sub-projects; each of these is called a
+	<emphasis>(&orocos;) Package</emphasis>.
+	A Package contains a coherent and related set of functionality, in the
+	form of documentation, and <emphasis>class libraries</emphasis> and
+	<emphasis>components</emphasis>.
+      </para>
+      <para>
+	The following Packages exist, or will be created in the near future:
+	corelib, kinematics and dynamics, device interface, device drivers,
+	control kernel, applications, estimation, execution,
+	operating system, robots, XY tables.
+      </para>
+      <para>
+	The directories of each Package contain a detailed documentation of
+	the Package in their local <filename class="directory">/doc</filename>
+	directories.
+      </para>
 	<para>
 	  The packages directory is mostly found under the orocos
 	  directory. The orocos directory holds some general documentation
@@ -553,10 +615,10 @@ directories.
 	  very familiar with the packaging system, you should first install
 	  the base system before trying to install a package.
 	</para>
-      </sect3>
+      </sect2>
     </sect1>
 
-
+<!---
 <sect1 id="objects-components">
 <title>Objects and Components</title>
 <para>
@@ -619,49 +681,70 @@ subdirectory.
 The documentation of the Core Package contains more details.
 </para>
 </sect1>
+-->
 
+  <sect1 id="history">
+    <title>Project history</title>
+    <para>
+      The idea for starting a Free Software project for robot control was
+      born in December 2000, motivated by over two decades of rather
+      disappointing experiences and failures in trying to use commercial
+      robot control software for advanced robotics research. The idea,
+      together with a draft of a possible project proposal, was launched on
+      the mailinglist of <ulink url="http://www.euron.org/">EURON</ulink>,
+      the European Robotics Network. This email gave rise to a lot of
+      responses, even though it was sent during the Christmas period. Within
+      about two weeks, a proposal was made ready, and sent to the European
+      Union. Contacts with the responsible Officer made clear that the size
+      of the project had to be very modest, so that only three partners were
+      selected: K.U.Leuven in Belgium, LAAS Toulouse in France, and KTH
+      Stockholm in Sweden. Each of these three groups would later receive
+      only one full man-year of support. The EU-sponsored project started in
+      September 2001, and has a duration for two years.
+    </para>
+    <para>
+      The EU sponsoring also provides some travel grants to invite
+      non-sponsored people to the &orocos; project meetings. This, together
+      with the classical attributes of a 
+      <ulink url="http://www.orocos.org">web page</ulink> and a 
+      <ulink
+	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist
+      </ulink>,
+      stimulated quite some discussions and exchanges of ideas.
+    </para>
+    <para>
+      A first version of the hard real-time core was released in the
+      Summer of 2002, but it was very preliminary and hard to use. In
+      November 2002, the first version was released with which 
+      simple position and velocity control of a six degrees-of-freedom
+      robot manipulator arm was possible. 
+    </para>
+    <para>
+      After the EU sponsored project was finished, the project partners
+      continued to improve on the delivered software. The realtime
+      Orocos framework developments at the KU Leuven, knew already 6 major software
+      ( see <ulink url="download.php">Downloads</ulink> )
+      releases after september 2003. At KTH Stockholm, several releases
+      have been made for component-based robotic systems,
+      and the project has been renamed to
+      <ulink url="http://orca-robotics.sourceforge.net/">Orca</ulink>. Although
+      not a project funded partner, the FAW Ulm maintains Free CORBA 
+      communication patterns for modular robotics :
+      <ulink url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
+    </para>
 
-<sect1 id="history">
-<title>Project history</title>
-<para>
-The idea for starting a Free Software project for robot control was
-born in December 2000, motivated by over two decades of rather
-disappointing experiences and failures in trying to use commercial
-robot control software for advanced robotics research. The idea,
-together with a draft of a possible project proposal, was launched on
-the mailinglist of <ulink url="http://www.euron.org/">EURON</ulink>,
-the European Robotics Network. This email gave rise to a lot of
-responses, even though it was sent during the Christmas period. Within
-about two weeks, a proposal was made ready, and sent to the European
-Union. Contacts with the responsible Officer made clear that the size
-of the project had to be very modest, so that only three partners were
-selected: K.U.Leuven in Belgium, LAAS Toulouse in France, and KTH
-Stockholm in Sweden. Each of these three groups would later receive
-only one full man-year of support. The EU-sponsored project started in
-September 2001, and has a duration for two years.
-</para>
-<para>
-The EU sponsoring also provides some travel grants to invite
-non-sponsored people to the &orocos; project meetings. This, together
-with the classical attributes of a 
-<ulink url="http://www.orocos.org">web page</ulink> and a 
-<ulink
-  url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist
-</ulink>,
-stimulated quite some discussions and exchanges of ideas.
-</para>
-<para>
-A first version of the hard real-time core was released in the Summer
-of 2002, but it was very preliminary and hard to use. In November
-2002, the first version was released with which simple position and
-velocity control of a six degrees-of-freedom robot manipulator arm was
-possible.
-</para>
-<para>
-	  Two packages with support for distributed, CORBA-based communication
-	  between robot systems were also released in 2002.
-	</para>
-      </sect1>
+    <para>
+      Because of its applicability to industrial applications, the
+      realtime Orocos framework has grown into the machine
+      control field and outgrown its robotics roots. The modularity
+      of Orocos packages reflects this versatility. Currently,
+      the <ulink url="http://www.fmtc.be">Flanders Mechatronics Technology
+	Centre</ulink> funds the development of the realtime Orocos framework
+      and coordinates the integration of Orocos in industrial machines
+      of machinetool builders.
+    </para>
+
+  </sect1>
   <bibliography>
     <title>Bibliography</title>
 
