@@ -24,8 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#ifndef BUFFERED_CONTROL_KERNEL_HPP
-#define BUFFERED_CONTROL_KERNEL_HPP
+
+#ifndef LOCKFREE_CONTROL_KERNEL_HPP
+#define LOCKFREE_CONTROL_KERNEL_HPP
 
 #include "NextGenKernel.hpp"
 
@@ -33,36 +34,36 @@ namespace ORO_ControlKernel
 {
 
     /**
-     * @brief BufferedControlKernel is a kernel for multi-threaded DataObject access.
+     * @brief LockFreeControlKernel is a kernel for multi-threaded DataObject access.
      * Other kernels or multithreaded components can read/write the DataObjects safely.
      *
      * The DataObjects of this kernel are choosen in such a way that another kernel (or threaded component) can
      * have thread-safe access to them. 
      */
     template <class _Extension = KernelBaseFunction>
-    class BufferedControlKernel
-        : public detail::BaseKernel< detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC , 
+    class LockFreeControlKernel
+        : public detail::BaseKernel< detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC , 
                                      _Extension >
     {
-        typedef detail::BaseKernel< detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC , 
+        typedef detail::BaseKernel< detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC , 
                                      _Extension > Base;
     public:
         /**
-         * @brief Create a buffered control kernel.
+         * @brief Create a lock-free control kernel.
          *
          * @param name The name of the kernel.
          * @param prefix The namespace prefix of the data objects.
          * 
          */
-        BufferedControlKernel(const std::string& name, const std::string& prefix)
+        LockFreeControlKernel(const std::string& name, const std::string& prefix)
             : Base( name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
                     prefix + "::SetPoints", prefix + "::Outputs")
         {

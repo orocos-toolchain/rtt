@@ -28,12 +28,14 @@
 #ifndef BASECOMPONENTS_HPP
 #define BASECOMPONENTS_HPP
 
+#include <corelib/DataObjectInterfaces.hpp>
 #include "ComponentInterfaces.hpp"
-#include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
 
 namespace ORO_ControlKernel
 {
+    using ORO_CoreLib::DataObjectInterface;
+
     /**
      * @defgroup kcomps All Available Control Kernel Components.
      */

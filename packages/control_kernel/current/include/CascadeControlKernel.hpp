@@ -42,26 +42,26 @@ namespace ORO_ControlKernel
      * its Outputs are introduced in the Commands namespace of
      * all kernels with the same prefix.
      *
-     * It can be used in conjunction with a BufferedControlKernel.
+     * It must be used in conjunction with a LockFreeControlKernel.
      *
-     * @see BufferedControlKernel
+     * @see LockFreeControlKernel
      * @see StandardControlKernel
      *
      */
     template < class _Extension = KernelBaseFunction >
     class CascadeControlKernel
-        : public detail::BaseKernel< detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC , 
+        : public detail::BaseKernel< detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC ,
+                                     detail::DataObjectLockFreeC , 
                                      _Extension >
     {
-        typedef detail::BaseKernel< detail::DataObjectBufferC ,
-                                    detail::DataObjectBufferC ,
-                                    detail::DataObjectBufferC ,
-                                    detail::DataObjectBufferC ,
-                                    detail::DataObjectBufferC , 
+        typedef detail::BaseKernel< detail::DataObjectLockFreeC ,
+                                    detail::DataObjectLockFreeC ,
+                                    detail::DataObjectLockFreeC ,
+                                    detail::DataObjectLockFreeC ,
+                                    detail::DataObjectLockFreeC , 
                                     _Extension > Base;
     public:
         /**

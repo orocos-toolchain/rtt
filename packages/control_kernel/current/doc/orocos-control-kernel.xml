@@ -1120,107 +1120,11 @@
 	Section.
       </para>
       <para>
-	The data inside the DataObjects can be any valid C++ type,
-	so mostly people use classes or structs, because these carry
-	more semantics than just (vectors of) doubles. The default
-	constructor of the data is called when the DataObject is
-	constructed.  Here is an example of creating and using a
-	DataObject outside of a Control Kernel :
-	<example>
-	  <title>Accessing a DataObject</title>
-	  <programlisting>
-	    <![CDATA[
-// A DataObject may also contain a class, instead of the simple
-// double in this example
-DataObject<double> my_Do; 
-my_Do.Set( 3.14 ); 
-double  contents; 
-my_Do.Get( contents );   // contents == 3.14
-contents  = my_Do.Get(); // equivalent
-]]>
-	  </programlisting>
-	</example>
-      </para>
-      <para>
-	The virtual <classname>DataObjectInterface</classname> interface
-	provides the <function>Get()</function> and
-	<function>Set()</function> methods that each DataObject must
-	have. Semantically, <function>Set()</function> and
-	<function>Get()</function> copy all contents of the
-	DataObject. This interface has multiple
-	implementations, depending on the specific data access locking
-	needs:
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong">DataObject</emphasis>. This is
-	      the most simple DataObject implementation. The
-	      <function>Get()</function> and
-	      <function>Set()</function> methods directly map onto the
-	      contents and can always be inlined by the compiler. It
-	      offers no thread safety, but maximum efficiency for
-	      copying data.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong">DataObjectLocked</emphasis>.
-	      This is a thread safe DataObject whose
-	      <function>Set()</function> and
-	      <function>Get()</function> methods are guarded by a
-	      single mutex. The second thread accessing this object
-	      will always block, which is not always appropriate in a
-	      realtime system.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis
-		role="strong">DataObjectPrioritySet</emphasis>. This
-	      is a more complex DataObject which gives always priority
-	      to the thread calling <function>Set()</function>, which
-	      will never block. The thread accessing
-	      <function>Get()</function> will block if the
-	      <function>Set()</function> thread is accessing the
-	      contents. It is mainly used for sharing data between two
-	      kernels, running at different priorities.
-	    </para>
-	    <note>
-	      <para>
-		This DataObject will only work if the
-		<function>Set()</function> thread has the highest
-		priority. When the inverse is true, data corruption
-		will occur. It is obvious that this DataObject can
-		only be used if both threads have static priorities
-		(which is the case for all threads in the &orocos;
-		framework).
-	      </para>
-	    </note>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis
-		role="strong">DataObjectPriorityGet</emphasis>. The
-	      inverse of <function>DataObjectPrioritySet</function>.
-	      The thread accessing <function>Get()</function> will
-	      never block.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong">DataObjectBuffer</emphasis>.
-	      This DataObject implements a non blocking reader/writer
-	      buffer which always returns the last written value to
-	      the reader. If the reader is preempted with a write and
-	      a read, the last read will return a newer value, while
-	      the first read continues to read the uncorrupted old
-	      value.  The depth of this buffer must be readers+3, for
-	      the algorithm to succeed in doing every write. Apart
-	      from memory consumption, it is one of the best
-	      thread-safe DataObject implementations.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+	See the CoreLib Manual for all available DataObjects. The ControlKernel
+	chooses which type of DataObjects it uses for communication between
+	its Data Flow Components. Thus if you want to use a specific DataObject,
+	you must use a different ControlKernel or redefine one of your own
+	( Example kernels are given lateron ).
       </para>
     </sect2>
     <sect2 id="components">
@@ -3308,9 +3212,9 @@ program DemoRun {
       </para>
       <para>
 	If you want to extend an existing control kernel with a cascade
-	kernel, you need to use the BufferedControlKernel
+	kernel, you need to use the LockFreeControlKernel
 	( instead of the StandardControlKernel), which allows
-	thread-safe data access to all DataObjects. See the example below.
+	thread-safe and lock-free data access to all DataObjects. See the example below.
       </para>
       <para>
 	<example>
@@ -3326,7 +3230,7 @@ program DemoRun {
 	    <programlisting>
 <![CDATA[
 // The highest priority kernel is standard
-BufferedControlKernel<> 
+LockFreeControlKernel<> 
     innerKernel("InnerLoop", "my_cascade" );
 
 // A cascade, its outputs get in the command dataobject

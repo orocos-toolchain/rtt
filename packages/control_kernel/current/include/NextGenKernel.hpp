@@ -29,7 +29,7 @@
 #define NEXTGEN_KERNEL_HPP
 
 #include "KernelInterfaces.hpp"
-#include "DataObjectInterfaces.hpp"
+#include <corelib/DataObjectInterfaces.hpp>
 #include "PortInterfaces.hpp"
 #include "BaseComponents.hpp"
 #include "ComponentStateInterface.hpp"

@@ -51,7 +51,7 @@
 #include <utility>
 #include <corelib/NameServer.hpp>
 #include <boost/type_traits.hpp>
-#include "DataObjectInterfaces.hpp"
+#include <corelib/DataObjectInterfaces.hpp>
 #include "DataObjectReporting.hpp"
 #include <corelib/PropertyDecomposition.hpp>
 #include <corelib/VectorComposition.hpp>
@@ -66,6 +66,13 @@
 namespace ORO_ControlKernel
 {
     using ORO_CoreLib::NameServer;
+    using ORO_CoreLib::DataObject;
+    using ORO_CoreLib::DataObjectLocked;
+    using ORO_CoreLib::DataObjectPrioritySet;
+    using ORO_CoreLib::DataObjectPriorityGet;
+    using ORO_CoreLib::DataObjectLockFree;
+    using ORO_CoreLib::DataObjectInterface;
+
 
     /**
      * @brief An Interface for registering DataObject members 
@@ -1105,20 +1112,20 @@ namespace ORO_ControlKernel
             };
         };
 
-        struct DataObjectBufferC
+        struct DataObjectLockFreeC
         {
             template< typename C>
             struct DataObject
             {
                 typedef C NamesTypes; 
                 template< typename D>
-                struct DataObjectType { typedef ORO_ControlKernel::DataObjectBuffer<D> type; };
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectLockFree<D> type; };
                 struct Wrapper
                 {
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectBuffer<T> Result;
+                        typedef ORO_ControlKernel::DataObjectLockFree<T> Result;
                     };
                 };
 
@@ -1166,7 +1173,7 @@ namespace ORO_ControlKernel
             typedef NameServedDataObject< DataObjectLockedC::DataObject< DataNames > > locked;
             typedef NameServedDataObject< DataObjectPrioritySetC::DataObject< DataNames > > priority_set;
             typedef NameServedDataObject< DataObjectPriorityGetC::DataObject< DataNames > > priority_get;
-            typedef NameServedDataObject< DataObjectBufferC::DataObject< DataNames > > buffer;
+            typedef NameServedDataObject< DataObjectLockFreeC::DataObject< DataNames > > lockfree;
             typedef NameServedDataObject< DataObjectInterfaceC::DataObject< DataNames > > interface;
         }; 
 
