@@ -103,6 +103,7 @@ namespace ORO_Execution
       void seenreturnlabel();
 
       void startofprogram();
+      void programdef( iter_t begin, iter_t end );
       void seenprogramend();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart,

@@ -35,6 +35,7 @@
 #include "execution/EventHandle.hpp"
 #include "corelib/StandardEventListener.hpp"
 #include "execution/StateDescription.hpp"
+#include "corelib/CommandEmitEvent.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -85,6 +86,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( exit  );
     BOOST_SPIRIT_DEBUG_RULE( eecommand );
     BOOST_SPIRIT_DEBUG_RULE( docommand );
+    BOOST_SPIRIT_DEBUG_RULE( handlecommand );
+    BOOST_SPIRIT_DEBUG_RULE( statecommand );
+    BOOST_SPIRIT_DEBUG_RULE( emitcommand );
     BOOST_SPIRIT_DEBUG_RULE( selectcommand );
     BOOST_SPIRIT_DEBUG_RULE( brancher );
     BOOST_SPIRIT_DEBUG_RULE( selector );
@@ -152,7 +156,9 @@ namespace ORO_Execution
     handle = str_p( "handle" )[ bind( &StateGraphParser::inhandle, this)]
         >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"));
 
-    handleline = !( statevars | docommand[bind( &StateGraphParser::seenstatement, this)]) >> newline;
+    handleline = !( statevars | handlecommand[bind( &StateGraphParser::seenstatement, this)]) >> newline;
+
+    handlecommand = docommand | statecommand;
 
     transitions = str_p( "transitions" )
         >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
@@ -160,8 +166,13 @@ namespace ORO_Execution
     transline = !selectcommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
 
     // In Entry/Exit : do something and setup the events :
-    eecommand = (disconnectevent | connectevent | docommand );
-        
+    eecommand = (disconnectevent | connectevent | docommand | statecommand);
+
+    statecommand = emitcommand;
+
+    emitcommand = str_p("emit") >> expect_open(str_p("(")) >>
+         context.valueparser.parser()[bind( &StateGraphParser::seenemit, this) ] >>
+        expect_end( str_p(")" ) );
 
     // You are able to do something everywhere except in transistions :
     docommand = str_p("do") >> commandparser.parser()[bind( &StateGraphParser::seencommand, this)];
@@ -208,9 +219,9 @@ namespace ORO_Execution
     void StateGraphParser::statedef( iter_t s, iter_t f)
     {
         if ( minit == std::string("") )
-            throw parse_exception("Initial State not set. Write on top : Initial State statename");
+            throw parse_exception("Initial State not set. Write on top : Initial_State statename");
         if ( mfini == std::string("") )
-            throw parse_exception("Final State not set. Write on top : Final State statename");
+            throw parse_exception("Final State not set. Write on top : Final_State statename");
 
         std::string def(s, f);
         if ( mstates.count( def ) != 0 )
@@ -221,7 +232,7 @@ namespace ORO_Execution
                     mstate = mstates[def];
                 }
         else
-            mstate = mstates[def] = state_graph->newState(); // create an empty state
+            mstate = mstates[def] = state_graph->newState(def); // create an empty state
         
         // start defining this state
         state_graph->startState( mstate );
@@ -269,7 +280,7 @@ namespace ORO_Execution
                 next_state = mstates[ state_id ];
             }
         else
-            next_state = mstates[state_id] = state_graph->newState(); // create an empty state
+            next_state = mstates[state_id] = state_graph->newState(state_id); // create an empty state
         
         if (mcondition == 0)
             mcondition = new ConditionTrue;
@@ -277,6 +288,22 @@ namespace ORO_Execution
         // this transition has a lower priority than the previous one
         state_graph->transitionSet( mstate, next_state, mcondition, rank-- );
         mcondition = 0;
+    }
+
+    void StateGraphParser::seenemit()
+    {
+        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
+
+        if ( !res )
+            throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
+            
+        std::string event_id( res->toDataSource()->get() );
+        EventOperationInterface* eoi = EventOperationInterface::nameserver.getObject(event_id);
+        if (eoi == 0 )
+            throw parse_exception("Event \""+ event_id+ "\" can not be emitted because it is not created yet.");
+        
+        state_graph->setCommand( new CommandEmitEvent( eoi ) );
+        state_graph->connectToNext( state_graph->currentNode(),  new ConditionTrue );
     }
 
     void StateGraphParser::handledecl( iter_t s, iter_t f)
@@ -332,6 +359,9 @@ namespace ORO_Execution
 
     void StateGraphParser::finished()
     {
+        // Check if we got a valid file
+        if ( mstates.size() == 0 )
+            throw parse_exception("No states found in this file !");
         // Check if Initial State is ok.
         if ( mstates.count( minit ) == 0 || !mstates[minit]->isDefined() )
             throw parse_exception("Initial State " + minit + " not defined.");

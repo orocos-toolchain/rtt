@@ -86,11 +86,12 @@ namespace ORO_Execution
       rule_t newline, statevars,
           line, content, program, production,
           state, entry, exit, handle, vardec,transitions,
-          eecommand, selectcommand, docommand,
+          selectcommand, docommand,
           brancher, selector, connectevent,
           disconnectevent, eventbinding;
 
       rule_t varline, eeline, transline, handleline;
+      rule_t handlecommand, eecommand, emitcommand, statecommand;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
@@ -122,6 +123,7 @@ namespace ORO_Execution
       void seencondition();
       void selecting( iter_t s, iter_t f);
 
+      void seenemit();
 
       void selecthandler( iter_t s, iter_t f);
       void seenconnect();

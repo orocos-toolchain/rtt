@@ -99,17 +99,37 @@ namespace ORO_Execution
       DataSourceBase* c ) = 0;
   };
 
+  class SixaryOp
+  {
+  public:
+    virtual ~SixaryOp();
+    /**
+     * If op is the operator you are responsible for, and if the
+     * argument DataSource's are of the correct type, then return an
+     * appropriate DataSource ( i.e. a DataSource that will apply a
+     * certain operation on the values it gets from its argument
+     * DataSources, and will return that value ).
+     * Otherwise, return 0.
+     */
+    virtual DataSourceBase* build(
+      const std::string& op,
+      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
+      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f) = 0;
+  };
+
   class OperatorRegistry
   {
     std::vector<UnaryOp*> unaryops;
     std::vector<BinaryOp*> binaryops;
     std::vector<TernaryOp*> ternaryops;
+    std::vector<SixaryOp*> sixaryops;
     OperatorRegistry();
     OperatorRegistry( const OperatorRegistry& );
     ~OperatorRegistry();
     void add( UnaryOp* o );
     void add( BinaryOp* o );
     void add( TernaryOp* o );
+    void add( SixaryOp* o );
   public:
     static OperatorRegistry& instance();
     DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
@@ -118,6 +138,10 @@ namespace ORO_Execution
     DataSourceBase* applyTernary(
       const std::string& op, DataSourceBase* a, DataSourceBase* b,
       DataSourceBase* c );
+    DataSourceBase* applySixary(
+      const std::string& op,
+      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
+      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f);
   };
 }
 

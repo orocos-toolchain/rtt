@@ -32,6 +32,9 @@
 #include <geometry/frames.h>
 #endif
 
+// Cappellini Consonni Extension
+#include <corelib/MultiVector.hpp>
+
 #include "execution/ParsedValue.hpp"
 
 namespace ORO_Execution
@@ -41,11 +44,14 @@ namespace ORO_Execution
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
 #endif
+  // Cappellini Consonni Extension
+  using ORO_CoreLib::Double6D;
 
   template<typename T>
   class TemplateTypeInfo
     : public TypeInfo
   {
+  public:
     ParsedValueBase* buildConstant()
       {
         return new ParsedConstantValue<T>();
@@ -62,6 +68,35 @@ namespace ORO_Execution
         return new ParsedAliasValue<T>( ds );
       };
   };
+
+    // Identical to above, but the variable is of the ParsedIndexValue type.
+  template<typename T, typename IndexType, typename SetType, typename Pred>
+  class TemplateIndexTypeInfo
+    : public TypeInfo
+  {
+      Pred _p;
+  public:
+      TemplateIndexTypeInfo(Pred p) : _p (p) {}
+
+    ParsedValueBase* buildConstant()
+      {
+        return new ParsedConstantValue<T>();
+      }
+
+    ParsedValueBase* buildVariable()
+      {
+        return new ParsedIndexValue<T, IndexType, SetType, Pred>(_p);
+      }
+
+    ParsedValueBase* buildAlias( DataSourceBase* b )
+      {
+        DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
+        if ( ! ds )
+          return 0;
+        return new ParsedAliasValue<T>( ds );
+      }
+  };
+
 
   TypeInfo::~TypeInfo()
   {
@@ -85,6 +120,12 @@ namespace ORO_Execution
   {
   };
 
+    // check the validity of an index
+    bool D6IndexChecker( int i )
+    {
+        return i > -1 && i < 6;
+    }
+
   TypeInfoRepository::TypeInfoRepository()
   {
 #ifdef OROPKG_GEOMETRY
@@ -96,5 +137,8 @@ namespace ORO_Execution
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
+    // Cappellini Consonni Extension
+    // check the bounds of the index
+    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, bool (*)(int)>( &D6IndexChecker );
   };
 }

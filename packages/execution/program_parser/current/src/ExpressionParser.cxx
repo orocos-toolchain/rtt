@@ -24,6 +24,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
 #include "execution/ExpressionParser.hpp"
 
 #include "execution/ParseContext.hpp"
@@ -179,15 +180,20 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( ifthenelseexp );
     BOOST_SPIRIT_DEBUG_RULE( frameexp );
     BOOST_SPIRIT_DEBUG_RULE( vectorexp );
+    // Cappellini Consonni Extension
+    BOOST_SPIRIT_DEBUG_RULE( double6Dexp );
     BOOST_SPIRIT_DEBUG_RULE( rotexp );
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
     BOOST_SPIRIT_DEBUG_RULE( constructorexp );
     BOOST_SPIRIT_DEBUG_RULE( framector );
     BOOST_SPIRIT_DEBUG_RULE( vectorctor );
+    // Cappellini Consonni Extension
+    BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
     BOOST_SPIRIT_DEBUG_RULE( rotationctor );
     BOOST_SPIRIT_DEBUG_RULE( time_expression );
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
+    BOOST_SPIRIT_DEBUG_RULE( indexexp );
 
     expression = ifthenelseexp;
 
@@ -244,6 +250,7 @@ namespace ORO_Execution
          unaryplusexp
       >> *( '*' >> unaryplusexp[
               bind( &ExpressionParser::seen_binary, this, "*" ) ] );
+
     unaryplusexp =
         '+' >> unaryminusexp[
           bind( &ExpressionParser::seen_unary, this, "+" ) ]
@@ -255,9 +262,9 @@ namespace ORO_Execution
     unarynotexp =
         ( str_p( "not" ) | '!' ) >> atomicexpression[
             bind( &ExpressionParser::seen_unary, this, "!" ) ]
-      | atomicexpression;
+        | atomicexpression;
 
-    atomicexpression =
+    atomicexpression = (
         // either a property of a component
         datacallparser.parser()[
           bind( &ExpressionParser::seendatacall, this ) ]
@@ -268,11 +275,17 @@ namespace ORO_Execution
       | constructorexp
         // or a parenthesis group.
       | groupexp
-      | time_expression;
+        | time_expression ) >> ( !indexexp );
+
+    // take index of an atomicexpression
+    indexexp =
+        (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >>']');
 
     constructorexp =
         framector
       | vectorctor
+      | double6Dctor
+      | double6Dctor6
       | rotationctor;
 
     framector = (
@@ -292,6 +305,29 @@ namespace ORO_Execution
       >> ','
       >> expression
       >> ')' )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
+
+    // Cappellini Consonni Extension
+    double6Dctor = (
+        str_p( "double6d" )
+      >> '('
+      >> expression
+      >> ')' )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
+
+    double6Dctor6 = (
+        str_p( "double6d" )
+      >> '('
+      >> expression
+      >> ','
+      >> expression
+      >> ','
+      >> expression
+      >> ','
+      >> expression
+      >> ','
+      >> expression
+      >> ','
+      >> expression
+      >> ')' )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ];
 
     rotationctor = (
          str_p( "rotation" )
@@ -321,6 +357,7 @@ namespace ORO_Execution
       uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ] >>
       ( str_p( "s" ) | "ms" | "us" | "ns" )[
         bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ];
+
   };
 
   void ExpressionParser::seentimeunit( iter_t begin, iter_t )
@@ -445,6 +482,43 @@ namespace ORO_Execution
                                                  arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception( "Cannot apply ternary operator \"" + op +
+                             "\" to value." );
+    ret->ref();
+    parsestack.push( ret );
+  };
+
+  void ExpressionParser::seen_sixary( const std::string& op )
+  {
+    DataSourceBase::shared_ptr arg1( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg2( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg3( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg4( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg5( parsestack.top() );
+    parsestack.pop();
+    DataSourceBase::shared_ptr arg6( parsestack.top() );
+    parsestack.pop();
+
+    // we still have a reference to these, that we took when
+    // we pushed it up the parsestack..
+    arg1->deref();
+    arg2->deref();
+    arg3->deref();
+    arg4->deref();
+    arg5->deref();
+    arg6->deref();
+
+    // Arg6 is the first (!) argument, as it was pushed on the stack
+    // first.
+    DataSourceBase* ret =
+        OperatorRegistry::instance().applySixary( op,
+                                                  arg6.get(), arg5.get(), arg4.get(),
+                                                  arg3.get(), arg2.get(), arg1.get() );
+    if ( ! ret )
+      throw parse_exception( "Cannot apply sixary operator \"" + op +
                              "\" to value." );
     ret->ref();
     parsestack.push( ret );

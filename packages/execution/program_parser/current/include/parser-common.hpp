@@ -134,11 +134,11 @@ namespace ORO_Execution
           "do", "until", "next", "done", "or", "and", "not", "include", "if",
           "define", "end", "then", "else", "for", "foreach", "while", "true",
           "false", "stop", "async", "time", "const", "frame", "double",
-          "int", "bool", "char", "string", "vector", "rotation", "twist",
+          "int", "bool", "char", "string", "vector", "double6d", "rotation", "twist",
           "wrench", "nothing", "var", "set", "let", "alias", "to", "sync",
           "return", "call";
 
-        chset<> identchar( "a-zA-Z-_0-9" );
+        chset<> identchar( "a-zA-Z_0-9" );
 
         // an identifier is a word which can be used to identify a
         // label, or be the name of an object or method.  it is required

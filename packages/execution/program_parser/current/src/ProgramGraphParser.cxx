@@ -94,6 +94,7 @@ namespace ORO_Execution
     program = (
       *newline
       >> str_p( "program" )[ bind( &ProgramGraphParser::startofprogram, this)]
+      >> !commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ]
       >> *newline
       >> ch_p( '{' )
       >> content
@@ -213,8 +214,14 @@ namespace ORO_Execution
 
     void ProgramGraphParser::startofprogram()
     {
-        program_graph->startProgram(context.processor);
+        program_graph->startProgram();
     }
+
+  void ProgramGraphParser::programdef( iter_t begin, iter_t end )
+  {
+      std::string def(begin, end);
+      program_graph->setName( def );
+  }
 
   void ProgramGraphParser::functiondef( iter_t begin, iter_t end )
   {
@@ -310,7 +317,7 @@ namespace ORO_Execution
       // Fake a 'return' statement at the last line.
       program_graph->returnProgram( new ConditionTrue );
       program_graph->proceedToNext( mpositer.get_position().line );
-      program_graph->endProgram();
+      program_graph->endProgram( context.processor );
   }
 
   ProgramGraph* ProgramGraphParser::parse( iter_t& begin, iter_t end )
@@ -332,6 +339,7 @@ namespace ORO_Execution
         program_graph = 0;
         return 0;
       }
+      program_graph->reset();
       return program_graph;
     }
     catch( const parse_exception& e )

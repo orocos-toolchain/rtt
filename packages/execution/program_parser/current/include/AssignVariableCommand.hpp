@@ -74,6 +74,41 @@ namespace ORO_Execution
           return new AssignVariableCommand( lhs->duplicate(), rhs->clone() );
       }
   };
+
+  template<typename T, typename Index, typename SetType, typename Pred>
+  class AssignIndexCommand
+    : public CommandInterface
+  {
+      typedef typename DataSource<Index>::shared_ptr IndexSource;
+      IndexSource i;
+      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      LHSSource lhs;
+      typedef typename DataSource<SetType>::shared_ptr RHSSource;
+      RHSSource rhs;
+      Pred p;
+  public:
+      AssignIndexCommand( VariableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r, Pred _p )
+          : i(index),lhs( l ), rhs( r ), p(_p)
+      {
+      }
+      
+      void execute()
+      {
+          Index ind = i->get();
+          if ( p(ind) )
+          lhs->set()[ ind ] = rhs->get();
+      }
+
+      std::string toString()
+      {
+        return "AssignIndexCommand";
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new AssignIndexCommand( lhs->duplicate(), i->clone(), rhs->clone(), p );
+      }
+  };
 }
 
 #endif

@@ -148,6 +148,10 @@ namespace ORO_Execution
       {
           mdata = t;
       }
+
+      T& set() { 
+          return mdata;
+      }
       
       VariableDataSource<T>* duplicate() const
       {
@@ -279,6 +283,72 @@ namespace ORO_Execution
       virtual DataSource<typename function::result_type>* clone() const
       {
           return new TernaryDataSource<function>(ma->clone(), mb->clone(), mc->clone(), fun);
+      }
+  };
+
+  /**
+   * The extension of BinaryDataSource to sixary functions..
+   */
+  template<typename function>
+  class SixaryDataSource
+    : public DataSource<typename function::result_type>
+  {
+    typedef typename function::result_type value_t;
+    typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
+    typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
+    typedef typename remove_cr<typename function::third_argument_type>::type third_arg_t;
+    typedef typename remove_cr<typename function::forth_argument_type>::type forth_arg_t;
+    typedef typename remove_cr<typename function::fifth_argument_type>::type fifth_arg_t;
+    typedef typename remove_cr<typename function::sixth_argument_type>::type sixth_arg_t;
+    typename DataSource<first_arg_t>::shared_ptr ma;
+    typename DataSource<second_arg_t>::shared_ptr mb;
+    typename DataSource<third_arg_t>::shared_ptr mc;
+    typename DataSource<forth_arg_t>::shared_ptr md;
+    typename DataSource<fifth_arg_t>::shared_ptr me;
+    typename DataSource<sixth_arg_t>::shared_ptr mf;
+    function fun;
+  public:
+    typedef boost::intrusive_ptr<SixaryDataSource<function> > shared_ptr;
+
+    SixaryDataSource(
+                     DataSource<first_arg_t>* a,
+                     DataSource<second_arg_t>* b,
+                     DataSource<third_arg_t>* c,
+                     DataSource<forth_arg_t>* d,
+                     DataSource<fifth_arg_t>* e,
+                     DataSource<sixth_arg_t>* f,
+                       function _fun )
+      : ma( a ), mb( b ), mc( c ),md( d ), me( e ), mf( f ),
+        fun( _fun )
+      {
+      };
+
+    virtual value_t get() const
+      {
+        first_arg_t a = ma->get();
+        second_arg_t b = mb->get();
+        third_arg_t c = mc->get();
+        forth_arg_t d = md->get();
+        fifth_arg_t e = me->get();
+        sixth_arg_t f = mf->get();
+        return fun( a, b, c, d, e, f );
+      }
+
+    virtual void reset()
+      {
+        ma->reset();
+        mb->reset();
+        mc->reset();
+        md->reset();
+        me->reset();
+        mf->reset();
+      }
+
+      virtual DataSource<typename function::result_type>* clone() const
+      {
+          return new SixaryDataSource<function>(ma->clone(), mb->clone(), mc->clone(),
+                                                md->clone(), me->clone(), mf->clone(),
+                                                fun);
       }
   };
 

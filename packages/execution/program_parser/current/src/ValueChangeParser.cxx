@@ -90,6 +90,7 @@ namespace ORO_Execution
          "set"
       >> commonparser.identifier[
            bind( &ValueChangeParser::storename, this, _1, _2 ) ]
+         >> !( '[' >> expressionparser.parser() >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ] 
       >> ch_p( '=' ) 
       >> expressionparser.parser() )[
            bind( &ValueChangeParser::seenvariableassignment, this ) ];
@@ -175,17 +176,37 @@ namespace ORO_Execution
       throw parse_exception( "Variable \"" + valuename + "\" not defined." );
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
-    try {
-      assigncommand = var->assignCommand( expr.get(), false );
+    if ( index_ds ) {
+        try {
+            assigncommand = var->assignIndexCommand( index_ds.get(), expr.get() );
+        }
+        catch( const bad_assignment& e) {
+            throw parse_exception("Attempted to assign index of \""+ valuename +"\" with wrong type.");
+        }
+        if ( !assigncommand )
+            throw parse_exception( "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
+        // allow to restart over...
+        index_ds = 0;
+    } else {
+        try {
+            assigncommand = var->assignCommand( expr.get(), false );
+        }
+        catch( const bad_assignment& e )
+            {
+                throw parse_exception(
+                                      "Attempt to assign a value to a variable of a different type." );
+            }
+        if ( ! assigncommand )
+            throw parse_exception( "Cannot set constant or alias \"" + valuename + "\"." );
     }
-    catch( const bad_assignment& e )
-    {
-      throw parse_exception(
-        "Attempt to assign a value to a variable of a different type." );
-    }
-    if ( ! assigncommand )
-      throw parse_exception(
-        "Cannot set constant or alias \"" + valuename + "\"." );
+    assert(assigncommand);
+  }
+
+  void ValueChangeParser::seenindexassignment()
+  {
+    index_ds = expressionparser.getResult();
+    expressionparser.dropResult();
+    assert(index_ds);
   }
 
   void ValueChangeParser::reset()
@@ -193,6 +214,7 @@ namespace ORO_Execution
     assigncommand = 0;
     valuename = "";
     type = 0;
+    index_ds = 0;
   }
 
   rule_t& ValueChangeParser::constantDefinitionParser()

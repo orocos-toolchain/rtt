@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Operators.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Operators.cxx
 
                         Operators.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -33,6 +33,9 @@
 // Include geometry support
 #include <geometry/frames.h>
 #endif
+
+// Cappellini Consonni Extension
+#include <corelib/MultiVector.hpp>
 
 #include <boost/type_traits.hpp>
 
@@ -74,6 +77,36 @@ namespace mystl
     return pointer_to_ternary_function<ResultT, Arg1T, Arg2T, Arg3T>( fun );
   }
 
+  template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T,
+           typename Arg4T, typename Arg5T, typename Arg6T >
+  struct pointer_to_sixary_function
+  {
+    ResultT (*fun)( Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T );
+    typedef ResultT result_type;
+    typedef Arg1T first_argument_type;
+    typedef Arg2T second_argument_type;
+    typedef Arg3T third_argument_type;
+    typedef Arg4T forth_argument_type;
+    typedef Arg5T fifth_argument_type;
+    typedef Arg6T sixth_argument_type;
+    pointer_to_sixary_function( ResultT (*f)(Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T ) )
+      : fun( f )
+      {
+      }
+    ResultT operator()( Arg1T a, Arg2T b, Arg3T c, Arg4T d, Arg5T e, Arg6T f ) const
+      {
+        return (*fun)( a, b, c, d, e, f );
+      }
+  };
+
+    template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T,
+           typename Arg4T, typename Arg5T, typename Arg6T >
+  pointer_to_sixary_function<ResultT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>
+  ptr_fun( ResultT (*fun)( Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T ) )
+  {
+    return pointer_to_sixary_function<ResultT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( fun );
+  }
+
   // combines boost::remove_reference and boost::remove_const
   template<typename T>
   struct remove_cr
@@ -105,6 +138,18 @@ namespace mystl
         return a*b;
       };
   };
+  template<typename A, typename B>
+  struct divides
+  {
+    typedef typeof( A() / B() ) result_type;
+    typedef A first_argument_type;
+    typedef B second_argument_type;
+
+    result_type operator()( A a, B b ) const
+      {
+        return a/b;
+      };
+  };
 };
 
 namespace ORO_Execution
@@ -114,6 +159,8 @@ namespace ORO_Execution
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
 #endif
+  // Cappellini Consonni Extension
+  using ORO_CoreLib::Double6D;
 
   template<typename function>
   class UnaryOperator
@@ -219,6 +266,53 @@ namespace ORO_Execution
     return new TernaryOperator<function>( op, f );
   }
 
+  template<typename function>
+  class SixaryOperator
+    : public SixaryOp
+  {
+    typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
+    typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
+    typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
+    typedef typename mystl::remove_cr<typename function::forth_argument_type>::type arg4_t;
+    typedef typename mystl::remove_cr<typename function::fifth_argument_type>::type arg5_t;
+    typedef typename mystl::remove_cr<typename function::sixth_argument_type>::type arg6_t;
+    typedef typename function::result_type result_t;
+    const char* mop;
+    function fun;
+  public:
+    SixaryOperator( const char* op, function f )
+      : mop( op ), fun( f )
+      {
+      };
+    DataSource<result_t>* build( const std::string& op,
+                                 DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
+                                 DataSourceBase* d, DataSourceBase* e, DataSourceBase* f )
+      {
+        if ( op != mop ) return 0;
+        DataSource<arg1_t>* arg1 =
+          dynamic_cast<DataSource<arg1_t>*>( a );
+        DataSource<arg2_t>* arg2 =
+          dynamic_cast<DataSource<arg2_t>*>( b );
+        DataSource<arg3_t>* arg3 =
+          dynamic_cast<DataSource<arg3_t>*>( c );
+        DataSource<arg4_t>* arg4 =
+          dynamic_cast<DataSource<arg4_t>*>( d );
+        DataSource<arg5_t>* arg5 =
+          dynamic_cast<DataSource<arg5_t>*>( e );
+        DataSource<arg6_t>* arg6 =
+          dynamic_cast<DataSource<arg6_t>*>( f );
+        if ( !arg1 || ! arg2 || !arg3 || !arg4 || !arg5 || !arg6 ) return 0;
+        return new SixaryDataSource<function>( arg1, arg2, arg3, arg4, arg5, arg6, fun );
+      };
+  };
+
+  template<typename function>
+  SixaryOperator<function>*
+  newSixaryOperator( const char* op, function f )
+  {
+    return new SixaryOperator<function>( op, f );
+  }
+
   OperatorRegistry& OperatorRegistry::instance()
   {
     static OperatorRegistry reg;
@@ -236,6 +330,36 @@ namespace ORO_Execution
     return Vector( a, b, c );
   }
 #endif
+
+  // Cappellini Consonni Extension
+  Double6D double6Dd( double d )
+  {
+    Double6D d6d;
+    for (int i=0; i<6; i++)
+      d6d[i] = d;
+    return d6d;
+  }
+
+  Double6D double6D6d( double a, double b, double c, double d, double e, double f )
+  {
+    Double6D d6d;
+    d6d[0] = a;
+    d6d[1] = b;
+    d6d[2] = c;
+    d6d[3] = d;
+    d6d[4] = e;
+    d6d[5] = f;
+    return d6d;
+  }
+
+    // maybe std supplies this too in a more generic way.
+  double double6D_index( Double6D d6,  int index )
+  {
+      if ( index > 5 || index < 0 )
+          return 0.0;
+      return d6[index];
+  }
+
 
   OperatorRegistry::OperatorRegistry()
   {
@@ -301,6 +425,19 @@ namespace ORO_Execution
                              mystl::ptr_fun( Rotation::EulerZYZ ) ) );
     add( newBinaryOperator( "framevr", std::ptr_fun( &framevr ) ) );
 #endif
+
+    // Cappellini Consonni Extension
+    add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
+    add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
+
+    add( newUnaryOperator( "-", std::negate<Double6D>() ) );
+    add( newBinaryOperator( "*", std::multiplies<Double6D>() ) );
+    add( newBinaryOperator( "+", std::plus<Double6D>() ) );
+    add( newBinaryOperator( "-", std::minus<Double6D>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<double, Double6D>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<Double6D, double>() ) );
+    add( newBinaryOperator( "*", mystl::divides<Double6D, double>() ) );
+    add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
   };
 
   void OperatorRegistry::add( UnaryOp* a )
@@ -318,12 +455,18 @@ namespace ORO_Execution
     ternaryops.push_back( b );
   };
 
+  void OperatorRegistry::add( SixaryOp* b )
+  {
+    sixaryops.push_back( b );
+  };
+
   OperatorRegistry::~OperatorRegistry()
   {
     mystl::delete_all( unaryops.begin(), unaryops.end() );
     mystl::delete_all( binaryops.begin(), binaryops.end() );
     mystl::delete_all( ternaryops.begin(), ternaryops.end() );
-  };
+    mystl::delete_all( sixaryops.begin(), sixaryops.end() ); 
+ };
 
   DataSourceBase* OperatorRegistry::applyUnary(
     const std::string& op, DataSourceBase* a )
@@ -365,6 +508,22 @@ namespace ORO_Execution
     return 0;
   }
 
+  DataSourceBase* OperatorRegistry::applySixary(
+    const std::string& op,
+    DataSourceBase* a, DataSourceBase* b,
+    DataSourceBase* c, DataSourceBase* d,
+    DataSourceBase* e, DataSourceBase* f )
+  {
+    typedef std::vector<SixaryOp*> vec;
+    typedef vec::iterator iter;
+    for ( iter i = sixaryops.begin(); i != sixaryops.end(); ++i )
+    {
+      DataSourceBase* ret = (*i)->build( op, a, b, c, d, e, f );
+      if ( ret ) return ret;
+    };
+    return 0;
+  }
+
   UnaryOp::~UnaryOp()
   {
   }
@@ -374,6 +533,10 @@ namespace ORO_Execution
   }
 
   TernaryOp::~TernaryOp()
+  {
+  }
+
+  SixaryOp::~SixaryOp()
   {
   }
 }

@@ -39,6 +39,21 @@ namespace ORO_Execution
   {
   };
 
+  CommandInterface* ParsedValueBase::assignCommand(
+    DataSourceBase*, bool ) const
+  {
+    return 0;
+  };
+
+  CommandInterface* ParsedValueBase::assignIndexCommand(
+                                                   DataSourceBase*,                                               
+                                                   DataSourceBase* ) const
+  {
+    return 0;
+  };
+
+
+
   ValueParser::ValueParser()
   {
     BOOST_SPIRIT_DEBUG_RULE( constant );
@@ -183,12 +198,6 @@ namespace ORO_Execution
   {
     setValue( name, new ParsedAliasValue<std::string>(
                 new VariableDataSource<std::string>( value ) ) );
-  };
-
-  CommandInterface* ParsedValueBase::assignCommand(
-    DataSourceBase*, bool ) const
-  {
-    return 0;
   };
 
   void ValueParser::removeValue( const std::string& name )

@@ -59,6 +59,7 @@ namespace ORO_Execution
     void storedefinitionname( iter_t begin, iter_t end );
     void storename( iter_t begin, iter_t end );
     void seentype( iter_t begin, iter_t end );
+    void seenindexassignment();
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
       variableassignment;
@@ -66,6 +67,8 @@ namespace ORO_Execution
     ParseContext& context;
     ExpressionParser expressionparser;
     CommonParser commonparser;
+
+      DataSourceBase::shared_ptr index_ds;
   public:
     ValueChangeParser( ParseContext& pc );
 

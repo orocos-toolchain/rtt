@@ -45,7 +45,7 @@ namespace ORO_Execution
    * We keep defined variables and constants as ParsedValue's,
    * together with some information about their types etc.  This is
    * the abstract base class, the implementations are in
-   * ValueORO_Execution.cpp
+   * ValueParser.cpp
    */
   class ParsedValueBase
   {
@@ -67,6 +67,15 @@ namespace ORO_Execution
      */
     virtual CommandInterface* assignCommand( DataSourceBase* rhs,
                                              bool initialization ) const;
+
+      /**
+       * Create an assignment command of the ParsedValueBase
+       * to the rhs DataSource, with an index.
+       * example is the left hand side [] operator. Returns zero if
+       * not applicable. It can not be used for initialisation.
+       */
+    virtual CommandInterface* assignIndexCommand( DataSourceBase* index,
+                                             DataSourceBase* rhs ) const;
   };
 
   template<typename T>
@@ -97,19 +106,15 @@ namespace ORO_Execution
     ParsedAliasValue( DataSource<T>* d )
       : data( d )
       {
-      };
+      }
     DataSource<T>* toDataSource() const
       {
         return data.get();
-      };
-    CommandInterface* assignCommand( DataSourceBase*, bool ) const
-      {
-        return 0;
-      };
+      }
   };
 
   /**
-   * This class represents a variable held in ValueORO_Execution..  It is
+   * This class represents a variable held in ValueParser..  It is
    * the only ParsedValue that does something useful in its
    * assignCommand() method..
    */
@@ -122,11 +127,11 @@ namespace ORO_Execution
     ParsedVariableValue()
       : data( new VariableDataSource<T>( T() ) )
       {
-      };
+      }
     VariableDataSource<T>* toDataSource() const
       {
         return data.get();
-      };
+      }
     CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
@@ -134,6 +139,45 @@ namespace ORO_Execution
         if ( ! t )
           throw bad_assignment();
         return new AssignVariableCommand<T>( data.get(), t );
+      };
+  };
+
+  template<typename T, typename Index, typename SetType, typename Pred>
+  class ParsedIndexValue
+    : public ParsedValue<T>
+  {
+      Pred p;
+  public:
+    typename VariableDataSource<T>::shared_ptr data;
+    ParsedIndexValue(Pred _p)
+        :p(_p), data( new VariableDataSource<T>( T() ) )
+      {
+      }
+    VariableDataSource<T>* toDataSource() const
+      {
+        return data.get();
+      }
+      
+    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+      {
+        DataSourceBase::shared_ptr r( rhs );
+        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        if ( ! t )
+          throw bad_assignment();
+        return new AssignVariableCommand<T>( data.get(), t );
+      }
+
+    CommandInterface* assignIndexCommand( DataSourceBase* index, DataSourceBase* rhs ) const
+      {
+        DataSourceBase::shared_ptr r( rhs );
+        DataSourceBase::shared_ptr i( index );
+        DataSource<SetType>* t = dynamic_cast<DataSource<SetType>*>( r.get() );
+        if ( ! t )
+          throw bad_assignment();
+        DataSource<Index>* ind = dynamic_cast<DataSource<Index>*>( i.get() );
+        if ( ! ind )
+          throw bad_assignment();
+        return new AssignIndexCommand<T, Index, SetType,Pred>(data.get(), ind ,t, p );
       };
   };
 

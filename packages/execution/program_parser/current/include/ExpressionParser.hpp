@@ -91,9 +91,9 @@ namespace ORO_Execution
     rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, multexp,
       divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
-      ifthenelseexp, frameexp, vectorexp, rotexp, groupexp, atomicexpression,
-      constructorexp, framector, vectorctor, rotationctor, time_expression,
-      time_spec;
+      ifthenelseexp, frameexp, vectorexp, double6Dexp, rotexp, groupexp, atomicexpression,
+      constructorexp, framector, vectorctor, double6Dctor, double6Dctor6, rotationctor, time_expression,
+      time_spec, indexexp;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up
@@ -117,6 +117,7 @@ namespace ORO_Execution
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );
     void seen_ternary( const std::string& op );
+    void seen_sixary( const std::string& op );
     void seenvalue();
     void seendatacall();
     void seentimespec( int n );

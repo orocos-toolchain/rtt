@@ -64,6 +64,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>State Graph : Added Final_State</revremark>
       </revision>
+      <revision>
+	<revnumber>0.14</revnumber>
+	<date>2 June 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Corrected examples</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -309,10 +315,10 @@ set counter to 1 + counter
 // expression counter + 1.  After this, using
 // counterPlusOne is completely equivalent to using
 // counter + 1
-alias counterPlusOne = counter + 1
+alias int counterPlusOne = counter + 1
 // you can assign an arbitrarily complex expression
 // to an alias
-alias reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
+alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
 	    </programlisting>
 	  </para>
 	  <para>
@@ -371,6 +377,13 @@ var rotation rot = rotation( alfa, beta, gamma )
 // using the vector x as the origin, and rotation
 // rot as the rotation..
 var frame f = frame( vect, rot )
+
+// Double6D is a commonly used type in Orocos
+// and has been recently introduced in the parser
+var double6d d6 = double6d(0.0)
+set d6[0] = 1.0
+var double d0 = d6[0]
+set d6 = double6d( 1., 2., 3., 4., 5., 6. )
 	    </programlisting>
 	  </para>
 	</sect4>
@@ -389,7 +402,7 @@ function func_nameN {
   // ...
 }
 
-program {
+program prog_name {
   // an arbitrary number of statements
 }
 	</programlisting>
@@ -503,8 +516,10 @@ set variablename = expression
 	  useful thing to do.  Control structures can be implemented
 	  this way.  Here is an example of an &orocos; program
 	  calculating the faculty function using this.
+	  <example>
+	    <title>Simple Faculty Program</title>
 	  <programlisting>
-program {
+program faculty {
   // n is the number of which we want to calculate the faculty
   const int n = 8
   // i is a counter
@@ -524,7 +539,7 @@ begin: set ret = ret * i
   do test.command( ret )
 }
 	  </programlisting>
-	</para>
+</example>	</para>
       </sect3>
     </sect2>
     <sect2>
@@ -716,7 +731,7 @@ do engine.stopStateContext( "name" )
       tries to exploit all available functions.
     </para>
     <example>
-      <title>State Context Example</title>
+      <title>State Context Example (state.osd)</title>
       <programlisting>
 Event_Handle home_switch1
 Event_Handle home_switch2
@@ -804,6 +819,9 @@ state exec_state {
 	}
 }
       </programlisting>
+    </example>
+    <example>
+      <title>Program example (program.ops)</title>
       <programlisting>
 /**
  * This program is executed in the exec_state.
@@ -842,12 +860,12 @@ function runTrajectory {
 }
 
 function ExitProgram {
-	HMI.display("Program Ended\n")
+	do HMI.display("Program Ended\n")
 	stop
 }
 
-program {
-	HMI.display("Program Started\n")
+program DemoRun {
+	do HMI.display("Program Started\n")
 	var int cycle = 0
 
 	// We actually wait here until a 
@@ -856,8 +874,8 @@ program {
 	   if HMI.trajectoryPresent then goto next
 	}
 
-start:  cycle = cycle + 1
-	HMI.display("Cycle nr: %d.\n", cycle )
+start:  set cycle = cycle + 1
+	do HMI.display("Cycle nr: %d.\n", cycle )
 	call ResetAxes
 	call HMIRequestTrajectory
 	call runTrajectory
@@ -976,7 +994,12 @@ public:
 
 using namespace ORO_CoreLib;
 
-DataSourceFactoryInterface* Robot::createDataSourceFactory()
+class Robot
+{
+public:
+// ...
+
+DataSourceFactoryInterface* createDataSourceFactory()
 {
   TemplateDataSourceFactory&lt;Robot&gt;* ret =
     newDataSourceFactory( this );
@@ -995,7 +1018,7 @@ DataSourceFactoryInterface* Robot::createDataSourceFactory()
   return ret;
 }
 
-CommandFactoryInterface* Robot::createCommandFactory()
+CommandFactoryInterface* createCommandFactory()
 {
   TemplateCommandFactory&lt;Robot&gt;* ret =
     newCommandFactory( this );
@@ -1010,6 +1033,9 @@ CommandFactoryInterface* Robot::createCommandFactory()
                      &quot;The position to move the robot to.&quot; ) );
   return ret;
 }
+
+// ...
+};
 	</programlisting>
 	This probably deserves some explanation...
       </para>
