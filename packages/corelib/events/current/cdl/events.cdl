@@ -3,7 +3,7 @@ cdl_package OROPKG_CORELIB_EVENTS {
     display "Synchronous-Asynchronous Event system"
     description "
 This package provides an Event implementation for
-synchronous and asynchronous communication."
+synchronous and asynchronous event handling."
 
     include_dir corelib
     parent OROPKG_CORELIB
@@ -15,7 +15,9 @@ synchronous and asynchronous communication."
     implements OROINT_CORELIB_EVENT_INTERFACE
 
     cdl_option OROSEM_CORELIB_EVENTS_ASYN {
-	display "Enable asynchronous event completion"
+	display "Enable asynchronous event completion.
+This means a part of the event can be handled in another thread.
+"
 	flavor bool
 	compile CompletionProcessor.cxx
 	implements OROINT_CORELIB_COMPLETION_INTERFACE
@@ -33,23 +35,35 @@ no longer have to do so."
 
     cdl_component OROPKG_CORELIB_EVENTS_CP {
 	display "Completion Processor Properties"
+	description "
+The Completion Processor is a thread which processes
+periodically deferred completion requests of events."
 	flavor none
 	requires OROSEM_CORELIB_EVENTS_ASYN
 	
 	cdl_option ORODAT_CORELIB_EVENTS_CP_NAME {
 	    display "The name of the completion processor"
+	    description "
+The name must be unique with respect to other threads."
 	    flavor data
 	    default_value {"\"CompletionProcessor\""}
 	    #legal_values string
 	}
 	cdl_option ORONUM_CORELIB_EVENTS_CP_PERIOD {
 	    display "The periodicity of the completion processor in seconds"
+	    description "
+Indicates the time between processing two completion requests.
+Since the request is inherently deferred (delayed), this value should mostly not
+be smaller then 0.01 second."
 	    flavor data
 	    default_value 0.01
 	    #legal_values positive number
 	}
 	cdl_option ORONUM_CORELIB_EVENTS_CP_PRIORITY {
 	    display "The priority of the completion processor"
+            description "
+Every thread needs a priority. The completion processor is by
+default not realtime though, so this value is less important."
 	    flavor data
 	    default_value 5
 	    #legal_values positive number

@@ -2,9 +2,9 @@
 cdl_package OROPKG_CORELIB_PROPERTIES {
     display "Generic Property system"
     description "This package provides an implementation
-       of a foreigntype-friendly properties. Properties are
+       of any-type properties. Properties are
        an abstraction of the internal, configurable data of
-       components."
+       Components and can be read out and updated."
 
     include_dir corelib
 
@@ -13,13 +13,12 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
 
     compile PropertyBag.cxx  PropertySequence.cxx VectorComposition.cxx
     compile Property.cxx PropertyBase.cxx PropertyBagIntrospector.cxx
+    compile OperationAcceptor.cxx
 
     cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
-	display "Cast-free property operations"
-	description "This option enables the
-           copy/mutate/update operations on the PropertyBase class."
-
+	display "Property updating"
+	description "Properties can be updated."
+	active_if 0
 	default_value 1
-	compile OperationAcceptor.cxx
     }
 }
