@@ -435,59 +435,498 @@ namespace ORO_ControlKernel
             return KernelBaseExtension::updateProperties(bag);
         }
 
-        void setController(DefaultController* c) { 
-            controller->disableAspect();
-            controller->disconnect(&models);
-            controller->disconnect(&outputs);
-            controller->disconnect(&setpoints);
-            controller->disconnect(&inputs);
-            controller=c;
-            controller->writeTo(&outputs);
-            controller->readFrom(&setpoints);
-            controller->readFrom(&models);
-            controller->readFrom(&inputs);
-            controller->enableAspect(this);
-            //KernelBaseExtension::enable(controller);
-        }
-            
-        void setGenerator(DefaultGenerator* c) { 
-            generator->disableAspect();
-            generator->disconnect(&models);
-            generator->disconnect(&setpoints);
-            generator->disconnect(&commands);
-            generator->disconnect(&inputs);
-            generator=c;
-            generator->writeTo(&setpoints);
-            generator->readFrom(&models);
-            generator->readFrom(&inputs);
-            generator->readFrom(&commands);
-            c->enableAspect(this);
+        /**
+         * Load a Controller Component into the kernel.
+         *
+         * @param  name The name of the Controller Component.
+         * @return True if the Controller Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadController( const std::string& name ) {
+            DefaultController* c;
+            if ( (c = DefaultController::nameserver.getObjectByName( name )) )
+                return loadController(c);
+            return false;
         }
 
-        void setEstimator(DefaultEstimator* c) { 
-            estimator->disableAspect();
-            estimator->disconnect(&models);
-            estimator->disconnect(&inputs);
+        /**
+         * UnLoad a Controller Component from the kernel.
+         *
+         * @param  name The name of the Controller Component.
+         * @return True if the Controller Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadController( const std::string& name ) {
+            DefaultController* c;
+            if ( (c = DefaultController::nameserver.getObjectByName( name )) )
+                return unloadController(c);
+            return false;
+        }
+
+        /**
+         * Select a Controller Component from the kernel.
+         *
+         * @param  name The name of the Controller Component to select.
+         * @return True if the Controller Component could be found and selected,
+         *         False otherwise.
+         */
+        bool selectController( const std::string& name ) {
+            DefaultController* c;
+            if ( (c = DefaultController::nameserver.getObjectByName( name )) )
+                return selectController(c);
+            return false;
+        }
+
+        /**
+         * Query if a Controller Component is loaded in the kernel.
+         *
+         * @param  name The name of the Controller Component to query.
+         * @return True if the Controller Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoaded( const std::string& name ) {
+            DefaultController* c;
+            if ( (c = DefaultController::nameserver.getObjectByName( name )) )
+                return isLoaded(c);
+            return false;
+        }
+
+        bool loadController(DefaultController* c) {
+            if ( isRunning() )
+                return false;
+            controllers.push_back( c );
+            c->writeTo(&outputs);
+            c->readFrom(&setpoints);
+            c->readFrom(&models);
+            c->readFrom(&inputs);
+            c->enableAspect(this);
+            return true;
+        }
+
+        bool unloadController(DefaultController* c) {
+            if ( isRunning() )
+                return false;
+            vector<DefaultController*>::iterator itl = find( controllers.begin(), controllers.end(), c);
+            if ( itl != controllers.end() )
+                {
+                    controllers.erase( c );
+                    c->disableAspect();
+                    c->disconnect(&models);
+                    c->disconnect(&outputs);
+                    c->disconnect(&setpoints);
+                    c->disconnect(&inputs);
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoaded(DefaultController* c) {
+            return ( find(controllers.begin(), controllers.end(), c) != controllers.end() );
+        }
+
+        bool selectController(DefaultController* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+
+            if ( this->isRunning() )
+                {
+                    controller->componentShutdown();
+                    c->componentStartUp();
+                }
+
+            controller=c;
+            return true;
+        }
+            
+        /**
+         * Load a Generator Component into the kernel.
+         *
+         * @param  name The name of the Generator Component.
+         * @return True if the Generator Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadGenerator( const std::string& name ) {
+            DefaultGenerator* c;
+            if ( (c = DefaultGenerator::nameserver.getObjectByName( name )) )
+                return loadGenerator(c);
+            return false;
+        }
+
+        /**
+         * UnLoad a Generator Component from the kernel.
+         *
+         * @param  name The name of the Generator Component.
+         * @return True if the Generator Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadGenerator( const std::string& name ) {
+            DefaultGenerator* c;
+            if ( (c = DefaultGenerator::nameserver.getObjectByName( name )) )
+                return unloadGenerator(c);
+            return false;
+        }
+
+        /**
+         * Select a Generator Component from the kernel.
+         *
+         * @param  name The name of the Generator Component to select.
+         * @return True if the Generator Component could be found and selected,
+         *         False otherwise.
+         */
+        bool selectGenerator( const std::string& name ) {
+            DefaultGenerator* c;
+            if ( (c = DefaultGenerator::nameserver.getObjectByName( name )) )
+                return selectGenerator(c);
+            return false;
+        }
+
+        /**
+         * Query if a Generator Component is loaded in the kernel.
+         *
+         * @param  name The name of the Generator Component to query.
+         * @return True if the Generator Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoaded( const std::string& name ) {
+            DefaultGenerator* c;
+            if ( (c = DefaultGenerator::nameserver.getObjectByName( name )) )
+                return isLoaded(c);
+            return false;
+        }
+
+        bool loadGenerator(DefaultGenerator* c) {
+            if ( isRunning() )
+                return false;
+            generators.push_back( c );
+            c->writeTo(&setpoints);
+            c->readFrom(&models);
+            c->readFrom(&inputs);
+            c->readFrom(&commands);
+            c->enableAspect(this);
+            return true;
+        }
+
+        bool unloadGenerator(DefaultGenerator* c) {
+            if ( isRunning() )
+                return false;
+            vector<DefaultGenerator*>::iterator itl = find( generators.begin(), generators.end(), c);
+            if ( itl != generators.end() )
+                {
+                    generators.erase( c );
+                    c->disableAspect();
+                    c->disconnect(&models);
+                    c->disconnect(&setpoints);
+                    c->disconnect(&commands);
+                    c->disconnect(&inputs);
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoaded(DefaultGenerator* c) {
+            return ( find(generators.begin(), generators.end(), c) != generators.end() );
+        }
+
+        void selectGenerator(DefaultGenerator* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+            if ( this->isRunning() )
+                {
+                    generator->componentShutdown();
+                    c->componentStartUp();
+                }
+
+            generator=c;
+            return true;
+        }
+
+        /**
+         * Load a Estimator Component into the kernel.
+         *
+         * @param  name The name of the Estimator Component.
+         * @return True if the Estimator Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadEstimator( const std::string& name ) {
+            DefaultEstimator* c;
+            if ( (c = DefaultEstimator::nameserver.getObjectByName( name )) )
+                return loadEstimator(c);
+            return false;
+        }
+
+        /**
+         * UnLoad a Estimator Component from the kernel.
+         *
+         * @param  name The name of the Estimator Component.
+         * @return True if the Estimator Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadEstimator( const std::string& name ) {
+            DefaultEstimator* c;
+            if ( (c = DefaultEstimator::nameserver.getObjectByName( name )) )
+                return unloadEstimator(c);
+            return false;
+        }
+
+        /**
+         * Select a Estimator Component from the kernel.
+         *
+         * @param  name The name of the Estimator Component to select.
+         * @return True if the Estimator Component could be found and selected,
+         *         False otherwise.
+         */
+        bool selectEstimator( const std::string& name ) {
+            DefaultEstimator* c;
+            if ( (c = DefaultEstimator::nameserver.getObjectByName( name )) )
+                return selectEstimator(c);
+            return false;
+        }
+
+        /**
+         * Query if a Estimator Component is loaded in the kernel.
+         *
+         * @param  name The name of the Estimator Component to query.
+         * @return True if the Estimator Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoaded( const std::string& name ) {
+            DefaultEstimator* c;
+            if ( (c = DefaultEstimator::nameserver.getObjectByName( name )) )
+                return isLoaded(c);
+            return false;
+        }
+
+        bool loadEstimator(DefaultEstimator* c) {
+            if ( isRunning() )
+                return false;
+            estimators.push_back( c );
+            c->writeTo(&models);
+            c->readFrom(&inputs);
+            c->enableAspect(this);
+            return true;
+        }
+
+        bool unloadEstimator(DefaultEstimator* c) {
+            if ( isRunning() )
+                return false;
+            vector<DefaultEstimator*>::iterator itl = find( estimators.begin(), estimators.end(), c);
+            if ( itl != estimators.end() )
+                {
+                    estimators.erase( c );
+                    c->disableAspect();
+                    c->disconnect(&models);
+                    c->disconnect(&inputs);
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoaded(DefaultEstimator* c) {
+            return ( find(estimators.begin(), estimators.end(), c) != estimators.end() );
+        }
+
+        void selectEstimator(DefaultEstimator* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+            if ( this->isRunning() )
+                {
+                    estimator->componentShutdown();
+                    c->componentStartUp();
+                }
             estimator=c;
-            estimator->writeTo(&models);
-            estimator->readFrom(&inputs);
-            estimator->enableAspect(this);
+            return true;
         }
             
-        void setSensor(DefaultSensor* c) { 
-            sensor->disableAspect();
-            sensor->disconnect(&inputs);
+        /**
+         * Load a Sensor Component into the kernel.
+         *
+         * @param  name The name of the Sensor Component.
+         * @return True if the Sensor Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadSensor( const std::string& name ) {
+            DefaultSensor* c;
+            if ( (c = DefaultSensor::nameserver.getObjectByName( name )) )
+                return loadSensor(c);
+            return false;
+        }
+
+        /**
+         * UnLoad a Sensor Component from the kernel.
+         *
+         * @param  name The name of the Sensor Component.
+         * @return True if the Sensor Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadSensor( const std::string& name ) {
+            DefaultSensor* c;
+            if ( (c = DefaultSensor::nameserver.getObjectByName( name )) )
+                return unloadSensor(c);
+            return false;
+        }
+
+        /**
+         * Select a Sensor Component from the kernel.
+         *
+         * @param  name The name of the Sensor Component to select.
+         * @return True if the Sensor Component could be found and selected,
+         *         False otherwise.
+         */
+        bool selectSensor( const std::string& name ) {
+            DefaultSensor* c;
+            if ( (c = DefaultSensor::nameserver.getObjectByName( name )) )
+                return selectSensor(c);
+            return false;
+        }
+
+        /**
+         * Query if a Sensor Component is loaded in the kernel.
+         *
+         * @param  name The name of the Sensor Component to query.
+         * @return True if the Sensor Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoaded( const std::string& name ) {
+            DefaultSensor* c;
+            if ( (c = DefaultSensor::nameserver.getObjectByName( name )) )
+                return isLoaded(c);
+            return false;
+        }
+
+        bool loadSensor(DefaultSensor* c) {
+            if ( isRunning() )
+                return false;
+            sensors.push_back( c );
+            c->writeTo(&inputs);
+            c->enableAspect(this);
+            return true;
+        }
+
+        bool unloadSensor(DefaultSensor* c) {
+            if ( isRunning() )
+                return false;
+            vector<DefaultSensor*>::iterator itl = find( sensors.begin(), sensors.end(), c);
+            if ( itl != sensors.end() )
+                {
+                    sensors.erase( c );
+                    c->disableAspect();
+                    c->disconnect(&inputs);
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoaded(DefaultSensor* c) {
+            return ( find(sensors.begin(), sensors.end(), c) != sensors.end() );
+        }
+
+        void selectSensor(DefaultSensor* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+            if ( this->isRunning() )
+                {
+                    sensor->componentShutdown();
+                    c->componentStartUp();
+                }
+
             sensor=c;
-            sensor->writeTo(&inputs);
-            sensor->enableAspect(this);
+            return true;
         }
             
-        void setEffector(DefaultEffector* c) { 
-            effector->disableAspect();
-            effector->disconnect(&outputs);
+        /**
+         * Load a Effector Component into the kernel.
+         *
+         * @param  name The name of the Effector Component.
+         * @return True if the Effector Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadEffector( const std::string& name ) {
+            DefaultEffector* c;
+            if ( (c = DefaultEffector::nameserver.getObjectByName( name )) )
+                return loadEffector(c);
+            return false;
+        }
+
+        /**
+         * UnLoad a Effector Component from the kernel.
+         *
+         * @param  name The name of the Effector Component.
+         * @return True if the Effector Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadEffector( const std::string& name ) {
+            DefaultEffector* c;
+            if ( (c = DefaultEffector::nameserver.getObjectByName( name )) )
+                return unloadEffector(c);
+            return false;
+        }
+
+        /**
+         * Select a Effector Component from the kernel.
+         *
+         * @param  name The name of the Effector Component to select.
+         * @return True if the Effector Component could be found and selected,
+         *         False otherwise.
+         */
+        bool selectEffector( const std::string& name ) {
+            DefaultEffector* c;
+            if ( (c = DefaultEffector::nameserver.getObjectByName( name )) )
+                return selectEffector(c);
+            return false;
+        }
+
+        /**
+         * Query if a Effector Component is loaded in the kernel.
+         *
+         * @param  name The name of the Effector Component to query.
+         * @return True if the Effector Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoaded( const std::string& name ) {
+            DefaultEffector* c;
+            if ( (c = DefaultEffector::nameserver.getObjectByName( name )) )
+                return isLoaded(c);
+            return false;
+        }
+
+        bool loadEffector(DefaultEffector* c) {
+            if ( isRunning() )
+                return false;
+            effectors.push_back( c );
+            c->readFrom(&outputs);
+            c->enableAspect(this);
+            return true;
+        }
+
+        bool unloadEffector(DefaultEffector* c) {
+            if ( isRunning() )
+                return false;
+            vector<DefaultEffector*>::iterator itl = find( effectors.begin(), effectors.end(), c);
+            if ( itl != effectors.end() )
+                {
+                    effectors.erase( c ); 
+                    c->disableAspect();
+                    c->disconnect(&outputs);
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoaded(DefaultEffector* c) {
+            return ( find(effectors.begin(), effectors.end(), c) != effectors.end() );
+        }
+
+        bool selectEffector(DefaultEffector* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+            if ( this->isRunning() )
+                {
+                    effector->componentShutdown();
+                    c->componentStartUp();
+                }
+
             effector=c;
-            effector->readFrom(&outputs);
-            effector->enableAspect(this);
+            return true;
         }
 
         /**
@@ -550,6 +989,11 @@ namespace ORO_ControlKernel
 
         bool startup;
 
+        vector<DefaultController*> controllers;
+        vector<DefaultGenerator*>  generators;
+        vector<DefaultEffector*>   effectors;
+        vector<DefaultEstimator*>  estimators;
+        vector<DefaultSensor*>     sensors;
     };
 
     template <class C, class S, class I, class M, class O, class E >
