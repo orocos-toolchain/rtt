@@ -92,7 +92,7 @@ namespace ORO_Execution
 
         virtual DataSource<value_t>* clone() const
         {
-            return new FunctorDataSource1( gen, arg1 );
+            return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->clone() );
         }
   };
   /**

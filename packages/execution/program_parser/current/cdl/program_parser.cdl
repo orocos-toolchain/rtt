@@ -20,4 +20,14 @@ is very powerfull."
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 
     requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
+
+    cdl_option OROPKG_EXECUTION_PROGRAM_PARSER_CFLAGS_REMOVE {
+        display "Flags to remove for compiling"
+        description "
+Normally we compile without debugging info because
+it generates huge object files.
+"
+        flavor data
+        default_value { "-g" }
+    }
 }

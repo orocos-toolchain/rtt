@@ -48,8 +48,8 @@ namespace ORO_Execution
       typedef std::map<std::string, detail::EventHandle*> handlemap;
       handlemap mhandles;
 
-      rule_t newline, 
-          line, content, program, production,
+      rule_t newline, syntaxerror,
+          line, valid_line, content, program, production,
           state, entry, exit, handle, vardec,transitions,
           eecommand, selectcommand, docommand,
           brancher, selector, connectevent,
@@ -94,6 +94,7 @@ namespace ORO_Execution
       void eventselected();
       void seensink();
       void finished();
+      void syntaxerr();
   public:
     StateGraphParser( iter_t& positer, Processor* proc,
                    const GlobalFactory* ext );

@@ -15,7 +15,7 @@ namespace ORO_Execution
 
 	ProcessorStateLoad::~ProcessorStateLoad()
 	{
-		delete systemContext;
+		//delete systemContext;
 		delete program;
 	}
 
@@ -42,10 +42,11 @@ namespace ORO_Execution
 
 	bool ProcessorStateLoad::startExecution()
 	{
-        // Reset the program, just before execution is entered.
-        if ( program )
-            program->reset();
+        if ( !program )
+            return false;
 
+        // Reset the program, just before execution is entered.
+        program->reset();
         ProcessorStateExec* newState=new ProcessorStateExec(processor, systemContext, program);
         // we pass ownership of the programand systemContext to
         // ProcessorStateExec.

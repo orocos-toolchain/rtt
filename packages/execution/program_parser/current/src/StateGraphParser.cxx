@@ -20,6 +20,23 @@ namespace ORO_Execution
     using namespace ORO_CoreLib;
     using namespace ORO_Execution::detail;
     
+    enum GraphSyntaxErrors
+        {
+            state_expected,
+            handle_expected,
+            transition_expected,
+        };
+
+    assertion<GraphSyntaxErrors> expect_state(state_expected);
+    assertion<GraphSyntaxErrors> expect_handle(handle_expected);
+    assertion<GraphSyntaxErrors> expect_transition(transition_expected);
+    assertion<std::string> expect_end("Ending brace expected ( or could not find out what this line means ).");
+    assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
+    assertion<std::string> expect_comma("Expected a comma separator.");
+    assertion<std::string> expect_ident("Expected a valid identifier.");
+    assertion<std::string> expect_open("Open brace expected.");
+    
+
     StateGraphParser::StateGraphParser( iter_t& positer,
                                         Processor* proc,
                                         const GlobalFactory* e )
@@ -48,28 +65,31 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( eeline );
     BOOST_SPIRIT_DEBUG_RULE( handleline );
     BOOST_SPIRIT_DEBUG_RULE( transline );
+    BOOST_SPIRIT_DEBUG_RULE( syntaxerror );
     newline = ch_p( '\n' );
+    syntaxerror = *anychar_p;
 
     // Zero or more declarations and Zero or more states 
-    production = ( *varline >> *state )[bind( &StateGraphParser::finished, this)] ;
+    production = ( *varline >> *state )[bind( &StateGraphParser::finished, this)];
 
     varline = !vardec >> newline;
 
     vardec = ( str_p("Event Handle")
-                 >> commonparser.identifier[ bind( &StateGraphParser::handledecl, this, _1, _2) ])
+               >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::handledecl, this, _1, _2) ]))
                | ( str_p("Initial State")
-                   >> commonparser.identifier[ bind( &StateGraphParser::initstate, this, _1, _2) ]);
+                   >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::initstate, this, _1, _2) ])
+                   );
     
     // a function is very similar to a program, but it also has a name
     state = (
        *newline
        >> str_p( "state" ) 
-       >> commonparser.identifier[ bind( &StateGraphParser::statedef, this, _1, _2 ) ]
-       >> *newline
-       >> ch_p( '{' )
+       >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::statedef, this, _1, _2 ) ])
+       >> !newline
+       >> expect_open(ch_p( '{' ))
        >> content
-       >> ch_p( '}' )
-       >> *newline ) [ bind( &StateGraphParser::seenstateend, this ) ];
+       >> expect_end(ch_p( '}' ))
+       >> newline ) [ bind( &StateGraphParser::seenstateend, this ) ];
 
     // the content of a program can be any number of lines
     // a line is not strictly defined in the sense of text-line,
@@ -80,23 +100,27 @@ namespace ORO_Execution
     // necessary, because comment's are skipped, but newline's
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
-    line = !( entry | handle | transitions | exit ) >> newline;
+    line = !( valid_line ) >> newline;
+
+    // We use this for 'substracting' a rule when it is seen.
+    // this does not work yet :-( see inentry()
+    valid_line = entry | handle | transitions | exit;
 
     entry = str_p( "entry" )[ bind( &StateGraphParser::inentry, this)]
-        >> str_p("{")>> *eeline >> str_p("}");
+        >> expect_open(str_p("{"))>> *eeline >> expect_end(str_p("}"));
 
     exit = str_p( "exit" )[ bind( &StateGraphParser::inexit, this)]
-        >> str_p("{") >> *eeline >> str_p("}");
+        >> expect_open(str_p("{")) >> *eeline >> expect_end(str_p("}"));
 
     eeline = !eecommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
     
     handle = str_p( "handle" )[ bind( &StateGraphParser::inhandle, this)]
-        >> str_p("{")>> *handleline >> str_p("}");
+        >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"));
 
     handleline = !docommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
 
     transitions = str_p( "transitions" )
-        >> str_p("{")>> *transline >> str_p("}");
+        >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
 
     transline = !selectcommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
 
@@ -111,25 +135,30 @@ namespace ORO_Execution
     selectcommand = (brancher | selector);
 
     brancher = str_p( "if") >> conditionparser.parser()[ bind( &StateGraphParser::seencondition, this)]
-                            >> str_p( "then" )>> !newline >> selector;
+                            >> expect_if(str_p( "then" ))>> !newline >> expect_if(selector);
     
     selector = str_p( "select" ) >> commonparser.identifier[ bind( &StateGraphParser::selecting, this, _1, _2) ];
     
     connectevent = str_p( "connect" )
-        >> commonparser.identifier[ bind( &StateGraphParser::selecthandler, this, _1, _2) ]
+        >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::selecthandler, this, _1, _2) ])
         >> eventbinding[ bind( &StateGraphParser::seenconnect, this)];
 
     disconnectevent = str_p( "disconnect" ) >>
-        commonparser.identifier[ bind( &StateGraphParser::disconnecthandler, this, _1, _2) ];
+        expect_ident(commonparser.identifier[ bind( &StateGraphParser::disconnecthandler, this, _1, _2) ]);
 
-    eventbinding = str_p("(")
+    eventbinding = expect_open(str_p("("))
         // We use the valueparser to get the const_string actually.
         >> valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
-        >> str_p(",")
+        >> expect_comma(str_p(","))
         >> commandparser.parser()[ bind( &StateGraphParser::seensink, this)]
-        >> str_p(")");
+        >> expect_end( str_p(")") );
 
   }
+
+    void StateGraphParser::syntaxerr()
+    {
+        throw parse_exception("Syntax error at line " + mpositer.get_position().line);
+    }
 
     void StateGraphParser::initstate( iter_t s, iter_t f)
     {
@@ -141,7 +170,8 @@ namespace ORO_Execution
         // This is a bit clumsy, but ok, because we indicate
         // that the initial state must be set before the first
         // state definition.
-        if ( minit == std::string("") )
+        
+        if ( mstates.size() > 1 && minit == std::string("") )
             throw parse_exception("Initial State not set.");
 
         std::string def(s, f);
@@ -313,6 +343,24 @@ namespace ORO_Execution
       }
       return state_graph;
     }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            std::cerr << "Parse error at line "
+                      << mpositer.get_position().line
+                      << ": " << e.descriptor << std::endl;
+            delete state_graph;
+            state_graph = 0;
+            return 0;
+        }
+    catch( const parser_error<GraphSyntaxErrors, iter_t>& e )
+        {
+            std::cerr << "Parse error at line "
+                      << mpositer.get_position().line
+                      << ": " << "expected one of : entry, handle, exit, transitions" << std::endl;
+            delete state_graph;
+            state_graph = 0;
+            return 0;
+        }
     catch( const parse_exception& e )
     {
       std::cerr << "Parse error at line "
