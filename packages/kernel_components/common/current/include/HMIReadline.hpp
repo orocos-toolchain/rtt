@@ -382,6 +382,8 @@ namespace ORO_ControlKernel
             } catch ( parse_exception& pe ) {
                 cout << "Parse Error : Illegal command."<<endl;
                 cout << pe.what() <<endl;
+                command = 0;
+                condition = 0;
                 return;
             }
                 
@@ -391,7 +393,7 @@ namespace ORO_ControlKernel
                 cout << "Parse Error : Illegal command."<<endl;
                 return;
             }
-            if ( ee->getProcessor()->process( command ) == false ) {
+            if ( ee->executeCommand( command ) == false ) {
                 cout << "Command not accepted by Processor ! " << endl;
                 delete command;
                 delete condition;
@@ -430,13 +432,14 @@ namespace ORO_ControlKernel
             using boost::lambda::_1;
             std::vector<ArgumentDescription> args;
             args = command_fact->getArgumentList( m );
-            cout <<coloron<< "  Method   : " << coloroff << m <<endl;
+            cout <<coloron<< "  Method     : " << coloroff << m <<coloron<< " - ";
+            cout << command_fact->getDescription(m) <<coloroff<<endl;
             //int i = 0;
             if (args.begin() != args.end() ){
-                cout <<coloron<< "  Argument :"<<coloroff<<endl;
-            std::for_each( args.begin(), args.end(),
-                           cout << &_1 ->* &ArgumentDescription::name << " - "
-                           << &_1 ->* &ArgumentDescription::description << "\n" );
+                for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+                    cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
+                    cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
+                }
             }
             cout <<endl;
         }
@@ -446,13 +449,13 @@ namespace ORO_ControlKernel
             using boost::lambda::_1;
             std::vector<ArgumentDescription> args;
             args = datasource_fact->getArgumentList( m );
-            cout <<coloron << "  Source   : " << coloroff << m <<endl;
+            cout <<coloron << "  Source     : " << coloroff << m << coloron<< " - ";
+            cout << datasource_fact->getDescription( m )<<coloroff<<endl;
             if (args.begin() != args.end() ){
-                //int i = 0;
-                cout <<coloron<< "  Argument :"<< coloroff<<endl;
-                std::for_each( args.begin(), args.end(),
-                               cout << &_1 ->* &ArgumentDescription::name << " - "
-                               << &_1 ->* &ArgumentDescription::description << "\n" );
+                for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+                    cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
+                    cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
+                }
             }
             cout <<endl;
         }
