@@ -89,7 +89,7 @@ namespace ORO_Execution
 
     // the "x.y" part of a function call..
     // when 'x.' is ommitted, 'this.' is assumed.
-    objectmethod = peerparser.parser()
+    objectmethod = !peerparser.parser()
         >> lexeme_d[ expect_methodname( commonparser.lexeme_identifier[
            bind( &CommandParser::seenmethodname, this, _1, _2 ) ])
         ];

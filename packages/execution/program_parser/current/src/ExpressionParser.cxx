@@ -80,7 +80,7 @@ namespace ORO_Execution
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
     datacall = (
-                peerparser.parser() >>
+                !peerparser.parser() >>
                 lexeme_d[
                          commonparser.lexeme_identifier[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
                 ]

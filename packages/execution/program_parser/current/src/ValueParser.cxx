@@ -87,7 +87,7 @@ namespace ORO_Execution
     named_constant =
         ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
-          ( peer_guard(peerparser.parser())[&handle_no_peer] >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
+          ( peer_guard(!peerparser.parser())[&handle_no_peer] >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
         ;
   }
 

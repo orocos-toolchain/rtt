@@ -62,6 +62,7 @@ namespace ORO_Execution
             }
             if ( callqueue.empty() )
                 callqueue.push("this");
+#if 0
             // from here on : callqueue contains "this" or "objectname".
             // check if it is an object of the peer, or a method of the peer itself.
             // Warning : We can not throw because it is allowed to parse nothing.
@@ -70,13 +71,17 @@ namespace ORO_Execution
                  ||
                  _peer->methodFactory.getObjectFactory( callqueue.front() )
                  ||
-                 _peer->dataFactory.getObjectFactory( callqueue.front() ) )
+                 _peer->dataFactory.getObjectFactory( callqueue.front() ) 
+                 ||
+                 _peer->attributeRepository.isDefined( callqueue.front() ) )
                 mcurobject = callqueue.front(); // it is an objectname or this
             else {
                 // we should only get here if we parsed nothing.
                 // put "this" in mcurobject.
                 mcurobject = callqueue.front();
             }
+#endif
+            mcurobject = callqueue.front();
             callqueue.pop();
         }
 
@@ -85,9 +90,7 @@ namespace ORO_Execution
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             peerpath = 
-                (lexeme_d[ *(commonparser.lexeme_notassertingidentifier
-                            >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ]
-                 ])[bind(&PeerParser::done, this)];
+                ( +(commonparser.identifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
         }
 
     TaskContext* PeerParser::setContext( TaskContext* tc )
@@ -107,10 +110,10 @@ namespace ORO_Execution
     void PeerParser::seenobjectname( iter_t begin, iter_t end )
     {
         std::string name( begin, end );
-	name.erase( name.length() - 1 ); // compensate for extra "."
+        name.erase( name.length() -1  ); // compensate for extra "."
         callqueue.push( name );
         //std::cerr << "seen " << name <<std::endl;
-        ++end;
+        //++end;
     }
 
     rule_t& PeerParser::parser()

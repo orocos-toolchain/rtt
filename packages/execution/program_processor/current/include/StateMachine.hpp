@@ -287,6 +287,13 @@ namespace ORO_Execution
          */
         int getLineNumber() const;
 
+        /**
+         * Inspect if the StateMachine is performing a state transition.
+         * @return true if it is executing a program, false if it
+         * is not executing a program.
+         */
+        bool inTransition();
+
     protected:
         /**
          * A map keeping track of all conditional transitions
@@ -302,8 +309,6 @@ namespace ORO_Execution
         void enterState( StateInterface* s );
 
         void handleState( StateInterface* s );
-
-        bool inTransition();
 
         bool executeProgram(ProgramInterface*& cp, bool stepping);
 

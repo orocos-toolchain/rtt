@@ -24,15 +24,18 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#ifndef EXECUTION_COMMAND_DISPATCH 
+#define EXECUTION_COMMAND_DISPATCH 
  
- 
-#include "Processor.hpp"
 #include "DataSource.hpp"
 #include <corelib/CommandInterface.hpp>
 
 
 namespace ORO_Execution
 {
+    class Processor;
+
     /**
      * Dispatch a CommandInterface to another processor.
      * Combine with TryCommand, which provides the DataSource for
@@ -43,47 +46,28 @@ namespace ORO_Execution
      * executed by the calling processor.
      */
     struct CommandDispatch :
-        public CommandInterface
+        public ORO_CoreLib::CommandInterface
     {
         DataSource<bool>::shared_ptr _result;
         bool send;
         Processor* proc;
-        CommandInterface* com;
-        CommandDispatch(Processor* p, CommandInterface* c,  DataSource<bool>* result )
-            : _result(result), send(true), proc(p), com(c) {}
+        ORO_CoreLib::CommandInterface* com;
+        CommandDispatch(Processor* p, CommandInterface* c,  DataSource<bool>* result );
+
         /**
          * Be sure only to delete this command if the target processor is
          * not processing the encapsulated command.
          */
-        ~CommandDispatch() {
-            delete com;
-        }
-        bool execute() {
-            if ( send ) {
-                if ( proc->process( com ) == true ) {
-                    // send success !
-                    send = false;
-                    //cout << "Message Dispatched !" <<endl;
-                }
-                else {
-                    // send failed ! Target Processor probably not running, give up.
-                    return false;
-                }
-            }
-            // return the accept/reject status.
-            return _result->get();
-        }
-        void reset() {
-            send = true;
-            com->reset();
-            _result->reset();
-        }
-        CommandInterface* clone() const {
-            return new CommandDispatch( proc, com, _result.get() );
-        }
+        ~CommandDispatch();
 
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new CommandDispatch( proc, com, _result->copy( alreadyCloned ) );
-        }
+        bool execute();
+
+        void reset();
+
+        ORO_CoreLib::CommandInterface* clone() const;
+
+        ORO_CoreLib::CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
+
+#endif

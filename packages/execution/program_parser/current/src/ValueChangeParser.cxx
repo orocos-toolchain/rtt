@@ -51,8 +51,8 @@ namespace ORO_Execution
 
 
   ValueChangeParser::ValueChangeParser( TaskContext* pc )
-    : assigncommand( 0 ), lastdefinedvalue( 0 ),
-      type( 0 ), context( pc ), expressionparser( pc )
+      : assigncommand( 0 ), lastdefinedvalue( 0 ), peername(0),
+      type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc )
   {
     BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
@@ -94,7 +94,8 @@ namespace ORO_Execution
     
     variableassignment = (
          "set"
-         >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] )
+         >> !(peerparser.parser()[ bind( &ValueChangeParser::storepeername, this) ])
+         >> expect_ident( commonparser.identifier)[ bind( &ValueChangeParser::storename, this, _1, _2 ) ]
          >> !( '[' >> expect_index( expressionparser.parser() ) >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
          >> expect_is( ch_p( '=' ) )
          >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
@@ -112,12 +113,14 @@ namespace ORO_Execution
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
     {
         context = tc;
+        peerparser.setContext( tc );
         return expressionparser.setStack( tc );
     }
 
     TaskContext* ValueChangeParser::setContext( TaskContext* tc )
     {
         context = tc;
+        peerparser.setContext( tc );
         return expressionparser.setContext( tc );
     }
 
@@ -185,9 +188,15 @@ namespace ORO_Execution
     type = 0;
   }
 
-  void ValueChangeParser::storename( iter_t begin, iter_t end )
+    void ValueChangeParser::storename( iter_t begin, iter_t end ) {
+        valuename = std::string( begin, end );
+    }
+
+  void ValueChangeParser::storepeername()
   {
-    valuename = std::string( begin, end );
+      peername  = peerparser.peer();
+      // the peerparser.object() should contain "this"
+      peerparser.reset();
   }
 
   void ValueChangeParser::seenvariabledefinition()
@@ -211,10 +220,17 @@ namespace ORO_Execution
 
   void ValueChangeParser::seenvariableassignment()
   {
-    TaskAttributeBase* var = context->attributeRepository.getValue( valuename );
-    if ( !var )
-      throw parse_exception_semantic_error(
-        "Variable \"" + valuename + "\" not defined." );
+      TaskAttributeBase* var;
+      // is it a peers attribute ?
+      if ( peername ) {
+          var = peername->attributeRepository.getValue( valuename );
+          if ( !var )
+              throw parse_exception_semantic_error( "Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+      } else {
+          var = context->attributeRepository.getValue( valuename );
+          if ( !var )
+              throw parse_exception_semantic_error( "Value \"" + valuename + "\" not defined in '"+context->getName()+"'." );
+      }
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     if ( index_ds ) {
@@ -258,6 +274,7 @@ namespace ORO_Execution
     valuename = "";
     type = 0;
     index_ds = 0;
+    peername = 0;
   }
 
   rule_t& ValueChangeParser::constantDefinitionParser()

@@ -33,6 +33,7 @@
 #include "TaskAttribute.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
+#include "PeerParser.hpp"
 
 namespace ORO_Execution
 {
@@ -59,6 +60,9 @@ namespace ORO_Execution
     // definition or assignment..
     std::string valuename;
 
+    // We can set the value of a peer :
+    TaskContext* peername;
+
     // A TypeInfo of the type that was specified.  We use it to get
     // hold of a TaskConstant or a TaskVariable or ...
     TypeInfo* type;
@@ -71,6 +75,7 @@ namespace ORO_Execution
     void seenvariableassignment();
     void storedefinitionname( iter_t begin, iter_t end );
     void storename( iter_t begin, iter_t end );
+    void storepeername();
     void seentype( iter_t begin, iter_t end );
     void seenindexassignment();
 
@@ -79,6 +84,7 @@ namespace ORO_Execution
 
     TaskContext* context;
     ExpressionParser expressionparser;
+    PeerParser peerparser;
     CommonParser commonparser;
 
     DataSourceBase::shared_ptr index_ds;

@@ -16,7 +16,7 @@ which encapsulates the command to be executed."
 
     compile VertexNode.cxx EdgeCondition.cxx
     compile FunctionGraph.cxx ProgramGraph.cxx 
-    compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
+    compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx CommandDispatch.cxx
     compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
     compile Processor.cxx
     compile AsynchCommandDecorator.cxx

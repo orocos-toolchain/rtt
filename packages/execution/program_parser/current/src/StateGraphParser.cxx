@@ -720,10 +720,13 @@ namespace ORO_Execution
           curtemplatecontext->getTaskContext()->dataFactory.unregisterObject( "this" );
           curtemplatecontext->getTaskContext()->methodFactory.unregisterObject( "this" );
 
-          // remove all temporary peers
+          // remove temporary subMachine peers from current task.
           for( StateMachine::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
-               it != curtemplatecontext->getChildren().end(); ++it )
-              context->removePeer( (*it)->getName() );
+               it != curtemplatecontext->getChildren().end(); ++it ) {
+              ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( *it );
+              if (psc)
+                  context->removePeer( psc->getTaskContext()->getName() );
+          }
 
           // remove the type from __states
           context->getPeer("__states")->removePeer( curtemplatecontext->getTaskContext()->getName() ) ;

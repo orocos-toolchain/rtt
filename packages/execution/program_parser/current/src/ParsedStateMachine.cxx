@@ -118,15 +118,15 @@ namespace ORO_Execution {
         }
 
         bool isActive() const {
-            return _sc->isActive();
+            return _sc->isActive() && !_sc->inTransition();
         }
 
         bool inInitial() const {
-            return _sc->getInitialState() == _sc->currentState();
+            return _sc->getInitialState() == _sc->currentState() && !_sc->inTransition();
         }
 
         bool inFinal() const {
-            return _sc->getFinalState() == _sc->currentState();
+            return _sc->getFinalState() == _sc->currentState()  && !_sc->inTransition();
         }
 
         bool isRunning() const {
