@@ -33,8 +33,8 @@ namespace ORO_DeviceDriver
   typedef double UnitType;  
   /**
    * A class for reading an incremental encoder using the comedi
-   * hardware abstraction layer.  Based on the _NOT YET ACCEPTED_
-   * comedi API of the home written driver for the NI660X card
+   * hardware abstraction layer.  Based on the comedi API of the home
+   * written driver for the NI660X card.
    * @todo Currently this wrapper does not support all functionality.
    * It allways uses X4 encoding (maximum resolution), you cannot choose
    * when to take into account the indexpulse or reset the counter
