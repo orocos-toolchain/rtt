@@ -634,8 +634,6 @@ public:
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      IMETHOD friend bool Equal(const Frame& a,const Frame& b,double eps=epsilon);
 
-     //! Difference between two Frames, expressed as a twist during a unit of time.
-     IMETHOD friend Twist FrameDifference(const Frame& goal,const Frame& current);
 };
 
 //! This class represents a twist.  A twist is the combination of translational

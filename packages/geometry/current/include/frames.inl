@@ -1039,10 +1039,3 @@ IMETHOD void SetToZero(Vector2& v) {
     v = Vector2::Zero();
 }
 
-
-IMETHOD Twist FrameDifference(const Frame& goal,const Frame& current) {
-    return Twist(
-             goal.p-current.p,
-             (goal.M*current.M.Inverse()).GetRot()
-        );
-}
