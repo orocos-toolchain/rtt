@@ -20,10 +20,10 @@ support for all packages used in Orocos."
     compile main.cxx
     compile fosi.c
 
+    implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
 
-#removed
     cdl_component OROCLS_OS_EVENT_INTERRUPT {
     }
 

@@ -5,6 +5,8 @@ cdl_package OROPKG_OS_RTLINUX {
   compile PeriodicThread.cxx EventInterrupt.cxx cpp.cxx
   compile vsprintf.c
 
+  implements OROINT_OS_TARGET
+
   cdl_component CYGBLD_GLOBAL_OPTIONS {
     display "Global build options"
     flavor none

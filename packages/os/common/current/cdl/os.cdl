@@ -76,6 +76,13 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
         legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" }
     }
 
+    # we need exactly one OS_TARGET
+    cdl_interface OROINT_OS_TARGET {
+	display "Target Operating System"
+	flavor bool
+	requires OROINT_OS_TARGET == 1
+    }
+
     cdl_interface OROINT_OS_GLOBAL_CRT {
 	display "Target calls global constructors"
 	flavor bool

@@ -17,6 +17,7 @@ debugging other packages."
     compile SingleThread.cxx
     compile main.cxx
 
+    implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_KERNEL_MODULE
 

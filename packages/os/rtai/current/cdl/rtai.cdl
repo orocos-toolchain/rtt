@@ -11,6 +11,8 @@ cdl_package OROPKG_OS_RTAI {
     compile EventInterrupt.cxx MainThread.cxx Task.cxx
     compile cpp.cxx fosi.c
 
+    implements OROINT_OS_TARGET
+
     cdl_component CYGBLD_GLOBAL_OPTIONS {
 	display "Global build options"
 	flavor none
