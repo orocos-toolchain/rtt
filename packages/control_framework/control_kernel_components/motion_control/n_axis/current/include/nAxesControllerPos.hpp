@@ -93,7 +93,7 @@ namespace ORO_ControlKernel
     virtual MethodFactoryInterface*  createMethodFactory();
     bool startMeasuring(double treshold_moving);
     bool finishedMeasuring() const;
-    std::vector<double> getMeasurement();
+    const std::vector<double>& getMeasurement();
 
   private:
     unsigned int                                                          _num_axes;

@@ -188,7 +188,7 @@ namespace ORO_ControlKernel
   }
   
 
-  std::vector<double> nAxesControllerPos::getMeasurement()
+  const std::vector<double>& nAxesControllerPos::getMeasurement()
   {
     return _offset_measurement;
   }

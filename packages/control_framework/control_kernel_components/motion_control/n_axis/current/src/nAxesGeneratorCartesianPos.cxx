@@ -226,7 +226,7 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesGeneratorCartesianPos::moveTo(const ORO_Geometry::Frame& frame, double time)
+  bool nAxesGeneratorCartesianPos::moveTo(ORO_Geometry::Frame frame, double time)
   {
     MutexLock locker(_my_lock);
 

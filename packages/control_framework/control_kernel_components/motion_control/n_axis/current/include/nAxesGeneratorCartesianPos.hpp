@@ -88,7 +88,7 @@ namespace ORO_ControlKernel
 
     virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
-    bool moveTo(const ORO_Geometry::Frame& frame, double time=0);
+    bool moveTo(ORO_Geometry::Frame frame, double time=0);
     bool moveFinished() const;
     void reset();
 
