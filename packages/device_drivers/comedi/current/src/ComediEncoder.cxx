@@ -114,13 +114,11 @@ namespace ORO_DeviceDriver
 
   void ComediEncoder::positionSet(int p)
   {
-    // Confusing terminology: reset should resetted (ie. to zero)
-    if (p < 0)
-      {
-	rtos_printf("WARNING: can only write UNSIGNED int\n");
-      }
+    //int can be negative, by casting the int to lsampl_t(unsigned int)
+    // we write the right value to the encoderdevice     
     comedi_data_write(_myCard->getDevice(), _subDevice,
 		      _channel, 0, 0, (lsampl_t) p);
+
   }
 
   void ComediEncoder::turnSet(int t){ _turn = t;}
@@ -129,12 +127,16 @@ namespace ORO_DeviceDriver
   int ComediEncoder::positionGet() const
   {
     typedef unsigned int Data;
-    int pos;
-    int ret=comedi_data_read(_myCard->getDevice(),_subDevice,_channel,0,0,(unsigned int *)&pos);
+    //int pos;
+    lsampl_t pos[20];
+    int ret=comedi_data_read(_myCard->getDevice(),_subDevice,_channel,0,0,pos);
+    //int ret=comedi_data_read(_myCard->getDevice(),_subDevice,_channel,0,0,(unsigned int *)&pos);
     if(ret<0)
       {
 	rtos_printf("ERROR: Comedi Counter : reading encoder failed\n");
       }
+    //rtos_printf("comedi read pos: %i\n",pos[0]);
+    //rtos_printf("comedi read channel: %i\n",_channel);
 
     // Other possibility for reading the data (with instruction)
     /*    
@@ -145,7 +147,7 @@ namespace ORO_DeviceDriver
     insn.data=&readdata;
     insn.subdev=_subDevice;
     insn.chanspec=CR_PACK(_channel,0,0);
-    rtos_printf("just before insn->insn = 0x%x\n",insn.insn);
+    //rtos_printf("just before insn->insn = 0x%x\n",insn.insn);
     int ret=comedi_do_insn(_myCard->getDevice(),&insn);
     if(ret<0)
       {
@@ -153,7 +155,7 @@ namespace ORO_DeviceDriver
       }
     pos = readdata;
     */
-    return pos;
+    return pos[0];
   } 
 
   int ComediEncoder::resolution() const {return _resolution;}

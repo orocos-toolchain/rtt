@@ -24,7 +24,7 @@ namespace ORO_ControlKernel
 {
 
   using namespace ORO_ControlKernel;
-
+  using namespace ORO_Execution;
 
   nAxesControllerVel::nAxesControllerVel(unsigned int num_axes, 
 					 std::string name)
@@ -35,6 +35,8 @@ namespace ORO_ControlKernel
       _velocity_local(num_axes),
       _position_desired(num_axes),
       _properties_read(false),
+      _is_initialized(num_axes),
+      _time_begin(num_axes),
       _controller_gain("K", "Proportional Gain")
   {}
 
@@ -54,20 +56,22 @@ namespace ORO_ControlKernel
   void nAxesControllerVel::calculate()
   {
     // initialize
-    if (!_is_initialized){
-      _is_initialized = true;
-      for (unsigned int i=0; i<_num_axes; i++)
-	_position_desired[i] = _position_meas_local[i];
-      _time_begin = TimeService::Instance()->getTicks();
+    for (unsigned int i=0; i<_num_axes; i++){
+	if (!_is_initialized[i]){
+	  _is_initialized[i] = true;
+	  _position_desired[i] = _position_meas_local[i];
+	  _time_begin[i] = TimeService::Instance()->getTicks();
+	}
     }
-
     // position feedback on integrated velocity
-    double time_difference = TimeService::Instance()->secondsSince(_time_begin);
+    
     for(unsigned int i=0; i<_num_axes; i++){
+      double time_difference = TimeService::Instance()->secondsSince(_time_begin[i]);
       _position_desired[i] += _velocity_desi_local[i] * time_difference;
       _velocity_local[i] = (_controller_gain.value()[i] * (_position_desired[i] - _position_meas_local[i])) + _velocity_desi_local[i];
+      _time_begin[i] = TimeService::Instance()->getTicks();
     }
-    _time_begin = TimeService::Instance()->getTicks();
+    
   }
 
   
@@ -102,7 +106,8 @@ namespace ORO_ControlKernel
     }
 
     // reset integrator
-    _is_initialized = false;
+    for(unsigned int i=0; i<_num_axes; i++)
+      _is_initialized[i] = false;
 
     // get interface to Input/Setpoint data types
     if ( !Input::dObj(   )->Get("Position", _position_meas_DOI) ||
@@ -137,5 +142,24 @@ namespace ORO_ControlKernel
     bag.add(&_controller_gain);
   }
 
+  MethodFactoryInterface* nAxesControllerVel::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesControllerVel>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "reset", method( &nAxesControllerVel::reset, "reset the controller"));
+    my_methodFactory->add( "resetAxis", method( &nAxesControllerVel::reset, "reset the controller","axis","axis to reset"));
+    return my_methodFactory;
+  }
+
+
+  void nAxesControllerVel::reset()
+  {
+    for(unsigned int i=0; i<_num_axes; i++)
+      _is_initialized[i] = false;
+  }
+
+  void nAxesControllerVel::reset(int axis)
+  {
+    _is_initialized[axis] = false;
+  }
 
 } // namespace

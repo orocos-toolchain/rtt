@@ -24,6 +24,8 @@
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/PropertyExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 
 namespace ORO_ControlKernel
@@ -66,7 +68,8 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<nAxesControllerVelSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerVelOutput_vel>,
 					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerVel_typedef;
+								       ORO_ControlKernel::KernelBaseFunction,
+								       ORO_ControlKernel::ExecutionExtension>::Result > nAxesControllerVel_typedef;
 
   class nAxesControllerVel
     : public nAxesControllerVel_typedef
@@ -83,6 +86,10 @@ namespace ORO_ControlKernel
     virtual void pull();
     virtual void calculate();
     virtual void push();
+    virtual MethodFactoryInterface*  createMethodFactory();
+
+    void reset();
+    void reset(int axis);
 
   private:
     unsigned int                                                          _num_axes;
@@ -91,8 +98,9 @@ namespace ORO_ControlKernel
     std::vector<double>                                                   _position_desired;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_velocity_desi_DOI,  *_velocity_DOI;
 
-    bool                                                                  _properties_read, _is_initialized;
-    ORO_CoreLib::TimeService::ticks                                _time_begin;
+    bool                                                                  _properties_read;
+    std::vector<bool>                                                     _is_initialized;
+    std::vector<ORO_CoreLib::TimeService::ticks>                          _time_begin;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
   }; // class
