@@ -3,10 +3,8 @@ SUBDIRS = .
 
 EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia io-overview.dia \
 	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
-	execution-collaboration.dia execution-sequence.dia \
-    tasks_threads-conceptual.dia fdi.dia FDIvsFOSI.dia orocos-core.html  \
-    execution-collaboration.png execution-sequence.png \
-    tasks_threads-conceptual.png fdi.png FDIvsFOSI.png rtai-24.1.11.patch
+	orocos-overview.html orocos-installation.html  \
+        rtai-24.1.11.patch
 
 if HAVE_XMLPROCESSOR
 DOC = dochtml
@@ -19,18 +17,13 @@ docs: $(DOC)
 
 docxml: dochtml docpdf
 
-dochtml: orocos-installation.html orocos-overview.html #orocos-realtime.html pngimages  
+dochtml: orocos-installation.html orocos-overview.html
 
-docpdf: pngimages orocos-core.pdf orocos-overview.pdf #orocos-realtime.pdf
+docpdf: pngimages orocos-installation.pdf orocos-overview.pdf
 
-docps: epsimages orocos-core.ps orocos-overview.ps #orocos-realtime.ps
+docps: epsimages orocos-installation.ps orocos-overview.ps
 
-doctxt: orocos-core.txt orocos-core.txt #orocos-realtime.txt
-
-epsimages: execution-collaboration.eps execution-sequence.eps tasks_threads-conceptual.eps fdi.eps FDIvsFOSI.eps
-pngimages: execution-collaboration.png execution-sequence.png tasks_threads-conceptual.png fdi.png FDIvsFOSI.png
-
-#orocos-core.html: 
+doctxt: orocos-installation.txt orocos-overview.txt
 
 .xml.html:
 	$(XMLPROCESSOR) /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/html/docbook.xsl $< > $@
@@ -66,5 +59,5 @@ pngimages: execution-collaboration.png execution-sequence.png tasks_threads-conc
 	$(IMAGEMAGICK) $< $@
 
 clean-local:
-	$(RM) orocos-core.html orocos-overview.html #orocos-realtime.html
+	$(RM) orocos-installation.html orocos-overview.html
 	$(RM) -rf api
