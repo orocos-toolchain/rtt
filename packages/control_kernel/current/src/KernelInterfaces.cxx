@@ -42,20 +42,57 @@ using namespace ORO_CoreLib;
 #endif
 
 
-KernelBaseFunction::KernelBaseFunction( KernelBaseFunction* _base )
-    : running(false), 
-      name("name","The name of the kernel.", "Default"),
+TaskInterface* ControlKernelInterface::getTask() const
+{
+    return mytask;
+}
+
+void ControlKernelInterface::setTask( TaskInterface* task )
+{
+    mytask = task;
+}
+
+const std::string& ControlKernelInterface::getKernelName() const
+{
+    return name.get();
+}
+
+void ControlKernelInterface::setKernelName( const std::string& _name)
+{
+    name = _name;
+}
+
+bool ControlKernelInterface::updateKernelProperties(const PropertyBag& bag)
+{
+    return true;
+}
+        
+KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* _base )
+    : detail::ExtensionInterface( _base, "Kernel"),
+      running(false), 
       //              priority("priority","The priority of the kernel."),
-      frequency("frequency","The periodic execution frequency of this kernel",0), mytask(0),
+      frequency("frequency","The periodic execution frequency of this kernel",0),
       kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN),
       startupSensor("Sensor", "", "DefaultSensor"),
       startupEstimator("Estimator", "", "DefaultEstimator"),
       startupGenerator("Generator", "", "DefaultGenerator"),
       startupController("Controller", "", "DefaultController"),
-      startupEffector("Effector", "", "DefaultEffector")
+      startupEffector("Effector", "", "DefaultEffector"),
+      cki( _base )
 {}
 
 KernelBaseFunction::~KernelBaseFunction() {}
+
+TaskInterface* KernelBaseFunction::getTask() const
+{
+    return cki->getTask();
+}
+    
+void KernelBaseFunction::setTask( TaskInterface* task )
+{
+    cki->setTask( task );
+}
+
 
 bool KernelBaseFunction::initialize() 
 { 
@@ -88,21 +125,6 @@ void KernelBaseFunction::finalize()
     selectEffector("DefaultEffector");
 }
 
-TaskInterface* KernelBaseFunction::getTask() const
-{
-    return mytask;
-}
-
-void KernelBaseFunction::setTask( TaskInterface* task )
-{
-    mytask = task;
-}
-
-const std::string& KernelBaseFunction::getKernelName() const
-{
-    return name.get();
-}
-
 double KernelBaseFunction::getPeriod() const
 { return 1./frequency; }
 
@@ -111,23 +133,14 @@ void KernelBaseFunction::setPeriod( double p )
 
 bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
 {
-    return composeProperty(bag, frequency);
-}
-
-void KernelBaseFunction::startupComponents(const PropertyBag& bag)
-{
     composeProperty(bag, startupSensor);
     composeProperty(bag, startupEstimator);
     composeProperty(bag, startupGenerator);
     composeProperty(bag, startupController);
     composeProperty(bag, startupEffector);
+    return composeProperty(bag, frequency);
 }
 
-bool KernelBaseFunction::updateKernelProperties(const PropertyBag& bag)
-{
-    return true;
-}
-        
 HandlerRegistrationInterface* KernelBaseFunction::eventGet(const std::string& name)
 {
     if ( name == std::string("kernelStarted") )
@@ -135,11 +148,6 @@ HandlerRegistrationInterface* KernelBaseFunction::eventGet(const std::string& na
     if ( name == std::string("kernelStopped") )
         return &kernelStopped;
     return &nullEvent;
-}
-
-void KernelBaseFunction::setKernelName( const std::string& _name)
-{
-    name = _name;
 }
 
 bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
@@ -171,7 +179,7 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
 {
-    TemplateCommandFactory< KernelBaseFunction  >* ret =
+    TemplateCommandFactory< KernelBaseFunction >* ret =
         newCommandFactory( this );
     ret->add( "selectController", 
               command

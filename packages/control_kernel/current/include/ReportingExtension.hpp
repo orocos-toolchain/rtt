@@ -154,7 +154,7 @@ namespace ORO_ControlKernel
          * Set up a control kernel extension for reporting.
          *
          */
-        ReportingExtension( KernelBaseFunction* _base=0 );
+        ReportingExtension( ControlKernelInterface* _base=0 );
 
         virtual ~ReportingExtension();
 
@@ -289,7 +289,7 @@ namespace ORO_ControlKernel
         /**
          * The base kernel of this extension.
          */
-        KernelBaseFunction* base;
+        ControlKernelInterface* base;
     };
 
 }

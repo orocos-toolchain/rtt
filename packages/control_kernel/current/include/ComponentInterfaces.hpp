@@ -38,7 +38,6 @@ namespace ORO_ControlKernel
 
     namespace detail 
     {
-        class ControlKernelInterface;
 
         /**
          * @brief An Aspect is a base class of a component, implementing a

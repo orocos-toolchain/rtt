@@ -47,7 +47,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Execution;
     using namespace boost;
 
-    ExecutionExtension::ExecutionExtension( KernelBaseFunction* _base )
+    ExecutionExtension::ExecutionExtension( ControlKernelInterface* _base )
         : detail::ExtensionInterface( _base, "Execution" ), program(0), context(0),
           running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
@@ -176,15 +176,23 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
             return;
         is_called = true;
 
-        // Add the commands / data of the kernel :
-        commandfactory = base->createCommandFactory();
-        if ( commandfactory )
-            commandFactory().registerObject( "kernel", commandfactory );
+        std::vector<detail::ExtensionInterface*>::const_iterator it = base->getExtensions().begin();
+        while ( it != base->getExtensions().end() )
+            {
+                // Add the commands / data of the kernel :
+                commandfactory = (*it)->createCommandFactory();
+                if ( commandfactory )
+                    commandFactory().registerObject( (*it)->getName(), commandfactory );
+                
+                dataSourceFactory = (*it)->createDataSourceFactory();
+                if ( dataSourceFactory )
+                    dataFactory().registerObject( (*it)->getName(), dataSourceFactory );
+                ++it;
+            }
+    }
 
-        dataSourceFactory = base->createDataSourceFactory();
-        if ( dataSourceFactory )
-            dataFactory().registerObject( "kernel", dataSourceFactory );
-
+    DataSourceFactoryInterface* ExecutionExtension::createDataSourceFactory() 
+    {
         // Add the data of the EE:
         TemplateDataSourceFactory< ExecutionExtension >* dat =
             newDataSourceFactory( this );
@@ -193,8 +201,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                                             "Is a program running ?", "Name", "The Name of the Loaded Program" ) );
         dat->add( "isStateContextRunning", data( &ExecutionExtension::isStateContextRunning, 
                                             "Is a state context running ?", "Name", "The Name of the Loaded StateContext" ) );
-        dataFactory().registerObject( "engine", dat );
- 
+        return dat;
+    } 
+
+    CommandFactoryInterface* ExecutionExtension::createCommandFactory() 
+    {
         // Add the commands of the EE:
         TemplateCommandFactory< ExecutionExtension  >* ret =
             newCommandFactory( this );
@@ -239,7 +250,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                   ( &ExecutionExtension::continuousStateContext ,
                     &ExecutionExtension::true_gen ,
                     "Set a stateContext in continuous mode", "Name", "The Name of the StateContext") );
-        commandFactory().registerObject( "engine", ret );
+        return ret;
     }
 
     ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )

@@ -52,7 +52,7 @@ namespace ORO_ControlKernel
             }
     }
 
-    PropertyExtension::PropertyExtension(KernelBaseFunction* _base ) 
+    PropertyExtension::PropertyExtension(ControlKernelInterface* _base ) 
         : detail::ExtensionInterface(_base, "Property"),
           save_props("SaveProperties","Not implemented yet.",false),
           configureOnLoad("ConfigureOnLoad","Configure the component when loaded," \

@@ -52,6 +52,106 @@ namespace ORO_ControlKernel
     }
 
     /**
+     * @brief This is the base class of any kernel.
+     * It holds a pointer to all extensions present.
+     */
+    struct ControlKernelInterface
+        :public ORO_CoreLib::RunnableInterface
+    {
+        friend class detail::ExtensionInterface;
+
+        virtual ~ControlKernelInterface() {}
+
+        ControlKernelInterface() :  mytask(0), name("name","The name of the kernel.", "Default") {}
+
+        /**
+         * @brief This is the hook for user kernel properties.
+         *
+         * Add properties to your kernel config file and they
+         * will be passed to this function.
+         */
+        virtual bool updateKernelProperties(const PropertyBag& bag);
+
+        /**
+         * @brief Get a vector of all ExtensionInterfaces of this Kernel.
+         */
+        const std::vector<detail::ExtensionInterface*>& getExtensions() const
+        {
+            return extensions;
+        }
+
+        virtual TaskInterface* getTask() const;
+            
+        virtual void setTask( TaskInterface* task );
+
+        const std::string& getKernelName() const;
+
+    protected:
+        /**
+         * Method for ExtensionInterface to register itself.
+         */
+        void addExtension( detail::ExtensionInterface* e) {
+            extensions.push_back(e);
+        }
+
+        void setKernelName( const std::string& _name);
+
+        std::vector<detail::ExtensionInterface*> extensions;
+
+        TaskInterface* mytask;
+
+        Property<std::string> name;
+    };
+
+    namespace detail 
+    {
+
+        /**
+         * @brief This interface is the base class of all Extensions.
+         *
+         * An Extension to the ControlKernel has a name and properties,
+         * which define the behaviour of the Extension. Extensions 
+         * communicate with components through their ComponentAspectInterface.
+         */
+        struct ExtensionInterface
+        {
+            /**
+             * @brief Construct an ExtensionInterface with name \a name
+             *
+             */
+            ExtensionInterface(ControlKernelInterface* kernel, const std::string name) 
+                :extensionName(name)
+            {
+                kernel->addExtension(this);
+            }
+
+            virtual ~ExtensionInterface() {}
+
+            /**
+             * @brief Returns the name of this extension.
+             */
+            const std::string& getName() const { return extensionName; }
+        
+            /**
+             * @brief Update the properties with configuration data.
+             */
+            virtual bool updateProperties( const PropertyBag& bag ) = 0;
+        
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+            virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() { return 0; }
+
+            virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory()  { return 0; }
+#endif
+        protected:
+            /**
+             * @brief Unique name of this extension.
+             */
+            std::string extensionName;
+        };
+
+    }
+
+    /**
      * @brief The 'Extension' that updates the components.
      *
      * This Extension is actually the base functionality
@@ -61,7 +161,7 @@ namespace ORO_ControlKernel
      * 
      */
     struct KernelBaseFunction
-        :public ORO_CoreLib::RunnableInterface
+        :public detail::ExtensionInterface
     {
         friend class ComponentBaseInterface;
         
@@ -71,7 +171,7 @@ namespace ORO_ControlKernel
          */
         typedef ComponentBaseInterface CommonBase;
 
-        KernelBaseFunction( KernelBaseFunction* _base=0 );
+        KernelBaseFunction( ControlKernelInterface* _base );
 
         virtual ~KernelBaseFunction();
 
@@ -82,8 +182,6 @@ namespace ORO_ControlKernel
         virtual TaskInterface* getTask() const;
 
         virtual void setTask( TaskInterface* task );
-
-        const std::string& getKernelName() const;
 
         /**
          * @brief Returns true if the kernel is running, false
@@ -106,16 +204,6 @@ namespace ORO_ControlKernel
         void setPeriod( double p );
 
         bool updateProperties(const PropertyBag& bag);
-
-        void startupComponents(const PropertyBag& bag);
-
-        /**
-         * @brief This is the hook for user kernel properties.
-         *
-         * Add properties to your kernel config file and they
-         * will be passed to this function.
-         */
-        virtual bool updateKernelProperties(const PropertyBag& bag);
 
         /**
          * @brief Select a Sensor Component from the kernel.
@@ -194,9 +282,9 @@ namespace ORO_ControlKernel
          */
         virtual bool isSelectedEffector( const std::string& name ) const = 0;
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        virtual ORO_Execution::CommandFactoryInterface* createCommandFactory();
+        virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() ;
 
-        virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory();
+        virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory() ;
 #endif
 
         /**
@@ -275,25 +363,7 @@ namespace ORO_ControlKernel
 
         /** @} */
 
-        /**
-         * @brief Get a vector of all ExtensionInterfaces of this Kernel.
-         */
-        const std::vector<detail::ExtensionInterface*>& getExtensions() const
-        {
-            return extensions;
-        }
     protected:
-        friend class detail::ExtensionInterface;
-
-        /**
-         * Method for ExtensionInterface to register itself.
-         */
-        void addExtension( detail::ExtensionInterface* e) {
-            extensions.push_back(e);
-        }
-
-        void setKernelName( const std::string& _name);
-
         /**
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.
@@ -364,7 +434,6 @@ namespace ORO_ControlKernel
         bool running;
 
     private:
-        Property<std::string> name;
 
         /**
          * The periodicity of this kernel.
@@ -373,7 +442,6 @@ namespace ORO_ControlKernel
 
         std::vector<ComponentBaseInterface*> components;
 
-        TaskInterface* mytask;
     protected:
         Event kernelStarted;
         Event kernelStopped;
@@ -385,60 +453,9 @@ namespace ORO_ControlKernel
         Property<std::string> startupController;
         Property<std::string> startupEffector;
 
-        std::vector<detail::ExtensionInterface*> extensions;
+        ControlKernelInterface* cki;
     };
 
-
-    namespace detail 
-    {
-
-        /**
-         * @brief This interface is the base class of all Extensions.
-         *
-         * An Extension to the ControlKernel has a name and properties,
-         * which define the behaviour of the Extension. Extensions 
-         * communicate with components through their ComponentAspectInterface.
-         */
-        struct ExtensionInterface
-        {
-            /**
-             * @brief Construct an ExtensionInterface with name \a name
-             *
-             */
-            ExtensionInterface(KernelBaseFunction* kernel, const std::string name) 
-                :extensionName(name)
-            {
-                kernel->addExtension(this);
-            }
-
-            virtual ~ExtensionInterface() {}
-
-            /**
-             * @brief Returns the name of this extension.
-             */
-            const std::string& getName() const { return extensionName; }
-        
-            /**
-             * @brief Update the properties with configuration data.
-             */
-            virtual bool updateProperties( const PropertyBag& bag ) = 0;
-        
-        protected:
-            /**
-             * @brief Unique name of this extension.
-             */
-            std::string extensionName;
-        };
-
-    }
-
-    namespace detail {
-        /**
-         * @brief This is the base class of any kernel. It is
-         * deliberately empty.
-         */
-        struct ControlKernelInterface {};
-    }
 }
 
 #endif

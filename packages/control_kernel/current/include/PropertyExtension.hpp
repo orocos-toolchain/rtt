@@ -126,7 +126,7 @@ namespace ORO_ControlKernel
         /**
          * Create a PropertyExtension.
          */
-        PropertyExtension(KernelBaseFunction* _base = 0 );
+        PropertyExtension(ControlKernelInterface* _base = 0 );
 
         virtual ~PropertyExtension();
 
@@ -195,7 +195,7 @@ namespace ORO_ControlKernel
         /**
          * The base kernel of this extension.
          */
-        KernelBaseFunction* base;
+        ControlKernelInterface* base;
     };
 }        
 #endif

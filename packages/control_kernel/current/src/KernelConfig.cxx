@@ -36,7 +36,7 @@ namespace ORO_ControlKernel
     using namespace ORO_CoreLib;
     using detail::ExtensionInterface;
     
-    KernelConfig::KernelConfig( KernelBaseFunction& _k, const std::string& _filename)
+    KernelConfig::KernelConfig( ControlKernelInterface& _k, const std::string& _filename)
         : filename( _filename ),
           baseBag(0), extensionBag(0), selectBag(0), kernel(&_k)
     {
@@ -87,23 +87,29 @@ namespace ORO_ControlKernel
                 }
 
             cout << "Setting KernelProperties..."<<endl;
-            // this updates the 'standard' properties
-            kernel->updateProperties( baseBag->value() );
-            // update the list of selected components
-            if (selectBag)
-                kernel->startupComponents( selectBag->value() );
 
-            // this updates the user's properties
-            kernel->updateKernelProperties( baseBag->value() );
+            // update the list of selected components
+            PropertyBag kernelbasebag( baseBag->value() );
+            if (selectBag)
+                copyProperties( kernelbasebag, selectBag->value() );
 
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.
             // Iterate over all extensions
             if ( kernel->getExtensions().empty() )
                 cerr << "No Extensions present in this kernel."<<endl;
+
             vector<ExtensionInterface*>::const_iterator it = kernel->getExtensions().begin();
             while (it != kernel->getExtensions().end() )
                 {
+                    // this is a bit of a hack because the KernelBaseFunction
+                    // does not have an extension property file.
+                    if ( (*it)->getName() == "Kernel" ) {
+                        (*it)->updateProperties( kernelbasebag );
+                        ++it;
+                        continue;
+                    }
+
                     // read the file associated with each extension
                     PropertyBase* res = extensionBag->get().find( (*it)->getName() );
                     Property<string>*  extFileName;
@@ -152,6 +158,8 @@ namespace ORO_ControlKernel
                     }
                     ++it;
                 }
+            // this updates the user's properties
+            kernel->updateKernelProperties( baseBag->value() );
         } catch (...)
             {
                 delete[] fname;

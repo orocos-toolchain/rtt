@@ -117,7 +117,7 @@ namespace ORO_ControlKernel
     public:
         typedef ExecutionComponentInterface CommonBase;
 
-        ExecutionExtension( KernelBaseFunction* _base=0 );
+        ExecutionExtension( ControlKernelInterface* _base=0 );
 
         virtual ~ExecutionExtension();
 
@@ -211,6 +211,10 @@ namespace ORO_ControlKernel
         virtual void finalize();
 
         virtual bool updateProperties( const PropertyBag& bag );
+
+        virtual CommandFactoryInterface* createCommandFactory();
+
+        virtual DataSourceFactoryInterface* createDataSourceFactory();
         
     protected:
         void initKernelCommands();
@@ -222,7 +226,7 @@ namespace ORO_ControlKernel
         Processor proc;
         int count;
         
-        KernelBaseFunction* base;
+        ControlKernelInterface* base;
 
         Property<int> interval;
     };

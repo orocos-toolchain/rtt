@@ -92,7 +92,8 @@ namespace ORO_ControlKernel
      */
     template <class CPort, class SPort, class IPort, class MPort, class OPort , class _Extension = KernelBaseFunction >
     class BaseKernel
-        : public _Extension
+        :   public ControlKernelInterface,
+            public _Extension
     {
         typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
                                                             shared_ptr<DOCreationInterface> > > ComponentMap;
@@ -150,7 +151,8 @@ namespace ORO_ControlKernel
                    const std::string& _com_prefix,
                    const std::string& _setp_prefix,
                    const std::string& _outp_prefix)
-            : _Extension(this),
+            :
+              _Extension(this),
               dummy_controller("DefaultController"),
               dummy_generator("DefaultGenerator"),
               dummy_estimator("DefaultEstimator"), dummy_effector("DefaultEffector"),
@@ -188,7 +190,7 @@ namespace ORO_ControlKernel
             selectSensor(&dummy_sensor);
             this->running = false;
 
-            KernelBaseFunction::setKernelName( kernel_name );
+            ControlKernelInterface::setKernelName( kernel_name );
         }
 
         ~BaseKernel()
@@ -724,9 +726,9 @@ namespace ORO_ControlKernel
                 return false;
             this->addEstimator(c);
 
-            c->_Estimator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
-            c->_Estimator::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
-            //c->_Estimator::Model::createDataObject( KernelBaseFunction::getKernelName() + "::Models",mod_prefix, ModelPortType() );
+            c->_Estimator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
+            c->_Estimator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
+            //c->_Estimator::Model::createDataObject( this->getKernelName() + "::Models",mod_prefix, ModelPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Estimator::Model::erasePort();
@@ -746,11 +748,11 @@ namespace ORO_ControlKernel
                 return false;
             this->addGenerator(c);
 
-            c->_Generator::Command::createPort( KernelBaseFunction::getKernelName() + "::Commands", com_prefix);
-            c->_Generator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
-            c->_Generator::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
-            c->_Generator::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix  );
-//             c->_Generator::SetPoint::createDataObject( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix,
+            c->_Generator::Command::createPort( this->getKernelName() + "::Commands", com_prefix);
+            c->_Generator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
+            c->_Generator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
+            c->_Generator::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix  );
+//             c->_Generator::SetPoint::createDataObject( this->getKernelName() + "::SetPoints",setp_prefix,
 //                                                        SetPointPortType());
             if ( ! c->enableAspect(this) )
                 {
@@ -773,11 +775,11 @@ namespace ORO_ControlKernel
                 return false;
             this->addController(c);
 
-            c->_Controller::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix );
-            c->_Controller::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
-            c->_Controller::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
-            c->_Controller::Output::createPort( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix );
-//             c->_Controller::Output::createDataObject( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix,
+            c->_Controller::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix );
+            c->_Controller::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
+            c->_Controller::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
+            c->_Controller::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
+//             c->_Controller::Output::createDataObject( this->getKernelName() + "::Outputs", outp_prefix,
 //                                                       OutputPortType() );
             if ( ! c->enableAspect(this) )
                 {
@@ -800,7 +802,7 @@ namespace ORO_ControlKernel
                 return false;
             this->addEffector(c);
 
-            c->_Effector::Output::createPort( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix );
+            c->_Effector::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Effector::Output::erasePort();

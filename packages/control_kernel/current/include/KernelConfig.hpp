@@ -51,7 +51,7 @@ namespace ORO_ControlKernel
              * @param _k The kernel to configure.
              * @param _filename The filename of the XML data in cpf format.
              */
-        KernelConfig( KernelBaseFunction& _k, const std::string& _filename);
+        KernelConfig( ControlKernelInterface& _k, const std::string& _filename);
 
         ~KernelConfig() ;
 
@@ -71,7 +71,7 @@ namespace ORO_ControlKernel
         Property<PropertyBag>* baseBag;
         Property<PropertyBag>* extensionBag;
         Property<PropertyBag>* selectBag;
-        KernelBaseFunction* kernel;
+        ControlKernelInterface* kernel;
     };
 
 }

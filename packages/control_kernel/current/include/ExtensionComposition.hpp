@@ -65,13 +65,13 @@ namespace ORO_ControlKernel
         typedef typename First::Extension FirstExtension;
         typedef typename Second::Extension SecondExtension;
 
-        // postcondition : Every kernel is of type KernelBaseFunction
+        // postcondition : Every kernel is of type ControlKernelInterface
         // neat trick to lure a 'composite composite' aspect
         // into thinking that our Extension is a subclass
         // of the 'enableAspect Kernel'. This makes sure
         // that we are called and that we can pass 
         // enableAspect on to First and Second.
-        typedef KernelBaseFunction Extension; 
+        typedef ControlKernelInterface Extension; 
 
         // this removes compiler warnings, about
         // enableAspect being hidden, we want them
@@ -132,7 +132,7 @@ namespace ORO_ControlKernel
         typedef CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
             
         CompositeExtension() {}
-        CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
+        CompositeExtension( ControlKernelInterface* _base ) : First(_base), Second(_base) {}
 
         virtual ~CompositeExtension() {}
 
@@ -163,7 +163,7 @@ namespace ORO_ControlKernel
     {
         typedef typename First::CommonBase CommonBase;
         CompositeExtension() {}
-        CompositeExtension( KernelBaseFunction* _base ) : First(_base){}
+        CompositeExtension( ControlKernelInterface* _base ) : First(_base){}
         virtual ~CompositeExtension() {}
     };
 
