@@ -339,7 +339,7 @@ namespace ORO_CoreLib
                     parser->setFeature( XMLUni::fgXercesSchema, false );
 #endif
 
-                    parser->parse( *s );
+                    parser->parse( *this->s );
                     errorCount = parser->getErrorCount();
                     delete parser;
                     XMLPlatformUtils::Terminate();

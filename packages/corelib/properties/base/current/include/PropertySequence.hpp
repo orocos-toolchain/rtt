@@ -274,7 +274,6 @@ namespace ORO_CoreLib
     inline
     void copy(PropertySequence<T>& a, const PropertySequence<T>& b)
     {
-        std::cout << "Copy Sequence "<<std::endl;
         copyProperties(a,b);
     }
 

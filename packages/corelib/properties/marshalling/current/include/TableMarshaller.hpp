@@ -57,42 +57,42 @@ namespace ORO_CoreLib
 
 			virtual void serialize(const Property<bool> &v) 
 			{ 
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
 			}
 
 			virtual void serialize(const Property<char> &v) 
 			{ 
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
 			}
 			virtual void serialize(const Property<int> &v) 
 			{ 
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
 			}
 			
 			virtual void serialize(const Property<unsigned int> &v) 
 			{ 
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
 			}
 			
 			virtual void serialize(const Property<double> &v) 
 			{
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
             }
 			virtual void serialize(const Property<std::string> &v) 
 			{
-                *s <<sep; 
-                s->width( v.getName().length() );
-                *s<< v.get();
+                *this->s <<sep; 
+                this->s->width( v.getName().length() );
+                *this->s<< v.get();
 			}
 			
             virtual void serialize(const PropertyBag &v) 
@@ -114,7 +114,7 @@ namespace ORO_CoreLib
             virtual void flush() 
             {
                 // TODO : buffer for formatting and flush here.
-                *s <<sep<<std::endl;
+                *this->s <<sep<<std::endl;
                 
             }
             

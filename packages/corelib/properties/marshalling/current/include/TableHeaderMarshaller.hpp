@@ -179,7 +179,7 @@ namespace ORO_CoreLib
             {
                 for (std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it)
                     if ( !it->empty())
-                        *s << *it <<std::string(" |")<<std::endl;
+                        *this->s << *it <<std::string(" |")<<std::endl;
                 // TODO : buffer for formatting and flush here.
                 level = 0;
                 line  = 1;
