@@ -89,7 +89,7 @@ namespace ORO_ControlKernel
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -173,7 +173,7 @@ namespace ORO_ControlKernel
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -268,7 +268,7 @@ namespace ORO_ControlKernel
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -324,6 +324,23 @@ namespace ORO_ControlKernel
      * be returned. The internal buffer can get full if too many
      * concurrent reads are taking to long. In that case, each new
      * read will read the element the previous read returned.
+     *
+     * @verbatim
+     * The following Truth table applies when a Low Priority thread is
+     * preempted by a High Priority thread :
+     *
+     *   L\H | Set | Get |
+     *   Set | NA  | Ok  |
+     *   Get | Ok  | Ok  |
+     *
+     * legend : L : Low Priority thread
+     *          H : High Priority thread
+     *          Blk: Blocks High Priority thread (bad!)
+     *          NA : Not allowed !
+     * @endverbatim
+     * Further, multiple reads may occur before, during and after
+     * a read operation simultaneously. The buffer needs readers+2
+     * elements to be guaranteed non blocking.
      */
     template<class _DataType>
     class DataObjectBuffer
@@ -331,13 +348,19 @@ namespace ORO_ControlKernel
         /**
          * Internal buffer structure.
          */
-        struct DataBuf { _DataType data; mutable atomic_t counter; };
+        struct DataBuf { _DataType data; mutable atomic_t counter; DataBuf* next; };
 
         DataBuf* read_ptr;
         DataBuf* write_ptr;
-        const DataBuf* head;
-        const DataBuf* tail;
 
+        /** 
+         * @brief The size of the buffer.
+         *
+         * The size of the buffer is for now statically determined, 
+         * which allows for 8 readers and 1 writer. This is to be
+         * improved. Heaping is an option, but the hardest problem
+         * remains setting the size of the buffer.
+         */
         static const unsigned int BUF_LEN=10;
             
         /**
@@ -357,16 +380,20 @@ namespace ORO_ControlKernel
         DataObjectBuffer(const std::string& _name = std::string()) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
-              head(&data[ 0 ]), 
-              tail(&data[ BUF_LEN-1 ]),
-              name(_name) {}
+              name(_name)
+        {
+            // prepare the buffer.
+            for (int i = 0; i < BUF_LEN-1; ++i)
+                data[i].next = &data[i+1];
+            data[BUF_LEN-1].next = &data[0];
+        }
 
         /** 
          * Return the name of this DataObject.
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -382,20 +409,20 @@ namespace ORO_ControlKernel
         const DataType& Get() const { Get(cache); return cache; }
             
         /**
-         * Get a copy of the Data
+         * Get a copy of the Data (non blocking).
          *
          * @param pull A copy of the data.
          */
         void Get( DataType& pull ) const 
         {   
             DataBuf* reading = read_ptr;        // atomic copy
-            atomic_inc(reading->counter);       // atomic increment
+            atomic_inc(&reading->counter);       // atomic increment
             pull = reading->data;               // takes some time
-            atomic_dec(reading->counter);       // atomic decrement
+            atomic_dec(&reading->counter);       // atomic decrement
         }
 
         /**
-         * Set the data to a certain value.
+         * Set the data to a certain value (non blocking).
          *
          * @param push The data which must be set.
          */
@@ -411,15 +438,19 @@ namespace ORO_ControlKernel
              */
             // writeout in any case
             write_ptr->data = push;
-            // if next field is occupied, buffer is 'full'.
-            if ( atomic_read( (write_ptr + 1)->counter ) != 0 )
-                return;
+            DataBuf* wrote_ptr = write_ptr;
+            // if next field is occupied (by read_ptr or counter),
+            // go to next and check again...
+            while ( atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
+                {
+                    write_ptr = write_ptr->next;
+                    if (write_ptr == wrote_ptr)
+                        return; // nothing found, to many readers !
+                }
+
             // we will be able to move, so replace read_ptr
-            read_ptr = write_ptr;
-            if ( write_ptr != tail)
-                ++write_ptr;
-            else 
-                write_ptr = head;
+            read_ptr  = wrote_ptr;
+            write_ptr = write_ptr->next; // we checked this in the while loop
         }
     };
 
@@ -451,7 +482,7 @@ namespace ORO_ControlKernel
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -507,7 +538,7 @@ namespace ORO_ControlKernel
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         /**
          * The type of the data.
@@ -606,14 +637,14 @@ namespace ORO_ControlKernel
          * 
          * @param _name The name of this DataObject.
          */
-        DataObjectRefreshed(const std::string& _name = std::string()) : name(_name) {}
+        DataRefreshed(const std::string& _name = std::string()) : name(_name) {}
 
         /** 
          * Return the name of this DataObject.
          * 
          * @return The name
          */
-        const string& getName() const { return name;}
+        const std::string& getName() const { return name;}
 
         typedef _DataType DataType;
 

@@ -20,17 +20,6 @@
           <address><country>Belgium</country></address>
         </affiliation>
       </author>
-
-      <author>
-        <honorific>Dr. ir</honorific>
-        <firstname>Herman</firstname>
-        <surname>Bruyninckx</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
-
       <author>
         <firstname>Panagiotis</firstname>
         <surname>Issaris</surname>
@@ -41,7 +30,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2002,2003,2004</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -90,6 +79,12 @@
 	<date>17 Dec 2003</date>
 	<authorinitials>ps</authorinitials>
 	<revremark> Added Cascade/ModelControlKernel docs</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.14</revnumber>
+	<date>6 Jan 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added Name Server Kernel docs</revremark>
       </revision>
     </revhistory>
 
@@ -371,8 +366,15 @@
 	(think one axis control):
       </para>
       <programlisting>
-	#include &lt;control_kernel/StandardControlKernel.hpp&gt;
-	typedef StandardControlKernel &lt;double, double, double, double, double&gt; My1DKernel;
+  // All DataObjects contain only 1 double
+  class Input { double input; };
+  class Model { double model; };
+  class Command { double command; };
+  class Setpoint { double setpoint; };
+  class Output { double output; };
+
+  #include &lt;control_kernel/StandardControlKernel.hpp&gt;
+  typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output&gt; My1DKernel;
       </programlisting>
       <para>
 	What is shown above is defining the type My1DKernel as being a
@@ -439,11 +441,12 @@
 	<example>
 	  <title>Accessing a DataObject</title>
 	  <programlisting>
-	    DataObject&lt;double&gt; my_DO; // A DataObject may also contain a class 
-	    my_Do.Set( 3.14 ); 
-	    double contents;
-	    my_Do.Get( contents );   // contents == 3.14 contents  =
-	    my_Do.Get(); // equivalent
+  // A DataObject may also contain a class (like above)
+  DataObject&lt;double&gt; my_DO;
+  my_Do.Set( 3.14 ); 
+  double contents;
+  my_Do.Get( contents );   // contents == 3.14 contents  =
+  my_Do.Get(); // equivalent
 	  </programlisting>
 	</example> When in a component, the DataObject must be
 	accessed through a Port of the component. This will be
@@ -494,6 +497,19 @@
 	<para>The inverse of DataObjectPrioritySet. The thread
 	  accessing Get() will never block.</para>
       </sect2>
+      <sect2>
+	<title>DataObjectBuffer</title>
+	<para>
+	  This DataObject implements a non blocking reader/
+	  writer buffer which always returns the last written value
+	  to the reader. If the reader is preempted with a write
+	  and a read, the last read will return a newer value, while
+	  the first read continues to read the uncorrupted old value.
+	  The depth of this buffer must be readers+2, for the algorithm
+	  to succeed in doing every write. Apart from memory consumption,
+	  it is one of the best threadsafe DataObject implementations.
+	</para>
+      </sect2>
     </sect1>
     <sect1>
       <title>Components</title>
@@ -507,26 +523,26 @@
 	  Defining a Component of your own goes like this :
 	</para>
 	<screen>
-	  #include &lt;control_kernel/StandardControlKernel.hpp&gt;
+  #include &lt;control_kernel/StandardControlKernel.hpp&gt;
 
 
-	  template &lt; class _DefaultGenerator &gt; 
-	  class MyGenerator 
-	      : public _DefaultGenerator 
-	  { 
-	      void pull() 
-	      { 
-	          // ... 
-	      } 
-	      void calculate()
-	      { 
-	          // ... 
-	      } 
-	      void push() 
-	      { 
-	          // ... 
-	      } 
-	  };
+  template &lt; class _DefaultGenerator &gt; 
+  class MyGenerator 
+      : public _DefaultGenerator 
+  { 
+      void pull() 
+      { 
+          // ... 
+      } 
+      void calculate()
+      { 
+          // ... 
+      } 
+      void push() 
+      { 
+          // ... 
+      } 
+  };
 	</screen>
 	<para>What you see is that the class MyGenerator has one
 	  template argument, _DefaultGenerator, which must be supplied
@@ -585,14 +601,15 @@
 	  components. Going further with the MyKernel1D example :
 	</para>
 	<programlisting>
-	  // One way to retrieve a previously created generator.
-	  My1DKernel::DefaultGenerator* g = MyKernel1D::DefaultGenerator::nameserver.getObject("GeneratorName"); 
-	  
-	  // loading a previously created generator
-	  first_kernel.loadGenerator( "GeneratorName" ); // and select it too. 
-	  
-	  if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
-	       first_kernel.selectGenerator( "GeneratorName") );
+  // One way to retrieve a previously created generator.
+  My1DKernel::DefaultGenerator* g = 
+     MyKernel1D::DefaultGenerator::nameserver.getObject("GeneratorName"); 
+  
+  // loading a previously created generator
+  first_kernel.loadGenerator( "GeneratorName" ); // and select it too. 
+  
+  if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
+       first_kernel.selectGenerator( "GeneratorName") );
 	</programlisting>
       </sect2>
       <sect2>
@@ -614,24 +631,24 @@
 	<para>A DataObject can be accessed from within the component
 	  as such :</para>
 	<programlisting><![CDATA[
-	  // ... 
-	  _DefaultGenerator::InputType localCopy;
-	  _DefaultGenerator::SetPointType localResult; 
-	  // ... 
-	  void pull() 
-	  { 
-	        localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
-	  } 
-	  
-	  void calculate()
-	  { 
-	        // ... calculate the setpoint 
-	  } 
+// ... 
+_DefaultGenerator::InputType localCopy;
+_DefaultGenerator::SetPointType localResult; 
+// ... 
+void pull() 
+{ 
+      localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
+} 
 
-	  void push() 
-	  {
-	       _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
-	  }]]>
+void calculate()
+{ 
+      // ... calculate the setpoint 
+} 
+
+void push() 
+{
+     _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
+}]]>
 	</programlisting>
 	<para>
 	  What the above means is that the DefaultGenerator has Ports
@@ -659,23 +676,51 @@
 	  </para>
 	</note>
 	<sect3>
+	  <title>Components Define DataObjects</title>
+	  <para>
+	    Once a Component is written, the DataObject it needs to
+	    read and write from has a minimum specification, meaning,
+	    the Component relies that a minimum of information is
+	    present in the DataObject. One could also put it in
+	    another way: since each DataObject is only written to by
+	    one Component, exactly one component defines the contents
+	    of a DataObject. When components are distributed, they
+	    will provide a specification (by means of a class
+	    construct) of the data they produce. The Effector is an
+	    exception, because it defines what hardware it accesses
+	    instead of DataObjects. It must be looked after by the
+	    kernel user that the components match each other for
+	    writing and reading data. The figure below illustrates
+	    the responsabilities for each component in the framework.
+	  </para>
+	  <mediaobject>
+	      <imageobject role="html">
+		<imagedata fileref="component_data_production.png" format="PNG"/>
+	      </imageobject>
+	      <imageobject role="fo">
+		<imagedata fileref="component_data_production.eps" format="EPS"/>
+	      </imageobject>
+	  </mediaobject>
+	</sect3>
+	<sect3>
 	  <title>Good Use Rules for DataObjects</title>
 	  <para>
-	    These methods are used for the Data-Flow of the kernel.
-	    You copy data from one component to the other, purely for
-	    doing calculations, not doing configurations. If you want
-	    to configure/modify a component, you must add a method
-	    call to it, which does the action. An example is a method
-	    to turn off the D action of a PID Controller Component.
-	    The wrong way to do this is to insert a 'bool' member in
-	    the SetPointType to indicate if the D action should be
-	    enabled. The correct way is to provide a method. If it
-	    must be switched off dynamically, an Event can be created
-	    which is fired by the component (Generator, Estimator or
-	    even an external object) which demands that the D action
-	    must be stopped.  The Controller can locate this Event and
-	    register the disable/enable-method as a handler. How this
-	    is practically done is described later.
+	    The push(), pull() and calculate() methods are used for
+	    the Data-Flow of the kernel. You copy data from one
+	    component to the other, purely for doing calculations, not
+	    doing configurations. If you want to configure/modify a
+	    component, you must add a method call to it, which does
+	    the action. An example is a method to turn off the D
+	    action of a PID Controller Component. The wrong way to do
+	    this is to insert a 'bool' member in the SetPointType to
+	    indicate if the D action should be enabled. The correct
+	    way is to provide a method. If it must be switched off
+	    dynamically, an Event can be created which is fired by the
+	    component (Generator, Estimator or even an external
+	    object) which demands that the D action must be stopped.
+	    The Controller can locate this Event and register the
+	    disable/enable-method as a handler. How this is
+	    practically done is described later.
 	  </para>
 	  <para>
 	    Fortunately, a Template file is provided from which you
@@ -863,30 +908,34 @@
 	changed now. An example explains best :
       </para>
       <example>
-	  <title>A Nameserved DataType</title>
-	  <para>
-	    Imaging that you want to specify what is in
-	    the model of your kernel :
-	  </para>
-	  <programlisting> <![CDATA[
-	    struct MyNamesModel 
-	         : public ServedTypes<Frame, double>, public UnServedType<>
-	    {
-	         MyModel()
-	         {
-                      this->insert( make_pair(0, "EndPosition"));
-                      this->insert( make_pair(0, "OldPosition"));
-                      this->insert( make_pair(1, "Temperature"));
-	         }
-	    };
-	    ]]>
+	<title>A Nameserved DataType</title>
+	<para>
+	  The model is produced by the Estimator component,
+	  An Estimator using nameserving will thus provide
+	  a specification of the model it produces. For
+	  nameserving 2 frames (EndPosition and OldPosition)
+	  and a double (Temperature), this is written as follows:
+	</para>
+	<programlisting>
+<![CDATA[
+struct MyNamesModel 
+: public ServedTypes<Frame, double>, public UnServedType<>
+{
+  MyModel()
+  {
+    this->insert( make_pair(0, "EndPosition"));
+    this->insert( make_pair(0, "OldPosition"));
+    this->insert( make_pair(1, "Temperature"));
+  }
+};
+]]>
 	  </programlisting>
 	</example>
       <para> 
 	In the ServedTypes list, you can specify zero up to
 	ten different types which you want to nameserve. Each type
-	may only occur once in that list. The empty list (you don't
-	want to nameserve any type is denoted by ServedTypes&lt;&gt;.
+	may only occur once in that list. The empty list (if you don't
+	want to nameserve any type) is denoted by ServedTypes&lt;&gt;.
 	You can only have one UnServedType, which is empty in the
 	example. This is the DataObject you get when you call the
 	old Get() method like in the StandardControlKernel.
@@ -935,40 +984,40 @@
 	</para>
       </warning>
 	<programlisting><![CDATA[
-	  // ... 
-	  _DefaultGenerator::InputType localCopy;
-	  _DefaultGenerator::SetPointType localResult; 
-	  
-	  // New Code :
-	  Frame delta_position;
-	  double tool_temp;
+// ... 
+_DefaultGenerator::InputType localCopy;
+_DefaultGenerator::SetPointType localResult; 
 
-	  // ... 
-	  void pull() 
-	  { 
-	        localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
-	        
-                // New Code :
-	        Frame end_f, old_f;
-	        if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
-	             !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
-	             { // Error, "EndPosition" or "OldPosition" not found ! }
+// New Code :
+Frame delta_position;
+double tool_temp;
 
-	        delta_position = end_f - old_f;
+// ... 
+void pull() 
+{ 
+      localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
+      
+	        // New Code :
+      Frame end_f, old_f;
+      if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
+           !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
+           { // Error, "EndPosition" or "OldPosition" not found ! }
 
-	        if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp) )
-	             { // Error, "Temperature" not found ! }
-	  } 
-	  
-	  void calculate()
-	  { 
-	        // ... calculate the setpoint
-	  } 
+      delta_position = end_f - old_f;
 
-	  void push() 
-	  {
-	       _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
-	  }]]>
+      if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp) )
+           { // Error, "Temperature" not found ! }
+} 
+
+void calculate()
+{ 
+      // ... calculate the setpoint
+} 
+
+void push() 
+{
+     _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
+}]]>
 	</programlisting>
       <para>
 	As you can see in the example, the component declares itself
@@ -1000,40 +1049,39 @@
 	</para>
 	<programlisting>
 	  <![CDATA[
-	  
-	  // ... 
-	  _DefaultGenerator::InputType localCopy;
-	  _DefaultGenerator::SetPointType localResult; 
-	  
-	  Frame delta_position;
-	  double tool_temp;
+// ... 
+_DefaultGenerator::InputType localCopy;
+_DefaultGenerator::SetPointType localResult; 
 
-	  // New Code :
-	  Inputs::DataObject<double>::type* tool_temp_dobj;
-	  
-	  void componentLoaded()
-	  {
-	      // called when the component is loaded into the kernel.
-	      if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) )
-	             { // Error, "Temperature" not found ! }
-	  }
+Frame delta_position;
+double tool_temp;
 
-	  // ... 
-	  void pull() 
-	  { 
-	        localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
-	        
-	        Frame end_f, old_f;
-	        if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
-	             !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
-	             { // Error, "EndPosition" or "OldPosition" not found ! }
+// New Code :
+Inputs::DataObject<double>::type* tool_temp_dobj;
 
-	        delta_position = end_f - old_f;
+void componentLoaded()
+{
+    // called when the component is loaded into the kernel.
+    if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) )
+           { // Error, "Temperature" not found ! }
+}
 
-	        // New Code:
-	        tool_temp = tool_temp_dobj->Get();
-	  } 
-	  ]]>
+// ... 
+void pull() 
+{ 
+      localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
+      
+      Frame end_f, old_f;
+      if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
+           !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
+           { // Error, "EndPosition" or "OldPosition" not found ! }
+
+      delta_position = end_f - old_f;
+
+      // New Code:
+      tool_temp = tool_temp_dobj->Get();
+} 
+]]>
 	</programlisting>
       </example>
       <para>
@@ -1255,11 +1303,13 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 ]]>
 	    </programlisting>
 	    <para>
-	      As you can see, the types of all three kernels are completely different.
-	      But what is not shown above is that they introduce the same ServedTypes.
-	      and the CascadeNSControlKernel knows it has to put the output of the
-	      one kernel in the namespace of the commands of the other kernels.
-	      A more elaborated example can be found in the kernel_samples package.
+	      As you can see, the types of all three kernels are ( can
+	      be ) completely different. But what is not shown above
+	      is that they introduce the same ServedTypes. and the
+	      CascadeNSControlKernel knows it has to put the output of
+	      the one kernel in the namespace of the commands of the
+	      other kernels. A more elaborated example can be found in
+	      the kernel_samples package.
 	    </para>
 	  </example>
 	</para>
@@ -1325,11 +1375,11 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
       </para>
       <screen>
 	// equivalent typedef as before : 
-	typedef StandardControlKernel&lt;double, double, double, double, double,	KernelBaseFunction&gt; My1DKernel; 
+typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, KernelBaseFunction&gt; My1DKernel;
 
 	// adding a new extension to the KernelBaseFunction : 
-	typedef CompositeExtension&lt;KernelBaseFunction, PropertyExtension&gt; MyExtension; 
-	typedef StandardControlKernel &lt;double, double, double, double, double, MyExtension&gt; My1DPropertyKernel;
+typedef CompositeExtension&lt;KernelBaseFunction, PropertyExtension&gt; MyExtension; 
+typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MyExtension&gt; My1DPropertyKernel;
       </screen>
       <para>
 	As can be seen, Extensions are composed using the
@@ -1345,10 +1395,8 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
       </para>
       <screen>
 	// ... // A control kernel with two additional Extensions :
-	typedef CompositeExtension&lt; MyFirstExtension,
-	ReportingExtension&gt; MySecondExtension; typedef
-	StandardControlKernel &lt;double, double, double, double,
-	double, MySecondExtension&gt; My1DPropRepKernel;
+typedef CompositeExtension&lt; MyFirstExtension, ReportingExtension&gt; MySecondExtension;
+typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MySecondExtension&gt; My1DPropRepKernel;
       </screen>
       <para>
 	The order in which the extensions are composed is important.
@@ -1465,33 +1513,39 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	<para>A control kernel configuration file might look like this
 	  :</para>
 	<programlisting>
-	  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
-	  &lt;properties&gt;
-	  &lt;struct name="KernelProperties" type="type_less"&gt;
-	  &lt;description&gt;The Basic characteristics of this kernel.&lt;/description&gt;
-	  &lt;simple name="name"      type="string"&gt;&lt;description&gt;The Name of this kernel&lt;/description&gt;&lt;value&gt;Default&lt;/value&gt;&lt;/simple&gt;
-	  &lt;simple name="frequency" type="double"&gt;&lt;description&gt;The periodic execution frequency in Hz&lt;/description&gt;&lt;value&gt;1000&lt;/value&gt;&lt;/simple&gt;
-	  &lt;simple name="priority"  type="string"&gt;&lt;description&gt;The priority of the kernel.&lt;/description&gt;&lt;value&gt;NonPreemptible&lt;/value&gt;&lt;/simple&gt;
-	&lt;/struct&gt;
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;properties&gt;
+&lt;struct name="KernelProperties" type="type_less"&gt;
+  &lt;description&gt;The Basic characteristics of this kernel.&lt;/description&gt;
+  &lt;simple name="name"      type="string"&gt;
+  &lt;description&gt;The Name of this kernel&lt;/description&gt;
+  &lt;value&gt;Default&lt;/value&gt;&lt;/simple&gt;
+  &lt;simple name="frequency" type="double"&gt;
+  &lt;description&gt;The periodic execution frequency in Hz&lt;/description&gt;
+  &lt;value&gt;1000&lt;/value&gt;&lt;/simple&gt;
+  &lt;simple name="priority"  type="string"&gt;
+  &lt;description&gt;The priority of the kernel.&lt;/description&gt;
+  &lt;value&gt;NonPreemptible&lt;/value&gt;&lt;/simple&gt;
+&lt;/struct&gt;
 
-	  &lt;struct name="Extensions" type="type_less"&gt;
-	  &lt;simple name="Interpreter" type="string"&gt;
-	  &lt;description&gt;The property file of the interpreter&lt;/description&gt;
-	  &lt;value&gt;interpreter.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;struct name="Extensions" type="type_less"&gt;
+  &lt;simple name="Interpreter" type="string"&gt;
+  &lt;description&gt;The property file of the interpreter&lt;/description&gt;
+  &lt;value&gt;interpreter.cpf&lt;/value&gt;&lt;/simple&gt;
 
-	  &lt;simple name="Reporter" type="string"&gt;
-	  &lt;description&gt;The property file of the reporter&lt;/description&gt;
-	  &lt;value&gt;reporter.cpf&lt;/value&gt;&lt;/simple&gt;
+  &lt;simple name="Reporter" type="string"&gt;
+  &lt;description&gt;The property file of the reporter&lt;/description&gt;
+  &lt;value&gt;reporter.cpf&lt;/value&gt;&lt;/simple&gt;
 
-	  &lt;simple name="Sequencer" type="string"&gt;
-	  &lt;description&gt;The property file of the sequencer&lt;/description&gt;
-	  &lt;value&gt;sequencer.cpf&lt;/value&gt;&lt;/simple&gt;
+  &lt;simple name="Sequencer" type="string"&gt;
+  &lt;description&gt;The property file of the sequencer&lt;/description&gt;
+  &lt;value&gt;sequencer.cpf&lt;/value&gt;&lt;/simple&gt;
 
-	  &lt;simple name="Property" type="string"&gt;
-	  &lt;description&gt;The property file of the property manager&lt;/description&gt;
-	  &lt;value&gt;property.cpf&lt;/value&gt;&lt;/simple&gt;
-	&lt;/struct&gt;
-	&lt;/properties&gt;
+  &lt;simple name="Property" type="string"&gt;
+  &lt;description&gt;The property file of the property manager&lt;/description&gt;
+  &lt;value&gt;property.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;/struct&gt;
+&lt;/properties&gt;
 	</programlisting>
 	<para>
 	  It has two major parts : KernelProperties and Extensions.
@@ -1589,30 +1643,47 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
 &lt;properties&gt;
-    &lt;!--Possible future syntax : --&gt;
-    &lt;struct name="Generator" type="ComponentEntry"&gt;
-        &lt;simple name="Type"&gt;&lt;value&gt;Generator&lt;/value&gt;&lt;/simple&gt;
-        &lt;simple name="Filename"&gt;&lt;value&gt;MotionGenerator.cpf&lt;/value&gt;&lt;/simple&gt;
-    &lt;/struct&gt;
+&lt;!--Possible future syntax : --&gt;
+&lt;struct name="Generator" type="ComponentEntry"&gt;
+    &lt;simple name="Type"&gt;&lt;value&gt;Generator&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Filename"&gt;&lt;value&gt;MotionGenerator.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;/struct&gt;
 
-    &lt;!--Current syntax : --&gt;
-    &lt;simple name="Generator"  type="string"&gt;&lt;description&gt;The Generator Component Property File.&lt;/description&gt;&lt;value&gt;generator.cpf&lt;/value&gt;&lt;/simple&gt;
-    &lt;simple name="Estimator"  type="string"&gt;&lt;description&gt;The Estimator Component Property File.&lt;/description&gt;&lt;value&gt;estimator.cpf&lt;/value&gt;&lt;/simple&gt;
-    &lt;simple name="Controller" type="string"&gt;&lt;description&gt;The Controller Component Property File.&lt;/description&gt;&lt;value&gt;controller.cpf&lt;/value&gt;&lt;/simple&gt;
-    &lt;simple name="Sensor"     type="string"&gt;&lt;description&gt;The Sensor Component Property File.&lt;/description&gt;&lt;value&gt;sensor.cpf&lt;/value&gt;&lt;/simple&gt;
-    &lt;simple name="Effector"   type="string"&gt;&lt;description&gt;The Effector Component Property File.&lt;/description&gt;&lt;value&gt;effector.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;!--Current syntax : --&gt;
+&lt;simple name="Generator"  type="string"&gt;
+&lt;description&gt;The Generator Component Property File.&lt;/description&gt;
+&lt;value&gt;generator.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;simple name="Estimator"  type="string"&gt;
+&lt;description&gt;The Estimator Component Property File.&lt;/description&gt;
+&lt;value&gt;estimator.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;simple name="Controller" type="string"&gt;
+&lt;description&gt;The Controller Component Property File.&lt;/description&gt;
+&lt;value&gt;controller.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;simple name="Sensor"     type="string"&gt;
+&lt;description&gt;The Sensor Component Property File.&lt;/description&gt;
+&lt;value&gt;sensor.cpf&lt;/value&gt;&lt;/simple&gt;
+&lt;simple name="Effector"   type="string"&gt;
+&lt;description&gt;The Effector Component Property File.&lt;/description&gt;
+&lt;value&gt;effector.cpf&lt;/value&gt;&lt;/simple&gt;
 
-    &lt;simple name="SaveProperties" type="boolean"&gt;
-        &lt;description&gt; True if properties of components need to be saved when stopping the kernel.&lt;/description&gt;
-        &lt;value&gt;1&lt;/value&gt;
-    &lt;/simple&gt;
-    &lt;simple name="SaveFilePrefix"   type="string"&gt;
-        &lt;description&gt;The suffix of the filename to store the components state into&lt;/description&gt;&lt;value&gt;saved_&lt;/value&gt;
-    &lt;/simple&gt;
-    &lt;simple name="SaveFileExtension"   type="string"&gt;
-        &lt;description&gt;The extension of the filename to store the components state into&lt;/description&gt;&lt;value&gt;cpf&lt;/value&gt;
-    &lt;/simple&gt;
-
+&lt;simple name="SaveProperties" type="boolean"&gt;
+    &lt;description&gt; 
+    True if properties of components need to be saved when stopping the kernel.
+    &lt;/description&gt;
+    &lt;value&gt;1&lt;/value&gt;
+&lt;/simple&gt;
+&lt;simple name="SaveFilePrefix"   type="string"&gt;
+    &lt;description&gt;
+    The suffix of the filename to store the components state into
+    &lt;/description&gt;
+    &lt;value&gt;saved_&lt;/value&gt;
+&lt;/simple&gt;
+&lt;simple name="SaveFileExtension"   type="string"&gt;
+    &lt;description&gt;
+    The extension of the filename to store the components state into
+    &lt;/description&gt;
+    &lt;value&gt;cpf&lt;/value&gt;
+&lt;/simple&gt;
 &lt;/properties&gt;
 	  </programlisting>
 	</example>
@@ -1635,27 +1706,33 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	    will return false, and the control kernel will not start.
 	  </para>
 	  <programlisting>
-	    // In constructor, gain defaults to zero :
-	       , gain("Gain","The gain of the controller",0)
+  // In constructor, gain defaults to zero :
+     , gain("Gain","The gain of the controller",0)
 
-	    // Hook In Controller Component :
-	    virtual bool updateProperties( const PropertyBag&amp; bag)
-            {
-	        return composeProperty(bag, gain ); // returns true if successful.
-            }
+  // Hook In Controller Component :
+  virtual bool updateProperties( const PropertyBag&amp; bag)
+  {
+      return composeProperty(bag, gain ); // returns true if successful.
+  }
 
-	    // ... The gain of the Controller ...
-	    Property&lt;double&gt; gain;
+  // ... The gain of the Controller ...
+  Property&lt;double&gt; gain;
 
-	    // ...
+  // ...
 	  </programlisting>
 	  <para>The CPF file looks like this :</para>
 	  <programlisting>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
 &lt;properties&gt;
-    &lt;simple name="Name" type="string"&gt;&lt;description&gt;The unique name of this component&lt;/description&gt;&lt;value&gt;CartesianController&lt;/value&gt;&lt;/simple&gt;
-    &lt;simple name="Gain"    type="double"&gt;&lt;description&gt;The gain of the controller &lt;/description&gt;&lt;value&gt;2&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Name" type="string"&gt;
+    &lt;description&gt;The unique name of this component&lt;/description&gt;
+    &lt;value&gt;CartesianController&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="Gain"    type="double"&gt;
+    &lt;description&gt;The gain of the controller &lt;/description&gt;
+    &lt;value&gt;2&lt;/value&gt;
+    &lt;/simple&gt;
 &lt;/properties&gt;
 	  </programlisting>
 	</example>
@@ -1702,8 +1779,8 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 &lt;properties&gt;
 
     &lt;simple name="ReportPeriod" type="double"&gt;
-            &lt;description&gt;The period, in seconds, for making reports.&lt;/description&gt;
-            &lt;value&gt;0.1&lt;/value&gt;
+       &lt;description&gt;The period, in seconds, for making reports.&lt;/description&gt;
+       &lt;value&gt;0.1&lt;/value&gt;
     &lt;/simple&gt;
     &lt;simple name="ReportFile" type="string"&gt;
         &lt;description&gt;The file to write the reports to.&lt;/description&gt;
@@ -1755,19 +1832,19 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	    A simple component with only one value to report.
 	  </para>
 	  <programlisting>
-	    // In constructor :
-	       :end_pos("End Position","One of many variables which can be reported.")
+  // In constructor :
+     :end_pos("End Position","One of many variables which can be reported.")
 
-	    // Hook in Generator Component:
-                 virtual void exportReports(PropertyBag&amp; bag)
-                 {
-                     bag.add(&amp;end_pos);
-                 }
+  // Hook in Generator Component:
+       virtual void exportReports(PropertyBag&amp; bag)
+       {
+           bag.add(&amp;end_pos);
+       }
 
-	    // The property itself
-	    Property&lt; ORO_Geometry::Frame &gt; end_pos;
+  // The property itself
+  Property&lt; ORO_Geometry::Frame &gt; end_pos;
 
-	    // ...
+  // ...
 	  </programlisting>
 	</example>
       </sect2>

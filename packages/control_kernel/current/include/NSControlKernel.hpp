@@ -76,8 +76,13 @@ namespace ORO_ControlKernel
          * 
          */
         NSControlKernel(const std::string& prefix)
-            : BaseKernel( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
-                          prefix + "::SetPoints", prefix + "::Outputs")
+            : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
+                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                                                prefix + "::SetPoints", prefix + "::Outputs")
         {}
 
         /**
@@ -87,8 +92,13 @@ namespace ORO_ControlKernel
          * @param name The name of the kernel
          */
         NSControlKernel(const std::string& prefix, const std::string& name)
-            : BaseKernel( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
-                          prefix + "::SetPoints", prefix + "::Outputs"),
+            : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
+                                  detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
+                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                                                prefix + "::SetPoints", prefix + "::Outputs"),
               NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
         {
         }
@@ -101,11 +111,11 @@ namespace ORO_ControlKernel
         /**
          * @brief Add a DataObject to the Outputs.
          */
-        template< class _DataObjecType>
-        void addOutputs(_DataObjectType* o, const std::string& name)
-        {
-            getOutputs()->reg( o, name );
-        }
+//         template< class _DataObjecType>
+//         void addOutputs(_DataObjectType* o, const std::string& name)
+//         {
+//             getOutputs()->reg( o, name );
+//         }
             
     protected:
 
