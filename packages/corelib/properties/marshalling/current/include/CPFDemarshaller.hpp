@@ -49,6 +49,14 @@ namespace ORO_CoreLib
     using namespace XERCES_CPP_NAMESPACE;
 #endif
 
+    inline void XMLChToStdString(const XMLCh* const c, std::string& res)
+    {
+        char* chholder;
+        chholder = XMLString::transcode( c );
+        res = chholder;
+        delete[] chholder;
+    }
+
     class SAX2CPFHandler : public DefaultHandler
     {
 
@@ -138,13 +146,14 @@ namespace ORO_CoreLib
                 }
             }
 
+
             void startElement( const XMLCh* const uri,
                                const XMLCh* const localname,
                                const XMLCh* const qname,
                                const Attributes& attributes )
             {
-                string ln = XMLString::transcode( localname );
-
+                string ln;
+                XMLChToStdString( localname, ln );
 
                 if ( ln == "properties" )
                     tag_stack.push( TAG_PROPERTIES );
@@ -156,14 +165,15 @@ namespace ORO_CoreLib
 
                         for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                         {
-                            string an = XMLString::transcode( attributes.getLocalName(ac) );
+                            string an;
+                            XMLChToStdString( attributes.getLocalName(ac), an );
                             if ( an == "name") 
                             {
-                                name = XMLString::transcode( attributes.getValue(ac) );
+                                XMLChToStdString( attributes.getValue(ac), name);
                             }
                             else if ( an == "type")
                             {
-                                type = XMLString::transcode( attributes.getValue(ac) );
+                                XMLChToStdString( attributes.getValue(ac), type);
                             }
                         }
                     }
@@ -179,15 +189,16 @@ namespace ORO_CoreLib
                             bool hasType = false;
                             for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                             {
-                                string an = XMLString::transcode( attributes.getLocalName(ac) );
+                                string an;
+                                XMLChToStdString( attributes.getLocalName(ac), an );
                                 if ( an == "name") 
                                 {
-                                    name = XMLString::transcode( attributes.getValue(ac) );
+                                    XMLChToStdString( attributes.getValue(ac), name);
                                 }
                                 else if ( an == "type") 
                                 {
                                     hasType = true;
-                                    type = XMLString::transcode( attributes.getValue(ac) );
+                                    XMLChToStdString( attributes.getValue(ac), type);
                                 }
                             }
                             PropertyBag *pb;
@@ -208,24 +219,39 @@ namespace ORO_CoreLib
 
             void warning( const SAXParseException& exception )
             {
-                cerr << "Parse Warning : " << XMLString::transcode(exception.getMessage()) <<endl;
-                if ( XMLString::transcode(exception.getPublicId()) )
-                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                string warn;
+                XMLChToStdString( exception.getMessage(), warn);
+                cerr << "Parse Warning : " << warn <<endl;
+                if ( exception.getPublicId() )
+                    {
+                        XMLChToStdString( exception.getPublicId(), warn);
+                        cerr << " At entity "<< warn <<endl;
+                    }
                 cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
 
             void error( const SAXParseException& exception )
             {
-                cerr << "Parse Error : " << XMLString::transcode(exception.getMessage()) <<endl;
-                if ( XMLString::transcode(exception.getPublicId()) )
-                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                string warn;
+                XMLChToStdString( exception.getMessage(), warn);
+                cerr << "Parse Error : " << warn <<endl;
+                if ( exception.getPublicId() )
+                    {
+                        XMLChToStdString( exception.getPublicId(), warn);
+                        cerr << " At entity "<< warn <<endl;
+                    }
                 cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
             void fatalError( const SAXParseException& exception )
             {
-                cerr << "FATAL Parse Error : " << XMLString::transcode(exception.getMessage()) <<endl;
-                if ( XMLString::transcode(exception.getPublicId()) )
-                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                string warn;
+                XMLChToStdString(exception.getMessage(), warn);
+                cerr << "Parse Fatal Error : " << warn <<endl;
+                if ( exception.getPublicId() )
+                    {
+                        XMLChToStdString(exception.getPublicId(), warn);
+                        cerr << " At entity "<< warn <<endl;
+                    }
                 cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
             void characters( const XMLCh* const chars, const unsigned int length )
@@ -234,11 +260,11 @@ namespace ORO_CoreLib
                 switch ( tag_stack.top() )
                 {
                     case TAG_DESCRIPTION:
-                        description = XMLString::transcode( chars );
+                        XMLChToStdString( chars, description);
                         break;
 
                     case TAG_VALUE:
-                        value_string = XMLString::transcode( chars );
+                        XMLChToStdString( chars, value_string);
                         break;
                     case TAG_STRUCT:
                     case TAG_SIMPLE:
@@ -273,8 +299,10 @@ namespace ORO_CoreLib
                 }
                 catch ( const XMLException & toCatch )
                 {
+                    string error;
+                    XMLChToStdString(toCatch.getMessage(), error);
                     cerr << "Error during initialization! : " <<endl;
-                    cerr << XMLString::transcode(toCatch.getMessage()) << endl;
+                    cerr << error << endl;
                     return false;
                 }
                 catch ( ... )
