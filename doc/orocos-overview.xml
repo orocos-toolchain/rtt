@@ -75,6 +75,8 @@ the <emphasis>Open RObot COntrol Software</emphasis> project.
 
 </artheader>
 
+<chapter>
+<title>Introduction</title>
 <sect1 id="intro">
 <title>What is Orocos?</title>
 <para>
@@ -527,7 +529,7 @@ communication between &orocos; components, robot kinematics, etc.
 <title>Code directory structure: the Packages</title>
 <para>
 The functionality available in &orocos; is structured in a number of
-sub-projects; each of these is called an
+sub-projects; each of these is called a
 <emphasis>(&orocos;) Package</emphasis>.
 A Package contains a coherent and related set of functionality, in the
 form of documentation, and <emphasis>class libraries</emphasis> and
@@ -546,10 +548,16 @@ The directories of each Package contain a detailed documentation of
 the Package in their local <filename class="directory">/doc</filename>
 directories.
 </para>
-
-</sect3>
-
-</sect2>
+	<para>
+	  The packages directory is mostly found under the orocos
+	  directory. The orocos directory holds some general documentation
+	  in the doc directory (like this manual) and scripts for setting
+	  up a working packages directory. This means that, unless you are
+	  very familiar with the packaging system, you should first install
+	  the base system before trying to install a package.
+	</para>
+      </sect3>
+    </sect2>
 
 
 <sect2 id="components">
@@ -657,11 +665,11 @@ Two packages with support for distributed, CORBA-based communication
 between robot systems were also released in 2002.
 </para>
 </sect2>
-
-
 </sect1>
+</chapter>
 
-
+<chapter>
+<title> Setting up your first &orocos; source tree </title>
 <sect1 id="installation">
     <title>Installation and configuration</title>
 
@@ -869,6 +877,38 @@ next section. Of course, you don't have to apply the
 	  Kernel modules can be found in the install/modules directory and
 	  might need manual installation.
 	</para>
+	  <para>You can find the resulting build products on the following places:</para>
+	  <table frame="all">
+	    <title>Build Products Locations</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>What</entry>
+		  <entry>Where</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>Executable programs</entry>
+		  <entry>install/bin</entry>
+		</row>
+		<row>
+		  <entry>Orocos library</entry>
+		  <entry>install/lib</entry>
+		</row>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Orocos header files</entry>
+		  <entry>install/include</entry>
+		</row>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Orocos kernel modules</entry>
+		  <entry>install/modules</entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
       </sect3>
     </sect2>
 
@@ -922,30 +962,30 @@ configure script will select the os/rtai target
     </sect2>
     <sect2 id="general_setup_rtai">
       <title >Configuring for RTAI</title>
-<para>
-	Read first the 'Getting Started' section from 
-        <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this page</ulink> if you
-	are not familiar with RTAI instalation
-</para>
-<para>
-We recommend using RTAI version 24.1.11 or later. You can obtain it from 
-<ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
-<screen>
-	  export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
-	  cvs login
+	<para>
+	  Read first the 'Getting Started' section from 
+	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this page</ulink> if you
+	  are not familiar with RTAI instalation
+	</para>
+	<para>
+	  We recommend using RTAI version 24.1.11 or later. You can obtain it from 
+	  <ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
+	  <screen>
+	    export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
+	    cvs login
       
-password: anoncvs
+	    password: anoncvs
 
-	  cvs -z3 co etna
-	  cvs -z3 up 
-</screen>
-Read The README.* files in the
-<filename class="directory">rtai</filename> directory for detailed
-instructions.  First, you need to patch your Linux kernel. A patch per
-kernel version can be found in the rtai/patches directory. You should
-apply the <filename>patch-X.Y.Z-adeos-rx</filename> patch to a clean
-Linux kernel.  We refer to the RTAI installation instructions for more
-details.
+	    cvs -z3 co etna
+	    cvs -z3 up 
+	  </screen>
+	  Read The README.* files in the
+	  <filename class="directory">rtai</filename> directory for detailed
+	  instructions.  First, you need to patch your Linux kernel. A patch per
+	  kernel version can be found in the rtai/patches directory. You should
+	  apply the <filename>patch-X.Y.Z-adeos-rx</filename> patch to a clean
+	  Linux kernel.  We refer to the RTAI installation instructions for more
+	  details.
       </para>
       <para>
       There's an extra Orocos patch you need to apply to the stable RTAI branch.
@@ -1067,204 +1107,138 @@ details.
     </sect2>
     <sect2>
       <title>Configuring for RTLinux</title>
-<para>
-The latest free release of RTLinux was 3.2. RTLinux has no memory
-management, and this puts a limit on our use of STL (Standard Template
-Library) vectors in realtime. (In fact, we need maps too.) For these
-reasons, RTLinux is less supported and might lead to unstability. 
-</para>
-<para>
-	For a recent kernel patch, look at <ulink
-	  url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to
-	  newer Linux kernels</ulink> webpage. The RTLinux 
-	<ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more
-	information.
+	<para>
+	  The latest free release of RTLinux was 3.2. RTLinux has no memory
+	  management, and this puts a limit on our use of STL (Standard Template
+	  Library) vectors in realtime. (In fact, we need maps too.) For these
+	  reasons, RTLinux is less supported and might lead to unstability. 
+	</para>
+	<para>
+	  For a recent kernel patch, look at <ulink
+	    url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to
+	    newer Linux kernels</ulink> webpage. The RTLinux 
+	  <ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more
+	  information.
+	</para>
+	
+	<sect3>
+	  <title>Loading RTLinux</title>
+	  <para>
+	    The following RTLinux kernel modules should be loaded in the specified order:
+	    <orderedlist>
+	      <listitem><para>rtl</para></listitem>
+	      <listitem><para>rtl_time</para></listitem>
+	      <listitem><para>rtl_posixio</para></listitem>
+	      <listitem><para>rtl_fifo</para></listitem>
+	      <listitem><para>rtl_sched</para></listitem>
+	    </orderedlist>
+	    You can use the <command>modprobe</command> or <command>insmod</command> as root
+	    to load these needed kernel modules.
+	  </para>
+	</sect3>
+      </sect2> 
+    </sect1>
+  </chapter>
+
+<chapter>
+    <sect1 id="started">
+      <title>Getting started with the code</title>
+      <para>
+	This Section provides the semantics of the services available in the
+	&orocos; Packages.
       </para>
       
-      <sect3>
-        <title>Loading RTLinux</title>
+      <sect2>
+	<title>A quick test</title>
 	<para>
-	  The following RTLinux kernel modules should be loaded in the specified order:
-	  <orderedlist>
-	    <listitem><para>rtl</para></listitem>
-	    <listitem><para>rtl_time</para></listitem>
-	    <listitem><para>rtl_posixio</para></listitem>
-	    <listitem><para>rtl_fifo</para></listitem>
-	    <listitem><para>rtl_sched</para></listitem>
-	  </orderedlist>
-	  You can use the <command>modprobe</command> or <command>insmod</command> as root
-	  to load these needed kernel modules.
+	  To quickly test &orocos; code, you can run <command>make check_packages</command> 
+	  in your build directory. This will require
+	  the TestCases application to be present in you applications directory.
+	  A test program will be built which tests some basic functionalities
+	  of the CoreLib. The resulting file is <command>install/bin/testcase</command>.
+        </para>
+      </sect2>
+      <sect2>
+	<title> What about main() ?</title>
+	<para>
+	  The first question asked by many users is : How do I write a
+	  test program to see how it works? 
 	</para>
-      </sect3>
-    </sect2> 
-  </sect1>
+        <para>
+	  Building a sample application with &orocos; is quite simple,
+	  but some care must be taken in initialising the realtime
+	  environment. First of all, you need to provide a function
+	  <function>int ORO_main(int argc, const char* argv)
+	    {...}</function> which contains your program. If you link
+	  with the install/lib/libtarget.a library, this function will
+	  be called after the basic environment is set up. To put in
+	  other words, the libtarget.a library already contains a
+	  main() function which will call the user-defined ORO_main()
+	  function.
+	</para>
+	<example>
+	  <title>A Makefile for an Orocos application</title>
+	  <para>
+	    You can then simply compile your program with a Makefile
+	    resembling this one : 
+	    <programlisting> 
+	      all: myprogram.cpp
+	           gcc myprogram.cpp -Iorocos/install/include -Lorocos/install/lib -ltarget.a -lstdc++ -lpthreads -o myprogram 
+	    </programlisting>
+	    As you can see, your application does not have to be
+	    inside the packages directory at all. Applications can
+	    be developped fully out of the Orocos (build) directory.
+	  </para>
+	</example>
+<!--         The short answer is: modify a program in the -->
+<!--         <filename class="directory">tests</filename> directory.  The even -->
+<!--         shorter answer is: <emphasis>There is no main (Neo realized that -->
+<!--         too!). </emphasis>  -->
+<!--         In the current implementation, realtime execution in the kernel -->
+<!--         of your program is provided by inserting kernel modules into the -->
+<!--         kernel using the commands <command>insmod</command> and -->
+<!--         <command>rmmod</command> as the root user. <command>insmod</command> -->
+<!--         will call a function <function>init_module()</function> and -->
+<!--         <command>rmmod</command> will call a function -->
+<!--         <function>cleanup_module()</function>. You must -->
+<!--         provide them, so that when they are called, they start your realtime -->
+<!--         program. You can see an example in <filename>src/module.c</filename>. -->
+<!--         As you will see, <filename>module.c</filename> calls our real C++ -->
+<!--         function which then starts or stops our program. -->
+<!--         <filename>src/moduleStartStop.c</filename> is another example we use -->
+<!--         for starting and stopping the framework in kernel space. -->
+      </sect2>
+    </sect1>
+  </chapter>
 
-<sect1 id="started">
-<title>Getting started with the code</title>
-    <para>
-    This Section provides the semantics of the services available in the
-    &orocos; Packages.
-    </para>
-    
-    <sect2>
-    <title>A quick test</title>
-        <para>
-        To quickly test &orocos; code, you can run <command>make
-        check</command> in your build directory. You have to do this as root
-        when you are building for RTAI or RTLinux. You'll see a lot of text
-        scrolling over the screen, being the output of the programs in the
-        <filename>tests</filename> directory.  You can start examining
-        <filename>test.cpp</filename> and work your way up to more complex
-        tests. We may provide, some time in the near future, a <command>make
-        examples</command> target and an examples subdirectory. But for now,
-        the tests are the example programs. The tests are called by the
-        <filename>UnitTest.hpp</filename> file. See the documentation in that
-        file for how it works.
-        </para>
-        </sect2>
-        <sect2>
-          <title> Where's main() ?</title>
-          <para>
-            The first question asked by many users is : How do I write a test program to see
-            how it works? 
-          </para>
-        <para>
-        The short answer is: modify a program in the
-        <filename class="directory">tests</filename> directory.  The even
-        shorter answer is: <emphasis>There is no main (Neo realized that
-        too!). </emphasis> 
-        In the current implementation, realtime execution in the kernel
-        of your program is provided by inserting kernel modules into the
-        kernel using the commands <command>insmod</command> and
-        <command>rmmod</command> as the root user. <command>insmod</command>
-        will call a function <function>init_module()</function> and
-        <command>rmmod</command> will call a function
-        <function>cleanup_module()</function>. You must
-        provide them, so that when they are called, they start your realtime
-        program. You can see an example in <filename>src/module.c</filename>.
-        As you will see, <filename>module.c</filename> calls our real C++
-        function which then starts or stops our program.
-        <filename>src/moduleStartStop.c</filename> is another example we use
-        for starting and stopping the framework in kernel space.
-        </para>
-        <para>
-        When you want to run the framework in userspace or LXRT, you
-        <emphasis>can</emphasis> write your own <function>main()</function>
-        function which includes the <filename>Framework.hpp</filename> file
-        and starts the framework manually. You can take a look at
-        <filename>tests/TestMain.cpp</filename> to see how that works.
-        For beginners, this is really the easiest way.
-        </para>
-    </sect2>
-    
-    <sect2>
-      <title> How do I compile my program ? </title>
-      <para> 
-	First of all, you can download the orocos-template
-	package which provides you with a documented template how to
-	use it. You do need the automake and autoconf tools to use this.
-	</para>
+  <chapter>
+    <sect1>
+      <title>Examples</title>
       <para>
-	Take a look at the <filename>Makefile.am</filename> file in the
-<filename class="directory">tests</filename> directory.  You will see
-first a list of all the header files and below that, some AutoMake
-directives abou how to build a specific program. 
-	<screen>
-	  test_gnulinux_SOURCES = test.cpp module.c
-	  test_gnulinux_LDADD = -L ../src -lorocos_core-gnulinux -lstdc++
-	</screen>
-	Above you see how the program <filename>test-gnulinux</filename> is
-compiled from <filename>test.cpp</filename>. LXRT has a similar syntax.
- We suggest you copy/paste
-this line and fill in your own filenames. For a realtime kernel module
-you need something like the following line:
-	<screen>
-	  test-rt.sh:
-	          $(top_srcdir)/tests/create_module_testscript.sh test-rt
-
-	  test_rt_o_SOURCES = test.cpp module.c
-
-	  test-rt.o: ${CRTBEGIN} $(test_rt_o_OBJECTS) ${CRTEND}
-	          ${LD} -r -o $@ ${CRTBEGIN} ${test_rt_o_OBJECTS} ${CRTEND} -lm -lc
-	</screen>
-The first two lines are common for all tests and instruct how a
-start/stop shell script must be made. The next line says that the
-module <filename>test-rt.o</filename> consists of two source files.
-The next two lines are standard for linking kernel modules in
-&orocos;.  A copy paste of these five lines should do for making your
-own kernel module.  You are obliged to add the programs name to the
-<literal>EXTRA_PROGRAMS</literal> line on top of your
-<filename>Makefile.am</filename>.
+	The project maintainers intend to write many example programs to
+	demonstrate how to build components and applications. At this time,
+	only the test directories contain some usage examples, but they may
+	not always be sufficiently clear. Please, post your example programs
+	on the mailing list, and the project will gratefully accept the good
+	ones.
       </para>
+    </sect1>
+    <sect1>
+      <title>Todo</title>
       <para>
-If you happened to rename the <filename>test-rt.o</filename> or
-<filename>test-gnulinux</filename> targets (or added your own), you
-need to add the new name to the <filename>configure.ac</filename> file
-in the packages root directory:
-	<screen>
-	  OROCOS_PRODUCTS_RTLINUX(
-	  [orocos_core-rtlinux.o orocos_core_run-rt.o],
-	  [test-rt.o test_heartbeat-rt.o test_event-rt.o test_eventinterrupt-rt.o]
-	  )
-	</screen>
-	You can see in the above example that RTLinux has two kernel modules
-	<filename>orocos_core-rtlinux.o</filename> and
-<filename>orocos_core_run-rt.o</filename> 
-	as main products. The test products are listed below. Every target operating
-	system has this macro for specifying what should be built. So you
-	can define your own kernel module or user program.
-</para>
-<para>
-Once you modified the source files and the <filename>Makefile.am</filename>
-and <filename>configure.ac</filename>, you can rerun make in your
-build directory.
-
- <note>
-<para> Changing your <filename>Makefile.am</filename> in your
-<filename class="directory">src</filename> directory will result in a
-rebuilding of the Makefile in your build directory. You will need the
-automake and autoconf tools which are probably provided by your Linux
-distribution.  See the installation Section for more information.
-</para>
- </note>
-</para>
-<para>
-	Yes, we are thinking about providing a template package with everything
-	in it. However, once you understand the above concepts, you can apply
-	them in every &orocos; package. 
-</para>
-</sect2>
-    
-</sect1>
-
-<sect1>
-<title>Examples</title>
-<para>
-The project maintainers intend to write many example programs to
-demonstrate how to build components and applications. At this time,
-only the test directories contain some usage examples, but they may
-not always be sufficiently clear. Please, post your example programs
-on the mailing list, and the project will gratefully accept the good
-ones.
-</para>
-</sect1>
-
-
-<sect1>
- <title>Todo</title>
-<para>
-The current Orocos framework has the following Packages: core, motioncontrol,
-drivers, interfacing, lrl (Leuvens Robotics Library) and robots. 
-Besides improving these Packages, some new Packages are needed:
-<itemizedlist>
-	<listitem><para>(Graphical) configuration: generating components 
-	    ineractively with a (G)UI</para></listitem>
-	<listitem><para>Remote Access: secure communication for
-	    accessing the framework over a network</para></listitem>
-      </itemizedlist>
-    </para>
-    
-  </sect1>
+	The current Orocos framework has the following Packages: core, motioncontrol,
+	drivers, interfacing, lrl (Leuvens Robotics Library) and robots. 
+	Besides improving these Packages, some new Packages are needed:
+	<itemizedlist>
+	  <listitem><para>(Graphical) configuration: generating components 
+	      ineractively with a (G)UI</para></listitem>
+	  <listitem><para>Remote Access: secure communication for
+	      accessing the framework over a network</para></listitem>
+	</itemizedlist>
+      </para>
+      
+    </sect1>
+  </chapter>
   <!--
   Having a glossary would be very helpfull for those trying to understand
   &orocos;.
