@@ -5,7 +5,12 @@ cdl_package OROPKG_KERNEL_COMPONENTS_PROCESS_CONTROL {
 This package contains components for generating or
 processing signals. It is usefull for rapid testing
 hardware with one analog io card or generating/
-controlling processes.
+controlling processes. It contains P, PID and
+FeedForward Controllers. Multi Channel signals
+can be generated using the signal Generator
+and a signal tracker Generator Components.
+Works very good in conjunction with the Motion Control
+and Hardware Components.
 "
     requires OROPKG_CONTROL_KERNEL
 

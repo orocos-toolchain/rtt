@@ -4,7 +4,7 @@
 <properties>
     <struct name="K" type="std::vector&lt;double&gt;">
       <description>The position Prop feedback gain.</description>
-      <simple name="dim" type="int">
+      <simple name="dim" type="short">
 	<description>The size of this std::vector.</description>
 	<value>2</value>
       </simple>

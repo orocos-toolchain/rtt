@@ -118,12 +118,7 @@ namespace ORO_ControlKernel
             // discrete time parameters
             for ( int i = 0; i < num_chans; i++)
                 {
-                    bi[i] = _K.get()[i]* T / _Ti.get()[i];
-                    ad[i] = ( 2*_Td.get()[i] - _N.get()[i]*T ) / 
-                        ( 2*_Td.get()[i] + _N.get()[i]*T );
-                    bd[i] = ( 2*_K.get()[i] * _N.get()[i]*_Td.get()[i] ) /
-                        ( 2*_Td.get()[i] + _N.get()[i]*T );
-                    a0[i] = T / _Tt.get()[i];
+                    recalculate(i, _K.get()[i]);
                 }
 
             return Base::Output::dObj()->Get("ChannelValues",outp_dObj);
@@ -278,57 +273,27 @@ namespace ORO_ControlKernel
 
             // Recalculate the discrete time parameters
             // The parameters for the integral action (if Ti == 0, no integral action)
-            if ( _Ti.get()[c] != 0 )
+            if ( _Ti.get()[c] != 0 ) {
+                a0[c] = T / _Tt.get()[c];
                 bi[c] = _K.get()[c] * T / _Ti.get()[c];
-            else
+            }
+            else {
+                a0[c] = 0.0;
                 bi[c] = 0.0;
+            }
 
             // The parameters for the derivative action (if Td == 0, no derivative action)
             if ( _Td.get()[c] != 0 )
                 {
                     ad[c] = ( 2 * _Td.get()[c] - _N.get()[c] * T ) / ( 2 * _Td.get()[c] + _N.get()[c] * T );
                     bd[c] = ( 2 * _K.get()[c] * _N.get()[c] * _Td.get()[c] ) / ( 2 * _Td.get()[c] + _N.get()[c] * T );
-                    a0[c] = T / _Tt.get()[c];
                 }
             else
                 {
                     ad[c] = 0.0;
                     bd[c] = 0.0;
-                    a0[c] = 0.0;
                 };
         }
-
-#if 0
-        // experimental, recalculate all channels at once
-        void recalculateAll( std::vector<double> newK )
-        {
-            // bumpless parameter changes
-            uI += _K * ( _refPos - y ) - newK * ( _refPos - y );
-            _K = newK;
-
-            // Recalculate the discrete time parameters
-            // The parameters for the integral action (if Ti == 0, no integral action)
-            if ( newTi != 0 )
-                bi = _K * T / newTi;
-            else
-                bi = 0.0;
-
-            // The parameters for the derivative action (if Td == 0, no derivative action)
-            if ( Td != 0 )
-                {
-                    ad = ( 2 * Td - N * T ) / ( 2 * Td + N * T );
-                    bd = ( 2 * _K * N * Td ) / ( 2 * Td + N * T );
-                    a0 = T / Tt;
-                }
-
-            else
-                {
-                    ad = 0.0;
-                    bd = 0.0;
-                    a0 = 0.0;
-                };
-        }
-#endif
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         bool true_gen() const { return true; }
