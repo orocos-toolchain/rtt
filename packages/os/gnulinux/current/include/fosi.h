@@ -60,14 +60,9 @@ extern "C"
 #ifdef __cplusplus 
         //  printf("TimeOFDay: %e ns\n", double(tv.tv_usec*1000LL + tv.tv_sec*1000000000LL));
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_usec ) * 1000LL;
-
 #else
-
         return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_usec * 1000LL );
-
 #endif 
-        //  gethrtime();
-
     }
 
     /**

@@ -1,8 +1,8 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-os-doc.tgz \
 	orocos-os.html orocos-os.pdf \
-	FDIvsFOSI.png
+	FDIvsFOSI.png orocos-os.ps
 
 docxml: dochtml docpdf
 
