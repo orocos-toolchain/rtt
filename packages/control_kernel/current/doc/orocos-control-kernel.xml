@@ -1857,7 +1857,7 @@ public:
 	  <listitem>
 	    <para>bool : this->isSelected()</para>
 	    <para>Query if this component is selected in the kernel.
-	      Use it to guard methods that only have meaningfull effect
+	      Use it to guard methods that only have meaningful effect
 	      if the component is selected (i.e. it requires a running
 	      kernel).
 	    </para>
@@ -1866,7 +1866,7 @@ public:
 	    <para>KernelBaseInterface* : this->kernel()</para>
 	    <para>Returns a pointer to the KernelBaseInterface of the
 	      kernel this component is loaded in. Returns null if
-	      this->inKernel() == false. Usefull to query the kernel's
+	      this->inKernel() == false. Useful to query the kernel's
 	      configuration parameters, like its period (see
 	      section <link linkend="kernel-configuration">
 	      Control Kernel Configuration</link> ).
