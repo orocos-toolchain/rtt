@@ -38,7 +38,24 @@ namespace ORO_DeviceDriver
     {
     public:
         virtual ~CalibrationInterface() {}
+        /**
+         * @brief Start or perform calibration.
+         */
         virtual void calibrate() = 0;
+
+        /** 
+         * @brief Inspect if a calibration has been done.
+         * 
+         * 
+         * @return True if so.
+         */
+        virtual bool isCalibrated() const = 0;
+
+        /** 
+         * @brief Undo any previous calibration
+         * ( this function may have no effect ).
+         */
+        virtual void unCalibrate() = 0;
     };
 }
 

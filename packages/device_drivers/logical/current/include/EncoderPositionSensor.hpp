@@ -29,6 +29,7 @@
 #define ENCODER_POSITION_SENSOR_HPP
 
 #include <device_interface/SensorInterface.hpp>
+#include <device_interface/CalibrationInterface.hpp>
 
 #include <limits>
 
@@ -37,10 +38,11 @@ namespace ORO_DeviceDriver
     using ORO_DeviceInterface::SensorInterface;
     /**
      * @brief A sensor reading a single Encoder and converting
-     * the counter to a physical unit.
+     * the counter to a physical unit, with support for calibration.
      */
     class EncoderPositionSensor
-        : public SensorInterface<double>
+        : public SensorInterface<double>,
+          public CalibrationInterface
     {
         EncoderInterface* enc;
         double unit_to_inc;
@@ -48,9 +50,23 @@ namespace ORO_DeviceDriver
         double max;
         double posOffset;
         bool calibrated;
+        double cal_pos;
+        double cal_dir;
+        double max;
     public:
+        /** 
+         * @brief Create a new EncoderInterface to SensorInterface Object.
+         * 
+         * @param _enc   The Encoder to use
+         * @param _unit_to_inc Conversion of physical units to increments (eg increments / mm )
+         * @param _minpos The minimal, physical position, after calibration
+         * @param _maxpos The maximal, physical position, after calibration
+         * 
+         */
         EncoderPositionSensor(EncoderInterface* _enc, double _unit_to_inc, double _minpos, double _maxpos)
-            : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false) {}
+            : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false),
+              cal_pos(0), cal_dir(-1)
+        {}
 
         virtual int readSensor( double& p ) const
         {
@@ -65,6 +81,43 @@ namespace ORO_DeviceDriver
         {
             min = _min;
             max = _max;
+        }
+        /** 
+         * @brief Set the calibration position of this encoder
+         * 
+         * @see \a calibrate()
+         * @param pos The value the encoder will read out on a
+         * calibrated position.
+         */
+        void calibrationPosition( double pos )
+        {
+            cal_pos = pos;
+        }
+        /** 
+         * @brief Set the direction in which the calibration
+         * will be done.
+         *
+         * @see \a calibrate()
+         * @param dir A positive or negative value.
+         */
+        void calibrationDirection( double dir )
+        {
+            cal_dir = dir;
+        }
+
+        virtual void calibrate() 
+        {
+            this->calibrate( cal_pos, cal_dir );
+        }
+
+        virtual void unCalibrate()
+        {
+            this->calibrated = false;
+        }
+
+        virtual bool isCalibrated() const
+        {
+            return this->calibrated;
         }
 
         virtual double readSensor() const
@@ -92,9 +145,11 @@ namespace ORO_DeviceDriver
          * and direction of the movement.
          *
          * A calibration position is
-         * defined by a positionGet() == 0. You may
+         * defined by a \a positionGet() == 0 (thus, the encoder count is zero),
+         * for any turn \a turnGet() == k. You may
          * call this method only when the encoder is no more than a turn
-         * distance away from the calibration point.
+         * distance away from the intended calibration point. After calibration,
+         * \a readSensor() == \a cal_pos and \a isCalibrated() == \a true .
          * @verbatim
          * ...|..........|..........|..........| : | = turn increment, . = position increment/decrement
          *    ^turn==N-1 ^ turn==N  ^ turn==N+1
