@@ -1,7 +1,8 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-program-parser-doc.tgz \
-	orocos-program-parser.html orocos-program-parser.pdf
+	orocos-program-parser.html orocos-program-parser.pdf \
+	orocos-program-parser.ps
 
 docxml: dochtml docpdf
 

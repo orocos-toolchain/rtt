@@ -1,8 +1,8 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-program-processor-doc.tgz \
 	orocos-program-processor.html orocos-program-processor.pdf \
-	PPstates.png
+	PPstates.png orocos-program-processor.ps
 
 docxml: dochtml docpdf
 

@@ -67,11 +67,15 @@ namespace ORO_Execution
   using ORO_CoreLib::PropertyBag;
 
   /**
-   * Class keeping the information on how to generate one thing that
-   * the factory can generate.  Each name in the TemplateFactory will
+   * @defgroup TemplateFactoryPart
+   * @brief Class keeping the information on how to generate one thing that
+   * the factory can generate.
+   *
+   * Each name in the TemplateFactory will
    * be linked with one TemplateFactoryPart that knows how to produce
    * the thing that the name is used for..  Below are standard
    * implementations for functors of various signatures.
+   * @{
    */
   template<typename ComponentT, typename ResultT>
   class TemplateFactoryPart
@@ -313,9 +317,13 @@ namespace ORO_Execution
         return fun( comp, a, b, c );
       };
   };
+    /**
+     * @}
+     */
 
   /**
-   * Helper functions for the FactoryFunctorPartN's
+   * @defgroup FactoryFunctorPartNHelper Helper functions for the FactoryFunctorPartN's
+   * These functions create new TemplateFactoryFunctorPart instances.
    * @{
    */
   template<typename ComponentT, typename ResultT, typename FunctorT>
@@ -360,6 +368,11 @@ namespace ORO_Execution
    * @}
    */
 
+    /**
+     * This factory is a template for creating parts, on a per
+     * component basis. The parts themselves are created by
+     * the TemplateFactoryFunctorPart functions.
+     */
   template<typename ComponentT, typename ResultT>
   class TemplateFactory
   {
