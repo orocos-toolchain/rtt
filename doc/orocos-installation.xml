@@ -277,7 +277,7 @@
 	    </para>
 	      <note>
 		<para>
-		  The <command>./bootstrap.sh</command> script must be rerun after
+		  The <command>../configure</command> script must be rerun after
 		  you installed missing libraries (like boost, xerces,...).
 		</para>
 	      </note>

@@ -44,7 +44,8 @@ OROCOS_DEFAULT_FLAGS(
 
 OROCOS_EXPORT_FLAGS
 
-AC_CHECK_PROG(ECOSCONFIG,ecosconfig,ecosconfig,no)
+PATH=$PATH:$(cd $(dirname $0);pwd)/tools/bin
+AC_CHECK_PROG(ECOSCONFIG,ecosconfig,$(which ecosconfig),no)
 if test "x$ECOSCONFIG" = "xno"; then
 AC_MSG_ERROR("The program 'ecosconfig' not found on your system.
 Orocos needs it to configure its packages properly. See the
