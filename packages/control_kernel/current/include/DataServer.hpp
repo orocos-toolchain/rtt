@@ -138,6 +138,7 @@ namespace ORO_ControlKernel
 
         virtual void exportReports( PropertyBag& bag ) const
         {
+            // Export all members of this server.
             // this is only done once on startup. The reporting extension
             // assumes they are updated with the updateReports() method.
             //PropertyBagIntrospector inspector( bag );
@@ -148,14 +149,17 @@ namespace ORO_ControlKernel
             for ( ; it1 != it2; ++it1)
                 {
                     // MemberType is *not* a pointer !
-                    // the object is copied into the Property
-                    if ( (*it1).find( prefix ) == 0 )
+                    // the object is copied into the Property if the prefix is correct and it's not yet in the bag.
+                    // because other servers try to copy it also into the bag.
+                    //std::cerr <<"["<<prefix << "] Should I export : "<< (*it1);
+                    if ( (*it1).find( prefix ) == 0 && bag.find( std::string( (*it1), prefix.length() ) ) == 0 )
                         {
+                            //std::cerr << " yes."<<endl;
                             MemberType val;
                             ns.getObject( *it1 )->Get(val);
                             bag.add( new Property<MemberType>( std::string( (*it1), prefix.length() ),
                                                                std::string( "" ), val ) );
-                        }
+                        } //else std::cerr << " no."<<endl;
                 }
         }
 

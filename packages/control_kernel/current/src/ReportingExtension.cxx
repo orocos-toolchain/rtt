@@ -220,6 +220,7 @@ namespace ORO_ControlKernel
                 // see if xml-listed data_server is present in this kernel :
                 boost::shared_ptr<DataObjectReporting>
                     do_server(DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ));
+                //std::cerr << "Looking up " << *it;
                 if ( do_server.get() )
                     {
                         //std::cerr <<" found as '" + base->getKernelName() + "::" + *it+"'";
@@ -265,8 +266,8 @@ namespace ORO_ControlKernel
                             // if the DataName is in the server, but not in the reports yet, add it to the reports.
                             new_item = tmp_bag.find( std::string( *it, pos+2 ) );
                             if ( new_item != 0 ) {
-                                //cerr << " ok: present in DataObject."<<endl;
-                                //cerr << " Checking if server has parent '" + std::string( *it, 0, pos+2 ) +"' : ";
+                                //std::cerr << " ok: present in DataObject."<<endl;
+                                //std::cerr << " Checking if server has parent '" + std::string( *it, 0, pos+2 ) +"' : ";
                                 if ( do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0) {
                                     //std::cerr << " not found thus adding new_item"<<endl;
                                     do_server->getReports()->value().add( new_item->clone() );
