@@ -305,6 +305,7 @@ namespace ORO_CoreLib
 
                     parser->parse( *s );
                     errorCount = parser->getErrorCount();
+                    delete parser;
                     XMLPlatformUtils::Terminate();
                 }
                 catch ( const XMLException & toCatch )
@@ -314,12 +315,14 @@ namespace ORO_CoreLib
                         cerr <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<endl ;
                     cerr << " Error: " << endl;
                     cerr << XMLString::transcode(toCatch.getMessage()) <<endl;
+                    delete parser;
                     XMLPlatformUtils::Terminate();
                     return false;
                 }
                 catch ( ... )
                 {
                     cerr << "General System Exception !" << endl;
+                    delete parser;
                     XMLPlatformUtils::Terminate();
                     return false;
                 }
