@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "cpf.dtd">
-<!-- Properties of the Sensor component -->
-<properties>
-    <simple name="Name" type="string"><description>The unique name of this component</description><value>CartesianSensor</value></simple>
-</properties>
