@@ -149,7 +149,10 @@ namespace ORO_ControlKernel
   }
 
   void nAxesSensorCartesianPosForce::exportProperties(ORO_CoreLib::PropertyBag& bag)
-  {};
+  {
+    bag.add(&_mass);
+    bag.add(&_center_gravity);
+  };
 
 
   
