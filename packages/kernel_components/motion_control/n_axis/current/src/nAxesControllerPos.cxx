@@ -158,7 +158,7 @@ namespace ORO_ControlKernel
   MethodFactoryInterface* nAxesControllerPos::createMethodFactory()
   {
     TemplateMethodFactory<nAxesControllerPos>* my_methodFactory = newMethodFactory( this );
-    my_methodFactory->add( "getMeasurement", method( &nAxesControllerPos::getMeasurement, "Get offset measurement", "axis_num", "offset of axis number axis_num" ));
+    my_methodFactory->add( "getMeasurement", method( &nAxesControllerPos::getMeasurement, "Get offset measurements"));
 
     return my_methodFactory;
   }
@@ -188,12 +188,9 @@ namespace ORO_ControlKernel
   }
   
 
-  double nAxesControllerPos::getMeasurement(int i) const
+  std::vector<double> nAxesControllerPos::getMeasurement()
   {
-    if (i<0 || i>((int)_num_axes)-1)
-      return 0.0;
-    else
-      return _offset_measurement[i];
+    return _offset_measurement;
   }
 
 } // namespace

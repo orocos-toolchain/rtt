@@ -204,19 +204,16 @@ namespace ORO_ControlKernel
   {};
   
 
-  /*
   CommandFactoryInterface* nAxesGeneratorPos::createCommandFactory()
   {
     TemplateCommandFactory<nAxesGeneratorPos>* my_commandFactory = newCommandFactory( this );
     my_commandFactory->add( "moveTo", command( &nAxesGeneratorPos::moveTo,
 					       &nAxesGeneratorPos::moveFinished,
 					       "Set the position setpoint",
-					       "setpoint", "joint setpoint for each axis",
-					       "time", "minimum time to execute trajectory") );
+					       "setpoint", "joint setpoint for all axes",
+					       "time", "minimum time to complete trajectory") );
     return my_commandFactory;
   }
-  */
-
 
   MethodFactoryInterface* nAxesGeneratorPos::createMethodFactory()
   {
