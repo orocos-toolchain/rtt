@@ -39,8 +39,9 @@
 namespace ORO_CoreLib
 {
     /**
-     * A stub that monitors variables, puts them in a report and is able to
+     * @brief A stub that monitors variables, puts them in a report and is able to
      * export them in a threadsafe way.
+     * @deprecated by PropertyExporter
      */
     class ReportHandler : 
         public StringExporterInterface,

@@ -38,7 +38,8 @@ namespace ORO_CoreLib
 {
 
     /**
-     * Implements an Active Report Listener.
+     * @brief Implements an Active ReportCollectorInterface.
+     *
      * Listens to added Exporters and publishes their info
      * on a WriteInterface object.
      */

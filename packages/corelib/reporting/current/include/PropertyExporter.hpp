@@ -31,12 +31,17 @@
 #include "PropertyBag.hpp"
 #include "Property.hpp"
 #include "ReportExporterInterface.hpp"
+#include "HeartBeatGenerator.hpp"
+
+#pragma interface
 
 namespace ORO_CoreLib
 {
     /**
-     * This PropertyBag is extended to report its contents
-     * as a Report Server. You can use it as a normal PropertyBag
+     * @brief This PropertyBag is extended to report its contents
+     * as a Report Server.
+     *
+     * You can use it as a normal PropertyBag
      * and use the add()/remove() methods to insert or remove a Property
      * from the bag.
      *

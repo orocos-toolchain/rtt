@@ -34,11 +34,14 @@ namespace ORO_CoreLib
 {
 
     /**
-     * This interfaces defines an object, acting as a server, that will read
+     * @brief This interfaces defines an object, acting as a server, that will read
      * the contents of a variable (from the client) for reporting purposes.
+     *
      * The server will descide how many times and when the variable is read. Since
      * no protection (like mutexes) are available, this interface can only be used
      * when the server works in a way synchronised with the client.
+     *
+     * @deprecated by ReportCollectorInterface
      */
     class MonitorInterface
     {

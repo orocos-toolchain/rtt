@@ -12,6 +12,7 @@ description of the nomenclature."
     requires OROPKG_CORELIB
 
     compile ReportHandler.cxx  ReportWriter.cxx
+    compile ReportCollectorInterface.cxx PropertyExporter.cxx
 
     requires OROINT_OS_STDSTRING
     requires OROPKG_CORELIB_PROPERTIES

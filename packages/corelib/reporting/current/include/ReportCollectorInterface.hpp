@@ -30,10 +30,12 @@
 
 #include "ReportExporterInterface.hpp"
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
     /**
-     * This interface defines an object that collects one or
+     * @brief This interface defines an object that collects one or
      * more reports from ReportExporters.
      */
     template <class _ReportType>

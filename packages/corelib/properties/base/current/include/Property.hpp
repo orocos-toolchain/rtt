@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef PI_PROPERTY
-#define PI_PROPERTY
+#ifndef ORO_PROPERTY_HPP
+#define ORO_PROPERTY_HPP
 
 #include <pkgconf/corelib_properties.h>
 #include "Marshaller.hpp"
@@ -43,13 +43,15 @@
 
 #include <iostream>
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 #ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
     using namespace detail;
 #endif
     /**
-     * @group helpers Helper functions for Property operations.
+     * @brief Helper functions for Property operations.
      *
      * These two helper functions define for each type which
      * operators need to be applied to copy or update a type T.
@@ -144,7 +146,7 @@ namespace ORO_CoreLib
              */
             Property<T>& operator<<=(Property<T> &p)
             {
-                update(value, p.get());
+                ORO_CoreLib::update(_value, p.get());
                 return *this;
             }
 
@@ -263,6 +265,14 @@ namespace ORO_CoreLib
         return os;
     }
 #endif
+
+    extern template class Property<double>;
+    extern template class Property<bool>;
+    extern template class Property<float>;
+    extern template class Property<int>;
+    extern template class Property<unsigned int>;
+    extern template class Property<std::string>;
+    extern template class Property<PropertyBag>;
 
 }
 

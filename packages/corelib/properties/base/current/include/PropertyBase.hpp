@@ -37,6 +37,8 @@
 #include "PropertyIntrospection.hpp"
 #include "PropertyMutatingIntrospection.hpp"
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 	class Marshaller;
