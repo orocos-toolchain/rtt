@@ -172,7 +172,7 @@ namespace ORO_Execution
     FunctorT fun;
     typename DataSource<Arg1T>::shared_ptr aa;
     typename DataSource<Arg2T>::shared_ptr bb;
-    typename DataSource<Arg2T>::shared_ptr cc;
+    typename DataSource<Arg3T>::shared_ptr cc;
   public:
     FunctorCommand3( FunctorT f, DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c )
         : fun( f ), aa( a ), bb( b ), cc( c )
