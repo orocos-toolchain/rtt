@@ -83,6 +83,7 @@ namespace ORO_ControlKernel
     _kinematics->positionForward(temp, _world_MP );
 
     // mass compensation for force sensor
+    // transformation to world coordinates/reference point
     _world_FS = _world_MP * _MP_FS;
     _gravity.torque = (_world_FS * _center_gravity) * _gravity.force;
     _force = ( _world_FS * _force ) - _gravity;
