@@ -10,7 +10,7 @@
 
 <book>
   <bookinfo>
-    <title> Orocos ControlKernel </title>
+    <title> The Orocos Control Kernel Manual </title>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -42,8 +42,8 @@
     </authorgroup>
     <copyright>
       <year>2002</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
@@ -78,6 +78,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Updated to reflect new control kernel
 	  infrastructure</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.12</revnumber>
+	<date>11 Dec 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added NamesControlKernel docs</revremark>
       </revision>
     </revhistory>
 
@@ -116,15 +122,19 @@
     </sect1>
     <sect1><title>Prerequisites</title>
       <tip>
-	We highly advise you to read first the Orocos CoreLib documentation before going on.
-	It explains Events, Tasks versus Threads, NameServing and many other basic
-	functionalities used in Orocos.
+	<para>	
+	  We highly advise you to read first the Orocos CoreLib documentation before going on.
+	  It explains Events, Tasks versus Threads, NameServing and many other basic
+	  functionalities used in Orocos.
+	</para>      
       </tip>
       <tip>
-	This document only covers some generic use cases. If you want detailed
-	information about a class or function, read the Doxygen generated reference
-	of this package. You will find a lot of complementary
-	information in there not presented here.
+	<para>
+	  This document only covers some generic use cases. If you want detailed
+	  information about a class or function, read the Doxygen generated reference
+	  of this package. You will find a lot of complementary
+	  information in there not presented here.
+	</para>
       </tip>
     </sect1>
   </chapter>
@@ -243,19 +253,19 @@
 	  following list of answers :
 	  <itemizedlist>
 	    <listitem>
-	    Do I need to control different system states at different frequencies ?
-	    Meaning, do i need for example, to control velocities at a different
-	    frequency than positions ?
+	      <para>Do I need to control different system states at different frequencies ?
+		Meaning, do i need for example, to control velocities at a different
+		frequency than positions ?</para>
 	    </listitem>
 	    <listitem>
-	    Do I need to control different systems ? Meaning, do I need to control
-	    isolated parts, for example, 3 independent axes or an additional table.
+	      <para> Do I need to control different systems ? Meaning, do I need to control
+		isolated parts, for example, 3 independent axes or an additional table.</para>
 	    </listitem>
 	    <listitem>
-	    Do I need to switch between the controlled states in a running system ? 
-	    Meaning, do I need
-	    to maintain a low level control while I switch a higher level control
-	    mode ?
+	      <para>Do I need to switch between the controlled states in a running system ? 
+		Meaning, do I need
+		to maintain a low level control while I switch a higher level control
+		mode ?</para>
 	    </listitem>
 	  </itemizedlist> As you could have guessed, any yes answer on
 	  the above items indicates that an additional control kernel
@@ -357,6 +367,7 @@
 	(think one axis control):
       </para>
       <programlisting>
+	#include &lt;control_kernel/DefaultControlKernel.hpp&gt;
 	typedef DefaultControlKernel &lt;double, double, double, double, double&gt; My1DKernel;
       </programlisting>
       <para>
@@ -492,7 +503,8 @@
 	  Defining a Component of your own goes like this :
 	</para>
 	<screen>
-	  #include &lt;Kernel.hpp&gt; 
+	  #include &lt;control_kernel/DefaultControlKernel.hpp&gt;
+
 
 	  template &lt; class _DefaultGenerator &gt; 
 	  class MyGenerator 
@@ -597,7 +609,7 @@
 	  Interpolator residing in a Generator component.</para>
 	<para>A DataObject can be accessed from within the component
 	  as such :</para>
-	<screen>
+	<programlisting><![CDATA[
 	  // ... 
 	  _DefaultGenerator::InputType localCopy;
 	  _DefaultGenerator::SetPointType localResult; 
@@ -615,8 +627,8 @@
 	  void push() 
 	  {
 	       _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
-	  }
-	</screen>
+	  }]]>
+	</programlisting>
 	<para>
 	  What the above means is that the DefaultGenerator has Ports
 	  and one DataObject associated with each port. In the above
@@ -785,8 +797,244 @@
   <chapter>
     <title>Multiple DataObjects per Port : NameServed
       DataObjects</title>
-    <para>It is possible to access more than one DataObject through a
-      Port.</para>
+    <para>It is possible to access more than one DataObject of different
+      types through a Read or Write Port.</para>
+    <sect1>
+      <title>Introduction</title>
+      <para>
+	As the previous chapter explained, there are some problems
+	with de DefaultControlKernel with respect to its DataObjects. 
+	The disadvantages are listed again :
+	<itemizedlist>
+	  <listitem>
+	    <para>Only one entity (component) can write to a default
+	  DataObject, or data can be overwritten by others.</para></listitem>
+	  <listitem>
+	    <para>There is no safe encapsulation within a DataObject,
+	  it must always be accessed as a whole.</para></listitem>
+	  <listitem>
+	    <para>It is not flexible since the listitems of the
+	  DataObject are referenced directly by the variable name,
+	  instead of some abstraction means.</para></listitem>
+	</itemizedlist>
+	The advantages of the DefaultControlKernel are :
+	<itemizedlist>
+	  <listitem>
+	    <para>It is easy to use and understand.</para></listitem>
+	  <listitem>
+	    <para>It has almost zero overhead for small kernels.</para></listitem>
+	</itemizedlist>
+      </para>
+      <para> The NamesControlKernel aims to solve the disadvantages
+	by introducing nameserving on DataObject member level and
+	tries to keep the advantages of the former too. 
+      </para>
+      <para>
+	The NamesControlKernel allows the user to compose
+	their DataObjects out of different types. Each type,
+	being it int, Frame, vector,... can have several instances
+	with each their own name in the DataObject. In addition,
+	the user can choose to still use the not-nameserved (unserved)
+	type as in the DefaultControlKernel. But that is optional.
+      </para>
+      <para>The overhead is only little. The lookup (resolving)
+	of the names can happen at startuptime, and from then on,
+	the resolved DataObject can be used. To avoid name clashes,
+	the server only looks in the scope of the current kernel.
+	This means a component can not automatically access DataObjects
+	from another kernel.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Constructing a Nameserved DataType</title>
+      <para>
+	In the previous chapters, DataTypes were constructed with
+	placing all data to be exchanged in a class. This has
+	changed now. An example explains best :
+      </para>
+      <example>
+	  <title>A Nameserved DataType</title>
+	  <para>
+	    Imaging that you want to specify what is in
+	    the model of your kernel :
+	  </para>
+	  <programlisting> <![CDATA[
+	    struct MyNamesModel 
+	         : public ServedTypes<Frame, double>, public UnServedType<>
+	    {
+	         MyModel()
+	         {
+                      this->insert( make_pair(0, "EndPosition"));
+                      this->insert( make_pair(0, "OldPosition"));
+                      this->insert( make_pair(1, "Temperature"));
+	         }
+	    };
+	    ]]>
+	  </programlisting>
+	</example>
+      <para> 
+	In the ServedTypes list, you can specify zero up to
+	ten different types which you want to nameserve. Each type
+	may only occur once in that list. The empty list (you don't
+	want to nameserve any type is denoted by ServedTypes&lt;&gt;.
+	You can only have one UnServedType, which is empty in the
+	example. This is the DataObject you get when you call the
+	old Get() method like in the DefaultControlKernel.
+      </para>
+      <para>
+	The next important part is the constructor. The user must use
+	the insert function to insert a pair of (number, string) for
+	each object he wants to be created. The number denotes the
+	nth type listed in ServedTypes&lt;...&gt;, starting from zero.
+	In the example, two Frames are created, with each their own
+	name and one double, which holds the temperature. The number
+	of objects created with insert() is not restrained. The
+	number of ServedTypes is.
+      </para>
+      <para> 
+	You must do this for all five types of the NamesControlKernel,
+	just like you did with the DefaultControlKernel. Once the five
+	classes are defined, one can define the kernel :
+      </para>
+      <programlisting>
+	#include &lt;control_kernel/NamesControlKernel.hpp&gt;
+	typedef DefaultControlKernel &lt;MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput&gt; MyNamesKernel;
+      </programlisting>
+      <para>
+	This kernel can be used in exactly the same way
+	as the DefaultControlKernel. It has the same functions
+	and behaves in exactly the same way. The only difference is
+	that the Components and external classes can query DataObjects
+	by name.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Accessing a Nameserved DataType Directly</title>
+      <para>
+	Going further with the earlier examples, Assume that we 
+	want to access the Nameserved Model from within the Generator.
+	The example below shows what code you need to add to this
+	component to be able to use it in the NamesControlKernel.
+      </para>
+      <warning>
+	<para>
+	  Once a component uses the functions of a nameserver,
+	  it can no longer be used in the DefaultControlKernel.
+	  The NamesControlKernel can accept all DefaultControlKernel
+	  components but not vice versa.
+	</para>
+      </warning>
+	<programlisting><![CDATA[
+	  // ... 
+	  _DefaultGenerator::InputType localCopy;
+	  _DefaultGenerator::SetPointType localResult; 
+	  
+	  // New Code :
+	  Frame delta_position;
+	  double tool_temp;
+
+	  // ... 
+	  void pull() 
+	  { 
+	        localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
+	        
+                // New Code :
+	        Frame end_f, old_f;
+	        if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
+	             !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
+	             { // Error, "EndPosition" or "OldPosition" not found ! }
+
+	        delta_position = end_f - old_f;
+
+	        if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp) )
+	             { // Error, "Temperature" not found ! }
+	  } 
+	  
+	  void calculate()
+	  { 
+	        // ... calculate the setpoint
+	  } 
+
+	  void push() 
+	  {
+	       _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
+	  }]]>
+	</programlisting>
+      <para>
+	As you can see in the example, the component declares itself
+	which type it needs from the Model and with which name. If
+        it could not be found, Get() returns false.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Indirect Nameserved DataType Access</title>
+      <para>
+	The vigilant user will have noticed that each time pull() is
+	called, the string is resolved to a DataType. This can become
+	very costly in demanding applications. This can be solved by
+	resolving the DataObject which holds the DataType instead of the 
+	DataType directly.  This method is called indirect access, since a
+	step in between must be done to get the data.
+      </para>
+      <para>
+	We adapt the above example again to demonstrate
+	how the dataobject of the temperature can be resolved first.
+      </para>
+      <example>
+	<title>Early resolving of the DataObject (Indirect)</title>
+	<para>
+	  This example demonstrates that the component can
+	  get a pointer to the DataObject instead, which then in turn
+	  must be accessed like a normal DataObject to Get() or Set()
+	  the Data.
+	</para>
+	<programlisting>
+	  <![CDATA[
+	  
+	  // ... 
+	  _DefaultGenerator::InputType localCopy;
+	  _DefaultGenerator::SetPointType localResult; 
+	  
+	  Frame delta_position;
+	  double tool_temp;
+
+	  // New Code :
+	  Inputs::DataObject<double>::type* tool_temp_dobj;
+	  
+	  void ComponentLoaded()
+	  {
+	      // called when the component is loaded into the kernel.
+	      if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) )
+	             { // Error, "Temperature" not found ! }
+	  }
+
+	  // ... 
+	  void pull() 
+	  { 
+	        localCopy = _DefaultGenerator::Inputs::dObj()->Get(); 
+	        
+	        Frame end_f, old_f;
+	        if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
+	             !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
+	             { // Error, "EndPosition" or "OldPosition" not found ! }
+
+	        delta_position = end_f - old_f;
+
+	        // New Code:
+	        tool_temp = tool_temp_dobj->Get();
+	  } 
+	  ]]>
+	</programlisting>
+      </example>
+      <para>
+	This method requires a bit more typing work but is also 
+	safer because the component can issue a failure
+	at load time instead of at runtime ( in pull() ). Hence, this method
+	is always advised within a component. DataObjects (like the Command)
+	can also be accessed from the outside, thus both methods remain
+	available to allow the shorter, more transparant way.
+      </para>
+    </sect1>
   </chapter>
   <chapter>
     <title>Extending the Default Control Kernel</title>
@@ -1043,7 +1291,7 @@
 	  component with the given data. 
 	</para>
 	<tip>
-	  Example CPF files can often be found in the doc directory of the packages.
+	  <para> Example CPF files can often be found in the doc directory of the packages.</para>
 	</tip>
       </sect2>
       <sect2>
@@ -1072,9 +1320,10 @@
 	    PropertyDecomposition.hpp</filename> files.
 	</para>
 	<example>
-	  The Geometry primitives have also such custom functions
-	    which can be found in the file <filename>geometry
-	      MotionProperties.hpp</filename> file.
+	  <title>Property Composition and Decomposition</title>
+	  <para> The Geometry primitives have also such custom functions
+	  which can be found in the file <filename>geometry
+	    MotionProperties.hpp</filename> file.</para>
 	</example>      
       </sect2>
     </sect1>
