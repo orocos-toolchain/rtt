@@ -11,10 +11,12 @@ namespace eval installdatav1 {
         array set ecosreleases \
             { \
                   "Linux" { \
-                                { "0.19.1" "orocos-packages/orocos-0.19.1.i386linux.tar.bz2" "orocos-0.19.1/packages" { "orocos-0.19.0/tools/bin"} } \
+                                { "0.19.3" "orocos-packages/orocos-0.19.3.i386linux.tar.bz2" "orocos-0.19.3/packages" { "orocos-0.19.3/tools/bin"} } \
+                                { "0.19.2" "orocos-packages/orocos-0.19.2.i386linux.tar.bz2" "orocos-0.19.2/packages" { "orocos-0.19.2/tools/bin"} } \
+                                { "0.19.1" "orocos-packages/orocos-0.19.1.i386linux.tar.bz2" "orocos-0.19.1/packages" { "orocos-0.19.1/tools/bin"} } \
                                 { "0.19.0" "orocos-packages/orocos-0.19.0.i386linux.tar.bz2" "orocos-0.19.0/packages" { "orocos-0.19.0/tools/bin"} } \
-                                { "0.18.2" "orocos-packages/orocos-0.18.2.i386linux.tar.bz2" "orocos-0.18.2/packages" { "orocos-0.18.0/tools/bin"} } \
-                                { "0.18.1" "orocos-packages/orocos-0.18.1.i386linux.tar.bz2" "orocos-0.18.1/packages" { "orocos-0.18.0/tools/bin"} } \
+                                { "0.18.2" "orocos-packages/orocos-0.18.2.i386linux.tar.bz2" "orocos-0.18.2/packages" { "orocos-0.18.2/tools/bin"} } \
+                                { "0.18.1" "orocos-packages/orocos-0.18.1.i386linux.tar.bz2" "orocos-0.18.1/packages" { "orocos-0.18.1/tools/bin"} } \
                                 { "0.18.0" "orocos-packages/orocos-0.18.0.i386linux.tar.bz2" "orocos-0.18.0/packages" { "orocos-0.18.0/tools/bin"} } \
                                 { "0.16.0" "orocos-packages/orocos-0.16.0.i386linux.tar.bz2" "orocos-0.16.0/packages" { "orocos-0.16.0/tools/bin"} } \
                                 { "0.14.2" "orocos-packages/orocos-0.14.2.i386linux.tar.bz2" "orocos-0.14.2/packages" { "orocos-0.14.2/tools/bin"} } \
