@@ -985,18 +985,21 @@ proc ecos_install::unpack_tarballs { } {
 # preconfigure
 
 proc ecos_install::preconfigure { } {
-    ecos_install::report "Preconfiguring the downloaded packages."
+    ecos_install::report "\nPreconfiguring the downloaded packages."
     # All packages are present
     # But we need to run :
     # cd packages; ./configure ; make db
     set idir $ecos_install::install_dir
     set pdir [ file join $idir $ecos_install::ecos_repo_suffix ]
     cd $pdir
-    exec sh -c "./configure 2> config.errors"
-    exec sh -c "cat config.errors"
-    exec sh -c "make db 2> makedb.errors"
-    exec sh -c "cat makedb.errors"
-    file delete config.errors
+    ecos_install::report " Running configure in packages..."
+    exec ./configure > config.out 2> config.errors
+    ecos_install::report [ exec cat config.out | grep creating ]
+    ecos_install::report [ exec cat config.errors ]
+    ecos_install::report " Creating ecos.db..."
+    exec make db > makedb.out
+    ecos_install::report " You can repeat this step with running bootstrap.sh\n"
+
 }
 
 # }}}
