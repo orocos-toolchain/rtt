@@ -50,8 +50,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorCartesianPosInput_pos>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorCartesianPos_typedef;
+				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorCartesianPos_typedef;
 
   class nAxesSensorCartesianPos
     : public nAxesSensorCartesianPos_typedef
@@ -65,11 +64,12 @@ namespace ORO_ControlKernel
     virtual ~nAxesSensorCartesianPos();
   
     // Redefining virtual members
+    virtual bool componentLoaded();
+    virtual bool componentStartup();
+
     virtual void pull();
     virtual void calculate();
     virtual void push();
-    virtual bool componentLoaded();
-    virtual bool componentStartup();
 
   private:
     unsigned int                                                          _num_axes;

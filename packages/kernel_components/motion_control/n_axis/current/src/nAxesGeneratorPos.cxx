@@ -191,8 +191,11 @@ namespace ORO_ControlKernel
     return true;
   }
   
-
+  void nAxesGeneratorPos::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
   
+
+
   bool nAxesGeneratorPos::moveTo(const std::vector<double>& position, double time)
   {
     MutexLock locker(_my_lock);

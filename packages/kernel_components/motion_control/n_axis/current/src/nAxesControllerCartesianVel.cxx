@@ -95,8 +95,7 @@ namespace ORO_ControlKernel
     }
 
     // reset integrator
-    _is_initialized = false;
-    
+    _is_initialized = false;    
     // get interface to Input/Setpoint data types
     if ( !nAxesControllerCartesianVel_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
 	 !nAxesControllerCartesianVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
@@ -114,7 +113,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesVelController::updateProperties() failed" << endl;
+      cerr << "nAxesControllerCartesianVel::updateProperties() failed" << endl;
       return false;
     }
 
@@ -123,6 +122,9 @@ namespace ORO_ControlKernel
 
     return true;
   }
+
+  void nAxesControllerCartesianVel::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
 
   
 

@@ -127,5 +127,8 @@ namespace ORO_ControlKernel
   }
 
   
+  void nAxesControllerVel::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
+
 
 } // namespace

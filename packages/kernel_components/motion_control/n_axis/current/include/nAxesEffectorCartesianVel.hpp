@@ -48,8 +48,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<nAxesEffectorCartesianVelOutput_vel>,
-				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								     ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
+				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
 
   class nAxesEffectorCartesianVel
     : public nAxesEffectorCartesianVel_typedef
@@ -63,7 +62,6 @@ namespace ORO_ControlKernel
 
     virtual bool componentLoaded();
     virtual bool componentStartup();
-    virtual bool updateProperties(const ORO_ControlKernel::PropertyBag& bag);
 
     virtual void pull();
     virtual void calculate();

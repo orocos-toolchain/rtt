@@ -101,7 +101,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesVelController::updateProperties() failed" << endl;
+      cerr << "nAxesControllerCartesianPosVel::updateProperties() failed" << endl;
       return false;
     }
 
@@ -111,6 +111,8 @@ namespace ORO_ControlKernel
     return true;
   }
 
+  void nAxesControllerCartesianPosVel::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
   
 
 } // namespace

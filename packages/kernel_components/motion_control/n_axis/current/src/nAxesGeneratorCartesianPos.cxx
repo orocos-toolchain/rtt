@@ -190,6 +190,10 @@ namespace ORO_ControlKernel
   }
   
 
+  void nAxesGeneratorCartesianPos::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
+
+
   
   bool nAxesGeneratorCartesianPos::moveTo(const ORO_Geometry::Frame& frame, double time)
   {

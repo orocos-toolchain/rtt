@@ -110,6 +110,9 @@ namespace ORO_ControlKernel
     return true;
   }
 
+
+  void nAxesControllerPos::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
   
 
 } // namespace

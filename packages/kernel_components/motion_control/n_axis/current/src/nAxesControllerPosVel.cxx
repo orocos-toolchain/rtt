@@ -111,6 +111,8 @@ namespace ORO_ControlKernel
     return true;
   }
 
+  void nAxesControllerPosVel::exportProperties(ORO_CoreLib::PropertyBag&)
+  {};
   
 
 } // namespace

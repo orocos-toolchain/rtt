@@ -95,11 +95,5 @@ namespace ORO_ControlKernel
   }
   
 
-  bool nAxesEffectorCartesianVel::updateProperties(const PropertyBag& bag)
-  {
-    cerr << "(Effector)  updateProperties()" << endl;
-    return true;
-  }
-
 
 } // namespace

@@ -46,8 +46,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<nAxesEffectorVelOutput_vel>,
-				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								     ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
+				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
 
   class nAxesEffectorVel
     : public nAxesEffectorVel_typedef
