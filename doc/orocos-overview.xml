@@ -74,7 +74,7 @@ the <emphasis>Open RObot COntrol Software</emphasis> project.
 
 </articleinfo>
 
-<sect1 id="intro">
+<sect1 id="whatis">
 <title>What is Orocos?</title>
 <para>
 &ldquo;&orocos;&rdquo; is the acronym of the
@@ -109,9 +109,9 @@ project's
 <ulink
 url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
 </para>
+</sect1>
 
-
-<sect2 id="audience">
+<sect1 id="audience">
 <title>Target audience</title>
 <para>
 Robotics is a very broad field, and many roboticists are pursuing
@@ -208,10 +208,10 @@ the &orocos; project, because &orocos; concentrates on the common
 architecture. Serving the needs of the End Users is left to
 (commercial and non-commercial) Application Builders.
 </para>
-</sect2>
+</sect1>
 
 
-<sect2 id="vision">
+<sect1 id="vision">
 <title>Vision</title>
 <para>
 <blockquote>
@@ -530,7 +530,7 @@ sub-projects; each of these is called a
 <emphasis>(&orocos;) Package</emphasis>.
 A Package contains a coherent and related set of functionality, in the
 form of documentation, and <emphasis>class libraries</emphasis> and
-<emphasis>components</emphasis>, <xref linkend="components"/>.  In
+<emphasis>components</emphasis>, <xref linkend="objects-components"/>.  In
 principle, each Package could be a separate, independent project in
 itself, and the couplings with &orocos; are loose. 
 </para>
@@ -554,10 +554,10 @@ directories.
 	  the base system before trying to install a package.
 	</para>
       </sect3>
-    </sect2>
+    </sect1>
 
 
-<sect2 id="components">
+<sect1 id="objects-components">
 <title>Objects and Components</title>
 <para>
 The basic functionality of &orocos; is implemented in libraries of 
@@ -618,10 +618,10 @@ subdirectory.
 <para>
 The documentation of the Core Package contains more details.
 </para>
-</sect2>
+</sect1>
 
 
-<sect2 id="history">
+<sect1 id="history">
 <title>Project history</title>
 <para>
 The idea for starting a Free Software project for robot control was
@@ -661,8 +661,7 @@ possible.
 	  Two packages with support for distributed, CORBA-based communication
 	  between robot systems were also released in 2002.
 	</para>
-      </sect2>
-    </sect1>
+      </sect1>
   <bibliography>
     <title>Bibliography</title>
 

@@ -2,7 +2,7 @@
 
 # This macro executes the Orocos common Autoconf code
 # Specify the name and version number as a parameter
-OROCOS_GENERAL(orocos-base,0,14,2)
+OROCOS_GENERAL(orocos-base,0,16,0)
 
 if test -e configure.ac; then
     AC_ERROR([
@@ -24,9 +24,20 @@ OROCOS_DEFAULT_FLAGS(
 
 OROCOS_EXPORT_FLAGS
 
+AC_MSG_CHECKING(for repository)
+ECOS_REP=$(cd $(dirname $0); pwd)/packages
+AC_SUBST(ECOS_REP)
+AC_MSG_RESULT($ECOS_REP)
+
+AC_MSG_CHECKING(for docdir)
+DOC_DIR=$(cd $(dirname $0); pwd)/doc
+AC_SUBST(DOC_DIR)
+AC_MSG_RESULT($DOC_DIR)
+
 AC_CONFIG_FILES([ 
   Doxyfile Makefile 
   doc/Makefile
+  doc/orocos-manual.xml
   ])
 
 

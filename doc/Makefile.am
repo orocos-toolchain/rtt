@@ -1,6 +1,5 @@
 SUBDIRS = .
 
-
 EXTRA_DIST = \
 	CODING_STYLE.txt demonstrateProps.cxx \
 	orocos.xsl \
@@ -13,7 +12,7 @@ EXTRA_DIST = \
 # we do not distribute the ps files, they are to large,
 # but i make them for the website
 
-XMLDOCS=orocos-overview.xml   orocos-installation.xml
+XMLDOCS=orocos-overview.xml   orocos-installation.xml orocos-manual.xml
 
 DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	geometry-doc.sgml       motion-api.sgml \
@@ -55,6 +54,7 @@ doctxt: $(TXTDOCS)
 pngimages: $(EPSIMGS)
 
 epsimages: $(PNGIMGS)
+	cp @ECOS_REP@/eps/*.eps .
 
 .sgml.html:
 	docbook2html -u $<
@@ -66,10 +66,10 @@ epsimages: $(PNGIMGS)
 	docbook2pdf $<
 
 .xml.html:
-	$(XMLPROCESSOR)  /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	$(XMLPROCESSOR) --xinclude /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 .xml.fo:
-	$(XMLPROCESSOR) $(srcdir)/orocos.xsl $< > $@
+	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
 
 .fo.ps:
 	$(FOP) -fo $< -ps $@

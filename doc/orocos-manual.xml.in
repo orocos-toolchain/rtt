@@ -53,98 +53,98 @@
 
   <chapter>
     <title>Orocos Overview</title>
-    <xi:include  href="orocos-overview.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@DOC_DIR@/orocos-overview.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-overview.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@DOC_DIR@/orocos-overview.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
   <chapter>
     <title>Installing Orocos</title>
-    <xi:include  href="orocos-installation.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@DOC_DIR@/orocos-installation.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-installation.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@DOC_DIR@/orocos-installation.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Operating System Abstraction</title>
-    <xi:include  href="../packages/os/common/current/doc/orocos-os.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/os/common/current/doc/orocos-os.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/os/common/current/doc/orocos-os.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/os/common/current/doc/orocos-os.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Core Library</title>
-    <xi:include  href="../packages/corelib/common/current/doc/orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/corelib/common/current/doc/orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/corelib/common/current/doc/orocos-corelib.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/corelib/common/current/doc/orocos-corelib.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Hardware Device Interfaces</title>
-    <xi:include  href="../packages/device_interface/common/current/doc/orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/device_interface/common/current/doc/orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/device_interface/common/current/doc/orocos-device-interface.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/device_interface/common/current/doc/orocos-device-interface.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Hardware Device Drivers</title>
-    <xi:include  href="../packages/device_drivers/common/current/doc/orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/device_drivers/common/current/doc/orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/device_drivers/common/current/doc/orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/device_drivers/common/current/doc/orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Control Kernel</title>
-    <xi:include  href="../packages/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect2[*])"  
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect2[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>The Program Processor</title>
-    <xi:include  href="../packages/execution/program_processor/current/doc/orocos-program-processor.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/execution/program_processor/current/doc/orocos-program-processor.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/execution/program_processor/current/doc/orocos-program-processor.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/execution/program_processor/current/doc/orocos-program-processor.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>The Program Parser</title>
-    <xi:include  href="../packages/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>The Generic Hardware Components</title>
-    <xi:include  href="../packages/kernel_components/hardware/current/doc/orocos-hardware-components.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/kernel_components/hardware/current/doc/orocos-hardware-components.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/kernel_components/hardware/current/doc/orocos-hardware-components.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/kernel_components/hardware/current/doc/orocos-hardware-components.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>The Motion Control Components</title>
-    <xi:include  href="../packages/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/kernel_components/motion_control/current/doc/orocos-motioncontrol.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
   <chapter>
     <title>Kinematics</title>
-    <xi:include  href="../packages/kinematics_dynamics/common/current/doc/orocos-kinematics.xml#xpointer(/article/articleinfo/abstract)"  
+    <xi:include  href="@ECOS_REP@/kinematics_dynamics/common/current/doc/orocos-kinematics.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="../packages/kinematics_dynamics/common/current/doc/orocos-kinematics.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="@ECOS_REP@/kinematics_dynamics/common/current/doc/orocos-kinematics.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

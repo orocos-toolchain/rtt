@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
@@ -12,8 +12,8 @@
 >
 
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title>
       The OROCOS Project Installation Guide 
     </title>
@@ -75,17 +75,17 @@
       </para>
     </legalnotice>
 
-  </bookinfo>
+  </articleinfo>
 
-  <chapter>
+  <sect1>
     <title> Setting up your first &orocos; source tree </title>
-    <sect1 id="intro">
+    <sect2 id="setup_intro">
       <title>Introduction</title>
       <para>
 	This sections explains the supported Orocos targets
 	and the Orocos versioning scheme.
       </para>
-      <sect2>
+      <sect3>
 	<title>Supported platforms (targets)</title>
 	<para>
 	  &orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
@@ -103,8 +103,8 @@
 	  kernel space memory manager. Furthermore, Since no one is using the 
 	  FSMLabs RTLinux port, it is no longer updated.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>The versioning scheme</title>
 	<para>
 	  &orocos; uses the well-known even/stable uneven/unstable
@@ -123,9 +123,9 @@
 	  for testing new features and designs and the stable version
 	  is for people wanting to run a reliable system.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Installing Orocos from Subversion ( similar to CVS )</title>
       <para>
 	Installing &orocos; from &svn; gets you the latest and
@@ -184,8 +184,8 @@
 	next section. Of course, you don't have to apply the
 	<command>ecosadmin.tcl</command> command when installing from &svn;.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Installing Orocos from the epk packages</title>
       <para>
 	Orocos has switched to a less common system for distribution
@@ -193,7 +193,7 @@
 	but, apart from the name, has nothing to do with it when used
 	with &orocos;. </para>
 
-      <sect2>
+      <sect3>
 	<title>Orocos Build and Configuration Tools </title>
 	<para>
 	  The tools you will need are <command>ecosconfig</command>
@@ -233,8 +233,8 @@
 	    sections in the eCos manuals.
 	  </para>
 	</note>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Quick Installation Instructions</title>
 	<para>
 	  It is possible to download Orocos with the <ulink url="http://www.orocos.org/orocos-install.tcl">
@@ -247,21 +247,21 @@
 	  <listitem><para>Download orocos-base package from the Orocos webpage</para></listitem>
 	  <listitem><para>Extract it using :
 	      <screen><command>
-tar -xvzf orocos-base-0.10.0.tar.gz
+tar -xvzf orocos-base-0.16.0.tar.gz
 		</command></screen>
 	    </para></listitem>
 	  <listitem><para>Setup the base environment : 
 	      <screen>
 		<command>
-cd orocos-base-0.10.0
+cd orocos-base-0.16.0
 ./bootstrap.sh
 		</command>
 	      </screen>
 	    </para></listitem>
 	  <listitem><para>Download the Orocos .epk packages</para></listitem>
-	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
+	  <listitem><para>Install each of them in the orocos-0.16.0/packages subdir, using
 	      <screen><command>
-cd orocos-base-0.10.0/packages
+cd orocos-base-0.16.0/packages
 ./ecosadmin.tcl add /path/to/filename.epk
 		</command></screen>
 	      This action is also documented in the eCos manuals and equivalent to the installation
@@ -272,8 +272,8 @@ cd orocos-base-0.10.0/packages
 	  <listitem><para>Finally, you can now choose between using the plain eCos tools or 
 	      our supplied make targets which enhance convenience : 
 	      <screen> 
-mkdir orocos-0.10.0/build 
-cd orocos-0.10.0/build
+mkdir orocos-0.16.0/build 
+cd orocos-0.16.0/build
 ../configure --with-&lt;target&gt;
 make new_packages 
 make configure_packages
@@ -290,8 +290,8 @@ make all_packages
 	  considered as the most recent version. If you downloaded the
 	  epk files, you will find a version number in place.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using the pre-defined make targets</title>
 	<para>
 	  The make all_packages command will have made a directory
@@ -320,8 +320,8 @@ make all_packages
 	  You will need to read the next section to have
 	  more fine grained control of the configuration process.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using the eCos toolset</title>
 	<para>
 	  The above make commands are optional. Take a
@@ -330,7 +330,7 @@ make all_packages
 	  <orderedlist>
 	    <listitem>
 	      <para>Set the environment variable :
-		<screen>export ECOS_REPOSITORY=/path/to/orocos-0.10.0/packages/</screen>
+		<screen>export ECOS_REPOSITORY=/path/to/orocos-0.16.0/packages/</screen>
 		All The ecos tools need this variable to be able to work
 		on the packages. The make targets did this automatically,
 		but if you want to invoke the tools yourself, you need to
@@ -346,7 +346,7 @@ make all_packages
 	    <listitem>
 	      <para>
 		Go to the eCos build directory. In Orocos this is :
-		<screen><filename>orocos-base-0.10.0/build/packages-&lt;target&gt;
+		<screen><filename>orocos-base-0.16.0/build/packages-&lt;target&gt;
 		  </filename></screen> But technically, it can be any directory
 		where you create an ecos.ecc configuration file.
 	      </para>
@@ -412,8 +412,8 @@ ecosconfig add support_$(basename $i .cdl); done
 	    </listitem>
 	  </orderedlist>
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using &orocos; concurrently for multiple targets</title>
 	<para>
 	  When you want to build for another target, simply re-invoke ../configure --with-&lt;target&gt;
@@ -435,9 +435,9 @@ ecosconfig add support_$(basename $i .cdl); done
 	  The <command>make docs</command> or
 	  <command>doxygen</command> commands build API documentation.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Installing an Orocos Build</title>
       <para>
 	This step is hardly needed, since the build-directory is also
@@ -478,11 +478,11 @@ ecosconfig add support_$(basename $i .cdl); done
 	  </tbody>
 	</tgroup>
       </table>
-    </sect1>
-  </chapter>
-  <chapter>
+    </sect2>
+  </sect1>
+  <sect1>
       <title>Configuration</title>
-      <sect1>
+      <sect2>
 	<title>Configuring an Orocos Package</title>
 	<para>
 	  By default, &orocos; will be built to install in
@@ -538,15 +538,15 @@ configure script will select the os/rtai target
 	  When running <command>./configure --with-lxrt</command> the configure
 	  script will select the os/lxrt target.
 	</para>
-      </sect1>
+      </sect2>
 
-      <sect1>
+      <sect2>
 	<title>Compiler flags</title>
 	<para>
 	  You must set the compiler flags in the configtool GUI.
 	</para>
-      </sect1>
-    <sect1 id="general_setup_rtai">
+      </sect2>
+    <sect2 id="general_setup_rtai">
       <title >Configuring for RTAI</title>
       <para>
 	Read first the 'Getting Started' section from <ulink
@@ -554,35 +554,26 @@ configure script will select the os/rtai target
 	  page</ulink> if you are not familiar with RTAI instalation
       </para>
       <para>
-	We recommend using RTAI version 24.1.12 or later.
-	RTAI 3.0 is also supported. You can obtain it from 
+	We recommend using
+	RTAI 3.0. You can obtain it from 
 	<ulink url="http://www.aero.polimi.it/projects/rtai/">
-	  the RTAI home page</ulink> or as follows from CVS:
-	<screen>
-export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
-cvs login
-      
-password: anoncvs
-
-cvs -z3 co stable
-cvs -z3 up 
-	  </screen>
+	  the RTAI home page</ulink>.
 	Read The README.* files in the
 	<filename class="directory">rtai</filename> directory for detailed
 	instructions.  First, you need to patch your Linux kernel. A patch per
-	kernel version can be found in the rtai/patches directory. You should
-	apply the <filename>patch-X.Y.Z-adeos-rx</filename>
-	or the <filename>hal10-X.Y.Z.patch</filename> for RTAI 3.0 patch to a clean
+	kernel version can be found in the rtai-core/arch/i386/patches directory. You should
+	apply
+	the <filename>hal10-X.Y.Z.patch</filename> for RTAI 3.0 to a clean
 	Linux kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>
       <para>
 	Next do <command>make menuconfig; make dep; make;</command>
       </para>
-      <sect2>
+      <sect3>
 	<title> RTAI settings </title>
 	<para>
-	  RTAI comes with extensive documentation for configuration and
+	  RTAI comes with  documentation for configuration and
 	  installation.
 	  In the configuration process, make sure that you enable the following
 	  options:
@@ -605,8 +596,8 @@ cvs -z3 up
 	  </itemizedlist>
 	  After configuring you can run 'make' in your RTAI directory
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title> Loading RTAI without LXRT (not recommended)</title>
 	<para>
 	  To enable RTAI without LXRT run in your rtai directory one of the programs
@@ -616,97 +607,84 @@ cvs -z3 up
 	  </screen>
 	  next you can 'make  install'. 
 	  Make sure that the following RTAI kernel modules are loaded
-	  ( this may vary if you are using RTAI 3.0 ) :
 	  <itemizedlist>
 	    <listitem><para>rtai_cpp</para></listitem>
 	    <listitem><para>rtai_sched_ext</para></listitem>
 	    <listitem><para>rtai_bits</para></listitem>
-	    <listitem><para>rtai_tbx</para></listitem>
+	    <listitem><para>rtai_up</para></listitem>
 	    <listitem><para>rtai_pthread</para></listitem>
-	    <listitem><para>rtai_sched</para></listitem>
+	    <listitem><para>rtai_sem</para></listitem>
 	    <listitem><para>rtai_fifos</para></listitem>
-	    <listitem><para>rtai_utils</para></listitem>
-	    <listitem><para>rt_mem_mgr</para></listitem>
-	    <listitem><para>rtai</para></listitem>
+	    <listitem><para>rtai_hal</para></listitem>
 	    <listitem><para>adeos</para></listitem>
 	  </itemizedlist>
 	  For example, by executing as root:
 	  <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>.
         </para>
-      </sect2>
-      <sect2>
-	<title> Loading RTAI with (NEW)LXRT (recommended)</title>
+      </sect3>
+      <sect3>
+	<title> Loading RTAI with LXRT (recommended)</title>
 	<para>
-	  NEWLXRT is a all-in-one scheduler that works for kernel and userspace.
+	  LXRT is a all-in-one scheduler that works for kernel and userspace.
 	  So if you use this, you can still run kernel programs but have the ability
 	  to run realtime programs in userspace. Orocos provides you the libraries
-	  to build these programs. When we say LXRT, we mean NEWLXRT.
-	  To enable RTAI with NEWLXRT run in your rtai directory the program
-	  <screen>
-./setsched newlxrt
-	  </screen>
-	  next you can 'make  install'. 
+	  to build these programs.
 	  Make sure that the following RTAI kernel modules are loaded
-	  ( this may vary if you are using RTAI 3.0 ) :
 	  <itemizedlist>
-	    <listitem><para>rtai_fifos_lxrt</para></listitem>
 	    <listitem><para>rtai_lxrt</para></listitem>
-	    <listitem><para>rtai_sched</para></listitem>
-	    <listitem><para>rtai_fifos</para></listitem>
-	    <listitem><para>rt_mem_mgr</para></listitem>
-	    <listitem><para>rtai</para></listitem>
+	    <listitem><para>rtai_hal</para></listitem>
 	    <listitem><para>adeos</para></listitem>
 	  </itemizedlist>
 	  For example, by executing as root:
-	  <command>modprobe rtai_lxrt; modprobe rtai_fifos_lxrt</command>.
+	  <command>modprobe rtai_lxrt</command>.
 	</para>
-	<para>For a more detailed description of what (NEW)LXRT really is,
+	<para>For a more detailed description of what LXRT really is,
 	  you can read the LXRT HOWTO 
 	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Configuring for RTLinux</title>
       <para>
 	The latest free release of RTLinux was 3.2. RTLinux has no
 	memory management, and this puts a limit on our use of STL
 	(Standard Template Library) vectors in realtime. (In fact, we
-	need maps too.) For these reasons, RTLinux is less supported
-	and might lead to unstability. 
+	need much more.) RTLinux is no longer supported
+	since no users of Orocos are using it.
       </para>
-      <para>
-	For a recent kernel patch, look at <ulink
-	  url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to
-	  newer Linux kernels</ulink> webpage. The RTLinux 
-	<ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more
-	information.
-      </para>
-      <sect2>
-	<title>Loading RTLinux</title>
-	<para>
-	  The following RTLinux kernel modules should be loaded in the specified order:
-	    <orderedlist>
-	    <listitem><para>rtl</para></listitem>
-	    <listitem><para>rtl_time</para></listitem>
-	    <listitem><para>rtl_posixio</para></listitem>
-	    <listitem><para>rtl_fifo</para></listitem>
-	    <listitem><para>rtl_sched</para></listitem>
-	  </orderedlist>
-	  You can use the <command>modprobe</command> or <command>insmod</command> as root
-	  to load these needed kernel modules.
-	</para>
-      </sect2> 
-    </sect1>
-  </chapter>
+<!--       <para> -->
+<!-- 	For a recent kernel patch, look at <ulink -->
+<!-- 	  url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to -->
+<!-- 	  newer Linux kernels</ulink> webpage. The RTLinux  -->
+<!-- 	<ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more -->
+<!-- 	information. -->
+<!--       </para> -->
+<!--       <sect3> -->
+<!-- 	<title>Loading RTLinux</title> -->
+<!-- 	<para> -->
+<!-- 	  The following RTLinux kernel modules should be loaded in the specified order: -->
+<!-- 	    <orderedlist> -->
+<!-- 	    <listitem><para>rtl</para></listitem> -->
+<!-- 	    <listitem><para>rtl_time</para></listitem> -->
+<!-- 	    <listitem><para>rtl_posixio</para></listitem> -->
+<!-- 	    <listitem><para>rtl_fifo</para></listitem> -->
+<!-- 	    <listitem><para>rtl_sched</para></listitem> -->
+<!-- 	  </orderedlist> -->
+<!-- 	  You can use the <command>modprobe</command> or <command>insmod</command> as root -->
+<!--  	  to load these needed kernel modules. -->
+<!-- 	</para> -->
+<!--       </sect3>  -->
+    </sect2>
+  </sect1>
 
-  <chapter id="started">
+  <sect1 id="started">
     <title>Getting started with the code</title>
     <para>
-      This Chapter provides the semantics of the services available in the
+      This Section provides the semantics of the services available in the
       &orocos; Packages.
     </para>
-    <sect1>
+    <sect2>
       <title>A quick test</title>
       <para>
 	To quickly test &orocos; code, you can download the kernel_samples
@@ -716,8 +694,8 @@ cvs -z3 up
 	or make all-lxrt for lxrt). The kernel_samples/README file contains
 	complete instructions.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title> What about main() ?</title>
       <para>
 	The first question asked by many users is : How do I write a
@@ -768,8 +746,8 @@ all: myprogram.cpp
 <!--         function which then starts or stops our program. -->
 <!--         <filename>src/moduleStartStop.c</filename> is another example we use -->
 <!--         for starting and stopping the framework in kernel space. -->
-      </sect1>
-    <sect1>
+      </sect2>
+    <sect2>
       <title>Some important header files</title>
       <para>
 	People new to the eCos build system might be unfamiliar with locating
@@ -843,15 +821,9 @@ all: myprogram.cpp
 	  <!-- one of (graphic mediaobject tgroup) -->
 	</table>
       </para>
-    </sect1>
-  </chapter>
+    </sect2>
+  </sect1>
 
-  <chapter>
-    <title>Examples</title>
-    <para>
-      Examples can be found in the applications package.
-    </para>
-  </chapter>
   <!--
   Having a glossary would be very helpfull for those trying to understand
   &orocos;.
@@ -875,4 +847,4 @@ all: myprogram.cpp
 </glossary>
   -->
 
-</book>
+</article>

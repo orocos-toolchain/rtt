@@ -1,7 +1,5 @@
 SUBDIRS = . doc
 
-ECOS_REP=@abs_srcdir@/packages
-
 # These are not distributed by default (adds to many megs)
 # The i386linux package will copy them.
 #	tools/bin/ecosconfig tools/bin/configtool 
@@ -37,9 +35,9 @@ new_packages:
 	mkdir -p packages-@ECOS_TARGET@
 	@echo "Setting up packages-@ECOS_TARGET@..."
 	@cd packages-@ECOS_TARGET@ &&\
-	export ECOS_REPOSITORY=${ECOS_REP};\
+	export ECOS_REPOSITORY=@ECOS_REP@;\
 	ecosconfig new @ECOS_TARGET@ minimal ;\
-	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
+	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl); done ;\
 	{ ecosconfig template allpackages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
@@ -50,14 +48,14 @@ new_packages:
 # a graphical tool.
 configure_packages:
 	cd packages-@ECOS_TARGET@ &&\
-	export ECOS_REPOSITORY=${ECOS_REP} &&\
+	export ECOS_REPOSITORY=@ECOS_REP@ &&\
 	configtool ecos.ecc
 
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
 all_packages:
 	cd packages-@ECOS_TARGET@ &&\
-	export ECOS_REPOSITORY=${ECOS_REP} &&\
+	export ECOS_REPOSITORY=@ECOS_REP@ &&\
 	ecosconfig template allpackages &&\
 	ecosconfig tree
 	$(MAKE) -C packages-@ECOS_TARGET@
@@ -72,7 +70,7 @@ clean_packages:
 # This checks the configuration
 check_packages:
 	cd packages-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v check
 
 # This removes the whole ! packages build directory
@@ -93,25 +91,25 @@ clean_install:
 new_drivers:
 	mkdir -p drv-@ECOS_TARGET@
 	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v new @ECOS_TARGET@ kuldrivers > new_drivers.log ; \
-	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
+	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl) > support.log; done
 
 configure_drivers:
 	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	configtool ecos.ecc
 
 all_drivers:
 	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v tree
 	$(MAKE) -C drv-@ECOS_TARGET@
 
 check_drivers:
 	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v check
 
 clean_drivers:
@@ -123,20 +121,20 @@ clean_drivers:
 lvd_new:
 	mkdir -p lvd-@ECOS_TARGET@
 	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v new @ECOS_TARGET@ minimal > new_drivers.log ; \
-	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
+	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl) > support.log; done ;\
 	ecosconfig template lvd
 
 lvd_config:
 	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	configtool ecos.ecc
 
 lvd:
 	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v tree
 	$(MAKE) lvd-@ECOS_TARGET@
 
