@@ -8,9 +8,9 @@
 <!ENTITY task        "Task Infrastructure">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
-<!ENTITY procman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-program-processor.html'>Program Processor Manual</ulink>">
-<!ENTITY parseman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-program-parser.html'>Program Parser Manual</ulink>">
-<!ENTITY coreman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-corelib.html'>CoreLib Manual</ulink>">
+<!ENTITY procman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-processor.html'>Program Processor Manual</ulink>">
+<!ENTITY parseman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-parser.html'>Program Parser Manual</ulink>">
+<!ENTITY coreman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html'>CoreLib Manual</ulink>">
 ]
 >
 
