@@ -52,8 +52,8 @@ namespace ORO_DeviceDriver
              * @param dig_in The digital input device to read from
              * @param bit_number The bit to query.
              */
-            SwitchEndLimit( DigitalInInterface* dig_in, unsigned int bit_number )
-                : DigitalInput(dig_in, bit_number) {}
+            SwitchEndLimit( DigitalInInterface* dig_in, unsigned int bit_number, bool invert )
+                : DigitalInput(dig_in, bit_number, invert) {}
 
             /**
              * The safebit is active low.
