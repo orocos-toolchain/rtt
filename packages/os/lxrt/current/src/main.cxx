@@ -59,7 +59,7 @@ int main(int argc, char** argv)
                 cerr << " in the ORO_main() function."<<endl;
                 cerr << " You might have called a function which throws"<<endl;
                 cerr << " without a try {} catch {} block."<< endl << endl;
-                cerr << " You might need to recompile for gnulinux to debug."<< endl 
+                cerr << " You might need to recompile for gnulinux to debug."<< endl;
                 cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
                 cerr << "   valgrind --num-callers=16 "<<argv[0]<<" " << catchflag << endl;
                 cerr << "Which will show where the exception occured."<<endl;
