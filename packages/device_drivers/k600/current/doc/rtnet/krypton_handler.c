@@ -12,6 +12,7 @@
  *                2002 Marc Kleine-Budde <kleine-budde@gmx.de>
  *
  *  Copyright (C) 2004 Klaas Gadeyne
+ *  Adapted to RTnet 0.8 by Panagiotis Issaris
  *
  *  rtnet - real-time networking example
  *
