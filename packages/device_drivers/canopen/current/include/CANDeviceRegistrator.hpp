@@ -39,6 +39,7 @@ namespace CAN
 	 */
 	class CANDeviceRegistrator
     {
+    public:
 		/**
 		 * Register a CANDeviceInterface to a bus.
 		 *
@@ -50,7 +51,7 @@ namespace CAN
         /**
          * Removes the CANDeviceInterface from the CANBus.
          */
-        virtual ~CANDevice() {}
+        virtual ~CANDeviceRegistrator() {}
         
         protected:
         

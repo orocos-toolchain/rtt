@@ -37,6 +37,7 @@ extern "C" {
 #include "pkgconf/device_drivers_canpie.h"
 
 #include <stdarg.h>
+#include "compiler.h"
 
 _U32 Cp_PREFIX CpUserAppInit(_U32 channel, _U32 rcvFifoSize, _U32 trmFifoSize, _U32 timeout)
 {

@@ -31,6 +31,7 @@
 #include <corelib/RunnableInterface.hpp>
 #include <can/CANConfigurator.hpp>
 #include <can/CANMessage.hpp>
+#include <can/CANOpenBus.hpp>
 
 namespace CAN
 {

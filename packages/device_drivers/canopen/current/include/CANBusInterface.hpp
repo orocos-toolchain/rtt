@@ -33,6 +33,7 @@ namespace CAN
     class CANDeviceInterface;
     class CANMessage;
     class CANControllerInterface;
+    class CANListenerInterface;
     
 	/**
 	 * @brief An interface describing a virtual CANBus.
