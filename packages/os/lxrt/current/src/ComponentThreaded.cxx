@@ -161,7 +161,11 @@ namespace ORO_OS
         running(false), stopped(true), goRealtime(false), priority(_priority), prepareForExit(false),
         runComp(r)
     {
-        taskNameSet(name.c_str());
+        if ( !name.empty() )
+            taskNameSet(name.c_str());
+        else
+            taskNameSet( num2nam(rt_get_name(0)) );
+
         rtos_printf("Constructing %s\n", taskName );
 
         confDone = rt_sem_init( rt_get_name(0), 0 );
