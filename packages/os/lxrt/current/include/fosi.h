@@ -299,45 +299,24 @@ int rtos_printf(const char *fmt, ...);
 
 
 // will become redundant ?
-inline void rtos_enable_fpu(pthread_attr_t *pa) { return; }
+void rtos_enable_fpu(pthread_attr_t *pa);
 
 // RT FIFO
 
-inline int rtosf_create(int fnr,size_t bytes) 
-{
-    return -1;
-};
+int rtosf_create(int fnr,size_t bytes);
 
-inline int rtosf_destroy(int fnr)
-{
-    return -1;
-};
+int rtosf_destroy(int fnr);
 
-inline int rtosf_put(int fnr, const char * text, size_t bytes) 
-{
-    return -1;
-};
+int rtosf_put(int fnr, const char * text, size_t bytes);
 
-inline int rtosf_get(int fnr, char * text, size_t  bytes)
-{
-    return -1;
-};
+int rtosf_get(int fnr, char * text, size_t  bytes);
 
-inline int rtosf_resize(int fnr, size_t bytes) 
-{
-    return -1;
-};
+int rtosf_resize(int fnr, size_t bytes) ;
 
-inline void rtosf_remove_all_handlers(int fnr)
-{
-}
+void rtosf_remove_all_handlers(int fnr);
 
 
-inline int rtosf_set_handler(int fnr, int (*handler)(unsigned int, int))
-{
-    //	return rtf_create_handler(fnr,X_FIFO_HANDLER(handler));
-    return -1;
-}
+int rtosf_set_handler(int fnr, int (*handler)(unsigned int, int));
 
 
 #ifdef __cplusplus

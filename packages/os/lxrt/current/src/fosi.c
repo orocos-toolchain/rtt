@@ -167,3 +167,43 @@ int rtos_printf(const char *fmt, ...)
 }
 
 #endif // OROBLD_OS_AGNOSTIC
+
+ void rtos_enable_fpu(pthread_attr_t *pa) { return; }
+
+// RT FIFO
+
+ int rtosf_create(int fnr,size_t bytes) 
+{
+    return -1;
+};
+
+ int rtosf_destroy(int fnr)
+{
+    return -1;
+};
+
+ int rtosf_put(int fnr, const char * text, size_t bytes) 
+{
+    return -1;
+};
+
+ int rtosf_get(int fnr, char * text, size_t  bytes)
+{
+    return -1;
+};
+
+ int rtosf_resize(int fnr, size_t bytes) 
+{
+    return -1;
+};
+
+ void rtosf_remove_all_handlers(int fnr)
+{
+}
+
+
+ int rtosf_set_handler(int fnr, int (*handler)(unsigned int, int))
+{
+    //	return rtf_create_handler(fnr,X_FIFO_HANDLER(handler));
+    return -1;
+}
