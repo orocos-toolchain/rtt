@@ -76,6 +76,17 @@ AC_ARG_ENABLE(tests,
 AM_CONDITIONAL(DOTESTS, test x$tests = xyes)
 AC_MSG_RESULT( $tests )
 
+AC_MSG_CHECKING(to build profiling)
+AC_ARG_ENABLE(profiling,
+     [  --enable-profiling    Enable profiling tests (default=no) ],
+     [ case "${enableval}" in
+       yes) profs=yes ;;
+       no)  profs=no ;;
+       *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
+     esac],[ profs=no ])
+AM_CONDITIONAL(DOPROFTESTS, test x$profs = xyes)
+AC_MSG_RESULT( $profs )
+
 # Setup the packages
 echo "Running configure in packages..."
 cd $ECOS_REP

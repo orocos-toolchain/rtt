@@ -7,14 +7,19 @@ We announce the release of Orocos 0.18.0, the Realtime
 Framework for Robot and Machine Control. 
 
 This release marks a new shift in Orocos software
-development. It focusses on the creation of 
+development. It provides new infrastructure for the creation of 
 machine-architecture independent Realtime tasks within
 applications. Example tasks are control tasks, 
 sensor measurement tasks or supervision tasks.
 Tasks within applications are online browsable and 
-can be manipulated interactively using the TaskBrowser. 
-For Control Kernel users, a GUI was designed for
-KDE 3 which allows to interact with the Control Kernel.
+can be manipulated interactively using the 'TaskBrowser'.
+A real-time scripting language allows to write type- and thread-safe,
+high-level programs using state machines or functional programming.
+
+For Control Kernel users, a GUI ('kernelclient') was designed for
+KDE 3 which allows to interact with the Control Kernel, directly
+or using a CORBA interface. The latter allows to monitor multiple
+Control Kernel Servers with one frontend.
 Also, the installation process of Orocos has been streamlined.
 
 Feature improvements, bugfixes and caveats can be found in :

@@ -2,7 +2,7 @@
 #include <corelib/Event.hpp>
 #include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/TaskPreemptible.hpp>
+#include <corelib/TaskSimulation.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -71,8 +71,11 @@ struct Runner : public RunnableInterface
         // connect sync and async handler with event
         // and run async handler in thread of this task.
         h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), this->getTask() );
+        return true;
     }
-    void step() {}
+    void step() {
+        e.fire( 123456 );
+    }
     void finalize() {
         h.disconnect();
     }
@@ -90,12 +93,13 @@ void EventTest::testTask()
 {
     Event<void(int)> event;
     Runner runobj(event);
-    TaskPreemptible task(0.01, &runobj);
+    TaskSimulation task(0.01, &runobj);
+    SimulationThread::Instance()->start();
     task.start();
-    event.fire( 123456 );
-    CPPUNIT_ASSERT( runobj.data == 123456 );
+    //CPPUNIT_ASSERT( runobj.data == 123456 );
     sleep(1);
     task.stop();
+    SimulationThread::Instance()->stop();
 
     CPPUNIT_ASSERT( runobj.result );
 }

@@ -208,7 +208,7 @@ void ProgramTest::testProgramAnd()
 void ProgramTest::testProgramTry()
 {
     // see if checking a remote condition works
-    string prog = string("program x { try test.instantFail()\n")
+    string prog = string("program progtry { try test.instantFail()\n")
         + "try test.instantDone() \n"
         + "and test.instantFail() \n"
         + "and test.instantDone() \n"
@@ -237,13 +237,15 @@ void ProgramTest::testProgramTry()
         + "  do test.totalFail()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    this->finishProgram( &gtc, "x");
+    this->finishProgram( &gtc, "progtry");
 }
 
 void ProgramTest::testProgramUntil()
 {
     // see if checking a remote condition works
-    string prog = string("program x { do test.neverDone()\n")
+    string prog = string("program proguntil {\n")
+        +" do test.reset()\n"
+        +" do test.neverDone()\n"
         + "until { \n"
         + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
         + "} \n"
@@ -254,7 +256,7 @@ void ProgramTest::testProgramUntil()
         + "} \n"
         + " }";
     this->doProgram( prog, &gtc );
-    this->finishProgram( &gtc, "x");
+    this->finishProgram( &gtc, "proguntil");
 }
 
 void ProgramTest::testProgramUntilFail()
@@ -288,7 +290,8 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
             CPPUNIT_ASSERT( false );
         }
     tc->getProcessor()->loadProgram( *pg_list.begin() );
-    tc->getProcessor()->startProgram( (*pg_list.begin())->getName() );
+    std::string pname = (*pg_list.begin())->getName();
+    tc->getProcessor()->startProgram( pname );
     SimulationThread::Instance()->start();
     gtask.start();
 //     while (1)
@@ -297,12 +300,32 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << gprocessor.getProgram("x")->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+        errormsg << " on line " << gprocessor.getProgram( pname )->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getProgramStatus(pname) != Processor::ProgramStatus::error );
+        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), gprocessor.getProgramStatus(pname) == Processor::ProgramStatus::stopped );
+
+        // Xtra test, only do it if all previous went ok :
+        loopProgram( *pg_list.begin() );
     }
     gtask.stop();
 }
+
+void ProgramTest::loopProgram( FunctionGraph* f)
+{
+    //std::cerr <<std::endl<< "Looping " << f->getName();
+    // especially handy for performance testing :
+    // This bypasses the processor however, does not
+    // measure its performance.
+    int loops = 100;
+    f->reset();
+    while ( loops-- != 0 ) {
+        while ( !f->isFinished() && !f->inError() )
+            f->execute();
+        f->reset();
+        //std::cerr << ".";
+    }
+}
+        
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {

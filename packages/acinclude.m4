@@ -164,9 +164,9 @@ and rerun the bootstrap.sh script
 m4_define([DETECT_RTAI],
 [
 AC_MSG_CHECKING(for RTAI/LXRT Installation)
-AC_ARG_WITH(rtai, [ --with-rtai Specify location of RTAI/LXRT ],
+AC_ARG_WITH(rtai, [ --with-rtai[=/usr/realtime] Specify location of RTAI/LXRT ],
 	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
-AC_ARG_WITH(lxrt, [ --with-lxrt Equivalent to --with-rtai ],
+AC_ARG_WITH(lxrt, [ --with-lxrt[=/usr/realtime] Equivalent to --with-rtai ],
 	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
 
 if test x"$RTAI_DIR" = x; then

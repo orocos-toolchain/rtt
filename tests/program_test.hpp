@@ -38,6 +38,7 @@ class ProgramTest : public CppUnit::TestFixture
     void reset();
     void doProgram( const std::string& prog, TaskContext*, bool test=true );
     void finishProgram( TaskContext* , std::string );
+    void loopProgram( FunctionGraph*);
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }
