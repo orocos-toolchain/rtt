@@ -63,9 +63,7 @@ namespace ORO_OS
             try {
                 while(1) {
                     task->running = false;
-                    // for now, we always wait in soft RT.
-                    // An extra check before here could
-                    // make the switch again...
+
                     sem_wait( &task->sem );
 
                     if ( task->prepareForExit )
