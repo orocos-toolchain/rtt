@@ -122,6 +122,9 @@ namespace ORO_ControlKernel
             uD = new double [num_chans];
             uP = new double [num_chans];
 
+            for (int i=0; i < num_chans; ++i) 
+                uI[i] = uD[i] = uP[i] = 0;
+
             _result.resize(num_chans, 0.0);
             _refPos.resize(num_chans, 0.0);
             y.resize(num_chans, 0.0);
