@@ -97,6 +97,12 @@ namespace ORO_CoreLib
              */
             ticks ticksGet( ticks &relativeTime ) const;
 
+            /**
+             * Get clicks passed since a certain moment.
+             * If <relativeTime> is zero, the absolute system time is given.
+             * 
+             * @return ticks passed since <relativeTime>.
+             */
             ticks ticksSince( ticks relativeTime ) const;
             /**
              * Get the time in seconds passed since a certain moment
@@ -108,7 +114,14 @@ namespace ORO_CoreLib
              */
             Seconds secondsGet( ticks &relativeTime ) const;
 
+            /**
+             * Get Seconds passed since a certain moment.
+             * If <relativeTime> is zero, the absolute syteme time is given.
+             * 
+             * @return Seconds passed since <relativeTime>.
+             */
             Seconds secondsSince( ticks relativeTime ) const;
+
             /**
              * Convert an amount of nano seconds to HeartBeat ticks
              * @param m The amount of nano seconds
