@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "cpf.dtd">
-<!-- Properties of the Controller component -->
-<properties>
-    <simple name="Name" type="string"><description>The unique name of this component</description><value>KUL_PID_Controller</value></simple>
-    <simple name="K"    type="double"><description>The gain of the controller </description><value>1</value></simple>
-    <simple name="Td" type="double"><description>The derivative time constant</description><value>1</value></simple>
-    <simple name="Ti" type="double"><description>The integral time constant</description><value>1</value></simple>
-</properties>
