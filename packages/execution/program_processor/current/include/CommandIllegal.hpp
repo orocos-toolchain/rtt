@@ -25,14 +25,15 @@
 namespace ORO_Execution
 {
 
-	using namespace ORO_CoreLib;
+	using ORO_CoreLib::CommandInterface;
 	
     /**
      * A Command indicating that an error was encountered
      * somewhere, most likely during the construction of
      * another command.
      */
-    class CommandIllegal : public CommandInterface
+    class CommandIllegal
+        : public CommandInterface
     {
 
         public:
@@ -73,6 +74,11 @@ namespace ORO_Execution
             {}
 
             std::string toString();
+
+        virtual CommandInterface* clone() const
+        {
+            return new CommandIllegal( *this );
+        }
 
         private:
             /**

@@ -8,10 +8,26 @@ namespace ORO_Execution
 	{
 	}
 
+	AsynchCommandDecorator::AsynchCommandDecorator(const AsynchCommandDecorator& orig)
+		: command( orig.getCommand()->clone() ),
+          executed(false)
+	{
+	}
+
 	AsynchCommandDecorator::~AsynchCommandDecorator()
 	{
 		delete command;
 	}
+
+     CommandInterface* AsynchCommandDecorator::clone() const
+     {
+         return new AsynchCommandDecorator(*this);
+     }
+
+    const CommandInterface* AsynchCommandDecorator::getCommand() const
+    {
+        return command;
+    }
 
 	void AsynchCommandDecorator::execute(){
      	if (executed){

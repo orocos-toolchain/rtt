@@ -1,0 +1,262 @@
+#ifndef PROGRAMGRAPH_HPP
+#define PROGRAMGRAPH_HPP
+
+#include "ProgramInterface.hpp"
+#include "ProcessorControlInterface.hpp"
+
+#include "VertexNode.hpp"
+#include "EdgeCondition.hpp"
+
+#include <utility>                   // for std::pair
+#include <algorithm>                 // for std::for_each
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp> // the type of our graph
+
+
+namespace ORO_Execution
+{
+    using boost::adjacency_list;
+    using boost::property;
+    using boost::graph_traits;
+
+    class FunctionGraph;
+
+	/**
+	 * @brief This class represents a program consisting of
+	 * data contained in a program graph tree, based on the
+     * Boost Graph Library.
+	 */
+	class ProgramGraph
+        : public ProgramInterface
+	{
+    public:
+
+        typedef EdgeCondition::EdgeProperty EdgeProperty;
+        typedef VertexNode::VertProperty    VertProperty;
+
+        typedef adjacency_list<boost::vecS, boost::listS, boost::directedS, VertProperty, EdgeProperty> Graph;
+        typedef graph_traits<Graph>::vertex_descriptor Vertex;
+        typedef graph_traits<Graph>::edge_descriptor Edge;
+
+        /**
+         * A CommandNode serves as a token to construct
+         * a vertex or node, containing a command.
+         */
+        typedef Vertex CommandNode ;
+
+        /**
+         * A ConditionEdge serves as a token to construct
+         * an edge, containing a condition.
+         */
+        typedef Edge ConditionEdge ;
+
+        /**
+         * Constructs an empty program (NOPprogram)
+         *
+         * @post This program is created with a NOP root.
+         */
+        ProgramGraph();
+
+        virtual ~ProgramGraph();
+
+        /**
+         * Executes the next step of this program.
+         */
+        virtual void execute();
+
+        /**
+         * Reset the next node to be executed to the root node.
+         */
+        virtual void reset();
+
+        /**
+         * Returns the Graph of the program.
+         */
+        const Graph& getGraph() const;
+
+        /**
+         * Start a new function. Current is the start of the
+         * function.
+         */
+        FunctionGraph* startFunction();
+
+        /**
+         * Function return is detected inside the function.
+         * 
+         *
+         * @param fn The FunctionGraph created earlier with
+         *        startFunction().
+         */
+        void returnFunction( ConditionInterface* cond, FunctionGraph* fn);
+
+        void returnProgram( ConditionInterface* cond );
+        /**
+         * Function end is detected.
+         *
+         * @param fn The FunctionGraph created earlier with
+         *        startFunction().
+         */
+        void endFunction( FunctionGraph* fn);
+
+        /**
+         * Add a new command from the current CommandNode under a condition.
+         *
+         * @return the 'new' current CommandNode.
+         */
+        CommandNode addCommand( ConditionInterface* cond,  CommandInterface* com );
+
+        /**
+         * Add an edge from the current CommandNode to the given CommandNode
+         * without changing the current CommandNode.
+         *
+         */
+        void addConditionEdge( ConditionInterface* cond, CommandNode vert );
+
+        /**
+         * Add an edge between the given CommandNode and the current CommandNode.
+         *
+         */
+        void closeConditionEdge( CommandNode vert, ConditionInterface* cond );
+
+        /**
+         * Select an already added CommandNode.
+         *
+         * @return the previous CommandNode.
+         */
+        CommandNode moveTo( CommandNode _current, CommandNode _next );
+
+        /**
+         * Sets a new Command on the current CommandNode and
+         * returns the previous one.
+         *
+         */
+        void setCommand( CommandInterface* comm );
+
+        /** 
+         * Sets a (new) command on a given CommandNode.
+         * 
+         * @param vert The CommandNode to be adapted
+         * @param comm The new Command to be executed in that node.
+         * 
+         */
+        void setCommand( CommandNode vert, CommandInterface* comm);
+
+        /**
+         * A new program is started. 
+         *
+         * @param pci The Processor which will execute this program
+         */
+        CommandNode startProgram( ProcessorControlInterface* pci);
+        
+        /** 
+         * Program end is detected. The last instruction
+         * of the program will inform the Processor that
+         * the program has ended.
+         */
+        void endProgram();
+
+        /** 
+         * Append a function to the current CommandNode.
+         * 
+         * @param fn   The Function to append from the current CommandNode
+         * @param cond The 'enter' condition
+         * 
+         * @return the last CommandNode of the appended function.
+         */
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn);
+
+        /** 
+         * Put a function in the current CommandNode.
+         * 
+         * @param fn   The Function to append from the current CommandNode
+         * 
+         * @return the last CommandNode of the appended function.
+         */
+        CommandNode setFunction( FunctionGraph* fn);
+
+        /**
+         * Proceed to the 'next' CommandNode.
+         *
+         * @return The new current CommandNode.
+         */
+        CommandNode proceedToNext();
+
+        /**
+         * Proceed to the 'next' CommandNode and add an edge
+         * with a condition.
+         *
+         * @return The new current CommandNode.
+         */
+        CommandNode proceedToNext( ConditionInterface* cond );
+
+        /**
+         * Connect the given CommandNode to the 'next' CommandNode.
+         */
+        void connectToNext( CommandNode v, ConditionInterface* cond );
+
+        /**
+         * Return the current CommandNode.
+         */
+        CommandNode currentNode() const;
+
+        /**
+         * Return the number of edges of the current CommandNode.
+         */
+        size_t currentEdges() const;
+
+        /**
+         * Return the next CommandNode.
+         */
+        CommandNode nextNode() const;
+
+        void setLabel( const std::string& str );
+
+        bool hasLabel( const std::string& str ) const;
+
+        std::pair<CommandNode,bool> findNode( const std::string& str ) const;
+    private:
+        /**
+         * The graph containing all the program nodes.
+         */
+        Graph program;
+        
+        /**
+         * The graph currently working on.
+         */
+        Graph* graph;
+        
+        /**
+         * The node which is built now
+         */
+        CommandNode current;
+
+        /**
+         * The node which will be built next.
+         */
+        CommandNode next;
+
+        /**
+         * The node that was run before this one.
+         */
+        CommandNode previous;
+
+        /**
+         * The r00t of all evil
+         * (thus the start of the program).
+         */
+        CommandNode root;
+
+        /**
+         * The end of all evil
+         * (thus the end of the program).
+         */
+        CommandNode end;
+
+	};
+
+
+}
+
+#endif
+
+

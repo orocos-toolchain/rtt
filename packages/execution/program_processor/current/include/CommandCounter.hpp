@@ -6,14 +6,14 @@
 namespace ORO_Execution
 {
 
-	using namespace ORO_CoreLib;
-	using namespace std;
+	using  ORO_CoreLib::CommandInterface;
 	
     /**
      * This command increments a counter when executed. 
      * (Currently solely used by jilske for testing purposes.)
      */
-    class CommandCounter : public CommandInterface
+    class CommandCounter
+        : public CommandInterface
     {
 
         public:
@@ -37,10 +37,13 @@ namespace ORO_Execution
              */
             virtual int getCounter();
         
-        private:
-        
-        	int counter;
+        virtual CommandInterface* clone() const
+        {
+            return new CommandCounter( *this );
+        }
 
+        private:
+        	int counter;
     };
 
 }

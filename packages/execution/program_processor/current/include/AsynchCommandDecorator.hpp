@@ -19,45 +19,50 @@ namespace ORO_Execution
     class AsynchCommandDecorator: public CommandInterface
     {
 
-        public:
+    public:
 
-            /**
-             * Construct a new decorator with given command.
-             *
-             * @pre cmd != 0
-             * @param <cmd> The command to be decorated
-             * @post The given command is decorated as an
-             * 		 asynchronous command.
-             */
-            AsynchCommandDecorator(CommandInterface* cmd);
+        /**
+         * Construct a new decorator with given command.
+         *
+         * @pre cmd != 0
+         * @param <cmd> The command to be decorated
+         * @post The given command is decorated as an
+         * 		 asynchronous command.
+         */
+        AsynchCommandDecorator(CommandInterface* cmd);
 
-            virtual ~AsynchCommandDecorator();
+        AsynchCommandDecorator(const AsynchCommandDecorator& orig);
 
-            /**
-             * Execute the functionality of the corresponding command.
-             */
-            virtual void execute();
+        virtual ~AsynchCommandDecorator();
 
-            /**
-             * Return a std::string identifying the name
-             * of this Command.
-             */
-            virtual std::string toString();
+        /**
+         * Execute the functionality of the corresponding command.
+         */
+        virtual void execute();
 
-            virtual void reset();
+        /**
+         * Return a std::string identifying the name
+         * of this Command.
+         */
+        virtual std::string toString();
 
-        private:
+        virtual void reset();
 
-            /**
-             * Asynchronous command being decorated.
-             */
-        	CommandInterface* command;
+        const CommandInterface* getCommand() const;
 
-        	/**
-        	 * Variable indicating whether corresponding command
-        	 * has been executed or not.
-        	 */
-        	bool executed;
+        virtual CommandInterface* clone() const;
+    private:
+
+        /**
+         * Asynchronous command being decorated.
+         */
+        CommandInterface* command;
+
+        /**
+         * Variable indicating whether corresponding command
+         * has been executed or not.
+         */
+        bool executed;
 
     };
 

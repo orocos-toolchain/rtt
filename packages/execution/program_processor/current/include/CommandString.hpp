@@ -24,6 +24,11 @@ namespace ORO_Execution
 
     	    virtual std::string toString();
         
+        virtual CommandInterface* clone() const
+        {
+            return new CommandString( *this );
+        }
+
         private:
         	std::string command;
                 

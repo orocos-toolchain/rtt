@@ -1,20 +1,23 @@
+#ifndef ORO_COMMAND_STOP_EXECUTION_HPP
+#define ORO_COMMAND_STOP_EXECUTION_HPP
+
 #include <corelib/CommandInterface.hpp>
 #include "ProcessorControlInterface.hpp"
-//#include <exception>
 
 namespace ORO_Execution 
 {
-	using namespace ORO_CoreLib;
-	
+	using  ORO_CoreLib::CommandInterface;
+
+	/**
+     * @brief This command will instruct the Processor to
+     * stop execution if it is executed.
+     */
 	class CommandStopExecution : public CommandInterface
 	{
 		
 		public:
 		CommandStopExecution(ProcessorControlInterface * _pci) : pci(_pci)
 		{
-			//if (!pci) {
-			//	throw exception();
-			//}
 		}
 		
 		~CommandStopExecution()
@@ -29,8 +32,14 @@ namespace ORO_Execution
 			return "CommandStopExecution";
 		}
 	
+        virtual CommandInterface* clone() const
+        {
+            return new CommandStopExecution( *this );
+        }
+
 		private:
 			ProcessorControlInterface * pci;
 	};
 
 }
+#endif

@@ -44,6 +44,8 @@ namespace ORO_Execution
 	{
 		if ( isValidProgram(program))
 		{
+            // Reset the program, just before execution is entered.
+            program->reset();
 			ProcessorStateExec* newState=new ProcessorStateExec(processor, systemContext, program);
             // we pass ownership of the programand systemContext to
             // ProcessorStateExec.

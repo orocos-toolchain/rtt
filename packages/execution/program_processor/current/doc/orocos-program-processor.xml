@@ -20,28 +20,9 @@
           <address><country>Belgium</country></address>
         </affiliation>
       </author>
-
-      <author>
-        <honorific>Dr. ir</honorific>
-        <firstname>Herman</firstname>
-        <surname>Bruyninckx</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
-
-      <author>
-        <firstname>Panagiotis</firstname>
-        <surname>Issaris</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
     </authorgroup>
     <copyright>
-      <year>2002, 2003</year>
+      <year>2002, 2003, 2004</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -66,6 +47,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>Adapted documentation to comply with 0.11 release</revremark>
   </revision>
+  <revision>
+    <revnumber>0.12</revnumber>
+    <date>19 Jan 2003</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Programs are Boost::Graphs now.</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
@@ -88,29 +75,34 @@
     <title>Introduction</title>
     <para>
       This chapter explains installation, and gives an overview of the
-features and interface of the &orocos; &interf; module.
+features and interface of the &orocos; &interf; package.
     </para>
 
 
     <sect1>
       <title>What is Orocos Execution : Program Processor ?</title>
       <para>
-	&orocos; is meant for building realtime systems. You will find all necessary
-	components in other &orocos; packages to build them, but they would only
-	act as a noninteractive whole. The Interfacing allows a user to configure
-	a system and execute user-defined programs on that system.
-	A <classname>SystemContext</classname> will hold the user-programmable 
-	state machine (representing the system logic).
-	A <classname>Program</classname> will hold the user-defined data to be executed.
-	A  <classname>Processor</classname> will then represent an execution engine which
-        loads the sytem configuration and program definition and executes that program.
-	While a big part of &interf; will run close to the realtime system, loading will
-	be a non-realtime operation, since it performs dynamic memory allocations. Execution
-	will happen in real time.
-	</para>
+	&orocos; is meant for building realtime systems. You will find
+	all necessary components in other &orocos; packages to build
+	them, but they would only act as a noninteractive whole. The
+	Interfacing allows a user to configure a system and execute
+	user-defined programs on that system. A
+	<classname>SystemContext</classname> will hold the
+	user-programmable state machine (representing the system
+	logic). A <classname>ProgramGraph</classname> will hold the
+	user-defined data to be executed. A
+	<classname>Processor</classname> will then represent an
+	execution engine which loads the sytem configuration and
+	program definition and executes that program. While a big part
+	of &interf; will run close to the realtime system, loading
+	will be a non-realtime operation, since it performs dynamic
+	memory allocations. Execution will happen in real time.
+      </para>
       <para>
-	The &interf; architecture is fully pluggable and extendable. You can easily
-	write your own commands and parsers for many tasks.
+	The Program Processor is not what the user will use directly.
+	The user will mainly use the Program Parser. The Parser
+	generates ProgramGraphs which can then be executed in
+	realtime.
       </para>
     </sect1>
 
@@ -133,22 +125,28 @@ features and interface of the &orocos; &interf; module.
     <sect1>
       <title>Main Components</title>
       <para>
-	This section gives an overview of the services used for &interf;.
+	This section gives an overview of the services used for
+	&interf;.
       </para>
-      <para>
-	We refer to the source code documentation or the <application>doxygen</application> generated files for the most recent
+      <note>
+	We refer to the source code documentation or the
+	<application>doxygen</application> generated files for the
+	most recent
 	documentation about which functions exist and do what. 
-      </para>
+      </note>
       <sect2>
 	<title>Processor</title>
 	<para>
-	  The <classname>Processor</classname> is the core component of &interf;. 
-	  It represents an execution engine which is capable of loading a system configuration and
-	  loading and executing programs on that configured system.  Thus the Processor is always 
-	  associated with 3 variables, namely the state of the system, the data to be 
-	  executed and its own state. The Processor is at all times in one of the 
-	  following <classname>ProcessorStates</classname>: initialisation state, 
-	  system configuration state, load program state and execution state.
+	  The <classname>Processor</classname> is the core component
+	  of &interf;. It represents an execution engine which is
+	  capable of loading a system configuration and loading and
+	  executing programs on that configured system.  Thus the
+	  Processor is always associated with 3 variables, namely the
+	  state of the system, the data to be executed and its own
+	  state. The Processor is at all times in one of the following
+	  <classname>ProcessorStates</classname>: initialisation
+	  state, system configuration state, load program state and
+	  execution state.
 	</para>
 	<figure><title>States of the Program Processor</title>
 	  <mediaobject>
@@ -165,55 +163,77 @@ features and interface of the &orocos; &interf; module.
       <sect2>
 	<title>System Context</title>
 	<para>
-	  The <classname>System Context</classname> is the gateway to the configuration of
-	  the state machine representing the system logic. A user can define possible system 
-	  states, state rules and state transitions which will be translated by the parser
-	  into a valid system configuration.  
-	  Each <classname>SystemState</classname> can be configured with a set of rules. 
-	  A <classname>Rule</classname> is an if-then clause (Condition-Command), 
-	  when the condition is violated, the corresponding command will be executed.  
-	  A difference has been made between strong rules and weak rules.  When a strong rule 
-	  is violated, the only concern is to execute its command as soon as possible and abort
-	  the rest of the rules. Weak rules on the other hand, are checked sequentially.
+	  The <classname>System Context</classname> is the gateway to
+	  the configuration of the state machine representing the
+	  system logic. A user can define possible system states,
+	  state rules and state transitions which will be translated
+	  by the parser into a valid system configuration. Each
+	  <classname>SystemState</classname> can be configured with a
+	  set of rules. A <classname>Rule</classname> is an if-then
+	  clause (Condition-Command), when the condition is violated,
+	  the corresponding command will be executed. A difference has
+	  been made between strong rules and weak rules.  When a
+	  strong rule is violated, the only concern is to execute its
+	  command as soon as possible and abort the rest of the rules.
+	  Weak rules on the other hand, are checked sequentially, have
+	  their commands executed (if any) and don't cause a state
+	  change.
 	</para>
       </sect2>
 
       <sect2>
-	<title>Program</title>
+	<title>A Program</title>
 	<para>
-	  The <classname>Program</classname> is a tree composed of program nodes.  A Program
-	  keeps track of the root node and the node to be executed next. As such a program 
-	  can be executed in steps, and reset to the beginning. The leaf nodes of a program
-	  are special program nodes that contain a command which will halt the processor 
-	  that is executing the program.
+	  A Program is defined by the ProgramInterface. A Program
+	  implementation also provides an interface to build a program.
+	</para>
+	<para>
+	  The <classname>ProgramGraph</classname> is a tree composed
+	  of command nodes.  A Program keeps track of the start node
+	  and the node to be executed next. As such a program can be
+	  executed in steps, and reset to the beginning. The
+	  ProgramGraph has a builder interface for constructing
+	  programs, which is used by other packages to construct valid
+	  programs.
 	</para>
       </sect2>
 
       <sect2>
-	<title>Program Node</title>
+	<title>The Command Node</title>
 	<para>
-	  The <classname>Program Node</classname> contains a <classname>Command</classname> and
-	  a list of <classname>Termination Clauses</classname>, these clauses are 
-	  condition-program node couples that represent conditional branches in the program tree. 
-	  When a program node is executed, it executes its associated commands and 
-	  runs through the list with termination clauses, checking until a <classname>
-	    Condition</classname> is found 
-	  valid and returning the program node associated with that condition as the 
-	  program node to be executed next. If no condition is fulfilled, the program node
-	  will return itself as the program node to be executed next.
-	  Also a line number can 
-	  be associated with each program node, as a reference to the input file formatted 
-	  by the user.
+	  The <classname>CommandNode</classname> contains a
+	  <classname>Command</classname> and is connected by edges of
+	  the type <classname>ConditionEdge</classname>, these edges
+	  are connect one node with another and allow the transition
+	  if the contained condition evaluates to true. When a program
+	  is executed, it executes the command and runs through the
+	  list of edges, checking until a <classname>
+	    Condition</classname> is found valid and the next program
+	  node to be executed is thus found. If no condition is
+	  fulfilled, the same command node will be executed again.
+	  Also a line number can be associated with each command node,
+	  as a reference to the input file formatted by the user.
 	</para>
       </sect2>
-
       <sect2>
-	<title>Command</title>
+	<title>The Command class</title>
 	<para>
-	  The <classname>Command</classname> is the abstraction of a user directive
-	  that has to be executed. A Command can be execute()'ed and reset()'ted.
-	  For each action exists one Command, but a Command can be composed of
-	  other Commands. The package provides a lot of examples. 
+	  The <classname>Command</classname> is the abstraction of a
+	  user directive that has to be executed. A Command can be
+	  execute()'ed and reset()'ed. For each action exists one
+	  Command, but a Command can be composed of other Commands.
+	  The basic interface, CommandInterface, is provided by the
+	  Orocos CoreLib.
+	</para>
+      <sect2>
+	<title>The Condition class</title>
+	<para>
+	  The <classname>Condition</classname> is the abstraction of a
+	  user expression that has to be evaluated. A Condition can be
+	  evaluated()'ed and reset()'ed. Many primitive expressions
+	  can be evaluated and a Condition can be composed of other
+	  Conditions. The basic interface, ConditionInterface, is
+	  provided by the Orocos CoreLib
 	</para>
       </sect2>
     </sect1>

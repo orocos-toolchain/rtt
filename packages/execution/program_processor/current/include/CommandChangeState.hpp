@@ -5,14 +5,16 @@
 
 namespace ORO_Execution
 {
-	class CommandChangeState : public CommandInterface
+    /**
+     * @brief A command that changes the State of the System.
+     */
+	class CommandChangeState
+        : public CommandInterface
 	{
 		
 		public:
-		CommandChangeState(SystemContext* _sc, SystemStateInterface * _sti) : sc(_sc), sti(_sti)	{
-			//if (!(sc && sti)) {
-			//	throw new exception();//smerige nulpointers
-			//}
+		CommandChangeState(SystemContext* _sc, SystemStateInterface * _sti)
+            : sc(_sc), sti(_sti) {
 		}
 		
 		~CommandChangeState()
@@ -26,7 +28,12 @@ namespace ORO_Execution
 			return "CommandChangeState";
 		}
 	
-	
+        virtual CommandInterface* clone() const
+        {
+            // shalow copy, we do not own the pointers
+            return new CommandChangeState(*this);
+        }
+
 		private:
 			SystemContext * sc;
 			SystemStateInterface * sti;
