@@ -56,6 +56,11 @@ namespace ORO_CoreLib
     struct MultiVector
     {
         /**
+         * The size of this MultiVector is stored in this enum.
+         */
+        enum Size {size = S};
+
+        /**
          * You can use DataType if you want to refer to 
          * a pointer holding S elements
          */
@@ -243,6 +248,36 @@ namespace ORO_CoreLib
                 data[ i ] = d.data[ i ];
 
             return *this;
+        }
+
+        /** 
+         * Compares all elements of this MultiVector to all elements
+         * of another MultiVector.
+         *
+         * @param d
+         *        The other MultiVector to be used.
+         */
+        bool operator == ( const MultiVector& d )
+        {
+            for ( unsigned int i = 0; i < S; ++i )
+                if (data[ i ] != d.data[ i ])
+                    return false;
+            return true;
+        }
+
+        /** 
+         * Compares elements of this MultiVector are different from elements
+         * of another MultiVector.
+         *
+         * @param d
+         *        The other MultiVector to be used.
+         */
+        bool operator != ( const MultiVector& d )
+        {
+            for ( unsigned int i = 0; i < S; ++i )
+                if (data[ i ] != d.data[ i ])
+                    return true;
+            return false;
         }
 
         /*
