@@ -426,10 +426,70 @@ void StateTest::testStateEmpty()
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateTry()
+void StateTest::testStateSubStateVars()
 {
-//     this->doState( prog, &gtc );
-//     this->finishState( &gtc, "x");
+    // test get/set access of substate variables and parameters
+    string prog = string("StateMachine Y {\n")
+        + " param double isnegative\n"
+        + " var   double t = 1.0\n"
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     if isnegative >= 0. then select PARAMFAIL\n"
+        + "     if t >= 0. then select VARFAIL\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " state ERROR {\n"
+        + " }\n"
+        + " state PARAMFAIL {\n"
+        + " }\n"
+        + " state VARFAIL {\n"
+        + " }\n"
+        + " state EXITFAIL {\n"
+        + " }\n"
+        + " state ENTRYFAIL {\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " transitions {\n"
+        + "     if isnegative <= 0. then select PARAMFAIL\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + string("StateMachine X {\n")
+        + " param double isnegative\n"
+        + " var double d_dummy = -2.0\n"
+        + " var int    i_dummy = -1\n"
+        + " SubMachine Y y1(isnegative = d_dummy)\n"
+        + " initial state INIT {\n"
+        + " entry {\n"
+        + "     set y1.t = -1.0 \n"
+        + "     do y1.activate()\n"
+        + " }\n"
+        + " exit {\n"
+        + "     set y1.isnegative = +1.0 \n"
+        + "     do y1.start()\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " entry {\n"
+        + "     do y1.stop()\n"
+        + " }\n"
+        + " exit {\n"
+        + "     do y1.deactivate()\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
+        ;
+
+     this->doState( prog, &gtc );
+     this->finishState( &gtc, "x");
 }
 
 void StateTest::testStateUntil()
