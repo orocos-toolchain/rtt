@@ -30,6 +30,7 @@
 
 #include "StateInterface.hpp"
 #include "ConditionInterface.hpp"
+#include "CommandInterface.hpp"
 
 #include <map>
 #include <vector>
@@ -192,6 +193,19 @@ namespace ORO_CoreLib
             return finistate;
         }
 
+        /**
+         * This was added for extra (non-user visible) initialisation
+         * before the statecontext is activated.
+         */
+        void setInitCommand( CommandInterface* c)
+        {
+            initc = c;
+        }
+
+        CommandInterface* getInitCommand() const
+        {
+            return initc;
+        }
     protected:
         void leaveState( StateInterface* s );
 
@@ -213,6 +227,7 @@ namespace ORO_CoreLib
          */
         StateInterface* current;
 
+        CommandInterface* initc;
 
     protected:
         /**

@@ -66,7 +66,7 @@ namespace ORO_CoreLib
         /**
          * Create a command calling a function.
          */
-        CommandFunctor(Function& func) : f(func) {}
+        CommandFunctor(const Function& func) : f(func) {}
 
         virtual ~CommandFunctor() {}
 
@@ -105,7 +105,7 @@ namespace ORO_CoreLib
         /**
          * Create a command calling a function.
          */
-        CommandFunctor(Function& func) : f(func) {}
+        CommandFunctor(const Function& func) : f(func) {}
 
         virtual ~CommandFunctor() {}
 
@@ -113,7 +113,7 @@ namespace ORO_CoreLib
 
         virtual CommandInterface* clone() const
         {
-            return new CommandFunctor<F>(f);
+            return new CommandFunctor<Function>(f);
         }
     };
 
@@ -124,7 +124,7 @@ namespace ORO_CoreLib
      * function \a f when execute()'ed.
      */
     template<class F>
-    CommandInterface* newCommandFunctor( F& f )
+    CommandInterface* newCommandFunctor(const F& f )
     {
         return new CommandFunctor<F>(f);
     }

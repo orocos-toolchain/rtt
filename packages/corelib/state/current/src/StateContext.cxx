@@ -36,11 +36,11 @@ namespace ORO_CoreLib
     using boost::tuples::get;
 
     StateContext::StateContext()
-        : initstate(0), finistate(0), current( 0 )
+        : initstate(0), finistate(0), current( 0 ), initc(0)
     {}
 
     StateContext::StateContext( StateInterface* s_init, StateInterface* s_fini )
-        : initstate(s_init), finistate(s_fini), current( 0 )
+        : initstate(s_init), finistate(s_fini), current( 0 ), initc(0)
     {
         enterState( s_init );
     }
@@ -164,7 +164,10 @@ namespace ORO_CoreLib
     void StateContext::leaveState( StateInterface* s )
     {
         s->onExit();
-        current = 0;
+        // although we are no longer in s, we do not set current
+        // to zero, because this would indicate an deactivated SC.
+        // also, currentState() would return zero and external
+        // inspection of currentState()->getName() would segfault.
     }
 
     void StateContext::enterState( StateInterface* s )
@@ -174,9 +177,8 @@ namespace ORO_CoreLib
         for ( it= stateMap[s].begin(); it != stateMap[s].end(); ++it)
             get<0>(*it)->reset();
 
-        s->onEntry();
         current = s;
-
+        current->onEntry();
         current->handle();
     }
 
@@ -202,6 +204,8 @@ namespace ORO_CoreLib
     {
         if ( !isActive() )
         {
+            if ( initc )
+                initc->execute();
             enterState( getInitialState() );
             return true;
         }
@@ -213,6 +217,9 @@ namespace ORO_CoreLib
         if ( isActive() && current == getFinalState() )
         {
             leaveState( current );
+            current = 0;
+            if ( initc )
+                initc->reset();
             return true;
         }
         return false;

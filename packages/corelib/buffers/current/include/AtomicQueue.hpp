@@ -82,7 +82,7 @@ namespace ORO_CoreLib
                 if ( newval >= _buf+_size )
                     newval -= _size;
                 // check for empty : 
-                if ( (newval - 1)->first == 0 )
+                if ( oldval->first == 0 )
                     return 0;
                 // if ptr is unchanged, replace it with newval.
             } while ( !ORO_OS::CAS( &_rptr, oldval, newval) );
