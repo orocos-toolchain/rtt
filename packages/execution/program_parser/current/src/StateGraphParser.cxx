@@ -757,7 +757,9 @@ namespace ORO_Execution
 
     void StateGraphParser::seencontextvariable() {
         CommandInterface* assigncommand = valuechangeparser->assignCommand();
-        varinitcommands.push_back( assigncommand );
+        // if an assignment was given, add it.
+        if ( assigncommand )
+            varinitcommands.push_back( assigncommand );
         valuechangeparser->reset();
     }
 
