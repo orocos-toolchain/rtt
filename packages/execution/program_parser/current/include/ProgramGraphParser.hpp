@@ -147,6 +147,8 @@ namespace ORO_Execution
       void seenprogramend();
       void programtext(iter_t, iter_t);
 
+      void cleanup();
+
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           dostatement, trystatement, statement, line, content, program, valuechange_parsers,
           production, valuechange, returnstatement, function, arguments, funcstatement,

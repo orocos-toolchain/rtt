@@ -2,7 +2,7 @@
 dist: dochtml docpdf docps
 	tar -czf orocos-task-context-doc.tgz \
 	orocos-task-context.html orocos-task-context.pdf \
-	orocos-task-context.ps ATaskContext.png TaskPeers.png
+	orocos-task-context.ps ATaskContext.png TaskPeers.png TaskFactories.png
 
 docxml: dochtml docpdf
 
@@ -14,9 +14,9 @@ docps: epsimages orocos-task-context.ps
 
 doctxt: orocos-task-context.txt
 
-epsimages: ATaskContext.eps TaskPeers.eps
+epsimages: ATaskContext.eps TaskPeers.eps TaskFactories.eps
 
-pngimages: ATaskContext.png TaskPeers.png
+pngimages: ATaskContext.png TaskPeers.png TaskFactories.png
 
 %.html:%.xml
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
@@ -24,7 +24,7 @@ pngimages: ATaskContext.png TaskPeers.png
 %.fo:%.xml
 	xsltproc orocos.xsl $< > $@
 
-%.ps:%.fo
+%.ps:%.fo epsimages
 	fop $< $@
 
 %.pdf:%.ps

@@ -240,7 +240,7 @@
 	</imageobject>
 	<caption>
 	  <para>The Execution Flow is formed by Programs and
-	    State Machines sending commands to tasks. The Data Flow
+	    State Machines sending commands to Peer Tasks. The Data Flow
 	    is the propagation of data from one task to another, where
 	    one producer can have multiple consumers.
 	  </para>
@@ -257,7 +257,8 @@
   a_task.methodFactory.getObjectFactory("objname");
   a_task.dataFactory.getObjectFactory("objname");
 
-  a_task.attributeRepository.getAttribute("objname");      </programlisting>
+  a_task.attributeRepository.getAttribute("objname");
+      </programlisting>
     </para>
     <para>
     </para>
@@ -323,8 +324,8 @@
     newMethodFactory( &amp;xobj );
 	</programlisting>
 	constructs a new TemplateMethodFactory, which will create methods
-	for the <emphasis>object</emphasis> 'xobj'. This means that each
-	object must have its own factory.
+	for the <emphasis>object</emphasis> 'xobj'. A TemplateMethodFactory
+	only provides access to one C++ object. 
 	After this factory is constructed, we add
 	methods to it using the add() function.  The add() function requires a
 	name for the added method, and information on the method to be
@@ -343,10 +344,15 @@
 	string containing a description of the function, followed by a
 	name and description for each of the arguments.
       </para>
+<programlisting>
+  a_task.methodFactory.registerObject("objname", fact);	</programlisting>
       <para>
-	As one can see, any method of any class can be added to a task's
+	Finally, the factory is stored in the method interface of a_task,
+	where it is <emphasis>added</emphasis> to the "objname" methods.
+	Using this mechanism, any method of any class can be added to a task's
 	method interface. All methods are grouped in an object
-	namespace ( here &quot;objname&quot; ). To invoke this
+	namespace ( here &quot;objname&quot; ), which can be served
+	by different classes ( and thus factories ). To invoke this
 	method from a script, one can then write :</para>
       <para>
 	<programlisting>
@@ -371,6 +377,30 @@
 	  you may add pure virtual methods to the factory.
 	</emphasis>
       </para>
+    <figure id="fig-task-factories">
+      <title>
+	  Template Factories and Classes UML Diagram
+      </title>
+      <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="TaskFactories.png"
+	    format="PNG"/>
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="TaskFactories.eps"
+	    format="EPS"/>
+	</imageobject>
+	<caption>
+	  <para> This diagram demonstrates how TemplateFactories
+	      can be flexibly applied to your class design. They
+	      can represent a single object in the TaskContext
+	      interface, while it is implemented in different classes
+	      ( here : <classname>ClassX</classname> and <classname>YourTask</classname> ).
+	      The "this" object stores the task's members.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
     </sect2>
     <sect2>
       <title>The Attribute Repository</title>
@@ -835,7 +865,7 @@
       <sect3>
 	<title>Further Reading</title>
 	<para>
-	  Before you go any further, be sure to read the &parseman;
+	  In addition to this text, be sure to read the &parseman;
 	  such that you get a grip of the full power of Real-Time
 	  Orocos scripts. The next section explains a more low-level
 	  usage of commands, which may not be usefull to all users.
@@ -912,6 +942,70 @@
 	thus not requiring any mutex locks.
       </para>
     </sect2>
+  </sect1>
+  <sect1>
+    <title>Browsing Tasks Online</title>
+    <para>
+      The <classname>TaskBrowser</classname>
+      is a powerfull tool which helps you to
+      explore, execute and debug <classname>TaskContext</classname>s
+      in running programs. All you have to do is to instantiate a 
+      TaskBrowser and enter its loop() method. When the program is
+      started from a console, the TaskBrowser takes over user input 
+      and output.
+    </para>
+    <programlisting>
+  #include &lt;execution/TaskBrowser.hpp&gt;
+  // ...
+
+  int ORO_main( int, char** )
+  {
+      // Create your tasks
+      TaskContext task = ...
+
+      // when all is setup :
+      TaskBrowser tbrowser( task );
+
+      tbrowser.loop();
+      return 0;
+  }
+    </programlisting>
+    <para>
+      The TaskBrowser uses the GNU readline library to easily
+      enter commands to the tasks in your system. This means you
+      can press TAB to complete your commands and the up arrow
+      to scroll through previous commands.
+    </para>
+    <screen>
+$ ./taskclient
+
+  This console reader allows you to browse TaskContexts.
+  You can type in a command (type 'help' for info),
+  an datasource, method or expression.
+
+    To switch to another task, type 'switch &lt;path-to-taskname&gt;'
+    TAB completion and HISTORY is available for commands
+
+ In Task T1. Enter a command. (Status of previous command : none )
+ (type 'quit' for exit) :
+    </screen>
+    <para>
+      Depending on what you type, the TaskBrowser will act differently.
+      The builtin commands <command>switch</command>, <command>help</command>,
+      <command>quit</command> and <command>back</command> are detected
+      first, if you typed something else,
+      it tries to evaluate your command to an expression and will
+      print the result to the console. If you did not type an expression,
+      it tries to parse it as a command to a (peer) task. If that also
+      fails, it means you made a typo and it prints the syntax error
+      to console.
+    </para>
+    <screen>
+ In Task T1. Enter a command. (Status of previous command : none )
+ (type 'quit' for exit) : 1 + 1
+      Got : 1 + 1
+   = 2
+    </screen>
   </sect1>
   <sect1>
     <title>Applying the Task Infrastructure to Your Application</title>

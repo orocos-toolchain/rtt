@@ -374,9 +374,8 @@ namespace ORO_Execution
     void StateGraphParser::inprogram(const std::string& name)
     {
         assert( curprogram == 0 );
-        curprogram = new ProgramGraph();
+        curprogram = new ProgramGraph(name, 0);
         curprogram->startProgram();
-        curprogram->setName( name );
     }
 
     ProgramGraph* StateGraphParser::finishProgram()
@@ -944,9 +943,8 @@ namespace ORO_Execution
   }
 
     ProgramGraph* StateGraphParser::emptyProgram( const std::string& name ) {
-        ProgramGraph* ret = new ProgramGraph();
+        ProgramGraph* ret = new ProgramGraph(name, 0);
         ret->startProgram();
-        ret->setName( name );
         ret->returnProgram( new ConditionTrue );
         ret->proceedToNext( mpositer.get_position().line );
         ret->endProgram();

@@ -9,6 +9,7 @@
 #include <execution/PeerParser.hpp>
 
 #include <iostream>
+#include <deque>
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -167,10 +168,12 @@ namespace ORO_Execution
                 if ( i->find( comp ) == 0  )
                     completes.push_back( *i+"." );
             }
-            if ( std::string( "start" ).find(comp) == 0 )
-                completes.push_back("start");
-            if ( std::string( "stop" ).find(comp) == 0 )
-                completes.push_back("stop");
+            if ( std::string( "switch" ).find(comp) == 0 )
+                completes.push_back("switch");
+            if ( std::string( "back" ).find(comp) == 0 )
+                completes.push_back("back");
+            if ( std::string( "peers" ).find(comp) == 0 )
+                completes.push_back("peers");
             if ( std::string( "help" ).find(comp) == 0 )
                 completes.push_back("help");
             if ( std::string( "quit" ).find(comp) == 0 )
@@ -345,10 +348,22 @@ namespace ORO_Execution
                         command = std::string(command, pos+6, command.length());
                         cerr << " Switching to " << command <<endl;
                         switchTask( command );
+                    } else if ( command.find("back") == 0  ) {
+                        switchBack( );
                     } else
                         evalCommand( command );
                     cout <<endl;
                 }
+        }
+
+        std::deque<TaskContext*> taskHistory;
+
+        void switchBack()
+        {
+            if ( taskHistory.size() == 0)
+                return;
+            taskcontext = taskHistory.front();
+            taskHistory.pop_front();
         }
 
         void switchTask(std::string& c) {
@@ -367,6 +382,9 @@ namespace ORO_Execution
                     cerr<<e.what() <<endl;
                 }
             taskcontext = pp.peer(); // peer is the new taskcontext.
+            if (taskHistory.size() == 20 )
+                taskHistory.pop_back();
+            taskHistory.push_front( taskcontext );
         }
 
         void evalCommand(std::string& comm )
@@ -473,6 +491,8 @@ namespace ORO_Execution
             using boost::lambda::_1;
 
             cout << endl<< coloron;
+            cout << "  To switch to another task, type 'switch <path-to-taskname>'"<<endl;
+            cout << "  and type 'back' to go back to the previous task (History size is 20)."<<endl<<endl;
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
             cout << "  myTask.orderBeers(\"Palm\", 5) [then press enter] "<<endl;

@@ -45,6 +45,8 @@ namespace ORO_Execution
     using boost::graph_traits;
 
     class DataSourceBase;
+    class ProgramCommands;
+    class TaskContext;
 
     /**
      * @brief This class represents a program consisting of
@@ -79,7 +81,7 @@ namespace ORO_Execution
          * Constructs an empty program (NOPprogram).
          *
          */
-        ProgramGraph(const std::string& _name="Default");
+        ProgramGraph(const std::string& _name, TaskContext* tc);
 
         virtual ~ProgramGraph();
 
@@ -88,6 +90,10 @@ namespace ORO_Execution
          * @param ln The line number.
          */
         void setLineNumber( int ln );
+
+        void setName(const std::string& _name);
+
+        TaskContext* getTaskContext() const;
 
         /**
          * Start a new function. Build is the start of the
@@ -265,6 +271,9 @@ namespace ORO_Execution
          */
         Graph* graph;
 
+        TaskContext* progcontext;
+
+        ProgramCommands* comms;
         /**
          * @brief A stack which keeps track of branch points.
          *

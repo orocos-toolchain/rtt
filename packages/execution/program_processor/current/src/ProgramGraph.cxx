@@ -28,6 +28,8 @@
 #include "execution/FunctionGraph.hpp"
 #include "execution/CommandComposite.hpp"
 #include "execution/TaskAttribute.hpp"
+#include "execution/TemplateFactories.hpp"
+#include "execution/TaskContext.hpp"
 //#include "execution/parse_exception.hpp"
 #include "execution/FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
@@ -47,13 +49,49 @@ namespace ORO_Execution
     using ORO_CoreLib::CommandNOP;
     using ORO_CoreLib::ConditionTrue;
 
-    ProgramGraph::ProgramGraph(const std::string& _name)
-        : FunctionGraph(_name), graph( 0 )
+    struct ProgramCommands
     {
+        TaskContext* _progcont;
+        ProgramCommands(TaskContext* progcont) : _progcont(progcont)
+        {
+            TemplateCommandFactory<ProgramCommands>* fact =
+                newCommandFactory( this );
+
+            fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start this program") );
+            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop this program", false) );
+
+            progcont->commandFactory.registerObject("this", fact);
+        }
+
+        bool start() {
+            return _progcont->getProcessor()->startProgram( _progcont->getName() );
+        }
+
+        bool running() const {
+            return _progcont->getProcessor()->getProgramStatus( _progcont->getName() ) == Processor::ProgramStatus::running;
+        }
+
+        bool stop() {
+            return _progcont->getProcessor()->stopProgram( _progcont->getName() );
+        }
+        
+    };
+
+
+    ProgramGraph::ProgramGraph(const std::string& _name, TaskContext* tc)
+        : FunctionGraph(_name), graph( 0 ), progcontext(tc), comms(0)
+    {
+        if (progcontext == 0)
+            return;
+        comms = new ProgramCommands( progcontext );
     }
 
     ProgramGraph::~ProgramGraph()
     {
+        if ( progcontext && progcontext->hasPeer("programs") )
+            progcontext->getPeer("programs")->removePeer( this->getName() );
+        delete progcontext;
+        delete comms;
     }
 
     FunctionGraph* ProgramGraph::startFunction(const std::string& fname)
@@ -138,6 +176,16 @@ namespace ORO_Execution
         // access the one of build
         delete cmap[cn].setCommand( comm );
     }
+
+    void ProgramGraph::setName(const std::string& pname) {
+        FunctionGraph::setName(pname);
+        progcontext->setName(pname);
+    }
+
+    TaskContext* ProgramGraph::getTaskContext() const {
+        return progcontext;
+    }
+
 
     ProgramGraph::CommandNode ProgramGraph::proceedToNext( ConditionInterface* cond, int this_line )
     {

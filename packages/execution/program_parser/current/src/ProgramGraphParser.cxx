@@ -300,6 +300,8 @@ namespace ORO_Execution
 
   void ProgramGraphParser::programdef( iter_t begin, iter_t end )
   {
+      // Now that we got the name, set everything up:
+
       std::string def(begin, end);
       program_graph->setName( def );
 
@@ -307,16 +309,16 @@ namespace ORO_Execution
       if ( __p == 0 ) {
           // install the __functions if not yet present.
           __p = new TaskContext("programs", context->getProcessor() );
-          context->connectPeers( __p );
+          context->addPeer( __p );
       }
 
       if ( __p->hasPeer( def ) )
-          throw parse_exception_semantic_error("program " + def + " redefined.");
+          throw parse_exception_semantic_error("Program '" + def + "' redefined in task '"+context->getName()+"'.");
 
-      TaskContext* fun = new TaskContext(def, context->getProcessor() );
-      __p->addPeer( fun );
+      TaskContext* fun = program_graph->getTaskContext();
+      __p->connectPeers( fun );
       fun->addPeer(context);
-      fun->addPeer(context,"task");
+      fun->addPeer(context,"task"); // alias
 
       // like functions : variables are always on foo's 'stack'
       valuechangeparser.setStack(fun);
@@ -626,7 +628,7 @@ namespace ORO_Execution
       program_graph->endProgram();
       program_graph->reset();
       program_list.push_back(program_graph);
-      program_graph = new ProgramGraph(); // will be deleted if no other progs follow
+      program_graph = new ProgramGraph("Default", new TaskContext("Default", context->getProcessor() ) ); // will be deleted if no other progs follow
 
       // restore 'stack' to task's stack.
       valuechangeparser.setStack(context); 
@@ -646,7 +648,7 @@ namespace ORO_Execution
 
     // we need this, because if we encounter a function def,
     // a program_graph must be present.
-    program_graph = new ProgramGraph();
+    program_graph = new ProgramGraph("Default", new TaskContext("Default", context->getProcessor() )); 
     
     try {
       if ( ! production.parse( scanner ) )
@@ -673,10 +675,7 @@ namespace ORO_Execution
     // Catch Boost::Spirit exceptions
     catch( const parser_error<std::string, iter_t>& e )
         {
-            delete program_graph;
-            program_graph = 0;
-            delete argsparser;
-            argsparser = 0;
+            cleanup();
             for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
                  it!=program_list.end();
                  ++it)
@@ -691,10 +690,7 @@ namespace ORO_Execution
     // Catch our Orocos exceptions
     catch( const parse_exception& e )
     {
-      delete program_graph;
-      program_graph = 0;
-      delete argsparser;
-      argsparser = 0;
+        cleanup();
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
            it!=program_list.end();
            ++it)
@@ -704,6 +700,31 @@ namespace ORO_Execution
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
     }
+  }
+
+  void ProgramGraphParser::cleanup()
+  {
+      // after an exception, we can be in any state, so cleanup
+      // all temp objects.
+      delete program_graph;
+      program_graph = 0;
+      delete argsparser;
+      argsparser = 0;
+      delete implcond;
+      implcond = 0;
+      delete mcondition;
+      mcondition = 0;
+      delete try_cond;
+      try_cond = 0;
+      delete dc;
+      dc = 0;
+      delete mfunc;
+      mfunc = 0;
+      delete for_init_command;
+      for_init_command = 0;
+      delete for_incr_command;
+      for_incr_command = 0;
+
   }
 
   void ProgramGraphParser::seencommandcall()
