@@ -61,6 +61,14 @@ namespace ORO_DeviceDriver
          * @verbatim
          * volt = (setpoint + offset)/scale
          * @endverbatim
+         * Example for a velocity drive :
+         * @verbatim
+         * scale = 10 mm/s/Volt
+         * offset = 5
+         * velocity = X
+         * output   = Y
+         *  Y Volt = ( - X (mm/s) + 5 (mm/s) )/ ( 10 ( mm/s/ Volt ) )
+         * @endverbatim
          *
          * @param _scale The scale of unit per volt such that unit = volt * _scale
          * @param _offset The offset to be added to the unit such that new_unit = vel + offset
@@ -68,9 +76,10 @@ namespace ORO_DeviceDriver
         AnalogDrive( AnalogOutput<unsigned int>* an_out,
                DigitalOutput* dig_out, double _scale=1.0, double _offset=0.0 )
             : analogDevice( an_out ),
-            enableDevice(dig_out), mySpeed(0.0),
-            scale(_scale), offset( _offset ),
-            lowvel( an_out->lowest()*scale - offset ), highvel( an_out->highest()*scale - offset )
+              enableDevice(dig_out), mySpeed(0.0),
+              scale(_scale), offset( _offset ),
+              lowvel( an_out->lowest()*scale - offset ),
+              highvel( an_out->highest()*scale - offset )
         {
             driveSet(0);
             disableDrive();
@@ -123,13 +132,13 @@ namespace ORO_DeviceDriver
         int driveSet( double v )
         {
             mySpeed = v;
-#if 0
+
             // limit v;
             if ( mySpeed < lowvel )
                 mySpeed = lowvel;
             else if ( mySpeed > highvel)
                 mySpeed = highvel;
-#endif
+
             analogDevice->value( (mySpeed+offset)/scale );
 
             return 0;

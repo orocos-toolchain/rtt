@@ -29,7 +29,6 @@
 #define BECKHOFFDOUT_HPP
 
 #include <device_interface/DigitalOutInterface.hpp>
-#include "BeckhoffCANCoupler.hpp"
 
 namespace Beckhoff
 {
@@ -37,8 +36,7 @@ namespace Beckhoff
     using ORO_DeviceInterface::DigitalOutInterface;
 
 	/**
-     * A class representing an Beckhoff Digital Out Terminal.
-     * TODO : set all bits to zero in init
+     * @brief A class representing an Beckhoff Digital Out Terminal.
 	 */
 	class BeckhoffDOut
         : public DigitalOutInterface
@@ -47,7 +45,7 @@ namespace Beckhoff
         /**
          */
         BeckhoffDOut()
-            : bit_status(), totalBits(0)
+            : bit_status(0), totalBits(0)
         {
         }
 
@@ -63,7 +61,7 @@ namespace Beckhoff
 
         void switchOff( unsigned int bit )
         {
-            bit_status &= !(0x1 << bit);
+            bit_status &= ~(1 << bit);
         }
 
         virtual void setBit( unsigned int bit, bool value ) 

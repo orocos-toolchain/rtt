@@ -57,14 +57,14 @@ namespace ORO_DeviceDriver
         double maxpos;
     public :
         /**
-         * @brief Create a End Limit Detector with a sensor.
+         * @brief Create a End Limit Detector of a sensor.
          *
          * @param _sensor The sensor returning a calibrated value.
          * @param _minpos The minimal limit, if omitted, the _sensor->minMeasurement() is taken.
          * @param _maxpos The maximal limit, if omitted, the _sensor->maxMeasurement() is taken.
          */
         EndLimitDetector( ORO_DeviceInterface::SensorInterface<double>* _sensor,
-                          double _minpos = numeric_limits<double>::min(),
+                          double _minpos = -numeric_limits<double>::max(),
                           double _maxpos = numeric_limits<double>::max() )
             : sens(_sensor), minpos(_minpos), maxpos(_maxpos)
         {}

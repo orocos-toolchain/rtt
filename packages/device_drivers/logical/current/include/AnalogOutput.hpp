@@ -66,8 +66,13 @@ namespace ORO_DeviceDriver
          */
         void value(double v)
         {
-            d_cache = v;
-            i_cache = board->binaryLowest() + OutputType( ( v - board->lowest(channel) ) * board->resolution(channel) );
+            if ( v < board->lowest(channel ) )
+                d_cache = board->lowest( channel );
+            else if ( v > board->highest( channel ) )
+                d_cache = board->highest( channel ) ;
+            else
+                d_cache = v;
+            i_cache = board->binaryLowest() + OutputType( ( d_cache - board->lowest(channel) ) * board->resolution(channel) );
             board->write(channel, i_cache);
         }
 
@@ -76,7 +81,12 @@ namespace ORO_DeviceDriver
          */
         void rawValue(OutputType i)
         {
-            i_cache = i;
+            if ( i < board->binaryLowest(channel ) )
+                i_cache = board->binaryLowest( channel );
+            else if ( v > board->binaryHighest( channel ) )
+                i_cache = board->binaryHighest( channel ) ;
+            else
+                i_cache = i;
             board->write(channel, i);
         }
 

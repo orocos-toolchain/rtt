@@ -131,7 +131,8 @@ namespace ORO_DeviceDriver
 
         virtual double minMeasurement() const
         {
-            return calibrated ? min : std::numeric_limits<double>::min();
+            // ::min() is the <smallest> number ( cfr 0 )
+            return calibrated ? min : -std::numeric_limits<double>::max();
         }
 
         virtual double zeroMeasurement() const

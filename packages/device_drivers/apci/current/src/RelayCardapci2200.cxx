@@ -107,7 +107,7 @@ namespace ORO_DeviceDriver
 
     bool RelayCardapci2200::checkBit(unsigned int n) const
     {
-        return (output_cache >> n & 0x1);
+        return (output_cache >> n) & 0x1;
     }
 
     unsigned int RelayCardapci2200::checkSequence( unsigned int start_bit, unsigned int stop_bit ) const
