@@ -26,8 +26,8 @@
  ***************************************************************************/ 
  
  
-#ifndef COMMANDFunction_HPP
-#define COMMANDFunction_HPP
+#ifndef ORO_COMMANDFunction_HPP
+#define ORO_COMMANDFunction_HPP
 
 #include "CommandInterface.hpp"
 
@@ -67,11 +67,6 @@ namespace ORO_CoreLib
         virtual ~CommandFunction() {}
 
         virtual void execute() { f(); }
-
-        virtual std::string toString() 
-        {
-            return std::string("CommandFunction");
-        }
 
         virtual CommandInterface* clone() const
         {

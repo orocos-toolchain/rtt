@@ -34,7 +34,7 @@ namespace ORO_CoreLib
 {
 
     /**
-     * Based on the software pattern 'command', this
+     * @brief Based on the software pattern 'command', this
      * interface allows execution of command objects.
      */
     class CommandInterface
@@ -47,12 +47,6 @@ namespace ORO_CoreLib
              * Execute the functionality of this command.
              */
             virtual void execute() = 0;
-
-            /**
-             * Return a std::string identifying the name
-             * of this Command.
-             */
-            virtual std::string toString() = 0;
 
             /**
              * Reset this command.  This method is called when the
