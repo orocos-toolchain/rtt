@@ -1,0 +1,12 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_HARDWARE {
+    display "Hardware access components"
+    description "
+Easy to use Components that export hardware interfaces
+(from the Orocos Device Interface)
+to kernel DataObjects. It contains Sensor and Effector
+Components."
+    parent OROPKG_KERNEL_COMPONENTS
+
+    include_dir kernel_components
+
+}
