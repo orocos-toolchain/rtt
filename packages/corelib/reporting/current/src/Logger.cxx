@@ -75,24 +75,30 @@ namespace ORO_CoreLib
             return;
 #ifndef OROBLD_DISABLE_LOGGING
         ORO_OS::MutexLock lock( startguard );
-        started = true;
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
         *this<<Logger::Info; // default log to Info
+
+        int wantedlevel=4; // default log level is 4.
+
         if ( getenv( "ORO_LOGLEVEL" ) != 0 ) {
             std::stringstream conv;
             conv.str( std::string( getenv( "ORO_LOGLEVEL" ) ) );
-            int res=4; // default log level is 4.
-            conv >> res;
+            conv >> wantedlevel;
             if ( conv.fail() ) {
-                xtramsg = std::string( "Failed to extract loglevel from evironment variable ORO_LOGLEVEL.")
-                    + " It contained the string '"+conv.str()+"', while it should contain a positive integer value.";
+                xtramsg = std::string( "Failed to extract loglevel from environment variable ORO_LOGLEVEL.")
+                    + " It contained the string '"+conv.str()+"', while it should contain an integer value.";
                 *this<<Logger::Error;
             }
             else {
-                outloglevel = intToLogLevel(res);
+                outloglevel = intToLogLevel(wantedlevel);
                 xtramsg = "Successfully extracted environment variable ORO_LOGLEVEL";
             }
         }
+
+        // Completely disable logging on negative values.
+        if ( wantedlevel < 0 )
+            return;
+        started = true;
             
         timestamp = HeartBeatGenerator::Instance()->ticksGet();
         *this<<xtramsg<<Logger::nl;
@@ -134,6 +140,7 @@ namespace ORO_CoreLib
     Logger::LogLevel Logger::intToLogLevel(int ll) {
         switch (ll)
             {
+            case -1:
             case 0:
                 return Never;
             case 1:
@@ -187,6 +194,26 @@ namespace ORO_CoreLib
                 break;
             }
         return prefix;
+    }
+
+    Logger& Logger::operator<<( const char* t ) {
+#ifndef OROBLD_DISABLE_LOGGING
+        if (!started)
+            return *this;
+        
+        ORO_OS::MutexLock lock( inpguard );
+        if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) {
+            input << t;
+        }
+        // log Info or better to log file, even if not started.
+        if ( inloglevel <= Info || inloglevel <= outloglevel )
+            filedata << t;
+#endif
+        return *this;
+    }
+
+    Logger& Logger::operator<<( const std::string& t ) {
+        return this->operator<<( t.c_str() );
     }
 
     Logger& Logger::operator<<(LogLevel ll) {

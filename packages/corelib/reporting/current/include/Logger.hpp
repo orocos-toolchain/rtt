@@ -1,3 +1,31 @@
+/***************************************************************************
+  tag: Peter Soetens  Mon Jan 10 15:59:16 CET 2005  Logger.hpp 
+
+                        Logger.hpp -  description
+                           -------------------
+    begin                : Mon January 10 2005
+    copyright            : (C) 2005 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+ 
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public            *
+ *   License as published by the Free Software Foundation; either          *
+ *   version 2.1 of the License, or (at your option) any later version.    *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+ 
+ 
 #ifndef ORO_CORELIB_lOGGER_HPP
 #define ORO_CORELIB_lOGGER_HPP
 
@@ -6,6 +34,9 @@
 #include <sstream>
 #include "HeartBeatGenerator.hpp"
 #include "os/Mutex.hpp"
+#include "os/MutexLock.hpp"
+
+#include "pkgconf/corelib_reporting.h"
 
 namespace ORO_CoreLib 
 {
@@ -100,7 +131,7 @@ namespace ORO_CoreLib
         void setStdStream( std::ostream& stdos  );
         
         /**
-         * Send data into this logger. All data with lower priority than
+         * Send (user defined) data into this logger. All data with lower priority than
          * the current loglevel will be discarded. If any loglevel (thus in or out)
          * is set to \a Never, it will never be displayed. You must flush() or
          * end with std::endl to get the log's output in your file or display.
@@ -108,7 +139,10 @@ namespace ORO_CoreLib
         template< class T>
         Logger& operator<<( T t ) {
 #ifndef OROBLD_DISABLE_LOGGING
-            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never && started == true) {
+            if (!started)
+                return *this;
+            ORO_OS::MutexLock lock( inpguard );
+            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) {
                 input << t;
             }
             // log Info or better to log file, even if not started.
@@ -122,6 +156,20 @@ namespace ORO_CoreLib
          * Set the loglevel of the incomming messages.
          */
         Logger& operator<<(LogLevel ll);
+
+        /**
+         * Log a string. This is equivalent to the templated 
+         * operator<<, but reduces code size since it is compiled
+         * only once.
+         */
+        Logger& operator<<(const std::string&);
+
+        /**
+         * Log a text message. This is equivalent to the templated 
+         * operator<<, but reduces code size since it is compiled
+         * only once.
+         */
+        Logger& operator<<(const char*);
 
         /**
          * Catch the std::endl and other stream manipulators.
