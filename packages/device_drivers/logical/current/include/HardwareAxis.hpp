@@ -34,7 +34,7 @@ public:
     const ORO_DeviceInterface::SensorInterface<double>*   getSensor( const std::string& name ) const;
 
     
-    void   setBreak( DigitalOutput* DO ) { _break = DO; _break->switchOn(); }
+    void   setBrake( DigitalOutput* DO ) { _brake = DO; _brake->switchOn(); }
 
     void   addStopSignal( DigitalInput* DI ) { _stopsignals.push_back( DI ); }
 
@@ -43,7 +43,7 @@ public:
 private:
     double _max_drive_value;
     AnalogDrive* _drive;
-    DigitalOutput* _break;
+    DigitalOutput* _brake;
     HomingInterface* _homing;
     bool _enabled;
     std::map< std::string, ORO_DeviceInterface::SensorInterface<double>* > _sensormap;

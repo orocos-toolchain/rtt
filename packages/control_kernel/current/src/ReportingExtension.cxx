@@ -273,7 +273,7 @@ namespace ORO_ControlKernel
                                     do_server->getReports()->value().add( new_item->clone() );
                                 } //else std::cerr << " found thus no need to add "<<endl;
                             } else {
-                                std::cerr <<std::endl<< " ReporingExtension : Looking up '"<< *it <<"' : ";
+                                std::cerr <<std::endl<< " ReportingExtension : Looking up '"<< *it <<"' : ";
                                 cerr << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<""<<endl;
                             }
 
@@ -281,7 +281,7 @@ namespace ORO_ControlKernel
                         }
                 }
                 else {
-                    std::cerr <<std::endl<< " ReporingExtension : Looking up '"<< *it <<"' : ";
+                    std::cerr <<std::endl<< " ReportingExtension : Looking up '"<< *it <<"' : ";
                     std::cerr <<" not found !"<<endl ;
                     std::cerr <<" Tried " + base->getKernelName()+"::" + std::string( *it, 0, pos ) <<endl;
                 }

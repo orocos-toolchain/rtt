@@ -6,7 +6,7 @@ namespace ORO_DeviceDriver
 
 
 HardwareAxis::HardwareAxis( AnalogDrive* ADrive)
-    : _max_drive_value(std::numeric_limits<double>::max()), _drive(ADrive), _break(NULL), _homing(NULL), _enabled(false)
+    : _max_drive_value(std::numeric_limits<double>::max()), _drive(ADrive), _brake(NULL), _homing(NULL), _enabled(false)
 {
     _drive->driveSet(0);
     _stopsignals.resize(0);
@@ -18,7 +18,7 @@ bool HardwareAxis::enable()
 {
     _drive->driveSet(0);
     _drive->enableDrive();
-    if (_break) _break->switchOff();
+    if (_brake) _brake->switchOff();
     _stopsignal_active = false;
     _enabled = true;
 
@@ -31,7 +31,7 @@ bool HardwareAxis::disable()
 {
     _enabled = false;
     _drive->driveSet(0);
-    if (_break) _break->switchOn();
+    if (_brake) _brake->switchOn();
     _drive->disableDrive();
 
     return true;
