@@ -107,7 +107,15 @@ AC_CHECK_HEADERS([ readline/readline.h ],
 PACKAGES="support/readline/current/readline.cdl $PACKAGES"
 ],
 [
-  AC_MSG_WARN([No readline installation found (readline/readline.h). Readline will be unavailable.])
+  AC_MSG_WARN([
+No readline installation found (readline/readline.h). 
+Readline will be unavailable.
+
+To install GNU Readline, Debian users can do :
+apt-get install libreadline4-dev 
+
+and rerun the bootstrap.sh script
+])
 ])
 ])
 
@@ -233,10 +241,10 @@ echo "
 ************************************************************
 "
 echo "
-DO NOT FORGET TO 'make db' to generate the ecos.db file. The configure script
+The configure script
 made some pseudo packages which inform the ecos system what is 
-installed on your system. You should only re-run configure if
-you have installed new support software.
+installed on your system. You should only re-run the bootstrap.sh script if
+you have installed new libraries.
 "
 if test "x$DOXYGEN" = "xdoxygen"; then
 echo -e "Run 'doxygen' to build only the API documentation.\n"
