@@ -119,11 +119,11 @@ namespace ORO_DeviceDriver
 
 
         /**
-         * set the offset of the drive
+         * add an offset to the current offset
 	 */
-        void setOffset(double newoffset)
+        void addOffset(double addoffset)
         {
-	  offset = newoffset;
+	  offset += addoffset;
 	}
 	
 
