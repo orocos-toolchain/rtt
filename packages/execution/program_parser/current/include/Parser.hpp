@@ -65,7 +65,9 @@ namespace ORO_Execution
   using ORO_CoreLib::ConditionInterface;
   /**
    * @brief This class is the public interface to the
-   * Orocos Program Parser Framework.
+   * Orocos Program Parser Framework. It parsers Orocos program scripts,
+   * Orocos State Contexts and allows to parse a text Command, Condition or Expression
+   * to the respective objects.
    */
   class Parser
   {
@@ -75,14 +77,28 @@ namespace ORO_Execution
      * ProgramGraph..
      * @throw parse_exception Throws exceptions of type parse_exception.
      */
-      std::vector<ProgramGraph*> parseProgram( std::istream& s, TaskContext*,const std::string& filename = "filename" );
+      std::vector<ProgramGraph*> parseProgram( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+
+    /**
+     * @brief Open a file read-only, parses it, and returns a new @ref
+     * ProgramGraph..
+     * @throw parse_exception Throws exceptions of type parse_exception.
+     */
+      std::vector<ProgramGraph*> parseProgram( const std::string& filename, TaskContext* );
 
     /**
      * @brief Reads out the stream, parses it, and returns a new @ref
-     * StateContext ..
+     * ParsedStateContext ..
      * @throw file_parse_exception Throws exceptions of type file_parse_exception.
      */
       std::vector<ParsedStateContext*> parseStateContext(std::istream& s, TaskContext*, const std::string& filename = "filename" );
+
+    /**
+     * @brief Opens a file read-only, parses it, and returns a new @ref
+     * ParsedStateContext ..
+     * @throw file_parse_exception Throws exceptions of type file_parse_exception.
+     */
+      std::vector<ParsedStateContext*> parseStateContext(const std::string& filename, TaskContext* );
 
     /**
      * @brief Parses the string as a condition, and returns a new

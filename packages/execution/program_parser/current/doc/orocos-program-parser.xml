@@ -7,7 +7,7 @@
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
-<!ENTITY taskman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-task-context.html'>Task Infrastructure Manual</ulink>">
+<!ENTITY taskman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-task-context.html'>Task Infrastructure Manual</ulink>">
 ]
 >
 

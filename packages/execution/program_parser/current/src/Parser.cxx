@@ -43,6 +43,12 @@ using namespace boost;
 namespace ORO_Execution
 {
 
+  std::vector<ProgramGraph*> Parser::parseProgram( const std::string& file, TaskContext* c)
+  {
+      std::ifstream inputfile(file.c_str());
+      return this->parseProgram( inputfile, c, file );
+  }
+
   std::vector<ProgramGraph*> Parser::parseProgram( std::istream& s, TaskContext* c, const std::string& filename)
   {
     our_buffer_t program;
@@ -62,6 +68,12 @@ namespace ORO_Execution
 //     if ( !ret.empty() )
 //       std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;
+  }
+
+  std::vector<ParsedStateContext*> Parser::parseStateContext( const std::string& file, TaskContext* c)
+  {
+      std::ifstream inputfile(file.c_str());
+      return this->parseStateContext( inputfile, c, file );
   }
 
   std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, TaskContext* c, const std::string& filename)
