@@ -40,7 +40,7 @@ namespace ORO_CoreLib
      * c = new CommandFunction( boost::bind( &myFun ) );
      * c->execute(); // calls myFun();
      * d = new CommandFunction( boost::bind(&myFun2, _class) );
-     * d->exeucte(); // calls myFun2( _class );
+     * d->execute(); // calls myFun2( _class );
      * @endverbatim
      */
     template< class F >

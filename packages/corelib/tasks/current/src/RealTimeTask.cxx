@@ -10,7 +10,8 @@ namespace ORO_CoreLib
 {
     
     RealTimeTask::RealTimeTask(Seconds period, RunnableInterface* r )
-        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep, this) ), taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
+        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep, this) ),
+         taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
         runner(r), running(false), inError(false)
     {
         if (runner)
@@ -19,7 +20,8 @@ namespace ORO_CoreLib
     }
 
     RealTimeTask::RealTimeTask(secs s, nsecs ns, RunnableInterface* r )
-        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep,this) ), taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
+        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep,this) ),
+         taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
         runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
     {
         if (runner)
