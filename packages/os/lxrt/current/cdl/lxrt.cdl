@@ -50,6 +50,14 @@ more information on the available types."
 # This is the location where rtai.h resides. It must
 # point to a properly configured rtai installation."
 # 	}
+	cdl_option ORONUM_RTAI_VERSION {
+	    display "RTAI version"
+	    flavor data
+	    legal_values 2 3
+	    default_value {2}
+	    description "
+        Select the RTAI version you are using."
+	}
 
 	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
 	    display "Global command prefix"

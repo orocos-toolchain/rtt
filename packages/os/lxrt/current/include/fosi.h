@@ -42,7 +42,13 @@ extern "C" {
 #endif
 
   // include custom redirect-like include
+#include <pkgconf/os_lxrt.h>
+#if ORONUM_RTAI_VERSION == 3
 #include <rtai_config.h>
+#else
+#include "rtai_config.h"
+#endif
+
 #if RTAI_VERSION_MAJOR == 3
 #include <rtai_lxrt.h>
 #include <rtai_posix.h>
