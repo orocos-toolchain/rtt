@@ -1,4 +1,5 @@
 cdl_package OROPKG_KERNEL_COMPONENTS_PROCESS_CONTROL {
+    parent OROPKG_KERNEL_COMPONENTS
     display "Signal and Process Control Components"
     description "
 This package contains components for generating or
