@@ -290,10 +290,18 @@
 	      DefaultGenerator as base class. Since MyGenerator is a subclass of DefaultGenerator, it can be
 	      used with the setGenerator() method call of the DefaultKernel. The next line could then be :</para>
 	    <screen>
-	      first_kernel.setGenerator( &amp;my_gen );
+	      first_kernel.loadGenerator( &amp;my_gen );
 	    </screen>
-	    <para>which would cause my_gen to be loaded into the kernel and the default generator unloaded.
-	      This is possible for all components of the kernel.</para>
+	    <para>which would cause my_gen to be loaded into the kernel. To actually use this generator 
+	      instead of the current one, it must be selected :</para>
+	      <screen>
+		first_kernel.selectGenerator( &amp;my_gen );
+	      </screen>
+	    <para> Only one component per type can be selected and only a previously loaded component can be
+	      selected. This is because all loaded components are configured just before the kernel is running.
+	      Any component not loaded at that time will not be configured by that kernel and is thus not usable
+	      when the kernel is running.
+	      The above methods are available for all components of the kernel.</para>
 	  </sect4>
 	  <sect4>
 	    <title>Inserting Functionality and Algorithms</title> 
@@ -420,7 +428,7 @@
 		  </imageobject>
 		</mediaobject>
 	      </figure>
-	      The stage the component is in is entirely dependent on the kernel state.
+	      The state the component is in is entirely dependent on the kernel state.
 	      How kernel methods change a components state is shown below.
 	      <figure><title>Kernel - Component Interaction</title>
 		<mediaobject>
