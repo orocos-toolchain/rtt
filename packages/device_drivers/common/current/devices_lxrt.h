@@ -125,6 +125,7 @@ extern void JR3DSP_getDataFromFilter3(struct ForceArray* data, unsigned int dsp)
 extern void JR3DSP_getDataFromFilter4(struct ForceArray* data, unsigned int dsp);
 extern void JR3DSP_getDataFromFilter5(struct ForceArray* data, unsigned int dsp);
 extern void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp);
+extern void JR3DSP_transformCoordinateSystem(double angle, double distance, unsigned int dsp);
 #endif
 #endif //HAVE_JR3
 
@@ -191,7 +192,7 @@ extern void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp)
 #define JR3DSP_GETDATAFROMFILTER4           68
 #define JR3DSP_GETDATAFROMFILTER5           69
 #define JR3DSP_GETDATAFROMFILTER6           70
-
+#define JR3DSP_TRANSFORMCOORDINATESYSTEM    71
 
 
 #ifndef __KERNEL__
@@ -530,7 +531,11 @@ DECLARE void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp
   memcpy(data, &pb_val, sizeof(struct ForceArray) );
 }
 
-
+DECLARE void JR3DSP_transformCoordinateSystem(double angle, double distance, unsigned int dsp)
+{
+  struct { double angle; double distance; } arg = { angle, distance };
+  rtai_lxrt(MYIDX, SIZARG, JR3DSP_TRANSFORMCOORDINATESYSTEM, &arg);
+};
 
 #endif //HAVE_JR3
 

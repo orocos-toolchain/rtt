@@ -98,7 +98,8 @@ static struct rt_fun_entry rt_apci_fun[] = {
     [  JR3DSP_GETDATAFROMFILTER3  ] = { UW1(1,3), JR3DSP_getDataFromFilter3},
     [  JR3DSP_GETDATAFROMFILTER4  ] = { UW1(1,3), JR3DSP_getDataFromFilter4},
     [  JR3DSP_GETDATAFROMFILTER5  ] = { UW1(1,3), JR3DSP_getDataFromFilter5},
-    [  JR3DSP_GETDATAFROMFILTER6  ] = { UW1(1,3), JR3DSP_getDataFromFilter6}
+    [  JR3DSP_GETDATAFROMFILTER6  ] = { UW1(1,3), JR3DSP_getDataFromFilter6},
+    [  JR3DSP_TRANSFORMCOORDINATESYSTEM ] = { 0,  JR3DSP_transformCoordinateSystem}
 #endif //HAVE_JR3
 };
 
