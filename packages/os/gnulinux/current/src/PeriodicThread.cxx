@@ -67,11 +67,14 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" created."<<Logger::endl;
 #endif
-
+        sem_post( &comp->msyncer );
         while ( 1 )
         {
-            while ( !comp->isRunning() && !comp->timeToQuit )
+            while ( !comp->isRunning() && !comp->timeToQuit ) {
                 comp->periodWait(); //POSIX
+                sem_post( &comp->msyncer );
+                sem_wait( &comp->tsyncer );
+            }
             if (comp->timeToQuit)
                 break;
 
@@ -98,8 +101,11 @@ namespace ORO_OS
 #endif
         taskNameSet( name.c_str() );
         periodSet( period );
+        sem_init( &tsyncer, 0, 0 );
+        sem_init( &msyncer, 0, 0 );
         pthread_attr_init( threadAttributeGet() );
         pthread_create( &thread, threadAttributeGet(), ComponentThread, this );
+        sem_wait( &msyncer );
     }
 
     PeriodicThread::~PeriodicThread()
@@ -136,10 +142,12 @@ namespace ORO_OS
             Logger::log() << Logger::Critical << "Periodic Thread "<< taskName <<" failed to initialize()."<<Logger::endl;
 #endif
 
+        if ( running ) {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        if ( running )
             *h = stopEvent.connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
 #endif
+            sem_post( &tsyncer );
+        }
         return running;
     }
 
@@ -153,7 +161,7 @@ namespace ORO_OS
 #endif
 
         running = false;
-
+        sem_wait( &msyncer );
         if ( runner )
             runner->finalize();
         else
@@ -236,6 +244,7 @@ namespace ORO_OS
     {
         // by PS : use this when proper 2-phase stuff works
         timeToQuit = true;
+        sem_post(&tsyncer);
         pthread_join(thread, 0);
         //pthread_cancel( thread );
     }

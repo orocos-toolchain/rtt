@@ -27,6 +27,7 @@
 
 // code headers
 #include "os/fosi.h"
+#include <semaphore.h>
 #include "os/PeriodicThreadInterface.hpp"
 #include "RunnableInterface.hpp"
 
@@ -197,6 +198,9 @@ namespace ORO_OS
         ORO_CoreLib::Handle* h;
 
         bool wait_for_step;
+
+        sem_t tsyncer;
+        sem_t msyncer;
     };
 }
 
