@@ -123,6 +123,7 @@ namespace ORO_CoreLib
                 return false;
             }
 
+#ifdef OROPKG_GEOMETRY
             virtual bool comply(const Property< ORO_Geometry::Frame >* ) 
             {
                 return false;
@@ -147,6 +148,7 @@ namespace ORO_CoreLib
             {
                 return false;
             }
+#endif
 
             /**
              * If none of the primitive types is used,
