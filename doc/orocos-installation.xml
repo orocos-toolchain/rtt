@@ -476,7 +476,7 @@ ecosconfig add support_$(basename $i .cdl); done
 	    </listitem>
 	    <listitem>
 	      <para>Create the makefiles using
-		<screen><command>configtool tree</command></screen>
+		<screen><command>ecosconfig tree</command></screen>
 	      The build tree is setup now. You need to run this command
 	      each time you change the configuration in the above step !</para>
 	    </listitem>
