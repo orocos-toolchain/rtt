@@ -32,7 +32,7 @@
 namespace ORO_CoreLib
 {
     /**
-     * This interface represents the concept of
+     * @brief This interface represents the concept of
      * a condition which can be evaluated and return
      * true or false. 
      */
