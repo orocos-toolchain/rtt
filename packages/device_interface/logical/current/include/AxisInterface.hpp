@@ -27,9 +27,9 @@
 #ifndef _AXISINTERFACE_HPP
 #define _AXISINTERFACE_HPP
 
-#include "HomingInterface.hpp"
 #include <device_interface/SensorInterface.hpp>
 #include <string>
+#include <vector>
 
 namespace ORO_DeviceInterface
 {
@@ -38,18 +38,57 @@ class AxisInterface
 {
 public:
 
-    AxisInterface() {};
+  AxisInterface() {};
+  virtual ~AxisInterface() {};
 
-    virtual ~AxisInterface() {};
+  /**
+   * @brief Stop the Axis (electronically), brakes disabled,
+   * drive enabled and set to zero.
+   */
+  virtual bool stop() = 0;
 
-    virtual bool enable() = 0;
-    virtual bool disable() = 0;
+  /**
+   * @brief Lock the Axis (mechanically), brakes enabled, drive
+   * disabled.
+   */
+  virtual bool lock() = 0;
 
-    virtual bool drive( double v ) = 0;
+  /**
+   * @brief Unlock the Axis (mechanically), brakes enabled, drive
+   * enabled.
+   */
+  virtual bool unlock() = 0;
 
-    virtual HomingInterface* getHomingInterface() = 0;
+  /**
+   * @brief Drive a certain 'physical unit' (eg velocity, torque,...).
+   */
+  virtual bool drive( double v ) = 0;
 
-    virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
+  /**
+   * @brief Return true if the drive is disabled, and brakes are on.
+   */
+  virtual bool isLocked() const = 0;
+
+  /**
+   * @brief Return true if the drive is enabled but not moving, and brakes are off.
+   */
+  virtual bool isStopped() const = 0;
+
+  /**
+   * @brief Return true if the drive is enabled, and brakes are off.
+   */
+  virtual bool isDriven() const = 0;
+  
+  /**
+   * @brief Retrieve a sensor from the Axis.
+   */
+  virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
+
+  /**
+   * @brief Retrieve a list of the sensor from the Axis.
+   */
+  virtual std::vector<std::string> sensorList() const = 0;
+  
 };
 
 
