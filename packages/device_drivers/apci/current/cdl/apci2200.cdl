@@ -1,3 +1,7 @@
+    cdl_interface OROINT_DEVICE_DRIVERS_APCI2200 {
+	flavor bool
+    }
+
     cdl_option OROFUN_DEVICE_DRIVERS_APCI2200_LIB {
 	no_define
 	display "Calls to kernel module"
