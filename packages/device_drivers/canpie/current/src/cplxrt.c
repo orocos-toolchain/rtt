@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL");
  */
 static struct rt_fun_entry rt_apci_fun[] = {
     [ CP_USER_MESSAGE_READ  ] = { UW1(2,3), CpUserMsgRead },
-    [ CP_USER_MESSAGE_WRITE ] = { UR1(2,3), CpUserMsgRead },
+    [ CP_USER_MESSAGE_WRITE ] = { UR1(2,3), CpUserMsgWrite }, // UR1(2,3)
     [ CP_USER_APP_INIT      ] = { 0, CpUserAppInit },
     [ CP_USER_APP_DE_INIT   ] = { 0, CpUserAppDeInit },
     [ CP_USER_BAUDRATE      ] = { 0, CpUserBaudrate },
@@ -40,11 +40,11 @@ static struct rt_fun_entry rt_apci_fun[] = {
 int init_module(void)
 {
   if( set_rt_fun_ext_index(rt_apci_fun, ORONUM_CANPIE_LXRT_IDX)) {
-    printk("LXRT index %d already in use !", ORONUM_CANPIE_LXRT_IDX);
+    printk("LXRT index %d already in use !\n", ORONUM_CANPIE_LXRT_IDX);
     printk("Recompile canpie with a different index\n");
     return -EACCES;
   }
-
+  printk("CANPie Loaded\n");
   return(0);
 }
 
@@ -52,6 +52,7 @@ int init_module(void)
 void cleanup_module(void)
 {
   reset_rt_fun_ext_index(rt_apci_fun, ORONUM_CANPIE_LXRT_IDX);
+  printk("CANPie Unloaded\n");
 }
 
 

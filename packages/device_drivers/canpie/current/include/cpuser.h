@@ -118,7 +118,9 @@
 
 #endif
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /*----------------------------------------------------------------------------*\
@@ -142,7 +144,7 @@
 ** controller interface.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserAppInit(_U08 channel, _U16 rcvFifoSize, _U16 trmFifoSize, _U16 timeout);
+Cp_EXPORT _U32 Cp_PREFIX CpUserAppInit(_U32 channel, _U32 rcvFifoSize, _U32 trmFifoSize, _U32 timeout);
 
 
 /*!
@@ -154,7 +156,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserAppInit(_U08 channel, _U16 rcvFifoSize, _U16 trmF
 ** This function must be called when the application program quits.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserAppDeInit(_U08 channel);
+Cp_EXPORT _U32 Cp_PREFIX CpUserAppDeInit(_U32 channel);
 
 
 /*!
@@ -184,7 +186,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserAppDeInit(_U08 channel);
 ** controller clock frequency.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserBaudrate(_U08 channel, _U08 baud);
+Cp_EXPORT _U32 Cp_PREFIX CpUserBaudrate(_U32 channel, _U32 baud);
 
 
 /*!
@@ -199,7 +201,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserBaudrate(_U08 channel, _U08 baud);
 ** Deletes all messages of the specific FIFO buffer.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserFifoClear(_U08 channel, _U08 buffer);
+Cp_EXPORT _U32 Cp_PREFIX CpUserFifoClear(_U32 channel, _U32 buffer);
 
 
 /*!
@@ -220,7 +222,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserFifoClear(_U08 channel, _U08 buffer);
 ** of the HDI structure (CpStruct_HDI) is set to TRUE.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserFilterAll(_U08 channel, _BIT enable);
+Cp_EXPORT _U32 Cp_PREFIX CpUserFilterAll(_U32 channel, _U32 enable);
 
 
 /*!
@@ -244,7 +246,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserFilterAll(_U08 channel, _BIT enable);
 ** of the HDI structure (CpStruct_HDI) is set to TRUE.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserFilterMsg(_U08 channel, _U16 id, _BIT enable);
+Cp_EXPORT _U32 Cp_PREFIX CpUserFilterMsg(_U32 channel, _U32 id, _U32 enable);
 
 
 /*!
@@ -266,10 +268,10 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserFilterMsg(_U08 channel, _U16 id, _BIT enable);
 ** must be set to NULL.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserIntFunctions(  _U08 channel,
-                                    _U08 (* rx_handler)  (_U08, CpStruct_CAN *),
-                                    _U08 (* tx_handler)  (_U08, CpStruct_CAN *),
-                                    _U08 (* err_handler) (_U08) );
+Cp_EXPORT _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
+                                    _U32 (* rx_handler)  (_U32, CpStruct_CAN *),
+                                    _U32 (* tx_handler)  (_U32, CpStruct_CAN *),
+                                    _U32 (* err_handler) (_U32) );
 
 
 /*!
@@ -281,7 +283,7 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserIntFunctions(  _U08 channel,
 **          occured, the function will return CpErr_OK.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserMsgRead(_U08 channel, CpStruct_CAN * msgPtr);
+Cp_EXPORT _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr);
 
 
 /*!
@@ -293,7 +295,11 @@ Cp_EXPORT _U08 Cp_PREFIX CpUserMsgRead(_U08 channel, CpStruct_CAN * msgPtr);
 **          occured, the function will return CpErr_OK.
 **
 */
-Cp_EXPORT _U08 Cp_PREFIX CpUserMsgWrite(_U08 channel, const CpStruct_CAN * msgPtr);
+Cp_EXPORT _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif   /* _CANpie_User_ */

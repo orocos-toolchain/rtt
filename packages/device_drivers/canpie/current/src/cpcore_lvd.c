@@ -46,7 +46,7 @@
 #include <rtai_sched.h>
 #endif
 
-#define LVD_DEBUG
+//#define LVD_DEBUG
 
 #ifdef LVD_DEBUG
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
@@ -844,12 +844,15 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 	 /* BASIC frame format */
   	 /* Write frame info bytes */
   	 frame_info = CpMacGetDlc(&canMsgT);
-	   if (CpMacIsRemote(&canMsgT)) frame_info += (1 << 7);
+     if (CpMacIsRemote(&canMsgT)) 
+         DEBUG("Remote MSG with ");
+     if (CpMacIsRemote(&canMsgT)) 
+         frame_info += PCAN_FINFO_RTR;
   	 write_reg_bcan(PCAN_TXFI,frame_info);
 
   	 /* Write descriptor bytes */
 	 Desc = CpMacGetStdId(&canMsgT) << 5;
-	 DEBUG("Desc in Trans: %X\n",Desc);
+	 DEBUG("COBID in Trans: %X\n", Desc >> 5 );
 	 //Desc = 0x202 << 5;
 	 //DEBUG("Desc in Trans: %X\n",CpMacGetStdId(&canMsgT));
   	 b   = (BYTE_t)(Desc >> 8);
@@ -859,7 +862,7 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 
   	 /* Fill the transmit buffer */
   	 cm   = BCANREG(PCAN_TXSFFD);
-  	 len  = (DLEN_t)(frame_info & 0x0F);
+  	 len  = (DLEN_t)(frame_info & PCAN_FINFO_DLC_MASK );
 	 for (i=0; i < len;i++) Data[i] = CpMacGetData(&canMsgT,i);
 
   	 write_data_bcan(cm,Data_ptr,len);

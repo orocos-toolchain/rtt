@@ -36,18 +36,15 @@
 #include "can/cpfilter.h"
 #include "can/cpuser.h"
 
-
-
-
 /*------------------------------------------------------------------------
 ** CpUserAppInit()
 **
 */
-_U08 Cp_PREFIX CpUserAppInit( _U08 channel,
-                              _U16 rcvFifoSize, _U16 trmFifoSize, _U16 timeout)
+_U32 Cp_PREFIX CpUserAppInit( _U32 channel,
+                              _U32 rcvFifoSize, _U32 trmFifoSize, _U32 timeout)
 {
-   _U16        initMask = 0;
-   _U08        err_code;
+   _U32        initMask = 0;
+   _U32        err_code;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number --------------------------
@@ -93,10 +90,10 @@ _U08 Cp_PREFIX CpUserAppInit( _U08 channel,
 ** CpUserAppDeInit()
 **
 */
-_U08 Cp_PREFIX CpUserAppDeInit(_U08 channel)
+_U32 Cp_PREFIX CpUserAppDeInit(_U32 channel)
 {
-   _U08  err_code;
-   _U16  initMask;
+   _U32  err_code;
+   _U32  initMask;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number --------------------------
@@ -126,7 +123,7 @@ _U08 Cp_PREFIX CpUserAppDeInit(_U08 channel)
 ** CpUserBaudrate()
 **
 */
-_U08 Cp_PREFIX CpUserBaudrate(_U08 channel, _U08 baud)
+_U32 Cp_PREFIX CpUserBaudrate(_U32 channel, _U32 baud)
 {
    int   offset = 0;    /* Offset for Bit-Timing Table   */
 
@@ -152,9 +149,9 @@ _U08 Cp_PREFIX CpUserBaudrate(_U08 channel, _U08 baud)
 ** CpUserFifoClear()
 **
 */
-_U08 Cp_PREFIX CpUserFifoClear(_U08 channel, _U08 buffer)
+_U32 Cp_PREFIX CpUserFifoClear(_U32 channel, _U32 buffer)
 {
-   _U08  err_code;
+   _U32  err_code;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -180,7 +177,7 @@ _U08 Cp_PREFIX CpUserFifoClear(_U08 channel, _U08 buffer)
 ** CpUserFilterAll()
 **
 */
-_U08 Cp_PREFIX CpUserFilterAll(_U08 channel, _BIT enable)
+_U32 Cp_PREFIX CpUserFilterAll(_U32 channel, _U32 enable)
 {
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -208,7 +205,7 @@ _U08 Cp_PREFIX CpUserFilterAll(_U08 channel, _BIT enable)
 ** CpUserFilterMsg()
 **
 */
-_U08 Cp_PREFIX CpUserFilterMsg(_U08 channel, _U16 id, _BIT enable)
+_U32 Cp_PREFIX CpUserFilterMsg(_U32 channel, _U32 id, _U32 enable)
 {
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -236,10 +233,10 @@ _U08 Cp_PREFIX CpUserFilterMsg(_U08 channel, _U16 id, _BIT enable)
 ** CpUserIntFunctions()
 **
 */
-_U08 Cp_PREFIX CpUserIntFunctions(  _U08 channel,
-                                    _U08 (* rx_handler)  (_U08, CpStruct_CAN *),
-                                    _U08 (* tx_handler)  (_U08, CpStruct_CAN *),
-                                    _U08 (* err_handler) (_U08) )
+_U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
+                                    _U32 (* rx_handler)  (_U32, CpStruct_CAN *),
+                                    _U32 (* tx_handler)  (_U32, CpStruct_CAN *),
+                                    _U32 (* err_handler) (_U32) )
 {
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -261,9 +258,9 @@ _U08 Cp_PREFIX CpUserIntFunctions(  _U08 channel,
 ** CpUserMsgRead()
 **
 */
-_U08 Cp_PREFIX CpUserMsgRead(_U08 channel, CpStruct_CAN * msgPtr)
+_U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 {
-   _U08  err_code = 0;
+   _U32  err_code = 0;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -293,9 +290,9 @@ _U08 Cp_PREFIX CpUserMsgRead(_U08 channel, CpStruct_CAN * msgPtr)
 ** CpUserMsgWrite()
 **
 */
-_U08 Cp_PREFIX CpUserMsgWrite(_U08 channel, const CpStruct_CAN * msgPtr)
+_U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 {
-   _U08  err_code = 0;
+   _U32  err_code = 0;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------

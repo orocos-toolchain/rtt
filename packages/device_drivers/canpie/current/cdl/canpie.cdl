@@ -131,7 +131,7 @@ and must be unique within the system."
     }
     make -priority=200 {
 	<PREFIX>/modules/canpie.o : cpuser.o cpcore.o cpfifo.o cpfilter.o cpmsg.o cpint*.o
-	mkdir -p $(dirname $@)
+	#mkdir -p $(dirname $@)
 	${LD} -r -o $@ $+
     }
 }

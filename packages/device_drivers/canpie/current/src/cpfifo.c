@@ -31,6 +31,7 @@
 \*****************************************************************************/
 
 #include "can/cpfifo.h"
+#include "pkgconf/system.h"
 
 
 
@@ -64,9 +65,15 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #ifndef __KERNEL__
 #include <stdlib.h>     // for malloc() and free()
 #else
+#ifdef OROPKG_OS_LXRT
+#include <rtai.h>
+#define free(x) rt_free(x)
+#define malloc(x) rt_malloc(x)
+#else
 #include <linux/slab.h>
 #define free(x) kfree(x)
 #define malloc(x) kmalloc(x,GFP_KERNEL)
+#endif
 #endif
 
 /*------------------------------------------------------------------------
