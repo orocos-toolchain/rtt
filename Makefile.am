@@ -62,7 +62,8 @@ all_packages:
 # the headers and library
 clean_packages:
 	cd packages-@ECOS_TARGET@ && \
-	make clean
+	make clean && \
+	rm install/lib/libtarget.a
 
 # This builds the corelib testcase program
 check_packages:
