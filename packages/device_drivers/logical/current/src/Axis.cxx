@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:32 CEST 2004  Axis.cxx 
+ tag: Peter Soetens  Mon Jun 10 14:22:43 CEST 2002  Axis.cpp 
 
-                        Axis.cxx -  description
-                           -------------------
-    begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
+                       Axis.cpp -  description
+                          -------------------
+   begin                : Mon June 10 2002
+   copyright            : (C) 2002 Peter Soetens
+   email                : peter.soetens@mech.kuleuven.ac.be
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,23 +24,6 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-/***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:22:43 CEST 2002  Axis.cpp 
-
-                       Axis.cpp -  description
-                          -------------------
-   begin                : Mon June 10 2002
-   copyright            : (C) 2002 Peter Soetens
-   email                : peter.soetens@mech.kuleuven.ac.be
-
-***************************************************************************
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************/
 
 #include "device_drivers/Axis.hpp"
 #include "device_drivers/HomePositionDetector.hpp"
@@ -158,7 +141,7 @@ namespace ORO_DeviceDriver
         { return breakswitch; }
 
     void Axis::homeswitchSet( DigitalInput* swtch )
-        { homeswitch = swtch; }
+        { delete homeswitch; homeswitch = swtch; }
 
     const DigitalInput* Axis::homeswitchGet() const
         { return homeswitch; }
