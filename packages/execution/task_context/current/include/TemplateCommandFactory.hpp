@@ -100,7 +100,8 @@ namespace ORO_Execution
     bool execute()
       {
           // the Component pointer is stored in a DataSource
-          return fun( ds->get() );
+          CompT* comp =  ds->get();
+          return fun( comp );
       }
 
       virtual CommandInterface* clone() const
@@ -147,6 +148,47 @@ namespace ORO_Execution
     virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommand1( fun, aa->copy( alreadyCloned ) );
+      }
+  };
+
+  /**
+   * A functor DataSource command that stores a function needing one argument,
+   * and one DataSource to get the data from.
+   * @todo Maybe we can replace the FunctorCommandDS'N' classes with the original FunctorCommandDS'N+1',
+   * using some clever reuse of mem_fun, since this class is technically a copy of FunctorCommand2. A
+   * change in FunctorCommandGenerator might be enough to pull the trick.
+   */
+  template<typename CompT, typename FunctorT, typename Arg1T>
+  class FunctorCommandDS1
+    : public CommandInterface
+  {
+      FunctorT fun;
+      typename DataSource<Arg1T>::shared_ptr aa;
+      typename DataSource<CompT*>::shared_ptr ds;
+  public:
+      FunctorCommandDS1( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a )
+        : fun( f ), aa( a ), ds(c)
+      {
+      };
+      bool execute()
+      {
+        Arg1T a = aa->get();
+        CompT* comp =  ds->get();
+        return fun( comp, a );
+      };
+      void reset()
+      {
+        aa->reset();
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new FunctorCommandDS1( ds.get(), fun, aa.get() );
+      }
+
+      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCommandDS1( ds->copy(alreadyCloned), fun, aa->copy( alreadyCloned ) );
       }
   };
 
@@ -249,6 +291,13 @@ namespace ORO_Execution
     return new FunctorCommandDS<CompT, FunctorT>(c, f );
   };
 
+  template<typename CompT, typename FunctorT, typename Arg1T>
+  FunctorCommandDS1<CompT, FunctorT, Arg1T>*
+  newFunctorCommand( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a )
+  {
+    return new FunctorCommandDS1<CompT, FunctorT, Arg1T>(c, f, a );
+  };
+
   template<typename FunctorT, typename Arg1T>
   FunctorCommand1<FunctorT, Arg1T>*
   newFunctorCommand( FunctorT f, DataSource<Arg1T>* a )
@@ -305,6 +354,19 @@ namespace ORO_Execution
       {
         return std::make_pair( comg( comp, a ), cong( comp, a ) );
       };
+    template<typename ComponentT, typename Arg1T, typename Arg2T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b ) const
+      {
+        return std::make_pair( comg( comp, a, b ), cong( comp, a, b ) );
+      };
+
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp, a, b, c ) );
+      };
+
     template<typename ComponentT, typename Arg1T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a ) const
@@ -313,22 +375,12 @@ namespace ORO_Execution
       };
 
     template<typename ComponentT, typename Arg1T, typename Arg2T>
-    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b ) const
-      {
-        return std::make_pair( comg( comp, a, b ), cong( comp, a, b ) );
-      };
-    template<typename ComponentT, typename Arg1T, typename Arg2T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a,
                        DataSource<Arg2T>* b ) const
       {
         return std::make_pair( comg( comp, a, b ),
                                cong( comp, a, b ) );
-      };
-    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
-    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
-      {
-        return std::make_pair( comg( comp, a, b, c ), cong( comp, a, b, c ) );
       };
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     ComCon operator()( ComponentT* comp,
@@ -361,15 +413,11 @@ namespace ORO_Execution
       : comg( com ), cong( con )
       {
       };
-
+      /**
+       * Create Value-based ComCon generators (for Properties).
+       */
     template<typename ComponentT, typename Arg1T>
     ComCon operator()( ComponentT* comp, Arg1T a ) const
-      {
-        return std::make_pair( comg( comp, a ), cong( comp ) );
-      };
-    template<typename ComponentT, typename Arg1T>
-    ComCon operator()( ComponentT* comp,
-                       DataSource<Arg1T>* a ) const
       {
         return std::make_pair( comg( comp, a ), cong( comp ) );
       };
@@ -379,6 +427,23 @@ namespace ORO_Execution
       {
         return std::make_pair( comg( comp, a, b ), cong( comp ) );
       };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp ) );
+      };
+
+      /**
+       * Create DataSource-based ComCon generators (for Parser).
+       */
+    template<typename ComponentT, typename Arg1T>
+    ComCon operator()( ComponentT* comp,
+                       DataSource<Arg1T>* a ) const
+      {
+        return std::make_pair( comg( comp, a ), cong( comp ) );
+      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a,
@@ -387,11 +452,7 @@ namespace ORO_Execution
         return std::make_pair( comg( comp, a, b ),
                                cong( comp ) );
       };
-    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
-    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
-      {
-        return std::make_pair( comg( comp, a, b, c ), cong( comp ) );
-      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a,
@@ -429,6 +490,13 @@ namespace ORO_Execution
       {
         return std::make_pair( comg( comp, a, b ), cong( comp, a ) );
       };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp, a ) );
+     };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a,
@@ -437,11 +505,7 @@ namespace ORO_Execution
         return std::make_pair( comg( comp, a, b ),
                                cong( comp, a ) );
       };
-    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
-    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
-      {
-        return std::make_pair( comg( comp, a, b, c ), cong( comp, a ) );
-      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     ComCon operator()( ComponentT* comp,
                        DataSource<Arg1T>* a,
@@ -479,6 +543,9 @@ namespace ORO_Execution
       : f( fun )
       {
       };
+      /**
+       * No arguments Generators.
+       */
     template<typename ComponentT>
     CommandInterface* operator()( ComponentT* c ) const
       {
@@ -491,10 +558,13 @@ namespace ORO_Execution
         return newFunctorCommand( c, f );
       };
 
-    template<typename ComponentT, typename Arg1T>
-    CommandInterface* operator()( ComponentT* c, Arg1T a ) const
+      /**
+       * DataSource arguments Generators.
+       */
+    template<typename ComponentT, typename Arg1T >
+    CommandInterface* operator()( DataSource<ComponentT*>* c, DataSource<Arg1T>* a ) const
       {
-        return newFunctorCommand( bind( f, c, a ) );
+        return newFunctorCommand( c, f, a );
       };
     template<typename ComponentT, typename Arg1T>
     CommandInterface* operator()( ComponentT* c,
@@ -503,13 +573,7 @@ namespace ORO_Execution
       {
         return newFunctorCommand( bind( f, c, _1 ), a );
       };
-    template<typename ComponentT, typename Arg1T, typename Arg2T>
-    CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b ) const
-      {
-          //by ps: this creates a FunctorCommand0 !
-          //evaluation is not needed, so store a copy of a and b...
-        return newFunctorCommand( bind( f, c, a, b ) );
-      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T>
     CommandInterface* operator()( ComponentT* c,
                                   DataSource<Arg1T>* a, DataSource<Arg2T>* b
@@ -521,17 +585,42 @@ namespace ORO_Execution
         return newFunctorCommand( bind( f, c, _1, _2 ), a, b );
       };
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
-    CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b, Arg3T d ) const
-      {
-        return newFunctorCommand( bind( f, c, a, b, d ) );
-      };
-    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     CommandInterface* operator()( ComponentT* c,
                                   DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* d
       ) const
       {
         return newFunctorCommand( bind( f, c, _1, _2, _3 ), a, b, d );
       };
+
+      /**
+       * Value Arguments Generators (Properties).
+       */
+    template<typename ComponentT, typename Arg1T>
+    CommandInterface* operator()( ComponentT* c, Arg1T a ) const
+      {
+        return newFunctorCommand( bind( f, c, a ) );
+      };
+
+    template<typename ComponentT, typename Arg1T>
+    CommandInterface* operator()( DataSource<ComponentT*>* c, Arg1T a ) const
+      {
+        return newFunctorCommand( c, bind( f, _1, a ) );
+      };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T>
+    CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b ) const
+      {
+          //by ps: this creates a FunctorCommand0 !
+          //evaluation is not needed, so store a copy of a and b...
+        return newFunctorCommand( bind( f, c, a, b ) );
+      };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b, Arg3T d ) const
+      {
+        return newFunctorCommand( bind( f, c, a, b, d ) );
+      };
+
   };
 
   /**
@@ -591,7 +680,8 @@ namespace ORO_Execution
     bool evaluate()
       {
           // logical XOR :
-        return fun( ds->get() ) != invert;
+          CompT* comp = ds->get();
+          return fun( comp ) != invert;
       }
     ConditionInterface* clone() const
       {
@@ -601,6 +691,40 @@ namespace ORO_Execution
     ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorConditionDS( ds->copy(alreadyCloned), fun, invert );
+      }
+  };
+
+    /**
+     * Special case : the Component is given in a DataSource.
+     */
+  template<typename CompT, typename FunctorT, typename Arg1T>
+  class FunctorConditionDS1
+    : public ConditionInterface
+  {
+      FunctorT fun;
+      typename DataSource<CompT*>::shared_ptr ds;
+      typename DataSource<Arg1T>::shared_ptr aa;
+      bool invert;
+  public:
+    FunctorConditionDS1( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a, bool _invert )
+        : fun( f ), ds(c), aa(a), invert(_invert)
+      {
+      }
+    bool evaluate()
+      {
+          Arg1T a =  aa->get();
+          CompT* comp = ds->get();
+          // logical XOR :
+          return fun( comp, a ) != invert;
+      }
+    ConditionInterface* clone() const
+      {
+        return new FunctorConditionDS1( ds.get(), fun, aa.get(), invert );
+      }
+
+    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorConditionDS1( ds->copy(alreadyCloned), fun, aa->copy(alreadyCloned), invert );
       }
   };
 
@@ -729,6 +853,12 @@ namespace ORO_Execution
     return new FunctorCondition1<FunctorT, Arg1T>( fun, a, _invert );
   };
 
+  template<typename CompT, typename FunctorT, typename Arg1T>
+  ConditionInterface* newFunctorCondition( DataSource<CompT*>* c, FunctorT fun, DataSource<Arg1T>* a, bool _invert )
+  {
+    return new FunctorConditionDS1<CompT, FunctorT, Arg1T>(c, fun, a,  _invert );
+  };
+
   template<typename FunctorT, typename Arg1T, typename Arg2T>
   ConditionInterface* newFunctorCondition(
     FunctorT fun, DataSource<Arg1T>* a, DataSource<Arg2T>* b , bool _invert)
@@ -762,6 +892,9 @@ namespace ORO_Execution
       {
       };
 
+      /**
+       * No Arguments Generators.
+       */
     template<typename ComponentT>
     ConditionInterface* operator()( ComponentT* comp ) const
       {
@@ -774,39 +907,63 @@ namespace ORO_Execution
         return newFunctorCondition( comp, fun, invert );
       };
 
+      /**
+       * DataSource Arguments Generator.
+       */
     template<typename ComponentT, typename Arg1T>
-    ConditionInterface* operator()( ComponentT* comp, Arg1T a ) const
+    ConditionInterface* operator()( DataSource<ComponentT*>* comp, DataSource<Arg1T>* a ) const
       {
-        return newFunctorCondition( boost::bind( fun, comp, a ), invert );
+        return newFunctorCondition( comp, fun, a, invert );
       };
+
     template<typename ComponentT, typename Arg1T>
     ConditionInterface* operator()(
       ComponentT* comp, DataSource<Arg1T>* a ) const
       {
         return newFunctorCondition( boost::bind( fun, comp, _1 ), a, invert );
       };
-    template<typename ComponentT, typename Arg1T, typename Arg2T>
-    ConditionInterface* operator()( ComponentT* comp, Arg1T a, Arg2T b ) const
-      {
-        return newFunctorCondition( boost::bind( fun, comp, a, b ), invert );
-      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T>
     ConditionInterface* operator()(
       ComponentT* comp, DataSource<Arg1T>* a, DataSource<Arg2T>* b ) const
       {
         return newFunctorCondition( boost::bind( fun, comp, _1, _2 ), a, b, invert );
       };
-    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
-    ConditionInterface* operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
-      {
-        return newFunctorCondition( boost::bind( fun, comp, a, b, c ), invert );
-      };
+
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     ConditionInterface* operator()(
       ComponentT* comp, DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c ) const
       {
         return newFunctorCondition( boost::bind( fun, comp, _1, _2, _3 ), a, b, c, invert );
       };
+
+      /**
+       * Generators for values ( Properties ).
+       */
+    template<typename ComponentT, typename Arg1T>
+    ConditionInterface* operator()( ComponentT* comp, Arg1T a ) const
+      {
+        return newFunctorCondition( boost::bind( fun, comp, a ), invert );
+      };
+
+    template<typename ComponentT, typename Arg1T>
+    ConditionInterface* operator()( DataSource<ComponentT*>* comp, Arg1T a ) const
+      {
+        return newFunctorCondition( comp, boost::bind( fun, _1, a ), invert );
+      };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T>
+    ConditionInterface* operator()( ComponentT* comp, Arg1T a, Arg2T b ) const
+      {
+        return newFunctorCondition( boost::bind( fun, comp, a, b ), invert );
+      };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ConditionInterface* operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return newFunctorCondition( boost::bind( fun, comp, a, b, c ), invert );
+      };
+
   };
 
   /**
@@ -854,6 +1011,7 @@ namespace ORO_Execution
         ), desc );
   };
 
+  // store the Component in a DataSource too !
   template<typename ComponentT>
   TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
   command_ds( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
@@ -864,6 +1022,32 @@ namespace ORO_Execution
         functor_command_generator( boost::mem_fn( comf ) ),
         functor_condition_generator( boost::mem_fn( conf ), _invert )
         ), desc );
+  };
+
+  template<typename ComponentT, typename Arg1T>
+  TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  command_ds( bool (ComponentT::*comf)(Arg1T),
+              bool (ComponentT::*conf)(Arg1T) const,
+              const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
+  {
+    return fun_fact_ds< ComponentT, ComCon, typename ArgType<Arg1T>::type>(
+      comcon_composer(
+        functor_command_generator( boost::mem_fn( comf ) ),
+        functor_condition_generator( boost::mem_fn( conf ), _invert )
+        ), desc, arg1name, arg1desc );
+  };
+
+  template<typename ComponentT, typename Arg1T>
+  TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  command_ds( bool (ComponentT::*comf)(Arg1T),
+              bool (ComponentT::*conf)() const,
+              const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
+  {
+    return fun_fact_ds< ComponentT, ComCon, typename ArgType<Arg1T>::type>(
+      comcon_nullary_composer(
+        functor_command_generator( boost::mem_fn( comf ) ),
+        functor_condition_generator( boost::mem_fn( conf ), _invert )
+        ), desc, arg1name, arg1desc );
   };
 
     // extra functor tryout.

@@ -391,11 +391,11 @@
 	<classname>AttributeRepository</classname> like this :</para>
       <para>
 	<programlisting>
-  a_task.attributeRepository.addValue( "max", 
-                                      new TaskVariable&lt;int&gt; (5));	</programlisting></para>
+  a_task.attributeRepository.addAttribute( "aflag", bool(false) );
+  a_task.attributeRepository.addAttribute( "max",   int(5) );</programlisting></para>
       <para>
-	Which inserts an attribute of type int, name 'max' and initial
-	value of 5 to the task's repository.
+	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
+	value of false and 5 to the task's repository.
 	When a duplicate name entry is added (even of a different type),
 	the old one is removed. To get a value from the repository,
 	you can use :</para>
@@ -411,21 +411,26 @@
 	changed :</para>
       <para>
 	<programlisting>
-  a_task.attributeRepository.addConstant( "pi", 3.14);	</programlisting></para>
+  a_task.attributeRepository.addConstant( "pi", double(3.14) );</programlisting></para>
       <para>
 	You should again be careful for duplicate entries.
       </para>
       <para>
 	A program script can access the above attributes as in</para>
       <para>
-	<programlisting>
+	<programlisting>  // a program in "ATask" does :
+  var double pi2 = task.pi * 2.
+  var int    myMax = 3
+  set task.max = myMax	
+
+  // an external (peer task) program does :
   var double pi2 = ATask.pi * 2.
   var int    myMax = 3
   set ATask.max = myMax	</programlisting></para>
       <para>
 	When trying to assign a value to a constant, the script parser
 	will throw an exception, thus before the program is run.
-	You must always specify the task's name when accessing a
+	You must always specify the task's name (or 'task') when accessing a
 	task's attribute, this is different from methods and commands,
 	which may omit the task's name if the program is running within
 	the task.
@@ -707,7 +712,7 @@
 	program script is parsed to a command object tree,
 	which can then be executed by the Processor of a task.
       </para>
-      <sect3>
+      <sect3 id="task-context-functions">
 	<title>Functions</title>
 	<para>
 	  A function is formed by a group of commands and
@@ -721,19 +726,24 @@
     var ...
     do ...
 
-  }</programlisting></para>
+  } 
+  // repeat... </programlisting></para>
 	<para>
-	  where the export keyword makes the function
+	  where the optional export keyword makes the function
 	  available as a task's command ( which will fail
-	  if one of its contained commands fail ).
+	  if one of its contained commands fail ) :
 	  <programlisting>  do ATask.myFun( 1, 2)</programlisting>
+	  If you omit the export keyword, then the function will not
+	  become available as a command. To use a not exported function, you need to 
+	  execute it in the Processor ( see below ), or call it in a program,
+	  which was parsed in the same file (see <xref linkend="task-context-programs" /> ).
 	</para>
 	<para>
 	  Functions must be parsed by the <classname>Parser</classname>,
 	  before they can be executed by the Processor. The Processor
 	  executes the Function until it finishes or it goes into error.
 	  In both cases, the Function is removed from the Processor's queue
-	  and can then safely be deleted.</para>
+	  and can then safely be deleted (or re-run).</para>
 	<note>
 	  <para>
 	    The <classname>Parser</classname> is located in the
@@ -741,15 +751,15 @@
 	  </para>
 	</note>
 	<para>
+	  To parse any number of functions in a file, do :
 	  <programlisting>
   #include &lt;execution/Parser.hpp&gt;
 
   TaskContext* a_task = ...
   Parser parser;
-  std::istream input("FunctionFoo.ops");
 
   std::vector&lt;FunctionGraph*&gt; result =
-      parser.parseFunction( istream, a_task );
+      parser.parseFunction( "Functions.ops", a_task );
 
   // if needed, also initialise the arguments of 
   // the FunctionGraph
@@ -758,16 +768,19 @@
   while( !result[0]-&gt;isFinished() &amp;&amp; !result[0]-&gt;inError() )
      sleep(1);
  
-  delete result[0];  </programlisting></para>
+  delete result[0];  </programlisting>
+          
+	</para>
 	<para>
 	  Take a look at the <classname>FunctionGraph</classname>
-	  documentation if you want details about its interface.
+	  and the &parseman;
+	  documentation if you want details.
 	  A quick way to use functions, is to call them
 	  in programs, which take no arguments and allow
 	  better control by the Processor.
 	</para>
       </sect3>
-      <sect3>
+      <sect3 id="task-context-programs">
 	<title>Programs</title>
 	<para>
 	  Programs are special functions in that they
@@ -780,13 +793,16 @@
 	  A program script calling the previous function
 	  would look like :</para>
 	<para>
-	  <programlisting>
+	  <programlisting> [ ... insert here the myFun() function ... ]
+
   program myBar
   {
     var int i = 1
     var int j = 2
     do myFun(i,j)
-  }</programlisting></para>
+  }</programlisting>
+	  As with functions, any number of programs may be listed in a file.
+	</para>
 	<para>
 	  Orocos Programs are loaded a bit different into the
 	  Processor :</para>
@@ -796,10 +812,9 @@
 
   TaskContext* a_task = ...
   Parser parser;
-  std::ifstream input("ProgramBar.ops");
 
   std::vector&lt;ProgramGraph*&gt; result =
-      parser.parseProgram( input, a_task );
+      parser.parseProgram( "ProgramBar.ops", a_task );
 
   // load a program
   a_task->getProcessor()->loadProgram( result[0] );
@@ -829,7 +844,7 @@
 	</para>
       </sect3>
       <sect3>
-	<title>State Contexts</title>
+	<title>State Machines</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
 	  with the <classname>StateMachine</classname> class.
@@ -847,10 +862,9 @@
 
   TaskContext* a_task = ...
   Parser parser;
-  std::ifstream input("StateMachineBar.osd");
 
   std::vector&lt;ParsedStateMachine*&gt; result =
-      parser.parseStateMachine( input, a_task );
+      parser.parseStateMachine( "StateMachineBar.osd", a_task );
 
   // load a state context
   a_task->getProcessor()->loadStateMachine( result[0] );
@@ -859,9 +873,9 @@
   // start state-transition evaluation
   a_task->getProcessor()->startStateMachine( result[0]->getName() );</programlisting></para>
 	<para>
-	  When the State Context is loaded in the Task Context, it can
+	  When the State Machine is loaded in the Task Context, it can
 	  also be controlled from your scripts or TaskBrowser. Assuming
-	  you have instantiated a State Context with the name 'machine', the
+	  you have instantiated a State Machine with the name 'machine', the
 	  following commands are available :
 	</para>
 	<screen>
@@ -1214,7 +1228,7 @@ T1.      T3.      back     help     peers    quit     switch   test.
       <sect3>
 	<title>Waiting in States</title>
 	<para>
-	  A (sub-)State Context can pause itself and an extra function
+	  A (sub-)State Machine can pause itself and an extra function
 	  in the task's interface can provide the key to progress to
 	  another state. First the StateMachine is loaded in an .osd file  :
 	</para>
@@ -1237,7 +1251,7 @@ T1.      T3.      back     help     peers    quit     switch   test.
      }
   }
 
-  RootContext X x</programlisting>
+  RootMachine X x</programlisting>
 	<para>Then, load an ops file which contains :</para>
 	<programlisting>
   export function progress() {
@@ -1253,41 +1267,131 @@ T1.      T3.      back     help     peers    quit     switch   test.
 	  A peer task then calls <function>progress()</function>
 	  which in turn checks if the function is applicable.
 	  But even then, the responsibility of the transition
-	  lies within the State Context.
+	  lies within the State Machine.
 	</para>
 	<para>
 	  Off course, the example can be simplified by setting/
 	  resetting a boolean flag between function and 
-	  State Context.
+	  State Machine.
 	</para>
-<!-- 	<programlisting> -->
-<!--   StateMachine X { -->
-<!--      // ... -->
-<!--      state y { -->
-<!--         transitions { -->
-<!--            if task.checkSomeCondition() then -->
-<!--                 select z -->
-<!--         } -->
-<!--      } -->
-<!--      state z { -->
-<!--        // ... -->
-<!--      } -->
-<!--   } -->
+	<programlisting>
+  StateMachine X {
+     // ...
+     state y {
+        transitions {
+           if task.progressflag == true then
+                select z
+        }
+     }
+     state z {
+       // ...
+     }
+  }
 
-<!--   RootContext X x</programlisting> -->
-<!-- 	<para>Then, load an ops file which contains :</para> -->
-<!-- 	<programlisting> -->
-<!--   export function progress() { -->
-<!--     // Check if we may progress : -->
-<!--     if this.states.x.inState("y") then { -->
-<!-- 	  // Try to progress to next state : -->
-<!-- 	  do this.states.x.step() -->
-<!--     } -->
-<!--   }</programlisting> -->
-<!-- 	<para> -->
-<!-- 	  This example puts the responsibility of progression within -->
-<!-- 	  the State Context, which eases encapsulation. -->
-<!-- 	</para> -->
+  RootMachine X x</programlisting>
+	<para>Then, load an ops file which contains :</para>
+	<programlisting>
+  export function progress() {
+    // Check if we may progress :
+    if this.states.x.inState("y") then {
+          set task.progressflag = true
+    }
+  }</programlisting>
+	<para>
+	  When the user or another program calls the progress() command,
+	  the flag will be set.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Requesting States</title>
+	<para>
+	  A State Machine can be used such that it waits for state
+	  change requests instead of discovering itself to which 
+	  state it makes a transition. This requires the State Machine to run in
+	  another mode, the requestState mode ( as opposed to the steppingState mode,
+	  which is entered by start() ). 
+	</para>
+	<programlisting>
+  StateMachine X {
+     // ...
+     state y {
+        entry {
+	   // ...
+        }
+        transitions {
+	   // guard this transition.
+           if task.checkSomeCondition() then
+              select z
+	   // always good to go to states :
+	   select ok_1
+           select ok_2
+        }
+     }
+     state z {
+       // ...
+     }
+     state ok_1 {
+       // ...
+     }
+     state ok_2 {
+       // ...
+     }
+  }
+
+  RootMachine X x</programlisting>
+	<para>Then, load an ops file which contains :</para>
+	<programlisting>
+  export function progress() {
+       // request to enter anther state :
+       do this.states.x.requestState("z")
+    }
+  export function progress_Ok() {
+       // this will succeed always from state 'x' :
+       do this.states.x.requestState("ok1")
+    } </programlisting>
+         <para>
+	   This command will fail if the transition is not 
+	   possible ( for example, the state machine is not in
+	   state y, or task.checkSomeCondition() was not true ),
+	   otherwise, the state machine will make the transition
+	   and the command succeeds and completes when the z state
+	   is fully entered (it's init program completed).
+	 </para>
+	 <para>
+	   To merely request that a state is handled, one can
+	   call requestState on the current state :
+	 </para>
+	<programlisting>
+  export function progress() {
+       // request to handle current state :
+       do this.states.x.requestState( this.states.x.getState() )
+    }  </programlisting>
+	 <para>
+	   To request to go to the next possible state (or call handle if
+	   none) and then wait again for requests, use 'step()' :
+	 </para>
+	<programlisting>
+  export function progress() {
+       // request go to the next state and wait :
+       do this.states.x.step()
+    }  </programlisting>
+         <para>
+	   Note that if the StateMachine happened to be paused, step() would
+	   only progress one single statement. To check if the StateMachine
+	   is waiting for requests, use the 'inRequest()' method :
+	 </para>
+	<programlisting>
+  export function progress() {
+       if ( this.states.x.inRequest() ) {
+           // ... it's waiting
+       } else {
+          // was not waiting, possibly running, paused or non active
+       }
+    }  </programlisting>
+        <para>
+	  All these methods can of course also be called from parent
+	  to child State Machine, or across tasks.
+	</para>
       </sect3>
     </sect2>
     <sect2>
@@ -1317,8 +1421,7 @@ T1.      T3.      back     help     peers    quit     switch   test.
      * Get Errors if any.
      */
     virtual int getError() const = 0;
-  };
-</programlisting>
+  };</programlisting>
       <para>
 	Now suppose you want to do make this interface available,
 	such that program scripts of other tasks can access this 

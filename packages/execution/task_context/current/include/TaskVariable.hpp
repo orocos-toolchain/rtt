@@ -159,11 +159,11 @@ namespace ORO_Execution
 
     ParsedIndexContainerVariable<T, Index, SetType,Pred>* clone() const
       {
-        return new ParsedIndexContainerVariable( data );
+        return new ParsedIndexContainerVariable( this->data );
       }
     ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
       {
-        return new ParsedIndexContainerVariable( data->copy( replacements ) );
+        return new ParsedIndexContainerVariable( this->data->copy( replacements ) );
       }
   };
 
