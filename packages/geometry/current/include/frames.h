@@ -111,7 +111,7 @@
 
 
 #include "utility.h"
-
+#include "pkgconf/geometry.h"
 
 #ifdef FRAMES_CHECK
     #include <cassert>
@@ -148,9 +148,12 @@ class Vector
 {
 public:
     double data[3];
+#ifdef ORO_GEOMETRY_DEFAULT_INITIALISATION
+     IMETHOD Vector() : data( {0,0,0} ) { }
+#else
      //! Does not initialise the Vector to zero. use Vector::Zero() or SetToZero for that
      IMETHOD Vector() {}
-
+#endif
      //! Constructs a vector out of the three values x, y and z
      IMETHOD Vector(double x,double y, double z);
 
@@ -285,7 +288,15 @@ class Rotation
 public:
     double data[9];
 
+#ifdef ORO_GEOMETRY_DEFAULT_INITIALISATION
+    IMETHOD Rotation() :
+		Xx(1.0), Yx(0), Zx(0),
+		Xy(0), Yy(1.0), Zy(0),
+		Xz(0), Yz(0), Zz(1.0)
+		{}
+#else
     IMETHOD Rotation() {}
+#endif
     IMETHOD Rotation(double Xx,double Yx,double Zx,
                 double Xy,double Yy,double Zy,
                 double Xz,double Yz,double Zz);

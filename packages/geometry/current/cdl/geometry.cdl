@@ -59,6 +59,19 @@ use Property<Frame> and the like as a property."
 	    compile primitives/MotionProperties.cxx
 	}
 
+	cdl_option OROSEM_GEOMETRY_DEFAULT_INIT {
+	    display "Default Vector and Rotation initialisation."
+	    description "
+Enable this option if you want the default constructor of
+Vector and Rotation classes to take the null vector and unit rotation
+matrix as defaults. If disabled, a newly created Vector or Rotation
+will contain uninitialised values, which might save some
+cpu cycles in _very_ critical applications."
+            flavor bool
+            default_value 1
+            active_if OROPKG_GEOMETRY_3D_FRAMES
+        }
+
     }
 
     cdl_component OROPKG_GEOMETRY_PRIMITIVES {
