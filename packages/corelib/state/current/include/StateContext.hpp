@@ -81,20 +81,17 @@ namespace ORO_CoreLib
          */
         bool isActive() const;
         /**
-         * Start this StateContext.  You should only use this if the
-         * StateContext is currently not active.
+         * Start this StateContext. The Initial state will be entered.
          *
-         * @post isActive()
          */
-        void startRunning();
+        bool activate();
 
         /**
-         * Stop this StateContext.  You should only use this if the
-         * StateContext is currently in its final state.
+         * Stop this StateContext. The current state (which should be 
+         * the Final state) is left.
          *
-         * @post !isActive()
          */
-        void stopRunning();
+        bool deactivate();
 
         /**
          * Search from the current state a candidate next state.
@@ -179,19 +176,19 @@ namespace ORO_CoreLib
         /**
          * Retrieve the current state of the context
          */
-        StateInterface* currentState();
+        StateInterface* currentState() const;
 
         /**
          * Retrieve the initial state of the context.
          */
-        StateInterface* getInitialState() {
+        StateInterface* getInitialState() const {
             return initstate;
         }
 
         /**
          * Retrieve the final state of the context.
          */
-        StateInterface* getFinalState() {
+        StateInterface* getFinalState() const {
             return finistate;
         }
 

@@ -156,7 +156,7 @@ namespace ORO_CoreLib
         stateMap[from].insert(it, boost::make_tuple( cnd, to, priority ) );
     }
 
-    StateInterface* StateContext::currentState()
+    StateInterface* StateContext::currentState() const
     {
         return current;
     }
@@ -198,20 +198,24 @@ namespace ORO_CoreLib
         return current != 0;
     }
 
-    void StateContext::startRunning()
+    bool StateContext::activate()
     {
         if ( !isActive() )
         {
             enterState( getInitialState() );
+            return true;
         }
+        return false;
     }
 
-    void StateContext::stopRunning()
+    bool StateContext::deactivate()
     {
-        if ( current == getFinalState() )
+        if ( isActive() && current == getFinalState() )
         {
             leaveState( current );
+            return true;
         }
+        return false;
     }
 }
 
