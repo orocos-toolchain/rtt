@@ -105,10 +105,10 @@ of the &orocos; framework.
 	<revremark>Added Logging Framework.</revremark>
       </revision>
       <revision>
-	<revnumber>0.18.2</revnumber>
-	<date>13 Jan 2005</date>
+	<revnumber>0.20.0</revnumber>
+	<date>31 Jan 2005</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added section about Priority Inversions.</revremark>
+	<revremark>Added DataObject section within Buffer section.</revremark>
       </revision>
     </revhistory>
 
@@ -722,12 +722,12 @@ ORO_main( int argc, char** argv)
 	  </thead>
 	  <tbody>
 	    <row>
-	      <entry>DataObjectBuffered</entry>
+	      <entry>DataObjectLockFree</entry>
 	      <entry>
 		<para>Uses a single writer, multiple reader Lock-free implementation.
 		  A read only returns the last written value.
 		  Used by the ControlKernel application to communicate data between
-		  Components. ( Should be renamed to DataObjectLockFree )</para>
+		  Components.</para>
 	      </entry>
 	    </row>
 	    <row>
@@ -1357,6 +1357,143 @@ emergencyStop.fire(); // User not notified
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
+    <sect2 id="corelib-buffers">
+      <title>Buffers</title>
+      <para>
+	There are two kinds of buffers presently available in Orocos. The
+	<emphasis>byte</emphasis> buffers and the <emphasis>typed</emphasis>
+	buffers. The former write a number of bytes and might get deprecated. The
+	latter is a templated (typed) buffer which can write any kind of data
+	( thus also chars ) to a threadsafe buffer.
+      </para>
+      <para>
+	The following buffers are available :
+	<itemizedlist>
+	  <listitem>
+	    <para><emphasis>BufferSimple, BufferCircular</emphasis> :
+	      Are byte buffers, may block and are subject to priority inversions
+	      ( <xref linkend="core-priority-inversions"/> ). 
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para><emphasis>BufferLockFree&lt; T > </emphasis> :
+	      Is a typed buffer of type <emphasis>T</emphasis> and works as
+	      a FIFO queue for storing elements of type T.
+	      It is lock-free, non blocking and read and writes
+	      happen in bounded time. It is not subject to  <xref linkend="core-priority-inversions"/>. 
+	    </para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+    </sect2>
+    <sect2 id="corelib-data-objects">
+      <title>DataObjects</title>
+      <para>
+	The data inside the DataObjects can be any valid C++ type,
+	so mostly people use classes or structs, because these carry
+	more semantics than just (vectors of) doubles. The default
+	constructor of the data is called when the DataObject is
+	constructed.  Here is an example of creating and using a
+	DataObject :
+	<example>
+	  <title>Accessing a DataObject</title>
+	  <programlisting>
+	    <![CDATA[
+#include <corelib/DataObjectInterfaces.hpp>
+
+// A DataObject may also contain a class, instead of the simple
+// double in this example
+DataObject<double> my_Do; 
+my_Do.Set( 3.14 ); 
+double  contents; 
+my_Do.Get( contents );   // contents == 3.14
+contents  = my_Do.Get(); // equivalent
+]]>
+	  </programlisting>
+	</example>
+      </para>
+      <para>
+	The virtual <classname>DataObjectInterface</classname> interface
+	provides the <function>Get()</function> and
+	<function>Set()</function> methods that each DataObject must
+	have. Semantically, <function>Set()</function> and
+	<function>Get()</function> copy all contents of the
+	DataObject. This interface has multiple
+	implementations, depending on the specific data access locking
+	needs:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <emphasis role="strong">DataObject</emphasis>. This is
+	      the most simple DataObject implementation. The
+	      <function>Get()</function> and
+	      <function>Set()</function> methods directly map onto the
+	      contents and can always be inlined by the compiler. It
+	      offers no thread safety, but maximum efficiency for
+	      copying data.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <emphasis role="strong">DataObjectLocked</emphasis>.
+	      This is a thread safe DataObject whose
+	      <function>Set()</function> and
+	      <function>Get()</function> methods are guarded by a
+	      single mutex. The second thread accessing this object
+	      will always block, which is not always appropriate in a
+	      realtime system.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <emphasis
+		role="strong">DataObjectPrioritySet</emphasis>. This
+	      is a more complex DataObject which gives always priority
+	      to the thread calling <function>Set()</function>, which
+	      will never block. The thread accessing
+	      <function>Get()</function> will block if the
+	      <function>Set()</function> thread is accessing the
+	      contents. It is mainly used for sharing data between two
+	      kernels, running at different priorities.
+	    </para>
+	    <note>
+	      <para>
+		This DataObject will only work if the
+		<function>Set()</function> thread has the highest
+		priority. When the inverse is true, data corruption
+		will occur. It is obvious that this DataObject can
+		only be used if both threads have static priorities
+		(which is the case for all threads in the &orocos;
+		framework).
+	      </para>
+	    </note>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <emphasis
+		role="strong">DataObjectPriorityGet</emphasis>. The
+	      inverse of <function>DataObjectPrioritySet</function>.
+	      The thread accessing <function>Get()</function> will
+	      never block.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <emphasis role="strong">DataObjectLockFree</emphasis>.
+	      This DataObject implements a non blocking reader/writer
+	      buffer which always returns the last written value to
+	      the reader. If the reader is preempted with a write and
+	      a read, the last read will return a newer value, while
+	      the first read continues to read the uncorrupted old
+	      value.  The depth of this buffer must be readers+3, for
+	      the algorithm to succeed in doing every write. Apart
+	      from memory consumption, it is one of the best
+	      thread-safe DataObject implementations.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect2>
   </sect1>
   <sect1 id="core-logging">
     <title>Logging</title>
