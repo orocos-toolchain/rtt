@@ -42,12 +42,21 @@ namespace ORO_CoreLib
      * data of type \a T in a FIFO way.
      * No memory allocation is done, but the maximum number
      * of threads which can access this object is defined by
-     * MAX_THREADS - 1.
+     * MAX_THREADS.
      */
     template< class T>
     class BufferLockFree
     {
+    public:
+        /** 
+         * @brief The maximum number of threads.
+         *
+         * The number of threads which may concurrently access this buffer.
+         * This is to be improved, although knowing the max number of
+         * threads in a RT application is not so hard.
+         */
         const static unsigned int MAX_THREADS = 8;
+    private:
         struct Item {
             Item()  {
                 //ATOMIC_INIT(count);
@@ -57,14 +66,20 @@ namespace ORO_CoreLib
             std::vector<T> data;
         };
 
-        Item bufs[MAX_THREADS];
-        Item* active;
+        /**
+         * Conversion of number of threads to number of buffers.
+         */
+        static const unsigned int BUF_NUM = MAX_THREADS+1;
+
+        Item bufs[BUF_NUM];
+        Item* volatile active;
+
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
          */
         BufferLockFree(unsigned int bufsize) {
-            for (unsigned int i=0; i < MAX_THREADS; ++i) {
+            for (unsigned int i=0; i < BUF_NUM; ++i) {
                 bufs[i].data.reserve( bufsize ); // pre-allocate
             }
             // bootstrap the first buffer :
@@ -186,7 +201,7 @@ namespace ORO_CoreLib
                     break;
                 atomic_dec( &start->count );
                 ++start;
-                if (start == bufs+MAX_THREADS)
+                if (start == bufs+BUF_NUM)
                     start = bufs; // in case of races, rewind
             }
             return start; // unique pointer across all threads
@@ -209,6 +224,9 @@ namespace ORO_CoreLib
 
     template<class T>
     const unsigned int BufferLockFree<T>::MAX_THREADS;
+
+    template<class T>
+    const unsigned int BufferLockFree<T>::BUF_NUM;
 
     extern template class BufferLockFree<double>;
 }

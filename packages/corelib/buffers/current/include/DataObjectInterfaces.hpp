@@ -391,8 +391,28 @@ namespace ORO_CoreLib
     class DataObjectLockFree
         : public DataObjectInterface< _DataType >
     {
+    public:
+        /** 
+         * @brief The maximum number of threads.
+         *
+         * The size of the buffer is for now statically determined, 
+         * which allows for 7 readers and 1 writer (a total of 8 threads !)
+         * This is to be improved, although knowing the max number of
+         * threads in a RT application is not so hard.
+         */
+        static const unsigned int MAX_THREADS=8;
+    private:
+        /**
+         * Conversion of number of threads to size of buffer.
+         */
+        static const unsigned int BUF_LEN=MAX_THREADS+2;
+
         /**
          * Internal buffer structure.
+         * Both the read and write pointers pointing to this struct
+         * must be declared volatile, since they are modified in other threads.
+         * I did not declare data as volatile,
+         * since we only read/write it in secured buffers.
          */
         struct DataBuf {
             DataBuf()
@@ -403,27 +423,22 @@ namespace ORO_CoreLib
             _DataType data; mutable atomic_t counter; DataBuf* next;
         };
 
-        DataBuf* read_ptr;
-        DataBuf* write_ptr;
+        typedef DataBuf* volatile VolPtrType;
+        typedef DataBuf  ValueType;
+        typedef DataBuf* PtrType;
 
-        /** 
-         * @brief The size of the buffer.
-         *
-         * The size of the buffer is for now statically determined, 
-         * which allows for 7 readers and 1 writer (a total of 8 threads !)
-         * This is to be
-         * improved. Heaping is an option, but the hardest problem
-         * remains setting the size of the buffer.
-         */
-        static const unsigned int BUF_LEN=10;
-            
+        VolPtrType read_ptr;
+        VolPtrType write_ptr;
+
         /**
          * A 3 element Data buffer
          */
         DataBuf data[BUF_LEN];
 
         std::string name;
+
     public:
+            
         /** 
          * Construct a DataObjectLockFree by name.
          * 
@@ -472,10 +487,23 @@ namespace ORO_CoreLib
          */
         void Get( DataType& pull ) const 
         {   
-            DataBuf* reading = read_ptr;        // atomic copy
-            atomic_inc(&reading->counter);       // atomic increment
+            PtrType reading;
+            // loop to combine Read/Modify of counter
+            // This avoids a race condition where read_ptr
+            // could become write_ptr ( then we would read corrupted data).
+            do {
+                reading = read_ptr;            // copy buffer location
+                atomic_t* v = &(reading->counter);
+                atomic_inc(&reading->counter); // lock buffer, no more writes
+                if ( reading != read_ptr )     // if read_ptr changed, 
+                    atomic_dec(&reading->counter); // better to start over.
+                else
+                    break;
+            } while ( true );
+            // from here on we are sure that 'reading'
+            // is a valid buffer to read from.
             pull = reading->data;               // takes some time
-            atomic_dec(&reading->counter);       // atomic decrement
+            atomic_dec(&reading->counter);       // release buffer
         }
 
         /**
@@ -495,7 +523,7 @@ namespace ORO_CoreLib
              */
             // writeout in any case
             write_ptr->data = push;
-            DataBuf* wrote_ptr = write_ptr;
+            PtrType wrote_ptr = write_ptr;
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
             while ( atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
