@@ -1,4 +1,9 @@
 
+#pragma implementation
+#include "kernel_components/P_Controller.hpp"
+
+namespace ORO_ControlKernel {
+
 /*****************************************
  * Implementation of controller class P_Controller
  *****************************************/
@@ -61,4 +66,6 @@ bool P_Controller::updateProperties(const PropertyBag& bag)
 void P_Controller::push()      
 {
   outp_dObj->Set(_result);
+}
+
 }

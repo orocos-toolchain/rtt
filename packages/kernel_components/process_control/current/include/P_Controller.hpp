@@ -25,7 +25,7 @@
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
 
-//#pragma interface
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -91,8 +91,6 @@ namespace ORO_ControlKernel
       virtual void push();
 
   };
-
-#include "P_Controller.inc"
 
 }
 
