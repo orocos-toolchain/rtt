@@ -44,6 +44,14 @@
 	  the build of your cascaded control applications. 
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The HeartBeatGenerator has been renamed to the TimeService
+	  (also its header file). Also, the
+	  <emphasis>ticksGet()</emphasis> and <emphasis>secondsGet()</emphasis> functions are deprecated and renamed to
+	  <emphasis>getTicks()</emphasis> and <emphasis>getSeconds()</emphasis>, for consistency.
+	</para>
+      </Listitem>
     </itemizedlist>
   </section>
   <section id="general">
@@ -64,9 +72,37 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    None
+	    The OS package was cleaned up to remove deprecated classes such as <classname>ConditionVariable</classname>
+	    and <classname>EventInterrupt</classname> and related classes.
 	  </para>
       </listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>Gnu/Linux</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A race condition in <classname>PeriodicThread</classname> start()/stop() has been solved. It could lead
+	    to finalize() being called before step() completed.
+	  </para>
+      </listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>LXRT</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    <classname>PeriodicThread</classname> stepping is a bit more efficient.
+	  </para>
+      </listitem>
+	<listitem>
+	  <para>
+	    Orocos tries to find an alternative <emphasis>RTAI Name</emphasis> for its threads if the preconfigured one is already taken,
+	    allowing to run multiple Orocos applications in parallel.
+	  </para>
+	</listitem>
     </itemizedlist>
     </section>
   </section>
@@ -135,6 +171,20 @@
 	  The existing buffers (Circular and Simple) have been revised but remain experimental.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The Periodic Task infrastructure has been completely refactored to allow hard realtime
+	  start/stop of periodic tasks. A start() is O(1) time, a stop() is O(n) time, bounded by the
+	  number of tasks with that period. Also, task execution efficiency has improved 'a lot',
+	  reducing the Orocos layer overhead.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The time conversion algorithms in Orocos have had a code review and extra test suite
+	  to validate and guarantee time keeping and conversion correctness.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="control">
@@ -170,7 +220,16 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  None
+	  The <classname>Parser</classname> class can now also parse local files, instead
+	  of just an <classname>istream</classname>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The scripting language now also supports the <classname>Twist</classname> and
+	  <classname>Wrench</classname> classes, in addition to the existing <classname>Vector</classname>,
+	  <classname>Rotation</classname> and <classname>Frame</classname> classes. The
+	  types are written non-capital in the scripting language.
 	</para>
       </listitem>
     </itemizedlist>
