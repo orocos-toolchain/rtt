@@ -6,7 +6,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_COMEDI {
 	description "The path is derived from the
 detection of the packages configure script"
 	flavor data
-        default_value { "-I".OROBLD_SUPPORT_COMEDILIB_DIR }
+        default_value { "-I".OROBLD_SUPPORT_COMEDI_DIR }
     }
 
     include_dir comedi
@@ -14,7 +14,6 @@ detection of the packages configure script"
     parent   OROPKG_DEVICE_DRIVERS
 
     requires OROPKG_SUPPORT_COMEDI
-    requires OROPKG_SUPPORT_COMEDILIB
     requires OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_INTERFACE
     requires OROPKG_DEVICE_INTERFACE_IO

@@ -464,9 +464,7 @@ ACX_COMEDI
 dnl Leave empty, use this just for help, pass
 dnl the flags to the packages configure script.
 m4_define([ACX_COMEDI],[
-AC_ARG_WITH(comedi, [AC_HELP_STRING([--with-comedi=/path/to],[Specify location of linux/comedi.h ])],
-	[ ])
-AC_ARG_WITH(comedilib, [AC_HELP_STRING([--with-comedilib=/path/to],[Specify location of comedilib.h ])],
+AC_ARG_WITH(comedi, [AC_HELP_STRING([--with-comedi=/path/to],[Specify location of comedilib.h ])],
 	[ ])
 ])
 

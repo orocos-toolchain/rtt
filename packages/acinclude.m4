@@ -121,47 +121,34 @@ and rerun the bootstrap.sh script
 ])
 
 
+
 m4_define([DETECT_COMEDIPKG],
 [
 AC_MSG_CHECKING(for comedi dir)
-AC_ARG_WITH(comedi, [ --with-comedi Specify location of linux/comedi.h ],
-	[ if test x"$withval" != x; then COMEDI_DIR="$withval"; fi ])
-if test x"$COMEDI_DIR" = x; then
-   COMEDI_DIR="/usr/realtime/include"
+AC_ARG_WITH(comedi, [ --with-comedi Specify location of comedilib.h ],
+	            [ if test x"$withval" != x; then COMEDI_DIR="$withval"; else COMEDI_DIR="/usr/src/comedi/include/linux/"; fi ])
+
+if test -f $COMEDI_DIR/comedilib.h; then
+  # gnu linux comedilib
+  PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+  CPPFLAGS="-I$COMEDI_DIR"
+  AC_MSG_RESULT(Comedi for gnulinux found in $COMEDI_DIR)
+else
+  if test -f $COMEDI_DIR/linux/comedilib.h; then
+    # lxrt comede package
+    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    CPPFLAGS="-I$COMEDI_DIR"
+    AC_MSG_RESULT(Comedi for lxrt found in $COMEDI_DIR/linux)
+  else
+    # no comedi found
+    AC_MSG_WARN([No comedi installation found (comedilib.h). Comedi will be unavailable.])
+    AC_MSG_RESULT(No comedi found)
+  fi
 fi
-AC_MSG_RESULT($COMEDI_DIR)
 AC_SUBST(COMEDI_DIR)
-
-CPPFLAGS="-I$COMEDI_DIR"
-AC_CHECK_HEADERS([ linux/comedi.h ],
-[
-PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
-],
-[
-  AC_MSG_WARN([No comedi installation found (comedi.h). Comedi will be unavailable.])
-])
 ])
 
-m4_define([DETECT_COMEDILIBPKG],
-[
-AC_MSG_CHECKING(for comedilib dir)
-AC_ARG_WITH(comedilib, [ --with-comedilib Specify location of comedilib.h ],
-	[ if test x"$withval" != x; then COMEDILIB_DIR="$withval"; fi ])
-if test x"$COMEDILIB_DIR" = x; then
-   COMEDILIB_DIR="/usr/realtime/include"
-fi
-AC_MSG_RESULT($COMEDILIB_DIR)
-AC_SUBST(COMEDILIB_DIR)
 
-CPPFLAGS="-I$COMEDILIB_DIR"
-AC_CHECK_HEADERS([ comedilib.h],
-[
-PACKAGES="support/comedilib/current/comedilib.cdl $PACKAGES"
-],
-[
-  AC_MSG_WARN([No comedi-lib installation found (comedilib.h). Comedi-lib will be unavailable.])
-])
-])
 
 m4_define([DETECT_READLINE],
 [
