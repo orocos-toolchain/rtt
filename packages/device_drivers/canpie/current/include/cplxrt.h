@@ -28,7 +28,7 @@ extern "C" {
 #ifndef __KERNEL__
 
 #include <stdarg.h>
-#include <rtai_lxrt_user.h>
+#include <os/fosi.h>
 
 union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
 
@@ -105,7 +105,6 @@ _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
 
  _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 {
-  int retval;
   struct { int channel; CpStruct_CAN * msg; unsigned int cp_size; } arg = 
       { channel, msgPtr , sizeof(CpStruct_CAN) };
   return rtai_lxrt(ORONUM_CANPIE_LXRT_IDX, SIZARG, CP_USER_MESSAGE_READ, &arg).i[LOW];
@@ -114,7 +113,6 @@ _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
  _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 {
   //CpStruct_CAN local_msg;
-  int retval;
   struct { int channel; const CpStruct_CAN* msg; unsigned int cp_size; } arg = { channel, msgPtr , sizeof(CpStruct_CAN) };
   return rtai_lxrt(ORONUM_CANPIE_LXRT_IDX, SIZARG, CP_USER_MESSAGE_WRITE, &arg).i[LOW];
 }
