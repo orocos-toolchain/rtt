@@ -252,7 +252,7 @@ namespace ORO_CoreLib
 #if __GNUC__ == 2
         class value_iterator : public bidirectional_iterator<ValueType, int>
 #else
-        class value_iterator : public std::iterator<ValueType, int>
+        class value_iterator : public std::iterator<std::input_iterator_tag, ValueType>
 #endif
         {
         protected:
@@ -267,16 +267,30 @@ namespace ORO_CoreLib
                 return ( ( *i ).second );
             }
 
-            value_iterator operator++()
+            value_iterator& operator++()
             {
                 ++i;
                 return *this;
             }
 
-            value_iterator operator--()
+            value_iterator& operator--()
             {
                 --i;
                 return *this;
+            }
+
+            value_iterator operator++( int )
+            {
+                value_iterator ret;
+                operator++();
+                return ret;
+            }
+
+            value_iterator operator--( int )
+            {
+                value_iterator ret;
+                operator--();
+                return ret;
             }
 
             bool operator==( value_iterator other )
