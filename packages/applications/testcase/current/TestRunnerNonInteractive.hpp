@@ -21,7 +21,7 @@
 #ifndef TESTRUNNERNONINTERACTIVE_HPP
 #define TESTRUNNERNONINTERACTIVE_HPP
 
-#include <os/ComponentThreaded.hpp>
+#include <os/PeriodicThread.hpp>
 #include <corelib/Event.hpp>
 #include <corelib/EventListenerInterface.hpp>
 #include <corelib/EventCompleterInterface.hpp>
@@ -122,7 +122,7 @@ namespace UnitTesting
              * Stop a running test.
              * @deprecated
              */ 
-            //void stopTest(ComponentThreaded* thread);
+            //void stopTest(PeriodicThread* thread);
 
             /**
              * List all tests.

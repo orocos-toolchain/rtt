@@ -25,7 +25,7 @@
 
 #include <corelib/EventListenerInterface.hpp>
 #include <corelib/EventCompleterInterface.hpp>
-#include <os/ComponentThreaded.hpp>
+#include <os/PeriodicThread.hpp>
 
 #include "TestRunner.hpp"
 #include "ObservableReadInterface.hpp"
@@ -99,7 +99,7 @@ namespace UnitTesting
             /**
              * The thread to execute a test.
              */
-            ORO_OS::ComponentThreaded* thread;
+            ORO_OS::PeriodicThread* thread;
 
             /**
              * The length of the command string buffer.

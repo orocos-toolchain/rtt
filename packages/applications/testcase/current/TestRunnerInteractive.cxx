@@ -112,7 +112,7 @@ namespace UnitTesting
         else
         {
             // TODO: avoid using a new thread?
-            thread = new ComponentThreaded( test );
+            thread = new PeriodicThread( test );
             thread->taskNameSet( test->caseNameGet() );
             thread->start();
         }
