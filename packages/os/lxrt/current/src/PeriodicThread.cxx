@@ -112,9 +112,13 @@ namespace ORO_OS
                     {
                         if( !task->running ) { // more efficient than calling isRunning()
                             // consider this the 'configuration state'
+//                             Logger::log() << Logger::Info <<task->taskName<<"  signals done !" << Logger::endl;
                             rt_sem_signal(task->confDone); // signal we are ready for command
+//                             Logger::log() << Logger::Info <<task->taskName<<"  sleeps !" << Logger::endl;
                             rt_sem_wait( task->sem );      // wait for command.
+//                             Logger::log() << Logger::Info <<task->taskName<<"  awoken !" << Logger::endl;
                             task->configure();             // check for reconfigure
+//                             Logger::log() << Logger::Info <<task->taskName<<"  config done !" << Logger::endl;
                             if ( task->prepareForExit )    // check for exit
                                 {
                                     break; // break while(1) {}
@@ -254,7 +258,7 @@ namespace ORO_OS
 #endif
         running=true;
 
-        rt_sem_signal(sem);
+//         Logger::log() << Logger::Info <<" sem_signal returns :"<< rt_sem_signal(sem) << Logger::endl;
         // do not wait, we did our job.
 
         return true;
@@ -274,17 +278,23 @@ namespace ORO_OS
 
         // wait until the loop detects running == false
         // we wait one second in total.
-        while ( ret != 0 && cnt < 1000 )
+#if 1
+        while ( ret != 0 && cnt < 100 )
             {
                 // given time in argument is relative to 'now'
-                ret = rt_sem_wait_timed( confDone, nano2count(1000000) );
+                // 0.1 second :
+                ret = rt_sem_wait_timed( confDone, nano2count(100000000) );
                 // if ret == 0, confDone was signaled.
                 cnt++;
             } 
+#else
+        // dangerous, unconditionally waiting might/will lock up your program !
+        rt_sem_wait( confDone );
+#endif
 #ifdef OROPKG_CORELIB_REPORTING
-        if ( cnt == 1000 ) {
+        if ( cnt == 100 ) {
             Logger::log() << Logger::Debug << " failed."<<Logger::endl;
-            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked."<<Logger::endl;
+            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked."<<Logger::nl;
         }
         else
             Logger::log() << Logger::Debug << " done."<<Logger::endl;
@@ -365,7 +375,11 @@ namespace ORO_OS
 
     void PeriodicThread::configure()
     {
-        rt_set_period(rt_task, nano2count( period ));
+        // reconfigure period
+        if ( wait_for_step )
+            rt_set_period(rt_task, nano2count( period ));
+        else
+            rt_set_period(rt_task, 0);
         if ( goRealtime && !isHardRealtime() )
             {
                 //std::cout <<"Going HRT!"<<std::endl;
@@ -448,14 +462,8 @@ namespace ORO_OS
 
     void PeriodicThread::continuousStepping(bool yes_no)
     {
-        // XXX Test this code ! Previously, calling rt_task_make_periodic...
-        // twice could cause a crash.
         wait_for_step = !yes_no;
-        if ( wait_for_step )
-            rt_task_make_periodic_relative_ns(rt_task, 0, period);
-        else
-            rt_task_make_periodic_relative_ns(rt_task, 0, 0);
-
+        // do not change the period here, do it in configure()
     }
 
     void PeriodicThread::periodWaitRemaining()

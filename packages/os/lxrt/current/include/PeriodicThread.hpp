@@ -171,12 +171,12 @@ namespace ORO_OS
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
          */
-        bool running;
+        volatile bool running;
 
         /**
          * True when the thread should go realtime.
          */
-        bool goRealtime;
+        volatile bool goRealtime;
 
         /**
          * The realtime task
@@ -194,7 +194,7 @@ namespace ORO_OS
 
         char taskName[TASKNAMESIZE];
 
-        bool prepareForExit;
+        volatile bool prepareForExit;
 
         RTOS_SEM* sem;
         RTOS_SEM* confDone;
@@ -208,7 +208,7 @@ namespace ORO_OS
         // thus we use a void* + static_cast in cxx file.
         void* stopEvent;
 
-        bool wait_for_step;
+        volatile bool wait_for_step;
 
         /**
          * The linux scheduler of this thread. One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.

@@ -170,15 +170,11 @@ namespace ORO_OS
              * When set to 1, the thread will run, when set to 0
              * the thread will stop
              */
-            bool running;
+            volatile bool running;
             /**
              * Flag to signal the thread to exit
              */
-            bool timeToQuit;
-            /**
-             * Flag indicating the thread is destroyed
-             */
-            int destroyed;
+            volatile bool timeToQuit;
             /**
              * Thread attributes
              * (posix but portable ? )
@@ -199,7 +195,7 @@ namespace ORO_OS
 
         ORO_CoreLib::Handle* h;
 
-        bool wait_for_step;
+        volatile bool wait_for_step;
 
         sem_t tsyncer;
         sem_t msyncer;

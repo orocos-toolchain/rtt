@@ -123,8 +123,9 @@ namespace ORO_OS
         // uses pthread_join to sync.
         terminate();
 
-        // should wait until step is completed and exit then... ( FSM )
-        //pthread_join(&thread); // join is not recommended
+        sem_destroy( &tsyncer );
+        sem_destroy( &msyncer );
+
         pthread_attr_destroy( threadAttributeGet() );
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         delete h;
