@@ -84,6 +84,11 @@ namespace ORO_ControlKernel
       cerr << "nAxesControllerVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
+
+    // set empty values
+    vector<double> _temp_vector(_num_axes);
+    _velocity_DOI->Set(_temp_vector);
+
     return true;
   }
 

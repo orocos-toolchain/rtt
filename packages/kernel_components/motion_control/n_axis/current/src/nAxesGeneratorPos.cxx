@@ -139,6 +139,12 @@ namespace ORO_ControlKernel
       cerr << "nAxesGeneratorPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
+
+    // set empty values
+    vector<double> _temp_vector(_num_axes);
+    _position_DOI->Set(_temp_vector);
+    _velocity_DOI->Set(_temp_vector);
+
     return true;
   }
 

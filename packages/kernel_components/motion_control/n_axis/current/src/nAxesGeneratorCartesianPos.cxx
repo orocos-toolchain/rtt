@@ -137,6 +137,13 @@ namespace ORO_ControlKernel
       cerr << "nAxesGeneratorCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
+
+    // set empty values
+    Frame _temp_frame;
+    Twist _temp_twist;
+    _position_out_DOI->Set(_temp_frame);
+    _velocity_out_DOI->Set(_temp_twist);
+
     return true;
   }
 

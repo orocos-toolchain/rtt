@@ -67,6 +67,11 @@ namespace ORO_ControlKernel
       cerr << "nAxesControllerCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
+
+    // set empty values
+    Twist _temp_twist;
+    _velocity_out_DOI->Set(_temp_twist);
+
     return true;
   }
 

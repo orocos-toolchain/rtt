@@ -78,6 +78,10 @@ namespace ORO_ControlKernel
       return false;
     }
 
+    // set empty values
+    vector<double> _temp_vector(_num_axes);
+    _position_DOI->Set(_temp_vector);
+
     return true;
   }
 

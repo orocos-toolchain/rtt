@@ -91,6 +91,10 @@ namespace ORO_ControlKernel
       return false;
     }
 
+    // set empty values
+    Frame _temp_frame;
+    _position_out_DOI->Set(_temp_frame);
+
     return true;
   }
 

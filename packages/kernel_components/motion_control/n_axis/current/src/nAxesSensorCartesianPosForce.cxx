@@ -107,6 +107,12 @@ namespace ORO_ControlKernel
       return false;
     }
 
+    // set empty values
+    Frame _temp_frame;
+    Wrench _temp_wrench;
+    _position_out_DOI->Set(_temp_frame);
+    _force_out_DOI->Set(_temp_wrench);
+
     return true;
   }
 
