@@ -35,11 +35,11 @@ namespace ORO_DeviceDriver
 
     /**
      * @brief A AnalogDrive Object converts a physical unit (position, torque,...)
-     * to an analog output. It can also be enabled and breaked.
+     * to an analog output. It can also be enabled.
      *
      * Uses an analog output which is connected to
      * a hardware drive with position/velocity/acceleration/torque control
-     * and the enabling/braking of the drive through two digital outputs.
+     * and the enabling of the drive through a digital output.
      */
     class AnalogDrive
     {
@@ -58,44 +58,23 @@ namespace ORO_DeviceDriver
          * @param _offset The offset to be added to the unit such that new_unit = vel + offset
          */
         AnalogDrive( AnalogOutput<unsigned int>* an_out,
-               DigitalOutput* dig_out, DigitalOutput* _break, double _scale=1.0, double _offset=0.0 )
+               DigitalOutput* dig_out, double _scale=1.0, double _offset=0.0 )
             : analogDevice( an_out ),
-            enableDevice(dig_out), breakDevice(_break), mySpeed(0.0),
+            enableDevice(dig_out), mySpeed(0.0),
             scale(_scale), offset( _offset ),
             lowvel( an_out->highest() ), highvel( an_out->lowest() )
         {
             driveSet(0);
-            enableBreak();
             disableDrive();
         }
 
         ~AnalogDrive()
         {
             driveSet(0);
-            enableBreak();
             disableDrive();
 
             delete analogDevice;
             delete enableDevice;
-            delete breakDevice;
-        }
-
-        /**
-         * Turn on the breaks.
-         */
-        bool enableBreak()
-        {
-            enableDevice->switchOn();
-            return enableDevice->isOn();
-        }
-
-        /**
-         * Turn off the breaks.
-         */
-        bool disableBreak()
-        {
-            enableDevice->switchOff();
-            return !enableDevice->isOn();
         }
 
         /**
@@ -116,11 +95,6 @@ namespace ORO_DeviceDriver
             return !enableDevice->isOn();
         }
 
-        DigitalOutput* breakGet()
-        {
-            return breakDevice;
-        }
-
         DigitalOutput* enableGet()
         {
             return enableDevice;
@@ -133,26 +107,6 @@ namespace ORO_DeviceDriver
         {
             lowvel = lower;
             highvel = higher;
-        }
-
-        /**
-         * Lock the drive mechanically into one position.
-         */
-        void lock()
-        {
-            driveSet(0);
-            enableBreak();
-            disableDrive();
-        }
-
-        /**
-         * Stop the drive controlled in one position.
-         */
-        void stop()
-        {
-            driveSet(0);
-            enableDrive();
-            disableBreak();
         }
 
         /**
@@ -201,7 +155,6 @@ namespace ORO_DeviceDriver
 
         AnalogOutput<unsigned int>* analogDevice;
         DigitalOutput* enableDevice;
-        DigitalOutput* breakDevice;
 
         double mySpeed;
         double scale, offset;

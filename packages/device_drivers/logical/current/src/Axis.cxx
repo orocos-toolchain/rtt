@@ -17,172 +17,124 @@
 ***************************************************************************/
 
 #include "device_drivers/Axis.hpp"
-
-
+#include "device_drivers/HomePositionDetector.hpp"
+#include "device_drivers/DigitalInput.hpp"
+#include "device_drivers/DigitalOutput.hpp"
+#include "device_drivers/AnalogDrive.hpp"
 
 
 namespace ORO_DeviceDriver
 {
-    struct Axis_PositionSensor
-        : public SensorInterface<double>
-    {
-        Axis* ax;
-        double min;
-        double max;
-
-        Axis_PositionSensor(Axis* _ax, double _minpos, double _maxpos) : ax(_ax), min(_minpos), max(_maxpos) {}
-
-        virtual int readSensor( double& p ) const
-        {
-            p = ax->positionGet();
-            return 0;
-        }
-
-        void limit(double _min, double _max) 
-        {
-            min = _min;
-            max = _max;
-        }
-
-        virtual double readSensor() const
-        {
-            return ax->positionGet();
-        }
-
-        virtual double maxMeasurement() const
-        {
-            return max;
-        }
-
-        virtual double minMeasurement() const
-        {
-            return min;
-        }
-
-        virtual double zeroMeasurement() const
-        {
-            return 0.0;
-        }
-    };
-
-
     using namespace ORO_CoreLib;
 
-    Axis::Axis( AnalogDrive* a,  EncoderInterface* e, double _unit_to_inc,  DigitalInput* s) 
-        : act( a ), encoder( e ), swt( s ), unit_to_inc(_unit_to_inc), posOffset(0), status(false)
+    Axis::Axis( AnalogDrive* a ) 
+        : act( a ), homeswitch(0), breakswitch(0),
+          hpd(0)
     {
-        this->reset();
-        pos_sens = new Axis_PositionSensor(this, 0.0, 0.0);
-        this->sensorSet("Position",pos_sens);
+        lock();
     }
 
     Axis::~Axis()
     {
-        reset();
-        delete pos_sens;
+        lock();
         delete act;
-        delete encoder;
-        delete swt;
+        delete breakswitch;
+        delete homeswitch;
+        for (SensList::iterator it = sens.begin();
+             it != sens.end();
+             ++it)
+            {
+                delete it->second.sensor;
+                delete it->second.low;
+                delete it->second.high;
+            }
+        delete hpd;
     }
 
     void Axis::drive( double vel )
     {
+        // All sensors may limit the drive
+        for (SensList::iterator it = sens.begin();
+             it != sens.end();
+             ++it)
+            {
+                if ( it->second.high->isOn() && vel > 0 ||
+                     it->second.low->isOn()  && vel < 0 )
+                    {
+                        vel = 0.0;
+                        break;
+                    }
+            }
         act->driveSet( vel );
     }
 
-    void Axis::enable()
+    void Axis::stop()
     {
-        act->stop();
-        status = true;
+        act->enableDrive();
+        act->driveSet( 0 );
+        if ( breakswitch )
+            breakswitch->switchOff();
     }
 
-    bool Axis::isEnabled()
+    bool Axis::isEnabled() const
     {
-        return status;
+        return act->enableGet()->isOn() && ( breakswitch ? ! breakswitch->isOn() : true );
     }
 
-    void Axis::disable()
+    void Axis::lock()
     {
-        act->lock();
-        status = false;
+        act->driveSet( 0 );
+        if (breakswitch)
+            breakswitch->switchOn();
+        act->disableDrive();
     }
 
-    void Axis::positionLimits(double min, double max)
+    void Axis::sensorSet(const std::string& name,  SensorInterface<double>* _sens,
+                         DigitalInput* lowlimit, DigitalInput* highlimit )
     {
-        pos_sens->limit(min, max);
+        if (sens.count(name) != 0)
+            return;
+        sens.insert(make_pair(name, SensorInfo( _sens, lowlimit, highlimit)) );
+
+        // special treatment for "Position" sensor.
+        if ( name == "Position" )
+            {
+                if ( homeswitch == 0 )
+                    homeswitch =  new DigitalInput( hpd = new HomePositionDetector( _sens ), 0 );
+            }
     }
 
-    double Axis::positionGet()
-    {
-        return double( encoder->turnGet()*encoder->resolution() +  encoder->positionGet() ) / unit_to_inc + posOffset;
-    }
-
-    void Axis::sensorSet(const std::string& name,  SensorInterface<double>* _sens)
-    {
-        sens[name] = _sens;
-    }
-
-    SensorInterface<double>* Axis::sensorGet(const std::string& name)
+    const SensorInterface<double>* Axis::sensorGet(const std::string& name) const
     {
         if (sens.count(name) == 0)
             return 0;
         else
-            return sens[name];
+            return sens.find(name)->second.sensor;
     }
 
-    void Axis::positionSet( double newpos )
+    std::vector<std::string> Axis::sensorList() const
     {
-        posOffset = newpos -  positionGet();
+        std::vector<std::string> result;
+        for (SensList::const_iterator it = sens.begin();  it != sens.end(); ++it)
+            result.push_back( it->first );
+        return result;
     }
 
-    double Axis::calibrate( double calpos, double sign )
-    {
-        double currentPos;
-        if ( sign < 0 )
-            {
-                if ( unit_to_inc > 0)
-                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet() ) / unit_to_inc;
-                else
-                    currentPos = calpos - encoder->positionGet() / unit_to_inc;
-            }
-        else
-            {
-                if ( unit_to_inc > 0)
-                    currentPos =  calpos + encoder->positionGet() / unit_to_inc;
-                else
-                    currentPos = calpos + (encoder->resolution() - encoder->positionGet() ) / unit_to_inc;
-            }
-        double oldposition = positionGet();
-        positionSet( currentPos );
-        return positionGet() - oldposition;
-    }
-
-    void Axis::turnSet( int t )
-    {
-        encoder->turnSet( t );
-    }
-
-    void Axis::reset()
-    { 
-        act->driveSet( 0 );
-        act->enableBreak();
-        act->disableDrive();
-    }
-
-    AnalogDrive* Axis::driveGet()
+    AnalogDrive* Axis::driveGet() const
     {
         return act;
     }
 
-    EncoderInterface* Axis::encoderGet()
-    {
-        return encoder;
-    }
+    void Axis::breakSet( DigitalOutput* brk )
+        { breakswitch = brk; }
 
-    DigitalInput* Axis::switchGet()
-    {
-        return swt;
-    }
+    DigitalOutput* Axis::breakGet() const
+        { return breakswitch; }
 
+    void Axis::homeswitchSet( DigitalInput* swtch )
+        { homeswitch = swtch; }
+
+    const DigitalInput* Axis::homeswitchGet() const
+        { return homeswitch; }
 
 };

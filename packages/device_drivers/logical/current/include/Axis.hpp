@@ -22,15 +22,17 @@
 
 #include <device_interface/EncoderInterface.hpp>
 #include <device_interface/SensorInterface.hpp>
-#include "DigitalInput.hpp"
-#include "AnalogDrive.hpp"
 
-#include <math.h>
+#include <string>
+#include <map>
+#include <vector>
 
 namespace ORO_DeviceDriver
 {
-    class Axis_PositionSensor;
-
+    class HomePositionDetector;
+    class AnalogDrive;
+    class DigitalInput;
+    class DigitalOutput;
 
     using namespace ORO_DeviceInterface;
 
@@ -38,102 +40,130 @@ namespace ORO_DeviceDriver
      * @brief Axis is an example of how you can easily implement
      * a generic axis using the Device Interfaces.
      *
-     * @todo PositionSensor for this axis, so that the constructor looks like:
-     *       Axis( AnalogDrive* drive );
+     * Calibration of
+     * the sensors must be done outside of this object, since sensor
+     * calibration is to specific per sensor.
+     * @see CalibrationInterface
+     *
+     * The EndLimit switches limit the drive() command. Each Sensor
+     * added must impose a software limit on drive().
      */
     class Axis
     {
     public:
 
-        /**
-         * Constructs an Axis object and initializes the Drive,Encoder and
-         * Homing switch. 
+        /** 
+         * @brief Create an Axis with an AnalogDrive.
          * 
-         * @post the drive is disabled
-         * @post The Drive, EncoderInterface and DigitalInput are aggregated by the Axis.
+         * @param adrive The Analog drive of this axis.
          */
-        Axis( AnalogDrive* a,  EncoderInterface* e, double _unit_to_inc,  DigitalInput* s);
+        Axis( AnalogDrive* adrive );
 
         /**
-         * Disable the Drive and destruct the Axis object.
+         * @brief Disable the Drive and destruct the Axis object.
          * @post Drive, Encoder and DigitalInput objects are deleted.
          */
         virtual ~Axis();
 
         /**
-         * Resets the Axis.
-         * @post The actuator is fully stopped.
+         * @brief Stop the Axis (electronically), breaks disabled,
+         * drive enabled and set to zero.
          */
-        void reset();
+        void stop();
 
-        void enable();
+        /**
+         * @brief Lock the Axis (mechanically), breaks enabled, drive
+         * disabled.
+         */
+        void lock();
 
-        void disable();
+        /**
+         * @brief Return true if the drive is enabled, and breaks are off.
+         */
+        bool isEnabled() const;
 
-        bool isEnabled();
-
-        void turnSet( int t );
-
+        /**
+         * @brief Drive a certain 'physical unit' (eg velocity, torque,...).
+         */
         void drive( double v );
 
-        double positionGet();
-
-        void sensorSet(const std::string& name, SensorInterface<double>* _sens);
-        SensorInterface<double>* sensorGet(const std::string& name);
-
-        void positionSet( double newpos );
-        
-        void positionLimits(double min, double max);
+        /**
+         * @brief Add a break to the Axis. It is aggregated.
+         */
+        void breakSet( DigitalOutput* brk );
 
         /**
-         * Calibrate the Axis with a given calibration position
-         * and direction of the counter.
-         *
-         * @param cal_pos The postion of the last motor-zero before the switch.
-         * @param direction The positive or negative counting of the position
-         *        with respect to the positive movement.
-         * @return The change in position caused by this calibration.
+         * @brief Get the break of the Axis,
+         * returns the inverse drive status (drive on -> break off) if none present.
          */
-        double calibrate( double cal_pos, double direction);
+        DigitalOutput* breakGet() const;
 
         /**
-         * Returns the drive used
+         * @brief Set the Homing Switch of the Axis, it is aggregated.
          */
-        AnalogDrive* driveGet();
+        void homeswitchSet( DigitalInput* swtch );
 
         /**
-         * Returns the encoder used
+         * @brief Retrieve the homing switch of this Axis, returns a
+         * HomePositionDetector based DigitalInput if none present,
+         * but a "Position" Sensor is present. Returns a null if not
+         * applicable.
          */
-        EncoderInterface* encoderGet();
+        const DigitalInput* homeswitchGet() const;
 
         /**
-         * Returns the homing switch used
          */
-        DigitalInput* switchGet();
+        /** 
+         * @brief Add a sensor to the Axis (position, velocity, torque,...). The sensor
+         * is aggregated.
+         * 
+         * @param name The name of the sensor.
+         * @param _sens The sensor
+         * @param lowlim The LowLimit switch, disabling negative drive commands if \a lowlim->isOn()
+         * @param highlim The HighLimit switch, disabling positive drive commands if \a highlim->isOn()
+         */
+        void sensorSet(const std::string& name, SensorInterface<double>* _sens, DigitalInput* lowlim, DigitalInput* highlim );
+
+        /**
+         * @brief Retrieve a sensor from the Axis.
+         */
+        const SensorInterface<double>* sensorGet(const std::string& name) const;
+
+        std::vector<std::string> sensorList() const;
+
+        /**
+         * @brief Returns the drive used
+         */
+        AnalogDrive* driveGet() const;
 
     private:
+        struct SensorInfo
+        {
+            SensorInfo( SensorInterface<double>* _sens, DigitalInput* lowlim, DigitalInput* highlim )
+                : sensor(_sens), low(lowlim), high(highlim)
+            {}
+            SensorInterface<double>* sensor;
+            DigitalInput* low;
+            DigitalInput* high;
+        };
+
         /**
          * Our actuator (motor)
          */
         AnalogDrive* act;
-        /**
-         * Our encoder
-         */
-        EncoderInterface* encoder;
+
+        DigitalInput* homeswitch;
+
+        DigitalOutput* breakswitch;
+
+        HomePositionDetector* hpd;
+
+        typedef std::map< std::string,SensorInfo > SensList;
 
         /**
-         * Our homing switch
+         * All sensors (position, torque, ... )
          */
-        DigitalInput* swt;
-
-        double unit_to_inc;
-        double posOffset;
-
-        Axis_PositionSensor* pos_sens;
-
-        bool status;
-
-        std::map<std::string,SensorInterface<double>* > sens;
+        SensList sens;
     };
 
 }
