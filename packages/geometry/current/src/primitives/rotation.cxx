@@ -180,7 +180,7 @@ Vector Rotation::GetRot() const
        double sa    = axis.Norm();
        double ca    = (data[0]+data[4]+data[8]-1)/2.0;
        double alfa;
-       if (sa > 1E-7)
+       if (sa > epsilon)
 	 alfa = ::atan2(sa,ca)/sa;
        else
 	 alfa = 1;
