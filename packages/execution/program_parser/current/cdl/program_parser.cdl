@@ -5,7 +5,7 @@ cdl_package OROPKG_EXECUTION_PROGRAM_PARSER {
 Converts text files (scripts) to realtime binary programs
 for the Program Processor using the Boost::Spirit
 library. It takes a lot of time to compile, but
-is very powerfull."
+is very powerful."
 
     include_dir execution
 
