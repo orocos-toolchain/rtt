@@ -42,8 +42,8 @@
         <simple name="Component" type="string"><value>Estimator</value></simple>
         <simple name="Component" type="string"><value>Generator</value></simple>
 
-	<simple name="DataObject" type="string"><value>Model</value></simple>
-	<simple name="DataObject" type="string"><value>TrackingError</value></simple>
+	<simple name="DataObject" type="string"><value>Models</value></simple>
+	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
     </struct>
 
 

@@ -3,7 +3,8 @@ dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
 	orocos-control-kernel.html kernel_component_interaction.png control-pattern.png \
 	component_life_cycle.png ExtensionTimeLine.png component_data_production.png \
-	control-pattern.png standard-control-kernel.png \
+	control-pattern.png standard-control-kernel.png reporting-ext.png execution-ext.png \
+	cascnames.png property-ext.png \
 	orocos-control-kernel.pdf \
 	orocos-control-kernel.ps
 
@@ -17,9 +18,9 @@ docps: epsimages orocos-control-kernel.ps
 
 doctxt: orocos-control-kernel.txt
 
-epsimages: kernel_component_interaction.eps component_life_cycle.eps ExtensionTimeLine.eps component_data_production.eps control-pattern.eps standard-control-kernel.eps
+epsimages: kernel_component_interaction.eps component_life_cycle.eps ExtensionTimeLine.eps component_data_production.eps control-pattern.eps standard-control-kernel.eps reporting-ext.eps execution-ext.eps cascnames.eps property-ext.eps
 
-pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTimeLine.png component_data_production.png control-pattern.png standard-control-kernel.png
+pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTimeLine.png component_data_production.png control-pattern.png standard-control-kernel.png reporting-ext.png execution-ext.png cascnames.png property-ext.png
 
 #orocos-control-kernel.html: 
 

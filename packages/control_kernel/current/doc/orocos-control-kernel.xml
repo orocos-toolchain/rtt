@@ -94,6 +94,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark> Added Name Server Kernel docs</revremark>
       </revision>
+      <revision>
+	<revnumber>0.15</revnumber>
+	<date>9 Mar 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added DataObject Reporting</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -865,7 +871,7 @@
 	implementation of the cut DataObjects must take care of the
 	network-transparant copying of its content.
       </para>
-	<figure id="fig-standard-control-kernel" float="1" pgwide="0">
+	<figure id="fig-standard-control-kernel"  pgwide="0">
 	  <title>
 	    The formal structure of a bare feedback control loop.
 	  </title>
@@ -910,7 +916,8 @@
   class Output { double output; };
 
   #include <control_kernel/StandardControlKernel.hpp>
-  typedef StandardControlKernel <Input, Model, Command, SetPoint, Output> My1DKernel;
+  typedef StandardControlKernel< Input, Model, Command, 
+	                         SetPoint, Output> My1DKernel;
 ]]>
       </programlisting>
       <para>
@@ -1030,7 +1037,7 @@ StandardControlKernel &lt;InputType, ModelType, CommandType, SetPointType, Outpu
 	connect a non-realtime Component to a realtime Component.
       </para>
 
-      <figure id="fig-control-pattern" float="1" pgwide="0">
+      <figure id="fig-control-pattern"  pgwide="0">
 	<title>
 	  The structure of the complete Standard Control Kernel,
 	  <emphasis>i.e.</emphasis> the realtime control loop of
@@ -1848,11 +1855,13 @@ void push()
       <programlisting>
 <![CDATA[
 	// equivalent typedef as before: 
-typedef StandardControlKernel <Input, Model, Command, SetPoint, Output, KernelBaseFunction> My1DKernel;
+typedef StandardControlKernel< Input, Model, Command, 
+	                       SetPoint, Output, KernelBaseFunction> My1DKernel;
 
 	// adding a new extension to the KernelBaseFunction: 
 typedef CompositeExtension<KernelBaseFunction, PropertyExtension> MyExtension; 
-typedef StandardControlKernel <Input, Model, Command, SetPoint, Output, MyExtension> My1DPropertyKernel;
+typedef StandardControlKernel< Input, Model, Command,
+	                       SetPoint, Output, MyExtension> My1DPropertyKernel;
 ]]>
       </programlisting>
       <para>
@@ -1909,12 +1918,28 @@ Output, MySecondExtension > My1DPropRepKernel;
 	Kernel. An option can be enabled to configure all Components,
 	even those not loaded in the Control Kernel.
       </para>
+
+      <figure id="fig-property-extension">
+	<title>
+	  Overview of the Property Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="property-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="property-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect2>
 	<title>Configuring the Property Extension</title>
 	<para>
 	  The <type>PropertyExtension</type> can be configured through the CPF
 	  file given in the Control Kernel configuration file. Not all configuration options
-	  are yet implemented and the layout may change in future releases.
+	  are yet implemented.
 	  An example looks like this:
 	</para>
 	<example>
@@ -1946,18 +1971,21 @@ Output, MySecondExtension > My1DPropRepKernel;
 <simple name="SaveProperties" type="boolean">
     <description> 
     True if properties of components need to be saved when stopping the kernel.
+    (todo)
     </description>
     <value>1</value>
 </simple>
 <simple name="SaveFilePrefix"   type="string">
     <description>
     The suffix of the filename to store the components state into
+    (todo)
     </description>
     <value>saved_</value>
 </simple>
 <simple name="SaveFileExtension"   type="string">
     <description>
     The extension of the filename to store the components state into
+    (todo)
     </description>
     <value>cpf</value>
 </simple>
@@ -1986,16 +2014,20 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  <programlisting>
 <![CDATA[
   // In constructor, gain defaults to zero:
-     gain("Gain","The gain of the controller",0)
+     gain("Gain","The gain of the controller",0),
+     max_track_error("MaxTrackError", "The maximum tracking error", 0)
 
   // Hook In Controller Component:
   virtual bool updateProperties( const PropertyBag& bag)
   {
-      return composeProperty(bag, gain ); // returns true if successful.
+      return composeProperty(bag, gain ) &&
+	     composeProperty(bag, max_track_error);
+      // returns true if successful.
   }
 
   // ... The gain of the Controller ...
   Property<double> gain;
+  Property<double> max_track_error;
 
   // ...
 ]]>
@@ -2007,12 +2039,16 @@ Output, MySecondExtension > My1DPropRepKernel;
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <properties>
     <simple name="Name" type="string">
-    <descriptionT>he unique name of this component</description>
-    <valueC>artesianController</value>
+    <description>The unique name of this component</description>
+    <value>CartesianController</value>
     </simple>
     <simple name="Gain"    type="double">
-    <descriptionT>he gain of the controller </description>
-    <value2></value>
+    <description>The gain of the controller </description>
+    <value>2</value>
+    </simple>
+    <simple name="MaxTrackError"    type="double">
+    <description>The maximum tracking error of the controller.</description>
+    <value>0.2</value>
     </simple>
 </properties>
 ]]>
@@ -2021,17 +2057,17 @@ Output, MySecondExtension > My1DPropRepKernel;
       </sect2>
     </sect1>
     <sect1 id="reporting-extension">
-      <title>The Reporting and Updating Extensions</title>
+      <title>The Reporting (Data Flow Logging) Extension</title>
       <para>
-	A second functional Extension is the Reporting Extension. (HB:
-	also the Updating Extension!) It enables components to report
+	A second functional Extension is the Reporting Extension.
+	It enables Components and DataObjects to report (log)
 	the status of internal variables to the screen or to a file,
 	independent of the kernel's execution period. It can be used
 	for synchronous reporting of data (every sample), but the
 	design favours determinism of execution time over determinism
 	of data acquisition. This means that it is possible that a
 	data sample is lost, but never possible that the Control
-	Kernel stalls because of the reporting activity. (HB: ????)
+	Kernel stalls because of the reporting activity.
 	Each Extension must at least guarantee that it does not block
 	within its execution.
       </para>
@@ -2042,13 +2078,27 @@ Output, MySecondExtension > My1DPropRepKernel;
 	copy operation is cancelled. A better buffering mechanism
 	(swinging buffers) might solve this in a better way.
       </para>
+      <figure id="fig-reporting-extension"  pgwide="0">
+	<title>
+	  Overview of the Reporting Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="reporting-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="reporting-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect2>
 	<title>Configuring the Reporting Extension</title>
 	<para>
 	  The ReportingExtension can be configured through the CPF
-	  file given in the Control Kernel configuration file. Not all
-	  configuration options are yet implemented and the layout may
-	  change in future releases. An example looks like this:
+	  file given in the Control Kernel configuration file.
+	  An example looks like this:
 	</para>
 	<example>
 	  <title>Example reporting.cpf file</title>
@@ -2090,6 +2140,9 @@ Output, MySecondExtension > My1DPropRepKernel;
         <simple name="Component" type="string"><value>Controller</value></simple>
         <simple name="Component" type="string"><value>Estimator</value></simple>
         <simple name="Component" type="string"><value>Generator</value></simple>
+
+	<simple name="DataObject" type="string"><value>Models</value></simple>
+	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
     </struct>
 </properties>
 ]]>
@@ -2137,6 +2190,52 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </programlisting>
 	</example>
       </sect2>
+      <sect2>
+	<title>Reporting DataObjects (NS Kernels only)</title>
+	<para>
+	  As shown in the example CPF file, also DataObjects can generate
+	  automatically reports. Because DataObjects need to be refered
+	  to by a name, only the NameServing Control Kernels support this
+	  feature. One can request to report the whole DataObject, for
+	  example "Models", "Inputs",... or a more specific part :
+	  "Models::Temperature", "Inputs::AxisPositions". The framework
+	  will be able to generate the reports if the
+	  <link linkend="prop-intro">Property Composition</link>
+	  implementation is provided at compile time of the ReportingExtension.
+	  This is so for any primitive type (double, string,...) and
+	  the Geometry primitives (Frame, Vector,...). Reporting of 
+	  DataObjects is very interesting for tracking or visualising
+	  the Data Flow afterwards.
+	</para>
+	<para>
+	  It is also possible to log the dataobjects of other
+	  NS kernels, given that they have the same prefix.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Example output</title>
+	<example>
+	  <title>Reporting DataObjects</title>
+	  <para>This example (from kernel_samples/cartesian_names)
+	    shows the header of a DataObject that is monitored
+	    ( off course, an arbitrary number is possible). Running
+	    the program, 7 columns of numbers will be generated
+	    logging the evolution of the Data. The TimeStamp is
+	    the realtime instant when the data was copied to a
+	    buffer. Each generated report is always made with
+	    a timestamp.
+	  </para>
+	  <screen>
+<![CDATA[
+ | CartKernel::Models                                                 |
+ | TimeStamp | Data                                                   |
+ |           | EndEffPosition <MotCon::Frame>                         |
+ |           | Position <MotCon::Vector> | EulerZYX <MotCon::EulerZYX>|
+ |           | X | Y | Z |               | X | Y | Z |                |
+]]>
+	  </screen>
+	</example>
+      </sect2>
     </sect1>
 
     <sect1 id="scripting-extension">
@@ -2165,6 +2264,21 @@ Output, MySecondExtension > My1DPropRepKernel;
 	components or external objects which have registered
 	themselves to the parser framework.
       </para>
+      <figure id="fig-execution-extension"  pgwide="0">
+	<title>
+	  Overview of the Execution Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="execution-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="execution-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect2>
 	<title>Configuring the ExecutionExtension</title>
 	<para>
@@ -2300,15 +2414,32 @@ struct MyNamesModel
       <programlisting>
 <![CDATA[
 	#include <control_kernel/NSControlKernel.hpp>
-	typedef NSControlKernel <MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput> MyNamesKernel;
+	typedef NSControlKernel< MyNamesInput, MyNamesModel, MyNamesCommand,
+	                         MyNamesSetPoint, MyNamesOutput > MyNamesKernel;
+	
+	// Now create one :
+	MyNamesKernel("my_prefix");
 ]]>
       </programlisting>
       <para>
 	This Kernel can be used in exactly the same way
-	as the <classname>StandardControlKernel</classname>. It has the same functions
+	as the <classname>StandardControlKernel</classname>.
+	It has the same functions
 	and behaves in exactly the same way. The only difference is
 	that the Components and external classes can query DataObjects
 	by name.
+      </para>
+      <para>
+	The "my_prefix" parameter allows to share DataObjects
+	with other nameserving kernels. Each kernel with the
+	same prefix will be able to use a DataObject of 
+	another kernel where it can use its own DataObjects.
+	This comes in handy in <link linkend="cascaded-control-kernels">
+	  Cascading Control Kernels</link> and 
+	<link linkend="reporting-extension"> Reporting </link> non local
+	DataObjects. If you want to protect DataObjects from external
+	(or accidental) access, you can do so by providing an unique
+	prefix for that kernel. A kernel name has no influence on that.
       </para>
     </sect1>
     <sect1>
@@ -2493,7 +2624,7 @@ void pull()
       This chapter explains what the important concepts are, how they
       must be implemented in applications, and what programming
       primitives are offered to help Application Builders.
-      </para>
+    </para>
 
     <sect1>
       <title>Cascading Control Kernels</title>
@@ -2501,7 +2632,7 @@ void pull()
 	<title>The CascadeControlKernel</title>
 	<para>
 	  Imagine an application with three cascaded control loops, thus
-	  it needs three Kernels.
+	  it needs three Control Kernels.
 	  Each Kernel wants to use the same Sensor and Model information,
 	  but only one Kernel can send signals to the hardware. Furthermore,
 	  the Model is updated by the innermost Control Kernel.
@@ -2618,11 +2749,27 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
     <sect1>
       <title>Cascading NS Control Kernels</title>
       <para>Cascading NS Control kernels is in fact easier than its
-      non-nameserved counterpart. Only one type of Kernel is to be used
-      (so no inner Kernel) and sharing data is mainly based on names
-      instead of exchanging DataObjects. There is only one implementation of the
-      NSControlKernel which is meant for cascading and that is the
-      CascadeNSControlKernel. </para>
+	non-nameserved counterpart. Only one type of Kernel is to be used
+	(so no inner Kernel) and sharing data is mainly based on names
+	instead of exchanging DataObjects. There is only one implementation of the
+	NSControlKernel which is meant for cascading and that is the
+	CascadeNSControlKernel.
+      </para>
+      <figure id="fig-cascade" pgwide="0">
+	<title>
+	  Overview of three Cascading NameServing Control Kernels
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="cascnames.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="cascnames.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect2>
 	<title>The CascadeNSControlKernel</title>
 	<para>
@@ -2693,6 +2840,8 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 
 // Load and Select components...
 
+// Configure the kernels using KernelConfig
+
 // Start kernels in tasks.
 ]]>
 	    </programlisting>
@@ -2702,7 +2851,10 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	      is that they introduce the same ServedTypes. and the
 	      CascadeNSControlKernel knows it has to put the output of
 	      the one Kernel in the namespace of the Commands of the
-	      other Kernels. A more elaborated example can be found in
+	      other Kernels. "my_cascade" is the namespace prefix of the kernel,
+	      not the name. So all three will place their DataObjects
+	      in the "my_cascade" namespace.
+	      A more elaborated example can be found in
 	      the <filename>kernel_samples</filename> package.
 	    </para>
 	  </example>
@@ -2727,13 +2879,16 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	read a given XML file and configure a control kernel with that
 	information. The KernelConfigurator parses the file and passes
 	the result to the
-	<function>updateKernelProperties()</function> method of the
-	<classname>StandardControlKernel</classname>. If you want to
+	<function>updateProperties()</function> method of the
+	<classname>KernelBaseFunction</classname>. If you want to
 	add your own configuration options to a
-	<classname>StandardControlKernel</classname> subclass, you can
+	Kernel subclass, you can
 	override this method, with your own which parses the extra
 	properties and then call the method of the base class with the
 	rest of the bag.
+      </para>
+      <para>
+	All Kernel implementations support this configuration scheme.
       </para>
       <para>A control kernel configuration file might look like this:</para>
       <programlisting>
@@ -2744,7 +2899,7 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
   <description>The Basic characteristics of this kernel.</description>
   <simple name="name"      type="string">
   <description>The Name of this kernel</description>
-  <value>Default</value></simple>
+  <value>KernelName</value></simple>
   <simple name="frequency" type="double">
   <description>The periodic execution frequency in Hz</description>
   <value>1000</value></simple>
@@ -2801,7 +2956,7 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	</para>
 	</tip>
     </sect1>
-    <sect1>
+    <sect1 id="prop-intro">
       <title>Properties</title>
       <para>
 	Properties are a way to represent configuration options in
