@@ -33,7 +33,6 @@ namespace ORO_ControlKernel
     : nAxesControllerPos_typedef(name),
       _num_axes(num_axes), 
       _position_meas_local(num_axes),
-      _position_meas_old(num_axes),
       _position_desi_local(num_axes),
       _velocity_local(num_axes),
       _offset_measurement(num_axes),
@@ -57,38 +56,35 @@ namespace ORO_ControlKernel
 
   void nAxesControllerPos::calculate()
   {
+    // position feedback
     for(unsigned int i=0; i<_num_axes; i++)
       _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
 
 
-    // measure offsets
-    if (_is_initialized && _is_measuring){
+    // check if still moving
+    if (_is_moving){
       // calculate average with weight 0.8 / 0.2
-      bool is_moving = false;
+      bool stopped = true;
       for (unsigned int i=0; i<_num_axes; i++){
 	_average_velocity[i] = 0.8 * _average_velocity[i] + 0.2 * abs(_velocity_local[i]);
-	if ( _average_velocity[i] > _treshold_moving) 
-	  is_moving = true;
+	if ( _average_velocity[i] > _treshold_moving)  stopped = false;
       }
-      
-      // stop moving
-      if ( !is_moving ){
-	for (unsigned int i=0; i<_num_axes; i++)
-	  _offset_measurement[i] = _velocity_local[i];
-	_is_measuring = false;
-      }
+      if (stopped){ _is_moving = false;  _is_measuring = true;  }
     }
+      
+    // measure average
+      if ( _is_measuring ){
+	for (unsigned int i=0; i<_num_axes; i++)
+	  _offset_measurement[i] += _velocity_local[i] / _num_samples;
+	_num_samples--;
+	if (_num_samples == 0)  _is_measuring = false;
+      }
   }
   
 
   
   void nAxesControllerPos::push()      
   {
-    // remember old position
-    for(unsigned int i=0; i<_num_axes; i++)
-      _position_meas_old[i] = _position_meas_local[i];
-    _is_initialized = true;
-
     _velocity_DOI->Set(_velocity_local);
   }
 
@@ -124,7 +120,9 @@ namespace ORO_ControlKernel
       return false;
     }
 
-    _is_initialized = false;
+    // initialize
+    _is_measuring = false;
+    _is_moving = false;
     
     return true;
   }
@@ -160,7 +158,8 @@ namespace ORO_ControlKernel
     my_commandFactory->add( "measureOffset", command( &nAxesControllerPos::startMeasuringOffsets,
 						      &nAxesControllerPos::finishedMeasuringOffsets,
 						      "calculate the velocity offset on the axes",
-						      "treshold_moving", "treshold to check if axis is moving or not"));
+						      "treshold_moving", "treshold to check if axis is moving or not",
+						      "num_samples", "number of samples to take"));
     return my_commandFactory;
   }
 
@@ -175,10 +174,10 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesControllerPos::startMeasuringOffsets(double treshold_moving)
+  bool nAxesControllerPos::startMeasuringOffsets(double treshold_moving, int num_samples)
   {
     // don't do anything if still measuring
-    if (_is_measuring)
+    if (_is_moving || _is_measuring)
       return false;
 
     // get new measurement
@@ -188,7 +187,9 @@ namespace ORO_ControlKernel
 	_average_velocity[i] = 20 * treshold_moving;
       }
       _treshold_moving = treshold_moving;
-      _is_measuring = true;
+      _num_samples = max(1,num_samples);
+      _is_moving = true;
+      _is_measuring = false;
       return true;
     }
   }
@@ -196,7 +197,7 @@ namespace ORO_ControlKernel
   
   bool nAxesControllerPos::finishedMeasuringOffsets() const
   {
-    return !_is_measuring;
+    return !(_is_measuring || _is_moving);
   }
   
 

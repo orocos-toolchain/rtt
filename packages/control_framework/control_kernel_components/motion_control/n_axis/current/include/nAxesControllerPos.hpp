@@ -91,19 +91,19 @@ namespace ORO_ControlKernel
 
     virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
-    bool startMeasuringOffsets(double treshold_moving);
+    bool startMeasuringOffsets(double treshold_moving, int num_samples);
     bool finishedMeasuringOffsets() const;
     const std::vector<double>& getMeasurementOffsets();
 
   private:
     unsigned int                                                          _num_axes;
 
-    std::vector<double>                                                   _position_meas_local, _position_meas_old, _position_desi_local;
+    std::vector<double>                                                   _position_meas_local, _position_desi_local;
     std::vector<double>                                                   _velocity_local, _offset_measurement, _average_velocity;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_position_desi_DOI,  *_velocity_DOI;
-    double                                                                _treshold_moving;
+    double                                                                _treshold_moving, _num_samples;
 
-    bool                                                                  _properties_read, _is_measuring, _is_initialized;
+    bool                                                                  _properties_read, _is_measuring, _is_moving;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
   }; // class
