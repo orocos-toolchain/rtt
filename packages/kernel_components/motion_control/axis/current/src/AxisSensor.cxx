@@ -122,8 +122,8 @@ namespace ORO_ControlKernel {
         axes[name] = ax;
 
         d_out[ name + ".Drive" ] = ax->driveGet()->enableGet();
-        if ( ax->breakGet() )
-            d_out[ name + ".Break" ] = ax->breakGet();
+        if ( ax->brakeGet() )
+            d_out[ name + ".Brake" ] = ax->brakeGet();
         if ( ax->homeswitchGet() )
             d_in[ name + ".Home" ] = ax->homeswitchGet();
 
@@ -192,7 +192,7 @@ namespace ORO_ControlKernel {
 
         // cleanup the rest...
         d_out.erase( name + ".Drive" );
-        d_out.erase( name + ".Break" );
+        d_out.erase( name + ".Brake" );
         d_in.erase( name + ".Home" );
 
         // remove drive 

@@ -37,7 +37,7 @@ namespace ORO_DeviceDriver
     using namespace ORO_CoreLib;
 
     Axis::Axis( AnalogDrive* a ) 
-        : act( a ), homeswitch(0), breakswitch(0),
+        : act( a ), homeswitch(0), brakeswitch(0),
           hpd(0)
     {
         lock();
@@ -47,7 +47,7 @@ namespace ORO_DeviceDriver
     {
         lock();
         delete act;
-        delete breakswitch;
+        delete brakeswitch;
         delete homeswitch;
         for (SensList::iterator it = sens.begin();
              it != sens.end();
@@ -83,20 +83,20 @@ namespace ORO_DeviceDriver
     {
         act->enableDrive();
         act->driveSet( 0 );
-        if ( breakswitch )
-            breakswitch->switchOff();
+        if ( brakeswitch )
+            brakeswitch->switchOff();
     }
 
     bool Axis::isEnabled() const
     {
-        return act->enableGet()->isOn() && ( breakswitch ? ! breakswitch->isOn() : true );
+        return act->enableGet()->isOn() && ( brakeswitch ? ! brakeswitch->isOn() : true );
     }
 
     void Axis::lock()
     {
         act->driveSet( 0 );
-        if (breakswitch)
-            breakswitch->switchOn();
+        if (brakeswitch)
+            brakeswitch->switchOn();
         act->disableDrive();
     }
 
@@ -136,11 +136,11 @@ namespace ORO_DeviceDriver
         return act;
     }
 
-    void Axis::breakSet( DigitalOutput* brk )
-        { breakswitch = brk; }
+    void Axis::brakeSet( DigitalOutput* brk )
+        { brakeswitch = brk; }
 
-    DigitalOutput* Axis::breakGet() const
-        { return breakswitch; }
+    DigitalOutput* Axis::brakeGet() const
+        { return brakeswitch; }
 
     void Axis::homeswitchSet( DigitalInput* swtch )
         { delete homeswitch; homeswitch = swtch; }

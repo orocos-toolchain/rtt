@@ -74,19 +74,19 @@ namespace ORO_DeviceDriver
         virtual ~Axis();
 
         /**
-         * @brief Stop the Axis (electronically), breaks disabled,
+         * @brief Stop the Axis (electronically), brakes disabled,
          * drive enabled and set to zero.
          */
         void stop();
 
         /**
-         * @brief Lock the Axis (mechanically), breaks enabled, drive
+         * @brief Lock the Axis (mechanically), brakes enabled, drive
          * disabled.
          */
         void lock();
 
         /**
-         * @brief Return true if the drive is enabled, and breaks are off.
+         * @brief Return true if the drive is enabled, and brakes are off.
          */
         bool isEnabled() const;
 
@@ -96,15 +96,15 @@ namespace ORO_DeviceDriver
         void drive( double v );
 
         /**
-         * @brief Add a break to the Axis. It is aggregated.
+         * @brief Add a brake to the Axis. It is aggregated.
          */
-        void breakSet( DigitalOutput* brk );
+        void brakeSet( DigitalOutput* brk );
 
         /**
-         * @brief Get the break of the Axis,
-         * returns the inverse drive status (drive on -> break off) if none present.
+         * @brief Get the brake of the Axis,
+         * returns the inverse drive status (drive on -> brake off) if none present.
          */
-        DigitalOutput* breakGet() const;
+        DigitalOutput* brakeGet() const;
 
         /**
          * @brief Set the Homing Switch of the Axis, it is aggregated.
@@ -162,7 +162,7 @@ namespace ORO_DeviceDriver
 
         DigitalInput* homeswitch;
 
-        DigitalOutput* breakswitch;
+        DigitalOutput* brakeswitch;
 
         HomePositionDetector* hpd;
 
