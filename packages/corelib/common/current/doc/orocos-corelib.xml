@@ -228,13 +228,13 @@ given in the general &orocos; overview document.
 	    <tbody>
 	      <row>
 		<entry>ZeroTimeThread</entry>
-		<entry>TaskNonPreemptable</entry>
+		<entry>TaskNonPreemptible</entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
 		<entry>ZeroLatencyThread</entry>
-		<entry>TaskPreemptable</entry>
+		<entry>TaskPreemptible</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
@@ -313,7 +313,7 @@ ORO_main( int argc, const char** argv)
       <para>
 	The high priority thread is the
 	<classname>ZeroTimeThread</classname>. It will execute all
-	<classname>TaskNonPreemptable</classname> Tasks
+	<classname>TaskNonPreemptible</classname> Tasks
 	synchronically. You can create your own not preemtable task by
 	inheriting from this class. Its name is derived from the fact
 	that some tasks need to be executed in an infinite small
@@ -325,11 +325,11 @@ ORO_main( int argc, const char** argv)
       <para>
 	The low priority tasks are executed by the
 	<classname>ZeroLatencyThread</classname> class. It will
-	execute all <classname>TaskPreemptable</classname> Tasks
-	sequentially, when no non-preemptable tasks are executed.
-	Every <classname>TaskPreemptable</classname> can be preempted
-	by a <classname>TaskNonPreemptable</classname> but not by
-	another <classname>TaskPreemptable</classname>. The
+	execute all <classname>TaskPreemptible</classname> Tasks
+	sequentially, when no non-preemptible tasks are executed.
+	Every <classname>TaskPreemptible</classname> can be preempted
+	by a <classname>TaskNonPreemptible</classname> but not by
+	another <classname>TaskPreemptible</classname>. The
 	ZeroLatencyThread has this name because the zero time
 	constraint is dropped, but replaced by the constraint that no
 	latency may occur and thus, execution is still realtime.
