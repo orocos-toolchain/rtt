@@ -31,6 +31,7 @@
 
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
+#include "DataSource.hpp"
 
 namespace ORO_Execution 
 {
@@ -134,7 +135,10 @@ namespace ORO_Execution
     };
 
     /**
-     * Evaluates a DataSource<bool> in a command.
+     * Evaluates a DataSource<bool> in a command. The result will be evaluated
+     * in a EvalCommandResult, so this Command returns always true : ie the evaluation
+     * itself always succeeds. An EvalCommand should never be dispatched, since the
+     * EvalCommandResult assumes the EvalCommand has been executed when evaluated.
      * @see EvalCommandResult
      */
     class EvalCommand :
@@ -155,6 +159,11 @@ namespace ORO_Execution
         bool execute() {
             _cache->set() = _ds->get();
             return true;
+        }
+
+        void reset() {
+            _cache->set(false);
+            _ds->reset();
         }
 
         VariableDataSource<bool>::shared_ptr cache() {

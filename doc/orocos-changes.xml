@@ -123,6 +123,8 @@
 	<para>
 	  KernelClient version 0.4 has been released to take advantage
 	  of the new logging infrastructure (locally and remotely).
+	  Furthermore, a shutdown command is available to shutdown the 
+	  server process (ie controller).
 	</para>
       </listitem>
     </itemizedlist>

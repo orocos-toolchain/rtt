@@ -41,7 +41,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002-2004</year>
+      <year>2002-2005</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -582,18 +582,18 @@ ORO_main( int argc, char** argv)
     <sect2>
       <title>Non Periodic Tasks</title>
       <para>
-	Non periodic tasks can only run in non periodic threads, or
-	case, after all periodic tasks of a certain periodic thread. The
+	Non periodic ( blocking ) tasks can only run in <emphasis>non periodic</emphasis> threads, or 
+	( non blocking ) <emphasis>after</emphasis> all periodic tasks of a certain periodic thread. The
 	latter to avoid excessive jitter in periodic task execution.
       </para>
       <para>
 	If you want to create a task which reads file-IO, or displays
 	information or does any other possibly blocking operation, 
-	the <classname>ORO_OS::SingleThread</classname> implementation can be
+	the <classname>ORO_OS::SingleThread</classname> implementation must be
 	used. When it is <function>start()</function>'ed, its step() method will be called
 	exactly once and then it will stop, after which it can be started again.
-	The user needs to implement a RunnableInterface which can be used
-	by the thread for executing the user functions.
+	The user needs to implement a <classname>ORO_OS::RunnableInterface</classname> which can be used
+	by the thread for executing the user's functions.
 	This thread is also introduced in the Orocos Operating System
 	Abstraction Manual. 
       </para>
@@ -834,80 +834,6 @@ emergencyStop.fire(); // User not notified
 	can be easily added.</para>
       </note>
     </sect2>
-<!--
-    <sect2>
-	<title>Available Event Policies</title>
-	<para>
-	  Our subscription based Event is just an example of the many possibilities of Events in
-	  general. We provide four other Event primitives which you will need in your Event based
-	  applications.
-	</para>
-      <sect3>
-	<title>EventSimple</title>
-	<para>
-	  <classname>EventSimple</classname> is a simplification of the general Event. 
-	  It can have exactly one Listener and one Completer, which can be set or removed.
-	  You can use this Event in case you want to be sure that only one Listener and
-	  one Completer are notified when this event is fire()'d.
-	</para>
-      </sect3>
-      <sect3>
-	<title>EventMultiCast</title>
-	<para>
-	  <classname>EventMultiCast</classname> has one Listener and many Completers.
-	  When the event is fire()d and the Listener calls for complete()'ion,
-	  all subscribed Completers will be notified. In this sence, not the fire
-	  call is MultiCasted, but the complete call is MultiCasted to all Completers.
-	</para>
-      </sect3>
-      <sect3>
-	<title>EventBarrier</title>
-	<para>
-	  <classname>EventBarrier</classname> has many Listeners and one Completer.
-	  When the event is fire()d and the Listener calls for complete()'ion,
-	  the Completer will only be notified if all Listeners called the
-	  complete() method. A new fire() method call will reset all complete() calls
-	  and wait again for all Listeners to call complete() before the Completer
-	  is notified.
-	</para>
-	<para>
-	  An example is an EmergencyStop Event. Some program logic decides that the
-	  EmergencyStop Event must be fired. All Listeners are called and perform
-	  their emergency stop handling and call the complete() method. When
-	  all Listeners called this, the Completer is called which now knows
-	  that everyone stopped safely and can report this to the user or another
-	  component. It is as if the Completer was on hold until all Listeners were
-	  ready, hence the word barrier.
-	</para>
-      </sect3>
-      <sect3>
-	<title>EventPeriodic</title>
-	<para>
-	  <classname>EventPeriodic</classname> is a special case of the Event
-	  subscription model. That is, the Listener-Completer mapping is N to N,
-	  as with the normal Event, but the fireing of the event results in
-	  periodically notifying of Listeners. For example, if the periodicity
-	  is 10 to 1, each Listener will have been called exactly once after
-	  the EventPeriodic was fired ten times. For each Listener, it is as 
-	  if the fire calls are done with longer periods in between.
-	</para>
-	<para>
-	  This Event is used in the &orocos; Threading classes for executing
-	  tasks at a lower frequency than the thread is running.
-	</para>
-      </sect3>
-      <sect3>
-	<title>EventDivider</title>
-	<para>
-	  <classname>EventDivider</classname> is also a special case of the Event
-	  subscription model. That is, the Listener-Completer mapping is N to N,
-	  as with the normal Event, but the notifying of the Listeners of the 
-	  event will only happen after X effective fire calls. It is as if
-	  The Event divides the firing by factor X.
-	</para>
-      </sect3>
-    </sect2>
--->
     <sect2>
       <title>The Completion Processor</title>
       <para>
@@ -915,9 +841,9 @@ emergencyStop.fire(); // User not notified
 	<classname>Singleton</classname> design pattern, like the
 	periodic task threads. It is the lowest priority, not realtime
 	thread in the &orocos; framework. It will execute all
-	callbacks that have to be completed when no other work has to
-	be done. The only constraint it has is that all functions it
-	executes should require finite time to complete (it cannot
+	asynchronous event callbacks that have to be completed when no other work has to
+	be done. The only constraint it imposes is that all functions it
+	executes must require finite time to complete (it cannot
 	detect timeouts). You can get its thread pointer like this :
 	<programlisting>
   #include &lt;corelib/CompletionProcessor.hpp>
@@ -1222,8 +1148,8 @@ emergencyStop.fire(); // User not notified
   context.requestFinalState();
   context.deactivate();        // context.currentState() == 0
 	</programlisting>
-      </para>
-    </sect2>
+	</para>
+      </sect2>
     <sect2>
       <title>Practical use of the StateContext</title>
       <para>
@@ -1397,5 +1323,4 @@ emergencyStop.fire(); // User not notified
     </note>
     </sect2>
   </sect1>
-
 </article>

@@ -14,7 +14,7 @@ namespace ORO_CoreLib
         int startLogger()
         {
             Logger::Instance()->start();
-            return true;
+            return 0;
         }
 
         void stopLogger()
@@ -61,6 +61,7 @@ namespace ORO_CoreLib
             return;
         started = true;
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
+        *this<<Logger::Info; // default log to Info
         if ( getenv( "ORO_LOGLEVEL" ) != 0 ) {
             std::stringstream conv;
             conv.str( std::string( getenv( "ORO_LOGLEVEL" ) ) );
@@ -74,7 +75,6 @@ namespace ORO_CoreLib
             else {
                 outloglevel = intToLogLevel(res);
                 xtramsg = "Successfully extracted environment variable ORO_LOGLEVEL";
-                *this<<Logger::Info;
             }
         }
             
@@ -98,10 +98,16 @@ namespace ORO_CoreLib
     }
 
     std::string Logger::getLogLine() {
-        char line[120];
-        ORO_OS::MutexLock lock( inpguard );
-        outputstream.getline( line, 120);
-        return std::string(line);
+        std::string line;
+        {
+            ORO_OS::MutexLock lock( inpguard );
+            getline( outputstream, line );
+            if ( !outputstream )
+                outputstream.clear();
+        }
+            //            *this<<Logger::Debug<<"Bad getLogLine." << Logger::nl;
+            
+        return line;
     }
 
     void Logger::setStdStream( std::ostream& stdos ) {

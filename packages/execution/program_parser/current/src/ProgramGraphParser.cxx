@@ -740,7 +740,7 @@ namespace ORO_Execution
           rootc->disconnectPeers( __f->getName() );
           std::vector<std::string> names = __f->getPeerList();
           for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
-              std::cerr <<"removing "<<*it<<std::endl;
+              //std::cerr <<"removing "<<*it<<std::endl;
               __f->removePeer( *it );
               if ( mfuncs.count(*it) != 0 ) {
                   delete mfuncs[*it];

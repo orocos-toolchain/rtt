@@ -219,7 +219,7 @@
 	<note>
 	  <para>
 	    <command>configtool</command> is a GUI in which users can configure
-	    their pacakges. It uses the libwxgtk2.4 library.
+	    their packages. It uses the libwxgtk2.4 library.
 	    <command>ecosconfig</command> is a commandline program, used by
 	    the make system.
 	  </para>
@@ -808,10 +808,7 @@
       </para>
       <para>
 	To quickly test an &orocos; application, you can download the kernel_samples
-	tar.gz package, untar it, make a link from within a subdirectory (e.g.
-	<filename>program_state/orocos</filename> or <filename>program_state/orocos-lxrt</filename>)
-	to the Orocos install directory ( <filename>build/packages/install</filename>
-	or <filename>/usr/local/orocos</filename>) and type make all (
+	tar.gz package, untar it  and type make all (
 	or make all-lxrt for lxrt). The kernel_samples/README file contains
 	complete instructions.
       </para>
@@ -841,7 +838,7 @@
 	    resembling this one : 
 	    <programlisting> 
 CXXFLAGS=-O2 -I/usr/local/orocos/include
-LDFLAGS=-L/usr/local/orocos/lib -ltarget.a -lstdc++ -lpthreads
+LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis>.a -lstdc++ -lpthreads -lboost-signals 
 all: myprogram.cpp
       gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram 
 	    </programlisting>

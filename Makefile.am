@@ -106,7 +106,7 @@ test_all_packages: .all-stamp
 # build directory and makes the library
 all_packages: test_new_packages 
 	cd packages &&\
-	( test -f ecos.ecc || exit -1) &&\
+	{ test -f ecos.ecc || exit 0; } &&\
 	export ECOS_REPOSITORY=$(ECOS_REP) &&\
 	{ ecosconfig tree || exit -1; } &&\
 	{ $(MAKE) -C . || exit -1; } &&\
