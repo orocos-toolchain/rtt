@@ -233,7 +233,7 @@ of the physical interfaces they use underneath. You just want to know the
 	<title>Logical Device Interfaces</title>
 	<para>
 	  From a logical point of view, the generic
-	  <classname>SensorInterface&ltT></classname> is an
+	  <classname>SensorInterface&lt;T></classname> is an
 	  easy to use abstraction for reading any kind 
 	  of data of type T.
 	</para>

@@ -13,77 +13,25 @@
 <article>
   <articleinfo>
     <title>
-      Orocos 0.18.0 Release Series
+      Orocos 0.18.1 Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between two
-    Orocos releases. If your application does not work, look here for
+    This document provides a quick overview of what changed between Orocos 0.18.0 and
+    Orocos 0.18.1. If your application does not work, look here for
     possible causes and solutions. Also feature additions and improvements
     are documented.
   </para>
+  <para>See also <ulink url="orocos-changes-0.18.0.html">what changed from 0.16.0 to 0.18.0</ulink>.</para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
 	<para>
-	  C++ Exceptions are introduced in general in startup/shutdown code.
-	  If you see an Abort message in your program, check the methods
-	  you use if they throw exceptions. Examples are
-	  <methodname>ExecutionExtension::loadProgram</methodname> and
-	  <methodname>Processor::deleteProgram</methodname>.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Program Script Commands must now return bool, where true means
-	  that it is accepted, false, that it is rejected ( e.g.
-	  when faulty arguments are given). Programs will go in
-	  the error state when this happens. See <xref linkend="program"/>
-	  for details.
-	</para>
-      </listitem>
-      <listitem>
-	<para>The Event system has changed. See
-	  <xref linkend="corelib"/>
-	  for details. More important, you'll have to add the
-	  linker flag <option>-lboost_signals</option> when linking
-	  your program.
-	</para>
-      </listitem>
-      <listitem>
-	<para>The signature of ORO_main has changed from
-	  <function>int ORO_main(int argc, const char** argv)</function>
-	  to
-	  <function>int ORO_main(int argc, char** argv)</function>. If
-	  you get 'undefined reference to ORO_main' while linking your
-	  program. This is what caused it.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Some Control Kernel Extensions have changed the Components
-	  interface to pure virtual methods instead of empty implementations.
-	  An example is the
-	  <methodname>
-	    virtual bool PropertyComponentInterface::updateProperties( const PropertyBag&amp; ) = 0
-	  </methodname> and the
-	  <methodname>
-	    virtual void PropertyComponentInterface::exportProperties( PropertyBag&amp; ) = 0
-	  </methodname>
-	  methods which must be implemented by each component which wants
-	  to use the PropertyExtension. If you have written components
-	  yourself, you need to implement these methods.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The <emphasis>default</emphasis> periods of the ZeroLatencyThread, ZeroTimeThread, NonRealTimeThread
-	  and CompletionProcessor have chenged.
-	  You should set them to your needs with the configuration tool ( make configure_packages ).
+	  None known.
 	</para>
       </listitem>
     </itemizedlist>
@@ -93,26 +41,12 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The build system has improved automake support. The
-	  traditional <command>configure</command>
-	  and <command>make all</command> targets work as
-	  expected with default values. The old
-	  <command>make new_packages</command>,
-	  <command>make configure_packages</command> and
-	  <command>make all_packages</command> targets behave
-	  as before. Also, the dependency on Python 2.3 has
-	  been lowered to Python 2.2, which more more widespread.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  We use the <ulink
-	    url="http://cppunit.sourceforge.net/cgi-bin/moin.cgi">
-	    CppUnit</ulink> testing framework to test Orocos code
-	  sanity. Your setup can be verified by running <command>make
-	    check</command> in the build directory. We have
-	  tests for threads and tasks, events and the parser
-	  framework.
+	  The build system has yet more improved automake support. The
+	  traditional <command>make install</command>
+	  and <command>make uninstall</command> targets work as
+	  expected with default values. The default install path
+	  is <filename>/usr/local/orocos</filename>, which
+	  can be changed using <command>configure --prefix=</command>
 	</para>
       </listitem>
     </itemizedlist>
@@ -120,40 +54,22 @@
   <section id="os">
     <title>OS Specific Improvements</title>
     <section>
-      <title>LXRT</title>
+      <title>All</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The default scheduler for Linux processes in LXRT
-	    has been set to <parameter>SCHED_OTHER</parameter>
-	    instead of <parameter>SCHED_FIFO</parameter> to
-	    avoid lockups when the main thread goes into
-	    an endless loop. This can still be changed in
-	    the configtool program.
+	    Orocos now builds by default with the <option>OROSEM_OS_ANGOSTIC</option>
+	    flag which is defined in the configtool's OS package. This option
+	    causes that no OS system calls are inlined, and thus that all 
+	    installed header files are OS-independent, and that the library contains
+	    all target-specific function calls.
 	  </para>
-      </listitem>
-    </itemizedlist>
-    </section>
-    <section>
-      <title>RedHat</title>
-      <itemizedlist>
-	<listitem>
 	  <para>
-	    Orocos was tested on a RedHat 8 system, with 
-	    an upgraded compiler (to GCC 3.3) and additional 
-	    packages installed. Although we recommend using
-	    the latest Fedora Core if you want to stick to
-	    the RedHat distribution.
-	  </para>
-      </listitem>
-    </itemizedlist>
-    </section>
-    <section>
-      <title>Debian</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Orocos was tested on Debian testing and unstable.
+	    Upon installation, a <filename>liborocos-&lt;target>.a</filename>
+	    is created in the lib directory, such that you do not need to specify
+	    the literal <option>-ltarget</option> link flag but, for example
+	    <option>-lorocos-lxrt</option>. The two libraries can only coexist
+	    in OS_AGNOSTIC mode or when Orocos is installed in separate directories.
 	  </para>
       </listitem>
     </itemizedlist>
@@ -164,14 +80,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  An orocos-changes.xml file has been added to the
-	  base doc distribution to provide more informative
-	  changes to users.
-	</para>
-      </listitem>
-      <listitem>
-	<para>The Orocos Manuals have been reordered and reviewed.
-	  Look for the online versions for the latest version.
+	  Various manuals have been reviewed.
 	</para>
       </listitem>
     </itemizedlist>
@@ -181,43 +90,16 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  A <classname>TaskSimulation</classname> and
-	  <classname>SimulationThread</classname> have
-	  been added which run tasks as fast as possible,
-	  while updating the <classname>HeartBeatGenerator</classname> clock
-	  such that time dependent algorithms still work.
-	  This thread must be started in your code explicitly
-	  with <methodname>SimulationThread::Instance()->start()</methodname>, which
-	  will start the simulation and cause your CPU usage to jump to 100%.
-	  The properties of this thread can be changed
-	  with the <command>configtool</command> program.
-	</para>
-	<para>
-	  Another application of this task is the profiling
-	  of your code. It should give a good overview
-	  where most of the time is spent in an application,
-	  when you use the <option>-pg</option> compile flag and
-	  gprof.
-	</para>
-	<para>
-	  This feature is quite experimental, but it
-	  seems to work with one testcase in gnulinux.
+	  The Property system's <function>update()</function>
+	  and <function>copy()</function> methods are executed in bounded time.
+	  A bug did dynamic_casts in previous versions.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The Event system has changed to use the
-	  <ulink url="http://www.boost.org/">Boost::Signals</ulink>
-	  library. Both interface and instantiation of events
-	  has changed. See the CoreLib documentation
-	  for details on how to use Events. The idea of
-	  synchronous / asynchronous events remains, but
-	  the asynchronous part can be executed by any thread.
-	  The default thread remains the
-	  <classname>CompletionProcessor</classname>, but
-	  the other Orocos Threads can handle asynchronous
-	  handlers after each periodic step(), allowing
-	  a synchronised deferred event handling with tasks.
+	  The Event system's <emphasis>asynchronous</emphasis> <function>fire( args )</function>
+	  methods are executed in bounded time. A bug did a memory
+	  allocation in previous versions.
 	</para>
       </listitem>
     </itemizedlist>
@@ -227,55 +109,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The PIDController component has now a
-	  <methodname>reset()</methodname> method, which can
-	  be used to reset the integration and tracking
-	  variables, without reloading the PIDController.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Components can be easier loaded and reloaded,
-	  where a reload causes a complete reinitialisation
-	  of the dataobjects and configuration parameters.
-	  This can only be done when the control kernel is
-	  not running.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A Control Kernel can now be started and stopped from
-	  the HMI console (<command>Kernel.start()</command>
-	  and <command>Kernel.stop()</command>). This eliminates most needs for
-	  restarting your application.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Motion Control components have been subdivided
-	  in a cartesian package and axis package, such that
-	  a finer granularity of package selection is possible.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Data Objects <methodname>dObj()</methodname> can be 
-	  accessed without the <classname>Base::</classname> prefix.
-	  For example, the formerly written <methodname>Base::SetPoint::dObj()->Get()</methodname>
-	  can thus be rewritten as <methodname>SetPoint::dObj()->Get()</methodname>
-	  from within the Component methods, as long as your derived component
-	  class is not a template class itself (this is so from release 0.16.0).
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The <methodname>startComponent</methodname> and <methodname>stopComponent</methodname>
-	  methods have been added to the control kernel
-	  to start multiple components of the same type (e.g. Sensor).
-	  This is in addition to the classical <methodname>selectComponent</methodname>
-	  methods which are used for exclusive execution of
-	  components of a type. Select and start/stop should be 
-	  separated, thus not both applied on the same component.
+	  None.
 	</para>
       </listitem>
     </itemizedlist>
@@ -285,80 +119,17 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Orocos State Descriptions and Programs have
-	  a state attribute in their lifetime, which can be queried for
-	  with the Processor. This allows better tracking of what
-	  a program is doing.
+	  Orocos State Descriptions and Program Scripts can be fully
+	  controlled on the script level. The <function>reset()</function>,
+	  <function>step()</function> and <function>pause()</function>
+	  commands were missing in 0.18.0.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  Orocos State Contexts can be ordered in a hierarchical
-	  way. The State Context syntax was slightly adapted to allow this.
-	  A State Context must be instantiated and it can in turn
-	  instantiate children. It can read and write variables of its
-	  children and synchronise with them.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Orocos States can define <command>preconditions</command>
-	  which can avoid entrance of a state and redirect the
-	  transition to another state.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Programs and State Contexts can be started and stopped
-	  from other scripts, even running in other Tasks.
-	  This is documented in the Parser Manual.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Orocos commands can fail. A Program and State Context
-	  will go into the error state if the program does not
-	  catch this itself.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Orocos scripting component Methods have been added. They are
-	  an advanced version of DataSources. They can be called
-	  like a command and can return a value, which can
-	  be used in an expression, or be ignored. 
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The <command>do ... and ... [ and ...]</command> syntax
-	  has been added, which allows atomic execution of multiple
-	  commands.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The <command>try ... catch</command> syntax block has been added
-	  to detect failures of commands and react to them.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Orocos commands can be dispatched over Task boundaries.
-	  See the TaskContext class and documentation in the 
-	  Task Infrastructure Manual. This allows to define 
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Orocos TaskContexts have been added. A TaskContext is a 
-	  peer-to-peer task communication specification. It allows
-	  to define inter-dependent tasks, which can call on
-	  each others methods. A task's methods are exported through
-	  the earlier introduced command parser factories.
-	  The TaskContext is designed to be fully threadsafe, thus
-	  a program running in one task can invoke the methods
-	  of a peer task which runs at a different priority.
+	  Loading and unloading of programs and states is cleaner,
+	  and does no longer cause errors if a program or state is
+	  unloaded and loaded again.
 	</para>
       </listitem>
     </itemizedlist>
@@ -368,28 +139,9 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  A Graphical User Interface based on KDE 3 has been
-	  added. It allows management of Orocos program scripts and
-	  Orocos state description files. The state and position
-	  in the file of a running script can be monitored. 
-	  It allows to browse all present components and
-	  accepts online script commands.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The above mentioned client is also available in a 
-	  CORBA version. It communicates with a control server
-	  transparantly and allows connection/disconnection
-	  with a running server.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A <classname>TaskBrowser</classname> class has been
-	  added which allows to browse tasks from a command
-	  line. It allows to send script commands and evaluate 
-	  script expressions.
+	  Various bugs were fixed in the KernelClient 0.2 and a README
+	  file is provided for quick instructions. A package 
+	  with version number 0.3 has been made.
 	</para>
       </listitem>
     </itemizedlist>

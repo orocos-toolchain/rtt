@@ -734,6 +734,23 @@ namespace ORO_Execution
               i != contextbuilders.end(); ++i )
           delete i->second;
         contextbuilders.clear();
+        
+        // We also remove all parsed SC's because there is for now no possiblity for
+        // reuse, since only the TaskContext pointer is stored and not the ParsedSC's.
+        TaskContext* __s = context->getPeer("__states");
+        if ( __s ) {
+            std::vector<std::string> names = __s->getPeerList();
+            context->removePeer("__states");
+            for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
+                if ( rootcontexts.count(*it) != 0 ) {
+                    delete rootcontexts[*it];
+                    rootcontexts.erase(*it);
+                }
+                __s->removePeer( *it );
+            }
+            delete __s;
+        }
+
 
 //         valuechangeparser.setStack(context);
 //         commandparser.setStack(context);
@@ -819,7 +836,7 @@ namespace ORO_Execution
         // check if the type exists already :
         if ( __s->hasPeer( curinstcontextname ) )
             throw parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' .");
-        __s->addPeer( curinstantiatedcontext->getTaskContext() );
+        __s->connectPeers( curinstantiatedcontext->getTaskContext() );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();

@@ -120,6 +120,7 @@ namespace ORO_Execution
         bool startStateContext(const std::string& name);
         bool pauseStateContext(const std::string& name);
         bool stopStateContext(const std::string& name);
+        bool stepStateContext(const std::string& name);
         bool resetStateContext(const std::string& name);
         bool deleteStateContext(const std::string& name);
         bool steppedStateContext(const std::string& name);

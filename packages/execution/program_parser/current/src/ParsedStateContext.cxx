@@ -65,10 +65,13 @@ namespace ORO_Execution {
             // the created commands are copied, they also get the new this pointer.
             // This requires template specialisations on the TemplateFactory level.
             TemplateCommandFactory< DataSource<StateContextCommands*> >* fact = newCommandFactory( static_cast< DataSource<StateContextCommands*>* >(_this.get()) );
-            fact->add("activate",command_ds(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext"));
-            fact->add("deactivate",command_ds(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext", false));
-            fact->add("start",command_ds(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext"));
-            fact->add("stop",command_ds(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext", false));
+            fact->add("activate",command_ds(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext to initial state"));
+            fact->add("deactivate",command_ds(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext from final state", false));
+            fact->add("start",command_ds(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext from initial state"));
+            fact->add("pause",command_ds(&StateContextCommands::pause, &StateContextCommands::isPaused, "Pause this StateContext"));
+            fact->add("step",command_ds(&StateContextCommands::step, &StateContextCommands::isPaused, "Pause this StateContext"));
+            fact->add("reset",command_ds(&StateContextCommands::reset, &StateContextCommands::isActive, "Reset this StateContext to initial state"));
+            fact->add("stop",command_ds(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext to final state", false));
             return fact;
         }
 
@@ -78,6 +81,7 @@ namespace ORO_Execution {
             f->add("getState", data_ds(&StateContextCommands::getState, "The name of the current state. An empty string if not active.") );
             f->add("isActive", data_ds(&StateContextCommands::isActive, "Is this StateContext activated ?") );
             f->add("isRunning", data_ds(&StateContextCommands::isRunning, "Is this StateContext running ?") );
+            f->add("isPaused", data_ds(&StateContextCommands::isPaused, "Is this StateContext paused ?") );
             return f;
         }
 
@@ -111,6 +115,10 @@ namespace ORO_Execution {
             return _sc->getTaskContext()->getProcessor()->getStateContextStatus( _sc->getName() ) == Processor::StateContextStatus::running;
         }
 
+        bool isPaused() const {
+            return _sc->getTaskContext()->getProcessor()->getStateContextStatus( _sc->getName() ) == Processor::StateContextStatus::paused;
+        }
+
         bool activate() {
             // getName returns the scoped name eg : root.subst.myctxt.
             return _sc->getTaskContext()->getProcessor()->activateStateContext( _sc->getName() );
@@ -118,6 +126,18 @@ namespace ORO_Execution {
         bool start() {
             // getName returns the scoped name eg : root.subst.myctxt.
             return _sc->getTaskContext()->getProcessor()->startStateContext( _sc->getName() );
+        }
+        bool step() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->stepStateContext( _sc->getName() );
+        }
+        bool pause() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->pauseStateContext( _sc->getName() );
+        }
+        bool reset() {
+            // getName returns the scoped name eg : root.subst.myctxt.
+            return _sc->getTaskContext()->getProcessor()->resetStateContext( _sc->getName() );
         }
         bool stop() {
             // getName returns the scoped name eg : root.subst.myctxt.
@@ -261,6 +281,8 @@ namespace ORO_Execution {
         for ( SubContextNameMap::iterator i = subcontexts.begin();
               i != subcontexts.end(); ++i )
             delete i->second->get();
+        if ( context && context->getPeer("states") )
+            context->getPeer("states")->removePeer( context->getName() );
         delete context;
         delete sc_coms;
     }

@@ -412,7 +412,7 @@
     <sect2>
       <title>Installing an Orocos Build</title>
       <para>
-	Orocos can optionally be installed on your system with <screen>
+	Orocos can optionally ( <emphasis> but recommended</emphasis> ) be installed on your system with <screen>
   make install</screen>
 	The
 	default directory is <filename>/usr/local/orocos</filename>, but 

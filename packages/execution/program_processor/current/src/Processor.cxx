@@ -67,6 +67,7 @@ namespace ORO_Execution
 
             StateContextTree* state;
             boost::function<void(void)> action; // set action to zero to 'pause'
+            //void (StateInfo::action*)(void);
 
             // (de)activate may be called directly
             void activate() {
@@ -86,6 +87,7 @@ namespace ORO_Execution
                 sstate = StateContextStatus::running;
                 // keep repeating the run action
                 action = bind (&StateInfo::run, this);
+                //action = &StateInfo::run;
                 this->run(); // execute the first time from here.
             }
 
@@ -104,6 +106,12 @@ namespace ORO_Execution
                 state->requestInitialState();
                     sstate = StateContextStatus::active;
             }
+
+            void singleStep() {
+                state->requestNextState(); // one state at a time
+                action = 0; // unset self.
+            }
+
             bool stepping;
             std::string name;
         protected:
@@ -306,6 +314,17 @@ namespace ORO_Execution
         return false;
     }
 
+	bool Processor::stepStateContext(const std::string& name)
+    {
+        state_iter it =
+            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+        if ( it != states->end() && it->sstate == StateContextStatus::paused) {
+            it->action = bind( &StateInfo::singleStep, &(*it) );
+            return true;
+        }
+        return false;
+    }
+
 	bool Processor::steppedStateContext(const std::string& name)
     {
         state_iter it =
@@ -374,7 +393,9 @@ namespace ORO_Execution
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::running )
+        if ( it != states->end() && ( it->sstate == StateContextStatus::running
+                                      || it->sstate == StateContextStatus::paused
+                                      || it->sstate == StateContextStatus::active))
             {
                 it->action = bind( &StateInfo::pause, &(*it) );
                 return true;

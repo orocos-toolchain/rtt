@@ -134,10 +134,10 @@ namespace ORO_Execution
        >> *newline ) [ bind( &ProgramGraphParser::seenfunctionend, this ) ];
 
     // the function's definition args :
-    funcargs = ch_p('(')
-        >>!( valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
+    funcargs = ch_p('(') >> ( ch_p(')') || (
+        !( valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
              >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
-        >> closebrace;
+        >> closebrace ));
 
     // a program looks like "program { content }".
     program = (
@@ -357,7 +357,6 @@ namespace ORO_Execution
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
       context = new TaskContext(funcdef, rootc->getProcessor() );
-      __f->addPeer( context );
       context->addPeer(rootc);
       context->addPeer(rootc,"task");
       // variables are always on foo's 'stack'
@@ -383,12 +382,21 @@ namespace ORO_Execution
       program_graph->returnFunction( new ConditionTrue, mfunc );
       program_graph->proceedToNext( mpositer.get_position().line );
       program_graph->endFunction( mfunc );
+
       // export the function in the context's interface.
       if (exportf) {
+          if (rootc->commandFactory.hasCommand("this", mfunc->getName() ))
+              throw parse_exception_semantic_error("exported function " + mfunc->getName() + " is already defined in "+ rootc->getName()+".");;
           FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() );
           cfi->addFunction( mfunc->getName() , mfunc);
           rootc->commandFactory.registerObject("this", cfi );
       }
+
+      // all went fine, so cleanup.
+      // store the function in __functions
+      rootc->getPeer("__functions")->addPeer( context );
+      context = 0;
+
       // reset
       mfunc = 0;
       exportf = false;
@@ -655,15 +663,11 @@ namespace ORO_Execution
     try {
       if ( ! production.parse( scanner ) )
       {
-        std::cerr << "Syntax error at line "
-                  << mpositer.get_position().line
-                  << std::endl;
-        delete program_graph;
-        program_graph = 0;
-        for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
-            delete *it;
-        program_list.clear();
-        return std::vector<ProgramGraph*>();
+          // This gets shown if we didn't even get the chance to throw an exception :
+        cleanup();
+        throw file_parse_exception(new parse_exception_syntactic_error( " no valid input found." ),
+                                   mpositer.get_position().file, mpositer.get_position().line,
+                                   mpositer.get_position().column );
       }
       // this program_graph is empty...( seenprogramend() )
       delete program_graph;
@@ -672,6 +676,7 @@ namespace ORO_Execution
       // set the program text in each program :
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
           (*it)->setText( program_text );
+      this->cleanup();
       return program_list;
     }
     // Catch Boost::Spirit exceptions
@@ -726,6 +731,25 @@ namespace ORO_Execution
       for_init_command = 0;
       delete for_incr_command;
       for_incr_command = 0;
+      // cleanup all functions :
+      if ( rootc == 0)
+          return;
+      TaskContext* __f = rootc->getPeer("__functions");
+      if ( __f != 0 ) {
+          // first remove rootc from __f itself
+          rootc->disconnectPeers( __f->getName() );
+          std::vector<std::string> names = __f->getPeerList();
+          for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
+              std::cerr <<"removing "<<*it<<std::endl;
+              __f->removePeer( *it );
+              if ( mfuncs.count(*it) != 0 ) {
+                  delete mfuncs[*it];
+                  mfuncs.erase( *it );
+              }
+          }
+          delete __f;
+      }
+
 
   }
 

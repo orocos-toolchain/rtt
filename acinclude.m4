@@ -409,7 +409,7 @@ echo "
    Preprocessor flags:                  ${AM_CPPFLAGS} ${CPPFLAGS}
    Includes:                            ${INCLUDES}
 "
-echo Orocos package \'$PACKAGE\'. Run \'make docs\' to generate the documentation.
+echo Run \'make docs\' to generate the documentation.
 echo Type \'make new_packages\' to create a package build directory
 echo Type \'make configure_packages\' to configure the packages
 echo Type \'make all_packages\' to build the configured system

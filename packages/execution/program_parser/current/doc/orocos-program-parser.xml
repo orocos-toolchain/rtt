@@ -814,8 +814,14 @@
 	<programlisting>
   do ATask.programs.progname.start()
   do ATask.programs.progname.pause()
+  do ATask.programs.progname.step()
   do ATask.programs.progname.stop()</programlisting>
-	<para>Some basic properties of the program can be
+	<para>The first line starts a program. The second line
+	  pauses it. The next two lines executes one command each of the
+	  program (like stepping in a debugger). The last line stops
+	  the program fully (running or paused).</para>
+	<para>
+	  Some basic properties of the program can be
 	  inspected likewise :</para>
 	<programlisting>
   var bool res =  ATask.programs.progname.isRunning()
@@ -1288,12 +1294,14 @@ StateContext SomeStateContext
       {
   	entry
           {
-  	    Execution.startStateContext(childcontext1)
-  	    Execution.startStateContext(childcontext2)
+	      // enter initial state :
+  	    do childcontext1.activate()
+  	    do childcontext2.activate()
           }
           exit
           {
-              Execution.stopStateContext(childcontext2)
+	      // enter final state :
+              do childcontext2.stop()
           }
       }
   
@@ -1301,7 +1309,8 @@ StateContext SomeStateContext
       {
           entry
           {
-              Execution.stopStateContext(childcontext1)
+	      // enter final state :
+              childcontext1.stop()
           }
       }
   } </programlisting>
@@ -1359,8 +1368,8 @@ StateContext ParentStateContext
     {
 	entry
         {
-	    Execution.startStateContext(childcontext1)
-	    Execution.startStateContext(childcontext2)
+	    do childcontext1.start()
+	    do childcontext2.start()
             // set the subcontext's parameter
             set childcontext1.someValue = 2
         }
@@ -1370,11 +1379,11 @@ StateContext ParentStateContext
 	    // set the subcontext's parameters
             set childcontext2.someValue = counter
             // use the subcontext's public variables
-            someComponent.doSomethingCool( childcontext1.someValue )
+            do someComponent.doSomethingCool( childcontext1.someValue )
         }
         exit
         {
-            Execution.stopStateContext(childcontext2)
+            do childcontext2.stop()
         }
     }
 
@@ -1382,19 +1391,19 @@ StateContext ParentStateContext
     {
         entry
         {
-            Execution.stopStateContext(childcontext1)
+            do childcontext1.stop()
         }
     }
 }
 	      </programlisting>
-	    <para>
-	      One more thing you can do with a subcontext is checking
-	      if it is in a certain state.  The syntax looks like:
-	      'someSubContext.inState( "someStateName" )'.  It should
-	      be straightforward to use...
-	    </para>
-	  </sect4>
-	</sect3>
+	  <para>
+	    One more thing you can do with a subcontext is checking
+	    if it is in a certain state.  The syntax looks like:
+	    <programlisting>someSubContext.inState( "someStateName" )</programlisting>
+	    It should be straightforward to use...
+	  </para>
+	</sect4>
+      </sect3>
     </sect2>
     <sect2>
       <title>Starting and Stopping State Contexts from scripts</title>
@@ -1414,6 +1423,13 @@ StateContext ParentStateContext
   do ATask.states.machine.stop()
   do ATask.states.machine.deactivate()
   // etc. </programlisting>
+      <para>
+	The first line activates a root StateContext, thus it
+	enters the initial state, the next line
+	actives its child, the next starts its child, then we
+	start the parent, stop it again and finally send it
+	back to its final state.
+      </para>
       <para>
 	Thus both RootContexts and SubContexts can be controlled.
 	Some basic properties of the states can be

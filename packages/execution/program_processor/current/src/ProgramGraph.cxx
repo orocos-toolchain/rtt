@@ -60,6 +60,7 @@ namespace ORO_Execution
 
             fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start or continue this program") );
             fact->add("pause", command(&ProgramCommands::pause, &ProgramCommands::paused,"Pause this program") );
+            fact->add("step", command(&ProgramCommands::step, &ProgramCommands::paused,"Step this program") );
             fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop and reset this program", false) );
 
             progcont->commandFactory.registerObject("this", fact);
@@ -81,6 +82,10 @@ namespace ORO_Execution
 
         bool pause() {
             return _progcont->getProcessor()->pauseProgram( _progcont->getName() );
+        }
+
+        bool step() {
+            return _progcont->getProcessor()->stepProgram( _progcont->getName() );
         }
 
         bool error() const {

@@ -837,12 +837,14 @@
 	<screen>
   programs.foo.start()
   programs.foo.pause()
+  programs.foo.step()
   programs.foo.stop()
 	</screen>
 	<para>While you also can inspect its status :</para>
 	<screen>
   programs.foo.isRunning()
   programs.foo.inError()
+  programs.foo.isPaused()
 	</screen>
 	<para>
 	  Take a look at the &procman; and the Processor
@@ -888,6 +890,8 @@
 	<screen>
   states.machine.activate()
   states.machine.start()
+  states.machine.pause()
+  states.machine.step()
   states.machine.stop()
   states.machine.deactivate()
   states.machine.reset()
@@ -902,8 +906,7 @@
 	<para>
 	  In addition to this text, be sure to read the &parseman;
 	  such that you get a grip of the full power of Real-Time
-	  Orocos scripts. The next section explains a more low-level
-	  usage of commands, which may not be usefull to all users.
+	  Orocos scripts.
 	</para>
       </sect3>
     </sect2>
@@ -1225,6 +1228,91 @@ T1.      T3.      back     help     peers    quit     switch   test.
       gives some common uses for integrating your existing application
       framework in Orocos Tasks.
     </para>
+    <sect2>
+      <title>Waiting for Something : Synchronisation</title>
+      <para>
+	When tasks need to synchronise, you have a wide range of
+	options to use. 
+      </para>
+      <sect3>
+	<title>Waiting in States</title>
+	<para>
+	  A (sub-)State Context can pause itself and an extra function
+	  in the task's interface can provide the key to progress to
+	  another state. First the StateContext is loaded in an .osd file  :
+	</para>
+	<programlisting>
+  StateContext X {
+     // ...
+     state y {
+        entry {
+           // pause myself, no transitions are checked.
+           do this.pause()
+        }
+        transitions {
+	   // guard this transition.
+           if task.checkSomeCondition() then
+              select z
+        }
+     }
+     state z {
+       // ...
+     }
+  }
+
+  RootContext X x</programlisting>
+	<para>Then, load an ops file which contains :</para>
+	<programlisting>
+  export function progress() {
+    // Check if we may progress :
+    if this.states.x.inState("y") then {
+        // continue :
+        do this.states.x.start()
+        // OR try single transition :
+        do this.states.x.step()
+    }
+  }</programlisting>
+	<para>
+	  A peer task then calls <function>progress()</function>
+	  which in turn checks if the function is applicable.
+	  But even then, the responsibility of the transition
+	  lies within the State Context.
+	</para>
+	<para>
+	  Off course, the example can be simplified by setting/
+	  resetting a boolean flag between function and 
+	  State Context.
+	</para>
+<!-- 	<programlisting> -->
+<!--   StateContext X { -->
+<!--      // ... -->
+<!--      state y { -->
+<!--         transitions { -->
+<!--            if task.checkSomeCondition() then -->
+<!--                 select z -->
+<!--         } -->
+<!--      } -->
+<!--      state z { -->
+<!--        // ... -->
+<!--      } -->
+<!--   } -->
+
+<!--   RootContext X x</programlisting> -->
+<!-- 	<para>Then, load an ops file which contains :</para> -->
+<!-- 	<programlisting> -->
+<!--   export function progress() { -->
+<!--     // Check if we may progress : -->
+<!--     if this.states.x.inState("y") then { -->
+<!-- 	  // Try to progress to next state : -->
+<!-- 	  do this.states.x.step() -->
+<!--     } -->
+<!--   }</programlisting> -->
+<!-- 	<para> -->
+<!-- 	  This example puts the responsibility of progression within -->
+<!-- 	  the State Context, which eases encapsulation. -->
+<!-- 	</para> -->
+      </sect3>
+    </sect2>
     <sect2>
       <title>Polymorphism : Task Interfaces</title>
       <para>

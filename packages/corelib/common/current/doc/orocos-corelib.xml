@@ -1257,48 +1257,52 @@ emergencyStop.fire(); // User not notified
 	is the Orocos Control Kernel framework.
       </para>
   </sect1>
-<!--   <sect1> -->
-<!--     <title>Fifos</title> -->
-<!--     <sect2> -->
-<!--       <title>A warning</title> -->
-<!--       <warning> -->
-<!-- 	<para> -->
-<!-- 	  The fifos implementation is slightly outdated and unmaintained in the latest releases. -->
-<!-- 	  You might expect problems when trying to use them. In the past they were used to  -->
-<!-- 	  communicate from kernel space to userspace programs, but since the Orocos Framework is now  -->
-<!-- 	  completely situated in userspace, this communication has become obsolete. -->
-<!-- 	</para> -->
-<!--       </warning> -->
-<!--     </sect2> -->
-<!--     <sect2> -->
-<!--       <title>Using fifos</title> -->
-<!--       <para> -->
-<!-- 	Fifos are used to send data from one address space to another. For example -->
-<!-- 	from realtime to userspace or vice versa. We have four kind of fifos : -->
-<!--       <itemizedlist> -->
-<!-- 	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem> -->
-<!-- 	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem> -->
-<!-- 	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem> -->
-<!-- 	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem> -->
-<!--       </itemizedlist> -->
-<!--       Furthermore, one can still use the FifoRTIn/Out in userspace simulations. -->
-<!--       They will act as if they get their data from real fifos. The API documentation should -->
-<!--       be clear about how to use them. -->
-<!--     </para> -->
-<!--     <para> -->
-<!--       Components requireing data communition will indicate this with a <classname> WriteInterface -->
-<!--       </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface  -->
-<!--       </classname> in their constructors argument list. -->
-<!--       All fifos implement one of these interfaces. -->
-<!--     </para> -->
-<!--     <note> -->
-<!--       <para> -->
-<!-- 	For examining which data would be sent through a fifo, one can always temporarily -->
-<!-- 	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data -->
-<!-- 	to the screen instead of delivering it. -->
-<!--       </para> -->
-<!--     </note> -->
-<!--     </sect2> -->
-<!--   </sect1> -->
+  <sect1>
+    <title>Fifos</title>
+    <sect2>
+      <title>A warning</title>
+      <warning>
+	<para>
+	  The fifos implementation is slightly outdated and unmaintained in the latest releases.
+	  You might expect problems when trying to use them. In the past they were used to
+	  communicate from kernel space to userspace programs, but since the Orocos Framework is now
+	  completely situated in userspace, this communication has become obsolete.
+	  To implement your own kernelspace/userspace communication, use the functions of your OS.</para>
+	<para>
+	  For RTAI/LXRT, also read <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">
+	  the LXRT howto</ulink>.
+	</para>
+      </warning>
+    </sect2>
+    <sect2>
+      <title>Using fifos</title>
+      <para>
+	Fifos are used to send data from one address space to another. For example
+	from realtime to userspace or vice versa. We have four kind of fifos :
+      <itemizedlist>
+	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
+	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
+	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
+	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
+      </itemizedlist>
+      Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
+      They will act as if they get their data from real fifos. The API documentation should
+      be clear about how to use them.
+    </para>
+    <para>
+      Components requireing data communition will indicate this with a <classname> WriteInterface
+      </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface
+      </classname> in their constructors argument list.
+      All fifos implement one of these interfaces.
+    </para>
+    <note>
+      <para>
+	For examining which data would be sent through a fifo, one can always temporarily
+	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data
+	to the screen instead of delivering it.
+      </para>
+    </note>
+    </sect2>
+  </sect1>
 
 </article>
