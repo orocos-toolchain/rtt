@@ -1,3 +1,6 @@
+HTML_STYLESHEET=orocos-html.xsl
+FOP_STYLESHEET=orocos.xsl
+
 
 dist: dochtml docpdf docps
 	tar -czf orocos-task-context-doc.tgz \
@@ -19,10 +22,10 @@ epsimages: ATaskContext.eps TaskPeers.eps TaskFactories.eps
 pngimages: ATaskContext.png TaskPeers.png TaskFactories.png
 
 %.html:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	xsltproc $(HTML_STYLESHEET) $< > $@
 
 %.fo:%.xml
-	xsltproc orocos.xsl $< > $@
+	xsltproc $(FOP_STYLESHEET) $< > $@
 
 %.ps:%.fo epsimages
 	fop $< $@

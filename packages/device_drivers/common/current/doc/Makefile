@@ -1,3 +1,6 @@
+HTML_STYLESHEET=orocos-html.xsl
+FOP_STYLESHEET=orocos.xsl
+
 
 dist: dochtml docpdf docps
 	tar -czf orocos-device-drivers-doc.tgz \
@@ -22,10 +25,10 @@ epsimages:
 #orocos-control-kernel.html: 
 
 %.html:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	xsltproc $(HTML_STYLESHEET) $< > $@
 
 %.fo:%.xml
-	xsltproc orocos.xsl $< > $@
+	xsltproc $(FOP_STYLESHEET) $< > $@
 
 %.ps:%.fo
 	fop $< $@

@@ -1,3 +1,6 @@
+HTML_STYLESHEET=orocos-html.xsl
+FOP_STYLESHEET=orocos.xsl
+
 
 dist: dochtml docpdf docps
 	tar -czf orocos-program-processor-doc.tgz \
@@ -20,10 +23,10 @@ epsimages: ProgramStates.eps ContextStates.eps Functor.eps Commands.eps StateTra
 pngimages: ProgramStates.png ContextStates.png Functor.png Commands.png StateTransitions.png ProgramTransitions.png
 
 %.html:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	xsltproc $(HTML_STYLESHEET) $< > $@
 
 %.fo:%.xml
-	xsltproc orocos.xsl $< > $@
+	xsltproc $(FOP_STYLESHEET) $< > $@
 
 %.ps:%.fo epsimages
 	fop $< $@

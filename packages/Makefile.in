@@ -31,7 +31,7 @@ orocos-dist: doc-dist
 
 doc-dist:
 	@echo "Making doc tarballs..."
-	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) dist; done
+	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl dist; done
 	@rm -rf orocos-docs
 	@rm -rf eps
 	@mkdir  orocos-docs

@@ -1,3 +1,6 @@
+HTML_STYLESHEET=orocos-html.xsl
+FOP_STYLESHEET=orocos.xsl
+
 
 dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
@@ -33,14 +36,14 @@ epsimages: $(EPSIMGS)
 pngimages: $(PNGIMGS)
 
 %.html:%.xml
-	xsltproc -o $@ /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $<
+	xsltproc -o $@ $(HTML_STYLESHEET) $<
 
-#	saxoncat -X -o $@ $< /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl
+#	saxoncat -X -o $@ $< $(HTML_STYLESHEET)
 
 #	xsltproc -o $@ /usr/share/xml/docbook/stylesheet/nwalsh/html/docbook.xsl $<
 
 %.fo:%.xml
-	xsltproc -o $@ orocos.xsl $<
+	xsltproc -o $@ $(FOP_STYLESHEET) $<
 
 %.ps:%.fo
 	fop $< $@
