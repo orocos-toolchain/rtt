@@ -84,6 +84,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>Refer to Task Contexts</revremark>
   </revision>
+  <revision>
+    <revnumber>0.19</revnumber>
+    <date>7 March 2005</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>New StateMachine semantics, dumped old StateContext</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>

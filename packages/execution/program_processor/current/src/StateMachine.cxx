@@ -38,28 +38,15 @@ namespace ORO_Execution
     StateMachine::StateMachine(StateMachine* parent, const std::string& name )
         : _parent (parent) , _name(name),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
-          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), error(false)
+          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), error(false), evaluating(0)
     {}
 
     bool StateMachine::requestInitialState()
     {
-        // if we are inactive, don't do anything.
-        if ( current == 0 || this->inTransition() )
-            return false;
-        // first check if we are in initstate, so this
-        // even works if current == initstate == finistate,
-        // which is legal.
-        if ( current == initstate )
+        // all conditions that must be satisfied to enter the initial state :
+        if ( !currentProg && ( current == initstate || current == finistate ) )
         {
-            handleState( current );
-            this->executePending();
-            return true;
-        }
-        else if ( current == finistate )
-        {
-            leaveState( current );
-            enterState( initstate );
-            this->executePending();
+            changeState( initstate );
             return true;
         }
         return false;
@@ -68,64 +55,58 @@ namespace ORO_Execution
     void StateMachine::requestFinalState()
     {
         // if we are inactive or in transition, don't do anything.
-        if ( current == 0 || ( error == false && this->inTransition() ) )
+        if ( current == 0 || ( error == false && currentProg ) )
             return;
-        // clear error flag
+
         error = false;
-        // If we are already in Final state, just handle again.
-        if ( current == finistate )
-        {
-            handleState( current );
-            this->executePending();
-        }
+        changeState( finistate );
+    }
+
+    void StateMachine::changeState(StateInterface* newState, bool stepping) {
+        if ( newState == current )
+            {
+                // execute the default action (handle current)
+                handleState( current );
+            }
         else
-        {
-            // if error in current Exit, skip it.
-            if ( currentExit && currentExit->inError() )
-                currentExit = 0;
-            else
-                leaveState( current );
-            enterState( finistate );
-            this->executePending();
-        }
+            {
+                // reset handle, in case it is still set ( during error ).
+                currentHandle = 0;
+                // if error in current Exit, skip it.
+                if ( currentExit && currentExit->inError() )
+                    currentExit = 0;
+                else
+                    leaveState( current );
+                enterState( newState );
+            }
+        this->executePending(stepping);
     }
 
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
-
-        if ( this->inTransition() ) {
-            return current; // can not accept request, still in transition
+        TransList::const_iterator the_end = stateMap.find( current )->second.end();
+        if ( currentProg || reqstep == the_end ) {
+            return current; // can not accept request, still in transition OR no evaluations present.
         }
 
-        // check for wrapping
-        if ( reqstep == stateMap.find( current )->second.end() )
-            reqstep = stateMap.find( current )->second.begin();
-
-        while ( reqstep != stateMap.find( current )->second.end() ) {
-            if ( get<0>(*reqstep)->evaluate() )
-                if ( get<1>(*reqstep) == current )
-                {
-                    // execute the default action (handle current)
-                    handleState( current );
-                    break;
-                }
-                else
-                {
-                    // override default action :
-                    leaveState(current);
-                    enterState( get<1>(*reqstep) );
-                    break;
-                }
-            ++reqstep;
-            if ( stepping ) {
-                break; // only do one evaluation.
+        // if we got here, at least one evaluation to check
+        do {
+            evaluating = get<3>(*reqstep);
+            if ( get<0>(*reqstep)->evaluate() ) {
+                changeState( get<1>(*reqstep), stepping );
+                break;
             }
-        }
-
-        // execute as much as possible of exit, entry, handle()
-        this->executePending( stepping );
+            if ( reqstep + 1 == the_end ) {
+                // no transition was found, reset and 'schedule' a handle :
+                reqstep = stateMap.find( current )->second.begin();
+                changeState( current, stepping );
+                break;
+            }
+            else
+                ++reqstep;
+        } while ( !stepping );
 
         return current;
     }
@@ -134,9 +115,9 @@ namespace ORO_Execution
     {
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
-        TransList::iterator it1, it2;
-        it1 = stateMap[ current ].begin();
-        it2 = stateMap[ current ].end();
+        TransList::const_iterator it1, it2;
+        it1 = stateMap.find( current )->second.begin();
+        it2 = stateMap.find( current )->second.end();
 
         for ( ; it1 != it2; ++it1 )
             if ( get<0>(*it1)->evaluate() )
@@ -150,7 +131,7 @@ namespace ORO_Execution
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
 
-        if ( this->inTransition() ) {
+        if ( currentProg ) {
             return false; // can not accept request, still in transition
         }
 
@@ -159,24 +140,20 @@ namespace ORO_Execution
         // to current state
         if ( current == s_n )
         {
-            handleState( current );
-            this->executePending();
+            changeState( s_n );
             return true;
         }
 
         // between 2 specific states
         TransList::iterator it1, it2;
-        it1 = stateMap[ current ].begin();
-        it2 = stateMap[ current ].end();
+        it1 = stateMap.find( current )->second.begin();
+        it2 = stateMap.find( current )->second.end();
 
         for ( ; it1 != it2; ++it1 )
             if ( get<1>(*it1) == s_n
                  && get<0>(*it1)->evaluate() )
             {
-                leaveState( current );
-                enterState( s_n );
-                // now try to do as much as possible
-                this->executePending();
+                changeState( s_n );
                 // the request was accepted
                 return true;
             }
@@ -194,8 +171,8 @@ namespace ORO_Execution
         ProgramInterface* copy = currentProg;
         if ( copy )
             return copy->getLineNumber();
-//         if ( reqstep != stateMap.find(statecopy)->second.end() )
-//             return get<3>(*reqstep); // if valid, return it.
+        if ( evaluating )
+            return evaluating;
 
         // if none of the above, return entry point :
         return statecopy->getEntryPoint();
@@ -204,9 +181,14 @@ namespace ORO_Execution
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
+        // we must be inactive.
+        assert( current == 0);
+        // insert both from and to in the statemap
         TransList::iterator it;
-        for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it);
+        for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
+            ; // this ';' is intentional 
         stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line ) );
+        stateMap[to]; // insert empty vector for 'to' state.
     }
 
     StateInterface* StateMachine::currentState() const
@@ -232,16 +214,16 @@ namespace ORO_Execution
     {
         // Before a state is entered, all transitions are reset !
         TransList::iterator it;
-        for ( it= stateMap[s].begin(); it != stateMap[s].end(); ++it)
+        for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
             get<0>(*it)->reset();
 
         next = s;
         currentEntry = s->getEntryProgram();
         if ( currentEntry )
             currentEntry->reset();
-        currentHandle = s->getHandleProgram();
-        if ( currentHandle )
-            currentHandle->reset();
+//         currentHandle = s->getHandleProgram();
+//         if ( currentHandle )
+//             currentHandle->reset();
     }
 
     bool StateMachine::executePending( bool stepping )
@@ -258,60 +240,43 @@ namespace ORO_Execution
         // and a new state may be requested.
 
         // first try exit
-        if( currentExit ) {
-            currentProg = currentExit;
-            if ( (stepping && currentExit->executeStep() == false )
-                 || (!stepping && currentExit->executeUntil() == false) ) {
-                error = true;
-                return false;
-            }
-            if ( currentExit->isFinished() ) {
-                currentExit = 0;
-                // move on
-                current = next;
-                if ( current )
-                    reqstep = stateMap.find( current )->second.end();
-                else {
-                    return true; // done if current == 0 !
-                }
-            }
-            else
-                return false; // transition in progress
-        } else { // if no currentExit, go to the next (or same) state right away.
-            current = next;
-            reqstep = stateMap.find( current )->second.end();
+        if ( currentExit && this->executeProgram(currentExit, stepping) == false )
+            return false;
+
+        // make change transition after exit of previous state:
+        current = next;
+        if ( current ) {
+            evaluating = 0; 
+            reqstep = stateMap.find( current )->second.begin();
         }
-        
-        // if exit done :
-        if( currentEntry ) {
-            currentProg = currentEntry;
-            if ( (stepping && currentEntry->executeStep() == false )
-                 || (!stepping && currentEntry->executeUntil() == false) ) {
-                error = true;
-                return false;
-            }
-            if ( currentEntry->isFinished() )
-                currentEntry = 0;
-            else 
-                return false; // transition in progress
-        }
-        // handle current :
-        if( currentHandle ) {
-            currentProg = currentHandle;
-            if ( (stepping && currentHandle->executeStep() == false )
-                 || (!stepping && currentHandle->executeUntil() == false) ) {
-                error = true;
-                return false;
-            }
-            if ( currentHandle->isFinished() )
-                currentHandle = 0;
-            else
-                return false; 
-        }
-        // only reach here if currentHandle == 0
-        currentProg = 0;
+        else
+            return true; // done if current == 0 !
+                
+        if ( currentEntry && this->executeProgram(currentEntry, stepping) == false )
+            return false;
+        if ( currentHandle && this->executeProgram(currentHandle, stepping) == false )
+            return false;
+
         return true; // all pending is done
     }
+
+    bool StateMachine::executeProgram(ProgramInterface*& cp, bool stepping)
+    {
+        // execute this stateprogram and cleanup if needed.
+        currentProg = cp;
+        if ( (stepping && currentProg->executeStep() == false )
+             || (!stepping && currentProg->executeUntil() == false) ) {
+            error = true;
+            return false;
+        }
+
+        if ( !currentProg->isFinished() )
+            return false; 
+
+        cp = currentProg = 0;
+        return true;
+    }
+
 
     bool StateMachine::inTransition() {
         return currentProg != 0;
@@ -320,53 +285,56 @@ namespace ORO_Execution
     void StateMachine::setInitialState( StateInterface* s )
     {
         initstate = s;
+        stateMap[initstate];
     }
 
     void StateMachine::setFinalState( StateInterface* s )
     {
         finistate = s;
+        stateMap[finistate];
     }
 
     bool StateMachine::activate()
     {
-        if ( current == 0 )
-        {
-            current = getInitialState();
-            if ( initc )
-                initc->execute();
-            enterState( current );
-            reqstep = stateMap.find( current )->second.end();
-            next = current;
-            this->executePending();
-            return true;
+        if ( current != 0 )
+            return false;
+
+        if ( initc ) {
+            initc->reset();
+            initc->execute();
         }
-        return false;
+
+        current = getInitialState();
+        enterState( current );
+        reqstep = stateMap.find( current )->second.begin();
+
+        this->executePending();
+
+        return true;
     }
 
     bool StateMachine::deactivate()
     {
-        if ( current != 0 && next != 0 )
-        {
-            // whatever state we are in, leave it.
-            // but if current exit is in error, skip it alltogether.
-            if ( currentExit && currentExit->inError() )
-                currentExit = 0;
-            else
-                leaveState( current );
-            // do not call enterState( 0 )
-            currentEntry = 0;
-            currentHandle  = 0;
-            next = 0;
-            if ( initc )
-                initc->reset();
-            // reset error flag.
-            error = false;
-            // this will execute the exitFunction (if any) and, if successfull,
-            // set current to zero (using next).
-            this->executePending();
-            return true;
-        }
-        return false;
+        if ( current == 0 )
+            return false;
+
+        // whatever state we are in, leave it.
+        // but if current exit is in error, skip it alltogether.
+        if ( currentExit && currentExit->inError() )
+            currentExit = 0;
+        else
+            leaveState( current );
+        // do not call enterState( 0 )
+        currentEntry = 0;
+        currentHandle  = 0;
+        next = 0;
+
+        // reset error flag.
+        error = false;
+        // this will execute the exitFunction (if any) and, if successfull,
+        // set current to zero (using next).
+        this->executePending();
+        return true;
     }
 }
 

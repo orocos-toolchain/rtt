@@ -439,7 +439,7 @@ namespace ORO_Execution
             curcondition = new ConditionTrue;
 
         // this transition has a lower priority than the previous one
-        curtemplatecontext->transitionSet( curstate, next_state, curcondition, rank-- );
+        curtemplatecontext->transitionSet( curstate, next_state, curcondition, rank--, mpositer.get_position().line - ln_offset );
         curcondition = 0;
     }
 
@@ -831,7 +831,7 @@ namespace ORO_Execution
     }
 
     void StateGraphParser::seenpreconditions() {
-        curtemplatecontext->transitionSet( curstate, curnonprecstate, new ConditionTrue, rank-- );
+        curtemplatecontext->transitionSet( curstate, curnonprecstate, new ConditionTrue, rank--, mpositer.get_position().line - ln_offset );
         curstate->setDefined( true );
         curstate = curnonprecstate;
         curnonprecstate = 0;

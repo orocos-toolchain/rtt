@@ -64,18 +64,6 @@ namespace ORO_Execution
         std::string _name;
     public:
 
-//         /**
-//          * All possible 'modes' of the StateMachine.
-//          */
-//         enum Status { inactive = 0, /** In no state at all */
-//                       activating, /** starting up */
-//                       deactivating, /** shutting down */
-//                       active,   /** In the initial state */
-//                       running,  /** Running, may request new state */
-//                       stopped,  /** In the final state */
-//                       paused,   /** Waiting wherever it is */
-//         } status;
-
         typedef std::vector<StateMachine*> ChildList;
 
         virtual ~StateMachine() {}
@@ -215,7 +203,7 @@ namespace ORO_Execution
          * @post  All transitions from <from> to <to> will succeed under
          *        condition <cnd>
          */
-        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0, int line=-1);
+        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line);
 
         /**
          * Set the initial state of this StateMachine.
@@ -298,7 +286,17 @@ namespace ORO_Execution
          * @return -1 if not available.
          */
         int getLineNumber() const;
+
     protected:
+        /**
+         * A map keeping track of all conditional transitions
+         * between two states
+         */
+        TransitionMap stateMap;
+
+    private:
+        void changeState( StateInterface* s, bool stepping = false );
+
         void leaveState( StateInterface* s );
 
         void enterState( StateInterface* s );
@@ -306,6 +304,8 @@ namespace ORO_Execution
         void handleState( StateInterface* s );
 
         bool inTransition();
+
+        bool executeProgram(ProgramInterface*& cp, bool stepping);
 
         /**
          * The Initial State.
@@ -335,15 +335,11 @@ namespace ORO_Execution
         ProgramInterface* currentHandle;
         ProgramInterface* currentEntry;
 
-        /**
-         * A map keeping track of all conditional transitions
-         * between two states
-         */
-        TransitionMap stateMap;
-
         TransList::iterator reqstep;
 
         bool error;
+
+        int evaluating;
     }; 
 }
 

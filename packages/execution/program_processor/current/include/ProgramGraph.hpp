@@ -117,7 +117,7 @@ namespace ORO_Execution
          * @param fn The FunctionGraph created earlier with
          *        startFunction().
          */
-        void endFunction( FunctionGraph* fn);
+        void endFunction( FunctionGraph* fn, int line);
 
         void startIfStatement( ConditionInterface* cond, int linenumber );
         void endIfBlock(int linenumber);
@@ -188,7 +188,7 @@ namespace ORO_Execution
          *        default ), the value new CommandNOP()
          *        will be used.
          */
-        void endProgram( CommandInterface* finalCommand = 0);
+        void endProgram( CommandInterface* finalCommand, int line);
 
         /**
          * Append a function to the build CommandNode.

@@ -273,8 +273,11 @@ namespace ORO_Execution
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
-        if ( it != programs->end() )
+        if ( it != programs->end() ) {
+            if ( it->program->isFinished() )
+                it->program->reset();       // if the program was finished, reset it.
             it->pstate = ProgramStatus::stepmode;
+        }
         // it is possible to pause a program from the error state
         return it != programs->end();
     }
@@ -601,8 +604,9 @@ namespace ORO_Execution
         if (p.pstate == Processor::ProgramStatus::running) {
             if ( p.program->executeUntil() == false )
                 p.pstate = Processor::ProgramStatus::error;
-            if ( p.program->isFinished() )
+            if ( p.program->isFinished() ) {
                 p.pstate = Processor::ProgramStatus::stopped;
+            }
         }
     }
 
@@ -620,8 +624,9 @@ namespace ORO_Execution
             {
                 if ( p.program->executeStep() == false )
                     p.pstate = Processor::ProgramStatus::error;
-                if ( p.program->isFinished() )
+                if ( p.program->isFinished() ) {
                     p.pstate = Processor::ProgramStatus::stopped;
+                }
                 p.step = false;
             }
     }

@@ -36,6 +36,14 @@
 #include "execution/TemplateDataSourceFactory.hpp"
 
 namespace ORO_Execution {
+    /**
+     * @todo 
+     * 1. add copy/clone semantics to StateInterface and StateMachine.
+     * 2a. rewrite ParsedStateMachine::copy to use (1)
+     * 2b. remove all old StateMachine in DataSource code ( code is deprecated by StateMachineCommands implementation)
+     * 3. refactor SM copying code in StateGraphParser to this file (and vice versa).
+     * 4. in the end, no dynamic_casts should be needed anymore.
+     */
 
     /**
      * When a ParsedStateMachine is finished, these commands
@@ -70,8 +78,8 @@ namespace ORO_Execution {
             fact->add("start",command_ds(&StateMachineCommands::start, &StateMachineCommands::isRunning, "Start this StateMachine from initial state"));
             fact->add("pause",command_ds(&StateMachineCommands::pause, &StateMachineCommands::isPaused, "Pause this StateMachine"));
             fact->add("step",command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused, "Step this StateMachine"));
-            fact->add("reset",command_ds(&StateMachineCommands::reset, &StateMachineCommands::isActive, "Reset this StateMachine to initial state"));
-            fact->add("stop",command_ds(&StateMachineCommands::stop, &StateMachineCommands::isRunning, "Stop this StateMachine to final state", true));
+            fact->add("reset",command_ds(&StateMachineCommands::reset, &StateMachineCommands::inInitial, "Reset this StateMachine to the initial state"));
+            fact->add("stop",command_ds(&StateMachineCommands::stop, &StateMachineCommands::inFinal, "Stop this StateMachine to the final state"));
             return fact;
         }
 
@@ -82,6 +90,8 @@ namespace ORO_Execution {
             f->add("isActive", data_ds(&StateMachineCommands::isActive, "Is this StateMachine activated ?") );
             f->add("isRunning", data_ds(&StateMachineCommands::isRunning, "Is this StateMachine running ?") );
             f->add("isPaused", data_ds(&StateMachineCommands::isPaused, "Is this StateMachine paused ?") );
+            f->add("inInitial", data_ds(&StateMachineCommands::inInitial, "Is this StateMachine in the initial state ?") );
+            f->add("inFinal", data_ds(&StateMachineCommands::inFinal, "Is this StateMachine in the final state ?") );
             return f;
         }
 
@@ -109,6 +119,14 @@ namespace ORO_Execution {
 
         bool isActive() const {
             return _sc->isActive();
+        }
+
+        bool inInitial() const {
+            return _sc->getInitialState() == _sc->currentState();
+        }
+
+        bool inFinal() const {
+            return _sc->getFinalState() == _sc->currentState();
         }
 
         bool isRunning() const {
@@ -210,8 +228,8 @@ namespace ORO_Execution {
         }
 
         // Copy the InitCommand :
-        if (this->initc) {
-            ret->setInitCommand( this->initc->copy(replacements) );
+        if (this->getInitCommand()) {
+            ret->setInitCommand( this->getInitCommand()->copy(replacements) );
             // test :
             //ret->getInitCommand()->execute();
         } 
@@ -255,7 +273,7 @@ namespace ORO_Execution {
                 StateInterface* toState = statemapping[j->get<1>()];
                 int rank = j->get<2>();
                 int line = j->get<3>();
-                ret->stateMap[fromState].push_back( boost::make_tuple( condition, toState, rank, line ) );
+                ret->transitionSet(fromState, toState, condition, rank, line );
             }
         }
 
@@ -267,9 +285,8 @@ namespace ORO_Execution {
 //         }
 
         // init the StateMachine itself :
-        ret->finistate = statemapping[finistate];
-        ret->initstate = statemapping[initstate];
-        ret->current = statemapping[current];
+        ret->setFinalState( statemapping[ getFinalState() ]);
+        ret->setInitialState( statemapping[ getInitialState() ]);
 
         return ret;
     }

@@ -131,8 +131,8 @@ namespace ORO_Execution
        >> *newline >> !funcargs >> *newline
        >> opencurly
        >> content
-       >> closecurly
-       >> *newline ) [ bind( &ProgramGraphParser::seenfunctionend, this ) ];
+       >> closecurly[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
+       >> *newline );
 
     // the function's definition args :
     funcargs = ch_p('(') >> ( ch_p(')') || (
@@ -148,8 +148,8 @@ namespace ORO_Execution
       >> *newline
       >> opencurly
       >> content
-      >> closecurly
-      >> *newline ) [ bind( &ProgramGraphParser::seenprogramend, this ) ];
+      >> closecurly[ bind( &ProgramGraphParser::seenprogramend, this ) ]
+      >> *newline );
 
     // the content of a program can be any number of lines
     content = *line;
@@ -271,7 +271,7 @@ namespace ORO_Execution
         // Fake a 'return' statement at the last line.
         program_graph->returnFunction( new ConditionTrue, mfunc );
         program_graph->proceedToNext( mpositer.get_position().line - ln_offset);
-        program_graph->endFunction( mfunc );
+        program_graph->endFunction( mfunc, mpositer.get_position().line - ln_offset );
 
         FunctionGraph* res = mfunc;
         delete program_graph;
@@ -418,7 +418,7 @@ namespace ORO_Execution
       // Fake a 'return' statement at the last line.
       program_graph->returnFunction( new ConditionTrue, mfunc );
       program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
-      program_graph->endFunction( mfunc );
+      program_graph->endFunction( mfunc, mpositer.get_position().line - ln_offset );
 
       // export the function in the context's interface.
       if (exportf) {
@@ -671,7 +671,7 @@ namespace ORO_Execution
       // Fake a 'return' statement at the last line.
       program_graph->returnProgram( new ConditionTrue );
       program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
-      program_graph->endProgram();
+      program_graph->endProgram( new CommandNOP(),  mpositer.get_position().line - ln_offset );
       program_graph->reset();
       program_list.push_back(program_graph);
       program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() ) ); // will be deleted if no other progs follow

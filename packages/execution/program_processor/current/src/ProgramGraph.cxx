@@ -44,6 +44,12 @@
 
 namespace ORO_Execution
 {
+    /**
+     * @todo 
+     * 1. Refactor this file such that ProgramGraph becomes FunctionGraphBuilder, thus it becomes a pure factory.
+     * 2. add copy semantics to ProgramInterface, such that FunctionGraph::copy can be called from the interface.
+     */
+
     using namespace boost;
     using namespace std;
     using ORO_CoreLib::CommandNOP;
@@ -143,8 +149,13 @@ namespace ORO_Execution
         add_edge(build, fn->exitNode(), EdgeCondition(cond), *graph);
     }
 
-    void ProgramGraph::endFunction( FunctionGraph* fn)
+    void ProgramGraph::endFunction( FunctionGraph* fn, int endline)
     {
+        // the map contains _references_ to all vertex_command properties
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get(vertex_command, *graph);
+        cmap[fn->exitNode()].setLineNumber( endline );
+
         // A return statement is obligatory, so the returnFunction has
         // already connected the build node to exitNode of the function.
         // the end of the statement will proceedToNext
@@ -281,13 +292,14 @@ namespace ORO_Execution
         add_edge(build, exit, EdgeCondition(cond), program );
     }
 
-    void ProgramGraph::endProgram( CommandInterface* finalCommand ) {
+    void ProgramGraph::endProgram( CommandInterface* finalCommand, int endline ) {
         if ( !finalCommand )
             finalCommand = new CommandNOP();
         // End of all processing. return already linked to end.
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
         delete cmap[exit].setCommand( finalCommand );
+        cmap[exit].setLineNumber( endline );
         put(vertex_exec, *graph, exit, VertexNode::prog_exit_node );
 
         assert( build != next );
