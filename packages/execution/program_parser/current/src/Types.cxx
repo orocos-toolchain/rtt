@@ -133,6 +133,7 @@ namespace ORO_Execution
     return i > -1 && i < 6;
   }
 
+#ifdef OROPKG_GEOMETRY
   // check the validity of an index
   bool WrenchIndexChecker( const Wrench& w, int i )
   {
@@ -151,7 +152,7 @@ namespace ORO_Execution
   {
     return i > -1 && i < 3;
   }
-
+#endif
 
   TypeInfoRepository::TypeInfoRepository()
   {
