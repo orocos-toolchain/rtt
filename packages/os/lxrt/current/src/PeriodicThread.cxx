@@ -46,12 +46,7 @@
  * We use the Completion processor to stop the task
  */
 using boost::bind;
-
-namespace
-{
-    // our internal event to stop a thread.
-    ORO_CoreLib::Event<bool(void)> stopEvent;
-}
+using namespace ORO_CoreLib;
 
 #endif
 
@@ -153,7 +148,7 @@ namespace ORO_OS
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new ORO_CoreLib::Handle();
-        *h = stopEvent.connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
+        stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
         if ( !name.empty() )
             taskNameSet(name.c_str());
@@ -196,6 +191,9 @@ namespace ORO_OS
         if (result == false)
             return false;
 
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        *h = static_cast<Event<bool(void)>*>(stopEvent)->connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
+#endif
         running=true;
 
         rt_sem_signal(sem);
@@ -230,6 +228,9 @@ namespace ORO_OS
         else
             finalize();
 
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        h->disconnect();
+#endif
         return true;
     }
 
@@ -327,7 +328,7 @@ namespace ORO_OS
     bool PeriodicThread::setToStop()
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        stopEvent.fire();
+        static_cast< Event<bool(void)>* >(stopEvent)->fire();
         return true;
 #else
         return false;

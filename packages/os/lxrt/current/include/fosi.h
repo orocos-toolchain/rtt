@@ -35,7 +35,7 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sched.h>
- 
+#include <assert.h> 
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,9 +95,10 @@ typedef struct timespec TIME_SPEC;
 #define CHECK_SYSTEM_CALLS
 
 #ifdef CHECK_SYSTEM_CALLS
-#define CHK_LXRT_CALL() do { if(rt_buddy() == 0) \
+#define CHK_LXRT_CALL() do { if(rt_buddy() == 0) { \
         printf("LXRT NOT INITIALISED IN THIS THREAD pid=%d,\n\
     BUT TRIES TO INVOKE LXRT FUNCTION >>%s<< ANYWAY\n", getpid(), __FUNCTION__ );\
+        assert( rt_buddy() != 0 ); }\
         } while(0)
 #else
 #define CHK_LXRT_CALL()

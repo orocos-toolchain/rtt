@@ -213,6 +213,9 @@ namespace ORO_OS
         RunnableInterface* runComp;
 
         ORO_CoreLib::Handle* h;
+        // We cannot include Event.hpp inhere,
+        // thus we use a void* + static_cast in cxx file.
+        void* stopEvent;
     };
 
 }
