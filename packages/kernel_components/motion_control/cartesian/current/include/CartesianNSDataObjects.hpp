@@ -46,6 +46,7 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
+    using ORO_CoreLib::Double6D;
 
     /**
      * @brief The Nameserved Input DataObjects.

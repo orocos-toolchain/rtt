@@ -35,7 +35,7 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
-
+#if 0
     /**
      * @brief This Generator reads a Trajectory in the Task Frame and converts
      * it to the robot frame. It can read a Trajectory from a file or
@@ -222,5 +222,6 @@ namespace ORO_ControlKernel
             double time;
             bool run;
     };
+#endif
 }
 #endif
