@@ -58,9 +58,8 @@ namespace ORO_CoreLib
              * Create a ReportWriter object
              *
              * @param f The object to write the results to.
-             * @param period The periodicity of reporting results.
              */
-            ReportWriter(WriteInterface* f, double period=0.01);
+            ReportWriter(WriteInterface* f);
 
             /**
              * Destroy a ReportWriter object
