@@ -29,6 +29,8 @@
 #ifndef SENSORINTERFACE_HPP
 #define SENSORINTERFACE_HPP
 
+#include "CalibrationInterface.hpp"
+
 #pragma interface
 
 namespace ORO_DeviceInterface
@@ -48,6 +50,7 @@ namespace ORO_DeviceInterface
      */
     template <class SensorData>
     class SensorInterface
+      : public CalibrationInterface
     {
         public:
         virtual ~SensorInterface()

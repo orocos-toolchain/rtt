@@ -42,7 +42,7 @@ namespace ORO_DeviceInterface
         /**
          * @brief Start or perform calibration.
          */
-        virtual void calibrate() = 0;
+      virtual void calibrate() {}
 
         /** 
          * @brief Inspect if a calibration has been done.
@@ -50,13 +50,13 @@ namespace ORO_DeviceInterface
          * 
          * @return True if so.
          */
-        virtual bool isCalibrated() const = 0;
+      virtual bool isCalibrated() const { return true; }
 
         /** 
          * @brief Undo any previous calibration
          * ( this function may have no effect ).
          */
-        virtual void unCalibrate() = 0;
+      virtual void unCalibrate() {}
     };
 }
 
