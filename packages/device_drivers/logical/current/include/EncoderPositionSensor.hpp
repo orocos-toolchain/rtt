@@ -52,7 +52,6 @@ namespace ORO_DeviceDriver
         bool calibrated;
         double cal_pos;
         double cal_dir;
-        double max;
     public:
         /** 
          * @brief Create a new EncoderInterface to SensorInterface Object.
