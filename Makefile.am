@@ -6,8 +6,8 @@ EXTRA_DIST = \
 	packages/ecosadmin.tcl packages/ecosdbgen.py packages/ecospkggen.py \
 	packages/configure.ac packages/configure packages/autogen.sh \
 	packages/aclocal.m4 packages/acinclude.m4 \
-	packages/Makefile.in packages/Doxyfile.in packages/ecos.db.in \
-	packages/ecos.db doc/CODING_STYLE.txt \
+	packages/Makefile.in packages/Doxyfile.in \
+	doc/CODING_STYLE.txt \
 	packages/support/boost/current/boost.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
 	packages/support/comedilib/current/comedilib.cdl.in \
@@ -26,9 +26,10 @@ new_packages:
 	mkdir -p packages-@ECOS_TARGET@
 	cd packages-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
-	ecosconfig new @ECOS_TARGET@ allpackages ;\
+	ecosconfig new @ECOS_TARGET@ minimal ;\
 	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
-	ecosconfig add support_$$(basename $$i .cdl); done
+	ecosconfig add support_$$(basename $$i .cdl); done ;\
+	ecosconfig template allpackages
 
 configure_packages:
 	cd packages-@ECOS_TARGET@ ;\
@@ -48,6 +49,7 @@ clean_packages:
 check_packages:
 	cd packages-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	ecosconfig template default ;\
 	ecosconfig add applications_testcase ;\
 	ecosconfig tree ;\
 	make
