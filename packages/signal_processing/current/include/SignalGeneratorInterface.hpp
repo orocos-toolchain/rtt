@@ -38,6 +38,8 @@ namespace ORO_SignalProcessing
     class SignalGeneratorInterface
     {
     public:
+        virtual ~SignalGeneratorInterface() {}
+
         /**
          * Return the value of the signal on time t.
          */
