@@ -47,7 +47,7 @@ namespace ORO_DeviceDriver
 JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::string type, ORO_CoreLib::Event<void(void)>& maximumload)
 
   : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP),
-    _my_task_context("Kuka361Axis", &_my_processor)
+    _my_task_context("WrenchSensor", &_my_processor)
 {
   _maximumload_event = &maximumload;
 
