@@ -34,13 +34,21 @@
 #include <geometry/trajectory_segment.h>
 #include <geometry/path_line.h>
 #include <geometry/velocityprofile_trap.h>
+#include <geometry/velocityprofile_rect.h>
+#include <geometry/velocityprofile_dirac.h>
 #include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
 #include <corelib/EventInterfaces.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -58,8 +66,7 @@ namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
-    using namespace ORO_KinDyn;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
 
@@ -100,12 +107,6 @@ namespace ORO_ControlKernel
     struct CPTModel
         : public ServedTypes<Frame, double>
     {
-//         CPTModel() {
-//             this->insert( make_pair(0, "EndEffPosition"));
-//             this->insert( make_pair(0, "TaskFrame"));
-//             this->insert( make_pair(0, "TrackFrame"));
-//             this->insert( make_pair(1, "TrackTime"));
-//        }
     };
 
 
@@ -116,14 +117,9 @@ namespace ORO_ControlKernel
     struct CPTSensorInput
         : public ServedTypes<Frame, double>
     {
-//          CPTSensorInput()
-//         {
-//             this->insert( make_pair(0, "TaskFrame"));
-//             this->insert( make_pair(0, "TrackFrame"));
-//             this->insert( make_pair(1, "TrackTime"));
-//         }
     };
 
+#pragma interface
     
     /**
      * @brief A Cartesian Position Frame / TaskFrame Tracker.
@@ -133,7 +129,15 @@ namespace ORO_ControlKernel
      *
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base>
+    template <class Base = Generator< Expects<CPTSensorInput>,
+                                      Expects<CPTModel>,
+                                      Expects<CPTCommand>,
+                                      Writes<CPTSetPoint>,
+                                      MakeAspect<PropertyExtension,KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                    , ExecutionExtension
+#endif
+                                                    >::CommonBase > >
     class CartesianPositionTracker
         : public Base
     {
@@ -414,7 +418,7 @@ namespace ORO_ControlKernel
             return true;
         }
 
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
@@ -513,6 +517,7 @@ namespace ORO_ControlKernel
         Property<std::string> interpol_prop;
     };
 
+    extern template class CartesianPositionTracker<>;
 }
 #endif
 

@@ -33,22 +33,29 @@
 #include <corelib/Property.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
 #include <corelib/PropertyBag.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ComponentInterfaces.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
+#pragma interface
     
 namespace ORO_ControlKernel
 {
-    //using namespace ORO_ControlKernel;
+    using namespace ORO_ControlKernel;
     using namespace ORO_CoreLib;
     using namespace ORO_Geometry;
-    using namespace ORO_DeviceInterface;
-    using namespace ORO_DeviceDriver;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
 
@@ -62,12 +69,23 @@ namespace ORO_ControlKernel
         }
     };
 
+    struct AxisPositionGeneratorInput
+        : public ServedTypes< std::vector<double> >
+    {};
 
     /**
      * @brief An Axis Position Generator. Axes are numbered from 1 .. N.
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base>
+    template <class Base = Generator< Expects<AxisPositionGeneratorInput>,
+                                      Expects<NoModel>,
+                                      Expects<NoCommand>,
+                                      Writes<AxisPositionGeneratorSetPoint>,
+                                      MakeExtension<PropertyExtension,KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                    ,ExecutionExtension
+#endif
+                                                    >::CommonBase >  >
     class AxisPositionGenerator 
         : public Base
     {
@@ -218,7 +236,7 @@ namespace ORO_ControlKernel
         }
             
     protected:
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         CommandFactoryInterface* createCommandFactory()
         {
@@ -271,6 +289,8 @@ namespace ORO_ControlKernel
         ChannelType setpoints;
         HeartBeatGenerator* hbg;
     };
+
+    extern template class AxisPositionGenerator<>;
 }
 
 #endif

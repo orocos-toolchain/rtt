@@ -30,9 +30,11 @@
 
 #include <device_drivers/Axis.hpp>
 #include <device_drivers/AnalogDrive.hpp>
+#include <device_drivers/DigitalInput.hpp>
+#include <device_drivers/DigitalOutput.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -40,17 +42,23 @@
 #include <map>
 #include <utility>
 #include <string>
+#include <iostream>
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+
+#ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
+#error "This Component only works with the new kernel infrastructure."
+#endif
 
 #pragma interface
 
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     using namespace ORO_DeviceInterface;
@@ -66,6 +74,20 @@ namespace ORO_ControlKernel
         AxisInput()
         {
             this->insert( std::make_pair(1,"ChannelMeasurements") );
+        }
+
+        void addDouble(const std::string& name )
+        {
+            this->insert( std::make_pair(0, name) );
+        }
+
+        void removeDouble(const std::string& name )
+        {
+            for(iterator t= this->begin(); t != this->end(); ++t)
+                if ( t->first == 0 && t->second == name ) {
+                    this->erase( t );
+                    break;
+                }
         }
     };
 
@@ -97,7 +119,7 @@ namespace ORO_ControlKernel
         {
             Axis* _a = 0;
             SensorInterface<double>* _d = 0;
-            channels.resize(max_chan, make_pair(_d,_a) );
+            channels.resize(max_chan, std::make_pair(_d,_a) );
             chan_meas.resize(max_chan, 0.0);
         }
 
@@ -107,8 +129,45 @@ namespace ORO_ControlKernel
                 return false;
             // kind-of resize of the vector in the dataobject:
             chan_DObj->Set(chan_meas); 
+
+            // Get All DataObjects of Added Axes
+            for(AxisMap::iterator ax= axes.begin(); ax != axes.end(); ++ax)
+                {
+                    DataObjectInterface<double>* d;
+                    if ( this->Base::Input::dObj()->Get( ax->first+".Velocity", d) == false )
+                        std::cout << "AxisSensor::componentLoaded : Velocity of "+ax->first+" not found !"<<std::endl;
+
+                    drive[ ax->first ] = std::make_pair( ax->second->driveGet(), d );
+
+                    std::vector<std::string> res( ax->second->sensorList() );
+                    for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+                        {
+                            std::string sname( ax->first+"."+*it );
+                            if ( this->Base::Input::dObj()->Get( sname, d ) == false )
+                                std::cout << "AxisSensor::componentLoaded : "+*it+" of "+ax->first+" not found !"<<std::endl;
+                            sensor[ sname ] = std::make_pair( ax->second->sensorGet( *it ),d);
+                        }
+                }
+
             return true;
         }
+
+        void componentUnloaded() {
+            // Delete all Data Objects is done by DataObject Server
+            // just cleanup stuff in opposite to componentLoaded
+            for(AxisMap::iterator ax= axes.begin(); ax != axes.end(); ++ax)
+                {
+                    drive.erase( ax->first );
+
+                    std::vector<std::string> res( ax->second->sensorList() );
+                    for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+                        {
+                            std::string sname( ax->first + "."+*it );
+                            sensor.erase( sname );
+                        }
+                }
+        }
+
 
         /**
          * @see KernelInterfaces.hpp class ModuleControlInterface
@@ -148,19 +207,20 @@ namespace ORO_ControlKernel
             if ( ax->homeswitchGet() )
                 d_in[ name + ".Home" ] = ax->homeswitchGet();
 
-            // Create the dataobjects in the Input DO.
-            typedef typename Base::Input::template DataObject<double>::type doubleType;
-            drive[ name ] = make_pair( ax->driveGet(), new doubleType(name+".Velocity") );
-            Base::Input::dObj()->reg( drive[ name ].second );
+            // Before Reload, Add All DataObjects :
+            this->Base::Input::dObj()->addDouble(name+".Velocity");
 
             // Repeat for each additional sensor...
             std::vector<std::string> res( ax->sensorList() );
             for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
                 {
                     std::string sname( name+"."+*it );
-                    sensor[ sname ] = make_pair( ax->sensorGet( *it ), new doubleType( sname ));
-                    Base::Input::dObj()->reg( sensor[ sname ].second );
+                    this->Base::Input::dObj()->addDouble( sname );
                 }
+
+            if (this->inKernel() )
+                this->kernel()->reload(this);
+
             return true;
         }
 
@@ -185,7 +245,7 @@ namespace ORO_ControlKernel
                return false;
 
             // The owner Axis is stored in the channel.
-            channels[virtual_channel] = make_pair( axes[axis_name]->sensorGet( sensor_name ), axes[axis_name] );
+            channels[virtual_channel] = std::make_pair( axes[axis_name]->sensorGet( sensor_name ), axes[axis_name] );
             return true;
         }
 
@@ -197,7 +257,7 @@ namespace ORO_ControlKernel
             if ( axes.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
-            for ( std::vector< pair< const SensorInterface<double>*, Axis* > >::iterator it = channels.begin();
+            for ( std::vector< std::pair< const SensorInterface<double>*, Axis* > >::iterator it = channels.begin();
                   it != channels.end();
                   ++it )
                 if ( it->second == axes[name] )
@@ -206,19 +266,27 @@ namespace ORO_ControlKernel
                         it->second = 0;
                     }
 
-            drive.erase( name );
-
-            // remove all sensors.
-            std::vector<std::string> res( axes[name]->sensorList() );
-            for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
-                {
-                    std::string sname( name+"."+*it );
-                    sensor.erase( sname );
-                }
+            // cleanup the rest...
             d_out.erase( name + ".Drive" );
             d_out.erase( name + ".Break" );
             d_in.erase( name + ".Home" );
 
+            // remove drive 
+            this->Base::Input::dObj()->removeDouble(name+".Velocity");
+
+            // Repeat for each additional sensor...
+            std::vector<std::string> res( axes[name]->sensorList() );
+            for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+                {
+                    std::string sname( name+"."+*it );
+                    this->Base::Input::dObj()->removeDouble( sname );
+                }
+
+            // reflect remove operation in DataObjects
+            if ( this->inKernel() )
+                this->kernel()->reload(this);
+
+            // erase the axis as last, or the reload will not find it during cleanup
             axes.erase(name);
             return true;
         }
@@ -267,7 +335,7 @@ namespace ORO_ControlKernel
          */
 
     protected:
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {

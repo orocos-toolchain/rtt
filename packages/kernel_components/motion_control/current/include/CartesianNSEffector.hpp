@@ -31,17 +31,22 @@
 #include <geometry/frames.h>
 #include <geometry/MotionProperties.hpp>
 #include <kernel_components/Simulator.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ReportingExtension.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/MultiVector.hpp>
 
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
 #include "CartesianNSDataObjects.hpp"
 
+#pragma interface
 
 /**
  * @file CartesianNSEffector.hpp
@@ -54,7 +59,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     
@@ -63,7 +68,8 @@ namespace ORO_ControlKernel
      * @brief A Cartesian Effector, can be used by the CartesianSensor for 'simulation' purposes.
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base>
+    template <class Base = Effector< Expects<CartesianNSDriveOutput>,
+                                     MakeExtension<KernelBaseFunction, ReportingExtension>::CommonBase > >
     class CartesianEffector
         : public Base
     {
@@ -123,6 +129,7 @@ namespace ORO_ControlKernel
         DataObjectInterface<Double6D>* qdot_DObj;
     };
 
+    extern template class CartesianEffector<>;
 }
 #endif
 

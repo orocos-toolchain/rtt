@@ -42,14 +42,22 @@
 #include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
+#include <control_kernel/ExecutionExtension.hpp>
 #endif
 
 #include "CartesianNSDataObjects.hpp"
+
+#pragma interface
 
 /**
  * @file CartesianNSGenerator.hpp
@@ -61,7 +69,7 @@ namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
 
@@ -70,7 +78,15 @@ namespace ORO_ControlKernel
      * @brief An advanced Cartesian Trajectory Generator.
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base>
+    template <class Base = Generator<Expects<CartesianNSSensorInput>,
+                                     Expects<CartesianNSModel>,
+                                     Expects<CartesianNSCommand>,
+                                     Writes<CartesianNSSetPoint>,
+                                     MakeAspect<PropertyExtension, KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                   , ExecutionExtension
+#endif
+                                                   >::CommonBase > >
     class CartesianGenerator 
         : public Base
     {
@@ -267,16 +283,17 @@ namespace ORO_ControlKernel
          */
         void safeStop()
         {
-            if ( this->kernel()->isRunning && cur_tr )
+            if ( this->kernel()->isRunning() && cur_tr )
                 {
                     // assume vel and acc are positive...
-                    double current_v = cur_tr->GetProfile()->Vel( _time );
-                    double needed_time = current_v / max_acc;
+                    //double current_v = cur_tr->GetProfile()->Vel( _time );
+                    //double needed_time = current_v / max_acc;
                     // we will travel this distance until stopped :
-                    double needed_distance = current_v * needed_time
-                        - max_acc*needed_time*needed_time;
-                    VelocityProfile_TrapHalf* vth = new VelocityProfile_TrapHalf( current_v, max_acc, false );
-                    vth->SetProfile(0, 1, needed_time); // this will stretch the '1' to the end position.
+                    // to be implemented :
+                    //double needed_distance = current_v * needed_time
+                    //    - max_acc*needed_time*needed_time;
+                    //VelocityProfile_TrapHalf* vth = new VelocityProfile_TrapHalf( current_v, max_acc, false );
+                    //vth->SetProfile(0, 1, needed_time); // this will stretch the '1' to the end position.
                     cur_tr =  new Trajectory_Segment( new Path_Line( mp_base_frame, cur_tr->Vel( _time ),
                                                                      new RotationalInterpolation_SingleAxis(),
                                                                      1.0), 
@@ -385,7 +402,7 @@ namespace ORO_ControlKernel
             return true;
         }
 
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
@@ -467,6 +484,8 @@ namespace ORO_ControlKernel
         Property<double> max_acc;
         Property<std::string> interpol_prop;
     };
+
+    extern template class CartesianGenerator<>;
 }
 #endif
 

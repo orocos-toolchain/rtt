@@ -28,11 +28,13 @@
 #ifndef AXIS_EFFECTOR_HPP
 #define AXIS_EFFECTOR_HPP
 
+#include <device_drivers/Axis.hpp>
 #include <device_drivers/AnalogOutput.hpp>
+#include <device_drivers/AnalogDrive.hpp>
 #include <device_drivers/DigitalOutput.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -41,13 +43,14 @@
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
 
 #pragma interface
 
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     using namespace ORO_DeviceInterface;
@@ -71,7 +74,7 @@ namespace ORO_ControlKernel
      * @see ControlKernel
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base = Effector< Expects<AxisOutput>, MakeExtension<KernelBaseFunction, ExecutionExtension>::CommonBase >
+    template <class Base = Effector< Expects<AxisOutput>, MakeExtension<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class AxisEffector
         : public Base
     {
@@ -254,7 +257,7 @@ namespace ORO_ControlKernel
         // @}
 
     protected:
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         bool true_gen() const { return true; }
 

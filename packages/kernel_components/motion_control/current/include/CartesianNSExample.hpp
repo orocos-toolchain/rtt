@@ -42,8 +42,8 @@
 #include <corelib/EventInterfaces.hpp>
 #include <kernel_components/Simulator.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     struct CartesianCommands     { Trajectory* trajectory; Frame task_frame; Frame tool_mp_frame; };
@@ -264,7 +264,7 @@ namespace ORO_ControlKernel
             homepos = _homepos;
         }
 
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {

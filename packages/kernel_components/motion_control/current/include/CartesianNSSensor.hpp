@@ -31,15 +31,20 @@
 
 #include <corelib/EventInterfaces.hpp>
 #include <kernel_components/Simulator.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ReportingExtension.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
 #include "CartesianNSDataObjects.hpp"
 
+#pragma interface
 
 /**
  * @file CartesianNSComponents.hpp
@@ -54,7 +59,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
 
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
 
@@ -62,7 +67,8 @@ namespace ORO_ControlKernel
      * @brief A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
      * @ingroup kcomps kcomp_sensor
      */
-    template <class Base>
+    template <class Base = Sensor< Writes<CartesianNSSensorInput>,
+                                   MakeAspect<ReportingExtension, KernelBaseFunction>::Result > >
     class CartesianSensor
         : public Base
     {
@@ -129,6 +135,7 @@ namespace ORO_ControlKernel
         SimulatorInterface* sim;
     };
 
+    extern template class CartesianSensor<>;
 }
 #endif
 

@@ -29,6 +29,7 @@
 #define SIMULATOR_HPP
 
 #include <kindyn/KinematicsComponent.hpp>
+#include <iostream>
 
 namespace ORO_ControlKernel
 {
@@ -92,7 +93,6 @@ namespace ORO_ControlKernel
                 kineComp.stateSet(f, c);
                 frame = f;
                 kineComp.jointsGet(q6);
-                cout <<"Joints are now "<< q6[0]<<" " <<q6[1]<<endl;
             }
             
             void setStartPosition( const Double6D& q )
@@ -116,9 +116,9 @@ namespace ORO_ControlKernel
                     //cout << frame <<endl;
                     if ( kineComp.positionInverse(frame, q6) )
                         return;
-                    cout << "Inverse failed... ";
+                    std::cout << "Inverse failed... ";
                 }
-                cout <<" Wrong setTwist"<<endl;
+                std::cout <<" Wrong setTwist"<<std::endl;
             }
             
             virtual Double6D& getJointPositions()

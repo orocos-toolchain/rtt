@@ -5,9 +5,19 @@ Components for 2D or 3D motion control, e.g. trajectory
 planning and interpolation, axis-level control,..."
     parent OROPKG_KERNEL_COMPONENTS
 
+    requires OROPKG_CONTROL_KERNEL
+
     include_dir kernel_components
 
     #include_files KinematicEstimator.hpp  TrajectoryGenerator.hpp  Simulator.hpp
 
     compile sensor/AxisSensor.cxx effector/AxisEffector.cxx
+
+    compile sensor/CartesianNSSensor.cxx
+    compile effector/CartesianNSEffector.cxx
+    compile controller/CartesianNSController.cxx
+    compile generator/CartesianNSGenerator.cxx
+    compile estimator/CartesianNSEstimator.cxx
+
+    compile generator/AxisPositionGenerator.cxx generator/CartesianPositionTracker.cxx
 }

@@ -34,13 +34,22 @@
 #include <kindyn/KinematicsFactory.hpp>
 
 #include <corelib/EventInterfaces.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ReportingExtension.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
+#include "CartesianNSDataObjects.hpp"
+
+#pragma interface
 
 /**
  * @file CartesianNSEstimator.hpp
@@ -53,7 +62,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
     
@@ -62,7 +71,9 @@ namespace ORO_ControlKernel
      * joint positions.
      * @ingroup kcomps kcomp_estimator
      */
-    template <class Base>
+    template <class Base = Estimator<Expects<CartesianNSSensorInput>,
+                                     Writes<CartesianNSModel>,
+                                     MakeExtension<PropertyExtension, KernelBaseFunction>::CommonBase > >
     class CartesianEstimator
         : public Base
     {
@@ -134,13 +145,6 @@ namespace ORO_ControlKernel
         }
             
         /**
-         * @see KernelReportingExtension.hpp class ReportingComponent
-         */
-        virtual void exportReports(PropertyBag& bag)
-        {
-        }
-
-        /**
          * @see KernelPropertyExtension.hpp class PropertyComponentInterface
          */
         virtual bool updateProperties( const PropertyBag& bag)
@@ -179,6 +183,7 @@ namespace ORO_ControlKernel
         DataObjectInterface<Frame>* endframe_DObj;
     };
 
+    extern template class CartesianEstimator<>;
 }
 #endif
 

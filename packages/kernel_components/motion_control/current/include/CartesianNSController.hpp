@@ -31,14 +31,23 @@
 
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>
+#include <kindyn/KinematicsComponent.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ReportingExtension.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
 #include "CartesianNSDataObjects.hpp"
+
+#pragma interface
 
 /**
  * @file CartesianNSController.hpp
@@ -52,7 +61,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 #endif
 
@@ -61,7 +70,11 @@ namespace ORO_ControlKernel
      * to joint positions and does the control on joint level.
      * @ingroup kcomps kcomp_controller
      */
-    template <class Base>
+    template <class Base = Controller<Expects<CartesianNSSensorInput>,
+                                      Expects<CartesianNSModel>,
+                                      Expects<CartesianNSSetPoint>,
+                                      Writes<CartesianNSDriveOutput>,
+                                      MakeExtension<PropertyExtension, KernelBaseFunction, ReportingExtension>::CommonBase > >
     class CartesianController
         : public Base
     {
@@ -179,6 +192,7 @@ namespace ORO_ControlKernel
         DataObjectInterface<Double6D>* jvel_DObj;
     };
 
+    extern template class CartesianController<>;
 }
 #endif
 
