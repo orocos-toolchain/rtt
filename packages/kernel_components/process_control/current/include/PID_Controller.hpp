@@ -70,7 +70,7 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @brief A Multi-Channel PID Data Flow Controller Component.
+     * @brief A Multi-Channel (nSISO) PID Data Flow Controller Component.
      *
      * Features are :
      * @verbatim
@@ -86,6 +86,9 @@ namespace ORO_ControlKernel
      *  - 'h' in handbook is called 'T' (= sampleperiod)
      * @endverbatim
      *
+     * It does a control action on the 'ChannelValues' of the setpoints and
+     * inputs dataobjects and adds the 'FeedForward' signal from the setpoints
+     * if present.
      *  @ingroup kcomps kcomp_controller 
      */
     class PID_Controller
@@ -107,6 +110,7 @@ namespace ORO_ControlKernel
             : Base ( name ),
               num_chans( _num_chans ),
               _K("K", "Proportional gain", std::vector<double>( num_chans, 0) )
+            , _Kff("Kff", "Proportional gain", std::vector<double>( num_chans, 1) )
             , _Ti("Ti", "Integrative time cte", std::vector<double>( num_chans, 0))
             , _Td("Td", "Derivative time cte", std::vector<double>( num_chans, 0))
             , _N("N", "Limitation of derivative gain (e.g. value 10)", std::vector<double>( num_chans, 1))
@@ -121,14 +125,16 @@ namespace ORO_ControlKernel
             uI = new double [num_chans];
             uD = new double [num_chans];
             uP = new double [num_chans];
+            uFF = new double [num_chans];
 
             for (int i=0; i < num_chans; ++i) 
-                uI[i] = uD[i] = uP[i] = 0;
+                uI[i] = uD[i] = uP[i] = uFF[i] = 0;
 
             _result.resize(num_chans, 0.0);
             _refPos.resize(num_chans, 0.0);
             y.resize(num_chans, 0.0);
             y_old.resize(num_chans, 0.0);
+            _ff.resize(num_chans, 0.0);
         }
 
 	    virtual ~PID_Controller() {
@@ -139,6 +145,7 @@ namespace ORO_ControlKernel
             delete[] uI;
             delete[] uD;
             delete[] uP;
+            delete[] uFF;
         }
 
 	    virtual bool componentLoaded()
@@ -211,6 +218,8 @@ namespace ORO_ControlKernel
                 {
                     return false;
                 }
+            if ( ! Base::SetPoint::dObj()->Get("FeedForward",setp_ff_dObj) )
+                setp_ff_dObj = 0;
 
             // Set y_old to the current value...
             pull();
@@ -220,6 +229,8 @@ namespace ORO_ControlKernel
                 {
                     uI[i] = 0;
                     uD[i] = 0;
+                    uFF[i] = 0;
+                    _ff[i] = 0;
                 }
             calculate();
             push();
@@ -232,6 +243,8 @@ namespace ORO_ControlKernel
             // Remember the current value
             inp_dObj->Get(y);
             setp_dObj->Get(_refPos);
+            if ( setp_ff_dObj )
+                setp_ff_dObj->Get(_ff);
 	    }
             
         // Here, the calculation of the new actuator command will be done
@@ -239,6 +252,7 @@ namespace ORO_ControlKernel
         {
             for( int i = 0; i< num_chans; i++)
                 {
+                    uFF[i] = _ff[i] * _Kff.get()[i];
                     // Compute the proportional
                     uP[i] = _K.get()[i] * ( _refPos[i] - y[i] );
                     // update derivative part
@@ -247,7 +261,7 @@ namespace ORO_ControlKernel
                         uD[i] = ad[i] * uD[i] - bd[i] * ( y[i] - y_old[i] );
 
                     // Compute control variable
-                    v = uP[i] + uD[i] + uI[i];
+                    v = uP[i] + uD[i] + uI[i] + uFF[i];
 
                     // Check for saturation
                     u = v;
@@ -281,6 +295,7 @@ namespace ORO_ControlKernel
         {
             //std::cerr << "Properties imported! : " << _K << _Ti << _Td << _N << _Tt << _minu << _maxu << std::endl;
             composeProperty(bag, _K);
+            composeProperty(bag, _Kff);
             composeProperty(bag, _Ti); 
             composeProperty(bag, _Td); 
             composeProperty(bag, _N); 
@@ -391,9 +406,10 @@ namespace ORO_ControlKernel
         DataObjectInterface<ChannelType>* inp_dObj;
         DataObjectInterface<ChannelType>* outp_dObj;
         DataObjectInterface<ChannelType>* setp_dObj;
+        DataObjectInterface<ChannelType>* setp_ff_dObj;
         ChannelType   _result;
         ChannelType   _refPos;
-        ChannelType   y, y_old;
+        ChannelType   y, y_old, _ff;
 
         double T;
         // Desciption of PID in discrete time
@@ -401,11 +417,13 @@ namespace ORO_ControlKernel
         double *uI;        // integrative part of PID
         double *uD;        // derivative part of PID
         double *uP;        // Proportianal part of PID
+        double *uFF;       // FeedForward part of PID
             
         double v, u;      // Variables used for calculating the output
 
         // Variables defining the PID in continuos time
 	    Property<std::vector< double> > _K;         // proportional gain
+	    Property<std::vector< double> > _Kff;         // feedforward gain
         Property<std::vector< double> > _Ti;        // integrative time cte
         Property<std::vector< double> > _Td;        // derivative time cte
         Property<std::vector< double> > _N;         // limitation of deriavtive gain (e.g. value 10)
