@@ -307,7 +307,7 @@ namespace ORO_Execution
 
       TaskContext* __p = rootc->getPeer("programs");
       if ( __p == 0 ) {
-          // install the __functions if not yet present.
+          // install the "programs" if not yet present.
           __p = new TaskContext("programs", rootc->getProcessor() );
           rootc->addPeer( __p );
       }

@@ -276,6 +276,14 @@
 	  types are written non-capital in the scripting language.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  If a Program dispatches a command to a Processor which is not running or not
+	  accepting commands, the program will fail (previously it would retry forever).
+	  With the same semantics, the TaskContext and TaskBrowser refuse to execute commands if the Processor
+	  is not running or not accepting commands.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="interfacing">
@@ -286,7 +294,7 @@
 	  KernelClient version 0.4 has been released to take advantage
 	  of the new logging infrastructure (locally and remotely).
 	  Furthermore, a shutdown command is available to shutdown the 
-	  server process (ie remote kernel).
+	  server process (ie remote control kernel).
 	</para>
       </listitem>
     </itemizedlist>

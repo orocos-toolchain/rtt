@@ -522,6 +522,13 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name)
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor unload exception", false );
     }
 
+    TaskContext* ptc = tc->getPeer("states")->getPeer(prog_name);
+    tc->getPeer("states")->removePeer(prog_name);
+    delete ptc;
+
+    ptc= tc->getPeer("states");
+    tc->removePeer("states");
+    delete ptc;
 }
 
     

@@ -29,8 +29,6 @@
 #ifndef ORO_TASK_CONTEXT_HPP
 #define ORO_TASK_CONTEXT_HPP
 
-#include <os/Mutex.hpp>
-
 #include "Factories.hpp"
 #include "AttributeRepository.hpp"
 
@@ -65,7 +63,6 @@ namespace ORO_Execution
         typedef std::map< std::string, TaskContext* > PeerMap;
         PeerMap         _task_map;
 
-        ORO_OS::Mutex execguard;
     public:
         typedef std::vector< std::string > PeerList;
 
@@ -78,15 +75,13 @@ namespace ORO_Execution
         ~TaskContext();
 
         /**
-         * Execute or queue a command.
-         * If processor->getTask() && processor->getTask()->isRunning(), the 
-         * command \a c will be queued and executed by the processor, otherwise,
-         * the command is executed directly.
+         * Queue a command.
+         * @return True if the Processor accepted the command.
          */
         bool executeCommand( CommandInterface* c);
 
         /**
-         * Queue a command. If the Processor is not running,
+         * Queue a command. If the Processor is not running or not accepting commands
          * this will fail and return zero.
          * @return The command id the processor returned.
          */

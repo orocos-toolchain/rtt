@@ -248,6 +248,14 @@ void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)
 {
     tc->getProcessor()->stopProgram( prog_name );
     tc->getProcessor()->deleteProgram( prog_name );
+
+    TaskContext* ptc =  tc->getPeer("programs")->getPeer(prog_name);
+    tc->getPeer("programs")->removePeer(prog_name);
+    delete ptc;
+
+    ptc= tc->getPeer("programs");
+    tc->removePeer("programs");
+    delete ptc;
 }
 
     

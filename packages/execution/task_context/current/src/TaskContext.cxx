@@ -29,7 +29,6 @@
 
 #include "execution/TaskContext.hpp"
 #include <corelib/CommandInterface.hpp>
-#include <os/MutexLock.hpp>
 
 #include "execution/Factories.hpp"
 #include "execution/Processor.hpp"
@@ -41,6 +40,7 @@
 
 namespace ORO_Execution
 {
+
         TaskContext::TaskContext(const std::string& name, Processor* proc )
             : _task_proc( proc == 0 ? new Processor : proc  ),
               _task_proc_owner( proc == 0 ? true : false ),
@@ -101,13 +101,7 @@ namespace ORO_Execution
 
         bool TaskContext::executeCommand( CommandInterface* c)
         {
-            if ( _task_proc->getTask() && _task_proc->getTask()->isRunning() )
-                return _task_proc->process( c ) != 0;
-            else {
-                ORO_OS::MutexLock lockit( execguard );
-                return c->execute();
-            }
-            return true;
+            return _task_proc->process( c ) != 0;
         }
 
         int TaskContext::queueCommand( CommandInterface* c)

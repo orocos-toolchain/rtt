@@ -484,7 +484,17 @@ namespace ORO_Execution
     {
         if ( taskHistory.size() == 0)
             return;
+        if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+            cerr << "Warning : previous command was not yet processed by previous Processor." <<endl;
+            // memleak it...
+        } else {
+            delete command;
+            delete condition;
+            command = 0;
+            condition = 0;
+        }
         taskcontext = taskHistory.front();
+        lastc = 0;
         taskHistory.pop_front();
     }
 
@@ -507,8 +517,18 @@ namespace ORO_Execution
         if (taskHistory.size() == 20 )
             taskHistory.pop_back();
         taskHistory.push_front( taskcontext );
+        if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+            cerr << "Warning : previous command was not yet processed by previous Processor." <<endl;
+            // memleak it...
+        } else {
+            delete command;
+            delete condition;
+            command = 0;
+            condition = 0;
+        }
         // now switch to new one :
         taskcontext = pp.peer(); // peer is the new taskcontext.
+        lastc = 0;
 
         cerr << "   Switched to : " << taskcontext->getName() <<endl;
     }
@@ -568,7 +588,9 @@ namespace ORO_Execution
         Parser _parser;
         std::pair< CommandInterface*, ConditionInterface*> comcon;
         try {
+            // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );
+            // methods and DS'es are processed immediately.
             if ( ds.get() != 0 )
                 this->printResult( ds.get() );
             return; // done here
@@ -587,11 +609,14 @@ namespace ORO_Execution
                 // ignore it, try to parse it as a command :
                 //cerr << "Ignoring : "<< pe.what() << endl;
                 try {
-                    comcon = _parser.parseCommand(comm, taskcontext );
-                    if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
+                    comcon = _parser.parseCommand( comm, taskcontext );
+                    if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
                         cerr << "Warning : previous command is not yet processed by Processor." <<endl;
-                    delete command;
-                    delete condition;
+                        // memleak it...
+                    } else {
+                        delete command;
+                        delete condition;
+                    }
                     command = comcon.first;
                     condition = comcon.second;
                 } catch ( parse_exception& pe ) {
@@ -609,14 +634,15 @@ namespace ORO_Execution
             cerr << "Uncaught : Illegal command."<<endl;
             return;
         }
+        // It is for sure a real command, dispatch to target processor :
         lastc = taskcontext->getProcessor()->process( command );
-        if ( lastc == 0 && taskcontext->executeCommand(command) == false ) {
-            cerr << "Command not accepted by Processor ! " << endl;
+        // returns null if Processor not running or not accepting.
+        if ( lastc == 0 ) {
+            cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << endl;
             delete command;
             delete condition;
             command = 0;
             condition = 0;
-            return;
         }
     }
 

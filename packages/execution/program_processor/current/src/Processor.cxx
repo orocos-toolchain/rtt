@@ -639,7 +639,11 @@ namespace ORO_Execution
             CommandInterface* com;
             int res = a_queue->dequeueCounted( com );
             if ( res ) {
+                // note : the command's result is discarded.
+                // Wrap your command (ie CommandDispatch) to keep track
+                // of the result of enqueued commands.
                 com->execute();
+                // let the user know this command was processed.
                 coms_processed = res;
             }
         }
@@ -704,7 +708,7 @@ namespace ORO_Execution
 
     bool Processor::isProcessed( int nr )
     {
-        return nr <= coms_processed;
+        return ( nr <= coms_processed );
     }
 }
 
