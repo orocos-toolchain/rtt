@@ -32,6 +32,7 @@
 #include <device_interface/CalibrationInterface.hpp>
 
 #include <limits>
+#include <iostream>
 
 namespace ORO_DeviceDriver
 {
@@ -49,6 +50,8 @@ namespace ORO_DeviceDriver
         double posOffset;
         bool calibrated;
         double calPos;
+        int resolution;
+      
 
     public:
         /** 
@@ -61,13 +64,9 @@ namespace ORO_DeviceDriver
          * @param _maxpos The maximal, physical position, after calibration
          * 
          */
-        IncrementalEncoderSensor(ORO_DeviceInterface::EncoderInterface* _enc, double _unit_to_inc, double _calPos, double _minpos, double _maxpos)
-            : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false), calPos(_calPos)
+        IncrementalEncoderSensor(ORO_DeviceInterface::EncoderInterface* _enc, double _unit_to_inc, double _calPos, double _minpos, double _maxpos, int _resolution)
+	  : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false), calPos(_calPos), resolution(_resolution)
         {}
-
-        ~IncrementalEncoderSensor(){
-	  delete enc;
-        }
 
         virtual int readSensor( double& p ) const
         {
@@ -88,11 +87,11 @@ namespace ORO_DeviceDriver
         {
             if( enc->upcounting() )
             {
-                posOffset = calPos - ( enc->turnGet() * enc->resolution() + enc->positionGet() ) / unit_to_inc;
+                posOffset = calPos - ( enc->turnGet() * resolution + enc->positionGet() ) / unit_to_inc;
             }
             else
             {
-                posOffset = calPos - ( enc->turnGet() * enc->resolution() + ( enc->resolution() - enc->positionGet() ) ) / unit_to_inc;
+                posOffset = calPos - ( enc->turnGet() * resolution + ( resolution - enc->positionGet() ) ) / unit_to_inc;
             }
 
             this->calibrated = true;
@@ -111,9 +110,12 @@ namespace ORO_DeviceDriver
         virtual double readSensor() const
         {
             if ( enc->upcounting() )
-                return ( enc->turnGet() * enc->resolution() + enc->positionGet() ) / unit_to_inc - posOffset;
+            {
+                return ( enc->turnGet() * resolution + enc->positionGet() ) / unit_to_inc - posOffset;
+	    }
+	    
             else
-                return ( enc->turnGet() * enc->resolution() + ( enc->resolution() - enc->positionGet() ) ) / unit_to_inc - posOffset;
+                return ( enc->turnGet() * resolution + ( resolution - enc->positionGet() ) ) / unit_to_inc - posOffset;
         }
 
         virtual double maxMeasurement() const
