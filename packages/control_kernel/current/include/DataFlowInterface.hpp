@@ -31,7 +31,6 @@
 
 namespace ORO_ControlKernel
 {
-    using namespace ORO_CoreLib;
 
     /**
      * @brief This interface defines the methods of the Data Flow
