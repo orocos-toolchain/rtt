@@ -55,7 +55,7 @@ namespace ORO_DeviceDriver
     typedef unsigned int Data;
 
     ComediDevice( unsigned int minor );
-    ~ComediDevice( );
+    virtual ~ComediDevice( );
 
     /**
        Returns the maximum valid data value for channel chan of
