@@ -1,20 +1,8 @@
 SUBDIRS = .
 
-EXTRA_DIST = \
-	CODING_STYLE.txt \
-	orocos.xsl \
-	$(XMLDOCS) \
-	$(DOCBOOKS) \
-	$(DIAS) \
-	$(HTMLDOCS) \
-	$(PDFDOCS)
-# we do not distribute the ps files, they are to large,
-# but i make them for the website
-
 XMLDOCS=orocos-overview.xml orocos-installation.xml
 # the faq only renders correctly in html, the changes is only for online viewing.
-HTMLXMLDOCS=orocos-faq.html orocos-changes.html
-XML_CATALOG_FILES=catalog.xml
+EXTRAHTMLDOCS=orocos-faq.html orocos-changes.html
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
 CLEANXMLDOCS= $(notdir $(EXTRAXMLDOCS))
@@ -33,17 +21,26 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 
 DIAS=ApplicationStack.dia
 
-HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS)) $(HTMLXMLDOCS)
-PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))
-PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))  #$(patsubst %.sgml,%.ps,$(DOCBOOKS))
-TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS)) # $(patsubst %.sgml,%.txt,$(DOCBOOKS))
+FOP_STYLESHEET := $(srcdir)/orocos.xsl
+HTML_STYLESHEET := $(srcdir)/orocos-html.xsl
+
+include $(srcdir)/docrules.mak
+
 CHUNKSDOCS= $(patsubst %.xml,%.chunks,$(XMLDOCS)) # $(patsubst %.sgml,%.chunks,$(DOCBOOKS))
 WEBSITEDOCS= $(patsubst %.xml,%.website,$(XMLDOCS)) # $(patsubst %.sgml,%.website,$(DOCBOOKS))
 
-EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
-PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
-JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
-TIFFIMGS= $(patsubst %.dia,%.tiff,$(DIAS))
+EXTRA_DIST = \
+	CODING_STYLE.txt \
+	docrules.mak \
+	orocos.xsl \
+	orocos-html.xsl \
+	$(XMLDOCS) \
+	$(DOCBOOKS) \
+	$(DIAS) \
+	$(HTMLDOCS) \
+	$(PDFDOCS)
+# we do not distribute the ps files, they are to large,
+# but i make them for the website
 
 
 if HAVE_XMLPROCESSOR
@@ -52,7 +49,7 @@ else
 DOC = dochtml
 endif
 
-.PHONY: docs docxml dochtml docpdf docps doctxt pngimages epsimages docchunks manual control-manual
+.PHONY: docs docchunks manual control-manual
 
 docs: $(DOC)
 
@@ -72,40 +69,9 @@ control-manual: pngimages jpgimages
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANJPG)
 
-docxml: dochtml docpdf
-
-dochtml: pngimages $(HTMLDOCS)
-
-docpdf: jpgimages $(PDFDOCS)
-
-docps: epsimages $(PSDOCS)
-
-doctxt: $(TXTDOCS)
-
 docchunks: $(CHUNKSDOCS)
 
 docwebsite: $(WEBSITEDOCS)
-
-pngimages: $(PNGIMGS)
-
-epsimages: $(EPSIMGS)
-
-jpgimages: $(JPGIMGS)
-
-tiffimages: $(TIFFIMGS)
-
-.sgml.html:
-	docbook2html -u $<
-
-.sgml.ps:
-	docbook2ps $<
-
-.sgml.pdf:
-	docbook2pdf $<
-
-.xml.html:
-	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
-	$(XMLPROCESSOR)  --xinclude $(srcdir)/orocos-html.xsl $< > $@
 
 .xml.chunks:
 	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-chunk.xsl $< 
@@ -113,40 +79,6 @@ tiffimages: $(TIFFIMGS)
 
 .xml.website:
 	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-website.xsl $<  > $@
-
-.xml.fo:
-	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
-	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
-
-.fo.ps:
-	$(FOP) -c $(DOC_DIR)/fopconfig.xml -fo $< -ps $@
-
-# .ps.pdf:
-# 	ps2pdf $<
-
-# PDF files rendered from Postscript files by ghostscript look better
-# then those created directly by FOP.  So we're temporarly using
-# ghostscript.
-.fo.pdf:
-	$(FOP) -d -c $(DOC_DIR)/fopconfig.xml $< $@
-
-
-.fo.txt:
-	$(FOP) $< $@
-
-.dia.eps:
-	$(DIA) -t eps --nosplash $<
-	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
-
-.png.jpg:
-	convert -quality 100 $< $@
-
-.png.tiff:
-	convert $< $@
-
-.dia.png:
-	$(DIA) -t png --nosplash $<
-	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
 
 clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) $(JPGIMGS) *.chunks *.website

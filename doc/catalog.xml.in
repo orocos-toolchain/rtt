@@ -31,7 +31,7 @@
     <group xml:base="file://@DOC_DIR@/">
     <!-- To resolve short stylesheet references -->
     <uri
-        name="orocos.ent"
+        name="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent"
         uri="orocos.ent" />
     <uri
         name="images/"

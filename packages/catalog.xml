@@ -29,9 +29,9 @@
 
     </group>
     <group xml:base="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/">
-    <system
-         systemId="orocos.ent"
-         uri="orocos.ent" />
+<!--     <system -->
+<!--          systemId="images/note" -->
+<!--          uri="images/note" /> -->
     <!-- To resolve short stylesheet references -->
 <!--     <uri -->
 <!--         name="orocos.ent" -->

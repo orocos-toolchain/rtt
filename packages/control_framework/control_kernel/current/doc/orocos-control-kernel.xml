@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
@@ -23,14 +23,6 @@
       <author>
         <firstname>Herman</firstname>
         <surname>Bruyninckx</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
-      <author>
-        <firstname>Panagiotis</firstname>
-        <surname>Issaris</surname>
         <affiliation>
           <orgname>K.U.Leuven</orgname>
           <address><country>Belgium</country></address>

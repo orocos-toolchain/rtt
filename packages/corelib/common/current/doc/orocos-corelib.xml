@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
