@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ValueParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ValueParser.cxx
 
                         ValueParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -49,7 +49,7 @@ namespace ORO_Execution
   };
 
   CommandInterface* ParsedValueBase::assignIndexCommand(
-                                                   DataSourceBase*,                                               
+                                                   DataSourceBase*,
                                                    DataSourceBase* ) const
   {
     return 0;
@@ -66,6 +66,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( const_string );
     BOOST_SPIRIT_DEBUG_RULE( named_constant );
 
+    // note the order is important: commonparser.identifier throws a
+    // useful "cannot use x as identifier" error if it fails, so we
+    // must first show all non-identifier rules.
     constant =
         const_double
       | const_int
@@ -87,7 +90,7 @@ namespace ORO_Execution
         c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
         ), '"' )[ bind( &ValueParser::seenstring, this ) ];
     named_constant =
-      ( commonparser.identifier | "done" ) [
+      ( "done" | commonparser.identifier ) [
         bind( &ValueParser::seennamedconstant, this, _1, _2 ) ];
   };
 
