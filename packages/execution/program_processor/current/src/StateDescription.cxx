@@ -52,7 +52,7 @@ namespace ORO_Execution {
 
   StateDescription* StateDescription::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
   {
-    StateDescription* ret = new StateDescription( name );
+    StateDescription* ret = new StateDescription( name, entrypoint );
     ret->inited = isDefined();
     if ( mentry )
     {
