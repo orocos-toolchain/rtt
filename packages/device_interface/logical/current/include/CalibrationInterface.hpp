@@ -33,6 +33,7 @@ namespace ORO_DeviceDriver
     /**
      * @brief A class which will calibrate a sensor. It is
      * useful for making 'calibration' objects.
+     * @see SensorInterface
      */
     class CalibrationInterface
     {

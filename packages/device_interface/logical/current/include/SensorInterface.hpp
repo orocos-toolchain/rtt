@@ -42,6 +42,7 @@ namespace ORO_DeviceInterface
      * If the sensor is not callibrated, the \a minMeasurement() and
      * \a maxMeasurement() functions should return std::numeric_limits<SensorData>::min()
      * and std::numeric_limits<SensorData>::max() respectively.
+     * @see CalibrationInterface
      */
     template <class SensorData>
     class SensorInterface
@@ -76,6 +77,24 @@ namespace ORO_DeviceInterface
          * rest.
          */
         virtual DataType zeroMeasurement() const = 0;
+
+        /**
+         * @brief Start or perform calibration.
+         */
+        virtual void calibrate() = 0;
+
+        /** 
+         * @brief Inspect if a calibration has been done.
+         * 
+         * @return True if so.
+         */
+        virtual bool isCalibrated() const = 0;
+
+        /** 
+         * @brief Undo any previous calibration
+         * ( this function may have no effect ).
+         */
+        virtual void unCalibrate() = 0;
     };
 }
 
