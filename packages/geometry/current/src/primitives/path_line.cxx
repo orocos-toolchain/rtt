@@ -39,18 +39,24 @@ Path_Line::Path_Line(const Frame& startpos,
 		// See what has the slowest eq. motion, and adapt 
 		// the other to this slower motion
 		// use eqradius to transform between rot and transl.
-		if (alpha*eqradius > dist) {
+       
+        // Only modify if non zero (prevent division by zero)
+		if ( alpha != 0 && alpha*eqradius > dist) {
 			// rotational_interpolation is the limitation
 			pathlength = alpha*eqradius;
 			scalerot   = 1/eqradius;
 			scalelin   = dist/pathlength;
-		} else {
+		} else if ( dist != 0 ) {
 			// translation is the limitation
 			pathlength = dist;
 			scalerot   = alpha/pathlength;
 			scalelin   = 1;
-		}
-
+		} else {
+            // both were zero
+            pathlength = 0;
+            scalerot   = 1;
+            scalelin   = 1;
+        }
    }
 
 Path_Line::Path_Line(const Frame& startpos,
@@ -77,18 +83,23 @@ Path_Line::Path_Line(const Frame& startpos,
 		// See what has the slowest eq. motion, and adapt 
 		// the other to this slower motion
 		// use eqradius to transform between rot and transl.
-		if (alpha*eqradius > dist) {
+        // Only modify if non zero (prevent division by zero)
+		if ( alpha != 0 && alpha*eqradius > dist) {
 			// rotational_interpolation is the limitation
 			pathlength = alpha*eqradius;
 			scalerot   = 1/eqradius;
 			scalelin   = dist/pathlength;
-		} else {
+		} else if ( dist != 0 ) {
 			// translation is the limitation
 			pathlength = dist;
 			scalerot   = alpha/pathlength;
 			scalelin   = 1;
-		}
-
+		} else {
+            // both were zero
+            pathlength = 0;
+            scalerot   = 1;
+            scalelin   = 1;
+        }
    }
 
 double Path_Line::LengthToS(double length) {
