@@ -25,8 +25,6 @@
 namespace ORO_ControlKernel
 {
 
-  using namespace ORO_ControlKernel;
-
   nAxesControllerCartesianPos::nAxesControllerCartesianPos(std::string name)
     : nAxesControllerCartesianPos_typedef(name),
       _properties_read(false),
