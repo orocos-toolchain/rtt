@@ -34,7 +34,6 @@
 #include <stack>
 #include <map>
 #include <string>
-#include <config.h>
 #include "Property.hpp"
 #include "StreamProcessor.hpp"
 
