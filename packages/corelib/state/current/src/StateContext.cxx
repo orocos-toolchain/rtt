@@ -114,7 +114,7 @@ namespace ORO_CoreLib
 
         void StateContext::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd )
         {
-            stateMap[ from ] = std::make_pair( cnd, to );
+            stateMap.insert(std::make_pair( from, std::make_pair( cnd, to ) ));
         }
 
         void StateContext::transitionSet( StateInterface* target, ConditionInterface* cnd )

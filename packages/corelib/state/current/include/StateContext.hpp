@@ -27,7 +27,6 @@
 
 namespace ORO_CoreLib
 {
-	using  std::map;
     /**
      * A StateContext keeps track of the current StateInterface and all
      * transitions from this StateInterface to another. One can request
@@ -46,9 +45,9 @@ namespace ORO_CoreLib
      */
     class StateContext
     {
-        typedef map< StateInterface*, std::pair<ConditionInterface*, StateInterface*> >
+        typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, StateInterface*> >
         TransitionMap;
-        typedef map< StateInterface*, ConditionInterface*>
+        typedef std::map< StateInterface*, ConditionInterface*>
         TransitionAnyMap;
 
     public:
