@@ -207,5 +207,8 @@ namespace ORO_CoreLib
 
     };
 
+    template<class T>
+    const unsigned int BufferLockFree<T>::MAX_THREADS;
+
     extern template class BufferLockFree<double>;
 }
