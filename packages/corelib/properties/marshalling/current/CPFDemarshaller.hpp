@@ -273,11 +273,14 @@ namespace ORO_CoreLib
                 }
                 catch ( const XMLException & toCatch )
                 {
-                    //                cerr << "Error during initialization! :\n" /*<< StrX(toCatch.getMessage())*/ << endl;
+                    cerr << "Error during initialization! : " <<endl;
+                    cerr << XMLString::transcode(toCatch.getMessage()) << endl;
+                    return false;
                 }
                 catch ( ... )
                 {
-                    //              cerr << "other exception" << endl;
+                    cerr << "General System Exception !" << endl;
+                    return false;
                 }
 
                 SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
@@ -302,18 +305,21 @@ namespace ORO_CoreLib
 
                     parser->parse( *s );
                     errorCount = parser->getErrorCount();
+                    XMLPlatformUtils::Terminate();
                 }
                 catch ( const XMLException & toCatch )
                 {
-                    //cerr << "\nAn XML parsing error occurred\n  Error: " << endl;
-                    printf("error xml");
+                    cerr << "An XML parsing error occurred processing file " <<endl;
+                    if ( XMLString::transcode(toCatch.getSrcFile()) )
+                        cerr <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<endl ;
+                    cerr << " Error: " << endl;
+                    cerr << XMLString::transcode(toCatch.getMessage()) <<endl;
                     XMLPlatformUtils::Terminate();
                     return false;
                 }
                 catch ( ... )
                 {
-                    printf("error");
-                    //                    cerr << "General error" << endl;
+                    cerr << "General System Exception !" << endl;
                     XMLPlatformUtils::Terminate();
                     return false;
                 }
