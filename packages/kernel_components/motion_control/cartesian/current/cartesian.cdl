@@ -1,0 +1,19 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL_CARTESIAN {
+    display "Cartesian Space Motion Control Components"
+    description "
+Components for 3D motion control, e.g. trajectory
+planning and interpolation. An integrating simulator
+is also provided for testing purposes.
+"
+    parent OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
+
+    requires OROPKG_CONTROL_KERNEL
+
+    include_dir kernel_components
+
+    compile CartesianNSSensor.cxx
+    compile CartesianNSEffector.cxx
+    compile CartesianNSController.cxx
+    compile CartesianNSGenerator.cxx
+    compile CartesianNSEstimator.cxx
+}

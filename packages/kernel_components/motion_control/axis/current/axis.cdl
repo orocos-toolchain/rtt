@@ -1,0 +1,15 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL_AXIS {
+    display "Multi Axis control components"
+    description "
+Components for 1D Axis motion control, e.g. trajectory
+planning and interpolation.
+"
+    parent OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
+
+    requires OROPKG_CONTROL_KERNEL
+
+    include_dir kernel_components
+
+    compile AxisSensor.cxx AxisEffector.cxx
+    compile AxisPositionGenerator.cxx
+}
