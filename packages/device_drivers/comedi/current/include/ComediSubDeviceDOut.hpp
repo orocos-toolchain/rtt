@@ -136,8 +136,8 @@ namespace ORO_DeviceDriver
       // At this moment, only supported for DIO subdevices (not DO)
       if ( myCard->getSubDeviceType( subDevice ) != COMEDI_SUBD_DIO)
 	{
-	  rtos_printf( "Comedi Digital Out : CheckBit not implemented for DO (only DIO), returning true\n" );
-	  rtos_printf( "Type = %d \n", myCard->getSubDeviceType( subDevice ));
+	  //rtos_printf( "Comedi Digital Out : CheckBit not implemented for DO (only DIO), returning true\n" );
+	  //rtos_printf( "Type = %d \n", myCard->getSubDeviceType( subDevice ));
 	  return true;
 	}
       // Read all channels

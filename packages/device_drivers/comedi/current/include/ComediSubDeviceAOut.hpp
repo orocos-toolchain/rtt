@@ -33,6 +33,7 @@
 #include <device_interface/AnalogOutInterface.hpp>
 #include <os/fosi.h>
 #include "ComediDevice.hpp"
+#include <os/fosi.h>
 
 namespace ORO_DeviceDriver
 {
