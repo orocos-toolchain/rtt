@@ -32,8 +32,8 @@
 
 namespace ORO_CoreLib
 {
-     ReportWriter::ReportWriter(WriteInterface* f, double period)
-         :TaskPreemptible(period), rtf(f), localTime( TimeService::Instance()->getTicks() )
+     ReportWriter::ReportWriter(WriteInterface* f)
+         : rtf(f), localTime( TimeService::Instance()->getTicks() )
      {
          expList.reserve(DEFAULT_EXPLIST_SIZE);
          message.reserve(DEFAULT_MESSAGE_SIZE);
