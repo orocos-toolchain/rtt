@@ -38,7 +38,7 @@ namespace ORO_CoreLib
   // Property<double>'s to have a different name.
   void decomposeProperty(PropertyIntrospection *pi, const Property< std::vector<double> >& c)
   {
-    Property<PropertyBag> result(c.getName(),"std::vector<double>", PropertyBag("std::vector<double>") );
+    Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("std::vector<double>") );
 
     std::vector<double> vec = c.get();
     Property<int>* dimension = new Property<int>("dim","Dimension of the Vector", vec.size() );
