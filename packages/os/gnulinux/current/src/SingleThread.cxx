@@ -23,6 +23,7 @@ namespace ORO_OS
         SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
 
         sem_init( &task->sem, 0, 0 );
+        sem_post( &task->confDone );
 
         /**
          * The real task starts here.
@@ -53,10 +54,8 @@ namespace ORO_OS
          * Cleanup stuff
          */
         sem_destroy( &task->sem);
-
         rtos_printf("SingleThread terminating.\n");
         sem_post( &task->confDone );
-
         return 0;
     }
 
@@ -74,6 +73,7 @@ namespace ORO_OS
         sem_init( &confDone, 0, 0);
         pthread_create( &thread, 0, singleThread_f, this);
         sem_wait( &confDone );
+	rtos_printf("Exiting Constructor\n");
     }
     
     SingleThread::~SingleThread() 
