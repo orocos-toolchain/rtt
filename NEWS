@@ -1,3 +1,77 @@
+OROCOS v0.16.0 Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of Orocos 0.16.0, the Realtime
+Framework for Robot and Machine Control. 
+
+Thanks to an enthousiastic community, this release has
+improved the functionality of Orocos significantly.
+The Control Kernel Architecture has been revised to 
+allow easier application development and a number of
+ready-to-use control components is available
+and documented. 
+
+New Features compared to 0.14 are :
+
+Overall Improvements :
+ * Reduced compilation time and memory footprint
+   of applications
+ * Availability of the All-in-One Orocos Manual
+ * Testing and bugfixes
+ * Better support for RedHat/Fedora systems
+ * Orocos compiles with GCC 3.4
+
+Orocos Program Scripting :
+ * Introduced if, while, for statements
+ * Much more informative syntax error reporting
+ * Added the Double6D type with index operator []
+
+Orocos Control Kernel :
+ * Simplified Control Architecture
+ * Streamlined Documentation
+ * Ready to use multi-channel Control Components
+   for PID control, Axis positioning, Signal
+   generation and hardware access.
+ * Example for multi-axis control
+
+Orocos Devices :
+ * Matured Axis Implementation
+
+User Interfacing :
+ * Console Component with automatic
+   command browsing and completion
+
+Changes
+-------
+
+This release introduces some incompatibilities with
+prior versions.
+
+1a. The StandardControlKernel has changed that it only
+   takes the Extension as a template parameter and
+1b. Components have changed that they inherit directly
+   from the Default-Component Base Classes without 
+   using a template. See the control-kernel manual.
+2. In scripting, a program script
+   needs an extra *myname* identifier like a function,
+   also the syntax has been extended. See the 
+   program-parser manual.
+3. The Axis implementation has changed. See 
+   kernel_samples/axis_control and documentation
+   for a new example.
+4. Component selection is again allowed before
+   the kernel is started, and an bool isSelected()
+   method is provided in the base class.
+5. The Channel_P_Controller has been renamed to P_Controller
+   and PID_Controller has been added. Also, all 'channel'
+   DataObjects have the name "ChannelValues" (also inputs).
+6  In scripting, the 'kernel' and 'engine' components
+   have been renamed to 'Kernel' and 'Execution'.
+
+In general, if something changed, this change has
+been documented in the manual.
+
 OROCOS v0.14.2 Release Notes
    http://www.orocos.org
 ----------------------------

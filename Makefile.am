@@ -63,8 +63,6 @@ all_packages:
 # the headers and library
 clean_packages:
 	$(MAKE) -C packages-@ECOS_TARGET@ clean
-	cd packages-@ECOS_TARGET@ && \
-	rm install/lib/libtarget.a
 
 # This checks the configuration
 check_packages:

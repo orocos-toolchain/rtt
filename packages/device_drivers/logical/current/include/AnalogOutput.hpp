@@ -83,7 +83,7 @@ namespace ORO_DeviceDriver
         {
             if ( i < board->binaryLowest(channel ) )
                 i_cache = board->binaryLowest( channel );
-            else if ( v > board->binaryHighest( channel ) )
+            else if ( i > board->binaryHighest( channel ) )
                 i_cache = board->binaryHighest( channel ) ;
             else
                 i_cache = i;

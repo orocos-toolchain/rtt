@@ -14,9 +14,7 @@ mkdir build
 cd build
 ../configure
 make new_packages
-cd packages-gnulinux
-configtool ecos.ecc [save changes]
-cd ..
+make configure_packages
 make all_packages
 
 
