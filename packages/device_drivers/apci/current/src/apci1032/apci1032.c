@@ -56,6 +56,10 @@
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
+#ifndef CONFIG_PCI
+#   error "This driver needs PCI support to be available"
+#endif
+
 
 /*MODULE_PARM(video_nr, "i");*/
 //MODULE_DESCRIPTION( "APCI-1032 driver" );
@@ -406,85 +410,61 @@ int init_module( void )
     printk( " |      Module installation     |\n" );
     printk( " +------------------------------+\n" );
 
-    /* Detection if an PCI Bus is present */
+    
+    /* Registration of driver */
+    i_MajorNumber = register_chrdev( 0, DriverName, &APCI1032_fops );
 
-    if ( !pci_present() )
-        printk( "<1> NO PCI BUS.\n" );
-    else
+    if ( i_MajorNumber < 0 )
     {
-        /* Registration of driver */
-        i_MajorNumber = register_chrdev( 0, DriverName, &APCI1032_fops );
-
-        if ( i_MajorNumber < 0 )
-        {
-            printk( "<1> Can't get major number.\n" );
-            return i_MajorNumber;
-        }
-
-        /* Filling str_PCI_Information structure */
-        printk( "PCI_BASE_ADDRESS_IO_MASK = %X\n", ( UINT ) PCI_BASE_ADDRESS_IO_MASK );
-
-        while ( ( pPCILinuxStruct = pci_find_device( APCI1032_BOARD_VENDOR_ID,
-                                    APCI1032_BOARD_DEVICE_ID,
-                                    pPCILinuxStruct ) ) != 0 )
-        {
-            for ( i = 0;i < 5;i++ )
-            {
-                /* Gets all available base addresses and save it */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
-                s_APCI1032_DriverStructure.
-                s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
-                s_BaseInformations.ui_BaseAddress[ i ] = ( UINT )
-                        PCI_BASE_ADDRESS_IO_MASK & pci_resource_start( pPCILinuxStruct, i );
-#else
-
-                s_APCI1032_DriverStructure.
-                s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
-                s_BaseInformations.ui_BaseAddress[ i ] =
-                    ( unsigned int ) PCI_BASE_ADDRESS_IO_MASK &
-                    pPCILinuxStruct->base_address[ i ];
-#endif
-
-            }
-
-            /* Saves the IRQ in the structure */
-            s_APCI1032_DriverStructure.
-            s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
-            s_BaseInformations.b_Interrupt =
-                ( unsigned char ) pPCILinuxStruct->irq;
-
-            /* Saves the PCI Bus number in the structure */
-            s_APCI1032_DriverStructure.
-            s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
-            s_BaseInformations.b_SlotNumber =
-                ( unsigned char ) PCI_SLOT( pPCILinuxStruct->devfn );
-
-            printk( " |      NumberOfBoard: %2d       |\n", s_APCI1032_DriverStructure.b_NumberOfBoard );
-
-            printk( " +------------------------------+\n" );
-
-            printk( " | Baseaddress[0,1,2]:          |\n" );
-
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
-
-            printk( " |      %4lX, %4lX, %4lX        |\n", pci_resource_start( pPCILinuxStruct, 0 ), pci_resource_start( pPCILinuxStruct, 1 ), pci_resource_start( pPCILinuxStruct, 2 ) );
-
-#else
-
-            printk( " |      %4lX, %4lX, %4lX        |\n", pPCILinuxStruct->base_address[ 0 ], pPCILinuxStruct->base_address[ 1 ], pPCILinuxStruct->base_address[ 2 ] );
-
-#endif
-
-            printk( " | Interrupt No.:               |\n" );
-
-            printk( " |     %2lX                       |\n", pPCILinuxStruct->irq );
-
-            printk( " +------26.09.2001---09:29------+\n" );
-
-            /* Increases the number of detected boards by one */
-            s_APCI1032_DriverStructure.b_NumberOfBoard++;
-        }
+        printk( "<1> Can't get major number.\n" );
+        return i_MajorNumber;
     }
+
+    /* Filling str_PCI_Information structure */
+    printk( "PCI_BASE_ADDRESS_IO_MASK = %X\n", ( UINT ) PCI_BASE_ADDRESS_IO_MASK );
+
+    while ( ( pPCILinuxStruct = pci_find_device( APCI1032_BOARD_VENDOR_ID,
+                                APCI1032_BOARD_DEVICE_ID,
+                                pPCILinuxStruct ) ) != 0 )
+    {
+        for ( i = 0;i < 5;i++ )
+        {
+            /* Gets all available base addresses and save it */
+            s_APCI1032_DriverStructure.
+            s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
+            s_BaseInformations.ui_BaseAddress[ i ] = ( UINT )
+                    PCI_BASE_ADDRESS_IO_MASK & pci_resource_start( pPCILinuxStruct, i );
+        }
+
+        /* Saves the IRQ in the structure */
+        s_APCI1032_DriverStructure.
+        s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
+        s_BaseInformations.b_Interrupt =
+            ( unsigned char ) pPCILinuxStruct->irq;
+
+        /* Saves the PCI Bus number in the structure */
+        s_APCI1032_DriverStructure.
+        s_BoardInformations[ s_APCI1032_DriverStructure.b_NumberOfBoard ].
+        s_BaseInformations.b_SlotNumber =
+            ( unsigned char ) PCI_SLOT( pPCILinuxStruct->devfn );
+
+        printk( " |      NumberOfBoard: %2d       |\n", s_APCI1032_DriverStructure.b_NumberOfBoard );
+
+        printk( " +------------------------------+\n" );
+
+        printk( " | Baseaddress[0,1,2]:          |\n" );
+
+        printk( " |      %4lX, %4lX, %4lX        |\n", pci_resource_start( pPCILinuxStruct, 0 ), pci_resource_start( pPCILinuxStruct, 1 ), pci_resource_start( pPCILinuxStruct, 2 ) );
+        printk( " | Interrupt No.:               |\n" );
+
+        printk( " |     %2lX                       |\n", pPCILinuxStruct->irq );
+
+        printk( " +------26.09.2001---09:29------+\n" );
+
+        /* Increases the number of detected boards by one */
+        s_APCI1032_DriverStructure.b_NumberOfBoard++;
+    }
+    
 
     return 0;
 }

@@ -26,6 +26,11 @@
 
 #include "apci1710.h"
 
+#ifndef CONFIG_PCI
+#   error "This driver needs PCI support to be available"
+#endif
+
+
 // !!!!!!!!!!!!!!!!
 // IMPORTANT : see header-file for more documentation
 // !!!!!!!!!!!!!!!!
@@ -40,11 +45,6 @@ int init_module( void )
 
     // checks if there's a PCI bus
 
-    if ( !pci_present() )
-    {
-        printk( "No PCI bus found!\n" );
-        return -1;
-    }
 
     //see if we can find the device
     apci1710.pci = pci_find_device( APCI1710_VENDOR_ID, APCI1710_DEVICE_ID, apci1710.pci );
@@ -57,13 +57,7 @@ int init_module( void )
 
     for ( i = 0; i < 3; i++ )
     {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
         apci1710.ioaddr[ i ] = pci_resource_start( apci1710.pci, i ) & PCI_BASE_ADDRESS_IO_MASK;
-#else
-
-        apci1710.ioaddr[ i ] = apci1710.pci->base_address[ i ] & PCI_BASE_ADDRESS_IO_MASK;
-#endif
-
     }
 
     printk( "Device APCI-1710 found at IO 0x%04x and IRQ %d\n", apci1710.ioaddr[ 2 ], apci1710.pci->irq );

@@ -62,6 +62,11 @@
 #include <asm/io.h>
 #include <linux/ioport.h>
 
+#ifndef CONFIG_PCI
+#   error "This driver needs PCI support to be available"
+#endif
+
+
 #include "apci2200.h"
 
 apci2200_device apci2200;
@@ -70,13 +75,6 @@ int init_module( void )
 {
     int i;
 
-    // checks if there's a PCI bus
-
-    if ( !pci_present() )
-    {
-        printk( "No PCI bus found!\n" );
-        return -1;
-    }
 
     //see if we can find the device
     apci2200.pci = pci_find_device( VENDOR_ID, DEVICE_ID, apci2200.pci );
@@ -89,13 +87,7 @@ int init_module( void )
 
     for ( i = 0; i < 2; i++ )
     {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
         apci2200.ioaddr[ i ] = pci_resource_start( apci2200.pci, i ) & PCI_BASE_ADDRESS_IO_MASK;
-#else
-
-        apci2200.ioaddr[ i ] = apci2200.pci->base_address[ i ] & PCI_BASE_ADDRESS_IO_MASK;
-#endif
-
         printk( "Device APCI-2200 found at IO 0x%04x\n", apci2200.ioaddr[ i ] );
     }
 
