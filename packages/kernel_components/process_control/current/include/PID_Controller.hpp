@@ -442,24 +442,6 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-#if 0
-        DataSourceFactoryInterface* createDataSourceFactory()
-        {
-            TemplateDataSourceFactory< PID_Controller >* ret =
-                newDataSourceFactory( this );
-            ret->add( "position",
-                      data( &PID_Controller::position,
-                            "Get the axis position",
-                            "AxisNr","The Axis number (starting from 1)."
-                               ) ); 
-            ret->add( "isReady",
-                      data( &PID_Controller::isReady,
-                            "Inspect if an Axis is ready for a next command.",
-                            "AxisNr","The Axis number (starting from 1)."
-                            ) ); 
-            return ret;
-        }
-#endif
 #endif
 
 

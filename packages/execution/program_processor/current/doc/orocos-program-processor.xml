@@ -77,6 +77,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>Change in StateContext start/stop semantics</revremark>
   </revision>
+  <revision>
+    <revnumber>0.18</revnumber>
+    <date>7 December 2004</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Refer to Task Contexts</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
@@ -118,12 +124,13 @@ features and interface of the &orocos; &interf; package.
 	program definition and executes that program. While a big part
 	of &interf; will run close to the realtime system, loading
 	will be a non-realtime operation, since it performs dynamic
-	memory allocations. Execution will happen in real time.
+	memory allocations. Execution of the programs will happen in real time.
       </para>
       <para>
 	The Program Processor is not what the user will use directly.
 	The user will mainly use the <ulink url="orocos-program-parser.html">
-	  Orocos Program Parser</ulink>. The Parser
+	  Orocos Program Parser</ulink> with the <ulink url="orocos-task-context.html">
+	  Orocos Task Infrastructure</ulink>. The Parser
 	generates ProgramGraphs and StateGraphs from user friendly
 	text files, which can then be executed in realtime.
       </para>
@@ -139,34 +146,95 @@ features and interface of the &orocos; &interf; package.
 	procedure. 
       </para>
       <para>
-      Further information can be found in the &orocos; installation documentation.
+      Further information can be found in the &orocos; Installation Manual.
       </para>
     </sect2>
-</sect1>
+  </sect1>
 
   <sect1>
     <title>Processing Programs and StateContexts</title>
-      <sect2>
-	<title>Processor</title>
-	<para>
-	  The <classname>Processor</classname> is the core component
-	  of &interf;. It represents an execution engine which is
-	  capable of loading a system configuration and loading and
-	  executing programs on that configured system. A system
-	  configuration (or part of) is defined in a State Context
-	  ( a State Context is a collection of Orocos States ).
-	  Multiple State Contexts can be loaded and started/stopped in
-	  parallel. A Program is a sequence of commands, connected
-	  to each other through condition evaluation. Also programs
-	  can be loaded and run in parallell.
-	</para>
-	<para>
-	  The Processor is commanded to do things with Programs
-	  and State Contexts. The available commands are presented
-	  in the figures in the next sections.
-	</para>
-      </sect2>
-      <sect2>
+    <sect2>
+      <title>Processor</title>
+      <para>
+	The <classname>Processor</classname> is the core class of
+	&interf;. It is capable of loading a system configuration and
+	loading and executing programs on that configured system. A
+	system configuration (or part of) is defined in a State
+	Context ( a State Context is a real-time state machine which
+	iterates over a collection of Orocos States ).  Multiple State
+	Contexts can be loaded and started/stopped in parallel. A
+	Program is a sequence of commands, connected to each other
+	through condition evaluation. Also programs can be loaded and
+	run in parallel.
+      </para>
+      <para>
+	The Processor is responsible for accepting command requests
+	from other (realtime) tasks. It uses an non-blocking atomic queue to 
+	to store incomming requests and fetch-and-execute them in its periodic loop,
+	which can be synchronised with tasks of the same priority. It offers
+	thus a thread-safe realtime means of message passing between threads,
+	without intervention of the Operating System.
+	However, before it will accept commands, it must attached
+	to a periodic task and be started. It implements the
+	<classname>ORO_CoreLib::RunnableInterface</classname> class,
+	which allows it to be run by periodic tasks :
+      </para>
+      <programlisting>
+  #include &lt;execution/Processor.hpp&gt;
+  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
+
+  ORO_Execution::Processor proc;
+  ORO_CoreLib::TaskNonPreemptible ptask( 0.01, proc); // see CoreLib doc
+
+  ptask.start();
+
+  CommandInterface* com = ... // See the last section
+
+  assert ( proc.getTask()->isRunning() );
+  int ticket = proc.process( com ); </programlisting>
+      <para>
+	If <parameter>ticket</parameter> is zero, the command was
+	not accepted by the processor, possibly the queue was full
+	or it was not running. You can query if a command has been
+	fetched and executed by calling :
+      </para>
+      <programlisting>
+  if ( proc.isProcessed( ticket ) )
+     // done !
+  else
+     // still busy ! </programlisting>
+      <para>
+	The commands this Processor accepts must be for tasks of the
+	same thread-priority, and each Processor can only be 
+	used in one thread. Orocos provides a mechanism to 
+	transparantly serialise tasks of equal priority in the same 
+	thread, this is explained in the Orocos CoreLib documentation.
+	Take a look at the Task
+	Infrastructure Manual for more elaborate examples of 
+	Command queueing. 
+      </para>
+      <figure><title>Threads Sending Commands</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="Commands.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="Commands.eps" format="EPS"/>
+	  </imageobject>
+	  <caption>
+	    Tasks of different threads communicate by sending
+	    commands to each others Processors.
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	In addition to command processing, the Processor provides
+	functions to manipulate Programs and
+	State Contexts. The available commands are presented in the
+	figures in the next sections. 
+      </para>
+    </sect2>
+    <sect2>
 	<title>State Context and State</title>
 	<para>
 	  The <classname>StateContext</classname> is a collection
@@ -187,13 +255,13 @@ features and interface of the &orocos; &interf; package.
 	  of the old state is called, then the onEntry() method
 	  of the new state and as last in that step, the handle()
 	  method.
-	</para>
-	<para>To see how a state can be entered in Orocos, we refer
-	  to the <ulink url="orocos-program-parser.html">Orocos
+      </para>
+      <para>To see how a State Context can be used in Orocos, we refer
+	to the <ulink url="orocos-program-parser.html">Orocos
 	  Program Parser</ulink> Manual. The Parser is able to
-	  convert Orocos State Descriptions to a State Context
-	  wich can be loaded in the Processor.
-	</para>
+	convert Orocos State Descriptions to a State Context
+	wich can be loaded in the Processor.
+      </para>
 	<figure><title>Using a StateContext</title>
 	  <mediaobject>
 	    <imageobject role="html">
@@ -211,8 +279,8 @@ features and interface of the &orocos; &interf; package.
 	should be try'ed and catch'ed on load and unload or deletion
 	of a State Context.
       </para>
-      </sect2>
-      <sect2>
+    </sect2>
+    <sect2>
 	<title>State Transitions</title>
 	<para>
 	  State Transitions are the edges of the state diagram. They
@@ -410,11 +478,10 @@ features and interface of the &orocos; &interf; package.
   CommandInterface* command = ...
   Processor* proc = ...
 
-  bool result = proc->process( command );
+  int nr = proc->process( command );
 	</programlisting>
-	If result is true, the command was accepted, if false, the command
-	fifo is full and a new process attempt must be made. The Processor
-	can be easily extended to have better queueing semantics.
+	If nr is non-zero, the command was accepted, if zero, the command
+	fifo is full and a new process attempt must be made.
       </para>
       <para>
 	Another thread instructs the processor to execute all queued commands

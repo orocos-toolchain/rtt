@@ -17,7 +17,6 @@ is very powerful."
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
     compile Types.cxx DataSourceCondition.cxx Operators.cxx
-    compile DataSource.cxx
     compile ParsedStateContext.cxx
     compile StateContextBuilder.cxx
     compile PeerParser.cxx 

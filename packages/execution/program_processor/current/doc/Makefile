@@ -3,7 +3,7 @@ dist: dochtml docpdf docps
 	tar -czf orocos-program-processor-doc.tgz \
 	orocos-program-processor.html orocos-program-processor.pdf \
 	ProgramStates.png ContextStates.png orocos-program-processor.ps \
-	Functor.png
+	Functor.png Commands.png
 
 docxml: dochtml docpdf
 
@@ -15,9 +15,9 @@ docps: epsimages orocos-program-processor.ps
 
 doctxt: orocos-program-processor.txt
 
-epsimages: ProgramStates.eps ContextStates.eps Functor.eps
+epsimages: ProgramStates.eps ContextStates.eps Functor.eps Commands.eps
 
-pngimages: ProgramStates.png ContextStates.png Functor.png
+pngimages: ProgramStates.png ContextStates.png Functor.png Commands.png
 
 %.html:%.xml
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
@@ -25,7 +25,7 @@ pngimages: ProgramStates.png ContextStates.png Functor.png
 %.fo:%.xml
 	xsltproc orocos.xsl $< > $@
 
-%.ps:%.fo
+%.ps:%.fo epsimages
 	fop $< $@
 
 %.pdf:%.ps

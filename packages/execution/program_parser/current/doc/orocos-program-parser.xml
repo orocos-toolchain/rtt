@@ -120,15 +120,16 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    <link linkend="program-syntax">Writing &orocos; Programs and State Configurations.</link>
+	    <link linkend="program-syntax">Writing &orocos; Programs and State Descriptions for Orocos Task Contexts.</link>
+	    Introduction to syntax and terminology.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    <link linkend="exporting-component-api">
-	      Exporting the API of an &orocos; component to the
+	      Exporting the API of an &orocos; Control Kernel Component to the
 	      &orocos; Parser.
-	    </link>
+	    </link> This is Control Kernel specific.
 	  </para>
 	</listitem>
 	<listitem>
@@ -137,6 +138,7 @@
 	      Extending the &orocos; parser to support extra types,
 	      overload existing operators, and/or add new operators.
 	    </link>
+	      If you want to push the parser to your limits.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -472,7 +474,8 @@
 	exported functions were loaded in the TaskContext's command interface.
 	If it's not empty, we load all the programs in the Processor using
 	the boost::bind function. Next we start the task's processor
-	and finally, the program "progname" is started.
+	and finally, the program "progname" is started. Programs can also
+	be started from within other scripts.
       </para>
     </sect2>
     <sect2 id="program-syntax-specifics">
@@ -487,7 +490,7 @@
 	<title><symbol>program</symbol></title>
 	<para> A program is formed like this: </para>
 	<programlisting>
-  program prog_name {
+  program progname {
     // an arbitrary number of statements
   }	</programlisting>
 	<para>
@@ -799,6 +802,28 @@
 	  this way.
 	</para>
       </sect3>
+      <sect3>
+	<title>Starting and Stopping Programs from scripts</title>
+	<para>
+	  Once a program is parsed and loaded into the Processor,
+	  it can be manipulated from another script. This can be
+	  done through the programs subtask of the TaskContext
+	  in which the program was loaded. Assume that you loaded
+	  "progname" in task "ATask", you can write
+	</para>
+	<programlisting>
+  do ATask.programs.progname.start()
+  do ATask.programs.progname.pause()
+  do ATask.programs.progname.stop()</programlisting>
+	<para>Some basic properties of the program can be
+	  inspected likewise :</para>
+	<programlisting>
+  var bool res =  ATask.programs.progname.isRunning()
+  set res = ATask.programs.progname.inError()
+  set res = ATask.programs.progname.isPaused()</programlisting>
+	<para>
+	  which all return a boolean indicating true or false.</para>
+      </sect3>
     </sect2>
   </sect1>
   <sect1>
@@ -930,7 +955,8 @@
 	and finally. StateContexts have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, state
-	transitions to other states can take place.
+	transitions to other states can take place. StateContexts
+	can also be manipulated from within other scripts.
       </para>
     </sect2>
       <sect2>
@@ -1369,34 +1395,38 @@ StateContext ParentStateContext
 	    </para>
 	  </sect4>
 	</sect3>
-      </sect2>
-  </sect1>
-  <sect1>
-    <title>Kernel and Processor Commands</title>
-    <para>
-      Anything can act as a component towards
-      the Parser. When the parser is used
-      in the Orocos Control Kernel framework,
-      the Kernel and the Processor expose themselves
-      as the 'Execution' component. We refer to the control kernel
-      documentation for a detailed list of commands,
-      but here are a few examples :</para>
+    </sect2>
+    <sect2>
+      <title>Starting and Stopping State Contexts from scripts</title>
+      <para>
+	Once a state context is parsed and loaded into the Processor,
+	it can be manipulated from another script. This can be
+	done through the "states" subtask of the TaskContext
+	in which the state context was loaded. Assume that you loaded
+	"machine" with subcontexts "axisx" and "axisy"
+	in task "ATask", you can write
+      </para>
       <programlisting>
-  do Kernel.selectGenerator( "CartesianGenerator" )
-  do Kernel.selectController( "CartesianController" )
-  // ...
-  do Execution.startProgram( "name" )
-  do Execution.stopProgram( "name" )
-  // ..
-  do Execution.startStateContext( "name" )
-  do Execution.stopStateContext( "name" )       </programlisting>
-    <para>
-      The selectX commands are instructing the kernel
-      itself while the start/stopProgram commands
-      instruct the processor to start or stop a loaded
-      program.
-      They can be called from within Programs and States.
-    </para>
+  do ATask.states.machine.activate()
+  do ATask.states.machine.axisx.activate()
+  do ATask.states.machine.axisx.start()
+  do ATask.states.machine.start()
+  do ATask.states.machine.stop()
+  do ATask.states.machine.deactivate()
+  // etc. </programlisting>
+      <para>
+	Thus both RootContexts and SubContexts can be controlled.
+	Some basic properties of the states can be
+	inspected likewise :</para>
+      <programlisting>
+  var bool res =  ATask.states.machine.isActive()
+  set res = ATask.states.machine.axisy.isRunning()
+  var string current = ATask.states.machine.getState()
+  set res = ATask.states.machine.inState( current ) // assert( res==true )</programlisting>
+      <para>
+	which open doors to monitor state machines from other scripts
+	or an operator console.</para>
+    </sect2>
   </sect1>
   <sect1>
     <title>Program and State Example</title>
@@ -1405,7 +1435,7 @@ StateContext ParentStateContext
       Description and an Orocos Program Script. They are
       fictitious examples (but with valid syntax) which may
       differ from actual available components. The example
-      tries to exploit all available functions.
+      tries to exploit most common functions.
     </para>
     <example>
       <title>State Context Example (state.osd)</title>
@@ -1415,6 +1445,8 @@ StateContext ParentStateContext
       Event_Handle home_switch1
       Event_Handle home_switch2
   
+      var bool error = false
+
       /**
        * This state is entered when the StateContext is loaded.
        * The kernel is not running yet...
@@ -1459,7 +1491,7 @@ StateContext ParentStateContext
   	    do Kernel.selectController("Default")
   	    do Kernel.selectEffector("Default")
   	transitions {
-  	    if HMI.start_pushed() then
+  	    if HMI.start_pushed() && error == 0 then
   		 select run_state
   	    }
       }
@@ -1492,17 +1524,21 @@ StateContext ParentStateContext
        */
       state exec_state {
   	entry {
-  	    do Execution.startProgram("MyProgram")
+  	    do programs.MyProgram.start()
   	    }
   
   	exit {
-  	    do Execution.stopProgram("MyProgram")
+	    set error = programs.MyPorgram.inError()
+  	    do programs.MyProgram.stop()
   	    }
   
   	transitions {
   	    if HMI.stop_program() then
   		 select run_state
   	    }
+	    // Detect Program Failure :
+	    if programs.MyProgram.inError() then
+	         select stop_state
       }
   }
   
@@ -1520,7 +1556,7 @@ StateContext ParentStateContext
    * Request the HMI to load the user selected
    * trajectory into the kernel.
    */
-  function HMILoadTrajectory {
+  export function HMILoadTrajectory() {
   	// request a 'push' of the next
   	// trajectory :
   	do HMI.requestTrajectory
@@ -1533,22 +1569,27 @@ StateContext ParentStateContext
    * This could also be done using a Homing state,
    * without a program.
    */
-  function ResetAxes {
+  export function ResetAxes() {
   	do Kernel.selectGenerator("HomingGenerator")
-  	do HomingGenerator.home()
+  	do HomingGenerator.homeAll()
+  }
+  
+  export function ResetAxis(int nr) {
+  	do Kernel.selectGenerator("HomingGenerator")
+  	do HomingGenerator.homeAxis( nr )
   }
   
   /**
    * Request the Generator to use the current
    * trajectory.
    */
-  function runTrajectory {
+  function runTrajectory() {
   	do Generator.startTrajectory
   	// this function returns when the
   	// trajectory is done.
   }
   
-  function ExitProgram {
+  function ExitProgram() {
   	do HMI.display("Program Ended\n")
   	stop
   }
@@ -1565,14 +1606,14 @@ StateContext ParentStateContext
   
   	while HMI.cycle {
   	    do HMI.display("Cycle nr: %d.\n", cycle )
-  	    call ResetAxes
-  	    call HMIRequestTrajectory
-  	    call runTrajectory
+  	    do ResetAxes()
+  	    do HMIRequestTrajectory()
+  	    call runTrajectory()
   
   	    do HeartBeat.sleep( 5.0 ) // wait 5s
   	}
   
-  	call ExitProgram
+  	call ExitProgram()
   }  </programlisting>
     </example>
   </sect1>
@@ -1802,6 +1843,17 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	factory function can be left out and the parser will not query
 	the component for the left out factory.
       </para>
+    </sect2>
+    <sect2>
+      <title>Using Scripts in the Orocos ControlKernel</title>
+      <para>
+	We refer to the Orocos Control Kernel
+	documentation for a detailed list of commands
+	which a Kernel adds to its interface,
+	but here are a few examples :</para>
+      <programlisting>
+  do Kernel.selectGenerator( "CartesianGenerator" )
+  do Kernel.selectController( "CartesianController" ) </programlisting>
     </sect2>
   </sect1>
       

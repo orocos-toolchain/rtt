@@ -23,5 +23,6 @@ task programs."
     compile DataSourceFactoryInterface.cxx  GlobalDataSourceFactory.cxx
     compile GlobalCommandFactory.cxx
     compile CommandFactoryInterface.cxx
+    compile DataSource.cxx
 
 }

@@ -754,9 +754,15 @@
 	<para>
 	  Functions must be parsed by the <classname>Parser</classname>,
 	  before they can be executed by the Processor. The Processor
-	executes the Function until it finishes or it goes into error.
-	In both cases, the Function is removed from the Processor's queue
-	and can then safely be deleted.</para>
+	  executes the Function until it finishes or it goes into error.
+	  In both cases, the Function is removed from the Processor's queue
+	  and can then safely be deleted.</para>
+	<note>
+	  <para>
+	    The <classname>Parser</classname> is located in the
+	    Orocos Program Parser package and not in the Task Context package.
+	  </para>
+	</note>
 	<para>
 	  <programlisting>
   #include &lt;execution/Parser.hpp&gt;
@@ -983,6 +989,12 @@
       started from a console, the TaskBrowser takes over user input 
       and output.
     </para>
+    <note>
+      <para>
+	The <classname>TaskBrowser</classname> is located in the
+	Orocos Program Parser package and not in the Task Context package.
+      </para>
+    </note>
     <programlisting>
   #include &lt;execution/TaskBrowser.hpp&gt;
   // ...
