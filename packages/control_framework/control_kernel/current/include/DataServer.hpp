@@ -53,8 +53,7 @@
 #include <boost/type_traits.hpp>
 #include <corelib/DataObjectInterfaces.hpp>
 #include "DataObjectReporting.hpp"
-#include <corelib/PropertyDecomposition.hpp>
-#include <corelib/VectorComposition.hpp>
+#include <corelib/PropertyIntrospection.hpp>
 #include "Typelist.h"
 #include <boost/shared_ptr.hpp>
 
