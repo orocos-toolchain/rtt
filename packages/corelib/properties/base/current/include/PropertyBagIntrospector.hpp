@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:57 CEST 2004  PropertyBagIntrospector.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:57 CEST 2004  PropertyBagIntrospector.hpp
 
                         PropertyBagIntrospector.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,12 +23,13 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PROPERTYBAGINTROSPECTOR
 #define PROPERTYBAGINTROSPECTOR
 
 #include "PropertyBag.hpp"
+#include "Property.hpp"
 #include <stack>
 
 #pragma interface
@@ -78,32 +79,32 @@ namespace ORO_CoreLib
         {
             mystack.top()->add( v.clone() );
         }
-        
+
         virtual void introspect(const Property<char> &v)
         {
             mystack.top()->add( v.clone() );
         }
-        
+
         virtual void introspect(const Property<int> &v)
         {
             mystack.top()->add( v.clone() );
         }
-        
+
         virtual void introspect(const Property<unsigned int> &v)
         {
             mystack.top()->add( v.clone() );
         }
-         
+
         virtual void introspect(const Property<double> &v)
         {
             mystack.top()->add( v.clone() );
         }
-			
+
         virtual void introspect(const Property<std::string> &v)
         {
             mystack.top()->add( v.clone() );
         }
-        
+
         virtual void introspect(const Property<PropertyBag> &v)
         {
             PropertyBag* cur_bag = mystack.top();
