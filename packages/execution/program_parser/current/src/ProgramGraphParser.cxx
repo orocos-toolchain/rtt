@@ -423,14 +423,19 @@ namespace ORO_Execution
       if (exportf) {
           if (rootc->commandFactory.hasCommand("this", mfunc->getName() ))
               throw parse_exception_semantic_error("exported function " + mfunc->getName() + " is already defined in "+ rootc->getName()+".");;
-          FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() );
+          FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() ); // execute in the processor which has the command.
           cfi->addFunction( mfunc->getName() , mfunc);
           rootc->commandFactory.registerObject("this", cfi );
+
+          // remove from mfuncs :
+          mfuncs.erase( mfunc->getName() );
+      } else {
+          // store for 'call func'
+          // all went fine, so cleanup.
+          // store the function in __functions 
+          rootc->getPeer("__functions")->addPeer( context );
       }
 
-      // all went fine, so cleanup.
-      // store the function in __functions
-      rootc->getPeer("__functions")->addPeer( context );
       context = 0;
 
       // reset
@@ -494,7 +499,7 @@ namespace ORO_Execution
       // store the part after 'call'
       std::string fname(begin, end);
       if ( mfuncs.count(fname) == 0 )
-          throw parse_exception_semantic_error("calling function " + fname + " but it is not defined.");
+          throw parse_exception_semantic_error("calling function " + fname + " but it is not defined ( use 'do' for calling exported functions ).");
       if ( mfunc && fname == mfunc->getName() )
           throw parse_exception_semantic_error("calling function " + fname + " recursively is not allowed.");
 
