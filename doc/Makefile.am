@@ -27,6 +27,7 @@ PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS
 PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))  #$(patsubst %.sgml,%.ps,$(DOCBOOKS))
 TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS)) # $(patsubst %.sgml,%.txt,$(DOCBOOKS))
 CHUNKSDOCS= $(patsubst %.xml,%.chunks,$(XMLDOCS)) # $(patsubst %.sgml,%.chunks,$(DOCBOOKS))
+WEBSITEDOCS= $(patsubst %.xml,%.website,$(XMLDOCS)) # $(patsubst %.sgml,%.website,$(DOCBOOKS))
 
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
@@ -54,6 +55,8 @@ doctxt: $(TXTDOCS)
 
 docchunks: $(CHUNKSDOCS)
 
+docwebsite: $(WEBSITEDOCS)
+
 pngimages: $(PNGIMGS)
 
 epsimages: $(EPSIMGS)
@@ -74,6 +77,9 @@ epsimages: $(EPSIMGS)
 .xml.chunks:
 	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-chunk.xsl $< 
 	touch $@
+
+.xml.website:
+	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-website.xsl $<  > $@
 
 .xml.fo:
 	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
@@ -106,5 +112,5 @@ epsimages: $(EPSIMGS)
 	$(IMAGEMAGICK) $< $@
 
 clean-local:
-	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks
+	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks *.website
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
