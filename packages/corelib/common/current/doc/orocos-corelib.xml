@@ -143,34 +143,44 @@ given in the general &orocos; overview document.
   <chapter>
     <title>The Orocos Thread Philosophy</title>
     <sect1>
-	<title>Introduction : Task versus Thread</title>
-	  <para>
-	    Threads are the major cause of headaches in multithreaded systems
-	    programmers heads.
-	    Synchronisation, data protection, priority tweaking and resource
-	    locking must all be done very carefully and mostly lead to suboptimal
-	    solutions. Even more, the predictability of the system highly decreases
-	    with the introduction of more threads or interactions between threads.
-	    Because of this, we propose the following:
-	  </para>
-	  <para>
-	    Only two realtime threads : A high priority thread and a low priority thread.
-	    The high priority thread is used for all tasks that need to be executed
-	    atomically. No action in this thread
-	    will ever be pre-empted. 
-	    The low priority thread is used for all tasks which may be 
-	    interrupted but still have hard deadlines. It can always be preempted by the 
-	    high priority thread. There is also a non realtime thread which gives no
-	deadline guarantees.
-	  </para>
+      <title>Introduction : Task versus Thread</title>
       <para>
-	For users needing to solve more complex control problems,
-	The PriorityThread and PriorityTask are provided with which you can create
-	an arbitrary number of threads with no more than one thread per priority
-	level. It needs a bit more setup than the standard Orocos threads, since
-	you still have to set the priority and start the thread. An example is
-	given below.
+	Threads are the major cause of headaches in multithreaded
+	systems programmers heads. Synchronisation, data protection,
+	priority tweaking and resource locking must all be done very
+	carefully and mostly lead to suboptimal solutions. Even more,
+	the predictability of the system highly decreases with the
+	introduction of more threads or interactions between threads.
       </para>
+      <para>
+	A minimum of realtime threads : A high priority thread and a
+	low priority thread are enough for most contained control
+	applications. The high priority thread is used for all tasks
+	that need to be executed atomically. No action in this thread
+	will ever be pre-empted. The low priority realtime thread is
+	used for all tasks which may be interrupted but still have
+	hard deadlines. It can always be preempted by the high
+	priority thread. There is also a non realtime thread which
+	gives no deadline guarantees. When more realtime threads are
+	introduced, only the highest priority thread can do
+	non-preemptive execution, and all the others have only deadline
+	guarantees. When the second group gets larger, it gets harder
+	for the OS to guarantee these deadlines, and soon, the
+	lower priority realtime threads are failing. Technically, this
+	only happens if the CPU is underspecified for the task, but in
+	reality, the scheduler failes earlier because of non optimal
+	scheduling. Hence users should only add additional realtime
+	threads where application complexity demands it.
+      </para>
+      <para>
+	For users needing to solve more complex control problems, the
+	PriorityThread and PriorityTask are provided with which you
+	can create an arbitrary number of threads with no more than
+	one thread per priority level. It needs a bit more setup than
+	the standard Orocos threads, since you still have to set the
+	priority and start the thread. An example is given below. 
+      </para>
+      <para></para>
       <para>
 	If you want to execute functionality in one of these threads, you need to 
 	create a Task of a certain type, depending on the thread type. The table
@@ -204,8 +214,8 @@ given in the general &orocos; overview document.
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>PriorityThread< N ></entry>
-		<entry>PriorityTask< N ></entry>
+		<entry>PriorityThread&lt; N &gt;</entry>
+		<entry>PriorityTask&lt; N &gt;</entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
@@ -217,7 +227,7 @@ given in the general &orocos; overview document.
 	  This example shows how a task can be created. When it
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting>
+	<programlisting><![CDATA[
 #include "corelib/TaskNonPreemptible.hpp"
 #include "corelib/TaskPreemptible.hpp"
 #include "corelib/TaskNonRealTime.hpp"
@@ -225,7 +235,45 @@ given in the general &orocos; overview document.
 
 using namespace ORO_CoreLib;
 
+ORO_main( int argc, const char** argv)
+{
+	  // Define your tasks
 
+	  // ...
+
+	  // An extra thread for low priority tasks
+	  // 9 : The priority.
+	  // 0.01 : The period.
+	  // You have to manually start the thread.
+	  PriorityThread<9>::Instance()->periodSet( 0.01 );
+	  PriorityThread<9>::Instance()->start();
+	  // Optional :
+	  PriorityThread<9>::Instance()->makeHardRealtime();
+
+	  // These tasks are run in the Orocos Thread Model
+	  TaskNonPreemptible fast_task(0.001, &vel_loop);
+	  TaskPreemptible slow_task(0.01, &pos_loop);
+	  TaskNonRealTime nrt_task( 0.1, &display_server );
+
+	  // This task is run in the extra thread above
+	  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
+
+	  // All is transparant from here on.
+	  fast_task->start();
+	  slow_task->start();
+	  own_task->start();
+	  nrt_task->start();
+
+	  // ...
+
+	  fast_task->stop();
+	  slow_task->stop();
+	  own_task->stop();
+	  nrt_task->stop();
+
+	  return 0;
+}
+]]>
 	</programlisting>
       </example>
       <para>
