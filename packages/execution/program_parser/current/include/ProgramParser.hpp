@@ -86,7 +86,6 @@ namespace ORO_Execution
 
     void seenlabel( iter_t begin, iter_t end )
       {
-        std::cerr << "seenlabel" << std::endl;
         std::string label( begin, end );
         mcurlabel = label;
       }
