@@ -596,20 +596,33 @@ namespace ORO_Execution
         std::string prompt("   = ");
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
-        if (dsb)
+        if (dsb) {
             cout <<prompt<< (dsb->get() ? "true" : "false") <<endl;
+	    return;
+	}
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
-        if (dsi)
+        if (dsi) {
             cout <<prompt<< dsi->get() <<endl;
+	    return;
+	}
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
-        if (dss)
+        if (dss) {
             cout <<prompt<< dss->get() <<endl;
+	    return;
+	}
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
-        if (dsd)
+        if (dsd) {
             cout <<prompt<< dsd->get() <<endl;
-        DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
-        if (dsc)
+ 	    return;
+	}
+       DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
+       if (dsc) {
             cout <<prompt<< dsc->get() <<endl;
+	    return;
+	}
+       if (ds)
+	 ds->evaluate();
+	
     }
 
     void TaskBrowser::printHelp()
