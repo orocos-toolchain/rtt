@@ -21,7 +21,7 @@ static ORO_OS::MainThread* mainT;
 static ORO_OS::StartStopManager* initM;
 
 extern "C"
-int __os_init(int argc,const char* argv )
+int __os_init(int argc,const char** argv )
 {
 #ifdef HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();

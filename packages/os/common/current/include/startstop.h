@@ -7,7 +7,7 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-int __os_init(int argc,const char* argv );
+int __os_init(int argc,const char** argv );
 
 #ifdef __cplusplus
 extern "C"

@@ -322,7 +322,7 @@
 	<para>
 	  All tasks in the realtime system have to be performed by
 	  some thread.  The OS abstraction expects an
-	  <function>int ORO_main(int argc, const char* argv)</function> 
+	  <function>int ORO_main(int argc, const char** argv)</function> 
 	  function (which the user has
 	  written) and will call that after all system initialisation
 	  has been done, meaning thread creation or setting
