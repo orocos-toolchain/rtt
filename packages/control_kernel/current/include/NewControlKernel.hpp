@@ -137,15 +137,6 @@ namespace ORO_ControlKernel
          */
         static NameServer< NewControlKernel<_Extension>* > nameserver;
 
-        /**
-         * @brief Add a DataObject to the Outputs.
-         */
-//         template< class _DataObjecType>
-//         void addOutputs(_DataObjectType* o, const std::string& name)
-//         {
-//             getOutputs()->reg( o, name );
-//         }
-            
     protected:
 
         virtual void updateComponents()
@@ -153,15 +144,11 @@ namespace ORO_ControlKernel
             // This is called from the KernelBaseFunction
             // one step is one control cycle
             // The figure is a unidirectional graph
-#if 0
-            sensor->update();
-            estimator->update();
-            generator->update();
-#endif
+            this->sensor->update();
+            this->estimator->update();
+            this->generator->update();
             this->controller->update();
-#if 0
-            effector->update();
-#endif
+            this->effector->update();
         }
     };
 

@@ -439,7 +439,7 @@ namespace ORO_ControlKernel
         bool loadGenerator(_Generator* c) {
             if ( this->isRunning() )
                 return false;
-            c->_Generator::Command::createPort( KernelBaseFunction::getKernelName() + "::Commands", outp_prefix);
+            c->_Generator::Command::createPort( KernelBaseFunction::getKernelName() + "::Commands", com_prefix);
             c->_Generator::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix, SetPointPortType()  );
             c->_Generator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
             c->_Generator::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );

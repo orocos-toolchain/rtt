@@ -510,7 +510,7 @@ namespace ORO_ControlKernel
         /**
          * The ReadPort is an NameServeReadPort
          */
-        typedef NameServeReadPort<DataObjectType>    ReadPort;
+        typedef detail::NameServeReadPort<DataObjectType>    ReadPort;
     };
 
     /**
@@ -528,7 +528,7 @@ namespace ORO_ControlKernel
         /**
          * The WritePort is an NameServeWritePort
          */
-        typedef NameServeWritePort<DataObjectType>    WritePort;
+        typedef detail::NameServeWritePort<DataObjectType>    WritePort;
     };
 }
 

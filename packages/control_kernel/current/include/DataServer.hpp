@@ -365,13 +365,14 @@ namespace ORO_ControlKernel
      */
     template<typename First, typename Rest>
     struct NameSubClass< Typelist<First,Rest> >
-        : public DataObjectServer<First>, public NameSubClass<Rest>
+        : public DataObjectServer< DataObjectInterface< typename First::DataType> >, public NameSubClass<Rest>
     {
-        using DataObjectServer<First>::Get;
-        using DataObjectServer<First>::Set;
-        using DataObjectServer<First>::has;
-        using DataObjectServer<First>::reg;
-        using DataObjectServer<First>::deReg;
+        typedef DataObjectServer< DataObjectInterface<typename First::DataType> > ServerType;
+        using ServerType::Get;
+        using ServerType::Set;
+        using ServerType::has;
+        using ServerType::reg;
+        using ServerType::deReg;
 
         using NameSubClass<Rest>::Get;
         using NameSubClass<Rest>::Set;
@@ -381,7 +382,7 @@ namespace ORO_ControlKernel
 
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
-            : DataObjectServer<First>(name,prefix), 
+            : ServerType(name,prefix), 
               NameSubClass<Rest>(name, prefix, t, index + 1 )
         {
             // t contains start and end iterator of the multimap
@@ -394,7 +395,7 @@ namespace ORO_ControlKernel
                         {
                             First*  item = new First( it->second );
                             fv.push_back( item );
-                            DataObjectServer<First>::reg( item );
+                            ServerType::reg( item );
                         }
                 }
         }
@@ -406,7 +407,7 @@ namespace ORO_ControlKernel
         { 
             for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
                 {
-                    DataObjectServer<First>::deReg( *it ); 
+                    ServerType::deReg( *it ); 
                     delete *it;
                 }
         }
@@ -416,40 +417,40 @@ namespace ORO_ControlKernel
          */
         void changePrefix(const std::string& prefix)
         {
-            DataObjectServer<First>::changePrefix(prefix);
+            ServerType::changePrefix(prefix);
             NameSubClass<Rest>::changePrefix(prefix);
         }
 
 //         virtual void setName( const std::string& name )
 //         {
-//             DataObjectServer<First>::setName(name);
+//             ServerType::setName(name);
 //             NameSubClass<Rest>::setName(name);
 //         }
 
         virtual void refreshReports( PropertyBag& bag ) const
         {
             // Delegate to the subclass's implementation.
-            DataObjectServer<First>::refreshReports(bag);
+            ServerType::refreshReports(bag);
             NameSubClass<Rest>::refreshReports(bag);
         }
 
         void exportReports( PropertyBag& bag ) const
         {
             // Delegate to the subclass's implementation.
-            DataObjectServer<First>::exportReports(bag);
+            ServerType::exportReports(bag);
             NameSubClass<Rest>::exportReports(bag);
         }
 
         virtual void inspectReports(PropertyIntrospection* i) const
         {
             // Delegate to the subclass's implementation.
-            DataObjectServer<First>::inspectReports(i);
+            ServerType::inspectReports(i);
             NameSubClass<Rest>::inspectReports(i);
         }
 
         virtual void cleanupReports( PropertyBag& bag ) const
         {
-            DataObjectServer<First>::cleanupReports(bag);
+            ServerType::cleanupReports(bag);
             NameSubClass<Rest>::cleanupReports(bag);
         }
 
@@ -468,21 +469,20 @@ namespace ORO_ControlKernel
      */
     template<typename First>
     struct NameSubClass< Typelist< First, nil_type > >
-        : public DataObjectServer<First> 
+        : public DataObjectServer< DataObjectInterface< typename First::DataType> > 
     {
 
-        using DataObjectServer<First>::Get;
-        using DataObjectServer<First>::Set;
-        using DataObjectServer<First>::has;
-        using DataObjectServer<First>::reg;
-        using DataObjectServer<First>::deReg;
+        typedef DataObjectServer< DataObjectInterface<typename First::DataType> > ServerType;
 
-        typedef DataObjectServer<First>    Server;
-        typedef DataObjectServer<nil_type> NextServer;
+        using ServerType::Get;
+        using ServerType::Set;
+        using ServerType::has;
+        using ServerType::reg;
+        using ServerType::deReg;
 
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
-            : DataObjectServer<First>(name, prefix)
+            : ServerType(name, prefix)
         {
             // t contains start and end iterator of the multimap
             for ( typename pair_type::first_type it = t.first;
@@ -494,7 +494,7 @@ namespace ORO_ControlKernel
                         {
                             First*  item = new First( it->second );
                             fv.push_back( item );
-                            DataObjectServer<First>::reg( item );
+                            ServerType::reg( item );
                         }
                 }
         }
@@ -503,7 +503,7 @@ namespace ORO_ControlKernel
         { 
             for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
                 {
-                    DataObjectServer<First>::deReg( *it ); 
+                    ServerType::deReg( *it ); 
                     delete *it;
                 }
         }
@@ -702,6 +702,8 @@ namespace ORO_ControlKernel
                 NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
+            virtual void changePrefix(const std::string& prefix) { DataObjectServer<Head>::changePrefix( prefix); }
+
         };
 
         template<class Head>
@@ -717,6 +719,7 @@ namespace ORO_ControlKernel
             NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
                 DataObjectServer<Head>(name, prefix)
             {}
+            virtual void changePrefix(const std::string& prefix) { DataObjectServer<Head>::changePrefix( prefix); }
         };            
             
         // Container case

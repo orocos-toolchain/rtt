@@ -117,7 +117,7 @@ namespace ORO_ControlKernel
             typedef _Extension Extension;
         
             /**
-             * Initialize the ComponentAspect with the name of the Aspect.
+             * @brief Initialize the ComponentAspect with the name of the Aspect.
              * Once set, a name can no longer be changed.
              */
             ComponentAspectInterface(const std::string& comp_name )
@@ -126,19 +126,31 @@ namespace ORO_ControlKernel
             virtual ~ComponentAspectInterface() {}
         
             /**
-             * Instructs the component to enable an aspect so that this aspect can
-             * deliver a service to the Extension <ext> of the ControlKernel. 
-             * This will be called when the component is connected/added to the kernel.
+             * @brief Instructs the component to enable an aspect so that this aspect can
+             * deliver a service to the Extension <ext> of the ControlKernel.
+             *
+             * This will be called when the component is loaded into the kernel.
              */
             virtual bool enableAspect( Extension* ext ) = 0;
 
             /**
-             * Disable this aspect and no longer use the Extension of the kernel.
+             * @brief Fall-back method if the kernel wants to enable
+             * this Aspect while it is not present in the Kernel.
+             * @return true in all cases
+             */
+            template< class Ext >
+            bool enableAspect( Ext* e)
+            {
+                return true;
+            }
+
+            /**
+             * @brief Disable this aspect and no longer use the Extension of the kernel.
              */
             virtual void disableAspect() = 0;
 
             /**
-             * Return the name of this Aspect instance.
+             * @brief Return the name of this Aspect.
              */
             virtual const std::string& getName() { return aspectName.get(); }
 
@@ -175,7 +187,7 @@ namespace ORO_ControlKernel
         virtual ~ComponentBaseInterface() {}
             
         /**
-         * Inspect if this component is placed in a kernel.
+         * @brief Inspect if this component is placed in a kernel.
          * This is the 'isLoaded()' query actually.
          * 
          * @return true if it is so.
@@ -183,7 +195,7 @@ namespace ORO_ControlKernel
         bool inKernel() { return kern != 0; }
             
         /**
-         * Return the kernel this component belongs to.
+         * @brief Return the kernel this component belongs to.
          * 
          * @return The kernel it belongs to, zero if none.
          */
@@ -192,7 +204,7 @@ namespace ORO_ControlKernel
         virtual bool enableAspect(KernelBaseFunction* e);
 
         /**
-         * This method is a hook which is called when the component
+         * @brief This method is a hook which is called when the component
          * is loaded into the kernel.
          *
          * @return true on success, false otherwise
@@ -200,13 +212,13 @@ namespace ORO_ControlKernel
         virtual bool componentLoaded() { return true;}
             
         /**
-         * This method is a hook which is called when a component
+         * @brief This method is a hook which is called when a component
          * was unloaded from the kernel.
          */
         virtual void componentUnloaded() {}
 
         /**
-         * This method is a hook which is called when the kernel
+         * @brief This method is a hook which is called when the kernel
          * is started and the component must initialise the data
          * objects with meaningfull data.
          *
@@ -215,7 +227,7 @@ namespace ORO_ControlKernel
         virtual bool componentStartup() { return true; }
 
         /**
-         * This method is a hook which is called when the kernel
+         * @brief This method is a hook which is called when the kernel
          * is stopped and the component must return to a safe state.
          */
         virtual void componentShutdown() {}
@@ -223,7 +235,7 @@ namespace ORO_ControlKernel
         virtual void disableAspect();
 
         /**
-         * Query if this component is selected in the kernel.
+         * @brief Query if this component is selected in the kernel.
          */
         bool isSelected() { return selected; }
 
@@ -301,17 +313,17 @@ namespace ORO_ControlKernel
          */
         void setPeriod( double p );
 
-        template<class T>
-        void enable(detail::ComponentAspectInterface<T>* c)
-        {
-            c->enableAspect(this);
-        }
+//         template<class T>
+//         void enable(detail::ComponentAspectInterface<T>* c)
+//         {
+//             c->enableAspect(this);
+//         }
 
-        template<class T>
-        void disable(detail::ComponentAspectInterface<T>* c)
-        {
-            c->disableAspect();
-        }
+//         template<class T>
+//         void disable(detail::ComponentAspectInterface<T>* c)
+//         {
+//             c->disableAspect();
+//         }
 
         bool updateProperties(const PropertyBag& bag);
 
@@ -495,11 +507,8 @@ namespace ORO_ControlKernel
     };
 
 
-    namespace detail 
-    {
-
         /**
-         * A class for composing Aspects (if you want more than
+         * @brief A class for composing Aspects (if you want more than
          * one Aspect in your component).
          * 
          */
@@ -536,8 +545,6 @@ namespace ORO_ControlKernel
             }
 
         };
-
-    }
     
     /**
      * @brief A class for composing extensions (if you want more than
@@ -559,7 +566,7 @@ namespace ORO_ControlKernel
          * The Aspects of Both Extensions are composed 
          * automatically in the same First,Second way.
          */
-        typedef detail::CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
+        typedef CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
             
         CompositeExtension() {}
         CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
@@ -584,6 +591,42 @@ namespace ORO_ControlKernel
             Second::finalize();
         }
     };
+
+    struct nil_ext {};
+
+    template<class First>
+    struct CompositeExtension< First, nil_ext>
+        : public First
+    {
+        typedef typename First::CommonBase CommonBase;
+        CompositeExtension() {}
+        CompositeExtension( KernelBaseFunction* _base ) : First(_base){}
+        virtual ~CompositeExtension() {}
+    };
+
+        template
+        < typename T1  = nil_ext, typename T2  = nil_ext, typename T3  = nil_ext,
+          typename T4  = nil_ext, typename T5  = nil_ext, typename T6  = nil_ext >
+        struct MakeExtension
+        {
+        private:
+            typedef typename MakeExtension
+            <
+                T2 , T3 , T4 , 
+                T5 , T6
+            >
+            ::Result TailResult;
+            
+        public:
+            typedef CompositeExtension<T1, TailResult> Result;
+        };
+
+        template<>
+        struct MakeExtension<>
+        {
+            typedef nil_ext Result;
+        };
+
 
 }
 
