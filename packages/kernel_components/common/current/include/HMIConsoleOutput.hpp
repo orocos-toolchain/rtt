@@ -64,13 +64,15 @@ namespace ORO_ControlKernel
         typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result > Base;
         std::string coloron;
         std::string coloroff;
+        std::string _prompt;
         std::ostringstream messages;
         std::ostringstream backup;
         //TaskNonRealtime printer;
         Mutex msg_lock;
     public :
         HMIConsoleOutput( const std::string& name = "cout")
-            : Base( name ), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m")
+            : Base( name ), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
+              _prompt("HMIConsoleOutput :\n")
               {
                   this->start();
               }
@@ -79,11 +81,15 @@ namespace ORO_ControlKernel
         {
             MutexLock lock1( msg_lock );
             if ( ! messages.str().empty() ) {
-                std::cout << coloron << "HMIConsoleOutput : "<< coloroff << std::endl << messages.str() << std::endl;
+                std::cout << coloron << _prompt<< coloroff <<
+                    messages.str() << std::endl;
                 messages.rdbuf()->str("");
             }
         }
 
+        /**
+         * Enable or disable using a colored prompt.
+         */
         void enableColor(bool yesno = true)
         {
             if (yesno == true) {
@@ -93,6 +99,14 @@ namespace ORO_ControlKernel
                 coloron.clear();
                 coloroff.clear();
             }
+        }
+           
+        /**
+         * Set the prompt text.
+         */
+        void setPrompt(const std::string& prompt)
+        {
+            _prompt = prompt;
         }
                 
 
