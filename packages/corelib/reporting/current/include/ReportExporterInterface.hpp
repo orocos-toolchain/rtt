@@ -54,7 +54,7 @@ namespace ORO_CoreLib
                     : NameServerRegistrator<ReportExporterInterface<ReportType>*,std::string>( nameserver, name, this )
             {}
 
-            inline virtual ~ReportExporterInterface() {};
+            inline virtual ~ReportExporterInterface() {}
 
             /**
              * Get a copy of the last collected report.

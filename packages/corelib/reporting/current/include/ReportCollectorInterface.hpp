@@ -32,6 +32,7 @@ namespace ORO_CoreLib
     class ReportCollectorInterface
     {
         public:
+        virtual ~ReportCollectorInterface() {}
             /**
              * The type of the report used.
              */
