@@ -93,13 +93,17 @@ extern "C" {
 	typedef struct oro_lxrt_t {
 		int opaque;
 	} __LXRT_HANDLE_STRUCT;
+
     typedef __LXRT_HANDLE_STRUCT RTOS_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_SEM;
     typedef __LXRT_HANDLE_STRUCT RTOS_CND; 
 #else
     // v24.1.x :
+	typedef struct oro_lxrt_t {
+		int opaque;
+	} __LXRT_HANDLE_STRUCT;
     typedef void RTOS_TASK;
-    typedef void RTOS_SEM;
+    typedef __LXRT_HANDLE_STRUCT RTOS_SEM;
     typedef void RTOS_CND; 
 #endif
 #endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
@@ -113,6 +117,7 @@ extern "C" {
 
 
 	typedef pthread_mutex_t rt_mutex_t;
+	typedef RTOS_SEM rt_sem_t;
 	
 	// Time Related
 	
@@ -164,6 +169,49 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     return 0;
 }
 
+    static inline int rtos_sem_init(rt_sem_t* m, int value )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_init(m, value);
+    }
+
+    static inline int rtos_sem_destroy(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_delete(m);
+    }
+
+    static inline int rtos_sem_signal(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_signal(m);
+    }
+
+    static inline int rtos_sem_wait(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait(m);
+    }
+
+    static inline int rtos_sem_trywait(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_if(m);
+    }
+
+    static inline int rtos_sem_value(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_count(m);
+    }
+
+#if 0
+    static inline int rtos_sem_wait_timed(rt_sem_t* m, long long delay )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_timed(m, delay);
+    }
+#endif
     static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
     {
         CHK_LXRT_CALL();
@@ -293,6 +341,13 @@ int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespe
 int rtos_cond_broadcast(rt_cond_t *cond);
 
 int rtos_printf(const char *fmt, ...);
+
+int rtos_sem_init(rt_sem_t* m, int value );
+int rtos_sem_destroy(rt_sem_t* m );
+int rtos_sem_signal(rt_sem_t* m );
+int rtos_sem_wait(rt_sem_t* m );
+int rtos_sem_trywait(rt_sem_t* m );
+int rtos_sem_value(rt_sem_t* m );
 
 #endif // OSBLD_OS_AGNOSTIC
 

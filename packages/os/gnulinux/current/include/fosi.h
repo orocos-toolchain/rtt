@@ -105,6 +105,41 @@ extern "C"
         return count;
     }
 
+	typedef sem_t rt_sem_t;
+
+    static inline int rtos_sem_init(rt_sem_t* m, int value )
+    {
+        return sem_init(m, 0, value);
+    }
+
+    static inline int rtos_sem_destroy(rt_sem_t* m )
+    {
+        return sem_destroy(m);
+    }
+
+    static inline int rtos_sem_signal(rt_sem_t* m )
+    {
+        return sem_post(m);
+    }
+
+    static inline int rtos_sem_wait(rt_sem_t* m )
+    {
+        return sem_wait(m);
+    }
+
+    static inline int rtos_sem_trywait(rt_sem_t* m )
+    {
+        return sem_trywait(m);
+    }
+
+    static inline int rtos_sem_value(rt_sem_t* m )
+    {
+		int val = 0;
+        if ( sem_getvalue(m, &val) == 0)
+			return val;
+		return -1;
+    }
+
     // Mutex functions
 
     typedef pthread_mutex_t rt_mutex_t;

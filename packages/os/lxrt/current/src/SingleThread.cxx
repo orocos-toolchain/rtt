@@ -92,24 +92,14 @@ namespace ORO_OS
                             rt_make_hard_real_time();
                         else
                             rt_make_soft_real_time();
-                        if ( task->runComp != 0 )
-                            {
-                                task->runComp->step();
-
-                            }
-                        else
-                            task->step();
+                        task->loop();
 
                         // We do this to be able to safely
                         // process the finalize method
                         if ( task->isHardRealtime() )
                             rt_make_soft_real_time();
 
-                        // Allways soft realtime.
-                        if ( task->runComp != 0 )
-                            task->runComp->finalize();
-                        else
-                            task->finalize();
+                        task->finalize();
                     }
             } catch( ... ) {
                 // set state to not running
@@ -185,10 +175,7 @@ namespace ORO_OS
     {
         if ( isRunning() ) return false;
 
-        if ( runComp )
-            runComp->initialize();
-        else
-            initialize();
+        this->initialize();
 
         running=true;
         rt_sem_signal(sem);
@@ -201,15 +188,24 @@ namespace ORO_OS
         return running;
     }
 
-    void SingleThread::step()
+    void SingleThread::loop()
     {
+        if ( runComp != 0 )
+            runComp->loop();
     }
 
     bool SingleThread::initialize()
-    { return true; }
+    { 
+        if ( runComp != 0 )
+            return runComp->initialize();
+        return true;
+    }
 
     void SingleThread::finalize()
-    {}
+    {
+        if ( runComp != 0 )
+            runComp->finalize();
+    }
 
     void SingleThread::taskNameSet(const char* nm)
     {

@@ -71,15 +71,9 @@ namespace ORO_OS
                     if ( task->prepareForExit )
                         break;
 
-                    if ( task->runComp != 0 )
-                        task->runComp->step();
-                    else
-                        task->step();
+                    task->loop();
 
-                    if ( task->runComp != 0 )
-                        task->runComp->finalize();
-                    else
-                        task->finalize();
+                    task->finalize();
                 }
             } catch( ... ) {
                 // set state to not running
@@ -145,10 +139,7 @@ namespace ORO_OS
     {
         if ( isRunning() ) return false;
 
-        if ( runComp )
-            runComp->initialize();
-        else
-            initialize();
+        this->initialize();
 
         running=true;
         sem_post( &sem );
@@ -161,15 +152,24 @@ namespace ORO_OS
         return running;
     }
 
-    void SingleThread::step()
+    void SingleThread::loop()
     {
+        if ( runComp != 0 )
+            runComp->loop();
     }
 
     bool SingleThread::initialize()
-    { return true; }
+    { 
+        if ( runComp != 0 )
+            return runComp->initialize();
+        return true;
+    }
 
     void SingleThread::finalize()
-    {}
+    {
+        if ( runComp != 0 )
+            runComp->finalize();
+    }
 
     void SingleThread::taskNameSet(const char* nm)
     {

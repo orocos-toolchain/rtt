@@ -44,7 +44,7 @@ namespace ORO_OS
     /**
      * @brief This Thread abstraction class represents
      * a single-shot thread which can be started many times
-     * and stops each time the step() function returns.
+     * and stops each time the loop() function returns.
      *
      */
     class SingleThread 
@@ -105,7 +105,7 @@ namespace ORO_OS
         bool isHardRealtime();
     protected:
 
-        virtual void step();
+        virtual void loop();
     
         virtual bool initialize();
 

@@ -26,36 +26,11 @@
  ***************************************************************************/
  
  
-
+#define OROBLD_OS_LXRT_INTERNAL
 #include "os/fosi.h"
 
 #ifdef OROBLD_OS_AGNOSTIC
 // Encapsulate all RTAI/LXRT specific functions
-
-// include custom redirect-like include
-#if ORONUM_RTAI_VERSION == 3
-#include <rtai_config.h>
-#else
-#include "rtai_config.h"
-#endif
-
-#if ORONUM_RTAI_VERSION == 3
-#include <rtai_lxrt.h>
-#include <rtai_posix.h>
-#else
-#define KEEP_STATIC_INLINE
-#include <rtai_declare.h>
-#include <rtai_usp_posix.h>
-#include <rtai_lxrt_user.h> 
-    /**
-     * About KEEP_STATIC_INLINE:
-     *  What is below is questionable, sometimes it crashes, sometimes not. I disassembled the C and C++ object code,
-     *  they were the same for 3.x compilers. (ps)
-     *  crashes on C++ stuff when using 2.95 compiler, thus you can not include rtai_lxrt.h or you get multiple
-     * defined symbols. Missing defines from rtai_lxrt.h need to be redefined in other headerfile.
-     */
-//#include <rtai_fifos_lxrt_user.h> 
-#endif
 
 // hrt is in nanoseconds
 TIME_SPEC ticks2timespec(RTIME hrt)
@@ -101,6 +76,44 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     nanosleep(rqtp,rmtp); // rtai 24.1.9
     return 0;
 }
+
+    int rtos_sem_init(rt_sem_t* m, int value )
+    {
+        CHK_LXRT_CALL();
+		// store the pointer in m->opaque...
+        m->opaque = (int) rt_sem_init( rt_get_name(0) , value);
+		return 0;
+    }
+
+    int rtos_sem_destroy(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_delete((rt_sem_t*)(m->opaque));
+    }
+
+    int rtos_sem_signal(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_signal((rt_sem_t*)m->opaque);
+    }
+
+    int rtos_sem_wait(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait((rt_sem_t*)m->opaque);
+    }
+
+    int rtos_sem_trywait(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_if((rt_sem_t*)m->opaque);
+    }
+
+    int rtos_sem_value(rt_sem_t* m )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_count((rt_sem_t*)m->opaque);
+    }
 
     int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
     {

@@ -45,8 +45,12 @@ namespace ORO_OS
      * initialize() will be called.
      * When step() is ran the last time in this cycle, finalize() will be 
      * called, after it finishes.
+     * 
+     * A non periodic thread will call \a loop(), which indicates that the
+     * RunnableInterface is allowed to block ( step() is not allowed to block ).
+     * By default, loop() calls step(), but a subclass may override the loop() method
+     * to put its own blocking functionality in.
      */
-
     class RunnableInterface
     {
         public:
@@ -61,9 +65,15 @@ namespace ORO_OS
 
             /**
              * The method that will be periodically executed when this
-             * class is run.
+             * class is run in a periodic thread.
              */
             virtual void step() = 0;
+
+            /**
+             * The method that will be executed once when this
+             * class is run in a non periodic thread
+             */
+             virtual void loop() { this->step(); }
 
             /**
              * The method that will be called once each time after the periodical
