@@ -49,8 +49,12 @@ namespace ORO_CoreLib
     /**
      * @brief Helper functions for Property operations.
      *
-     * These two helper functions define for each type which
+     * These helper functions define for each type which
      * operators need to be applied to copy or update a type T.
+     *
+     * Remark that PropertyBag for example overloads these two functions.
+     * Standard STL Containers (like vector) don't need an overload ( operator= ).
+     * All overloads must be in namespace ORO_CoreLib.
      *
      * @{
      */

@@ -30,6 +30,25 @@
 
 #pragma interface
 
+#include <vector>
+
+namespace ORO_Geometry
+{
+    class Frame;
+    class Rotation;
+    class Vector;
+    class Twist;
+    class Wrench;
+}
+
+// I don't fully understand why forward decls don't work :
+#include "pkgconf/system.h"
+#ifdef OROPKG_GEOMETRY
+#include "geometry/frames.h"
+#endif
+
+#include "PropertyBag.hpp"
+
 namespace ORO_CoreLib
 {
 
@@ -43,6 +62,10 @@ namespace ORO_CoreLib
         /**
          * A property operation folowing the visitor software pattern.
          * A subclass must specialise the comply method of the type it is..
+         *
+         * For each property-type you want to use, add a comply method in this
+         * class. For example Property<Frame>, ... For technical reasons,
+         * this class must remain template free.
          */
         class PropertyOperation
         {
@@ -75,6 +98,51 @@ namespace ORO_CoreLib
             }
 
             virtual bool comply(const Property<double>* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property<std::string>* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property<std::vector<double> >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property<std::vector<int> >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< PropertyBag >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< ORO_Geometry::Frame >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< ORO_Geometry::Rotation >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< ORO_Geometry::Twist >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< ORO_Geometry::Wrench >* ) 
+            {
+                return false;
+            }
+
+            virtual bool comply(const Property< ORO_Geometry::Vector >* ) 
             {
                 return false;
             }
