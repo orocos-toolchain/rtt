@@ -7,6 +7,7 @@ independent Components like a console command reader
 and a console output component."
 
     requires OROPKG_CONTROL_KERNEL
+    requires OROPKG_SUPPORT_READLINE
 
     include_dir kernel_components
 

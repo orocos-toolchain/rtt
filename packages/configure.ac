@@ -23,12 +23,15 @@ The Packaging system requires tcl 8.3
 ])
 fi;
 
+# the support top directory
+PACKAGES=support/common/current/support.cdl
+
 DETECT_BOOSTPKG
-DETECT_BOOST_GRAPHPKG
 DETECT_XERCESCPKG
 DETECT_COMEDIPKG
 DETECT_COMEDILIBPKG
 DETECT_READLINE
+DETECT_RTAI
 
 AC_CONFIG_FILES([ 
   Doxyfile Makefile

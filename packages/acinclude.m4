@@ -10,9 +10,11 @@ AC_LANG_CPLUSPLUS
 # Check for boost
 AC_CHECK_HEADERS([boost/call_traits.hpp],
 [
+ORO_BOOST_DETECT=1
 PACKAGES="support/boost/current/boost.cdl $PACKAGES"
 ],
 [
+ORO_BOOST_DETECT=0
 AC_MSG_WARN([
 
 Could not find Boost headers. Please install Boost.
@@ -22,20 +24,16 @@ or if you are a Debian GNU/Linux user, just do:
 
 apt-get install libboost-dev
 
-and rerun the bootstrap.sh script
+and rerun the configure script
 ])
 ])
-AC_LANG_C
-])
-
-m4_define([DETECT_BOOST_GRAPHPKG],[
-AC_LANG_CPLUSPLUS
 # Check for boost Graph
 AC_CHECK_HEADERS([boost/graph/adjacency_list.hpp],
 [
-PACKAGES="support/boost_graph/current/boost_graph.cdl $PACKAGES"
+   ORO_BOOST_GRAPH_DETECT=1
 ],
 [
+   ORO_BOOST_GRAPH_DETECT=0
 AC_MSG_WARN([
 
 Could not find the Boost Graph Library headers.
@@ -46,10 +44,34 @@ or if you are a Debian GNU/Linux user, just do:
 
 apt-get install libboost-graph-dev
 
-and rerun the bootstrap.sh script
+and rerun the configure script
+])
+])
+# Check for boost Signal
+AC_CHECK_HEADERS([boost/signal.hpp],
+[
+   ORO_BOOST_SIGNALS_DETECT=1
+],
+[
+   ORO_BOOST_SIGNALS_DETECT=0
+AC_MSG_WARN([
+
+Could not find the Boost Signal Library headers.
+Please install Boost and Boost Signal.
+
+You can find Boost at http://www.boost.org/
+or if you are a Debian GNU/Linux user, just do:
+
+apt-get install libboost-signals-dev
+
+and rerun the configure script
 ])
 ])
 AC_LANG_C
+
+AC_SUBST(ORO_BOOST_DETECT)
+AC_SUBST(ORO_BOOST_GRAPH_DETECT)
+AC_SUBST(ORO_BOOST_SIGNALS_DETECT)
 ])
 
 
@@ -80,7 +102,17 @@ and rerun the bootstrap.sh script
 
 m4_define([DETECT_COMEDIPKG],
 [
-AC_CHECK_HEADERS([ comedi.h ],
+AC_MSG_CHECKING(for comedi dir)
+AC_ARG_WITH(comedi, [ --with-comedi Specify location of linux/comedi.h ],
+	[ if test x"$enableval" != x; then COMEDI_DIR="$enableval"; fi ])
+if test x"$COMEDI_DIR" = x; then
+   COMEDI_DIR="/usr/realtime/include"
+fi
+AC_MSG_RESULT($COMEDI_DIR)
+AC_SUBST(COMEDI_DIR)
+
+CPPFLAGS="-I$COMEDI_DIR"
+AC_CHECK_HEADERS([ linux/comedi.h ],
 [
 PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
 ],
@@ -91,7 +123,17 @@ PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
 
 m4_define([DETECT_COMEDILIBPKG],
 [
-AC_CHECK_HEADERS([ comedilib.h ],
+AC_MSG_CHECKING(for comedilib dir)
+AC_ARG_WITH(comedilib, [ --with-comedilib Specify location of comedilib.h ],
+	[ if test x"$enableval" != x; then COMEDILIB_DIR="$enableval"; fi ])
+if test x"$COMEDILIB_DIR" = x; then
+   COMEDILIB_DIR="/usr/realtime/include"
+fi
+AC_MSG_RESULT($COMEDILIB_DIR)
+AC_SUBST(COMEDILIB_DIR)
+
+CPPFLAGS="-I$COMEDILIB_DIR"
+AC_CHECK_HEADERS([ comedilib.h],
 [
 PACKAGES="support/comedilib/current/comedilib.cdl $PACKAGES"
 ],
@@ -118,6 +160,49 @@ and rerun the bootstrap.sh script
 ])
 ])
 ])
+
+m4_define([DETECT_RTAI],
+[
+AC_MSG_CHECKING(for RTAI/LXRT Installation)
+AC_ARG_WITH(rtai, [ --with-rtai Specify location of RTAI/LXRT ],
+	[ if test x"$enableval" != x; then RTAI_DIR="$enableval"; fi ])
+AC_ARG_WITH(lxrt, [ --with-lxrt Equivalent to --with-rtai ],
+	[ if test x"$enableval" != x; then RTAI_DIR="$enableval"; fi ])
+
+if test x"$RTAI_DIR" = x; then
+   RTAI_DIR="/usr/realtime"
+fi
+AC_MSG_RESULT($RTAI_DIR)
+AC_SUBST(RTAI_DIR)
+
+CPPFLAGS="-I$RTAI_DIR/include"
+AC_CHECK_HEADER([rtai_config.h], [
+  AC_CHECK_HEADERS([rtai_lxrt.h],
+  [
+    PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
+    RTAI_VERSION=3
+  ],
+  [
+    AC_MSG_WARN([No RTAI/LXRT installation found (rtai_config.h, rtai_lxrt.h). LXRT will be unavailable.])
+  ])
+],[
+dnl try old rtai style
+  AC_CHECK_HEADERS([rtai_lxrt_user.h], 
+  [
+    PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
+    RTAI_VERSION=2
+  ],
+  [
+    AC_MSG_WARN([No RTAI/LXRT installation found ( rtai_lxrt_user.h ). LXRT will be unavailable.])
+  ])
+])
+if test x"$RTAI_VERSION" = x; then
+   RTAI_VERSION=0
+fi
+AC_SUBST(RTAI_VERSION)
+])
+
+
 
 dnl ACX_VERSION(MAJOR-VERSION,MINOR-VERSION,MICRO-VERSION,BUILD-NUMBER)
 dnl Define the version number of the package
