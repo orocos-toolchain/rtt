@@ -24,7 +24,7 @@ namespace ORO_ControlKernel
         Event startEvent;
     public :
         HMIConsoleInput()
-            : Base("console"), start(false),
+            : Base("console_input"), start(false),
               startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent") {}
 
 

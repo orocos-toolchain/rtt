@@ -9,6 +9,7 @@
 #include <geometry/path_line.h>
 #include <geometry/path_point.h>
 #include <geometry/velocityprofile_trap.h>
+#include <geometry/velocityprofile_traphalf.h>
 #include <geometry/velocityprofile_rect.h>
 #include <geometry/velocityprofile_dirac.h>
 #include <geometry/rotational_interpolation_sa.h>
@@ -75,6 +76,12 @@ namespace ORO_ControlKernel
         {
             // Default Behaviour.
             interpolate( interpol_prop.get() );
+        }
+
+        ~CartesianGenerator()
+        {
+            delete interpol;
+            delete cur_tr;
         }
 
         virtual bool componentStartup()
@@ -238,12 +245,12 @@ namespace ORO_ControlKernel
                         - max_acc*needed_time*needed_time;
                     VelocityProfile_TrapHalf* vth = new VelocityProfile_TrapHalf( current_v, max_acc, false );
                     vth->SetProfile(0, 1, needed_time); // this will stretch the '1' to the end position.
-                    cur_tr =  new Trajectory_Segment( new Path_Twist( mp_base_frame, cur_tr->Vel( _time ),
+                    cur_tr =  new Trajectory_Segment( new Path_Line( mp_base_frame, cur_tr->Vel( _time ),
                                                                      new RotationalInterpolation_SingleAxis(),
                                                                      1.0), 
                                                       interpol->Clone() );
                     
-                
+                }
         }
 
         /**

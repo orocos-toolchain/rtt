@@ -20,7 +20,7 @@ namespace ORO_ControlKernel
     {
     public :
         HMIConsoleOutput()
-            : Base("console")
+            : Base("console_output")
               {}
 
         /**
