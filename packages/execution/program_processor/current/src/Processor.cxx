@@ -147,6 +147,7 @@ namespace ORO_Execution
         delete programs;
         delete states;
         delete a_queue;
+        delete f_queue;
     }
 
     bool program_lookup( const Processor::ProgramInfo& pi, const std::string& name)

@@ -53,6 +53,7 @@ namespace ORO_Execution
       typedef map_t::const_iterator const_iter_t;
     public:
       GlobalCommandFactory();
+      ~GlobalCommandFactory();
 
       /**
        *  @brief Check whether the factory registered with a given object,

@@ -52,7 +52,13 @@ namespace ORO_Execution {
 
   GlobalCommandFactory::GlobalCommandFactory()
   {
-  };
+  }
+
+  GlobalCommandFactory::~GlobalCommandFactory()
+  {
+      for (iter_t r = mdata.begin(); r != mdata.end(); ++r )
+          delete r->second;
+  }
 
   /* search for an object a return its factory */
   const CommandFactoryInterface * GlobalCommandFactory::getObjectFactory(

@@ -53,7 +53,12 @@ namespace ORO_Execution
   public:
     GlobalMemberFactory()
       {
-      };
+      }
+    ~GlobalMemberFactory()
+      {
+          for (map_t::iterator r = mdata.begin(); r != mdata.end(); ++r )
+              delete r->second;
+      }
 
   bool hasMember(
     const std::string& objectname,
