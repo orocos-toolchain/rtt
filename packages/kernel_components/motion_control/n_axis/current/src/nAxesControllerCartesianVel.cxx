@@ -41,6 +41,7 @@ namespace ORO_ControlKernel
     // copy Input and Setpoint to local values
     _position_meas_DOI->Get(_position_meas_local);
     _velocity_desi_DOI->Get(_velocity_desi_local);
+    _velocity_desi_local.RefPoint( _position_meas_local.p );  // refpoint to EE
   }
 
 
@@ -71,7 +72,7 @@ namespace ORO_ControlKernel
   
   void nAxesControllerCartesianVel::push()      
   {
-    _velocity_out_DOI->Set(_velocity_out_local);
+    _velocity_out_DOI->Set(_velocity_out_local.RefPoint( _position_meas_local.p * -1));
   }
 
 

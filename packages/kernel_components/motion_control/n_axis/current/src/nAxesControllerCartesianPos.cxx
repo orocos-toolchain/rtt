@@ -59,7 +59,7 @@ namespace ORO_ControlKernel
   
   void nAxesControllerCartesianPos::push()      
   {
-    _velocity_out_DOI->Set(_velocity_out_local);
+    _velocity_out_DOI->Set(_velocity_out_local.RefPoint( _position_meas_local.p * -1 ));
   }
 
 

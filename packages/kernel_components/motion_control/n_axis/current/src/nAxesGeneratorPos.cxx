@@ -60,7 +60,7 @@ namespace ORO_ControlKernel
       _position_meas_DOI->Get(_position_desired);
     }
 
-    // is moving: do we have to stop?
+    // end condition
     if (_is_moving){
       _time_passed = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
       if ( _time_passed > _max_duration ){
@@ -72,7 +72,7 @@ namespace ORO_ControlKernel
       }
     }
 
-    // is not moving: can create new trajectory?
+    // get new setpoint
     if (!_is_moving){
       // try to lock
       ORO_OS::MutexTryLock locker(_my_lock);

@@ -65,8 +65,7 @@ namespace ORO_ControlKernel
       q[i] = _position_sensors[i]->readSensor();
 
     // convert twist
-    _kinematics->positionForward(q, _position_cartesian );
-    _kinematics->velocityInverse(q, _velocity_cartesian_local.RefPoint(_position_cartesian.p * -1), q_dot);
+    _kinematics->velocityInverse(q, _velocity_cartesian_local, q_dot);
     for (unsigned int i=0; i<_num_axes; i++)
       _velocity_joint_local[i] = q_dot[i];
   }

@@ -74,17 +74,17 @@ namespace ORO_ControlKernel
 
 	// get current position
 	_position_meas_DOI->Get(_traject_begin);
-	_twist_begin_end = diff(_traject_begin, _traject_end);
+	_velocity_begin_end = diff(_traject_begin, _traject_end);
 
 	// Set motion profiles
 	for (unsigned int i=0; i<6; i++){
-	  _motion_profile[i]->SetProfileDuration( 0, _twist_begin_end(i), _traject_duration );
+	  _motion_profile[i]->SetProfileDuration( 0, _velocity_begin_end(i), _traject_duration );
 	  _max_duration = max( _max_duration, _motion_profile[i]->Duration() );
 	}
 
 	// Rescale trajectories to maximal duration
 	for (unsigned int i=0; i<6; i++)
-	  _motion_profile[i]->SetProfileDuration( 0, _twist_begin_end(i), _max_duration );
+	  _motion_profile[i]->SetProfileDuration( 0, _velocity_begin_end(i), _max_duration );
 
 	_time_begin = HeartBeatGenerator::Instance()->ticksGet();
 	_time_passed = 0;
@@ -103,13 +103,14 @@ namespace ORO_ControlKernel
     // is moving: follow trajectory
     if (_is_moving){
       // position
-      Vector translation_now(_motion_profile[0]->Pos(_time_passed),_motion_profile[1]->Pos(_time_passed),_motion_profile[2]->Pos(_time_passed));
-      Vector rotation_now   (_motion_profile[3]->Pos(_time_passed),_motion_profile[4]->Pos(_time_passed),_motion_profile[5]->Pos(_time_passed));
-      _position_out_local = Frame( _traject_begin.M * Rot( _traject_begin.M.Inverse( rotation_now ) ), _traject_begin.p + translation_now);
+      _velocity_delta = Twist(Vector(_motion_profile[0]->Pos(_time_passed),_motion_profile[1]->Pos(_time_passed),_motion_profile[2]->Pos(_time_passed)),
+			      Vector(_motion_profile[3]->Pos(_time_passed),_motion_profile[4]->Pos(_time_passed),_motion_profile[5]->Pos(_time_passed)) );
+      _position_out_local = Frame( _traject_begin.M * Rot( _traject_begin.M.Inverse( _velocity_delta.rot ) ), _traject_begin.p + _velocity_delta.vel);
 
       // velocity
       for(unsigned int i=0; i<6; i++)
 	_velocity_out_local(i) = _motion_profile[i]->Vel( _time_passed );
+      _velocity_out_local.RefPoint( _position_out_local.p * -1 );
     }
 
     // go to desired stop position
