@@ -61,9 +61,13 @@ namespace ORO_CoreLib
 
         virtual ~TaskTimerOneShot();
 
-        bool addTask( PeriodicTask* t );
+        virtual void start();
 
-        bool removeTask( PeriodicTask* t );
+        virtual void stop();
+
+        virtual bool addTask( PeriodicTask* t );
+
+        virtual bool removeTask( PeriodicTask* t );
 
         virtual void tick();
 

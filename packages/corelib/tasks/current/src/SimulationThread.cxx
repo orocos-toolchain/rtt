@@ -109,6 +109,8 @@ namespace ORO_CoreLib
         
         // we will update the clock in step()
         beat->enableSystemClock( false );
+
+        // No TaskExecution::initialize() to allow 'freeze'
         return true;
     }
 
@@ -117,6 +119,9 @@ namespace ORO_CoreLib
         Logger::log() << Logger::Info << "SimulationThread releases system time."<<Logger::endl;
         // release systemclock again.
         beat->enableSystemClock( true );
+
+        // DO NOT CALL TaskExecution::finalize(), since we want to be able to start/stop the
+        // SimulationThread and inspect the tasks still running.
     }
 
     void SimulationThread::step()

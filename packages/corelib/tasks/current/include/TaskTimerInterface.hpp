@@ -56,6 +56,16 @@ namespace ORO_CoreLib
         static const unsigned int MAX_TASKS = 64;
 
         /**
+         * Startup the timer.
+         */
+        virtual void start() = 0;
+
+        /**
+         * Stop the timer and all PeriodicTasks running in this timer.
+         */
+        virtual void stop() = 0;
+
+        /**
          * Add a task which must be step()'ed.
          */
         virtual bool addTask( PeriodicTask* t ) = 0;

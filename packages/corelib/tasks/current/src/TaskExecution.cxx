@@ -50,6 +50,15 @@ namespace ORO_CoreLib
             delete *itl; 
     }
 
+    bool TaskExecution::initialize()
+    {
+        TimerList::iterator itl;
+        MutexLock locker(lock);
+        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
+            (*itl)->start();
+        return true;
+    }
+
     void TaskExecution::step()
     {
         TimerList::iterator itl;
@@ -64,6 +73,14 @@ namespace ORO_CoreLib
         // Execute event completion handlers :
         EventProcessor::step();
     }        
+
+    void TaskExecution::finalize()
+    {
+        TimerList::iterator itl;
+        MutexLock locker(lock);
+        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
+            (*itl)->stop();
+    }
 
     TaskTimerInterface* TaskExecution::timerGet( Seconds period ) const {
         MutexLock locker(lock);

@@ -104,7 +104,9 @@ namespace ORO_CoreLib
          */
         TaskExecution(int priority, const std::string& name, double periodicity);
 
+        virtual bool initialize();
         virtual void step();
+        virtual void finalize();
 
         typedef std::vector<TaskTimerInterface*> TimerList;
 

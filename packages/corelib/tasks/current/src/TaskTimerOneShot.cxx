@@ -81,6 +81,21 @@ namespace ORO_CoreLib
         return false;
     }
 
+    void TaskTimerOneShot::start() {
+        MutexLock lock(mutex);
+        turn = 1;
+    }
+
+    void TaskTimerOneShot::stop() {
+        MutexLock lock(mutex);
+        
+        for( TaskList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
+            if ( *t_iter )
+                (*t_iter)->stop(); // stop() calls us back to removeTask (recursive mutex).
+        if ( cleanup )
+            this->reorderList();
+    }
+
     void TaskTimerOneShot::tick() {
         MutexLock lock(mutex);
         
