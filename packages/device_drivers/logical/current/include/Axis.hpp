@@ -24,33 +24,26 @@
 #include "DigitalInput.hpp"
 #include "Drive.hpp"
 
-#include <corelib/EventListenerInterface.hpp>
-#include <corelib/EventCompleterInterface.hpp>
-#include <corelib/TaskPreemptible.hpp>
-#include <os/rtstreams.hpp>
+//#include <corelib/EventListenerInterface.hpp>
+//#include <corelib/EventCompleterInterface.hpp>
+//#include <corelib/TaskPreemptible.hpp>
+
 #include <math.h>
 
 namespace ORO_DeviceDriver
 {
 
-    using namespace ORO_CoreLib;
-//    using namespace CAN;
-    using namespace std;
+    using namespace ORO_DeviceInterface;
+
     /**
      * Axis is an example of how you can easily implement
-     * a generic axis using the FDI. Most people can use this class to see
+     * a generic axis using the Device Interfaces. Most people can use this class to see
      * how some tasks are combined in a component (the Axis) and that this
      * component can execute them on request. 
      *
-     * Take a look at the ActuatorInterface, EncoderIncrementalInterface,
-     * SwitchHomingInterface classes present in the fdi directory for 
+     * Take a look at the ActuatorInterface, EncoderInterface,
+     * DigitalInput classes for 
      * the interfaces which your classes must implement so you can use Axis.
-     *
-     * A useful extension would be incorporating a control loop with a trajectory
-     *  so that the homing is more 'professional'.
-     *
-     * example : 
-     * my_AX = new Axis(SomeActuator,SomeEncoder,SomeHomingSwitch);
      */
     class Axis
     {

@@ -58,7 +58,8 @@ namespace ORO_DeviceDriver
              */
             bool isOn()
             {
-                return invert ^ board->isOn(bitnumber);
+                // Q: who knew that != is logical xor ?
+                return invert != board->isOn(bitnumber);
             }
 
         private:

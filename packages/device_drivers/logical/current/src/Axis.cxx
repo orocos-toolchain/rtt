@@ -17,7 +17,6 @@
 ***************************************************************************/
 
 #include "device_drivers/Axis.hpp"
-#include <os/rtstreams.hpp>
 #include <corelib/EventInterfaces.hpp>
 
 

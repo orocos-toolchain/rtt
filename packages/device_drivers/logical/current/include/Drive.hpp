@@ -26,7 +26,7 @@
 #include <device_interface/AnalogOutInterface.hpp>
 #include <device_interface/DigitalOutInterface.hpp>
 //#include <device_interface/ActuatorInterface.hpp>
-#include <iostream>
+//#include <iostream>
 
 namespace ORO_DeviceDriver
 
