@@ -54,17 +54,41 @@ namespace ORO_Execution
         TaskContext* _progcont;
         ProgramCommands(TaskContext* progcont) : _progcont(progcont)
         {
+            // Commands :
             TemplateCommandFactory<ProgramCommands>* fact =
                 newCommandFactory( this );
 
-            fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start this program") );
-            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop this program", false) );
+            fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start or continue this program") );
+            fact->add("pause", command(&ProgramCommands::pause, &ProgramCommands::paused,"Pause this program") );
+            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop and reset this program", false) );
 
             progcont->commandFactory.registerObject("this", fact);
+
+            // DataSources:
+            TemplateDataSourceFactory<ProgramCommands>* dfact =
+                newDataSourceFactory( this );
+
+            dfact->add("isRunning", data( &ProgramCommands::running, "Is this program being executed and not paused ?") );
+            dfact->add("inError", data(&ProgramCommands::error,"Has this program executed an erroneous command ?") );
+            dfact->add("isPaused", data(&ProgramCommands::paused,"Is this program running but paused ?") );
+
+            progcont->dataFactory.registerObject("this", dfact);
         }
 
         bool start() {
             return _progcont->getProcessor()->startProgram( _progcont->getName() );
+        }
+
+        bool pause() {
+            return _progcont->getProcessor()->pauseProgram( _progcont->getName() );
+        }
+
+        bool error() const {
+            return _progcont->getProcessor()->getProgramStatus( _progcont->getName() ) == Processor::ProgramStatus::error;
+        }
+
+        bool paused() const {
+            return _progcont->getProcessor()->getProgramStatus( _progcont->getName() ) == Processor::ProgramStatus::stepmode;
         }
 
         bool running() const {

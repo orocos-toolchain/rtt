@@ -107,6 +107,21 @@ namespace ORO_Execution
     };
 
     /**
+     * A Fatal Semantic parse exception means the parser
+     * knows that the parsing failed dramatically and 
+     * should not be passed to another parser. for
+     * example, a missing argument, or the incorrect type.
+     */
+    class fatal_semantic_parse_exception
+        : public parse_exception
+    {
+        // make these private
+        fatal_semantic_parse_exception& operator=( const fatal_syntactic_parse_exception& );
+    protected:
+        fatal_semantic_parse_exception() {};
+    };
+
+    /**
      * A normal syntactic parse exception means the parser
      * recognised the input, but got stuck later due to a
      * syntactic error, like a missing brace.
@@ -183,7 +198,7 @@ namespace ORO_Execution
    * for which it was not worth defining a proper exception class.
    */
   class parse_exception_syntactic_error
-    : public fatal_syntactic_parse_exception
+    : public syntactic_parse_exception
   {
     std::string mdesc;
   public:
@@ -211,16 +226,17 @@ namespace ORO_Execution
   class parse_exception_no_such_component
     : public semantic_parse_exception
   {
-    std::string mname;
+      std::string mname;
+      std::string mmeth;
   public:
-    parse_exception_no_such_component( const std::string& name )
-      : mname( name )
+    parse_exception_no_such_component( const std::string& name, const std::string& meth )
+        : mname( name ), mmeth(meth)
       {
       }
 
     const std::string what() const
       {
-        return "Object or task \"" + mname + "\" registered no commands or methods (or was not found at all).";
+        return "Object or task \"" + mname + "\" registered no method "+mmeth+" (or "+mname+" was not found at all).";
       }
 
     parse_exception_no_such_component* copy() const
@@ -268,7 +284,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_wrong_number_of_arguments
-    : public semantic_parse_exception
+    : public fatal_semantic_parse_exception
   {
     std::string mcomponentname;
     std::string mmethodname;
@@ -313,7 +329,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_wrong_type_of_argument
-    : public semantic_parse_exception
+    : public fatal_semantic_parse_exception
   {
     std::string mcomponentname;
     std::string mmethodname;
@@ -351,7 +367,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_undefined_value
-    : public semantic_parse_exception
+    : public fatal_semantic_parse_exception
   {
     std::string mname;
   public:

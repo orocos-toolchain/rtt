@@ -50,6 +50,7 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <boost/call_traits.hpp>
+#include <iostream>
 
 namespace ORO_Execution
 {
@@ -57,6 +58,7 @@ namespace ORO_Execution
     using boost::bind;
     using namespace ORO_CoreLib;
     using namespace ORO_Execution::detail;
+    using namespace std;
 
     namespace {
         enum GraphSyntaxErrors
@@ -587,13 +589,17 @@ namespace ORO_Execution
 
         varinitcommands.clear();
 
-        // finally : 
-        curtemplatecontext->finish();
-
         // remove temporary subcontext peers from current task.
         for( StateContextTree::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
-             it != curtemplatecontext->getChildren().end(); ++it )
-            context->removePeer( (*it)->getName() );
+             it != curtemplatecontext->getChildren().end(); ++it ) {
+            ParsedStateContext* psc = dynamic_cast<ParsedStateContext*>( *it );
+            //cerr << " removing from "<<context->getName() <<": "<<psc->getTaskContext()->getName()<<endl;
+            if (psc)
+                context->removePeer( psc->getTaskContext()->getName() );
+        }
+
+        // finally : 
+        curtemplatecontext->finish();
 
         // reset stack to task.
         valuechangeparser.setStack(context);

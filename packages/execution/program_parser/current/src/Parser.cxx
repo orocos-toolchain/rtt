@@ -108,7 +108,11 @@ namespace ORO_Execution
     catch( const parse_exception& e )
     {
       throw;
-    };
+    }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            throw parse_exception_syntactic_error( e.descriptor );
+        }
     ConditionInterface* ret = parser.getParseResult();
     parser.reset();
     return ret;
@@ -131,6 +135,10 @@ namespace ORO_Execution
     {
         throw;
     }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            throw parse_exception_syntactic_error( e.descriptor );
+        }
     if ( parser.hasResult() ) {
         DataSourceBase::shared_ptr ret = parser.getResult();
         parser.dropResult();

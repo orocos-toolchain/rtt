@@ -234,9 +234,10 @@ namespace ORO_Execution
         return error_status<>( error_status<>::fail );
     }
 
-    error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>& )
+    error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
-        // if this rule also fails, throw global exception
+        // if this rule also fails, throw semantic exception ( obj or method not found)
+        throw parse_exception_semantic_error( e.descriptor );
         return error_status<>( error_status<>::rethrow );
     }
 

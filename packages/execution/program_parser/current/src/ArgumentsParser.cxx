@@ -40,6 +40,12 @@ namespace ORO_Execution
 {
   using boost::bind;
 
+    namespace {
+        assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_arg("No argument given after comma.");
+    }
+
   ArgumentsParser::ArgumentsParser(
     ExpressionParser& p,  TaskContext* peer, const std::string& o,
     const std::string& m )
@@ -53,8 +59,8 @@ namespace ORO_Execution
     // between parentheses..
     arguments = (
       "("
-      >> !( argument >> *( ch_p( ',' ) >> argument ) )
-      >> ")" )[
+      >> !( argument >> *( ch_p( ',' ) >> expect_arg( argument ) ) )
+      >> expect_close(ch_p(')')) )[
         bind( &ArgumentsParser::seenarguments, this ) ];
 
     // a single argument is just a normal expression..

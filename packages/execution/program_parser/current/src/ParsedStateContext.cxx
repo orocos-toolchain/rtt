@@ -75,6 +75,7 @@ namespace ORO_Execution {
         DataSourceFactoryInterface* createDataSourceFactory() {
             TemplateDataSourceFactory< DataSource<StateContextCommands*> >* f = newDataSourceFactory(static_cast< DataSource<StateContextCommands*>* >(_this.get()));
             f->add("inState", data_ds(&StateContextCommands::inState, "Is the StateContext in a given state ?", "State Name", "State Name") );
+            f->add("getState", data_ds(&StateContextCommands::getState, "The name of the current state. An empty string if not active.") );
             return f;
         }
 
@@ -94,6 +95,12 @@ namespace ORO_Execution {
             if ( !_sc->isActive() )
                 return false;
             return _sc->currentState()->getName() == state;
+        }
+
+        std::string getState() const {
+            if ( !_sc->isActive() )
+                return "";
+            return _sc->currentState()->getName();
         }
 
         bool isActive() const {

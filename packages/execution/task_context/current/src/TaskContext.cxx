@@ -18,7 +18,9 @@ namespace ORO_Execution
               _task_proc_owner( proc == 0 ? true : false ),
               _task_name(name)
         {
-            _task_map[ "this" ] = this;
+            // I'll only add this line if there is a good reason for,
+            // for now, it's confusing to see 'this' being listed as peer.
+            //_task_map[ "this" ] = this;
         }
 
 

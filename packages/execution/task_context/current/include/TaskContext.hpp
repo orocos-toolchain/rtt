@@ -39,6 +39,8 @@ namespace ORO_Execution
 
         ORO_OS::Mutex execguard;
     public:
+        typedef std::vector< std::string > PeerList;
+
         /**
          * Create a TaskContext visible with \a name, which commands are processed
          * by \a proc. If no Processor is given, a default one is constructed.
@@ -102,7 +104,10 @@ namespace ORO_Execution
          */
         void disconnectPeers( const std::string& name );
 
-        std::vector<std::string> getPeerList() const;
+        /**
+         * Return a standard container which contains all the Peer's names
+         */
+        PeerList getPeerList() const;
 
         /**
          * Return true if it knows a peer by that name.

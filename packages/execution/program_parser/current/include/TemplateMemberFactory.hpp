@@ -371,6 +371,22 @@ namespace ORO_Execution
       };
   };
 
+  template<typename ComponentT, typename ResultT,
+           typename FunctorT>
+  class FunctorDataSourceGeneratorDS0
+  {
+    FunctorT fun;
+  public:
+    FunctorDataSourceGeneratorDS0( FunctorT f )
+      : fun( f )
+      {
+      }
+    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c) const
+      {
+        return newFunctorDataSource( c, boost::bind( fun, _1 ) );
+      }
+  };
+
   template<typename ComponentT, typename ResultT, typename Arg1T,
            typename FunctorT>
   class FunctorDataSourceGeneratorDS1
@@ -482,6 +498,15 @@ namespace ORO_Execution
   {
     return FunctorDataSourceGenerator1<
       ComponentT, ResultT, Arg1T, FunctorT>( fun );
+  };
+
+  template<typename ComponentT, typename ResultT,
+           typename FunctorT>
+  FunctorDataSourceGeneratorDS0<ComponentT, ResultT, FunctorT>
+  fun_datasource_gen_ds( FunctorT fun )
+  {
+    return FunctorDataSourceGeneratorDS0<
+      ComponentT, ResultT, FunctorT>( fun );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T,
@@ -655,6 +680,18 @@ namespace ORO_Execution
         fun_datasource_gen<ComponentT, ResultT,
         typename remove_cr<Arg1T>::type>(
           boost::mem_fn( fun ) ), desc, a1n, a1d );
+  };
+
+  template<typename ComponentT, typename ResultT>
+  TemplateFactoryPart< DataSource<typename boost::remove_const<ComponentT>::type*>,
+                      DataSourceBase*>*
+  MEMBER_DS( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc)
+  {
+    return fun_fact_ds<typename boost::remove_const<ComponentT>::type, DataSourceBase*>
+        (
+         fun_datasource_gen_ds< typename boost::remove_const<ComponentT>::type, ResultT >( boost::mem_fn( fun ) ),
+         desc
+         );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
