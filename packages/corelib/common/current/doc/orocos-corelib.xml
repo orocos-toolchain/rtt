@@ -11,7 +11,7 @@
 
 <book>
   <bookinfo>
-    <title>Orocos Core</title>
+    <title>The Orocos CoreLib Package</title>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>
@@ -70,6 +70,12 @@ given in the general &orocos; overview document.
 	<authorinitials>ps</authorinitials>
 	<revremark>lots of updates</revremark>
       </revision>
+      <revision>
+	<revnumber>0.11</revnumber>
+	<date>29 Oct 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Stripped Devices and OS parts</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -86,361 +92,49 @@ given in the general &orocos; overview document.
 
   </bookinfo>
 
-<chapter>
-	<title>The Realtime Core</title>
+  <chapter>
+    <title>Introduction</title>
     <para>
-This Section describes the semantics of the services
-available in the &orocos; Core Package. Only Framework Builders,
-Component Builders and Application Builders should use the Core
-directly; End Users do not.
+      This Chapter describes the semantics of the services
+      available in the &orocos; CoreLib Package.
     </para>
-<para>
-The Core makes an abstraction of the operating system on which it runs.
-	  It provides C++ interfaces to only the <emphasis>minimal
-set</emphasis> of operating system
-	  primitives that it needs: mutexes, condition variables and tasks.
-This is in accordance with the general developers requirements of the
-project: a minimalistic approach is much easier to scale, to maintain,
-and to port.
-The abstraction also allows &orocos; users to build their software on all supported systems with only
-	  a recompilation step. But the Core goes further than restricting
-the abstracted OS primitives: it also imposes a hard realtime
-<emphasis>architecture</emphasis>. This architecture is explained and
-motivated in a later Section.
- The goal of this fixed architecture is to keep 
-applications deterministic, by avoiding the classical pitfalls of
-letting application programmers freely choose the priorities of their
-tasks, and their communication primitives. Practice has indeed showed
-that most programmers do not succeed in strictly decoupling the
-functional and algorithmic parts of their code from the OS-specific
-primitives used to execute them.
-</para>
-<para>
-Of course, the realtime performance depends not only on
+    <para>
+	The Core makes an abstraction of the operating system on which it runs.
+	It provides C++ interfaces to only the <emphasis>minimal
+	  set</emphasis> of operating system
+	primitives that it needs: mutexes, condition variables and tasks.
+	This is in accordance with the general developers requirements of the
+	project: a minimalistic approach is much easier to scale, to maintain,
+	and to port.
+	The abstraction also allows &orocos; users to build their software 
+	on all supported systems with only
+	a recompilation step. But the Core goes further than restricting
+	the abstracted OS primitives: it also imposes a hard realtime
+	<emphasis>architecture</emphasis>. This architecture is explained and
+	motivated in a later Section.
+	The goal of this fixed architecture is to keep 
+	applications deterministic, by avoiding the classical pitfalls of
+	letting application programmers freely choose the priorities of their
+	tasks, and their communication primitives. Practice has indeed showed
+	that most programmers do not succeed in strictly decoupling the
+	functional and algorithmic parts of their code from the OS-specific
+	primitives used to execute them.
+      </para>
+      <para>
+	Of course, the realtime performance depends not only on
 	  the underlying operating system 
-	  <emphasis>but also on the hardware.</emphasis> The &orocos; Core
-Package also provides an abstraction of the hardware, again in order
-to facilitate maintenance and porting.
-</para>
-<para>
-The abstractions cause (almost) no execution overhead, because the wrapping
-is solved at compile or configuration time, i.e., before the hard
-realtime tasks are running.
-</para>
-
-<sect1>
-<title>Beyond Realtime</title>
-<para>Not everything must be executed in realtime in a control system,
-on the contrary. User
-interaction,
-	  some environment interaction, and system configuration can not
-execute within deterministic time
-	  limits. &orocos; also provides this interaction and configuration
-	  without disturbing the determinism
-	  of the control task execution.
-	</para>
-    </sect1>
-
-<sect1>
-<title>The Framework Operating System Interface (FOSI)</title>
-<para>
-Keeping the &orocos; core portable requires an extra abstraction of
-some operating system (OS) or kernel functionalities. For example, we
-all know that a task can be created, started, paused, scheduled, etc.,
-but each OS uses other function calls to do this. &orocos; prefers
-C++ interfaces, which led to the
-<classname>ComponentActive</classname> class interface as the
-abstraction of a task.  Each OS implements in its
-<filename class="directory">os/&lt;OS-name-here&gt;</filename> directory the
-specific system calls to get the desired effect.  Other abstractions
-are the <classname>HeartBeatGenerator</classname> class (to keep track
-of (virtual network) time), and the
-<classname>EventInterrupt</classname> class (to cover interrupt
-handlers). So, using the Core header files, every application should
-run on every supported OS.
-</para>
-<para>
-<figure><title>FOSI overview</title>
-	  <mediaobject>
-	    <imageobject>
-	      <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject>
-	      <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
-</para>
-<para>
-When building kernel space applications, the realtime code does not 
-run in a C++ friendly environment and we had to wrap some libraries 
-with our own headers to guarantee
-correct functioning. If you want to use the Standard C++ library
-(without iostreams), you
-have to include <filename>rtstl/rtstl.hpp</filename>.  You can include
-<filename>math.h</filename> without problems. The following table
-contains the latest &orocos;-approved header files:
-	<table frame="all">
-	  <title>Header files</title>
-	  <tgroup cols="3" colsep="1" rowsep="1">
-	    <thead >
-	      <row>
-		<entry>Library</entry>
-		<entry>Which file to include</entry>
-		<entry>Remarks</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry align="center" valign="middle">OS functionality</entry>
-		<entry align="center" valign="middle">os/fosi.h</entry>
-		<entry align="left" valign="middle">Include this file if you want to make system calls to the
-		  underlying operating system (RTLinux, RTAI, GNU/Linux,...) .</entry></row>
-	      <row>
-		<entry align="center" valign="middle">C++ functionality</entry>
-		<entry align="center" valign="middle">os/cpp.hpp</entry>
-		<entry align="left" valign="middle">Include this file in every C++ program you make.</entry></row>
-	      <row>
-		<entry align="center" valign="middle">Standard Template Library</entry>
-		<entry align="center" valign="middle">rtstl/rtstl.hpp</entry>
-		<entry align="left" valign="middle">No iostream support. RTLinux only supports string and vector.</entry></row>
-	      <row>
-		<entry align="center" valign="middle">Streams</entry>
-		<entry align="center" valign="middle">rtstl/rtstreams.hpp</entry>
-		<entry align="left" valign="middle">Defines StoneHead::cout with limited functionality</entry></row>
-	      <row>
-		<entry align="center" valign="middle">C Math Library</entry>
-		<entry align="center" valign="middle">math.h</entry>
-		<entry align="left" valign="middle">not all functions supported in RTLinux</entry></row></tbody></tgroup>
-	</table>
-
-	OSs implementing the POSIX Threads API <emphasis>correctly</emphasis>
-	greatly 
-	eases our efforts.
-    <note>When using RTAI-LXRT, you can include any headerfile of any library, as long
-    as you don't make system calls in hard realtime threads.</note>
-      </para>
-      
-    </sect1>
-    <sect1>
-      <title>The Framework Device Interface (<acronym>FDI</acronym>)</title>
-      <para>
-	Designing portable software which should interact with hardware is very
-	hard.
-	Some efforts, like <ulink url="http://http://stm.lbl.gov/comedi/">
-	  Comedi</ulink> propose
-	a generic interface to communicate with a certain kind of hardware (mainly
-	analog/digital IO). This allows us to change hardware and still use the
-	same
-	code to communicate with it.  Therefore, we aim at supporting every Comedi
-	
-	supported card.  We invite you to help us writing a C++ wrapper for this
-	API
-	and port comedilib (which adds more functionality) to the realtime
-	kernels.
+	  <emphasis>but also on the hardware.</emphasis> The &orocos; CoreLib
+	Package also provides an abstraction of the hardware, again in order
+	to facilitate maintenance and porting.
       </para>
       <para>
-	We do not want to force people into using Comedi, and most of us have home
-	written device drivers.  To allow total implementation independence, we
-	are writing a C++ device interface hierarchy (a part of the Orocos
-	Object Hierarchy) which just defines which functionalities a generic
-	device
-	driver should implement. It is up to the developers to wrap their C device
-	driver into a class which implements this interface. You can find an
-	example
-	of this in the devices package.  The core only contains the interface 
-	header files. Other packages should always point to these interface files
-	and never to the real drivers actually used.  It is up to the
-	application
-	writer to decide which driver will actually be used.
+	The abstractions cause (almost) no execution overhead, because the wrapping
+	is solved at compile or configuration time, i.e., before the hard
+	realtime tasks are running.
       </para>
-      <para> <emphasis>STRUCTURE</emphasis> The FDI can be structured
-	in two major parts : <emphasis>physical</emphasis>
-	device interfaces and <emphasis>logical</emphasis> device interfaces. 
-	Physical device
-	interfaces can be subdivided in four basic interfaces: Analog Input, Analog
-	Output, Digital Input, Digital Output. The major difference is that 
-	analog devices are addressed with a channel as parameter and write a
-	ranged value, while digital devices are addressed with a bit number as 
-	parameter and a true/false value.
-	Logical device interfaces represent the entities humans like to work
-	with: a drive, a sensor, an encoder, etc. They already make the
-	abstraction on how they are physically addressed. You just want to know
-	the position of a positional encoder in radians for example.
-	Often, the physical layer is device dependent
-	(and thus non-portable) while the logical layer is device independent.
-      </para>
-      <para> 
-	<figure><title>FDI overview</title>
-	  <mediaobject>
-	    <imageobject>
-	      <imagedata fileref="fdi.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject>
-	      <imagedata fileref="fdi.eps" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
-      </para>
-      <para> <emphasis>EXAMPLE</emphasis> An example of the interactions between the logical and the
-	physical layer is the logical encoder with its physical counting card.
-	An encoder is a physical device keeping track of the position of an axis
-	of a robot or machine.
-	The programmer wishes to use the encoder as a sensor and just asks for 
-	the current position. Thus a logical encoder might choose to
-	implement the <interfacename>SensorInterface</interfacename> which provides a
-	<methodname>read(ReadType &amp; )</methodname> function. Upon construction of 
-	the logical sensor, we supply the real device driver as a parameter.
-	This device driver implements for example  
-	<interfacename>AnalogInInterface</interfacename> which provides 
-	<methodname>read(ReadType &amp; data, unsigned int chan)</methodname> and allows
-	to read the position of a certain encoder of that particular card.
-	Of course, we could also put a simulation of an encoder in place of
-	the device driver for testing purposes.
-      </para>
-      <para>
-	<figure><title>(insert example-picture here)</title>
-	  <mediaobject>
-	    <imageobject>
-	      <imagedata fileref="example.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject>
-	      <imagedata fileref="example.png" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
-      </para>
-
-      <sect2>
-	<title>Name Serving</title>
-	<para>
-	  The FDI provides name serving on interface level. This means that one
-	  can ask a certain interface by which objects it is implemented and retrieve
-	  the desired instance. No casting whatsoever is needed for this operation.
-	  For now, only the physical device layer can be queried for entities, since
-	  logical device drivers are typically instantiated where needed, given an 
-	  earlier loaded physical device driver.
-	</para>
-	<para>
-	  <xref linkend="example_name_service"/> shows how one could query the 
-	  <classname>AnalogOutInterface</classname>.
-	  
-	  <example id="example_name_service"><title>Using the name service</title>
-	    
-	    <programlisting>
-	      <![CDATA[
-	      unsigned int pos;
-	      new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
-	      AnalogOutInterface* card = AnalogOutInterface::nameserver.getObject("CardName");
-	      card->read(pos, 0);    // Read some data
-	      delete card;
-	      ]]>
-	    </programlisting>
-	  </example>
-	</para>
-
-      </sect2>
-
-    </sect1>
-
-    <sect1>
-      <title>The Orocos Object Hierarchy</title>
-      <para>
-	It is our aim to gradually build a common class hierarchy in the project
-	describing the interfaces of data structures or devices. This will allow
-	our applications to share the same data format and thus communicate
-	efficiently.
-      </para>
-    </sect1>
-    <sect1>
-      <title>Threads and Realtime execution of your program</title>
-      <sect2>
-	<title>Starting your program</title>
-	<para>
-	  All tasks in the realtime system have to be performed by some
-	  thread.  In userspace, a normal <function>main()</function>
-	  function is already a thread. One can first construct all
-	  components, initialize them and then start the task. After the task
-	  has finished everything is cleaned up and the
-	  <function>main()</function> function exits. You can use &orocos;
-	  perfectly this way, but it won't be realtime unless you are using 
-	  userspace realtime (LXRT,...)<emphasis>Things are
-	  a bit more complex in the kernel (RTAI, RTLinux,...)</emphasis>.  
-	  For a program to be executed in kernelspace-realtime, 
-	  it has to be compiled into a kernel module.
-	  The &orocos; build system does this automatically if you have chosen
-	  a kernel based realtime system. Each kernel module has exactly one
-	  <function>init_module()</function> and
-	  <function>cleanup_module()</function> function call. The former
-	  will be called when the module is loaded, the latter will be called
-	  when the module is unloaded. Our policy is to put these functions
-	  in a <filename>moduleXYZ.c</filename> file, which will call then
-	  our real C++ functions, which reside in another file.  The whole
-	  procedure goes like this :
-	</para>
-	
-	<para>
-	  <figure><title>(insert picture of loading+calling a kernel module) </title>
-	    <mediaobject>
-	      <imageobject>
-		<imagedata fileref="loading_calling.png" format="PNG"/>
-	      </imageobject>
-	      <imageobject>
-		<imagedata fileref="loading_calling.eps" format="EPS"/>
-	      </imageobject>
-	      <!--
-	      <caption><para>
-	    </para></caption>
-	      -->
-	    </mediaobject>
-	  </figure>
-	</para>
-
-	<para>
-	  Once can see that first, a special function is called to initialize
-	  all static variables your program might have. When this is done the real
-	  initialisation function is called. There we instantiate all objects
-	  we need, and finally start the services. Each service is now running
-	  as a realtime thread, using the data you provided on instantiation.
-	  Be warned that when this function exits, all local data is destroyed,
-	  that is why we use global variables.
-	</para>
-      </sect2>
-      <sect2>
-	<title>The Orocos Thread System</title>
-	<para>
-	  An &orocos; component, which must execute a task periodically, is
-	  defined by the
-	  <interfacename>ComponentActiveInterface</interfacename>.
-	  The most common operations are <methodname>start()</methodname>,
-	  <methodname>stop()</methodname> and setting the periodicity. What is
-	  executed is defined in the <interfacename>
-	    RunnableInterface</interfacename>. It contains three methods :
-	  <methodname>initialize()</methodname>,
-	  <methodname>step()</methodname> and
-	  <methodname>finalize()</methodname>. You can inherit from this
-	  interface to implement your own functionality. In
-	  <methodname>initialize()</methodname>, you put the code that has to be
-	  executed once when the component is
-	  <methodname>start()</methodname>'ed. In
-	  <methodname>step()</methodname>,
-	  you put the instructions that must be executed periodically. In
-	  <methodname>finalize()</methodname>, you put the instructions that must
-	  be executed right after the last <methodname>step()</methodname> when
-	  the component is <methodname>stop()</methodname>'ed.
-	</para>
-	<para>
-	  &orocos; delivers one implementation of the 
-	  <classname>ComponentActiveInterface</classname> : 
-	  <classname>
-	    ComponentThreaded</classname>, which creates a thread according to
-	  the operating system you are compiling for. 
-	  However, you are encouraged 
-	  <emphasis>NOT</emphasis> to use it ! Other classes explained
-	  in the next section will provide the functionality you really need.
-	</para>
-      </sect2>
-      <sect2>
+  </chapter>
+  <chapter>
+    <sect2>
 	<title>The Orocos Thread Philosophy</title>
 	<sect3>
 	<title>Introduction : Task versus Thread</title>
@@ -525,8 +219,8 @@ contains the latest &orocos;-approved header files:
 	  </para>
 	</sect3>
       </sect2>
-    </sect1>
-    <sect1>
+  </chapter>
+    <chapter>
       <title>Events</title>
 
       <para>
@@ -709,18 +403,7 @@ contains the latest &orocos;-approved header files:
 	  The Event divides the firing by factor X.
 	</para>
       </sect2>
-    </sect1>
-    <sect1>
-      <title>The HeartbeatGenerator</title>
-      <para>
-	The <classname>HeartbeatGenerator</classname> is implemented using the <classname>Singleton</classname> design pattern.
-	You can query it for the current (virtual) time in clock ticks or in seconds.
-	The idea here is that it is responsible for synchronising with other (distributed)
-	cores, for doing, for example compliant motion with two robots. This functionality
-	is not yet implemented though.
-      </para>
-    </sect1>
-    <sect1>
+     <sect1>
       <title>The Completion Processor</title>
       <para>
 	The Completion Processor is also implemented using the <classname>Singleton</classname> design pattern.
@@ -729,7 +412,18 @@ contains the latest &orocos;-approved header files:
 	that all tasks it executes should require finite time to complete.
       </para>
     </sect1>
-    <sect1>
+    </chapter>
+    <chapter>
+      <title>The HeartbeatGenerator</title>
+      <para>
+	The <classname>HeartbeatGenerator</classname> is implemented using the <classname>Singleton</classname> design pattern.
+	You can query it for the current (virtual) time in clock ticks or in seconds.
+	The idea here is that it is responsible for synchronising with other (distributed)
+	cores, for doing, for example compliant motion with two robots. This functionality
+	is not yet implemented though.
+      </para>
+    </chapter>
+    <chapter>
       <title>States and the StateContext</title>
       <para>
 	Any complex software component will sooner or later need a way to change state, depending
@@ -820,8 +514,8 @@ contains the latest &orocos;-approved header files:
 	  all the function calls.
 	</para>
       </sect2>
-    </sect1>
-    <sect1>
+    </chapter>
+    <chapter>
       <title>Properties</title>
       <para>
 	Properties are well known in object oriented programming languages. 
@@ -908,8 +602,8 @@ contains the latest &orocos;-approved header files:
       of the parameters of the function.
 	</para>
       </sect2>
-    </sect1>
-    <sect1>
+    </chapter>
+    <chapter>
       <title>The NameServer</title>
       <para>
 	A key element in the &orocos; framework is what we call the strong typed
@@ -961,8 +655,8 @@ contains the latest &orocos;-approved header files:
 	Control Kernels and Components, ... anything you wish to configure at runtime
 	can be nameserved.
       </para>
-    </sect1>
-    <sect1>
+    </chapter>
+    <chapter>
       <title>Reporting</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
@@ -978,8 +672,8 @@ contains the latest &orocos;-approved header files:
 	which delivers every 10ms its position, velocity and sensor data 
 	to a userspace map building application.
       </para>
-    </sect1>
-    <sect1>
+    </chapter>
+    <chapter>
       <title>Fifos</title>
       <para>
 	Fifos are used to send data from one address space to another. For example
@@ -1008,31 +702,5 @@ contains the latest &orocos;-approved header files:
 	to the screen instead of delivering it.
       </para>
       </note>
-    </sect1>
-  </chapter>
-
-<chapter>
-<title>Examples</title>
-    <para>
-      We intend to write many example programs to demonstrate how easily complex components
-      can be built using the core and the existing interfaces. Only the test directory
-      contains some usage examples, but they might not always be clear. For example the 
-      properties test file is a white box test and very inaccesable by non-insiders.
-      Please, feel free to post your example programs on the mailing list, we'll gratefully
-      accept them.
-    </para>
-</chapter>
-
-<chapter>
-    <title>Todo</title>
-    <para>    The core still misses a lot of functionality:
-      <itemizedlist>
-	<listitem><para>A HeartBeatGenerator that synchronises with other
-	    cores</para></listitem>
-	<listitem><para>A threadsafe C++ Allocator for embedded systems,
-	    RTAI provides one already, RTLinux does not</para></listitem>
-      </itemizedlist>
-    </para>
-  </chapter>
-
+    </chapter>
 </book>

@@ -10,8 +10,8 @@ docps: epsimages orocos-corelib.ps
 
 doctxt: orocos-corelib.txt
 
-pngimages: FDIvsFOSI.png events.png execution-collaboration.png execution-sequence.png fdi.png io-overview.png tasks_threads-conceptual.png
-epsimages: FDIvsFOSI.eps events.eps execution-collaboration.eps execution-sequence.eps fdi.eps io-overview.eps tasks_threads-conceptual.eps
+pngimages: events.png execution-collaboration.png execution-sequence.png  io-overview.png tasks_threads-conceptual.png
+epsimages: events.eps execution-collaboration.eps execution-sequence.eps  io-overview.eps tasks_threads-conceptual.eps
 
 
 #orocos-control-kernel.html: 
