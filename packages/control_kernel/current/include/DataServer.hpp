@@ -44,6 +44,8 @@
 #include <boost/type_traits.hpp>
 #include "DataObjectInterfaces.hpp"
 #include "DataObjectReporting.hpp"
+#include <corelib/VectorComposition.hpp>
+#include "Typelist.h"
 
 namespace ORO_ControlKernel
 {
@@ -67,12 +69,13 @@ namespace ORO_ControlKernel
     class DataObjectServer
         : public DataObjectReporting
     {
-        static ORO_CoreLib::NameServer< _DataObjectType* > ns;
+        static ORO_CoreLib::NameServer< DataObjectInterface< typename _DataObjectType::DataType>* > ns;
         std::string prefix;
 
     public :
         typedef _DataObjectType DataObjectType;
         typedef _DataObjectType* DataObjectType_ptr;
+        typedef DataObjectInterface< typename _DataObjectType::DataType>* NameServerType ;
         
         /**
          * The MemberType is the DataType of the DataObject.
@@ -111,8 +114,8 @@ namespace ORO_ControlKernel
             // assumes they are updated with the updateReports() method.
             //PropertyBagIntrospector inspector( bag );
             //this->inspectReports( &inspector );
-            typename NameServer< _DataObjectType* >::name_iterator it1( ns.getNameBegin() );
-            typename NameServer< _DataObjectType* >::name_iterator it2( ns.getNameEnd() );
+            typename NameServer< NameServerType >::name_iterator it1( ns.getNameBegin() );
+            typename NameServer< NameServerType >::name_iterator it2( ns.getNameEnd() );
 
             for ( ; it1 != it2; ++it1)
                 {
@@ -137,23 +140,23 @@ namespace ORO_ControlKernel
             // add them to the bag.
             // maybe it is better to use the 'native' container
             // iterators instead of the name_iterators
-            typename NameServer< _DataObjectType* >::name_iterator it1( ns.getNameBegin() );
-            typename NameServer< _DataObjectType* >::name_iterator it2( ns.getNameEnd() );
+            typename NameServer< NameServerType >::name_iterator it1( ns.getNameBegin() );
+            typename NameServer< NameServerType >::name_iterator it2( ns.getNameEnd() );
 
             // How to give a 'bag' name == prefix to the introspector ??
             for ( ; it1 != it2; ++it1)
                 {
                     // MemberType is *not* a pointer !
-                    // the object is copied into the Property, then decomposed and then
+                    // the object is copied into the Property, then introspected and then
                     // the property is destructed again.
                     // the name of the property is without prefix.
                     if ( (*it1).find( prefix ) == 0 )
                         {
                             MemberType val;
                             ns.getObject( *it1 )->Get(val);
-                            decomposeProperty( introspector,
-                                               Property<MemberType>( std::string( (*it1), prefix.length() ),
-                                                                     std::string( "" ), val ) );
+//                             cout << "Decomposing "<< *it1<<endl;
+                            introspector->introspect( Property<MemberType>( std::string( (*it1), prefix.length() ),
+                                                                           std::string( "" ), val ) );
                         }
                 }
         }
@@ -176,7 +179,7 @@ namespace ORO_ControlKernel
                     // But since data is already stored in a DataObject, which controls access...
                     // it is hard to get around it. A Refval Property could eliminate
                     // one copy operation.
-                    DataObjectType* dot;
+                    NameServerType dot;
                     if ( 0 != ( dot = ns.getObject( prefix + (*it1)->getName() ) ) )
                         {
                             MemberType t;
@@ -195,6 +198,19 @@ namespace ORO_ControlKernel
             flattenPropertyBag( bag );
             deleteProperties( bag );
         }
+
+//         template< class T>
+//         bool has( const std::string& name, T t = T() ) const
+//         {
+//             return false;
+//         }
+
+        bool has( const std::string& name, MemberType m = MemberType() ) const
+        {
+            if ( ns.getObject(prefix + name) )
+                return true;
+            return false;
+        }
             
         /**
          * Get a member variable of a DataObject.
@@ -205,7 +221,7 @@ namespace ORO_ControlKernel
          */
         bool Get(const std::string& name, MemberType& m) const
         {
-            DataObjectType_ptr res;
+            NameServerType res;
             if ( (res = ns.getObject(prefix + name) ) )
                 {
                     res->Get(m);
@@ -222,9 +238,9 @@ namespace ORO_ControlKernel
          * which must be Get.
          * @return true if it could be get, false otherwise.
          */
-        bool Get( const std::string& name, DataObjectType*& m ) const
+        bool Get( const std::string& name, DataObjectInterface<MemberType>*& m ) const
         {
-            DataObjectType_ptr res;
+            NameServerType res;
             if ( (res = ns.getObject(prefix + name) ) )
                 {
                     m = res;
@@ -241,8 +257,8 @@ namespace ORO_ControlKernel
          * @return true if it could be set, false otherwise.
          */
         bool Set( const std::string& name, const MemberType& m)
-        {
-            DataObjectType_ptr res;
+        { 
+            NameServerType res;
             if (( res = ns.getObject(prefix + name)) ) {
                 res->Set(m);
                 return true;
@@ -253,71 +269,84 @@ namespace ORO_ControlKernel
         /**
          * @brief Register a DataObject with a certain name.
          * @param m The DataObject to add.
-         * @param name The name (without prefix) it should have.
          */
-        void reg( DataObjectType_ptr m, const std::string& name)
+        void reg( DataObjectInterface<MemberType>* m )
         {
-            ns.registerObject(m, prefix + name);
+            ns.registerObject(m, prefix + m->getName() );
         }
 
         /**
          * @brief Deregister a DataObject.
          * @param m The DataObject to remove
          */
-        void deReg( DataObjectType_ptr m )
+        void deReg( DataObjectInterface<MemberType>* m )
         {
             ns.unregisterObject( m );
         }
     };
 
     template< class _DataObjectType >
-    NameServer<_DataObjectType* > DataObjectServer<_DataObjectType>::ns;
+    NameServer< DataObjectInterface<typename _DataObjectType::DataType>* > DataObjectServer<_DataObjectType>::ns;
 
 
-    struct nil_type {};
+    //struct nil_type {};
+    typedef Loki::NullType nil_type; // Moving to Loki.
 
-    template<class T> 
-    struct is_nil
-    {
-        static const bool value = false;
-        typedef T type;
-    };
+//     template<class T> 
+//     struct is_nil
+//     {
+//         static const bool value = false;
+//         typedef T type;
+//     };
 
-    template<>
-    struct is_nil<nil_type>
-    {
-        static const bool value = true;
-        typedef nil_type type;
-    };
+//     template<>
+//     struct is_nil<nil_type>
+//     {
+//         static const bool value = true;
+//         typedef nil_type type;
+//     };
 
-    template< class T> struct has_nil
-    {
-        static const bool value = false;
-        typedef T type;
-    };
+//     template< class T> struct has_nil
+//     {
+//         static const bool value = false;
+//         typedef T type;
+//     };
 
-    template< template<class T> class V >
-    struct has_nil< V<nil_type> >
-    {
-        static const bool value = true;
-        typedef V<nil_type> type;
-    };
+//     template< template<class T> class V >
+//     struct has_nil< V<nil_type> >
+//     {
+//         static const bool value = true;
+//         typedef V<nil_type> type;
+//     };
 
-    template<typename First, typename Rest=nil_type> // only last NameList element has Rest==nil_type
-    struct NameList
-    {
-        typedef First first;
-        typedef Rest rest;
-    };
+
+//     template<typename First, typename Rest=nil_type> // only last NameList element has Rest==nil_type
+//     struct NameList
+//     {
+//         typedef First first;
+//         typedef Rest rest;
+//     };
+
+    using Loki::Typelist; // moving to Loki.
 
     template<typename First > class NameSubClass;
 
-    template< typename T >
-    struct MemberFromBase
+    /**
+     * Similar to CompositeExtension, it allows users
+     * to compose data objects so that multiple components,
+     * with different data objects, can be used in one kernel.
+     */
+    template< class OneDO, class OtherDO >
+    class CompositeDataObject
     {
-        MemberFromBase() : T() {}
-        MemberFromBase( const T& _t ) : mfb(_t) {}
-        T mfb;
+    public:
+        typedef OneDO First;
+        typedef OtherDO Second;
+
+        /**
+         * The Result contains all types of both Typelist.
+         */
+        typedef typename Loki::TL::Append<typename First::Result, typename Second::Result>::Result Result;
     };
 
     /**
@@ -329,14 +358,20 @@ namespace ORO_ControlKernel
      * in a DataObjectServer.
      */
     template<typename First, typename Rest>
-    struct NameSubClass< NameList<First,Rest> >
+    struct NameSubClass< Typelist<First,Rest> >
         : public DataObjectServer<First>, public NameSubClass<Rest>
     {
         using DataObjectServer<First>::Get;
         using DataObjectServer<First>::Set;
+        using DataObjectServer<First>::has;
+        using DataObjectServer<First>::reg;
+        using DataObjectServer<First>::deReg;
 
         using NameSubClass<Rest>::Get;
         using NameSubClass<Rest>::Set;
+        using NameSubClass<Rest>::has;
+        using NameSubClass<Rest>::reg;
+        using NameSubClass<Rest>::deReg;
 
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
@@ -353,7 +388,7 @@ namespace ORO_ControlKernel
                         {
                             First*  item = new First( it->second );
                             fv.push_back( item );
-                            DataObjectServer<First>::reg( item, it->second );
+                            DataObjectServer<First>::reg( item );
                         }
                 }
         }
@@ -361,7 +396,7 @@ namespace ORO_ControlKernel
         /**
          * The destructor cleans up all its DataObjectServer instances.
          */
-        ~NameSubClass() 
+        virtual ~NameSubClass() 
         { 
             for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
                 {
@@ -379,11 +414,11 @@ namespace ORO_ControlKernel
             NameSubClass<Rest>::changePrefix(prefix);
         }
 
-        virtual void setName( const std::string& name )
-        {
-            DataObjectServer<First>::setName(name);
-            NameSubClass<Rest>::setName(name);
-        }
+//         virtual void setName( const std::string& name )
+//         {
+//             DataObjectServer<First>::setName(name);
+//             NameSubClass<Rest>::setName(name);
+//         }
 
         virtual void refreshReports( PropertyBag& bag ) const
         {
@@ -424,15 +459,17 @@ namespace ORO_ControlKernel
      * Evenmore, it offers the DataObject Interface for a nameserved
      * element.
      *
-     * @note This is only used when only the last element is nil_type.
      */
     template<typename First>
-    struct NameSubClass< NameList< First, nil_type > >
+    struct NameSubClass< Typelist< First, nil_type > >
         : public DataObjectServer<First> 
     {
 
         using DataObjectServer<First>::Get;
         using DataObjectServer<First>::Set;
+        using DataObjectServer<First>::has;
+        using DataObjectServer<First>::reg;
+        using DataObjectServer<First>::deReg;
 
         typedef DataObjectServer<First>    Server;
         typedef DataObjectServer<nil_type> NextServer;
@@ -449,14 +486,14 @@ namespace ORO_ControlKernel
                     // if the index is equal to our index
                     if ( it->first == index )
                         {
-                            First*  item = new First();
+                            First*  item = new First( it->second );
                             fv.push_back( item );
-                            DataObjectServer<First>::reg( item, it->second );
+                            DataObjectServer<First>::reg( item );
                         }
                 }
         }
 
-        ~NameSubClass()
+        virtual ~NameSubClass()
         { 
             for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
                 {
@@ -472,22 +509,26 @@ namespace ORO_ControlKernel
      * NameSubClass specialisation.
      * When a nil_type is encountered in a container on all but last template slot.
      */
-    template< template<class Cont> class First, typename Rest>
-    struct NameSubClass< NameList< First<nil_type>, Rest > >
+    template< template<class Cont> class First>
+    struct NameSubClass< First<nil_type> >
     {
-        typedef DataObjectServer<nil_type> Server;
-        typedef DataObjectServer<nil_type> NextServer;
-
-        bool Get( First<nil_type>& ) {}
-        bool Set( First<nil_type>& ) {}
+        bool Get( First<nil_type>& ) {return false;}
+        bool Set( First<nil_type>& ) {return false;}
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) {}
         void changePrefix(const std::string& prefix) { }
-        void setName(const std::string& prefix) { }
-        virtual void refreshReports( PropertyBag& bag ) const {}
-        virtual void inspectReports( PropertyIntrospection* introspector ) const {}
-        virtual void exportReports( PropertyBag& bag ) const  {}
-        virtual void cleanupReports( PropertyBag& bag ) const {}
+//         void setName(const std::string& prefix) { }
+        bool has( const std::string& name, nil_type m = nil_type() ) const
+        {
+            return false;
+        }
+        void reg( First<nil_type>* ) {return ;}
+        void deReg( First<nil_type>* ) {return ;}
+            
+        void refreshReports( PropertyBag& bag ) const {}
+        void inspectReports( PropertyIntrospection* introspector ) const {}
+        void exportReports( PropertyBag& bag ) const  {}
+        void cleanupReports( PropertyBag& bag ) const {}
     };
 
     /**
@@ -495,7 +536,7 @@ namespace ORO_ControlKernel
      * When a plain nil_type is encountered on all but last template slot.
      */
 //     template<typename First>
-//     struct NameSubClass< NameList< typename has_nil<First>::type, nil_type> >
+//     struct NameSubClass< Typelist< typename has_nil<First>::type, nil_type> >
 //     {
 //         typedef DataObjectServer<nil_type> Server;
 //         typedef DataObjectServer<nil_type> NextServer;
@@ -511,54 +552,146 @@ namespace ORO_ControlKernel
 // //         }
 //     };
 
-    template< typename _T0= nil_type,
-              typename _T1= nil_type,
-              typename _T2= nil_type,
-              typename _T3= nil_type,
-              typename _T4= nil_type,
-              typename _T5= nil_type,
-              typename _T6= nil_type,
-              typename _T7= nil_type,
-              typename _T8= nil_type,
-              typename _T9= nil_type>
-    struct ServedTypes : public std::multimap<int, std::string>
-    {
-        typedef _T0 T0;
-        typedef _T1 T1;
-        typedef _T2 T2;
-        typedef _T3 T3;
-        typedef _T4 T4;
-        typedef _T5 T5;
-        typedef _T6 T6;
-        typedef _T7 T7;
-        typedef _T8 T8;
-        typedef _T9 T9;
-    };
 
-    template<typename _DataType = nil_type>
-    struct UnServedType
-    {
-        typedef _DataType DataType;
-    };
+
+    //typedef Loki::MakeTypelist ServedTypes; // Moving to Loki
+    using namespace Loki::TL;
+
+    /**
+     * This class is almost the same as MakeTypelist from Loki. The copyright of this
+     * code is in Typename.h.
+     */
+        template
+        <
+            typename T1  = nil_type, typename T2  = nil_type, typename T3  = nil_type,
+            typename T4  = nil_type, typename T5  = nil_type, typename T6  = nil_type,
+            typename T7  = nil_type, typename T8  = nil_type, typename T9  = nil_type,
+            typename T10 = nil_type, typename T11 = nil_type, typename T12 = nil_type,
+            typename T13 = nil_type, typename T14 = nil_type, typename T15 = nil_type,
+            typename T16 = nil_type, typename T17 = nil_type, typename T18 = nil_type
+        > 
+        struct ServedTypes : public std::multimap<int, std::string>
+        {
+        private:
+            typedef typename ServedTypes
+            <
+                T2 , T3 , T4 , 
+                T5 , T6 , T7 , 
+                T8 , T9 , T10, 
+                T11, T12, T13,
+                T14, T15, T16, 
+                T17, T18
+            >
+            ::Result TailResult;
+
+        public:
+            typedef Typelist<T1, TailResult> Result;
+        };
+
+        template<>
+        struct ServedTypes<> : public std::multimap<int, std::string>
+        {
+            typedef nil_type Result;
+        };
+
+
+
+
+//     template< typename _T0= nil_type,
+//               typename _T1= nil_type,
+//               typename _T2= nil_type,
+//               typename _T3= nil_type,
+//               typename _T4= nil_type,
+//               typename _T5= nil_type,
+//               typename _T6= nil_type,
+//               typename _T7= nil_type,
+//               typename _T8= nil_type,
+//               typename _T9= nil_type>
+//     struct ServedTypes : public std::multimap<int, std::string>
+//     {
+//         typedef _T0 T0;
+//         typedef _T1 T1;
+//         typedef _T2 T2;
+//         typedef _T3 T3;
+//         typedef _T4 T4;
+//         typedef _T5 T5;
+//         typedef _T6 T6;
+//         typedef _T7 T7;
+//         typedef _T8 T8;
+//         typedef _T9 T9;
+//     };
+
+    /**
+     * This class holds the not NameServed DataType of a 
+     * DataObject.
+     */
+//     template<typename _DataType = nil_type>
+//     struct UnServedType
+//     {
+//         typedef _DataType DataType;
+//     };
 
     namespace detail
     {
 
+        /**
+         * A Typelist operation that wraps each type
+         * in _Typelist so that it becomes _Wrapper::wrap<T>
+         */
+        template<class _Wrapper , class _Typelist >
+        struct Wrap;
+
+        template<class _Wrapper>
+        struct Wrap<_Wrapper, nil_type>
+        {
+            typedef typename _Wrapper::Wrap<nil_type>::Result Result;
+        };
+
+        template<class _Wrapper, class Head, class Tail>
+        struct Wrap<_Wrapper, Typelist<Head, Tail> >
+        {
+            typedef Typelist< typename _Wrapper::Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
+        };
+
+        template<class _Wrapper, class Head >
+        struct Wrap<_Wrapper, Typelist<Head, nil_type> >
+        {
+            typedef Typelist< typename _Wrapper::Wrap<Head>::Result, nil_type > Result;
+        };
+
     /**
      * @brief The containers below are used by the kernel to select the type of DataObject.
      *
-     * The template parameter is a user supplied ServedTypes derived type, which
+     * The template parameter is a user supplied Tapelist derived type, which
      * conains the names and the types of each nameserved DataObject.
      *
-     * Should these definitions remain in this file or move to another file ?
+     * @param C The class inheriting from ServedTypes and UnServedType.
      */
     template< typename C>
     struct DataObjectContainer
     {
+        /**
+         * The List of all types.
+         */
         typedef C NamesTypes; 
         template< typename D>
         struct DataObjectType { typedef DataObject<D> type; };
-        typedef NameSubClass< NameList<DataObject<typename C::T0>, NameList<DataObject<typename C::T1>, NameList<DataObject<typename C::T2>, NameList<DataObject<typename C::T3>, NameList<DataObject<typename C::T4>,NameList<DataObject<typename C::T5>,NameList<DataObject<typename C::T6>, NameList<DataObject<typename C::T7>, NameList<DataObject<typename C::T8>, NameList< DataObject<typename C::T9> > > > > > > > > > > > tree;
+
+        /**
+         * This special construct wraps any type T in the
+         * Typelist NamesTypes with a DataObject.
+         */
+        struct Wrapper
+        {
+            template<class T>
+            struct Wrap
+            {
+                typedef DataObject<T> Result;
+            };
+        };
+
+        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+        typedef NameSubClass< typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
     };
 
     template< typename C>
@@ -567,7 +700,17 @@ namespace ORO_ControlKernel
         typedef C NamesTypes; 
         template< typename D>
         struct DataObjectType { typedef DataObjectLocked<D> type; };
-        typedef NameSubClass< NameList<DataObjectLocked<typename C::T0>, NameList<DataObjectLocked<typename C::T1>, NameList<DataObjectLocked<typename C::T2>, NameList<DataObjectLocked<typename C::T3>, NameList<DataObjectLocked<typename C::T4>,NameList<DataObjectLocked<typename C::T5>,NameList<DataObjectLocked<typename C::T6>, NameList<DataObjectLocked<typename C::T7>, NameList<DataObjectLocked<typename C::T8>, NameList< DataObjectLocked<typename C::T9> > > > > > > > > > > > tree;
+        struct Wrapper
+        {
+            template<class T>
+            struct Wrap
+            {
+                typedef DataObjectLocked<T> Result;
+            };
+        };
+
+        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
     };
 
     template< typename C>
@@ -576,7 +719,17 @@ namespace ORO_ControlKernel
         typedef C NamesTypes; 
         template< typename D>
         struct DataObjectType { typedef DataObjectPrioritySet<D> type; };
-        typedef NameSubClass< NameList<DataObjectPrioritySet<typename C::T0>, NameList<DataObjectPrioritySet<typename C::T1>, NameList<DataObjectPrioritySet<typename C::T2>, NameList<DataObjectPrioritySet<typename C::T3>, NameList<DataObjectPrioritySet<typename C::T4>,NameList<DataObjectPrioritySet<typename C::T5>,NameList<DataObjectPrioritySet<typename C::T6>, NameList<DataObjectPrioritySet<typename C::T7>, NameList<DataObjectPrioritySet<typename C::T8>, NameList< DataObjectPrioritySet<typename C::T9> > > > > > > > > > > > tree;
+        struct Wrapper
+        {
+            template<class T>
+            struct Wrap
+            {
+                typedef DataObjectPrioritySet<T> Result;
+            };
+        };
+
+        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
     };
 
     template< typename C>
@@ -585,7 +738,17 @@ namespace ORO_ControlKernel
         typedef C NamesTypes; 
         template< typename D>
         struct DataObjectType { typedef DataObjectPriorityGet<D> type; };
-        typedef NameSubClass< NameList<DataObjectPriorityGet<typename C::T0>, NameList<DataObjectPriorityGet<typename C::T1>, NameList<DataObjectPriorityGet<typename C::T2>, NameList<DataObjectPriorityGet<typename C::T3>, NameList<DataObjectPriorityGet<typename C::T4>,NameList<DataObjectPriorityGet<typename C::T5>,NameList<DataObjectPriorityGet<typename C::T6>, NameList<DataObjectPriorityGet<typename C::T7>, NameList<DataObjectPriorityGet<typename C::T8>, NameList< DataObjectPriorityGet<typename C::T9> > > > > > > > > > > > tree;
+        struct Wrapper
+        {
+            template<class T>
+            struct Wrap
+            {
+                typedef DataObjectPriorityGet<T> Result;
+            };
+        };
+
+        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
     };
 
     template< typename C>
@@ -594,8 +757,20 @@ namespace ORO_ControlKernel
         typedef C NamesTypes; 
         template< typename D>
         struct DataObjectType { typedef DataObjectBuffer<D> type; };
-        typedef NameSubClass< NameList<DataObjectBuffer<typename C::T0>, NameList<DataObjectBuffer<typename C::T1>, NameList<DataObjectBuffer<typename C::T2>, NameList<DataObjectBuffer<typename C::T3>, NameList<DataObjectBuffer<typename C::T4>,NameList<DataObjectBuffer<typename C::T5>,NameList<DataObjectBuffer<typename C::T6>, NameList<DataObjectBuffer<typename C::T7>, NameList<DataObjectBuffer<typename C::T8>, NameList< DataObjectBuffer<typename C::T9> > > > > > > > > > > > tree;
+        struct Wrapper
+        {
+            template<class T>
+            struct wrap
+            {
+                typedef DataObjectBuffer<T> Result;
+            };
+        };
+
+        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+        typedef NameSubClass<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
     };
+
+
 
         /**
          * @brief The templated nameserved dataobject. It can be of any DataType/DataObjectType.
@@ -609,16 +784,19 @@ namespace ORO_ControlKernel
          */
         template<typename _NameContainer>
         class NameServedDataObject
-            : public _NameContainer::NamesTypes, 
-          public _NameContainer::tree, 
-          public _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type // To provide the generic DataObjectInterface
+            : public _NameContainer::NamesTypes,
+              public _NameContainer::tree
+            //,public _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type // To provide the generic DataObjectInterface
     {
     public :
         using _NameContainer::tree::Get;
         using _NameContainer::tree::Set;
-        typedef typename _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type DefaultDataObject;
-        using DefaultDataObject::Get;
-        using DefaultDataObject::Set;
+        using _NameContainer::tree::has;
+        using _NameContainer::tree::reg;
+        using _NameContainer::tree::deReg;
+        //typedef typename _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type DefaultDataObject;
+        //using DefaultDataObject::Get;
+        //using DefaultDataObject::Set;
 
         /**
          * @brief Create a NameServedDataObject, with a prefixed name.
@@ -630,16 +808,16 @@ namespace ORO_ControlKernel
          *        other nameservers (the user does not see this).
          */
         NameServedDataObject(const std::string& name, const std::string& prefix = name ) 
-            : _NameContainer::NamesTypes(), 
-            _NameContainer::tree(name, prefix, std::make_pair( begin(), end() ), 0 ),
-            DefaultDataObject( name, prefix )
+            :  _NameContainer::NamesTypes(),
+              _NameContainer::tree(name, prefix, std::make_pair( begin(), end() ), 0 )
+            //,DefaultDataObject( name, prefix )
         {
         }
 
-        void setName( const std::string& name)
-        {
-            _NameContainer::tree::setName(name);
-        }
+//         void setName( const std::string& name)
+//         {
+//             _NameContainer::tree::setName(name);
+//         }
 
         void changePrefix(const std::string& prefix)
         {
@@ -659,9 +837,160 @@ namespace ORO_ControlKernel
             typedef typename _NameContainer::DataObjectType< _DataT >::type type;
         };
 
-        typedef typename _NameContainer::NamesTypes::DataType DataType;
+        //typedef typename _NameContainer::NamesTypes::DataType DataType;
+        typedef nil_type DataType;
 
     };
+
+        /**
+         * @brief A class which serves as a DataObjectServer frontend/facade with CompositeDataObject.
+         *
+         * Since DataObjectServers are hierarchies nested in NameSubClasses,
+         * this is the single point of acces for the underlying DataObjectServer methods.
+         * If it was not here, the compiler would complain about ambiguity with method
+         * calls. This could become the standard way of composing DataObjectServers 
+         * when CompositeDataObject is not used.
+         */
+        template<class>
+        struct NameFrontEnd;
+
+        template<class Head, class Tail>
+        struct NameFrontEnd< Typelist<Head, Tail> >
+            : public DataObjectServer<Head>,
+              public NameFrontEnd<Tail>
+        {
+            using DataObjectServer<Head>::Get;
+            using DataObjectServer<Head>::Set;
+            using DataObjectServer<Head>::has;
+            using DataObjectServer<Head>::reg;
+            using DataObjectServer<Head>::deReg;
+
+            using NameFrontEnd<Tail>::Get;
+            using NameFrontEnd<Tail>::Set;
+            using NameFrontEnd<Tail>::has;
+            using NameFrontEnd<Tail>::reg;
+            using NameFrontEnd<Tail>::deReg;
+
+            NameFrontEnd( const std::string& name, const std::string& prefix ) :
+                DataObjectServer<Head>(name, prefix),
+                NameFrontEnd<Tail>(name, prefix)
+            {}
+
+        };
+
+        template<class Head>
+        struct NameFrontEnd< Typelist<Head, nil_type> >
+            : public DataObjectServer<Head>
+        {
+            using DataObjectServer<Head>::Get;
+            using DataObjectServer<Head>::Set;
+            using DataObjectServer<Head>::has;
+            using DataObjectServer<Head>::reg;
+            using DataObjectServer<Head>::deReg;
+            NameFrontEnd( const std::string& name, const std::string& prefix ) :
+                DataObjectServer<Head>(name, prefix)
+            {}
+        };            
+            
+
+        /**
+         * @brief This specialisation detects the use of the CompositeDataObject
+         * class for composing DataObjects.
+         *
+         * It delegates the two parts to
+         * two NameServedDataObject subclasses. This allows recursive
+         * Composition of DataObjects. This specialisation is needed to
+         * remove the dupplicate type definitions when merging two Typelists
+         * and to provide a 'FrontEnd' to the types.
+         */
+        template< template<class> class _NameContainer, class F, class S>
+        struct NameServedDataObject< _NameContainer< CompositeDataObject<F,S> > >
+            : public NameFrontEnd< typename Loki::TL::NoDuplicates< typename _NameContainer< CompositeDataObject<F,S> >::WrappedNamesTypes >::Result > // All Types get an Accessor method.
+//               ,private NameServedDataObject< _NameContainer<F> >,
+//               private NameServedDataObject< _NameContainer<S> >
+        {
+            NameServedDataObject< _NameContainer<F> > first_server;
+            NameServedDataObject< _NameContainer<S> > second_server;
+
+            typedef NameFrontEnd< typename Loki::TL::NoDuplicates< typename _NameContainer< CompositeDataObject<F,S> >::WrappedNamesTypes >::Result > FrontEnd;
+
+            using FrontEnd::Get;
+            using FrontEnd::Set;
+            using FrontEnd::has;
+            using FrontEnd::reg;
+            using FrontEnd::deReg;
+//             using NameServedDataObject< _NameContainer<F> >::Get;
+//             using NameServedDataObject< _NameContainer<F> >::Set;
+
+//             using NameServedDataObject< _NameContainer<S> >::Get;
+//             using NameServedDataObject< _NameContainer<S> >::Set;
+
+            NameServedDataObject(const std::string& name, const std::string& prefix = name ) 
+                : FrontEnd(name, prefix),
+                  first_server(name, prefix),
+                  second_server(name, prefix)
+//                 : NameServedDataObject<_NameContainer<F> >(name, prefix),
+//                   NameServedDataObject<_NameContainer<S> >(name, prefix)
+            {}
+
+            void changePrefix(const std::string& prefix)
+            {
+//                 NameServedDataObject< _NameContainer<F> >::changePrefix(prefix);
+//                 NameServedDataObject< _NameContainer<S> >::changePrefix(prefix);
+                first_server.changePrefix(prefix);
+                second_server.changePrefix(prefix);
+            }
+
+
+//             virtual void setName( const std::string& name )
+//             {
+//                 first_server.setName(name);
+//                 second_server.setName(name);
+//             }
+
+            virtual void refreshReports( PropertyBag& bag ) const
+            {
+                // Delegate to the subclass's implementation.
+                first_server.refreshReports(bag);
+                second_server.refreshReports(bag);
+            }
+
+            void exportReports( PropertyBag& bag ) const
+            {
+                // Delegate to the subclass's implementation.
+                first_server.exportReports(bag);
+                second_server.exportReports(bag);
+            }
+
+            virtual void inspectReports(PropertyIntrospection* i) const
+            {
+                // Delegate to the subclass's implementation.
+                first_server.inspectReports(i);
+                second_server.inspectReports(i);
+            }
+
+            virtual void cleanupReports( PropertyBag& bag ) const
+            {
+                first_server.cleanupReports(bag);
+                second_server.cleanupReports(bag);
+            }
+
+            /**
+             * @brief This allows the user to retrieve a DataObject<T> of type T.
+             *
+             * He needs this to retrieve the DataObject type itself from the NameServer 
+             * (instead of its contents or the type of its contents). It is a helper
+             * class.
+             */
+            template< typename _DataT >
+            struct DataObject
+            {
+                typedef typename _NameContainer<F>::DataObjectType< _DataT >::type type;
+            };
+
+            //typedef typename _NameContainer<F>::NamesTypes::DataType DataType;
+            typedef nil_type DataType;
+        };
 
 
         /**

@@ -108,21 +108,32 @@ namespace ORO_ControlKernel
          * @brief Set up the base kernel.
          *
          * Optionally, specify the names of the data objects.
+         *
+         * @param kernel_name The name of this kernel
          */
-        BaseKernel(const std::string& inp_prefix=std::string("Default"),
+        BaseKernel(const std::string& kernel_name=std::string("Default"),
+                   const std::string& inp_prefix=std::string("Default"),
                    const std::string& mod_prefix=std::string("Default"),
                    const std::string& com_prefix=std::string("Default"),
                    const std::string& setp_prefix=std::string("Default"),
-                   const std::string& out_prefix=std::string("Default") )
+                   const std::string& out_prefix=std::string("Default"))
             : _Extension(this),
               controller(&dummy_controller), generator(&dummy_generator),
               estimator(&dummy_estimator), effector(&dummy_effector), sensor(&dummy_sensor),
 
-              local_setpoints(this->getKernelName()+"::SetPoints",setp_prefix),
-              local_commands(this->getKernelName()+"::Commands",com_prefix),
-              local_inputs(this->getKernelName()+"::Inputs",inp_prefix),
-              local_models(this->getKernelName()+"::Models",mod_prefix),
-              local_outputs(this->getKernelName()+"::Outputs",out_prefix),
+              // getKernelName() was initialised to "Default" by the KernelBaseFunction base class
+              // I am thinking about loosing the prefix in the DO constructor
+              // and taking the ::... part as prefix. (above, "Default" would change to "SetPoints",...
+              // The first parameter is the DataObject name, or DataObjectServer name
+              // in case nameserving is used. The prefix is used only by the server
+              // to scope its DataObjects away from (or into !) the global namespace.
+              // dObj servers sharing the prefix, can access each others dataobjects.
+              // By default, the prefix equals the name ! (good since name is unique).
+              local_setpoints(kernel_name+"::SetPoints",setp_prefix),
+              local_commands(kernel_name+"::Commands",com_prefix),
+              local_inputs(kernel_name+"::Inputs",inp_prefix),
+              local_models(kernel_name+"::Models",mod_prefix),
+              local_outputs(kernel_name+"::Outputs",out_prefix),
 
               setpoints(&local_setpoints), commands(&local_commands),
               inputs(&local_inputs), models(&local_models), outputs(&local_outputs),
@@ -142,32 +153,34 @@ namespace ORO_ControlKernel
             selectEstimator(estimator);
             selectEffector(effector);
             selectSensor(sensor);
+
+            setKernelName( kernel_name );
         }
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
         typedef BaseKernel<_CommandPort,_SetPointPort, _InputPort, _ModelPort,_OutputPort,Extension > ThisType;
 
-        bool isSelectedController( const std::string& name )
+        bool isSelectedController( const std::string& name ) const
         {
             return ThisType::DefaultController::nameserver.getObject( name ) == controller;
         }
 
-        bool isSelectedGenerator( const std::string& name )
+        bool isSelectedGenerator( const std::string& name ) const
         {
             return ThisType::DefaultGenerator::nameserver.getObject( name ) == generator;
         }
 
-        bool isSelectedEstimator( const std::string& name )
+        bool isSelectedEstimator( const std::string& name ) const
         {
             return ThisType::DefaultEstimator::nameserver.getObject( name ) == estimator;
         }
 
-        bool isSelectedSensor( const std::string& name )
+        bool isSelectedSensor( const std::string& name ) const
         {
             return ThisType::DefaultSensor::nameserver.getObject( name ) == sensor;
         }
 
-        bool isSelectedEffector( const std::string& name )
+        bool isSelectedEffector( const std::string& name ) const
         {
             return ThisType::DefaultEffector::nameserver.getObject( name ) == effector;
         }
@@ -224,10 +237,6 @@ namespace ORO_ControlKernel
 
         virtual bool initialize() 
         { 
-            // we do this unconditionally for now, better is only doing it
-            // if the kernelname was really updated.
-            nameUpdated();
-
             if ( !Extension::initialize() )
                 return false;
                 
@@ -997,19 +1006,6 @@ namespace ORO_ControlKernel
          */
         void setOutputs(OutputData* o) { externalOutputs=true; outputs = o; }
     protected:
-
-        /**
-         * This function is called if the kernel name is updated.
-         * All DataObject names must be modified
-         */
-        virtual void nameUpdated()
-        {
-            local_setpoints.setName( this->getKernelName() + "::SetPoints" );
-            local_commands.setName( this->getKernelName() + "::Commands" );
-            local_models.setName( this->getKernelName() + "::Models" );
-            local_inputs.setName( this->getKernelName() + "::Inputs" );
-            local_outputs.setName( this->getKernelName() + "::Outputs" );
-        }
 
         /**
          * The default Components, They write defaults to the DataObjects.

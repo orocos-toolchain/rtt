@@ -8,9 +8,13 @@
 
 #include <execution/TemplateCommandFactory.hpp>
 
+#include <functional>
+#include <boost/function.hpp>
+
 namespace ORO_ControlKernel
 {
     using namespace ORO_Execution;
+    using namespace boost;
 
     ExecutionExtension::ExecutionExtension( KernelBaseFunction* _base )
         : detail::ExtensionInterface( "Execution" ), program(0), context(0),
@@ -42,33 +46,34 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         class DummyState : public StateInterface
         { void onEntry() {} void onExit() {} void handle() {} };
 
-        if ( !proc.startConfiguration() )
-            cerr << "Configuration of Processor failed !"<<endl;
-        if ( !proc.loadStateContext( context == 0 ? new StateContext( new DummyState ) : context ) )
+//         if ( !proc.startConfiguration() )
+//             cerr << "Configuration of Processor failed !"<<endl;
+        if ( !proc.loadStateContext( "Default", context == 0 ? new StateContext( new DummyState, new DummyState ) : context ) )
             cerr << "Failed to load Processor State Context !"<<endl;
-        if ( !proc.endConfiguration() )
-            cerr << "Could not end Processor Configuration !"<<endl;
-        if ( program !=0 && !proc.loadProgram(program) ) // pass ownership to the processor
+//         if ( !proc.endConfiguration() )
+//             cerr << "Could not end Processor Configuration !"<<endl;
+        if ( program !=0 && !proc.loadProgram("Default", program) ) // pass ownership to the processor
             cerr << "Program present but could not be loaded in Processor !" <<endl;
-        //if ( !proc.startExecution() )
-        //    cerr << "Processor could not start Execution !"<<endl;
-        // The above is obsoleted by the state thing.
+
+        if ( !proc.startStateContext("Default") )
+            cerr << "Processor could not start State Execution !"<<endl;
         return true;
     }
 
     void ExecutionExtension::startProgram()
     {
-        running_progr = proc.startExecution();
+        proc.resetProgram("Default");
+        running_progr = proc.startProgram("Default");
     }
 
-    bool ExecutionExtension::isProgramRunning()
+    bool ExecutionExtension::isProgramRunning() const
     {
         return running_progr;
     }
 
     void ExecutionExtension::stopProgram()
     {
-        proc.stopExecution();
+        proc.stopProgram("Default");
         running_progr  = false;
     }
 
@@ -103,7 +108,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     void ExecutionExtension::finalize() 
     {
-        proc.stopExecution();
+        proc.stopProgram("Default");
     }
 
     CommandFactoryInterface* ExecutionExtension::createCommandFactory()
@@ -145,10 +150,10 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         ret->add( "stopProgram", 
                   command
                   ( &ExecutionExtension::stopProgram ,
+                    //bind(&ExecutionExtension::foo, _1, mem_fn(&ExecutionExtension::isProgramRunning), std::logical_not<bool>() ),
                     &ExecutionExtension::isProgramRunning ,
-                    "Stop a program" ) );
+                    "Stop a program", true ) ); // true ==  invert the result.
         commandFactory().registerObject( "engine", ret );
-
     }
 
     ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )

@@ -50,19 +50,19 @@ namespace ORO_ControlKernel
 
         /** 
          * @brief Set up a control kernel which has access to
-         * an CascadeNSInnerKernel for cascading.
+         * an CascadeKernel for cascading.
          * 
-         * @param prefix The prefix to use for the DataObject names.
+         * @param name The name of this kernel. 
          * 
          */
-        CascadeNSControlKernel(const std::string& prefix)
+        CascadeNSControlKernel(const std::string& name)
             : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_InputType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::buffer >,
-                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
-                                                prefix + "::SetPoints", prefix + "::Commands")
+                                  _Extension >(name, name + "::Inputs", name + "::Models", name + "::Commands",
+                                                name + "::SetPoints", name + "::Commands")
         {
         }
 
@@ -70,14 +70,16 @@ namespace ORO_ControlKernel
          * @brief Create a nameserved control kernel.
          *
          * @param name The name of this kernel. 
+         * @param prefix The prefix to use for the DataObject names. Set prefix
+         * to the name of another kernel, to be able to access its data objects.
          */
-        CascadeNSControlKernel(const std::string& prefix, const std::string& name)
+        CascadeNSControlKernel(const std::string& name, const std::string& prefix)
             : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_InputType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::buffer >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::buffer >,
-                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                                  _Extension >(name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
                                                 prefix + "::SetPoints", prefix + "::Commands"),
               NameServerRegistrator< CascadeNSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
         {

@@ -37,33 +37,31 @@ namespace ORO_ControlKernel
      * @brief A DataObjectInterface instance makes a data
      * struct available for the outside world to read from and write to.
      *
-     * We don't use this class when efficiency is important 
-     * (a virtual function can not be inlined), but it is handy for 
-     * complexer DataObjects.
-     *
      * @see DataObject
      */
     template <class _DataType>
     struct DataObjectInterface
     {
+        virtual ~DataObjectInterface() {}
+
         /**
          * The type of the data.
          */
         typedef _DataType DataType;
             
         /**
-         * Get a copy of the Data of the module.
+         * Get a copy of the Data of this data object.
          *
          * @param pull A copy of the data.
          */
         virtual void Get( DataType& pull ) const = 0;
 
         /**
-         * Get a const reference of the data of the module.
+         * Get a copy of the data of this data object.
          *
-         * @return The result of the module.
+         * @return A copy of the data.
          */
-        virtual const DataType& Get() const = 0;
+        virtual DataType Get() const = 0;
 
         /**
          * Set the data to a certain value.
@@ -72,6 +70,12 @@ namespace ORO_ControlKernel
          */
         virtual void Set( const DataType& push ) = 0;
 
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        virtual const std::string& getName() const = 0;
     };
 
 
@@ -85,6 +89,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObjectLocked
+        : public DataObjectInterface< _DataType >
     {
         mutable ORO_OS::Mutex lock;
             
@@ -93,8 +98,6 @@ namespace ORO_ControlKernel
          */
         _DataType data;
 
-        mutable _DataType cache;
-        
         std::string name;
     public:
         /** 
@@ -130,12 +133,12 @@ namespace ORO_ControlKernel
         void Get( DataType& pull ) const { ORO_OS::MutexLock locker(lock); pull = data; }
 
         /**
-         * Get a const reference to a copy of the data of the module.
+         * Get a copy of the data of the module.
          * This method is thread-safe.
          *
          * @return The result of the module.
          */
-        const DataType& Get() const { Get(cache); return cache; }
+        DataType Get() const { _DataType cache;  Get(cache); return cache; }
 
         /**
          * Set the data to a certain value.
@@ -174,6 +177,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObjectPrioritySet
+        : public DataObjectInterface< _DataType >
     {
         mutable ORO_OS::Mutex lock;
         mutable bool dirty_flag;
@@ -184,7 +188,6 @@ namespace ORO_ControlKernel
         _DataType data;
         _DataType copy;
 
-        mutable _DataType cache;
         std::string name;
     public:
         /** 
@@ -221,13 +224,11 @@ namespace ORO_ControlKernel
         { if (dirty_flag) pull = copy; else {ORO_OS::MutexLock locker(lock); pull = data;} }
 
         /**
-         * @brief Get a const reference to a copy of the data of the module.
+         * @brief Get a copy of the data of the module.
          *
-         * This method is only thread-safe with respect to a Set().
-         *
-         * @return A reference to a copy of the data.
+         * @return A copy of the data.
          */
-        const DataType& Get() const { Get(cache); return cache; }
+        DataType Get() const { DataType cache; Get(cache); return cache; }
 
         /**
          * Set the data to a certain value.
@@ -276,6 +277,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObjectPriorityGet
+        : public DataObjectInterface< _DataType >
     {
         mutable ORO_OS::Mutex lock;
             
@@ -285,7 +287,6 @@ namespace ORO_ControlKernel
         _DataType data;
         _DataType copy;
 
-        mutable _DataType cache;
         std::string name;
     public:
         /** 
@@ -332,12 +333,11 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Get a const reference to a copy of the data of the module.
-         * This method is thread-safe with respect to Set().
+         * Get a copy of the data of the module.
          *
-         * @return A reference to a copy of the data.
+         * @return A copy of the data.
          */
-        const DataType& Get() const { Get(cache); return cache; }
+        DataType Get() const { DataType cache; Get(cache); return cache; }
 
         /**
          * Set the data to a certain value.
@@ -382,6 +382,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObjectBuffer
+        : public DataObjectInterface< _DataType >
     {
         /**
          * Internal buffer structure.
@@ -406,8 +407,6 @@ namespace ORO_ControlKernel
          * A 3 element Data buffer
          */
         DataBuf data[BUF_LEN];
-
-        mutable _DataType cache;
 
         std::string name;
     public:
@@ -446,12 +445,11 @@ namespace ORO_ControlKernel
         typedef _DataType DataType;
 
         /**
-         * Get a const reference to a copy of the data.
-         * This method is not thread safe.
+         * Get a copy of the data.
          *
          * @return A reference to a copy of the data.
          */
-        const DataType& Get() const { Get(cache); return cache; }
+        DataType Get() const {DataType cache; Get(cache); return cache; }
             
         /**
          * Get a copy of the Data (non blocking).
@@ -507,6 +505,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObject
+        : public DataObjectInterface< _DataType >
     {
         /**
          * One element of Data.
@@ -548,11 +547,11 @@ namespace ORO_ControlKernel
         void Get( DataType& pull ) const { pull = data; }
 
         /**
-         * Get a const reference of the data of the module.
+         * Get a copy of the data of the module.
          *
          * @return The result of the module.
          */
-        const DataType& Get() const { return data; }
+        DataType Get() const { return data; }
             
         /**
          * Set the data to a certain value.
@@ -568,6 +567,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataObjectUpdated
+        : public DataObjectInterface< _DataType >
     {
         /**
          * One element of Data.
@@ -610,11 +610,11 @@ namespace ORO_ControlKernel
         void Get( DataType& pull ) const { pull = data; }
 
         /**
-         * Get a const reference of the data of the module.
+         * Get a copy of the data of the module.
          *
          * @return The result of the module.
          */
-        const DataType& Get() const { return data; }
+        DataType Get() const { return data; }
             
         /**
          * Set the data to a certain value.
@@ -655,7 +655,7 @@ namespace ORO_ControlKernel
         DataRecursive( ModuleControlInterface* _module) : module(_module) {}
             
         void Get( DataType& pull ) const { module->update(); pull = data; }
-        const DataType& Get() const { module->update(); return data; }
+        DataType Get() const { module->update(); return data; }
         void Set( const DataType& push ) { data = push; }
     protected:
         mutable ModuleControlInterface* module;
@@ -728,7 +728,7 @@ namespace ORO_ControlKernel
             pull = data; 
         }
             
-        const DataType& Get() const
+        DataType Get() const
         { 
             if ( period < HeartBeatGenerator::timeSecondsGet(period) )
                 {

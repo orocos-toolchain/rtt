@@ -130,10 +130,19 @@ namespace ORO_ControlKernel
          */
         bool loadStateContext( std::istream& state_stream );
 
+        /**
+         * Start a previously loaded Program.
+         */
         void startProgram();
 
-        bool isProgramRunning();
+        /**
+         * Returns true if the program was successfully started.
+         */
+        bool isProgramRunning() const;
 
+        /**
+         * Stops the execution of a program.
+         */
         void stopProgram();
 
         /**
@@ -159,6 +168,7 @@ namespace ORO_ControlKernel
         
     protected:
         void initKernelCommands();
+        //bool foo( bool( ExecutionExtension::*cond)() const, bool (*adapter)(const bool&) ) const;
     private:
         bool running_progr;
         

@@ -286,11 +286,6 @@ namespace ORO_ControlKernel
             return name.get();
         }
 
-        void setKernelName( const std::string& _name)
-        {
-            name = _name;
-        }
-
         /**
          * Returns true if the kernel is running, false
          * otherwise.
@@ -325,7 +320,6 @@ namespace ORO_ControlKernel
 
         virtual bool updateProperties(const PropertyBag& bag)
         {
-            composeProperty(bag, name);
             return composeProperty(bag, frequency);
         }
 
@@ -363,6 +357,12 @@ namespace ORO_ControlKernel
             return &nullEvent;
         }
     protected:
+
+        void setKernelName( const std::string& _name)
+        {
+            name = _name;
+        }
+
         /**
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.

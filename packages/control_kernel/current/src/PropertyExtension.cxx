@@ -67,6 +67,7 @@ namespace ORO_ControlKernel
             }
         else
             {
+                cout <<"sequence \"PropertyFiles\" not found !"<< endl;
                 return false;
             }
         return true;

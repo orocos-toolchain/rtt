@@ -91,33 +91,34 @@ namespace ORO_ControlKernel
         /** 
          * @brief Set up a control kernel. 
          * 
-         * @param prefix The namespace prefix of the data objects.
+         * @param name The unique name of the kernel.
          * 
          */
-        NSControlKernel(const std::string& prefix)
+        NSControlKernel(const std::string& name)
             : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
-                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
-                                                prefix + "::SetPoints", prefix + "::Outputs")
+                                  _Extension >( name, name + "::Inputs", name + "::Models", name + "::Commands",
+                                                name + "::SetPoints", name + "::Outputs")
         {
         }
 
         /**
          * @brief Create a nameserved control kernel.
          
-         * @param prefix The namespace prefix of the data objects.
-         * @param name The name of the kernel
+         * @param name The unique name of the kernel
+         * @param prefix The prefix to use for the DataObject names. Set prefix
+         * to the name of another kernel, to be able to access its data objects.
          */
-        NSControlKernel(const std::string& prefix, const std::string& name)
+        NSControlKernel(const std::string& name, const std::string& prefix)
             : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
                                   detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
-                                  _Extension >( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                                  _Extension >( name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
                                                 prefix + "::SetPoints", prefix + "::Outputs"),
               NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
         {

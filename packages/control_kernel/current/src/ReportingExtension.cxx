@@ -219,7 +219,6 @@ namespace ORO_ControlKernel
                             }
                         do_server->exportReports( tmp_bag );
 
-                        std::cout << "Trying to find "<< std::string( *it, pos+2 ) <<std::endl;
                         // if the DataName is in the server, but not in the reports yet, add it to the reports.
                         if ( (new_item = tmp_bag.find( std::string( *it, pos+2 ) ) ) &&
                              do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0)

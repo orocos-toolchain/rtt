@@ -41,12 +41,12 @@ namespace ORO_ControlKernel
          * Sets a new name for this DataObject.
          * This is needed if the kernel gets a new name.
          */
-        void setName( const std::string& name)
-        {
-            nameserver.unregisterObject(this);
-            nameserver.registerObject( this, name );
-            exporter.setName( name );
-        }
+//         void setName( const std::string& name)
+//         {
+//             nameserver.unregisterObject(this);
+//             nameserver.registerObject( this, name );
+//             exporter.setName( name );
+//         }
 
         /**
          * Returns the name of this DataObject.

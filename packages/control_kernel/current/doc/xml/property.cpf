@@ -3,7 +3,7 @@
 <!-- Properties of the PropertyExtension -->
 
 <properties>
-    <sequence name="Files" type="ComponentEntry">
+    <sequence name="PropertyFiles" type="ComponentEntry">
     <simple name="Generator"  type="string"><description>The Generator Component Property File.</description><value>generator.cpf</value></simple>
     <simple name="Estimator"  type="string"><description>The Estimator Component Property File.</description><value>estimator.cpf</value></simple>
     <simple name="Controller" type="string"><description>The Controller Component Property File.</description><value>controller.cpf</value></simple>
