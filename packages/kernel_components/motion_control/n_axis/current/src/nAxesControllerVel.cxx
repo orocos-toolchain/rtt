@@ -91,7 +91,10 @@ namespace ORO_ControlKernel
   bool nAxesControllerVel::componentStartup()
   {
     // check if updateProperties has been called
-    assert(_properties_read);
+    if (!_properties_read){
+      cerr << "nAxesControllerVel::componentStartup() Properties have not been read." << endl;
+      return false;
+    }
 
     // reset integrator
     _is_initialized = false;

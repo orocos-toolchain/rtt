@@ -79,9 +79,11 @@ namespace ORO_ControlKernel
   bool nAxesControllerPosVel::componentStartup()
   {
     // check if updateProperties has been called
-    assert(_properties_read);
+    if (!_properties_read){
+      cerr << "nAxesControllerPosVel::componentStartup() Properties have not been read." << endl;
+      return false;
+    }
 
-    // get interface to Input/Setpoint data types
     if ( !nAxesControllerPosVel_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
 	 !nAxesControllerPosVel_typedef::SetPoint::dObj()->Get("Position", _position_desi_DOI) ||
 	 !nAxesControllerPosVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){

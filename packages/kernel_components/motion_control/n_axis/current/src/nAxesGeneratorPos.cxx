@@ -147,7 +147,10 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorPos::componentStartup()
   {
     // check if updateProperties has been called
-    assert(_properties_read);
+    if (!_properties_read){
+      cerr << "nAxesGeneratorPos::componentStartup() Properties have not been read." << endl;
+      return false;
+    }
 
     // initialize
     _is_initialized = false;
