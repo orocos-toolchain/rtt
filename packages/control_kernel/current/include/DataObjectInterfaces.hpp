@@ -34,9 +34,8 @@
 #include <corelib/HeartBeatGenerator.hpp>
 #include <corelib/Event.hpp>
 #include <os/MutexLock.hpp>
-#include <asm/atomic.h>
+#include <os/oro_atomic.h>
 #include "DataObjectReporting.hpp"
-#undef LOCK
 
 namespace ORO_ControlKernel
 {

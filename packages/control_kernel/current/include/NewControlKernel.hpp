@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  NSControlKernel.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  NewControlKernel.hpp 
 
-                        NSControlKernel.hpp -  description
+                        NewControlKernel.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -25,10 +25,10 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef NSCONTROLKERNEL_HPP
-#define NSCONTROLKERNEL_HPP
+#ifndef NewCONTROLKERNEL_HPP
+#define NewCONTROLKERNEL_HPP
 
-#include "BaseKernel.hpp"
+#include "NextGenKernel.hpp"
 #include "DataServer.hpp"
 
 namespace ORO_ControlKernel
@@ -38,7 +38,7 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::NameServerRegistrator;
 
     /**
-     * @brief The NSControlKernel is a more advanced version than the StandardControlKernel.
+     * @brief The NewControlKernel is a more advanced version than the StandardControlKernel.
      *
      * As it has very much in common with the StandardControlKernel, the way of addressing
      * DataObjects is done through nameserving (strings). The basic interface to dataobjects
@@ -78,21 +78,21 @@ namespace ORO_ControlKernel
      * @endverbatim
      *
      * Next, you can pass this class name as the _InputType parameter of the 
-     * NSControlKernel. The UnServedType< T > class can be used to convert
+     * NewControlKernel. The UnServedType< T > class can be used to convert
      * your StandardControlKernel components first, with substituting T with the
      * type you used in that kernel.
      *
      * See the manual for more information.
      */
-    template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
-    class NSControlKernel
-        : public detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >, 
-                                     _Extension >,
-          public NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
+    template <class _Extension = KernelBaseFunction >
+    class NewControlKernel
+        : public detail::NextGenKernel< detail::DataObjectLockedC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                       _Extension >,
+          public NameServerRegistrator< NewControlKernel<_Extension>* >        
     {
     public:
 
@@ -102,14 +102,14 @@ namespace ORO_ControlKernel
          * @param name The unique name of the kernel.
          * 
          */
-        NSControlKernel(const std::string& name)
-            : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
-                                  _Extension >( name, name + "::Inputs", name + "::Models", name + "::Commands",
-                                                name + "::SetPoints", name + "::Outputs")
+        NewControlKernel(const std::string& name)
+            : detail::NextGenKernel< detail::DataObjectLockedC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     _Extension >( name, name + "::Inputs", name + "::Models", name + "::Commands",
+                                                   name + "::SetPoints", name + "::Outputs")
         {
         }
 
@@ -120,22 +120,22 @@ namespace ORO_ControlKernel
          * @param prefix The prefix to use for the DataObject names. Set prefix
          * to the name of another kernel, to be able to access its data objects.
          */
-        NSControlKernel(const std::string& name, const std::string& prefix)
-            : detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >,
-                                  detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >,
+        NewControlKernel(const std::string& name, const std::string& prefix)
+            : detail::NextGenKernel< detail::DataObjectLockedC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
                                   _Extension >( name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
                                                 prefix + "::SetPoints", prefix + "::Outputs"),
-              NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
+              NameServerRegistrator< NewControlKernel<_Extension>* >(nameserver,name,this)
         {
         }
 
         /**
-         * @brief The NSControlKernel nameserver.
+         * @brief The NewControlKernel nameserver.
          */
-        static NameServer< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* > nameserver;
+        static NameServer< NewControlKernel<_Extension>* > nameserver;
 
         /**
          * @brief Add a DataObject to the Outputs.
@@ -153,16 +153,20 @@ namespace ORO_ControlKernel
             // This is called from the KernelBaseFunction
             // one step is one control cycle
             // The figure is a unidirectional graph
-            this->sensor->update();
-            this->estimator->update();
-            this->generator->update();
+#if 0
+            sensor->update();
+            estimator->update();
+            generator->update();
+#endif
             this->controller->update();
-            this->effector->update();
+#if 0
+            effector->update();
+#endif
         }
     };
 
-    template <class C, class S, class I, class M, class O, class E >
-    NameServer<NSControlKernel<C,S,I,M,O,E>*> NSControlKernel<C,S,I,M,O,E>::nameserver;
+    template < class E >
+    NameServer<NewControlKernel<E>*> NewControlKernel<E>::nameserver;
 
                 
 }

@@ -400,7 +400,6 @@ namespace ORO_ControlKernel
          *         False otherwise.
          */
         virtual bool isSelectedEffector( const std::string& name ) const = 0;
-
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
         virtual ORO_Execution::CommandFactoryInterface* createCommandFactory();
 

@@ -296,8 +296,6 @@ namespace ORO_ControlKernel
     template< class _DataObjectType >
     NameServer< DataObjectInterface<typename _DataObjectType::DataType>* > DataObjectServer<_DataObjectType>::ns;
 
-
-    //struct nil_type {};
     typedef Loki::NullType nil_type; // Moving to Loki.
 
 //     template<class T> 
@@ -515,17 +513,20 @@ namespace ORO_ControlKernel
 
     /**
      * NameSubClass specialisation.
-     * When a nil_type is encountered in a container on all but last template slot.
+     * When a nil_type is given, there is no typelist in this case,
+     * so we need to do some manual type faking...
      */
     template< template<class Cont> class First>
     struct NameSubClass< First<nil_type> >
+            : public DataObjectServer< First<nil_type> > 
     {
         bool Get( First<nil_type>& ) {return false;}
         bool Set( First<nil_type>& ) {return false;}
         template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) {}
+        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index)
+            : DataObjectServer<First<nil_type> >(name, prefix)
+        {}
         void changePrefix(const std::string& prefix) { }
-//         void setName(const std::string& prefix) { }
         bool has( const std::string& name, nil_type m = nil_type() ) const
         {
             return false;
@@ -562,7 +563,6 @@ namespace ORO_ControlKernel
 
 
 
-    //typedef Loki::MakeTypelist ServedTypes; // Moving to Loki
     using namespace Loki::TL;
 
     /**
@@ -602,209 +602,34 @@ namespace ORO_ControlKernel
             typedef nil_type Result;
         };
 
-
-
-
-//     template< typename _T0= nil_type,
-//               typename _T1= nil_type,
-//               typename _T2= nil_type,
-//               typename _T3= nil_type,
-//               typename _T4= nil_type,
-//               typename _T5= nil_type,
-//               typename _T6= nil_type,
-//               typename _T7= nil_type,
-//               typename _T8= nil_type,
-//               typename _T9= nil_type>
-//     struct ServedTypes : public std::multimap<int, std::string>
-//     {
-//         typedef _T0 T0;
-//         typedef _T1 T1;
-//         typedef _T2 T2;
-//         typedef _T3 T3;
-//         typedef _T4 T4;
-//         typedef _T5 T5;
-//         typedef _T6 T6;
-//         typedef _T7 T7;
-//         typedef _T8 T8;
-//         typedef _T9 T9;
-//     };
-
-    /**
-     * This class holds the not NameServed DataType of a 
-     * DataObject.
-     */
-//     template<typename _DataType = nil_type>
-//     struct UnServedType
-//     {
-//         typedef _DataType DataType;
-//     };
-
     namespace detail
     {
-
-        /**
-         * A Typelist operation that wraps each type T
-         * in _Typelist so that it becomes _Wrapper::wrap<T>
-         */
-        template<class _Wrapper , class _Typelist >
-        struct Wrap;
-
-        template<class _Wrapper>
-        struct Wrap<_Wrapper, nil_type>
-        {
-            typedef typename _Wrapper::template Wrap<nil_type>::Result Result;
-        };
-
-        template<class _Wrapper, class Head, class Tail>
-        struct Wrap<_Wrapper, Typelist<Head, Tail> >
-        {
-            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
-        };
-
-        template<class _Wrapper, class Head >
-        struct Wrap<_Wrapper, Typelist<Head, nil_type> >
-        {
-            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, nil_type > Result;
-        };
-
-    /**
-     * @brief The containers below are used by the kernel to select the type of DataObject.
-     *
-     * The template parameter is a user supplied Tapelist derived type, which
-     * conains the names and the types of each nameserved DataObject.
-     *
-     * @param C The class inheriting from ServedTypes and UnServedType.
-     */
-    template< typename C>
-    struct DataObjectContainer
-    {
-        /**
-         * The List of all types.
-         */
-        typedef C NamesTypes; 
-        template< typename D>
-        struct DataObjectType { typedef DataObject<D> type; };
-
-        /**
-         * This special construct wraps any type T in the
-         * Typelist NamesTypes with a DataObject.
-         */
-        struct Wrapper
-        {
-            template<class T>
-            struct Wrap
-            {
-                typedef DataObject<T> Result;
-            };
-        };
-
-        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-        typedef NameSubClass< typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
-    };
-
-    template< typename C>
-    struct DataObjectLockedContainer
-    {
-        typedef C NamesTypes; 
-        template< typename D>
-        struct DataObjectType { typedef DataObjectLocked<D> type; };
-        struct Wrapper
-        {
-            template<class T>
-            struct Wrap
-            {
-                typedef DataObjectLocked<T> Result;
-            };
-        };
-
-        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
-    };
-
-    template< typename C>
-    struct DataObjectPrioritySetContainer
-    {
-        typedef C NamesTypes; 
-        template< typename D>
-        struct DataObjectType { typedef DataObjectPrioritySet<D> type; };
-        struct Wrapper
-        {
-            template<class T>
-            struct Wrap
-            {
-                typedef DataObjectPrioritySet<T> Result;
-            };
-        };
-
-        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
-    };
-
-    template< typename C>
-    struct DataObjectPriorityGetContainer
-    {
-        typedef C NamesTypes; 
-        template< typename D>
-        struct DataObjectType { typedef DataObjectPriorityGet<D> type; };
-        struct Wrapper
-        {
-            template<class T>
-            struct Wrap
-            {
-                typedef DataObjectPriorityGet<T> Result;
-            };
-        };
-
-        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-        typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
-    };
-
-    template< typename C>
-    struct DataObjectBufferContainer
-    {
-        typedef C NamesTypes; 
-        template< typename D>
-        struct DataObjectType { typedef DataObjectBuffer<D> type; };
-        struct Wrapper
-        {
-            template<class T>
-            struct Wrap
-            {
-                typedef DataObjectBuffer<T> Result;
-            };
-        };
-
-        typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-        typedef NameSubClass<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
-    };
-
 
 
         /**
          * @brief The templated nameserved dataobject. It can be of any DataType/DataObjectType.
          *
          * This class is the toplevel class that represents a dataobject of a given type
-         * (simple, locked, priority_set,...) and which contains one not nameserved type and
+         * (simple, locked, priority_set,...) and which contains
          * multiple nameserved types.
          *
-         * NameContainer is one of the specialised containers for holding type info of
+         * @param _NameContainer is one of the specialised containers for holding type info of
          * the objects to be served.
          */
         template<typename _NameContainer>
         class NameServedDataObject
             : public _NameContainer::NamesTypes,
               public _NameContainer::tree
-            //,public _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type // To provide the generic DataObjectInterface
     {
     public :
+        typedef typename _NameContainer::NamesTypes NamesTypes;
+        typedef typename _NameContainer::WrappedNamesTypes WrappedNamesTypes;
+
         using _NameContainer::tree::Get;
         using _NameContainer::tree::Set;
         using _NameContainer::tree::has;
         using _NameContainer::tree::reg;
         using _NameContainer::tree::deReg;
-        //typedef typename _NameContainer::DataObjectType< typename _NameContainer::NamesTypes::DataType>::type DefaultDataObject;
-        //using DefaultDataObject::Get;
-        //using DefaultDataObject::Set;
 
         /**
          * @brief Create a NameServedDataObject, with a prefixed name.
@@ -818,14 +643,8 @@ namespace ORO_ControlKernel
         NameServedDataObject(const std::string& name, const std::string& prefix )// = name ) 
             :  _NameContainer::NamesTypes(),
               _NameContainer::tree(name, prefix, std::make_pair( this->begin(), this->end() ), 0 )
-            //,DefaultDataObject( name, prefix )
         {
         }
-
-//         void setName( const std::string& name)
-//         {
-//             _NameContainer::tree::setName(name);
-//         }
 
         void changePrefix(const std::string& prefix)
         {
@@ -845,9 +664,7 @@ namespace ORO_ControlKernel
             typedef typename _NameContainer::template DataObjectType< _DataT >::type type;
         };
 
-        //typedef typename _NameContainer::NamesTypes::DataType DataType;
         typedef nil_type DataType;
-
     };
 
         /**
@@ -879,9 +696,10 @@ namespace ORO_ControlKernel
             using NameFrontEnd<Tail>::reg;
             using NameFrontEnd<Tail>::deReg;
 
-            NameFrontEnd( const std::string& name, const std::string& prefix ) :
+            template< typename pair_type, typename index_type>
+            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index ) :
                 DataObjectServer<Head>(name, prefix),
-                NameFrontEnd<Tail>(name, prefix)
+                NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
         };
@@ -895,11 +713,35 @@ namespace ORO_ControlKernel
             using DataObjectServer<Head>::has;
             using DataObjectServer<Head>::reg;
             using DataObjectServer<Head>::deReg;
-            NameFrontEnd( const std::string& name, const std::string& prefix ) :
+            template< typename pair_type, typename index_type>
+            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
                 DataObjectServer<Head>(name, prefix)
             {}
         };            
             
+        // Container case
+        template< template<class> class First>
+        struct NameFrontEnd< First<nil_type> >
+        {
+            template< typename pair_type, typename index_type>
+            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index ) {}
+            ~NameFrontEnd() {}
+            bool Get( First<nil_type>& ) {return false;}
+            bool Set( First<nil_type>& ) {return false;}
+            void changePrefix(const std::string& prefix) { }
+            bool has( const std::string& name, nil_type m = nil_type() ) const
+            {
+                return false;
+            }
+            void reg( First<nil_type>* ) {return ;}
+            void deReg( First<nil_type>* ) {return ;}
+            
+            void refreshReports( PropertyBag& bag ) const {}
+            void inspectReports( PropertyIntrospection* introspector ) const {}
+            void exportReports( PropertyBag& bag ) const  {}
+            void cleanupReports( PropertyBag& bag ) const {}
+        };
+
 
         /**
          * @brief This specialisation detects the use of the CompositeDataObject
@@ -934,7 +776,7 @@ namespace ORO_ControlKernel
 //             using NameServedDataObject< _NameContainer<S> >::Set;
 
             NameServedDataObject(const std::string& name, const std::string& prefix ) //= name ) 
-                : FrontEnd(name, prefix),
+                : FrontEnd(name, prefix, 0, 0),
                   first_server(name, prefix),
                   second_server(name, prefix)
 //                 : NameServedDataObject<_NameContainer<F> >(name, prefix),
@@ -1000,6 +842,179 @@ namespace ORO_ControlKernel
             typedef nil_type DataType;
         };
 
+        /**
+         * A Typelist operation that wraps each type T
+         * in _Typelist so that it becomes _Wrapper::Wrap<T>
+         */
+        template<class _Wrapper , class _Typelist >
+        struct Wrap;
+
+        template<class _Wrapper>
+        struct Wrap<_Wrapper, nil_type>
+        {
+            typedef typename _Wrapper::template Wrap<nil_type>::Result Result;
+        };
+
+        template<class _Wrapper, class Head, class Tail>
+        struct Wrap<_Wrapper, Typelist<Head, Tail> >
+        {
+            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
+        };
+
+        template<class _Wrapper, class Head >
+        struct Wrap<_Wrapper, Typelist<Head, nil_type> >
+        {
+            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, nil_type > Result;
+        };
+
+        /**
+         * @brief The containers below are used by the kernel to select the type of DataObject.
+         */
+        struct DataObjectC
+        {
+            /**
+             * The template parameter is a user supplied Typelist derived type, which
+             * conains the names and the types of each nameserved DataObject.
+             *
+             * @param C The class inheriting from ServedTypes and UnServedType.
+             */
+            template< typename C>
+            struct DataObject
+            {
+                /**
+                 * The List of all types.
+                 */
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObject<D> type; };
+
+                /**
+                 * This special construct wraps any type T in the
+                 * Typelist NamesTypes with a DataObject.
+                 */
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObject<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameSubClass< typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+            };
+        };
+
+        struct DataObjectLockedC
+        {
+            template< typename C>
+            struct DataObject
+            {
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectLocked<D> type; };
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObjectLocked<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+            };
+        };
+
+        struct DataObjectPrioritySetC
+        {
+            template< typename C>
+            struct DataObject
+            {
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectPrioritySet<D> type; };
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObjectPrioritySet<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+            };
+        };
+
+        struct DataObjectPriorityGetC
+        {
+            template< typename C>
+            struct DataObject
+            {
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectPriorityGet<D> type; };
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObjectPriorityGet<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+            };
+        };
+
+        struct DataObjectBufferC
+        {
+            template< typename C>
+            struct DataObject
+            {
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectBuffer<D> type; };
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObjectBuffer<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
+            };
+        };
+
+        struct DataObjectInterfaceC
+        {
+            template< typename C>
+            struct DataObject
+            {
+                typedef C NamesTypes; 
+                template< typename D>
+                struct DataObjectType { typedef ORO_ControlKernel::DataObjectInterface<D> type; };
+                struct Wrapper
+                {
+                    template<class T>
+                    struct Wrap
+                    {
+                        typedef ORO_ControlKernel::DataObjectInterface<T> Result;
+                    };
+                };
+
+                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
+                typedef NameFrontEnd<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
+            };
+        };
 
         /**
          * @brief A helper class for nameskernels, which defines the type
@@ -1009,16 +1024,17 @@ namespace ORO_ControlKernel
          * This is purely for aiding in shorter writing of some template
          * code. Its use is optional.
          *
-         * @param DataNames The datatypes of the data exchanged.
+         * @param DataNames The datatypes (TypeList) of the data exchanged.
          */
         template <class DataNames>
         struct NamesDOFactory
         {
-            typedef NameServedDataObject< DataObjectContainer< DataNames > > fast;
-            typedef NameServedDataObject< DataObjectLockedContainer< DataNames > > locked;
-            typedef NameServedDataObject< DataObjectPrioritySetContainer< DataNames > > priority_set;
-            typedef NameServedDataObject< DataObjectPriorityGetContainer< DataNames > > priority_get;
-            typedef NameServedDataObject< DataObjectBufferContainer< DataNames > > buffer;
+            typedef NameServedDataObject< DataObjectC::DataObject< DataNames > > fast;
+            typedef NameServedDataObject< DataObjectLockedC::DataObject< DataNames > > locked;
+            typedef NameServedDataObject< DataObjectPrioritySetC::DataObject< DataNames > > priority_set;
+            typedef NameServedDataObject< DataObjectPriorityGetC::DataObject< DataNames > > priority_get;
+            typedef NameServedDataObject< DataObjectBufferC::DataObject< DataNames > > buffer;
+            typedef NameServedDataObject< DataObjectInterfaceC::DataObject< DataNames > > interface;
         }; 
 
 
