@@ -10,12 +10,12 @@ EXTRA_DIST = \
 	packages/aclocal.m4 packages/acinclude.m4 \
 	packages/Makefile.in packages/Doxyfile.in \
 	doc/CODING_STYLE.txt \
-	packages/templates/minimal/current.ect \
 	packages/support/boost/current/boost.cdl.in \
 	packages/support/boost_graph/current/boost_graph.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
 	packages/support/comedilib/current/comedilib.cdl.in \
 	packages/support/xercesc/current/xercesc.cdl.in \
+	packages/support/readline/current/readline.cdl.in \
 	packages/pkgconf/fixhtml.tcl \
         packages/pkgconf/rules.doc \
         packages/pkgconf/rules.mak \

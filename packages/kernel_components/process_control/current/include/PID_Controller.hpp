@@ -86,6 +86,7 @@ namespace ORO_ControlKernel
      *  - 'h' in handbook is called 'T' (= sampleperiod)
      * @endverbatim
      *
+     *  @ingroup kcomps kcomp_controller 
      */
     class PID_Controller
         : public Controller<Expects<PID_Input>,
@@ -166,6 +167,11 @@ namespace ORO_ControlKernel
             _maxu.set()[channel] = newMaxU;
         }
 
+        /**
+         * @name The PID_Controller Commands.
+         * @{
+         */
+
         void changeTi(int channel, double newTi )
         {
             if (channel <0 || channel >= num_chans)
@@ -191,6 +197,9 @@ namespace ORO_ControlKernel
         
             recalculate( channel, newK );
         }
+        /**
+         * @}
+         */
 
         virtual bool componentStartup()
 	    {
