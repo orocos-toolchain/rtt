@@ -69,15 +69,11 @@ clean_packages:
 	make clean && \
 	rm install/lib/libtarget.a
 
-# This builds the corelib testcase program
+# This checks the configuration
 check_packages:
-	cd packages-@ECOS_TARGET@ &&\
-	export ECOS_REPOSITORY=${ECOS_REP} &&\
-	ecosconfig template corelib-os &&\
-	ecosconfig remove applications_testcase ;\
-	{ ecosconfig add applications_testcase || exit 1; } ;\
-	ecosconfig tree &&\
-	make
+	cd packages-@ECOS_TARGET@ ;\
+	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	ecosconfig -v check
 
 # This removes the whole ! packages build directory
 mrproper:

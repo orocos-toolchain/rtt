@@ -432,8 +432,6 @@ ecosconfig add support_$(basename $i .cdl); done
 	  technical support.
 	</para>
 	<para>
-	  You can use the <command>make check_packages</command> command to start building
-	  a test program in applications/testcase. 
 	  The <command>make docs</command> or
 	  <command>doxygen</command> commands build API documentation.
 	</para>
@@ -703,28 +701,29 @@ cvs -z3 up
   </chapter>
 
   <chapter id="started">
-      <title>Getting started with the code</title>
+    <title>Getting started with the code</title>
+    <para>
+      This Chapter provides the semantics of the services available in the
+      &orocos; Packages.
+    </para>
+    <sect1>
+      <title>A quick test</title>
       <para>
-	This Chapter provides the semantics of the services available in the
-	&orocos; Packages.
+	To quickly test &orocos; code, you can download the kernel_samples
+	tar.gz package, untar it, make a link from within a subdirectory (e.g.
+	program_state/orocos or program_state/orocos-lxrt)
+	to the Orocos install directory and type make all (
+	or make all-lxrt for lxrt). The kernel_samples/README file contains
+	complete instructions.
       </para>
-      <sect1>
-	<title>A quick test</title>
-	<para>
-	  To quickly test &orocos; code, you can run <command>make check_packages</command> 
-	  in your build directory. This will require
-	  the TestCases application to be present in you applications directory.
-	  A test program will be built which tests some basic functionalities
-	  of the CoreLib. The resulting file is <command>install/bin/testcase</command>.
-        </para>
-      </sect1>
-      <sect1>
-	<title> What about main() ?</title>
-	<para>
-	  The first question asked by many users is : How do I write a
-	  test program to see how it works? 
-	</para>
-        <para>
+    </sect1>
+    <sect1>
+      <title> What about main() ?</title>
+      <para>
+	The first question asked by many users is : How do I write a
+	test program to see how it works? 
+      </para>
+      <para>
 	  Building a sample application with &orocos; is quite simple,
 	  but some care must be taken in initialising the realtime
 	  environment. First of all, you need to provide a function
