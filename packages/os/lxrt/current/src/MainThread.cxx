@@ -92,9 +92,6 @@ namespace ORO_OS
     {
         // we don't stop the timer
         //stop_rt_timer();
-#ifdef OROPKG_CORELIB_REPORTING
-      Logger::log() << Logger::Debug << "Sched Policy : Deleting RTAI task." << Logger::endl;
-#endif
         rt_task_delete(rt_task);
     }
 

@@ -9,26 +9,7 @@ namespace ORO_CoreLib
 {
     using namespace std;
 
-    namespace
-    {
-        int startLogger()
-        {
-            Logger::Instance()->start();
-            return 0;
-        }
-
-        void stopLogger()
-        {
-	  //Logger::log().cleanup();
-	  //Logger::Release();
-        }
-
-        ORO_OS::InitFunction LogInit( &startLogger );
-        ORO_OS::CleanupFunction LogCleanup( &stopLogger );
-    }
-
     Logger* Logger::_instance = 0;
-
 
     Logger::Logger()
         : stdoutput(&std::cerr),
@@ -44,6 +25,7 @@ namespace ORO_CoreLib
     Logger* Logger::Instance() {
         if (_instance == 0) {
             _instance =  new Logger();
+	    _instance->start();
         }
         return _instance;
     }
@@ -53,14 +35,17 @@ namespace ORO_CoreLib
     }
 
     void Logger::Release() {
+      if (_instance) {
+        _instance->cleanup();
         delete _instance;
         _instance = 0;
+      }
     }
         
     void Logger::start() {
-        ORO_OS::MutexLock lock( startguard );
         if (started)
             return;
+        ORO_OS::MutexLock lock( startguard );
         started = true;
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
         *this<<Logger::Info; // default log to Info
@@ -89,15 +74,17 @@ namespace ORO_CoreLib
     }
 
     void Logger::cleanup() {
-        ORO_OS::MutexLock lock( startguard );
         if (!started)
             return;
+        ORO_OS::MutexLock lock( startguard );
         *this<<Logger::Info<<"Orocos Logging Deactivated." << Logger::nl;
         stdoutput->flush();
         started = false;
     }
 
     std::string Logger::getLogLine() {
+        if (!started)
+            return "";
         std::string line;
         {
             ORO_OS::MutexLock lock( inpguard );
@@ -179,6 +166,8 @@ namespace ORO_CoreLib
 
     Logger& Logger::operator<<(std::ostream& (*pf)(std::ostream&))
     {
+        if (!started)
+            return *this;
         if ( pf == Logger::endl )
             this->logendl();
         else if ( pf == Logger::nl )
@@ -194,6 +183,8 @@ namespace ORO_CoreLib
     }
 
     void Logger::logflush() {
+        if (!started)
+            return;
         {
             ORO_OS::MutexLock lock( inpguard );
             if ( input.str().empty() ){
@@ -208,6 +199,7 @@ namespace ORO_CoreLib
         this->logit(Logger::flush);
      }
 
+  // private :
     void Logger::logit(std::ostream& (*pf)(std::ostream&)) {
         ORO_OS::MutexLock lock( inpguard );
         std:: string res = showTime() +" "+ showLevel(inloglevel) +" ";
@@ -226,10 +218,14 @@ namespace ORO_CoreLib
     }
 
     void Logger::lognl() {
+        if (!started)
+            return;
         this->logit( Logger::nl );
      }
 
     void Logger::logendl() {
+        if (!started)
+            return;
         this->logit( Logger::endl );
      }
 
