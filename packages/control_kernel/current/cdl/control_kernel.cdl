@@ -1,11 +1,14 @@
 cdl_package OROPKG_CONTROL_KERNEL {
-    display "The Generic Feedback Control Kernel"
+    display "Control Kernel"
     description "
 The templates and implementations for control kernels
 and extensions. You will need this if you want to build
 an open controller."
 
     include_dir control_kernel
+
+    parent   OROPKG_CONTROL_FRAMEWORK
+    requires OROPKG_CONTROL_FRAMEWORK
 
     compile KernelInterfaces.cxx ComponentInterfaces.cxx
     compile ComponentConfigurator.cxx KernelConfig.cxx
@@ -18,6 +21,7 @@ Enable if you want to use the old-style kernels by
 default. Some Orocos components will refuse to compile if this
 option is enabled."
 	default_value 0
+
     }
 
     cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
@@ -28,7 +32,7 @@ control kernel. Examples are automatic configuration of
 components and data logging. A Component can opt-in
 to make use of an Extension. Most users will want this."
 	default_value 1
-	
+
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_REPORTING {
 	    display "Runtime Data-to-Text Reporting"
 	    description "
