@@ -244,7 +244,6 @@ namespace ORO_ControlKernel
     protected:
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
-        template< class T >
         bool true_gen() const { return true; }
 
         CommandFactoryInterface* createCommandFactory()

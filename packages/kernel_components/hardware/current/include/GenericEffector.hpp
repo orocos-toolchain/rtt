@@ -389,7 +389,7 @@ namespace ORO_ControlKernel
 
         typedef std::map<std::string, DigitalOutput* > DOutMap;
         DOutMap d_out;
-        typedef std::map<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > AOutMap
+        typedef std::map<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > AOutMap;
         AOutMap a_out;
 
         int usingChannels;
