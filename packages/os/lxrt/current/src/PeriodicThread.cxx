@@ -113,7 +113,7 @@ namespace ORO_OS
                     task->runComp->step(); // one cycle
                 else
                     task->step();
-                if (wait_for_step)
+                if (task->wait_for_step)
                     task->periodWait();
             }
     
