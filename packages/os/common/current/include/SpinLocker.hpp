@@ -32,10 +32,10 @@
 
 #include "SpinLock.hpp"
 
+#ifdef HAVE_SPINLOCK
+
 namespace ORO_OS
 {
-
-#ifdef HAVE_SPINLOCK
 
     /**
      * An object of this class locks a SpinLock object when it is created, and 
@@ -89,16 +89,16 @@ namespace ORO_OS
             }
 
 
-    }
-
-    ; // class SpinLocker
-
+    }; // class SpinLocker
+}
 #else
 
+#include "MutexLock.hpp"
+
+namespace ORO_OS {
     typedef MutexLock SpinLocker;
+}
 
 #endif
-
-} // namespace orocos
 
 #endif // SPINLOCKER_H

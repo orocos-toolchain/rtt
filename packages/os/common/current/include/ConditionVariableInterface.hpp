@@ -29,7 +29,7 @@
 #define CONDITIONVARIABLEINTERFACE_HPP
 
 #include <os/fosi.h>
-#include "ConditionInterface.hpp"
+#include "corelib/ConditionInterface.hpp"
 
 namespace ORO_OS
 {
@@ -55,7 +55,7 @@ namespace ORO_OS
             /**
              * Returns the value of the ConditionVariableInterface object.
              */
-            virtual ConditionInterface* conditionGet() = 0 ;
+            virtual ORO_CoreLib::ConditionInterface* conditionGet() = 0 ;
 
             /**
              * Broadcast that the condition could have been changed.

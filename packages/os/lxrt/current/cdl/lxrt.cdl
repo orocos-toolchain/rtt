@@ -24,12 +24,8 @@ support for all packages used in Orocos."
     implements OROINT_OS_KERNEL_MODULE
     implements OROINT_OS_MAIN
 
+#removed
     cdl_component OROCLS_OS_EVENT_INTERRUPT {
-	display "Interrupt driven event implementation"
-	flavor bool
-	default_value 0
-	implements OROINT_OS_EVENT_INTERRUPT
-	compile EventInterrupt.cxx
     }
 
     cdl_component OROSEM_OS_LXRT_SCHEDTYPE {

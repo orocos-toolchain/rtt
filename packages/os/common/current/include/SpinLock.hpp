@@ -30,9 +30,6 @@
 #ifndef SPINLOCK_HPP
 #define SPINLOCK_HPP
 
-namespace ORO_OS
-{
-
 #ifdef HAVE_SPINLOCK
 
 #ifdef __cplusplus
@@ -43,9 +40,11 @@ namespace ORO_OS
 #include <asm/system.h>
 
     }
-
 #undef new
 #endif // __cplusplus
+
+namespace ORO_OS
+{
 
     /**
      * This class implements a spinlock, which is a very efficient single-holder 
@@ -73,18 +72,17 @@ namespace ORO_OS
             {
             }
 
-    }
+    };
 
-    ; // class SpinLock
+}
 
 #else
 
 #include "Mutex.hpp"
 
+namespace ORO_OS {
     typedef Mutex SpinLock;
-
+}
 #endif // HAVE_SPINLOCK
-
-} // namespace orocos
 
 #endif // SPINLOCK_H

@@ -28,6 +28,9 @@
 #ifndef RTSTREAMBUFS_HPP
 #define RTSTREAMBUFS_HPP
 
+#include <string>
+#include <os/fosi.h>
+
 namespace rt_std
 {
 

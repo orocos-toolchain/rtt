@@ -29,6 +29,7 @@
 
 namespace ORO_OS
 {
+    using namespace ORO_CoreLib;
 
     typedef HeartBeatGenerator::nsecs nsecs;
 

@@ -30,7 +30,7 @@
 
 #include <os/fosi.h>
 #include <errno.h>
-#include "HeartBeatGenerator.hpp"
+#include "corelib/HeartBeatGenerator.hpp"
 #include "ConditionVariableInterface.hpp"
 #include "Mutex.hpp"
 
@@ -42,7 +42,7 @@ namespace ORO_OS
     /**
      * An object of this class is a condition variable that tests if a condition
      * is changed in a specified time.
-     * 
+     * @verbatim
      * EXAMPLE:
      *
      * ConditionBool condition;  // The initial value is false.
@@ -62,7 +62,7 @@ namespace ORO_OS
      * 
      * // Now wait 0.1 second for a change. For example, a change can happen in another thread. 
      * value = (cv.conditionGet())->evaluate();
-     *
+     *@endverbatim
      * */
 
     class ConditionVariableTimed :
@@ -77,7 +77,7 @@ namespace ORO_OS
              * @param mutex  The mutex to secure <ci>.
              * @param timeout The number of seconds valueGet() waits for a change of <ci>.
              */
-            ConditionVariableTimed( ConditionInterface* cond, Mutex* mutex, double timeout );
+            ConditionVariableTimed( ORO_CoreLib::ConditionInterface* cond, Mutex* mutex, double timeout );
 
             /**
              * Destroy the ConditionVariableTimed object.
@@ -88,7 +88,7 @@ namespace ORO_OS
              * Wait until the value of the ConditionInterface object changes or timeout is reached,
              * and return the value.
              */
-            virtual ConditionInterface* conditionGet();
+            virtual ORO_CoreLib::ConditionInterface* conditionGet();
 
             virtual void broadcast();
 
@@ -104,7 +104,7 @@ namespace ORO_OS
             /**
              * The ConditionInterface object.
              */
-            ConditionInterface* condition;
+            ORO_CoreLib::ConditionInterface* condition;
 
             /**
              * The evaluation of the condition.
