@@ -62,6 +62,7 @@ namespace ORO_ControlKernel
         PropertyBag            config;
         Property<PropertyBag>* baseBag;
         Property<PropertyBag>* extensionBag;
+        Property<PropertyBag>* selectBag;
         KernelBaseFunction* kernel;
     };
 

@@ -42,30 +42,39 @@ namespace ORO_ControlKernel
             if (base)
                 baseBag = dynamic_cast<Property<PropertyBag>*>(base);
             else cerr << "No base." << endl;
+
             PropertyBase* extension = config.find("Extensions");
             if (extension)
                 extensionBag = dynamic_cast<Property<PropertyBag>*>(extension);
             else cerr << "No extension" << endl;
 
-            if ( baseBag == 0 || extensionBag == 0 )
+            PropertyBase* complist = config.find("StartupComponents");
+            if (complist)
+                selectBag = dynamic_cast<Property<PropertyBag>*>(complist);
+            else cerr << "No KernelComponents" << endl;
+
+
+            if ( baseBag == 0 )
                 {
-                    cerr <<"No valid KernelProperties or Extensions tags found !"<<endl;
+                    cerr <<"No valid KernelProperties found !"<<endl;
                     return false; // failed !
                 }
 
             cout << "Setting KernelProperties..."<<endl;
             // this updates the 'standard' properties
             kernel->updateProperties( baseBag->value() );
+            // update the list of selected components
+            if (selectBag)
+                kernel->startupComponents( selectBag->value() );
+
             // this updates the user's properties
             kernel->updateKernelProperties( baseBag->value() );
-
-            flattenPropertyBag( baseBag->value() );
-            deleteProperties( baseBag->value()  );
-            delete baseBag;
 
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.
             // Iterate over all extensions
+            if ( ExtensionInterface::nameserver.getValueBegin() == ExtensionInterface::nameserver.getValueEnd() )
+                cerr << "No Extensions present in this kernel."<<endl;
             ExtensionInterface::NameServerType::value_iterator it = ExtensionInterface::nameserver.getValueBegin();
             while (it != ExtensionInterface::nameserver.getValueEnd() )
                 {
@@ -98,7 +107,7 @@ namespace ORO_ControlKernel
                                                 }
                                         } else
                                             {
-                                                cerr << "File "<< extFileName->get() <<" found but unable to parse !"<<endl;
+                                                cerr << "  File "<< extFileName->get() <<" found but unable to parse !"<<endl;
                                                 return false;
                                             }
                                     flattenPropertyBag( extensionConfig );
@@ -106,19 +115,29 @@ namespace ORO_ControlKernel
                                 } catch (...)
                                     {
                                         delete[] fname;
-                                        cerr << "File "<< extFileName->get() << " not found !"<<endl;
+                                        cerr << "  File "<< extFileName->get() << " not found !"<<endl;
                                         return false;
                                     }
                         
                         }
+                    else {
+                        cerr << "  Warning: Extension \'" << ExtensionInterface::nameserver.getNameByObject(*it) << endl <<
+                            " is present in the Control Kernel, but not listed in the file \'"<<
+                            filename <<"\'."<<endl;
+                    }
                     ++it;
                 }
         } catch (...)
             {
                 delete[] fname;
-                cerr <<"Kernel config file "<<filename<<" not found !"<<endl;
+                cerr <<"  Kernel config file "<<filename<<" not found !"<<endl;
                 return false;
             }
+
+        // cleanup all parse left-overs
+        flattenPropertyBag( config );
+        deleteProperties( config  );
+
         return true;
     }
 

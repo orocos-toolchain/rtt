@@ -32,8 +32,9 @@ namespace ORO_ControlKernel
     class PropertyExtension;
 
     /**
-     * A Component using properties can be extended with this interface
+     * @brief A Component using properties can be extended with this interface
      * to export them to the user or update them with user defined values.
+     * @see PropertyExtension
      */
     class PropertyComponentInterface
         :public detail::ComponentAspectInterface<PropertyExtension>
@@ -95,11 +96,13 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * A ControlKernel Extension for Properties.
+     * @brief A ControlKernel Extension for Properties.
      * It will configure all components in the Kernel with the properties found in the
-     * cpf files. 
+     * cpf files.
+     * 
      * The properties of the PropertyExtension itself contain the filenames 
      * of the component property files.
+     * @see PropertyComponentInterface
      */
     class PropertyExtension
         : public detail::ExtensionInterface
@@ -145,6 +148,7 @@ namespace ORO_ControlKernel
          */
         void removeComponent(PropertyComponentInterface* comp);
 
+        bool configureComponent(const std::string& filename, PropertyComponentInterface* target);
         private:
         /**
          * Mapping of Component name to component instances.
@@ -169,6 +173,12 @@ namespace ORO_ControlKernel
          * Property. True if components properties must be saved afterwards.
          */
         Property<bool> save_props;
+
+        /**
+         * Set to true if a component needs to be configured when loaded,
+         * Set to false if a component needs to be configured when the kernel is started.
+         */
+        Property<bool> configureOnLoad;
 
         /**
          * The base kernel of this extension.

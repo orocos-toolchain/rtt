@@ -7,7 +7,7 @@ using namespace std;
 using namespace ORO_CoreLib;
 using namespace ORO_ControlKernel;
 
-bool ComponentConfigurator::configure(std::string& filename, PropertyComponentInterface* target)
+bool ComponentConfigurator::configure(const std::string& filename, PropertyComponentInterface* target) const
 {
     bool result = false;
     XMLCh* name;

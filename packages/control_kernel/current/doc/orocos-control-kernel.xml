@@ -1223,7 +1223,7 @@ contents  = my_Do.Get(); // equivalent
 	  <function>unloadGenerator()</function>, &hellip; methods
 	  which allow a clean insertion of a new component
 	  (<emphasis>i.c.</emphasis> the Controller Component) and
-	  which guarantee a clean removal of an old component
+	  which guarantee a clean removal of a component
 	  (<emphasis>i.c.</emphasis> the Generator Component).
 	  Defining your own Component functionality works as in the
 	  following example for the Generator Component:
@@ -1270,6 +1270,7 @@ contents  = my_Do.Get(); // equivalent
 	  strange to people not familiar with templates, but the aim
 	  of this construct is to allow the changing of the base class
 	  of a Component, without having to adjust the code each time.
+	  The name ("MyGeneratorName") of the component must be unique within a kernel.
 	  As you can guess, the <type>_DefaultGenerator</type> type is
 	  supplied by the Control Kernel. You can access it like
 	  this:</para>
@@ -1300,13 +1301,17 @@ first_kernel.loadGenerator( &amp;my_gen );
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
 	  To actually use this Generator instead of the current one,
-	  it must be selected:</para>
+	  it must be selected:
+	</para>
 	<screen>
 first_kernel.selectGenerator( &amp;my_gen );
 	</screen>
+	<note>
+	  <para>One can only select a component after the kernel is started !</para>
+	</note>
 	<para>
 	  Only one Component per type can be selected and only a
-	  previously loaded Component can be selected. This is because
+	  previously loaded Component can be selected in a running kernel. This is because
 	  all loaded components are configured just before the Control
 	  Kernel is running. Any component not loaded at that time
 	  will not be configured by that Control Kernel and is thus
@@ -1539,14 +1544,17 @@ void push()
      MyKernel1D::DefaultGenerator::nameserver.getObject("GeneratorName"); 
   
   // loading a previously created generator
-  first_kernel.loadGenerator( "GeneratorName" ); // and select it too. 
-  
+  first_kernel.loadGenerator( "GeneratorName" );
+
+  // ... after start of the kernel task :
   if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
        first_kernel.selectGenerator( "GeneratorName") );
 	  </programlisting>
-	  Loading is not realtime safe and should happen before the
-	  kernel is started, selecting a Component is safe at any
-	  time
+	  <emphasis>Loading</emphasis> is not realtime safe
+	  and must happen <emphasis>before</emphasis> the
+	  kernel started, <emphasis>selecting</emphasis> a
+	  Component is only allowed <emphasis>after</emphasis>
+	  the kernel is started.
 	</para>
       </sect2>
       <sect2 id="events-hooks-states">
@@ -1718,6 +1726,26 @@ void push()
   <value>NonPreemptible</value></simple>
 </struct>
 
+  <struct name="StartupComponents" type="type_less">
+    <description>The Components to be Selected when the kernel is started
+    </description>
+    <simple name="Sensor" type="string">
+      <value>CartesianSensor</value>
+    </simple>
+    <simple name="Estimator" type="string">
+      <value>CartesianEstimator</value>
+    </simple>
+    <simple name="Generator" type="string">
+      <value>CartesianGenerator</value>
+    </simple>
+    <simple name="Controller" type="string">
+      <value>CartesianController</value>
+    </simple>
+    <simple name="Effector" type="string">
+      <value>CartesianEffector</value>
+    </simple>
+  </struct>
+   
 <struct name="Extensions" type="type_less">
   <simple name="Reporter" type="string">
   <description>The property file of the reporter</description>
@@ -1735,17 +1763,42 @@ void push()
 ]]>
       </programlisting>
 	<para>
-	  It has two major parts: KernelProperties and Extensions. The
-	  first contains general options which apply to any kernel.
-	  The second specifies the property file for each (possible)
-	  extension. If the file is not found, an error is raised by
-	  the KernelConfigurator. The XML format is further explained
-	  in the Property Extension section. It is allowed to define
-	  your own properties in this file and update them in the
-	  <function>updateKernelProperties</function> method of a
-	  derived class of the Control Kernel.
+	  It has three major parts: KernelProperties, StartupComponents and Extensions. The
+	  first and second struct contain options which apply to any kernel.
+	  They are both used by the KernelConfig class to setup the KernelBaseFunction.
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		The KernelProperties struct contains the periodic execution
+		frequency of the kernel.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>The StartupComponents struct contains a
+		list of components which must be selected when the kernel
+		is started. If it is not specified, the "Default" components
+		remain in place and the selection can be done with the
+		<link linkend="scripting-extension">Execution Extension</link>
+		(recommended) or manually in your program after
+		the kerneltask is started. This is only provided to allow
+		thread-safe selecting components on startup when the 
+		Execution Extension is not used.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		The third specifies the property file for each (possible)
+		extension. If the file is not found, an error is raised by
+		the KernelConfigurator. The XML format is further explained
+		in the Property Extension section. It is allowed to define
+		your own properties in this file and update them in the
+		<function>updateKernelProperties</function> method of a
+		derived class of the Control Kernel.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
 	</para>
-	<tip>
+	  <tip>
 	  <para> Example CPF files can often be found in the
 	    <filename class="directory">doc</filename> directory of the packages.
 	  </para>
@@ -2018,7 +2071,8 @@ Output, MySecondExtension > My1DPropRepKernel;
 	(Component Property Fromat) file
 	for each component type. All the Components which loaded in the Control
 	Kernel will get the properties updated on starting the Control
-	Kernel.
+	Kernel. The Property Extension can be configured to configure the
+	components at 'component-load' time (default) or at 'kernel-start' time.
       </para>
 
       <figure id="fig-property-extension">
@@ -2055,6 +2109,10 @@ Output, MySecondExtension > My1DPropRepKernel;
     <simple name="MyGenerator"  type="string">
     <description>The Generator Component Property File.</description>
     <value>generator.cpf</value></simple>
+    <simple name="MyOtherGenerator"  type="string">
+    <description>The OtherGenerator Component Property File.</description>
+    <value>other_generator.cpf</value></simple>
+
     <simple name="MyEstimator"  type="string">
     <description>The Estimator Component Property File.</description>
     <value>estimator.cpf</value></simple>
@@ -2068,6 +2126,17 @@ Output, MySecondExtension > My1DPropRepKernel;
     <description>The Effector Component Property File.</description>
     <value>effector.cpf</value></simple>
 </sequence>
+
+    <simple name="ConfigureOnLoad" type="boolean">
+	<description>
+	    Set to True (1) if components must be configured on load.
+	    Set to False (0) if components must be configured when the kernel is started.
+	</description>
+        <value>
+	    1
+	</value>
+    </simple>
+
 </properties>
 ]]>
 	  </programlisting>
@@ -2419,6 +2488,14 @@ do engine.stopStateContext("SecondContext")
 	  example. It also goes into great detail about syntax
 	  and possibilities. The Example is for completeness repeated here.
 	</para>
+	<note>
+	  <para>
+	    The syntax of the State Description might slightly change in the
+	    future to accomodate for defining multiple state contexts in one file.
+	    The changes will be limited to the top lines defining the events and
+	    the initial and final state.
+	  </para>
+	</note>
 	<example>
 	  <title>Program and StateContext example</title>
 	  <programlisting>

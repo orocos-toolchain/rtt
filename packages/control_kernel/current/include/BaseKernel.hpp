@@ -142,7 +142,7 @@ namespace ORO_ControlKernel
               setpoints(&local_setpoints), commands(&local_commands),
               inputs(&local_inputs), models(&local_models), outputs(&local_outputs),
 
-              startup(false), externalInputs(false), externalOutputs(false),
+              externalInputs(false), externalOutputs(false),
               externalModels(false), externalSetPoints(false), externalCommands(false)
         {
             // Load the default (empty) components.
@@ -152,11 +152,13 @@ namespace ORO_ControlKernel
             loadEffector(effector);
             loadSensor(sensor);
             // Select the default components for execution.
+            this->running = true;  // quite ok workaround
             selectController(controller);
             selectGenerator(generator);
             selectEstimator(estimator);
             selectEffector(effector);
             selectSensor(sensor);
+            this->running = false;
 
             setKernelName( kernel_name );
         }
@@ -241,13 +243,19 @@ namespace ORO_ControlKernel
 
         virtual bool initialize() 
         { 
+            // First, startup all the support components
+            std::for_each(supports.begin(), supports.end(),
+                          std::mem_fun( &DefaultSupport::componentStartup ));
+
             if ( !Extension::initialize() )
-                return false;
+                {
+                    std::for_each(supports.begin(), supports.end(),
+                                  std::mem_fun( &DefaultSupport::componentShutdown ));
+                    return false;
+                }
                 
             // initial startup of all components
             kernelStarted.fire();
-            
-            startup = true;
 
             return true;
         }
@@ -256,62 +264,9 @@ namespace ORO_ControlKernel
         {
             // Check if we are in running state ( !aborted )
             if ( isRunning() )
-                {
-                    if (startup)
-                        {
-                            // First, startup all the support components
-                            std::for_each(supports.begin(), supports.end(),
-                                    std::mem_fun( &DefaultSupport::componentStartup ));
-                            // This startup sequence starts up all components
-                            // and shuts them down again if one failed.
-                            // sx = true : ok ; sx = false : failure
-                            bool s1 = false, s2 = false, s3 = false, s4 = false ,s5 = false;
-                            if ( (s1 = sensor->componentStartup()) )
-                                if ( (s2 = estimator->componentStartup()) )
-                                    if ( (s3 = generator->componentStartup()) )
-                                        if ( (s4 = controller->componentStartup()) )
-                                            s5 = effector->componentStartup();
-
-                            startup = !(s1 && s2 && s3 && s4 && s5); // startup=false if all starts were successful
-
-                            // On failure startup == true, shutdown started components
-                            if (startup && s1)
-                                sensor->componentShutdown();
-                            if (startup && s2)
-                                estimator->componentShutdown();
-                            if (startup && s3)
-                                generator->componentShutdown();
-                            if (startup && s4)
-                                controller->componentShutdown();
-                            if (startup && s5)
-                                effector->componentShutdown();
-                            if (startup)
-                                {
-                                    abortKernel(); // if we are still in startup phase, abort the kernel.
-                                    return;        // abort the step() loop.
-                                }
-                        }
-                            
-                    // Call the extension (eg : reporting, execution engine, command interpreter... )
-                    Extension::step();
-                }
+                Extension::step();
             else
-                {
-                    // Aborted :
-                    // safe stop in abort() after a successful startup
-                    if (!startup)
-                        {
-                            startup = true;
-                            sensor->componentShutdown();
-                            estimator->componentShutdown();
-                            generator->componentShutdown();
-                            controller->componentShutdown();
-                            effector->componentShutdown();
-                            // Last, shutdown all the support components
-                            std::for_each(supports.begin(), supports.end(),
-                                    std::mem_fun( &DefaultSupport::componentShutdown ));
-                        }
-                }
+                KernelBaseFunction::finalize(); // select default components
         }
 
         virtual void finalize() 
@@ -323,17 +278,11 @@ namespace ORO_ControlKernel
             // stop() (aka taskRemove) could block on step() if step()
             // is strictly non blocking (what it should be), otherwise
             // it will lead to deadlocks.
-            if (!startup)
-                {
-                    startup = true;
-                    sensor->componentShutdown();
-                    estimator->componentShutdown();
-                    generator->componentShutdown();
-                    controller->componentShutdown();
-                    effector->componentShutdown();
-                }
-            kernelStopped.fire();
             Extension::finalize();
+            // Last, shutdown all the support components
+            std::for_each(supports.begin(), supports.end(),
+                          std::mem_fun( &DefaultSupport::componentShutdown ));
+            kernelStopped.fire();
         }
             
         /**
@@ -450,18 +399,25 @@ namespace ORO_ControlKernel
             return ( std::find(controllers.begin(), controllers.end(), c) != controllers.end() );
         }
 
+        /**
+         * @brief Select a previously loaded Controller Component.
+         *
+         * This will only succeed if isLoadedController(\a c) and
+         * this->isRunning(). Furthermore, if the Controller 
+         * componentStartup() method returns false, the previous
+         * selected controller is again started.
+         */
         bool selectController(DefaultController* c) { 
-            if ( ! isLoadedController(c) )
+            if ( ! isLoadedController(c) || !this->isRunning() )
                 return false;
 
-            if ( this->isRunning() )
-                {
-                    controller->componentShutdown();
-                    c->componentStartup();
-                }
+            controller->componentShutdown();
+            if ( c->componentStartup() )
+                controller=c;
+            else
+                controller->componentStartup();
 
-            controller=c;
-            return true;
+            return controller == c;
         }
             
         /**
@@ -563,17 +519,25 @@ namespace ORO_ControlKernel
             return ( std::find(generators.begin(), generators.end(), c) != generators.end() );
         }
 
+        /**
+         * @brief Select a previously loaded Generator Component.
+         *
+         * This will only succeed if isLoadedGenerator(\a c) and
+         * this->isRunning(). Furthermore, if the Generator 
+         * componentStartup() method returns false, the previous
+         * selected generator is again started.
+         */
         bool selectGenerator(DefaultGenerator* c) { 
-            if ( ! isLoadedGenerator(c) )
+            if ( ! isLoadedGenerator(c) || !this->isRunning() )
                 return false;
-            if ( this->isRunning() )
-                {
-                    generator->componentShutdown();
-                    c->componentStartup();
-                }
 
-            generator=c;
-            return true;
+            generator->componentShutdown();
+            if ( c->componentStartup() )
+                generator=c;
+            else
+                generator->componentStartup();
+
+            return generator == c;
         }
 
         /**
@@ -669,18 +633,27 @@ namespace ORO_ControlKernel
             return ( std::find(estimators.begin(), estimators.end(), c) != estimators.end() );
         }
 
+        /**
+         * @brief Select a previously loaded Estimator Component.
+         *
+         * This will only succeed if isLoadedEstimator(\a c) and
+         * this->isRunning(). Furthermore, if the Estimator 
+         * componentStartup() method returns false, the previous
+         * selected estimator is again started.
+         */
         bool selectEstimator(DefaultEstimator* c) { 
-            if ( ! isLoadedEstimator(c) )
+            if ( ! isLoadedEstimator(c) || !this->isRunning() )
                 return false;
-            if ( this->isRunning() )
-                {
-                    estimator->componentShutdown();
-                    c->componentStartup();
-                }
-            estimator=c;
-            return true;
+
+            estimator->componentShutdown();
+            if ( c->componentStartup() )
+                estimator=c;
+            else
+                estimator->componentStartup();
+
+            return estimator == c;
         }
-            
+
         /**
          * @brief Load a Sensor Component into the kernel.
          *
@@ -771,17 +744,25 @@ namespace ORO_ControlKernel
             return ( std::find(sensors.begin(), sensors.end(), c) != sensors.end() );
         }
 
+        /**
+         * @brief Select a previously loaded Sensor Component.
+         *
+         * This will only succeed if isLoadedSensor(\a c) and
+         * this->isRunning(). Furthermore, if the Sensor 
+         * componentStartup() method returns false, the previous
+         * selected sensor is again started.
+         */
         bool selectSensor(DefaultSensor* c) { 
-            if ( ! isLoadedSensor(c) )
+            if ( ! isLoadedSensor(c) || !this->isRunning() )
                 return false;
-            if ( this->isRunning() )
-                {
-                    sensor->componentShutdown();
-                    c->componentStartup();
-                }
 
-            sensor=c;
-            return true;
+            sensor->componentShutdown();
+            if ( c->componentStartup() )
+                sensor=c;
+            else
+                sensor->componentStartup();
+
+            return sensor == c;
         }
             
         /**
@@ -874,19 +855,27 @@ namespace ORO_ControlKernel
             return ( std::find(effectors.begin(), effectors.end(), c) != effectors.end() );
         }
 
+        /**
+         * @brief Select a previously loaded Effector Component.
+         *
+         * This will only succeed if isLoadedEffector(\a c) and
+         * this->isRunning(). Furthermore, if the Effector 
+         * componentStartup() method returns false, the previous
+         * selected effector is again started.
+         */
         bool selectEffector(DefaultEffector* c) { 
-            if ( ! isLoadedEffector(c) )
+            if ( ! isLoadedEffector(c) || !this->isRunning() )
                 return false;
-            if ( this->isRunning() )
-                {
-                    effector->componentShutdown();
-                    c->componentStartup();
-                }
 
-            effector=c;
-            return true;
+            effector->componentShutdown();
+            if ( c->componentStartup() )
+                effector=c;
+            else
+                effector->componentStartup();
+
+            return effector == c;
         }
-
+            
         /**
          * @brief Load a Support Component into the kernel.
          *
@@ -1051,8 +1040,6 @@ namespace ORO_ControlKernel
         InputData*    inputs;
         ModelData*    models;
         OutputData*   outputs;
-
-        bool startup;
 
         std::vector<DefaultController*> controllers;
         std::vector<DefaultGenerator*>  generators;

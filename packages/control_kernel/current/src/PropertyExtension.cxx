@@ -4,6 +4,8 @@
 
 namespace ORO_ControlKernel
 {
+    using namespace std;
+
     bool PropertyComponentInterface::enableAspect( PropertyExtension* ext)
     {
         if (master == 0)
@@ -25,7 +27,9 @@ namespace ORO_ControlKernel
 
     PropertyExtension::PropertyExtension(KernelBaseFunction* _base ) 
         : detail::ExtensionInterface("Property"),
-          save_props("SaveProperties","",false),
+          save_props("SaveProperties","Not implemented yet.",false),
+          configureOnLoad("ConfigureOnLoad","Configure the component when loaded," \
+                          "instead of when the kernel is started", true),
           base(_base)
     {
     }
@@ -50,6 +54,7 @@ namespace ORO_ControlKernel
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
         composeProperty(bag, save_props);
+        composeProperty(bag, configureOnLoad);
             
         // build new list of present component config files
         for( CompNames::iterator it = componentFileNames.begin();
@@ -80,26 +85,33 @@ namespace ORO_ControlKernel
         
     bool PropertyExtension::initialize()
     {
-        cout << "PropertyExtension::initialize" << endl;
+        if (configureOnLoad)
+            return true; // All is done.
+
+        cout << "PropertyExtension::initialize on start." << endl;
         // read xml file for each component, if we know it.
         for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
             {
                 CompMap::iterator tg = myMap.find( (*it)->getName() );
                 if ( tg == myMap.end() )
                     {
-                        cout << "Component "<<(*it)->getName() << " does not support properties !"<<endl;
+                        cout << "Component "<<(*it)->getName() << " not found !"<<endl;
                         continue;
                     }
-                PropertyComponentInterface* target = tg->second;
+                configureComponent( (*it)->value(), tg->second );
+            }
+        return true;
+    }
 
-                ComponentConfigurator cc;
-                if ( !cc.configure( (*it)->value(), target) && base )
-                    {
-                        cout << "Aborting initialize ! Component "<< (*it)->getName()
-                             << " does not accept its properties."<< endl 
-                             << "Fix your config file first."<< endl;
-                        return false;
-                    }
+    bool PropertyExtension::configureComponent(const std::string& filename, PropertyComponentInterface* target)
+    {
+        ComponentConfigurator cc;
+        if ( !cc.configure( filename, target) )
+            {
+                cout << "Component Aspect "<< target->getName()
+                     << " does not accept its properties."<< endl 
+                     << "Fix your config file first."<< endl;
+                return false;
             }
         return true;
     }
@@ -133,6 +145,14 @@ namespace ORO_ControlKernel
         if ( myMap.count(comp->getLocalStore().getName() ) != 0  )
             return false;
         myMap[ comp->getLocalStore().getName() ] = comp;
+        if ( configureOnLoad )
+            {
+                for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+                    if ( (*it)->getName() == comp->getLocalStore().getName() )
+                        return configureComponent( (*it)->value(), comp );
+                // reached when not found
+                //cerr << "Warning : No property file for "<<comp->getLocalStore().getName()<<endl;
+            }
         return true;
     }
 

@@ -23,12 +23,10 @@
 
 namespace ORO_ControlKernel
 {
-    using namespace std;
-
     class PropertyComponentInterface;
     
     /**
-     * A class for reading component property files (cpf)
+     * @brief A class for reading component property files (cpf)
      * and configuring a component with these properties.
      */
     class ComponentConfigurator
@@ -40,8 +38,7 @@ namespace ORO_ControlKernel
             /**
              * Read the XML cpf files and try to configure the given component.
              */
-            virtual bool configure(std::string& filename, PropertyComponentInterface* target);
-
+            virtual bool configure(const std::string& filename, PropertyComponentInterface* target) const;
     };
 }
 #endif

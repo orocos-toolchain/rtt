@@ -244,65 +244,39 @@ namespace ORO_ControlKernel
          */
         typedef ComponentBaseInterface CommonBase;
 
-        KernelBaseFunction( KernelBaseFunction* _base=0 )
-            : running(false), 
-              name("name","The name of the kernel.", "Default"),
-              //              priority("priority","The priority of the kernel."),
-              frequency("frequency","The periodic execution frequency of this kernel",0), mytask(0),
-              kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN)
-        {}
+        KernelBaseFunction( KernelBaseFunction* _base=0 );
 
-        virtual ~KernelBaseFunction() {}
+        virtual ~KernelBaseFunction();
 
-        virtual bool initialize() 
-        { 
-            running = true; 
-            return true;
-        }
-        virtual void step() 
-        { 
-            // update the components 
-            updateComponents();
-        }
-        virtual void finalize() 
-        { 
-            running = false; 
-        }
+        virtual bool initialize() ;
+        virtual void step() ;
+        virtual void finalize() ;
 
-        virtual TaskInterface* getTask() const
-        {
-            return mytask;
-        }
+        virtual TaskInterface* getTask() const;
 
-        virtual void setTask( TaskInterface* task )
-        {
-            mytask = task;
-        }
+        virtual void setTask( TaskInterface* task );
 
-        const std::string& getKernelName() const
-        {
-            return name.get();
-        }
+        const std::string& getKernelName() const;
 
         /**
          * Returns true if the kernel is running, false
          * otherwise.
          */
-        bool isRunning() { return running; }
+        bool isRunning() const { return running; }
 
         /**
          * Get the running periodicity in seconds.
          *
          * @return the running periodicity in seconds
          */
-        double getPeriod() { return 1./frequency; }
+        double getPeriod() const;
 
         /**
          * Set the running periodicity in seconds.
          *
          * @param p The periodicity in seconds.
          */
-        void setPeriod( double p ) { frequency = 1./p; }
+        void setPeriod( double p );
 
         template<class T>
         void enable(detail::ComponentAspectInterface<T>* c)
@@ -316,20 +290,22 @@ namespace ORO_ControlKernel
             c->disableAspect();
         }
 
-        virtual bool updateProperties(const PropertyBag& bag)
-        {
-            return composeProperty(bag, frequency);
-        }
+        bool updateProperties(const PropertyBag& bag);
+
+        void startupComponents(const PropertyBag& bag);
 
         /**
          * This is the hook for user kernel properties.
          * Add properties to your kernel config file and they
          * will be passed to this function.
          */
-        virtual bool updateKernelProperties(const PropertyBag& bag)
-        {
-            return true;
-        }
+        virtual bool updateKernelProperties(const PropertyBag& bag);
+
+        virtual bool selectSensor( const std::string& name ) = 0;
+        virtual bool selectEstimator( const std::string& name ) = 0;
+        virtual bool selectGenerator( const std::string& name ) = 0;
+        virtual bool selectController( const std::string& name ) = 0;
+        virtual bool selectEffector( const std::string& name ) = 0;
         
         /**
          * This method can be called to abort the startup process 
@@ -346,42 +322,23 @@ namespace ORO_ControlKernel
             running = false;
         }
     
-        HandlerRegistrationInterface* eventGet(const std::string& name)
-        {
-            if ( name == std::string("kernelStarted") )
-                return &kernelStarted;
-            if ( name == std::string("kernelStopped") )
-                return &kernelStopped;
-            return &nullEvent;
-        }
+        HandlerRegistrationInterface* eventGet(const std::string& name);
 
     protected:
 
-        void setKernelName( const std::string& _name)
-        {
-            name = _name;
-        }
+        void setKernelName( const std::string& _name);
 
         /**
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.
          */
-        void addComponent(ComponentBaseInterface* comp)
-        {
-            components.push_back(comp);
-        }
+        void addComponent(ComponentBaseInterface* comp);
 
         /**
          * Used by the ComponentBaseInterface to deregister itself
          * from this Extension.
          */
-        void removeComponent(ComponentBaseInterface* comp)
-        {
-            std::vector<ComponentBaseInterface*>::iterator itl 
-                = std::find(components.begin(), components.end(), comp);
-            if (itl != components.end() )
-                components.erase(itl);
-        }
+        void removeComponent(ComponentBaseInterface* comp);
 
         /**
          * This is to be implemented by the derived Kernel.
@@ -391,12 +348,12 @@ namespace ORO_ControlKernel
          */
         virtual void updateComponents() = 0;
         
-    private:
         /**
          * Flag to keep track of running state.
          */
         bool running;
 
+    private:
         Property<std::string> name;
 
         /**
@@ -411,6 +368,12 @@ namespace ORO_ControlKernel
         Event kernelStarted;
         Event kernelStopped;
         Event nullEvent;
+
+        Property<std::string> startupSensor;
+        Property<std::string> startupEstimator;
+        Property<std::string> startupGenerator;
+        Property<std::string> startupController;
+        Property<std::string> startupEffector;
     };
 
 
@@ -488,7 +451,7 @@ namespace ORO_ControlKernel
         virtual bool initialize() 
         {
             return (First::initialize() &&
-                    Second::initialize() );
+                    (Second::initialize() || (First::finalize(),false) ) );
         }
 
         virtual void step() 
