@@ -349,8 +349,6 @@
 	<programlisting>
   ATask.changeP( 0.1 )  </programlisting></para>
       <para>
-      </para>
-      <para>
 	Any number of methods and objects can be added to a
 	TaskContext. Also the methods of the TaskContext
 	itself (or its derived classes) may be added. The
@@ -378,8 +376,59 @@
 	</caption>
       </mediaobject>
     </figure>
-    </sect2>
-    <sect2>
+  </sect2>
+  <sect2 id="method-args-types">
+      <title>Method Argument and Return Types</title>
+      <para>
+	The arguments can be of any type. However, to be compatible with
+	the Orocos Program Parser, it is best to follow the following 
+	guidelines :
+	<table id="method-args-table">
+	  <title>Method Return / Argument Types</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Type</entry>
+		<entry>Passed by</entry>
+		<entry>Compatible with Parser type</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Primitive C types : double, int, bool, char</entry>
+		<entry><emphasis>value</emphasis> (no const, no reference )</entry>
+		<entry>double, int, bool, char</entry>
+	      </row>
+	      <row>
+		<entry>C++ Container types : std::string, std::vector&lt;double&gt;</entry>
+		<entry><emphasis>const &amp;</emphasis></entry>
+		<entry>string, array</entry>
+	      </row>
+	      <row>
+		<entry>Orocos Fixed Container types : ORO_CoreLib::Double6D, ORO_Geometry::[Frame|Rotation|Vector]</entry>
+		<entry><emphasis>value</emphasis> (no const, no reference )</entry>
+		<entry>double6d, frame, rotation, vector</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	Other types than these listed in <xref
+	linkend="method-args-table" /> (such as : unsigned int, float,
+	std::map, MyClass*, ... ) are allowed, but will be incompatible with
+	parsed programs and state machines, meaning, the result or
+	arguments can not be stored in a parser variable, but can be
+	passed on from method to method, by using the return value of
+	one method as argument of another method. Also, using dynamic allocating
+	types, will cause memory allocation allong the path, unless proper
+	action is taken since the parser copies all types <emphasis>by value</emphasis>.
+      </para>
+      <para>
+	A method can also take pointers as arguments or return pointers to objects,
+	but the parser will (unless properly extended) not be able to store them
+	in a parser variable.
+      </para>
+  </sect2>
+  <sect2>
       <title>The Attribute Repository</title>
       <para>
 	A TaskContext may have any number of attributes,
@@ -435,6 +484,12 @@
 	which may omit the task's name if the program is running within
 	the task.
       </para>
+      <important>
+	<para>
+	  The same restrictions of <xref linkend="method-args-types" /> hold for
+	  the attribute types, when you want to access them from program scripts.
+	</para>
+      </important>
     </sect2>
     <sect2>
       <title>The Command Factory</title>
@@ -535,6 +590,13 @@
 	will cause the program to enter an error state, ie
 	it stops its execution.
       </para>
+      <important>
+	<para>
+	  The same restrictions of <xref linkend="method-args-types"
+	  /> hold for the command and condition types, when you want
+	  to access them from program scripts.
+	</para>
+      </important>
     </sect2>
     <sect2>
       <title>The DataSource Factory</title>
@@ -612,6 +674,13 @@
 	created this way can be used analogously as in the next
 	sections.
       </para>
+      <important>
+	<para>
+	  The same restrictions of <xref linkend="method-args-types"
+	  /> hold for the datasource types, when you want
+	  to access them from program scripts.
+	</para>
+      </important>
     </sect2>
   </sect1>
   <sect1 id="connect-tasks">
@@ -827,10 +896,10 @@
 	  following commands are available :
 	</para>
 	<screen>
-  programs.foo.start()
-  programs.foo.pause()
-  programs.foo.step()
-  programs.foo.stop()
+  do programs.foo.start()
+  do programs.foo.pause()
+  do programs.foo.step()
+  do programs.foo.stop()
 	</screen>
 	<para>While you also can inspect its status :</para>
 	<screen>
@@ -879,13 +948,13 @@
 	  following commands are available :
 	</para>
 	<screen>
-  states.machine.activate()
-  states.machine.start()
-  states.machine.pause()
-  states.machine.step()
-  states.machine.stop()
-  states.machine.deactivate()
-  states.machine.reset()
+  do states.machine.activate()
+  do states.machine.start()
+  do states.machine.pause()
+  do states.machine.step()
+  do states.machine.stop()
+  do states.machine.deactivate()
+  do states.machine.reset()
 	</screen>
 	<para>
 	  Again, take a look at the &procman; and the Processor
