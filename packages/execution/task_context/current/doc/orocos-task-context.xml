@@ -703,7 +703,7 @@
   using namespace ORO_CoreLib;
 
   // ... start the processor of a_task :
-  TaskNonPreemptible periodicTask(0.001, &a_processor);
+  TaskNonPreemptible periodicTask(0.001, &amp;a_processor);
   periodicTask.start(); </programlisting></para>
       <para>
 	Which will start the processor of ATask with a timer frequency
