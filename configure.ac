@@ -2,7 +2,7 @@
 
 # This macro executes the Orocos common Autoconf code
 # Specify the name and version number as a parameter
-OROCOS_GENERAL(orocos-base,0,14,0)
+OROCOS_GENERAL(orocos-base,0,14,2)
 
 if test -e configure.ac; then
     AC_ERROR([

@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-PACKAGES_INIT([Orocos Packages],0,14,0)
+PACKAGES_INIT([Orocos Packages],0,14,2)
 
 if ! test -e configure.ac; then
    echo "
