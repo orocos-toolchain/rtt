@@ -119,7 +119,9 @@ test_all_packages: .all-stamp
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
 # it will exit if no ecos.ecc file is found.
-all_packages: init_packages
+all_packages: packages
+
+packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	{ $(MAKE) -C . || exit -1; } &&\
@@ -140,6 +142,15 @@ precompile_headers:
 	echo "#endif" >> all.h &&\
 	g++-3.4 -O2 -c -x c++ all.h -o all.h.gch -I. 
 	echo "#error all.h.gch is not used. You must use CC=gcc-3.4" > all.h
+
+# Only build the coreservices
+core_packages: test_new_packages
+	if test -f packages/ecos.ecc; then \
+	cd packages; \
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
+	ecosconfig template controlservices;\
+	ecosconfig check ; fi
+	$(MAKE) -C . packages
 
 # This cleans out the object files but leaves
 # the headers and library
