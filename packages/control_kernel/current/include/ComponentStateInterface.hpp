@@ -202,16 +202,16 @@ namespace ORO_ControlKernel {
             }
 
             bool startup(){
-                return k->selectSupport(c);
+                return true; //k->selectSupport(c);
             }
 
             // shutdown/startup
             bool restart() {
-                return k->deselectSupport(c) && k->selectSupport(c);
+                return true; //k->deselectSupport(c) && k->selectSupport(c);
             }
 
             bool shutdown() {
-                return k->deselectSupport(c);
+                return true; //k->deselectSupport(c);
             }
 
             bool unload(){
