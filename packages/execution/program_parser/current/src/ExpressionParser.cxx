@@ -124,7 +124,10 @@ namespace ORO_Execution
 
     // One of both must have the method
     if ( !( ( dfi && dfi->hasMember(mmethod)) || ( mfi && mfi->hasMember(mmethod)) ) )
-        throw parse_exception_no_such_method_on_component( mobject, mmethod );
+        if ( mobject != "this")
+            throw parse_exception_no_such_method_on_component( mobject, mmethod );
+        else
+            throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
 
     // create an argument parser for the call..
     // Store the peer in the ArgumentsParser !

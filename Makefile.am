@@ -22,7 +22,8 @@ EXTRA_DIST = \
         packages/pkgconf/rules.mak \
         packages/pkgconf/ssa4.dsl \
         packages/pkgconf/ssletter.dsl \
-        packages/pkgconf/stylesheet.dsl
+        packages/pkgconf/stylesheet.dsl \
+	packages/ecos.db.in
 
 # EXTRA_DIST = \
 # 	packages

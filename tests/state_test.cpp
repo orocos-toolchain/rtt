@@ -48,8 +48,8 @@ bool StateTest::assertBool( bool b) {
 }
 bool StateTest::assertMsg( bool b, const std::string& msg) {
     if ( b == false )
-        cout << "Asserted :" << b << " with :" << msg << endl;
-    return b;
+        cout << "Asserted :" << msg << endl;
+    return true;
 }
 
 int StateTest::increase() {
@@ -135,15 +135,15 @@ void StateTest::testParseState()
         + " }\n"
         + " entry {\n"
         + "     set varinit = (d_dummy != -1.) || (i_dummy != -1) \n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + "     set d_dummy = 1.234\n"
         + "     set i_dummy = -2\n"
         + " }\n"
         + " handle {\n"
-        + "     do task.test.instantNotDone()\n"
+        + "     do test.instantNotDone()\n"
         + " }\n"
         + " exit {\n"
-        + "     do task.test.instantNotDone()\n"
+        + "     do test.instantNotDone()\n"
         + "     set d_dummy = 0.0\n"
         + "     set i_dummy = 0\n"
         + " }\n"
@@ -171,15 +171,15 @@ void StateTest::testParseState()
         + "     if false then select ERROR\n"
         + " }\n"
         + " entry {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + "     set d_dummy = -1.\n"
         + "     set i_dummy = -1\n"
         + " }\n"
         + " handle {\n"
-        + "     do task.test.instantNotDone()\n"
+        + "     do test.instantNotDone()\n"
         + " }\n"
         + " exit {\n"
-        + "     do task.test.instantNotDone()\n"
+        + "     do test.instantNotDone()\n"
         + " }\n"
         + " transitions {\n"
         + "     if false then select ERROR\n"
@@ -203,14 +203,14 @@ void StateTest::testStateFailure()
     string prog = string("StateContext X {\n")
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     do task.test.increase()\n"                // set i to i+1
-        + "     do task.test.assert( task.test.i() != 1)\n" // fail if i == 1
+        + "     do test.increase()\n"                // set i to i+1
+        + "     do test.assert( test.i() != 1)\n" // fail if i == 1
         + " }\n"
         + " handle {\n"
-        + "     do task.test.assert( task.test.i != 2)\n" 
+        + "     do test.assert( test.i != 2)\n" 
         + " }\n"
         + " exit {\n"
-        + "     do task.test.assert( task.test.i != 3)\n" 
+        + "     do test.assert( test.i != 3)\n" 
         + " }\n"
         + " transitions {\n"
         + "     select FINI\n"
@@ -220,13 +220,13 @@ void StateTest::testStateFailure()
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do task.test.assert( task.test.i != 4)\n" 
+        + "     do test.assert( test.i != 4)\n" 
         + " }\n"
         + " handle {\n"
-        + "     do task.test.assert( task.test.i != 5)\n" 
+        + "     do test.assert( test.i != 5)\n" 
         + " }\n"
         + " exit {\n"
-        + "     do task.test.assert( task.test.i != 6)\n" 
+        + "     do test.assert( test.i != 6)\n" 
         + " }\n"
         + " transitions {\n"
         + "     select INIT\n"
@@ -248,13 +248,13 @@ void StateTest::testStateFailure()
 }
 void StateTest::testStateChildren()
 {
-    // instantiate two children
+    // instantiate two children and check init of vars and params
     string prog = string("StateContext Y {\n")
         + " param double isnegative\n"
         + " var   double t = 1.0\n"
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + " }\n"
         + " transitions {\n"
         + "     if isnegative >= 0. then select PARAMFAIL\n"
@@ -273,8 +273,24 @@ void StateTest::testStateChildren()
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + " }\n"
+        + " transitions {\n"
+        + "     select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + string("StateContext Z {\n")
+        + " param double neg\n"
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     if neg >= 0. then select PARAMFAIL\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " state PARAMFAIL {\n"
+        + " }\n"
+        + " final state FINI {\n"
         + " transitions {\n"
         + "     select INIT\n"
         + " }\n"
@@ -285,16 +301,22 @@ void StateTest::testStateChildren()
         + " var double d_dummy = -2.0\n"
         + " var int    i_dummy = -1\n"
         + " SubContext Y y1(isnegative = d_dummy)\n"
-        + " SubContext Y y2(isnegative = isnegative)\n"
+        + " SubContext Y y2(isnegative = -3.0)\n"
+        + " SubContext Y y3(isnegative = isnegative)\n"
+        + " SubContext Z z1( neg = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + "     do y1.activate()\n"
         + "     do y2.activate()\n"
+        + "     do y3.activate()\n"
+        + "     do z1.activate()\n"
         + " }\n"
         + " exit {\n"
         + "     do y1.start()\n"
         + "     do y2.start()\n"
+        + "     do y3.start()\n"
+        + "     do z1.start()\n"
         + " }\n"
         + " transitions {\n"
         + "     select FINI\n"
@@ -303,6 +325,12 @@ void StateTest::testStateChildren()
         + " state ERROR {\n"
         + " }\n"
         + " state PARAMFAIL {\n"
+        + "      entry { \n"
+        + "      do test.assertMsg( y3.isnegative == isnegative, \"y3 parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( y2.isnegative == -3.0, \"y2 parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( y1.isnegative == d_dummy, \"y1 parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( z1.neg == d_dummy, \"z1 parameter not correctly initialised\")\n"
+        + "      }\n"
         + " }\n"
         + " state VARFAIL {\n"
         + " }\n"
@@ -312,18 +340,24 @@ void StateTest::testStateChildren()
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + "     do y1.stop()\n"
         + "     do y2.stop()\n"
+        + "     do y3.stop()\n"
+        + "     do z1.stop()\n"
         + " }\n"
         + " handle {\n"
-        + "     do task.test.instantDone()\n"
+        + "     do test.instantDone()\n"
         + "     do y1.deactivate()\n"
         + "     do y2.deactivate()\n"
+        + "     do y3.deactivate()\n"
+        + "     do z1.deactivate()\n"
         + " }\n"
         + " transitions {\n"
+        + "     if z1.neg != d_dummy then select PARAMFAIL\n"
         + "     if y1.isnegative != d_dummy then select PARAMFAIL\n"
-        + "     if y2.isnegative != isnegative then select PARAMFAIL\n"
+        + "     if y2.isnegative != -3.0 then select PARAMFAIL\n"
+        + "     if y3.isnegative != isnegative then select PARAMFAIL\n"
         + "     select INIT\n"
         + " }\n"
         + " }\n"
@@ -398,12 +432,12 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     CPPUNIT_ASSERT( gtask.start() );
     CommandInterface* ca = newCommandFunctor(boost::bind(&Processor::activateStateContext, tc->getProcessor(),(*pg_list.begin())->getName() ));
     CommandInterface* cs = newCommandFunctor(boost::bind(&Processor::startStateContext,tc->getProcessor(),(*pg_list.begin())->getName() ) );
-//     cerr << "Before activate :"<<endl;
-//     tc->getPeer("states")->getPeer("x")->debug(true);
+//      cerr << "Before activate :"<<endl;
+//      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( ca->execute()  );
     CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+(*pg_list.begin())->getName()+"' did not have effect.", (*pg_list.begin())->isActive() == true );
-//     cerr << "After activate :"<<endl;
-//     tc->getPeer("states")->getPeer("x")->debug(true);
+//      cerr << "After activate :"<<endl;
+//      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( gprocessor.process( cs ) != 0 );
 //     while (1)
     sleep(1);
@@ -420,12 +454,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     stringstream errormsg;
     errormsg << " on line " /*<< gprocessor.getState("x")->getLineNumber()*/ <<"."<<endl;
     if (test ) {
-//         if ( !(*pg_list.begin())->isActive() ) {
-//             cerr << "Not active : " << (*pg_list.begin())->isActive() <<endl;
-//             cerr << " current state  : " << (*pg_list.begin())->currentState() <<endl;
-//             if ( (*pg_list.begin())->currentState() )
-//                 cerr << "   is " << (*pg_list.begin())->currentState()->getName() <<endl;
-//         }
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() == true );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getStateContextStatus("x") != Processor::StateContextStatus::error );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ERROR" + errormsg.str(), (*pg_list.begin())->inState("ERROR") == false );

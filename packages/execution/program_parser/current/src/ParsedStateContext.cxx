@@ -87,9 +87,7 @@ namespace ORO_Execution {
             // call the member functions. Further more, all future commands for the copy will also call the new instance
             // while future commands for the original will still call the original. 
             StateContextCommands* tmp = new StateContextCommands( newsc );
-            //tmp->_this = _this->copy(replacements); 
             replacements[ _this.get() ] = tmp->_this.get(); // put DS in map 
-            tmp->_this->set(tmp);                  // reset new DS to new this.
             return tmp;
         }
 
@@ -302,6 +300,7 @@ namespace ORO_Execution {
         subcontexts[name] = newds;
         this->addChild( sc );
         sc->setParent( this );
+        context->addPeer( sc->getTaskContext() );
         return newds;
     }
 

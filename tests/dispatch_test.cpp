@@ -68,6 +68,8 @@ void DispatchTest::testParseDispatch()
     // this is a global program requesting a command on a local
     // task/processor (ie assert).
     string prog = string("program x { do space.subspace.test.assertMsg(true,\"tpdtrue\") \n")
+        + " if space.subspace.test.assert(true) then \n"
+        + "       do nothing\n"
 //         + " do space.assertMsg(true,\"tpdfail\")\n"
 //         + " do this.space.assertMsg(true,\"donotreach\")\n"
         + "}";
@@ -97,6 +99,7 @@ void DispatchTest::testDispatchFailure()
 void DispatchTest::testDispatchCondition()
 {
     // see if checking a remote condition works
+    // also tests peerparser in expressions 
     string prog = string("program x { if ( space.subspace.test.assert(true) ) then \n")
         + "do space.subspace.test.assert(true) \n"
         + "else \n"

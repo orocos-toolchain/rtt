@@ -305,26 +305,26 @@ namespace ORO_Execution
       std::string def(begin, end);
       program_graph->setName( def );
 
-      TaskContext* __p = context->getPeer("programs");
+      TaskContext* __p = rootc->getPeer("programs");
       if ( __p == 0 ) {
           // install the __functions if not yet present.
-          __p = new TaskContext("programs", context->getProcessor() );
-          context->addPeer( __p );
+          __p = new TaskContext("programs", rootc->getProcessor() );
+          rootc->addPeer( __p );
       }
 
       if ( __p->hasPeer( def ) )
-          throw parse_exception_semantic_error("Program '" + def + "' redefined in task '"+context->getName()+"'.");
+          throw parse_exception_semantic_error("Program '" + def + "' redefined in task '"+rootc->getName()+"'.");
 
-      TaskContext* fun = program_graph->getTaskContext();
-      __p->connectPeers( fun );
-      fun->addPeer(context);
-      fun->addPeer(context,"task"); // alias
+      context = program_graph->getTaskContext();
+      __p->connectPeers( context );
+      context->addPeer(rootc);
+      context->addPeer(rootc,"task"); // alias
 
-      // like functions : variables are always on foo's 'stack'
-      valuechangeparser.setStack(fun);
-      commandparser.setStack(fun);
-      expressionparser.setStack(fun);
-      conditionparser.setStack(fun);
+      // like contextctions : variables are always on foo's 'stack'
+      valuechangeparser.setStack(context);
+      commandparser.setStack(context);
+      expressionparser.setStack(context);
+      conditionparser.setStack(context);
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -342,11 +342,11 @@ namespace ORO_Execution
       // referencing.
       std::string funcdef(begin, end);
       // store the function in the TaskContext current.__functions
-      TaskContext* __f = context->getPeer("__functions");
+      TaskContext* __f = rootc->getPeer("__functions");
       if ( __f == 0 ) {
           // install the __functions if not yet present.
-          __f = new TaskContext("__functions", context->getProcessor() );
-          context->connectPeers( __f );
+          __f = new TaskContext("__functions", rootc->getProcessor() );
+          rootc->connectPeers( __f );
       }
 
       if ( __f->hasPeer( funcdef ) )
@@ -356,15 +356,15 @@ namespace ORO_Execution
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      TaskContext* fun = new TaskContext(funcdef, context->getProcessor() );
-      __f->addPeer( fun );
-      fun->addPeer(context);
-      fun->addPeer(context,"task");
+      context = new TaskContext(funcdef, rootc->getProcessor() );
+      __f->addPeer( context );
+      context->addPeer(rootc);
+      context->addPeer(rootc,"task");
       // variables are always on foo's 'stack'
-      valuechangeparser.setStack(fun);
-      commandparser.setStack(fun);
-      expressionparser.setStack(fun);
-      conditionparser.setStack(fun);
+      valuechangeparser.setStack(context);
+      commandparser.setStack(context);
+      expressionparser.setStack(context);
+      conditionparser.setStack(context);
   }
 
   void ProgramGraphParser::seenfunctionarg()
@@ -385,18 +385,19 @@ namespace ORO_Execution
       program_graph->endFunction( mfunc );
       // export the function in the context's interface.
       if (exportf) {
-          FunctionFactory* cfi = new FunctionFactory( context->getProcessor() );
+          FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() );
           cfi->addFunction( mfunc->getName() , mfunc);
-          context->commandFactory.registerObject("this", cfi );
+          rootc->commandFactory.registerObject("this", cfi );
       }
       // reset
       mfunc = 0;
       exportf = false;
-      context = rootc;
+
       // restore 'stack' to task's stack.
-      valuechangeparser.setStack(context); 
-      commandparser.setStack(context);
-      expressionparser.setStack(context);
+      valuechangeparser.setStack(rootc); 
+      commandparser.setStack(rootc);
+      expressionparser.setStack(rootc);
+      conditionparser.setStack(rootc);
   }
 
   void ProgramGraphParser::seencondition()
@@ -455,7 +456,7 @@ namespace ORO_Execution
 
       mcallfunc = mfuncs[ fname ];
 
-      // Parse the function's args
+      // Parse the function's args in the programs context.
       argsparser = new ArgumentsParser( expressionparser, context,
                                         "this", fname );
       arguments = argsparser->parser();
@@ -484,12 +485,12 @@ namespace ORO_Execution
         catch( const wrong_number_of_args_exception& e )
             {
                 throw parse_exception_wrong_number_of_arguments
-                    ( context->getName(), mcallfunc->getName(), e.wanted, e.received );
+                    ( rootc->getName(), mcallfunc->getName(), e.wanted, e.received );
             }
         catch( const wrong_types_of_args_exception& e )
             {
                 throw parse_exception_wrong_type_of_argument
-                    ( context->getName(), mcallfunc->getName(), e.whicharg );
+                    ( rootc->getName(), mcallfunc->getName(), e.whicharg );
             }
         catch( ... )
             {
@@ -628,12 +629,13 @@ namespace ORO_Execution
       program_graph->endProgram();
       program_graph->reset();
       program_list.push_back(program_graph);
-      program_graph = new ProgramGraph("Default", new TaskContext("Default", context->getProcessor() ) ); // will be deleted if no other progs follow
+      program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() ) ); // will be deleted if no other progs follow
 
       // restore 'stack' to task's stack.
-      valuechangeparser.setStack(context); 
-      commandparser.setStack(context);
-      expressionparser.setStack(context);
+      valuechangeparser.setStack(rootc); 
+      commandparser.setStack(rootc);
+      expressionparser.setStack(rootc);
+      conditionparser.setStack(rootc);
   }
 
   std::vector<ProgramGraph*> ProgramGraphParser::parse( iter_t& begin, iter_t end )
@@ -648,7 +650,7 @@ namespace ORO_Execution
 
     // we need this, because if we encounter a function def,
     // a program_graph must be present.
-    program_graph = new ProgramGraph("Default", new TaskContext("Default", context->getProcessor() )); 
+    program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() )); 
     
     try {
       if ( ! production.parse( scanner ) )

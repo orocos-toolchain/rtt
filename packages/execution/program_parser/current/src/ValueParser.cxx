@@ -37,6 +37,18 @@
 
 namespace ORO_Execution
 {
+    namespace {
+        guard<std::string> peer_guard;
+    }
+
+    error_status<> handle_no_peer(scanner_t const& scan, parser_error<std::string, iter_t>& e)
+    {
+        // fail this rule, ignore the exception.
+        //std::cerr << "No such peer : " << e.descriptor<<std::endl;
+        return error_status<>( error_status<>::fail );
+    }
+
+
   using boost::bind;
 
     ValueParser::ValueParser( TaskContext* tc)
@@ -75,7 +87,7 @@ namespace ORO_Execution
     named_constant =
         ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
-          (peerparser.parser() >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
+          ( peer_guard(peerparser.parser())[&handle_no_peer] >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
         ;
   }
 
@@ -111,7 +123,10 @@ namespace ORO_Execution
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
     if ( !peer->attributeRepository.isDefined( name ) ) {
-        //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+        peerparser.reset();
+//         std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+//         peerparser.peer()->debug(true);
+//         peer->debug(true);
         throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
         //      throw parse_exception_undefined_value( name );
     }

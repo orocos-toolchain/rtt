@@ -63,10 +63,10 @@
 	  interface to pure virtual methods instead of empty implementations.
 	  An example is the
 	  <methodname>
-	    virtual bool PropertyComponentInterface::updateProperties( const PropertyBag& ) = 0
+	    virtual bool PropertyComponentInterface::updateProperties( const PropertyBag&amp; ) = 0
 	  </methodname> and the
 	  <methodname>
-	    virtual void PropertyComponentInterface::exportProperties( PropertyBag& ) = 0
+	    virtual void PropertyComponentInterface::exportProperties( PropertyBag&amp; ) = 0
 	  </methodname>
 	  methods which must be implemented by each component which wants
 	  to use the PropertyExtension. If you have written components

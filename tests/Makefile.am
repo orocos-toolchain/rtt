@@ -24,9 +24,10 @@ core_test_CXXFLAGS = $(CPPUNIT_CFLAGS) -g
 
 parser_test_SOURCES = test-runner.cpp \
 	state_test.cpp state_test.hpp \
+	dispatch_test.cpp dispatch_test.hpp \
 	function_test.cpp function_test.hpp \
 	types_test.cpp types_test.hpp \
-	program_test.cpp program_test.hpp \
-	dispatch_test.cpp dispatch_test.hpp
+	program_test.cpp program_test.hpp
+
 parser_test_LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread -L/usr/realtime/lib
 parser_test_CXXFLAGS = $(CPPUNIT_CFLAGS) -g

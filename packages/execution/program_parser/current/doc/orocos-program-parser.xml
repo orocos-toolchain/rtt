@@ -1491,7 +1491,7 @@ StateContext ParentStateContext
   	    do Kernel.selectController("Default")
   	    do Kernel.selectEffector("Default")
   	transitions {
-  	    if HMI.start_pushed() && error == 0 then
+  	    if HMI.start_pushed() &amp;&amp; error == 0 then
   		 select run_state
   	    }
       }

@@ -27,11 +27,10 @@ namespace ORO_Execution
             if ( callqueue.size() > 1 ) {
                 // print to user the mismatch :
                 std::string object = callqueue.front();
-                callqueue.pop();
-                std::string path = callqueue.front();
                 while ( !callqueue.empty() )
                     callqueue.pop();
-                throw parse_exception_semantic_error( "From TaskContext '"+context->getName()+"', arrived in TaskContext '"+_peer->getName()+"' : Task or object '"+path+"' is not known to Task '" + object + "'" );
+                iter_t begin;
+                throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+_peer->getName()+"' : has no task or object '"+object+"'." );
             }
             if ( callqueue.empty() )
                 callqueue.push("this");
