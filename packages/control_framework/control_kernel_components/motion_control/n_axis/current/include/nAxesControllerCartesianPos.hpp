@@ -51,6 +51,7 @@ namespace ORO_ControlKernel
   class nAxesControllerCartesianPosOutput_vel: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Twist >
   {
   public:
+
     nAxesControllerCartesianPosOutput_vel()
     {
       this->insert(ORO_ControlKernel::make_pair(0,"Twist"));

@@ -116,8 +116,10 @@ namespace ORO_ControlKernel
     return true;
   }
 
-  void nAxesControllerPosVel::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
+  void nAxesControllerPosVel::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_controller_gain);
+  }
   
 
 } // namespace

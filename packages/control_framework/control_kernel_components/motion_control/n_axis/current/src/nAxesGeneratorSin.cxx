@@ -144,6 +144,13 @@ namespace ORO_ControlKernel
     return true;
   }
   
+  void nAxesGeneratorSin::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_sin_amplitude);
+    bag.add(&_sin_frequency);
+    bag.add(&_sin_phase);
+  }
+
 
 } // namespace
 

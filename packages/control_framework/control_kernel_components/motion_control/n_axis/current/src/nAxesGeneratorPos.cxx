@@ -199,8 +199,11 @@ namespace ORO_ControlKernel
     return true;
   }
   
-  void nAxesGeneratorPos::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
+  void nAxesGeneratorPos::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_maximum_velocity);
+    bag.add(&_maximum_acceleration);
+  }
   
 
   CommandFactoryInterface* nAxesGeneratorPos::createCommandFactory()

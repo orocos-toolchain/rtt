@@ -128,9 +128,10 @@ namespace ORO_ControlKernel
     return true;
   }
 
-  void nAxesControllerCartesianVel::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
-
+  void nAxesControllerCartesianVel::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_controller_gain);
+  }
   
 
 } // namespace

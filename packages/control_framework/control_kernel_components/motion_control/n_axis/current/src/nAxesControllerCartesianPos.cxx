@@ -111,8 +111,10 @@ namespace ORO_ControlKernel
     return true;
   }
 
-  void nAxesControllerCartesianPos::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
+  void nAxesControllerCartesianPos::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_controller_gain);
+  }
 
   
 

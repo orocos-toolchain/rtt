@@ -139,9 +139,10 @@ namespace ORO_ControlKernel
   }
 
 
-  void nAxesControllerPos::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
-  
+  void nAxesControllerPos::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_controller_gain);
+  }
 
 
   CommandFactoryInterface* nAxesControllerPos::createCommandFactory()

@@ -198,9 +198,11 @@ namespace ORO_ControlKernel
   }
   
 
-  void nAxesGeneratorCartesianPos::exportProperties(ORO_CoreLib::PropertyBag&)
-  {};
-
+  void nAxesGeneratorCartesianPos::exportProperties(ORO_CoreLib::PropertyBag& bag)
+  {
+    bag.add(&_maximum_velocity);
+    bag.add(&_maximum_acceleration);
+  }
 
 
   CommandFactoryInterface* nAxesGeneratorCartesianPos::createCommandFactory()
