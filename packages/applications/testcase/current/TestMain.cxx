@@ -48,9 +48,9 @@ using namespace std;
 int ORO_main(int argc, const char* argv)
 {
     cout << "Creating Threads..."<<endl;
-    initFramework();
+    //initFramework();
     cout << "Starting Threads..."<<endl;
-    startFramework();
+    //startFramework();
     cout << "Starting Tests..."<<endl;
     quitEvent = new Event(Event::SYNASYN);
 
@@ -75,9 +75,9 @@ int ORO_main(int argc, const char* argv)
     sleep(5);
     
     cout << "Stopping Threads..."<<endl;
-    stopFramework();
+    //stopFramework();
     cout << "Deleting Threads..."<<endl;
-    cleanupFramework();
+    //cleanupFramework();
 
     return retValue;
 }

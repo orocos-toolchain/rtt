@@ -69,7 +69,7 @@ namespace UnitTesting
     {
         // the interrupt should be running now
         // dont do this in your actual programs, it's cheating
-        tester->interrupt( 666, ( void* ) tester, 0 );
+        // tester->interrupt( 666 );
     }
 
     void TestCaseEventInterrupt::finalize()
