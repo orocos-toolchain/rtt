@@ -127,8 +127,10 @@ double VelocityProfile_Trap::Acc(double time) const {
 	}
 }
 
-VelocityProfile* VelocityProfile_Trap::Clone() {
-	return new VelocityProfile_Trap(maxvel,maxacc);
+VelocityProfile* VelocityProfile_Trap::Clone() const {
+    VelocityProfile_Trap* res =  new VelocityProfile_Trap(maxvel,maxacc);
+    res->SetProfileDuration( this->startpos, this->endpos, this->duration );
+	return res;
 }
 
 VelocityProfile_Trap::~VelocityProfile_Trap() {}

@@ -74,7 +74,7 @@ class VelocityProfile
 		// reads a VelocityProfile object from the stream and returns it.
 #endif
 
-		virtual VelocityProfile* Clone() = 0;
+		virtual VelocityProfile* Clone() const = 0;
 		// returns copy of current VelocityProfile object. (virtual constructor)
 
 		virtual ~VelocityProfile() {}

@@ -155,8 +155,10 @@ double VelocityProfile_TrapHalf::Acc(double time) const {
 	}
 }
 
-VelocityProfile* VelocityProfile_TrapHalf::Clone() {
-	return new VelocityProfile_TrapHalf(maxvel,maxacc,starting);
+VelocityProfile* VelocityProfile_TrapHalf::Clone() const {
+    VelocityProfile_TrapHalf* res =  new VelocityProfile_TrapHalf(maxvel,maxacc, starting);
+    res->SetProfileDuration( this->startpos, this->endpos, this->duration );
+	return res;
 }
 
 VelocityProfile_TrapHalf::~VelocityProfile_TrapHalf() {}

@@ -31,8 +31,10 @@ namespace ORO_Geometry {
 #if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual VelocityProfile* Clone() {
-			return new VelocityProfile_Dirac();
+		virtual VelocityProfile* Clone() const {
+			VelocityProfile_Dirac* res =  new VelocityProfile_Dirac();
+			res->SetProfileDuration( p1, p2, t );
+			return res;
 		}
 
 		virtual ~VelocityProfile_Dirac() {}

@@ -64,7 +64,7 @@ class VelocityProfile_Trap : public VelocityProfile
 #if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual VelocityProfile* Clone();
+		virtual VelocityProfile* Clone() const;
 		// returns copy of current VelocityProfile object. (virtual constructor)
 		virtual ~VelocityProfile_Trap();
 	};

@@ -50,8 +50,10 @@ namespace ORO_Geometry {
 #if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual VelocityProfile* Clone() {
-			return new VelocityProfile_Rectangular(maxvel);
+		virtual VelocityProfile* Clone() const{
+			VelocityProfile_Rectangular* res =  new VelocityProfile_Rectangular(maxvel);
+			res->SetProfileDuration( p, p+v*d, d );
+			return res;
 		}
 		// returns copy of current VelocityProfile object. (virtual constructor)
 		virtual ~VelocityProfile_Rectangular() {}
