@@ -144,6 +144,9 @@ class Generator:
         if not quiet:
             print "Creating package "+ root_package+ " version "+pkg_version
         # copy/add each leaf-package
+        # if pkg_version exists in the rep, take that one instead of rep_version...
+        # this is a pretty sane thing to do and thus allows to create a package dir
+        # first in the repository (and ecos.db !!), test it and then distribute it.
         somethingfound = 0;
         for i in self.db.packages:
             if (recursive and ( root_package in i.name or root_package in i.alias) ) or root_package == i.name or root_package == i.alias :
@@ -151,10 +154,13 @@ class Generator:
                 i.print_output(self.pkgadd)
                 targetdir = self.workdir + "/" + i.dir +"/"+ pkg_version
                 os.makedirs(targetdir)
-                os.system("cp -a " + self.db.repos + "/" + i.dir +"/"+rep_version+"/* "+ targetdir  )
+                if os.access(self.db.repos + "/" + i.dir +"/"+pkg_version, os.F_OK) :
+                    os.system("cp -a " + self.db.repos + "/" + i.dir +"/"+pkg_version+"/* "+ targetdir  )
+                else:
+                    os.system("cp -a " + self.db.repos + "/" + i.dir +"/"+rep_version+"/* "+ targetdir  )
         if somethingfound == 0:
-                if not quiet:
-                    print "... no such package found in ecos.db !"
+            if not quiet:
+                print "... no such package found in ecos.db !"
                     
 
     def init_workdir(self):

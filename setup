@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# These are all the steps to take if you
+# get orocos from Subversion
+# (this file is not distributed with the packages)
+
 ./autogen.sh
 cd packages
 ./autogen.sh
