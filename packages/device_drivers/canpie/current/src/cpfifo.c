@@ -65,8 +65,9 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #ifndef __KERNEL__
 #include <stdlib.h>     // for malloc() and free()
 #else
-#ifdef OROPKG_OS_LXRT
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 #include <rtai.h>
+#include <rtai_sem.h>
 #define free(x) rt_free(x)
 #define malloc(x) rt_malloc(x)
 #else
@@ -92,6 +93,10 @@ _U16           CpVar_FifoTrmHead[CP_CHANNEL_MAX];
 _U16           CpVar_FifoTrmTail[CP_CHANNEL_MAX];
 
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
+static SEM cp_tx_fifo_sem;
+static SEM cp_rx_fifo_sem;
+#endif
 
 
 //----------------------------------------------------------------------------//
@@ -138,6 +143,11 @@ _U08 Cp_PREFIX CpFifoSetup(_U08 channel, _U08 buffer, _U16 size)
    //--- FIFOs are not full -----------------------------------------
    CpVar_FifoStatus[channel] = 0;
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
+   rt_sem_init(&cp_tx_fifo_sem, 1);
+   rt_sem_init(&cp_rx_fifo_sem, 1);
+#endif
+
    return (CpErr_OK);
 }
 
@@ -156,6 +166,11 @@ _U08 Cp_PREFIX CpFifoRemove(_U08 channel, _U08 buffer)
    if(buffer == CP_FIFO_RCV) free(CpVar_FifoRcv[channel]);
    if(buffer == CP_FIFO_TRM) free(CpVar_FifoTrm[channel]);
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
+   rt_sem_delete(&cp_tx_fifo_sem);
+   rt_sem_delete(&cp_rx_fifo_sem);
+#endif
+
    return (CpErr_OK);
 }
 
@@ -170,23 +185,26 @@ _U08 Cp_PREFIX CpFifoClear(_U08 channel, _U08 buffer)
    //--- test the channel number ------------------------------------
    if( (channel + 1) > CP_CHANNEL_MAX) return (CpErr_CHANNEL);
 #endif
-
    //--- delete messages from Receive FIFO ----------------
    if(buffer == CP_FIFO_RCV)
    {
+	   rt_sem_wait(&cp_rx_fifo_sem);
       CpVar_FifoRcvHead[channel] = 0;
       CpVar_FifoRcvTail[channel] = 0;
       
       CpVar_FifoStatus[channel]  &= ~RCV_FIFO_FULL;
+	  rt_sem_signal(&cp_rx_fifo_sem);
    }
 
    //--- delete messages from Transmit FIFO ---------------
    if(buffer == CP_FIFO_TRM)
    {
+	   rt_sem_wait(&cp_tx_fifo_sem);
       CpVar_FifoTrmHead[channel] = 0;
       CpVar_FifoTrmTail[channel] = 0;
 
       CpVar_FifoStatus[channel]  &= ~TRM_FIFO_FULL;
+	  rt_sem_signal(&cp_tx_fifo_sem);
    }
 
    return (CpErr_OK);
@@ -204,6 +222,7 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    register _U16  uwFifoHeadT;   // head position of FIFO
    register _U16  uwFifoTailT;   // tail position of FIFO
    register _U16  uwFifoSizeT;   // max number of entries in FIFO
+   SEM* sem_to_signal;
 
 
 #if   CP_SMALL_CODE == 0
@@ -217,6 +236,8 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    {
       //--- test if FIFO is full --------------------------
       if(CpVar_FifoStatus[channel] & RCV_FIFO_FULL) return (CpErr_FIFO_FULL);
+	  rt_sem_wait(&cp_rx_fifo_sem);
+	  sem_to_signal = &cp_rx_fifo_sem;
 
       uwFifoHeadT = CpVar_FifoRcvHead[channel];
       uwFifoTailT = CpVar_FifoRcvTail[channel];
@@ -228,6 +249,8 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    {
       //--- test if FIFO is full --------------------------
       if(CpVar_FifoStatus[channel] & TRM_FIFO_FULL) return (CpErr_FIFO_FULL);
+	  rt_sem_wait(&cp_tx_fifo_sem);
+	  sem_to_signal = &cp_tx_fifo_sem;
 
       uwFifoHeadT = CpVar_FifoTrmHead[channel];
       uwFifoTailT = CpVar_FifoTrmTail[channel];
@@ -266,6 +289,7 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       if(buffer == CP_FIFO_RCV) CpVar_FifoStatus[channel] |= RCV_FIFO_FULL;
       else CpVar_FifoStatus[channel] |= TRM_FIFO_FULL; 
 
+	  rt_sem_signal(sem_to_signal);
       return (CpErr_OK);
    }
 
@@ -274,6 +298,7 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       if(buffer == CP_FIFO_RCV) CpVar_FifoStatus[channel] |= RCV_FIFO_FULL;
       else CpVar_FifoStatus[channel] |= TRM_FIFO_FULL; 
 
+	  rt_sem_signal(sem_to_signal);
       return (CpErr_OK);
    }
 
@@ -293,6 +318,7 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       CpVar_FifoTrmTail[channel] = uwFifoTailT;
    }
 
+   rt_sem_signal(sem_to_signal);
    return (CpErr_OK);
 }
 
@@ -308,6 +334,7 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    register _U16  uwFifoHeadT;   // head position of FIFO
    register _U16  uwFifoTailT;   // tail position of FIFO
    register _U16  uwFifoSizeT;   // max number of entries in FIFO
+   SEM* sem_to_signal;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -317,6 +344,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    //--- setup variables for Receive/Transmit FIFOs------------------
    if(buffer == CP_FIFO_RCV)
    {
+	  rt_sem_wait(&cp_rx_fifo_sem);
+	  sem_to_signal = &cp_rx_fifo_sem;
+
       uwFifoHeadT = CpVar_FifoRcvHead[channel];
       uwFifoTailT = CpVar_FifoRcvTail[channel];
       uwFifoSizeT = CpVar_FifoRcvSize[channel];
@@ -325,6 +355,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    }
    else
    {
+	  rt_sem_wait(&cp_tx_fifo_sem);
+	  sem_to_signal = &cp_tx_fifo_sem;
+
       uwFifoHeadT = CpVar_FifoTrmHead[channel];
       uwFifoTailT = CpVar_FifoTrmTail[channel];
       uwFifoSizeT = CpVar_FifoTrmSize[channel];
@@ -338,6 +371,7 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    //
    if(uwFifoHeadT == uwFifoTailT)
    {
+	  rt_sem_signal(sem_to_signal);
       return (CpErr_FIFO_EMPTY);
    }
 
@@ -404,6 +438,8 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
       }
    }
 
+   rt_sem_signal(sem_to_signal);
+
    return (CpErr_OK);
 }
 
@@ -417,7 +453,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
 
 #elif CP_FIFO_TYPE == 1
 
-
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
+#error "Use the non fixed size memory implementation for RTAI/LXRT"
+#endif
 
 /*------------------------------------------------------------------------
 ** variables used for the FIFO functions

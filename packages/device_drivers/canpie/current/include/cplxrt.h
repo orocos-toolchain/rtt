@@ -12,6 +12,28 @@ extern "C" {
 #define DECLARE static inline
 
 #ifdef __KERNEL__
+	/* Includes and defs for cplxrt.c */
+
+#include <rtai_config.h>
+#include <rtai.h>
+#include <rtai_sem.h>
+
+/**
+ * The transmit function.
+ */
+void cp_tx_function(int channel);
+		
+extern RT_TASK cp_tx_task;
+extern SEM     cp_tx_sem;
+
+/**
+ * The receive function.
+ */
+void cp_rx_function(int channel);
+		
+extern RT_TASK cp_rx_task;
+extern SEM     cp_rx_sem;
+
 #include "cpuser.h"
 #endif
 

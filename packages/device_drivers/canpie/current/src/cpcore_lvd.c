@@ -44,7 +44,9 @@
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 #include <rtai.h>
 #include <rtai_sched.h>
+#include "can/cplxrt.h"
 #endif
+
 
 // Holds the number of interrupts processed.
  unsigned int cp_recv_int;
@@ -255,7 +257,6 @@ _U08 Cp_PREFIX CpCoreBufferTransmit(_U08 ubChannelV,
 //----------------------------------------------------------------------------//
 _U08 Cp_PREFIX    CpCoreCANMode(_U08 ubChannelV, _U08 ubModeV)
 {
-   unsigned int lflags;
    BYTE_t cr;
 
    DEBUG("CpCoreCANMode\n");
@@ -279,15 +280,7 @@ _U08 Cp_PREFIX    CpCoreCANMode(_U08 ubChannelV, _U08 ubModeV)
        return (CpVar_CAN_Status[ubChannelV]);
    }
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
    do { write_reg_bcan(PCAN_MODR,cr); } while ( (read_reg_bcan(PCAN_MODR) & cr) != cr);
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
 
    CpVar_CAN_Status[ubChannelV] = ubModeV;
 
@@ -478,14 +471,16 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 	{
 		DEBUG("Receive Interrupt\n");
         /* Read the new message */
-		CpCoreMsgReceive(0);
+		//CpCoreMsgReceive(0);
+		rt_sem_signal( &cp_rx_sem );
         ++cp_recv_int;
 	}
 	else if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
         {
             DEBUG("Transmit Interrupt\n");
             /* Transmit any messages still in fifo */
-            CpCoreMsgTransmit(0);
+            //CpCoreMsgTransmit(0);
+			rt_sem_signal( &cp_tx_sem );
             ++cp_trns_int;
         }
     else if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
@@ -613,7 +608,6 @@ _U08 Cp_PREFIX CpCoreHDI(_U08 ubChannelV, CpStruct_HDI * pHdiV)
 //----------------------------------------------------------------------------//
 _U08 Cp_PREFIX CpCoreFilterAll(_U08 ubChannelV, _BIT btEnableV)
 {
-   unsigned int lflags;
    BYTE_t b;
 
   DEBUG("CpCoreFilterAll\n");
@@ -625,10 +619,6 @@ _U08 Cp_PREFIX CpCoreFilterAll(_U08 ubChannelV, _BIT btEnableV)
    /* Acceptance code and mask */
    if (btEnableV) b = (BYTE_t) 0xFF; 
    else b = (BYTE_t) 0x00;
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
    write_reg_bcan(PCAN_AMR0,b);
    write_reg_bcan(PCAN_AMR1,b);
    write_reg_bcan(PCAN_AMR2,b);
@@ -639,10 +629,6 @@ _U08 Cp_PREFIX CpCoreFilterAll(_U08 ubChannelV, _BIT btEnableV)
    write_reg_bcan(PCAN_ACR1,b);
    write_reg_bcan(PCAN_ACR2,b);
    write_reg_bcan(PCAN_ACR3,b);
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
 
    return (CpErr_OK);
 }
@@ -654,7 +640,6 @@ _U08 Cp_PREFIX CpCoreFilterAll(_U08 ubChannelV, _BIT btEnableV)
 //----------------------------------------------------------------------------//
 _U08 Cp_PREFIX CpCoreFilterMsg(_U08 ubChannelV, _U16 uwIdV, _BIT btEnableV)
 {
-   unsigned int lflags;
   DEBUG("CpCoreFilterMsg\n");
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -663,10 +648,6 @@ _U08 Cp_PREFIX CpCoreFilterMsg(_U08 ubChannelV, _U16 uwIdV, _BIT btEnableV)
 
    if (!btEnableV) return CpErr_NOT_SUPPORTED;
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
    /* set mask bits */
    write_reg_bcan(PCAN_AMR0,0x00);
    write_reg_bcan(PCAN_AMR1,0x1F);
@@ -678,10 +659,6 @@ _U08 Cp_PREFIX CpCoreFilterMsg(_U08 ubChannelV, _U16 uwIdV, _BIT btEnableV)
    write_reg_bcan(PCAN_ACR1,(uwIdV << 5) & 0xE0);
    write_reg_bcan(PCAN_ACR2,0x00);
    write_reg_bcan(PCAN_ACR3,0x00);
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
 
    return (CpErr_OK);
 }
@@ -706,7 +683,6 @@ _U08 Cp_PREFIX CpCoreMsgReceive(_U08 ubChannelV)
    int      Desc;  /* descriptor */
 
    int i; /* fix: for loop */
-   unsigned long lflags;
 
   DEBUG("CpCoreMsgReceive\n");
 #if   CP_SMALL_CODE == 0
@@ -715,10 +691,6 @@ _U08 Cp_PREFIX CpCoreMsgReceive(_U08 ubChannelV)
 #endif
 
    ubErrCodeT = CpErr_OK;
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
 
    while ((read_reg_bcan(PCAN_SR) & PCAN_SR_RBS) == PCAN_SR_RBS)
    {
@@ -786,10 +758,6 @@ _U08 Cp_PREFIX CpCoreMsgReceive(_U08 ubChannelV)
 	//
 	ubErrCodeT = CpFifoPush(ubChannelV, CP_FIFO_RCV, &canMsgT);
    }
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
    return (ubErrCodeT);
 }
 
@@ -797,6 +765,8 @@ _U08 Cp_PREFIX CpCoreMsgReceive(_U08 ubChannelV)
 //----------------------------------------------------------------------------//
 // CpCoreMsgTransmit()                                                        //
 // Write CAN message to controller                               					//
+// This method is called if the user put something in the fifo,
+// or a transmit interrupt is received.
 //----------------------------------------------------------------------------//
 _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
 {
@@ -811,7 +781,6 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    XADDR_t cm;   /* can message address */
    int     Desc;  /* descriptor */
    int     i; /* fix: for loop */
-   unsigned int lflags;
 
   DEBUG("CpCoreMsgTransmit\n");
 #if   CP_SMALL_CODE == 0
@@ -819,19 +788,10 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    if (ubChannelV >= CP_CHANNEL_MAX) return (CpErr_CHANNEL);
 #endif
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // turn off interrupts
-   lflags = rt_global_save_flags_and_cli();
-#endif
-
    /* check if previous message has been sent already */
    if ((read_reg_bcan(PCAN_SR) & PCAN_SR_TBS) != PCAN_SR_TBS) 
    {
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-       // enable interrupts
-       rt_global_restore_flags(lflags);
        DEBUG("Last Msg not sent !\n");
-#endif
        return (CpErr_OK);// we will handle it in the interrupt handler...
    }
 
@@ -844,10 +804,6 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    //
    ubErrCodeT = CpFifoPop(ubChannelV,CP_FIFO_TRM,&canMsgT);
    if (ubErrCodeT) {
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-       // enable interrupts
-       rt_global_restore_flags(lflags);
-#endif
        DEBUG("Fifo CpFifoPop error !\n");
        return (ubErrCodeT);
    }
@@ -921,9 +877,6 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    write_reg_bcan(PCAN_CMR, PCAN_CMR_TR);
    //write_reg_bcan(PCAN_CMR, PCAN_CMR_SRR);
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   rt_global_restore_flags(lflags);
-#endif
    return (CpErr_OK);
 }
 

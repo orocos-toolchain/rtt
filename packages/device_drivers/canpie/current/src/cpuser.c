@@ -38,7 +38,7 @@
 
 #include <pkgconf/system.h>
 #if (defined OROPKG_OS_RTAI) || (defined OROPKG_OS_LXRT)
-#include <rtai_sched.h>
+#include "can/cplxrt.h"
 #endif
 
 /*------------------------------------------------------------------------
@@ -266,7 +266,6 @@ _U32 Cp_PREFIX CpUserIntFunctions(  _U32 channel,
 _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 {
    _U32  err_code = 0;
-   unsigned long lflags;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -278,6 +277,7 @@ _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 
 
 #if CP_INT_HANDLER == 0
+#error "This code is modified to use the interrupt handler"
    //--- use polling if there is no Interrupt-Handler ---------------
    err_code = CpCoreMsgReceive(channel);
    if (err_code) return (err_code); 
@@ -285,15 +285,7 @@ _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 
    //--- get message from FIFO --------------------------------------
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
    err_code = CpFifoPop(channel, CP_FIFO_RCV, msgPtr);
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
    if (err_code) return (err_code); 
 
 
@@ -308,7 +300,6 @@ _U32 Cp_PREFIX CpUserMsgRead(_U32 channel, CpStruct_CAN * msgPtr)
 _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 {
    _U32  err_code = 0;
-   unsigned long lflags;
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -320,20 +311,14 @@ _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 
    //--- put message into FIFO --------------------------------------
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // Turn off interrupts.
-   lflags = rt_global_save_flags_and_cli();
-#endif
    err_code = CpFifoPush(channel, CP_FIFO_TRM, msgPtr);
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-   // restore interrupts.
-   rt_global_restore_flags(lflags);
-#endif
    if (err_code) return (err_code);
 
 
    //--- transmit the message ---------------------------------------
-   return CpCoreMsgTransmit(channel);
+   //return CpCoreMsgTransmit(channel);
+   rt_sem_signal(&cp_tx_sem);
+   return CpErr_OK;
 
 }
 
