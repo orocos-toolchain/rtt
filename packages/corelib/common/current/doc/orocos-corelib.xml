@@ -1089,7 +1089,7 @@ emergencyStop.fire(); // User not notified
 	<programlisting>  #include &lt;corelib/TimeService.hpp>
   #include &lt;corelib/Time.hpp>
 
-  TimeService::ticks timestamp = TimeService::Instance()->ticksGet();
+  TimeService::ticks timestamp = TimeService::Instance()->getTicks();
   //...
 
   Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
