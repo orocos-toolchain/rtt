@@ -23,7 +23,8 @@ EXTRA_DIST = \
         packages/pkgconf/ssa4.dsl \
         packages/pkgconf/ssletter.dsl \
         packages/pkgconf/stylesheet.dsl \
-	packages/ecos.db.in
+	packages/ecos.db.in \
+	packages/catalog.xml
 
 # EXTRA_DIST = \
 # 	packages

@@ -29,19 +29,19 @@
 
     </group>
     <group xml:base="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/">
-<!--     <system -->
-<!--          systemId="images/note" -->
-<!--          uri="images/note" /> -->
+    <system
+         systemId="orocos.ent"
+         uri="../doc/orocos.ent" />
     <!-- To resolve short stylesheet references -->
 <!--     <uri -->
-<!--         name="orocos.ent" -->
-<!--         uri="orocos.ent" /> -->
-<!--     <uri  -->
-<!--         name="chunk.xsl" -->
-<!--         uri="docbook-xsl-1.68.1/html/chunk.xsl" /> -->
-<!--     <uri -->
-<!--         name="fo-docbook.xsl" -->
-<!--         uri="docbook-xsl-1.68.1/fo/docbook.xsl" /> -->
+<!-- 	name="images/" -->
+<!-- 	uri="../doc/images/" /> -->
+    <uri
+        name="orocos.xsl"
+        uri="../doc/orocos.xsl" />
+    <uri
+        name="orocos-html.xsl"
+        uri="../doc/orocos-html.xsl" />
 
   </group>
 </catalog>

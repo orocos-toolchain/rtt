@@ -6,7 +6,7 @@
 <!-- THIS XSL IS FOR GENERATING FO OUTPUT -->
 
 <!-- Include the default settings -->
-  <xsl:import href="/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl"/>
+  <xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl"/>
 
 <!-- 
   These parameters are specific for the Orocos project and override

@@ -34,6 +34,9 @@ EXTRA_DIST = \
 	docrules.mak \
 	orocos.xsl \
 	orocos-html.xsl \
+	catalog.xml.in \
+	orocos.ent \
+	docrules.mak \
 	$(XMLDOCS) \
 	$(DOCBOOKS) \
 	$(DIAS) \

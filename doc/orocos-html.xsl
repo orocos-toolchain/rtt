@@ -6,7 +6,7 @@
 
 <!-- Change this to the path to where you have installed Norman
      Walsh's XSL stylesheets.  -->
-<xsl:import href="/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/xhtml/docbook.xsl"/>
+<xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/xhtml/docbook.xsl"/>
 
 <!-- 
   These parameters are specific for the Orocos project and override
