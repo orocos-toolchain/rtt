@@ -261,7 +261,7 @@ CORBA::Long Orocos_KernelInterface_i::getStateLine (
   ))
 {
   // Add your implementation here
-  return -1;//_dki->getStateLine( std::string(name));
+  return _dki->getStateLine( std::string(name));
 }
 
 // TAO_IDL - Generated from
