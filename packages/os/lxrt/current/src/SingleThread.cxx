@@ -49,7 +49,7 @@ namespace ORO_OS
                 rt_sem_wait( task->sem );
                 if ( task->prepareForExit )
 		  {
-		    rtos_printf("Single Thread: Not even starting: Got signal from Destructor\n");
+		    rtos_printf("Single Thread: Got signal from Destructor\n");
                     break;
 		  }
 
