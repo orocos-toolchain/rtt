@@ -15,16 +15,17 @@ type of periodic task associated with it.
 
     compile PeriodicTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TaskExecution.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
-    compile TaskTimer.cxx SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx
-    compile TaskTimerOneShot.cxx
+    compile SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx
+    compile TaskTimerSequencer.cxx TaskTimerOneShot.cxx
 
     cdl_option OROSEM_CORELIB_TASKS_DYNAMIC_REG {
 	display "Enable automatic event registration"
+        active_if 0
 	description "
-The apropriate EventPeriodic objects
+( DEPRECATED ) The apropriate TaskTimer objects
 need to be registered to the threads in order to allow them to
 execute tasks with the same period as the event. This option will make the
-thread create this EventPeriodic itself when a task tries to
+thread create this TaskTimer itself when a task tries to
 register."
 	default_value 1
     }
@@ -63,8 +64,6 @@ cpu cycles if so. You have to start this thread in your code.
 	flavor bool
 	default_value 1
     }
-
-    
 
     cdl_component OROPKG_CORELIB_TASKS_ZTT {
 	display "Properties of the ZeroTimeThread"
