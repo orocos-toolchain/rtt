@@ -1,10 +1,12 @@
 cdl_package OROPKG_KERNEL_COMPONENTS_HARDWARE {
     display "Hardware access components"
     description "
-Easy to use Components that export hardware interfaces
-(from the Orocos Device Interface)
-to kernel DataObjects. It contains Sensor and Effector
-Components."
+Easy to use Components that can use device drivers
+which implement the Orocos Device Interface. The 
+Components will read or write to kernel DataObjects
+and provide commands for the Program Execution Extension.
+The package contains a Sensor and an Effector
+Component."
     parent OROPKG_KERNEL_COMPONENTS
 
     include_dir kernel_components

@@ -101,7 +101,7 @@
 	  The GenericSensor is created like all
 	  the other components in the control framework :
 	  <programlisting>
-  GenericSensor&lt;CustomKernel::DefaultSensor&gt;   hardw_sens(NUM_CHANS);
+  GenericSensor   hardw_sens(NUM_CHANS);
 	  </programlisting>
 	  Where NUM_CHANS is the maximal number of channels
 	  this Sensor exposes (see later).
@@ -135,7 +135,7 @@
 	<para>
 	  It can be removed with the following method call :
 	  <programlisting>
-  hardw_sens.removeAnalogInput("AIn_1);
+  hardw_sens.removeAnalogInput("AIn_1");
 	  </programlisting>
 	  Which removes the "AIn_1" DataObject from the Inputs
 	  DataObjects.
@@ -149,7 +149,7 @@
 	  in the other components. The Channel DataObject which is
 	  created is of the type
 	  <classname>DataObjectInterface&lt; std::vector&lt;double&gt; &gt;</classname>
-	  and has the name "ChannelMeasurements". AnalogInputs
+	  and has the name "ChannelValues". AnalogInputs
 	  can be added to a channel in this vector :
 	  <programlisting>
   int A_VIRT_CHAN = 1;
@@ -167,7 +167,7 @@
 	  </programlisting>
 	</para>
 	<para>
-	  The Signal and Control Components in the kernel_components/process_control
+	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect2>
@@ -210,7 +210,7 @@
 	<para>
 	  This is analogous to creating a GenericSensor :
 	  <programlisting>
-  GenericEffector&lt;CustomKernel::DefaultEffector&gt; hardw_eff(NUM_CHANS);
+  GenericEffector hardw_eff(NUM_CHANS);
 	  </programlisting>
 	  Whrere NUM_CHANS is the maximum number of channels read from
 	  the "ChannelValues" DataObject.
@@ -228,7 +228,7 @@
 	  with the name "AOut_1" in the Outputs, so it must be
 	  created by the Controller Component. The GenericEffector
 	  will check the existence of this DataObject in its
-	  componentStartup.
+	  componentStartup method (thus when it is selected).
 	  The analog_output_card must implement the <classname>
 	  AnalogOutInterface</classname>.
 	  If there is already an "AOut_1" DataObject, addAnalogOutput
@@ -268,7 +268,7 @@
 	  </programlisting>
 	  Which demonstrates that channel 5 of the AnalogOutInterface
 	  is set to the value of virtual channel 1.
-	  If this
+	  If this virtual 
 	  channel was already taken, addChannel returns false;
 	</para>
 	<para>
@@ -278,7 +278,7 @@
 	  </programlisting>
 	</para>
 	<para>
-	  The Signal and Control Components in the kernel_components/process_control
+	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect2>
