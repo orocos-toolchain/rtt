@@ -120,13 +120,15 @@ namespace ORO_Execution
             std::vector<TaskAttributeBase*> origlist = orig->getArguments();
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );
-            
+
             // make a deep copy of the function :
             std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
             boost::shared_ptr<FunctionGraph> copy( orig->copy( replacementdss ) );
             // create commands that init all the args :
             CommandComposite* icom=  new CommandComposite();
-            origlist = copy->getArguments(); // get the correct pointers.
+
+            // get the correct pointers.
+            origlist = copy->getArguments(); 
             std::vector<DataSourceBase*>::const_iterator dit = args.begin();
             std::vector<TaskAttributeBase*>::const_iterator tit =  origlist.begin();
             try {

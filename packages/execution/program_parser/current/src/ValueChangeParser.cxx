@@ -42,6 +42,7 @@ namespace ORO_Execution
         assertion<std::string> expect_open("Open brace expected.");
         assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
         assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
         assertion<std::string> expect_expr("Expected a valid expression.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_init("Expected an initialisation value of the value.");
@@ -90,7 +91,7 @@ namespace ORO_Execution
 
     variabledefinition = (
          "var"
-         >> baredefinition
+         >> expect_def( baredefinition )
          >> !( (ch_p('=') >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] )));
     
     variableassignment = (
@@ -103,10 +104,10 @@ namespace ORO_Execution
 
     paramdefinition =
         "param"
-        >> baredefinition;
+        >> expect_def( baredefinition );
 
     baredefinition =
-        ( expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
+        ( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )]
           >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
           >> !( ch_p('(') >> expect_integer( uint_p[bind( &ValueChangeParser::seensizehint, this, _1)]) >> expect_close( ch_p(')')) ) 
           )[bind( &ValueChangeParser::seenbaredefinition, this )];

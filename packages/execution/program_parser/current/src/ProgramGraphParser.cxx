@@ -529,6 +529,7 @@ namespace ORO_Execution
                 // only delete parser, when the args are used.
                 delete argsparser;
                 argsparser = 0;
+                callfnargs.clear();
             }
         catch( const wrong_number_of_args_exception& e )
             {

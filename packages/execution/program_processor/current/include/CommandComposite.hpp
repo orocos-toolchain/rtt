@@ -48,7 +48,7 @@ namespace ORO_Execution
          */
         CommandComposite( const CommandComposite& orig )
         {
-            for (std::vector<CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<CommandInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
                 this->add( (*it)->clone() );
         }
 
