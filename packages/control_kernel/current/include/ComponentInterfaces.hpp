@@ -140,7 +140,19 @@ namespace ORO_ControlKernel
          * is stopped and the component must return to a safe state.
          */
         virtual void componentShutdown() {}
-            
+
+        /**
+         * @brief If the component wants to alter its DataObject,
+         * it can do so here.
+         *
+         * This method is called just before componentLoaded()
+         * and allows a component to alter the contents of a 
+         * DataObject before it is created :-]. It is used by
+         * the StandardControlKernel after the port is created,
+         * but before the actual dataobject is created.
+         */
+        virtual void initDataObject() {}
+
         virtual void disableAspect();
 
         /**

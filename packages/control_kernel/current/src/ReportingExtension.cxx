@@ -171,6 +171,7 @@ namespace ORO_ControlKernel
                 reporter = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObjectByName( reportServer );
                 if ( !reporter )
                     {
+                        // no server found, create it.
                         RunnableInterface* tmp_run;
                         if ( writeHeader )
                             {

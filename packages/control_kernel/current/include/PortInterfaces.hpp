@@ -407,15 +407,41 @@ namespace ORO_ControlKernel
                 delete data_object;
             }
 
-            template< class _DataObjectContainer >
-            void createPort(const std::string& name, const std::string& prefix, _DataObjectContainer dummy )
+            void createPort(const std::string& name, const std::string& prefix) 
             {
                 // create the frontend (for access)
                 // todo : do without name, frontends must be nameless servers but keep prefix
                 front_end   = new DataObjectType( name, prefix );
+            }
+
+            void erasePort()
+            {
+                delete front_end;
+                front_end = 0;
+            }
+            
+            /**
+             * @brief A Hook for the component to initialise or modifiy the dObj()
+             * instance (the Port/Frontend).
+             *
+             * After this, the DataObject
+             * Server is created which will take the contents of dObj() to
+             * create the instances.
+             */
+            virtual void initDataObject() {}
+
+            template< class _DataObjectContainer >
+            void createDataObject(const std::string& name, const std::string& prefix, _DataObjectContainer dummy )
+            {
+                this->initDataObject();
                 // create the dataobject servers (for storage)
                 typedef detail::NameServedDataObject<typename _DataObjectContainer::template DataObject<typename DataObjectType::NamesTypes> > DataStorage;
-                data_object = new DataStorage( name, prefix );
+                DataStorage* storage = new DataStorage( name, prefix, false ); // do not create yet !
+                //assert( front_end != 0);
+
+                // Now create all the DataObjects, with the front_end data.
+                storage->reload( front_end->begin(), front_end->end() );
+                data_object = storage;
             }
 
             /**
@@ -427,21 +453,19 @@ namespace ORO_ControlKernel
              * are destroyed and recreated.
              */
             template< class _DataObjectContainer >
-            void reloadPort( _DataObjectContainer dummy )
+            void reloadDataObject( _DataObjectContainer dummy )
             {
                 // Reload the DataObject struct, it may be changed by
                 // the writing component.
                 typedef detail::NameServedDataObject<typename _DataObjectContainer::template DataObject<typename DataObjectType::NamesTypes> > DataStorage;
                 DataStorage* current = dynamic_cast<DataStorage*>(data_object);
-                assert( current != 0 );
+                //assert( current != 0 );
                 current->reload( front_end->begin(), front_end->end() );
             }
 
-            void erasePort()
+            void eraseDataObject()
             {
-                delete front_end;
                 delete data_object;
-                front_end = 0;
                 data_object = 0;
             }
 

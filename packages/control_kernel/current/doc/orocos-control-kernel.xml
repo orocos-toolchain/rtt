@@ -3046,7 +3046,7 @@ program {
     <sect1 id="cascade-ns">
       <title>The CascadeControlKernel</title>
       <para>
-	This Kernel is usable for most cascades imaginable.
+	This Kernel is usable for most control loop cascades imaginable.
 	Each cascaded Kernel can have all Components and all DataObjects
 	shared across these Kernels. The
 	limitation that only one Component may write to a certain
@@ -3090,12 +3090,18 @@ program {
 	found by the nameserver, and the Component will fail to startup.
       </para>
       <para>
+	If you want to extend an existing control kernel with a cascade
+	kernel, you need to use the BufferedControlKernel
+	( instead of the StandardControlKernel), which allows
+	thread-safe data access to all DataObjects. See the example below.
+      </para>
+      <para>
 	<example>
 	  <title>Cascading Three Control Kernels</title>
 	  <para>
 	    This example demonstrates a three-layer Kernel layout with
-	    the CascadeControlKernel. The Model may be calculated 
-	    anywhere and different parts of the Model may be calculated
+	    the CascadeControlKernel. Any DataObject may be calculated 
+	    anywhere and different parts of a DataObject type may be calculated
 	    in different Kernels. Again, only one Component in one Kernel
 	    may write to a specific DataObject, while all
 	    the others may read from it.
@@ -3103,7 +3109,7 @@ program {
 	    <programlisting>
 <![CDATA[
 // The highest priority kernel is standard
-StandardControlKernel<> 
+BufferedControlKernel<> 
     innerKernel("InnerLoop", "my_cascade" );
 
 // A cascade, its outputs get in the command dataobject
@@ -3128,7 +3134,7 @@ CascadeControlKernel<>
 	    The CascadeControlKernel knows it has to put the Outputs of
 	    the Kernel in the namespace of the Commands of all the
 	    other Kernels. "my_cascade" is the namespace prefix of the kernel,
-	    not the name. So all three will place their DataObjects
+	    not the name. So all three kernels will place their DataObjects
 	    in the "my_cascade" namespace.
 	    An example can be found in
 	    the <filename>kernel_samples</filename> package.

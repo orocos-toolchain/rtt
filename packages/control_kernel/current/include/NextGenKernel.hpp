@@ -28,6 +28,15 @@
 #ifndef NEXTGEN_KERNEL_HPP
 #define NEXTGEN_KERNEL_HPP
 
+#include <pkgconf/control_kernel.h>
+#ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
+#error "The Kernel you are using is not supported in the OLD \n\
+Kernel Architecture. Please, DISABLE Backwards Compatibility in \
+the configuration of the kernel package. \
+Revisit the Control Kernel Documentation to see how the new \
+StandardControlKernel supercedes all previous Kernel architectures."
+#endif
+
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
@@ -35,12 +44,41 @@
 #include "ComponentStateInterface.hpp"
 
 #include <algorithm>
+#include <boost/smart_ptr.hpp>
 
 namespace ORO_ControlKernel
 {
 
     namespace detail
     {
+        using boost::shared_ptr;
+
+        namespace {
+            // helper class for dataobject creation
+            struct DOCreationInterface {
+                virtual ~DOCreationInterface() {}
+                virtual void create() = 0;
+                virtual void erase() = 0;
+            };
+            template<class WPI, class DOT>
+            struct DOCreator : public DOCreationInterface {
+                std::string name;
+                std::string pref;
+                WPI* wpi;
+                DOCreator(WPI* wp, std::string _n, std::string _p ) :  name(_n), pref(_p), wpi(wp) {}
+                virtual void create() {
+                    wpi->createDataObject( name, pref, DOT() );
+                }
+                virtual void erase() {
+                    wpi->eraseDataObject();
+                }
+                
+            };
+            struct NOPCreator : public DOCreationInterface {
+                virtual void create() {}
+                virtual void erase() {}
+            };
+        }
 
 
     /**
@@ -55,7 +93,8 @@ namespace ORO_ControlKernel
     class BaseKernel
         : public _Extension //, public ControlKernelInterface
     {
-        typedef std::map<ComponentBaseInterface*, ComponentStateInterface*> ComponentMap;
+        typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
+                                                            shared_ptr<DOCreationInterface> > > ComponentMap;
     public:
         typedef _Extension Extension;
             
@@ -104,12 +143,12 @@ namespace ORO_ControlKernel
          *
          * @param kernel_name The name of this kernel
          */
-        BaseKernel(const std::string& kernel_name=std::string("Default"),
-                   const std::string& _inp_prefix=std::string("Default"),
-                   const std::string& _mod_prefix=std::string("Default"),
-                   const std::string& _com_prefix=std::string("Default"),
-                   const std::string& _setp_prefix=std::string("Default"),
-                   const std::string& _outp_prefix=std::string("Default"))
+        BaseKernel(const std::string& kernel_name,
+                   const std::string& _inp_prefix,
+                   const std::string& _mod_prefix,
+                   const std::string& _com_prefix,
+                   const std::string& _setp_prefix,
+                   const std::string& _outp_prefix)
             : _Extension(this),
               dummy_controller("DefaultController"),
               dummy_generator("DefaultGenerator"),
@@ -153,9 +192,6 @@ namespace ORO_ControlKernel
 
         ~BaseKernel()
         {
-            // Cleanup all added Components.
-            for ( ComponentMap::iterator itl = components.begin(); itl != components.end(); ++itl)
-                delete itl->second;
         }
 
         virtual bool isSelectedController( const std::string& name ) const
@@ -471,7 +507,8 @@ namespace ORO_ControlKernel
         bool addSensor(_Sensor* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new SensorC< ThisType, _Sensor>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new SensorC< ThisType, _Sensor>(this, c),
+                                                                new DOCreator< typename _Sensor::Input, InputPortType>(c, this->getKernelName() + "::Inputs",this->inp_prefix ) ) ) );
             return true;
         }
 
@@ -479,7 +516,6 @@ namespace ORO_ControlKernel
         bool removeSensor(_Sensor* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -488,7 +524,8 @@ namespace ORO_ControlKernel
         bool addEstimator(_Estimator* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new EstimatorC< ThisType, _Estimator>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new EstimatorC< ThisType, _Estimator>(this, c),
+                                                                new DOCreator< typename _Estimator::Model, ModelPortType>(c,  this->getKernelName() + "::Models",this->mod_prefix ) ) ) );
             return true;
         }
 
@@ -496,7 +533,6 @@ namespace ORO_ControlKernel
         bool removeEstimator(_Estimator* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -505,7 +541,8 @@ namespace ORO_ControlKernel
         bool addGenerator(_Generator* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new GeneratorC< ThisType, _Generator>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new GeneratorC< ThisType, _Generator>(this, c),
+                                                                new DOCreator< typename _Generator::SetPoint, SetPointPortType>(c,  this->getKernelName() + "::SetPoints",this->setp_prefix )) ));
             return true;
         }
 
@@ -513,7 +550,6 @@ namespace ORO_ControlKernel
         bool removeGenerator(_Generator* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -522,7 +558,8 @@ namespace ORO_ControlKernel
         bool addController(_Controller* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new ControllerC< ThisType, _Controller>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new ControllerC< ThisType, _Controller>(this, c),
+                                                                new DOCreator< typename _Controller::Output, OutputPortType>(c,  this->getKernelName() + "::Outputs",this->outp_prefix )) ) );
             return true;
         }
 
@@ -530,7 +567,6 @@ namespace ORO_ControlKernel
         bool removeController(_Controller* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -539,7 +575,7 @@ namespace ORO_ControlKernel
         bool addEffector(_Effector* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new EffectorC< ThisType, _Effector>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new EffectorC< ThisType, _Effector>(this, c), new NOPCreator() ) ) );
             return true;
         }
 
@@ -547,7 +583,6 @@ namespace ORO_ControlKernel
         bool removeEffector(_Effector* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -556,7 +591,7 @@ namespace ORO_ControlKernel
         bool addSupport(_Support* c) {
             if ( components.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, new SupportC< ThisType, _Support>(this, c)) );
+            components.insert( std::make_pair(c, std::make_pair(new SupportC< ThisType, _Support>(this, c), new NOPCreator() ) ) );
             return true;
         }
 
@@ -564,7 +599,6 @@ namespace ORO_ControlKernel
         bool removeSupport(_Support* c) {
             if ( components.count( c ) == 0)
                 return false;
-            delete components[c];
             components.erase(c);
             return true;
         }
@@ -585,7 +619,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be loaded.
          */
         bool load( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->load();
+            return ( components.count( c ) != 0) && components[c].first->load();
         }
 
         /**
@@ -595,7 +629,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be unloaded.
          */
         bool unload( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->unload();
+            return ( components.count( c ) != 0) && components[c].first->unload();
         }
 
         /**
@@ -605,7 +639,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be reloaded.
          */
         bool reload( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->reload();
+            return ( components.count( c ) != 0) && components[c].first->reload();
         }
 
         /**
@@ -616,7 +650,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be shutdowned.
          */
         bool shutdown( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->shutdown();
+            return ( components.count( c ) != 0) && components[c].first->shutdown();
         }
 
         /**
@@ -626,7 +660,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be started.
          */
         bool startup( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->startup();
+            return ( components.count( c ) != 0) && components[c].first->startup();
         }
 
         /**
@@ -636,7 +670,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be restarted.
          */
         bool restart( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c]->restart();
+            return ( components.count( c ) != 0) && components[c].first->restart();
         }
 
         /** @} */
@@ -655,10 +689,13 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 return false;
 
-            if ( components.count(c) == 0 )
-                this->addSensor(c);
+            this->addSensor( c );
 
-            c->_Sensor::Input::createPort( this->getKernelName() + "::Inputs",this->inp_prefix, InputPortType() );
+            // Create the frontend ( dObj() )
+            c->_Sensor::Input::createPort( this->getKernelName() + "::Inputs",this->inp_prefix );
+
+            // Create the DataObject itself
+            //c->_Sensor::Input::createDataObject( this->getKernelName() + "::Inputs",this->inp_prefix, InputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Sensor::Input::erasePort();
@@ -675,11 +712,11 @@ namespace ORO_ControlKernel
         bool loadEstimator(_Estimator* c) {
             if ( this->isRunning() )
                 return false;
-            if ( components.count(c) == 0 )
-                this->addEstimator(c);
+            this->addEstimator(c);
 
-            c->_Estimator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix, ModelPortType() );
+            c->_Estimator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
             c->_Estimator::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
+            //c->_Estimator::Model::createDataObject( KernelBaseFunction::getKernelName() + "::Models",mod_prefix, ModelPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Estimator::Model::erasePort();
@@ -697,13 +734,14 @@ namespace ORO_ControlKernel
         bool loadGenerator(_Generator* c) {
             if ( this->isRunning() )
                 return false;
-            if ( components.count(c) == 0 )
-                this->addGenerator(c);
+            this->addGenerator(c);
 
             c->_Generator::Command::createPort( KernelBaseFunction::getKernelName() + "::Commands", com_prefix);
-            c->_Generator::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix, SetPointPortType()  );
             c->_Generator::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
             c->_Generator::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
+            c->_Generator::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix  );
+//             c->_Generator::SetPoint::createDataObject( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix,
+//                                                        SetPointPortType());
             if ( ! c->enableAspect(this) )
                 {
                     c->_Generator::Command::erasePort();
@@ -723,14 +761,14 @@ namespace ORO_ControlKernel
         bool loadController( _Controller* c) {
             if ( this->isRunning() )
                 return false;
-            if ( components.count(c) == 0 )
-                this->addController(c);
+            this->addController(c);
 
-            c->_Controller::Output::createPort( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix, OutputPortType() );
             c->_Controller::SetPoint::createPort( KernelBaseFunction::getKernelName() + "::SetPoints",setp_prefix );
             c->_Controller::Model::createPort( KernelBaseFunction::getKernelName() + "::Models",mod_prefix );
             c->_Controller::Input::createPort( KernelBaseFunction::getKernelName() + "::Inputs",inp_prefix );
-
+            c->_Controller::Output::createPort( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix );
+//             c->_Controller::Output::createDataObject( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix,
+//                                                       OutputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Controller::Output::erasePort();
@@ -750,8 +788,7 @@ namespace ORO_ControlKernel
         bool loadEffector(_Effector* c) {
             if ( this->isRunning() )
                 return false;
-            if ( components.count(c) == 0 )
-                this->addEffector(c);
+            this->addEffector(c);
 
             c->_Effector::Output::createPort( KernelBaseFunction::getKernelName() + "::Outputs", outp_prefix );
             if ( ! c->enableAspect(this) )
@@ -770,8 +807,7 @@ namespace ORO_ControlKernel
         bool loadSupport(_Support* c) {
             if ( this->isRunning() )
                 return false;
-            if ( components.count(c) == 0 )
-                this->addSupport(c);
+            this->addSupport(c);
 
             if ( ! c->enableAspect(this) )
                 {
@@ -818,7 +854,7 @@ namespace ORO_ControlKernel
                 return false;
 
             c->disableAspect();
-            c->_Sensor::Input::reloadPort( InputPortType() );
+            //c->_Sensor::Input::reloadDataObject( InputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     sensors.unregisterObject( c );
@@ -834,10 +870,11 @@ namespace ORO_ControlKernel
                 return false;
 
             c->disableAspect();
-            c->_Estimator::Model::reloadPort( ModelPortType() );
+            //c->_Estimator::Model::reloadDataObject( ModelPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     estimators.unregisterObject( c );
+                    c->_Estimator::Input::erasePort();
                     c->_Estimator::Model::erasePort();
                     return false;
                 }
@@ -850,10 +887,13 @@ namespace ORO_ControlKernel
                 return false;
 
             c->disableAspect();
-            c->_Generator::SetPoint::reloadPort( SetPointPortType() );
+            //c->_Generator::SetPoint::reloadDataObject( SetPointPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     generators.unregisterObject( c );
+                    c->_Generator::Input::erasePort();
+                    c->_Generator::Model::erasePort();
+                    c->_Generator::Command::erasePort();
                     c->_Generator::SetPoint::erasePort();
                     return false;
                 }
@@ -866,10 +906,12 @@ namespace ORO_ControlKernel
                 return false;
 
             c->disableAspect();
-            c->_Controller::Output::reloadPort( OutputPortType() );
+            //c->_Controller::Output::reloadDataObject( OutputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     controllers.unregisterObject( c );
+                    c->_Controller::Input::erasePort();
+                    c->_Controller::Model::erasePort();
                     c->_Controller::Output::erasePort();
                     return false;
                 }
@@ -1007,6 +1049,17 @@ namespace ORO_ControlKernel
          * @}
          */
     protected:
+        virtual void preLoad(ComponentBaseInterface* comp) {
+            components[comp].second->create();
+        }
+
+        //virtual void postLoad(ComponentBaseInterface* comp) {}
+
+        //virtual void preUnload(ComponentBaseInterface* comp) { }
+
+        virtual void postUnload(ComponentBaseInterface* comp) {
+            components[comp].second->erase();
+        }
 
         /**
          * @{

@@ -694,18 +694,20 @@ namespace ORO_ControlKernel
          * @param name The unique name of the DataObject.
          * @param prefix The scope of the nameserver, to avoid clashes with
          *        other nameservers (the user does not see this).
+         * @param load Set to false if no DataObject creation should happen yet.
+         *
          * @todo Create the NameServedDataObjectInterface
          */
-        NameServedDataObject(const std::string& name, const std::string& prefix )// = name ) 
+        NameServedDataObject(const std::string& name, const std::string& prefix, bool load = true )
             :  _NameContainer::NamesTypes(),
-              _NameContainer::tree(name, prefix, std::make_pair( this->begin(), this->end() ), 0 )
+              _NameContainer::tree(name, prefix, std::make_pair( this->begin(), load ? this->end() : this->begin() ), 0 )
         {
         }
 
         /**
          * @brief Instruct the nameserver to reload all DataObjects.
          * @param  b Specify an iterator range containing the
-         * the 'build recepe' for which types to build.
+         * the 'build recipe' for which types to build.
          */
         template< class Iter >
         void reload(const Iter&  b, const Iter& e ) {

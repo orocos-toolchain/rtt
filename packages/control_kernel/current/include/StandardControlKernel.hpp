@@ -132,8 +132,7 @@ namespace ORO_ControlKernel
                                         detail::DataObjectC,
                                         detail::DataObjectC,
                                         detail::DataObjectC,
-                                       _Extension >,
-          public NameServerRegistrator< StandardControlKernel<_Extension>* >        
+                                       _Extension >
     {
     public:
 
@@ -168,15 +167,9 @@ namespace ORO_ControlKernel
                                   detail::DataObjectC,
                                   detail::DataObjectC,
                                   _Extension >( name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
-                                                prefix + "::SetPoints", prefix + "::Outputs"),
-              NameServerRegistrator< StandardControlKernel<_Extension>* >(nameserver,name,this)
+                                                prefix + "::SetPoints", prefix + "::Outputs")
         {
         }
-
-        /**
-         * @brief The StandardControlKernel nameserver.
-         */
-        static NameServer< StandardControlKernel<_Extension>* > nameserver;
 
     protected:
 
@@ -192,9 +185,6 @@ namespace ORO_ControlKernel
             this->effector->update();
         }
     };
-
-    template < class E >
-    NameServer<StandardControlKernel<E>*> StandardControlKernel<E>::nameserver;
 
                 
 }

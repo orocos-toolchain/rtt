@@ -30,8 +30,8 @@
 
 #include <pkgconf/control_kernel.h>
 #ifndef OROSEM_CONTROL_KERNEL_OLDKERNEL
-#error "The Kernel you are using is not supported in the new \n\
-Kernel Architecture. Please, enable Backwards Compatibility in \
+#error "The Kernel you are using is not supported in the NEW \n\
+Kernel Architecture. Please, ENABLE Backwards Compatibility in \
 the configuration of the kernel package. Some of the Orocos Kernel \
 Components will not work then however (eg AxisSensor, GenericSensor). \
 Revisit the Control Kernel Documentation to see how the new \

@@ -149,17 +149,29 @@ void KernelBaseFunction::setKernelName( const std::string& _name)
     name = _name;
 }
 
-void KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
+bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
 {
-    components.push_back(comp);
+    this->preLoad( comp );
+    if (  comp->componentLoaded() )
+        {
+            components.push_back(comp);
+            this->postLoad( comp );
+            return true;
+        }
+    this->postLoad( comp );
+    return false;
 }
 
 void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
 {
     std::vector<ComponentBaseInterface*>::iterator itl 
         = std::find(components.begin(), components.end(), comp);
-    if (itl != components.end() )
+    if (itl != components.end() ) {
+        this->preUnload( comp );
+        comp->componentUnloaded();
         components.erase(itl);
+        this->postUnload( comp );
+    }
 }
 
 

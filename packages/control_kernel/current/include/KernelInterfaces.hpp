@@ -330,7 +330,7 @@ namespace ORO_ControlKernel
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.
          */
-        void addComponent(ComponentBaseInterface* comp);
+        bool addComponent(ComponentBaseInterface* comp);
 
         /**
          * Used by the ComponentBaseInterface to deregister itself
@@ -345,6 +345,38 @@ namespace ORO_ControlKernel
          * must be updated is known in the Kernel subclass.
          */
         virtual void updateComponents() = 0;
+
+        /**
+         * To be overridden in the Kernel implementations.
+         * This is a hook which must allows kernels to place
+         * code just before or after the componentLoaded/componentUnloaded
+         * method is called on a component.
+         */
+        virtual void preLoad(ComponentBaseInterface* comp) {}
+
+        /**
+         * To be overridden in the Kernel implementations.
+         * This is a hook which must allows kernels to place
+         * code just before or after the componentLoaded/componentUnloaded
+         * method is called on a component.
+         */
+        virtual void postLoad(ComponentBaseInterface* comp) {}
+
+        /**
+         * To be overridden in the Kernel implementations.
+         * This is a hook which must allows kernels to place
+         * code just before or after the componentLoaded/componentUnloaded
+         * method is called on a component.
+         */
+        virtual void preUnload(ComponentBaseInterface* comp) {}
+
+        /**
+         * To be overridden in the Kernel implementations.
+         * This is a hook which must allows kernels to place
+         * code just before or after the componentLoaded/componentUnloaded
+         * method is called on a component.
+         */
+        virtual void postUnload(ComponentBaseInterface* comp) {}
 
         /**
          * @brief Used to switch two components, unselecting the old

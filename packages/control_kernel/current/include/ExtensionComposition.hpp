@@ -16,8 +16,7 @@ namespace ORO_ControlKernel
                 bool enableAspect( T ext ) {
                     return true; // Oh irony, we reject with 'true'
                 }
-                template<class T>
-                void disableAspect( T ext ) {
+                void disableAspect( ) {
                 }
             };
     }

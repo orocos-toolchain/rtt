@@ -8,13 +8,7 @@ using namespace ORO_ControlKernel;
 bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
 {
     kern = e;
-    kern->addComponent(this);
-    if ( ! componentLoaded() )
-        {
-            kern->removeComponent(this);
-            return false;
-        }
-    return true;
+    return kern->addComponent(this);
 }
 
 void ComponentBaseInterface::disableAspect()
@@ -23,7 +17,6 @@ void ComponentBaseInterface::disableAspect()
         {
             kern->removeComponent(this);
             kern = 0;
-            componentUnloaded();
         }
 }
 
