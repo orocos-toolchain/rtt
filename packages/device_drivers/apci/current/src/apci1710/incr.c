@@ -603,3 +603,25 @@ int apci1710_incr_set_digital_channel_on( apci1710_module* module )
 { return -1;}
 int apci1710_incr_set_digital_channel_off( apci1710_module* module )
 { return -1;}
+
+EXPORT_SYMBOL(apci1710_incr_cleanup_module);
+EXPORT_SYMBOL(apci1710_incr_clear_counter_value);
+EXPORT_SYMBOL(apci1710_incr_counter_auto_test);
+EXPORT_SYMBOL(apci1710_incr_create_module);
+EXPORT_SYMBOL(apci1710_incr_disable_index);
+EXPORT_SYMBOL(apci1710_incr_disable_latch_interrupt);
+EXPORT_SYMBOL(apci1710_incr_enable_index);
+EXPORT_SYMBOL(apci1710_incr_enable_latch_interrupt);
+EXPORT_SYMBOL(apci1710_incr_get_index_status);
+EXPORT_SYMBOL(apci1710_incr_init);
+EXPORT_SYMBOL(apci1710_incr_init_index);
+EXPORT_SYMBOL(apci1710_incr_latch_counter);
+EXPORT_SYMBOL(apci1710_incr_read_16bit_counter_value);
+EXPORT_SYMBOL(apci1710_incr_read_32bit_counter_value);
+EXPORT_SYMBOL(apci1710_incr_read_latch_register_status);
+EXPORT_SYMBOL(apci1710_incr_read_latch_register_value);
+EXPORT_SYMBOL(apci1710_incr_set_digital_channel_off);
+EXPORT_SYMBOL(apci1710_incr_set_digital_channel_on);
+EXPORT_SYMBOL(apci1710_incr_set_input_filter);
+EXPORT_SYMBOL(apci1710_incr_write_16bit_counter_value);
+EXPORT_SYMBOL(apci1710_incr_write_32bit_counter_value);

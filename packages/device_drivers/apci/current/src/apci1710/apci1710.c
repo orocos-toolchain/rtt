@@ -117,3 +117,6 @@ int apci1710_get_irqhandler_status( void )
 {
     return interruptinit;
 }
+
+EXPORT_SYMBOL(apci1710_get_device);
+EXPORT_SYMBOL(apci1710_get_irqhandler_status);

@@ -143,3 +143,10 @@ int apci1710_ssi_read_latest_all( apci1710_device* dev, int moduleNb, unsigned i
     }
     return 0;
 }
+
+EXPORT_SYMBOL(apci1710_ssi_init);
+EXPORT_SYMBOL(apci1710_ssi_read);
+EXPORT_SYMBOL(apci1710_ssi_read_all);
+EXPORT_SYMBOL(apci1710_ssi_read_latest);
+EXPORT_SYMBOL(apci1710_ssi_read_latest_all);
+EXPORT_SYMBOL(apci1710_ssi_refresh);
