@@ -40,6 +40,7 @@ all_packages:
 	cd packages-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
 	ecosconfig tree ;\
+	ecosconfig template allpackages ;\
 	make
 
 clean_packages:
