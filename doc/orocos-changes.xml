@@ -257,6 +257,12 @@
 	  which enables a write out of the properties of each component to a file.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+          The Effector component now reads from Inputs, Models and
+          Outputs. 
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="program">
