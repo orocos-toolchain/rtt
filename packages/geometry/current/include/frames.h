@@ -149,7 +149,7 @@ class Vector
 public:
     double data[3];
 #ifdef OROSEM_GEOMETRY_DEFAULT_INIT
-     IMETHOD Vector() : data( {0,0,0} ) { }
+     IMETHOD Vector()  { *this = Vector::Zero(); }
 #else
      //! Does not initialise the Vector to zero. use Vector::Zero() or SetToZero for that
      IMETHOD Vector() {}
@@ -289,11 +289,9 @@ public:
     double data[9];
 
 #ifdef OROSEM_GEOMETRY_DEFAULT_INIT
-    IMETHOD Rotation() :
-		Xx(1.0), Yx(0), Zx(0),
-		Xy(0), Yy(1.0), Zy(0),
-		Xz(0), Yz(0), Zz(1.0)
-		{}
+    IMETHOD Rotation() {
+		*this = Rotation::Identity();
+	}
 #else
     IMETHOD Rotation() {}
 #endif
