@@ -38,6 +38,17 @@ docs:
 packages/ecos.db:
 	touch $(abs_srcdir)/packages/ecos.db
 
+inst-headers:
+	${MAKE} -C packages headers
+
+check-headers: inst-headers
+	@cd packages/install/include ;\
+	for i in $$(find . -name *.h -o -name *.hpp); do \
+	echo  "Checking $$i..." ;\
+	echo -e "#include <$$i>\n" > /tmp/tmp_hpp_chk.cpp ;\
+	${CC} -c /tmp/tmp_hpp_chk.cpp -I. ;\
+	done
+
 clean-local: clean_packages
 
 uninstall-local:
