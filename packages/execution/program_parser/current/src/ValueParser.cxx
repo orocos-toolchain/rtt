@@ -28,8 +28,8 @@
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
 #include "execution/ValueParser.hpp"
+#include "execution/TaskAttribute.hpp"
 
-#include "execution/TaskVariable.hpp"
 #include "execution/TaskContext.hpp"
 
 #include <boost/bind.hpp>
@@ -68,22 +68,30 @@ namespace ORO_Execution
         const_double
       | const_int
       | const_bool
+      | const_char
       | const_string
       | named_constant;
 
     const_double =
       strict_real_p [
         bind( &ValueParser::seendoubleconstant, this, _1 ) ];
+
     const_int =
       int_p [
         bind( &ValueParser::seenintconstant, this, _1 ) ];
+
     const_bool =
       ( str_p( "true" ) | "false" )[
         bind( &ValueParser::seenboolconstant, this, _1, _2 ) ];
+
+    const_char = confix_p(
+        "'", c_escape_ch_p[ bind( &ValueParser::seencharconstant, this, _1 ) ], "'" );
+
     const_string = confix_p(
       ch_p( '"' ), *(
         c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
         ), '"' )[ bind( &ValueParser::seenstring, this ) ];
+
     named_constant =
         ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
@@ -136,6 +144,13 @@ namespace ORO_Execution
     deleter.reset( 0 );
   }
 
+  void ValueParser::seencharconstant( iter_t i )
+  {
+    ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( *i ) );
+    // make the new TaskVariable managed by the auto_ptr..
+    deleter.reset( ret );
+  }
+
   void ValueParser::seenintconstant( int i )
   {
     ret = new TaskAliasAttribute<int>( new VariableDataSource<int>( i ) );
@@ -177,8 +192,8 @@ namespace ORO_Execution
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new TaskAliasAttribute<std::string>(
-      new VariableDataSource<std::string>( mcurstring ) );
+    ret = new TaskAliasAttribute<const std::string&>(
+      new VariableDataSource<const std::string&>( mcurstring ) );
     deleter.reset( ret );
     mcurstring.clear();
   }

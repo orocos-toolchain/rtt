@@ -45,10 +45,10 @@ namespace ORO_Execution
   public:
     typename VariableDataSource<T>::shared_ptr data;
     TaskVariable()
-      : data( new VariableDataSource<T>( T() ) )
+      : data( new VariableDataSource<T>() )
       {
       }
-    TaskVariable(T& t)
+    TaskVariable(T t)
       : data( new VariableDataSource<T>( t ) )
       {
       }
@@ -79,22 +79,23 @@ namespace ORO_Execution
       }
   };
 
-  template<typename T, typename Index, typename SetType>
+  template<typename T, typename Index, typename SetType, typename Pred>
   class TaskIndexVariable
     : public TaskAttribute<T>
   {
-    typedef bool (*Pred)(const T&, Index);
-
-    Pred p;
   protected:
     typename VariableDataSource<T>::shared_ptr data;
   public:
-    TaskIndexVariable(Pred _p)
-        :p(_p), data( new VariableDataSource<T>( T() ) )
+    TaskIndexVariable()
+        : data( new VariableDataSource<T>( ) )
       {
       }
-    TaskIndexVariable( Pred _p, typename VariableDataSource<T>::shared_ptr d )
-      : p( _p ), data( d )
+    TaskIndexVariable( T t)
+        : data( new VariableDataSource<T>( t ) )
+      {
+      }
+    TaskIndexVariable( typename VariableDataSource<T>::shared_ptr d )
+      : data( d )
       {
       }
     VariableDataSource<T>* toDataSource() const
@@ -121,18 +122,45 @@ namespace ORO_Execution
         DataSource<Index>* ind = dynamic_cast<DataSource<Index>*>( i.get() );
         if ( ! ind )
           throw bad_assignment();
-        return new AssignIndexCommand<T, Index, SetType>(data.get(), ind ,t, p );
+        return new AssignIndexCommand<T, Index, SetType, Pred>(data.get(), ind ,t );
       }
 
-    TaskIndexVariable<T, Index, SetType>* clone() const
+    TaskIndexVariable<T, Index, SetType,Pred>* clone() const
       {
-        return new TaskIndexVariable<T, Index, SetType>( p, data );
+        return new TaskIndexVariable( data );
       }
-    TaskIndexVariable<T, Index, SetType>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    TaskIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
       {
-        return new TaskIndexVariable<T, Index, SetType>( p, data->copy( replacements ) );
+        return new TaskIndexVariable( data->copy( replacements ) );
       }
   };
+
+    /**
+     * Overload assignCommand to check for container size.
+     */
+  template<typename T, typename Index, typename SetType, typename Pred>
+  struct TaskIndexContainerVariable
+      : public TaskIndexVariable<T,Index,SetType,Pred>
+  {
+    TaskIndexContainerVariable( T t)
+        : TaskIndexVariable<T,Index,SetType,Pred>( t )
+      {
+      }
+    TaskIndexContainerVariable( typename VariableDataSource<T>::shared_ptr d )
+        : TaskIndexVariable<T,Index,SetType,Pred>( d )
+      {
+      }
+    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+      {
+        DataSourceBase::shared_ptr r( rhs );
+        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        if ( ! t )
+          throw bad_assignment();
+        return new AssignContainerCommand<T>( data.get(), t );
+      }
+  };
+
+
 
   /**
    * This represents a constant value, does not allow assignment,
@@ -147,6 +175,10 @@ namespace ORO_Execution
   public:
     TaskConstant()
       : TaskVariable<T>()
+      {
+      }
+    TaskConstant(T t)
+      : TaskVariable<T>(t)
       {
       }
     TaskConstant( typename VariableDataSource<T>::shared_ptr d )

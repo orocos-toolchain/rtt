@@ -29,6 +29,7 @@
 #define TEMPLATEFACTORY_HPP
 
 #include <boost/lexical_cast.hpp>
+#include <boost/call_traits.hpp>
 
 #include <vector>
 #include <map>
@@ -51,6 +52,39 @@
 
 namespace ORO_Execution
 {
+
+    /**
+     * Type-selection for return type of methods and datasources.
+     * primitives return by value, composite types by const reference
+     */
+    template<typename R>
+    struct ReturnType
+    {
+        //typedef typename boost::call_traits<R>::param_type type;
+        typedef R type;
+    };
+    /**
+     * Type-selection for argument of methods, commands, datasources.
+     * primitives pass by value, composite types by const reference
+     */
+    template<typename A>
+    struct ArgType
+    {
+        //typedef typename boost::call_traits<A>::param_type type;
+        typedef A type;
+    };
+
+    /**
+     * The type of the component, We need to remove the const qualifier
+     * from the component type when creating the factory parts, this qualifier
+     * is present because the user uses '&Component::fun const' member ptrs
+     * for datasources.
+     */
+    template<typename C>
+    struct CompType
+    {
+        typedef typename boost::remove_const<C>::type type;
+    };
 
 #ifndef NO_DOXYGEN
     
@@ -140,8 +174,8 @@ namespace ORO_Execution
     : public TemplateFactoryPart<ComponentT, ResultT>
   {
     typedef FunctorT fun_t;
-    typedef typename remove_cr<FirstArgumentT>::type
-      first_argument_type;
+//     typedef typename remove_cr<FirstArgumentT>::type first_argument_type;
+    typedef FirstArgumentT first_argument_type;
     fun_t fun;
     const char* arg1name;
     const char* arg1desc;
@@ -166,6 +200,7 @@ namespace ORO_Execution
         ret.add( new Property<first_argument_type>( arg1name, arg1desc ) );
         return ret;
       }
+
     ResultT produce( ComponentT* c, const PropertyBag& bag ) const
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
@@ -177,6 +212,7 @@ namespace ORO_Execution
           throw wrong_types_of_args_exception( 1 );
         return fun( c, arg1->get() );
       }
+
     ResultT produce(
       ComponentT* comp,
       const std::vector<DataSourceBase*>& args ) const
@@ -197,10 +233,12 @@ namespace ORO_Execution
     : public TemplateFactoryPart<ComponentT, ResultT>
   {
     typedef FunctorT fun_t;
-    typedef typename remove_cr<FirstArgumentT>::type
-      first_argument_type;
-    typedef typename remove_cr<SecondArgumentT>::type
-      second_argument_type;
+    typedef FirstArgumentT first_argument_type;
+    typedef SecondArgumentT second_argument_type;
+//     typedef typename remove_cr<FirstArgumentT>::type
+//       first_argument_type;
+//     typedef typename remove_cr<SecondArgumentT>::type
+//       second_argument_type;
     fun_t fun;
     const char* arg1name;
     const char* arg1desc;
@@ -265,12 +303,15 @@ namespace ORO_Execution
     : public TemplateFactoryPart<ComponentT, ResultT>
   {
     typedef FunctorT fun_t;
-    typedef typename remove_cr<FirstArgumentT>::type
-      first_argument_type;
-    typedef typename remove_cr<SecondArgumentT>::type
-      second_argument_type;
-    typedef typename remove_cr<ThirdArgumentT>::type
-      third_argument_type;
+    typedef FirstArgumentT first_argument_type;
+    typedef SecondArgumentT second_argument_type;
+    typedef ThirdArgumentT  third_argument_type;
+//     typedef typename remove_cr<FirstArgumentT>::type
+//       first_argument_type;
+//     typedef typename remove_cr<SecondArgumentT>::type
+//       second_argument_type;
+//     typedef typename remove_cr<ThirdArgumentT>::type
+//       third_argument_type;
 
     fun_t fun;
     const char* arg1name;
@@ -349,14 +390,18 @@ namespace ORO_Execution
     : public TemplateFactoryPart<ComponentT, ResultT>
   {
     typedef FunctorT fun_t;
-    typedef typename remove_cr<FirstArgumentT>::type
-      first_argument_type;
-    typedef typename remove_cr<SecondArgumentT>::type
-      second_argument_type;
-    typedef typename remove_cr<ThirdArgumentT>::type
-      third_argument_type;
-    typedef typename remove_cr<FourthArgumentT>::type
-      fourth_argument_type;
+    typedef FirstArgumentT first_argument_type;
+    typedef SecondArgumentT second_argument_type;
+    typedef ThirdArgumentT  third_argument_type;
+    typedef FourthArgumentT  fourth_argument_type;
+//     typedef typename remove_cr<FirstArgumentT>::type
+//       first_argument_type;
+//     typedef typename remove_cr<SecondArgumentT>::type
+//       second_argument_type;
+//     typedef typename remove_cr<ThirdArgumentT>::type
+//       third_argument_type;
+//     typedef typename remove_cr<FourthArgumentT>::type
+//       fourth_argument_type;
 
     fun_t fun;
     const char* arg1name;

@@ -88,7 +88,8 @@
 	<revnumber>0.19.2</revnumber>
 	<date>9 March 2005</date>
 	<authorinitials>PS</authorinitials>
-	<revremark>New State Machine paradigm, removed control-kernel specific part.</revremark>
+	<revremark>New State Machine paradigm, removed control-kernel specific part. Added array
+	 and size allocators.</revremark>
       </revision>
     </revhistory>
 
@@ -335,9 +336,6 @@
   // define a constant of type double, with name "pi",
   // and value 3.14159265358979
   const double pi = 3.14159265358979
-  // define a constant string and give it the initial
-  // value "apples"
-  const string applestring = &quot;apples&quot;
   
   // define a variable of type int, called counter,
   // and give it the initial value 0.
@@ -360,6 +358,78 @@
 	  </para>
 	</sect4>
 	<sect4>
+	  <title>Strings and Arrays</title>
+	  <para>
+	    For convenience, two variable size types have been
+	    added to the parser : <type>string</type> and <type>array</type>.
+	    They are special because their contents have variable size.
+	    For example a string can be empty or contain 10 characters. The
+	    same holds for an array, which contains doubles. String and array
+	    are thus container types. They are mapped on <type>std::string</type>
+	    and <type>std::vector&lt;double></type>. To access them safely from
+	    a task method or command, you need to to pass them by const reference : 
+	    <type>const std::string&amp; s</type>, <type>const std::vector&lt;double>&amp; v</type>.
+	  </para>
+	  <para>Container types can be used in two ways : with a predefined
+	    capacity (ie the <emphasis>possibility</emphasis> to hold N items),
+	    or with a free capacity, where capacity is expanded as there is need for it.
+	    The former way is necessary for realtime programs, the latter can only be
+	    used in non realtime tasks, since it may cause a memory allocation when
+	    capacity limits are exceeded.
+	  </para>
+	  <programlisting>  // A free string and free array :
+  // applestring is expanded to contain 6 characters (Non realtime!)
+  var string applestring = &quot;apples&quot;
+
+  // values is expanded to contain 15 elements (Non realtime!)
+  var array  values      = array(15)         
+
+  // A fixed string and fixed array :
+  var string fixstring(10)  // may contain a string of maximum 10 characters
+  
+  set fixstring  = applestring   // ok, enough capacity
+  set fixstring  = "0123456789x" // runtime program error, not enough room.
+
+
+  var array  fixvalues(10)  // fixvalues may never contain more than 10 elements
+  var array  morevalues(20) // arrays are initialised with n doubles of value 0.0 
+
+  set fixvalues  = morevalues  // will cause program error
+  set morevalues = fixvalues   // ok, morevalues has enough capacity, now contains 10 doubles
+
+  set fixvalues  = morevalues  // ok, since morevalues only contains 10 items.
+
+  set values     = array(20)   // expand values to contain 20 doubles. (Non realtime!) </programlisting>
+	  <para>
+	    As the example above demonstrates, a fixed string or array may
+	    only be assigned from another string or array with equal or less elements.
+	  </para>
+	  <note>
+	    <para>
+	      The integer given upon construction must be a literal constant, because the
+	      memory allocation happens at parse time.
+	    </para>
+	  </note>
+	  <para>Another property of container types is that you can index (use []) their
+	    contents. The index may be any expression that return an int.
+	  </para>
+	  <programlisting>
+  // ... continued
+  // Set an item of a container :
+  for (int i=0; i &lt; 20; set i = i+1)
+       set values[i] = 1.0*i
+
+  // Get an item of a container :
+  var double sum
+  for (int i=0; i &lt; 20; set i = i+1)
+       set sum = sum + values[i]  </programlisting>
+	  <para>
+	    If an assignment tries to set an item out of range, the command will fail,
+	    if you try to read an item out of range, the result will return 0.0, or for
+	    strings, the null character.
+	  </para>
+	</sect4>
+	<sect4>
 	  <title>Operators</title>
 	  <para>
 	    Expressions can be combined using the C-style operators
@@ -367,14 +437,7 @@
 	    programmed in C, C++ or Java.  All operators are
 	    supported, except for the if-then-else operator ("a?b:c"),
 	    and the precedence is the same as the one used in C, C++,
-	    Java and similar languages.
-	  </para>
-	  <para>
-	    However, the operators are only defined for a limited set
-	    of types.  You can apply the usual operators to
-	    expressions of types bool, int, double, bool and vector.
-	    I'm not going to include an exhaustive list here of the
-	    available operators, but in general all that you would
+	    Java and similar languages. In general all that you would
 	    expect, is present.
 	  </para>
 	</sect4>

@@ -37,6 +37,7 @@
 #include "corelib/ConditionInterface.hpp"
 
 #include <iostream>
+#include <fstream>
 
 using namespace boost;
 

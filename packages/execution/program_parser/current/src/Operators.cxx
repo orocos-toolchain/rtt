@@ -37,11 +37,61 @@
 // Cappellini Consonni Extension
 #include <corelib/MultiVector.hpp>
 
+#include <corelib/Logger.hpp>
+using namespace ORO_CoreLib;
+
 #include <boost/type_traits.hpp>
+
+namespace std
+{
+    // must be in std namespace.
+    // STL specialisations for const references : Add others if necessary.
+    template <class _Tp>
+    struct equal_to< const _Tp& >
+        : public binary_function<const _Tp&, const _Tp& ,bool>
+    {
+        bool operator()(const _Tp& __x, const _Tp& __y) const { return __x == __y; }
+    };
+
+    /// One of the @link s20_3_3_comparisons comparison functors@endlink.
+    template <class _Tp>
+    struct not_equal_to<const _Tp&>
+        : public binary_function<const _Tp&, const _Tp&, bool>
+    {
+        bool operator()(const _Tp& __x, const _Tp& __y) const { return __x != __y; }
+    };
+
+    /// One of the @link s20_3_3_comparisons comparison functors@endlink.
+    template <class _Tp>
+    struct greater<const _Tp&>
+        : public binary_function<const _Tp&,const _Tp&,bool>
+    {
+        bool operator()(const _Tp& __x, const _Tp& __y) const { return __x > __y; }
+    };
+
+    /// One of the @link s20_3_3_comparisons comparison functors@endlink.
+    template <class _Tp>
+    struct less<const _Tp&>
+        : public binary_function<const _Tp&,const _Tp&,bool>
+    {
+        bool operator()(const _Tp& __x, const _Tp& __y) const { return __x < __y; }
+    };
+
+    // Ternary functions.
+    template<class Arg1T, class Arg2T, class Arg3T, class ResultT >
+    struct ternary_function
+    {
+        typedef ResultT result_type;
+        typedef Arg1T first_argument_type;
+        typedef Arg2T second_argument_type;
+        typedef Arg3T third_argument_type;
+    };
+}
 
 // STL extensions, some are SGI extensions, others are my own..
 namespace mystl
 {
+
   template<typename T>
   struct identity
     : public std::unary_function<T, T>
@@ -89,7 +139,7 @@ namespace mystl
     typedef Arg1T first_argument_type;
     typedef Arg2T second_argument_type;
     typedef Arg3T third_argument_type;
-    typedef Arg4T forth_argument_type;
+    typedef Arg4T fourth_argument_type;
     typedef Arg5T fifth_argument_type;
     typedef Arg6T sixth_argument_type;
     pointer_to_sixary_function( ResultT (*f)(Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T ) )
@@ -181,6 +231,30 @@ namespace mystl
         return a/b;
       };
   };
+  template<typename R, typename A, typename B>
+  struct adds
+  {
+    typedef R result_type;
+    typedef A first_argument_type;
+    typedef B second_argument_type;
+
+    result_type operator()( A a, B b ) const
+      {
+        return a+b;
+      };
+  };
+  template<typename R, typename A, typename B>
+  struct subs
+  {
+    typedef R result_type;
+    typedef A first_argument_type;
+    typedef B second_argument_type;
+
+    result_type operator()( A a, B b ) const
+      {
+        return a-b;
+      };
+  };
 #endif
 };
 
@@ -200,7 +274,8 @@ namespace ORO_Execution
   class UnaryOperator
     : public UnaryOp
   {
-    typedef typename mystl::remove_cr<typename function::argument_type>::type arg_t;
+//     typedef typename mystl::remove_cr<typename function::argument_type>::type arg_t;
+    typedef typename function::argument_type arg_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -235,8 +310,10 @@ namespace ORO_Execution
   class BinaryOperator
     : public BinaryOp
   {
-    typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-    typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
+    typedef typename function::first_argument_type arg1_t;
+    typedef typename function::second_argument_type arg2_t;
+//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
+//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -249,11 +326,15 @@ namespace ORO_Execution
                            DataSourceBase* b )
       {
         if ( op != mop ) return 0;
+//         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
         DataSource<arg1_t>* arg1 =
           dynamic_cast<DataSource<arg1_t>*>( a );
         DataSource<arg2_t>* arg2 =
           dynamic_cast<DataSource<arg2_t>*>( b );
+//         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
+//         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
         if ( !arg1 || ! arg2 ) return 0;
+//         Logger::log() << "success !"<< Logger::endl;
         return new BinaryDataSource<function>( arg1, arg2, fun );
       };
   };
@@ -271,9 +352,12 @@ namespace ORO_Execution
   class TernaryOperator
     : public TernaryOp
   {
-    typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-    typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
-    typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
+    typedef typename function::first_argument_type arg1_t;
+    typedef typename function::second_argument_type arg2_t;
+    typedef typename function::third_argument_type arg3_t;
+//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
+//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
+//     typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -311,12 +395,18 @@ namespace ORO_Execution
   class SixaryOperator
     : public SixaryOp
   {
-    typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-    typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
-    typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
-    typedef typename mystl::remove_cr<typename function::forth_argument_type>::type arg4_t;
-    typedef typename mystl::remove_cr<typename function::fifth_argument_type>::type arg5_t;
-    typedef typename mystl::remove_cr<typename function::sixth_argument_type>::type arg6_t;
+    typedef typename function::first_argument_type arg1_t;
+    typedef typename function::second_argument_type arg2_t;
+    typedef typename function::third_argument_type arg3_t;
+    typedef typename function::fourth_argument_type arg4_t;
+    typedef typename function::fifth_argument_type arg5_t;
+    typedef typename function::sixth_argument_type arg6_t;
+//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
+//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
+//     typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
+//     typedef typename mystl::remove_cr<typename function::forth_argument_type>::type arg4_t;
+//     typedef typename mystl::remove_cr<typename function::fifth_argument_type>::type arg5_t;
+//     typedef typename mystl::remove_cr<typename function::sixth_argument_type>::type arg6_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -361,51 +451,77 @@ namespace ORO_Execution
   };
 
 #ifdef OROPKG_GEOMETRY
-  Frame framevr( const Vector& v, const Rotation& r )
-  {
-    return Frame( r, v );
-  }
+    struct framevr
+        : public std::binary_function<Vector,Rotation, Frame>
+    {
+        Frame operator()( const Vector& v, const Rotation& r ) const
+        {
+            return Frame( r, v );
+        }
+    };
 
-  Wrench wrenchft( const Vector& force, const Vector& torque )
-  {
-    return Wrench( force, torque );
-  }
+    struct wrenchft
+        : public std::binary_function<Vector,Vector,Wrench>
+    {
+        Wrench operator()( const Vector& force, const Vector& torque ) const
+        {
+            return Wrench( force, torque );
+        }
+    };
 
-  Twist twistvw( const Vector& trans, const Vector& rot )
-  {
-    return Twist( trans, rot );
-  }
+    struct twistvw
+        : public std::binary_function<Vector,Vector,Twist>
+    {
+        Twist operator()( const Vector& trans, const Vector& rot ) const
+        {
+            return Twist( trans, rot );
+        }
+    };
 
-  Vector vectorxyz( double a, double b, double c )
-  {
-    return Vector( a, b, c );
-  }
+    struct vectorxyz
+        : public std::ternary_function<double,double,double,Vector>
+    {
+        Vector operator()( double a, double b, double c ) const
+        {
+            return Vector( a, b, c );
+        }
+    };
 
   
-  double wrench_index( Wrench& w, int index)
-  {
-    if (index > 5 || index <0)
-      return 0.0;
-    else
-      return w[index];
-  }
-
+    template<class WT>
+    struct wrenchtwist_index
+        : public std::binary_function<WT,int,double>
+    {
+        double operator()( WT& w, int index) const
+        {
+            if (index > 5 || index <0)
+                return 0.0;
+            else
+                return w[index];
+        }
+    };
+    /*
   double twist_index( Twist& t, int index)
   {
     if (index > 5 || index <0)
       return 0.0;
     else
       return t[index];
-  }
+      }
+*/
 
 
-  double vector_index( Vector& v, int index )
-  {
-    if (index > 2 || index <0)
-      return 0.0;
-    else
-      return v[index];
-  }
+    struct vector_index
+        : public std::binary_function<Vector, int, double>
+    {
+        double operator()( Vector& v, int index ) const
+            {
+                if (index > 2 || index <0)
+                    return 0.0;
+                else
+                    return v[index];
+            }
+    };
 
 #endif
 
@@ -429,19 +545,19 @@ namespace ORO_Execution
     return d6d;
   }
 
-  std::vector<double> array( int size )
+  const std::vector<double>& array( int size )
   {
-    return std::vector<double>(size);
+    return *(new std::vector<double>(size));
   }
 
-  double double6D_index( Double6D& d6,  int index )
+  double double6D_index( Double6D d6,  int index )
   {
       if ( index > 5 || index < 0 )
           return 0.0;
       return d6[index];
   }
 
-  double array_index( std::vector<double>& v,  int index )
+  double array_index( const std::vector<double>& v,  int index )
   {
       if ( index >= (int)(v.size()) || index < 0 )
           return 0.0;
@@ -487,13 +603,23 @@ namespace ORO_Execution
     add( newBinaryOperator( ">=", std::greater_equal<double>() ) );
     add( newBinaryOperator( "==", std::equal_to<double>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to<double>() ) );
+    // with integers :
+    add( newBinaryOperator( "*", mystl::multiplies<double,int, double>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<double,double, int>() ) );
+    add( newBinaryOperator( "/", mystl::divides<double,int, double>() ) );
+    add( newBinaryOperator( "/", mystl::divides<double,double, int>() ) );
+    add( newBinaryOperator( "+", mystl::adds<double,int, double>() ) );
+    add( newBinaryOperator( "+", mystl::adds<double,double, int>() ) );
+    add( newBinaryOperator( "-", mystl::subs<double,int, double>() ) );
+    add( newBinaryOperator( "-", mystl::subs<double,double, int>() ) );
 
 
     // strings
-    add( newBinaryOperator( "+", std::plus<std::string>() ) );
-    add( newBinaryOperator( "==", std::equal_to<std::string>() ) );
-    add( newBinaryOperator( "!=", std::not_equal_to<std::string>() ) );
-    add( newBinaryOperator( "<", std::less<std::string>() ) );
+//  add( newBinaryOperator( "+", std::plus<std::string>() ) );
+    add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
+    add( newBinaryOperator( "<", std::less<const std::string&>() ) );
+    add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
 
     // chars
     add( newBinaryOperator( "==", std::equal_to<char>() ) );
@@ -521,22 +647,23 @@ namespace ORO_Execution
     add (newBinaryOperator( "*", mystl::multiplies<Twist, Frame, Twist>() ) );
     add (newBinaryOperator( "*", mystl::multiplies<Vector, Frame, Vector>() ) );
 
-    add( newBinaryOperator( "[]", std::ptr_fun( &vector_index ) ) );
-    add( newBinaryOperator( "[]", std::ptr_fun( &wrench_index ) ) );
-    add( newBinaryOperator( "[]", std::ptr_fun( &twist_index ) ) );
+    add( newBinaryOperator( "[]", vector_index() ) );
+    add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
+    add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
 
     // constructors:
-    add( newTernaryOperator( "vectorxyz", mystl::ptr_fun( &vectorxyz ) ) );
-    add( newTernaryOperator( "rotationRPY",
-                             mystl::ptr_fun( Rotation::RPY ) ) );
-    add( newBinaryOperator( "framevr", std::ptr_fun( &framevr ) ) );
-    add( newBinaryOperator( "wrenchft", std::ptr_fun( &wrenchft ) ) );
-    add( newBinaryOperator( "twistvw", std::ptr_fun( &twistvw ) ) );
+    add( newTernaryOperator( "vectorxyz", vectorxyz() ));
+    add( newTernaryOperator( "rotationRPY", mystl::ptr_fun( Rotation::RPY ) ) );
+    add( newBinaryOperator( "framevr", framevr() ) );
+    add( newBinaryOperator( "wrenchft", wrenchft( ) ) );
+    add( newBinaryOperator( "twistvw", twistvw () ) );
 #endif
     add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
     add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
     add( newUnaryOperator( "array", std::ptr_fun( &array ) ) );
 
+    add( newBinaryOperator( "==", std::equal_to<Double6D>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Double6D>() ) );
     add( newUnaryOperator( "-", std::negate<Double6D>() ) );
     add( newBinaryOperator( "*", std::multiplies<Double6D>() ) );
     add( newBinaryOperator( "+", std::plus<Double6D>() ) );

@@ -48,7 +48,7 @@ namespace ORO_Execution
   class ValueParser
   {
     rule_t constant, const_double, const_int, const_bool, named_constant,
-      const_string;
+      const_string, const_char;
     CommonParser commonparser;
     PeerParser peerparser;
 
@@ -73,6 +73,7 @@ namespace ORO_Execution
     void seennamedconstant( iter_t begin, iter_t end );
     void seenboolconstant( iter_t begin, iter_t end );
     void seenintconstant( int c );
+    void seencharconstant( iter_t c );
     void seendoubleconstant( double c );
     void push_str_char( char c );
     void seenstring();

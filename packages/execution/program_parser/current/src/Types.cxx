@@ -34,6 +34,8 @@
 
 #include <corelib/MultiVector.hpp>
 #include "execution/TaskVariable.hpp"
+#include "execution/mystd.hpp"
+#include <functional>
 
 namespace ORO_Execution
 {
@@ -46,20 +48,32 @@ namespace ORO_Execution
 #endif
   using ORO_CoreLib::Double6D;
 
+
+    TaskAttributeBase* TypeInfo::buildVariable( int ) const {
+        return this->buildVariable();
+    }
+
+    TaskAttributeBase* TypeInfo::buildConstant( int ) const {
+        return this->buildConstant();
+    }
+
   template<typename T>
   class TemplateTypeInfo
     : public TypeInfo
   {
   public:
-    TaskAttributeBase* buildConstant()
+      using TypeInfo::buildConstant;
+      using TypeInfo::buildVariable;
+
+    TaskAttributeBase* buildConstant() const
       {
         return new TaskConstant<T>();
       }
-    TaskAttributeBase* buildVariable()
+    TaskAttributeBase* buildVariable() const
       {
         return new TaskVariable<T>();
       }
-    TaskAttributeBase* buildAlias( DataSourceBase* b )
+    TaskAttributeBase* buildAlias( DataSourceBase* b ) const
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
@@ -69,32 +83,53 @@ namespace ORO_Execution
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type.
-  template<typename T, typename IndexType, typename SetType>
+  template<typename T, typename IndexType, typename SetType, typename Pred>
   class TemplateIndexTypeInfo
     : public TypeInfo
   {
-    typedef bool (*Pred)(const T&, IndexType);
-
-      Pred _p;
   public:
-      TemplateIndexTypeInfo(Pred p) : _p (p) {}
+      TemplateIndexTypeInfo() {}
 
-    TaskAttributeBase* buildConstant()
+      using TypeInfo::buildConstant;
+      using TypeInfo::buildVariable;
+
+    TaskAttributeBase* buildConstant() const
       {
         return new TaskConstant<T>();
       }
 
-    TaskAttributeBase* buildVariable()
+    TaskAttributeBase* buildVariable() const
       {
-        return new TaskIndexVariable<T, IndexType, SetType>(_p);
+        return new TaskIndexVariable<T, IndexType, SetType, Pred>();
       }
 
-    TaskAttributeBase* buildAlias( DataSourceBase* b )
+    TaskAttributeBase* buildAlias( DataSourceBase* b ) const
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
         return new TaskAliasAttribute<T>( ds );
+      }
+  };
+
+    // Identical to above, but the variable is of the TaskIndexVariable type
+    // and the T is a container, which has a constructor which takes an int.
+  template<typename T, typename IndexType, typename SetType, typename Pred>
+  class TemplateIndexContainerTypeInfo
+      : public TemplateIndexTypeInfo<T,IndexType,SetType,Pred>
+  {
+      typedef typename mystd::remove_cr<T>::type _T;
+  public:
+      using TypeInfo::buildConstant;
+      using TypeInfo::buildVariable;
+
+    TaskAttributeBase* buildVariable(int size) const
+      {
+          // if a sizehint is given, creat a TaskIndexContainerVariable instead,
+          // which checks capacities.
+          _T t_init(size, SetType());
+          //t_init.reserve( size );
+          return new TaskIndexContainerVariable<T, IndexType, SetType, Pred>( t_init );
       }
   };
 
@@ -109,9 +144,9 @@ namespace ORO_Execution
     return s;
   }
 
-  TypeInfo* TypeInfoRepository::type( const std::string& name )
+  TypeInfo* TypeInfoRepository::type( const std::string& name ) const
   {
-    map_t::iterator i = data.find( name );
+    map_t::const_iterator i = data.find( name );
     if ( i == data.end() )
       return 0;
     else return i->second;
@@ -122,53 +157,55 @@ namespace ORO_Execution
   }
 
   // check the validity of an index
-  bool ArrayIndexChecker( const std::vector<double>& v, int i )
-  {
-    return i > -1 && i < (int)(v.size());
-  }
+    template< class T>
+    struct ArrayIndexChecker
+        : public std::binary_function< T, int, bool>
+    {
+        bool operator()(const T& v, int i ) const
+        {
+            return i > -1 && i < (int)(v.size());
+        }
+    };
 
+#if 0
   // check the validity of an index
-  bool Double6DIndexChecker( const Double6D& d, int i )
-  {
-    return i > -1 && i < 6;
-  }
-
-#ifdef OROPKG_GEOMETRY
-  // check the validity of an index
-  bool WrenchIndexChecker( const Wrench& w, int i )
-  {
-    return i > -1 && i < 6;
-  }
-
-  // check the validity of an index
-  bool TwistIndexChecker( const Twist& d, int i )
-  {
-    return i > -1 && i < 6;
-  }
-
-
-  // check the validity of an index
-  bool VectorIndexChecker( const Vector& v, int i )
-  {
-    return i > -1 && i < 3;
-  }
+    template< class T>
+    struct MultiVectorIndexChecker
+        : public std::binary_function< T, int, bool>
+    {
+        bool operator()(const T& v, int i ) const
+        {
+            return i > -1 && i < T::size;
+        }
+    };
 #endif
+
+  // check the validity of a fixed range index
+    template< class T, int Range>
+    struct RangeIndexChecker
+        : public std::binary_function< T, int, bool>
+    {
+        bool operator()(const T& v, int i ) const
+        {
+            return i > -1 && i < Range;
+        }
+    };
 
   TypeInfoRepository::TypeInfoRepository()
   {
 #ifdef OROPKG_GEOMETRY
     data["frame"] = new TemplateTypeInfo<Frame>();
     data["rotation"] = new TemplateTypeInfo<Rotation>();
-    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double>( &WrenchIndexChecker );
-    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double>( &TwistIndexChecker );
-    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double>( &VectorIndexChecker );
+    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double, RangeIndexChecker<Wrench,6> >;
+    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double, RangeIndexChecker<Twist,6> >;
+    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double, RangeIndexChecker<Vector,3> >;
 #endif
     data["int"] = new TemplateTypeInfo<int>();
     data["char"] = new TemplateTypeInfo<char>();
-    data["string"] = new TemplateTypeInfo<std::string>();
+    data["string"] = new TemplateIndexContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
-    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double>( &Double6DIndexChecker );
-    data["array"] = new TemplateIndexTypeInfo<std::vector<double>,int, double>( &ArrayIndexChecker );
+    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, RangeIndexChecker<Double6D,6> >;
+    data["array"] = new TemplateIndexContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> > >;
   }
 }

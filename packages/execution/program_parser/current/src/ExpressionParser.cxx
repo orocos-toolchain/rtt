@@ -33,15 +33,16 @@
 
 #include "execution/ArgumentsParser.hpp"
 #include "execution/Operators.hpp"
-#include "execution/TaskVariable.hpp"
 #include "execution/DataSourceCondition.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
+#include "execution/TaskAttribute.hpp"
 
 #include "corelib/ConditionDuration.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/PeerParser.hpp"
 
 #include <boost/bind.hpp>
+#include <pkgconf/system.h>
 
 namespace ORO_Execution
 {
@@ -386,14 +387,10 @@ namespace ORO_Execution
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
 
     constructorexp =
-        framector
-      | wrenchctor
-      | twistctor
-      | vectorctor
-      | double6Dctor
-      | double6Dctor6
-      | arrayctor
-      | rotationctor;
+#ifdef OROPKG_GEOMETRY
+        framector | rotationctor | wrenchctor | twistctor | vectorctor |
+#endif
+        double6Dctor | double6Dctor6 | arrayctor;
 
     framector = (
          str_p( "frame" )

@@ -47,12 +47,13 @@ namespace ORO_Execution
         assertion<std::string> expect_init("Expected an initialisation value of the value.");
         assertion<std::string> expect_is("Expected an '=' sign.");
         assertion<std::string> expect_index("Expected an index: [index].");
+        assertion<std::string> expect_integer("Expected a positive integer value.");
     }
 
 
   ValueChangeParser::ValueChangeParser( TaskContext* pc )
       : assigncommand( 0 ), lastdefinedvalue( 0 ), peername(0),
-      type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc )
+        type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1)
   {
     BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
@@ -104,10 +105,11 @@ namespace ORO_Execution
         "param"
         >> baredefinition;
 
-    baredefinition = (
-            expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
-	 >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-       )[bind( &ValueChangeParser::seenbaredefinition, this )];
+    baredefinition =
+        ( expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
+          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
+          >> !( ch_p('(') >> expect_integer( uint_p[bind( &ValueChangeParser::seensizehint, this, _1)]) >> expect_close( ch_p(')')) ) 
+          )[bind( &ValueChangeParser::seenbaredefinition, this )];
   };
 
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
@@ -124,11 +126,21 @@ namespace ORO_Execution
         return expressionparser.setContext( tc );
     }
 
+    void ValueChangeParser::seensizehint(int i)
+    {
+        sizehint = i;
+    }
+
   void ValueChangeParser::seenconstantdefinition()
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
-    TaskAttributeBase* var = type->buildConstant();
+    TaskAttributeBase* var;
+      if (sizehint == -1 )
+          var = type->buildVariable();
+      else {
+          var = type->buildVariable(sizehint);
+      }
     context->attributeRepository.setValue( valuename, var );
     try
     {
@@ -181,11 +193,16 @@ namespace ORO_Execution
   {
     // type has been stored by calling 'seentype'
     // valuename has been stored by calling 'storename'
-    TaskAttributeBase* var = type->buildVariable();
-    context->attributeRepository.setValue( valuename, var );
-    lastdefinedvalue = var;
-    lastparseddefname = valuename;
-    type = 0;
+      TaskAttributeBase* var;
+      if (sizehint == -1 )
+          var = type->buildVariable();
+      else {
+          var = type->buildVariable(sizehint);
+      }
+      context->attributeRepository.setValue( valuename, var );
+      lastdefinedvalue = var;
+      lastparseddefname = valuename;
+      type = 0;
   }
 
     void ValueChangeParser::storename( iter_t begin, iter_t end ) {
@@ -275,6 +292,7 @@ namespace ORO_Execution
     type = 0;
     index_ds = 0;
     peername = 0;
+    sizehint = -1;
   }
 
   rule_t& ValueChangeParser::constantDefinitionParser()

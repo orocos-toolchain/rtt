@@ -35,7 +35,6 @@
 #include "execution/ProgramGraph.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
-#include "execution/TaskVariable.hpp"
 #include "execution/ConditionComposite.hpp"
 #include "execution/TryCommand.hpp"
 #include "execution/FunctionFactory.hpp"

@@ -41,29 +41,52 @@ namespace ORO_Execution
    * constants, variables or aliases of them, the classes in this file
    * provide that information.
    */
-  class TypeInfo
-  {
-  public:
-    virtual ~TypeInfo();
-    virtual TaskAttributeBase* buildConstant() = 0;
-    virtual TaskAttributeBase* buildVariable() = 0;
-    /**
-     * build an alias with b as the value.  If b is of the wrong type,
-     * 0 will be returned..
-     */
-    virtual TaskAttributeBase* buildAlias( DataSourceBase* b ) = 0;
-  };
 
-  class TypeInfoRepository
-  {
-    TypeInfoRepository();
-    ~TypeInfoRepository();
-    typedef std::map<std::string, TypeInfo*> map_t;
-    map_t data;
-  public:
-    static TypeInfoRepository& instance();
-    TypeInfo* type( const std::string& name );
-  };
+    /**
+     * A class for representing a parser type, and which can build
+     * instances of that type.
+     */
+    class TypeInfo
+    {
+    public:
+        virtual ~TypeInfo();
+        /**
+         * Build a non modifyable instance of this type.
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        virtual TaskAttributeBase* buildConstant(int sizehint) const;
+        virtual TaskAttributeBase* buildConstant() const = 0;
+        /**
+         * Build a modifyable instance of this type.
+         * @param sizehint For variable size instances, use it to hint
+         * the size of the instance.
+         */
+        virtual TaskAttributeBase* buildVariable(int sizehint) const;
+        virtual TaskAttributeBase* buildVariable() const = 0;
+        /**
+         * build an alias with b as the value.  If b is of the wrong type,
+         * 0 will be returned..
+         */
+        virtual TaskAttributeBase* buildAlias( DataSourceBase* b ) const = 0;
+    };
+
+    /**
+     * This class contains all known types to the parser.
+     */
+    class TypeInfoRepository
+    {
+        TypeInfoRepository();
+        ~TypeInfoRepository();
+        typedef std::map<std::string, TypeInfo*> map_t;
+        map_t data;
+    public:
+        static TypeInfoRepository& instance();
+        /**
+         * Retrieve a type with a given \a name.
+         */
+        TypeInfo* type( const std::string& name ) const;
+    };
 }
 
 #endif

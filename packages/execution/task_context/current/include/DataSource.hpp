@@ -65,31 +65,50 @@ namespace ORO_Execution
    */
   class DataSourceBase
   {
-    // We keep the refcount ourselves.  We aren't using
-    // boost::shared_ptr, because boost::intrusive_ptr is better,
-    // exactly because it can be used with refcounts that are stored
-    // in the class itself.  Advantages are that the shared_ptr's for
-    // derived classes use the same refcount, which is of course very
-    // much desired, and that refcounting happens in an efficient way,
-    // which is also nice :)
+      /**
+         We keep the refcount ourselves.  We aren't using
+         boost::shared_ptr, because boost::intrusive_ptr is better,
+         exactly because it can be used with refcounts that are stored
+         in the class itself.  Advantages are that the shared_ptr's for
+         derived classes use the same refcount, which is of course very
+         much desired, and that refcounting happens in an efficient way,
+         which is also nice :)
+      */
     int refcount;
   protected:
-    // the destructor is private.  You are not allowed to delete this
-    // class yourself, use a shared pointer !
+      /** the destructor is private.  You are not allowed to delete this
+       * class yourself, use a shared pointer !
+       */
     virtual ~DataSourceBase();
   public:
-    typedef boost::intrusive_ptr<DataSourceBase> shared_ptr;
+      /**
+       * Use this type to store a pointer to a DataSourceBase.
+       */
+      typedef boost::intrusive_ptr<DataSourceBase> shared_ptr;
 
-    DataSourceBase() : refcount( 0 ) {};
-    void ref() { ++refcount; };
-    void deref() { if ( --refcount <= 0 ) delete this; };
+      DataSourceBase() : refcount( 0 ) {};
+      /**
+       * Increase the reference count by one.
+       */
+      void ref() { ++refcount; };
+      /**
+       * Decrease the reference count by one and delete this on zero.
+       */
+      void deref() { if ( --refcount <= 0 ) delete this; };
 
-    virtual void reset();
+      /**
+       * Reset the data to initial values.
+       */
+      virtual void reset();
+
       /**
        * Force an evaluation of the DataSourceBase.
        */
       virtual void evaluate() const = 0;
-    virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+      /**
+       * Create a deep copy of this DataSource, unless it is already cloned and place the association (parent, clone) in \a alreadyCloned.
+       */
+      virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
   };
 
   /**
@@ -145,6 +164,72 @@ namespace ORO_Execution
       T mdata;
   public:
       typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
+//       typedef typename boost::remove_reference< T >::type nonrefT;
+
+      VariableDataSource( T data )
+          : mdata( data )
+      {
+      }
+
+      VariableDataSource( )
+          : mdata()
+      {
+      }
+
+      T get() const
+      {
+          return mdata;
+      }
+
+      void set( T t )
+      {
+          mdata = t;
+      }
+
+      T& set() {
+          return mdata;
+      }
+
+      virtual VariableDataSource<T>* clone() const
+      {
+          return new VariableDataSource<T>(mdata);
+      }
+
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+          if ( i == alreadyCloned.end() ) {
+              VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
+              alreadyCloned[this] = n;
+              return n;
+          }
+          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) );
+          return static_cast<VariableDataSource<T>*>( i->second );
+      }
+  };
+
+  /**
+   * VariableDataSource specialisation for const references.
+   * We store the 'bare' valuetype and 'act' like a datasource for const
+   * references in the DataSource interface. The difference is subtle but
+   * important for the parser.
+   * @note This specialisation could have been replaced by an alternative
+   * implementation, such as ConstRefDataSource or so, but specilisation
+   * requires less replaces in the code.
+   */
+  template<typename _T>
+  class VariableDataSource<const _T&>
+    : public DataSource<const _T&>
+  {
+      _T mdata;
+  public:
+      typedef const _T& T;
+      typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
+//       typedef typename boost::remove_reference< T >::type nonrefT;
+
+      VariableDataSource()
+          : mdata()
+      {
+      }
 
       VariableDataSource( T data )
           : mdata( data )
@@ -161,7 +246,7 @@ namespace ORO_Execution
           mdata = t;
       }
 
-      T& set() {
+      _T& set() {
           return mdata;
       }
 
@@ -223,8 +308,10 @@ namespace ORO_Execution
     : public DataSource<typename function::result_type>
   {
     typedef typename function::result_type value_t;
-    typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
-    typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
+//     typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
+//     typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
+    typedef typename function::first_argument_type  first_arg_t;
+    typedef typename function::second_argument_type second_arg_t;
     typename DataSource<first_arg_t>::shared_ptr ma;
     typename DataSource<second_arg_t>::shared_ptr mb;
     function fun;
@@ -269,9 +356,12 @@ namespace ORO_Execution
     : public DataSource<typename function::result_type>
   {
     typedef typename function::result_type value_t;
-    typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
-    typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
-    typedef typename remove_cr<typename function::third_argument_type>::type third_arg_t;
+//     typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
+//     typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
+//     typedef typename remove_cr<typename function::third_argument_type>::type third_arg_t;
+    typedef typename function::first_argument_type first_arg_t;
+    typedef typename function::second_argument_type second_arg_t;
+    typedef typename function::third_argument_type third_arg_t;
     typename DataSource<first_arg_t>::shared_ptr ma;
     typename DataSource<second_arg_t>::shared_ptr mb;
     typename DataSource<third_arg_t>::shared_ptr mc;
@@ -321,16 +411,22 @@ namespace ORO_Execution
     : public DataSource<typename function::result_type>
   {
     typedef typename function::result_type value_t;
-    typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
-    typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
-    typedef typename remove_cr<typename function::third_argument_type>::type third_arg_t;
-    typedef typename remove_cr<typename function::forth_argument_type>::type forth_arg_t;
-    typedef typename remove_cr<typename function::fifth_argument_type>::type fifth_arg_t;
-    typedef typename remove_cr<typename function::sixth_argument_type>::type sixth_arg_t;
+//     typedef typename remove_cr<typename function::first_argument_type>::type first_arg_t;
+//     typedef typename remove_cr<typename function::second_argument_type>::type second_arg_t;
+//     typedef typename remove_cr<typename function::third_argument_type>::type third_arg_t;
+//     typedef typename remove_cr<typename function::forth_argument_type>::type forth_arg_t;
+//     typedef typename remove_cr<typename function::fifth_argument_type>::type fifth_arg_t;
+//     typedef typename remove_cr<typename function::sixth_argument_type>::type sixth_arg_t;
+    typedef typename function::first_argument_type first_arg_t;
+    typedef typename function::second_argument_type second_arg_t;
+    typedef typename function::third_argument_type third_arg_t;
+    typedef typename function::fourth_argument_type fourth_arg_t;
+    typedef typename function::fifth_argument_type fifth_arg_t;
+    typedef typename function::sixth_argument_type sixth_arg_t;
     typename DataSource<first_arg_t>::shared_ptr ma;
     typename DataSource<second_arg_t>::shared_ptr mb;
     typename DataSource<third_arg_t>::shared_ptr mc;
-    typename DataSource<forth_arg_t>::shared_ptr md;
+    typename DataSource<fourth_arg_t>::shared_ptr md;
     typename DataSource<fifth_arg_t>::shared_ptr me;
     typename DataSource<sixth_arg_t>::shared_ptr mf;
     function fun;
@@ -341,7 +437,7 @@ namespace ORO_Execution
                      DataSource<first_arg_t>* a,
                      DataSource<second_arg_t>* b,
                      DataSource<third_arg_t>* c,
-                     DataSource<forth_arg_t>* d,
+                     DataSource<fourth_arg_t>* d,
                      DataSource<fifth_arg_t>* e,
                      DataSource<sixth_arg_t>* f,
                        function _fun )
@@ -355,7 +451,7 @@ namespace ORO_Execution
         first_arg_t a = ma->get();
         second_arg_t b = mb->get();
         third_arg_t c = mc->get();
-        forth_arg_t d = md->get();
+        fourth_arg_t d = md->get();
         fifth_arg_t e = me->get();
         sixth_arg_t f = mf->get();
         return fun( a, b, c, d, e, f );
@@ -393,7 +489,8 @@ namespace ORO_Execution
     : public DataSource<typename function::result_type>
   {
     typedef typename function::result_type value_t;
-    typedef typename remove_cr<typename function::argument_type>::type arg_t;
+//     typedef typename remove_cr<typename function::argument_type>::type arg_t;
+    typedef typename function::argument_type arg_t;
     typename DataSource<arg_t>::shared_ptr ma;
     function fun;
   public:

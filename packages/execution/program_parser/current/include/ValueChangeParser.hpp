@@ -78,6 +78,7 @@ namespace ORO_Execution
     void storepeername();
     void seentype( iter_t begin, iter_t end );
     void seenindexassignment();
+    void seensizehint(int i);
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
       variableassignment, paramdefinition, baredefinition;
@@ -88,6 +89,8 @@ namespace ORO_Execution
     CommonParser commonparser;
 
     DataSourceBase::shared_ptr index_ds;
+
+      int sizehint;
   public:
     ValueChangeParser( TaskContext* tc );
 

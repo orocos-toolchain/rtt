@@ -204,9 +204,16 @@ namespace ORO_Execution {
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
               i != parametervalues.end(); ++i )
         {
+            // What is sure, is that each param
+            // must also be in the attributerepository.
+          assert( replacements.find( i->second->toDataSource() ) != replacements.end() );
           TaskAttributeBase* npvb = i->second->copy( replacements );
           ret->parametervalues[i->first] = npvb;
-//           replacements[i->second->toDataSource()] = npvb->toDataSource();
+//           assert( replacements[i->second->toDataSource()] == npvb->toDataSource() );
+          // XXX Why do we need to do this ?? the above assertion should be true already,
+          // when npvb is made a copy of i->second.
+          replacements[i->second->toDataSource()] = npvb->toDataSource();
+          
         }
 
         // TODO : these DS'es are no longer used, since all goes through the StateGraphCommands now.

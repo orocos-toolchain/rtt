@@ -30,6 +30,7 @@
 
 #include <corelib/CommandInterface.hpp>
 #include <execution/DataSource.hpp>
+#include <execution/mystd.hpp>
 
 namespace ORO_Execution
 {
@@ -75,29 +76,62 @@ namespace ORO_Execution
       }
   };
 
-  template<typename T, typename Index, typename SetType>
+    /**
+     * Assign the contents of one variable-size container to another.
+     * This class checks for capacity and fails execution if not sufficient.
+     */
+  template<typename T>
+  class AssignContainerCommand
+    : public CommandInterface
+  {
+      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      LHSSource lhs;
+      typedef typename DataSource<T>::shared_ptr RHSSource;
+      RHSSource rhs;
+  public:
+      AssignContainerCommand( VariableDataSource<T>* l, DataSource<T>* r )
+          : lhs( l ), rhs( r )
+      {
+      }
+
+      bool execute()
+      {
+          if ( lhs->get().capacity() < rhs->get().size() )
+              return false;
+          lhs->set( rhs->get() );
+          return true;
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new AssignContainerCommand( lhs.get(), rhs.get() );
+      }
+
+      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new AssignContainerCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
+      }
+  };
+
+  template<typename T, typename Index, typename SetType, typename Pred>
   class AssignIndexCommand
     : public CommandInterface
   {
-      typedef bool (*Pred)(const T&, Index);
-
       typedef typename DataSource<Index>::shared_ptr IndexSource;
       IndexSource i;
       typedef typename VariableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
       typedef typename DataSource<SetType>::shared_ptr RHSSource;
       RHSSource rhs;
-      Pred p;
   public:
-      AssignIndexCommand( VariableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r, Pred _p )
-          : i(index),lhs( l ), rhs( r ), p(_p)
+      AssignIndexCommand( VariableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r)
+          : i(index),lhs( l ), rhs( r )
       {
       }
 
       bool execute()
       {
           Index ind = i->get();
-          if ( p(lhs->get(), ind) ) {
+          if ( Pred()( lhs->get(), ind) ) {
               lhs->set()[ ind ] = rhs->get();
               return true;
           }
@@ -106,11 +140,11 @@ namespace ORO_Execution
 
       virtual CommandInterface* clone() const
       {
-          return new AssignIndexCommand( lhs.get(), i.get(), rhs.get(), p );
+          return new AssignIndexCommand( lhs.get(), i.get(), rhs.get() );
       }
 
       virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-          return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ), p );
+          return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
 }

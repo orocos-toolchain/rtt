@@ -30,30 +30,24 @@
 
 #include "parser-types.hpp"
 
-#include "CommonParser.hpp"
-#include "ConditionParser.hpp"
-#include "CommandParser.hpp"
-#include "corelib/Event.hpp"
-#include "ValueChangeParser.hpp"
-#include "ProgramGraphParser.hpp"
-#include "ValueParser.hpp"
-
 #include <map>
 #include <string>
-#include <iosfwd>
 #include <boost/function.hpp>
+#include "DataSource.hpp"
 
 namespace ORO_Execution
 {
-    using ORO_CoreLib::Event;
-
     class StateMachineBuilder;
     class ParsedStateMachine;
     class StateDescription;
-
-    namespace detail {
-        class EventHandle;
-    }
+    class ProgramGraphParser;
+    class ConditionParser;
+    class ValueChangeParser;
+    class ExpressionParser;
+    class CommonParser;
+    class TaskContext;
+    class TaskAttributeBase;
+    class FunctionGraph;
 
   /**
    * This is not a parser in the Boost.spirit sense of the word, it's
@@ -80,13 +74,12 @@ namespace ORO_Execution
       typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
       typedef std::map<std::string, StateMachineBuilder*> contextbuilders_t;
-//       typedef std::map<std::string, detail::EventHandle*> handlemap;
 
       contextnamemap_t rootcontexts;
       contextbuilders_t contextbuilders;
       ParsedStateMachine* curtemplatecontext;
-      std::vector<CommandInterface*> varinitcommands;
       std::vector<CommandInterface*> paraminitcommands;
+      std::vector<CommandInterface*> varinitcommands;
       ParsedStateMachine* curinstantiatedcontext;
       StateMachineBuilder* curcontextbuilder;
       std::string curinstcontextname;
@@ -97,12 +90,7 @@ namespace ORO_Execution
       bool curfinalstateflag;
       StateDescription* curstate;
       StateDescription* curnonprecstate;
-//       handlemap curhandles;
-//       ProgramGraph* curprogram;
       ProgramGraphParser* progParser;
-//       detail::EventHandle* curhand;
-//       Event<void(void)>* curevent;
-//       boost::function<void(void)> cureventsink;
       ConditionInterface* curcondition;
       std::string curscvccontextname;
       std::string curscvcparamname;
@@ -122,7 +110,6 @@ namespace ORO_Execution
       rule_t varline;
       rule_t state;
       rule_t vardec;
-//       rule_t eventhandledecl;
       rule_t subMachinedecl;
       rule_t statecontent;
       rule_t statecontentline;
@@ -131,22 +118,11 @@ namespace ORO_Execution
       rule_t handle;
       rule_t transitions;
       rule_t exit;
-//       rule_t eeline;
       rule_t programBody;
-//       rule_t varchanges;
-//       rule_t eecommand;
-//       rule_t handleline;
-//       rule_t handlecommand;
-//       rule_t docommand;
-//       rule_t statecommand;
       rule_t transline;
       rule_t selectcommand;
-//       rule_t disconnectevent;
-//       rule_t connectevent;
-//       rule_t emitcommand;
       rule_t brancher;
       rule_t selector;
-//       rule_t eventbinding;
       rule_t contextinstarguments;
       rule_t contextinstargument;
       rule_t contextmemvar;
@@ -156,16 +132,12 @@ namespace ORO_Execution
       rule_t contextalias;
       rule_t subMachinevarchange;
 
-      ConditionParser conditionparser;
-      CommonParser commonparser;
-//       CommandParser commandparser;
-      ValueChangeParser valuechangeparser;
-      ExpressionParser expressionparser;
-      ValueParser valueparser;
+      ConditionParser* conditionparser;
+      CommonParser* commonparser;
+      ValueChangeParser* valuechangeparser;
+      ExpressionParser* expressionparser;
 
       void clear();
-
-      void handledecl( iter_t s, iter_t f);
 
       void seeninitialstate();
       void seenfinalstate();
@@ -178,21 +150,8 @@ namespace ORO_Execution
       void seenhandle();
       FunctionGraph* finishProgram();
 
-//       void seencommand();
-//       void seenstatement();
       void seencondition();
       void seenselect( iter_t s, iter_t f);
-
-//       void seenemit();
-
-//       void seenconnecthandler( iter_t s, iter_t f);
-//       void seenconnect();
-//       void seendisconnecthandler( iter_t s, iter_t f );
-
-//       void eventselected();
-//       void seensink();
-//       void finished();
-//       void seenvaluechange();
 
       void seenstatecontextname( iter_t begin, iter_t end );
       void storeOffset();
@@ -215,9 +174,7 @@ namespace ORO_Execution
 
       void seenscvcsubMachinename( iter_t begin, iter_t end );
       void seenscvcparamname( iter_t begin, iter_t end );
-      void seenscvcexpression();
 
-      ProgramGraph* emptyProgram(const std::string& name);
   public:
     StateGraphParser( iter_t& positer, TaskContext* tc );
     ~StateGraphParser();
