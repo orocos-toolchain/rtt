@@ -81,7 +81,7 @@ Rotation Rotation::RPY(double roll,double pitch,double yaw)
 // Gives back a rotation matrix specified with RPY convention
 void Rotation::GetRPY(double& roll,double& pitch,double& yaw) const
     {
-        if (fabs(data[6]-1.0) < epsilon ) {
+        if (fabs(data[6]) > 1.0 - epsilon ) {
             roll = -sign(data[6]) * atan2(data[1], data[4]);
             pitch= -sign(data[6]) * PI / 2;
             yaw  = 0.0 ;
