@@ -571,9 +571,9 @@ given in the general &orocos; overview document.
         are defined in <filename>PropertyBag.hpp</filename> (see Doxygen documentation).
         These operations are however, most likely not realtime.
     </para>
-    <note>When you want to put a PropertyBag into another PropertyBag, you need
+    <note><para>When you want to put a PropertyBag into another PropertyBag, you need
         to make a Property&lt;PropertyBag&gt; and insert that property into the 
-        first bag.
+        first bag.</para>
     </note>
       </sect2>
       <sect2>
@@ -621,10 +621,10 @@ given in the general &orocos; overview document.
 	</filename> and the API is quite straight forward. The most common usage
 	syntax is given below. The Doxygen documentation contains the full API.
       </para>
-      <note>
+      <note><para>
 	The most common use of nameserving is keeping track of pointers to objects.
 	A NameServer almost always takes pointers to an object as arguments and 
-	returns a pointer when the object is looked up again.
+	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>
 	NameServer&lt; ClassA* &gt; nameserver; // A NameServer collecting pointers to ClassA objects
