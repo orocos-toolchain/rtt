@@ -20,10 +20,6 @@
 #ifndef PI_MUTATINGPROPERTYINTROSPECTION_HPP
 #define PI_MUTATINGPROPERTYINTROSPECTION_HPP
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <string>
 
 namespace ORO_CoreLib
