@@ -15,9 +15,10 @@ synchronous and asynchronous event handling."
     implements OROINT_CORELIB_EVENT_INTERFACE
 
     cdl_option OROSEM_CORELIB_EVENTS_ASYN {
-	display "Enable asynchronous event completion.
-This means a part of the event can be handled in another thread.
-"
+	display "Enable asynchronous event completion."
+	description "
+This means a part of the event (called the completion)
+can be deferred to another thread."
 	flavor bool
 	compile CompletionProcessor.cxx
 	implements OROINT_CORELIB_COMPLETION_INTERFACE
