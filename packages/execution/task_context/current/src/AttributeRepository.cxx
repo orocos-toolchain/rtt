@@ -30,6 +30,7 @@
 #include "execution/AttributeRepository.hpp"
 #include "execution/TaskAttribute.hpp"
 #include "execution/DataSource.hpp"
+#include "execution/mystd.hpp"
 
 namespace ORO_Execution
 {
@@ -92,4 +93,8 @@ namespace ORO_Execution
     return values.find( name ) != values.end();
   }
 
+    std::vector<std::string> AttributeRepository::attributes() const
+    {
+        return mystd::keys( values );
+    }
 }

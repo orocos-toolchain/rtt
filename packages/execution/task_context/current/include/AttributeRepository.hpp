@@ -46,7 +46,7 @@ namespace ORO_Execution
      */
   struct AttributeRepository
   {
-    typedef std::map<const std::string, TaskAttributeBase*> map_t;
+    typedef std::map<std::string, TaskAttributeBase*> map_t;
     map_t values;
 
     AttributeRepository();
@@ -87,6 +87,10 @@ namespace ORO_Execution
        */
       AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const;
 
+      /**
+       * Return a list of all attributes.
+       */
+      std::vector<std::string> attributes() const;
 //       const AttributeRepository& operator=(const AttributeRepository& orig) {
 //           this->values = orig.values;
 //       }

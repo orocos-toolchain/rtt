@@ -194,7 +194,12 @@ namespace ORO_Execution
         }
 
         // Only complete peers and objects, not "this" methods.
-        std::vector<std::string> comps = peer->commandFactory.getObjectList();
+        std::vector<std::string> comps = peer->attributeRepository.attributes();
+        for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
+            if ( i->find( comp ) == 0 )
+                completes.push_back( peerpath+*i );
+        }
+        comps = peer->commandFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this" )
                 completes.push_back( peerpath+*i+"." );
@@ -713,8 +718,11 @@ namespace ORO_Execution
         cout << "  name, followed by the parameters. An example could be :"<<endl;
         cout << "  myTask.orderBeers(\"Palm\", 5) [then press enter] "<<endl;
         cout << "  1+1 [enter]" <<endl << coloroff;
+        cout << endl<<"  The attributes of this task are :"<<endl;
+        std::vector<std::string> objlist = taskcontext->attributeRepository.attributes();
+        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
         cout << endl<<"  The available Command objects are :"<<endl;
-        std::vector<std::string> objlist = taskcontext->commandFactory.getObjectList();
+        objlist = taskcontext->commandFactory.getObjectList();
         std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
         cout << "  The available DataSource objects are :"<<endl;
         objlist = taskcontext->dataFactory.getObjectList();
