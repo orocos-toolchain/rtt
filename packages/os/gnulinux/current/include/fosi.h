@@ -36,6 +36,7 @@ extern "C"
 #include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <errno.h>
     typedef pthread_t RTOS_TASK;
 
 
@@ -106,7 +107,7 @@ extern "C"
         pthread_mutexattr_t ma_t;
         pthread_mutexattr_init(&ma_t);
 /* 	pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP); */
-        return pthread_mutex_init(m, &ma_t);
+        return pthread_mutex_init(m, 0 );
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )

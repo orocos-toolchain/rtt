@@ -240,7 +240,7 @@
       </para>
       <para>
 	An introduction to RTAI/LXRT can be found in the <ulink
-	  href="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html"> 
+	  url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html"> 
 	  Porting to LXRT HOWTO</ulink>, which is a must- read if you
 	don't know what LXRT is.
       </para>
