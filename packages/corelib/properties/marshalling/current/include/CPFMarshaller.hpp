@@ -115,7 +115,9 @@ namespace ORO_CoreLib
 			virtual void serialize(const Property<PropertyBag> &b) 
 			{
 				PropertyBag v = b.get();
-                *(this->s) <<"<struct name=\""<<b.getName()<<"\" type=\""<< v.getType()<< "\">\n";
+                *(this->s) <<"<struct name=\""<<b.getName()<<"\" type=\""<< v.getType()<< "\">\n"
+                           <<"<description>"  <<b.getDescription() << "</description>\n";
+
                 for (
                     PropertyBag::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
