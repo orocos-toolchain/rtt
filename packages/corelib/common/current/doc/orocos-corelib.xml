@@ -587,7 +587,8 @@ emergencyStop.fire(); // User not notified
 	    ConditionOnce</classname> (returns only true when it is the first time evaluated), 
 	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
 	  each state transition a Condition object which it will <function>evaluate()</function>
-	  to determine if the transition is allowed.
+	  to determine if the transition is allowed. All condition objects are reset() when the
+	  state is entered.
 	</para>
       </sect1>
       <sect1>
@@ -650,7 +651,10 @@ emergencyStop.fire(); // User not notified
       <para>
 	The StateContext has a method <function>requestNextState()</function> which
 	tries to make the first valid transition from the current state to the
-	another state it encounters.
+	another state it encounters. To make this workable, transitions can be
+	given an optional parameter which denotes the priority. It defaults to
+	zero. A high number denotes a high priority, a low number denotes a 
+	low priority.
       </para>
       <para>
 	Writing States and StateContexts is cumbersome. The Orocos Framework has
