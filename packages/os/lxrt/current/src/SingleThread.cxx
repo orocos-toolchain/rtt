@@ -60,7 +60,7 @@ namespace ORO_OS
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
             std::cerr << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<std::endl;
             std::cerr << "Exiting this thread." <<std::endl;
-            return 0;
+            exit (-1); // can not return 0 because main is blocked on sem.
         }
     
         // Reporting available from this point :
@@ -130,7 +130,7 @@ namespace ORO_OS
         running(false), goRealtime(false), priority(_priority), prepareForExit(false),
         runComp(r)
     {
-        if ( !name.empty() )
+        if ( !name.empty() && rt_get_adr( nam2num(name.c_str() )) == 0 )
             taskNameSet(name.c_str());
         else
             num2nam(rt_get_name(0), taskName);
