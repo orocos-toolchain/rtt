@@ -9,7 +9,6 @@ can only select one OS Package which is called the
 
     include_dir os
     
-    #compile ConditionVariableTimed.cxx  
     compile startstop.cxx
     compile StartStopManager.cxx
     compile Mutex.cxx
@@ -76,8 +75,6 @@ std C++ library). It resides in the rt_std namespace."
     cdl_interface OROINT_OS_EVENT_INTERRUPT {
 	display "Support for interrupt based Events"
 	flavor bool
-	requires OROINT_CORELIB_EVENT_INTERFACE
-        compile EventInterrupt.cxx
     }
 
     cdl_interface OROINT_OS_STDCXXLIB {
