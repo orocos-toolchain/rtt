@@ -3,9 +3,10 @@
 echo -e \
 "This script is meant to be executed by users downloading 
 Orocos packages from the net. It does not hurt running this script 
-multiple times, but it should not be neccessary either.
-Be sure to read the Orocos Installation Manual, 
-it will save you a lot of time. 
+multiple times and it is intended to be run if you installed 
+an extra support (comedi, boost, readline,...) library to
+be used with Orocos.
+
 Press any key to continue...
 "
 read -s -n1

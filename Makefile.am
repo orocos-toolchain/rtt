@@ -39,7 +39,7 @@ new_packages:
 	ecosconfig new @ECOS_TARGET@ minimal ;\
 	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl); done ;\
-	{ ecosconfig template allpackages || ecosconfig template corelib-os; };\
+	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
 	ecosconfig check
 
