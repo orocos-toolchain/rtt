@@ -14,4 +14,4 @@ clean:
 	@echo "Cleaning up..."
 	rm -f support.epk pkgadd.db
 	find support -name "*.cdl" | xargs rm -f
-	rm ecos.db
+	rm -f ecos.db
