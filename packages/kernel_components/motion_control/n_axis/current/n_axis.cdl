@@ -17,6 +17,6 @@ planning and interpolation.
 
     compile nAxesControllerPos.cxx nAxesControllerPosVel.cxx nAxesControllerVel.cxx
     compile nAxesEffectorVel.cxx
-    compile nAxesGeneratorPos.cxx
+    compile nAxesGeneratorPos.cxx nAxesGeneratorSin.cxx
     compile nAxesSensorPos.cxx
 }
