@@ -10,8 +10,6 @@
 
 #include "corelib/ConditionDuration.hpp"
 
-#include <geometry/frames.h>
-
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
@@ -19,9 +17,6 @@ namespace ORO_Execution
 {
   using boost::bind;
   using ORO_CoreLib::ConditionDuration;
-
-  using ORO_Geometry::Vector;
-  using ORO_Geometry::Rotation;
 
   DataCallParser::DataCallParser( ExpressionParser& p, ParseContext& c )
     : expressionparser( p ), context( c )

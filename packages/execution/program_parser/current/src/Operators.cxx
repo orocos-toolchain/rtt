@@ -1,7 +1,13 @@
 #include "execution/Operators.hpp"
 
 #include <functional>
+
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+// Include geometry support
 #include <geometry/frames.h>
+#endif
+
 #include <boost/type_traits.hpp>
 
 // STL extensions, some are SGI extensions, others are my own..
@@ -77,9 +83,11 @@ namespace mystl
 
 namespace ORO_Execution
 {
+#ifdef OROPKG_GEOMETRY
   using ORO_Geometry::Frame;
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
+#endif
 
   template<typename function>
   class UnaryOperator
@@ -191,6 +199,7 @@ namespace ORO_Execution
     return reg;
   };
 
+#ifdef OROPKG_GEOMETRY
   Frame framevr( const Vector& v, const Rotation& r )
   {
     return Frame( r, v );
@@ -200,6 +209,7 @@ namespace ORO_Execution
   {
     return Vector( a, b, c );
   }
+#endif
 
   OperatorRegistry::OperatorRegistry()
   {
@@ -247,6 +257,7 @@ namespace ORO_Execution
     add( newBinaryOperator( "!=", std::not_equal_to<std::string>() ) );
     add( newBinaryOperator( "<", std::less<std::string>() ) );
 
+#ifdef OROPKG_GEOMETRY
     // vectors: I'm simply exporting all those that are available, not
     //          adding any myself..
     add( newUnaryOperator( "-", std::negate<Vector>() ) );
@@ -263,6 +274,7 @@ namespace ORO_Execution
     add( newTernaryOperator( "rotationeuler",
                              mystl::ptr_fun( Rotation::EulerZYZ ) ) );
     add( newBinaryOperator( "framevr", std::ptr_fun( &framevr ) ) );
+#endif
   };
 
   void OperatorRegistry::add( UnaryOp* a )

@@ -1,13 +1,20 @@
 #include "execution/Types.hpp"
 
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+// Include geometry support
 #include <geometry/frames.h>
+#endif
+
 #include "execution/ParsedValue.hpp"
 
 namespace ORO_Execution
 {
+#ifdef OROPKG_GEOMETRY
   using ORO_Geometry::Frame;
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
+#endif
 
   template<typename T>
   class TemplateTypeInfo
@@ -54,9 +61,11 @@ namespace ORO_Execution
 
   TypeInfoRepository::TypeInfoRepository()
   {
+#ifdef OROPKG_GEOMETRY
     data["frame"] = new TemplateTypeInfo<Frame>();
     data["vector"] = new TemplateTypeInfo<Vector>();
     data["rotation"] = new TemplateTypeInfo<Rotation>();
+#endif
     data["int"] = new TemplateTypeInfo<int>();
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();

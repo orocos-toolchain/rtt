@@ -5,14 +5,10 @@
 #include "execution/Types.hpp"
 
 #include <boost/bind.hpp>
-#include <geometry/frames.h>
 
 namespace ORO_Execution
 {
   using boost::bind;
-  using ORO_Geometry::Frame;
-  using ORO_Geometry::Vector;
-  using ORO_Geometry::Rotation;
 
   ValueChangeParser::ValueChangeParser( ParseContext& pc )
     : context( pc ), expressionparser( pc )
