@@ -7,6 +7,8 @@ Use this package if you want to compile
 Orocos for RTAI Realtime Userspace. It has
 support for all packages used in Orocos."
 
+    requires OROPKG_SUPPORT_RTAI
+
     include_dir os
     parent OROPKG_OS
 
@@ -60,10 +62,13 @@ more information on the available types."
 	    display "RTAI version"
 	    flavor data
 	    #legal_values {"2" "3"}
-	    default_value {"3"}
+	    calculated { OROBLD_SUPPORT_RTAI_VERSION }
 	    description "
         Select the RTAI version you are using.
-Legal values are 2 and 3."
+Legal values are 2 and 3. This value is detected by 
+the packages configure script and modifyable in
+the \"Detected Support Libraries->RTAI Installation\" 
+package."
 	}
 
 	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
@@ -81,12 +86,14 @@ Legal values are 2 and 3."
 	    flavor data
 	    no_define
 	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
-	    default_value { "/usr/local/realtime" }
+	    calculated { OROBLD_SUPPORT_RTAI_DIR }
 	    description "
-This option allows you to specify your RTAI installation
-directory once. It will be automatically used in the CFLAGS
-and LDFLAGS options. It is safe to edit the lxrt.cdl file yourself and
-fill in your own directory."
+This is the location of your RTAI installation. It is normally
+detected by the packages configure script and can be specified
+with the argument --with-lxrt=path  and modifyable in
+the \"Detected Support Libraries->RTAI Installation\" 
+package.
+"
 	}
 
 	cdl_option CYGBLD_GLOBAL_CFLAGS {

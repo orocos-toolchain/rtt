@@ -78,7 +78,7 @@ namespace ORO_OS
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
             std::cout << "CANNOT INIT TASK " << mytask_name <<std::endl;
-            return;
+            return 0;
         }
     
         task->rt_task = mytask;
@@ -327,7 +327,7 @@ namespace ORO_OS
     bool PeriodicThread::setToStop()
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        stopevent();
+        stopEvent.fire();
         return true;
 #else
         return false;
