@@ -78,6 +78,8 @@ namespace ORO_DeviceDriver
         virtual bool isStopped() const;
         virtual bool isDriven() const;
 
+        virtual void limitDrive( double max );
+
         /**
          * @brief Add a brake to the Axis. It is aggregated.
          */
@@ -131,6 +133,11 @@ namespace ORO_DeviceDriver
         SensList sens;
 
         bool _is_locked, _is_stopped, _is_driven;
+
+        /**
+         * Maximum drive value
+         */
+        double _max_drive;
     };
 
 }

@@ -36,7 +36,7 @@ namespace ORO_DeviceDriver
     using namespace ORO_CoreLib;
 
     Axis::Axis( AnalogDrive* a ) 
-      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true)
+      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true), _max_drive( std::numeric_limits<double>::max() )
     {
       stop();
       lock();
@@ -50,20 +50,30 @@ namespace ORO_DeviceDriver
       delete act;
       delete brakeswitch;
       for (SensList::iterator it = sens.begin(); it != sens.end(); ++it)
-	delete it->second;
+        delete it->second;
     }
 
 
     bool Axis::drive( double vel )
     {
-      if (_is_stopped || _is_driven){
-        act->driveSet( vel );
-	_is_stopped = false;
-	_is_driven  = true;
-	return true;
+      if (_is_stopped || _is_driven)
+      {
+          if ( (vel < _max_drive) && (vel > -_max_drive) )
+          {
+              act->driveSet( vel );
+              _is_stopped = false;
+              _is_driven  = true;
+              return true;
+          }
+          else
+          {
+              stop();
+              lock();
+              return false;
+          }
       }
       else
-	return false;
+        return false;
     }
 
 
@@ -71,14 +81,14 @@ namespace ORO_DeviceDriver
     {
       if (_is_driven){
         act->driveSet( 0 );
-	_is_driven  = false;
-	_is_stopped = true;
-	return true;
+        _is_driven  = false;
+        _is_stopped = true;
+        return true;
       }
       else if (_is_stopped)
-	return true;
+        return true;
       else
-	return false;
+        return false;
     }
   
 
@@ -88,14 +98,14 @@ namespace ORO_DeviceDriver
         if ( brakeswitch )
             brakeswitch->switchOn();
         act->disableDrive();
-	_is_locked  = true;
-	_is_stopped = false;
-	return true;
+        _is_locked  = true;
+        _is_stopped = false;
+        return true;
       }
       else if (_is_locked)
-	return true;
+        return true;
       else
-	return false;
+        return false;
     }
   
       
@@ -106,14 +116,14 @@ namespace ORO_DeviceDriver
             brakeswitch->switchOff();
         act->enableDrive();
         act->driveSet( 0 );
-	_is_locked  = false;
-	_is_stopped = true;
-	return true;
+        _is_locked  = false;
+        _is_stopped = true;
+        return true;
       }
       else if (_is_stopped)
-	return true;
+        return true;
       else
-	return false;
+        return false;
     }
 
 
@@ -133,6 +143,12 @@ namespace ORO_DeviceDriver
     bool Axis::isDriven() const
     {
         return _is_driven;
+    }
+
+    
+    void Axis::limitDrive( double max )
+    {
+        _max_drive = max;
     }
 
 
