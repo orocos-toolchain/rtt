@@ -1,9 +1,9 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-corelib-doc.tgz \
 	execution-collaboration.png execution-sequence.png \
 	io-overview.png tasks_threads-conceptual.png \
-	orocos-corelib.html orocos-corelib.pdf
+	orocos-corelib.html orocos-corelib.pdf orocos-corelib.ps
 
 docxml: dochtml docpdf
 
@@ -25,10 +25,10 @@ epsimages: events.eps execution-collaboration.eps execution-sequence.eps  io-ove
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc --param preferred.mediaobject.role '"fop"' /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
 
 %.ps:%.fo
-	fop $< $@
+	fop -fo $< -ps $@
 
 %.pdf:%.ps
 	ps2pdf $<

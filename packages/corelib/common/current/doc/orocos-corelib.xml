@@ -11,7 +11,7 @@
 
 <book>
   <bookinfo>
-    <title>The Orocos CoreLib Package</title>
+    <title>The Orocos Core Library Manual</title>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>
@@ -211,19 +211,22 @@ given in the general &orocos; overview document.
 	  <para>
 	    <figure><title>Execution collaboration diagram</title>
 	      <mediaobject>
-		<imageobject>
-		  <imagedata fileref="execution-collaboration.png" format="PNG"/>
-		</imageobject>
-		<imageobject>
+		<imageobject role="fo">
 		  <imagedata fileref="execution-collaboration.eps" format="EPS"/>
 		</imageobject>
-		<!--
+		<imageobject role="html">
+		  <imagedata fileref="execution-collaboration.png" format="PNG"/>
+		</imageobject>
+         	<textobject><phrase>Collaboration diagram</phrase></textobject>
+	    <caption><para>Internal call flow of task execution.</para>
+	    </caption>
+	    <!--
 		<caption><para>
 	      </para></caption>
 		-->
-	      </mediaobject>
-	    </figure>
-	  </para>
+	  </mediaobject>
+	</figure>
+      </para>
 	  <para>
 	    <figure><title>Execution sequence diagram</title>
 	      <mediaobject>
@@ -464,17 +467,23 @@ given in the general &orocos; overview document.
     </sect1>
   </chapter>
   <chapter>
-      <title>The HeartbeatGenerator</title>
+    <title>The HeartbeatGenerator</title>
+    <sect1>
+      <title>Purpose</title>
       <para>
-	The <classname>HeartbeatGenerator</classname> is implemented using the <classname>Singleton</classname> design pattern.
+	The <classname>HeartbeatGenerator</classname> is implemented using the
+	<classname>Singleton</classname> design pattern.
 	You can query it for the current (virtual) time in clock ticks or in seconds.
 	The idea here is that it is responsible for synchronising with other (distributed)
 	cores, for doing, for example compliant motion with two robots. This functionality
 	is not yet implemented though.
       </para>
+    </sect1>
   </chapter>
   <chapter>
       <title>States and the StateContext</title>
+    <sect1>
+      <title>Introduction</title>
       <para>
 	Any complex software component will sooner or later need a way to change state, depending
 	on how it is used by the other components. The <classname>StateInterface</classname> 
@@ -491,7 +500,8 @@ given in the general &orocos; overview document.
 	One has to 'program' the StateContext so that it knows which transitions can be made
 	under which conditions
       </para>
-      <sect2>
+    </sect1>
+     <sect1>
 	<title>The ConditionInterface</title>
 	<para>
 	  The ConditionInterface is very basic :
@@ -511,8 +521,8 @@ given in the general &orocos; overview document.
 	  each state transition a Condition object which it will <function>evaluate()</function>
 	  to determine if the transition is allowed.
 	</para>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>Programming and Requesting State Transitions</title>
 	<para>
 	  Now how does it all work together ? First, a StateContext object is created and
@@ -561,10 +571,12 @@ given in the general &orocos; overview document.
 	    ]]>
 	  </programlisting>
 	</para>
-      </sect2>
+      </sect1>
     </chapter>
     <chapter>
-      <title>Properties</title>
+    <title>Properties</title>
+    <sect1>
+      <title>Introduction</title>
       <para>
 	Properties are well known in object oriented programming languages. 
 	They are used to store primitive data (float, strings,...) in
@@ -603,7 +615,8 @@ given in the general &orocos; overview document.
 	  </para>
 	</note>
       </para>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>How should I use PropertyBag ?</title>
 	<para>
         First of all, a PropertyBag is not the owner of the properties it owns,
@@ -622,8 +635,8 @@ given in the general &orocos; overview document.
         to make a Property&lt;PropertyBag&gt; and insert that property into the 
         first bag.</para>
     </note>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>Marshalling and demarshalling</title>
 	<para>
         Marshalling is converting an object from machine code to a code suitable
@@ -648,10 +661,12 @@ given in the general &orocos; overview document.
       dispatching on the object itself, there's a second dispatching done on one
       of the parameters of the function.
 	</para>
-      </sect2>
-    </chapter>
-    <chapter>
-      <title>The NameServer</title>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title>The NameServer</title>
+    <sect1>
+      <title>Introduction</title>
       <para>
 	A key element in the &orocos; framework is what we call the strong typed
 	nameserver. It is a (string based) nameserver which stores name, object pairs
@@ -663,6 +678,9 @@ given in the general &orocos; overview document.
 	console input,...), another object is retrieved from the nameserver and
 	used in the program.
       </para>
+    </sect1>
+    <sect1>
+      <title>Using the NameServer</title>
       <para>
 	The header is called <filename>NameServer.hpp
 	</filename> and the API is quite straight forward. The most common usage
@@ -702,9 +720,12 @@ given in the general &orocos; overview document.
 	Control Kernels and Components, ... anything you wish to configure at runtime
 	can be nameserved.
       </para>
-    </chapter>
-    <chapter>
-      <title>Reporting</title>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title>Reporting</title>
+    <sect1>
+      <title>Introduction</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
 	is is another. Reporting is made in such a way that existing components can
@@ -719,18 +740,26 @@ given in the general &orocos; overview document.
 	which delivers every 10ms its position, velocity and sensor data 
 	to a userspace map building application.
       </para>
-    </chapter>
+    </sect1>
+  </chapter>
   <chapter>
     <title>Fifos</title>
-    <warning>
-      The fifos implementation is slightly outdated and unmaintained in the latest releases.
-      You might expect problems when trying to use them. In the past they were used to 
-      communicate from kernel space to userspace programs, but since the Orocos Framework is now 
-      completely situated in userspace, this communication has become obsolete.
-    </warning>
-    <para>
-      Fifos are used to send data from one address space to another. For example
-      from realtime to userspace or vice versa. We have four kind of fifos :
+    <sect1>
+      <title>A warning</title>
+      <warning>
+	<para>
+	  The fifos implementation is slightly outdated and unmaintained in the latest releases.
+	  You might expect problems when trying to use them. In the past they were used to 
+	  communicate from kernel space to userspace programs, but since the Orocos Framework is now 
+	  completely situated in userspace, this communication has become obsolete.
+	</para>
+      </warning>
+    </sect1>
+    <sect1>
+      <title>Using fifos</title>
+      <para>
+	Fifos are used to send data from one address space to another. For example
+	from realtime to userspace or vice versa. We have four kind of fifos :
       <itemizedlist>
 	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
 	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
@@ -754,5 +783,6 @@ given in the general &orocos; overview document.
 	to the screen instead of delivering it.
       </para>
     </note>
+    </sect1>
   </chapter>
 </book>

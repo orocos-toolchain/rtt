@@ -124,7 +124,7 @@ namespace ORO_CoreLib
         virtual void resetTime( HeartBeatGenerator::Seconds s=0)
         {
             time = HeartBeatGenerator::Instance()->ticksGet();
-            time += HeartBeatGenerator::nsecs2ticks( long(s*1000.0*1000.0*1000.0) );
+            time += HeartBeatGenerator::nsecs2ticks( nsecs(s)*nsecs(1000.0*1000.0*1000.0) );
         }
 
         static NameServer<PropertyReporter<Configuration>* > nameserver;

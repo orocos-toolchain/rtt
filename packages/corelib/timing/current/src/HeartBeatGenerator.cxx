@@ -27,19 +27,16 @@
 
 namespace ORO_CoreLib
 {
-
-    // The static class variables
     HeartBeatGenerator* HeartBeatGenerator::_instance = 0;
 
     HeartBeatGenerator::ticks HeartBeatGenerator::nsecs2ticks( const nsecs m )
     {
-        // ticksPerSec is integer
-        return nano2count( m ); //((long)ticksPerSec() * (long)m) / 1000000000;
+        return nano2count( m );
     }
 
     HeartBeatGenerator::nsecs HeartBeatGenerator::ticks2nsecs( const ticks t )
     {
-        return count2nano( t ); // ( ( (long)t*1000000000 )  / (long)ticksPerSec() ); // avoid __divdi3
+        return count2nano( t );
     }
 
     HeartBeatGenerator* HeartBeatGenerator::Instance()
