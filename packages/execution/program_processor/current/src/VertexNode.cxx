@@ -32,22 +32,19 @@ namespace ORO_Execution
 
 	VertexNode::VertexNode()
         : command( new ORO_CoreLib::CommandNOP ),
-          lineNumber( 0 ),
-          label("")
+          lineNumber( 0 )
 	{
 	}
 
         VertexNode::VertexNode( const VertexNode& orig )
                 : command( orig.getCommand()->clone() ),
-                  lineNumber(orig.getLineNumber()),
-                  label( orig.getLabel() )
+                  lineNumber(orig.getLineNumber())
         {
         }
 
         VertexNode::VertexNode(CommandInterface* cmd)
         : command( cmd ),
-          lineNumber( 0 ),
-          label("")
+          lineNumber( 0 )
 	{
 	}
 
@@ -57,13 +54,13 @@ namespace ORO_Execution
 	}
 
 
-	void VertexNode::execute()
+	bool VertexNode::execute()
 	{
 		/**
          * Execute the command in any case.
          * If the command is Asynch, this will do nothing.
          */
-		command->execute();
+		return command->execute();
 	}
 
 	CommandInterface* VertexNode::getCommand() const
@@ -94,16 +91,6 @@ namespace ORO_Execution
         command->reset();
     }
 
-    void VertexNode::setLabel(const std::string& str)
-    {
-        label = str;
-    }
-
-    const std::string& VertexNode::getLabel() const
-    {
-        return label;
-    }
-
     VertexNode VertexNode::copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const
     {
         VertexNode ret( *this );
@@ -113,9 +100,9 @@ namespace ORO_Execution
 
     VertexNode& VertexNode::operator=( const VertexNode& orig )
     {
+        delete command;
         command = orig.getCommand()->clone();
         lineNumber = orig.getLineNumber();
-        label = orig.getLabel();
         return *this;
     }
 }

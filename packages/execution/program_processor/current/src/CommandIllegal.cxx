@@ -39,11 +39,12 @@ namespace ORO_Execution
             : illCmd( cmd ), description( descr )
     {}
 
-    void CommandIllegal::execute()
+    bool CommandIllegal::execute()
     {
         cout << "Tried to execute an illegal command: " << endl;
         cout << illCmd << endl;
         cout << description << endl;
+        return true;
     }
 
     void CommandIllegal::warn()

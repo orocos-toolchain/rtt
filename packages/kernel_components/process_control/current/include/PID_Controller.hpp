@@ -38,8 +38,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/Factories.hpp"
 #endif
 
 #pragma interface
@@ -378,41 +377,34 @@ namespace ORO_ControlKernel
         }
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        bool true_gen() const { return true; }
-        
-        CommandFactoryInterface* createCommandFactory()
+        MethodFactoryInterface* createMethodFactory()
         {
-            TemplateCommandFactory< PID_Controller >* ret =
-                newCommandFactory( this );
+            TemplateMethodFactory< PID_Controller >* ret =
+                newMethodFactory( this );
             ret->add( "changeK",
-                      command( &PID_Controller::changeK,
-                               &PID_Controller::true_gen,
+                      method( &PID_Controller::changeK,
                                "Change the Gain of the PID Controller",
                                "Channel","The Channel number (starting from 0).",
                                "Gain","The new Gain (K)."
                                ) ); 
             ret->add( "changeTd",
-                      command( &PID_Controller::changeTd,
-                               &PID_Controller::true_gen,
+                      method( &PID_Controller::changeTd,
                                "Change the Derivative Td constant.",
                                "Channel","The Channel number (starting from 0).",
                                "Td","The new Derivative time constant (Td)."
                                ) ); 
             ret->add( "changeTi",
-                      command( &PID_Controller::changeTd,
-                               &PID_Controller::true_gen,
+                      method( &PID_Controller::changeTd,
                                "Change the Integration Ti constant.",
                                "Channel","The Channel number (starting from 0).",
                                "Ti","The new Integration time constant (Ti)."
                                ) ); 
             ret->add( "resetController",
-                      command( &PID_Controller::resetController,
-                               &PID_Controller::true_gen,
+                      method( &PID_Controller::resetController,
                                "Reset the whole controller (ie all integration uI and derivative uD = 0)."
                                ) ); 
             ret->add( "resetChannel",
-                      command( &PID_Controller::resetChannel,
-                               &PID_Controller::true_gen,
+                      method( &PID_Controller::resetChannel,
                                "Reset the uI (integration) and uD (derivative) of a channel to zero.",
                                "Channel","The Channel number (starting from 0)."
                                ) ); 

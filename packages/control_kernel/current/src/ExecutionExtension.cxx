@@ -270,14 +270,23 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         std::vector<detail::ExtensionInterface*>::const_iterator it = base->getExtensions().begin();
         while ( it != base->getExtensions().end() )
             {
+                CommandFactoryInterface* commandfactory;
+                DataSourceFactoryInterface* datasourcefactory;
+                MethodFactoryInterface* methodfactory;
+
                 // Add the commands / data of the kernel :
                 commandfactory = (*it)->createCommandFactory();
                 if ( commandfactory )
                     commandFactory().registerObject( (*it)->getName(), commandfactory );
 
-                dataSourceFactory = (*it)->createDataSourceFactory();
-                if ( dataSourceFactory )
-                    dataFactory().registerObject( (*it)->getName(), dataSourceFactory );
+                datasourcefactory = (*it)->createDataSourceFactory();
+                if ( datasourcefactory )
+                    dataFactory().registerObject( (*it)->getName(), datasourcefactory );
+
+                methodfactory = (*it)->createMethodFactory();
+                if ( methodfactory ) {
+                    methodFactory().registerObject( (*it)->getName(), methodfactory );
+                }
                 ++it;
             }
     }
@@ -364,25 +373,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return ret;
     }
 
-    ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )
-        : detail::ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
-          name( _name ), master( 0 ),
-          commandfactory( 0 ), dataSourceFactory( 0 )
-    {
-    }
-
-    bool ExecutionComponentInterface::enableAspect( ExecutionExtension* ext )
-    {
-        master = ext;
-        commandfactory = createCommandFactory();
-        if ( commandfactory )
-            master->commandFactory().registerObject( name, commandfactory );
-        dataSourceFactory = createDataSourceFactory();
-        if ( dataSourceFactory )
-            master->dataFactory().registerObject( name, dataSourceFactory );
-        return true;
-    }
-
     bool ExecutionExtension::updateProperties( const PropertyBag& bag )
     {
         // The interval for executing the program, relative to the
@@ -392,12 +382,35 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return interval > 0;
     }
 
+    ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )
+        : detail::ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
+          name( _name ), master( 0 ),
+          _commandfactory( 0 ), _methodfactory(0), _datasourcefactory( 0 )
+    {
+    }
+
+    bool ExecutionComponentInterface::enableAspect( ExecutionExtension* ext )
+    {
+        master = ext;
+        _commandfactory = this->createCommandFactory();
+        if ( _commandfactory )
+            master->commandFactory().registerObject( name, _commandfactory );
+        _datasourcefactory = this->createDataSourceFactory();
+        if ( _datasourcefactory )
+            master->dataFactory().registerObject( name, _datasourcefactory );
+        _methodfactory = this->createMethodFactory();
+        if ( _methodfactory )
+            master->methodFactory().registerObject( name, _methodfactory );
+        return true;
+    }
+
     void ExecutionComponentInterface::disableAspect()
     {
         if (master == 0 )
             return;
         master->commandFactory().unregisterObject( name );
         master->dataFactory().unregisterObject( name );
+        master->methodFactory().unregisterObject( name );
     }
 
     ExecutionComponentInterface::~ExecutionComponentInterface()
@@ -410,6 +423,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     }
 
     DataSourceFactoryInterface* ExecutionComponentInterface::createDataSourceFactory()
+    {
+        return 0;
+    }
+
+    MethodFactoryInterface* ExecutionComponentInterface::createMethodFactory()
     {
         return 0;
     }

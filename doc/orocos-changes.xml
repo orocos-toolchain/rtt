@@ -1,0 +1,308 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+<article>
+  <articleinfo>
+    <title>
+      Orocos 0.18.0 Release Series
+      Changes, New Features, and Fixes 
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+  </articleinfo>
+  <section id="caveats">
+    <title>Caveats</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  C++ Exceptions are introduced in general in startup/shutdown code.
+	  If you see an Abort message in your program, check the methods
+	  you use if they throw exceptions. Examples are
+	  <methodname>ExecutionExtension::loadProgram</methodname> and
+	  <methodname>Processor::deleteProgram</methodname>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Program Script Commands must now return bool, where true means
+	  that it is accepted, false, that it is rejected ( e.g.
+	  when faulty arguments are given). Programs will go in
+	  the error state when this happens. See <xref linkend="program"/>
+	  for details.
+	</para>
+      </listitem>
+      <listitem>
+	<para>The Event system has changed. See
+	  <xref linkend="corelib"/>
+	  for details. More important, you'll have to add the
+	  linker flag <option>-lboost_signals</option> when linking
+	  your program.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="general">
+    <title>General Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The build system has improved automake support. The
+	  traditional <command>configure</command>
+	  and <command>make all</command> targets work as
+	  expected with default values. The old
+	  <command>make new_packages</command>,
+	  <command>make configure_packages</command> and
+	  <command>make all_packages</command> targets behave
+	  as before.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  We use the <ulink
+	    url="http://cppunit.sourceforge.net/cgi-bin/moin.cgi">
+	    CppUnit</ulink> testing framework to test Orocos code
+	  sanity. Your setup can be verified by running <command>make
+	    check</command> in the build directory. We have
+	  tests for threads and tasks, events and the parser
+	  framework.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+  </section>
+  <section id="os">
+    <title>OS Specific Improvements</title>
+    <section>
+      <title>LXRT</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The default scheduler for Linux processes in LXRT
+	    has been set to <parameter>SCHED_OTHER</parameter>
+	    instead of <parameter>SCHED_FIFO</parameter> to
+	    avoid lockups when the main thread goes into
+	    an endless loop. This can still be changed in
+	    the configtool program.
+	  </para>
+      </listitem>
+    </itemizedlist>
+    </section>
+  </section>
+  <section id="doc">
+    <title>Documentation Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  An orocos-changes.xml file has been added to the
+	  base doc distribution to provide more informative
+	  changes to users.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="corelib">
+    <title>CoreLib Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A <classname>TaskSimulation</classname> and
+	  <classname>SimulationThread</classname> have
+	  been added which run tasks as fast as possible,
+	  while updating the <classname>HeartBeatGenerator</classname> clock
+	  such that time dependent algorithms still work.
+	  This thread must be started in your code explicitly
+	  with <methodname>SimulationThread::Instance()->start()</methodname>, which
+	  will start the simulation and cause your CPU usage to jump to 100%.
+	  The properties of this thread can be changed
+	  with the <command>configtool</command> program.
+	</para>
+	<para>
+	  Another application of this task is the profiling
+	  of your code. It should give a good overview
+	  where most of the time is spent in an application,
+	  when you use the <option>-pg</option> compile flag and
+	  gprof.
+	</para>
+	<para>
+	  This feature is quite experimental, but it
+	  seems to work with one testcase in gnulinux.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Event system has changed to use the
+	  <ulink url="http://www.boost.org/">Boost::Signals</ulink>
+	  library. Both interface and instantiation of events
+	  has changed. See the CoreLib documentation
+	  for details on how to use Events. The idea of
+	  synchronous / asynchronous events remains, but
+	  the asynchronous part can be executed by any thread.
+	  The default thread remains the
+	  <classname>CompletionProcessor</classname>, but
+	  the other Orocos Threads can handle asynchronous
+	  handlers after each periodic step(), allowing
+	  a synchronised deferred event handling with tasks.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="control">
+    <title>Control Kernel and Components Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The PIDController component has now a
+	  <methodname>reset()</methodname> method, which can
+	  be used to reset the integration and tracking
+	  variables, without reloading the PIDController.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Components can be easier loaded and reloaded,
+	  where a reload causes a complete reinitialisation
+	  of the dataobjects and configuration parameters.
+	  This can only be done when the control kernel is
+	  not running.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  A Control Kernel can now be started and stopped from
+	  the HMI console (<command>Kernel.start()</command>
+	  and <command>Kernel.stop()</command>). This eliminates most needs for
+	  restarting your application.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Motion Control components have been subdivided
+	  in a cartesian package and axis package, such that
+	  a finer granularity of package selection is possible.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="program">
+    <title>Program Processor and Parser Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Orocos State Descriptions and Programs have
+	  a state attribute in their lifetime, which can be queried for
+	  with the Processor. This allows better tracking of what
+	  a program is doing.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Orocos State Contexts can be ordered in a hierarchical
+	  way. The State Context syntax was slightly adapted to allow this.
+	  A State Context must be instantiated and it can in turn
+	  instantiate children. It can read and write variables of its
+	  children and synchronise with them.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Orocos States can define <command>preconditions</command>
+	  which can avoid entrance of a state and redirect the
+	  transition to another state.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Orocos commands can fail. A Program and State Context
+	  will go into the error state if the program does not
+	  catch this itself.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Orocos scripting component methods have been added. They are
+	  an advanced version of DataSources. They can be called
+	  like a command and can return a value, which can
+	  be used in an expression, or be ignored. 
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The <command>do ... and ... [ and ...]</command> syntax
+	  has been added, which allows atomic execution of multiple
+	  commands.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The <command>try ... catch</command> syntax block has been added
+	  to detect failures of commands and react to them.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="interfacing">
+    <title>Interfacing Improvements</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  A Graphical User Interface based on KDE 3 has been
+	  added. It allows management of Orocos program scripts and
+	  Orocos state description files. The state and position
+	  in the file of a running script can be monitored. 
+	  It allows to browse all present components and
+	  accepts online script commands.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <appendix>
+    <title>About Orocos</title>
+    <para>
+      Please send general, non technical, Orocos questions to <ulink
+	url="mailto:orocos@mail.mech.kuleuven.ac.be">
+	orocos@mail.mech.kuleuven.ac.be </ulink>. 
+    </para>
+    <para>
+      These pages are maintained by <ulink
+	url="http://www.orocos.org/about.html">the Orocos
+	team</ulink>.
+    </para>
+    <para>
+      For questions related to the use of the Orocos Software, please consult these
+      web pages and the <ulink
+	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
+      that fails, the  <ulink
+	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
+	orocos-dev@mail.mech.kuleuven.ac.be </ulink> mailing list might help.
+      Please
+      send comments on these web pages and the development of Orocos to
+      our developer mailing list at  <ulink
+	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
+	orocos-dev@mail.mech.kuleuven.ac.be </ulink>. All of
+      our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
+	archives</ulink>.
+      </para>
+    <para>
+      Copyright (C) Peter Soetens
+    </para>
+    <para>
+      Verbatim copying and distribution of this entire article is
+      permitted in any medium, provided this notice is preserved.
+    </para>
+  </appendix>
+</article>

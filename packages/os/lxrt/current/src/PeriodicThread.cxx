@@ -113,7 +113,8 @@ namespace ORO_OS
                     task->runComp->step(); // one cycle
                 else
                     task->step();
-                task->periodWait();
+                if (wait_for_step)
+                    task->periodWait();
             }
     
         /**
@@ -144,7 +145,7 @@ namespace ORO_OS
 
     PeriodicThread::PeriodicThread(int _priority, const std::string& name, Seconds period, RunnableInterface* r) :
         running(false), stopped(true), goRealtime(false), priority(_priority), prepareForExit(false),
-        runComp(r)
+        runComp(r), wait_for_step(true)
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new ORO_CoreLib::Handle();
@@ -305,6 +306,18 @@ namespace ORO_OS
     void PeriodicThread::periodWait()
     {
         rt_task_wait_period();
+    }
+
+    void PeriodicThread::continuousStepping(bool yes_no)
+    {
+        // XXX Test this code ! Previously, calling rt_task_make_periodic...
+        // twice could cause a crash.
+        wait_for_step = !yes_no;
+        if ( wait_for_step )
+            rt_task_make_periodic_relative_ns(rt_task, 0, period);
+        else
+            rt_task_make_periodic_relative_ns(rt_task, 0, 0);
+
     }
 
     void PeriodicThread::periodWaitRemaining()

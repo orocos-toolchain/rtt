@@ -38,9 +38,10 @@ namespace ORO_Execution
      {
      }
 
-     void CommandCounter::execute()
+     bool CommandCounter::execute()
      {
      	counter++;
+        return true;
      }
 
 	 void CommandCounter::reset()

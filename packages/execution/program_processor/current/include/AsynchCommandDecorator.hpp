@@ -42,6 +42,14 @@ namespace ORO_Execution
      * 'decorator', this interface represents a
      * wrapper around a given command, which decorates
      * that command as an asynchronous command.
+     *
+     * The command will be executed once, until \a reset()
+     * and the result of this invocation will be returned.
+     *
+     * If the command fails when executed, no more attempts
+     * will be done to execute it again, and \a execute()
+     * will return false until the AsynchCommandDecorator
+     * is \a reset().
      */
     class AsynchCommandDecorator: public CommandInterface
     {
@@ -65,7 +73,7 @@ namespace ORO_Execution
         /**
          * Execute the functionality of the corresponding command.
          */
-        virtual void execute();
+        virtual bool execute();
 
         virtual void reset();
 
@@ -86,6 +94,7 @@ namespace ORO_Execution
          * has been executed or not.
          */
         bool executed;
+        bool status;
 
     };
 

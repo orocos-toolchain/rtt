@@ -70,14 +70,15 @@ namespace ORO_OS
             else
                 comp->step(); // one cycle
 
-            comp->periodWaitRemaining();
+            if (comp->wait_for_step)
+                comp->periodWaitRemaining();
         }
         
         return 0;
     }
 
     PeriodicThread::PeriodicThread(int , const std::string& name, double period, RunnableInterface* r )
-            : runner( r ), periodMark( 0 ), running( false ), timeToQuit(false)
+        : runner( r ), periodMark( 0 ), running( false ), timeToQuit(false), wait_for_step(true)
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new ORO_CoreLib::Handle();
@@ -218,6 +219,11 @@ namespace ORO_OS
     void PeriodicThread::periodWait()
     {
         rtos_nanosleep( &period, NULL ); // stay posix compatible
+    }
+
+    void PeriodicThread::continuousStepping(bool yes_no)
+    {
+        wait_for_step = !yes_no;
     }
 
     // this is non POSIX and will be removed later on

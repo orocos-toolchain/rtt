@@ -28,7 +28,6 @@
 #pragma implementation
 
 #include <corelib/PropertyComposition.hpp>
-#include <geometry/MotionProperties.hpp>
 #include <pkgconf/system.h>
 
 #include "control_kernel/ReportingExtension.hpp"

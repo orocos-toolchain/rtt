@@ -50,6 +50,7 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::PropertyBag;
     using ORO_Execution::CommandFactoryInterface;
     using ORO_Execution::DataSourceFactoryInterface;
+    using ORO_Execution::MethodFactoryInterface;
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
     using ORO_Execution::GlobalFactory;
@@ -75,8 +76,9 @@ namespace ORO_ControlKernel
 
         using detail::ComponentAspectInterface<ExecutionExtension>::enableAspect;
 
-        CommandFactoryInterface* commandfactory;
-        DataSourceFactoryInterface* dataSourceFactory;
+        CommandFactoryInterface* _commandfactory;
+        MethodFactoryInterface* _methodfactory;
+        DataSourceFactoryInterface* _datasourcefactory;
 
         ExecutionComponentInterface( const std::string& _name );
 
@@ -91,6 +93,12 @@ namespace ORO_ControlKernel
          * wants to export.
          */
         virtual DataSourceFactoryInterface* createDataSourceFactory();
+
+        /**
+         * The factory for creating the methods this Component
+         * wants to export.
+         */
+        virtual MethodFactoryInterface* createMethodFactory();
 
         bool enableAspect( ExecutionExtension* ext );
 
@@ -117,10 +125,6 @@ namespace ORO_ControlKernel
         public GlobalFactory
     {
         ProgramGraph* program;
-
-    protected:
-        CommandFactoryInterface* commandfactory;
-        DataSourceFactoryInterface* dataSourceFactory;
 
     public:
         typedef ExecutionComponentInterface CommonBase;
@@ -257,7 +261,6 @@ namespace ORO_ControlKernel
         virtual CommandFactoryInterface* createCommandFactory();
 
         virtual DataSourceFactoryInterface* createDataSourceFactory();
-
         /**
          * @brief Execute a Command safely.
          *

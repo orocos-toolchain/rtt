@@ -89,9 +89,9 @@ namespace ORO_Execution
 
         virtual ~ProgramGraph();
 
-        virtual void execute();
+        virtual bool execute();
 
-        virtual void executeToStop();
+        virtual bool executeToStop();
 
         virtual void reset();
 
@@ -302,12 +302,6 @@ namespace ORO_Execution
          * Return the next CommandNode.
          */
         CommandNode nextNode() const;
-
-        void setLabel( const std::string& str );
-
-        bool hasLabel( const std::string& str ) const;
-
-        std::pair<CommandNode,bool> findNode( const std::string& str ) const;
 
     private:
         /**

@@ -89,15 +89,20 @@ namespace ORO_Execution
 
   void DataCallParser::seendataname()
   {
+      // this is slightly different from CommandParser
     const GlobalDataSourceFactory& gdsf =
       context.globalfactory->dataFactory();
-    // get hold of the DataSourceFactory for the object being
-    // called..
-    const DataSourceFactoryInterface* fact = gdsf.getObjectFactory( mobject );
-    if ( !fact )
+    const GlobalMethodFactory& gmf =
+      context.globalfactory->methodFactory();
+    const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( mobject );
+    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mobject );
+    if ( ! dfi && ! mfi )
       throw parse_exception_no_such_component( mobject );
-    if ( ! fact->hasMember( mmethod ) )
-      throw parse_exception_no_such_method_on_component( mobject, mmethod );
+
+    // One of both must have the method
+    if ( !( ( dfi && dfi->hasMember(mmethod)) || ( mfi && mfi->hasMember(mmethod)) ) )
+        throw parse_exception_no_such_method_on_component( mobject, mmethod );
+
     // create an argument parser for the call..
     ArgumentsParser* argspar =
       new ArgumentsParser( expressionparser, context,
@@ -124,35 +129,65 @@ namespace ORO_Execution
 
     const GlobalDataSourceFactory& gdsf =
       context.globalfactory->dataFactory();
-    const DataSourceFactoryInterface* fact = gdsf.getObjectFactory( obj );
+    const GlobalMethodFactory& gmf =
+      context.globalfactory->methodFactory();
+    const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( obj );
+    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( obj );
+
     // we already checked for the existence of this object and method
     // in seendataname()..
-    assert( fact );
-    assert( fact->hasMember( meth ) );
-    PropertyBagOwner argsspec( fact->getArgumentSpec( meth ) );
-    bool needargs = !argsspec.bag.getProperties().empty();
-    if ( ! argspar->parsed() && needargs )
-      throw parse_exception_wrong_number_of_arguments(
-        obj, meth, argsspec.bag.getProperties().size(), 0 );
 
-    try
-    {
-      ret = fact->create( meth, argspar->result() );
-    }
-    catch( const wrong_number_of_args_exception& e )
-    {
-      throw parse_exception_wrong_number_of_arguments(
-        obj, meth, e.wanted, e.received );
-    }
-    catch( const wrong_types_of_args_exception& e )
-    {
-      throw parse_exception_wrong_type_of_argument(
-        obj, meth, e.whicharg );
-    }
-    catch( ... )
-    {
-      assert( false );
-    };
+    if ( dfi && dfi->hasMember(meth) ) {
+        PropertyBagOwner argsspec( dfi->getArgumentSpec( meth ) );
+        bool needargs = !argsspec.bag.getProperties().empty();
+        if ( ! argspar->parsed() && needargs )
+            throw parse_exception_wrong_number_of_arguments
+                (obj, meth, argsspec.bag.getProperties().size(), 0 );
+        try
+            {
+                ret = dfi->create( meth, argspar->result() );
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (obj, meth, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    (obj, meth, e.whicharg );
+            }
+        catch( ... )
+            {
+                assert( false );
+            };
+    } else if (mfi && mfi->hasMember(meth)) {
+        PropertyBagOwner argsspec( mfi->getArgumentSpec( meth ) );
+        bool needargs = !argsspec.bag.getProperties().empty();
+        if ( ! argspar->parsed() && needargs )
+            throw parse_exception_wrong_number_of_arguments
+                (obj, meth, argsspec.bag.getProperties().size(), 0 );
+        try
+            {
+                ret = mfi->create( meth, argspar->result() );
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (obj, meth, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    (obj, meth, e.whicharg );
+            }
+        catch( ... )
+            {
+                assert( false );
+            };
+    } else 
+        assert( false );
+
     assert( ret.get() );
   };
 

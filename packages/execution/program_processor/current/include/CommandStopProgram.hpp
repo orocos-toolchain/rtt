@@ -50,9 +50,9 @@ namespace ORO_Execution
 		~CommandStopProgram()
 		{}
 		
-		void execute() 
+		bool execute() 
         {
-			pci->stopProgram(name);
+			return pci->stopProgram(name);
 		}
 	
         virtual CommandInterface* clone() const

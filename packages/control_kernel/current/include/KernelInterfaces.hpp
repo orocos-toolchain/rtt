@@ -38,6 +38,7 @@
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/CommandFactoryInterface.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
+#include "execution/MethodFactoryInterface.hpp"
 #endif
 
 #pragma interface
@@ -135,6 +136,8 @@ namespace ORO_ControlKernel
             virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() { return 0; }
 
             virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory()  { return 0; }
+
+            virtual ORO_Execution::MethodFactoryInterface* createMethodFactory()  { return 0; }
 #endif
         protected:
             /**
@@ -327,6 +330,8 @@ namespace ORO_ControlKernel
         virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() ;
 
         virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory() ;
+
+        virtual ORO_Execution::MethodFactoryInterface* createMethodFactory() ;
 #endif
 
         /**

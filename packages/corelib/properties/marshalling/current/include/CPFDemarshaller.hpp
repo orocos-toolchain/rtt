@@ -141,6 +141,7 @@ namespace ORO_CoreLib
                             bag_stack.pop();
                             bag_stack.top().first->add
                             ( new Property<PropertyBag>( pn, description, *pb ) );
+                            delete pb;
                             tag_stack.pop();
                         }
                         break;

@@ -47,8 +47,9 @@ namespace ORO_Execution
             : event(_e), listener(_l), h( _h)
         {}
         
-        virtual void execute() {
+        virtual bool execute() {
             *h = event->connect( listener );
+            return true;
         }
 
         virtual CommandInterface* clone() const
@@ -66,8 +67,9 @@ namespace ORO_Execution
             : h(_h)
         {}
         
-        virtual void execute() {
+        virtual bool execute() {
             h->disconnect();
+            return true;
         }
 
         virtual CommandInterface* clone() const

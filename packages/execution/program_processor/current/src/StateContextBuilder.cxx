@@ -39,6 +39,7 @@ namespace ORO_Execution {
 
   StateContextBuilder::~StateContextBuilder()
   {
+      delete templatecontext;
   }
 
   ParsedStateContext* StateContextBuilder::build()

@@ -61,18 +61,10 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-#if 1
     class HMIReadline
         : public  SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase >
     {
         typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > Base;
-#else
-    template<class _Base=SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > >
-    class HMIReadline
-        : public _Base
-    {
-        typedef _Base Base;
-#endif
 
         bool start;
         Event<void(void)> startEvent;
@@ -81,6 +73,7 @@ namespace ORO_ControlKernel
         CommandInterface*   command;
         const CommandFactoryInterface* command_fact;
         const DataSourceFactoryInterface* datasource_fact;
+        const MethodFactoryInterface* method_fact;
 
         std::string prompt;
         std::string coloron;
@@ -174,11 +167,15 @@ namespace ORO_ControlKernel
                 // try if it is a component :
                 if ( ee->commandFactory().getObjectFactory( comp ) ) {
                     // fill with new ones.
-                    find_method( pos+1 );
+                    find_command( pos+1 );
                 }
                 if ( ee->dataFactory().getObjectFactory( comp ) ) {
                     // fill with new ones.
                     find_datasource( pos+1 );
+                }
+                if ( ee->methodFactory().getObjectFactory( comp ) ) {
+                    // fill with new ones.
+                    find_method( pos+1 );
                 }
                 return ; // completion on the methods
             }
@@ -200,6 +197,11 @@ namespace ORO_ControlKernel
                 if ( i->find( comp ) == 0  )
                     completes.push_back( *i+"." );
             }
+            comps = ee->methodFactory().getObjectList();
+            for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
+                if ( i->find( comp ) == 0  )
+                    completes.push_back( *i+"." );
+            }
             if ( std::string( "start" ).find(comp) == 0 )
                 completes.push_back("start");
             if ( std::string( "stop" ).find(comp) == 0 )
@@ -210,7 +212,7 @@ namespace ORO_ControlKernel
                 completes.push_back("quit");
         }
         
-        static void find_method(std::string::size_type startpos)
+        static void find_command(std::string::size_type startpos)
         {
             std::string::size_type pos;
             if ( (pos = text.find( "(", startpos )) != std::string::npos ) {
@@ -278,6 +280,38 @@ namespace ORO_ControlKernel
             }
         }
 
+        static void find_method(std::string::size_type startpos)
+        {
+            std::string::size_type pos;
+            if ( (pos = text.find( "(", startpos )) != std::string::npos ) {
+                std::string _method( text, startpos, pos - 1); // remove "("
+                //cout << "FoundMethod : "<< _method <<endl;
+
+                // strip white spaces from method
+                while ( _method.find(" ") != std::string::npos )
+                    _method.replace( _method.find(" "),1,"" );
+
+                // try if it is a command :
+                if ( ee->methodFactory().getObjectFactory( component )->hasMember( _method ) ) {
+                    method = _method;
+                }
+            }
+            // no brace found, thus build completion list :
+            std::string _method( text, startpos );
+            //cout << "FoundMethod2 : "<< _method << endl;
+            
+            // strip white spaces from _method
+            while ( _method.find(" ") != std::string::npos )
+                _method.replace( _method.find(" "),1,"" );
+
+            std::vector<std::string> comps;
+            comps = ee->methodFactory().getObjectFactory(component)->getNames();
+            for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
+                if ( i->find( _method ) == 0  )
+                    completes.push_back( component +"."+ *i );
+            }
+        }
+
         static char ** orocos_hmi_completion ( const char *text, int start, int end )
         {
             char **matches;
@@ -301,6 +335,14 @@ namespace ORO_ControlKernel
             rl_completion_append_character = '\0'; // avoid adding spaces
             rl_attempted_completion_function = &HMIReadline::orocos_hmi_completion;
         }
+
+        ~HMIReadline() {
+            if (line_read)
+                {
+                    free (line_read);
+                }
+        }
+
 
         /**
          * @brief Call this method from ORO_main() to 
@@ -359,10 +401,11 @@ namespace ORO_ControlKernel
 
             command_fact = ee->commandFactory().getObjectFactory( comm );
             datasource_fact = ee->dataFactory().getObjectFactory( comm );
+            method_fact = ee->methodFactory().getObjectFactory( comm );
             if ( command_fact ) // only commandobject name was typed
                 {
                     std::vector<std::string> methods = command_fact->getCommandList();
-                    std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printMethod, this, _1) );
+                    std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printCommand, this, _1) );
                 }
                     
             if ( datasource_fact ) // only datasource_fact name was typed
@@ -370,7 +413,12 @@ namespace ORO_ControlKernel
                     std::vector<std::string> methods = datasource_fact->getNames();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printSource, this, _1) );
                 }
-            if ( command_fact || datasource_fact )
+            if ( method_fact ) // only method_fact name was typed
+                {
+                    std::vector<std::string> methods = method_fact->getNames();
+                    std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printMethod, this, _1) );
+                }
+            if ( command_fact || datasource_fact || method_fact )
                 return;
                     
             delete command;
@@ -422,17 +470,20 @@ namespace ORO_ControlKernel
             cout << "  The available DataSources are :"<<endl;
             objlist = ee->dataFactory().getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
+            cout << "  The available Methods are :"<<endl;
+            objlist = ee->methodFactory().getObjectList();
+            std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
             cout << coloron <<"  For the Argument list of an object, just type the object name (eg 'kernel')" <<endl<< coloroff;
             cout <<endl;
             
         }
         
-        void printMethod( const std::string m )
+        void printCommand( const std::string m )
         {
             using boost::lambda::_1;
             std::vector<ArgumentDescription> args;
             args = command_fact->getArgumentList( m );
-            cout <<coloron<< "  Method     : " << coloroff << m <<coloron<< " - ";
+            cout <<coloron<< "  Command     : " << coloroff << m <<coloron<< " - ";
             cout << command_fact->getDescription(m) <<coloroff<<endl;
             //int i = 0;
             if (args.begin() != args.end() ){
@@ -451,6 +502,22 @@ namespace ORO_ControlKernel
             args = datasource_fact->getArgumentList( m );
             cout <<coloron << "  Source     : " << coloroff << m << coloron<< " - ";
             cout << datasource_fact->getDescription( m )<<coloroff<<endl;
+            if (args.begin() != args.end() ){
+                for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+                    cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
+                    cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
+                }
+            }
+            cout <<endl;
+        }
+                
+        void printMethod( const std::string m )
+        {
+            using boost::lambda::_1;
+            std::vector<ArgumentDescription> args;
+            args = method_fact->getArgumentList( m );
+            cout <<coloron << "  Method     : " << coloroff << m << coloron<< " - ";
+            cout << method_fact->getDescription( m )<<coloroff<<endl;
             if (args.begin() != args.end() ){
                 for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
                     cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
@@ -490,22 +557,6 @@ namespace ORO_ControlKernel
 
     };
 
-#if 0
-        template<class B>
-    std::vector<std::string> HMIReadline<B>::completes;
-        template<class B>
-    std::vector<std::string>::iterator HMIReadline<B>::complete_iter;
-        template<class B>
-    std::string HMIReadline<B>::component;
-        template<class B>
-    std::string HMIReadline<B>::method;
-        template<class B>
-    std::string HMIReadline<B>::datasource;
-        template<class B>
-    std::string HMIReadline<B>::text;
-        template<class B>
-    ExecutionExtension* HMIReadline<B>::ee = 0;
-#endif
 }
 
 #endif

@@ -15,7 +15,7 @@ type of periodic task associated with it.
 
     compile RealTimeTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TaskExecution.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
-    compile TaskTimer.cxx
+    compile TaskTimer.cxx SimulationThread.cxx TaskSimulation.cxx
 
     cdl_option OROSEM_CORELIB_TASKS_DYNAMIC_REG {
 	display "Enable automatic event registration"
@@ -56,6 +56,8 @@ The drawback is that the task's periodicity can not be changed once created."
 This option will automatically start the predefined Orocos threads
 (listed below) on program startup and stop them on program exit.
 A Task itself must still be started or stopped by the program.
+This wil NOT START the SIMULATIONTHREAD. It would eat all your
+cpu cycles if so. You have to start this thread in your code.
 "
 	flavor bool
 	default_value 1
@@ -183,5 +185,46 @@ TaskNonRealTime can have a smaller periodicity
 	    default_value 0.01
 	}
     }
+    cdl_component OROPKG_CORELIB_TASKS_SIM {
+	display "Properties of the SimulationThread"
+        description "
+The Simulation Thread is a thread which tries to execute
+its tasks as fast as possible. It sets the system clock
+before each task is started such that the simulation
+is transparant for the tasks.
+The Task associated with the SimulationThread is the
+TaskSimulation."
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_SIM_NAME {
+	    display "The name of the SimulationThread"
+	    description "
+The name must be unique with respect to other threads."
+	    flavor data
+	    default_value {"\"SimulationThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_SIM_PRIORITY {
+	    display "The priority of the SimulationThread"
+            description "
+This value is quite arbitrary, but might be of importance
+if other threads communicate with this thread. In a fixed
+priority scheme, no thread will with lower priority."
+	    flavor data
+	    default_value 255
+            legal_values 0 to 255
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_SIM_PERIOD {
+	    display "The period of the SimulationThread in sec"
+	    description "
+Indicates the minimum period of a task. No 
+TaskSimulation can have a smaller periodicity
+(thus higher frequency) than this value."
+	    flavor data
+	    default_value 0.001
+	}
+    }
+
+
 }
 

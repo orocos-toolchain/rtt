@@ -61,7 +61,7 @@ namespace ORO_Execution
 
       // helper variable to detect if we are in 'try' or 'do'
       // which influences the 'and' behaviour
-      bool true_and;
+      bool try_cmd;
 
       // The current function we are parsing.
       FunctionGraph* mfunc;
@@ -84,6 +84,8 @@ namespace ORO_Execution
 
       // last seen condition
       ConditionInterface* mcondition;
+      // try-block condition
+      ConditionInterface* try_cond;
 
       void seencondition();
 
@@ -95,7 +97,10 @@ namespace ORO_Execution
       void seencommandcall();
       void seenandcall();
       void seencommands();
-      void seencallstatement();
+      void seendostatement();
+      void seentrystatement();
+      void startcatchpart();
+      void seencatchpart();
 
       void seenvaluechange();
 
@@ -126,11 +131,11 @@ namespace ORO_Execution
       void programtext(iter_t, iter_t);
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
-          callstatement, statement, line, content, program, valuechange_parsers,
+          dostatement, trystatement, statement, line, content, program, valuechange_parsers,
           production, valuechange, returnstatement, function, funcstatement,
           continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement,
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
-          condition;
+          condition, catchpart;
 
       ConditionParser conditionparser;
       CommonParser commonparser;

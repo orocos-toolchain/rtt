@@ -761,6 +761,8 @@ namespace ORO_Execution
         assert( curtemplatecontext );
         assert( ! curstate );
         //assert( curhandles.empty() );
+        // the handles must remain to exist. however, they are not 
+        // deleted when the SC is deleted, thus this is a memleak
         curhandles.clear();
 
         // Check if the Initial and Final States are ok.

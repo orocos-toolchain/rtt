@@ -6,8 +6,10 @@ planning and interpolation. An integrating simulator
 is also provided for testing purposes.
 "
     parent OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
+    requires OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
 
     requires OROPKG_CONTROL_KERNEL
+    requires OROPKG_GEOMETRY
 
     include_dir kernel_components
 

@@ -45,11 +45,9 @@ namespace ORO_CoreLib
          */
         CommandNOP() {}
 
-        virtual ~CommandNOP() {}
+        virtual ~CommandNOP();
 
-        virtual void execute();
-
-        virtual std::string toString();
+        virtual bool execute();
 
         virtual CommandInterface* clone() const;
     };

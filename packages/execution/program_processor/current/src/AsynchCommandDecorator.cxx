@@ -55,13 +55,14 @@ namespace ORO_Execution
         return command;
     }
 
-	void AsynchCommandDecorator::execute(){
-     	if (executed){
+	bool AsynchCommandDecorator::execute()
+    {
+     	if (!executed) {
+            //this clause should be executed once
+     		status = command->execute();
+            executed = true;
      	}
-     	else { //this clause should be executed once
-     		command->execute();
-     		executed=true;
-     	}
+        return status;
     }
 
     void AsynchCommandDecorator::reset()

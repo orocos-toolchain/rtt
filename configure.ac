@@ -9,6 +9,8 @@ AC_PREREQ(2.53)
 # Initialize Autoconf with package name and version
 AC_INIT(orocos-base,0.16.0)
 ACX_MY_ARGS="$*"
+# Store the parameters to pass them to the packages/configure script.
+#ACX_MY_ARGS="$@"
 
 # Tell Autoconf to dump files into the config subdir
 AC_CONFIG_AUX_DIR(config)
@@ -52,10 +54,23 @@ DOC_DIR=$(cd $(dirname $0); pwd)/doc
 AC_SUBST(DOC_DIR)
 AC_MSG_RESULT($DOC_DIR)
 
+AC_MSG_CHECKING(to build tests)
+AC_ARG_ENABLE(tests,
+     [  --enable-tests    Enable checking tests (default=yes) ],
+     [ case "${enableval}" in
+       yes) tests=true ;;
+       no)  tests=false ;;
+       *) AC_MSG_ERROR(bad value ${enableval} for --enable-tests) ;;
+     esac],[ tests=yes ])
+AM_CONDITIONAL(DOTESTS, test x$tests = xyes)
+AC_MSG_RESULT( $tests )
+
 # Setup the packages
 echo "Running configure in packages..."
 cd $ECOS_REP
 echo "./configure $ACX_MY_ARGS"
+# make distcheck hack :
+chmod u+w . -R
 ./configure $ACX_MY_ARGS
 echo "Running Make db in packages..."
 make db

@@ -122,6 +122,19 @@ namespace ORO_CoreLib
              */
             Seconds secondsSince( ticks relativeTime ) const;
 
+        /**
+         * Change the time with \a delta seconds.
+         * @return the new time.
+         */
+        Seconds secondsChange( Seconds delta );
+
+        /**
+         * Enables or disables reading the system clock.
+         * If disabled, you'll have to change time using
+         * \a secondsChange.
+         */
+        void enableSystemClock( bool yes_no );
+
             /**
              * Convert an amount of nano seconds to HeartBeat ticks
              * @param m The amount of nano seconds
@@ -148,6 +161,12 @@ namespace ORO_CoreLib
              */
             static HeartBeatGenerator* _instance;
 
+        /**
+         * System wide offset of time.
+         */
+        ticks offset;
+
+        bool use_clock;
     };
 } // namespace ORO_CoreLib
 

@@ -38,7 +38,7 @@ This option sets the scheduling algorithm for the threads
 running in non-realtime. See man sched_setscheduler for
 more information on the available types."
 	flavor data
-	default_value { "SCHED_FIFO" }
+	default_value { "SCHED_OTHER" }
 	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
     }
 

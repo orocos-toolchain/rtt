@@ -28,7 +28,7 @@ namespace ORO_OS
 {
     /**
       *
-      *        An active component is a Component which is being run periodically.
+      *        A thread which is being run periodically.
       *
       *        The periodicity is the time between the starting
       *        of two runs.
@@ -143,6 +143,15 @@ namespace ORO_OS
         protected:
         
         friend class RunnableInterface;
+
+        /**
+         * Disable waiting for the next step with \a true.
+         * This will cause the step() method to be called
+         * continuously, until this is enabled again or
+         * the thread is stopped.
+         */
+        virtual void continuousStepping(bool yes_no) = 0;
+
 
             /**
              * Signal stopping to the Component. This can be called

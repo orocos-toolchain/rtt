@@ -125,7 +125,7 @@ namespace ORO_Execution
          * Executes the command currently associated with this
          * node.
          */
-         void execute();
+         bool execute();
 
         /**
          * Set the command associated with this program to the given command.
@@ -158,10 +158,6 @@ namespace ORO_Execution
          * with this program node (default = zero).
          */
          int getLineNumber() const;
-
-         void setLabel(const std::string& str);
-
-         const std::string& getLabel() const;
     private:
 
         /**
@@ -176,10 +172,6 @@ namespace ORO_Execution
          */
         int lineNumber;
 
-        /**
-         * The goto label of this node.
-         */
-        std::string label;
 	};
 }
 

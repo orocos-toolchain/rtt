@@ -40,8 +40,8 @@ namespace ORO_Execution
   using ORO_CoreLib::ConditionInterface;
 
   /**
-   * a class that wraps a Condition in a DataSource<bool>
-   * interface..
+   * A class that wraps a Condition in a DataSource<bool>
+   * interface.
    */
   class DataSourceCondition
     : public DataSource<bool>
@@ -49,9 +49,8 @@ namespace ORO_Execution
     ConditionInterface* cond;
   public:
     /**
-     * Constructor.
      * DataSourceCondition takes ownership of the condition you pass
-     * it..
+     * it.
      */
       DataSourceCondition( ConditionInterface* c );
       DataSourceCondition( const DataSourceCondition& orig );

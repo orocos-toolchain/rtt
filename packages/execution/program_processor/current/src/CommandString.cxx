@@ -35,9 +35,10 @@ namespace ORO_Execution
 		command = s;
 	}	
 
-    void CommandString::execute()
+    bool CommandString::execute()
     {
     	std::cout<< "Command executed: " <<command <<std::endl;
+        return true;
     }
 
 }

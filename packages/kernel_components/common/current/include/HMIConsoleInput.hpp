@@ -152,6 +152,8 @@ namespace ORO_ControlKernel
             } catch ( parse_exception& pe ) {
                 cout << "Parse Error : Illegal command."<<endl;
                 cout << pe.what() <<endl;
+                command = 0;
+                condition = 0;
                 return;
             }
             command = comcon.first;

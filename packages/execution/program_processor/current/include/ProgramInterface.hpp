@@ -46,7 +46,7 @@ namespace ORO_Execution
         /**
          * Execute the next logical step of this program interface.
          */
-        virtual void execute()= 0;
+        virtual bool execute()= 0;
 
         /**
          * Reset the execution point to the beginning of this program interface.

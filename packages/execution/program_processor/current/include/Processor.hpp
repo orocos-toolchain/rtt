@@ -76,13 +76,13 @@ namespace ORO_Execution
          * The status of a Program.
          */
         struct ProgramStatus {
-            enum status { unloaded, stopped, running, stepmode };
+            enum status { unloaded, stopped, running, stepmode, error };
         };
         /**
          * The status of a StateContext.
          */
         struct StateContextStatus {
-            enum status { unloaded, inactive, active, running, stopped, paused, todelete };
+            enum status { unloaded, inactive, active, running, stopped, paused, todelete, error };
         };
 
             /**

@@ -24,6 +24,11 @@ EXTRA_DIST = \
         packages/pkgconf/ssletter.dsl \
         packages/pkgconf/stylesheet.dsl
 
+# EXTRA_DIST = \
+# 	packages
+
+DISTCHECK_CONFIGURE_FLAGS = --disable-tests
+
 docs:
 	$(MAKE) -C doc docs
 
@@ -34,7 +39,10 @@ clean-local: clean_packages
 
 uninstall-local: clean_install
 
-all-local:	test_new_packages all_packages
+all-local: test_new_packages test_all_packages
+
+distclean-local:
+	@rm -f .new-pkg-stamp packages/.all-stamp packages/.configure-stamp
 
 test_new_packages: .new-pkg-stamp
 
@@ -49,31 +57,45 @@ new_packages:
 	@echo "Setting up packages..."
 	@cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@;\
-	ecosconfig new @ECOS_TARGET@ minimal >/dev/null ;\
-	ecosconfig add support >/dev/null ; \
+	ecosconfig new @ECOS_TARGET@ minimal ;\
+	if test -f ecos.ecc; then \
+	ecosconfig add support ; \
 	for i in $$(find @ECOS_REP@/support -name "*.cdl" -a -not -name "support.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl) >/dev/null ; done ;\
 	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
-	ecosconfig check
+	ecosconfig check ;\
+	rm -f .configure-stamp .all-stamp ; else touch .configure-stamp .all-stamp ;\
+	fi
 	@touch .new-pkg-stamp
 
+# If this file does not exist, packages are present
+.configure-stamp:
+	$(MAKE) -C . configure_packages
 
 # This configures the selected packages with
 # a graphical tool.
-configure_packages:
+configure_packages: test_new_packages
 	cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
 	ln -sf ecos.ecc orocos.ecc &&\
 	configtool orocos.ecc
 
+test_all_packages: .all-stamp
+
+#Only executed if new_packages did not create this stamp.
+.all-stamp:
+	$(MAKE) -C . all_packages
+
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
-all_packages:
+all_packages: test_new_packages 
 	cd packages &&\
+	if test -f ecos.ecc; then \
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
-	ecosconfig tree
-	$(MAKE) -C packages
+	ecosconfig tree && \
+	$(MAKE) -C . ;\
+	fi
 
 precompile_headers:
 	$(MAKE) headers -C packages
@@ -85,11 +107,16 @@ precompile_headers:
 	g++-3.4 -O2 -c -x c++ all.h -o all.h.gch -I. 
 	echo "#error all.h.gch is not used. You must use CC=gcc-3.4" > all.h
 
-
 # This cleans out the object files but leaves
 # the headers and library
-clean_packages:
-	$(MAKE) -C packages clean
+clean_packages: test_new_packages
+	if test -f ecos.ecc; then \
+	$(MAKE) -C packages clean ; fi
+
+test_check_packages: .check-stamp
+
+.check-stamp:
+	$(MAKE) -C . check_packages
 
 # This checks the configuration
 check_packages:

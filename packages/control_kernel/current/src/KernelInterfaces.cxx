@@ -32,6 +32,7 @@
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
+#include "execution/TemplateMethodFactory.hpp"
 #endif
 
 using namespace ORO_ControlKernel;
@@ -171,6 +172,7 @@ CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
 {
     TemplateCommandFactory< KernelBaseFunction >* ret =
         newCommandFactory( this );
+#if 0
     ret->add( "start", 
               command
               ( &KernelBaseFunction::startKernel ,
@@ -256,8 +258,85 @@ CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
               ( &KernelBaseFunction::stopEffector ,
                 &KernelBaseFunction::true_gen,
                 "Stop a Effector Component", "Name", "The name of the Effector" ) );
+#endif
     return ret;
 }
+
+MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
+{
+    TemplateMethodFactory< KernelBaseFunction >* ret =
+        newMethodFactory( this );
+    ret->add( "start", 
+              method
+              ( &KernelBaseFunction::startKernel ,
+                "Start the Kernel Task"  ) );
+    ret->add( "stop", 
+              method
+              ( &KernelBaseFunction::stopKernel ,
+                "Stop the Kernel Task"  ) );
+    ret->add( "selectController", 
+              method
+              ( &KernelBaseFunction::selectController ,
+                "Select a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "selectGenerator", 
+              method
+              ( &KernelBaseFunction::selectGenerator ,
+                "Select a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "selectEstimator", 
+              method
+              ( &KernelBaseFunction::selectEstimator ,
+                "Select a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "selectSensor", 
+              method
+              ( &KernelBaseFunction::selectSensor ,
+                "Select a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "selectEffector", 
+              method
+              ( &KernelBaseFunction::selectEffector ,
+                "Select a Effector Component", "Name", "The name of the Effector" ) );
+    ret->add( "startController", 
+              method
+              ( &KernelBaseFunction::startController ,
+                "Start a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "startGenerator", 
+              method
+              ( &KernelBaseFunction::startGenerator ,
+                "Start a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "startEstimator", 
+              method
+              ( &KernelBaseFunction::startEstimator ,
+                "Start a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "startSensor", 
+              method
+              ( &KernelBaseFunction::startSensor ,
+                "Start a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "stopEffector", 
+              method
+              ( &KernelBaseFunction::stopEffector ,
+                "Stop a Effector Component", "Name", "The name of the Effector" ) );
+    ret->add( "stopController", 
+              method
+              ( &KernelBaseFunction::stopController ,
+                "Stop a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "stopGenerator", 
+              method
+              ( &KernelBaseFunction::stopGenerator ,
+                "Stop a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "stopEstimator", 
+              method
+              ( &KernelBaseFunction::stopEstimator ,
+                "Stop a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "stopSensor", 
+              method
+              ( &KernelBaseFunction::stopSensor ,
+                "Stop a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "stopEffector", 
+              method
+              ( &KernelBaseFunction::stopEffector ,
+                "Stop a Effector Component", "Name", "The name of the Effector" ) );
+    return ret;
+}
+
 
 DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
 {

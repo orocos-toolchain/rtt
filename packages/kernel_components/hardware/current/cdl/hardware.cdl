@@ -8,10 +8,13 @@ and provide commands for the Program Execution Extension.
 The package contains a Sensor and an Effector
 Component."
     parent OROPKG_KERNEL_COMPONENTS
+    requires OROPKG_KERNEL_COMPONENTS
 
     include_dir kernel_components
 
     compile GenericSensor.cxx GenericEffector.cxx
 
     requires OROPKG_CONTROL_KERNEL
+    requires OROPKG_DEVICE_INTERFACE
+    requires OROPKG_DEVICE_INTERFACE_IO
 }

@@ -33,8 +33,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/Factories.hpp"
 #include "control_kernel/ExecutionExtension.hpp"
 #endif
 
@@ -359,21 +358,17 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-        bool true_gen() const { return true; }
-
-        CommandFactoryInterface* createCommandFactory()
+        MethodFactoryInterface* createMethodFactory()
         {
-            TemplateCommandFactory< GenericEffector >* ret =
-                newCommandFactory( this );
+            TemplateMethodFactory< GenericEffector >* ret =
+                newMethodFactory( this );
             ret->add( "switchOn",
-                      command( &GenericEffector::switchOn,
-                               &GenericEffector::true_gen,
+                      method( &GenericEffector::switchOn,
                                "Switch A Digital Output on",
                                "Name","The Name of the DigitalOutput."
                                ) ); 
             ret->add( "switchOff",
-                      command( &GenericEffector::switchOff,
-                               &GenericEffector::true_gen,
+                      method( &GenericEffector::switchOff,
                                "Switch A Digital Output off",
                                "Name","The Name of the DigitalOutput."
                                ) ); 

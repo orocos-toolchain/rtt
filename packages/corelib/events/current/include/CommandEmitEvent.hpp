@@ -31,16 +31,24 @@
 namespace ORO_CoreLib
 {
 
+    /**
+     * A command which will \a fire() an Event
+     * when \a execute()'ed.
+     */
     class CommandEmitEvent
         : public CommandInterface
     {
         Event<void(void)>* event;
     public:
+        /**
+         * Create with a nullary Event.
+         */
         CommandEmitEvent( Event<void(void)>* ev )
             : event(ev) {}
-        void execute()
+        bool execute()
         {
             event->fire();
+            return true;
         }
         CommandInterface* clone() const {
             return new CommandEmitEvent( event );

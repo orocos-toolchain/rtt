@@ -60,10 +60,12 @@ namespace ORO_Execution
              * Execute the functionality of all commands.
              * Commands will be executed in the order they have been added
              */
-            virtual void execute() {
+            virtual bool execute() {
             	for (vector<CommandInterface*>::iterator zjakky=list.begin();zjakky!=list.end();zjakky++) {
-            		(*zjakky)->execute();
+            		if ( !(*zjakky)->execute() )
+                        return false;
             	}
+                return true;
 			};
 
         /**

@@ -29,6 +29,7 @@
 #define COMMANDILLEGAL_HPP
 
 #include <corelib/CommandInterface.hpp>
+#include <string>
 
 namespace ORO_Execution
 {
@@ -65,7 +66,7 @@ namespace ORO_Execution
              */
             CommandIllegal( const std::string& cmd, const std::string& descr );
 
-            virtual void execute();
+            virtual bool execute();
 
             /**
              * Preferably, this function is executed right after a

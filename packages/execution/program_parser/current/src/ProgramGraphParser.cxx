@@ -36,6 +36,7 @@
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ParsedValue.hpp"
 #include "execution/ConditionComposite.hpp"
+#include "TryCommand.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -68,6 +69,8 @@ namespace ORO_Execution
                                           Processor* proc,
                                           GlobalFactory* e )
       : context( proc, e ), mpositer( positer ),
+        mfunc(0), mcallfunc(0), 
+        implcond(0), mcondition(0), try_cond(0),
         conditionparser( context ),
         commandparser( context ),
         valuechangeparser( context ),
@@ -79,7 +82,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( terminationclause );
     BOOST_SPIRIT_DEBUG_RULE( jumpdestination );
     BOOST_SPIRIT_DEBUG_RULE( terminationpart );
-    BOOST_SPIRIT_DEBUG_RULE( callstatement );
+    BOOST_SPIRIT_DEBUG_RULE( dostatement );
+    BOOST_SPIRIT_DEBUG_RULE( trystatement );
+    BOOST_SPIRIT_DEBUG_RULE( catchpart );
     BOOST_SPIRIT_DEBUG_RULE( statement );
     BOOST_SPIRIT_DEBUG_RULE( line );
     BOOST_SPIRIT_DEBUG_RULE( content );
@@ -142,7 +147,7 @@ namespace ORO_Execution
     // */\n" will reach us as simply "\n"..
     line = !( statement ) >> newline;
 
-    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement;
+    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -151,17 +156,26 @@ namespace ORO_Execution
 
     valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    // a call statement: "do xxx <and y> <and...> until { terminationclauses }"
-    callstatement = (
-                     (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ]
-                     |
-                     str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")] )
-      >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
-      >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
-      ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];
+    // a do statement: "do xxx <and y> <and...> until { terminationclauses }"
+    dostatement =
+        (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ]
+         >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
+             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
+         ) [ bind( &ProgramGraphParser::seendostatement, this ) ];
+
+    // a try statement: "try xxx <and y> <and...> until { terminationclauses } catch { stuff to do once on any error} "
+    trystatement = 
+        (str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")]
+         >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
+             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
+         ) [ bind( &ProgramGraphParser::seendostatement, this ) ]
+         >> !catchpart;
 
     andpart = *newline >> str_p("and")
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
+
+    catchpart = *newline >> (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
+                 >> ifblock )[bind(&ProgramGraphParser::seencatchpart, this)];
 
     // a function statement : "call functionname"
     funcstatement = (
@@ -178,7 +192,8 @@ namespace ORO_Execution
     // terminationclauses }".  The termination clause part is
     // everything starting at "until"..
     terminationpart =
-      str_p( "until" )
+        *newline >>
+        str_p( "until" )
         >> *newline >> opencurly >> *newline
         >> terminationclause
         >> *(newline >> !terminationclause)
@@ -226,7 +241,7 @@ namespace ORO_Execution
 
   void ProgramGraphParser::seencommands()
   {
-      // Chain all implicit conditions :
+      // Chain all implicit termination conditions into 'done' :
       std::vector<ConditionInterface*>::iterator it = implcond_v.begin();
       implcond = *it;
       while ( ++it != implcond_v.end() ) {
@@ -239,8 +254,9 @@ namespace ORO_Execution
         new DataSourceCondition( implcond->clone() ) ) );
   }
 
-  void ProgramGraphParser::seencallstatement()
+  void ProgramGraphParser::seendostatement()
   {
+      // assert(implcond);
       // Called after a whole command statement is parsed.
       // a CommandNode should have at least one edge
       // If it doesn't, then we add a default one,
@@ -255,6 +271,7 @@ namespace ORO_Execution
               delete implcond;
               program_graph->proceedToNext( mpositer.get_position().line );
       }
+      implcond = 0;
 
     // the done condition is no longer valid..
     context.valueparser.removeValue( "done" );
@@ -300,9 +317,14 @@ namespace ORO_Execution
 
   void ProgramGraphParser::seencondition()
   {
-      mcondition = conditionparser.getParseResult();
-      assert( mcondition );
-      conditionparser.reset();
+       mcondition = conditionparser.getParseResult();
+       assert( mcondition );
+       // leaves the condition in the parser, if we want to use
+       // getParseResultAsCommand();
+       // mcondition is only used with seen*label statements,
+       // when the command and condition are associated,
+       // not in the branching where the evaluation of the
+       // condition is the command.
   }
   void ProgramGraphParser::seenreturnstatement()
   {
@@ -365,17 +387,37 @@ namespace ORO_Execution
       // a 'do' fails on the first rejected command,
       // a 'try' tries all commands.
       if ( type == "do")
-          true_and = true;
+          try_cmd = false;
       else if (type == "try")
-          true_and = false;
+          try_cmd = true;
       else
           assert(false);
   }
 
+    void ProgramGraphParser::startcatchpart() {
+        // we saved the try_cond in the previous try statement,
+        // now process like it said if ( try_cond ) then {...}
+        assert( try_cond );
+        program_graph->startIfStatement( try_cond, mpositer.get_position().line );
+        try_cond = 0;
+    }
+
+    void ProgramGraphParser::seencatchpart() {
+        this->endifblock();
+        this->endifstatement(); // there is no 'else' part, so close the statement
+    }
 
     void ProgramGraphParser::seenifstatement() {
         assert(mcondition);
-        program_graph->startIfStatement( mcondition, mpositer.get_position().line );
+        // transform the evaluation in a command, and pass the result
+        // as a condition
+        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        comcon = conditionparser.getParseResultAsCommand();
+        program_graph->setCommand( comcon.first );
+        program_graph->startIfStatement( comcon.second, mpositer.get_position().line );
+
+        // we did not need this.
+        delete mcondition;
         mcondition = 0;
     }
 
@@ -389,8 +431,15 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::seenwhilestatement() {
+        // analogous to seenifstatement
+        // the evaluation is a command.
         assert(mcondition);
-        program_graph->startWhileStatement( mcondition, mpositer.get_position().line );
+        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        comcon = conditionparser.getParseResultAsCommand();
+        program_graph->setCommand( comcon.first );
+        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line );
+
+        delete mcondition;
         mcondition = 0;
     }
 
@@ -401,6 +450,8 @@ namespace ORO_Execution
 
     void ProgramGraphParser::seenforinit()
     {
+        // the for loop is different from the while and if branch
+        // structures in that it places an init command before the loop.
         for_init_command = valuechangeparser.assignCommand();
         valuechangeparser.reset();
     }
@@ -414,6 +465,7 @@ namespace ORO_Execution
     void ProgramGraphParser::seenforstatement() {
         assert( mcondition );
 
+        // first insert the initialisation command.
         if ( for_init_command )
             {
                 program_graph->setCommand( for_init_command );
@@ -422,7 +474,11 @@ namespace ORO_Execution
         for_init_command = 0;
 
         // A for is nothing more than a while loop...
-        program_graph->startWhileStatement( mcondition, mpositer.get_position().line );
+        std::pair<CommandInterface*, ConditionInterface*> comcon;
+        comcon = conditionparser.getParseResultAsCommand();
+        program_graph->setCommand( comcon.first );
+        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line );
+        delete mcondition;
         mcondition = 0;
     }
 
@@ -519,9 +575,19 @@ namespace ORO_Execution
 
   void ProgramGraphParser::seencommandcall()
   {
-    // we get the data from commandparser
-    program_graph->setCommand( commandparser.getCommand() );
-    ConditionInterface* implcond =  commandparser.getImplTermCondition();
+      // we get the data from commandparser
+      CommandInterface*   command;
+      command  = commandparser.getCommand();
+      implcond = commandparser.getImplTermCondition();
+
+      if ( !try_cmd ) {
+          program_graph->setCommand( command );
+      } else {
+          // try-wrap the command, store the result in try_cond.
+          TryCommand* trycommand =  new TryCommand( command );
+          try_cond = new TryCommandResult( trycommand->result() );
+          program_graph->setCommand( trycommand );
+      }
 
     if ( !implcond )
       implcond = new ConditionTrue;
@@ -530,73 +596,50 @@ namespace ORO_Execution
   }
 
     namespace {
-        struct CommandDoComposite : public CommandInterface
+        struct CommandComposite : public CommandInterface
         {
             CommandInterface* _f;
             CommandInterface* _s;
-            CommandDoComposite( CommandInterface* f, CommandInterface* s)
+            CommandComposite( CommandInterface* f, CommandInterface* s)
                 : _f(f), _s(s) {}
-            virtual ~CommandDoComposite() {
+            virtual ~CommandComposite() {
                 delete _f;
                 delete _s;
             }
-            virtual void execute() {
-                _f->execute();
-                _s->execute();
-                // return _f->execute() && _s->execute();
+            virtual bool execute() {
+                return _f->execute() && _s->execute();
             }
             virtual void reset() {
                 _f->reset();
                 _s->reset();
             }
             virtual CommandInterface* clone() const {
-                return new CommandDoComposite( _f->clone(), _s->clone() );
+                return new CommandComposite( _f->clone(), _s->clone() );
             }
             virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandDoComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
-            }
-        };
-        struct CommandTryComposite : public CommandInterface
-        {
-            CommandInterface* _f;
-            CommandInterface* _s;
-            CommandTryComposite( CommandInterface* f, CommandInterface* s)
-                : _f(f), _s(s) {}
-            virtual ~CommandTryComposite() {
-                delete _f;
-                delete _s;
-            }
-            virtual void execute() {
-                _f->execute();
-                _s->execute();
-                // return true;
-            }
-            virtual void reset() {
-                _f->reset();
-                _s->reset();
-            }
-            virtual CommandInterface* clone() const {
-                return new CommandTryComposite( _f->clone(), _s->clone() );
-            }
-            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandTryComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
+                return new CommandComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
             }
         };
     }
-            
 
   void ProgramGraphParser::seenandcall()
   {
       // retrieve a clone of the previous 'do' or 'and' command:
     CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() )->clone();
-    // set composite command : (oldcmnd can be zero)
+    assert(oldcmnd);
+    // set composite command : (oldcmnd can not be zero)
     CommandInterface* compcmnd;
-    if (true_and)
-        compcmnd = new CommandDoComposite( oldcmnd,
-                                           commandparser.getCommand() );
-    else
-        compcmnd = new CommandTryComposite( oldcmnd,
-                                            commandparser.getCommand() );
+    if ( !try_cmd )
+        compcmnd = new CommandComposite( oldcmnd,
+                                         commandparser.getCommand() );
+    else {
+        TryCommand*      trycommand = new TryCommand( commandparser.getCommand() );
+        TryCommandResult* tryresult = new TryCommandResult( trycommand->result() );
+        compcmnd = new CommandComposite( oldcmnd,
+                                           trycommand );
+        try_cond = new ConditionBinaryComposite< std::logical_or<bool> >( try_cond, tryresult );
+    }
+        
     program_graph->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( commandparser.getImplTermCondition() );

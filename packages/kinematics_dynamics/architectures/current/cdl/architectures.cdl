@@ -1,6 +1,8 @@
 cdl_package OROPKG_KINDYN_ARCH {
     display "Kinematic Architectures"
     parent OROPKG_KINDYN
+    requires OROPKG_KINDYN
+
     include_dir kindyn
 
     cdl_component OROPKG_KINDYN_ARCH_SERIAL321 {

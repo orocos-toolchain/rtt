@@ -73,13 +73,9 @@ namespace ORO_Execution
       : fun( f )
       {
       };
-    void execute()
+    bool execute()
       {
-        fun();
-      };
-    std::string toString()
-      {
-        return "FunctorCommand0";
+        return fun();
       };
 
       virtual CommandInterface* clone() const
@@ -103,14 +99,10 @@ namespace ORO_Execution
       : fun( f ), aa( a )
       {
       };
-    void execute()
+    bool execute()
       {
         Arg1T a = aa->get();
-        fun( a );
-      };
-    std::string toString()
-      {
-        return "FunctorCommand1";
+        return fun( a );
       };
     void reset()
       {
@@ -144,15 +136,11 @@ namespace ORO_Execution
         : fun( f ), aa( a ), bb( b )
       {
       };
-    void execute()
+    bool execute()
       {
         Arg1T a = aa->get();
         Arg2T b = bb->get();
-        fun( a, b );
-      };
-    std::string toString()
-      {
-        return "FunctorCommand2";
+        return fun( a, b );
       };
     void reset()
       {
@@ -188,16 +176,12 @@ namespace ORO_Execution
         : fun( f ), aa( a ), bb( b ), cc( c )
       {
       };
-    void execute()
+    bool execute()
       {
         Arg1T a = aa->get();
         Arg2T b = bb->get();
         Arg3T c = cc->get();
-        fun( a, b, c );
-      };
-    std::string toString()
-      {
-        return "FunctorCommand3";
+        return fun( a, b, c );
       };
     void reset()
       {
@@ -770,9 +754,9 @@ namespace ORO_Execution
    *
    * @{
    */
-  template<typename ComponentT, typename ResT>
+  template<typename ComponentT>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
+  command( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
            const char* desc , bool _invert = false)
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type, ComCon>(
@@ -795,9 +779,9 @@ namespace ORO_Execution
 //         ), desc );
 //   };
 
-  template<typename ComponentT, typename ResT, typename Arg1T>
+  template<typename ComponentT, typename Arg1T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T ),
+  command( bool (ComponentT::*comf)( Arg1T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc, bool invert = false )
   {
@@ -810,9 +794,9 @@ namespace ORO_Execution
   };
 
     // same as above, but with nullary terminationcondition checker
-  template<typename ComponentT, typename ResT, typename Arg1T>
+  template<typename ComponentT, typename Arg1T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T ),
+  command( bool (ComponentT::*comf)( Arg1T ),
            bool (ComponentT::*conf)() const,
            const char* desc, const char* arg1name, const char* arg1desc, bool invert = false )
   {
@@ -824,9 +808,9 @@ namespace ORO_Execution
           ), desc, arg1name, arg1desc );
   };
 
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T>
+  template<typename ComponentT, typename Arg1T, typename Arg2T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)( Arg1T, Arg2T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
@@ -840,9 +824,9 @@ namespace ORO_Execution
   };
 
     // same as above, but with nullary terminationcondition checker
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T>
+  template<typename ComponentT, typename Arg1T, typename Arg2T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)() const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
@@ -856,9 +840,9 @@ namespace ORO_Execution
   };
 
     // same as above, but with unary terminationcondition checker
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T>
+  template<typename ComponentT, typename Arg1T, typename Arg2T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
@@ -871,10 +855,10 @@ namespace ORO_Execution
           ), desc, arg1name, arg1desc, arg2name, arg2desc );
   };
 
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T,
+  template<typename ComponentT, typename Arg1T, typename Arg2T,
            typename Arg3T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( Arg1T, Arg2T, Arg3T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,
@@ -892,10 +876,10 @@ namespace ORO_Execution
   };
 
     // Nullary Condition Checking.
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T,
+  template<typename ComponentT,  typename Arg1T, typename Arg2T,
            typename Arg3T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,
@@ -912,10 +896,10 @@ namespace ORO_Execution
         arg2desc, arg3name, arg3desc );
   };
     // Unary Condition Checking.
-  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T,
+  template<typename ComponentT,  typename Arg1T, typename Arg2T,
            typename Arg3T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
-  command( ResT (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
+  command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,

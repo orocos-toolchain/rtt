@@ -70,6 +70,18 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Corrected examples</revremark>
       </revision>
+      <revision>
+	<revnumber>0.16</revnumber>
+	<date>July 2004</date>
+	<authorinitials>DD</authorinitials>
+	<revremark>New State Context syntax</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>21 Sept 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Documented methods, 'and', 'try...catch'</revremark>
+      </revision>
 	
     </revhistory>
 
@@ -185,6 +197,7 @@
 	    <member>async</member>
 	    <member>bool</member>
 	    <member>char</member>
+	    <member>catch</member>
 	    <member>const</member>
 	    <member>define</member>
 	    <member>do</member>
@@ -211,6 +224,7 @@
 	    <member>time</member>
 	    <member>to</member>
 	    <member>true</member>
+	    <member>try</member>
 	    <member>twist</member>
 	    <member>until</member>
 	    <member>var</member>
@@ -254,6 +268,18 @@ component.dataname( argument1, argument2, ..., argumentN )
 	    <programlisting>
 // equivalent to component.dataname()
 component.dataname
+	    </programlisting>
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Component Methods</title>
+	  <para>
+	    Methods are analogous to the data in the previous section.
+	    They can be used in expressions and executed as a command.
+	    For example, a method returning a boolean can be used
+	    in an 'if' clause and in a 'do' statement (see below).
+	    <programlisting>
+component.methodname( argument1, argument2, ..., argumentN ) 
 	    </programlisting>
 	  </para>
 	</sect4>
@@ -483,6 +509,104 @@ do comp.action( args )
 do comp.action( args ) until { if done then continue }
 	  </programlisting>
 	</para>
+	<sect4>
+	  <title>Accepting and Rejecting Commands</title>
+	  <para>
+	    A command can be accepted or rejected by a component.
+	    When it returns false, this is seen as a reject and
+	    the program goes into an error state. The user
+	    can then stop the program or try to continue
+	    the program again, which will lead to a re-issuing
+	    of the command, which may lead again to the error state.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Try ... Catch Commands</title>
+	<para>
+	  When a command is rejected ( the C++ method returns false ),
+	  the program goes into an error state and waits for user
+	  intervention. This can be bypassed by using a 
+	  <emphasis>try...catch</emphasis> statement. It tries
+	  to execute the command, and if it is rejected,
+	  the optional catch clause is executed :
+	  <programlisting>
+// just try it :
+try comp.action( args )
+
+// When rejected, execute the catch clause :
+try comp.action( args ) catch { 
+    // statements...
+}
+	  </programlisting>
+	  You may place termination conditions between try
+	  and catch :
+	  <programlisting>
+try comp.action( args ) 
+until {
+    if comp.evaluate() then continue
+}
+catch { 
+    // statements...
+}
+// next statement
+	  </programlisting>
+	  If the command was accepted, the next statement is executed.
+	</para>
+	</sect4>
+	<sect4>
+	  <title>Parallel Commands with 'and'</title>
+	  <para>
+	    When it is desired to execute commands as one command
+	    ( in one time ), they can be combined with an
+	    'and' operator :
+	    <programlisting>
+do comp.action1() and comp.action2() and comp.action3()
+	    </programlisting>
+	    The implicit termination condition (i.e. 'done') is when all
+	    listed actions are done. This can be overridden
+	    by defining a termination condition with 'until'.
+	  </para>
+	  <para>
+	    The 'and' operator can also be used with 'try'.
+	    In that case, the catch clause will be executed in
+	    case any of the listed commands fails.
+	  </para>
+	</sect4>
+      </sect3>
+      <sect3>
+	<title>Method Call Statements</title>
+	<para>
+	  Methods behave like traditional functions. They take
+	  arguments and return a value immediately. They can be
+	  used in expressions or stand alone in a do statement :
+	  <programlisting>
+// ignore the return value :
+do comp.method( args )
+
+// this will only work if the method returns a boolean :
+if ( comp.method( args ) ) {
+	    // ...
+}
+
+// use another method in an expression :
+set data = comp.getResult( args ) * 20. / comp.dataValue 
+	  </programlisting>
+	  A method can thus transparantly be used like a
+	  command, which implicit termination condition
+	  is always true.
+	</para>
+	<warning>
+	  <para>
+	    A method returning a boolean result, will
+	    behave like a command. This means that if
+	    it returns false, it will be seen as a
+	    reject. If this is not wanted, use 'try'
+	    instead of 'do'. If the method returns
+	    nothing or something else than bool, 
+	    the result will be ignored in a do
+	    statement.
+	  </para>
+	</warning>
       </sect3>
       <sect3>
 	<title>Calling functions</title>
@@ -1296,20 +1420,23 @@ program DemoRun {
   <sect1 id="exporting-component-api">
     <title>Exporting a Component's API</title>
     <sect2 id="exporting-component-api-data-and-commands">
-      <title>Data and Commands</title>
+      <title>Data, Methods and Commands</title>
       <para>
-	A component's API can consist of two things: Data and
-	Commands.  The difference is that data is used to form
-	expressions, while Commands are used in call commands.  More
-	generally, data should be accessible without any side effects.
-	It should be simple data that can be read out.  Commands are
-	specifically meant to generate side effects.  Suppose you're
+	A component's API can consist of three things: Data, Methods and
+	Commands. Data should be accessible without any side effects
+	( it is const ), thus many readouts do not influence the data
+	or other data, although the data may change because of other reasons.
+	Methods can have side effects, but have always immediate result,
+	thus they can still be used in expressions.
+	Commands are specifically meant to generate side effects
+	<emphasis>over time</emphasis>.  Suppose you're
 	writing a robot component, then an example of a command would
 	be: "robot.moveTo", telling the robot to move to the specified
 	position, and an example of a data value would be
 	"robot.isAtPosition", checking whether the robot has already
 	reached the specified position.  "robot.position" could also
-	be a data value.
+	be a data value. A method could be the setting of the controller
+	parameters.
       </para>
       <para>
 	An &orocos; program is not executed at the same time it is
@@ -1320,18 +1447,21 @@ program DemoRun {
       <para>
 	Specifically, Commands are represented by child classes of 
 	the C++ class CommandInterface, and Data is represented by
-	child classes of the C++ class DataSource.  Actually, there
+	child classes of the C++ class DataSource. A method
+	can be both. There
 	is a different DataSource type for every type used in the
 	&orocos; Parser system.  This is accomplished by making
 	DataSource a template class, parametrized by its result
 	value.
       </para>
       <para>
-	Command calls, and data calls are translated to
+	Command calls, methods and data calls are translated to
 	CommandInterface and DataSource classes by respectively
-	CommandFactory's and DataSourceFactory's.  These are provided
-	by the various components.  Every component has one
-	CommandFactory and one DataSourceFactory.  Continue reading
+	CommandFactory's, MethodFactory's and DataSourceFactory's.
+	These are provided
+	by the various components.  Every component can have one
+	CommandFactory, one MethodFactory and one DataSourceFactory.
+	Continue reading
 	for more information on how to add one to your own component. 
       </para>
     </sect2>
@@ -1351,16 +1481,17 @@ program DemoRun {
     <sect2 id="exporting-api-getting-to-it">
       <title>Getting to it</title>
       <para>
-	In order for a component to export its API, it should
-	implement two virtual methods: 
+	In order for a component to export its API, it can
+	implement three virtual methods: 
 	<programlisting>
 virtual CommandFactoryInterface* createCommandFactory();
+virtual MethodFactoryInterface* createMethodFactory();
 virtual DataSourceFactoryInterface* createDataSourceFactory();
 	</programlisting>
 	These will each be called once during the startup of the
-	kernel, and they should return a CommandFactory and a
+	kernel, and they should return a CommandFactory, a MethodFactory and a
 	DataSourceFactory containing information on how to construct
-	the Command's and DataSource's that the component supports.
+	the Command's, Method's and DataSource's that the component supports.
       </para>
       <para>
 	It is possible to write the DataSourceFactory and
@@ -1386,14 +1517,14 @@ public:
   Vector position() const;
   double movingSpeed() const;
   
-  double distanceTo( const Vector&amp; position ) const;
+  // A Method must not be const :
+  double calibrate( const Vector&amp; position );
 };
 	</programlisting>
 	Then the code needed to export this API to the &orocos;
 	scripting framework would look like this:
 	<programlisting>
-#include &lt;execution/TemplateDataSourceFactory.hpp&gt;
-#include &lt;execution/TemplateCommandFactory.hpp&gt;
+#include &lt;execution/Factories.hpp&gt;
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
@@ -1414,11 +1545,18 @@ DataSourceFactoryInterface* createDataSourceFactory()
             data( &amp;Robot::movingSpeed, 
                   &quot;The speed at which the robot is &quot;
                   &quot;currently moving.&quot; ) );
-  ret-&gt;add( &quot;distanceTo&quot;,
-            data( &amp;Robot::distanceTo,
-                  &quot;The distance between the current &quot;
+  return ret;
+}
+
+MethodFactoryInterface* createMethodFactory()
+{
+  TemplateMethodFactory&lt;Robot&gt;* ret =
+    newMethodFactory( this );
+  ret-&gt;add( &quot;calibrate&quot;,
+            method( &amp;Robot::calibrate,
+                  &quot;Calibrate the distance between the current &quot;
                   &quot;position of the robot and pos.&quot;, &quot;pos&quot;,
-                  &quot;Query position&quot; ) ); 
+                  &quot;Calibration position&quot; ) ); 
   return ret;
 }
 
@@ -1470,6 +1608,11 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	called.
       </para>
       <para>
+	Methods work the same way like DataSources, except that
+	they do not need to be const and the factories have
+	different names.
+      </para>
+      <para>
 	The command factory is created in a similar way.  The first
 	statement is almost the same, and the next are also similar.
 	The only difference with the DataSource factory creation is
@@ -1489,7 +1632,7 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	strings giving a description and name for every argument.
       </para>
       <para>
-	If a component has only commands, or only data, the unneeded
+	If a component has only commands, or only data, or only methods, the unneeded
 	factory function can be left out and the parser will not query
 	the component for the left out factory.
       </para>

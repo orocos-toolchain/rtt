@@ -43,7 +43,7 @@
 
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
-//#include "TryCommand.hpp"
+#include "TryCommand.hpp"
 
 namespace ORO_Execution
 {
@@ -82,6 +82,8 @@ namespace ORO_Execution
       expressionparser.getResult();
     expressionparser.dropResult();
 
+    // The reference count is stored in the DataSource itself !
+    // so the ref cnt information is not lost in this cast
     ds_bool =
       dynamic_cast<DataSource<bool>*>( mcurdata.get() );
     if ( ds_bool )
@@ -107,9 +109,9 @@ namespace ORO_Execution
        */
     std::pair<CommandInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
       {
-          //EvalCommand* ec = new EvalCommand(ds_bool);
-          //EvalCommandResult* ecr = new EvalCommandResult( ec );
-          //return std::make_pair( ec ,ecr );
-          return std::pair<CommandInterface*,ConditionInterface*>(0,0);
+          EvalCommand* ec = new EvalCommand( ds_bool );
+          EvalCommandResult* ecr = new EvalCommandResult( ec->cache() );
+          return std::make_pair( ec ,ecr );
+          //return std::pair<CommandInterface*,ConditionInterface*>(0,0);
       }
 }

@@ -101,16 +101,18 @@ namespace ORO_Execution
     {
     }
 
-    void ProgramGraph::executeToStop()
+    bool ProgramGraph::executeToStop()
     {
         static const int maxsteps = 5000;
         int count = 0;
+        bool result = true;
 
-        while ( current != end && count++ <= maxsteps )
-            execute();
+        while ( current != end && count++ <= maxsteps && result )
+            result = execute();
+        return result;
     }
 
-    void ProgramGraph::execute()
+    bool ProgramGraph::execute()
     {
         graph_traits<Graph>::out_edge_iterator ei, ei_end;
         // the map contains _references_ to all vertex_command properties
@@ -129,7 +131,8 @@ namespace ORO_Execution
         }
 
         // execute the current command.
-        cmap[current].execute();
+        if ( !cmap[current].execute() )
+            return false;
 
         // Branch selecting Logic :
         for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
@@ -139,9 +142,10 @@ namespace ORO_Execution
                 current = boost::target(*ei, program);
                 // a new node has been found ...
                 // it will be executed in the next step.
-                return;
+                return true;
             }
         }
+        return true; // no new branch found yet !
     }
 
     void ProgramGraph::reset()
@@ -436,30 +440,6 @@ namespace ORO_Execution
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
         cmap[current].setLineNumber( line );
-    }
-
-    void ProgramGraph::setLabel( const std::string& str )
-    {
-        boost::property_map<Graph, vertex_command_t>::type
-            cmap = get(vertex_command, *graph);
-        cmap[current].setLabel( str );
-    }
-
-    bool ProgramGraph::hasLabel( const std::string& str ) const
-    {
-        return findNode(str).second;
-    }
-
-    std::pair<ProgramGraph::CommandNode, bool> ProgramGraph::findNode( const std::string& str ) const
-    {
-        graph_traits<Graph>::vertex_iterator v1,v2;
-        tie(v1,v2) = vertices(*graph);
-        boost::property_map<Graph, vertex_command_t>::type
-            cmap = get(vertex_command, *graph);
-        for ( ; v1 != v2; ++v1)
-            if ( cmap[*v1].getLabel() == str )
-                return std::make_pair(*v1, true);
-        return std::make_pair(*v2, false);
     }
 
     void ProgramGraph::startIfStatement( ConditionInterface* cond, int linenumber )

@@ -35,7 +35,7 @@ namespace ORO_Execution
     int EdgeCondition::condition_counter = 0;
 
 	EdgeCondition::EdgeCondition(ConditionInterface* cond )
-        : condition( cond->clone() ), rank(condition_counter++)
+        : condition( cond ), rank(condition_counter++)
 	{
 	}
 
@@ -69,9 +69,17 @@ namespace ORO_Execution
         : condition( orig.getCondition()->clone() ), rank(condition_counter++)
     {
     }
+    
+    EdgeCondition EdgeCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const {
+        // copy to set the rank right :
+        EdgeCondition ret( *this );
+        ret.setCondition( this->getCondition()->copy( replacementdss ) );
+        return ret;
+    }
 
     EdgeCondition& EdgeCondition::operator=( const EdgeCondition& orig )
     {
+        delete condition;
         condition = orig.getCondition()->clone();
         rank = orig.getRank();
         return *this;

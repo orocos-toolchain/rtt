@@ -28,7 +28,6 @@
 #ifndef COMMANDINTERFACE_HPP
 #define COMMANDINTERFACE_HPP
 
-#include <string>
 #include <map>
 
 #pragma interface
@@ -44,31 +43,55 @@ namespace ORO_CoreLib
     /**
      * @brief Based on the software pattern 'command', this
      * interface allows execution of command objects.
+     *
+     * The command may return true or false to indicate
+     * if it was accepted (true) or rejected (false).
+     *
+     * @section cc Copy versus clone semantics
+     * @par Copy is used to copy a whole tree of commands,
+     * storing common information in web of \a DataSource's. 
+     * The DataSource 'web' will be copied such that an
+     * entirely new command tree references the new DataSources.
+     * @par When clone is used, the Datasources remain
+     * in place, and only the command is cloned, thus,
+     * the original and the clone point to the same DataSource.
+     * The deletion of DataSources must thus be managed with
+     * smart pointers. A clone is thus used for within the
+     * existing DataSource web.
      */
     class CommandInterface
     {
-        public:
-            virtual ~CommandInterface();
+    public:
+        virtual ~CommandInterface();
 
-            /**
-             * Execute the functionality of this command.
-             */
-            virtual void execute() = 0;
+        /**
+         * Execute the functionality of this command.
+         * @return true if the command was accepted, false otherwise
+         */
+        virtual bool execute() = 0;
 
-            /**
-             * Reset this command.  This method is called when the
-             * ProgramNode containing this command is entered.  Then,
-             * the command continues to become executed until one of
-             * the termination clauses becomes true, and this method
-             * is not called.  Only when the ProgramNode is left and
-             * after some time reentered, this method is called
-             * again.  AsynchCommandDecorator needs this, and also
-             * Commands that have DataSource arguments need to reset
-             * them..
-             * @see ConditionInterface::reset
-             * @see DataSource::reset
-             */
-            virtual void reset();
+        /**
+         * Reset this command.  This method is called when the
+         * ProgramNode containing this command is entered.  Then,
+         * the command continues to become executed until one of
+         * the termination clauses becomes true, and this method
+         * is not called.  Only when the ProgramNode is left and
+         * after some time reentered, this method is called
+         * again.  AsynchCommandDecorator needs this, and also
+         * Commands that have DataSource arguments need to reset
+         * them..
+         * @see ConditionInterface::reset
+         * @see DataSource::reset
+         */
+        virtual void reset();
+
+        /**
+         * Execute the functionality of this command.
+         * Overload of \a execute().
+         * @return true if the command was accepted, false otherwise
+         *
+         */
+        virtual bool operator()();
 
         /**
          * The Clone Software Pattern.

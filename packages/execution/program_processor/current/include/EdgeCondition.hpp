@@ -76,11 +76,7 @@ namespace ORO_Execution
 
         EdgeCondition& operator=( const EdgeCondition& orig );
 
-        EdgeCondition copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const {
-            EdgeCondition ret( *this );
-            ret.condition = getCondition()->copy( replacementdss );
-            return ret;
-        }
+        EdgeCondition copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
     public:
 
         /**

@@ -28,20 +28,12 @@
 
 namespace ORO_CoreLib
 {
-    using namespace std;
-
-    void CommandNOP::execute()
+    bool CommandNOP::execute()
     {
-#ifdef COMMANDNOPDEBUG
-        cout << "CommandNOP::execute()" <<endl;
-#endif
-
+        return true;
     }
 
-    std::string CommandNOP::toString()
-    {
-        return "CommandNOP";
-    }
+    CommandNOP::~CommandNOP() {}
 
     CommandInterface* CommandNOP::clone() const
     {

@@ -33,6 +33,10 @@ namespace ORO_CoreLib {
   CommandInterface::~CommandInterface() {
   }
 
+    bool CommandInterface::operator()() {
+        return this->execute();
+    }
+
   void CommandInterface::reset() {
   }
 

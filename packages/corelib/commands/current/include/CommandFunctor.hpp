@@ -37,6 +37,9 @@ namespace ORO_CoreLib
      * @brief A Command which can be bound to a function using boost::bind.
      *
      * See the boost::bind documentation (www.boost.org) for more examples.
+     * \a execute() will always return true. To have it return the boolean
+     * result of the bound function, a boost::function<bool(void)> object
+     * must be given. See the Commandfunctor specialisation class.
      *
      * Usage :
      * @verbatim
@@ -67,7 +70,46 @@ namespace ORO_CoreLib
 
         virtual ~CommandFunctor() {}
 
-        virtual void execute() { f(); }
+        virtual bool execute() { f(); return true; }
+
+        virtual CommandInterface* clone() const
+        {
+            return new CommandFunctor<F>(f);
+        }
+    };
+
+    /**
+     * Specialisation of CommandFunctor.
+     *
+     * When a boost::function< bool(void)>  object is given as template
+     * parameter, the boolean result will be returned in execute.
+     * @verbatim
+     * bool myFun( ClassA* a );
+     * ClassA* _class;
+     *
+     * // Watch the 'newCommandFunctor' _function_ :
+     * CommandInterface* d;
+     * d = newCommandFunctor( boost::function<bool(void)>(boost::bind(&myFun2, _class)) );
+     * bool result = d->execute(); // returns myFun2( _class );
+     * @endverbatim
+     * 
+     */
+    template<>
+    class CommandFunctor< boost::function< bool(void) > >
+        : public CommandInterface
+    {
+        boost::function<bool(void)> f;
+    public:
+        typedef boost::function<bool(void)> Function;
+
+        /**
+         * Create a command calling a function.
+         */
+        CommandFunctor(Function& func) : f(func) {}
+
+        virtual ~CommandFunctor() {}
+
+        virtual bool execute() { return f(); }
 
         virtual CommandInterface* clone() const
         {

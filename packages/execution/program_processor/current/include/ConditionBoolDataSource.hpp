@@ -37,15 +37,21 @@ namespace ORO_Execution
 
     using ORO_CoreLib::ConditionInterface;
 
+    /**
+     * A Condition which holds a boolean DataSource.
+     */
   class ConditionBoolDataSource
     : public ConditionInterface
   {
     DataSource<bool>::shared_ptr data;
   public:
+      /**
+       * The constructor stores the DataSource \a s in a shared_ptr.
+       */
     ConditionBoolDataSource( DataSource<bool>* s )
       : data( s )
       {
-      };
+      }
     ~ConditionBoolDataSource();
     bool evaluate();
     ConditionBoolDataSource* clone() const;

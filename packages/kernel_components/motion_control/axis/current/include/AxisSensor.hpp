@@ -36,7 +36,7 @@
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/TemplateMethodFactory.hpp"
 #endif
 
 #include <map>
@@ -161,7 +161,7 @@ namespace ORO_ControlKernel
         bool removeAxis( const std::string& name );
 
         /**
-         * @name AxisSensor Commands.
+         * @name AxisSensor Methods.
          * Runtime commands for the AxisSensor.
          * @{
          */

@@ -35,8 +35,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/TemplateMethodFactory.hpp"
 #endif
 
 #include <map>
@@ -131,8 +130,9 @@ namespace ORO_ControlKernel
          * @param name The Axis to remove from a channel.
          */
         void removeAxisFromChannel( const std::string& name );
+
         /**
-         * @name The AxisEffector Commands.
+         * @name The AxisEffector Methods.
          */
         // @{
         /**
@@ -159,9 +159,7 @@ namespace ORO_ControlKernel
 
     protected:
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        bool true_gen() const { return true; }
-
-        CommandFactoryInterface* createCommandFactory();
+        MethodFactoryInterface* createMethodFactory();
 #endif
             
         /**

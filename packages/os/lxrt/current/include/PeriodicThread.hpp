@@ -145,6 +145,7 @@ namespace ORO_OS
         bool isHardRealtime()   { return rt_is_hard_real_time(rt_task); }
 
     protected:
+        virtual void continuousStepping(bool yes_no);
         virtual bool setToStop();
 
         /**
@@ -216,6 +217,8 @@ namespace ORO_OS
         // We cannot include Event.hpp inhere,
         // thus we use a void* + static_cast in cxx file.
         void* stopEvent;
+
+        bool wait_for_step;
     };
 
 }

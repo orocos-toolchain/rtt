@@ -50,8 +50,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/Factories.hpp"
 #include <control_kernel/ExecutionExtension.hpp>
 #endif
 
@@ -276,7 +275,7 @@ namespace ORO_ControlKernel
          * Stop as fast as possible (with a_max).
          * EXPERIMENTAL
          */
-        void safeStop()
+        bool safeStop()
         {
             if ( this->kernel()->isRunning() && cur_tr )
                 {
@@ -293,8 +292,9 @@ namespace ORO_ControlKernel
                                                                      new RotationalInterpolation_SingleAxis(),
                                                                      1.0), 
                                                       interpol->Clone() );
-                    
+                    return true;
                 }
+            return false;
         }
 
         /**
@@ -328,7 +328,7 @@ namespace ORO_ControlKernel
          * Read the trajectory stored in the command and 
          * use it for interpolation.
          */
-        void loadTrajectory()
+        bool loadTrajectory()
         {
             if ( this->kernel()->isRunning() && trajectoryDone() && traj_DObj != 0 )
                 {
@@ -355,10 +355,13 @@ namespace ORO_ControlKernel
                             tool_f_DObj->Get(tool_mp_frame);
                             timestamp = HeartBeatGenerator::Instance()->ticksGet();
                             _time = 0;
+                            return true;
                         }
-                    else cout << "Trajectory not loaded"<<endl;
+                    else
+                        cout << "Trajectory not loaded"<<endl;
                 }
             cout << "exit loadTrajectory()"<<endl;
+            return false;
         }
 
         /**
@@ -420,9 +423,6 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-        template< class T >
-        bool true_gen( T t ) const { return true; }
-
         CommandFactoryInterface* createCommandFactory()
         {
             TemplateCommandFactory< CartesianGenerator >* ret =
@@ -442,14 +442,20 @@ namespace ORO_ControlKernel
                       command( &CartesianGenerator::home,
                                &CartesianGenerator::isHomed,
                                "Move the robot to its home position" ) );
-            ret->add( "setHomeFrame", 
-                      command( &CartesianGenerator::setHomeFrame,
-                               &CartesianGenerator::true_gen,
-                            "The home position of the robot.", "Frame", "Homing End Frame" ) );
             ret->add( "loadTrajectory",
                       command( &CartesianGenerator::loadTrajectory,
-                               &CartesianGenerator::isTrajectoryLoaded,
+                               &CartesianGenerator::trajectoryDone,
                                "Load a new trajectory." ) );
+            return ret;
+        }
+
+        MethodFactoryInterface* createMethodFactory()
+        {
+            TemplateMethodFactory< CartesianGenerator >* ret =
+                newMethodFactory( this );
+            ret->add( "setHomeFrame", 
+                      method( &CartesianGenerator::setHomeFrame,
+                            "The home position of the robot.", "Frame", "Homing End Frame" ) );
             return ret;
         }
 #endif

@@ -435,6 +435,11 @@ namespace ORO_Execution
     add( newBinaryOperator( "!=", std::not_equal_to<std::string>() ) );
     add( newBinaryOperator( "<", std::less<std::string>() ) );
 
+    // chars
+    add( newBinaryOperator( "==", std::equal_to<char>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<char>() ) );
+    add( newBinaryOperator( "<", std::less<char>() ) );
+
 #ifdef OROPKG_GEOMETRY
     // vectors: I'm simply exporting all those that are available, not
     //          adding any myself..

@@ -172,31 +172,27 @@ namespace ORO_ControlKernel {
 
     using namespace ORO_Execution;
 
-    CommandFactoryInterface* AxisEffector::createCommandFactory()
+    MethodFactoryInterface* AxisEffector::createMethodFactory()
     {
-        TemplateCommandFactory< AxisEffector >* ret =
-            newCommandFactory( this );
+        TemplateMethodFactory< AxisEffector >* ret =
+            newMethodFactory( this );
         ret->add( "switchOn",
-                  command( &AxisEffector::switchOn,
-                           &AxisEffector::true_gen,
+                  method( &AxisEffector::switchOn,
                            "Switch A Digital Output on",
                            "Name","The Name of the DigitalOutput."
                            ) ); 
         ret->add( "switchOff",
-                  command( &AxisEffector::switchOff,
-                           &AxisEffector::true_gen,
+                  method( &AxisEffector::switchOff,
                            "Switch A Digital Output off",
                            "Name","The Name of the DigitalOutput."
                            ) ); 
         ret->add( "enableAxis",
-                  command( &AxisEffector::enableAxis,
-                           &AxisEffector::true_gen,
+                  method( &AxisEffector::enableAxis,
                            "Enable an Axis",
                            "Name","The Name of the Axis."
                            ) ); 
         ret->add( "disableAxis",
-                  command( &AxisEffector::disableAxis,
-                           &AxisEffector::true_gen,
+                  method( &AxisEffector::disableAxis,
                            "Disable (lock) an Axis",
                            "Name","The Name of the Axis."
                            ) ); 

@@ -115,6 +115,8 @@ namespace ORO_OS
         bool makeSoftRealtime() {return true;}
         bool isHardRealtime()   {return false;}
         protected:
+        virtual void continuousStepping(bool yes_no);
+
             /**
              * Set the periodicity of this thread
              */
@@ -193,6 +195,8 @@ namespace ORO_OS
         virtual bool setToStop();
 
         ORO_CoreLib::Handle* h;
+
+        bool wait_for_step;
     };
 }
 

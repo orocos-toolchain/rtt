@@ -50,7 +50,7 @@ namespace ORO_Execution
 
             virtual ~CommandCounter();
 
-            virtual void execute();
+            virtual bool execute();
 
             /**
              * set number of times executed to zero

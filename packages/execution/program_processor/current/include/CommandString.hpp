@@ -47,7 +47,7 @@ namespace ORO_Execution
    	    	virtual ~CommandString()
    	    	{}	
 
-    	    virtual void execute();
+    	    virtual bool execute();
 
         virtual CommandInterface* clone() const
         {

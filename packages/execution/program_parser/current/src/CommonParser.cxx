@@ -92,7 +92,9 @@ namespace ORO_Execution {
             "emit",
             "select",
             "connect",
-            "disconnect";
+            "disconnect",
+            "try",
+            "catch";
 
         chset<> identchar( "a-zA-Z_0-9" );
 

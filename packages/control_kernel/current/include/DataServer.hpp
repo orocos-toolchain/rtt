@@ -242,7 +242,7 @@ namespace ORO_ControlKernel
         /**
          * @brief Get a pointer to a DataObject.
          *
-         * @param m Returns the resulting DataObject.
+         * @param m Returns the resulting DataObject (or null).
          * @param name The name (without prefix) of the DataObject
          * which must be Get.
          * @return true if it could be get, false otherwise.
@@ -255,6 +255,7 @@ namespace ORO_ControlKernel
                     m = res;
                     return true;
                 }
+            m = 0;
             return false;
         }
 

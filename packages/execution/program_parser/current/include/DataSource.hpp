@@ -85,6 +85,10 @@ namespace ORO_Execution
     void deref() { if ( --refcount <= 0 ) delete this; };
 
     virtual void reset();
+      /**
+       * Force an evaluation of the DataSourceBase.
+       */
+      virtual void evaluate() const = 0;
     virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
   };
 
@@ -114,6 +118,7 @@ namespace ORO_Execution
        */
       virtual T get() const = 0;
 
+      virtual void evaluate() const { this->get(); }
       /**
        * Clone Software Pattern.
        */

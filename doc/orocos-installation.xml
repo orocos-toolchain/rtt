@@ -496,7 +496,7 @@ ecosconfig add support_$(basename $i .cdl); done
 	<title>Using &orocos; concurrently for multiple targets</title>
 	<para>
 	  When you want to build for another target,
-	  create a new build-&lttarget&gt directory and simply re-invoke ../configure --with-&lt;target&gt;
+	  create a new build-&lt;target&gt; directory and simply re-invoke ../configure --with-&lt;target&gt;
 	  from that build directory.
 	</para>
 	<para>

@@ -134,6 +134,7 @@ namespace ORO_Execution
     data["rotation"] = new TemplateTypeInfo<Rotation>();
 #endif
     data["int"] = new TemplateTypeInfo<int>();
+    data["char"] = new TemplateTypeInfo<char>();
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();

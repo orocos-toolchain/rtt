@@ -59,14 +59,10 @@ namespace ORO_Execution
       {
       }
 
-      void execute()
+      bool execute()
       {
         lhs->set( rhs->get() );
-      }
-
-      std::string toString()
-      {
-        return "AssignVariableCommand";
+        return true;
       }
 
       virtual CommandInterface* clone() const
@@ -96,16 +92,14 @@ namespace ORO_Execution
       {
       }
 
-      void execute()
+      bool execute()
       {
           Index ind = i->get();
-          if ( p(ind) )
-          lhs->set()[ ind ] = rhs->get();
-      }
-
-      std::string toString()
-      {
-        return "AssignIndexCommand";
+          if ( p(ind) ) {
+              lhs->set()[ ind ] = rhs->get();
+              return true;
+          }
+          return false;
       }
 
       virtual CommandInterface* clone() const

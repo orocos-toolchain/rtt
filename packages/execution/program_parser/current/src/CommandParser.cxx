@@ -105,15 +105,65 @@ namespace ORO_Execution
   {
     const GlobalCommandFactory& gcf =
       context.globalfactory->commandFactory();
+    const GlobalMethodFactory& gmf =
+      context.globalfactory->methodFactory();
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
-    if ( ! cfi )
+    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
+    if ( ! cfi && ! mfi )
       throw parse_exception_no_such_component( mcurobject );
-    if ( ! cfi->hasCommand( mcurmethod ) )
-      throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
+
+    // One of both must have the method
+    if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) ) )
+        throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
     argsparser = new ArgumentsParser( expressionparser, context,
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();
   }
+    namespace {
+        struct CommandDataSource :
+            public CommandInterface
+        {
+            DataSourceBase::shared_ptr _dsb;
+            CommandDataSource( DataSourceBase* dsb )
+                : _dsb(dsb) {}
+            bool execute() {
+                _dsb->evaluate();
+                return true;
+            }
+            void reset() {
+                _dsb->reset();
+            }
+            CommandInterface* clone() const {
+                return new CommandDataSource( _dsb.get() );
+            }
+
+            CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+                return new CommandDataSource( _dsb->copy( alreadyCloned ) );
+            }
+            
+        };
+        struct CommandDataSourceBool :
+            public CommandInterface
+        {
+            DataSource<bool>::shared_ptr _dsb;
+            CommandDataSourceBool( DataSource<bool>* dsb )
+                : _dsb(dsb) {}
+            bool execute() {
+                return _dsb->get();
+            }
+            void reset() {
+                _dsb->reset();
+            }
+            CommandInterface* clone() const {
+                return new CommandDataSourceBool( _dsb.get() );
+            }
+
+            CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+                return new CommandDataSourceBool( _dsb->copy( alreadyCloned ) );
+            }
+            
+        };
+    }
 
   void CommandParser::seencallcommand()
   {
@@ -122,32 +172,67 @@ namespace ORO_Execution
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
-    const GlobalCommandFactory& gbf =
+    const GlobalCommandFactory& gcf =
       context.globalfactory->commandFactory();
-    const CommandFactoryInterface* cfi = gbf.getObjectFactory( mcurobject );
+    const GlobalMethodFactory& gmf =
+      context.globalfactory->methodFactory();
+    const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
+    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
+
     // cfi should exist, because otherwise we would have noticed in
     // seenstartofcall()...
-    assert( cfi );
-    assert( cfi->hasCommand( mcurmethod ) );
+    assert( cfi || mfi );
+
     ComCon comcon;
-    try
-    {
-      comcon = cfi->create( mcurmethod, argsparser->result() );
-    }
-    catch( const wrong_number_of_args_exception& e )
-    {
-      throw parse_exception_wrong_number_of_arguments(
-        mcurobject, mcurmethod, e.wanted, e.received );
-    }
-    catch( const wrong_types_of_args_exception& e )
-    {
-      throw parse_exception_wrong_type_of_argument(
-        mcurobject, mcurmethod, e.whicharg );
-    }
-    catch( ... )
-    {
-      assert( false );
-    };
+    if ( cfi && cfi->hasCommand( mcurmethod ) )
+        try
+            {
+                comcon = cfi->create( mcurmethod, argsparser->result() );
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (mcurobject, mcurmethod, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( mcurobject, mcurmethod, e.whicharg );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
+    else if ( mfi && mfi->hasMember( mcurmethod ) )
+        try
+            {
+                // if the method returns a boolean, construct it as a command
+                // which accepts/rejects the result.
+                DataSourceBase* dsb =  mfi->create( mcurmethod, argsparser->result() );
+                DataSource<bool>* dsb_res =  dynamic_cast< DataSource<bool>* >( dsb );
+                if ( dsb_res == 0 )
+                    comcon.first =  new CommandDataSource( dsb );
+                else
+                    comcon.first =  new CommandDataSourceBool( dsb_res );
+                comcon.second = new ConditionTrue();
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (mcurobject, mcurmethod, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( mcurobject, mcurmethod, e.whicharg );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
+    else
+        assert(false);
+
     CommandInterface* com = comcon.first;
     ConditionInterface* implcond = comcon.second;
 

@@ -28,8 +28,7 @@
 #ifndef HMI_CONSOLE_OUTPUT_HPP
 #define HMI_CONSOLE_OUTPUT_HPP
 
-#include <execution/TemplateCommandFactory.hpp>
-#include <execution/TemplateDataSourceFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
@@ -177,32 +176,28 @@ namespace ORO_ControlKernel
             return true;
         }
 
-        // Commands are display commands.
-        CommandFactoryInterface* createCommandFactory()
+        // Methods are display commands.
+        MethodFactoryInterface* createMethodFactory()
         {
-            TemplateCommandFactory< HMIConsoleOutput >* ret =
-                newCommandFactory( this );
+            TemplateMethodFactory< HMIConsoleOutput >* ret =
+                newMethodFactory( this );
             ret->add( "display", 
-                      command( &HMIConsoleOutput::display,
-                               &HMIConsoleOutput::true_gen,
+                      method( &HMIConsoleOutput::display,
                                "Display a message on the console",
                                "message","The message to be displayed"
                                ) );
             ret->add( "displayBool", 
-                      command( &HMIConsoleOutput::displayBool,
-                               &HMIConsoleOutput::true_gen,
+                      method( &HMIConsoleOutput::displayBool,
                                "Display a boolean on the console",
                                "boolean","The Boolean to be displayed"
                                ) );
             ret->add( "displayInt", 
-                      command( &HMIConsoleOutput::displayInt,
-                               &HMIConsoleOutput::true_gen,
+                      method( &HMIConsoleOutput::displayInt,
                                "Display a integer on the console",
                                "integer","The Integer to be displayed"
                                ) );
             ret->add( "displayDouble", 
-                      command( &HMIConsoleOutput::displayDouble,
-                               &HMIConsoleOutput::true_gen,
+                      method( &HMIConsoleOutput::displayDouble,
                                "Display a double on the console",
                                "double","The Double to be displayed"
                                ) );
