@@ -26,10 +26,11 @@
 namespace ORO_Geometry {
 #endif
 
-/**
- * The specification of the path of a trajectory.
- */
-	class Path_Cyclic_Closed : public Path
+	 /**
+	  * A Path representing a closed circular movement,
+	  * which is traversed a number of times.
+	  */
+	 class Path_Cyclic_Closed : public Path
 	{
 		int times;
 		Path* geom;

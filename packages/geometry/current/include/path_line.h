@@ -26,7 +26,9 @@ namespace ORO_Geometry {
 #endif
 
 
-
+	/**
+	 * A path representing a line from A to B.
+	 *
 class Path_Line : public Path
 	{
 		// Orientatie gedeelte

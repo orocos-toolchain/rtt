@@ -26,7 +26,10 @@ namespace ORO_Geometry {
 #endif
 
 
-
+	/**
+	 * A circular Path with 'open ends'. Path_Arc would
+	 * have been a better name though.
+	 */
 class Path_Circle : public Path 
 	{
 

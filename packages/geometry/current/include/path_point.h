@@ -27,9 +27,11 @@ namespace ORO_Geometry {
 
 
 
+	/**
+	 * A Path consisting only of a point in space.
+	 */
 class Path_Point : public Path
 	{
-		// Lineair gedeelte
 		Frame F_base_start;
 	public:
 		/** 

@@ -25,8 +25,8 @@ namespace ORO_Geometry {
 #endif
 
 /**
- * The specification of the geom
- etry of a trajectory.
+ * The specification of a path, composed of
+ * way-points with rounded corners.
  */
 class Path_RoundedComposite : public Path
 	{
@@ -54,10 +54,6 @@ class Path_RoundedComposite : public Path
 		 * @param orient   : method of rotational_interpolation interpolation
 		 */
 		Path_RoundedComposite(double radius,double _eqradius,RotationalInterpolation* _orient, bool _aggregate=true);
-
-
-
-
 
 		/**
 		 * Adds a point to this rounded composite, between to adjecent points

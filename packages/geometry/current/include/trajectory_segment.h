@@ -29,7 +29,7 @@ namespace ORO_Geometry {
 
 
 	/**
-	 * Trajectory_Segment combines a VelocityProfile and a Path to a 
+	 * Trajectory_Segment combines a VelocityProfile and a Path into a 
 	 * trajectory
 	 */
 	class Trajectory_Segment :  public Trajectory 

@@ -26,6 +26,13 @@ namespace ORO_Geometry {
 #endif
 
 
+	 /**
+	  * An interpolation algorithm which rotates a frame over the existing
+	  * single rotation axis
+	  * formed by start and end rotation. If more than one rotational axis
+	  * exist, an arbitrary one will be choosen, therefore it is better to
+	  * not try to interpolate a 180 degrees rotation (but it will 'work').
+	  */
 class RotationalInterpolation_SingleAxis: public RotationalInterpolation
 	{
 		Rotation R_base_start;

@@ -25,10 +25,10 @@
 namespace ORO_Geometry {
 #endif
 
-/**
- * The specification of the path of a trajectory.
- */
-class Path_Composite : public Path
+	 /**
+	  * A Path being the composition of other Path objects.
+	  */
+	 class Path_Composite : public Path
 	{
 		typedef std::vector< std::pair<Path*,bool> > PathVector;
 		typedef std::vector<double>    DoubleVector;
