@@ -3,6 +3,8 @@
 
 namespace ORO_KinDyn
 {
+    SerialZYYDWH::~SerialZYYDWH() 
+    {}
 
     bool SerialZYYDWH::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
     {

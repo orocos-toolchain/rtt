@@ -37,7 +37,9 @@ namespace ORO_KinDyn
     class SerialZXXDWH : public Serial321
     {
 
-        public:
+    public:
+        virtual ~SerialZXXDWH();
+
             virtual bool jacobianForward( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
             virtual bool jacobianInverse( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;

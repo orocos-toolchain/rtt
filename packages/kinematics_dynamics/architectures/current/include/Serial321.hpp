@@ -59,6 +59,8 @@ namespace ORO_KinDyn
             geometrySet( 1, 1, 1, 1, 1, 1);
         }
 
+        virtual ~Serial321() {}
+
         /**
          * Set the armlength of all robot arms.
          */

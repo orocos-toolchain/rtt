@@ -1,50 +1,51 @@
 #ifndef _CONFIGURATION_HPP_
 #define _CONFIGURATION_HPP_
 
-namespace ORO_KinDyn {
+namespace ORO_KinDyn 
+{
 
-
-class Configuration {
-public:
-
-    Configuration()
+    class Configuration 
     {
-	    configuration = 0;
-    }
+    public:
 
-    virtual ~Configuration()
-    {
-    }
+        Configuration()
+        {
+            configuration = 0;
+        }
 
-    Configuration& operator=(const Configuration &conf)
-    {
-	    configuration = conf.configuration;
-	    return *this;
-    }
+        virtual ~Configuration()
+        {
+        }
+
+        Configuration& operator=(const Configuration &conf)
+        {
+            configuration = conf.configuration;
+            return *this;
+        }
     
-    virtual void set ( const int configurationPart )
-    {
-	    configuration |= configurationPart;
-    }
+        virtual void set ( const int configurationPart )
+        {
+            configuration |= configurationPart;
+        }
 
-    bool get ( const int configurationPart ) const
-    {
-        return configuration & configurationPart;
-    }
+        bool get ( const int configurationPart ) const
+        {
+            return configuration & configurationPart;
+        }
 
-    bool isConfig( const int configurationPart ) const
-    {
-	    return get(configurationPart);
-    }
+        bool isConfig( const int configurationPart ) const
+        {
+            return get(configurationPart);
+        }
     
-    void clear()
-    {
-        configuration = 0;
-    }
+        void clear()
+        {
+            configuration = 0;
+        }
 
-protected:
-    int configuration;
-};
+    protected:
+        int configuration;
+    };
 
 }
 #endif

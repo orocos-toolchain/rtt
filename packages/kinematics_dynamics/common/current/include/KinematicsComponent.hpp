@@ -28,6 +28,7 @@
 namespace ORO_KinDyn
 {
     using ORO_CoreLib::Double6D;
+    using ORO_CoreLib::Int6D;
 
     /**
      *  The KinematicsComponent is meant for following and calculating the current

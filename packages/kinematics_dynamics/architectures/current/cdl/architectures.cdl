@@ -12,6 +12,8 @@ the right-handed rotation around an axis of the robot base frame
 of each respective joint. So Z***** means the first joint rotates
 around the Z axis of the base frame. *X**** means the second joint
 rotates around the X axis of the base frame, and so on."
+	
+	default_value 1
 
 	compile serial321/ZXXDWH/SerialZXXDWH.cxx serial321/ZYYDWH/SerialZYYDWH.cxx
 	compile serial321/ZXXDWH/ForJacZXXDWH.cxx  serial321/ZXXDWH/ForPosZXXDWH.cxx  serial321/ZXXDWH/ForVelZXXDWH.cxx  

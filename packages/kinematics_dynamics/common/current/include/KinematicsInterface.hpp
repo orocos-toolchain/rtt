@@ -28,7 +28,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using ORO_CoreLib::Double6D;
 
     class Configuration;
     class Singularity;

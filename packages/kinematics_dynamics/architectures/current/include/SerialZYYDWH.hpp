@@ -40,6 +40,8 @@ namespace ORO_KinDyn
     {
 
     public:
+        virtual ~SerialZYYDWH();
+
         virtual bool jacobianForward( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
         virtual bool jacobianInverse( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
