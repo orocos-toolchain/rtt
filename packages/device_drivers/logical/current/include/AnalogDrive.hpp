@@ -125,6 +125,15 @@ namespace ORO_DeviceDriver
         {
 	  offset += addoffset;
 	}
+
+
+        /**
+         * get the current offset
+	 */
+        double getOffset()
+        {
+	  return offset;
+	}
 	
 
         /**
