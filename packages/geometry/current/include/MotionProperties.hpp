@@ -5,10 +5,22 @@
 #include "frames.h"
 #include <corelib/MultiVector.hpp>
 
-namespace ORO_Geometry
+/**
+ * @file MotionProperties.hpp
+ * 
+ * This implementation is introduced in the ORO_CoreLib namespace.
+ * If not, it would not be found by the partial template 
+ * specialisation algorithm of the compiler.
+ */
+
+namespace ORO_CoreLib
 {
-    using namespace ORO_CoreLib;
-    using namespace std;
+    using std::string;
+    using ORO_Geometry::Vector;
+    using ORO_Geometry::Frame;
+    using ORO_Geometry::Twist;
+    using ORO_Geometry::Rotation;
+    using ORO_Geometry::Wrench;
 
     /**
      *

@@ -60,7 +60,7 @@ Geometry_Cyclic_Closed, Geometry_Composite and Geometry_RoundedComposite"
 	description "
 Velocity profile planning and trajectory composition"
 	flavor bool
-
+	default_value 1
 	active_if OROPKG_GEOMETRY_3D_FRAMES && OROPKG_GEOMETRY_PRIMITIVES
 
 	compile interpolation/motionprofile.cxx  interpolation/motionprofile_rect.cxx  interpolation/motionprofile_trap.cxx  interpolation/motionprofile_traphalf.cxx

@@ -1,14 +1,12 @@
 #include "geometry/MotionProperties.hpp"
 
-namespace ORO_Geometry
+namespace ORO_CoreLib
 {
 
     /**
      * @todo TODO : Put the strings/names in a separate file/struct/...
      */
     
-    using namespace ORO_CoreLib;
-
     Double6DDecomposer::Double6DDecomposer( const Property<Double6D>& d )
             : resultBag(d.getName(), d.getDescription(), PropertyBag("MotCon::Double6D") ), // bag_type
         D1("D1","D1 Value", d.get()[0]),
