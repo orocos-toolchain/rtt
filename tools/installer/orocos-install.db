@@ -1,0 +1,41 @@
+# Install data used by Orocos installer
+# Adapted from ecos-install.db by Peter Soetens.
+
+# Install data for v1 format - allows for changes in future installers.
+
+namespace eval installdatav1 {
+        # releases list. Array of n-tuples of dirname, directory name relative to base, appropriate ECOS_REPOSITORY setting, list of elements relative
+        # to base to add to PATH.
+        # First one listed should be default.
+
+        array set ecosreleases \
+            { \
+                  "Linux" { \
+                                { "0.10.0-rc2" "orocos-packages/orocos-0.10.0-rc2.i386linux.tar.bz2" "orocos-0.10.0-rc2/packages" { "orocos-0.10.0-rc2/tools/bin"} } \
+                        } \
+          }
+
+        # list of available toolchains. Prefix and location relative to base. Then path suffix for what to add to PATH
+        array set toolchains \
+            { \
+                  "Linux" { \
+                                { "arm-elf"       "gnutools/i386linux/ecoscentric-gnutools-arm-elf-1.4-2.i386linux.tar.bz2"        "gnutools/arm-elf/bin" } \
+                                { "i386-elf"      "gnutools/i386linux/ecoscentric-gnutools-i386-elf-1.4-2.i386linux.tar.bz2"       "gnutools/i386-elf/bin" } \
+                                { "mipsisa32-elf" "gnutools/i386linux/ecoscentric-gnutools-mipsisa32-elf-1.4-2.i386linux.tar.bz2"  "gnutools/mipsisa32-elf/bin" } \
+                                { "powerpc-eabi"  "gnutools/i386linux/ecoscentric-gnutools-powerpc-eabi-1.4-2.i386linux.tar.bz2"   "gnutools/powerpc-eabi/bin" } \
+                                { "sh-elf"        "gnutools/i386linux/ecoscentric-gnutools-sh-elf-1.4-2.i386linux.tar.bz2"         "gnutools/sh-elf/bin" } \
+                        } \
+          }
+        
+        variable ecosmirrors [ list \
+				   "http://people.mech.kuleuven.ac.be/~psoetens/" \
+                                  ]
+}
+
+if { [get_install_data_version] == 1 } {
+        set_ecosreleases [array get installdatav1::ecosreleases]
+        set_toolchains [array get installdatav1::toolchains]
+        set_ecosmirrors $installdatav1::ecosmirrors
+}
+
+# EOF orocos-install.db
