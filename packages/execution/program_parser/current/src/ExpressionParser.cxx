@@ -272,6 +272,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( twistexp );
     BOOST_SPIRIT_DEBUG_RULE( vectorexp );
     BOOST_SPIRIT_DEBUG_RULE( double6Dexp );
+    BOOST_SPIRIT_DEBUG_RULE( arrayexp );
     BOOST_SPIRIT_DEBUG_RULE( rotexp );
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
@@ -282,6 +283,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( vectorctor );
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor6 );
+    BOOST_SPIRIT_DEBUG_RULE( arrayctor );
     BOOST_SPIRIT_DEBUG_RULE( rotationctor );
     BOOST_SPIRIT_DEBUG_RULE( time_expression );
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
@@ -390,6 +392,7 @@ namespace ORO_Execution
       | vectorctor
       | double6Dctor
       | double6Dctor6
+      | arrayctor
       | rotationctor;
 
     framector = (
@@ -430,7 +433,7 @@ namespace ORO_Execution
         str_p( "double6d" )
       >> open_brace
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
+      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
 
     double6Dctor6 = (
         str_p( "double6d" )
@@ -447,6 +450,12 @@ namespace ORO_Execution
       >> comma
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ];
+
+    arrayctor = (
+        str_p( "array" )
+      >> open_brace
+      >> expression
+      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "array" ) ];
 
     rotationctor = (
          str_p( "rotation" )

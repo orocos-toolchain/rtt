@@ -193,9 +193,7 @@ namespace ORO_Execution
   using ORO_Geometry::Wrench;
   using ORO_Geometry::Twist;
 #endif
-  // Cappellini Consonni Extension
   using ORO_CoreLib::Double6D;
-
 
   // Unary
   template<typename function>
@@ -431,6 +429,11 @@ namespace ORO_Execution
     return d6d;
   }
 
+  std::vector<double> array( int size )
+  {
+    return std::vector<double>(size);
+  }
+
   double double6D_index( Double6D& d6,  int index )
   {
       if ( index > 5 || index < 0 )
@@ -532,6 +535,7 @@ namespace ORO_Execution
 #endif
     add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
     add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
+    add( newUnaryOperator( "array", std::ptr_fun( &array ) ) );
 
     add( newUnaryOperator( "-", std::negate<Double6D>() ) );
     add( newBinaryOperator( "*", std::multiplies<Double6D>() ) );
