@@ -4,9 +4,9 @@
 #include <geometry/frames.h>
 #include <geometry/trajectory.h>
 #include <geometry/trajectory_segment.h>
-#include <geometry/geometry_line.h>
-#include <geometry/motionprofile_trap.h>
-#include <geometry/orientation_singleaxis.h>
+#include <geometry/path_line.h>
+#include <geometry/velocityprofile_trap.h>
+#include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
 #include <kindyn/KinematicsComponent.hpp>
@@ -65,7 +65,7 @@ namespace ORO_ControlKernel
                 {
                     //cout <<"Home : from "<<command.task_frame<<" to "<< model.mp_base_frame<<endl;
                     // command this functionality
-                    tr = new Trajectory_Segment( new Geometry_Line(model.mp_base_frame, command.task_frame, new Orientation_SingleAxis(),1.0 ), new MotionProfile_Trap(1,10),10.0);
+                    tr = new Trajectory_Segment( new Path_Line(model.mp_base_frame, command.task_frame, new RotationalInterpolation_SingleAxis(),1.0 ), new VelocityProfile_Trap(1,10),10.0);
                     task_frame = Frame::Identity(); //only used for storing the homing pos
                     tool_mp_frame = Frame::Identity();
                     restart = true;
