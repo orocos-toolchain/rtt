@@ -37,6 +37,7 @@ namespace ORO_ControlKernel
       _position_desi_local(num_axes),
       _velocity_local(num_axes),
       _offset_measurement(num_axes),
+      _average_velocity(num_axes),
       _properties_read(false),
       _is_measuring(false),
       _controller_gain("K", "Proportional Gain")
@@ -59,10 +60,18 @@ namespace ORO_ControlKernel
     for(unsigned int i=0; i<_num_axes; i++)
       _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
 
+
+    // measure offsets
     if (_is_initialized && _is_measuring){
+      // calculate average with weight 0.8 / 0.2
       bool is_moving = false;
-      for (unsigned int i=0; i<_num_axes; i++)
-	if (abs(_position_meas_local[i] - _position_meas_old[i]) > _treshold_moving) is_moving = true;
+      for (unsigned int i=0; i<_num_axes; i++){
+	_average_velocity[i] = 0.8 * _average_velocity[i] + 0.2 * abs(_velocity_local[i]);
+	if ( _average_velocity[i] > _treshold_moving) 
+	  is_moving = true;
+      }
+      
+      // stop moving
       if ( !is_moving ){
 	for (unsigned int i=0; i<_num_axes; i++)
 	  _offset_measurement[i] = _velocity_local[i];
@@ -148,8 +157,8 @@ namespace ORO_ControlKernel
   CommandFactoryInterface* nAxesControllerPos::createCommandFactory()
   {
     TemplateCommandFactory<nAxesControllerPos>* my_commandFactory = newCommandFactory( this );
-    my_commandFactory->add( "offsetMeasure", command( &nAxesControllerPos::startMeasuring,
-						      &nAxesControllerPos::finishedMeasuring,
+    my_commandFactory->add( "measureOffset", command( &nAxesControllerPos::startMeasuringOffsets,
+						      &nAxesControllerPos::finishedMeasuringOffsets,
 						      "calculate the velocity offset on the axes",
 						      "treshold_moving", "treshold to check if axis is moving or not"));
     return my_commandFactory;
@@ -159,14 +168,14 @@ namespace ORO_ControlKernel
   MethodFactoryInterface* nAxesControllerPos::createMethodFactory()
   {
     TemplateMethodFactory<nAxesControllerPos>* my_methodFactory = newMethodFactory( this );
-    my_methodFactory->add( "getMeasurement", method( &nAxesControllerPos::getMeasurement, "Get offset measurements"));
+    my_methodFactory->add( "getOffset", method( &nAxesControllerPos::getMeasurementOffsets, "Get offset measurements"));
 
     return my_methodFactory;
   }
 
 
 
-  bool nAxesControllerPos::startMeasuring(double treshold_moving)
+  bool nAxesControllerPos::startMeasuringOffsets(double treshold_moving)
   {
     // don't do anything if still measuring
     if (_is_measuring)
@@ -174,8 +183,10 @@ namespace ORO_ControlKernel
 
     // get new measurement
     else{
-      for (unsigned int i=0; i<_num_axes; i++)
+      for (unsigned int i=0; i<_num_axes; i++){
 	_offset_measurement[i] = 0;
+	_average_velocity[i] = 20 * treshold_moving;
+      }
       _treshold_moving = treshold_moving;
       _is_measuring = true;
       return true;
@@ -183,13 +194,13 @@ namespace ORO_ControlKernel
   }
 
   
-  bool nAxesControllerPos::finishedMeasuring() const
+  bool nAxesControllerPos::finishedMeasuringOffsets() const
   {
     return !_is_measuring;
   }
   
 
-  const std::vector<double>& nAxesControllerPos::getMeasurement()
+  const std::vector<double>& nAxesControllerPos::getMeasurementOffsets()
   {
     return _offset_measurement;
   }

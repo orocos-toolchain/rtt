@@ -91,15 +91,15 @@ namespace ORO_ControlKernel
 
     virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
-    bool startMeasuring(double treshold_moving);
-    bool finishedMeasuring() const;
-    const std::vector<double>& getMeasurement();
+    bool startMeasuringOffsets(double treshold_moving);
+    bool finishedMeasuringOffsets() const;
+    const std::vector<double>& getMeasurementOffsets();
 
   private:
     unsigned int                                                          _num_axes;
 
     std::vector<double>                                                   _position_meas_local, _position_meas_old, _position_desi_local;
-    std::vector<double>                                                   _velocity_local, _offset_measurement;
+    std::vector<double>                                                   _velocity_local, _offset_measurement, _average_velocity;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_position_desi_DOI,  *_velocity_DOI;
     double                                                                _treshold_moving;
 
