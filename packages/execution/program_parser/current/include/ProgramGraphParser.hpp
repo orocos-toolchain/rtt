@@ -25,6 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef EXECUTION_PROGRAM_PARSER_HPP
+#define EXECUTION_PROGRAM_PARSER_HPP
+
 #include "parser-types.hpp"
 
 #include "CommonParser.hpp"
@@ -147,6 +150,7 @@ namespace ORO_Execution
       void seenprogramend();
       void programtext(iter_t, iter_t);
 
+      void ProgramGraphParser::setStack(TaskContext* st);
       void cleanup();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
@@ -170,6 +174,7 @@ namespace ORO_Execution
       CommandInterface* for_incr_command;
       std::string program_text;
       bool exportf;
+      int ln_offset;
   public:
       ProgramGraphParser( iter_t& positer, TaskContext*);
 
@@ -177,6 +182,13 @@ namespace ORO_Execution
        * @brief Tries to parse programs, returns the generated programs on success.
        * @throw file_parse_exception The parser found an error.
        */
-    std::vector<ProgramGraph*> parse( iter_t& begin, iter_t end );
+      std::vector<ProgramGraph*> parse( iter_t& begin, iter_t end );
+
+      void initBodyParser(const std::string& name, TaskContext* stck, int offset);
+      rule_t& bodyParser();
+      FunctionGraph* bodyParserResult();
+
   };
 }
+
+#endif

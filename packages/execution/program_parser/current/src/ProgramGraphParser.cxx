@@ -80,7 +80,8 @@ namespace ORO_Execution
         program_graph(0),
         for_init_command(0),
         for_incr_command(0),
-        exportf(false)
+        exportf(false),
+        ln_offset(0)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( terminationclause );
@@ -252,6 +253,42 @@ namespace ORO_Execution
 
   }
 
+    void ProgramGraphParser::initBodyParser(const std::string& name, TaskContext* stck, int offset) {
+        ln_offset = offset;
+        // as long as there is no FunctionGraph generator,
+        // (ab)use ProgramGraph to factory a function body
+        program_graph = new ProgramGraph( name, 0 );
+        mfunc = program_graph->startFunction(name);
+        this->setStack( stck );
+    }
+
+    rule_t& ProgramGraphParser::bodyParser() {
+        // content is the bodyparser of a program or function
+        return content;
+    }
+
+    FunctionGraph* ProgramGraphParser::bodyParserResult() {
+        // Fake a 'return' statement at the last line.
+        program_graph->returnFunction( new ConditionTrue, mfunc );
+        program_graph->proceedToNext( mpositer.get_position().line - ln_offset);
+        program_graph->endFunction( mfunc );
+
+        FunctionGraph* res = mfunc;
+        delete program_graph;
+        program_graph = 0;
+        mfunc = 0;
+        ln_offset = 0;
+        return res;
+    }
+
+    void ProgramGraphParser::setStack(TaskContext* st) {
+        context = st;
+        valuechangeparser.setStack(context);
+        commandparser.setStack(context);
+        expressionparser.setStack(context);
+        conditionparser.setStack(context);
+    }
+
   void ProgramGraphParser::seencommands()
   {
       // Chain all implicit termination conditions into 'done' :
@@ -277,11 +314,11 @@ namespace ORO_Execution
       // which just moves on to the next node..
       if ( program_graph->buildEdges() == 0 )
           {
-              program_graph->proceedToNext( implcond->clone(), mpositer.get_position().line );
+              program_graph->proceedToNext( implcond->clone(), mpositer.get_position().line - ln_offset );
           }
       else
           {
-              program_graph->proceedToNext( mpositer.get_position().line );
+              program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
           }
       delete implcond;
       implcond = 0;
@@ -380,7 +417,7 @@ namespace ORO_Execution
       assert( mfunc );
       // Fake a 'return' statement at the last line.
       program_graph->returnFunction( new ConditionTrue, mfunc );
-      program_graph->proceedToNext( mpositer.get_position().line );
+      program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
       program_graph->endFunction( mfunc );
 
       // export the function in the context's interface.
@@ -430,12 +467,12 @@ namespace ORO_Execution
       if ( mfunc == 0 )
           {
               program_graph->returnProgram( new ConditionTrue );
-              program_graph->proceedToNext( mpositer.get_position().line );
+              program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
           }
       else
           {
               program_graph->returnFunction( new ConditionTrue, mfunc);
-              program_graph->proceedToNext(  mpositer.get_position().line );
+              program_graph->proceedToNext(  mpositer.get_position().line - ln_offset );
           }
   }
 
@@ -507,7 +544,7 @@ namespace ORO_Execution
 
       // The exit node of the function is already connected
       // to program->nextNode().
-      program_graph->proceedToNext(mpositer.get_position().line);
+      program_graph->proceedToNext(mpositer.get_position().line - ln_offset);
   }
 
   void ProgramGraphParser::startofnewstatement(const std::string& type)
@@ -531,7 +568,7 @@ namespace ORO_Execution
         // we saved the try_cond in the previous try statement,
         // now process like it said if ( try_cond ) then {...}
         assert( try_cond );
-        program_graph->startIfStatement( try_cond, mpositer.get_position().line );
+        program_graph->startIfStatement( try_cond, mpositer.get_position().line - ln_offset );
         try_cond = 0;
     }
 
@@ -547,7 +584,7 @@ namespace ORO_Execution
         std::pair<CommandInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_graph->setCommand( comcon.first );
-        program_graph->startIfStatement( comcon.second, mpositer.get_position().line );
+        program_graph->startIfStatement( comcon.second, mpositer.get_position().line - ln_offset );
 
         // we did not need this.
         delete mcondition;
@@ -555,12 +592,12 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endifblock() {
-        program_graph->endIfBlock(mpositer.get_position().line);
+        program_graph->endIfBlock(mpositer.get_position().line - ln_offset);
     }
 
 
     void ProgramGraphParser::endifstatement() {
-        program_graph->endElseBlock(mpositer.get_position().line);
+        program_graph->endElseBlock(mpositer.get_position().line - ln_offset);
     }
 
     void ProgramGraphParser::seenwhilestatement() {
@@ -570,14 +607,14 @@ namespace ORO_Execution
         std::pair<CommandInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_graph->setCommand( comcon.first );
-        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line );
+        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line - ln_offset );
 
         delete mcondition;
         mcondition = 0;
     }
 
     void ProgramGraphParser::endwhilestatement() {
-        program_graph->endWhileBlock(mpositer.get_position().line);
+        program_graph->endWhileBlock(mpositer.get_position().line - ln_offset);
     }
 
 
@@ -602,7 +639,7 @@ namespace ORO_Execution
         if ( for_init_command )
             {
                 program_graph->setCommand( for_init_command );
-                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
+                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
             }
         for_init_command = 0;
 
@@ -610,7 +647,7 @@ namespace ORO_Execution
         std::pair<CommandInterface*, ConditionInterface*> comcon;
         comcon = conditionparser.getParseResultAsCommand();
         program_graph->setCommand( comcon.first );
-        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line );
+        program_graph->startWhileStatement( comcon.second, mpositer.get_position().line - ln_offset );
         delete mcondition;
         mcondition = 0;
     }
@@ -622,18 +659,18 @@ namespace ORO_Execution
                 program_graph->setCommand( for_incr_command );
                 // Since a valuechange does not add edges, we use this variant
                 // to create one.
-                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
+                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
             }
         for_incr_command = 0;
 
-        program_graph->endWhileBlock(mpositer.get_position().line);
+        program_graph->endWhileBlock(mpositer.get_position().line - ln_offset);
     }
 
   void ProgramGraphParser::seenprogramend()
   {
       // Fake a 'return' statement at the last line.
       program_graph->returnProgram( new ConditionTrue );
-      program_graph->proceedToNext( mpositer.get_position().line );
+      program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
       program_graph->endProgram();
       program_graph->reset();
       program_list.push_back(program_graph);
@@ -829,7 +866,7 @@ namespace ORO_Execution
       program_graph->setCommand( ac );
       // Since a valuechange does not add edges, we use this variant
       // to create one.
-      program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
+      program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
     }
   }
 

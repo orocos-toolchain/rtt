@@ -95,12 +95,13 @@ namespace ORO_Execution
           curfinalstateflag( false ),
           curstate( 0 ),
           curnonprecstate( 0 ),
-          curprogram( 0 ),
-          curhand( 0 ),
-          curevent( 0 ),
+//           curprogram( 0 ),
+          progParser( 0 ),
+//           curhand( 0 ),
+//           curevent( 0 ),
           curcondition( 0 ),
           conditionparser( context ),
-          commandparser( context ),
+//           commandparser( context ),
           valuechangeparser( context ),
           expressionparser( context ),
           valueparser( context )
@@ -169,7 +170,8 @@ namespace ORO_Execution
 
         varline = !vardec >> newline;
 
-        vardec = eventhandledecl | subMachinedecl | contextmemvar | contextparam;
+        vardec = subMachinedecl | contextmemvar | contextparam;
+//         vardec = eventhandledecl | subMachinedecl | contextmemvar | contextparam;
 
         contextmemvar = ( contextconstant | contextvariable | contextalias )[bind( &StateGraphParser::seencontextvariable, this )];
         contextconstant = valuechangeparser.constantDefinitionParser();
@@ -178,8 +180,6 @@ namespace ORO_Execution
 
         contextparam = valuechangeparser.paramDefinitionParser()[bind( &StateGraphParser::seencontextparam, this )];
 
-        eventhandledecl = "EventHandle"
-                          >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::handledecl, this, _1, _2) ]);
         subMachinedecl = str_p("SubMachine")
                          >> contextinstantiation[bind( &StateGraphParser::seensubMachineinstantiation, this )];
 
@@ -227,13 +227,19 @@ namespace ORO_Execution
                             bind( &StateGraphParser::seenpreconditions, this )];
 
         entry = str_p( "entry" )[ bind( &StateGraphParser::inprogram, this, "entry" )]
-                >> expect_open(str_p("{"))>> *eeline >> expect_end(str_p("}"))[
+                >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
                     bind( &StateGraphParser::seenentry, this )];
 
         exit = str_p( "exit" )[ bind( &StateGraphParser::inprogram, this, "exit" )]
-               >> expect_open(str_p("{")) >> *eeline >> expect_end(str_p("}"))[
+               >> expect_open(str_p("{")) >> programBody >> expect_end(str_p("}"))[
                    bind( &StateGraphParser::seenexit, this )];
 
+        handle = str_p( "handle" )[ bind( &StateGraphParser::inprogram, this, "handle" )]
+                 >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
+                     bind( &StateGraphParser::seenhandle, this )];
+
+
+        /*
         eeline = !( varchanges | eecommand ) >> newline;
 
         varchanges = subMachinevarchange | (
@@ -242,7 +248,8 @@ namespace ORO_Execution
             | valuechangeparser.aliasDefinitionParser()
             | valuechangeparser.variableAssignmentParser()
             )[ bind( &StateGraphParser::seenvaluechange, this ) ];
-
+        */
+        /*
         subMachinevarchange =
             "set"
             >> commonparser.identifier[bind( &StateGraphParser::seenscvcsubMachinename, this, _1, _2 )]
@@ -251,18 +258,9 @@ namespace ORO_Execution
             >> ( str_p( "=" ) | "to" )
             >> expressionparser.parser()[bind( &StateGraphParser::seenscvcexpression, this )];
 
-        handle = str_p( "handle" )[ bind( &StateGraphParser::inprogram, this, "handle" )]
-                 >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"))[
-                     bind( &StateGraphParser::seenhandle, this )];
-
         handleline = !( varchanges | handlecommand) >> newline;
 
         handlecommand = docommand | statecommand;
-
-        transitions = str_p( "transitions" )
-                      >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
-
-        transline = !selectcommand >> newline;
 
         // In Entry/Exit : do something and setup the events :
         eecommand = disconnectevent | connectevent | docommand | statecommand;
@@ -276,6 +274,13 @@ namespace ORO_Execution
         // You are able to do something everywhere except in transistions :
         docommand = str_p("do") >> commandparser.parser()[bind( &StateGraphParser::seencommand, this)];
 
+        */
+
+        transitions = str_p( "transitions" )
+                      >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
+
+        transline = !selectcommand >> newline;
+
         // You are only allowed to select a new state in transitions :
         selectcommand = brancher | selector;
 
@@ -284,6 +289,7 @@ namespace ORO_Execution
 
         selector = str_p( "select" ) >> commonparser.identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ];
 
+        /*
         connectevent = str_p( "connect" )
                        >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::seenconnecthandler, this, _1, _2) ])
                        >> eventbinding[ bind( &StateGraphParser::seenconnect, this)];
@@ -297,6 +303,7 @@ namespace ORO_Execution
                        >> expect_comma(str_p(","))
                        >> commandparser.parser()[ bind( &StateGraphParser::seensink, this)]
                        >> expect_end( str_p(")") );
+        */
     }
 
     void StateGraphParser::seeninitialstate()
@@ -360,8 +367,8 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error( "Attempt to define more than one final state." );
             else curtemplatecontext->setFinalState( curstate );
         }
-        assert( curprogram == 0 );
-        assert( curhand == 0 );
+//         assert( curprogram == 0 );
+//         assert( curhand == 0 );
         assert( curstate );
         curstate->setDefined( true );
         curstate = 0;
@@ -376,20 +383,17 @@ namespace ORO_Execution
 
     void StateGraphParser::inprogram(const std::string& name)
     {
-        assert( curprogram == 0 );
-        curprogram = new ProgramGraph(name, 0);
-        curprogram->startProgram();
+        // setup the progParser to parse the program body,
+        // dynamically assign this parser to body.
+        assert( progParser != 0 );
+        progParser->initBodyParser( name, curcontext, ln_offset );
+        
+        programBody = progParser->bodyParser();
     }
 
-    ProgramGraph* StateGraphParser::finishProgram()
+    FunctionGraph* StateGraphParser::finishProgram()
     {
-        curprogram->returnProgram( new ConditionTrue );
-        curprogram->proceedToNext( mpositer.get_position().line - ln_offset );
-        curprogram->endProgram();
-        curprogram->reset();
-        ProgramGraph* ret = curprogram;
-        curprogram = 0;
-        return ret;
+        return progParser->bodyParserResult();
     }
 
     void StateGraphParser::seenentry()
@@ -438,6 +442,7 @@ namespace ORO_Execution
         curcondition = 0;
     }
 
+    /*
     void StateGraphParser::seenemit()
     {
         const TaskAliasAttribute<std::string>* res = dynamic_cast<const TaskAliasAttribute<std::string>* >( valueparser.lastParsed()) ;
@@ -545,6 +550,7 @@ namespace ORO_Execution
             curprogram->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
         }
     }
+    */
 
     void StateGraphParser::seenstatecontextend()
     {
@@ -553,7 +559,7 @@ namespace ORO_Execution
         //assert( curhandles.empty() );
         // the handles must remain to exist. however, they are not 
         // deleted when the SC is deleted, thus this is a memleak
-        curhandles.clear();
+//         curhandles.clear();
 
         // Check if the Initial and Final States are ok.
         if ( curtemplatecontext->getInitialState() == 0 )
@@ -602,9 +608,12 @@ namespace ORO_Execution
         // finally : 
         curtemplatecontext->finish();
 
+        delete progParser;
+        progParser = 0;
+
         // reset stack to task.
         valuechangeparser.setStack(context);
-        commandparser.setStack(context);
+//         commandparser.setStack(context);
         expressionparser.setStack(context);
         conditionparser.setStack(context);
 
@@ -686,15 +695,15 @@ namespace ORO_Execution
     void StateGraphParser::clear() {
         delete curcondition;
         curcondition = 0;
-        cureventsink = 0;
+//         cureventsink = 0;
         // we don't own curevent, so let's not delete it...
-        curevent = 0;
+//         curevent = 0;
         // we own curhand, but not through this pointer...
-        curhand = 0;
-        for ( handlemap::iterator i = curhandles.begin();
-              i != curhandles.end(); ++i )
-            delete i->second;
-        curhandles.clear();
+//         curhand = 0;
+//         for ( handlemap::iterator i = curhandles.begin();
+//               i != curhandles.end(); ++i )
+//             delete i->second;
+//         curhandles.clear();
         // we own curstate, but not through this pointer...
         curstate = 0;
         delete curnonprecstate;
@@ -783,6 +792,10 @@ namespace ORO_Execution
         curcontext = new TaskContext(curcontextname, context->getProcessor() );
         __s->addPeer( curcontext );   // store in __states.
         curtemplatecontext->setTaskContext( curcontext ); // store.
+        
+        // we pass the plain file positer such that parse errors are
+        // refering to correct file line numbers.
+        progParser = new ProgramGraphParser(mpositer, context);
 
         // Everything is stored in curcontext
 //         valuechangeparser.setContext(curcontext);
@@ -793,7 +806,7 @@ namespace ORO_Execution
 
         // Only the stack is stored in curcontext
         valuechangeparser.setStack(curcontext);
-        commandparser.setStack(curcontext);
+//         commandparser.setStack(curcontext);
         expressionparser.setStack(curcontext);
         conditionparser.setStack(curcontext);
 
@@ -970,6 +983,7 @@ namespace ORO_Execution
     curtemplatecontext->addParameter( valuechangeparser.lastParsedDefinitionName(), valuechangeparser.lastDefinedValue()->clone() );
   }
 
+    /*
     ProgramGraph* StateGraphParser::emptyProgram( const std::string& name ) {
         ProgramGraph* ret = new ProgramGraph(name, 0);
         ret->startProgram();
@@ -979,6 +993,7 @@ namespace ORO_Execution
         ret->reset();
         return ret;
     }
+    */
 
   void StateGraphParser::seenscvcsubMachinename( iter_t begin, iter_t end )
   {
@@ -995,6 +1010,7 @@ namespace ORO_Execution
     curscvcparamname = std::string( begin, end );
   }
 
+    /*
   void StateGraphParser::seenscvcexpression()
   {
     assert( curtemplatecontext != 0 );
@@ -1023,4 +1039,5 @@ namespace ORO_Execution
     curscvccontextname.clear();
     curscvcparamname.clear();
   }
+    */
 }

@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef PROGRAMPARSER_HPP
-#define PROGRAMPARSER_HPP
+#ifndef EXECUTION_PARSER_HPP
+#define EXECUTION_PARSER_HPP
 
 #include <iosfwd>
 #include <utility>

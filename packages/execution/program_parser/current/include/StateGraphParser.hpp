@@ -25,6 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef EXECUTION_STATE_PARSER_HPP
+#define EXECUTION_STATE_PARSER_HPP
 
 #include "parser-types.hpp"
 
@@ -33,6 +35,7 @@
 #include "CommandParser.hpp"
 #include "corelib/Event.hpp"
 #include "ValueChangeParser.hpp"
+#include "ProgramGraphParser.hpp"
 #include "ValueParser.hpp"
 
 #include <map>
@@ -77,7 +80,7 @@ namespace ORO_Execution
       typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
       typedef std::map<std::string, StateMachineBuilder*> contextbuilders_t;
-      typedef std::map<std::string, detail::EventHandle*> handlemap;
+//       typedef std::map<std::string, detail::EventHandle*> handlemap;
 
       contextnamemap_t rootcontexts;
       contextbuilders_t contextbuilders;
@@ -94,11 +97,12 @@ namespace ORO_Execution
       bool curfinalstateflag;
       StateDescription* curstate;
       StateDescription* curnonprecstate;
-      handlemap curhandles;
-      ProgramGraph* curprogram;
-      detail::EventHandle* curhand;
-      Event<void(void)>* curevent;
-      boost::function<void(void)> cureventsink;
+//       handlemap curhandles;
+//       ProgramGraph* curprogram;
+      ProgramGraphParser* progParser;
+//       detail::EventHandle* curhand;
+//       Event<void(void)>* curevent;
+//       boost::function<void(void)> cureventsink;
       ConditionInterface* curcondition;
       std::string curscvccontextname;
       std::string curscvcparamname;
@@ -118,7 +122,7 @@ namespace ORO_Execution
       rule_t varline;
       rule_t state;
       rule_t vardec;
-      rule_t eventhandledecl;
+//       rule_t eventhandledecl;
       rule_t subMachinedecl;
       rule_t statecontent;
       rule_t statecontentline;
@@ -127,21 +131,22 @@ namespace ORO_Execution
       rule_t handle;
       rule_t transitions;
       rule_t exit;
-      rule_t eeline;
-      rule_t varchanges;
-      rule_t eecommand;
-      rule_t handleline;
-      rule_t handlecommand;
-      rule_t docommand;
-      rule_t statecommand;
+//       rule_t eeline;
+      rule_t programBody;
+//       rule_t varchanges;
+//       rule_t eecommand;
+//       rule_t handleline;
+//       rule_t handlecommand;
+//       rule_t docommand;
+//       rule_t statecommand;
       rule_t transline;
       rule_t selectcommand;
-      rule_t disconnectevent;
-      rule_t connectevent;
-      rule_t emitcommand;
+//       rule_t disconnectevent;
+//       rule_t connectevent;
+//       rule_t emitcommand;
       rule_t brancher;
       rule_t selector;
-      rule_t eventbinding;
+//       rule_t eventbinding;
       rule_t contextinstarguments;
       rule_t contextinstargument;
       rule_t contextmemvar;
@@ -153,7 +158,7 @@ namespace ORO_Execution
 
       ConditionParser conditionparser;
       CommonParser commonparser;
-      CommandParser commandparser;
+//       CommandParser commandparser;
       ValueChangeParser valuechangeparser;
       ExpressionParser expressionparser;
       ValueParser valueparser;
@@ -171,23 +176,23 @@ namespace ORO_Execution
       void seenentry();
       void seenexit();
       void seenhandle();
-      ProgramGraph* finishProgram();
+      FunctionGraph* finishProgram();
 
-      void seencommand();
-      void seenstatement();
+//       void seencommand();
+//       void seenstatement();
       void seencondition();
       void seenselect( iter_t s, iter_t f);
 
-      void seenemit();
+//       void seenemit();
 
-      void seenconnecthandler( iter_t s, iter_t f);
-      void seenconnect();
-      void seendisconnecthandler( iter_t s, iter_t f );
+//       void seenconnecthandler( iter_t s, iter_t f);
+//       void seenconnect();
+//       void seendisconnecthandler( iter_t s, iter_t f );
 
-      void eventselected();
-      void seensink();
-      void finished();
-      void seenvaluechange();
+//       void eventselected();
+//       void seensink();
+//       void finished();
+//       void seenvaluechange();
 
       void seenstatecontextname( iter_t begin, iter_t end );
       void storeOffset();
@@ -224,3 +229,5 @@ namespace ORO_Execution
     std::vector<ParsedStateMachine*> parse( iter_t& begin, iter_t end );
   };
 }
+
+#endif
