@@ -44,10 +44,12 @@ namespace ORO_Execution
     using boost::put;
 
     /**
-     * This class represents a state.
-     * It keeps track of the entry point,
-     * handler and exit point of a state and is
-     * used by the StateGraph.
+     * @brief This class represents a state with all actions stored
+     * in an external StateGraph.
+     *
+     * It keeps track of the entry node,
+     * handler node and exit node of a state in a
+     * StateGraph.
      */
     class StateDescription
         : public StateInterface
@@ -68,13 +70,14 @@ namespace ORO_Execution
         Vertex mhandle;
         bool inited;
         StateGraph* sg;
+        std::string name;
     public:
         /**
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(Vertex _entry, Vertex _exit, Vertex _handle, StateGraph* _sg ) 
-            : mentry(_entry), mexit(_exit), mhandle(_handle), inited(false), sg(_sg)
+        StateDescription(const std::string& _name, Vertex _entry, Vertex _exit, Vertex _handle, StateGraph* _sg ) 
+            : mentry(_entry), mexit(_exit), mhandle(_handle), inited(false), sg(_sg), name(_name)
         {
         }
 
@@ -86,6 +89,8 @@ namespace ORO_Execution
 //               sg( orig.context() )
 //         {
 //         }
+
+        const std::string& getName() { return name; }
 
         virtual void onEntry() 
         {

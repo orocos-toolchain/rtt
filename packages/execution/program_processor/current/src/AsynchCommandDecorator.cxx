@@ -64,12 +64,6 @@ namespace ORO_Execution
      	}
     }
 
-
-    std::string AsynchCommandDecorator::toString()
-    {
-        return command->toString();
-    }
-
     void AsynchCommandDecorator::reset()
     {
         executed = false;

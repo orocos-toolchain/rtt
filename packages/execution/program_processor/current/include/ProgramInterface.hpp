@@ -34,7 +34,7 @@ namespace ORO_Execution
 {
 	
 	/**
-	 * This abstract class represents a collection of 
+	 * @brief This abstract class represents a collection of 
 	 * instructions that can be executed.
 	 */
 	class ProgramInterface
@@ -56,7 +56,7 @@ namespace ORO_Execution
         /**
          * Return the current 'line number' of the program.
          */
-        virtual int getLineNumber() = 0;
+        virtual int getLineNumber() const = 0;
 
         /**
          * Programs can be refered to by name.

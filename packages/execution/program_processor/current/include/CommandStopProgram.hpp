@@ -55,10 +55,6 @@ namespace ORO_Execution
 			pci->stopProgram(name);
 		}
 	
-		std::string toString() {
-			return "CommandStopProgram";
-		}
-	
         virtual CommandInterface* clone() const
         {
             return new CommandStopProgram( pci, name );

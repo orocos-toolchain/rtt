@@ -51,10 +51,6 @@ namespace ORO_Execution
 			sc->requestState(sti);
 		}
 		
-		std::string toString() {
-			return "CommandChangeState";
-		}
-	
         virtual CommandInterface* clone() const
         {
             // shalow copy, we do not own the pointers

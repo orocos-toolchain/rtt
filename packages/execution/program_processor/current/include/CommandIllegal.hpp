@@ -36,7 +36,7 @@ namespace ORO_Execution
 	using ORO_CoreLib::CommandInterface;
 	
     /**
-     * A Command indicating that an error was encountered
+     * @brief A Command indicating that an error was encountered
      * somewhere, most likely during the construction of
      * another command.
      */
@@ -74,14 +74,6 @@ namespace ORO_Execution
              * before the CommandIllegal is actually executed
              */
             virtual void warn();
-
-            /**
-             * CommandIllegal -> nothing really happened --> do nothing
-             */
-            void undo()
-            {}
-
-            std::string toString();
 
         virtual CommandInterface* clone() const
         {

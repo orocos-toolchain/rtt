@@ -34,7 +34,7 @@ namespace ORO_Execution
 	using ORO_CoreLib::CommandInterface;
 
 	/**
-	 * This command displays a string when executed. 
+	 * @brief This command displays a string when executed. 
      * (Currently solely used by jilske for testing purposes.)
 	 */
 	class CommandString : public CommandInterface
@@ -49,8 +49,6 @@ namespace ORO_Execution
 
     	    virtual void execute();
 
-    	    virtual std::string toString();
-        
         virtual CommandInterface* clone() const
         {
             return new CommandString( *this );

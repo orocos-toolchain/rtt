@@ -88,9 +88,15 @@ namespace ORO_Execution
 
         virtual void reset();
 
-        virtual int  getLineNumber();
+        virtual int  getLineNumber() const;
 
         virtual const std::string& getName() const;
+
+        /**
+         * Set the name of this program.
+         * Only valid before endProgram() is called.
+         */
+        void setName(const std::string& _name);
 
         /**
          * Set the line number of the current command node.
@@ -173,16 +179,17 @@ namespace ORO_Execution
         /**
          * A new program is started. 
          *
-         * @param pci The Processor which will execute this program
          */
-        CommandNode startProgram( ProcessorInterface* pci);
+        CommandNode startProgram();
         
         /** 
          * Program end is detected. The last instruction
          * of the program will inform the Processor that
-         * the program has ended.
+         * the program has ended. After this method is called,
+         * no more build methods may be called.
+         * @param pci The Processor which will execute this program
          */
-        void endProgram();
+        void endProgram(ProcessorInterface* pci);
 
         /** 
          * Append a function to the current CommandNode.

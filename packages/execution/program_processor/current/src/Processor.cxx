@@ -60,6 +60,7 @@ namespace ORO_Execution
         if ( it != programs.end() )
             return false;
         programs.push_back( Processor::ProgramInfo(name, pi) );
+        pi->reset();
         return true;
     }
 

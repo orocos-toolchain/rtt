@@ -64,7 +64,7 @@ namespace ORO_Execution
         /**
          * The vertex_exec_t property values.
          */
-        enum { normal_node, prog_start_node, prog_exit_node, func_start_node, func_exit_node };
+        enum NodeTypes { normal_node, prog_start_node, prog_exit_node, func_start_node, func_exit_node };
         typedef property<vertex_command_t, VertexNode,
                          property<vertex_exec_t, int,
                                   property<vertex_index_t, int > > > VertProperty;

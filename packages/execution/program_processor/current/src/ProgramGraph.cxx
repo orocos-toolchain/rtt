@@ -193,7 +193,7 @@ namespace ORO_Execution
         add_edge( v, next, EdgeCondition(cond), *graph);
     }
 
-    ProgramGraph::CommandNode ProgramGraph::startProgram(ProcessorInterface* pci)
+    ProgramGraph::CommandNode ProgramGraph::startProgram()
     {
         // we work now on the program.
         graph = &program;
@@ -203,13 +203,7 @@ namespace ORO_Execution
         next    = add_vertex( *graph );
         put(vertex_exec, *graph, next, VertexNode::normal_node );
 
-        // mark the end node as a program exit node.
-        end    = add_vertex( *graph );
-        boost::property_map<Graph, vertex_command_t>::type 
-            cmap = get(vertex_command, program);
-        delete cmap[end].setCommand( new CommandStopProgram( pci, myName ) );
-        put(vertex_exec, *graph, end, VertexNode::prog_exit_node );
-
+        end  = add_vertex( *graph );
         root = current;
 
         return current;
@@ -219,14 +213,23 @@ namespace ORO_Execution
     {
         return myName;
     }
+
+    void ProgramGraph::setName(const std::string& _name)
+    {
+        myName = _name;
+    }
     
     void ProgramGraph::returnProgram( ConditionInterface* cond )
     {
         add_edge(current, end, EdgeCondition(cond), program );
     }
 
-    void ProgramGraph::endProgram( ) {
+    void ProgramGraph::endProgram( ProcessorInterface* pci ) {
         // End of all processing. return already linked to end.
+        boost::property_map<Graph, vertex_command_t>::type 
+            cmap = get(vertex_command, program);
+        delete cmap[end].setCommand( new CommandStopProgram( pci, myName ) );
+        put(vertex_exec, *graph, end, VertexNode::prog_exit_node );
 
         assert( current != next );
         assert( out_degree(current, program) == 0 );
@@ -312,11 +315,9 @@ namespace ORO_Execution
         return next;
     }
 
-    int ProgramGraph::getLineNumber()
+    int ProgramGraph::getLineNumber() const
     {
-        boost::property_map<Graph, vertex_command_t>::type 
-            cmap = get(vertex_command, program);
-        return cmap[current].getLineNumber();
+        return get(vertex_command, program)[current].getLineNumber();
     }
 
     void ProgramGraph::setLineNumber( int line)

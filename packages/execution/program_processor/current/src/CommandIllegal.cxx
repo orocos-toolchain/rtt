@@ -53,8 +53,4 @@ namespace ORO_Execution
         cout << description << endl;
     }
 
-    std::string CommandIllegal::toString()
-    {
-        return "CommandIllegal";
-    }
 }

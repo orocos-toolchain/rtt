@@ -34,13 +34,15 @@ namespace ORO_Execution
 	using std::vector;
 	
     /**
-     * Based on the software pattern 'composite', this
+     * @brief Based on the software pattern 'composite', this
      * class allows composing command objects into one command object
      */
     class CommandComposite
         : public CommandInterface
     {
         public:
+        CommandComposite() {}
+
         CommandComposite( const CommandComposite& orig )
         {
             for (vector<CommandInterface*>::iterator zjakky=list.begin();zjakky!=list.end();zjakky++)
@@ -64,14 +66,6 @@ namespace ORO_Execution
             	}
 			};
 
-            /**
-             * Return a std::string identifying the name
-             * of this Command.
-             */
-            virtual std::string toString() {
-            		return "CommandComposite";
-            };
-        
         /**
          * add a command to the list
          * 

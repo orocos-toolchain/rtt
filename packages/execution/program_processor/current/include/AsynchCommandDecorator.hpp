@@ -67,12 +67,6 @@ namespace ORO_Execution
          */
         virtual void execute();
 
-        /**
-         * Return a std::string identifying the name
-         * of this Command.
-         */
-        virtual std::string toString();
-
         virtual void reset();
 
         const CommandInterface* getCommand() const;

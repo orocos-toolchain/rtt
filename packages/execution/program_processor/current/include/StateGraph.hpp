@@ -117,7 +117,7 @@ namespace ORO_Execution
         /**
          * Create a new, empty, state.
          */
-        StateDescription* newState();
+        StateDescription* newState(const std::string& name);
 
         /**
          * Start filling up (defining) a given state.

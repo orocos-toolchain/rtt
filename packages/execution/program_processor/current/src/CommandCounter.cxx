@@ -43,11 +43,6 @@ namespace ORO_Execution
      	counter++;
      }
 
-     std::string CommandCounter::toString()
-     {
-     	return "CommandCounter";
-     }
-
 	 void CommandCounter::reset()
 	 {
 	 	counter = 0; 

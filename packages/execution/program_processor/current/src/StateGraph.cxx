@@ -89,13 +89,14 @@ namespace ORO_Execution
                     {
                         // select the new node + init it + execute it
                         n = boost::target(*ei, graph);
-                        cmap[n].startExecution();
-                        cmap[n].execute();
                         // reset all its edges for evaluation
                         for ( tie(ei, ei_end) = boost::out_edges( n, graph ); ei != ei_end; ++ei)
                             emap[*ei].reset();
                         // set ei and ei_end again correctly
                         tie(ei, ei_end) = boost::out_edges( n, graph );
+                        // now execute the node.
+                        cmap[n].startExecution();
+                        cmap[n].execute();
                     }
                 else
                     ++ei;
@@ -187,9 +188,9 @@ namespace ORO_Execution
         add_edge( v, next, EdgeCondition(cond), graph);
     }
 
-    StateDescription* StateGraph::newState()
+    StateDescription* StateGraph::newState(const std::string& name)
     {
-        state_list.push_back(new StateDescription( add_vertex( graph ), add_vertex( graph ), add_vertex( graph ), this ) );
+        state_list.push_back(new StateDescription( name, add_vertex( graph ), add_vertex( graph ), add_vertex( graph ), this ) );
         return state_list.back();
     }
     

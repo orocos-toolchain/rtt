@@ -40,10 +40,4 @@ namespace ORO_Execution
     	std::cout<< "Command executed: " <<command <<std::endl;
     }
 
-    std::string CommandString::toString()
-    {
-    	return command;
-    }
-
-
 }
