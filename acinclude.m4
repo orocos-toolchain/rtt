@@ -341,7 +341,23 @@ AC_PROG_DOXYGEN
 AC_PROG_DIA
 AC_PROG_FOP
 
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADER([cppunit/Test.h], [
 AM_PATH_CPPUNIT(1.9.6)
+],[
+AC_MSG_WARN([
+
+Could not find CppUnit headers. The Orocos
+Test Suite (ie make check) will not be available.
+
+You can find CppUnit at http://sourceforge.net/projects/cppunit
+or if you are a Debian GNU/Linux user, just do:
+
+  apt-get install libcppunit-dev
+
+])
+])
+AC_LANG_C
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -394,7 +410,10 @@ echo Type \'make new_packages\' to create a package build directory
 echo Type \'make configure_packages\' to configure the packages
 echo Type \'make all_packages\' to build the configured system
 echo
-echo Read the Orocos Installation Manual for detailed instructions.
+echo Alternatively, you can \'make all\' to use the default configuration.
+echo
+echo Read the Orocos Installation Manual for detailed instructions
+echo   on what these targets mean.
 ])
 
 
@@ -428,14 +447,24 @@ Could not find Boost headers. Please install Boost.
 
 You can find Boost at http://www.boost.org/
 or if you are a Debian GNU/Linux user, just do:
-apt-get install libboost-dev
+
+apt-get install libboost-dev libboost-graph-dev libboost-signals-dev
 ])
 ])
 AC_LANG_C
 
+ACX_COMEDI
 
 ]) 
 
+dnl Leave empty, use this just for help, pass
+dnl the flags to the packages configure script.
+m4_define([ACX_COMEDI],[
+AC_ARG_WITH(comedi, [AC_HELP_STRING([--with-comedi=/path/to],[Specify location of linux/comedi.h ])],
+	[ ])
+AC_ARG_WITH(comedilib, [AC_HELP_STRING([--with-comedilib=/path/to],[Specify location of comedilib.h ])],
+	[ ])
+])
 
 m4_define([OROCOS_OUTPUT],[
 AC_OUTPUT
@@ -469,7 +498,7 @@ OROCOS_OUTPUT_INFO
     ],
     [
     AC_ARG_WITH(lxrt,
-            [AC_HELP_STRING([--with-lxrt],[Use RTAI/LXRT])],
+            [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use RTAI/LXRT, specify installation directory])],
             [
             AC_MSG_RESULT(LXRT)
 	    ECOS_TARGET=lxrt
@@ -501,4 +530,85 @@ dnl Default to gnulinux
 AC_SUBST(ECOS_TARGET)
     ]
     ) # OROCOS_ARG_TARGETOS
+
+dnl Borrowed from CPPUNIT themselves.
+dnl
+dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+dnl
+AC_DEFUN(AM_PATH_CPPUNIT,
+[
+
+AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)],
+            cppunit_config_prefix="$withval", cppunit_config_prefix="")
+AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
+            cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
+
+  if test x$cppunit_config_exec_prefix != x ; then
+     cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
+     if test x${CPPUNIT_CONFIG+set} != xset ; then
+        CPPUNIT_CONFIG=$cppunit_config_exec_prefix/bin/cppunit-config
+     fi
+  fi
+  if test x$cppunit_config_prefix != x ; then
+     cppunit_config_args="$cppunit_config_args --prefix=$cppunit_config_prefix"
+     if test x${CPPUNIT_CONFIG+set} != xset ; then
+        CPPUNIT_CONFIG=$cppunit_config_prefix/bin/cppunit-config
+     fi
+  fi
+
+  AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
+  cppunit_version_min=$1
+
+  AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
+  no_cppunit=""
+  if test "$CPPUNIT_CONFIG" = "no" ; then
+    no_cppunit=yes
+  else
+    CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG --cflags`
+    CPPUNIT_LIBS=`$CPPUNIT_CONFIG --libs`
+    cppunit_version=`$CPPUNIT_CONFIG --version`
+
+    cppunit_major_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
+    cppunit_minor_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
+    cppunit_micro_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
+
+    cppunit_major_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
+    cppunit_minor_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
+    cppunit_micro_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
+
+    cppunit_version_proper=`expr \
+        $cppunit_major_version \> $cppunit_major_min \| \
+        $cppunit_major_version \= $cppunit_major_min \& \
+        $cppunit_minor_version \> $cppunit_minor_min \| \
+        $cppunit_major_version \= $cppunit_major_min \& \
+        $cppunit_minor_version \= $cppunit_minor_min \& \
+        $cppunit_micro_version \>= $cppunit_micro_min `
+
+    if test "$cppunit_version_proper" = "1" ; then
+      AC_MSG_RESULT([$cppunit_major_version.$cppunit_minor_version.$cppunit_micro_version])
+    else
+      AC_MSG_RESULT(no)
+      no_cppunit=yes
+    fi
+  fi
+
+  if test "x$no_cppunit" = x ; then
+     ifelse([$2], , :, [$2])     
+  else
+     CPPUNIT_CFLAGS=""
+     CPPUNIT_LIBS=""
+     ifelse([$3], , :, [$3])
+  fi
+
+  AC_SUBST(CPPUNIT_CFLAGS)
+  AC_SUBST(CPPUNIT_LIBS)
+])
+
+
 

@@ -3,6 +3,9 @@
 
 # This macro executes the Orocos common Autoconf code
 # Specify the name and version number as a parameter
+
+ACX_MY_ARGS="$@"
+
 OROCOS_GENERAL(orocos-base,0,16,0)
 
 if test -e configure.ac; then
@@ -40,7 +43,7 @@ AC_MSG_RESULT($DOC_DIR)
 # Setup the packages
 echo "Running configure in packages..."
 cd $ECOS_REP
-./configure
+./configure $ACX_MY_ARGS
 echo "Running Make db in packages..."
 make db
 cd -

@@ -317,6 +317,54 @@ make install
 	</para>
       </sect3>
       <sect3>
+	<title>Device Drivers</title>
+	<para>
+	  Orocos provides device drivers for the Philips SJA1000
+	  CAN Controller, APCI1710 Encoder card, APCI2200 Digital
+	  IO card and Comedi Devices. These are not compiled 
+	  with the default installation. In the graphical
+	  configtool you can add device drivers with the menu
+	  "Build->Packages". They will be grouped in the
+	  device_drivers parent package.
+	</para>
+	<sect4>
+	  <title>Comedi and ComediLib</title>
+	  <para>
+	    Orocos has a ported small part of the ComediLib
+	    interface in its C++ device interface. To use these
+	    classes, the Orocos configure script must first
+	    detect a valid installation. This can be done
+	    by providing two flags :
+	    <screen>
+  ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
+	    </screen>
+	    If both are found, the Comedi support package will
+	    be generated, and you will be able to add the
+	    Orocos Comedi Device Driver to your configuration.
+	  </para>
+	  <para>
+	    If Comedi is installed in <filename>/usr/realtime</filename>
+	    or in your default include path, it will also be
+	    detected by the configure script.
+	  </para>
+	  <para>
+	    Orocos can use ComediLib from the GNU/Linux target
+	    (non realtime interface)
+	    and the LXRT target ( realtime interface).
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Philips SJA1000 CAN Controller</title>
+	  <para>
+	    Orocos has a preliminary CAN Controller implementation
+	    using the CANPie interface. To use it, the <filename>CANPie</filename>
+	    and <filename>CANOpen</filename> packages must be 
+	    added to your configuration. The device driver
+	    works with RTAI/LXRT.
+	  </para>
+	</sect4>
+      </sect3>
+      <sect3>
 	<title>Using the pre-defined make targets</title>
 	<para>
 	  The <command>make all</command> command will have made a directory

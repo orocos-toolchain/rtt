@@ -10,12 +10,13 @@ EXTRA_DIST = \
 	packages/aclocal.m4 packages/acinclude.m4 \
 	packages/Makefile.in packages/Doxyfile.in \
 	doc/CODING_STYLE.txt \
+	packages/support/common/current/support.cdl.in \
 	packages/support/boost/current/boost.cdl.in \
-	packages/support/boost_graph/current/boost_graph.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
 	packages/support/comedilib/current/comedilib.cdl.in \
 	packages/support/xercesc/current/xercesc.cdl.in \
 	packages/support/readline/current/readline.cdl.in \
+	packages/support/rtai/current/rtai.cdl.in \
 	packages/pkgconf/fixhtml.tcl \
         packages/pkgconf/rules.doc \
         packages/pkgconf/rules.mak \
@@ -48,13 +49,14 @@ new_packages:
 	@echo "Setting up packages..."
 	@cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@;\
-	ecosconfig new @ECOS_TARGET@ minimal ;\
-	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
-	ecosconfig add support_$$(basename $$i .cdl); done ;\
+	ecosconfig new @ECOS_TARGET@ minimal >/dev/null ;\
+	ecosconfig add support >/dev/null ; \
+	for i in $$(find @ECOS_REP@/support -name "*.cdl" -a -not -name "support.cdl"); do \
+	ecosconfig add support_$$(basename $$i .cdl) >/dev/null ; done ;\
 	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
 	ecosconfig check
-	touch .new-pkg-stamp
+	@touch .new-pkg-stamp
 
 
 # This configures the selected packages with
