@@ -1,4 +1,3 @@
-
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
