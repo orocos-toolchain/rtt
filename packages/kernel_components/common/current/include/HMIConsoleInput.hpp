@@ -156,9 +156,11 @@ namespace ORO_ControlKernel
         void printHelp()
         {
             using boost::lambda::_1;
+            cout << endl;
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
-            cout << "  cart_generator.moveTo( vector(0.75, 0.5, 0.8), rotation( 90, 0, 90 ), 15.0 ) [then press enter] "<<endl;
+            cout << "  CartesianGenerator.moveTo( frame( vector( .75, .5, .8), rotation( 90., 0., 90. ) ), 15.0 ) [then press enter] "<<endl;
+            cout << "  console_output.displayDouble( CartesianGenerator.currentPosition ) [enter]" <<endl;
             cout << endl<<"  The available objects are :"<<endl;
             std::vector<std::string> objlist = ee->commandFactory().getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
