@@ -33,6 +33,7 @@
 #include <execution/DataSourceFactoryInterface.hpp>
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
+#include <execution/ParsedStateContext.hpp>
 
 #include <corelib/PropertyComposition.hpp>
 
@@ -48,7 +49,7 @@ namespace ORO_ControlKernel
     using namespace boost;
 
     ExecutionExtension::ExecutionExtension( ControlKernelInterface* _base )
-        : detail::ExtensionInterface( _base, "Execution" ), program(0), context(0),
+        : detail::ExtensionInterface( _base, "Execution" ), program(0),
           running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
 with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
@@ -112,14 +113,27 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.loadProgram( program );
     }
 
-    bool ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& name )
+    bool ExecutionExtension::loadStateContexts( std::istream& state_stream )
     {
         initKernelCommands();
         Parser    parser;
-        context = parser.parseStateContext( state_stream, &proc, this );
-        if (context == 0) 
+        typedef std::vector<ParsedStateContext*> contexts_t;
+        contexts_t contexts = parser.parseStateContext( state_stream, &proc, this );
+        contexts_t::iterator i;
+        for ( i = contexts.begin(); i != contexts.end(); ++i )
+        {
+            if ( !( *i )->registerWithProcessor( getProcessor() ) )
+                break;
+        }
+        if ( i != contexts.end() )
+        {
+            // something went wrong while registering *i -> unregister
+            // the previous contexts.
+            for ( contexts_t::iterator j = contexts.begin(); j != i; ++j )
+                ( *j )->unregisterFromProcessor( getProcessor () );
             return false;
-        return proc.loadStateContext(name, context);
+        }
+        return true;
     }
 
     bool ExecutionExtension::startStateContext(const std::string& name)
@@ -183,7 +197,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                 commandfactory = (*it)->createCommandFactory();
                 if ( commandfactory )
                     commandFactory().registerObject( (*it)->getName(), commandfactory );
-                
+
                 dataSourceFactory = (*it)->createDataSourceFactory();
                 if ( dataSourceFactory )
                     dataFactory().registerObject( (*it)->getName(), dataSourceFactory );

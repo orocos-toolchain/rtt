@@ -70,6 +70,7 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Corrected examples</revremark>
       </revision>
+	
     </revhistory>
 
     <legalnotice>
@@ -198,7 +199,6 @@
 	    <member>if</member>
 	    <member>include</member>
 	    <member>int</member>
-	    <member>let</member>
 	    <member>next</member>
 	    <member>not</member>
 	    <member>nothing</member>
@@ -322,8 +322,7 @@ alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
 	  <para>
 	    Variables, constants and aliases are only supported for
 	    the following types: bool, int, double, string, rotation,
-	    vector, frame.  You cannot use them for values of other
-	    types.
+	    vector, frame, double6D.
 	  </para>
 	</sect4>
 	<sect4>
@@ -583,116 +582,189 @@ while <emphasis>condition</emphasis> {
     </sect2>
     <sect2>
       <title>State Context Description Syntax</title>
-      <para>
-	A StateContext is a collection of states. Each state
-	defines what to do on exit, when it is handles and on exit.
-	It also defines all transitions to a next state.
-	A StateContext must be loaded in the Processor (
-	see <ulink url="orocos-program-processor.html">
-	The Online Processor Manual</ulink> ). The Orocos
-	Control Kernel uses the ExecutionExtension to manage
-	parsing and loading State Contexts.
-      </para>
-      <para>
-	A state context descriptions looks like this :
-      </para>
-      <example>
-	<title>State Context Description Format</title>
-	<programlisting>
-Initial_State myInit
-Final_state myExit
-
-state myInit {
-	  entry {
-	  // statements and event configuration
-	  }
-	  handle {
-	  // statements
-	  }
-	  exit {
-	  // statements and event configuration
-	  }
-	  transitions {
-	  // Ordered (conditional) select statements
-	  }
-}
-
-state myExit {
-	  // put everything in a safe state.
-}
-
-state Waiting {
-	  // see above...
-}
-
-// ... repeat
-	</programlisting>
-	<para>
-	  One must provide the
-	  <function>Initial_State</function> and <function>Final_state</function>
-	  statements. Within a state any statement group is
-	  optional, so a state can be empty.
-	</para>
-      </example>
       <sect3>
-	<title>The <function>state</function> Statement</title>
+	<title>Introduction</title>
 	<para>
-	  A state context can have an unlimited number of states.
-	  The <function>Initial_State</function> statement is
-	  mandatory and brings
-	  the state machine in the given state when it is loaded 
-	  in the Processor. The <function>Final_State</function>
-	  is entered when the Processor is told to stop a state.
-	  So a transition from any state to the Final_State must
-	  be meaningfull.
-	  A state contains optionally 4 functions :
-	  entry, handle, exit and transitions.
+	  A StateContext is a kind of state machine used in the &OROCOS;
+	  system.  It contains a collection of states, and each state
+	  defines what to do on entry of the state, when it is handled
+	  and on exit.  It also defines all transitions to a next
+	  state.  A StateContext must be loaded in the Processor ( see
+	  <ulink url="orocos-program-processor.html"> The Online
+	  Processor Manual</ulink> ). The Orocos Control Kernel uses
+	  the ExecutionExtension to manage parsing and loading State
+	  Contexts.
 	</para>
       </sect3>
       <sect3>
-	<title>The <function>entry</function> and
-	  <function>exit</function> Statements</title>
-	<para>When a state is entered for the first time, the entry
-	  function is called. When it is left, the exit function is
-	  called. They both contain unconditional component commands
-	  and event configuration statements. The component
-	  commands are the same as in programs. There are two
-	  event configuration statements : <function>connect</function>
-	  and <function>disconnect</function>. They have
-	  the following syntax :
+	<title>StateContext Workings</title>
+	<para>
+	  A StateContext is composed of a set of states.  A running
+	  StateContext is always in exactly one of its states.  One
+	  time per period, it checks whether it can transition from
+	  that state to another state, and if so makes that
+	  transition.
+	</para>
+	<para>
+	  Besides a list of the possible transitions, every state also
+	  keeps record of programs to be executed at certain
+	  occasions.  There are exactly three programs in every state:
+	  the entry program ( which will be executed the first time
+	  that the state becomes active ), the handle program ( which
+	  will be executed every time the state is the active state )
+	  and the exit program ( which will be executed when the state
+	  is left and another state is entered ).
+	</para>
+	<para>
+	  There can be more than one StateContext.  If there are more
+	  than one, then every StateContext keeps working as if it was
+	  the only StateContext available.  They separately keep track
+	  of their own current state, etc. 
+	</para>
+	<para>
+	  A StateContext can have any number of states.  It needs to
+	  have exactly one "initial state" ( which is the state that
+	  will be entered when the StateContext is first started ) and
+	  one "final state".  The final state is the state that is
+	  entered when the processor is asked to stop the
+	  StateContext.  This means that the transition from any state
+	  to the final state must always be meaningful.
+	</para>
+	<sect4>
+	  <title>Precise State Change Semantics</title>
+	  <para>
+	    At the start of every execution cycle of the Program
+	    Processor, the transition table of the current state is
+	    evaluated.  If a transition succeeds, the exit function is
+	    called of the current state, then the entry function of the
+	    next state and then the handle function of the latter. If no
+	    transition evaluated to true, the handle function of the
+	    current state is called.
+	  </para>
+	</sect4>
+      </sect3>
+      <sect3>
+	<title>Defining StateContexts</title>
+  	<para>
+	  You can think of StateContexts somewhat like C++ classes.  You
+	  first need to define a type of StateContext, and you can then
+	  instantiate it any number of times afterwards.  A StateContext
+	  ( the type ) can have parameters, so every instantiation can
+	  work differently based on the parameters it got in its
+	  instantiation.
+	</para>
+	<para>
+	  A StateContext definition looks like this :
+	</para>
+	<example>
+	  <title>State Context Definition Format</title>
 	  <programlisting>
-// On top of the file :
-Event_Handle handle_name
+StateContext MyStateContext
+{
+    initial state myInit 
+    {
+        entry {
+	    // entry method: statements and event configuration
+	}
+	handle {
+	    // handle method: statements
+	}
+	exit {
+	    // exit method: statements and event configuration
+	}
+	transitions {
+	    // Ordered (conditional) select statements
+	}
+    }
 
-// in entry or exit :
-connect handle_name( "EventName", Component.command( args ) )
+    final state myExit {
+	entry {
+	    // put everything in a safe state.
+	}
+	handle {
+	}
+	exit {
+        }
+	// no transitions in the final state...
+    }
 
-disconnect handle_name
+    state Waiting {
+        // ...
+    }
+
+    // ... repeat
+}
 	  </programlisting>
-	  The event name must correspond to the identifier of a
-	  nameserved Event. The command is any valid component
-	  command with its arguments. The arguments will be evaluated
-	  when the command is called. From that moment on, whenever
-	  the event "EventName" is raised (this is done inside
-	  the component or kernel implementation), the command will be 
-	  executed synchronically. The disconnect statement cancels
-	  a previously connected handle and may be called any time
-	  on any handle. Each handle must be declared on beforehand
-	  on top of the state script, before any state is defined.
-	</para>
-      </sect3>
-      <sect3>
-	<title>The <function>handle</function> and
-	  <function>transitions</function> Statement</title>
-	<para>
-	  The handle function is called directly after
-	  the entry function or when no transition can be
-	  found to another state in the next execution step.
-	  The handle function contains only component commands.
-	  To leave a state, the transitions function defines
-	  <function>select</function> statements. These can
-	  be guarded by if...then clauses :
-	  <programlisting>
+	  <para>
+	    A StateContext definition: a StateContext can have any
+	    number of states.  It needs to have exactly one "initial
+	    state" ( which is the state that will be entered when the
+	    StateContext is first started ).  Within a state, any
+	    method is optional, and a state can even be defined empty.
+	  </para>
+	</example>
+	<sect4>
+	  <title>The <function>state</function> Statement</title>
+	  <para>
+	    A state context can have an unlimited number of states.  A
+	    state contains optionally 5 functions : preconditions, entry, handle,
+	    exit and transitions.  Any one of them is optional, and a
+	    state can even conceivably be defined empty.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>The <function>entry</function> and
+	    <function>exit</function> Statements</title>
+	  <para>
+	    When a state is entered for the first time, the entry
+	    function is called. When it is left, the exit function is
+	    called. They both contain unconditional component commands
+	    and event configuration statements. The component commands
+	    are the same as in programs. There are two event
+	    configuration statements : <function>connect</function>
+	    and <function>disconnect</function>. They have the
+	    following syntax :
+	    <programlisting>
+StateContext SomeStateContext
+{
+    Event_Handle handle_name
+
+    // ...
+    state someState
+    {
+        entry {
+	    connect handle_name( "EventName", Component.command( args ) )
+	}
+        exit {
+	    disconnect handle_name
+        }
+    }
+}
+	    </programlisting>
+	    The event name must correspond to the identifier of a
+	    nameserved Event&lt;void(void)&gt;. The command is any valid component
+	    command with its arguments. The arguments will be
+	    evaluated when the command is called. From that moment on,
+	    whenever the event "EventName" is raised (this is done
+	    inside the component or kernel implementation), the
+	    command will be executed synchronically. The disconnect
+	    statement cancels a previously connected handle and may be
+	    called at any time on any handle. Each handle must be
+	    declared beforehand on top of the state script, before any
+	    state is defined.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>The <function>handle</function> and
+	    <function>transitions</function> Statement</title>
+	  <para>
+	    The handle function is called directly after the entry
+	    function or when no transition can be found to another state
+	    in the next execution step.  The handle function contains
+	    only component commands.  To leave a state, the transitions
+	    function defines <function>select</function>
+	    statements. These can be guarded by if...then clauses :
+	    <programlisting>
 // In state XYZ :
 transitions {
     // conditionally select the START state
@@ -701,36 +773,284 @@ transitions {
     // Fall through state
     select WAIT
 }
-	  </programlisting>
-	  The transitions are checked in the same order as listed.
-	  A transition is allowed to select the current state, but
-	  the onExit and onEntry functions will not be called in that
-	  case.
-	</para>
+	    </programlisting>
+	    The transitions are checked in the same order as listed.
+	    A transition is allowed to select the current state, but
+	    the onExit and onEntry functions will not be called in that
+	    case.
+	  </para>
+	</sect4>
       </sect3>
-    </sect2>
-    <sect2>
-      <title>State Change Semantics</title>
-      <para>
-	At the start of every execution cycle
-	of the Program Processor, the transition
-	table of the current state is evaluated.
-	If a transition succeeds, the exit
-	function is called of the current state,
-	then the entry function of the next
-	state and then the handle function 
-	of the latter. If no transition evaluated
-	to true, the handle function of the current
-	state is called.
-      </para>
-      <para>
-	After the handle function is called, the
-	Processor will execute the program further
-	if it is in the Execution state. The
-	state graph is executed in the Load and
-	Execution state of the Program Processor
-	( see The Orocos Program Processor Manual ).
-      </para>
+      <sect3>
+	<title>Instantiating Contexts: SubContexts and RootContexts</title>
+	<para>
+	  As mentionned before: you can look at a SubContext
+	  definition as the definition of a C++ class.  It is merely
+	  the template for its instantiations, and you have to
+	  instantiate it to actually be able to do anything with it.
+	  There is also a mechanism for passing parameter values to
+	  the StateContexts on instantiation.
+	</para>
+	<para>
+	  Note that you always need to write the instantiation after
+	  the definition of the StateContext you're instantiating.
+	</para>
+	<sect4>
+	  <title>Root Contexts</title>
+	  <para>
+	    A Root Context is a normal instantiation of a
+	    StateContext, one that does not depend on a parent
+	    StateContext ( see below ).  They are defined as follows:
+	    <programlisting>
+StateContext SomeStateContext
+{
+    initial state initState
+    {
+        // ...
+    }
+    final state finalState
+    {
+        // ...
+    }
+}
+
+RootContext SomeStateContext someSCinst
+	    </programlisting>
+	    This makes an instantiation of the StateContext type
+	    SomeStateContext by the name of 'someSCinst'.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Parameters and public variables</title>
+	  <sect5>
+	    <title>StateContext public variables</title>
+	    <para>
+	      You can define variables at the StateContext level.
+	      These variables are then accessible to the StateContext
+	      methods (entry, handle, exit), the preconditions, the
+	      transitions and ( in the case of a SubContext, see below
+	      ) the parent Context.
+	    </para>
+	    <para>
+	      You can define a StateContext public variable as follows:
+	      <programlisting>
+StateContext SomeStateContext
+{
+    // a public constant
+    const double pi = 3.1415926535897
+    var int counter = 0
+    alias string errorText = "Error in SomeStateContext: " + someComponent.errorStatement()
+    initial state initState
+    {
+	handle
+	{
+            // change the value of counter...
+            set counter = counter + 1
+            // use the handy alias defined above...
+	    do someComponent.informUserOfError( errorText )
+        }
+        // ...
+    }
+    final state finalState
+    {
+	entry
+        {
+            do someComponent.doSomethingWithThisCounter( counter )
+        }
+        // ...
+    }
+}
+	      </programlisting>
+	      This example creates some handy public variables in the
+	      StateContext SomeStateContext, and uses them throughout
+	      the state context.
+	    </para>
+	  </sect5>
+	  <sect5>
+	    <title>StateContext parameters</title>
+	    <para>
+	      A StateContext can have parameters that need to be set
+	      on its instantiation.  Here's an example:
+	      <programlisting>
+StateContext AxisController
+{
+    // a parameter specifying which axis this Controller controls
+    param int axisNumber
+    initial state init
+    {
+        entry
+        {
+            var double power = someComponent.getPowerForAxis( axisNumber )
+	    // do something with it...
+        }
+    }
+}
+
+RootContext AxisController axiscontroller1( axisNumber = 1 )
+RootContext AxisController axiscontroller2( axisNumber = 2 )
+RootContext AxisController axiscontroller3( axisNumber = 3 )
+RootContext AxisController axiscontroller4( axisNumber = 4 )
+RootContext AxisController axiscontroller5( axisNumber = 5 )
+RootContext AxisController axiscontroller6( axisNumber = 6 )
+	      </programlisting>
+	      This example creates an AxisController StateContext with
+	      one integer parameter called axisNumber.  When the
+	      StateContext is instantiated, values for all of the
+	      parameters need to be given in the form "oneParamName=
+	      'some value', anotherParamName = 0,
+	      yetAnotherParamName=some_other_expression + 5".  Values
+	      need to be provided for all the parameters of the
+	      StateContext. As you see, a StateContext can of course
+	      be instantiated multiple times with different parameter
+	      values.
+	    </para>
+	  </sect5>
+	</sect4>
+	<sect4>
+	  <title>SubContexts</title>
+	  <para>
+	    A SubContext is a StateContext that is instantiated within
+	    another StateContext ( which we'll call the parent
+	    StateContext ).  The parent StateContext is owner of its
+	    child, and can decide when it needs to be started and
+	    stopped, by calling the processor's startStateContext and
+	    stopStateContext methods.
+	  </para>
+	  <sect5>
+	    <title>Instantiating SubContexts</title>
+	    <para>
+	      An instantiation of a SubContext is written as follows:
+	      <programlisting>
+StateContext ChildStateContext
+{
+    initial state initState
+    {
+        // ...
+    }
+    final state finalState
+    {
+        // ...
+    }
+}
+
+StateContext ParentStateContext
+{
+    SubContext ChildStateContext childcontext1
+    SubContext ChildStateContext childcontext2
+    initial state initState
+    {
+	entry
+        {
+	    Execution.startStateContext(childcontext1)
+	    Execution.startStateContext(childcontext2)
+        }
+        exit
+        {
+            Execution.stopStateContext(childcontext2)
+        }
+    }
+
+    final state finalState
+    {
+        entry
+        {
+            Execution.stopStateContext(childcontext1)
+        }
+    }
+}
+	      </programlisting>
+	      Here you see a ParentStateContext which has two
+	      ChildStateContexts.  One of them is started in the
+	      initial state's entry method and stopped in its exit
+	      method.  The other one is started in the initial state's
+	      entry method and stopped in the final state's entry
+	      method.
+	    </para>
+	  </sect5>
+	  <sect5>
+	    <title>SubContext manipulating</title>
+	    <para>
+	      In addition to starting and stopping a SubContext, a
+	      parent StateContext can also inspect its public
+	      variables, change its parameters, and check what state
+	      it is in...
+	    </para>
+	    <para>
+	      Inspecting StateContext public variables is simply done
+	      using the syntax "someSubContextInstName.someValue",
+	      just as you would do if someSubContextInstName were an
+	      &OROCOS; kernel component.  Like this, you can inspect
+	      all of a subcontext's public variables.
+	    </para>
+	    <para>
+	      Setting a StateContext parameter must be done at its
+	      instantiation.  However, you can still change the values
+	      of the parameters afterwards.  The syntax is: "set
+	      someSubContext.someParam = someExpression".  Here's an
+	      elaborate example:
+	      <programlisting>
+StateContext ChildStateContext
+{
+    param int someValue
+    const double pi = 3.1415926535897
+    initial state initState
+    {
+        // ...
+    }
+    final state finalState
+    {
+        // ...
+    }
+}
+
+StateContext ParentStateContext
+{
+    SubContext ChildStateContext childcontext1 ( someValue = 0 )
+    SubContext ChildStateContext childcontext2( someValue = 0 )
+
+    var int counter = 0
+    initial state initState
+    {
+	entry
+        {
+	    Execution.startStateContext(childcontext1)
+	    Execution.startStateContext(childcontext2)
+            // set the subcontext's parameter
+            set childcontext1.someValue = 2
+        }
+        handle
+        {
+            set counter = counter + 1
+	    // set the subcontext's parameters
+            set childcontext2.someValue = counter
+            // use the subcontext's public variables
+            someComponent.doSomethingCool( childcontext1.someValue )
+        }
+        exit
+        {
+            Execution.stopStateContext(childcontext2)
+        }
+    }
+
+    final state finalState
+    {
+        entry
+        {
+            Execution.stopStateContext(childcontext1)
+        }
+    }
+}
+	      </programlisting>
+	    </para>
+	    <para>
+	      One more thing you can do with a subcontext is checking
+	      if it is in a certain state.  The syntax looks like:
+	      'someSubContext.inState( "someStateName" )'.  It should
+	      be straightforward to use...
+	    </para>
+	  </sect5>
+	</sect4>
+      </sect3>
     </sect2>
   </sect1>
   <sect1>
@@ -741,7 +1061,7 @@ transitions {
       in the Orocos Control Kernel framework,
       the Kernel and the Processor expose themselves
       as the 'Execution' component. We refer to the control kernel
-      documentation for a detailled list of commands,
+      documentation for a detailed list of commands,
       but here are a few examples :
       <programlisting>
 do Kernel.selectGenerator( "CartesianGenerator" )
@@ -772,101 +1092,103 @@ do Execution.stopStateContext( "name" )
     <example>
       <title>State Context Example (state.osd)</title>
       <programlisting>
-Event_Handle home_switch1
-Event_Handle home_switch2
+StateContext MachineContext
+{
+    Event_Handle home_switch1
+    Event_Handle home_switch2
 
-Initial_State init_state
-Final_State fini_state
+    /**
+     * This state is entered when the StateContext is loaded.
+     * The kernel is not running yet...
+     */
+    initial state init_state {
+	transitions {
+	    select startup_state
+	}
+    }
 
-/**
- * This state is entered when the StateContext is loaded.
- * The kernel is not running yet...
- */
-state init_state {
-    transitions {
-	select startup_state
+    /**
+     * Kernel is running, select the components.
+     */
+    state startup_state {
+	entry {
+	    do Kernel.selectSensor("HWSensor")
+	    do Kernel.selectGenerator("MoveToGenerator")
+	    }
+	transitions {
+	    select stop_state
+	    }
+    }
+
+    /**
+     * This state is only reached when the State Context
+     * is stopped.
+     */
+    final state fini_state {
+	entry {
+	    do Kernel.selectSensor("Default")
+	    do Kernel.selectGenerator("Default")
+	    }
+    }
+
+    /**
+     * This state is the 'turn off' state of the
+     * machine.
+     */
+    state stop_state {
+	entry {
+	    // The Default Effector and Controller do nothing
+	    do Kernel.selectController("Default")
+	    do Kernel.selectEffector("Default")
+	transitions {
+	    if HMI.start_pushed() then
+		 select run_state
+	    }
+    }
+
+    /**
+     * This state puts the machine under 'control'
+     * effectively accepting commands and driving
+     * the machine.
+     */
+    state run_state {
+	entry {
+	    // make sure we are not moving
+	    do MoveToGenerator.safeStop()
+	    // Select components controlling the machine
+	    do Kernel.selectController("PID")
+	    do Kernel.selectEffector("HWEffector")
+	    }
+
+	transitions {
+	    if HMI.stop_pushed() then
+		 select stop_state
+	    if HMI.start_program() then
+		 select exec_state
+	    }
+    }
+
+    /**
+     * This state starts a previously loaded
+     * program.
+     */
+    state exec_state {
+	entry {
+	    do Execution.startProgram("MyProgram")
+	    }
+
+	exit {
+	    do Execution.stopProgram("MyProgram")
+	    }
+
+	transitions {
+	    if HMI.stop_program() then
+		 select run_state
+	    }
     }
 }
 
-/**
- * Kernel is running, select the components.
- */
-state startup_state {
-    entry {
-	do Kernel.selectSensor("HWSensor")
-	do Kernel.selectGenerator("MoveToGenerator")
-	}
-    transitions {
-	select stop_state
-	}
-}
-
-/**
- * This state is only reached when the State Context
- * is stopped.
- */
-state fini_state {
-    entry {
-	do Kernel.selectSensor("Default")
-	do Kernel.selectGenerator("Default")
-	}
-}
-
-/**
- * This state is the 'turn off' state of the
- * machine.
- */
-state stop_state {
-    entry {
-	// The Default Effector and Controller do nothing
-	do Kernel.selectController("Default")
-	do Kernel.selectEffector("Default")
-    transitions {
-	if HMI.start_pushed() then
-	     select run_state
-	}
-}
-
-/**
- * This state puts the machine under 'control'
- * effectively accepting commands and driving
- * the machine.
- */
-state run_state {
-    entry {
-	// make sure we are not moving
-	do MoveToGenerator.safeStop()
-	// Select components controlling the machine
-	do Kernel.selectController("PID")
-	do Kernel.selectEffector("HWEffector")
-	}
-
-    transitions {
-	if HMI.stop_pushed() then
-	     select stop_state
-	if HMI.start_program() then
-	     select exec_state
-	}
-}
-
-/**
- * This state starts a previously loaded
- * program.
- */
-state exec_state {
-    entry {
-	do Execution.startProgram("MyProgram")
-	}
-
-    exit {
-	do Execution.stopProgram("MyProgram")
-	}
-	
-    transitions {
-	if HMI.stop_program() then
-	     select run_state
-	}
-}
+RootContext MainContext mainContext
       </programlisting>
     </example>
     <example>
@@ -1154,8 +1476,14 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	<itemizedlist>
 	  <listitem>
 	    <para>
+	      It does not know of <type>unsigned int</type>. It can not call
+	      component methods with <type>unsigned int</type> arguments.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
 	      Only a hardcoded set of types can be used as variables,
-	      constants and aliases
+	      constants and aliases.
 	    </para>
 	  </listitem>
 	  <listitem>

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ProgramGraphParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ProgramGraphParser.cxx
 
                         ProgramGraphParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -63,8 +63,8 @@ namespace ORO_Execution
 
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer,
-                                Processor* proc,
-                                const GlobalFactory* e )
+                                          Processor* proc,
+                                          GlobalFactory* e )
       : context( proc, e ), mpositer( positer ),
         conditionparser( context ),
         commandparser( context ),
@@ -93,7 +93,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( ifstatement );
     BOOST_SPIRIT_DEBUG_RULE( ifblock );
     BOOST_SPIRIT_DEBUG_RULE( elseblock );
-    
+
     newline = ch_p( '\n' );
     openbrace = expect_open( ch_p('(') );
     closebrace = expect_close( ch_p(')') );
@@ -112,7 +112,7 @@ namespace ORO_Execution
     // a function is very similar to a program, but it also has a name
     function = (
        *newline
-       >> str_p( "function" ) 
+       >> str_p( "function" )
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> *newline
        >> opencurly
@@ -140,7 +140,7 @@ namespace ORO_Execution
     // */\n" will reach us as simply "\n"..
     line = !( statement ) >> newline;
 
-    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement; 
+    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -488,7 +488,7 @@ namespace ORO_Execution
           // Used for "call xyz"
           // lookup mcallfunc
           seenfuncidentifier( begin, end );
-          
+
           assert( mcondition );
           assert( mcallfunc );
           program_graph->appendFunction( mcondition, mcallfunc);

@@ -77,8 +77,7 @@ namespace ORO_Execution
             /**
              * Return a copy of this Condition...
              */
-            virtual ConditionInterface* clone() const;
-
+            virtual ConditionBool* clone() const;
         private:
             /**
              * The value of this ConditionBool object.

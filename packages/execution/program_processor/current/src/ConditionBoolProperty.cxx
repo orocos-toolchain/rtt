@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  ConditionBoolProperty.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  ConditionBoolProperty.cxx
 
                         ConditionBoolProperty.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -31,16 +31,16 @@ namespace ORO_Execution
   bool ConditionBoolProperty::evaluate()
   {
     return mprop.get();
-  };
+  }
 
   std::string ConditionBoolProperty::toString()
   {
     return std::string( "property " ) + mprop.getName();
-  };
+  }
 
-  ConditionInterface* ConditionBoolProperty::clone() const
+  ConditionBoolProperty* ConditionBoolProperty::clone() const
   {
     return new ConditionBoolProperty( mprop );
-  };
+  }
 }
 

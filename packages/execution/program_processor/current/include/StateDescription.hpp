@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  StateDescription.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  StateDescription.hpp
 
                         StateDescription.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,15 +23,15 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef STATE_DESCRIPTION_HPP
 #define STATE_DESCRIPTION_HPP
 
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include "corelib/StateInterface.hpp"
-#include "StateGraph.hpp"
+#include "execution/ProgramGraph.hpp"
 
 namespace ORO_Execution
 {
@@ -42,6 +42,8 @@ namespace ORO_Execution
     using std::bind2nd;
     using boost::get;
     using boost::put;
+
+    using ORO_CoreLib::StateInterface;
 
     /**
      * @brief This class represents a state with all actions stored
@@ -54,92 +56,89 @@ namespace ORO_Execution
     class StateDescription
         : public StateInterface
     {
-        typedef EdgeCondition::EdgeProperty EdgeProperty;
-        typedef VertexNode::VertProperty    VertProperty;
-
-        typedef boost::adjacency_list<boost::vecS,
-                                      boost::listS,
-                                      boost::directedS,
-                                      VertProperty,
-                                      EdgeProperty> Graph;
-        typedef graph_traits<Graph>::vertex_descriptor Vertex;
-        typedef graph_traits<Graph>::edge_descriptor Edge;
-
-        Vertex mentry;
-        Vertex mexit;
-        Vertex mhandle;
+        ProgramGraph* mentry;
+        ProgramGraph* mexit;
+        ProgramGraph* mhandle;
         bool inited;
-        StateGraph* sg;
         std::string name;
     public:
         /**
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(const std::string& _name, Vertex _entry, Vertex _exit, Vertex _handle, StateGraph* _sg ) 
-            : mentry(_entry), mexit(_exit), mhandle(_handle), inited(false), sg(_sg), name(_name)
+        StateDescription(const std::string& _name )
+            : mentry(0), mexit(0), mhandle(0), inited(false), name(_name)
         {
         }
+
+        virtual ~StateDescription();
 
 //         StateDescription( const StateDescription& orig )
 //             : mentry( orig.entryNode() ),
 //               mexit( orig.exitNode() ),
 //               mhandle( orig.handleNode() ),
-//               inited( orig.isDefined() ),
-//               sg( orig.context() )
+//               inited( orig.isDefined() )
 //         {
 //         }
 
         const std::string& getName() { return name; }
 
-        virtual void onEntry() 
-        {
-            sg->process( mentry );
+        virtual void onEntry();
+
+        virtual void handle();
+
+        virtual void onExit();
+
+        /**
+         * This function returns a new state that contains all the
+         * data of this state ( its handle, entry, exit programs, and
+         * its name and inited state ), while this state's data is
+         * reset ( i.e. its handle, entry, exit programs are set to
+         * null, its name is cleared, and it is set to not inited ).
+         * This is used by the parser when it suddenly notices that it
+         * needs to insert a dummy state before the current to check
+         * preconditions.
+         */
+        StateDescription* postponeState();
+
+        ProgramGraph* getEntryProgram() {
+            return mentry;
         }
 
-        virtual void handle()
-        {
-            sg->process( mhandle );
+        ProgramGraph* getHandleProgram() {
+            return mhandle;
         }
 
-        virtual void onExit()
-        {
-            sg->process( mexit );
+        ProgramGraph* getExitProgram() {
+            return mexit;
         }
-            
+
+        void setEntryProgram( ProgramGraph* entry ) {
+            delete mentry;
+            mentry = entry;
+        }
+
+        void setHandleProgram( ProgramGraph* handle ) {
+            delete mhandle;
+            mhandle = handle;
+        }
+
+        void setExitProgram( ProgramGraph* exit ) {
+            delete mexit;
+            mexit = exit;
+        }
 
         bool isDefined() const
         {
             return inited;
         }
 
-        void init() 
-        {
-            inited = true;
+        void setDefined( bool d ) {
+            inited = d;
         }
 
-        Vertex entryNode() const
-        {
-            return mentry;
-        }
-
-        Vertex exitNode() const
-        {
-            return mexit;
-        }
-
-        Vertex handleNode() const
-        {
-            return mhandle;
-        }
-
-        StateGraph* context() const
-        {
-            return sg;
-        }
+        StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
     };
-
-
-}
+};
 
 #endif

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ExpressionParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ExpressionParser.cxx
 
                         ExpressionParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -91,7 +91,7 @@ namespace ORO_Execution
   void DataCallParser::seendataname()
   {
     const GlobalDataSourceFactory& gdsf =
-      context.scriptableextension->dataFactory();
+      context.globalfactory->dataFactory();
     // get hold of the DataSourceFactory for the object being
     // called..
     const DataSourceFactoryInterface* fact = gdsf.factory( mobject );
@@ -125,7 +125,7 @@ namespace ORO_Execution
     std::string meth = argspar->methodname();
 
     const GlobalDataSourceFactory& gdsf =
-      context.scriptableextension->dataFactory();
+      context.globalfactory->dataFactory();
     const DataSourceFactoryInterface* fact = gdsf.factory( obj );
     // we already checked for the existence of this object and method
     // in seendataname()..

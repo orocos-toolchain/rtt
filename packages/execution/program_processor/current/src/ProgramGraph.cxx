@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  ProgramGraph.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  ProgramGraph.cxx
 
                         ProgramGraph.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -28,6 +28,7 @@
 #include "execution/FunctionGraph.hpp"
 
 #include "execution/CommandStopProgram.hpp"
+#include "execution/CommandProgramEndToken.hpp"
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"
@@ -44,32 +45,93 @@ namespace ORO_Execution
     using ORO_CoreLib::CommandNOP;
     using ORO_CoreLib::ConditionTrue;
 
-	ProgramGraph::ProgramGraph(const std::string& _name)
-        : myName(_name)
-	{
-	}
+    namespace {
+        // these two are used as policy parameters for the
+        // boost::copy_graph function.
+        class ProgramGraphVertexCopier {
+            typedef ProgramGraph::Graph Graph;
+            typedef graph_traits<Graph>::vertex_descriptor VertexDesc;
+            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
+            property_map<Graph, vertex_command_t>::const_type commandmap1;
+            property_map<Graph, vertex_all_t>::const_type allmap1;
+            property_map<Graph, vertex_command_t>::type commandmap2;
+            property_map<Graph, vertex_all_t>::type allmap2;
+        public:
+            ProgramGraphVertexCopier( const Graph& g1, Graph& g2,
+                                      std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
+                : rdss( replacementdss ),
+                  commandmap1( get( vertex_command, g1 ) ), allmap1( get( vertex_all, g1 ) ),
+                  commandmap2( get( vertex_command, g2 ) ), allmap2( get( vertex_all, g2 ) )
+                {
+                }
+            void operator()( const VertexDesc& a, VertexDesc& b )
+                {
+                    put( allmap2, b, get( allmap1, a ) );
+                    put( commandmap2, b, get( commandmap1, a ).copy( rdss ) );
+                }
+        };
 
-	ProgramGraph::~ProgramGraph()
-	{
-	}
+        class ProgramGraphEdgeCopier {
+            typedef ProgramGraph::Graph Graph;
+            typedef graph_traits<Graph>::edge_descriptor EdgeDesc;
+            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
+            property_map<Graph, edge_condition_t>::const_type conditionmap1;
+            property_map<Graph, edge_condition_t>::type conditionmap2;
+            property_map<Graph, edge_all_t>::const_type allmap1;
+            property_map<Graph, edge_all_t>::type allmap2;
+        public:
+            ProgramGraphEdgeCopier( const Graph& g1, Graph& g2,
+                                    std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
+                : rdss( replacementdss ),
+                  conditionmap1( get( edge_condition, g1 ) ), conditionmap2( get( edge_condition, g2 ) ),
+                  allmap1( get( edge_all, g1 ) ), allmap2( get( edge_all, g2 ) )
+                {
+                }
+            void operator()( const EdgeDesc& a, const EdgeDesc& b )
+                {
+                    put( allmap2, b, get( allmap1, a ) );
+                    put( conditionmap2, b, get( conditionmap1, a ).copy( rdss ) );
+                }
+        };
+    }
 
-	void ProgramGraph::execute()
-	{ 
+    ProgramGraph::ProgramGraph(const std::string& _name)
+        : graph( 0 ), myName(_name)
+    {
+    }
+
+    ProgramGraph::~ProgramGraph()
+    {
+    }
+
+    void ProgramGraph::executeToStop()
+    {
+        static const int maxsteps = 5000;
+        int count = 0;
+
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get(vertex_command, program);
+        while ( ! dynamic_cast<CommandProgramEndToken*>( cmap[current].getCommand() ) && count++ <= maxsteps )
+            execute();
+    }
+
+    void ProgramGraph::execute()
+    {
         graph_traits<Graph>::out_edge_iterator ei, ei_end;
         // the map contains _references_ to all vertex_command properties
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
-        boost::property_map<Graph, edge_condition_t>::type 
+        boost::property_map<Graph, edge_condition_t>::type
             emap = get(edge_condition, program);
 
         // initialise current node if needed and reset all its out_edges
         if ( previous != current )
-            {
-                for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-                    emap[*ei].reset();
-                cmap[current].startExecution();
-            }
-                
+        {
+            for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
+                emap[*ei].reset();
+            cmap[current].startExecution();
+        }
+
         previous = current;
 
         // execute the current command.
@@ -77,28 +139,28 @@ namespace ORO_Execution
 
         // Branch selecting Logic :
         for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-            {
+        {
             if ( emap[*ei].evaluate() )
-                {
-                    current = boost::target(*ei, program);
-                    // a new node has been found ...
-                    // it will be executed in the next step.
-                    return;
-                }
+            {
+                current = boost::target(*ei, program);
+                // a new node has been found ...
+                // it will be executed in the next step.
+                return;
             }
-	}
+        }
+    }
 
-	void ProgramGraph::reset()
-	{
-		current = root;
-		previous = end;
-	}
+    void ProgramGraph::reset()
+    {
+        current = root;
+        previous = end;
+    }
 
     const ProgramGraph::Graph& ProgramGraph::getGraph() const
     {
         return program;
     }
-    
+
     FunctionGraph* ProgramGraph::startFunction()
     {
         // next node should be 'empty'/ not used here.
@@ -111,7 +173,7 @@ namespace ORO_Execution
         put( vertex_exec, *graph, next, VertexNode::normal_node );
         return fn;
     }
-    
+
     void ProgramGraph::returnFunction( ConditionInterface* cond, FunctionGraph* fn)
     {
         // connect the current node to the exitNode under a condition,
@@ -144,7 +206,7 @@ namespace ORO_Execution
     {
         add_edge(current, vert, EdgeCondition(cond), *graph);
     }
-        
+
     void ProgramGraph::closeConditionEdge( CommandNode vert, ConditionInterface* cond )
     {
         add_edge(vert, current, EdgeCondition(cond), *graph);
@@ -166,7 +228,7 @@ namespace ORO_Execution
     void ProgramGraph::setCommand(CommandNode cn, CommandInterface* comm )
     {
         // the map contains _references_ to all vertex_command properties
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, *graph);
         // access the one of current
         delete cmap[cn].setCommand( comm );
@@ -218,17 +280,19 @@ namespace ORO_Execution
     {
         myName = _name;
     }
-    
+
     void ProgramGraph::returnProgram( ConditionInterface* cond )
     {
         add_edge(current, end, EdgeCondition(cond), program );
     }
 
-    void ProgramGraph::endProgram( ProcessorInterface* pci ) {
+    void ProgramGraph::endProgram( ProcessorInterface* pci, CommandInterface* finalCommand ) {
+        if ( !finalCommand )
+            finalCommand = new CommandStopProgram( pci, myName );
         // End of all processing. return already linked to end.
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
-        delete cmap[end].setCommand( new CommandStopProgram( pci, myName ) );
+        delete cmap[end].setCommand( finalCommand );
         put(vertex_exec, *graph, end, VertexNode::prog_exit_node );
 
         assert( current != next );
@@ -238,6 +302,15 @@ namespace ORO_Execution
         clear_vertex(next, program);
         remove_vertex( current, program );
         remove_vertex( next, program );
+
+        // now let's reindex the vertices ( this is necessary for the
+        // copy function to work... )
+        boost::property_map<Graph, vertex_index_t>::type indexmap =
+            get( vertex_index, program );
+        boost::graph_traits<Graph>::vertex_iterator v, vend;
+        int index = 0;
+        for ( tie( v, vend ) = vertices( program ); v != vend; ++v )
+            indexmap[*v] = index++;
     }
 
     template< class _Map >
@@ -247,9 +320,9 @@ namespace ORO_Execution
         typedef bool result_type;
         bool operator()(const ProgramGraph::Vertex& v,
                         const std::pair<_Map, int>& to_find  ) const
-        {
-            return to_find.first[v] == to_find.second;
-        }
+            {
+                return to_find.first[v] == to_find.second;
+            }
     };
 
     ProgramGraph::CommandNode ProgramGraph::appendFunction( ConditionInterface* cond, FunctionGraph* fn )
@@ -259,23 +332,42 @@ namespace ORO_Execution
          */
         // Do not move current inhere !
         // copy FunctionGraph's graph into the current *graph, add an edge with
-        // the condition. Connect the exitNode() of the function with the next node.
-        boost::copy_graph(fn->getGraph(), *graph);
+        // the condition. Connect the exitNode() of the function with
+        // the next node.
+
+        // first reindex the vertices...
+        boost::property_map<Graph, vertex_index_t>::type indexmap =
+            get( vertex_index, *graph );
+        boost::graph_traits<Graph>::vertex_iterator v, vend;
+        int index = 0;
+        for ( tie( v, vend ) = vertices( *graph ); v != vend; ++v )
+            indexmap[*v] = index++;
+
+        std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
+        boost::copy_graph( fn->getGraph(), *graph,
+                           boost::vertex_copy( ProgramGraphVertexCopier( fn->getGraph(), *graph, replacementdss ) ).
+                           edge_copy( ProgramGraphEdgeCopier( fn->getGraph(), *graph, replacementdss ) ) );
         // the subgraph has been copied but is now 'floating' in the current graph.
-        // we search func start and exit points and connect them to the current graph.
+        // we search func start and exit points and connect them to
+        // the current graph.
+
+        // domi: it would be cleaner if a function would keep a
+        // reference to its enter and exit point, and we would use the
+        // copy_graph orig_to_copy map to find the corresponding nodes
+        // in the copy...
         graph_traits<Graph>::vertex_iterator v1,v2;
         tie(v1,v2) = vertices(*graph);
-        boost::property_map<Graph, vertex_exec_t>::type 
+        boost::property_map<Graph, vertex_exec_t>::type
             vmap = get(vertex_exec, *graph);
 
         Vertex funcStart=*
-            find_if(v1, v2,
-                    bind2nd( finder<boost::property_map<Graph, vertex_exec_t>::type>() ,
-                             std::make_pair( vmap, int(VertexNode::func_start_node)) ) );
+                         find_if(v1, v2,
+                                 bind2nd( finder<boost::property_map<Graph, vertex_exec_t>::type>() ,
+                                          std::make_pair( vmap, int(VertexNode::func_start_node)) ) );
         Vertex funcExit=*
-            find_if(v1, v2,
-                    bind2nd( finder<boost::property_map<Graph, vertex_exec_t>::type>() ,
-                             std::make_pair( vmap, int(VertexNode::func_exit_node)) ) );
+                        find_if(v1, v2,
+                                bind2nd( finder<boost::property_map<Graph, vertex_exec_t>::type>() ,
+                                         std::make_pair( vmap, int(VertexNode::func_exit_node)) ) );
 
         // reset their special meanings.
         vmap[funcStart] = VertexNode::normal_node;
@@ -286,12 +378,12 @@ namespace ORO_Execution
 
         return funcExit;
     }
-    
+
     ProgramGraph::CommandNode ProgramGraph::setFunction( FunctionGraph* fn )
     {
         /**
          * This function must/should be used when current has no edges yet leaving.
-         * Off course, edges can already be pointing to current of the previous 
+         * Off course, edges can already be pointing to current of the previous
          * command. That's why current can not be overwritten with the first node
          * of the function, and we need to insert an extra edge from current to
          * funcStart. That is why we use (until better solution found) the append
@@ -299,7 +391,7 @@ namespace ORO_Execution
          */
         return appendFunction( new ConditionTrue, fn) ;
     }
-    
+
     ProgramGraph::CommandNode ProgramGraph::currentNode() const
     {
         return current;
@@ -322,14 +414,14 @@ namespace ORO_Execution
 
     void ProgramGraph::setLineNumber( int line)
     {
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
         cmap[current].setLineNumber( line );
     }
 
     void ProgramGraph::setLabel( const std::string& str )
     {
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, *graph);
         cmap[current].setLabel( str );
     }
@@ -343,7 +435,7 @@ namespace ORO_Execution
     {
         graph_traits<Graph>::vertex_iterator v1,v2;
         tie(v1,v2) = vertices(*graph);
-        boost::property_map<Graph, vertex_command_t>::type 
+        boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, *graph);
         for ( ; v1 != v2; ++v1)
             if ( cmap[*v1].getLabel() == str )
@@ -376,10 +468,10 @@ namespace ORO_Execution
     }
 
     void ProgramGraph::endIfBlock(){
-        // this is called after a proceedToNext of the last statement of 
+        // this is called after a proceedToNext of the last statement of
         // the if block.
         // Connect end of if block with after_else_node
-        CommandNode after_else_node = branch_stack.top();        
+        CommandNode after_else_node = branch_stack.top();
         addConditionEdge( new ConditionTrue(), after_else_node );
         branch_stack.pop();
         // make else_node current, next remains.
@@ -392,7 +484,7 @@ namespace ORO_Execution
     // Else : can be empty and is then a plain proceed to next.
     void ProgramGraph::endElseBlock() {
         // after_else_node is on top of stack
-        CommandNode after_else_node = branch_stack.top();        
+        CommandNode after_else_node = branch_stack.top();
         branch_stack.pop();
         addConditionEdge( new ConditionTrue(), after_else_node );
         // make after_else_node current
@@ -425,5 +517,75 @@ namespace ORO_Execution
         moveTo( after_while_node, next );
     }
 
+    ProgramGraph* ProgramGraph::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
+    {
+        typedef boost::property_map<Graph, vertex_index_t>::const_type indexmap_t;
+        typedef boost::graph_traits<Graph>::vertex_descriptor vd_t;
+        typedef std::vector<vd_t> o2cvect_t;
+        typedef boost::iterator_property_map<o2cvect_t::iterator, indexmap_t, vd_t, vd_t&> o2cmap_t;
+        ProgramGraph* ret = new ProgramGraph( getName() );
+        indexmap_t indexmap = get( vertex_index, program );
+        // here we assume that the indexing of program is set properly...
+        o2cvect_t o2cvect( num_vertices( program ) );
+        o2cmap_t o2cmap( o2cvect.begin(), indexmap );
+
+        boost::copy_graph( program, ret->program,
+                           boost::vertex_copy( ProgramGraphVertexCopier( program, ret->program, replacementdss ) ).
+                           edge_copy( ProgramGraphEdgeCopier( program, ret->program, replacementdss ) ).
+                           orig_to_copy( o2cmap ) );
+
+        ret->root = o2cmap[root];
+        ret->end = o2cmap[end];
+        ret->current = o2cmap[current];
+        ret->previous = o2cmap[previous];
+
+        return ret;
+    }
+
+    void ProgramGraph::prependCommand( CommandInterface* command, int line_nr )
+    {
+        CommandNode previousroot = root;
+        root = add_vertex( program );
+        boost::property_map<Graph, vertex_exec_t>::type
+            vmap = get(vertex_exec, program);
+        put( vmap, root, get( vmap, previousroot ) );
+        put( vmap, previousroot, VertexNode::normal_node );
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get( vertex_command, program );
+        VertexNode vnode( command );
+        vnode.setLineNumber( line_nr );
+        put( cmap, root, vnode );
+        add_edge(root, previousroot, EdgeCondition(new ConditionTrue), program);
+        if ( current == previousroot )
+            current = root;
+
+        // now let's reindex the vertices...
+        boost::property_map<Graph, vertex_index_t>::type indexmap =
+            get( vertex_index, *graph );
+        boost::graph_traits<Graph>::vertex_iterator v, vend;
+        int index = 0;
+        for ( tie( v, vend ) = vertices( *graph ); v != vend; ++v )
+            indexmap[*v] = index++;
+    }
+
+    void ProgramGraph::debugPrintout() const {
+        graph_traits<Graph>::vertex_iterator v,vend;
+        tie(v,vend) = vertices(program);
+        boost::property_map<Graph, vertex_command_t>::const_type
+            cmap = get(vertex_command, program);
+        boost::property_map<Graph, vertex_index_t>::const_type
+            imap = get(vertex_index, program);
+        std::cerr << "program " << getName() << std::endl;
+        std::cerr << " number of vertices: " << boost::num_vertices(program) << std::endl;
+        for ( ; v != vend; ++v )
+        {
+            int index = get( imap, *v );
+            CommandInterface* cmd = get( cmap, *v ).getCommand();
+            if ( cmd )
+                std::cerr << " " << index << " " << typeid( *cmd ).name() << std::endl;
+            else
+                std::cerr << " " << index << " (null)" << std::endl;
+        }
+    }
 }
 

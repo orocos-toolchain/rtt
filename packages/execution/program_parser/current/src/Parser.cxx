@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Parser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Parser.cxx
 
                         Parser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -43,7 +43,7 @@ namespace ORO_Execution
 {
 
   ProgramGraph* Parser::parseProgram( std::istream& s, Processor* proc,
-                                 const GlobalFactory* ext )
+                                      GlobalFactory* ext )
   {
     our_buffer_t program;
 
@@ -64,8 +64,8 @@ namespace ORO_Execution
     return ret;
   };
 
-  StateContext* Parser::parseStateContext( std::istream& s, Processor* proc,
-                                           const GlobalFactory* ext )
+  std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, Processor* proc,
+                                                                        GlobalFactory* ext )
   {
       // This code is copied from parseProgram()
 
@@ -82,14 +82,13 @@ namespace ORO_Execution
 
     // The internal parser.
     StateGraphParser gram( parsebegin, proc, ext );
-    StateGraph* ret = gram.parse( parsebegin, parseend );
-    if ( ret )
-      std::cerr << "State Parsed Successfully !" << std::endl;
+    std::vector<ParsedStateContext*> ret = gram.parse( parsebegin, parseend );
+    std::cerr << "State Parsed Successfully !" << std::endl;
     return ret;
   };
 
   ConditionInterface* Parser::parseCondition( std::string& s,
-                                              const GlobalFactory* e )
+                                              GlobalFactory* e )
   {
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend;
@@ -116,7 +115,7 @@ namespace ORO_Execution
 
   std::pair<CommandInterface*, ConditionInterface*>
   Parser::parseCommand( std::string& s,
-                        const GlobalFactory* e )
+                        GlobalFactory* e )
   {
       // This code is copied from parseCondition
 

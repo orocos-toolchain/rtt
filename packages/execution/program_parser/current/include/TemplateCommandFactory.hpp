@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  TemplateCommandFactory.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  TemplateCommandFactory.hpp
 
                         TemplateCommandFactory.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef TEMPLATECOMMANDFACTORY_HPP
 #define TEMPLATECOMMANDFACTORY_HPP
 
@@ -117,9 +117,14 @@ namespace ORO_Execution
         aa->reset();
       }
 
-      virtual CommandInterface* clone() const
+    virtual CommandInterface* clone() const
       {
-          return new FunctorCommand1( fun, aa->clone() );
+          return new FunctorCommand1( fun, aa.get() );
+      }
+
+    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCommand1( fun, aa->copy( alreadyCloned ) );
       }
   };
 
@@ -155,9 +160,14 @@ namespace ORO_Execution
         bb->reset();
       }
 
-      virtual CommandInterface* clone() const
+    virtual CommandInterface* clone() const
       {
-          return new FunctorCommand2( fun, aa->clone(), bb->clone() );
+          return new FunctorCommand2( fun, aa.get(), bb.get() );
+      }
+
+    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCommand2( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ) );
       }
   };
 
@@ -196,9 +206,14 @@ namespace ORO_Execution
         cc->reset();
       }
 
-      virtual CommandInterface* clone() const
+    virtual CommandInterface* clone() const
       {
-          return new FunctorCommand3( fun, aa->clone(), bb->clone(), cc->clone() );
+          return new FunctorCommand3( fun, aa.get(), bb.get(), cc.get() );
+      }
+
+    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCommand3( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ) );
       }
   };
 
@@ -554,8 +569,12 @@ namespace ORO_Execution
       };
     ConditionInterface* clone() const
       {
-        return new FunctorCondition1( fun, aa->clone(), invert );
+        return new FunctorCondition1( fun, aa.get(), invert );
       };
+    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCondition1( fun, aa->copy( alreadyCloned ), invert );
+      }
   };
 
   /**
@@ -584,8 +603,12 @@ namespace ORO_Execution
       };
     ConditionInterface* clone() const
       {
-        return new FunctorCondition2( fun, aa->clone(), bb->clone(), invert );
+        return new FunctorCondition2( fun, aa.get(), bb.get(), invert );
       };
+    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCondition2( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), invert );
+      }
   };
 
   /**
@@ -616,8 +639,12 @@ namespace ORO_Execution
       }
     ConditionInterface* clone() const
       {
-        return new FunctorCondition3( fun, aa->clone(), bb->clone(), cc->clone(), invert );
-      };
+        return new FunctorCondition3( fun, aa.get(), bb.get(), cc.get(), invert );
+      }
+    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorCondition3( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ), invert );
+      }
   };
 
   /**

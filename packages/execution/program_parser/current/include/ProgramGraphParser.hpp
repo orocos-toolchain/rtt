@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ProgramGraphParser.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ProgramGraphParser.hpp
 
                         ProgramGraphParser.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #include "parser-types.hpp"
 
 #include "CommonParser.hpp"
@@ -135,7 +135,7 @@ namespace ORO_Execution
       CommandInterface* for_incr_command;
   public:
     ProgramGraphParser( iter_t& positer, Processor* proc,
-                   const GlobalFactory* ext );
+                        GlobalFactory* ext );
 
     // tries to parse, returns the generated program on success, 0 on
     // failure..  should not throw..

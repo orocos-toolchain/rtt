@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ValueChangeParser.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ValueChangeParser.hpp
 
                         ValueChangeParser.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef VALUECHANGEPARSER_HPP
 #define VALUECHANGEPARSER_HPP
 
@@ -45,6 +45,14 @@ namespace ORO_Execution
   {
     // the AssignVariableCommand we've built..
     CommandInterface* assigncommand;
+
+    // the last defined value...
+    ParsedValueBase* lastdefinedvalue;
+
+    // the last parsed variable or constant or alias or param
+    // definition name
+    std::string lastparseddefname;
+
     // the name of the value of which we're currently parsing the
     // definition or assignment..
     std::string valuename;
@@ -56,6 +64,7 @@ namespace ORO_Execution
     void seenconstantdefinition();
     void seenaliasdefinition();
     void seenvariabledefinition();
+    void seenparamdefinition();
     void seenvariableassignment();
     void storedefinitionname( iter_t begin, iter_t end );
     void storename( iter_t begin, iter_t end );
@@ -63,13 +72,13 @@ namespace ORO_Execution
     void seenindexassignment();
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
-      variableassignment;
+      variableassignment, paramdefinition;
 
     ParseContext& context;
     ExpressionParser expressionparser;
     CommonParser commonparser;
 
-      DataSourceBase::shared_ptr index_ds;
+    DataSourceBase::shared_ptr index_ds;
   public:
     ValueChangeParser( ParseContext& pc );
 
@@ -85,6 +94,17 @@ namespace ORO_Execution
       {
         return assigncommand;
       };
+
+    ParsedValueBase* lastDefinedValue()
+      {
+        return lastdefinedvalue;
+      };
+
+    std::string lastParsedDefinitionName()
+      {
+        return lastparseddefname;
+      };
+
     /**
      * the parser that parses definitions of constants.  Do not
      * forget to check @ref assignCommand after a constant
@@ -112,6 +132,13 @@ namespace ORO_Execution
      * assignCommand() after this..
      */
     rule_t& aliasDefinitionParser();
+
+    /**
+     * The parser that parses state context parameter definitions.
+     * These do not get initialised where they are defined, so it is
+     * not necessary to check assignCommand() after this...
+     */
+    rule_t& paramDefinitionParser();
 
     /**
      * Reset should be called every time after this class parsed

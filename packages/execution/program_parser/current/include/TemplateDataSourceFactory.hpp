@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TemplateDataSourceFactory.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TemplateDataSourceFactory.hpp
 
                         TemplateDataSourceFactory.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#ifndef TEMPLATE_DATASOURCE_FACTORY_HPP 
+#ifndef TEMPLATE_DATASOURCE_FACTORY_HPP
 #define TEMPLATE_DATASOURCE_FACTORY_HPP
- 
+
 #include "DataSource.hpp"
 #include "DataSourceFactoryInterface.hpp"
 #include "TemplateFactory.hpp"
@@ -69,11 +69,15 @@ namespace ORO_Execution
       value_t get() const
         {
           return gen();
-        };
+        }
 
         virtual DataSource<value_t>* clone() const
         {
             return new FunctorDataSource0( gen );
+        }
+      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        {
+          return new FunctorDataSource0<FunctorT>( gen );
         }
     };
 
@@ -97,12 +101,16 @@ namespace ORO_Execution
       {
         Arg1T a = arg1->get();
         return gen( a );
-      };
+      }
 
-        virtual DataSource<value_t>* clone() const
-        {
-            return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->clone() );
-        }
+    virtual DataSource<value_t>* clone() const
+      {
+        return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1.get() );
+      }
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->copy( alreadyCloned ) );
+      }
   };
 
   /**

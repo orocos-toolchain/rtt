@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  StateContext.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  StateContext.hpp
 
                         StateContext.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef STATECONTEXT_HPP
 #define STATECONTEXT_HPP
 
@@ -33,6 +33,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 #include <boost/tuple/tuple.hpp>
 
 namespace ORO_CoreLib
@@ -43,32 +44,18 @@ namespace ORO_CoreLib
      *
      * One can request
      * a transition from one StateInterface to another which will fail
-     * or succeed depending on a previously set condition. 
+     * or succeed depending on a previously set condition.
      *
      * By default, any state transition fails.
-     *
-     * @note A more efficient implementation might be needed
-     *       for the case this->requestState( this->nextState() );
-     *
      */
     class StateContext
     {
-        // Sorts a tupple on the third argument.
-        template<class T>
-        struct mysort
-        {
-            bool operator()( const  T& lhs, const T& rhs)
-            {
-                return boost::tuples::get<2>(lhs) > boost::tuples::get<2>(rhs);
-            }
-        };
         /**
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int).
          */
         typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > TransList;
-        typedef std::map< StateInterface*, TransList >
-        TransitionMap;
+        typedef std::map< StateInterface*, TransList > TransitionMap;
     public:
 
         /**
@@ -76,7 +63,8 @@ namespace ORO_CoreLib
          */
         StateContext();
 
-        virtual ~StateContext() {}
+        virtual ~StateContext();
+
         /**
          * Create a StateContext instance with a given initial and final state.
          *
@@ -89,27 +77,24 @@ namespace ORO_CoreLib
         StateContext( StateInterface* s_init, StateInterface* s_fini );
 
         /**
-         * Enter the initial state of the StateContext.
-         * You may use this state as any other state.
-         *
-         * @param s_init
-         *        The first state of the StateContext.
-         * @post  The StateContext has entered and handled <s_init>.
+         * Is this StateContext active ?
          */
-        void initState( StateInterface* s_init );
+        bool isActive() const;
+        /**
+         * Start this StateContext.  You should only use this if the
+         * StateContext is currently not active.
+         *
+         * @post isActive()
+         */
+        void startRunning();
 
         /**
-         * Enter the final state of the StateContext. The transition
-         * from any state to final is assumed to be valid at any time.
-         * The transition from final to initial state is assumed to 
-         * be valid any time. This method of working allows resetting
-         * a state context.
-         * You may use this state as any other state.
+         * Stop this StateContext.  You should only use this if the
+         * StateContext is currently in its final state.
          *
-         * @param s_fini
-         *        The final state of the StateContext.
+         * @post !isActive()
          */
-        void finalState( StateInterface* s_fini );
+        void stopRunning();
 
         /**
          * Search from the current state a candidate next state.
@@ -127,14 +112,13 @@ namespace ORO_CoreLib
         /**
          * Request going to the Final State. This will always
          * proceed.
-         *
          */
         void requestFinalState();
 
         /**
          * Request going to the Initial State. This function will only
          * proceed if the current state is the Final State or the
-         * Initial State. If it fails, one can try 
+         * Initial State. If it fails, one can try
          * to requestNextState() which may lead to the
          * initial state anyway if the transition is set.
          * This path is not tried by this function.
@@ -153,10 +137,10 @@ namespace ORO_CoreLib
          * Request a state transition to a new state.
          * If the transition is not set by transitionSet(), acquiering
          * the state will fail.
-         * 
+         *
          * @param  s_n
          *         The state to change to
-         * @return true 
+         * @return true
          *          if the transition is successfull
          *         false
          *          if the transition is not allowed
@@ -174,7 +158,7 @@ namespace ORO_CoreLib
          * @param cnd
          *        The Condition under which the transition may succeed
          * @param priority
-         *        The priority of this transition low number (like -1000) is low priority
+         *        The priority of this transition; low number (like -1000) is low priority
          *        high number is high priority (like + 1000). Transitions of equal
          *        priority are traversed in an unspecified way.
          * @post  All transitions from <from> to <to> will succeed under
@@ -183,11 +167,35 @@ namespace ORO_CoreLib
         void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0 );
 
         /**
+         * Set the initial state of this StateContext.
+         */
+        void setInitialState( StateInterface* s );
+
+        /**
+         * Set the final state of this StateContext.
+         */
+        void setFinalState( StateInterface* s );
+
+        /**
          * Retrieve the current state of the context
          */
         StateInterface* currentState();
 
-    private:
+        /**
+         * Retrieve the initial state of the context.
+         */
+        StateInterface* getInitialState() {
+            return initstate;
+        }
+
+        /**
+         * Retrieve the final state of the context.
+         */
+        StateInterface* getFinalState() {
+            return finistate;
+        }
+
+    protected:
         void leaveState( StateInterface* s );
 
         void enterState( StateInterface* s );
@@ -203,9 +211,11 @@ namespace ORO_CoreLib
         StateInterface* finistate;
 
         /**
-         * The current state the Context is in
+         * The current state the Context is in.
+         * current == 0 means that the context is currently inactive...
          */
         StateInterface* current;
+
 
     protected:
         /**
@@ -213,7 +223,6 @@ namespace ORO_CoreLib
          * between two states
          */
         TransitionMap stateMap;
-
     };
 }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ParseContext.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ParseContext.hpp
 
                         ParseContext.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PARSECONTEXT_HPP
 #define PARSECONTEXT_HPP
 
@@ -41,14 +41,14 @@ namespace ORO_Execution
     struct ParseContext
     {
         ParseContext( Processor* proc,
-                      const GlobalFactory* se )
-            : processor( proc ), scriptableextension( se )
+                      GlobalFactory* gf )
+            : processor( proc ), globalfactory( gf )
         {
         }
 
         ValueParser valueparser;
         Processor* processor;
-        const GlobalFactory* scriptableextension;
+        GlobalFactory* globalfactory;
   };
 }
 

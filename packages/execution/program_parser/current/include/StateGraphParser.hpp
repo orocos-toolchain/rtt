@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  StateGraphParser.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  StateGraphParser.hpp
 
                         StateGraphParser.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,9 +23,9 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
- 
+ ***************************************************************************/
+
+
 #include "parser-types.hpp"
 
 #include "CommonParser.hpp"
@@ -33,14 +33,19 @@
 #include "CommandParser.hpp"
 #include "ParseContext.hpp"
 #include "corelib/Event.hpp"
-#include "StateGraph.hpp"
 #include "ValueChangeParser.hpp"
 
 #include <map>
 #include <string>
+#include <boost/function.hpp>
 
 namespace ORO_Execution
 {
+    using ORO_CoreLib::Event;
+
+    class StateContextBuilder;
+    class ParsedStateContext;
+    class StateDescription;
 
     namespace detail {
         class EventHandle;
@@ -58,15 +63,38 @@ namespace ORO_Execution
    */
   class StateGraphParser
   {
-      typedef StateGraph::CommandNode CommandNode;
-      typedef StateGraph::ConditionEdge ConditionEdge;
-      typedef StateGraph::Graph  Graph;
-
       ParseContext context;
-
       our_pos_iter_t& mpositer;
-      std::string minit;
-      std::string mfini;
+
+      typedef std::map<std::string, ParsedStateContext*> contextnamemap_t;
+      typedef std::map<std::string, ParsedValueBase*> contextparams_t;
+      typedef std::map<std::string, DataSourceBase*> contextparamvalues_t;
+      typedef std::map<std::string, StateDescription*> contextstatesmap_t;
+      typedef std::map<std::string, StateContextBuilder*> contextbuilders_t;
+      typedef std::map<std::string, detail::EventHandle*> handlemap;
+
+      contextnamemap_t rootcontexts;
+      contextbuilders_t contextbuilders;
+      ParsedStateContext* curtemplatecontext;
+      std::vector<CommandInterface*> preentrycommands;
+      ParsedStateContext* curinstantiatedcontext;
+      StateContextBuilder* curcontextbuilder;
+      std::string curinstcontextname;
+      contextparamvalues_t curinstcontextparams;
+      std::string curcontextinstargumentname;
+      std::string curcontextname;
+      bool curinitialstateflag;
+      bool curfinalstateflag;
+      StateDescription* curstate;
+      StateDescription* curnonprecstate;
+      handlemap curhandles;
+      ProgramGraph* curprogram;
+      detail::EventHandle* curhand;
+      Event<void(void)>* curevent;
+      boost::function<void(void)> cureventsink;
+      ConditionInterface* curcondition;
+      std::string curscvccontextname;
+      std::string curscvcparamname;
 
       /**
        * used to sort conditions as they are generated and
@@ -74,71 +102,118 @@ namespace ORO_Execution
        */
       int rank;
 
-      // A map of all States
-      typedef std::map<std::string, StateDescription*> statemap;
-      statemap mstates;
-
-      // A map of all Event Handles
-      typedef std::map<std::string, detail::EventHandle*> handlemap;
-      handlemap mhandles;
-
-      rule_t newline, statevars,
-          line, content, program, production,
-          state, entry, exit, handle, vardec,transitions,
-          selectcommand, docommand,
-          brancher, selector, connectevent,
-          disconnectevent, eventbinding;
-
-      rule_t varline, eeline, transline, handleline;
-      rule_t handlecommand, eecommand, emitcommand, statecommand;
+      rule_t production;
+      rule_t newline;
+      rule_t rootcontextinstantiation;
+      rule_t statecontext;
+      rule_t contextinstantiation;
+      rule_t statecontextcontent;
+      rule_t varline;
+      rule_t state;
+      rule_t vardec;
+      rule_t eventhandledecl;
+      rule_t subcontextdecl;
+      rule_t statecontent;
+      rule_t statecontentline;
+      rule_t entry;
+      rule_t preconditions;
+      rule_t handle;
+      rule_t transitions;
+      rule_t exit;
+      rule_t eeline;
+      rule_t varchanges;
+      rule_t eecommand;
+      rule_t handleline;
+      rule_t handlecommand;
+      rule_t docommand;
+      rule_t statecommand;
+      rule_t transline;
+      rule_t selectcommand;
+      rule_t disconnectevent;
+      rule_t connectevent;
+      rule_t emitcommand;
+      rule_t brancher;
+      rule_t selector;
+      rule_t eventbinding;
+      rule_t contextinstarguments;
+      rule_t contextinstargument;
+      rule_t contextmemvar;
+      rule_t contextvariable;
+      rule_t contextparam;
+      rule_t contextconstant;
+      rule_t contextalias;
+      rule_t subcontextvarchange;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
       CommandParser commandparser;
       ValueChangeParser valuechangeparser;
+      ExpressionParser expressionparser;
 
-      StateGraph* state_graph;
-      detail::EventHandle* mhand;
-
-      ORO_CoreLib::Event<void(void)>* mevent;
-      boost::function<void(void)> meventsink;
-
-      ConditionInterface* mcondition;
-      StateDescription*   mstate;
+      void clear();
 
       void handledecl( iter_t s, iter_t f);
 
-      void initstate( iter_t s, iter_t f);
-      void finistate( iter_t s, iter_t f);
+      void seeninitialstate();
+      void seenfinalstate();
       void statedef( iter_t s, iter_t f);
       void seenstateend();
 
-      void inentry();
-      void inexit();
-      void inhandle();
+      void inprogram();
+      void seenentry();
+      void seenexit();
+      void seenhandle();
+      ProgramGraph* finishProgram();
 
       void seencommand();
       void seenstatement();
       void seencondition();
-      void selecting( iter_t s, iter_t f);
+      void seenselect( iter_t s, iter_t f);
 
       void seenemit();
 
-      void selecthandler( iter_t s, iter_t f);
+      void seenconnecthandler( iter_t s, iter_t f);
       void seenconnect();
-      void disconnecthandler( iter_t s, iter_t f );
+      void seendisconnecthandler( iter_t s, iter_t f );
 
       void eventselected();
       void seensink();
       void finished();
       void seenvaluechange();
       void syntaxerr();
+
+      void seenstatecontextname( iter_t begin, iter_t end );
+      void seenrootcontextinstantiation();
+      void seenstatecontextend();
+      void statecontextfinished();
+      void seensubcontextinstantiation();
+
+      void inpreconditions();
+      void seenpreconditions();
+
+      void seencontexttypename( iter_t begin, iter_t end );
+      void seeninstcontextname( iter_t begin, iter_t end );
+      void seencontextinstantiation();
+      void seencontextinstargumentname( iter_t begin,  iter_t end );
+      void seencontextinstargumentvalue();
+
+      void seencontextvariable();
+      void seencontextparam();
+
+      void seenscvcsubcontextname( iter_t begin, iter_t end );
+      void seenscvcparamname( iter_t begin, iter_t end );
+      void seenscvcexpression();
+
+      ProgramGraph* emptyProgram();
   public:
-    StateGraphParser( iter_t& positer, Processor* proc,
-                   const GlobalFactory* ext );
+    StateGraphParser( iter_t& positer, Processor* proc, GlobalFactory* ext );
+    ~StateGraphParser();
 
     // tries to parse, returns the generated program on success, 0 on
-    // failure..  should not throw..
-    StateGraph* parse( iter_t& begin, iter_t end );
+    // failure..  should not throw..  This returns a map of names to
+    // statecontexts containing all the defined root contexts, given
+    // by the name they have been instantiated by.  On all returned
+    // contexts setName() will have been called with the correct name.
+    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end );
   };
 }

@@ -35,7 +35,7 @@ namespace ORO_Execution
     int EdgeCondition::condition_counter = 0;
 
 	EdgeCondition::EdgeCondition(ConditionInterface* cond )
-        : condition( cond ), rank(condition_counter++)
+        : condition( cond->clone() ), rank(condition_counter++)
 	{
 	}
 
@@ -65,7 +65,16 @@ namespace ORO_Execution
         condition->reset();
     }
 
+    EdgeCondition::EdgeCondition( const EdgeCondition& orig )
+        : condition( orig.getCondition()->clone() ), rank(condition_counter++)
+    {
+    }
 
-
+    EdgeCondition& EdgeCondition::operator=( const EdgeCondition& orig )
+    {
+        condition = orig.getCondition()->clone();
+        rank = orig.getRank();
+        return *this;
+    }
 }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu May 6 17:09:06 CEST 2004  GlobalDataSourceFactory.hpp 
+  tag: Peter Soetens  Thu May 6 17:09:06 CEST 2004  GlobalDataSourceFactory.hpp
 
                         GlobalDataSourceFactory.hpp -  description
                            -------------------
     begin                : Thu May 06 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #ifndef GLOBALDATASOURCEFACTORY_HPP
 #define GLOBALDATASOURCEFACTORY_HPP
@@ -43,9 +43,8 @@ namespace ORO_Execution
   /**
    * @brief This is a sort of registry for DataSourceFactory's.
    *
-   * It is the
-   * DataSource equivalent of GlobalCommandFactory.  You may be
-   * interested to check the documentation of that class for more
+   * It is the DataSource equivalent of GlobalCommandFactory.  You may
+   * be interested to check the documentation of that class for more
    * info.. Components register and unregister their factories under a
    * certain name, and the parser can ask for the factory registered
    * under a certain name..

@@ -19,6 +19,7 @@ is very powerful."
     compile Types.cxx DataSourceCondition.cxx Operators.cxx CommandFactoryInterface.cxx
     compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactoryInterface.cxx 
     compile GlobalDataSourceFactory.cxx
+    compile ParsedStateContext.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

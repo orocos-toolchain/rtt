@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  DataSource.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  DataSource.hpp
 
                         DataSource.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,13 +23,15 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef DATASOURCE_HPP
 #define DATASOURCE_HPP
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/type_traits.hpp>
+
+#include <map>
 
 namespace
 {
@@ -71,16 +73,19 @@ namespace ORO_Execution
     // much desired, and that refcounting happens in an efficient way,
     // which is also nice :)
     int refcount;
+  protected:
+    // the destructor is private.  You are not allowed to delete this
+    // class yourself, use a shared pointer !
+    virtual ~DataSourceBase();
   public:
     typedef boost::intrusive_ptr<DataSourceBase> shared_ptr;
 
     DataSourceBase() : refcount( 0 ) {};
     void ref() { ++refcount; };
     void deref() { if ( --refcount <= 0 ) delete this; };
-    virtual ~DataSourceBase();
 
     virtual void reset();
-
+    virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
   };
 
   /**
@@ -113,6 +118,8 @@ namespace ORO_Execution
        * Clone Software Pattern.
        */
       virtual DataSource<T>* clone() const = 0;
+
+      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
   };
 
   template<typename T>
@@ -149,18 +156,24 @@ namespace ORO_Execution
           mdata = t;
       }
 
-      T& set() { 
+      T& set() {
           return mdata;
-      }
-      
-      VariableDataSource<T>* duplicate() const
-      {
-          return new VariableDataSource<T>(mdata);
       }
 
       virtual VariableDataSource<T>* clone() const
       {
           return new VariableDataSource<T>(mdata);
+      }
+
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+          if ( i == alreadyCloned.end() ) {
+              VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
+              alreadyCloned[this] = n;
+              return n;
+          }
+          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) );
+          return static_cast<VariableDataSource<T>*>( i->second );
       }
   };
 
@@ -233,9 +246,13 @@ namespace ORO_Execution
         mb->reset();
       }
 
-      virtual DataSource<typename function::result_type>* clone() const
+      virtual BinaryDataSource<function>* clone() const
       {
-          return new BinaryDataSource<function>(ma->clone(), mb->clone(), fun);
+          return new BinaryDataSource<function>(ma.get(), mb.get(), fun);
+      }
+
+      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new BinaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), fun );
       }
   };
 
@@ -280,10 +297,15 @@ namespace ORO_Execution
         mc->reset();
       }
 
-      virtual DataSource<typename function::result_type>* clone() const
+      virtual TernaryDataSource<function>* clone() const
       {
-          return new TernaryDataSource<function>(ma->clone(), mb->clone(), mc->clone(), fun);
+          return new TernaryDataSource<function>(ma.get(), mb.get(), mc.get(), fun);
       }
+
+      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new TernaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), mc->copy( alreadyCloned ), fun );
+      }
+
   };
 
   /**
@@ -344,11 +366,17 @@ namespace ORO_Execution
         mf->reset();
       }
 
-      virtual DataSource<typename function::result_type>* clone() const
+      virtual SixaryDataSource<function>* clone() const
       {
-          return new SixaryDataSource<function>(ma->clone(), mb->clone(), mc->clone(),
-                                                md->clone(), me->clone(), mf->clone(),
+          return new SixaryDataSource<function>(ma.get(), mb.get(), mc.get(),
+                                                md.get(), me.get(), mf.get(),
                                                 fun);
+      }
+
+      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new SixaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ),
+                                                 mc->copy( alreadyCloned ), md->copy( alreadyCloned ),
+                                                 me->copy( alreadyCloned ), mf->copy( alreadyCloned ), fun );
       }
   };
 
@@ -381,9 +409,13 @@ namespace ORO_Execution
         ma->reset();
       }
 
-      virtual DataSource<typename function::result_type>* clone() const
+    virtual UnaryDataSource<function>* clone() const
       {
-          return new UnaryDataSource<function>(ma->clone(), fun);
+          return new UnaryDataSource<function>(ma.get(), fun);
+      }
+
+    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new UnaryDataSource<function>( ma->copy( alreadyCloned ), fun );
       }
   };
 }

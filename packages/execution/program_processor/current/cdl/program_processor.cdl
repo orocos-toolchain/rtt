@@ -14,10 +14,11 @@ which encapsulates the command to be executed."
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_CORELIB_STATE
 
-    compile StateGraph.cxx
+    compile StateContextBuilder.cxx
     compile VertexNode.cxx EdgeCondition.cxx ProgramGraph.cxx 
     compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
     compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
     compile Processor.cxx
     compile AsynchCommandDecorator.cxx
+    compile StateDescription.cxx
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:07 CEST 2004  CommonParser.cxx 
+  tag: Peter Soetens  Thu Jul 15 11:21:07 CEST 2004  CommonParser.cxx
 
                         CommonParser.cxx -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,21 +24,78 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+#include <boost/bind.hpp>
+
+#include "execution/parse_exception.hpp"
 #include "execution/parser-debug.hpp"
 #include "execution/CommonParser.hpp"
 
 namespace ORO_Execution {
+    using boost::bind;
 
-      CommonParser::CommonParser()
-      {
+    CommonParser::CommonParser()
+    {
         // we reserve a few words
         keywords =
-          "do", "until", "next", "done", "or", "and", "not", "include", "if",
-          "define", "end", "then", "else", "for", "foreach", "while", "true",
-          "false", "stop", "async", "time", "const", "frame", "double",
-          "int", "bool", "char", "string", "vector", "double6d", "rotation", "twist",
-          "wrench", "nothing", "var", "set", "let", "alias", "to", "sync",
-          "return", "call";
+            "do",
+            "until",
+            "next",
+            "done",
+            "or",
+            "and",
+            "not",
+            "include",
+            "if",
+            "define",
+            "end",
+            "then",
+            "else",
+            "for",
+            "foreach",
+            "while",
+            "true",
+            "false",
+            "stop",
+            "async",
+            "time",
+            "const",
+            "frame",
+            "double",
+            "int",
+            "bool",
+            "char",
+            "string",
+            "vector",
+            "double6d",
+            "rotation",
+            "twist",
+            "wrench",
+            "nothing",
+            "var",
+            "set",
+            "let",
+            "alias",
+            "to",
+            "sync",
+            "return",
+            "call",
+            "inState",
+            "SubContext",
+            "RootContext",
+            "StateContext",
+            "EventHandle",
+            "initial",
+            "final",
+            "state",
+            "preconditions",
+            "entry",
+            "exit",
+            "handle",
+            "transitions",
+            "emit",
+            "select",
+            "connect",
+            "disconnect";
 
         chset<> identchar( "a-zA-Z_0-9" );
 
@@ -53,11 +110,16 @@ namespace ORO_Execution {
         // both inside and outside of lexeme_d, we need two versions of
         // it.  Those are provided here: lexeme_identifier and
         // identifier..
-        RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ] - as_lower_d[keywords] );
-        lexeme_identifier = identifier_base;
-        identifier = identifier_base;
+        RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords]);
+        lexeme_identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
 
         BOOST_SPIRIT_DEBUG_RULE( identifier );
         BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
-      }
+    }
+
+    void CommonParser::seenillegalidentifier()
+    {
+        throw parse_exception( "The string \"" + lastparsedident + "\" cannot be used as an identifier." );
+    }
 }

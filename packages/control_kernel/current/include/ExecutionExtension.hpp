@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ExecutionExtension.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ExecutionExtension.hpp
 
                         ExecutionExtension.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef KERNELSCRIPTABLEEXTENSION_HPP
 #define KERNELSCRIPTABLEEXTENSION_HPP
 
@@ -108,7 +108,6 @@ namespace ORO_ControlKernel
         public GlobalFactory
     {
         ProgramGraph* program;
-        StateContext* context;
 
     protected:
         CommandFactoryInterface* commandfactory;
@@ -133,10 +132,12 @@ namespace ORO_ControlKernel
         /**
          * Set a StateGraph to be used the next time the kernel is started.
          *
-         * @param state_stream A stream containing the state script to be executed.
+         * @param state_stream A stream containing the definitions of
+         *     the statecontexts script to be executed.  All root
+         *     contexts will be loaded.
          * @param name The name of the StateContext.
          */
-        bool loadStateContext( std::istream& state_stream, const std::string& name );
+        bool loadStateContexts( std::istream& state_stream );
 
         /**
          * Start a previously loaded Program.
@@ -215,17 +216,17 @@ namespace ORO_ControlKernel
         virtual CommandFactoryInterface* createCommandFactory();
 
         virtual DataSourceFactoryInterface* createDataSourceFactory();
-        
+
     protected:
         void initKernelCommands();
         //bool foo( bool( ExecutionExtension::*cond)() const, bool (*adapter)(const bool&) ) const;
     private:
         bool true_gen() const { return true; }
         bool running_progr;
-        
+
         Processor proc;
         int count;
-        
+
         ControlKernelInterface* base;
 
         Property<int> interval;

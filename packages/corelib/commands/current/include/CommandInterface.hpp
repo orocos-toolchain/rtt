@@ -29,9 +29,17 @@
 #define COMMANDINTERFACE_HPP
 
 #include <string>
+#include <map>
+
+#pragma interface
+
+namespace ORO_Execution {
+    class DataSourceBase;
+}
 
 namespace ORO_CoreLib
 {
+    using ORO_Execution::DataSourceBase;
 
     /**
      * @brief Based on the software pattern 'command', this
@@ -40,8 +48,7 @@ namespace ORO_CoreLib
     class CommandInterface
     {
         public:
-            virtual ~CommandInterface()
-            {}
+            virtual ~CommandInterface();
 
             /**
              * Execute the functionality of this command.
@@ -61,12 +68,31 @@ namespace ORO_CoreLib
              * @see ConditionInterface::reset
              * @see DataSource::reset
              */
-            virtual void reset() {};
+            virtual void reset();
 
         /**
          * The Clone Software Pattern.
          */
         virtual CommandInterface* clone() const = 0;
+
+        /**
+         * When copying an &orocos; program, we want identical
+         * DataSource's to be mapped to identical DataSources, in
+         * order for the program to work correctly.  This is different
+         * from the clone function, where we simply want a new Command
+         * that can replace the old one directly.
+         *
+         * This function takes a map that maps the old DataSource's
+         * onto their new replacements.  This way, it is possible to
+         * check before cloning a DataSource, whether it has already
+         * been copied, and if so, reuse the existing copy.
+         *
+         * To keep old source working, the standard implementation of
+         * this function simply calls the clone function.  If your
+         * CommandInterface uses a DataSource, it is important that
+         * you reimplement this function correctly though.
+         */
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
 }

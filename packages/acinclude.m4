@@ -119,9 +119,6 @@ and rerun the bootstrap.sh script
 ])
 ])
 
-
-
-
 dnl ACX_VERSION(MAJOR-VERSION,MINOR-VERSION,MICRO-VERSION,BUILD-NUMBER)
 dnl Define the version number of the package
 dnl Format: MAJOR.MINOR.MICRO-BUILD

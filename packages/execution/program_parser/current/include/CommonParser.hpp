@@ -37,12 +37,15 @@ namespace ORO_Execution
    */
   class CommonParser
   {
+      std::string lastparsedident;
   public:
       symbols<nil_t> keywords;
       rule_t identifier;
       lexeme_rule_t lexeme_identifier;
 
       CommonParser();
+
+      void seenillegalidentifier();
   };
 }
 

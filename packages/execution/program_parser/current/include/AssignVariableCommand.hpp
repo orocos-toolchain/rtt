@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  AssignVariableCommand.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  AssignVariableCommand.hpp
 
                         AssignVariableCommand.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ASSIGNVARIABLECOMMAND_HPP
 #define ASSIGNVARIABLECOMMAND_HPP
 
@@ -58,7 +58,7 @@ namespace ORO_Execution
           : lhs( l ), rhs( r )
       {
       }
-      
+
       void execute()
       {
         lhs->set( rhs->get() );
@@ -71,7 +71,11 @@ namespace ORO_Execution
 
       virtual CommandInterface* clone() const
       {
-          return new AssignVariableCommand( lhs->duplicate(), rhs->clone() );
+          return new AssignVariableCommand( lhs.get(), rhs.get() );
+      }
+
+      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new AssignVariableCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
 
@@ -91,7 +95,7 @@ namespace ORO_Execution
           : i(index),lhs( l ), rhs( r ), p(_p)
       {
       }
-      
+
       void execute()
       {
           Index ind = i->get();
@@ -106,7 +110,11 @@ namespace ORO_Execution
 
       virtual CommandInterface* clone() const
       {
-          return new AssignIndexCommand( lhs->duplicate(), i->clone(), rhs->clone(), p );
+          return new AssignIndexCommand( lhs.get(), i.get(), rhs.get(), p );
+      }
+
+      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ), p );
       }
   };
 }

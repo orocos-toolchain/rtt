@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  CommandParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  CommandParser.cxx
 
                         CommandParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -100,7 +100,7 @@ namespace ORO_Execution
   void CommandParser::seenstartofcall()
   {
     const GlobalCommandFactory& gcf =
-      context.scriptableextension->commandFactory();
+      context.globalfactory->commandFactory();
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     if ( ! cfi )
       throw parse_exception( "Object \"" + mcurobject +
@@ -121,7 +121,7 @@ namespace ORO_Execution
     mcurmethod = argsparser->methodname();
 
     const GlobalCommandFactory& gbf =
-      context.scriptableextension->commandFactory();
+      context.globalfactory->commandFactory();
     const CommandFactoryInterface* cfi = gbf.getObjectFactory( mcurobject );
     // cfi should exist, because otherwise we would have noticed in
     // seenstartofcall()...

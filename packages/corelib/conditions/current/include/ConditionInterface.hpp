@@ -29,18 +29,24 @@
 #ifndef CONDITIONINTERFACE_HPP
 #define CONDITIONINTERFACE_HPP
 
+#include <map>
+
+namespace ORO_Execution {
+    class DataSourceBase;
+}
+
 namespace ORO_CoreLib
 {
+    using ORO_Execution::DataSourceBase;
     /**
      * @brief This interface represents the concept of
      * a condition which can be evaluated and return
-     * true or false. 
+     * true or false.
      */
     class ConditionInterface
     {
     public:
-        virtual ~ConditionInterface()
-        {}
+        virtual ~ConditionInterface();
 
         /**
          * @brief Evaluate the Condition and return the outcome
@@ -60,14 +66,31 @@ namespace ORO_CoreLib
          * ConditionOnce has a similar need.  This function is
          * called at such times.
          */
-        virtual void reset()
-        {
-        }
+        virtual void reset();
 
         /**
          * The Clone Software Pattern.
          */
         virtual ConditionInterface* clone() const = 0;
+
+        /**
+         * When copying an &orocos; program, we want identical
+         * DataSource's to be mapped to identical DataSources, in
+         * order for the program to work correctly.  This is different
+         * from the clone function, where we simply want a new Command
+         * that can replace the old one directly.
+         *
+         * This function takes a map that maps the old DataSource's
+         * onto their new replacements.  This way, it is possible to
+         * check before cloning a DataSource, whether it has already
+         * been copied, and if so, reuse the existing copy.
+         *
+         * To keep old source working, the standard implementation of
+         * this function simply calls the clone function.  If your
+         * ConditionInterface uses a DataSource, it is important that
+         * you reimplement this function correctly though.
+         */
+        virtual ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
 }

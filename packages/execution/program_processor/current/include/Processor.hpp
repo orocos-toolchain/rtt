@@ -57,6 +57,7 @@ namespace ORO_Execution
 			virtual bool startStepping(const std::string& name);
 
 			virtual bool loadStateContext(const std::string& name, StateContext* sc);
+            virtual bool unloadStateContext( const std::string& name );
             virtual bool startStateContext(const std::string& name);
             virtual bool stopStateContext(const std::string& name);
             virtual bool resetStateContext(const std::string& name);

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  VertexNode.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  VertexNode.cxx
 
                         VertexNode.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -37,7 +37,14 @@ namespace ORO_Execution
 	{
 	}
 
-	VertexNode::VertexNode(CommandInterface* cmd)
+        VertexNode::VertexNode( const VertexNode& orig )
+                : command( orig.getCommand()->clone() ),
+                  lineNumber(orig.getLineNumber()),
+                  label( orig.getLabel() )
+        {
+        }
+
+        VertexNode::VertexNode(CommandInterface* cmd)
         : command( cmd ),
           lineNumber( 0 ),
           label("")
@@ -95,5 +102,20 @@ namespace ORO_Execution
     const std::string& VertexNode::getLabel() const
     {
         return label;
+    }
+
+    VertexNode VertexNode::copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const
+    {
+        VertexNode ret( *this );
+        delete ret.setCommand( getCommand()->copy( rdss ) );
+        return ret;
+    }
+
+    VertexNode& VertexNode::operator=( const VertexNode& orig )
+    {
+        command = orig.getCommand()->clone();
+        lineNumber = orig.getLineNumber();
+        label = orig.getLabel();
+        return *this;
     }
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ValueChangeParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  ValueChangeParser.cxx
 
                         ValueChangeParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -51,12 +51,14 @@ namespace ORO_Execution
 
 
   ValueChangeParser::ValueChangeParser( ParseContext& pc )
-    : context( pc ), expressionparser( pc )
+    : assigncommand( 0 ), lastdefinedvalue( 0 ),
+      type( 0 ), context( pc ), expressionparser( pc )
   {
     BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
     BOOST_SPIRIT_DEBUG_RULE( variabledefinition );
     BOOST_SPIRIT_DEBUG_RULE( variableassignment );
+    BOOST_SPIRIT_DEBUG_RULE( paramdefinition );
 
     // we can't use commonparser.identifier to parse a type name,
     // because that one is meant to be used for identifier used by the
@@ -95,10 +97,16 @@ namespace ORO_Execution
     variableassignment = (
          "set"
          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] )
-         >> !( '[' >> expressionparser.parser() >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ] 
+         >> !( '[' >> expressionparser.parser() >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
          >> expect_is( ch_p( '=' ) )
          >> expect_expr( expressionparser.parser()) )[
            bind( &ValueChangeParser::seenvariableassignment, this ) ];
+
+    paramdefinition = (
+      "param"
+      >> expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
+      >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
+      )[bind( &ValueChangeParser::seenparamdefinition, this )];
   };
 
   void ValueChangeParser::seenconstantdefinition()
@@ -117,6 +125,8 @@ namespace ORO_Execution
         "Attempt to initialize a constant with a value of a different type." );
     }
     assert( assigncommand );
+    lastdefinedvalue = var;
+    lastparseddefname = valuename;
     type = 0;
   };
 
@@ -147,6 +157,8 @@ namespace ORO_Execution
       throw parse_exception(
         "Attempt to define an alias to an expression of a different type." );
     context.valueparser.setValue( valuename, alias );
+    lastdefinedvalue = alias;
+    lastparseddefname = valuename;
     assigncommand = 0;
   };
 
@@ -166,6 +178,17 @@ namespace ORO_Execution
                              "of a different type." );
     }
     assert( assigncommand );
+    lastdefinedvalue = var;
+    lastparseddefname = valuename;
+    type = 0;
+  }
+
+  void ValueChangeParser::seenparamdefinition()
+  {
+    ParsedValueBase* var = type->buildVariable();
+    context.valueparser.setValue( valuename, var );
+    lastdefinedvalue = var;
+    lastparseddefname = valuename;
     type = 0;
   }
 
@@ -241,4 +264,9 @@ namespace ORO_Execution
   {
     return variableassignment;
   };
+
+  rule_t& ValueChangeParser::paramDefinitionParser()
+  {
+    return paramdefinition;
+  }
 }

@@ -8,5 +8,6 @@ dynamic conditional execution of logic programs."
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
+    compile ConditionInterface.cxx
 }
 
