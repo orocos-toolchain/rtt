@@ -30,6 +30,8 @@
 
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateDataSourceFactory.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
 #include <iostream>
 
 namespace ORO_ControlKernel
@@ -38,7 +40,9 @@ namespace ORO_ControlKernel
 
     /**
      * @brief This component can be used to display messages on the
-     * standard output. It should not be used in hard realtime
+     * standard output.
+     *
+     * It should not be used in hard realtime
      * programs, but is nice for testing program and state scripts.
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
@@ -124,6 +128,50 @@ namespace ORO_ControlKernel
                                ) );
             return ret;
         }
+    };
+
+    /**
+     * @brief This component can be used to display messages on the
+     * standard output. 
+     *
+     * It should not be used in hard realtime
+     * programs, but is nice for testing program and state scripts.
+     * HMI == Human-Machine Interface
+     * @ingroup kcomps kcomp_support
+     */
+    class HMIConsoleOutputImpl
+        : public SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase >
+    {
+        std::string coloron;
+        std::string coloroff;
+        typedef SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > Base;
+    public :
+        HMIConsoleOutputImpl();
+
+        /**
+         * @brief Display a message on standard output.
+         */
+        void display(const std::string & what);
+
+        /**
+         * @brief Display a boolean on standard output.
+         */
+        void displayBool(bool what);
+
+        /**
+         * @brief Display an integer on standard output.
+         */
+        void displayInt( int what);
+
+        /**
+         * @brief Display a double on standard output.
+         */
+        void displayDouble( double what );
+
+        bool true_gen() const { return true; }
+
+        // Commands are display commands.
+        CommandFactoryInterface* createCommandFactory();
     };
 
 }

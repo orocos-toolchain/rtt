@@ -30,6 +30,7 @@
 
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateDataSourceFactory.hpp>
+#include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
 #include <execution/Parser.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -182,7 +183,7 @@ namespace ORO_ControlKernel
         void printMethod( const std::string m )
         {
             using boost::lambda::_1;
-            vector<ArgumentDescription> args;
+            std::vector<ArgumentDescription> args;
             args = tester->getArgumentList( m );
             cout << "  Method   : " << m <<endl;
             //int i = 0;
@@ -198,7 +199,7 @@ namespace ORO_ControlKernel
         void printSource( const std::string m )
         {
             using boost::lambda::_1;
-            vector<ArgumentDescription> args;
+            std::vector<ArgumentDescription> args;
             args = dataobject->getArgumentList( m );
                 cout << "  Source   : " << m <<endl;
             if (args.begin() != args.end() ){
@@ -238,6 +239,55 @@ namespace ORO_ControlKernel
         }
 
     };
+
+    /**
+     * @brief This component allows console input to be passed
+     * to the program or state scripts. It can be referenced
+     * as the 'console_output' component in these scripts.
+     *
+     * HMI == Human-Machine Interface
+     * @ingroup kcomps kcomp_support
+     */
+    class HMIConsoleInputImpl
+        : public SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase >
+    {
+        bool start;
+        Event startEvent;
+        ExecutionExtension* ee;
+        ConditionInterface* condition;
+        CommandInterface*   command;
+        const CommandFactoryInterface* tester;
+        const DataSourceFactoryInterface* dataobject;
+
+        typedef SupportComponent< MakeExtension<KernelBaseFunction,
+                                                ExecutionExtension>::Result::CommonBase > Base;
+    public :
+        HMIConsoleInputImpl( ExecutionExtension* _ee = 0);
+
+        /**
+         * @brief Call this method from ORO_main() to 
+         * process keyboard input.
+         */
+        void loop();
+
+        void evalCommand(std::string& comm );
+
+        void printHelp();
+        
+        void printMethod( const std::string m );
+                
+        void printSource( const std::string m );
+
+        void startButton();
+
+        void stopButton();
+
+        bool startPushed() const;
+
+        // The only data we export is the user's start input.
+        DataSourceFactoryInterface* createDataSourceFactory();
+    };
+
 }
 
 #endif

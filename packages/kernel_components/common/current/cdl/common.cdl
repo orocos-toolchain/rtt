@@ -6,4 +6,6 @@ package contains some common, application
 independent Components."
 
     include_dir kernel_components
+
+    compile HMIConsoleOutput.cxx HMIConsoleInput.cxx
 }

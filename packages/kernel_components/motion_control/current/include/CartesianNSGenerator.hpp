@@ -116,10 +116,13 @@ namespace ORO_ControlKernel
         {
             // startup the component, acquire all the data objects,
             // put sane defaults in the setpoint dataobject.
-            if ( !Base::Command::dObj()->Get("Trajectory", traj_DObj) ||
-                 !Base::Command::dObj()->Get("ToolFrame", tool_f_DObj) ||
-                 !Base::Command::dObj()->Get("TaskFrame", task_f_DObj) ||
-                 !Base::Model::dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
+            // If no commands are defined, trajectories can not be loaded.
+            // then only moveTo is functional.
+            if ( Base::Command::dObj()->Get("Trajectory", traj_DObj) ) {
+                Base::Command::dObj()->Get("ToolFrame", tool_f_DObj);
+                Base::Command::dObj()->Get("TaskFrame", task_f_DObj);
+            }
+            if ( !Base::Model::dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
                  !Base::SetPoint::dObj()->Get("EndEffectorFrame", end_f_DObj) )
                 return false;
 
@@ -315,7 +318,7 @@ namespace ORO_ControlKernel
          */
         void loadTrajectory()
         {
-            if ( this->kernel()->isRunning() && trajectoryDone() )
+            if ( this->kernel()->isRunning() && trajectoryDone() && traj_DObj != 0 )
                 {
                     /**
                      * First, be sure the given traj is not zero.
