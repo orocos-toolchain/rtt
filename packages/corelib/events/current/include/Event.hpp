@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 13:49:58 CEST 2002  Event.h 
+ tag: Peter Soetens  Wed Apr 17 13:49:58 CEST 2002  Event.h
 
                        Event.hpp -  description
                           -------------------
@@ -21,7 +21,7 @@
 #define EVENT_HPP
 
 #include "os/fosi.h"
-#include <boost/signals.hpp>
+#include <boost/signal.hpp>
 #include <boost/call_traits.hpp>
 #include "NameServerRegistrator.hpp"
 
@@ -110,11 +110,11 @@ namespace ORO_CoreLib
             Group,
             GroupCompare,
             _SlotFunction> EventType;
- 
+
         typedef _Signature Signature;
         typedef _SlotFunction SlotFunction;
 
-        explicit Event(const std::string name, 
+        explicit Event(const std::string name,
                        const Combiner& combiner = Combiner(),
                        const GroupCompare& group_compare = GroupCompare())
             : signal_type(combiner, group_compare),
@@ -122,7 +122,7 @@ namespace ORO_CoreLib
         {
         }
 
-        
+
         explicit Event(const Combiner& combiner = Combiner(),
                        const GroupCompare& group_compare = GroupCompare()) :
             signal_type(combiner, group_compare)
@@ -229,8 +229,8 @@ namespace ORO_CoreLib
          */
         static NameServer<EventType*> nameserver;
     };
-      
-   
+
+
     template<
         typename _Signature,
         typename Combiner,

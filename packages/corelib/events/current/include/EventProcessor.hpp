@@ -3,7 +3,7 @@
 
 #include <os/RunnableInterface.hpp>
 #include <os/MutexLock.hpp>
-#include <boost/signals.hpp>
+#include <boost/signal.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <vector>
@@ -32,7 +32,7 @@ namespace ORO_CoreLib
          * Catch the event, dispatch later to F.
          */
         template<class SignalType>
-        struct EventCatcherImpl<0, SignalType> 
+        struct EventCatcherImpl<0, SignalType>
             : public EventCatcher
         {
             typedef typename SignalType::SlotFunction Function;
@@ -65,7 +65,7 @@ namespace ORO_CoreLib
         };
 
         template<class SignalType>
-        struct EventCatcherImpl<1, SignalType> 
+        struct EventCatcherImpl<1, SignalType>
             : public EventCatcher
         {
             typedef typename SignalType::SlotFunction Function;
