@@ -91,14 +91,18 @@ int init_module( void )
         printk( "Device APCI-2200 found at IO 0x%04x\n", apci2200.ioaddr[ i ] );
     }
 
-    // checks and request the IO regions
-    // old values ioaddr[0]->16 & ioaddr[1]->256
-    if ( check_region( apci2200.ioaddr[ 0 ], 4 ) || check_region( apci2200.ioaddr[ 1 ], 64 ) )
-        return -3;
+    if (!request_region( apci2200.ioaddr[ 0 ], 4, "APCI-2200" ))
+	{
+		printk(KERN_ERR "apci-2200: I/O port %d is not free.\n", apci2200.ioaddr[ 0 ]);
+		return -EIO;
+	}
 
-    request_region( apci2200.ioaddr[ 0 ], 4, "APCI-2200" );
-
-    request_region( apci2200.ioaddr[ 1 ], 64, "APCI-2200" );
+    if (!request_region( apci2200.ioaddr[ 1 ], 64, "APCI-2200" ))
+	{
+		printk(KERN_ERR "apci-2200: I/O port %d is not free.\n", apci2200.ioaddr[ 1 ]);
+		release_region(apci2200.ioaddr[ 0 ], 4);
+		return -EIO;
+	}
 
     return 0;
 }
