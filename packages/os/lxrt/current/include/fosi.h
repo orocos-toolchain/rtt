@@ -123,7 +123,7 @@ extern "C" {
 #ifndef OROBLD_OS_AGNOSTIC
 	
 	// hrt is in ticks
-TIME_SPEC ticks2timespec(TICK_TIME hrt)
+inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 {
 	TIME_SPEC timevl;
 	timevl.tv_sec = nano2count(hrt) / 1000000000LL;
