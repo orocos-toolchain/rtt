@@ -24,13 +24,10 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "Property.hpp"
+#include "corelib/Property.hpp"
 
 namespace ORO_CoreLib
 {
-    using namespace std;
-
-
     template<typename output_stream>
     class INIMarshaller : public Marshaller, public PropertyIntrospection
     {

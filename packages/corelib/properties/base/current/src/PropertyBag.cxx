@@ -43,6 +43,16 @@ namespace ORO_CoreLib
         }
     }
 
+    void refreshProperty(PropertyBag& target, const PropertyBase& source)
+    {
+        PropertyBase* target_prop;
+        // dynamic_cast ?
+        if ( 0 != (target_prop = target.find( source.getName() ) ) )
+            {
+                target_prop->update( &source );
+            }
+    }
+
     void copyProperties(PropertyBag& target, const PropertyBag& source)
     {
         // Make a full deep copy.

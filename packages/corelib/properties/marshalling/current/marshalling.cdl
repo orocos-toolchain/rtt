@@ -9,6 +9,7 @@ tables (for logging)."
 
     parent OROPKG_CORELIB_PROPERTIES
     requires OROPKG_CORELIB_PROPERTIES
+    requires OROPKG_SUPPORT_XERCESC
 
     include_dir corelib/marshalling
 

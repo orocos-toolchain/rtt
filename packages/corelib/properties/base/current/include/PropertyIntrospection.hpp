@@ -44,6 +44,8 @@ namespace ORO_CoreLib
     class PropertyIntrospection
     {
         public:
+        virtual ~PropertyIntrospection()
+        {}
 			/**
 			 * introspect a property of type bool.
 			 * @param v The property to be introspectd.

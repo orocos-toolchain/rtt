@@ -38,7 +38,8 @@ namespace ORO_CoreLib
 	/**
 	 * @brief A container for holding references to properties.
      *
-	 * Introduction
+	 * @section intro Introduction
+     *
      * This class groups properties of different types into a single
 	 * container. A PropertyBag object can handed to a Marshaller object
 	 * which will serialize the contents of the PropertyBag.
@@ -52,7 +53,7 @@ namespace ORO_CoreLib
      * contains another PropertyBag, this bag is considered as a 'pointer'
      * to other properties. Even such a bag is not owned by the PropertyBag.
      *
-     * Constructing PropertyBags
+     * @section constr Constructing PropertyBags
      * It can happen in an application that a PropertyBag is filled with
      * dynamically created Property objects. The bag is not responsible for
      * cleaning up these objects once they are no longer needed. The application
@@ -88,25 +89,7 @@ namespace ORO_CoreLib
             {}
 
             /**
-             * The copy constructor.
-             * The copy constructor of the PropertyBag makes
-             * non-deep copies of its elements.
-             */
-            PropertyBag( PropertyBag& orig)
-                : _properties( orig.getProperties() ), type( orig.getType() )
-            {
-#if 0
-                const_iterator i( orig.getProperties().begin() );
-                while ( i != orig.getProperties().end() )
-                {
-                    add( (*i) );
-                    ++i;
-                }
-#endif
-            }
-
-            /**
-             * The copy constructor.
+             * @brief The copy constructor.
              * The copy constructor of the PropertyBag makes
              * non-deep copies of its elements.
              */
@@ -271,6 +254,11 @@ namespace ORO_CoreLib
      * You can use this function to update the properties of a fixed bag.
      */
     void refreshProperties(PropertyBag& target, const PropertyBag& source);
+
+    /**
+     * Refresh one Property in the target bag with the new value.
+     */
+    void refreshProperty( PropertyBag& target, const PropertyBase& source);
 
     /**
      * This function updates the values of Property objects of one Bag with the

@@ -29,16 +29,28 @@ namespace ORO_CoreLib
     template < class T>
         class Property;
 
+    class PropertyBase;
+
     namespace detail
     {
         /**
          * A property operation folowing the command/comply software pattern.
+         * It stores a pointer to incentor and complier. A subclass
+         * must implement the operation itself.
          */
         class PropertyOperation
         {
             protected:
                 /**
-                 * Storage mechanism
+                 * Storage mechanism. It should be thread-local...
+                 * If two PropertyOperations operate concurrently
+                 * on the same StorageType, it will fail.
+                 * Making it local to the Operation is not possible,
+                 * Because then, a PropertyOperation for each 
+                 * Property<T> type must be provided. The 
+                 * PropertyOperation can not be templated
+                 * because then it is inserted again in the PropertyBase
+                 * class which must remain template free.
                  */
                 template< class StoreType >
                     struct Storage
@@ -46,9 +58,6 @@ namespace ORO_CoreLib
                         static StoreType* incentor;
                         static const StoreType* complier;
                     };
-
-            public:
-
         };
 
         template< class T>
@@ -61,6 +70,7 @@ namespace ORO_CoreLib
          */
         class FillOperation : public PropertyOperation
         {
+            PropertyBase* incentor;
             public:
                 /**
                  * A binary operation. Operate on the Incentor if the complier agrees
@@ -69,27 +79,37 @@ namespace ORO_CoreLib
                 template< class T >
                     bool command( Property<T>& _incentor, const OperationAcceptor* _complier)
                     {
-                        Storage< Property<T> >::incentor =  &_incentor;
+                        //Storage< Property<T> >::incentor =  &_incentor;
+                        // we loose type info here !
+                        // I can't find another way to do it thread-safe.
+                        // But when walking this path, a simple
+                        // dynamic_cast on _complier is actually enough to find out
+                        // (but then we bypass the _compliers agreement to the op.)
+                        incentor = &_incentor; 
                         return _complier->comply(this);
                     }
                 /**
-                 * Comply with the FillOperation.
+                 * Comply with the FillOperation. This function uses the
+                 * efficient full-type update function. 
                  */
                 template< class T>
                     bool comply( const Property<T>* _complier )
                     {
-                        Storage< Property<T> >::complier = _complier;
-                        if (Storage< Property<T> >::incentor != 0 && Storage< Property<T> >::complier != 0)
-                            Storage< Property<T> >::incentor->update( *Storage< Property<T> >::complier );
+                        Property<T>* _incentor;
+                        // we got the complier type
+                        //Storage< Property<T> >::complier = _complier;
+                        //if (Storage< Property<T> >::incentor != 0 && Storage< Property<T> >::complier != 0)
+                        if ( (_incentor = dynamic_cast< Property<T>* >( incentor ) ) && _complier !=0 )
+                            _incentor->update( *_complier );
                         else
                         {
-                            Storage< Property<T> >::incentor = 0;
-                            Storage< Property<T> >::complier = 0;
+                            //Storage< Property<T> >::incentor = 0;
+                            //Storage< Property<T> >::complier = 0;
                             //std::cout <<"******************failure"<<std::endl;
                             return false;
                         }
-                        Storage< Property<T> >::incentor = 0;
-                        Storage< Property<T> >::complier = 0;
+                        //Storage< Property<T> >::incentor = 0;
+                        //Storage< Property<T> >::complier = 0;
                         //std::cout <<"*******************success"<<std::endl;
                         return true;
                     }

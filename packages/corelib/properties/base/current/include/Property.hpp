@@ -258,17 +258,19 @@ namespace ORO_CoreLib
 
 }
 
-/** @example simple_hibernate.cpp
+// By PS : these are confusing, thus removed.
+
+/* example simple_hibernate.cpp
  * This example shows how to use simple properties in combination with a
  * marshaller. The SimpleMarshaller is used and the serialized data is
  * shown on standard output.
  */
-/** @example simple_incarnate.cpp
+/* example simple_incarnate.cpp
  * This example shows how to demarshall a stream containing simple properties.
  * The SimpleDemarshaller is used and the serialized data is read from standard input.
  */
 
-/** @example adding_property_types.cpp
+/* example adding_property_types.cpp
  * This example shows that properties can be of any type, including user
  * defined types. When you want to be able to marshall these properties you
  * need to add support for decomposing objects of your newly defined type
