@@ -686,6 +686,16 @@ public:
     //! For use with a const Twist
     IMETHOD double operator()(int i) const;
 
+     double operator[] ( int index ) const
+       {
+	 return this->operator() ( index );
+       }
+	    
+     double& operator[] ( int index )
+       {
+	 return this->operator() ( index );
+       }
+
      IMETHOD friend Twist operator*(const Twist& lhs,double rhs);
      IMETHOD friend Twist operator*(double lhs,const Twist& rhs);
      IMETHOD friend Twist operator/(const Twist& lhs,double rhs);
@@ -747,7 +757,16 @@ public:
      //! for use with a const Wrench
      IMETHOD double operator()(int i) const;
      
-     
+     double operator[] ( int index ) const
+       {
+	 return this->operator() ( index );
+       }
+	    
+     double& operator[] ( int index )
+       {
+	 return this->operator() ( index );
+       }
+
      //! Scalar multiplication
      IMETHOD friend Wrench operator*(const Wrench& lhs,double rhs);
      //! Scalar multiplication
