@@ -351,45 +351,45 @@ ORO_main( int argc, const char** argv)
 	<example><title>Using events</title>
 	  <programlisting>
 	    <![CDATA[
-	    class SafetyStopRobot : public EventListenerInterface 
-            {
-    	    public:
-	        virtual void handleEvent(CallbackInterface *cb) {
-	            // Handler code
-    	        std::cout << " Putting the robot in a safe state fast !" << std::endl;
-    	        // optional
-	            cb->complete();
-    	        }
-	    };
+class SafetyStopRobot : public EventListenerInterface 
+{
+public:
+    virtual void handleEvent(CallbackInterface *cb) {
+        // Handler code
+    std::cout << " Putting the robot in a safe state fast !" << std::endl;
+    // optional
+        cb->complete();
+    }
+};
 
-	    Class NotifyUser : public EventCompleterInterface 
-            {
-	    public:
-	        virtual void completeEvent() {
-        	    //Completer code
-        	    std::cout << "The program stopped the robot !"<<std::endl;
-	        }
-	    };
+Class NotifyUser : public EventCompleterInterface 
+{
+public:
+    virtual void completeEvent() {
+	    //Completer code
+	    std::cout << "The program stopped the robot !"<<std::endl;
+    }
+};
 
-	    ...
-	    SafetyStopRobot synchronousSafetyHandler;
-	    NotifyUser      asynchronousNotifier;
-	    Event emergencyStop(Event::SYNASYN);
+...
+SafetyStopRobot synchronousSafetyHandler;
+NotifyUser      asynchronousNotifier;
+Event emergencyStop(Event::SYNASYN);
 
-	    std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
-	    emergencyStop.addHandler( &synchronousSafetyHandler, &asynchronousNotifier);
+std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
+emergencyStop.addHandler( &synchronousSafetyHandler, &asynchronousNotifier);
 
-	    std::cout << "Fire the event\n";
-	    emergencyStop.fire();
+std::cout << "Fire the event\n";
+emergencyStop.fire();
 
-	    emergencyStop.removeHandler( &synchronousSafetyHandler, &asynchronousNotifier );      // Remove both handlers
-	    emergencyStop.addHandler(&synchronousSafetyHandler, EventCompleterInterface::none );  // No completer will be called
+emergencyStop.removeHandler( &synchronousSafetyHandler, &asynchronousNotifier );      // Remove both handlers
+emergencyStop.addHandler(&synchronousSafetyHandler, EventCompleterInterface::none );  // No completer will be called
 
-	    std::cout << "Doing a quiet safety stop..."<<std::endl;
-	    emergencyStop.fire(); // User not notified
+std::cout << "Doing a quiet safety stop..."<<std::endl;
+emergencyStop.fire(); // User not notified
 
-	    ...
-	    ]]>
+...
+]]>
 	  </programlisting>
 
 	  <screen>
