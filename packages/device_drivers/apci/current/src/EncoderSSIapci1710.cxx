@@ -41,15 +41,9 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
+
 #include <pkgconf/system.h>
 #include <pkgconf/device_drivers_apci.h>
-#include <device_drivers/EncoderSSIapci1710.hpp>
-
-#include <iostream>
-
-#ifdef OROPKG_CORELIB_TIMING
-#include <corelib/HeartBeatGenerator.hpp>
-#endif
 
 // include lib first, if not present, include KM headers.
 #if defined (OROINT_DEVICE_DRIVERS_APCI1710_SSI) && defined(OROPKG_OS_LXRT)
@@ -65,6 +59,13 @@ extern "C"
     #undef class
     #undef new
 }
+#endif
+
+#include <device_drivers/EncoderSSIapci1710.hpp>
+#include <iostream>
+
+#ifdef OROPKG_CORELIB_TIMING
+#include <corelib/HeartBeatGenerator.hpp>
 #endif
 
 namespace ORO_DeviceDriver
