@@ -22,6 +22,16 @@ namespace ORO_ControlKernel
     using namespace ORO_KinDyn;
 
     /**
+     * The CartesianGenerator generates these SetPoints.
+     */
+    struct CartesianSetPoints { Frame mp_base_frame; Frame task_frame; Double6D q6; };
+
+    /**
+     * The CartesianGenerator receives these commands.
+     */
+    struct CartesianCommands  { Trajectory* trajectory; Frame task_frame; Frame tool_mp_frame; bool home; };
+    
+    /**
      * A Simple Cartesian Generator.
      */
     template <class Base>
@@ -141,6 +151,9 @@ namespace ORO_ControlKernel
             bool restart;
     };
     
+    // one Model :
+    struct CartesianModel { Frame mp_base_frame; };
+    
     /**
      * A Cartesian Estimator
      */
@@ -233,6 +246,9 @@ namespace ORO_ControlKernel
             InputType input;
     };
 
+    // Send velocities to the drives :
+    struct CartesianDriveOutputs { Twist mp_base_twist; Double6D q_dot; };
+    
     /**
      * A Cartesian Controller
      */
@@ -386,6 +402,10 @@ namespace ORO_ControlKernel
             OutputType output;
             SimulatorInterface* sim;
     };
+
+    // Sensor measures positions :
+    struct CartesianSensorInputs { Double6D q6; };
+
     /**
      * A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
      */
