@@ -64,7 +64,7 @@ namespace ORO_Execution
         virtual bool steppedStateContext(const std::string& name);
         virtual bool continuousStateContext(const std::string& name);
 
-			virtual bool loadProgram(const std::string& name, ProgramInterface* pi) ;
+			virtual bool loadProgram( ProgramInterface* pi ) ;
 			virtual bool startProgram(const std::string& name);
 			virtual bool stopProgram(const std::string& name);
 			virtual bool resetProgram(const std::string& name);

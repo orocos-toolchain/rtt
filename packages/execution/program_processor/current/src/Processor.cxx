@@ -53,13 +53,13 @@ namespace ORO_Execution
         return (si.name == name);
     }
 
-	bool Processor::loadProgram(const std::string& name, ProgramInterface* pi)
+	bool Processor::loadProgram(ProgramInterface* pi)
     {
         program_iter it =
-            find_if(programs.begin(), programs.end(), bind(program_lookup, _1, name) );
+            find_if(programs.begin(), programs.end(), bind(program_lookup, _1, pi->getName() ) );
         if ( it != programs.end() )
             return false;
-        programs.push_back( Processor::ProgramInfo(name, pi) );
+        programs.push_back( Processor::ProgramInfo(pi->getName(), pi) );
         pi->reset();
         return true;
     }

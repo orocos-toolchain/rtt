@@ -76,7 +76,7 @@ namespace ORO_Execution
         /**
          * Load a program to be executed.
          */
-        virtual bool loadProgram(const std::string& name, ProgramInterface* pi) = 0;
+        virtual bool loadProgram( ProgramInterface* pi) = 0;
 			
         /**
          * Reset execution logic to the beginning of the associated program.

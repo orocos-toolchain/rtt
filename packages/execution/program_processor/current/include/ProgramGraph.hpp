@@ -35,6 +35,7 @@
 #include "EdgeCondition.hpp"
 
 #include <utility>                   // for std::pair
+#include <stack>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp> // the type of our graph
 
@@ -132,6 +133,13 @@ namespace ORO_Execution
          *        startFunction().
          */
         void endFunction( FunctionGraph* fn);
+
+        void startIfStatement( ConditionInterface* cond, int linenumber );
+        void endIfBlock();
+        void endElseBlock();
+
+        void startWhileStatement( ConditionInterface* cond, int linenumber );
+        void endWhileBlock();
 
         /**
          * Add a new command from the current CommandNode under a condition.
@@ -295,6 +303,16 @@ namespace ORO_Execution
          * The (unique) name of this program.
          */
         std::string myName;
+
+        /**
+         * @brief A stack which keeps track of branch points.
+         *
+         * Each if statement pushes three nodes on the stack :
+         * 1st: next, 2nd: else, 3rd: current.
+         * Each consequtive if statement places these three
+         * and they are popped on endIfBlock and endElseBlock.
+         */
+        std::stack<CommandNode> branch_stack;
 	};
 
 

@@ -350,5 +350,80 @@ namespace ORO_Execution
                 return std::make_pair(*v1, true);
         return std::make_pair(*v2, false);
     }
+
+    void ProgramGraph::startIfStatement( ConditionInterface* cond, int linenumber )
+    {
+        // push all relevant nodes on the branch_stack.
+        // endIf and endElse will pop them
+
+        // * next will become the first node of the succeeding if statement
+        // * after_else_node will become the node after the if block is finished
+        // and the else block is finished.
+        // * else_node is the first node of a failing if statement (this may be _any_statement, thus also an if)
+        CommandNode else_node = add_vertex( *graph );
+        put(vertex_exec, *graph, else_node, VertexNode::normal_node );
+        branch_stack.push( else_node );
+        CommandNode after_else_node =  add_vertex( *graph );
+        put(vertex_exec, *graph, after_else_node, VertexNode::normal_node );
+        branch_stack.push( after_else_node );
+        //branch_stack.push( current );
+
+        // add edge from current to next
+        addConditionEdge( cond, next );
+        // add edge from current to 'after_else_node'
+        addConditionEdge( new ConditionTrue(), else_node );
+        proceedToNext(linenumber);
+    }
+
+    void ProgramGraph::endIfBlock(){
+        // this is called after a proceedToNext of the last statement of 
+        // the if block.
+        // Connect end of if block with after_else_node
+        CommandNode after_else_node = branch_stack.top();        
+        addConditionEdge( new ConditionTrue(), after_else_node );
+        branch_stack.pop();
+        // make else_node current, next remains.
+        moveTo( branch_stack.top(), next );
+        branch_stack.pop();
+        // store again !
+        branch_stack.push( after_else_node );
+    }
+
+    // Else : can be empty and is then a plain proceed to next.
+    void ProgramGraph::endElseBlock() {
+        // after_else_node is on top of stack
+        CommandNode after_else_node = branch_stack.top();        
+        branch_stack.pop();
+        addConditionEdge( new ConditionTrue(), after_else_node );
+        // make after_else_node current
+        moveTo( after_else_node, next );
+    }
+
+    void ProgramGraph::startWhileStatement( ConditionInterface* cond, int linenumber )
+    {
+        // very analogous to the if statement, but there is no else part
+        // and we stack the first commandnode to be able to close the loop.
+        CommandNode after_while_node = add_vertex( *graph );
+        put(vertex_exec, *graph, after_while_node, VertexNode::normal_node );
+        branch_stack.push( after_while_node );
+        branch_stack.push( current );
+        // add edge from current to next if condition == true
+        addConditionEdge( cond, next );
+        // if condition fails, go from current to 'after_while_node'
+        addConditionEdge( new ConditionTrue(), after_while_node );
+        proceedToNext(linenumber);
+    }
+
+    void ProgramGraph::endWhileBlock()
+    {
+        CommandNode start_of_while = branch_stack.top();
+        branch_stack.pop();
+        // go from current back to start (and check there the condition).
+        addConditionEdge( new ConditionTrue(), start_of_while );
+        CommandNode after_while_node =  branch_stack.top();
+        branch_stack.pop();
+        moveTo( after_while_node, next );
+    }
+
 }
 
