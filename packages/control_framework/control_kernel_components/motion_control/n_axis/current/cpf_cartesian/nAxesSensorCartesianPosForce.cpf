@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the Position-Force Sensor component -->
+<properties>
+   <simple name="Name" type="string"><description>The unique name of this component</description><value>nAxesSensorCartesianPosForce</value></simple>
+   <simple name="mass" type="double"><description>The mass at the force sensor.</description>	<value>0.0</value>  </simple>
+   <struct name="center_gravity" type="MotCon::Vector"><description>The COG of the mass at the force sensor.</description> 
+      <simple name="X" type="double"><description>Axis x</description><value>0.0</value></simple>
+      <simple name="Y" type="double"><description>Axis y</description><value>0.0</value></simple>
+      <simple name="Z" type="double"><description>Axis z</description><value>0.3</value></simple>
+   </struct>
+   <struct name="offset" type="MotCon::Wrench"><description>The offset on the measured values of the force sensor.</description> 
+      <struct name="force" type="MotCon::Vector"><description>force component.</description> 
+         <simple name="X" type="double"><description>Axis x</description><value>0.0</value></simple>
+         <simple name="Y" type="double"><description>Axis y</description><value>0.0</value></simple>
+         <simple name="Z" type="double"><description>Axis z</description><value>0.0</value></simple>
+      </struct>
+      <struct name="torque" type="MotCon::Vector"><description>torque component.</description> 
+         <simple name="X" type="double"><description>Axis x</description><value>0.0</value></simple>
+         <simple name="Y" type="double"><description>Axis y</description><value>0.0</value></simple>
+         <simple name="Z" type="double"><description>Axis z</description><value>0.0</value></simple>
+      </struct>
+   </struct>
+</properties>

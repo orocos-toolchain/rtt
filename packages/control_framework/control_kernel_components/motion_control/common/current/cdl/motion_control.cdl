@@ -1,0 +1,9 @@
+cdl_package OROPKG_CONTROL_KERNEL_COMPONENTS_MOTION_CONTROL {
+    display "Control Kernel Components Motion Control"
+    description "
+Components for 1D or 3D motion control.
+"
+    parent   OROPKG_CONTROL_KERNEL_COMPONENTS
+    requires OROPKG_CONTROL_KERNEL_COMPONENTS
+    requires OROPKG_CONTROL_KERNEL
+}

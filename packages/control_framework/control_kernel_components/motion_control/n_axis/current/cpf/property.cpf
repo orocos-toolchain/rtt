@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the PropertyExtension -->
+<properties>
+   <sequence name="PropertyFiles" type="ComponentEntry">
+      <simple name="nAxesControllerVel" type="string"> <description>The Property File.</description> <value>cpf/nAxesControllerVel.cpf</value> </simple>  
+      <simple name="nAxesControllerPos" type="string"> <description>The Property File.</description> <value>cpf/nAxesControllerPos.cpf</value> </simple>  
+      <simple name="nAxesControllerPosVel" type="string"> <description>The Property File.</description> <value>cpf/nAxesControllerPosVel.cpf</value> </simple>  
+      <simple name="nAxesGeneratorPos"  type="string"> <description>The Property File.</description> <value>cpf/nAxesGeneratorPos.cpf</value> </simple>  
+      <simple name="nAxesGeneratorVel"  type="string"> <description>The Property File.</description> <value>cpf/nAxesGeneratorVel.cpf</value> </simple>  
+   </sequence>
+   <simple name="SaveProperties" type="boolean"> <description> True if properties of components needs saved when stopping kernel.</description><value>true</value> </simple>
+   <simple name="SaveFilePrefix"   type="string">   <description>The suffix of the filename to store the components state into</description><value>saved_</value> </simple>
+   <simple name="SaveFileExtension"   type="string"> <description>The extension of filename to store the components state into</description><value>cpf</value> </simple>
+</properties>

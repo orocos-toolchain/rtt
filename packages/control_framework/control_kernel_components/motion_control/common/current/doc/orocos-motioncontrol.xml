@@ -1,0 +1,825 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY motcontrol  "<acronym>Motion Control</acronym>">
+]
+>
+
+<article>
+  <articleinfo>
+    <title> Orocos Motion Control Kernel Components</title>
+    <authorgroup>
+      <author>
+        <firstname>Peter</firstname>
+        <surname>Soetens</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002-2004</year>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the design and implementation of the
+	Motion Control Kernel Components.
+      </para>
+    </abstract>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this
+	document under the terms of the GNU Free Documentation
+	License, Version 1.1 or any later version published by the
+	Free Software Foundation, with no Invariant Sections, with no
+	Front-Cover Texts, and with no Back-Cover Texts. A copy of
+	this license can be found at <ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+  </articleinfo>
+  <sect1>
+    <title>Introduction</title>
+    <para>
+      This document explains installation, and gives an overview of the
+      features and interface of the &orocos; &motcontrol; Components.
+    </para>
+    <para>
+      Install the Orocos Geometry and Kinematics package first, 
+      it is used for the kinematic calculations. A package is
+      provided on the Orocos web page.
+    </para>
+<!--     <sect2><title>Prerequisites</title> -->
+<!--       <tip> -->
+<!-- 	<para> -->
+<!-- 	  If you want detailed information about a class or function, -->
+<!-- 	  read the Doxygen generated reference of this package. You -->
+<!-- 	  will find a lot of complementary information in there not -->
+<!-- 	  presented here. -->
+<!-- 	</para> -->
+<!--       </tip> -->
+<!--     </sect2> -->
+  </sect1>
+  <sect1>
+    <title>Multi Axis Control Components</title>
+    <para>
+      This section discusses the components to control machines
+      consisting of multiple axes with drives, homing switches,
+      any kind of analog sensors and encoders.
+    </para>
+    <sect2>
+      <title>Axis Hardware Abstraction</title>
+      <para>
+	The Axis is abstracted as a logical device in the
+	device_interface Orocos package. When an axis object
+	is created, it must be given an <classname>AnalogDrive</classname>
+	which accepts the drive setpoints. The AnalogDrive is
+	connected to the physical hardware through an
+	<classname>AnalogOutput</classname> (for the signal)
+	and a <classname>DigitalOutput</classname> to enable
+	the drive. The Axis abstraction leaves the physical
+	unit which is controlled open, so it can be velocities,
+	torques etc.
+      </para>
+      <para>
+	Once created, the Axis object accepts optionally a
+	<classname>DigitalOutput</classname> representing the break
+	and a <classname>DigitalInput</classname> representing
+	a home switch.
+      </para>
+      <para>
+	An Axis can be given an unlimited amount of sensors
+	( <classname>SensorInterface</classname> ) together with an
+	endlimit device (possibly in software) which can disable drive signals 
+	in one or the other direction if the sensor detects
+	to large values. For example an <classname>EncoderPositionSensor</classname>
+	will be given an endlimit which disables (in software) the drive
+	in the positive direction if the position is to large.
+      </para>
+      <para>
+	An example of a fairly complete Axis Hardware Abstraction
+	implementation can be found in the <filename>
+	  kernel_samples/axis_control</filename> example directory.
+      </para>
+    </sect2>
+    <sect2>
+      <title>The AxisSensor Component</title>
+      <para>
+	The AxisSensor Component will introduce an Axis object
+	into the Control Kernel Sensor Component such that it
+	can be used for control. It creates DataObjects which
+	represent the continuous variables of the Axis and
+	extra methods in the program framework such that its
+	discrete state (enabled/disabled/breaked/...) can be
+	read out.
+      </para>
+      <sect3>
+	<title>Creating an AxisSensor Component</title>
+	<para>
+	  The AxisSensor is created like all
+	  the other components in the control framework :
+	  <programlisting>
+  AxisSensor   axis_sens(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of virtual channels
+	  this Sensor exposes (see later).
+	</para>
+      </sect3>
+      <sect3>
+	<title>Adding and Removing an Axis</title>
+	<para>
+	  An unlimited number of Axes can be added
+	  to the AxisSensor :
+	  <programlisting>
+  axis_sens.addAxis("Axis_1", axis_object );
+	  </programlisting>
+	  This methods adds an axis with name "Axis_1" to the AxisSensor.
+	  Each Sensor of the <varname>axis_object</varname> will lead
+	  to the creation of a DataObjectInterface&lt;double&gt; object
+	  with the name "Axis_1.SensorName" to the Inputs DataObject.
+	  If an Axis with this name already exists, addAxis returns false.
+	</para>
+	<para>
+	  The Axis Sensors can also be read from an Orocos
+	  Program Script or State Description :
+	  <programlisting>
+  var double result_1 = AxisSensor.readSensor("Axis_1.Position")
+  var double result_2 = AxisSensor.readSensor("Axis_1.Current")
+	  </programlisting>
+	</para>
+	<para>
+	  An Axis can be removed with the following method call :
+	  <programlisting>
+  axis_sens.removeAxis("Axis_1");
+	  </programlisting>
+	  Which removes the "Axis_1" DataObjects from the AxisSensor.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Reading the Axis' State</title>
+	<para>
+	  Not only sensors are tied to the Axis, also the discrete 
+	  state of the Axis can be queried. You can query individual
+	  inputs or the overall Axis state :
+	  <programlisting>
+  var bool result_1 = AxisSensor.isEnabled("Axis_1")
+  var bool result_2 = AxisSensor.isOn("Axis_1.Break")
+  var bool result_3 = AxisSensor.isOn("Axis_1.Drive")
+  var bool result_4 = AxisSensor.isOn("Axis_1.Home")
+	  </programlisting>
+	  Which queries the logical state of the axis and the individual
+	  state of a digital input ('Home', reference switch) or output
+	  ('Break', optional break and 'Drive' the drive enable signal).
+	</para>
+      </sect3>
+      <sect3>
+	<title>Using Virtual Channels</title>
+	<para>
+	  The Sensor data of Axes can be ordered in a virtual channels DataObject.
+	  This allows a more generic way of accessing the DataObjects
+	  in the other components. The Channel DataObject which is
+	  created is of the type
+	  <classname>DataObjectInterface&lt; std::vector&lt;double&gt; &gt;</classname>
+	  and has the name "ChannelValues". Axis Sensor values
+	  can be added to a channel in this vector :
+	  <programlisting>
+  int VIRT_CHANNEL = 1;
+  axis_sens.addSensorOnChannel("Axis_1","Position", VIRT_CHANNEL );
+	  </programlisting>
+	  Which demonstrates that the Position Sensor of the Axis
+	  is inserted in position 1 of the Channel DataObject. If this
+	  channel was already taken, addSensorOnChannel returns false.
+	</para>
+	<para>
+	  Removing a virtual channel is quite straightforward :
+	  <programlisting>
+  axis_sens.removeSensorFromChannel( VIRT_CHANNEL );
+	  </programlisting>
+	</para>
+	<para>
+	  The Process Control Components in the kernel_components/process_control
+	  package use virtual channels for their operations.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>The AxisEffector Component</title>
+      <para>
+	The AxisEffector works similar to the AxisSensor but
+	does the inverse operations. It reads Output DataObjects
+	and drives an Axis object with the given values. It allows
+	to operate the Axis actively.
+      </para>
+      <sect3>
+	<title>Creating an AxisEffector Component</title>
+	<para>
+	  The AxisEffector is created like all
+	  the other components in the control framework :
+	  <programlisting>
+  AxisEffector   axis_eff(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of virtual channels
+	  this Effector will accept (see later).
+	</para>
+      </sect3>
+      <sect3>
+	<title>Adding and Removing an Axis</title>
+	<para>
+	  An unlimited number of Axes can be added
+	  to the AxisEffector :
+	  <programlisting>
+  axis_eff.addAxis("Axis_1", axis_object );
+	  </programlisting>
+	  This methods adds an axis with name "Axis_1" to the AxisEffector.
+	  If a  DataObjectInterface&lt;double&gt; exists with the "Axis_1.Velocity"
+	  name, it will be used to drive the axis_object.
+	  If an Axis with this name already exists, addAxis returns false.
+	</para>
+	<para>
+	  An Axis can be removed with the following method call :
+	  <programlisting>
+  axis_eff.removeAxis("Axis_1");
+	  </programlisting>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Modifying the Axis' State</title>
+	<para>
+	  The state of the Axis can be modified as a whole (enable/disable)
+	  or using the individual digital outputs :
+	  <programlisting>
+  var bool result_1 = AxisEffector.enable("Axis_1")
+  var bool result_1b = AxisEffector.disable("Axis_1")
+  var bool result_2 = AxisEffector.switchOn("Axis_1.Break")
+  var bool result_2b = AxisEffector.switchOff("Axis_1.Break")
+  var bool result_3 = AxisEffector.switchOn("Axis_1.Drive")
+  var bool result_3b = AxisEffector.switchOff("Axis_1.Drive")
+	  </programlisting>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Using Virtual Channels</title>
+	<para>
+	  The Axis can be driven through a virtual channel. If a
+	  <classname>DataObjectInterface&lt; std::vector&lt;double&gt; &gt;</classname>
+	  is present and has the name "ChannelValues". The Axis 
+	  can be driven using a channel of this vector :
+	  <programlisting>
+  int VIRT_CHANNEL = 1;
+  axis_eff.addAxisOnChannel("Axis_1", VIRT_CHANNEL );
+	  </programlisting>
+	  Which demonstrates that the axis is controlled on channel 1.
+	  If this
+	  channel was already taken, addAxisOnChannel returns false.
+	</para>
+	<para>
+	  Removing a virtual channel is done by providing the Axis name :
+	  <programlisting>
+  axis_eff.removeAxisFromChannel( "Axis_1" );
+	  </programlisting>
+	</para>
+	<para>
+	  The Process Control Components in the kernel_components/process_control
+	  package use virtual channels for their operations.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>The AxisPositionGenerator (APG) Component</title>
+      <para>
+	This Generator Component generates interpolated trajectories
+	for simultaneous point to point movements of multiple axes.
+	It introduces program commands to manipulate each trajectory
+	individually. It expects the Axes positions to be located on the
+	"ChannelValues" Input DataObject.
+      </para>
+      <sect3>
+	<title>Creating the AxisPositionGenerator</title>
+	<para>
+	  As usual :
+	  <programlisting>
+  AxisPositionGenerator   apg(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of Axes it can
+	  generate trajectories for.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Properties</title>
+	<para>
+	  The AxisPositionGenerator (APG) requires a component
+	  property file for configuration of each axis. For each
+	  axis, a MaxVel and MaxAcc vector must be given which
+	  denote the individual axis limits in velocity and
+	  acceleration.
+	</para>
+	<programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the AxisPositionGenerator component -->
+
+<!--
+	This file is an example for two axes.
+	The dimension of the vectors must equal the number
+	of axes the AxisPositionGenerator will use.
+-->
+
+<properties>
+    <struct name="MaxVel" type="std::vector&lt;double&gt;">
+      <description>The maximum velocities per Axis.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><value>1.5</value></simple>
+      <simple name="d01" type="double"><value>1.6</value></simple>
+    </struct>
+    <struct name="MaxAcc" type="std::vector&lt;double&gt;">
+      <description>The maximum acceleration per Axis.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><value>10</value></simple>
+      <simple name="d01" type="double"><value>10</value></simple>
+    </struct>
+</properties>
+
+]]>
+	</programlisting>
+      </sect3>
+      <sect3>
+	<title>APG Commands</title>
+	<para>
+	  Two commands are available : move and wait. They
+	  take as first argument the axis number (starting from 1) "
+	  <programlisting>
+  var double velocity = 10.0
+  var double position = 25.9
+  do AxisPositionGenerator.move( 1, velocity, position )
+
+  var double wait_time = 3.123
+  do AxisPositionGenerator.wait(1, 3.123)
+	  </programlisting>
+	  wait does no more than a controlled stand still and could
+	  be considered a bit redundant.
+	</para>
+	<para>
+	  The APG can be queried if an Axis is ready for the next 
+	  command :
+	  <programlisting>
+  var bool ready = AxisPositionGenerator.isReady( 1 )
+	  </programlisting>
+	  The actual setpoint position can be evaluated as well :
+	</para>
+	  <programlisting>
+  var double pos = AxisPositionGenerator.position( 1 )
+	  </programlisting>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Choosing an Axis Estimator and Controller Component</title>
+      <para>
+	For now, no Estimator is available. As Controller, the
+	P_Controller and PID_Controller components of the Process
+	Control Kernel Components package can be used without any
+	adaptation.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>6DOF Motion Control Components</title>
+    <para>
+      This section explains the working of the Motion Control Kernel
+      Components for controlling 6DOF robots and machines. The
+      components rely on the Geometry library for path interpolation
+      and on the Control Kernel for configuring and running the
+      control loop.
+    </para>
+    <sect2>
+      <title>File Overview</title>
+      <para>
+	The 6DOF Motion Control Components have implementations in
+	these files :
+      </para>
+      <table>
+	<title>6DOF Motion Control File Overview</title>
+	<tgroup cols="4">
+	  <thead>
+	    <row>
+	      <entry>Filename</entry>
+	      <entry>Control Kernel</entry>
+	      <entry>Remarks </entry>
+	      <entry>Used in</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>CartesianComponents.hpp</entry>
+	      <entry>StandardControlKernel</entry>
+	      <entry>6DOF MoveTo Generator.
+		Deprecated. Does not use Execution
+		Extension, DataObject Reporting not possible.
+		Sensor And Effector
+		implement a simulation, but can be replaced by
+		'real' ones.
+	      </entry>
+	      <entry>kernel-samples/cartesian</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSGenerator.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		6DOF Move/MoveTo/Wait Generator.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianPositionTracker.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		6DOF tracking Generator. It can track
+		Sensor, Model and Command data.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSController.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		A simple proportional controller, which does the
+		inverse kinematics and calculates the error and
+		control action on joint level.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSEstimator.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		Calculates the forward kinematics from joint positions (Sensor
+		Data) to Cartesian space ( Model Data ).
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSSensor.hpp CartesianNSEffector.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		Simulates a 6-joints robot, just for
+		testing purposes.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </sect2>
+    <sect2>
+      <title>Generator Component : CartesianGenerator</title>
+      <para>
+	The <classname>CartesianGenerator</classname> is the main
+	access point for accepting move and move-to commands.
+	It can also move to a predefined home position. The Generator
+	can accept commands from four different places. The first place
+	is the Component's interface methods which can be accessed
+	from the Orocos Program Script or within the motioncontrol
+	application itself. The three other places are the Input,
+	Model and Command DataObjects.
+      </para>
+      <para>This section describes the NameServed Cartesian Generator,
+	which means that it addresses its DataObjects through a
+	"Name".
+      </para>
+      <sect3>
+	<title>Configuration parameters</title>
+	<para>The Generator can be configured in two ways :
+	  through the xml property file or through the interface
+	  methods.
+	</para>
+	<table>
+	  <title>CartesianGenerator Property Configuration</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Property Name</entry>
+		<entry>Default Value</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Interpolation</entry>
+		<entry>Trapezoidal</entry>
+		<entry>Other Possibilities : Step, Linear</entry>
+	      </row>
+	      <row>
+		<entry>MaximumVelocity</entry>
+		<entry>0</entry>
+		<entry>
+		  The maximum velocity in cartesian space, 
+		  must be set.
+		</entry>
+	      </row>
+	      <row>
+		<entry>MaximumAcceleration</entry>
+		<entry>0</entry>
+		<entry>
+		  The maximum acceleration in cartesian space, 
+		  must be set.
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	<para>
+	  The Property configuration of the Generator can be overridden
+	  by these method calls :
+	</para>
+	<table>
+	  <title>CartesianGenerator Configuration Methods</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Method Name</entry>
+		<entry>Remarks</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>CartesianGenerator.maximumVelocity( double v_max )</entry>
+		<entry>Must be used if the Property is not set.</entry>
+	      </row>
+	      <row>
+		<entry>CartesianGenerator.maximumAcceleration( double a_max )</entry>
+		<entry>Must be used if the Property is not set.</entry>
+	      </row>
+	      <row>
+		<entry>CartesianGenerator.interpolate( "Algorithm" )</entry>
+		<entry>Algorithm is one of Trapezoidal, Step or Linear.</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </sect3>
+      <sect3>
+	<title>CartesianGenerator Interface Methods</title>
+	<para>
+	  The main interfaces are move (with a twist), moveTo ( to a
+	  frame ) and wait (for a specified time). The semantics are
+	  always that a started movement is not interrupted, and thus
+	  a new command is only accepted when the previous one is
+	  terminated. If no given time is provided, maximum velocity
+	  and acceleration are applied to the trajectory. A time can
+	  only be used to 'stretch' the movement in time.
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianGenerator Position Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>CartesianGenerator.moveTo(Geometry::Frame end_frame, double time) </entry>
+		  <entry>
+		    Uses a trapezoidal velocity profile.  'time' is optional,
+		    when omitted, maximum velocity and acceleration will
+		    be respected.
+		  </entry>
+		</row>
+		<row>
+		  <entry>CartesianGenerator.wait(double time) </entry>
+		  <entry>
+		    Wait for the given time at the current position.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianGenerator Velocity Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>CartesianGenerator.move(Geometry::Twist end_velocity, double time) </entry>
+		  <entry>
+		    Accelerate/decelerate to the given speed using
+		    a trapezoidal acceleration profile. 'time' is optional,
+		    when ommitted, maximum velocity and acceleration will
+		    be respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Generator Component : CartesianPositionTracker</title>
+      <para>
+	The <classname>CartesianPositionTracker</classname> is
+	designed to track (externally) generated position setpoints.
+	The Generator can accept commands from three different places.
+	These places are the Input, Model and Command DataObjects.
+	It is complementary to the 'moveTo' generator.
+      </para>
+      <para>
+	This component is only available in the NSControlKernel.
+      </para>
+      <sect3>
+	<title>Configuration parameters</title>
+	<para>
+	  The Generator's properties can be
+	  configured like the CartesianGenerator.
+	</para>
+      </sect3>
+      <sect3>
+	<title>CartesianPositionTracker Interface Methods</title>
+	<para>
+	  The interface methods are equal to the CartesianGenerator,
+	  but the move/moveTo/wait instructions are replaced by
+	  <function>trackPositionSource("name", "time")</function>.
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianPositionTracker Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entrytbl cols="1">
+		    <tbody>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionCommand("PosName", "TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionModel("PosName", "TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionInput("PosName", "TimeName") </entry>
+		      </row>
+		    </tbody>
+		  </entrytbl>
+		  <entry>
+		    These three methods request the tracker to follow
+		    the position setpoints presented int the Command
+		    (from an external source), Model (from the
+		    Estimator Component) or Input (from the Sensor
+		    Component) data objects. PosName is the name of a
+		    Frame within the DataObject. Each change will lead
+		    to a new interpolated path. The data is read when
+		    the previous interpolation is ended. TimeName is
+		    optional, when specified as the empty string,
+		    maximum velocity and acceleration will be
+		    respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Generator Component : CartesianVelocityTracker</title>
+      <warning>
+	<para>
+	  NOT IMPLEMENTED YET
+	</para>
+      </warning>
+      <para>
+	The <classname>CartesianVelocityTracker</classname> is
+	designed to track (externally) generated velocity setpoints.
+	The Generator can accept commands from three different places.
+	These places are the Input, Model and Command DataObjects.
+	It is complementary to the 'move' generator.
+      </para>
+      <para>
+	This component is only available in the NSControlKernel.
+      </para>
+      <sect3>
+	<title>Configuration parameters</title>
+	<para>
+	  The Generator's properties can be
+	  configured like the CartesianGenerator.
+	</para>
+      </sect3>
+      <sect3>
+	<title>CartesianVelocityTracker Interface Methods</title>
+	<para>
+	  The interface methods are equal to the CartesianGenerator,
+	  but the move/moveTo/wait instructions are replaced by
+	  <function>trackVelocitySource("name","time")</function>.
+	</para>
+	<para>
+	  <table>
+	    <title>Cartesian Velocity Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entrytbl cols="1">
+		    <tbody>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityCommand("VelName","TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityModel("VelName","TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityInput("VelName","TimeName") </entry>
+		      </row>
+		    </tbody>
+		  </entrytbl>
+		  <entry>
+		    VelName is the name of a Twist within the Input
+		    DataObject. Each change will lead to a new
+		    interpolated path. The data is read when the
+		    previous interpolation is ended. TimeName is
+		    optional, when specified as the empty string,
+		    maximum veloicty and acceleration will be
+		    respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Controller Component : CartesianController</title>
+      <para>
+	The CartesianController takes a end effector frame as 
+	setpoint and converts it to desired joint positions.
+	It reads from the Sensor Component the actual joint
+	positions and does a proportional control on the
+	joint level. Desired joint velocities are written
+	to the Output DataObject.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Estimator Component : CartesianEstimator</title>
+      <para>
+	This component calculates the end effector position
+	in the robot base frame, given the joint positions.
+	It must be given a <classname>KinematicsInterface</classname> object
+	to do the forward kinematics.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Sensor Component : CartesianSensor</title>
+      <para>
+	The CartesianSensor is a dummy component. It
+	provides joint positions. A real implementation
+	must provide the same joint positions.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Effector Component : CartesianEffector</title>
+      <para>
+	The CartesianEffector uses a simulator to integrate
+	the joint velocities into joint positions.
+      </para>
+    </sect2>
+  </sect1>
+</article>
