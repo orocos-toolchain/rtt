@@ -58,7 +58,7 @@ namespace ORO_ControlKernel
      * Where the ControlCore will have access to the Commands, the Inputs and the Outputs.
      * 
      */
-    template <class _CommandType, class _InputType, class _OutputType, class _Extension = KernelBaseExtension >
+    template <class _CommandType, class _InputType, class _OutputType, class _Extension = KernelBaseFunction >
     class IntegratedControlKernel
         : public _Extension
     {

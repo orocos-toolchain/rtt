@@ -101,7 +101,7 @@ namespace ORO_ControlKernel
         /**
          * Create a PropertyExtension.
          */
-        PropertyExtension(KernelBaseExtension* _base ) 
+        PropertyExtension(KernelBaseFunction* _base ) 
             : ExtensionInterface("Property"),
               // marshaller(out), demarshaller(in),
               save_props("SaveProperties","",false), generator("Generator","filename"),
@@ -253,7 +253,7 @@ namespace ORO_ControlKernel
         /**
          * The base kernel of this extension.
          */
-        KernelBaseExtension* base;
+        KernelBaseFunction* base;
     };
 }        
 #endif

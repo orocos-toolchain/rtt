@@ -5,7 +5,7 @@ using namespace ORO_CoreLib;
 
 NameServer<ExtensionInterface*> ExtensionInterface::nameserver;
 
-bool ComponentBaseInterface::enableAspect(KernelBaseExtension* e)
+bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
 {
     kern = e;
     kern->addComponent(this);

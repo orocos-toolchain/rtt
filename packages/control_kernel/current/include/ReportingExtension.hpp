@@ -114,7 +114,7 @@ namespace ORO_ControlKernel
              * Set up a control kernel extension for reporting.
              *
              */
-            ReportingExtension( KernelBaseExtension* _base=0 )
+            ReportingExtension( KernelBaseFunction* _base=0 )
                 : ExtensionInterface("Reporter"), 
                   period("ReportPeriod","in seconds", 0.1 ), 
                   interval("SubSamplingInterval","", 1),
@@ -416,7 +416,7 @@ namespace ORO_ControlKernel
             /**
              * The base kernel of this extension.
              */
-            KernelBaseExtension* base;
+            KernelBaseFunction* base;
     };
 
 }

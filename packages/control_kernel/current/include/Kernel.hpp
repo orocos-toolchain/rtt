@@ -278,7 +278,7 @@ namespace ORO_ControlKernel
      * functionality which will be executed after the DefaultControlKernel's functionality is done. This allows you
      * to add data reporting, logic control etc to be executed after the control loop has finished.
      */
-    template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseExtension>
+    template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
     class DefaultControlKernel
         : public _Extension,
           public NameServerRegistrator< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
@@ -314,6 +314,11 @@ namespace ORO_ControlKernel
         typedef DataObject<ModelType>    ModelData;
         typedef DataObject<OutputType>   OutputData;
 
+        // XXX TODO : Nameserved DataObject :
+        // typedef DataContainer<SetPointType>::default SePointData; 
+        // typedef DataContainer<CommandType>::locked CommandData;
+        // typedef DataContainer<ModelType>::set_priority ModelType; 
+
         typedef Controller<SetPointData, InputData, ModelData, OutputData, CommonAspect> DefaultController;
         typedef Generator<CommandData, InputData, ModelData, SetPointData, CommonAspect> DefaultGenerator;
         typedef Estimator<InputData, ModelData, CommonAspect> DefaultEstimator;
@@ -327,22 +332,37 @@ namespace ORO_ControlKernel
             : _Extension(this), controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
               effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
         {
-            setController(controller);
-            setGenerator(generator);
-            setEstimator(estimator);
-            setEffector(effector);
-            setSensor(sensor);
+            // Load the default (empty) components.
+            loadController(controller);
+            loadGenerator(generator);
+            loadEstimator(estimator);
+            loadEffector(effector);
+            loadSensor(sensor);
+            // Select the default components for execution.
+            selectController(controller);
+            selectGenerator(generator);
+            selectEstimator(estimator);
+            selectEffector(effector);
+            selectSensor(sensor);
         }
+
         DefaultControlKernel(const std::string& name)
             :NameServerRegistrator< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this),
              controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
              effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
         {
-            setController(controller);
-            setGenerator(generator);
-            setEstimator(estimator);
-            setEffector(effector);
-            setSensor(sensor);
+            // Load the default (empty) components.
+            loadController(controller);
+            loadGenerator(generator);
+            loadEstimator(estimator);
+            loadEffector(effector);
+            loadSensor(sensor);
+            // Select the default components for execution.
+            selectController(controller);
+            selectGenerator(generator);
+            selectEstimator(estimator);
+            selectEffector(effector);
+            selectSensor(sensor);
         }
             
         virtual bool initialize() 
@@ -372,14 +392,6 @@ namespace ORO_ControlKernel
                             effector->componentStartUp();
                         }
                             
-                    // one step is one control cycle
-                    // The figure is a unidirectional graph
-                    sensor->update();
-                    estimator->update();
-                    generator->update();
-                    controller->update();
-                    effector->update();
-
                     // Call the extension (eg : reporting, execution engine, command interpreter... )
                     Extension::step();
                 }
@@ -431,7 +443,7 @@ namespace ORO_ControlKernel
          */
         virtual bool updateKernelProperties( const PropertyBag& bag )
         {
-            return KernelBaseExtension::updateProperties(bag);
+            return KernelBaseFunction::updateProperties(bag);
         }
 
         /**
@@ -483,7 +495,7 @@ namespace ORO_ControlKernel
          * @return True if the Controller Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoaded( const std::string& name ) {
+        bool isLoadedController( const std::string& name ) {
             DefaultController* c;
             if ( (c = DefaultController::nameserver.getObjectByName( name )) )
                 return isLoaded(c);
@@ -505,7 +517,7 @@ namespace ORO_ControlKernel
         bool unloadController(DefaultController* c) {
             if ( isRunning() )
                 return false;
-            std::vector<DefaultController*>::iterator itl = std::find( controllers.begin(), controllers.end(), c);
+            typename std::vector<DefaultController*>::iterator itl = std::find( controllers.begin(), controllers.end(), c);
             if ( itl != controllers.end() )
                 {
                     controllers.erase( c );
@@ -519,12 +531,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        bool isLoaded(DefaultController* c) {
+        bool isLoadedController(DefaultController* c) {
             return ( std::find(controllers.begin(), controllers.end(), c) != controllers.end() );
         }
 
         bool selectController(DefaultController* c) { 
-            if ( ! isLoaded(c) )
+            if ( ! isLoadedController(c) )
                 return false;
 
             if ( this->isRunning() )
@@ -586,10 +598,10 @@ namespace ORO_ControlKernel
          * @return True if the Generator Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoaded( const std::string& name ) {
+        bool isLoadedGenerator( const std::string& name ) {
             DefaultGenerator* c;
             if ( (c = DefaultGenerator::nameserver.getObjectByName( name )) )
-                return isLoaded(c);
+                return isLoadedGenerator(c);
             return false;
         }
 
@@ -608,7 +620,7 @@ namespace ORO_ControlKernel
         bool unloadGenerator(DefaultGenerator* c) {
             if ( isRunning() )
                 return false;
-            std::vector<DefaultGenerator*>::iterator itl = std::find( generators.begin(), generators.end(), c);
+            typename std::vector<DefaultGenerator*>::iterator itl = std::find( generators.begin(), generators.end(), c);
             if ( itl != generators.end() )
                 {
                     generators.erase( c );
@@ -622,12 +634,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        bool isLoaded(DefaultGenerator* c) {
+        bool isLoadedGenerator(DefaultGenerator* c) {
             return ( std::find(generators.begin(), generators.end(), c) != generators.end() );
         }
 
-        void selectGenerator(DefaultGenerator* c) { 
-            if ( ! isLoaded(c) )
+        bool selectGenerator(DefaultGenerator* c) { 
+            if ( ! isLoadedGenerator(c) )
                 return false;
             if ( this->isRunning() )
                 {
@@ -688,10 +700,10 @@ namespace ORO_ControlKernel
          * @return True if the Estimator Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoaded( const std::string& name ) {
+        bool isLoadedEstimator( const std::string& name ) {
             DefaultEstimator* c;
             if ( (c = DefaultEstimator::nameserver.getObjectByName( name )) )
-                return isLoaded(c);
+                return isLoadedEstimator(c);
             return false;
         }
 
@@ -708,7 +720,7 @@ namespace ORO_ControlKernel
         bool unloadEstimator(DefaultEstimator* c) {
             if ( isRunning() )
                 return false;
-            std::vector<DefaultEstimator*>::iterator itl = std::find( estimators.begin(), estimators.end(), c);
+            typename std::vector<DefaultEstimator*>::iterator itl = std::find( estimators.begin(), estimators.end(), c);
             if ( itl != estimators.end() )
                 {
                     estimators.erase( c );
@@ -720,12 +732,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        bool isLoaded(DefaultEstimator* c) {
+        bool isLoadedEstimator(DefaultEstimator* c) {
             return ( std::find(estimators.begin(), estimators.end(), c) != estimators.end() );
         }
 
-        void selectEstimator(DefaultEstimator* c) { 
-            if ( ! isLoaded(c) )
+        bool selectEstimator(DefaultEstimator* c) { 
+            if ( ! isLoadedEstimator(c) )
                 return false;
             if ( this->isRunning() )
                 {
@@ -785,10 +797,10 @@ namespace ORO_ControlKernel
          * @return True if the Sensor Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoaded( const std::string& name ) {
+        bool isLoadedSensor( const std::string& name ) {
             DefaultSensor* c;
             if ( (c = DefaultSensor::nameserver.getObjectByName( name )) )
-                return isLoaded(c);
+                return isLoadedSensor(c);
             return false;
         }
 
@@ -804,7 +816,7 @@ namespace ORO_ControlKernel
         bool unloadSensor(DefaultSensor* c) {
             if ( isRunning() )
                 return false;
-            std::vector<DefaultSensor*>::iterator itl = std::find( sensors.begin(), sensors.end(), c);
+            typename std::vector<DefaultSensor*>::iterator itl = std::find( sensors.begin(), sensors.end(), c);
             if ( itl != sensors.end() )
                 {
                     sensors.erase( c );
@@ -815,12 +827,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        bool isLoaded(DefaultSensor* c) {
+        bool isLoadedSensor(DefaultSensor* c) {
             return ( std::find(sensors.begin(), sensors.end(), c) != sensors.end() );
         }
 
-        void selectSensor(DefaultSensor* c) { 
-            if ( ! isLoaded(c) )
+        bool selectSensor(DefaultSensor* c) { 
+            if ( ! isLoadedSensor(c) )
                 return false;
             if ( this->isRunning() )
                 {
@@ -881,10 +893,10 @@ namespace ORO_ControlKernel
          * @return True if the Effector Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoaded( const std::string& name ) {
+        bool isLoadedEffector( const std::string& name ) {
             DefaultEffector* c;
             if ( (c = DefaultEffector::nameserver.getObjectByName( name )) )
-                return isLoaded(c);
+                return isLoadedEffector(c);
             return false;
         }
 
@@ -900,7 +912,7 @@ namespace ORO_ControlKernel
         bool unloadEffector(DefaultEffector* c) {
             if ( isRunning() )
                 return false;
-            std::vector<DefaultEffector*>::iterator itl = std::find( effectors.begin(), effectors.end(), c);
+            typename std::vector<DefaultEffector*>::iterator itl = std::find( effectors.begin(), effectors.end(), c);
             if ( itl != effectors.end() )
                 {
                     effectors.erase( c ); 
@@ -911,12 +923,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        bool isLoaded(DefaultEffector* c) {
+        bool isLoadedEffector(DefaultEffector* c) {
             return ( std::find(effectors.begin(), effectors.end(), c) != effectors.end() );
         }
 
         bool selectEffector(DefaultEffector* c) { 
-            if ( ! isLoaded(c) )
+            if ( ! isLoadedEffector(c) )
                 return false;
             if ( this->isRunning() )
                 {
@@ -959,6 +971,19 @@ namespace ORO_ControlKernel
         OutputData* getOutputs() { return &outputs; }
 
     protected:
+
+        virtual void updateComponents()
+        {
+            // This is called from the KernelBaseFunction
+            // one step is one control cycle
+            // The figure is a unidirectional graph
+            sensor->update();
+            estimator->update();
+            generator->update();
+            controller->update();
+            effector->update();
+        }
+
         /**
          * The default Components, They write defaults to the DataObjects.
          */

@@ -97,7 +97,7 @@ namespace ORO_ControlKernel
         const std::string aspectName;
     };
 
-    class KernelBaseExtension;
+    class KernelBaseFunction;
 
     /**
      * The most logical aspect of a Component is that it belongs
@@ -130,9 +130,9 @@ namespace ORO_ControlKernel
              * 
              * @return The kernel it belongs to, zero if none.
              */
-            KernelBaseExtension* kernel() { return kern; }
+            KernelBaseFunction* kernel() { return kern; }
 
-            virtual bool enableAspect(KernelBaseExtension* e);
+            virtual bool enableAspect(KernelBaseFunction* e);
 
             /**
              * This method is a hook which is called when the component
@@ -161,7 +161,7 @@ namespace ORO_ControlKernel
             
             virtual void disableAspect();
         private:
-            KernelBaseExtension* kern;
+            KernelBaseFunction* kern;
     };
 
     /**
@@ -196,7 +196,7 @@ namespace ORO_ControlKernel
      * This Extension is actually the base functionality
      * of a kernel, which can handle aspects.
      */
-    struct KernelBaseExtension
+    struct KernelBaseFunction
         :public RunnableInterface
     {
         friend class ComponentBaseInterface;
@@ -207,20 +207,23 @@ namespace ORO_ControlKernel
          */
         typedef ComponentBaseInterface CommonBase;
 
-        KernelBaseExtension( KernelBaseExtension* _base=0 )
+        KernelBaseFunction( KernelBaseFunction* _base=0 )
             : running(false), 
               frequency("frequency","The periodic execution frequency of this kernel",0),
               kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN)
         {}
 
-        virtual ~KernelBaseExtension() {}
+        virtual ~KernelBaseFunction() {}
 
         virtual bool initialize() 
         { 
             running = true; 
             return true;
         }
-        virtual void step() {}
+        virtual void step() 
+        { 
+            // update the components 
+        }
         virtual void finalize() 
         { 
             running = false; 
@@ -308,8 +311,15 @@ namespace ORO_ControlKernel
                 components.erase(itl);
         }
 
+        /**
+         * This is to be implemented by the derived Kernel.
+         * We can not update the components in this class because
+         * the order is unknown. The order in which the components
+         * must be updated is known in the Kernel subclass.
+         */
+        virtual void updateComponents() = 0;
         
-        private:
+    private:
         /**
          * Flag to keep track of running state.
          */
@@ -322,6 +332,7 @@ namespace ORO_ControlKernel
 
         std::vector<ComponentBaseInterface*> components;
 
+    protected:
         Event kernelStarted;
         Event kernelStopped;
         Event nullEvent;
@@ -372,7 +383,7 @@ namespace ORO_ControlKernel
             typedef CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
             
             CompositeExtension() {}
-            CompositeExtension( KernelBaseExtension* _base ) : First(_base), Second(_base) {}
+            CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
 
             virtual ~CompositeExtension() {}
 

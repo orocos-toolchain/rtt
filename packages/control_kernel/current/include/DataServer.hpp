@@ -335,6 +335,8 @@ namespace ORO_ControlKernel
      * The containers below are used by the kernel to select the type of DataObject.
      * The template parameter is a user supplied ServedTypes derived type, which
      * conains the names and the types of each nameserved DataObject.
+     *
+     * Should these definitions remain in this file or move to another file ?
      */
     template< typename C>
     struct DataObjectContainer
