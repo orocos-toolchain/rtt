@@ -2,7 +2,7 @@
 cdl_package OROPKG_EXECUTION_PROGRAM_PROCESSOR {
     display "Program processing infrastructure"
     description "
-A Package that provides realtime program execution,
+A Package that provides realtime-safe program execution,
 with each program statement represented by an object
 which encapsulates the command to be executed."
 
@@ -19,7 +19,5 @@ which encapsulates the command to be executed."
     compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
     compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
     compile Processor.cxx
-    #compile ProcessorState.cxx  ProcessorStateConfig.cxx  ProcessorStateExec.cxx  ProcessorStateInit.cxx  ProcessorStateLoad.cxx  
-    #compile ProcessorStateStepping.cxx
     compile AsynchCommandDecorator.cxx
 }
