@@ -115,12 +115,12 @@ namespace ORO_CoreLib
 			std::string escape(std::string s)
 			{
 				std::string::size_type n;
+				while ((n = s.find("&")) != s.npos)
+					s.replace(n, 1, std::string("&amp;"));
 				while ((n = s.find("<")) != s.npos)
 					s.replace(n, 1, std::string("&lt;"));
 				while ((n = s.find(">")) != s.npos)
 					s.replace(n, 1, std::string("&gt;"));
-				while ((n = s.find("&")) != s.npos)
-					s.replace(n, 1, std::string("&amp;"));
 				// TODO: Added escapes for other XML entities
 				return s;
 			}
