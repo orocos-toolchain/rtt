@@ -80,6 +80,10 @@ namespace ORO_ControlKernel
             return extensions;
         }
 
+        virtual TaskInterface* getTask() const;
+            
+        virtual void setTask( TaskInterface* task );
+
         const std::string& getKernelName() const;
 
     protected:
@@ -93,8 +97,6 @@ namespace ORO_ControlKernel
         void setKernelName( const std::string& _name);
 
         std::vector<detail::ExtensionInterface*> extensions;
-
-        TaskInterface* mytask;
 
         Property<std::string> name;
     };
@@ -174,6 +176,10 @@ namespace ORO_ControlKernel
         virtual bool initialize() ;
         virtual void step() ;
         virtual void finalize() ;
+
+        virtual TaskInterface* getTask() const;
+
+        virtual void setTask( TaskInterface* task );
 
         /**
          * @brief Returns true if the kernel is running, false

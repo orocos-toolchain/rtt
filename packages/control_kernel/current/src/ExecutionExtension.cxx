@@ -63,6 +63,17 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     using std::cerr;
     using std::endl;
 
+    // is this still needed ???
+    TaskInterface* ExecutionExtension::getTask() const
+    {
+        return base->getTask();
+    }
+
+    void ExecutionExtension::setTask( TaskInterface* task )
+    {
+        base->setTask( task );
+    }
+
     bool ExecutionExtension::initialize()
     {
         initKernelCommands();

@@ -164,6 +164,10 @@ namespace ORO_ControlKernel
          */
         struct SplitStream;
 
+        virtual TaskInterface* getTask() const;
+
+        virtual void setTask( TaskInterface* task );
+
         virtual bool initialize();
 
         virtual void step();
