@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:35 CEST 2004  rnchainabstract.cxx 
+  tag: Erwin Aertbelien  Mon May 10 19:10:35 CEST 2004  rnchainabstract.cxx 
 
                         rnchainabstract.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    copyright            : (C) 2004 Erwin Aertbelien
+    email                : erwin.aertbelien@mech.kuleuven.ac.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
