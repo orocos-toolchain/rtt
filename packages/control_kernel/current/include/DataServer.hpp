@@ -747,10 +747,10 @@ namespace ORO_ControlKernel
 
         template<class Head, class Tail>
         struct NameFrontEnd< Typelist<Head, Tail> >
-            : public DataObjectServer<Head>,
+            : public DataObjectServer< DataObjectInterface<typename Head::DataType> >,
               public NameFrontEnd<Tail>
         {
-            typedef DataObjectServer<Head> ServerType;
+            typedef DataObjectServer< DataObjectInterface< typename Head::DataType> > ServerType;
 
             using ServerType::Get;
             using ServerType::Set;
@@ -803,9 +803,9 @@ namespace ORO_ControlKernel
 
         template<class Head>
         struct NameFrontEnd< Typelist<Head, nil_type> >
-            : public DataObjectServer<Head>
+            : public DataObjectServer< DataObjectInterface< typename Head::DataType> >
         {
-            typedef DataObjectServer<Head> ServerType;
+            typedef DataObjectServer< DataObjectInterface< typename Head::DataType> > ServerType;
 
             using ServerType::Get;
             using ServerType::Set;
