@@ -2,7 +2,7 @@
 #define COMPONENTINTERFACES_HPP
 
 #include <corelib/Property.hpp>
-#include "ModuleControlInterface.hpp"
+#include "DataFlowInterface.hpp"
 
 #pragma interface
 
@@ -80,7 +80,7 @@ namespace ORO_ControlKernel
      * 
      */
     class ComponentBaseInterface 
-        :public ModuleControlInterface,
+        :public DataFlowInterface,
          public detail::ComponentAspectInterface< KernelBaseFunction >
     {
         friend class KernelBaseFunction;

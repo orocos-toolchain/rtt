@@ -652,17 +652,17 @@ namespace ORO_ControlKernel
             
         /**
          * Create a recursive data element which fetches the data from a
-         * ModuleControlInterface.
+         * DataFlowInterface.
          *
          * @param _module The module to provide the data for this instance.
          */
-        DataRecursive( ModuleControlInterface* _module) : module(_module) {}
+        DataRecursive( DataFlowInterface* _module) : module(_module) {}
             
         void Get( DataType& pull ) const { module->update(); pull = data; }
         DataType Get() const { module->update(); return data; }
         void Set( const DataType& push ) { data = push; }
     protected:
-        mutable ModuleControlInterface* module;
+        mutable DataFlowInterface* module;
     };
 
     using ORO_CoreLib::HeartBeatGenerator;

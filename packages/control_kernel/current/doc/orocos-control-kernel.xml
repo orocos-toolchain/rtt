@@ -1203,7 +1203,7 @@ contents  = my_Do.Get(); // equivalent
 	algorithms, that process the data exchanged through the
 	connected DataObjects. The Control Kernel provides standard
 	Data Flow Components and standard interfaces to DataObjects, but the
-	Application Builders must still fill in the concrete
+	Component Builders must still fill in the concrete
 	functionality (algorithm) in the Data Flow Components.
 	This Section explains how to
 	do this, and also discusses other features offered by
@@ -1244,7 +1244,8 @@ contents  = my_Do.Get(); // equivalent
 	  >
   { 
   public:
-      MyGenerator : Generator("MyGeneratorName") {}
+      MyGenerator( const std::string& name = "MyGeneratorName")
+	  : Generator( name ) {}
       void pull() 
       { 
           // ... 
@@ -1283,14 +1284,18 @@ contents  = my_Do.Get(); // equivalent
 	</para>
 	<para>
 	  The name ("MyGeneratorName") of the component must be unique within 
-	  the type (Generator) in one kernel.
+	  the type (Generator) in one kernel. It will be used lateron
+	  to identify it from scripts or configuration files. The name of
+	  a Component should be as stable as possible, as many configuration
+	  files must be changed if the name changes.
 	</para>
 	<screen>
 MyGenerator  my_gen;
 	</screen>
 	<para>
-	  The above line has created an instance of
-	  <classname>MyGenerator</classname> called my_gen and which
+	  The above line has created one instance of
+	  <classname>MyGenerator</classname> called my_gen and using
+	  the default name "MyGeneratorName".
 	  It can
 	  be used with the <function>loadGenerator()</function> method
 	  call of the <classname>StandardControlKernel</classname>.
@@ -1301,7 +1306,8 @@ first_kernel.loadGenerator( &amp;my_gen );
 	</screen>
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
-	  To introduce this Generator in the Data Flow instead of the current one,
+	  To introduce this Generator in the Data Flow instead 
+	  (thus let it generate SetPoints) of the current one,
 	  it must be selected :
 	</para>
 	<screen>
@@ -1309,7 +1315,7 @@ first_kernel.selectGenerator( &amp;my_gen );
 	</screen>
 	<note>
 	  <para>
-	    One can only select a component after the kernel is started !
+<!-- 	    One can only select a component after the kernel is started ! -->
 	    Selection is enabling a Data Flow Component to operate on the
 	    Data Objects. Only one Component per type can do this. This
 	    does not mean that a not selected component is not accessible.
@@ -1319,8 +1325,8 @@ first_kernel.selectGenerator( &amp;my_gen );
 	<para>
 	  Only one Data Flow Component per type can be selected at a time and only a
 	  previously loaded Component can be selected in a running kernel.
-	  All loaded components are configured just before the Control
-	  Kernel is running. Any component not loaded at that time
+	  Components can be configured when they are loaded or when
+	  the kernel is started. Any component not loaded at that time
 	  will not be configured by that Control Kernel and is thus
 	  not usable when the Control Kernel is running. The above
 	  methods are available for all Components of the kernel.
@@ -1414,7 +1420,13 @@ struct MG_InputData
 	</example>
 	<para>
 	  If a type of DataObject is not used (for example the Model),
-	  then, the Component uses the Expects&lt;NoModel&gt; construct.
+	  then, the Component uses the Expects&lt;NoModel&gt; construct. For
+	  Each Data Object type, there is such a class predefined :
+	  <classname>NoInput</classname>,
+	  <classname>NoModel</classname>,
+	  <classname>NoCommand</classname>,
+	  <classname>NoSetPoint</classname>,
+	  <classname>NoOutput</classname>.
 	</para>
 	<para>
 	  To get hold of a pointer to the DataObject from 
@@ -1459,9 +1471,7 @@ class MyGenerator
   DataObjectInterface<Frame>* end_f_dobj;
 
 public:
-  MyGenerator() :
-     Generator("MyGenerator")
-  {}
+  // ...
 
   bool componentLoaded()
   {
@@ -1522,12 +1532,12 @@ public:
 	  <function>calculate()</function>, and
 	  <function>push()</function>, for data exchange and data
 	  processing during its normal control loop activity. The
-	  Application Builder must fill in the concrete
+	  Component Builder must fill in the concrete
 	  application-dependent contents of these methods.
 	</para>
 	<para>
 	  The <function>pull()</function> method must
-	  <function>Get()</function> the data objects the Component is
+	  <function>Get()</function> the Data Objects the Component is
 	  connected to from its &ldquo;input&rdquo; side, and copy
 	  their contents to local variables.  The
 	  <function>calculate()</function> method performs the
@@ -1549,7 +1559,9 @@ public:
 	  Generator Component typically gets new goal points from the
 	  user at &ldquo;low frequency&rdquo; but must produce a new
 	  setpoint for the Controller Component at a &ldquo;high
-	  frequency&rdquo;.
+	  frequency&rdquo;. The Component Builder can implement
+	  this behaviour by overriding the update() method,
+	  defined in the <classname>DataFlowInterface</classname>.
 	</para>
       </sect3>
 
@@ -1628,11 +1640,10 @@ public:
 	    linkend="communication-flows">couples</link> the data flow
 	  and the configuration flow! The correct way is to provide
 	  methods to the Controller Component that start and stop the
-	  D action. Typically, these methods are called via Events
+	  D action. These methods can be called via Events
 	  fired by one of the other Components (Generator, Estimator,
-	  &hellip;), possibly from another Control Kernel. Of course,
-	  the Controller Component must first have registered the
-	  disable/enable-methods as handlers for the Event.
+	  &hellip;), possibly from another Control Kernel or through
+	  the Command Processor.
 	</para>
       </sect3>
       <sect3>
@@ -1649,7 +1660,7 @@ public:
 	  instead of DataObjects. It must be looked after by the
 	  Application Builders that the Components match each other
 	  for writing and reading data, otherwise, a compile time
-	  error will occur. The
+	  error or runtime error will occur. The
 	  figure below illustrates the responsabilities for each
 	  Component in the framework.
 	</para>
@@ -1699,7 +1710,7 @@ public:
 	  and must happen <emphasis>before</emphasis> the
 	  kernel started, <emphasis>selecting</emphasis> a
 	  Component is only allowed <emphasis>after</emphasis>
-	  the kernel is started.
+	  the Component is loaded.
 	</para>
       </sect3>
       <sect3 id="events-hooks-states">
@@ -3227,6 +3238,99 @@ Property&lt; A &gt; a_prop;
 	    MotionProperties.hpp</filename> file.</para>
       </example>      
     </sect2>
+  </appendix>
+  <appendix>
+    <title>Converting Old-Style Components to New-Style</title>
+    <para>
+      Prior to the presented StandardControlKernel, two other kernels
+      were presented in the previous Orocos releases. This Appendix
+      gives a short overview of how to migrate these Components to
+      the new Infrastructure.
+    </para>
+    <sect1>
+      <title>Converting from the Old StandardControlKernel</title>
+      <para>
+	The Data Flow Components and Control Kernel have been adapted such that
+	Component and Kernel can be seperately compiled. This was only possible
+	because of name served Data Objects. The Old StandardControlKernel
+	did not use this feature. The example shows first an old style
+	implementation :
+      </para>
+      <example>
+	<title>An Old-Style StandardControlKernel</title>
+	<programlisting>
+  StandardControlKernel&lt;CommandType, SetPointType,
+	                   InputType, ModelType, OutputType, Extension&gt; kernel;
+ 
+  template&lt; class Base &gt;
+  XGenerator : public Base
+  {
+     // access Inputs::dObj() with Get() and Set(),...
+  };
+	</programlisting>
+      </example>
+      <para>
+	This must be changed to :
+      </para>
+      <example>
+	<title>A Converted Old-Style StandardControlKernel</title>
+	<programlisting>
+  StandardControlKernel&lt;Extension&gt; kernel;
+
+  struct NSInputType
+    : public ServedTypes&lt;InputType&gt;
+  {
+      NSInputType() {
+	  this->insert(0,"Input");
+      }
+  };
+
+  // repeat for other Types...
+
+  XGenerator 
+    : public Generator&lt; Expects&lt;NSInputType&gt;,
+                           Expects&lt;NSModelType&gt;,
+                           Expects&lt;NSCommandType&gt;,
+                           Writes&lt;NSSetPointType&gt; &gt;
+  {
+    // Use the nameserving technique to get a pointer to the
+    // "Input" DataObject.
+  };
+	</programlisting>
+      </example>
+    </sect1>
+    <sect1>
+      <title>Converting from the NSControlKernel</title>
+      <para>
+	Adaptation from this kernel is quite minimal. As above,
+	all DataObject types can be removed from the kernel 
+	definition as above. Next the component uses the
+	already defined NS DataObjects in Expects and Writes :
+      </para>
+      <example>
+	<title>A Converted Old-Style NSControlKernel</title>
+	<programlisting>
+  // Change the kernel definition :
+  StandardControlKernel&lt;Extension&gt; kernel;
+
+  // Remove the template, inherit from Generator directly :
+  XGenerator 
+    : public Generator&lt; Expects&lt;NSInputType&gt;,
+                           Expects&lt;NSModelType&gt;,
+                           Expects&lt;NSCommandType&gt;,
+                           Writes&lt;NSSetPointType&gt; &gt;
+  {
+    // Use the nameserving technique to get a pointer to the
+    // DataObjects, no change here
+  };
+	</programlisting>
+      </example>
+      <para>
+	If you used the <classname>CompositeDataObject</classname>
+	to define the Kernel type, this is no longer needed
+	and each component expects or writes its own DataObjects.
+      </para>
+    </sect1>
   </appendix>
   <appendix>
     <title>Legal Notices</title>

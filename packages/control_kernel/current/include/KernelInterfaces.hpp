@@ -114,8 +114,8 @@ namespace ORO_ControlKernel
         friend class ComponentBaseInterface;
         
         /**
-         * The CommonBase is the ModuleControlInterface
-         * and KernelConnectionInterface.
+         * The CommonBase is the 
+         * ComponentBaseInterface.
          */
         typedef ComponentBaseInterface CommonBase;
 

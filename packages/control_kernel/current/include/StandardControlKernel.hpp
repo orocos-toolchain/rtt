@@ -59,7 +59,7 @@ namespace ORO_ControlKernel
      */
     template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
     class StandardControlKernel
-        : public detail::BaseKernel< detail::StandardPort< DataObjectLocked<_CommandType> >, 
+        : public detail::BaseKernel< detail::StandardPort< DataObjectBuffered<_CommandType> >, 
                                      detail::StandardPort< DataObject<_SetPointType> >, 
                                      detail::StandardPort< DataObject<_InputType> >, 
                                      detail::StandardPort< DataObject<_ModelType> >, 

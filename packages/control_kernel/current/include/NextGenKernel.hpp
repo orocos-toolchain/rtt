@@ -84,14 +84,15 @@ namespace ORO_ControlKernel
     /**
      * @brief The BaseKernel is for internal use only.
      *
-     * The template parameters must be type containers. Ports are dropped from the kernel
+     * The template parameters must be DataObject-type containers. Ports are dropped from the kernel
      * and defined at the component level. When the component is loaded, the kernel
-     * asks it to create the data objects. This means that loading components is now
-     * an ordered (sensor to effector) operation (cfr selecting).
+     * asks it to create the data objects.
+     *
+     * @see KernelBaseFunction
      */
     template <class CPort, class SPort, class IPort, class MPort, class OPort , class _Extension = KernelBaseFunction >
     class BaseKernel
-        : public _Extension //, public ControlKernelInterface
+        : public _Extension
     {
         typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
                                                             shared_ptr<DOCreationInterface> > > ComponentMap;
@@ -395,18 +396,24 @@ namespace ORO_ControlKernel
          */
 
         /**
-         * @name Select a Component
+         * @name Select a Data Flow Component
          * @{
          * @brief Select a previously loaded Component.
          *
-         * This will only succeed if isLoadedComponent(\a c) and
-         * this->isRunning(). Furthermore, if the Component's
+         * Selecting a Component enables it to write to its
+         * Data Objects. A Component may expect meaningfull
+         * values in the Data Objects it reads from and is
+         * expected to write a meaningfull value in the 
+         * Data Objects it writes to.
+         *
+         * This will only succeed if isLoadedComponent(\a c).
+         * Furthermore, if the Component's
          * componentStartup() method returns false, the previous
          * selected component is again started.
          *
          */
         bool selectSensor(ComponentBaseInterface* c) { 
-            if ( ! isLoadedSensor(c) || !this->isRunning() )
+            if ( ! isLoadedSensor(c) )
                 return false;
 
             sensor = this->switchComponent( sensor, c );
@@ -419,7 +426,7 @@ namespace ORO_ControlKernel
         }
 
         bool selectEstimator(ComponentBaseInterface* c) { 
-            if ( ! isLoadedEstimator(c) || !this->isRunning() )
+            if ( ! isLoadedEstimator(c) )
                 return false;
 
             estimator = this->switchComponent( estimator, c );
@@ -432,7 +439,7 @@ namespace ORO_ControlKernel
         }
 
         bool selectGenerator(ComponentBaseInterface* c) { 
-            if ( ! isLoadedGenerator(c) || !this->isRunning() )
+            if ( ! isLoadedGenerator(c) )
                 return false;
 
             generator = this->switchComponent( generator, c );
@@ -445,7 +452,7 @@ namespace ORO_ControlKernel
         }
 
         bool selectController(ComponentBaseInterface* c) { 
-            if ( ! isLoadedController(c) || !this->isRunning() )
+            if ( ! isLoadedController(c) )
                 return false;
 
             controller = this->switchComponent( controller, c );
@@ -458,7 +465,7 @@ namespace ORO_ControlKernel
         }
 
         bool selectEffector(ComponentBaseInterface* c) { 
-            if ( ! isLoadedEffector(c) || !this->isRunning() )
+            if ( ! isLoadedEffector(c) )
                 return false;
 
             effector = this->switchComponent( effector, c );
@@ -470,8 +477,9 @@ namespace ORO_ControlKernel
             return effector == c;
         }
 
+        /* Not usefull, ComponentStartup has DataObject semantics.
         bool selectSupport(ComponentBaseInterface* c) { 
-            if ( ! isLoadedSupport(c) || !this->isRunning() )
+            if ( ! isLoadedSupport(c) )
                 return false;
 
             return this->startComponent( c );
@@ -484,6 +492,7 @@ namespace ORO_ControlKernel
             this->stopComponent( c );
             return true;
         }
+        */
         /**
          * @}
          */
