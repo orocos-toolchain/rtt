@@ -55,6 +55,7 @@ std C++ library"
 	display "Support for interrupt based Events"
 	flavor bool
 	requires OROINT_CORELIB_EVENT_INTERFACE
+        compile EventInterrupt.cxx
     }
 
     cdl_interface OROINT_OS_STDCXXLIB {

@@ -1,43 +1,26 @@
-/***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:33:53 CEST 2002  EventInterrupt.hpp 
-
-                       EventInterrupt.hpp -  description
-                          -------------------
-   begin                : Mon June 10 2002
-   copyright            : (C) 2002 Peter Soetens
-   email                : peter.soetens@mech.kuleuven.ac.be
-
-***************************************************************************
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************/
+#ifndef EVENTINTERRUPTINTERFACE_HPP
+#define EVENTINTERRUPTINTERFACE_HPP
 
 
-#ifndef EVENTINTERRUPT_HPP
-#define EVENTINTERRUPT_HPP
+#include <vector>
 
-
-#include <corelib/Event.hpp>
-
-struct pt_regs;
+namespace ORO_CoreLib
+{
+    class EventCompleterInterface;
+    class EventListenerInterface;
+}
 
 namespace ORO_OS
 {
-
-    using ORO_CoreLib::Event;
-    using ORO_CoreLib::EventListenerInterface;
-    using ORO_CoreLib::EventCompleterInterface;
-
     class ISRInterface;
-
     class DSRInterface;
+    class EventInterrupt;
+
+    using ORO_CoreLib::EventCompleterInterface;
+    using ORO_CoreLib::EventListenerInterface;
 
     /**
-     * An Event for interrupts
+     * An EventInterface for interrupts.
      * Top Half : the EventListener - ISR
      * Bottom Half : The EventCompleter - DSR
      *
@@ -51,147 +34,129 @@ namespace ORO_OS
      * * When you fire(), only the Listener,Completer are notified (since this is
      *   software firing, not an IRQ)
      * 
-     * @invar There is only one instance of EventInterrupt per IRQ
-     *         foreach j,k in EventInterrupt,j != k : j.getIRQ() != k.getIRQ()
+     * @invar There is only one instance of EventInterruptInterface per IRQ
+     *         foreach j,k in EventInterruptInterface,j != k : j.getIRQ() != k.getIRQ()
      */
-    class EventInterrupt : public Event
+    class EventInterruptInterface
     {
 
-        public:
-            EventInterrupt();
+    public:
+        /**
+         * Default Initialisation.
+         */
+        EventInterruptInterface() : irq(0), initHardWare(0)
+        {
+            EventInterruptInterface::InstanceAdd(this);
+        }
 
-            virtual ~EventInterrupt();
+        /**
+         * Virtual destructor.
+         */
+        virtual ~EventInterruptInterface() 
+        {
+            EventInterruptInterface::InstanceRemove(this);
+        }
 
-            /**
-             * Set the IRQ this event reacts to
-             */
-            virtual void IRQSet( unsigned int i )
-            {
-                irq = i;
-            }
+        /**
+         * Set the IRQ this event reacts to
+         */
+        void IRQSet( unsigned int i ) { irq = i; }
 
-            /**
-             * Read the IRQ this events reacts to
-             */
-            virtual unsigned int IRQGet() const
-            {
-                return irq;
-            }
+        /**
+         * Read the IRQ this events reacts to
+         */
+        unsigned int IRQGet() const { return irq; }
 
-            /**
-             * Assign a C function for hardware initialisation
-             * This will override any default behaviour implemented
-             * in EventInterrupt itself
-             */
-            virtual void hardwareInitSet( void ( *init ) () );
+        /**
+         * Assign a C function for hardware initialisation
+         * This will override any default behaviour implemented
+         * in EventInterruptInterface itself
+         */
+        void hardwareInitSet( void ( *init ) () ) { initHardWare = init; }
 
-            /**
-             * Register ISR and DSR like functions
-             */
-            virtual void addHandler( ISRInterface* isr, DSRInterface * dsr);
+        /**
+         * Register ISR and DSR like functions
+         */
+        virtual void addHandler( ISRInterface* isr, DSRInterface * dsr) = 0;
 
-            virtual void addHandler( EventListenerInterface* eli, EventCompleterInterface* eci);
+        virtual void addHandler( EventListenerInterface* eli, EventCompleterInterface* eci) = 0;
 
-            virtual void removeHandler( EventListenerInterface* eli, EventCompleterInterface* eci);
+        virtual void removeHandler( EventListenerInterface* eli, EventCompleterInterface* eci) = 0;
 
-            virtual void removeHandler( ISRInterface* isr, DSRInterface* dsr);
+        virtual void removeHandler( ISRInterface* isr, DSRInterface* dsr) = 0;
 
-            /**
-             * Request the set IRQ
-             */
-            virtual int IRQRequest();
+        /**
+         * Request the set IRQ
+         */
+        virtual int IRQRequest() = 0;
 
-            /**
-             * Enable this interrupt
-             */
-            virtual void enable();
+        /**
+         * Enable this interrupt
+         */
+        virtual void enable() = 0;
 
-            /**
-             * Disable this interrupt
-             */
-            virtual void disable();
+        /**
+         * Disable this interrupt
+         */
+        virtual void disable() = 0;
 
-            /**
-             * Release this interrupt, as opposed to IRQrequest()
-             */
-            virtual void IRQFree();
+        /**
+         * Release this interrupt, as opposed to IRQrequest()
+         */
+        virtual void IRQFree() = 0;
 
-            virtual void fire();
+    protected:
+        friend class EventInterrupt;
+        /**
+         * An interrupt occured. Calls all handlers.
+         */
+        virtual void interrupt( int irq ) = 0;
 
-            /**
-             * A system interrupt occured
-             * @post all ISRs and EventListeners are notified
-             */
-            virtual void interrupt( int irq, void* dev_id, struct pt_regs* regs );
+        /**
+         * Instructs the EventInterruptInterface to complete the ISR with
+         * the appropriate registered DSR.
+         */
+        virtual void complete( ISRInterface* ethi ) = 0;
 
-        virtual void complete( ISRInterface* ethi );
+        /**
+         * A dummy function which can get reimplemented in a derived class
+         * for default initalisation of hardware.
+         * Default, nothing is done.
+         * This can be overriden by hardwareInitSet().
+         */
+        virtual void hardwareInit() {  }
 
-        virtual void complete( EventListenerInterface* eli );
+        /**
+         * The irq this EventInterruptInterface reacts to.
+         */
+        unsigned int irq;
 
+        /**
+         * A C function to be executed for hardware initialisation
+         * When not null, this will override the default hardwareInit()
+         */
+        void ( *initHardWare ) ();
 
-        protected:
-            EventInterrupt( const EventInterrupt& );
+        /**
+         * Get the instance of EventInterruptInterface that handles a certain irq
+         */
+        static EventInterruptInterface* InstanceGet( unsigned int irq );
 
-            /**
-             * A dummy function which can get reimplemented in a derived class
-             * for default initalisation of hardware.
-             * Default, nothing is done.
-             * This can be overriden by hardwareInitSet().
-             */
-            virtual void hardwareInit()
-        {  }
+        /**
+         * Add an instance of EventInterruptInterface
+         */
+        static void InstanceAdd( EventInterruptInterface* );
 
-            /**
-             * The irq this EventInterrupt reacts to
-             */
-            unsigned int irq;
+        /**
+         * Remove an instance of EventInterruptInterface
+         */
+        static void InstanceRemove( EventInterruptInterface* );
 
-            /**
-             * A C function to be executed for hardware initialisation
-             * When not null, this will override the default hardwareInit()
-             */
-            void ( *initHardWare ) ();
-
-            /**
-             * An interrupt handler conform kernel 2.2.x
-             */
-
-            static unsigned int EventInterruptHandler22( unsigned int, struct pt_regs* regs );
-
-            /**
-             * An interrupt handler conform kernel 2.4.x
-             */
-
-            static void EventInterruptHandler24( int, void* dev_id, struct pt_regs* regs );
-
-        public:
-            /**
-             * Get the instance of EventInterrupt that handles a certain irq
-             */
-            static EventInterrupt* InstanceGet( unsigned int irq );
-
-            /**
-             * Add an instance of EventInterrupt
-             */
-            static void InstanceAdd( EventInterrupt* );
-
-            /**
-             * Remove an instance of EventInterrupt
-             */
-            static void InstanceRemove( EventInterrupt* );
-
-
-        private:
-            /**
-             * A vector of all existing EventInterrupt instances
-             */
-            static std::vector<EventInterrupt*> _instances;
-
-            /**
-             * A map where we keep the ISRs and DSRs, which are only
-             * notified when a real interrupt occurs
-             */
-            std::map<ISRInterface*, DSRInterface*> myTable;
+    private:
+        /**
+         * A vector of all existing EventInterruptInterface instances
+         */
+        static std::vector<EventInterruptInterface*> _instances;
 
     };
 
