@@ -135,7 +135,7 @@ namespace ORO_ControlKernel
         {
             cout << "Startup APG"<<endl;
             // we need the inputs for the stand-still setpoint
-            if ( Base::Input::dObj()->Get("ChannelMeasurements", inp_dObj ) )
+            if ( Base::Input::dObj()->Get("ChannelValues", inp_dObj ) )
                 {
                     inputs = inp_dObj->Get();
                     setpoints = inputs;

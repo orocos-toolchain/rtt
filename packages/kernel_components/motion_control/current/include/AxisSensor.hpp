@@ -74,7 +74,7 @@ namespace ORO_ControlKernel
     {
         AxisInput()
         {
-            this->insert( std::make_pair(1,"ChannelMeasurements") );
+            this->insert( std::make_pair(1,"ChannelValues") );
         }
 
         void addDouble(const std::string& name )
@@ -117,6 +117,8 @@ namespace ORO_ControlKernel
         AxisSensor( int max_chan = 1);
 
         virtual bool componentLoaded();
+
+        virtual bool componentStartup();
 
         virtual void componentUnloaded();
 

@@ -17,7 +17,7 @@ namespace ORO_ControlKernel {
 
     bool AxisSensor::componentLoaded()
     {
-        if ( !Base::Input::dObj()->Get("ChannelMeasurements",chan_DObj) )
+        if ( !Base::Input::dObj()->Get("ChannelValues",chan_DObj) )
             return false;
         // kind-of resize of the vector in the dataobject:
         chan_DObj->Set(chan_meas); 
@@ -61,6 +61,12 @@ namespace ORO_ControlKernel {
                     }
             }
     }
+
+    bool AxisSensor::componentStartup() {
+        this->push();
+        return true;
+    }
+
 
     void AxisSensor::push()      
     {
