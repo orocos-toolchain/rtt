@@ -23,8 +23,8 @@
 #ifndef BUFFERSIMPLE_HPP
 #define BUFFERSIMPLE_HPP
 
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
+#include <os/Mutex.hpp>
+#include <os/MutexLock.hpp>
 #include "BufferInterface.hpp"
 #include "ReadNonBlockingInterface.hpp"
 #include "WriteNonBlockingInterface.hpp"
