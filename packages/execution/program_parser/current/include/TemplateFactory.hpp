@@ -574,7 +574,7 @@ namespace ORO_Execution
         return ret;
       }
 
-    bool hasName( const std::string& name ) const
+    bool hasMember( const std::string& name ) const
       {
         return data.find( name ) != data.end();
       }

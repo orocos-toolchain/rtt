@@ -432,9 +432,9 @@ namespace ORO_Execution
         return _TF::getNames();
       };
 
-    bool hasName( const std::string& name ) const
+    bool hasMember( const std::string& name ) const
       {
-        return _TF::hasName( name );
+        return _TF::hasMember( name );
       };
 
     std::string getDescription( const std::string& method ) const

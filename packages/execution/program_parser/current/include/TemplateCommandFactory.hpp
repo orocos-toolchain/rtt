@@ -965,7 +965,7 @@ namespace ORO_Execution
 
     bool hasCommand( const std::string& com ) const
       {
-        return _TF::hasName( com );
+        return _TF::hasMember( com );
       };
 
     std::string getDescription( const std::string& com ) const

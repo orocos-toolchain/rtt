@@ -258,7 +258,7 @@ namespace ORO_ControlKernel
                     _datasource.replace( _datasource.find(" "),1,"" );
 
                 // try if it is a command :
-                if ( ee->dataFactory().getObjectFactory( component )->hasData( _datasource ) ) {
+                if ( ee->dataFactory().getObjectFactory( component )->hasMember( _datasource ) ) {
                     datasource = _datasource;
                 }
             }
@@ -271,7 +271,7 @@ namespace ORO_ControlKernel
                 _datasource.replace( _datasource.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->dataFactory().getObjectFactory(component)->dataNames();
+            comps = ee->dataFactory().getObjectFactory(component)->getNames();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _datasource ) == 0  )
                     completes.push_back( component +"."+ *i );
@@ -367,7 +367,7 @@ namespace ORO_ControlKernel
                     
             if ( datasource_fact ) // only datasource_fact name was typed
                 {
-                    std::vector<std::string> methods = datasource_fact->dataNames();
+                    std::vector<std::string> methods = datasource_fact->getNames();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printSource, this, _1) );
                 }
             if ( command_fact || datasource_fact )

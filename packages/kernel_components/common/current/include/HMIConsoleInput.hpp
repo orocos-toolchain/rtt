@@ -137,7 +137,7 @@ namespace ORO_ControlKernel
                     
             if ( dataobject ) // only dataobject name was typed
                 {
-                    std::vector<std::string> methods = dataobject->dataNames();
+                    std::vector<std::string> methods = dataobject->getNames();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput::printSource, this, _1) );
                 }
             if ( tester || dataobject )

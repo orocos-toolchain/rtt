@@ -69,7 +69,7 @@ namespace ORO_Execution
      * checking whether s is in dataNames(), but probably faster..
      * throws nothing.
      */
-    virtual bool hasName( const std::string& s ) const = 0;
+    virtual bool hasMember( const std::string& s ) const = 0;
 
       /**
        * @brief Return the description of a given Data Source.

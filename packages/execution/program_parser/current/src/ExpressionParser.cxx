@@ -96,7 +96,7 @@ namespace ORO_Execution
     const DataSourceFactoryInterface* fact = gdsf.getObjectFactory( mobject );
     if ( !fact )
       throw parse_exception_no_such_component( mobject );
-    if ( ! fact->hasData( mmethod ) )
+    if ( ! fact->hasMember( mmethod ) )
       throw parse_exception_no_such_method_on_component( mobject, mmethod );
     // create an argument parser for the call..
     ArgumentsParser* argspar =
@@ -128,7 +128,7 @@ namespace ORO_Execution
     // we already checked for the existence of this object and method
     // in seendataname()..
     assert( fact );
-    assert( fact->hasData( meth ) );
+    assert( fact->hasMember( meth ) );
     PropertyBagOwner argsspec( fact->getArgumentSpec( meth ) );
     bool needargs = !argsspec.bag.getProperties().empty();
     if ( ! argspar->parsed() && needargs )

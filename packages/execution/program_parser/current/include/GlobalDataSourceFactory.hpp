@@ -57,12 +57,12 @@ namespace ORO_Execution
       {
       };
 
-  bool hasData(
+  bool hasMember(
     const std::string& objectname,
     const std::string& source )
   {
     const DataSourceFactoryInterface* o = getObjectFactory( objectname );
-    if ( o ) return o->hasData( source );
+    if ( o ) return o->hasMember( source );
     else return false;
   };
 
