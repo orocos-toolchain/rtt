@@ -250,7 +250,7 @@
       <sect3>
 	<title>Quick Installation Instructions</title>
 	<para>
-	  It is possible to download Orocos with the <ulink url="http://www.orocos.org/orocos-install.tcl">
+	  It is possible to download Orocos with the <ulink url="http://www.orocos.org/releases/orocos-install.tcl">
 	    orocos-install.tcl</ulink> script, <emphasis>this is recommended</emphasis>.
 	</para>
 	<para>Save the script to your local drive and then do :</para>
@@ -301,7 +301,7 @@
 	</para>
 	<warning>
 	  <para>
-	    Be warned, <command>make new_packages</command> will overwrite any
+	    <command>make new_packages</command> will overwrite any
 	    existing configuration !
 	  </para>
 	</warning>
@@ -407,7 +407,7 @@
 	</para>
 	<para>
 	  The <command>make docs</command> or
-	  <command>doxygen</command> commands build API documentation.
+	  <command>doxygen</command> (in packages) commands build API documentation.
 	</para>
       </sect3>
     </sect2>
@@ -749,12 +749,16 @@
 		Linking : <option>-L/usr/realtime/lib -llxrt</option> for dynamic (.so) linking OR add
 		<option> /usr/realtime/liblxrt.a </option> for static (.a) linking.
 	      </para>
-	      <para>
-		You might also add <filename>/usr/realtime/lib</filename>
-		to the <filename>/etc/ld.so.conf</filename> file and
-		rerun <command>ldconfig</command>. This option is not needed if you
-		configured RTAI with LXRT-static-inlining.
-	      </para>
+	      <important>
+		<para>
+		  You might also need to add
+		  <filename>/usr/realtime/lib</filename> to the
+		  <filename>/etc/ld.so.conf</filename> file and rerun
+		  <command>ldconfig</command>, such that liblxrt.so
+		  can be found.  This option is not needed if you
+		  configured RTAI with LXRT-static-inlining.
+		</para>
+	      </important>
 	    </listitem>
 	  </itemizedlist>
 	</para>
@@ -869,11 +873,11 @@ all: myprogram.cpp
 	    be developped fully out of the Orocos (build) directory.
 	  </para>
 	<para>
-	  <warning>
+	  <note>
 	    <para>Make sure you have read <xref linkend="install-configure" />
 	      for your target if you application has compilation errors.
 	    </para>
-	  </warning>
+	  </note>
 	</para>
 	</example>
 <!--         The short answer is: modify a program in the -->
