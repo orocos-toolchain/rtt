@@ -1,6 +1,8 @@
+#include <pkgconf/system.h>
+#include <pkgconf/device_drivers_apci.h>
 #include <device_drivers/SwitchDigitalInapci1032.hpp>
 
-#ifdef OROFUN_DEVICE_DRIVERS_APCI1032_LXRT
+#if defined(OROINT_DEVICE_DRIVERS_APCI1032) && defined(OROPKG_OS_LXRT)
 #include "apci_lxrt.h"
 #elif defined (OROINT_DEVICE_DRIVERS_APCI1032_IK)
 extern "C"

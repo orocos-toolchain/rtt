@@ -29,7 +29,7 @@
 #include <asm/uaccess.h>
 
 /*MODULE_PARM(video_nr, "i");*/
-MODULE_DESCRIPTION( "APCI-1032 driver" );
+//MODULE_DESCRIPTION( "APCI-1032 driver" );
 
 /* Prototypes of the used functions */
 
@@ -78,7 +78,7 @@ int APCI1032_open ( struct inode *inode, struct file *filp )
     /* Saves the Minor number */
     i_MinorNumber = MINOR( inode->i_rdev );
     /* Increases the using number of the driver by 1 */
-    MOD_INC_USE_COUNT;
+    //MOD_INC_USE_COUNT;
     return 0;
 }
 
@@ -90,7 +90,7 @@ int APCI1032_release ( struct inode *inode, struct file *filp )
                s_BaseInformations.b_Interrupt,
                BoardInformations );
     /* Decreases the using number of the driver by 1 */
-    MOD_DEC_USE_COUNT;
+    //MOD_DEC_USE_COUNT;
     return 0;
 }
 

@@ -1,8 +1,8 @@
-#include <os/fosi.h>
-
+#include <pkgconf/system.h>
+#include <pkgconf/device_drivers_apci.h>
 #include <device_drivers/RelayCardapci2200.hpp>
 
-#ifdef OROFUN_DEVICE_DRIVERS_APCI2200_LXRT
+#if defined(OROINT_DEVICE_DRIVERS_APCI2200) && defined(OROPKG_OS_LXRT)
 #include "apci_lxrt.h"
 #elif defined (OROINT_DEVICE_DRIVERS_APCI2200_IK)
 extern "C"
