@@ -118,6 +118,164 @@
       </tip>
     </sect1>
   </chapter>
+  <chapter>
+    <title>Philosophy</title>
+    <para>
+      Making a complex realtime system 'work' is not easy without (and even with)
+      well chosen guidelines which must tell the designer how a certain problem
+      is best solved. Some guidlines specific for Control Kernel development
+      and use are shortly described in this chapter.
+    </para>
+    <sect1>
+      <title>Separating Control Flow, Data Flow and Configuration Flow</title>
+      <para>
+	When two components need to communicate, the kind of communication
+	channel is dependent of the data being communicated. In the &orocos;
+	framework, three distinctive communication flows can be recognized.
+	All three have different timing constraints, different kinds of data 
+	and of course, different purposes. The following section explains
+	these three types.
+      </para>
+      <sect2>
+	<title>Configuration Flow</title>
+	<para>
+	  The first type is normally also firstly encountered when a program
+	  is run. All present components, or objects in general, need to be
+	  configured to suit the targetted application. Configuration information
+	  can be hard coded into the program, read from an XML file or given
+	  by the user through a Graphical User Interface. Configuration involves
+	  a mostly slow, non deterministic flow into the system. Most engineers
+	  familiar with control know this and make sure that all configuration
+	  flow has stopped once the control loop is running. The &orocos;
+	  framework will, where possible, prevent further configuration once
+	  a system is running. It must be stopped, reconfigured and restarted
+	  if the user whiches to reconfigure the running system. This is not
+	  always acceptable (some systems can not be stopped right away).
+	  The Control Flow solves this for such cases.
+	</para>
+	<para>The Control Kernel uses XML files for most of its configuration flow.</para>
+      </sect2>
+      <sect2>
+	<title>Data Flow</title>
+	<para>
+	  When a Control Kernel is constructed, it has as its main purpose to
+	  gather sensor readings, do some mathematical operations on that data
+	  and send the results back to the effectors of the system. This cycle
+	  is done many times a second and causes a changing flow of data 
+	  through the system. The components in the kernel are responsible
+	  for sustaining this flow : they convert one kind of data into another kind.
+	  In any feedback
+	  system, data goes through a set of stages before it leaves the
+	  system again. Each such stage gives an intermediate meaning to the
+	  data being there. The &orocos; Control Kernel identifies 5 different
+	  states the data flow goes through. It is first raw Input from Sensors.
+	  The Input is used to build a Model. The application has data which
+	  represents a desired system state and is called Command. These three
+	  can be combined to produce intermediate SetPoints, which, compared
+	  with the current Model and Inputs are leading to an Output which is
+	  sent to the Effectors. This flow of data is unidirectional and allows
+	  an efficient software implementation.
+	</para>
+	<para>
+	  The Control Kernel uses DataObjects to store the intermediate Data Flow.
+	  Special values of Data inside DataObjects might trigger a state change
+	  in one of the components reading them. However, triggering specific
+	  actions inside a component should happen through the Control Flow,
+	  and not the Data Flow. 
+	</para>
+      </sect2>
+      <sect2>
+	<title>Control Flow</title>
+	<para>
+	  The last kind of flow is also sometimes refered to as 'Command Flow'.
+	  Because of the unlucky choosen name for the Command Data Object,
+	  Control Flow is a better name to distinguish from this total opposite
+	  mechanism. Control Flow is actually hardly a Flow. It consists of
+	  discontinuous operations on the Control Kernel while it is running.
+	  These operations are guaranteed to not interrupt the kernel and thus
+	  merely switch a flag or reset a parameter in the running system. 
+	  The Control Flow is the manifestation of the users application 
+	  running. Not only does the user whish to control a continous system, 
+	  many side actions must be taken to accomplish a success. Examples
+	  are opening a gripper, turning on a spindle or a coolant, instructing
+	  the machine to home etc. It is obvious that such commands do not belong
+	  in the Data Flow ( no matter the Command Data Object might suggest).
+	</para>
+	<para>
+	  A beginning application might give the first commands in the main
+	  program function and then direct control to the user. A Program
+	  Execution mechanism has been developped to parse user text programs
+	  and execute the given commands in a running Control Kernel.
+	  This is described in great detail in the Program Execution 
+	  Package of Orocos.
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Which Kernels and How Many ?</title>
+      <sect2>
+	<title>A first overview</title>
+	<para>
+	  A user might wonder how much Control kernels his application might need.
+	  One way to see the answer is looking at the following list of answers :
+	  <itemizedlist>
+	  <listitem>
+	    Do I need to control different system states at different frequencies ?
+	    Meaning, do i need for example, to control velocities at a different
+	    frequency than positions ?
+	  </listitem>
+	  <listitem>
+	    Do I need to control different systems ? Meaning, do I need to control
+	    isolated parts, for example, 3 independent axes or an additional table.
+	  </listitem>
+	  <listitem>
+	    Do I need to switch between the controlled states in a running system ? 
+	    Meaning, do I need
+	    to maintain a low level control while I switch a higher level control
+	    mode ?
+	  </listitem>
+	  </itemizedlist>
+	  As you could have guessed, any yes answer on the above items indicates
+	  that an additional kernel is needed.
+	</para>
+	<para>
+	  Control Kernels can run in parallell or serial (e.g. cascaded). Parallell
+	  kernels do not know of each other or are consistently commanded from a
+	  higher level. When two or more kernels are cascaded, The output of the
+	  higher level kernel is a command for the lower level kernel. Proper
+	  locking must be provided by the kernel when both are running at different
+	  priorities. 
+	</para>
+      </sect2>
+      <sect2>
+	<title>Cascading Kernels</title>
+	<para>
+	  In most systems two or more kernels, running at different 
+	  frequencies and priorities, must be connected together. For efficiency
+	  reasons, a cascaded higher level kernel will read the DataObjects of
+	  the low level kernel to acquire Model or Input data. It is also possible
+	  that the kernels all access a common Sensor Component which provides
+	  proper locking. Both are possible and have pros and cons in different
+	  applications. The disadvantage of locking within the common component
+	  is the lost time determinism when the low priority thread gets the lock
+	  first. Another disadvantage is that each common component must provide
+	  its own locking mechanism. When data sharing is done through DataObjects,
+	  any kind of data can be guarded against concurrent access without
+	  the components knowing. This is sometimes refered to as the 'monitor
+	  software pattern'.
+	</para>
+	<para>
+	  It is the kernel's
+	  decision which kind of DataObjects are used to contain the Data. A kernel used
+	  for cascading must thus make sure that the DataObject contains the 
+	  right locking primitives to guard data consistency. The available
+	  DataObjects are discussed in the next Chapter. An application builder
+	  must thus choose the kernel containing DataObjects which meet his
+	  requirements.
+	</para>
+      </sect2>
+    </sect1>
+  </chapter>
   <chapter><title>The Default Control Kernel</title>
     <sect1>
       <title>Purpose</title>
@@ -302,6 +460,30 @@
 	      Any component not loaded at that time will not be configured by that kernel and is thus not usable
 	      when the kernel is running.
 	      The above methods are available for all components of the kernel.</para>
+	  </sect4>
+	  <sect4>
+	    <title>Components and Name-Serving</title>
+	    <para>Each component can be given a name upon construction. The name of a component
+	      is stored in a nameserver for each kind of kernel and for each kind of component. Each
+	      type of kernel thus causes nameservers to be created for each of its component types, this
+	      allows a good separation of name clashing. If a component with the same name is created
+	      for the same type, only the first one will show up in the nameserver. Nameserving is 
+	      described in more detail in the CoreLib documentation.
+	    </para>
+	    <para>
+	      There are some methods that allow easy working with named components. Going further
+	      with the MyKernel1D example :
+	    </para>
+	    <programlisting>
+	      // One way to retrieve a previously created generator.
+	      My1DKernel::DefaultGenerator* g =  MyKernel1D::DefaultGenerator::nameserver.getObject("GeneratorName");
+
+	      // loading a previously created generator
+	      first_kernel.loadGenerator( "GeneratorName" );
+	      // and select it too.
+	      if ( first_kernel.isLoadedGenerator( "GeneratorName" ) )
+	           first_kernel.selectGenerator( "GeneratorName") );
+	    </programlisting>
 	  </sect4>
 	  <sect4>
 	    <title>Inserting Functionality and Algorithms</title> 
