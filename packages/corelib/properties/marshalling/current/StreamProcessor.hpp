@@ -24,7 +24,7 @@ namespace ORO_CoreLib
 {
 
     /**
-     * An interface for setting and getting a
+     * @brief An interface for setting and getting a
      * stream object. This can be a file, a string buffer,...
      */
     template<class Stream>

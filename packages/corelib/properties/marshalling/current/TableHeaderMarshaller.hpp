@@ -25,8 +25,6 @@
 
 namespace ORO_CoreLib
 {
-    using namespace std;
-
     /**
      * A Marshaller for generating headers of tables. It is used
      * in conjunction with TableMarshaller and generates a header
@@ -40,7 +38,7 @@ namespace ORO_CoreLib
     {
         int level;
         int line;
-        vector<string> header;
+        std::vector<std::string> header;
         public:
             typedef o_stream output_stream;
             typedef o_stream OutputStream;
@@ -49,7 +47,7 @@ namespace ORO_CoreLib
                     StreamProcessor<o_stream>(os), level(0), line(1)
             {
                 // sits ready for storing next column aligning.
-                header.push_back(string(""));
+                header.push_back(std::string(""));
             }
 
             virtual ~TableHeaderMarshaller() {}
@@ -57,31 +55,26 @@ namespace ORO_CoreLib
 			virtual void serialize(const Property<bool> &v) 
 			{ 
                     store( v.getName() );
-                //_os << " "<< v.getName();
 			}
 
 			virtual void serialize(const Property<char> &v) 
 			{ 
                     store( v.getName() );
-                //_os << " "<< v.getName();
 			}
 
 			virtual void serialize(const Property<int> &v) 
 			{ 
                     store( v.getName() );
-                //_os << " "<< v.getName();
 			}
 			
 			virtual void serialize(const Property<double> &v) 
 			{
                     store( v.getName() );
-                //_os << " "<< v.getName();
 			}
             
 			virtual void serialize(const Property<std::string> &v) 
 			{
                     store( v.getName() );
-                //_os << " "<< v.getName();
 			}
 			
             virtual void serialize(const PropertyBag &v) 
@@ -123,34 +116,33 @@ namespace ORO_CoreLib
                 if ( line == int(header.size()) )
                 {
                     // next line
-                    header.push_back(string(""));
+                    header.push_back(std::string(""));
                 }
                 header[line-1] += std::string(" | ") + s;
-                //cout << line <<" - "<<level<<endl;
                
-               return header[line-1].length();
+                return header[line-1].length();
             }
 
             virtual void serialize(const Property<PropertyBag> &v) 
 			{
                 if ( line == int(header.size() ) )
-                    header.push_back(string(""));
+                    header.push_back(std::string(""));
                 /**
                  * Serializing a propery<bag> : pad the line below with spaces.
                  */
                 if ( int(header[line-1].length() - header[line].length()) > 0 )
                 {
-                    header[line] += string(" | ");
-                    header[line] += string( header[line-1].length() - header[line].length() ,' ');
+                    header[line] += std::string(" | ");
+                    header[line] += std::string( header[line-1].length() - header[line].length() ,' ');
                 }
 
                 /**
                  * Print our name
                  */
                 
-                string name = v.getName();
+                std::string name = v.getName();
                 if ( v.get().getType() != "type_less")
-                    name+= string(" <") + v.get().getType() + string(">");
+                    name+= std::string(" <") + v.get().getType() + std::string(">");
                 store( name ) ;
                 
                 /**
@@ -158,7 +150,7 @@ namespace ORO_CoreLib
                  */
                 line++;
                 if ( v.get().getProperties().empty() )
-                    store( string("<empty>") );
+                    store( std::string("<empty>") );
                 else
                     serialize(v.get());
                 line--;
@@ -167,19 +159,19 @@ namespace ORO_CoreLib
                  * Pad this line with spaces
                  */
                 if ( int(header[line].length()) - int(header[line -1].length()) > 0)
-                    header[line-1] += string( header[line].length() - header[line-1].length(), ' ');
+                    header[line-1] += std::string( header[line].length() - header[line-1].length(), ' ');
             }
 
             virtual void flush() 
             {
-                for (vector<string>::iterator it = header.begin(); it != header.end(); ++it)
+                for (std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it)
                     if ( !it->empty())
-                        *s << *it <<std::string(" |")<<endl;
+                        *s << *it <<std::string(" |")<<std::endl;
                 // TODO : buffer for formatting and flush here.
                 level = 0;
                 line  = 1;
                 header.clear();
-                header.push_back(string(""));
+                header.push_back(std::string(""));
             }
             
 			virtual void introspect(const Property<bool> &v) 

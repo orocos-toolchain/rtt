@@ -44,10 +44,15 @@ namespace ORO_CoreLib
     /**
      * Contains the required classes for a full marshalling operation.
      */
-    template< class OutputStream, class HeaderMarshaller, class BodyMarshaller>
+    template< class HeaderMarshaller,
+              class BodyMarshaller >
     class MarshallConfiguration
     {
+        typedef typename BodyMarshaller::OutputStream OutputStream;
         public:
+        /**
+         * Setup a new marshalling configuration to a specific stream.
+         */
         MarshallConfiguration( OutputStream& o_stream ) 
             : header_marshaller(o_stream), body_marshaller(o_stream), output(o_stream)
             {}
