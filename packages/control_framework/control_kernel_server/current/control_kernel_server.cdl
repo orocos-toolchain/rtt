@@ -43,5 +43,6 @@ A CORBA server which allows your kernel to be used with the KernelClient GUI.
 #    compile kernelserver.cxx
     compile directkernelinterface.cxx
     compile kernelinterface.cxx
+    compile kernelcommon.cxx
 
 }
