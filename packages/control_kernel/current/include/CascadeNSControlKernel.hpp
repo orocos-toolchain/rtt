@@ -46,11 +46,11 @@ namespace ORO_ControlKernel
      */
     template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
     class CascadeNSControlKernel
-        : public detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::buffer >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::buffer >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_InputType>::buffer >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::buffer >, 
-                                     detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::buffer >, 
+        : public detail::BaseKernel< detail::DataObjectBufferC ,
+                                     detail::DataObjectBufferC ,
+                                     detail::DataObjectBufferC ,
+                                     detail::DataObjectBufferC ,
+                                     detail::DataObjectBufferC , 
                                      _Extension >,
           public NameServerRegistrator< CascadeNSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
     {

@@ -196,7 +196,6 @@
 	value</emphasis> with respect to closed-source control
       software:
       <itemizedlist>
-
 	<listitem>
 	  <para>
 	    It can collect many well-designed control applications,
@@ -272,7 +271,7 @@
       nothing more. The next chapters then introduce more advanced
       Control Kernels: <link
 	linkend="control-kernel-extensions">Extensions</link>; <link
-	linkend="multiple-dataobjects">multiple DataObjects</link> to
+	linkend="data-objects">multiple DataObjects</link> to
       exchange data between Components; <link
 	linkend="cascaded-control-kernels">cascaded Control
 	Kernels</link>; and <link
@@ -938,10 +937,9 @@
       </programlisting>
       <para>
 	This creates a control kernel with five
-	DataObjects for local data exchange and five
 	"Default Data Flow Components" which do nothing. Other kernels may
-	define other DataObjects and/or other default Components. It
-	is the Application Builders' task to replace the default Data Flow Components with
+	define other default Components. It
+	is the Application Builders' task to replace the Default Data Flow Components with
 	&ldquo;functional&rdquo; Components, actually doing something with the
 	data. This is explained in the <link linkend="components">
 	Data Flow Components</link> chapter.
@@ -1672,12 +1670,12 @@ public:
 	</warning>
 	<para>
 	  There are some methods that allow easy working with named
-	  Components. Going further with the <type>MyKernel1D</type> example:
+	  Components. Going further with the <type>MyKernel</type> example:
 	<programlisting>
 
   // ... after start of the kernel task :
   if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
-       first_kernel.selectGenerator( "GeneratorName") );
+       first_kernel.selectGenerator( "GeneratorName" );
 	  </programlisting>
 	  <emphasis>Loading</emphasis> is not realtime safe
 	  and must happen <emphasis>before</emphasis> the
@@ -1726,7 +1724,7 @@ public:
 	  Each DefaultComponent (and thus each Component you will
 	  insert into a Kernel) is a subclass of the class
 	  <classname>ComponentBaseInterface</classname>, defined in
-	  the file <filename>KernelInterfaces.hpp</filename>. This
+	  the file <filename>ComponentInterfaces.hpp</filename>. This
 	  interface allows each Component to locate the Control Kernel
 	  in which it is loaded by the <function>kernel()</function>
 	  method, which returns a pointer to the
@@ -1877,7 +1875,7 @@ public:
 #include &lt;kernel_components/HMIConsoleOutput.hpp&gt;
 //...
 
-HMIConsoleOutput&lt;KernelType::DefaultSupport&gt; hmi_out;
+HMIConsoleOutput hmi_out;
 kernel.loadSupport( &amp;hmi_out );
 
 // When the kernel is started, hmi_out is automatically selected.
@@ -2085,12 +2083,12 @@ if ( this->inKernel() )
 	  <para>
 	    Each Extension is accompanied by a piece of code (called
 	    the <emphasis role="strong">Component Aspect</emphasis>),
-	    which is automatically inserted in all Components of the
-	    Kernel. It provides method calls (<link
+	    which is present in all Components which which to use
+	    the extension.
+	    It provides method calls (<link
 	      linkend="events-hooks-states">hooks</link>) to each
-	    Component, such that it can access the particular
-	    Extension. The Extension, in turn, can access the
-	    Component through its Aspect interface. No locking or
+	    Component, such that it can be accessed by the particular
+	    Extension. No locking or
 	    race problems will occur during this access, because of
 	    the synchronous execution.
 	  </para>
@@ -2101,7 +2099,7 @@ if ( this->inKernel() )
       Each Control Kernel has a default Extension, the
       <classname>KernelBaseFunction</classname>, coupled with the
       <classname>ComponentBaseInterface</classname> Aspect. It defines
-      the basic Component interaction features that each Control
+      the basic Data Flow Component interaction features that each Control
       Kernel has. The most important one of these interaction features
       is calling the <function>update()</function> methods of the
       Components and changing the Components' state when the Control
@@ -2123,26 +2121,35 @@ if ( this->inKernel() )
 	Adding an Extension to a Control Kernel does not (visibly)
 	change the existing Components. So a Component does not need
 	to anticipate any possible extension (nor does the Control
-	Kernel). The Aspect, which is added to the Component does
-	however add a hook, into which the Component can place code
-	which will be executed when the Extension accesses the
-	Component. If a Component wants to export some data when the
-	Control Kernel supports reporting, it will put some code into
+	Kernel). <emphasis>The Component indicates that it whiches to use
+	an Extension by inheriting from the Aspect of that Extension.</emphasis>
+	For example, if a Component wants to export some data when the
+	Control Kernel has the reporting extension, it will implement
 	the <function>exportReports()</function> hook. If the
 	reporting extension is not present in the Kernel, the
 	<function>exportReports()</function> method will never be
-	called. The Extension can know if a Component has put code
-	into the hook by providing a default implementation which gets
+	called. The Extension can know if a Component has implemented
+	the hook by providing a default implementation which gets
 	called if the component does not want to use it. Each Aspect
 	is defined such that the Component has a passive role,
 	meaning that the hook is always called by the Extension, and
 	the Component does not need to call the Extension (which would
 	lead to locking the component into an Extension).
       </para>
+      <figure><title>Component Aspects versus Kernel Extensions</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="ExtensionAspect.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="ExtensionAspect.eps" format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect2>
-	<title>Extension Method Hooks</title>
+	<title>Aspect Method Hooks</title>
 	<para>
-	  Almost every Extension will provide a hook method that each
+	  Almost every Aspect will provide a hook method that each
 	  Component can override (re-implement) to make use of the
 	  functionality. One hook might be used by different
 	  Extensions, as long as the semantical meaning remains the
@@ -2213,27 +2220,24 @@ if ( this->inKernel() )
       <title>How to add an Extension?</title>
       <para>
 	How does one add an extension to the Standard Control Kernel?
-	It happens by adding an extra template parameter on creation.
-	To revisit the <type>My1DKernel</type> example:
+	It happens by adding the extra template parameter on creation.
+	To revisit the <type>MyKernel</type> example:
       </para>
       <programlisting>
 <![CDATA[
 	// equivalent typedef as before: 
-typedef StandardControlKernel< Command, SetPoint,
-	                       Input, Model, Output, KernelBaseFunction> My1DKernel;
+typedef StandardControlKernel<KernelBaseFunction> MyKernel;
 
 	// adding a new extension to the KernelBaseFunction: 
-typedef CompositeExtension<PropertyExtension, KernelBaseFunction> MyExtension; 
-typedef StandardControlKernel< Command, SetPoint,
-	                       Input, Model, Output, MyExtension> My1DPropertyKernel;
+typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 ]]>
       </programlisting>
       <para>
 	As can be seen, Extensions are composed using the
-	<classname>CompositeExtension</classname> class, specifying
-	the &lt; First, Second &gt; extension, where First and Second
-	are allowed to be Composite Extensions themselves. The order
-	First, Second determines which Extension is executed before
+	<classname>MakeExtension</classname> class, specifying
+	the &lt; First, Second, Third,... &gt; extension. The order
+	First, Second,... determines which Extension is executed before
 	the other. In the example above, the
 	<classname>KernelBaseFunction</classname> is executed by the
 	control kernel after the
@@ -2243,9 +2247,10 @@ typedef StandardControlKernel< Command, SetPoint,
       <programlisting>
 <![CDATA[
 	// A control kernel with two additional Extensions:
-typedef CompositeExtension< MyFirstExtension, ReportingExtension > MySecondExtension;
-typedef StandardControlKernel <Input, Model, Command, SetPoint,
-Output, MySecondExtension > My1DPropRepKernel;
+typedef MakeExtension< PropertyExtension,
+	               KernelBaseFunction,
+	               ReportingExtension >::Result MySecondExtension;
+typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
 ]]>
       </programlisting>
       <para>
@@ -2254,9 +2259,7 @@ Output, MySecondExtension > My1DPropRepKernel;
 	initialised and the starting of the Control Kernel will fail
 	(return false). Logically, you can read from left to right: if
 	the first works, check then if the second works, then the
-	third, etc. The ordering is thus a recursive depth first. A
-	whole dependency tree is built in that way, but each Extension
-	can occur only once. 
+	third, etc. Each Extension can occur only once. 
       </para>
       <figure><title>Ordering Extensions</title>
 	<mediaobject>
@@ -2268,6 +2271,66 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </imageobject>
 	</mediaobject>
       </figure>
+    </sect1>
+    <sect1 id="adding-aspects">
+      <title>How to add an Aspect?</title>
+      <para>
+	If a Component wants to use a kernel Extension, it needs to inherit
+	from the Aspect. This is done by using a special construct, called
+	<classname>MakeAspect</classname>. It is, similar to adding an
+	Extension to a kernel, given as an extra template parameter
+	to its base class (e.g. Generator).
+      </para>
+      <para>
+	If no Aspect is given, the default is used, ComponentBaseInterface.
+	Thus the following is equivalent to the previous MyGenerator
+	definition (note the last parameter of Generator&lt;...&gt; ):
+	<programlisting>
+<![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData>,
+	  MakeAspect<KernelBaseFunction>::Result
+	  >
+{ 
+    // ...
+};
+]]>
+	</programlisting>
+	The ComponentBaseInterface is the Aspect of the KernelBaseFunction.
+      </para>
+      <para>
+	To add an additional Aspect to the Component, you must use MakeAspect
+	and <emphasis>specify the Extensions you want to support</emphasis> :
+	<programlisting>
+<![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData>,
+	  MakeAspect<PropertyExtension, KernelBaseFunction>::Result
+	  >
+{ 
+    // ...
+};
+]]>
+	</programlisting>
+	MakeAspect is thus analogous to MakeExtension, but is aimed at
+	Components. The MakeAspect structure will ask every listed
+	Extension, which its Aspect is and compose them in a class hierarchy.
+      </para>
+      <para>
+	To see what the Aspect is (and which methods it defines)
+	of an Extension, you can look
+	the Extension up in the Doxygen Code documentation, which will
+	contain a link to the Aspect class. Also, mostly, the Aspect
+	and Extension are defined in the same header file.
+      </para>
     </sect1>
    
     <sect1 id="property-extension">
@@ -2299,6 +2362,25 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </imageobject>
 	</mediaobject>
       </figure>
+      <sect2>
+	<title>Using the Property Extension</title>
+	<para>
+	  The PropertyExtension can be added to a
+	  <classname>StandardControlKernel</classname> using the
+	  MakeExtension structure :
+	  <programlisting>
+<![CDATA[
+typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
+]]>
+	  </programlisting>
+	  It is best to put this Extension in front of other
+	  extensions, so that on component load time, the
+	  component's properties are set first before the other Extensions
+	  are enabled, allowing the Component to react differently to the
+	  other Extension hooks.
+	</para>
+      </sect2>
       <sect2>
 	<title>Configuring the Property Extension</title>
 	<para>
@@ -2370,14 +2452,16 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </para>
 	  <programlisting>
 <![CDATA[
-template < class _DefaultGenerator >
 class MyGenerator 
-    : public _DefaultGenerator 
+    : public Generator< ..data objects... ,
+	               MakeAspect<PropertyExtension,KernelBaseFunction>::Result >
 { 
+  typedef Generator< ..data objects...,
+	    MakeAspect< PropertyExtension, KernelBaseFunction >::Result > Base
 public:
   // In constructor, gain defaults to zero:
   MyGenerator() :
-     _DefaultGenerator("MyGenerator"),
+     Base("MyGenerator"),
      gain("Gain","The gain of the controller",0),
      max_track_error("MaxTrackError", "The maximum tracking error", 0) 
   {}
@@ -2431,13 +2515,13 @@ private:
 	of data acquisition. This means that it is possible that a
 	data sample is lost, but never possible that the Control
 	Kernel stalls because of the reporting activity.
-	Each Extension must at least guarantee that it does not block
-	within its execution.
       </para>
       <para>
 	What happens is that after each Control Kernel step, the
-	Reporting Extension tries to make a backup of the Component's data. If by
-	accident the data is accessed by the report writing task, the
+	Reporting Extension tries to make a copy of the Component's 
+	exported data. If by
+	accident the data is accessed by the report writing task
+	(which reads the copies), the
 	copy operation is cancelled. A better buffering mechanism
 	(swinging buffers) might solve this in a better way.
       </para>
@@ -2456,6 +2540,23 @@ private:
 	  </imageobject>
 	</mediaobject>
       </figure>
+      <sect2>
+	<title>Using the Reporting Extension</title>
+	<para>
+	  The ReportingExtension can be added to a
+	  <classname>StandardControlKernel</classname> analogous
+	  to the PropertyExtension :
+	  <programlisting>
+<![CDATA[
+typedef MakeExtension< KernelBaseFunction, ReportingExtension >::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
+]]>
+	  </programlisting>
+	  This Extension is mostly put after the KernelBaseFunction,
+	  so that it reports the latest data. Otherwise, the data of 
+	  the previous control cycle would be reported.
+	</para>
+      </sect2>
       <sect2>
 	<title>Configuring the Reporting Extension</title>
 	<para>
@@ -2549,12 +2650,16 @@ private:
 	  <programlisting>
 <![CDATA[
 class MyGenerator 
-    : public Generator< ... >
-{ 
+    : public Generator< ...,
+	    MakeAspect<KernelBaseFunction,
+	               ReportingExtension>::Result >
+{
+  // For ease of writing :
+  typedef Generator<....> Base;
 public:
   // In constructor:
   MyGenerator() :
-     Generator("MyGenerator"),
+     Base("MyGenerator"),
      end_pos("End Position","One of many variables which can be reported.")
 
   // Hook in Generator Component:
@@ -2577,9 +2682,7 @@ private:
 	<title>Reporting DataObjects</title>
 	<para>
 	  As shown in the example CPF file, also DataObjects can generate
-	  automatically reports. Because DataObjects need to be refered
-	  to by a name, only the NameServing Control Kernels support this
-	  feature. One can request to report the whole DataObject, for
+	  automatically reports. One can request to report the whole DataObject, for
 	  example "Models", "Inputs",... or a more specific part :
 	  "Models::Temperature", "Inputs::AxisPositions". The framework
 	  will be able to generate the reports if the
@@ -2592,7 +2695,7 @@ private:
 	</para>
 	<para>
 	  It is also possible to log the dataobjects of other
-	  NSControlKernels, given that they have the same prefix.
+	  StandardControlKernels, given that they have the same prefix.
 	</para>
       </sect2>
       <sect2>
@@ -2673,7 +2776,7 @@ private:
       <programlisting>
 <![CDATA[
 	// adding the extension to the KernelBaseFunction: 
-typedef CompositeExtension<KernelBaseFunction, ExecutionExtension> ExecExtension; 
+typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
 typedef StandardControlKernel<ExecExtension> MyExecKernel;
 ]]>
 MyExecKernel my_kernel;
@@ -2828,9 +2931,9 @@ state exec_state {
 function HMILoadTrajectory {
 	// request a 'push' of the next
 	// trajectory :
-	do HMI.requestTrajectory
+	do HMI.requestTrajectory()
 	// when the HMI is done :
-	do Generator.loadTrajectory
+	do Generator.loadTrajectory()
 }
 
 /**
@@ -2848,7 +2951,7 @@ function ResetAxes {
  * trajectory.
  */
 function runTrajectory {
-	do Generator.startTrajectory
+	do Generator.startTrajectory()
 	// this function returns when the
 	// trajectory is done.
 }
@@ -2865,18 +2968,17 @@ program {
 	// We actually wait here until a 
 	// Trajectory is present in the HMI.
 	do nothing until {
-	   if HMI.trajectoryPresent then goto next
+	   if HMI.trajectoryPresent then continue
 	}
 
-start:  set cycle = cycle + 1
+	while ( HMI.cycle ) {
+	set cycle = cycle + 1
 	do HMI.display("Cycle nr: %d.\n", cycle )
 	call ResetAxes
 	call HMIRequestTrajectory
 	call runTrajectory
 
 	do HeartBeat.sleep( 5.0 ) // wait 5s
-	do nothing until {
-	    if HMI.cycle then goto start
 	}
 
 	call ExitProgram
@@ -2908,319 +3010,6 @@ start:  set cycle = cycle + 1
       </sect2>
     </sect1>
   </chapter>
-<!--
-  <chapter id="multiple-dataobjects">
-    <title>Multiple Ports per DataObject and Nameserved DataObjects</title>
-    <para>
-      Components exchange data through standardized DataObjects in a
-      Control Kernel. To this end, each Component has standardized
-      &ldquo;input&rdquo; Ports and &ldquo;output&rdquo; Ports,
-      connected to the DataObjects, and standardized
-      <function>Set()</function> and <function>Get()</function>
-      methods to communicate data. This might suggest that a Component
-      can only exchange data of one single type with each DataObject
-      it is connected to. While this holds true for the StandardControlKernel,
-      a more advanced kernel can allow more variation in the
-      DataObjects. In addition,
-      each DataObject can be referenced indirectly, instead of by the
-      &ldquo;hard-coded&rdquo; variable name. The feature that
-      provides this flexibility is the
-      <classname>NSControlKernel</classname> (&ldquo;Name Served
-      Control Kernel&rdquo;), which is another <link
-	linkend="standard-control-kernel">instantiation</link> of the
-      virtual Control Kernel concept.
-      </para>
-      <para>
-      The NSControlKernel allows a Component to compose
-      their DataObjects out of different types. Each type (an
-      <type>int</type>, <type>Frame</type>, <type>vector</type>, or
-      whatever) can have several instances in the DataObject, each
-      with its own name. These Components are however no longer
-      compatible with the StandardControlKernel.
-      </para>
-      <para>
-      The nameserving overhead is only modest. The lookup (resolving)
-      of the names can happen at startup time, and from then on, the
-      resolved DataObject can be used. To avoid name clashes, the
-      server only looks in the scope of the current Kernel. This means
-      a Component can not automatically access DataObjects from
-      another Kernel, which is fully in line with the &orocos; desire
-      for <link linkend="formal-rules">strict formal structure</link>.
-      </para>
-    <sect1>
-      <title>Constructing a Nameserved DataType</title>
-      <para>
-	In the previous chapters, DataTypes were constructed by
-	placing all data to be exchanged in a class. The nameserved
-	DataObjects allow more flexibility. An example probably
-	explains this best:
-      </para>
-      <example>
-	<title>A Nameserved DataType</title>
-	<para>
-	  The Model is produced by the Estimator Component. An
-	  Estimator using nameserving will thus provide a
-	  specification of the Model it produces. Nameserving two
-	  frames (&ldquo;EndPosition&rdquo; and
-	  &ldquo;OldPosition&rdquo;) and a double
-	  (&ldquo;Temperature&rdquo;) in the Model DataObjects is done
-	  as follows:
-	</para>
-	<programlisting>
-<![CDATA[
-struct MyNamesModel 
-: public ServedTypes<Frame, double>
-{
-  MyNamesModel()
-  {
-    this->insert( make_pair(0, "EndPosition"));
-    this->insert( make_pair(0, "OldPosition"));
-    this->insert( make_pair(1, "Temperature"));
-  }
-};
-]]>
-	  </programlisting>
-	<para>
-	  The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
-	  listed in the ServedTypes list. So "EndPosition" and
-	  "OldPosition" are of type Frame and "Temperature" is of type double.
-	</para>
-	</example>
-      <para>
-	In the <type>ServedTypes</type> list, you can specify from
-	zero to ten different types which you want to nameserve. Each
-	type may only occur once in that list. If you don't want to
-	nameserve any type, you should make an empty list, denoted by
-	ServedTypes&lt;&gt;, which means that this Component does not
-	introduce new data in the Data Flow.
-      </para>
-      <para>
-	The <function>insert()</function> function adds a (number,
-	name) pair for each object one wants to create. The number
-	denotes the nth type listed in ServedTypes&lt;...&gt;,
-	starting from zero. In the example, two <type>Frames</type>
-	are created, with each their own name and one
-	<type>double</type>, which holds the temperature. The number
-	of objects created with <function>insert()</function> is not
-	restrained, although the number of <type>ServedTypes</type>
-	is.
-      </para>
-      <para>
-	You must perform a similar construction for all five data
-	types of the NSControlKernel, just like you did with the <link
-	  linkend="creating-standard-control-kernel">Standard Control
-	  Kernel</link>. Once the five classes are defined, one can
-	define the Kernel:
-      </para>
-      <programlisting>
-<![CDATA[
-	#include <control_kernel/NSControlKernel.hpp>
-	typedef NSControlKernel<  MyNamesCommand, MyNamesSetPoint,
-	                          MyNamesInput, MyNamesModel, MyNamesOutput > MyNamesKernel;
-	
-	// Now create one :
-	MyNamesKernel("KernelName","my_prefix");
-]]>
-      </programlisting>
-      <para>
-	This Kernel can be used in exactly the same way
-	as the <classname>StandardControlKernel</classname>.
-	It has the same functions
-	and behaves in exactly the same way. The only difference is
-	that the Components and external classes can query DataObjects
-	by name. The name of the kernel must be unique and is used 
-	as prefix if the prefix is omitted.
-      </para>
-      <para>
-	The "my_prefix" parameter allows to share DataObjects
-	with other nameserving kernels. Each kernel with the
-	same prefix will be able to use a DataObject of 
-	another kernel where it can use its own DataObjects.
-	This comes in handy in <link linkend="cascaded-control-kernels">
-	  Cascading Control Kernels</link> and 
-	<link linkend="reporting-extension"> Reporting </link> non local
-	DataObjects. If you want to protect DataObjects from external
-	(or accidental) access, you can do so by providing an unique
-	prefix for that kernel.
-      </para>
-    </sect1>
-    <sect1>
-      <title>Adopting DataObjects for use with multiple components</title>
-      <para>
-	As seen before, each component defines the DataObject it writes to.
-	But if two generators (or any kind)
-	write to different DataObjects, both DataObject
-	definitions must be merged. You can do this manually by looking at
-	both DataObject description classes and handcrafting a new class 
-	which creates both. If you feel unsure how to do that, you can 
-	also use the CompositeDataObject&lt;DOType1, DOType2&gt; template
-	as in the following case :
-	<programlisting>
-  //... GeneratorA Defines :
-  struct GeneratorASetpoints { // ... };
-
-  //... GeneratorB Defines :
-  struct GeneratorBSetpoints { // ... };
-
-  //.. Allow to use both Generators in one kernel
-  typedef CompositeDataObject&lt;GeneratorASetpoints,
-	  GeneratorBSetpoints&gt; GeneratorABSetpoints;
-
-  NSControlKernel&lt;GeneratorABSetpoints,.... &gt; mykernel;
-
-  mykernel.loadGenerator( generator_a );
-  mykernel.loadGenerator( generator_b );
-	</programlisting>
-	A resulting CompositeDataObject can be nested into another one.
-      </para>
-    </sect1>
-    <sect1>
-      <title>Accessing a Nameserved DataType Directly</title>
-      <para>
-	Going further with the earlier examples, assume that we 
-	want to access the Nameserved Model from within the Generator.
-	The example below shows what code you need to add to this
-	component to be able to use it in the NSControlKernel.
-      </para>
-	<programlisting>
-<![CDATA[
-template < class _DefaultGenerator >
-class MyGenerator 
-    : public _DefaultGenerator 
-{ 
-  // ...
-
-  Frame delta_position;
-  double tool_temp;
-
-public:
-  MyGenerator() :
-     _DefaultGenerator("MyGenerator")
-  {}
-
-  // ... 
-  void pull() 
-  { 
-      Frame end_f, old_f;
-	// The EndPosition and OldPosition variables in the Model DataObject.
-      if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
-           !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
-           { // Error, "EndPosition" or "OldPosition" not found ! }
-
-      delta_position = end_f - old_f;
-
-      if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp) )
-           { // Error, "Temperature" not found ! }
-  } 
-
-  void calculate()
-  { 
-      // ... calculate the setpoint
-  } 
-
-  void push() 
-  {
-     // The EndPosition variable in the SetPoint DataObject.
-     _DefaultGenerator::SetPoint::dObj()->Set("EndPosition", localResult ); 
-  }
-
-};
-]]>
-	</programlisting>
-      <para>
-	As you can see in the example, the Component declares itself
-	which type it needs from the Model and with which name. If
-        it could not be found, <function>Get()</function> returns false.
-      </para>
-    </sect1>
-    <sect1>
-      <title>Indirect Nameserved DataType Access</title>
-      <para>
-	The attentive reader will have noticed that each time
-	<function>pull()</function> is called, the string is resolved
-	to a DataType. This can become very costly in realtime
-	applications. This inefficiency can be solved by resolving the
-	DataObject which holds the DataType instead of the DataType
-	directly. This method is called indirect access, since a step
-	in between must be done to get the data. We adapt the above
-	example again to demonstrate how the DataObject of the
-	temperature can be resolved first.
-      </para>
-      <example>
-	<title>Early resolving of the DataObject (Indirect)</title>
-	<para>
-	  This example demonstrates that the Component can
-	  get a pointer to the DataObject instead, which then in turn
-	  must be accessed like a normal DataObject to
-<function>Get()</function> or <function>Set()</function> the Data.
-	</para>
-	<programlisting>
-	  <![CDATA[
-template < class _DefaultGenerator >
-class MyGenerator 
-    : public _DefaultGenerator 
-{ 
-  // ... 
-  Frame resultFrame;
-  Frame delta_position;
-  double tool_temp;
-
-  // Pointers to the DataObjects
-  DataObjectInterface<double>* tool_temp_dobj;
-  DataObjectInterface<Frame>* old_f_dobj;
-  DataObjectInterface<Frame>* end_f_dobj;
-  DataObjectInterface<Frame>* setp_f_dobj;
-
-public:
-  MyGenerator() :
-     _DefaultGenerator("MyGenerator")
-  {}
-
-  bool componentLoaded()
-  {
-    // called when the component is loaded into the kernel.
-    // Early Resolving :
-    if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) ||
-	  !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f_dobj ) ||
-	  !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f_dobj ) ||
-	  !_DefaultGenerator::SetPoint::dObj()->Get("EndPosition", setp_f_dobj ))
-    { 
-	  // Error, "Temperature", "EndPosition" or "OldPosition" not found !
-	  return false;
-    }
-    return true;
-  }
-
-  // ... 
-  void pull() 
-  { 
-      Frame end_f, old_f;
-
-      // Get the data from the previously resolved DataObjects :
-      end_f_dobj->Get( end_f );
-      old_f_dobj->Get( old_f );
-      delta_position = end_f - old_f;
-      tool_temp = tool_temp_dobj->Get();
-  } 
-  // ...
-  void push()
-  {
-      setp_f_dobj->Set(resultFrame);
-  }
-
-};
-]]>
-	</programlisting>
-      </example>
-      <para>
-	This method requires a bit more typing work but is also safer
-	because the component can issue a failure at load time instead
-	of at runtime (in <function>pull()</function>). Hence, this
-	method is always advised within a component.
-      </para>
-    </sect1>
-  </chapter>
--->
   <chapter id="cascaded-control-kernels">
     <title>Cascaded Control Kernels</title>
     <para>
@@ -3242,9 +3031,7 @@ public:
       soon as Control Kernels are running <link
 	linkend="sync-async">asynchronously</link>. This is certainly
       the case when two or more kernels run at different frequencies,
-      in different operating system threads. The disadvantage of
-      locking is that time determinism is lost when the low-priority
-      thread gets the lock first. 
+      in different operating system threads.
     </para>
     <para>
       Since &orocos; imposes the <link linkend="formal-rules">formal
@@ -3253,151 +3040,20 @@ public:
       access by careful design of the DataObjects. (This design is
       sometimes refered to as the &ldquo;monitor software
       pattern&rdquo;.) &orocos; provides concurrent access primitives
-      for all relevant synchronization cases.
+      for all relevant synchronization cases (see section <link 
+	linkend="data-objects"> DataObjects</link>.
     </para>
-    <para>
-      This chapter explains what the important concepts are, how they
-      must be implemented in applications, and what programming
-      primitives are offered to help Application Builders.
-    </para>
-<!--
-    <sect1>
-      <title>Cascading Control Kernels</title>
-      <sect2>
-	<title>The CascadeControlKernel</title>
-	<warning>
-	  <para>
-	    This ControlKernel type might become deprecated by the
-	    <xref linkend="cascade-ns">CascadeNSControlKernel</xref>
-	  </para>
-	</warning>
-	<para>
-	  Imagine an application with three cascaded control loops, thus
-	  it needs three Control Kernels.
-	  Each Kernel wants to use the same Sensor and Model information,
-	  but only one Kernel can send signals to the hardware. Furthermore,
-	  the Model is updated by the innermost Control Kernel.
-	  The CascadeControlKernel is designed for such situations, where
-	  Model calculation is done at the highest frequency.
-	</para>
-	<para>What this implies is that the innermost Kernel has all
-	  Components present, while each additional cascaded Kernel
-	  has only a Generator and a Controller Component. Estimator,
-	  Sensor and Effector will not be available. The Inputs, Model
-	  and Outputs are shared with the innermost Kernel, which is the
-	  only Kernel which writes data into these DataObjects. All
-	  the others only read from these DataObjects. The innermost
-	  Kernel is implemented by the <classname>CascadeInnerControlKernel
-	  </classname> class. Each cascaded Kernel is implemented by
-	  the <classname>CascadeControlKernel</classname> class.
-	</para>
-	<para>The CascadeInnerControlKernel can thus be used as a normal
-	  standalone Kernel, since it has all the Components present.
-	  The CascadeControlKernel can only exist on top of an
-	  CascadeInnerControlKernel, which is reflected by its
-	  constructor. It must also have the same DataTypes for its
-	  Model and Inputs as the CascadeInnerControlKernel. The DataType
-	  of the Output must match the Command DataType of the
-	  CascadeInnerControlKernel.
-	</para>
-	<example>
-	  <title>Cascaded Control Kernel</title>
-	  <para>This example shows a cascade of three
-	    control kernels.
-	  </para>
-	  <programlisting>
-<![CDATA[
-// The only inner kernel ...
-CascadeInnerControlKernel<InnerCommandT, InnerSetPointT, InputT, ModelT, OutputT> innerKernel;
-
-// A cascade.
-// InnerCommandT is used as output type.
-// Further, we pass the dataobjects of the innerkernel to the constructor
-CascadeControlKernel<Casc1CommandT, Casc1SetPointT, InputT, ModelT, InnerCommandT>
-    casc1Kernel( innerKernel.getInputs(), innerKernel.getModels(), innerKernel.getCommands() );
-
-// same as above, but the Casc1CommandT is used as output type
-CascadeControlKernel<Casc2CommandT, Casc2SetPointT, InputT, ModelT, Casc1CommandT> 
-    casc2Kernel( innerKernel.getInputs(), innerKernel.getModels(), casc1Kernel.getCommands() );
-
-// ... repeat as much as you want
-
-// Load and Select components...
-]]>
-	  </programlisting>
-	  <para>As one can see, all three share the same Inputs and Model, which
-	    are calculated at the lowest layer. The
-	    output of each cascaded Kernel is connected to the Commands of its
-	    lower kernel.
-	  </para>
-	</example>
-      </sect2>
-      <sect2>
-	<title>The ModelControlKernel</title>
-	<warning>
-	  <para>
-	    This ControlKernel type might become deprecated by the
-	    <xref linkend="cascade-ns">CascadeNSControlKernel</xref>
-	  </para>
-	</warning>
-	<para>A CascadeControlKernel can not be used if the calculation of
-	  the Model is too time intensive to be done at the lowest level.
-	  The ModelControlKernel inverts the location of the Estimator Component
-	  from the lowest to a higher level (but maybe not the highest). In
-	  robotics for example, this Kernel configuration
-	  is most suitable for calculating the inverse kinematics. 
-	</para>
-	<para>
-	  
-	</para>
-	<example>
-	  <title>The ModelControlKernel and ModelInnerControlKernel</title>
-	  <para>
-	    This example demonstrates a three-layer kernel layout with the
-	    Model being calculated in the middle layer. It is similar to the
-	    CascadeControlKernel, but in addition,
-	    the other Kernels must be told where the Model resides.
-	  </para>
-	  <programlisting>
-<![CDATA[
-// The only inner kernel ...
-ModelInnerControlKernel<InnerCommandT, InnerSetPointT, InputT, ModelT, OutputT> innerKernel;
-
-// A cascade.
-// InnerCommandT is used as output type.
-// Further, we pass the dataobjects of the innerkernel to the constructor
-ModelControlKernel<Mod1CommandT, Mod1SetPointT, InputT, ModelT, InnerCommandT>
-    mod1Kernel( innerKernel.getInputs(), innerKernel.getCommands() );
-    // load & select the estimator in this mod1Kernel object
-
-// same as above, but the Casc1CommandT is used as output type, and no
-// estimator is loaded.
-ModelControlKernel<Mod2CommandT, Mod2SetPointT, InputT, ModelT, Casc1CommandT> 
-    mod2Kernel( innerKernel.getInputs(), mod1Kernel.getCommands() );
-
-// ... repeat as much as you want
-
-// Tell the other kernels where the model is
-innerKernel.setModels( mod1Kernel.getModels() );
-mod2Kernel.setModels( mod1Kernel.getModels() );
-
-// Load and Select components...
-// only the estimator of the mod1Kernel will be used.
-]]>
-	  </programlisting>
-	  <para>
-	    The Model is thus calculated by an estimator in the mod1Kernel
-	    object. All other kernels (inner and outer) must be informed which
-	    model to use. Only one Estimator can be used.
-	  </para>
-	</example>
-      </sect2>
-    </sect1>
--->
-    <sect1>
-      <title>Cascading Control Kernels</title>
+    <sect1 id="cascade-ns">
+      <title>The CascadeControlKernel</title>
       <para>
-	...
+	This Kernel is usable for most cascades imaginable.
+	Each cascaded Kernel can have all Components and all DataObjects
+	shared across these Kernels. The
+	limitation that only one Component may write to a certain
+	nameserved DataObject still holds but all the others may read it, independent
+	of the priority level. This is logical since if more than one
+	Component writes data into a DataObject, the contents become
+	ambiguous.
       </para>
       <figure id="fig-cascade" pgwide="0">
 	<title>
@@ -3414,46 +3070,36 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2 id="cascade-ns">
-	<title>The CascadeControlKernel</title>
-	<para>
-	  This Kernel is usable for the most complex cascades imaginable.
-	  Each cascaded Kernel can have all Components and all DataObjects
-	  can be shared across these Kernels. The
-	  only limitation is that only one Component may write to a certain
-	  nameserved DataObject, all the others may read it, independent
-	  of the priority level. This is logical since if more than one
-	  Component writes data into a DataObject, the contents become
-	  ambiguous.
-	</para>
-	<para>
-	  From the public interface, the CascadeControlKernel does not
-	  look differently than the StandardControlKernel. However, its
-	  DataObjects are chosen in such a way that they are fully
-	  thread safe and non blocking by using the DataObjectBuffer
-	  implementation. In this Kernel however, you want the prefix
-	  to match the one of the other Kernel, so that they share 
-	  the same DataObjects.
-	</para>
-	<para>
-	  The Outputs of one Kernel will be automatically introduced
-	  in the Commands namespace of the other Kernels. One should be
-	  aware of possible name clashes. Of course, what one Kernel
-	  expects as a Command should be produced by another Kernel as
-	  Output. If this is not the case, the DataObject will not be
-	  found by the nameserver, and the Component will fail to startup.
-	</para>
-	<para>
-	  <example>
-	    <title>Cascading Three Control Kernels</title>
-	    <para>
-	      This example demonstrates a three-layer Kernel layout with
-	      the CascadeControlKernel. The Model may be calculated 
-	      anywhere and different parts of the Model may be calculated
-	      in different Kernels. Again, only one Component in one Kernel
-	      may write to a specific nameserved DataObject, while all
-	      the others may read from it.
-	    </para>
+      <para>
+	From the public interface, the CascadeControlKernel does not
+	look differently than the StandardControlKernel. However, its
+	DataObjects are chosen in such a way that they are fully
+	thread safe and non blocking by using the
+	<link linkend="data-objects">DataObjectBuffer</link>
+	implementation. In this Kernel however, you want the prefix
+	to match the one of the other Kernel, so that they share 
+	the same DataObjects.
+      </para>
+      <para>
+	The Outputs DataObject of a CascadeControlKernel will be
+	automatically introduced
+	in the Commands namespace of the other Kernels. One should be
+	aware of possible name clashes. Of course, what one Kernel
+	expects as a Command should be produced by another Kernel as
+	Output. If this is not the case, the DataObject will not be
+	found by the nameserver, and the Component will fail to startup.
+      </para>
+      <para>
+	<example>
+	  <title>Cascading Three Control Kernels</title>
+	  <para>
+	    This example demonstrates a three-layer Kernel layout with
+	    the CascadeControlKernel. The Model may be calculated 
+	    anywhere and different parts of the Model may be calculated
+	    in different Kernels. Again, only one Component in one Kernel
+	    may write to a specific DataObject, while all
+	    the others may read from it.
+	  </para>
 	    <programlisting>
 <![CDATA[
 // The highest priority kernel is standard
@@ -3475,21 +3121,20 @@ CascadeControlKernel<>
 
 // Configure the kernels using KernelConfig
 
-// Start kernels in tasks.
+// Start kernels in seperate tasks and threads
 ]]>
-	    </programlisting>
-	    <para>
-	      The CascadeControlKernel knows it has to put the Outputs of
-	      the Kernel in the namespace of the Commands of all the
-	      other Kernels. "my_cascade" is the namespace prefix of the kernel,
-	      not the name. So all three will place their DataObjects
-	      in the "my_cascade" namespace.
-	      An example can be found in
-	      the <filename>kernel_samples</filename> package.
-	    </para>
-	  </example>
-	</para>
-      </sect2>
+	  </programlisting>
+	  <para>
+	    The CascadeControlKernel knows it has to put the Outputs of
+	    the Kernel in the namespace of the Commands of all the
+	    other Kernels. "my_cascade" is the namespace prefix of the kernel,
+	    not the name. So all three will place their DataObjects
+	    in the "my_cascade" namespace.
+	    An example can be found in
+	    the <filename>kernel_samples</filename> package.
+	  </para>
+	</example>
+      </para>
     </sect1>
   </chapter>
 
