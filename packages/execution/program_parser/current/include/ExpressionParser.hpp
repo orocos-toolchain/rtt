@@ -96,7 +96,7 @@ namespace ORO_Execution
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, frameexp, vectorexp, double6Dexp, rotexp, groupexp, atomicexpression,
       constructorexp, framector, vectorctor, double6Dctor, double6Dctor6, rotationctor, time_expression,
-      time_spec, indexexp;
+      time_spec, indexexp, comma, open_brace, close_brace;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up

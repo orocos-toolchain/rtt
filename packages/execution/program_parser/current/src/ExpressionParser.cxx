@@ -49,6 +49,18 @@ namespace ORO_Execution
   using boost::bind;
   using ORO_CoreLib::ConditionDuration;
 
+    namespace {
+        assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        assertion<std::string> expect_expr("Expected a valid expression.");
+        assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_init("Expected an initialisation value of the value.");
+        assertion<std::string> expect_comma("Expected the ',' separator after expression.");
+    }
+
+
+
   DataCallParser::DataCallParser( ExpressionParser& p, ParseContext& c )
     : expressionparser( p ), context( c )
   {
@@ -199,6 +211,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
 
+    comma = expect_comma( ch_p(',') );
+    close_brace = expect_close( ch_p(')') );
+    open_brace = expect_open( ch_p('(') );
     expression = ifthenelseexp;
 
     // We parse expressions without regard of the types.  First we
@@ -283,7 +298,7 @@ namespace ORO_Execution
 
     // take index of an atomicexpression
     indexexp =
-        (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >>']');
+        (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
 
     constructorexp =
         framector
@@ -294,59 +309,59 @@ namespace ORO_Execution
 
     framector = (
          str_p( "frame" )
-      >> '('
+      >> open_brace
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_binary, this, "framevr" ) ];
+      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "framevr" ) ];
 
     vectorctor = (
          str_p( "vector" )
-      >> '('
+      >> open_brace
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
+      >> close_brace )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
 
     // Cappellini Consonni Extension
     double6Dctor = (
         str_p( "double6d" )
-      >> '('
+      >> open_brace
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
+      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
 
     double6Dctor6 = (
         str_p( "double6d" )
-      >> '('
+      >> open_brace
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ];
+      >> close_brace )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ];
 
     rotationctor = (
          str_p( "rotation" )
-      >> '('
+      >> open_brace
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ','
+      >> comma
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_ternary, this,
+      >> close_brace )[ bind( &ExpressionParser::seen_ternary, this,
                       "rotationeuler" ) ];
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..
-    groupexp = '(' >> expression >> ')';
+    groupexp = '(' >> expression >> close_brace;
 
     // a time_condition.  This will result in a ConditionDuration
     // being output as a DataSource<bool>.  The format looks like:

@@ -108,14 +108,21 @@ namespace ORO_Execution
       void seenwhilestatement();
       void endwhilestatement();
 
+      void seenforstatement();
+      void seenforinit();
+      void seenforincr();
+      void endforstatement();
+
       void startofprogram();
       void programdef( iter_t begin, iter_t end );
       void seenprogramend();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart,
-          callstatement, statement, line, content, program,
+          callstatement, statement, line, content, program, valuechange_parsers,
           production, valuechange, returnstatement, function, funcstatement,
-          continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement;
+          continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement,
+          openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
+          condition;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
@@ -123,6 +130,9 @@ namespace ORO_Execution
       ValueChangeParser valuechangeparser;
 
       ProgramGraph* program_graph;
+
+      CommandInterface* for_init_command;
+      CommandInterface* for_incr_command;
   public:
     ProgramGraphParser( iter_t& positer, Processor* proc,
                    const GlobalFactory* ext );

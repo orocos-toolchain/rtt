@@ -46,14 +46,19 @@ namespace ORO_Execution
   using ORO_CoreLib::ConditionTrue;
 
     namespace {
-        assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
+        assertion<std::string> expect_closecurly("Closing curly brace '}' expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_open("Open brace '(' expected.");
+        assertion<std::string> expect_close("Closing brace ')' expected.");
         assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_semicolon("Semi colon expected after statement.");
+        assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
         assertion<std::string> expect_ifblock("Expected a statement (block) after if .. then.");
         assertion<std::string> expect_elseblock("Expected a statement (block) after else.");
+        assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
+        assertion<std::string> expect_expression("Expected an expression.");
+        assertion<std::string> expect_command("Expected a command after 'do'.");
     }
 
 
@@ -64,7 +69,9 @@ namespace ORO_Execution
         conditionparser( context ),
         commandparser( context ),
         valuechangeparser( context ),
-        program_graph(0)
+        program_graph(0),
+        for_init_command(0),
+        for_incr_command(0)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( terminationclause );
@@ -88,6 +95,12 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( elseblock );
     
     newline = ch_p( '\n' );
+    openbrace = expect_open( ch_p('(') );
+    closebrace = expect_close( ch_p(')') );
+    opencurly = expect_opencurly( ch_p('{') );
+    closecurly = expect_closecurly( ch_p('}') );
+    semicolon = expect_semicolon( ch_p(';') );
+    condition = expect_condition( conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] );
 
     // program is the production rule of this grammar.  The
     // production rule is the rule that the entire input should be
@@ -102,9 +115,9 @@ namespace ORO_Execution
        >> str_p( "function" ) 
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
        >> *newline
-       >> expect_open( ch_p( '{' ) )
+       >> opencurly
        >> content
-       >> expect_close( ch_p( '}' ) )
+       >> closecurly
        >> *newline ) [ bind( &ProgramGraphParser::seenfunctionend, this ) ];
 
     // a program looks like "program { content }".
@@ -113,9 +126,9 @@ namespace ORO_Execution
       >> str_p( "program" )[ bind( &ProgramGraphParser::startofprogram, this)]
       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
       >> *newline
-      >> expect_open( ch_p( '{' ) )
+      >> opencurly
       >> content
-      >> expect_close( ch_p( '}' ) )
+      >> closecurly
       >> *newline ) [ bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
@@ -127,27 +140,26 @@ namespace ORO_Execution
     // */\n" will reach us as simply "\n"..
     line = !( statement ) >> newline;
 
-    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement; 
+    statement = valuechange | callstatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement; 
 
-    valuechange = (
-        valuechangeparser.constantDefinitionParser()
-      | valuechangeparser.variableDefinitionParser()
-      | valuechangeparser.aliasDefinitionParser()
-      | valuechangeparser.variableAssignmentParser()
-        )[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
+    valuechange_parsers =  valuechangeparser.constantDefinitionParser()
+        | valuechangeparser.variableDefinitionParser()
+        | valuechangeparser.aliasDefinitionParser()
+        | valuechangeparser.variableAssignmentParser();
+
+    valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
     // a call statement: "do xxx until { terminationclauses }"
     callstatement = (
       str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this ) ]
-      >> commandparser.parser()[
-        bind( &ProgramGraphParser::seencommandcall, this ) ]
+      >> expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
       >> !terminationpart
       ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];
 
     // a function statement : "call functionname"
     funcstatement = (
       str_p( "call" )
-      >> commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ]
+      >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
       )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
 
     // a return statement : "return"
@@ -160,23 +172,31 @@ namespace ORO_Execution
     // everything starting at "until"..
     terminationpart =
       str_p( "until" )
-        >> *newline >> ch_p( '{' ) >> *newline
+        >> *newline >> opencurly >> *newline
         >> terminationclause
         >> *(newline >> !terminationclause)
-        >> ch_p( '}' );
+        >> closecurly;
 
-    ifstatement = (str_p("if") >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ]
+    forstatement = ( str_p("for") >> openbrace
+                     >> !valuechange_parsers[bind(&ProgramGraphParser::seenforinit, this)] >> semicolon
+                     >> condition >> semicolon
+                     >> !valuechange_parsers[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
+                     ) [bind(&ProgramGraphParser::seenforstatement, this)]
+                                  >> ifblock[ bind(&ProgramGraphParser::endforstatement, this) ];
+
+    ifstatement = (str_p("if")
+                   >> condition
                    >> expect_then( str_p("then")[bind(&ProgramGraphParser::seenifstatement, this)] )
                    >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endifblock, this) ] )
                    >> !( *newline >> str_p("else") >> expect_elseblock(ifblock) )
                    )[ bind(&ProgramGraphParser::endifstatement, this) ];
 
     // ifblock is used for a group of statements or one statement (see also whilestatement)
-    ifblock = ( *newline >> ch_p('{') >> *line >> expect_close( ch_p('}') ) ) | ( *newline >> statement );
+    ifblock = ( *newline >> ch_p('{') >> *line >> closecurly ) | ( *newline >> statement );
 
     whilestatement =
         (str_p("while")
-         >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ] )
+         >> condition )
         [bind(&ProgramGraphParser::seenwhilestatement, this)]
          >> ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ];
 
@@ -184,7 +204,7 @@ namespace ORO_Execution
     // a condition, and yyy is an identifier.
     terminationclause =
         str_p( "if" )
-            >> conditionparser.parser()[ bind(&ProgramGraphParser::seencondition, this) ]
+            >> condition
             >> expect_then( str_p("then") ) >> *newline
             >> (callpart | returnpart | continuepart);
 
@@ -338,6 +358,48 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endwhilestatement() {
+        program_graph->endWhileBlock();
+    }
+
+
+    void ProgramGraphParser::seenforinit()
+    {
+        for_init_command = valuechangeparser.assignCommand();
+        valuechangeparser.reset();
+    }
+
+    void ProgramGraphParser::seenforincr()
+    {
+        for_incr_command = valuechangeparser.assignCommand();
+        valuechangeparser.reset();
+    }
+
+    void ProgramGraphParser::seenforstatement() {
+        assert( mcondition );
+
+        if ( for_init_command )
+            {
+                program_graph->setCommand( for_init_command );
+                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
+            }
+        for_init_command = 0;
+
+        // A for is nothing more than a while loop...
+        program_graph->startWhileStatement( mcondition, mpositer.get_position().line );
+        mcondition = 0;
+    }
+
+    void ProgramGraphParser::endforstatement() {
+        // the last statement is an increment of the 'counter'
+        if ( for_incr_command )
+            {
+                program_graph->setCommand( for_incr_command );
+                // Since a valuechange does not add edges, we use this variant
+                // to create one.
+                program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line );
+            }
+        for_incr_command = 0;
+
         program_graph->endWhileBlock();
     }
 

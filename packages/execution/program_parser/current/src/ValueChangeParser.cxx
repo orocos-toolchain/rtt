@@ -39,6 +39,17 @@ namespace ORO_Execution
 {
   using boost::bind;
 
+    namespace {
+        assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_type("Unknown type. Please specify a type.");
+        assertion<std::string> expect_expr("Expected a valid expression.");
+        assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_init("Expected an initialisation value of the value.");
+        assertion<std::string> expect_is("Expected an '=' sign.");
+    }
+
+
   ValueChangeParser::ValueChangeParser( ParseContext& pc )
     : context( pc ), expressionparser( pc )
   {
@@ -56,46 +67,37 @@ namespace ORO_Execution
     constantdefinition = (
          "const"
          // the type
-      >> type_name [
-           bind( &ValueChangeParser::seentype, this, _1, _2 ) ]
+      >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
          // next the name for the constant
-      >> commonparser.identifier [
-           bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ]
-      >> str_p( "=" )
+      >> expect_ident(commonparser.identifier [ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+      >> expect_init( str_p( "=" )
          // and a value to assign to it..
       >> expressionparser.parser() )[
-           bind( &ValueChangeParser::seenconstantdefinition, this ) ];
+           bind( &ValueChangeParser::seenconstantdefinition, this ) ] );
 
     aliasdefinition = (
          "alias"
          // the type
-      >> type_name [
-           bind( &ValueChangeParser::seentype, this, _1, _2 ) ]
+         >> expect_type(type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
          // next the name for the alias
-      >> commonparser.identifier[
-           bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ]
-      >> '='
+         >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+         >> expect_is( ch_p('=') )
          // and a value to assign to it
-      >> expressionparser.parser() )[
-           bind( &ValueChangeParser::seenaliasdefinition, this ) ];
+         >> expect_init( expressionparser.parser() )[ bind( &ValueChangeParser::seenaliasdefinition, this ) ] );
 
     variabledefinition = (
          "var"
-      >> type_name [
-           bind( &ValueChangeParser::seentype, this, _1, _2 ) ]
-      >> commonparser.identifier[
-           bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ]
-      >> '='
-      >> expressionparser.parser() )[
-           bind( &ValueChangeParser::seenvariabledefinition, this ) ];
+         >> expect_type( type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+         >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+         >> expect_is(ch_p('='))
+         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
 
     variableassignment = (
          "set"
-      >> commonparser.identifier[
-           bind( &ValueChangeParser::storename, this, _1, _2 ) ]
+         >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] )
          >> !( '[' >> expressionparser.parser() >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ] 
-      >> ch_p( '=' ) 
-      >> expressionparser.parser() )[
+         >> expect_is( ch_p( '=' ) )
+         >> expect_expr( expressionparser.parser()) )[
            bind( &ValueChangeParser::seenvariableassignment, this ) ];
   };
 

@@ -521,23 +521,42 @@ if <emphasis>condition</emphasis> then <emphasis>statement</emphasis>
 if <emphasis>condition</emphasis> then {
   <emphasis>statement</emphasis>
   // ...
-} else {
+} [ else {
   <emphasis>statement</emphasis>
   // ...
-}
+} ]
 	  </programlisting>
 	It is thus possible to group statements. Each statement can
 	be another if clause. An else is always referring to the last
 	if, just like in C/C++. If you like, you can also write
-	parentheses around the condition.
+	parentheses around the condition. The else statement is
+	optional.
+      </sect3>
+      <sect3>
+	<title>The for Statement</title>
+	<para>
+	  The for statement is almost equal to the C language.
+	  The first statement initialises a variable or is empty.
+	  The condition contains a boolean expression (use 'true'
+	  to simulate an empty condition).
+	  The second statement changes a variable or is empty.
+	  <programlisting>
+for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
+      <emphasis>statement</emphasis>
+// or :
+for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
+      <emphasis>statement</emphasis>
+      // ...
+}
+	  </programlisting>
+	</para>
       </sect3>
       <sect3>
 	<title>The while Statement</title>
 	<para>
-	  The while statement is the only looping primitive in 
-	  the Orocos script language. Fortunately, other
-	  loop primitives (for, do ) can be easily written as
-	  a while statement.
+	  The while statement is another looping primitive in 
+	  the Orocos script language. A do statement is not
+	  ( yet ) implemented
 	  <programlisting>
 while <emphasis>condition</emphasis> 
     <emphasis>statement</emphasis>
