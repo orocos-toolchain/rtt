@@ -53,6 +53,8 @@ public:
     JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type,
                     ORO_CoreLib::Event<void(void)> maximumload, ORO_CoreLib::Event<void(void)> highload);
 
+    JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type);
+
     virtual ~JR3WrenchSensor();
 
     
@@ -127,7 +129,9 @@ private:
     
     ORO_CoreLib::Event<void(void)> _maximumload_event;
     ORO_CoreLib::Event<void(void)> _highload_event;
-    
+
+    bool _has_events;
+  
     // The offsets currently in use
     ForceArray       _currentOffset;
     ForceArray       _rotatedOffset;
