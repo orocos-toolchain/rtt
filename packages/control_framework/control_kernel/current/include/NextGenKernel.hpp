@@ -969,10 +969,14 @@ namespace ORO_ControlKernel
             }
             this->addEffector(c);
 
+            c->_Effector::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
+            c->_Effector::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
             c->_Effector::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Effector::Output::erasePort();
+                    c->_Effector::Model::erasePort();
+                    c->_Effector::Input::erasePort();
                     Logger::log() << Logger::Error << "Trying to load Effector " << c->ComponentBaseInterface::getName();
                     Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
