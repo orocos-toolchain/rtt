@@ -21,11 +21,6 @@
     </subtitle>
     <authorgroup>
       <author>
-	<firstname>Herman</firstname>
-	<surname>Bruyninckx</surname>
-      </author>
-      
-      <author>
 	<firstname>Peter</firstname>
 	<surname>Soetens</surname>
       </author>
@@ -40,7 +35,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2002,2003,2004</year>
       <holder>Herman Bruyninckx, Peter Soetens, Panagiotis Issaris</holder>
     </copyright>
 

@@ -5,7 +5,7 @@ EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia propert
 	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
 	orocos-overview.html orocos-installation.html  \
 	orocos-overview.ps orocos-installation.ps  \
-	orocos-overview.pdf orocos-installation.pdf  \
+	orocos-overview.pdf orocos-installation.pdf  orocos.xsl\
         rtai-24.1.11.patch
 
 if HAVE_XMLPROCESSOR
@@ -28,16 +28,17 @@ docps: epsimages orocos-installation.ps orocos-overview.ps
 doctxt: orocos-installation.txt orocos-overview.txt
 
 pngimages: 
+
 epsimages:
 
 .xml.html:
-	$(XMLPROCESSOR) /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/html/docbook.xsl $< > $@
+	$(XMLPROCESSOR)  /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 .xml.fo:
-	$(XMLPROCESSOR) /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	$(XMLPROCESSOR) $(srcdir)/orocos.xsl $< > $@
 
 .fo.ps:
-	$(FOP) $< $@
+	$(FOP) -fo $< -ps $@
 
 .ps.pdf:
 	ps2pdf $<
