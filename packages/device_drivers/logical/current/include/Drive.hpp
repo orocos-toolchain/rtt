@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:22:43 CEST 2002  Drive.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:22:43 CEST 2002  AnalogDrive.hpp 
 
-                        Drive.hpp -  description
+                        AnalogDrive.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
@@ -20,128 +20,159 @@
    - Adapted to new AnalogOutInterface API
 */ 
 
-#ifndef DRIVE_HPP
-#define DRIVE_HPP
+#ifndef DEVICE_DRIVERS_DRIVE_HPP
+#define DEVICE_DRIVERS_DRIVE_HPP
 
 #include <device_interface/AnalogOutInterface.hpp>
 #include <device_interface/DigitalOutInterface.hpp>
-//#include <device_interface/ActuatorInterface.hpp>
-//#include <iostream>
 
 namespace ORO_DeviceDriver
-
 {
     using namespace ORO_CoreLib;
     using namespace ORO_DeviceInterface;
-    using namespace std;
 
     /**
-     * Uses a channel of a certain analog output which is connected to
-     * a hardware drive with velocity control, controlling an actuator
-     * and the enabling/braking of the drive.
+     * @brief A AnalogDrive Object converts a physical unit (position, torque,...)
+     * to an analog output. It can also be enabled and breaked.
+     *
+     * Uses an analog output which is connected to
+     * a hardware drive with position/velocity/acceleration/torque control
+     * and the enabling/braking of the drive through two digital outputs.
      */
-    class Drive // VelocityDrive
-    //: public ActuatorInterface<double>
+    class AnalogDrive
     {
         typedef double InputStruct;
 
-        public:
-            /**
-             * Construct an Analog Drive object. It sets its setpoint on channel
-             * <chan> on device <an_out>. Enabling and disabling of the drive
-             * happens on <dig_out> and bit <bit>.
-             */
-            Drive( AnalogOutInterface<unsigned int>* an_out, unsigned int chan, 
-                   DigitalOutInterface* dig_out, unsigned int bit )
-                : mySubDevice( an_out ), myChannel( chan ), 
-                enableDevice(dig_out), enableBit(bit),offset( 0 )
-            {}
+    public:
+        /**
+         * Construct an Analog Drive object and aggregate
+         * <an_out> and <dig_out>. The voltage sent to the AnalogOutput
+         * is calculated as :
+         * @verbatim
+         * volt = (setpoint + offset)/scale
+         * @endverbatim
+         *
+         * @param _scale The scale of unit per volt such that unit = volt * _scale
+         * @param _offset The offset to be added to the unit such that new_unit = vel + offset
+         */
+        AnalogDrive( AnalogOutput<double>* an_out,
+               DigitalOutput* dig_out, DigitalOutput* _break, double _scale=1.0, double _offset=0.0 )
+            : analogDevice( an_out )
+            enableDevice(dig_out), breakDevice(_break), mySpeed(0.0),
+            scale(_scale), offset( _offset ),
+            lowvel( an_out->highest() ), highvel( an_out->lowest )
+        {
+            driveSet(0);
+            enableBreak();
+            disableDrive();
+        }
 
-            virtual ~Drive()
-            {}
+        ~AnalogDrive()
+        {
+            driveSet(0);
+            enableBreak();
+            disableDrive();
 
-            /**
-             * Enable the drive.
-             */
-            virtual bool enableDrive()
-            {
-                enableDevice->switchOn(enableBit);
-                return enableDevice->checkBit(enableBit);
-            }
+            delete analogDevice;
+            delete enableDevice;
+            delete breakDevice;
+        }
 
-            /**
-             * Disable the drive.
-             */
-            virtual bool disableDrive()
-            {
-                enableDevice->switchOff(enableBit);
-                return !enableDevice->checkBit(enableBit);
-            }
+        /**
+         * Turn on the breaks.
+         */
+        bool enableBreak()
+        {
+            enableDevice->switchOn();
+            return enableDevice->isOn();
+        }
 
-            virtual int driveSet( double v )
-            {
-                // res is in bits/[Volt|Ampere|...]
-                InputStruct resolution = mySubDevice->resolution(myChannel);
-                mySpeed = v;
+        /**
+         * Turn off the breaks.
+         */
+        bool disableBreak()
+        {
+            enableDevice->switchOff();
+            return !enableDevice->isOn();
+        }
 
-                if ( v+offset < minDriveGet() )
-                    mySpeed = minDriveGet();
+        /**
+         * Enable the drive.
+         */
+        bool enableDrive()
+        {
+            enableDevice->switchOn();
+            return enableDevice->isOn();
+        }
 
-                if ( v+offset > maxDriveGet() )
-                    mySpeed = maxDriveGet();
+        /**
+         * Disable the drive.
+         */
+        bool disableDrive()
+        {
+            enableDevice->switchOff();
+            return !enableDevice->isOn();
+        }
 
-                unsigned int res = mySubDevice->binaryLowest() + unsigned ( ( mySpeed - minDriveGet() + offset ) * resolution );
+        /**
+         * Limit the velocity of the drive.
+         */
+        void limit(double lower, double higher)
+        {
+            lowvel = lower;
+            highvel = higer;
+        }
 
-                //rtos_printf("res: %d, copy %d \n",res,(int)(copy*1000) );
-                //cout <<"Offset:"<<offset<<" "<<( mySpeed - minDriveGet() + offset ) * resolution << endl;
-                //cout.setf ( ios_base::hex, ios_base::basefield );  // set hex as the basefield
-                //cout.setf ( ios_base::showbase );                  // activate showbase
-                //cout <<"RES: "<< res << "," << (res & mySubDevice->binaryRange()) <<endl;
-                mySubDevice->write( myChannel, res & mySubDevice->binaryRange() );
+        /**
+         * Sets a new velocity.
+         */
+        int driveSet( double v )
+        {
+            mySpeed = v;
 
-                return 0;
-            }
+            // limit v;
+            if ( mySpeed < lowvel )
+                mySpeed = lower;
+            else if ( mySpeed > highvel)
+                mySpeed = highvel;
 
-            virtual InputStruct driveGet() const
-            {
-                return mySpeed;
-            }
+            analogDevice->value( (mySpeed+offset)/scale );
 
-            virtual InputStruct maxDriveGet() const
-            {
-                return mySubDevice->highest(myChannel);
-            }
+            return 0;
+        }
 
-            virtual InputStruct minDriveGet() const
-            {
-                return mySubDevice->lowest(myChannel);
-            }
+        /**
+         * Returns the current drive velocity.
+         */
+        double driveGet() const
+        {
+            return mySpeed;
+        }
 
-            virtual InputStruct zeroGet() const
-            {
-                return 0.0; // XXX get this from the card ?
-            }
+        /**
+         * Returns the maximum drive velocity without limitations.
+         */
+        double maxDriveGet() const
+        {
+            return a_out->highest()*scale-offset;
+        }
 
-            virtual void stop()
-            {
-                driveSet( zeroGet() );
-            }
+        /**
+         * Returns the minimum drive velocity without limitations.
+         */
+        double minDriveGet() const
+        {
+            return a_out->lowest()*scale-offset;
+        }
 
-            virtual void offsetSet( const InputStruct& o )
-            {
-                offset = o;
-            }
+    protected:
 
-        protected:
+        AnalogOutput<unsigned int>* analogDevice;
+        DigitalOutput* enableDevice;
+        DigitalOutput* breakDevice;
 
-        AnalogOutInterface<unsigned int>* mySubDevice;
-        unsigned int myChannel;
-
-        DigitalOutInterface* enableDevice;
-        unsigned int enableBit;
-
-        InputStruct offset;
-        InputStruct mySpeed;
+        double scale, offset;
+        double lowvel, highvel;
     };
 
 }
