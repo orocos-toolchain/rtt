@@ -1,12 +1,24 @@
 # Process this file with autoconf to produce a configure script.
 
+# Check if Autoconf version is recent enough
+AC_PREREQ(2.53)
 
-# This macro executes the Orocos common Autoconf code
-# Specify the name and version number as a parameter
+# Include version control information
+#AC_REVISION($revision)
 
-ACX_MY_ARGS="$@"
+# Initialize Autoconf with package name and version
+AC_INIT(orocos-base,0.16.0)
+ACX_MY_ARGS="$*"
 
-OROCOS_GENERAL(orocos-base,0,16,0)
+# Tell Autoconf to dump files into the config subdir
+AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_SRCDIR([config.h.in])
+AM_CONFIG_HEADER([config.h])
+
+dnl Initialize Automake
+AM_INIT_AUTOMAKE(1.6.0)
+
+OROCOS_GENERAL(AC_PACKAGE_NAME,AC_PACKAGE_VERSION)
 
 if test -e configure.ac; then
     echo "
@@ -43,6 +55,7 @@ AC_MSG_RESULT($DOC_DIR)
 # Setup the packages
 echo "Running configure in packages..."
 cd $ECOS_REP
+echo "./configure $ACX_MY_ARGS"
 ./configure $ACX_MY_ARGS
 echo "Running Make db in packages..."
 make db
@@ -56,5 +69,5 @@ AC_CONFIG_FILES([
   tests/Makefile
   ])
 
-
 OROCOS_OUTPUT
+

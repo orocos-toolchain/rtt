@@ -288,29 +288,31 @@ m4_define([OROCOS_INIT],[
 
 # use packages version number as build number,
 # Since svn uses global version numbers this is actually cool !
-TMPBUILD = $(svn info packages |grep Revision | sed -e's/Revision: //')
- define([svn_version],[$TMPBUILD])
+#TMPBUILD = $(svn info packages |grep Revision | sed -e's/Revision: //')
+# define([svn_version],[$TMPBUILD])
 
-ACX_VERSION($2,$3,$4,svn_version)
+#ACX_VERSION($2,$3,$4,svn_version)
 
-# Check if Autoconf version is recent enough
-AC_PREREQ(2.53)
+# # Check if Autoconf version is recent enough
+# AC_PREREQ(2.53)
 
-# Include version control information
-AC_REVISION($revision)
+# # Include version control information
+# AC_REVISION($revision)
 
-# Initialize Autoconf with package name and version
-AC_INIT($1,acx_version)
+# # Initialize Autoconf with package name and version
+# AC_INIT($1,acx_version)
 
-# Tell Autoconf to dump files into the config subdir
-AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_SRCDIR([config.h.in])
-AM_CONFIG_HEADER([config.h])
+# # Tell Autoconf to dump files into the config subdir
+# AC_CONFIG_AUX_DIR(config)
+# AC_CONFIG_SRCDIR([config.h.in])
+# AM_CONFIG_HEADER([config.h])
 
-dnl Initialize Automake
-AM_INIT_AUTOMAKE(1.6.0)
+# dnl Initialize Automake
+# AM_INIT_AUTOMAKE(1.6.0)
 
-ACX_VERSION_POST
+# ACX_MY_ARGS="$*"
+
+#ACX_VERSION_POST
 
 dnl Default installation path
 AC_PREFIX_DEFAULT([/usr/local/orocos])
