@@ -107,6 +107,9 @@ void TypesTest::testReturnProgram()
 
 void TypesTest::testTypes()
 {
+    // XXX
+    // for some reason, we can not compare the double6D's one fails
+    // to parse, the others assert false, thus inequality.
     string prog = string("program x {\n") +
         "var int i = -1\n" +
         "do test.assert( i == -1 )\n" +
@@ -117,8 +120,11 @@ void TypesTest::testTypes()
         "var string s=\"string\"\n"+
         "do test.assert( s == \"string\" )\n" +
         "var double6d d6 = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n"+
-//         "do test.assert( d6 == double6d(0.1,0.2,0.3,0.4,0.5,0.6) )\n" +
+//         "do test.assert( d6 == d6 )\n" +
+//         "do test.assert( d6 == double6d(0.1,0.2,0.3,0.4,0.5,0.6) )\n" + // fails to parse
         "var double6d d6_2 = double6d(0.01)\n"+
+//         "do test.assert( d6_2 == d6_2 )\n" +
+//         "do test.assert( double6d(0.01) == double6d(0.01) )\n" +
 //         "do test.assert( d6_2 == double6d(0.01) )\n" +
         "const int ic = i\n" +
         "do test.assert( ic == -1 )\n" +
@@ -150,6 +156,18 @@ void TypesTest::testTypes()
         "const rotation rc = r\n"+
         "const frame fc = f\n"+
 #endif
+        "var array ar(10)\n"+
+        "set ar[0] = 0.0\n"+
+        "set ar[1] = 1.0\n"+
+        "set ar[2] = 0.2\n"+
+        "set ar[8] = 0.8\n"+
+        "set ar[9] = 9.0\n"+
+        "do test.assert( ar[0] == 0.0 )\n"+
+        "do test.assert( ar[1] == 1.0 )\n"+
+        "do test.assert( ar[2] == 0.2 )\n"+
+        "do test.assert( ar[8] == 0.8 )\n"+
+        "do test.assert( ar[9] == 9.0 )\n"+
+        "do test.assert( ar[10] == 0.0 )\n"+
         "}";
     stringstream progs(prog);
     std::vector<ProgramGraph*> pg_list;
@@ -175,15 +193,16 @@ void TypesTest::testTypes()
 void TypesTest::testOperators()
 {
     string prog = string("program x {\n") +
-        "var int i = 0\n" +
-        //"var char c = 'c'\n" +
-        "var double d = 10.0\n"+
+        "var int i = 3\n" +
+        "var char c = 'c'\n" +
+        "var double d = 10.0*i\n"+
+        "do test.assert( d == 30.0 )\n" +
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
         "var double6d d6 = double6d(0.,1.,2.,3.,4.,5.)\n"+
         "var double6d d6_2 = double6d(0.0)\n"+
-        "set d = d+1.0-1.0-2.0*1.0/2.0*0.0 \n"+
-        //"do test.assert( d == 10.0 )\n" +
+        "set d = d+1.0-1.0-2.0*1.0/2.0*0.0/i \n"+
+//         "do test.assert( d == 10.0 )\n" +
         "set b = b or b and true && false || true\n"+
         "do test.assert( b == false )\n" +
 //         "set s = s+\"abc\"\n"+

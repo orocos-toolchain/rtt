@@ -326,7 +326,6 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
         // Xtra test, only do it if all previous went ok :
         loopProgram( *pg_list.begin() );
     }
-    gtask.stop();
 }
 
 void ProgramTest::loopProgram( FunctionGraph* f)
@@ -348,6 +347,7 @@ void ProgramTest::loopProgram( FunctionGraph* f)
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
+    gtask.stop();
     tc->getProcessor()->stopProgram( prog_name );
     tc->getProcessor()->deleteProgram( prog_name );
 

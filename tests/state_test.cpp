@@ -141,8 +141,9 @@ void StateTest::testParseState()
     // a state which should never fail
     string prog = string("StateMachine X {\n")
         + " param int isten\n"
-        + " param bool istrue\n"
+        + " var bool istrue = true\n"
         + " param bool isfalse\n"
+        + " param bool isok\n"
         + " param double isnegative\n"
         + " var double d_dummy = -1.0\n"
         + " var int    i_dummy = -1\n"
@@ -177,6 +178,7 @@ void StateTest::testParseState()
         + "     if false then select ERROR\n"
         + "     if (d_dummy != 1.234) || (i_dummy != -2)  then select ENTRYFAIL\n"
         + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
+        + "     if isok == false then select PARAMFAIL\n"
         + "     select FINI\n"
         + "     select ERROR\n" // do not reach
         + " }\n"
@@ -226,7 +228,8 @@ void StateTest::testParseState()
         + " }\n"
         + " }\n"
         + " }\n"
-        + " RootMachine X x( isten = 10,istrue = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        //        + " RootMachine X x( isten = 10, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        + " RootMachine X x( isten = 10, isok = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
         ;
 
     this->doState( prog, &gtc );

@@ -230,7 +230,7 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
         {
             CPPUNIT_ASSERT( false );
         }
-    tc->getProcessor()->loadProgram( *pg_list.begin() );
+    CPPUNIT_ASSERT( tc->getProcessor()->loadProgram( *pg_list.begin() ) );
     SimulationThread::Instance()->start();
     ltask.start();
     mtask.start();
@@ -238,16 +238,16 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
     tc->getProcessor()->startProgram( (*pg_list.begin())->getName() );
     //     while (1)
     sleep(1);
-    gtask.stop();
-    mtask.stop();
-    ltask.stop();
     SimulationThread::Instance()->stop();
 }
 
 void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)
 {
+    gtask.stop();
+    mtask.stop();
+    ltask.stop();
     tc->getProcessor()->stopProgram( prog_name );
-    tc->getProcessor()->deleteProgram( prog_name );
+    CPPUNIT_ASSERT( tc->getProcessor()->deleteProgram( prog_name ) );
 
     TaskContext* ptc =  tc->getPeer("programs")->getPeer(prog_name);
     tc->getPeer("programs")->removePeer(prog_name);
