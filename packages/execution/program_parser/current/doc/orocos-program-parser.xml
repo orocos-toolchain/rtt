@@ -606,6 +606,11 @@ while <emphasis>condition</emphasis> {
 	  transition.
 	</para>
 	<para>
+	  Every state also has a set of preconditions that need to
+	  hold at its entry.  If these don't hold, the StateContext
+	  will enter into an error state.
+	</para>
+	<para>
 	  Besides a list of the possible transitions, every state also
 	  keeps record of programs to be executed at certain
 	  occasions.  There are exactly three programs in every state:
@@ -672,6 +677,9 @@ StateContext MyStateContext
 	exit {
 	    // exit method: statements and event configuration
 	}
+	preconditions {
+	    // ordered select statements
+        }
 	transitions {
 	    // Ordered (conditional) select statements
 	}
@@ -780,6 +788,31 @@ transitions {
 	    case.
 	  </para>
 	</sect4>
+	<sect4>
+	  <title>State Preconditions</title>
+	  <para>
+	    Often it's useful to specify some preconditions that need
+	    to hold before entering a state.  &OROCOS; states
+	    explicitly allow for this.  A state's preconditions will
+	    be checked before the state is entered.
+	  </para>
+	  <para>
+	    Preconditions are specified as follows:
+	    <programlisting>
+// In state XYZ
+preconditions {
+    // make sure the robot is not moving axis 1 when entering this state
+    if robot.movingAxis( 1 ) then
+        select ERROR_STATE
+}
+	    </programlisting>
+	    As you may have noticed, the syntax for preconditions is
+	    the same as for transitions.  It's simply a set of
+	    conditional select statements.  The only difference is
+	    that preconditions are checked once before entry of the
+	    state, whereas transitions are checked every time the
+	    state is handled.
+	  </para>
       </sect3>
       <sect3>
 	<title>Instantiating Contexts: SubContexts and RootContexts</title>
