@@ -62,7 +62,8 @@
 
 
 /*MODULE_PARM(video_nr, "i");*/
-//MODULE_DESCRIPTION( "APCI-1032 driver" );
+MODULE_DESCRIPTION( "APCI-1032 driver" );
+MODULE_LICENSE("GPL");
 
 /* Prototypes of the used functions */
 
@@ -478,3 +479,8 @@ void cleanup_module( void )
     printk( "Cleanup module.\n" );
     unregister_chrdev( i_MajorNumber, DriverName );
 }
+
+EXPORT_SYMBOL(i_APCI1032_Read32DigitalInput);
+EXPORT_SYMBOL(i_APCI1032_Read16DigitalInput);
+EXPORT_SYMBOL(i_APCI1032_Read1DigitalInput);
+EXPORT_SYMBOL(i_APCI1032_Read8DigitalInput);
