@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/P_Controller.hpp"
+#include "control_kernel/P_Controller.hpp"
 
 namespace ORO_ControlKernel {
 

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include <kernel_components/SignalGenerator.hpp>
+#include <control_kernel/SignalGenerator.hpp>
 
 namespace ORO_ControlKernel {
 

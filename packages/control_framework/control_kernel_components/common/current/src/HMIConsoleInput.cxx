@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/HMIConsoleInput.hpp"
+#include "control_kernel/HMIConsoleInput.hpp"
 
 namespace ORO_ControlKernel
 {

@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesSensorCartesianPos.hpp"
+#include "control_kernel/nAxesSensorCartesianPos.hpp"
 #include <assert.h>
 
 namespace ORO_ControlKernel

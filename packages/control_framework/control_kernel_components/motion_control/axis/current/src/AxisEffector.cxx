@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/AxisEffector.hpp"
+#include "control_kernel/AxisEffector.hpp"
 
 namespace ORO_ControlKernel {
 

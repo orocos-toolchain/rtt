@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesSensorForcesensor.hpp"
+#include "control_kernel/nAxesSensorForcesensor.hpp"
 #include <assert.h>
 
 

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/HMIConsoleOutput.hpp"
+#include "control_kernel/HMIConsoleOutput.hpp"
 
 
 

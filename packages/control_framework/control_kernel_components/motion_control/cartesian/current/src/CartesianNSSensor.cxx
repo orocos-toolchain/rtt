@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/CartesianNSSensor.hpp"
+#include "control_kernel/CartesianNSSensor.hpp"
 
 namespace ORO_ControlKernel {
 

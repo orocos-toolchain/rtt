@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesSensorCartesianPosForce.hpp"
+#include "control_kernel/nAxesSensorCartesianPosForce.hpp"
 #include <assert.h>
 
 #define GRAVITY_CONSTANT    9.81

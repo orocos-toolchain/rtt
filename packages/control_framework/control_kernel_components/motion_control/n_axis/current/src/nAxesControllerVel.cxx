@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#include "kernel_components/nAxesControllerVel.hpp"
+#include "control_kernel/nAxesControllerVel.hpp"
 #include <assert.h>
 
 namespace ORO_ControlKernel

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/AxisPositionGenerator.hpp"
+#include "control_kernel/AxisPositionGenerator.hpp"
 
 namespace ORO_ControlKernel {
 

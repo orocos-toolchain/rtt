@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesControllerPos.hpp"
+#include "control_kernel/nAxesControllerPos.hpp"
 #include <assert.h>
 
 namespace ORO_ControlKernel

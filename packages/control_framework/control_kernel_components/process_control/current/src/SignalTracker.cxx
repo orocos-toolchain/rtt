@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include <kernel_components/SignalTracker.hpp>
+#include <control_kernel/SignalTracker.hpp>
 
 namespace ORO_ControlKernel {
 

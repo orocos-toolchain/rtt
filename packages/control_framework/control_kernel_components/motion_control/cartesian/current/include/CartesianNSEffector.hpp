@@ -30,7 +30,7 @@
 
 #include <geometry/frames.h>
 #include <geometry/MotionProperties.hpp>
-#include <kernel_components/Simulator.hpp>
+#include <control_kernel/Simulator.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/BaseComponents.hpp>

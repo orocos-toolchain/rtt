@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/HMIReadline.hpp"
+#include "control_kernel/HMIReadline.hpp"
 
 namespace ORO_ControlKernel
 {

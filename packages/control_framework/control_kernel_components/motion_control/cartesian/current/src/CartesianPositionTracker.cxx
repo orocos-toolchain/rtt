@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/CartesianPositionTracker.hpp"
+#include "control_kernel/CartesianPositionTracker.hpp"
 
 namespace ORO_ControlKernel {
 

@@ -26,4 +26,4 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/PID_Controller.hpp"
+#include "control_kernel/PID_Controller.hpp"

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/GenericSensor.hpp"
+#include "control_kernel/GenericSensor.hpp"
 
 namespace ORO_ControlKernel
 {

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/FeedForwardController.hpp"
+#include "control_kernel/FeedForwardController.hpp"
 
 namespace ORO_ControlKernel {
 

@@ -30,7 +30,7 @@
 #define CARTESIAN_NS_SENSOR_HPP
 
 #include <corelib/Event.hpp>
-#include <kernel_components/Simulator.hpp>
+#include <control_kernel/Simulator.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/BaseComponents.hpp>

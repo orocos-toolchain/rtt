@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/GenericEffector.hpp"
+#include "control_kernel/GenericEffector.hpp"
 
 namespace ORO_ControlKernel
 {

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/CartesianNSEffector.hpp"
+#include "control_kernel/CartesianNSEffector.hpp"
 
 namespace ORO_ControlKernel {
 

@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/CartesianNSGenerator.hpp"
+#include "control_kernel/CartesianNSGenerator.hpp"
 
 namespace ORO_ControlKernel {
 

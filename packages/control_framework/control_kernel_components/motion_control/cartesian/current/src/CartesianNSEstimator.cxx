@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/CartesianNSEstimator.hpp"
+#include "control_kernel/CartesianNSEstimator.hpp"
 
 namespace ORO_ControlKernel {
 

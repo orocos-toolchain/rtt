@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "kernel_components/AxisSensor.hpp"
+#include "control_kernel/AxisSensor.hpp"
 
 namespace ORO_ControlKernel {
 

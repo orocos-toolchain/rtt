@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesControllerCartesianPos.hpp"
+#include "control_kernel/nAxesControllerCartesianPos.hpp"
 #include <assert.h>
 
 
