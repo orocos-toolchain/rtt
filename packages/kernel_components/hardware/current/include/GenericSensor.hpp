@@ -82,7 +82,7 @@ namespace ORO_ControlKernel
     {
         GenericInput()
         {
-            this->insert( std::make_pair(4,"ChannelMeasurements") );
+            this->insert( std::make_pair(4,"ChannelValues") );
         }
 
         void addDouble(const std::string& name )
@@ -129,7 +129,7 @@ namespace ORO_ControlKernel
         typedef GenericInput InputDataObject;
             
         /**
-         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
+         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelValues" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
         GenericSensor( int max_chan = 32) 
@@ -143,7 +143,7 @@ namespace ORO_ControlKernel
 
         bool componentLoaded()
         {
-            if ( !Base::Input::dObj()->Get("ChannelMeasurements",chan_DObj) )
+            if ( !Base::Input::dObj()->Get("ChannelValues",chan_DObj) )
                 return false;
             // kind-of resize of the vector in the dataobject:
             chan_DObj->Set(chan_meas); 
@@ -228,7 +228,7 @@ namespace ORO_ControlKernel
          * @brief Add an analog Channel.
          *
          * A std::vector<double> DataObject
-         * ( "ChannelMeasurements") is used which contains
+         * ( "ChannelValues") is used which contains
          * the converted value of the input. 
          *
          * The resulting value is : value = value_raw*scale + offset
