@@ -51,6 +51,25 @@ namespace ORO_CoreLib
         friend class ZeroLatencyThread;
         friend class NonRealTimeThread;
 
+        /**
+         * A structure to keep track of ownership
+         * of events.
+         */
+        struct EventItem
+        {
+            EventItem(EventPeriodic* ev, bool _owner = false) : event(ev), owner(_owner) {}
+            EventPeriodic* event;
+            bool owner;
+
+            struct Locator : public std::binary_function<EventItem, EventPeriodic*, bool>
+            {
+                bool operator()(const EventItem& p, const EventPeriodic* ev) const
+                {
+                    return p.event == ev;
+                }
+            };
+        };
+
     public:
 
         /**
@@ -96,12 +115,18 @@ namespace ORO_CoreLib
         void taskRemove( EventListenerInterface* t );
         
         /**
+         * Internal method for keeping track of EventPeriodic
+         * ownership.
+         */
+        void doEventAdd( EventPeriodic* ev, bool myEvent);
+
+        /**
          * A list containing all the EventPeriodic instances
          *  we must fire
          *
          * @see EventInterface
          */ 
-        std::list<EventPeriodic*> clocks;
+        std::list<EventItem> clocks;
 
         ORO_OS::Mutex lock;
     };

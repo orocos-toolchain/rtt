@@ -31,14 +31,20 @@ namespace ORO_CoreLib
 
     TaskExecution::~TaskExecution()
     {
+#if OROSEM_CORELIB_TASKS_DYNAMIC_REG
+        // cleanup events.
+        for (std::list<EventItem>::iterator itl= clocks.begin(); itl != clocks.end(); ++itl)
+            if ( itl->owner )
+                delete ( itl->event );
+#endif
     }
 
     void TaskExecution::step()
     {
-        std::list<EventPeriodic*>::iterator itl;
+        std::list<EventItem>::iterator itl;
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            if ( *itl )
-                (*itl)->fire();
+            if ( itl->event )
+                itl->event->fire();
         // XXX Caveat : if the event is removed between the if() and the fire()
         // a null pointer will be called. but i can not lock since start()'ing
         // another task would then lead to selflock. The correct solution is
@@ -50,19 +56,24 @@ namespace ORO_CoreLib
 
     void TaskExecution::eventAdd( EventPeriodic* ei)
     {
+        doEventAdd( ei, false);
+    }
+
+    void TaskExecution::doEventAdd( EventPeriodic* ev, bool myEvent)
+    {
         secs s;
         nsecs ns;
         periodGet(s,ns);
-        ei->triggerPeriodSet( secs_to_nsecs(s) + ns );
+        ev->triggerPeriodSet( secs_to_nsecs(s) + ns );
         MutexLock locker(lock);
-        clocks.push_back(ei);
+        clocks.push_back( EventItem(ev, myEvent) );
     }
 
-    void TaskExecution::eventRemove( EventPeriodic* ei)
+    void TaskExecution::eventRemove( EventPeriodic* ev)
     {
-        std::list<EventPeriodic*>::iterator itl;
+        std::list<EventItem>::iterator itl;
         MutexLock locker(lock);
-        itl = std::find(clocks.begin(), clocks.end(), ei);
+        itl = std::find_if(clocks.begin(), clocks.end(), bind2nd( EventItem::Locator(), ev ) );
         if (itl != clocks.end() )
             *itl = 0;
         //            clocks.erase(itl);
@@ -72,12 +83,12 @@ namespace ORO_CoreLib
     {
         { 
             // scoped mutexlock with the for loop
-            std::list<EventPeriodic*>::iterator itl;
+            std::list<EventItem>::iterator itl;
             MutexLock locker(lock);
             for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-                if ( *itl && (*itl)->periodGet() == n )
+                if ( itl->event && itl->event->periodGet() == n )
                     {
-                        (*itl)->addHandler(t, Completer::None );
+                        itl->event->addHandler(t, Completer::None );
                         return true;
                     }
         }
@@ -87,7 +98,9 @@ namespace ORO_CoreLib
          */
         EventPeriodic* ep = new EventPeriodic( Seconds(n)/NSECS_IN_SECS );
         ep->addHandler(t, Completer::None);
-        eventAdd(ep);
+
+        doEventAdd(ep, true);  // my event.
+
         return true;
 #else
         return false;
@@ -97,11 +110,11 @@ namespace ORO_CoreLib
     void TaskExecution::taskRemove( EventListenerInterface* t )
     {
         // this is doing it the hard way.
-        std::list<EventPeriodic*>::iterator itl;
+        std::list<EventItem>::iterator itl;
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            if ( *itl )
-                (*itl)->removeHandler(t,0);
+            if ( itl->event )
+                itl->event->removeHandler(t,0);
     }
         
 }
