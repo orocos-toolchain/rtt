@@ -17,5 +17,9 @@ namespace ORO_CoreLib
         return "CommandNOP";
     }
 
+    CommandInterface* CommandNOP::clone() const
+    {
+        return new CommandNOP(*this);
+    }
 }
 

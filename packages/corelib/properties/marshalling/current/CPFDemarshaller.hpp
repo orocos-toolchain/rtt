@@ -10,10 +10,12 @@
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/util/BinMemInputStream.hpp>
 #include <xercesc/framework/StdInInputSource.hpp>
+
 #include <vector>
 #include <stack>
 #include <map>
 #include <string>
+#include <iostream>
 
 #include <corelib/Property.hpp>
 #include "StreamProcessor.hpp"
@@ -21,6 +23,9 @@
 namespace ORO_CoreLib
 {
     using  std::string;
+    using  std::cerr;
+    using  std::endl;
+
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
 #endif
@@ -73,7 +78,7 @@ namespace ORO_CoreLib
                         else if ( type == "char" )
                             bag_stack.top().first->add
                             ( new Property<char>( name, description, value_string[0] ) );
-                        else if ( type == "long") 
+                        else if ( type == "long" || type == "short") 
                         {
                             int v;
                             sscanf(value_string.c_str(), "%d", &v);
@@ -181,17 +186,28 @@ namespace ORO_CoreLib
                                     if ( ln == "value"  )
                                         tag_stack.push( TAG_VALUE );
             }
+
             void warning( const SAXParseException& exception )
             {
-                printf("\nWarning\n");
+                cerr << "Parse Warning : " << XMLString::transcode(exception.getMessage()) <<endl;
+                if ( XMLString::transcode(exception.getPublicId()) )
+                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
+
             void error( const SAXParseException& exception )
             {
-                printf( "\nError\n");
+                cerr << "Parse Error : " << XMLString::transcode(exception.getMessage()) <<endl;
+                if ( XMLString::transcode(exception.getPublicId()) )
+                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
             void fatalError( const SAXParseException& exception )
             {
-                printf( "\nFatal error\n");
+                cerr << "FATAL Parse Error : " << XMLString::transcode(exception.getMessage()) <<endl;
+                if ( XMLString::transcode(exception.getPublicId()) )
+                    cerr << " At entity "<< XMLString::transcode(exception.getPublicId()) <<endl;
+                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
             }
             void characters( const XMLCh* const chars, const unsigned int length )
             {

@@ -46,6 +46,7 @@ namespace ORO_CoreLib
 
         virtual std::string toString();
 
+        virtual CommandInterface* clone() const;
     };
 
 }

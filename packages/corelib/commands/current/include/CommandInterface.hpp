@@ -60,6 +60,11 @@ namespace ORO_CoreLib
              * @see DataSource::reset
              */
             virtual void reset() {};
+
+        /**
+         * The Clone Software Pattern.
+         */
+        virtual CommandInterface* clone() const = 0;
     };
 
 }

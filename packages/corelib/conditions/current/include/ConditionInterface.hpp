@@ -23,31 +23,43 @@
 
 namespace ORO_CoreLib
 {
-
+    /**
+     * This interface represents the concept of
+     * a condition which can be evaluated and return
+     * true or false. 
+     */
     class ConditionInterface
     {
+    public:
+        virtual ~ConditionInterface()
+        {}
 
-        public:
-            virtual ~ConditionInterface()
-            {}
+        /**
+         * @brief Evaluate the Condition and return the outcome
+         *
+         * @return true if the condition is satisfied,
+         * false otherwise.
+         */
+        virtual bool evaluate() = 0;
 
-            virtual bool evaluate() = 0;
+        /**
+         * Some conditions need to be reset at some points.
+         * E.g. a ConditionDuration counts the time since the
+         * first time a Command was executed, and if this time
+         * exceeds a certain preset time, returns true.
+         * Therefore, it needs to be reset, i.e. it needs to start
+         * counting, when the command is first executed..
+         * ConditionOnce has a similar need.  This function is
+         * called at such times.
+         */
+        virtual void reset()
+        {
+        }
 
-            /**
-             * Some conditions need to be reset at some points.
-             * E.g. a ConditionDuration counts the time since the
-             * first time a Command was executed, and if this time
-             * exceeds a certain preset time, returns true.
-             * Therefore, it needs to be reset, i.e. it needs to start
-             * counting, when the command is first executed..
-             * ConditionOnce has a similar need.  This function is
-             * called at such times.
-             */
-            virtual void reset()
-            {
-            }
-
-            virtual ConditionInterface* clone() const = 0;
+        /**
+         * The Clone Software Pattern.
+         */
+        virtual ConditionInterface* clone() const = 0;
     };
 
 }
