@@ -13,6 +13,20 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 #     include_files EncoderIncremental.hpp
 #     include_files RelayCardapci2200.hpp
 
+    cdl_option OROFUN_DEVICE_DRIVERS_APCI_LXRT_LIB {
+	display "Compile LXRT driver KM"
+	flavor bool
+	calculated OROFUN_DEVICE_DRIVERS_APCI2200_LIB || \
+	    OROFUN_DEVICE_DRIVERS_APCI1032_LIB || \
+	    OROFUN_DEVICE_DRIVERS_APCI1710_LIB
+
+	make  {
+	    <PREFIX>/modules/apci_lxrt.o : <PACKAGE>/src/apci_lxrt.c <PACKAGE>/src/apci_lxrt.h
+	    @mkdir -p $(PREFIX)/modules
+	    $(CC) -I/lib/modules/$$(uname -r)/build/include $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/apci_lxrt.c  -o $@
+	}
+    }	
+
     cdl_option OROPKG_DEVICE_DRIVERS_APCI_CFLAGS_ADD {
         display "Linux include path"
 	flavor data
@@ -45,4 +59,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 	compile SwitchDigitalInapci1032.cxx
 	script apci1032.cdl
     }
+
+    
 }

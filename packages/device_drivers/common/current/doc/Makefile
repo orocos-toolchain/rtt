@@ -24,7 +24,7 @@ epsimages:
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc orocos.xsl $< > $@
 
 %.ps:%.fo
 	fop $< $@
