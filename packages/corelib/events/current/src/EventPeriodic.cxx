@@ -9,7 +9,7 @@ namespace ORO_CoreLib
     EventPeriodic::EventPeriodic( Seconds average_period, Seconds trigger_period )
         : avPeriod( nsecs(rint(average_period * NSECS_IN_SECS)) ), 
           trigPeriod( nsecs(rint(trigger_period * NSECS_IN_SECS)) ),
-          total_added(0), turn(0), completerHack(0), reset_f_iter(false)
+          total_added(0), turn(0), completerHack( Completer::None ), reset_f_iter(false)
     {
         if (trigger_period == 0 )
             trigPeriod = nsecs(rint(average_period * NSECS_IN_SECS));

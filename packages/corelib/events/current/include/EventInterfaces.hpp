@@ -88,9 +88,9 @@ namespace ORO_CoreLib
          *        The unique listener for this event.
          * @return true if the operation succeeds, false otherwise
          */
-         bool listenerSet(EventListenerInterface* eli)
+        bool listenerSet(EventListenerInterface* eli)
         {
-            if (myList == 0) { myList = eli; return true;}
+            if (myList == 0) { myList = eli;  myList->handleConnect(); return true;}
             return false;
         }
 
@@ -102,9 +102,9 @@ namespace ORO_CoreLib
          *        The unique listener to be removed from this event.
          * @return true if the operation succeeds, false otherwise
          */
-         bool listenerRemove(EventListenerInterface* eli)
+        bool listenerRemove(EventListenerInterface* eli)
         {
-            if (myList == eli) { myList = 0; return true;}
+            if (myList == eli) { myList = 0; myList->handleClose(); return true;}
             return false;
         }
 
@@ -129,7 +129,7 @@ namespace ORO_CoreLib
          */
          bool completerSet(EventCompleterInterface* eci)
         {
-            if (myComp == 0) { myComp = eci; return true;}
+            if (myComp == 0) { myComp = eci; myComp->completeConnect(); return true;}
             return false;
         }
 
@@ -143,7 +143,7 @@ namespace ORO_CoreLib
          */
          bool completerRemove(EventCompleterInterface* eci)
         {
-            if (myComp == eci) { myComp = 0; return true;}
+            if (myComp == eci) { myComp = 0; myComp->completeClose(); return true;}
             return false;
         }
 
@@ -166,6 +166,7 @@ namespace ORO_CoreLib
         void listenerAdd(EventListenerInterface* eli)
         {
             myList.push_back(eli);
+            eli->handleConnect();
         }
 
         /**
@@ -180,6 +181,7 @@ namespace ORO_CoreLib
             if (itl != myList.end() )
                 {
                     myList.erase(itl);
+                    eli->handleClose();
                 }
         }
 
@@ -202,6 +204,7 @@ namespace ORO_CoreLib
         void completerAdd(EventCompleterInterface* eci)
         {
             myComp.push_back(eci);
+            eci->completeConnect();
         }
 
         /**
@@ -210,12 +213,13 @@ namespace ORO_CoreLib
          * @param eci
          *        The completer to be removed from this event.
          */
-         void completerRemove(EventCompleterInterface* eci)
+        void completerRemove(EventCompleterInterface* eci)
         {
             std::vector<EventCompleterInterface*>::iterator itl= std::find(myComp.begin(), myComp.end(), eci);
             if (itl != myComp.end() )
                 {
                     myComp.erase(itl);
+                    eci->completeClose();
                 }
         }
 

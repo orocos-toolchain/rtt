@@ -26,7 +26,8 @@ namespace ORO_CoreLib
 
     /**
      * This interface defines an object that completes
-     * events.
+     * events. It is a completion of the handleEvent() method,
+     * when it requested complete() on the given CallBackInterface.
      */
     class EventCompleterInterface
     {
@@ -35,10 +36,28 @@ namespace ORO_CoreLib
         {}
 
         /**
-         * Complete an Event.
-         *
+         * This method is called when this Completer is added 
+         * to an Event, after the Listener's handleConnect() method
+         * is called.
+         */
+        virtual void completeConnect( ) {}
+
+        /**
+         * Complete an Event. This method will be called, depending
+         * on Event type and implementation, when the handleEvent()
+         * method of the Listener requested completion. So this is
+         * a callback on a callback, mainly used to do the second
+         * callback in another thread, asynchronously
+         * ( being the CompletionProcessor ).
          */
         virtual void completeEvent() = 0;
+
+        /**
+         * This method is called when this Completer is removed 
+         * from an Event, after the Listener's handleClose() method
+         * is called.
+         */
+        virtual void completeClose( ) {}
 
         /**
          * Use this Completer if you do not which completion

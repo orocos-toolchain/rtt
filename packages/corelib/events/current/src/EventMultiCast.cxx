@@ -7,7 +7,7 @@ namespace ORO_CoreLib
     using namespace detail;
 
         EventMultiCast::EventMultiCast(EventType t)
-            : EventStrategyMethods(t), myList(0)
+            : EventStrategyMethods(t), myList( Listener::None )
         {
             cp = CompletionProcessor::Instance();
         }

@@ -51,15 +51,22 @@ namespace ORO_CoreLib
     {
         insert( std::make_pair( eli, eci ) );
         evCallback.push_back( EventCallbackStub(this, eli) );
+        eli->handleConnect();
+        eci->completeConnect();
     }
 
 
     void Event::removeHandler( EventListenerInterface * eli, EventCompleterInterface* eci )
     {
-        erase( eli );
         std::vector<EventCallbackStub>::iterator itl;
         itl = find_if(evCallback.begin(), evCallback.end(), bind2nd(EventCallbackStub::FindStub(),eli) );
-        evCallback.erase(itl);
+        if (itl != end() && (*this)[eli] == eci )
+            {
+                erase( eli );
+                evCallback.erase(itl);
+                eli->handleClose();
+                eci->completeClose();
+            }
     }
 
     void Event::notifySyn()

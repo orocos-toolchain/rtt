@@ -7,7 +7,7 @@ namespace ORO_CoreLib
     using namespace detail;
 
     EventBarrier::EventBarrier(EventType t)
-        : EventStrategyMethods(t), myComp(0), count(0)
+        : EventStrategyMethods(t), myComp( Completer::None ), count(0)
     {
         callBacks.reserve(128);
         cp = CompletionProcessor::Instance();
