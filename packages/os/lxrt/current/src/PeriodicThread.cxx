@@ -138,12 +138,13 @@ namespace ORO_OS
         if ( task->isHardRealtime() )
             rt_make_soft_real_time();
 
-        rt_sem_delete(task->sem);
-        rt_task_delete(mytask);
-
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" exiting."<<Logger::endl;
 #endif
+
+        rt_sem_delete(task->sem);
+        rt_task_delete(mytask);
+
         return 0;
     }
 
