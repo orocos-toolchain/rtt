@@ -28,25 +28,10 @@
 #ifndef PI_PROPERTIES_SIMPLE_DEMARSHALLER
 #define PI_PROPERTIES_SIMPLE_DEMARSHALLER
 
-#include "Property.hpp"
+#include <corelib/Property.hpp>
 
-#ifdef HAVE_VECTOR
 #include <vector>
-#endif
-
-#ifdef HAVE_MAP
 #include <map>
-#endif
-
-#ifdef HAVE_STRING
-#include <string>
-#endif
-
-#ifdef HAVE_IOSTREAM
-#include <iostream>
-#else
-#include "rtstl/rtstl.h"
-#endif
 
 namespace ORO_CoreLib
 {

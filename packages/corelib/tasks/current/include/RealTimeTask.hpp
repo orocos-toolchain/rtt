@@ -29,15 +29,14 @@
 #define REALTIMETASK_HPP
 
 #include "RunnableInterface.hpp"
-#include "EventListenerInterface.hpp"
 
 #include "Time.hpp"
-#include "TaskExecution.hpp"
-#include "EventPeriodic.hpp"
 #include "TaskInterface.hpp"
+#include <os/Mutex.hpp>
 
 namespace ORO_CoreLib
 {
+    class TaskTimer;
     /**
      * @brief A RealTimeTask is the general implementation of a Task
      * which has realtime, periodic constraints.
@@ -52,12 +51,11 @@ namespace ORO_CoreLib
         : public TaskInterface
     {
 	protected:
-        struct Handler;
-        friend class Handler;
+        friend class TaskTimer;
     public:
 
         /**
-         * Create a RealTime Task with a given period which runs
+         * @brief Create a RealTime Task with a given period which runs
          * a RunnableInterface.
          *
          * @param period
@@ -68,7 +66,7 @@ namespace ORO_CoreLib
         RealTimeTask(Seconds period, RunnableInterface* r=0 );
 
         /**
-         * Create a RealTime Task with a given period which runs
+         * @brief Create a RealTime Task with a given period which runs
          * a RunnableInterface.
          *
          * @param sec
@@ -102,7 +100,6 @@ namespace ORO_CoreLib
 
         virtual Seconds periodGet();
 
-        EventListenerInterface* handler() {return evHandler; }
     protected:
         /**
          * Adds the task to the corresponding thread
@@ -131,18 +128,6 @@ namespace ORO_CoreLib
          * Does an unconditional stop.
          */
         void doStop();
-
-        /**
-         * The Handler to be registered with the Event which will
-         * trigger execution of this RealTimeTask.
-         */
-        EventListenerInterface* evHandler;
-
-        /**
-         * The handler to stop a RunnableTaskInterface when it
-         * is inError.
-         */
-        EventCompleterInterface* taskCompleter;
 
         /**
          * When runner != 0 it will be executed instead of

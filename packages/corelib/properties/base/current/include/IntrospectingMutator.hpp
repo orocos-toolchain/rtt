@@ -28,7 +28,7 @@
 
 #include "PropertyIntrospection.hpp"
 
-
+#if 0
 namespace ORO_CoreLib
 {
 
@@ -37,7 +37,7 @@ namespace ORO_CoreLib
      * to it if it matches the anticipated type. Assigns the default value
      * if the types do not match.
      */
-    class IntrospectingExtractor
+    class IntrospectingMutator
     {
         bool bool_val;
         char char_val;
@@ -87,42 +87,42 @@ namespace ORO_CoreLib
                 target->identify(this);
             }
 
-            extract( bool& set_val, PropertyBase* target)
+            void mutate( bool& set_val, PropertyBase* target)
             {
                 bool_val = set_val;
                 target->identify(this);
                 set_val = bool();
             }
 
-            extract( char& set_val, PropertyBase* target)
+            void mutate( char& set_val, PropertyBase* target)
             {
                 char_val = set_val;
                 target->identify(this);
                 set_val = char();
             }
 
-            extract( int& set_val, PropertyBase* target)
+            void mutate( int& set_val, PropertyBase* target)
             {
                 int_val = set_val;
                 target->identify(this);
                 set_val = int();
             }
 
-            extract( std::string& set_val, PropertyBase* target)
+            void mutate( std::string& set_val, PropertyBase* target)
             {
                 string_val = set_val;
                 target->identify(this);
                 set_val = std::string();
             }
 
-            extract( double& set_val, PropertyBase* target)
+            void mutate( double& set_val, PropertyBase* target)
             {
                 double_val = set_val;
                 target->identify(this);
                 set_val = double();
             }
 
-            extract( PropertyBag& set_val, PropertyBase* target)
+            void mutate( PropertyBag& set_val, PropertyBase* target)
             {
                 bag_val = set_val;
                 target->identify(this);
@@ -325,4 +325,4 @@ namespace ORO_CoreLib
 
 
 }
-
+#endif

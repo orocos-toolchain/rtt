@@ -32,6 +32,8 @@
 
 namespace ORO_CoreLib
 {
+    class TaskThreadInterface;
+
     /**
      * @brief Interface to start/stop and query a Task.
      *
@@ -74,6 +76,12 @@ namespace ORO_CoreLib
          * @return The execution period of this task
          */
         virtual Seconds periodGet() = 0;
+
+        /**
+         * Returns a pointer to the thread which will
+         * run this task. Will not be null.
+         */
+        virtual TaskThreadInterface* thread() = 0;
     };
 
 }

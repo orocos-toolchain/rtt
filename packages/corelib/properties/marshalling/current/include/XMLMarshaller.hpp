@@ -52,47 +52,47 @@ namespace ORO_CoreLib
 
 				virtual void serialize(const Property<bool> &v) 
 				{ 
-					*s << "<bool id=\""<< v.getName() 
+					*(this->s) << "<bool id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</bool>\n";
 				}
 
 				virtual void serialize(const Property<char> &v) 
 				{ 
-					*s << "<char id=\""<< v.getName() 
+					*(this->s) << "<char id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</char>\n";
 				}
 				virtual void serialize(const Property<int> &v) 
 				{ 
-					*s << "<int id=\""<< v.getName() 
+					*(this->s) << "<int id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</int>\n";
 				}
 
 				virtual void serialize(const Property<unsigned int> &v) 
 				{ 
-					*s << "<uint id=\""<< v.getName() 
+					*(this->s) << "<uint id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</uint>\n";
 				}
 
 				virtual void serialize(const Property<double> &v) 
 				{
-					*s << "<double id=\""<< v.getName() 
+					*(this->s) << "<double id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</double>\n";
 				}
 				virtual void serialize(const Property<std::string> &v) 
 				{
-					*s << "<string id=\""<< v.getName() 
+					*(this->s) << "<string id=\""<< v.getName() 
 						<<"\" description=\"" << v.getDescription() <<"\">"
 						<< v.get() << "</string>\n";
 				}
 
 				virtual void serialize(const PropertyBag &v, std::string name)
 				{
-					*s <<"<bag type=\""<<v.getType()<<"\" name=\"" << name << "\">"<< std::endl;
+					*(this->s) <<"<bag type=\""<<v.getType()<<"\" name=\"" << name << "\">"<< std::endl;
 					for (
 							PropertyBag::const_iterator i = v.getProperties().begin();
 							i != v.getProperties().end();
@@ -100,12 +100,12 @@ namespace ORO_CoreLib
 					{
 						(*i)->identify(this);
 					}
-					*s <<"</bag>\n";
+					*(this->s) <<"</bag>\n";
 				}
 				
 				virtual void serialize(const PropertyBag &v) 
 				{
-					*s <<"<bag type=\""<<v.getType()<<"\">"<< std::endl;
+					*(this->s) <<"<bag type=\""<<v.getType()<<"\">"<< std::endl;
 					for (
 							PropertyBag::const_iterator i = v.getProperties().begin();
 							i != v.getProperties().end();
@@ -113,7 +113,7 @@ namespace ORO_CoreLib
 					{
 						(*i)->identify(this);
 					}
-					*s <<"</bag>\n";
+					*(this->s) <<"</bag>\n";
 				}
 				virtual void serialize(const Property<PropertyBag> &v) 
 				{

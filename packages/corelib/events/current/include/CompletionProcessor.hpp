@@ -20,36 +20,16 @@
 #ifndef COMPLETIONPROCESSOR_HPP
 #define COMPLETIONPROCESSOR_HPP
 
-#include "EventCompleterInterface.hpp" 
-#include "EventListenerInterface.hpp"
-
 #include "os/Mutex.hpp"
 #include "os/PeriodicThread.hpp"
-
-#include "pkgconf/system.h"
-
-#ifndef ORODAT_CORELIB_CPBASE_H
-// a good alternative when not defined :
-#define ORODAT_CORELIB_CPBASE ORO_OS::PeriodicThread
-#define ORODAT_CORELIB_CPBASE_H "os/PeriodicThread.hpp"
-#endif
-
-// Load alternate base for CP
-#include ORODAT_CORELIB_CPBASE_H
-
-
-// prefer queue above vector
-#if   defined OROINT_OS_STDQUEUE
-#include <queue>
-#elif defined OROINT_OS_STDVECTOR
-#include <vector>
-#endif
+#include "EventProcessor.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * Complete queued events, meaning to execute the completer methods 
+     * @brief Complete queued events, meaning to execute the completer methods 
      * in a separate thread.
+     *
      * Each asynchronous operation of the system will be executed in the
      * thread of the CompletionProcessor. Because of the nature of asynchronosity,
      * the CompletionProcessor is considered non realtime, and so is all
@@ -60,7 +40,8 @@ namespace ORO_CoreLib
      *
      */
     class CompletionProcessor 
-        : public ORODAT_CORELIB_CPBASE
+        : public ORO_OS::PeriodicThread,
+          public EventProcessor
     {
     public:
         /**
@@ -76,24 +57,6 @@ namespace ORO_CoreLib
          */
         static bool Release();
 
-        /**
-         * Queue a Completer for event completion
-         *
-         * @param eci 
-         *        The completer to be called
-         */
-        void queue( EventCompleterInterface* eci );
-
-        /**
-         * Queue a Listener for event handling
-         *
-         * @param eli 
-         *        The Listener to be called
-         * @param cb
-         *        The Callback for the Listener, this may not be null (0) !
-         */
-        void queue( EventListenerInterface* eli, CallbackInterface* cb );
-
         protected:
 
         /**
@@ -104,29 +67,15 @@ namespace ORO_CoreLib
         virtual ~CompletionProcessor()
         {}
 
-        EventCompleterInterface* ec;
-        
-        EventListenerInterface*  el;
-        
-        CallbackInterface* cb;
-
-        inline
-        void nextEC();
-
-        inline
-        void nextEL();
-
-        virtual void step();
-
-#if   defined OROINT_OS_STDQUEUE
-        std::deque< EventCompleterInterface* > eciBuffer;
-        std::deque< std::pair<EventListenerInterface*,  CallbackInterface*> > eliBuffer;
-#elif defined OROINT_OS_STDVECTOR
-        const static int ECI_BUFFERSIZE = 1024;
-        std::vector< EventCompleterInterface* > eciBuffer;
-        std::vector< std::pair<EventListenerInterface*,  CallbackInterface*> > eliBuffer;
-#endif
-        ORO_OS::Mutex qLock;
+        virtual bool initialize() {
+            return  EventProcessor::initialize();
+        }
+        virtual void step() {
+            EventProcessor::step();
+        }
+        virtual void finalize() {
+            EventProcessor::finalize();
+        }
 
     private:
         /**

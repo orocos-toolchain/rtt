@@ -35,11 +35,12 @@
 namespace ORO_CoreLib
 {
     /**
-     * A PriorityTask is a RealTimeTask which will never be preempted by
-     * another RealTimeTask. Typical PriorityTask instances are
-     * fast calculations with fast device input and output communication.
+     * @brief A PriorityTask is a RealTimeTask with a static \a Priority.
+     *
+     * It can be used to define a task running at an arbitrary
+     * priority.
      * 
-     * They can only be run in the PriorityThread<Priority>.
+     * They will be run in the PriorityThread<Priority>.
      */
     template< int Priority >
     class PriorityTask
@@ -74,6 +75,7 @@ namespace ORO_CoreLib
             stop();
         }
                                  
+        virtual TaskThreadInterface* thread() { return pt; }
     protected:
         virtual bool taskAdd()
         {

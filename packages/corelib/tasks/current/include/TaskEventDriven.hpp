@@ -28,7 +28,10 @@
 #ifndef TASK_EVENT_DRIVEN_HPP
 #define TASK_EVENT_DRIVEN_HPP
 
-#include "RunnableTaskInterface.hpp"
+#include "TaskInterface.hpp"
+#include "RunnableInterface.hpp"
+#include "Event.hpp"
+#include <boost/bind.hpp>
 
 namespace ORO_CoreLib
 {
@@ -43,8 +46,9 @@ namespace ORO_CoreLib
      * do otherwise.
      */
     class TaskEventDriven
-        :public RunnableTaskInterface
+        :public TaskInterface
     {
+        Handle h;
     public:
         /**
          * Create an TaskEventDriven with a given event and optional 
@@ -53,20 +57,22 @@ namespace ORO_CoreLib
          *        once this task is started.
          * @param _r The optional runner, if none, this->step() is called.
          */
-        TaskEvenDriven( EventRegistrationInterface* _event, RunnableInterface _r = 0 )
-            : onListener(true), onCompleter(false), event(_event), runner(_r), running(false),
-              listener( new StandardListener(TaskEventDriven::handler, this) ),
-              completer( new StandardCompleter(TaskEventDriven::completer, this) )
+        TaskEventDriven( Event<void(void)>* _event, RunnableInterface* _r = 0 )
+            : event(_event), runner(_r), running(false)
         {}
 
         virtual Seconds periodGet() { return 0; }
 
+        bool initialize() { return  true;}
+        void step() {}
+        void finalize() {}
+
         bool start()
         {
             if ( !running && event )
-                if ( runner ? runner->initialise() : this->initialise() )
+                if ( runner ? runner->initialize() : this->initialize() )
                     {
-                        event.addHandler( listener, completer );
+                        h = event->connect( boost::bind(&TaskEventDriven::handler, this) );
                         return true;
                     }
             return false;
@@ -76,11 +82,11 @@ namespace ORO_CoreLib
         {
             if ( running && event )
                 {
-                    event.removeHandler( listener, completer );
+                    h.disconnect();
                     if (runner)
-                        runner->initialise() ;
+                        runner->finalize() ;
                     else 
-                        this->initialise();
+                        this->finalize();
                     return true;
                 }
             else 
@@ -105,7 +111,7 @@ namespace ORO_CoreLib
          * Set the Event which will trigger the execution
          * of this task, once started.
          */
-        void setEvent( EventRegistrationInterface* _event)
+        bool setEvent( Event<void(void)>* _event)
         {
             if ( running )
                 return false;
@@ -114,41 +120,10 @@ namespace ORO_CoreLib
             return true;
         }
 
-        /**
-         * Configure to run when the Listeners of the
-         * Event are called.
-         */
-        void runOnListener(bool doit)
-        {
-            onListener = doit;
-        }
-
-        /**
-         * Configure to run when the Completers of the
-         * Event are called.
-         */
-        void runOnCompleter(bool doit)
-        {
-            onCompleter = doit;
-        }
-
     protected:
 
-        void handler( CallBackInterface* cb )
+        void handler()
         {
-            callback = cb;
-            if ( onListener )
-                if (runner)
-                    runner->step() ;
-                else 
-                    this->step();
-            if ( onCompleter )
-                cb->complete();
-        }
-
-        void completer()
-        {
-            if ( onCompleter)
                 if (runner)
                     runner->step() ;
                 else 
@@ -156,19 +131,10 @@ namespace ORO_CoreLib
         }
 
     private:
-        bool onListener;
-        bool onCompleter;
-        EventRegistrationInterface* event;
+        Event<void(void)>* event;
         RunnableInterface*          runner;
         bool running;
-        EventListenerInterface*     listener;
-        EventCompleterInterface*    completer;
-        CallBackInterface*          callback;
-
-
 };
-
-
 
 }
 

@@ -29,9 +29,10 @@
 #ifndef TASKEXECUTION_HPP
 #define TASKEXECUTION_HPP
 
+
 #include "os/PeriodicThread.hpp"
-#include "EventInterfaces.hpp"
-#include "EventPeriodic.hpp"
+#include "EventProcessor.hpp"
+
 #include "os/Mutex.hpp"
 #include "os/MutexLock.hpp"
 
@@ -41,39 +42,47 @@ namespace ORO_CoreLib
 {
     using ORO_OS::MutexLock;
 
+    class TaskTimer;
+    class RealTimeTask;
+
     /**
-     * This PeriodicThread is the base class for the ZeroTimeThread
-     * and the ZeroLatencyThread.
-     *
-     * You can not instantiate it.
+     * @brief A Thread executing a task is a
+     * PeriodicThread with an EventProcessor.
+     */
+    struct TaskThreadInterface
+        : public ORO_OS::PeriodicThread,
+          public EventProcessor
+    {
+        TaskThreadInterface(int priority, const std::string& name, double periodicity)
+            : PeriodicThread( priority, name, periodicity)
+        {}
+    };
+
+    /**
+     * @brief This Periodic Thread is meant for executing a RealTimeTask
+     * object periodically.
      *
      * @see PeriodicThread
      */
     class TaskExecution
-        : public ORO_OS::PeriodicThread
+        : public TaskThreadInterface
     {
-        /**
-         * Friends which can call our constructor
-         */
-        friend class ZeroTimeThread;
-        friend class ZeroLatencyThread;
-        friend class NonRealTimeThread;
 
         /**
          * A structure to keep track of ownership
-         * of events.
+         * of timers.
          */
-        struct EventItem
+        struct TimerItem
         {
-            EventItem(EventPeriodic* ev, bool _owner = false) : event(ev), owner(_owner) {}
-            EventPeriodic* event;
+            TimerItem(TaskTimer* ev, bool _owner = false) : timer(ev), owner(_owner) {}
+            TaskTimer* timer;
             bool owner;
 
-            struct Locator : public std::binary_function<EventItem, EventPeriodic*, bool>
+            struct Locator : public std::binary_function<TimerItem, TaskTimer*, bool>
             {
-                bool operator()(const EventItem& p, const EventPeriodic* ev) const
+                bool operator()(const TimerItem& p, const TaskTimer* ev) const
                 {
-                    return p.event == ev;
+                    return p.timer == ev;
                 }
             };
         };
@@ -86,14 +95,14 @@ namespace ORO_CoreLib
         virtual ~TaskExecution();
 
         /**
-         * Add an Event that will be fired every execution period
+         * Add an Timer that will be ticked every execution period
          */
-        void eventAdd( EventPeriodic* );
+        void timerAdd( TaskTimer* );
 
         /**
-         * Remove an Event from being fired every execution period
+         * Remove an Timer from being ticked every execution period
          */
-        void eventRemove( EventPeriodic* );
+        void timerRemove( TaskTimer* );
     protected:
         /**
          * Constructor. To be called from the friend classes.
@@ -108,35 +117,36 @@ namespace ORO_CoreLib
         virtual void step();
 
         /**
-         * Add a EventListenerInterface which is handled each n nanoseconds
+         * Add a RealTimeTask which is handled each n nanoseconds
          * 
          * @param t The task to handle each n nanoseconds
          * @param n handle every n nanoseconds
          */
-        bool taskAdd( EventListenerInterface* t, const nsecs n );
+        bool taskAdd( RealTimeTask* t, const nsecs n );
 
         /**
-         * Remove a EventListenerInterface from handleing
+         * Remove a RealTimeTask from handleing
          *
          * @post <t> is no longer handled by this thread
          */
-        void taskRemove( EventListenerInterface* t );
+        void taskRemove( RealTimeTask* t );
         
         /**
-         * Internal method for keeping track of EventPeriodic
+         * Internal method for keeping track of TaskTimer
          * ownership.
          */
-        void doEventAdd( EventPeriodic* ev, bool myEvent);
+        void doTimerAdd( TaskTimer* ev, bool myTimer);
 
         /**
-         * A list containing all the EventPeriodic instances
-         *  we must fire
+         * A list containing all the TaskTimer instances
+         *  we must tick
          *
-         * @see EventInterface
+         * @see TaskTimer
          */ 
-        std::list<EventItem> clocks;
+        std::list<TimerItem> clocks;
 
-        ORO_OS::Mutex lock;
+        ORO_OS::MutexRecursive lock;
+
     };
 } // namespace ORO_CoreLib
 

@@ -60,7 +60,7 @@ namespace ORO_CoreLib
                 ran = false;
             };
 
-            ConditionInterface* copy() const
+            ConditionInterface* clone() const
             {
                 return new ConditionOnce;
             }

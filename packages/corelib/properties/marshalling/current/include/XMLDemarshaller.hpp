@@ -28,7 +28,8 @@
 #ifndef PI_PROPERTIES_XMLDESERIALIZER
 #define PI_PROPERTIES_XMLDESERIALIZER
 
-#include "Property.hpp"
+#include <corelib/Property.hpp>
+#include <corelib/Marshaller.hpp>
 
 namespace ORO_CoreLib
 {

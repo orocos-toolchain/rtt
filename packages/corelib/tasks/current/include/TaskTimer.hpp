@@ -25,70 +25,63 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef EVENTPERIODIC_HPP
-#define EVENTPERIODIC_HPP
+#ifndef TASKTIMER_HPP
+#define TASKTIMER_HPP
 
-#include "EventInterfaces.hpp"
 #include "Time.hpp"
 #include "os/Mutex.hpp"
 
 #include <list>
+#include <functional>
 
 namespace ORO_CoreLib
 {
-    class CompletionProcessor;
+    class RealTimeTask;
 
     /**
-     * An EventPeriodic is an object that will notify a listener every
-     * n'th time it is fired() such that when n listeners are subscribed,
-     * each listener will be notified on a different fire call of one period.
+     * An TaskTimer is an object that will notify a listener every
+     * n'th time it is ticked() such that when n listeners are subscribed,
+     * each listener will be notified on a different tick call of one period.
      * It will try to spread the notifying
      * depending on its notifying period and trigger period.
      * The former is the period between two consecutive listener
      * notifications for each listener, the latter, the elapsed time
-     * between two fire() calls.
+     * between two tick() calls.
      *
      * @todo The implementation is based on <std::list>. This allows safe
-     * add/remove of handlers during fire(). A more efficient implementation
+     * add/remove of handlers during tick(). A more efficient implementation
      * with std::list is possible and TODO.
      */
-    class EventPeriodic
-        : public EventInterface,
-          public CallbackInterface
+    class TaskTimer
     {
     public:
         /**
-         * Creates an EventPeriodic which will have notified all listeners after
-         * <average_period> / <trigger_period> times it is fired.
-         * Every EventPeriodic is of the SYNASYN EventType.
+         * Creates an TaskTimer which will have notified all listeners after
+         * <average_period> / <trigger_period> times it is ticked.
          *
          * @param average_period The Average time between notifying each
          *        registered listener.
-         * @param trigger_period The period between consecutive fire() calls.
+         * @param trigger_period The period between consecutive tick() calls.
          *        Defaults to average_period.
          */
-        EventPeriodic( Seconds average_period, Seconds trigger_period = 0 );
+        TaskTimer( Seconds average_period, Seconds trigger_period = 0 );
 
         /**
-         * Creates an EventPeriodic which will have notified each listener
-         * after fire() was called <divider> times.
-         * Every EventPeriodic is of the SYNASYN EventType.
+         * Creates an TaskTimer which will have notified each listener
+         * after tick() was called <divider> times.
+         * Every TaskTimer is of the SYNASYN EventType.
          *
-         * @param divider The average number of times fire() is called before
+         * @param divider The average number of times tick() is called before
          *        each listener is notified. ( So N Listeners will all be 
-         *        notified after fire() was called <divider> times.
+         *        notified after tick() was called <divider> times.
          */
-        EventPeriodic( unsigned int divider );
+        TaskTimer( unsigned int divider );
 
-        virtual void fire();
+        void tick();
 
-        virtual void complete();
-        
-        virtual void complete(EventListenerInterface* eli);
+        bool addTask( RealTimeTask* task );
 
-        virtual void addHandler( EventListenerInterface* eli, EventCompleterInterface* eci );
-
-        virtual void removeHandler( EventListenerInterface* eli, EventCompleterInterface* eci );
+        void removeTask( RealTimeTask* task );
 
         /**
          * Returns the periodicity with which the listeners are notified
@@ -96,27 +89,28 @@ namespace ORO_CoreLib
         nsecs periodGet();
 
         /**
-         * Sets the period with which this event will be fired.
+         * Sets the period with which this event will be ticked.
          */
         void triggerPeriodSet(nsecs ns);
         
-        static const unsigned int MAX_LISTENERS=32;
+        static const unsigned int MAX_TASKS=32;
     protected:
 
         struct ListItem
         {
-            ListItem() : eli(0), eci(0), priority(~0), turn(0) {}
-            EventListenerInterface* eli;
-            EventCompleterInterface* eci;
+            // The default constructor is called when the 
+            // list is resized().
+            ListItem() : task(0), priority(~0), turn(0) {}
+            RealTimeTask* task;
             unsigned int priority;
             unsigned int turn;
         };
 
-        struct CMP : public std::binary_function<ListItem, EventListenerInterface*, bool>
+        struct CMP : public std::binary_function<ListItem, RealTimeTask*, bool>
         { 
-            bool operator()(const ListItem& p, const EventListenerInterface* eli) const
+            bool operator()(const ListItem& p, const RealTimeTask* task) const
             {
-                return p.eli == eli;
+                return p.task == task;
             }
         };
 
@@ -148,14 +142,11 @@ namespace ORO_CoreLib
 
         std::list<ListItem>::iterator f_iter;
 
-        CompletionProcessor* cp;
-
-        EventCompleterInterface* completerHack;
-
         bool reset_f_iter;
 
-        ORO_OS::Mutex mut;
+        ORO_OS::MutexRecursive mut;
 
+        bool in_tick;
     };
 
 }

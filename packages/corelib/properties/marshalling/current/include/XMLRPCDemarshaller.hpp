@@ -35,20 +35,22 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLUniDefs.hpp>
-//#include <iostream>
-#include <rtstl/rtstreams.hpp>
-#include <ststream>
+#include <iostream>
+//#include <rtstl/rtstreams.hpp>
+#include <sstream>
 #include <vector>
 #include <stack>
 #include <map>
 #include <string>
-#include "Property.hpp"
+#include <corelib/Property.hpp>
 #include "StreamProcessor.hpp"
-
+#include <corelib/Marshaller.hpp>
 
 namespace ORO_CoreLib
 {
-    using namespace rt_std; // Should be removed soon
+    //using namespace rt_std; // Should be removed soon
+    using std::cerr;
+    using std::endl;
     
     class SAX2XMLRPCHandler : public DefaultHandler
     {
@@ -77,9 +79,9 @@ namespace ORO_CoreLib
                 else
                     if ( !strcmp( ln, "boolean" ) )
                     {
-						bool v;	
+						//bool v;	
 						std::stringstream buffer;
-						buffer = value.sv;
+						buffer << value.sv;
 
                         bag.add( new Property<bool>( name, "", true ) );
 								
@@ -195,11 +197,11 @@ namespace ORO_CoreLib
 
 
     template <typename input_stream>
-    class XMLRPCDemarshaller : public Demarshaller, public StreamProcessor
+    class XMLRPCDemarshaller : public Demarshaller, public StreamProcessor<input_stream>
     {
         public:
             XMLRPCDemarshaller( input_stream &is ) :
-                    StreamProcessor( is )
+                    StreamProcessor<input_stream>( is )
             {}
 
             virtual bool deserialize( PropertyBag &v )
@@ -233,7 +235,7 @@ namespace ORO_CoreLib
                     //  parser->setFeature( XMLUni::fgXercesSchema, false );
 
                     //parser->parse( xmlFile );
-                    parser->parse( *s );
+                    parser->parse( *(this->s) );
                     errorCount = parser->getErrorCount();
                 }
                 catch ( const XMLException & toCatch )

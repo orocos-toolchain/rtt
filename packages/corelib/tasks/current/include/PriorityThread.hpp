@@ -31,6 +31,7 @@
 
 #include "TaskExecution.hpp"
 #include "Time.hpp"
+#include <pkgconf/corelib_tasks.h>
 
 namespace ORO_CoreLib
 {
@@ -39,7 +40,7 @@ namespace ORO_CoreLib
     class PriorityTask;
 
     /**
-     * This is a Task Executing Thread with a fixed priority. It is used
+     * @brief This is a Task Executing Thread with a fixed priority. It is used
      * by the PriorityTask for it's scheduling needs.
      *
      * It Uses the Singleton pattern, since there will be only one EVER.
@@ -91,7 +92,7 @@ namespace ORO_CoreLib
          */
         bool taskAdd( PriorityTask<Priority>* t, const nsecs n )
         {
-            return TaskExecution::taskAdd( t->handler(), n);
+            return TaskExecution::taskAdd( t, n);
         }
 
         /**
@@ -101,7 +102,7 @@ namespace ORO_CoreLib
          */
         void taskRemove( PriorityTask<Priority>* t )
         {
-            TaskExecution::taskRemove( t->handler() );
+            TaskExecution::taskRemove( t );
         }
 
     protected:

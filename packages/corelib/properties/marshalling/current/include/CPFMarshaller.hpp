@@ -54,50 +54,50 @@ namespace ORO_CoreLib
 
 			virtual void serialize(const Property<bool> &v) 
 			{ 
-                *s << "<simple name=\"" << v.getName() << "\" type=\"boolean\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"boolean\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 
 			virtual void serialize(const Property<char> &v) 
 			{ 
-                *s << "<simple name=\"" << v.getName() << "\" type=\"char\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"char\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 
 			virtual void serialize(const Property<int> &v) 
 			{ 
-                *s << "<simple name=\"" << v.getName() << "\" type=\"long\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"long\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 			
 			virtual void serialize(const Property<unsigned int> &v) 
 			{ 
-                *s << "<simple name=\"" << v.getName() << "\" type=\"ulong\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"ulong\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 			
 			virtual void serialize(const Property<double> &v) 
 			{
-                *s << "<simple name=\"" << v.getName() << "\" type=\"double\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"double\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 			
 			virtual void serialize(const Property<std::string> &v) 
 			{
-                *s << "<simple name=\"" << v.getName() << "\" type=\"string\">"
+                *(this->s) << "<simple name=\"" << v.getName() << "\" type=\"string\">"
 					<< "<description>"<<v.getDescription() << "</description>"
 					<< "<value>" << v.get() << "</value></simple>\n";
 			}
 			
             virtual void serialize(const PropertyBag &v) 
 			{
-                *s << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-                *s << "<properties>\n";
+                *(this->s) << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+                *(this->s) << "<properties>\n";
 
                 for (
                     std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
@@ -106,13 +106,13 @@ namespace ORO_CoreLib
                 {
                     (*i)->identify(this);
                 }
-                *s << "\n</properties>\n";
+                *(this->s) << "\n</properties>\n";
 			}
 	
 			virtual void serialize(const Property<PropertyBag> &b) 
 			{
 				PropertyBag v = b.get();
-                *s <<"<struct name=\""<<b.getName()<<"\" type=\""<< v.getType()<< "\">\n";
+                *(this->s) <<"<struct name=\""<<b.getName()<<"\" type=\""<< v.getType()<< "\">\n";
                 for (
                     PropertyBag::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
@@ -120,7 +120,7 @@ namespace ORO_CoreLib
                 {
                     (*i)->identify(this);
                 }
-                *s <<"</struct>\n";
+                *(this->s) <<"</struct>\n";
 			}
 
 			virtual void introspect(const Property<bool> &v) 

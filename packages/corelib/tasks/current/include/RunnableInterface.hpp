@@ -42,23 +42,30 @@ namespace ORO_CoreLib
     class RunnableInterface
         : public ORO_OS::RunnableInterface
     {
+        TaskInterface* owner_task;
     public:
+        RunnableInterface() : owner_task(0) {}
+
         /**
-         * Query for the task this interface is run in.
+         * @brief Query for the task this interface is run in.
+         *
          * Zero denotes that no task is present to run
          * it, and hence no detailed information is available.
          *
          * @return The Task which runs this RunnableInterface.
          */
-        virtual TaskInterface* getTask() const = 0;
+        virtual TaskInterface* getTask() const { return owner_task; }
 
         /**
-         * Set the task this interface is run in.
+         * @brief Set the task this interface is run in.
+         *
          * A Zero means no task is running it.
          *
          * @param task The TaskInterface running this interface.
          */
-        virtual void setTask( TaskInterface* task ) = 0;
+        virtual void setTask( TaskInterface* task ) {
+            owner_task = task;
+        }
     };
 }
 

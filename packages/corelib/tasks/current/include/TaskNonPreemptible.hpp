@@ -34,11 +34,13 @@
 namespace ORO_CoreLib
 {
     /**
-     * A TaskNonPreemptible is a RealTimeTask which will never be preempted by
-     * another RealTimeTask. Typical TaskNonPreemptible instances are
+     * @brief A TaskNonPreemptible is a RealTimeTask which will never be preempted by
+     * another RealTimeTask.
+     *
+     * Typical TaskNonPreemptible instances are
      * fast calculations with fast device input and output communication.
      * 
-     * They can only be run in the ZeroTimeThread.
+     * They will be run in the ZeroTimeThread.
      */
     class TaskNonPreemptible
         : public RealTimeTask
@@ -65,6 +67,8 @@ namespace ORO_CoreLib
         virtual bool taskAdd();
 
         virtual void taskRemove(); 
+
+        virtual TaskThreadInterface* thread() { return ztt; }
 
         /**
          * The ZeroTimeThread used for scheduling this task

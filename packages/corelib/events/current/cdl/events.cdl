@@ -9,9 +9,6 @@ synchronous and asynchronous event handling."
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile Event.cxx  EventBarrier.cxx  EventInterfaces.cxx  
-    compile EventMultiCast.cxx  EventPeriodic.cxx  EventSimple.cxx
-
     implements OROINT_CORELIB_EVENT_INTERFACE
 
     cdl_option OROSEM_CORELIB_EVENTS_ASYN {

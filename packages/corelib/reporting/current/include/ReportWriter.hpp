@@ -34,6 +34,9 @@
 #include "TaskPreemptible.hpp"
 #include "HeartBeatGenerator.hpp"
 
+#include <vector>
+#include <string>
+
 namespace ORO_CoreLib
 {
 

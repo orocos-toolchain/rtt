@@ -34,9 +34,9 @@ namespace ORO_CoreLib
     class CommandEmitEvent
         : public CommandInterface
     {
-        EventOperationInterface* event;
+        Event<void(void)>* event;
     public:
-        CommandEmitEvent( EventOperationInterface* ev )
+        CommandEmitEvent( Event<void(void)>* ev )
             : event(ev) {}
         void execute()
         {
@@ -44,10 +44,6 @@ namespace ORO_CoreLib
         }
         CommandInterface* clone() const {
             return new CommandEmitEvent( event );
-        }
-        std::string toString()
-        {
-            return std::string("CommandEmitEvent");
         }
     };
 }

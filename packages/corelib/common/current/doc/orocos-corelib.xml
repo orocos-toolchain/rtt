@@ -399,125 +399,211 @@ ORO_main( int argc, const char** argv)
       </para>
     </sect2>
   </sect1>
-    <sect1>
-      <title>Events</title>
+  <sect1>
+    <title>Events</title>
+    <para>
+      An Event is an object to which one can connect callback functions. When
+      the Event is raised, the connected functions are called one
+      after the other. An Event can carry data and deliver it to the
+      function's arguments. Orocos allows two possibilities of
+      calling the function : synchronous and asynchronous. The former
+      means that when the raise method is called, all synchronous
+      handlers are called in the same thread. The latter means that
+      the data is stored and the callback function is called in another
+      thread. The thread which will execute the deferred callback
+      is chosen at connection time.
+    </para>
+    <para>
+      The Orocos Event system has been adapted since version 0.18 to 
+      use the <ulink url="http://www.boost.org/">boost::signals</ulink> library.
+      An Orocos <classname>Event</classname> is derived from the
+      <classname>boost::signal</classname> class. 
+      A <ulink url="http://www.boost.org/doc/html/signals.html">tutorial</ulink>
+      is located on the boost webpage.
+    </para>
+    <para>
+      The Orocos Event extends the boost signal with asynchronous event handling. 
+      Any kind of function can be connected to the event as long as it has the
+      same signature as the Event. The raise method of an Orocos Event is
+      called <methodname>fire()</methodname>.
+    </para>
+    <example><title>Using Events</title>
       <para>
-	Events are implemented using the <classname>Observer</classname> 
-	design pattern. An object or component which wants to be notified
-	of events, has to implement the <classname>EventListenerInterface</classname>, 
-	in which the
-	<function>handleEvent(CallbackInterface*)</function> method will be called when
-	the event occurs. This is a subscription model (yeah, like the newsletters,
-	but we don't do SPAM), you only get notified when you registered for it.
+	This example shows how a synchronous and asynchronous handler
+	are connected to an Event.
       </para>
-      <para>
-        The <classname>EventListener</classname> can decide to call the event completer (if available)
-        by calling the <function>complete()</function>
-        function on the <classname>CallbackInterface</classname> object.  
-	An example is when an EventListener is gathering data and enough data is available, 
-	the Completer should finish the job, so the EventListener invokes the complete() method.
-	<classname>EventListener</classname> and completer can be
-        different or the same objects. Let's look at an example : 
-      </para>
-      <para>
-	<example><title>Using events</title>
-	  <programlisting>
+      <programlisting>
 	    <![CDATA[
-class SafetyStopRobot : public EventListenerInterface 
+#include <corelib/Event.hpp>
+
+using boost::bind;
+
+class SafetyStopRobot
 {
 public:
-    virtual void handleEvent(CallbackInterface *cb) {
-        // Handler code
+    void handle() {
+        // Synchronous Handler code
     std::cout << " Putting the robot in a safe state fast !" << std::endl;
-    // optional
-        cb->complete();
     }
 };
 
-Class NotifyUser : public EventCompleterInterface 
+Class NotifyUser
 {
 public:
-    virtual void completeEvent() {
-	    //Completer code
+    void complete() {
+	    //Asynchronous Completer code
 	    std::cout << "The program stopped the robot !"<<std::endl;
     }
 };
 
 ...
-SafetyStopRobot synchronousSafetyHandler;
-NotifyUser      asynchronousNotifier;
-Event emergencyStop(Event::SYNASYN);
+SafetyStopRobot safety;
+NotifyUser      notify;
+
+// The <..> means the callback functions must be of type "void foo(void)"
+Event<void(void)> emergencyStop;
+Handle emergencyHandle;
 
 std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
-emergencyStop.addHandler( &synchronousSafetyHandler, &asynchronousNotifier);
+emergencyHandle = 
+   emergencyStop.connect( bind( &SafetyStopRobot::handle, &safety),
+	                  bind( &NotifyUser::complete, &notify) );
 
 std::cout << "Fire the event\n";
 emergencyStop.fire();
 
-emergencyStop.removeHandler( &synchronousSafetyHandler, &asynchronousNotifier );      // Remove both handlers
-emergencyStop.addHandler(&synchronousSafetyHandler, EventCompleterInterface::none );  // No completer will be called
+// Disconnecting the callbacks...
+emergencyHandle.disconnect();
+
+// Add only synchronous callback :
+emergencyHandle = 
+   emergencyStop.connect( bind( &SafetyStopRobot::handle, &safety) );
 
 std::cout << "Doing a quiet safety stop..."<<std::endl;
 emergencyStop.fire(); // User not notified
 
 ...
 ]]>
-	  </programlisting>
+      </programlisting>
 
-	  <screen>
+      <screen>
 	  Register apropriate handlers to the Emergency Stop Event
 	  Fire the event
 	   Putting the robot in a safe state fast !
 	  The program stopped the robot !
 	  Doing a quiet safety stop...
 	   Putting the robot in a safe state fast !
-	  </screen>
-	<para>
-	  Off course, the <emphasis>Putting the robot in a safe state fast !</emphasis>
-	  sentence should be replaced with the actual call to stop the robot.
-	</para>
-	</example>
-      </para>
-      <para>	
-	We can categorise event handling and
-        completion in two categories: synchronous and asynchronous, both
-        possible for handling and completion. This leaves four types of events :
-        <itemizedlist>
-	  <listitem><para>Synchronous event handling, synchronous completion (think separate components)</para></listitem>
-	  <listitem><para>Synchronous event handling, asynchronous completion (think interrupts)</para></listitem>
-	  <listitem><para>Asynchronous event handling, asynchronous completion (think mission to Mars)</para></listitem>
-	  <listitem><para>Asynchronous event handling, synchronous
-	      completion (think separate components on Mars)</para></listitem>
-        </itemizedlist>
-        One could argue that the first and last one have no practical applications, we're
-        busy thinking of some. All four types are nonetheless implemented in the framework.
-      </para>
-      <para><emphasis>
-	  The aim of this separation of listener and completer is decoupling: both
-	  can be implemented in different objects and do not know about each other. Even
-	  more, the completer should not count on the fact that it is called each time
-	  the listener is called. It is possible that in some cases the listener asks for
-	  completion, and in other cases does not require it (yet).</emphasis>
+      </screen>
+      <para>
+	Off course, the <emphasis>Putting the robot in a safe state fast !</emphasis>
+	sentence should be replaced with the actual call to stop the robot.
       </para>
       <para>
-	Whether your <function>handleEvent()</function> and <function>completeEvent()</function>
-	methods contain deterministic code or not is up to you. It depends on the choice of the
-	Event type and in which thread it is executed. A good rule of thumb is to make
-	all Synchronous handling/completing deterministic time and do all the rest in 
-	the Asynchronous part, which will be executed by the <classname>CompletionProcessor</classname>.
+	If you want to find out how boost::bind works, see the Boost
+	<ulink url="http://www.boost.org/libs/bind/bind.html">bind manual</ulink>.
       </para>
+    </example>
+  </para>
+    <para>
+      Whether your <function>handle()</function> and <function>complete()</function>
+      methods contain deterministic code or not is up to you. It depends on the choice of the
+      Event type and in which thread it is executed. A good rule of thumb is to make
+      all Synchronous handling/completing deterministic time and do all the rest in 
+      the Asynchronous part, which will be executed by the
+      another thread.
+    </para>
+    <para>
+      You must choose the type of <classname>Event</classname> upon
+      construction. This can no longer be changed once the
+      <classname>Event</classname> is created. The type is the
+      same for the synchronous and asynchronous methods. If the type changes,
+      the fire() method must given other arguments. For example :
+      <example>
+	<title>Event Types</title>
+	<programlisting>
+<![CDATA[
+  Event<void(void)> e_1;
+  e_1.fire();
 
-    <tip>
+  Event<void(int)>  e_2;
+  e_2.fire( 3 );
+
+  Event<void(double,double,double)>  positionEvent;
+  positionEvent.fire( x, y, z);
+]]>
+	</programlisting>
+      </example>
+      The return type for synchronous events can be used analogous to
+      the boost::signals library. For asynchronous callbacks, the return
+      value is the default constructor. There is currently no way
+      to retrieve the real return value of an asynchronous callback.
+    </para>
+    <sect2>
+      <title>Choosing the Asynchronous Thread</title>
       <para>
-	You must choose the type of <classname>Event</classname> upon construction. This can no longer
-	be changed once the <classname>Event</classname> is created. If it could,
-	the consumer of the event would not know what would be synchronously and 
-	asynchronously executed, leading to undeterministic behaviour. You must specify
-	the type as the first constructor argument with one of the four following:
-	Event::SYNSYN,Event::ASYNSYN,Event::SYNASYN,Event::ASYNASYN; with the first
-	[SYN|ASYN] denoting the handling and the second the completion policy.
+	The Event implementation provides one thread for
+	asynchronous execution. The Orocos Tasks package provides
+	four additional threads for executing the asynchronous
+	callbacks.
       </para>
-    </tip>
+      <para>
+	In the example above, there was aparantly no thread choosen.
+	The default thread which executes asynchronous callbacks
+	is called the Completion Processor. This is a non realtime
+	thread, which means that the reaction time is not bounded.
+	If you want to execute the callback in another thread,
+	an additional argument can be given in the
+	<methodname>connect</methodname> method :
+	<programlisting>
+  event.connect(&amp;syn_func, &amp; asyn_func, ZeroLatencyThread::Instance() );
+	</programlisting>
+	The above lists how the ZeroLatencyThread will execute the
+	asyn_func if event is fired(). It will do this after it has processed
+	all its tasks. The other Orocos threads can do this likewise :
+	<programlisting>
+  event.connect(&amp;syn_func, &amp; asyn_func, ZeroTimeThread::Instance() );
+  event.connect(&amp;syn_func, &amp; asyn_func, NonRealTimeThread::Instance() );
+  event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); // Default
+  event.connect(&amp;syn_func, &amp; asyn_func, PriorityThread&lt;N&gt;::Instance() );
+	</programlisting>
+	If you would write above listings in a real program, on <methodsynopsis>
+	  event.fire()</methodsynopsis>, the syn_func will be called directly
+	five times. The asyn_func will be called in each thread once, possibly
+	preempting itself.
+      </para>
+      <para>
+	It is also possible to only have the asyn_func called. In this
+	case the synopsis is :
+	<programlisting>
+  event.connect( &amp; asyn_func, ZeroLatencyThread::Instance() );
+	</programlisting>
+	to distinguish from a synchronous callback connection. In this case
+	there is no default, so if you wish to use the Completion Processor,
+	you must specify it explicitly.
+      </para>
+      <para>
+	For convenience, the Orocos Task threads can also be choosen in another way
+	by specifying the Task :
+	<programlisting>
+  TaskNonPreemptible my_task;
+  event.connect(&amp;syn_func, &amp; asyn_func, &amp;my_task );
+	</programlisting>
+	or even :
+	<programlisting>
+  RunnableInterface* my_function;
+  // put my_function in a task;
+  event.connect(&amp;syn_func, &amp; asyn_func, my_function->getTask() );
+	</programlisting>
+	The above says that the asyn_func function should be executed
+	after the my_function's task execution period.
+	This is a very powerfull way of synchronising function calls
+	in different threads. One should be aware that a Task is
+	not always executed with every period of the Thread, meaning
+	that the asyn_func could be called before the task is run,
+	or even multiple times in between a task run.
+      </para>
+    </sect2>
+<!--
     <sect2>
 	<title>Available Event Policies</title>
 	<para>
@@ -590,13 +676,18 @@ emergencyStop.fire(); // User not notified
 	</para>
       </sect3>
     </sect2>
+-->
     <sect2>
       <title>The Completion Processor</title>
       <para>
-	The Completion Processor is also implemented using the <classname>Singleton</classname> design pattern.
-	It is the lowest priority, not realtime thread in the &orocos; framework. It will execute all
-	Events that have to be completed asynchronously. The only constraint it has is
-	that all tasks it executes should require finite time to complete.
+	The Completion Processor is implemented using the
+	<classname>Singleton</classname> design pattern, like the
+	periodic task threads. It is the lowest priority, not realtime
+	thread in the &orocos; framework. It will execute all
+	callbacks that have to be completed when no other work has to
+	be done. The only constraint it has is that all functions it
+	executes should require finite time to complete (it cannot
+	detect timeouts).
       </para>
     </sect2>
   </sect1>

@@ -34,11 +34,12 @@
 namespace ORO_CoreLib
 {
     /**
-     * A TaskNonRealTime is a RealTimeTask which will never preempt
-     * another RealTimeTask. Typical TaskNonRealTime instances are
+     * @brief A TaskNonRealTime is a RealTimeTask which will never preempt
+     * another RealTimeTask.
+     *
+     * Typical TaskNonRealTime instances are
      * not realtime user communications, GUI updates and so on. 
-     * 
-     * They can only be run in the NonRealTimeThread.
+     * They will run in the NonRealTimeThread.
      */
     class TaskNonRealTime
         : public RealTimeTask
@@ -65,6 +66,8 @@ namespace ORO_CoreLib
         virtual bool taskAdd();
 
         virtual void taskRemove(); 
+
+        virtual TaskThreadInterface* thread() { return cproc; }
 
         /**
          * The NonRealTimeThread used for scheduling this task

@@ -15,6 +15,7 @@ type of periodic task associated with it.
 
     compile RealTimeTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TaskExecution.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
+    compile TaskTimer.cxx
 
     cdl_option OROSEM_CORELIB_TASKS_DYNAMIC_REG {
 	display "Enable automatic event registration"
@@ -47,22 +48,6 @@ time. This allows a more conservative task management, with start()
 only setting a flag, instead of doing the whole registration procedure.
 The drawback is that the task's periodicity can not be changed once created."
 	requires OROCFG_CORELIB_EXPERIMENTAL
-    }
-
-    cdl_option OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION {
-	display "Integrate with Completion Processor"
-	description "This option integrates the NonRealTimeThread
-    with the CompletionProcessor so that they are in one thread. This
-    reduces the number of threads by one.
-*** This is a transparant option. You will still be able to use the NonRealTimeThread
-as if it is a separate class from the CompletionProcessor.
-***"
-	flavor bool
-	requires OROINT_CORELIB_COMPLETION_INTERFACE
-	define_proc {
-	    puts $::cdl_system_header "\#define ORODAT_CORELIB_CPBASE_H \"NonRealTimeThread.hpp\" "
-	    puts $::cdl_system_header "\#define ORODAT_CORELIB_CPBASE   ORO_CoreLib::NonRealTimeThread"
-	}
     }
 
     cdl_option OROSEM_CORELIB_TASKS_AUTOSTART {

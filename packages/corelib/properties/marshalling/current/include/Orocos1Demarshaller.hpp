@@ -28,7 +28,8 @@
 #ifndef PI_PROPERTIES_OROCOS1_DEMARSHALLER
 #define PI_PROPERTIES_OROCOS1_DEMARSHALLER
 
-#include "Property.hpp"
+#include <corelib/Property.hpp>
+#include <corelib/Marshaller.hpp>
 
 
 namespace ORO_CoreLib
@@ -50,31 +51,13 @@ namespace ORO_CoreLib
             virtual void flush()
             {}
             
-			virtual bool deserialize(Property<bool> &v) 
-			{ }
-			
-			virtual bool deserialize(Property<char> &v) 
-			{ }
-			
-			virtual bool deserialize(Property<int> &v) 
-			{ }
-			
-			virtual bool deserialize(Property<double> &v) 
-			{}
-			
-			virtual bool deserialize(Property<string> &v) 
-			{}
-
-            virtual bool deserialize(Property<PropertyBag> &v) 
-			{}
-			
             virtual bool deserialize(PropertyBag &v) 
 			{
 				string token;
 		    	_is >> token;
 
-				cerr <<"sdf:"<<endl;
 #if 0
+				cerr <<"sdf:"<<endl;
                 for (
                     vector<PropertyBase*>::iterator i = v._properties.begin();
                     i != v._properties.end();

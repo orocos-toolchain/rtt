@@ -21,127 +21,226 @@
 #define EVENT_HPP
 
 #include "os/fosi.h"
-#include "EventInterfaces.hpp"
-#include "EventStrategy.hpp"
+#include <boost/signals.hpp>
+#include <boost/call_traits.hpp>
+#include "NameServerRegistrator.hpp"
 
-#include "EventListenerInterface.hpp"
-#include "EventCompleterInterface.hpp"
+#include "CompletionProcessor.hpp"
+#include "TaskInterface.hpp"
+#include "TaskExecution.hpp"
 
-#include <os/MutexLock.hpp>
 
 namespace ORO_CoreLib
 {
-    // Forward decls to avoid header mess
-    class CompletionProcessor;
-    using namespace detail;
+
+        /**
+         * @brief The Handle holds the information of a connection
+         * between an Event Handler function and the Event itself.
+         *
+         * It is returned by the connection() method of Event and can
+         * be used to disconnect a handler function from the event.
+         */
+        class Handle
+        {
+        public:
+            boost::signals::connection c;
+            boost::signals::connection c2;
+            Handle( const boost::signals::connection & c_,
+                    const boost::signals::connection & c2_) : c(c_), c2(c2_){}
+            Handle( const boost::signals::connection & c_ ) : c(c_), c2(c_){}
+            Handle( const Handle& h ) : c(h.c), c2(h.c2) {}
+            Handle(){}
+
+            Handle& operator=(const Handle& h) {
+                c = h.c;
+                c2 = h.c2;
+                return *this;
+            }
+
+            bool operator==(const Handle& h) const {
+                return (c == h.c) && (c2 == h.c2);
+            }
+
+            bool operator<(const Handle& h) const {
+                return (c < h.c) && (c2 < h.c2);
+            }
+
+            bool connected() const {
+                return c.connected() && c2.connected();
+            }
+
+            void disconnect() const {
+                c.disconnect();
+                c2.disconnect();
+            }
+        };
+
+    using boost::function;
+
     /**
-     * @brief A most generic event.  
-     *
-     * If an event is fired, all listeners are notified.
-     *
-     * @detail We used the strategy pattern and detail namespace to encapsulate the
-     * choice of event upon construction. This might seem 'ugly' but is 
-     * not wrong in OO craftmansship. The reason for not implementing the
-     * functionalities in subclasses is that we wanted flexibility upon creation
-     * of the Event (during runtime) but fix it once created.
-     * Other implementation suggestions welcome.
-     *
+     * The Orocos Event is a wrapper around the boost::signal library
+     * and extends its connection syntax with asynchronous event handling.
      */
+    template<
+        typename _Signature, // function type R (T1, T2, ..., TN)
+        typename Combiner = boost::last_value<typename boost::function_traits<_Signature>::result_type>,
+        typename Group = int,
+        typename GroupCompare = std::less<Group>,
+        typename _SlotFunction = boost::function<_Signature>
+    >
     class Event
-        : public EventOperationInterface,
-          public EventInterface,
-          public EventStrategyMethods,
-          public EventBoundToListenerInterface,
-          protected std::map<EventListenerInterface*, EventCompleterInterface*>
+        : public boost::signal<_Signature, Combiner, Group, GroupCompare, _SlotFunction>,
+          private NameServerRegistrator<Event<_Signature,
+            Combiner,
+            Group,
+            GroupCompare,
+            _SlotFunction>*>
     {
-    public :
-        /**
-         * Construct a new event
-         *
-         * @param t
-         *        The EventType denoting if the Event is fired synchronously or
-         *        asynchronously and completed synchronously or asynchronously.
-         */
-        Event( EventType t );
+    public:
+        typedef boost::signal<
+            _Signature,
+            Combiner,
+            Group,
+            GroupCompare,
+            _SlotFunction> signal_type;
 
-        /**
-         * Construct a new, fully nameserved Event
-         *
-         * @param t
-         *        The EventType denoting if the Event is fired synchronously or
-         *        asynchronously and completed synchronously or asynchronously.
-         * @param name
-         *        The name to be used for nameserving in the EventInterface
-         *        and EventOperationInterface.
-         */
-        Event( EventType t, const std::string& name );
+        typedef Event<
+            _Signature,
+            Combiner,
+            Group,
+            GroupCompare,
+            _SlotFunction> EventType;
+ 
+        typedef _Signature Signature;
+        typedef _SlotFunction SlotFunction;
 
-        /**
-         * Construct a new, partial nameserved Event
-         *
-         * @param t
-         *        The EventType denoting if the Event is fired synchronously or
-         *        asynchronously and completed synchronously or asynchronously.
-         * @param opName
-         *        The name to be used for nameserving in the 
-         *        EventOperationInterface. When opName == string(""), it will not
-         *        be nameserved.
-         * @param regName
-         *        The name to be used for nameserving in the 
-         *        EventInterface. When regName == string(""), it will not be
-         *        nameserved.
-         */
-        Event( EventType t, const std::string& opName, const std::string& regName );
+        explicit Event(const std::string name, 
+                       const Combiner& combiner = Combiner(),
+                       const GroupCompare& group_compare = GroupCompare())
+            : signal_type(combiner, group_compare),
+              NameServerRegistrator<EventType*>(nameserver, name, this)
+        {
+        }
+
         
-        /**
-         * Destroy an event
-         */
-        virtual ~Event();
-
-        virtual void fire();
-
-        virtual void addHandler( EventListenerInterface * eli, EventCompleterInterface * eci );
-
-        virtual void removeHandler( EventListenerInterface * eli, EventCompleterInterface* eci );
-
-        protected:
+        explicit Event(const Combiner& combiner = Combiner(),
+                       const GroupCompare& group_compare = GroupCompare()) :
+            signal_type(combiner, group_compare)
+        {
+        }
 
         /**
-         * Initializes the Event.
+         * @brief Connect a synchronous event slot to this event.
          */
-        void init();
-
-        virtual void notifySyn();
-
-        virtual void notifyAsyn();
-
-        virtual void completeSyn( EventListenerInterface* eli );
-
-        virtual void completeAsyn( EventListenerInterface* eli );
-
-        virtual void complete( EventListenerInterface * eli );
-
-    private:
+        Handle connect(const SlotFunction& f)
+        {
+            return signal_type::connect( f );
+        }
 
         /**
-         * The default constructor should not be used
+         * @brief Connect an Asynchronous event slot to this event.
          */
-        Event();
+        Handle connect( const SlotFunction& l, TaskInterface* task)
+        {
+            return Handle( task->thread()->connect( l, *this ) );
+        }
 
         /**
-         * Our Future Completion Processor for queueing completion events
-         * and executing them asynchronously
+         * @brief Connect an Asynchronous event slot to this event.
          */
-        CompletionProcessor* cp;
+        Handle connect( const SlotFunction& l, EventProcessor* ep)
+        {
+            return Handle( ep->connect( l, *this ) );
+        }
 
         /**
-         * Protects access of event method calls
+         * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        ORO_OS::Mutex evLock;
+        Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task)
+        {
+            return Handle( signal_type::connect( l ), task->thread()->connect( c, *this ) );
+        }
 
-        std::vector<EventCallbackStub> evCallback;
+        /**
+         * @brief Connect a Synchronous and Asynchronous event slot to this event.
+         */
+        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance() )
+        {
+            return Handle( signal_type::connect( l ), ep->connect( c, *this ) );
+        }
 
+        /**
+         * This method is 100% equivalent to the operator() method
+         * of boost::signal.
+         */
+        void fire() {
+            signal_type::operator()();
+        }
+
+        template<class A1>
+        void fire(const A1& a1) {
+            signal_type::operator()(a1);
+        }
+
+        template<class A1, class A2>
+        void fire(typename boost::call_traits<A1>::param_type a1,
+                  typename boost::call_traits<A2>::param_type a2) {
+                      signal_type::operator()(a1, a2);
+                  }
+
+        template<class A1, class A2, class A3>
+        void fire(typename boost::call_traits<A1>::param_type a1,
+                  typename boost::call_traits<A2>::param_type a2,
+                  typename boost::call_traits<A3>::param_type a3) {
+                      signal_type::operator()(a1, a2, a3);
+                  }
+
+        template<class A1, class A2, class A3, class A4>
+        void fire(typename boost::call_traits<A1>::param_type a1,
+                  typename boost::call_traits<A2>::param_type a2,
+                  typename boost::call_traits<A3>::param_type a3,
+                  typename boost::call_traits<A4>::param_type a4) {
+                      signal_type::operator()(a1, a2, a3, a4);
+                  }
+
+        template<class A1, class A2, class A3, class A4, class A5>
+        void fire(typename boost::call_traits<A1>::param_type a1,
+                  typename boost::call_traits<A2>::param_type a2,
+                  typename boost::call_traits<A3>::param_type a3,
+                  typename boost::call_traits<A4>::param_type a4,
+                  typename boost::call_traits<A5>::param_type a5) {
+                      signal_type::operator()(a1, a2, a3, a4, a5);
+                  }
+
+        template<class A1, class A2, class A3, class A4, class A5, class A6>
+        void fire(typename boost::call_traits<A1>::param_type a1,
+                  typename boost::call_traits<A2>::param_type a2,
+                  typename boost::call_traits<A3>::param_type a3,
+                  typename boost::call_traits<A4>::param_type a4,
+                  typename boost::call_traits<A5>::param_type a5,
+                  typename boost::call_traits<A6>::param_type a6) {
+                      signal_type::operator()(a1, a2, a3, a4, a5, a6);
+                  }
+
+        // repeat for A4, A5,...
+
+        /**
+         * @brief Public nameserver for Events.
+         */
+        static NameServer<EventType*> nameserver;
     };
+      
+   
+    template<
+        typename _Signature,
+        typename Combiner,
+        typename Group,
+        typename GroupCompare,
+        typename _SlotFunction
+    >
+    NameServer<Event< _Signature,Combiner, Group, GroupCompare, _SlotFunction>*>
+    Event<_Signature, Combiner, Group, GroupCompare, _SlotFunction>::nameserver;
+
 }
 
 #endif

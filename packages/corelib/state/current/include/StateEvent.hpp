@@ -42,19 +42,10 @@ namespace ORO_CoreLib
      * Events.
      */
     class StateEvent
-        : public StateEventInterface
+    //        : public StateEventInterface
     {
 
     public:
-
-        /**
-         * Constructs a StateEvent with all events of the SYNASYN EventType.
-         */
-        StateEvent()
-            : entryEvent( Event::SYNASYN ),
-              handleEvent( Event::SYNASYN ),
-              exitEvent( Event::SYNASYN ) {}
-
 
         void onEntry()
         {
@@ -62,8 +53,7 @@ namespace ORO_CoreLib
         }
 
         void handle()
-        {
-            handleEvent.fire();
+        {            handleEvent.fire();
         }
 
         void onExit()
@@ -72,17 +62,17 @@ namespace ORO_CoreLib
         }
 
 
-        EventInterface* entryEventGet()
+        Event<void(void)>* entryEventGet()
         {
             return & entryEvent;
         }
 
-        EventInterface* handleEventGet()
+        Event<void(void)>* handleEventGet()
         {
             return & handleEvent;
         }
 
-        EventInterface* exitEventGet()
+        Event<void(void)>* exitEventGet()
         {
             return & exitEvent;
         }
@@ -91,15 +81,15 @@ namespace ORO_CoreLib
         /**
          * The Event being fired on entry.
          */
-        Event entryEvent;
+        Event<void(void)> entryEvent;
         /**
          * The Event being fired on handling.
          */
-        Event handleEvent;
+        Event<void(void)> handleEvent;
         /**
          * The Event being fired on exit.
          */
-        Event exitEvent;
+        Event<void(void)> exitEvent;
     };
 }
 

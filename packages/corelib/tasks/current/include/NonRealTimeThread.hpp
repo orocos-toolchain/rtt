@@ -29,14 +29,9 @@
 #ifndef NONREALTIMETHREAD_HPP
 #define NONREALTIMETHREAD_HPP
 
-#include "EventCompleterInterface.hpp" 
-#include "EventListenerInterface.hpp"
-
 #include "os/Mutex.hpp"
 #include "os/PeriodicThread.hpp"
 #include "TaskExecution.hpp"
-
-#include "pkgconf/corelib_tasks.h"
 
 namespace ORO_CoreLib
 {
@@ -81,7 +76,6 @@ namespace ORO_CoreLib
 
         protected:
 
-#ifndef OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION
         /**
          * Default Constructor
          */
@@ -92,12 +86,6 @@ namespace ORO_CoreLib
          * Singleton
          */    
         static NonRealTimeThread* cp;
-#else
-        /**
-         * Constructor to be used by CompletionProcessor.
-         */
-        NonRealTimeThread::NonRealTimeThread(int priority, const std::string& name, double periodicity);
-#endif
 
         virtual ~NonRealTimeThread()
         {}

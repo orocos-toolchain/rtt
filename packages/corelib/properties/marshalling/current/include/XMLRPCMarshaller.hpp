@@ -32,7 +32,8 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "Property.hpp"
+#include <corelib/Property.hpp>
+#include <corelib/Marshaller.hpp>
 #include "StreamProcessor.hpp"
 
 
@@ -52,38 +53,38 @@ namespace ORO_CoreLib
 
 			virtual void serialize(const Property<bool> &v) 
 			{ 
-                *s << "<name>" << v.getName() << "</name>"
+                *(this->s) << "<name>" << v.getName() << "</name>"
 					<< "<value><boolean>" << v.get() << "</boolean></value>\n";
 			}
 
 			virtual void serialize(const Property<char> &v) 
 			{ 
-                *s << "<name>" << v.getName() << "</name>"
+                *(this->s) << "<name>" << v.getName() << "</name>"
 					<< "<value><string>" << v.get() << "</string></value>\n";
 			}
 
 			virtual void serialize(const Property<int> &v) 
 			{ 
-                *s << "<name>" << v.getName() << "</name>"
+                *(this->s) << "<name>" << v.getName() << "</name>"
 					<< "<value><int>" << v.get() << "</int></value>\n";
 			}
 			
 			virtual void serialize(const Property<double> &v) 
 			{
-                *s << "<name>" << v.getName() << "</name>"
+                *(this->s) << "<name>" << v.getName() << "</name>"
 					<< "<value><double>" << v.get() << "</double></value>\n";
 			}
 			
 			virtual void serialize(const Property<std::string> &v) 
 			{
-                *s << "<name>" << v.getName() << "</name>"
+                *(this->s) << "<name>" << v.getName() << "</name>"
 					<< "<value><string>" << v.get() << "</string></value>\n";
 			}
 			
             virtual void serialize(const PropertyBag &v) 
 			{
-                *s << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-                *s << "<xmlrpc>\n";
+                *(this->s) << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+                *(this->s) << "<xmlrpc>\n";
 
                 for (
                     std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
@@ -92,23 +93,23 @@ namespace ORO_CoreLib
                 {
                     (*i)->identify(this);
                 }
-                *s << "\n</xmlrpc>\n";
+                *(this->s) << "\n</xmlrpc>\n";
 			}
             virtual void serialize(const Property<PropertyBag> &b) 
 			{
                 //   cout << "double: " << v;
-                *s <<"<struct><name>"<<b.getName()<<"</name>\n";
+                *(this->s) <<"<struct><name>"<<b.getName()<<"</name>\n";
 				PropertyBag v = b.get();
                 for (
                     std::vector<PropertyBase*>::const_iterator i = v.getProperties().begin();
                     i != v.getProperties().end();
                     i++ )
                 {
-                	*s <<"<member>\n";
+                	*(this->s) <<"<member>\n";
                     (*i)->identify(this);
-	                *s <<"</member>";
+	                *(this->s) <<"</member>";
                 }
-                *s <<"</struct>\n";
+                *(this->s) <<"</struct>\n";
 
             }
 

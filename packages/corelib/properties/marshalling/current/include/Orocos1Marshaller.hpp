@@ -75,6 +75,17 @@ namespace ORO_CoreLib
 					<< s << ";";
 			}
 			
+			virtual void serialize(const Property<unsigned int> &v) 
+			{ 
+				std::stringstream buffer;
+				std::string s;
+				buffer << v.get();
+				buffer >> s;	
+                _os << v.getName() 
+					<<":"<<s.size() << ">"
+					<< s << ";";
+			}
+			
 			virtual void serialize(const Property<double> &v) 
 			{
    				std::stringstream buffer;
@@ -135,6 +146,11 @@ namespace ORO_CoreLib
 			}
 
 			virtual void introspect(const Property<int> &v) 
+			{ 
+                serialize(v);
+			}
+			
+			virtual void introspect(const Property<unsigned int> &v) 
 			{ 
                 serialize(v);
 			}

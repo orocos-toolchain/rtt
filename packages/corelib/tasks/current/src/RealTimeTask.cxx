@@ -25,9 +25,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/RealTimeTask.hpp"
-#include "corelib/StandardEventListener.hpp"
-#include "corelib/StandardEventCompleter.hpp"
-#include "corelib/CompletionProcessor.hpp"
 #include "os/MutexLock.hpp"
 
 #include <cmath>
@@ -36,9 +33,7 @@ namespace ORO_CoreLib
 {
     
     RealTimeTask::RealTimeTask(Seconds period, RunnableInterface* r )
-        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep, this) ),
-         taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
-        runner(r), running(false), inError(false)
+       : runner(r), running(false), inError(false)
     {
         if (runner)
             runner->setTask(this);
@@ -46,9 +41,7 @@ namespace ORO_CoreLib
     }
 
     RealTimeTask::RealTimeTask(secs s, nsecs ns, RunnableInterface* r )
-        :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep,this) ),
-         taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
-        runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
+       : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
     {
         if (runner)
             runner->setTask(this);
@@ -59,8 +52,6 @@ namespace ORO_CoreLib
         stop();
         if (runner)
             runner->setTask(0);
-        delete evHandler;
-        delete taskCompleter;
     }
      
     bool RealTimeTask::run( RunnableInterface* r )

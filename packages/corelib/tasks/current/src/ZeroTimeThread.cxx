@@ -24,23 +24,6 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-/***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  ZeroTimeThread.cpp 
-
-                       ZeroTimeThread.cpp -  description
-                          -------------------
-   begin                : Wed April 17 2002
-   copyright            : (C) 2002 Peter Soetens
-   email                : peter.soetens@mech.kuleuven.ac.be
-
-***************************************************************************
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************/
 
 #include "corelib/ZeroTimeThread.hpp"
 #include "corelib/TaskNonPreemptible.hpp"
@@ -116,12 +99,12 @@ namespace ORO_CoreLib
 
     bool ZeroTimeThread::taskAdd( TaskNonPreemptible* t, const nsecs n )
     {
-        return TaskExecution::taskAdd( t->handler(), n);
+        return TaskExecution::taskAdd( t, n);
     }
 
     void ZeroTimeThread::taskRemove( TaskNonPreemptible* t )
     {
-        TaskExecution::taskRemove( t->handler() );
+        TaskExecution::taskRemove( t );
     }
 
 

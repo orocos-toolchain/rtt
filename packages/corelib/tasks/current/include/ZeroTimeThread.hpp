@@ -37,8 +37,10 @@ namespace ORO_CoreLib
 
     class TaskNonPreemptible;
     /**
-     * This thread is the fastest, non preemptible thread in the
-     * Orocos realtime system. It can not be interrupted by another thread
+     * @brief This thread is the fastest, non preemptible thread in the
+     * Orocos realtime system.
+     *
+     * It can not be interrupted by another thread
      * and executes its functionality as fast as possible on the current
      * CPU, in a short (zero) timespan.
      *
