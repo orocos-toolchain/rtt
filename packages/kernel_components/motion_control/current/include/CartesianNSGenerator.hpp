@@ -181,7 +181,7 @@ namespace ORO_ControlKernel
                 return currentPosition();
         }
 
-        double time() const
+        double currentTime() const
         {
             return _time;
         }
@@ -374,7 +374,7 @@ namespace ORO_ControlKernel
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
                 newDataSourceFactory( this );
@@ -384,8 +384,8 @@ namespace ORO_ControlKernel
             ret->add( "targetPosition", 
                       data( &CartesianGenerator<Base>::targetPosition, "The target position "
                             "of the robot." ) );
-            ret->add( "time",
-                      data( &CartesianGenerator<Base>::time, 
+            ret->add( "currentTime",
+                      data( &CartesianGenerator<Base>::currentTime, 
                             "The current time in the movement "
                             ) );
             ret->add( "trajectoryDone",

@@ -309,7 +309,7 @@ namespace ORO_ControlKernel
     protected:
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< GenericSensor<Base> >* ret =
                 newDataSourceFactory( this );

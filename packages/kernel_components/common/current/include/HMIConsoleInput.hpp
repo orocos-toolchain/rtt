@@ -55,6 +55,7 @@ namespace ORO_ControlKernel
         ConditionInterface* condition;
         CommandInterface*   command;
         const CommandFactoryInterface* tester;
+        const DataSourceFactoryInterface* dataobject;
     public :
         HMIConsoleInput( ExecutionExtension* _ee = 0)
             : Base("console_input"), start(false),
@@ -67,43 +68,39 @@ namespace ORO_ControlKernel
          */
         void loop()
         {
-            char c;
             cout << endl<<
-"This simple console reader can only accept start and stop \n\
-commands to start or stop the running program and  allows \n\
-to manually type in a Component command (press c). \n\
-If the ReportingExtension is used, you can track the changes \n\
-in another terminal window."<<endl<<endl;
+"  This simple console reader can only accept start and stop \n\
+  commands to start or stop the running program and  allows \n\
+  to manually type in a Component command (type 'help' for info). \n\n\
+  If the ReportingExtension is used, you can track the changes \n\
+  in another terminal window."<<endl<<endl;
             while (1)
                 {
-                    cout << "Press s to start or p to stop the current program-script " << endl;
+                    cout << "Type 'start' or 'stop' to start/stop the current program-script " << endl;
                     if ( ee !=0 ) {
-                        cout << " Or press c to enter a command. (Status of previous command : ";
+                        cout << " Or enter a command. (Status of previous command : ";
                         cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
                     }
-                    cout << endl <<" (press q to quit) :" ;
-                    c = getchar();
-                    cin.ignore(); // remove cr
-                    switch (c)
-                        {
-                        case 'c':
-                            evalCommand();
-                            break;
-                        case 's':
-                            startButton();
-                            break;
-                        case 'p':
-                            stopButton();
-                            break;
-                        case 'q':
-                            stopButton();
-                            return;
-                        }
+                    cout << endl <<" (type 'quit' for exit) :" ;
+                    std::string command;
+                    getline(cin, command);
+                    if ( command == "quit" ) {
+                        stopButton();
+                        return;
+                    } else if ( command == "start") {
+                        startButton();
+                    } else if ( command == "stop") {
+                        stopButton();
+                    } else if ( command == "help") {
+                        printHelp();
+                    } else if ( command == "" ) { // nop
+                    } else
+                        evalCommand( command );
                     cout <<endl;
                 }
         }
 
-        void evalCommand()
+        void evalCommand(std::string& comm )
         {
             if ( ee == 0 )
                 return;
@@ -117,22 +114,23 @@ in another terminal window."<<endl<<endl;
                     cout << "A Program is running, not accepting commands  !"<<endl;
                     return;
                 }
-            std::string comm;
-            cout << "Enter your command ( type help for instructions ):";
-            getline(cin,comm);
             cout << "      Got :"<< comm <<endl;
-            if ( comm == "help" ) {
-                printHelp();
-                return;
-            }
 
             tester = ee->commandFactory().getObjectFactory( comm );
-            if ( tester ) // only object name was typed
+            dataobject = ee->dataFactory().factory( comm );
+            if ( tester ) // only commandobject name was typed
                 {
                     std::vector<std::string> methods = tester->getMethodList();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput::printMethod, this, _1) );
-                    return;
                 }
+                    
+            if ( dataobject ) // only dataobject name was typed
+                {
+                    std::vector<std::string> methods = dataobject->dataNames();
+                    std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput::printSource, this, _1) );
+                }
+            if ( tester || dataobject )
+                return
                     
             delete command;
             delete condition;
@@ -158,13 +156,18 @@ in another terminal window."<<endl<<endl;
         void printHelp()
         {
             using boost::lambda::_1;
-            cout << "A command consists of an object, followed by a dot ('.'), the method "<<endl;
-            cout << "name, followed by the parameters. An example could be :"<<endl;
-            cout << "cart_generator.moveTo( vector(0.75, 0.5, 0.8), rotation( 90, 0, 90 ), 15.0 ) [then press enter] "<<endl;
-            cout << "The available objects are :"<<endl;
+            cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
+            cout << "  name, followed by the parameters. An example could be :"<<endl;
+            cout << "  cart_generator.moveTo( vector(0.75, 0.5, 0.8), rotation( 90, 0, 90 ), 15.0 ) [then press enter] "<<endl;
+            cout << endl<<"  The available objects are :"<<endl;
             std::vector<std::string> objlist = ee->commandFactory().getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-            cout << "For the Argument list of an object, just type the object name" <<endl;
+            cout << "  The available DataSources are :"<<endl;
+            objlist = ee->dataFactory().getObjectList();
+            std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
+            cout << "  For the Argument list of an object, just type the object name (eg 'kernel')" <<endl;
+            cout <<endl;
+            
         }
         
         void printMethod( const std::string m )
@@ -172,11 +175,30 @@ in another terminal window."<<endl<<endl;
             using boost::lambda::_1;
             vector<ArgumentDescription> args;
             args = tester->getArgumentList( m );
-            cout << "Method   : " << m <<endl;
+            cout << "  Method   : " << m <<endl;
             //int i = 0;
+            if (args.begin() != args.end() ){
+                cout << "  Argument :"<<endl;
             std::for_each( args.begin(), args.end(),
-                           cout <<"Argument : " << &_1 ->* &ArgumentDescription::name << " - "
+                           cout << &_1 ->* &ArgumentDescription::name << " - "
                            << &_1 ->* &ArgumentDescription::description << "\n" );
+            }
+            cout <<endl;
+        }
+                
+        void printSource( const std::string m )
+        {
+            using boost::lambda::_1;
+            vector<ArgumentDescription> args;
+            args = dataobject->getArgumentList( m );
+                cout << "  Source   : " << m <<endl;
+            if (args.begin() != args.end() ){
+                //int i = 0;
+                cout << "  Argument :"<<endl;
+                std::for_each( args.begin(), args.end(),
+                               cout << &_1 ->* &ArgumentDescription::name << " - "
+                               << &_1 ->* &ArgumentDescription::description << "\n" );
+            }
             cout <<endl;
         }
                 
@@ -197,7 +219,7 @@ in another terminal window."<<endl<<endl;
         }
 
         // The only data we export is the user's start input.
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< HMIConsoleInput<Base> >* ret =
                 newDataSourceFactory( this );

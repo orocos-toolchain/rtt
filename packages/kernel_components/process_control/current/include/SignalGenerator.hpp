@@ -245,7 +245,7 @@ namespace ORO_ControlKernel
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< SignalGenerator<Base> >* ret =
                 newDataSourceFactory( this );

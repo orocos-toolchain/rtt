@@ -232,7 +232,7 @@ namespace ORO_ControlKernel
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< SignalTracker<Base> >* ret =
                 newDataSourceFactory( this );

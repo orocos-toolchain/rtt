@@ -53,8 +53,33 @@ namespace ORO_ControlKernel
             std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
-        template< class T >
-        bool true_gen(const T& t) const
+        /**
+         * @brief Display a boolean on standard output.
+         */
+        void displayBool(bool what)
+        {
+            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+        }
+
+        /**
+         * @brief Display an integer on standard output.
+         */
+        void displayInt( int what)
+        {
+            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+        }
+
+        /**
+         * @brief Display a double on standard output.
+         */
+        void displayDouble( double what )
+        {
+            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+        }
+
+
+
+        bool true_gen() const
         {
             return true;
         }
@@ -69,6 +94,24 @@ namespace ORO_ControlKernel
                                &HMIConsoleOutput<Base>::true_gen,
                                "Display a message on the console",
                                "message","The message to be displayed"
+                               ) );
+            ret->add( "displayBool", 
+                      command( &HMIConsoleOutput<Base>::displayBool,
+                               &HMIConsoleOutput<Base>::true_gen,
+                               "Display a boolean on the console",
+                               "boolean","The Boolean to be displayed"
+                               ) );
+            ret->add( "displayInt", 
+                      command( &HMIConsoleOutput<Base>::displayInt,
+                               &HMIConsoleOutput<Base>::true_gen,
+                               "Display a integer on the console",
+                               "integer","The Integer to be displayed"
+                               ) );
+            ret->add( "displayDouble", 
+                      command( &HMIConsoleOutput<Base>::displayDouble,
+                               &HMIConsoleOutput<Base>::true_gen,
+                               "Display a double on the console",
+                               "double","The Double to be displayed"
                                ) );
             return ret;
         }

@@ -234,7 +234,7 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-        DataSourceFactory* createDataSourceFactory()
+        DataSourceFactoryInterface* createDataSourceFactory()
         {
             TemplateDataSourceFactory< AxisPositionGenerator<Base> >* ret =
                 newDataSourceFactory( this );
