@@ -50,7 +50,9 @@ extern SEM     cp_rx_sem;
 #ifndef __KERNEL__
 
 #include <stdarg.h>
+#define OROBLD_OS_LXRT_INTERNAL
 #include <os/fosi.h>
+#undef OROBLD_OS_LXRT_INTERNAL
 
 union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
 

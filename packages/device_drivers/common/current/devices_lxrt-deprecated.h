@@ -198,8 +198,11 @@ extern void JR3DSP_transformCoordinateSystem(double angle, double distance, unsi
 #ifndef __KERNEL__
 
 #include <stdarg.h>
-//#include <rtai_lxrt_common.h>
+
+#define OROBLD_OS_LXRT_INTERNAL
 #include <os/fosi.h>
+#undef OROBLD_OS_LXRT_INTERNAL
+
 
 union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
 
