@@ -1,0 +1,40 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+
+#
+# You can use this for copy-pasting to another template
+#
+cdl_configuration template_allpackages {
+    description "This is a standard configuration.";
+    package     OROPKG_CORELIB current ;
+    package     OROPKG_OS current ;
+    package     OROPKG_CORELIB_EVENTS current;
+    package     OROPKG_CORELIB_BUFFERS current;
+    package     OROPKG_CORELIB_TASKS current;
+    package     OROPKG_CORELIB_COMMANDS current;
+    package     OROPKG_CORELIB_CONDITIONS current;
+    package     OROPKG_CORELIB_PROPERTIES current;
+    package	OROPKG_CORELIB_PROPERTIES_MARSHALLING current;
+    package     OROPKG_CORELIB_REPORTING current;
+    package     OROPKG_CORELIB_TIMING current;
+    package	OROPKG_CORELIB_STATE current;
+    package	OROPKG_KINDYN current;
+    package	OROPKG_KINDYN_ARCH current;
+    package	OROPKG_DEVICE_INTERFACE current;
+    package	OROPKG_DEVICE_INTERFACE_ENCODER current;
+    package	OROPKG_DEVICE_INTERFACE_LOGICAL current;
+    package	OROPKG_DEVICE_INTERFACE_IO current;
+    package	OROPKG_CONTROL_KERNEL current;
+    package	OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL current;
+    package	OROPKG_EXECUTION current;
+    package	OROPKG_EXECUTION_PROGRAM_PARSER current;
+    package	OROPKG_EXECUTION_PROGRAM_PROCESSOR current;
+    package	OROPKG_GEOMETRY current;
+};

@@ -1,0 +1,25 @@
+
+cdl_package OROPKG_CORELIB {
+    display "Core classes and Interfaces (CoreLib)"
+    include_dir corelib
+
+    cdl_interface OROINT_CORELIB_COMPLETION_INTERFACE {
+	display "The Completion Processor Functionality"
+	flavor bool
+    }
+
+    cdl_interface OROINT_CORELIB_EVENT_INTERFACE {
+	display "The Event system functionality"
+	flavor bool
+    }
+
+    cdl_option OROCFG_CORELIB_EXPERIMENTAL {
+	display "Enable Experimental options"
+	parent CYGPKG_NONE
+	description "
+This option will enable some configuration options,
+which will in turn be able to build or use experimental
+code. Most users will not need this."
+	flavor bool
+    }
+}

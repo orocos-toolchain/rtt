@@ -1,0 +1,11 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL {
+    display "Motion control components"
+    description "
+Components for 2D or 3D motion control, e.g. trajectory
+planning and interpolation, axis-level control,..."
+    parent OROPKG_KERNEL_COMPONENTS
+
+    include_dir control_kernel
+
+    #include_files KinematicEstimator.hpp  TrajectoryGenerator.hpp  Simulator.hpp
+}

@@ -1,0 +1,120 @@
+
+cdl_package OROPKG_CORELIB_TASKS {
+    display "Realtime Task Infrastructure"
+    include_dir corelib
+
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    compile RealTimeTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
+    compile NonRealTimeThread.cxx  TaskExecution.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
+
+    cdl_option OROSEM_CORELIB_TASKS_DYNAMIC_REG {
+	display "Enable dynamic event registration"
+	description "
+Normally, the apropriate EventPeriodic objects
+need to be registred to the threads in order to allow them to
+execute tasks with the same period as the event. This option will make the
+thread create this EventPeriodic itself when a task tries to
+register."
+	default_value 1
+    }
+
+    cdl_option OROSEM_CORELIB_TASKS_CONSERVATIVE_TASK {
+	display "Enable fixed task periodicities"
+	description "
+NOT IMPLEMENTED YET. This option will do the task registration to
+the apropriate thread at task construction time instead of start()
+time. This allows a more conservative task management, with start()
+only setting a flag, instead of doing the whole registration procedure.
+The drawback is that the task's periodicity can not be changed once created."
+    }
+
+    cdl_option OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION {
+	display "Integrate with Completion Processor"
+	description "This option integrates the NonRealTimeThread
+    with the CompletionProcessor so that they are in one thread. This
+    allows lock-free data sharing at the cost of lost time determinism.
+
+\n***\n
+This is a transparant option. You will still be able to use the NonRealTimeThread
+as if it is a separate class from the CompletionProcessor.
+\n***"
+	flavor bool
+	requires OROINT_CORELIB_COMPLETION_INTERFACE
+	define_proc {
+	    puts $::cdl_system_header "\#define ORODAT_CORELIB_CPBASE_H \"NonRealTimeThread.hpp\" "
+	    puts $::cdl_system_header "\#define ORODAT_CORELIB_CPBASE   ORO_CoreLib::NonRealTimeThread"
+	}
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_ZTT {
+	display "Properties of the ZeroTimeThread"
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_ZTT_NAME {
+	    display "The name of the ZeroTimeThread"
+	    flavor data
+	    default_value {"\"ZeroTimeThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZTT_PRIORITY {
+	    display "The priority of the ZeroTimeThread"
+	    flavor data
+	    default_value 0
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZTT_PERIOD {
+	    display "The period of the ZeroTimeThread in sec"
+	    flavor data
+	    default_value 0.001
+	}
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_ZLT {
+	display "Properties of the ZeroLatencyThread"
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_ZLT_NAME {
+	    display "The name of the ZeroLatencyThread"
+	    flavor data
+	    default_value {"\"ZeroLatencyThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZLT_PRIORITY {
+	    display "The priority of the ZeroLatencyThread"
+	    flavor data
+	    default_value 1
+	}
+	cdl_option ORONUM_CORELIB_TASKS_ZLT_PERIOD {
+	    display "The period of the ZeroTimeThread in sec"
+	    flavor data
+	    default_value 0.01
+	}
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_NRT {
+	display "Properties of the NonRealTimeThread"
+	description "
+When disabled, It takes over the properties of the Events
+CompletionProcessor."
+	flavor none
+	active_if !OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION
+
+	cdl_option ORODAT_CORELIB_TASKS_NRT_NAME {
+	    display "The name of the NonRealTimeThread"
+	    flavor data
+	    default_value {"\"NonRealTimeThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_NRT_PRIORITY {
+	    display "The priority of the NonRealTimeThread"
+	    flavor data
+	    default_value 2
+	}
+	cdl_option ORONUM_CORELIB_TASKS_NRT_PERIOD {
+	    display "The period of the NonRealTimeThread in sec"
+	    flavor data
+	    default_value 0.01
+	}
+    }
+}
+

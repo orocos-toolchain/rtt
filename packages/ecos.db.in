@@ -1,0 +1,29 @@
+
+target gnulinux {
+  alias { "GNU/Linux build" GNULINUX }
+  packages {
+    OROPKG_OS_GNULINUX
+  }
+}
+
+target rtai {
+  alias { "RTAI build" RTAI }
+  packages {
+    OROPKG_OS_RTAI
+  }
+}
+
+target lxrt {
+  alias { "LXRT build" LXRT }
+  packages {
+    OROPKG_OS_LXRT
+  }
+}
+
+target rtlinux {
+  alias { "RTLinux build" RTLINUX }
+  packages {
+    OROPKG_OS_RTLINUX
+  }
+}
+

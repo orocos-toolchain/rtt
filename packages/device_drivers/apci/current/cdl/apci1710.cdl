@@ -1,0 +1,178 @@
+
+    cdl_interface OROINT_DEVICE_DRIVERS_APCI1710 {
+	flavor bool
+    }
+
+    cdl_interface OROINT_DEVICE_DRIVERS_APCI1710_SSI {
+	flavor bool
+    }
+
+    cdl_interface OROINT_DEVICE_DRIVERS_APCI1710_INC {
+	flavor bool
+    }
+
+    cdl_option OROPKG_DEVICE_DRIVERS_APCI1710_IK {
+	display "Built-in device driver"
+	compile apci1710/apci1710.c
+	calculated OROINT_OS_KERNEL
+	implements OROINT_DEVICE_DRIVERS_APCI1710
+	define_proc {
+	    puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_APCI1710_T struct apci1710_device_t"
+	    puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_APCI1710_MODULE_T struct apci1710_module_t"
+	}
+    }
+    
+    cdl_component OROBLD_DEVICE_DRIVERS_APCI1710_KM {
+	display "Separate kernel module"
+	description "
+This option enables the build of a separate kernel module
+when the target requires it."
+	requires !OROINT_OS_KERNEL
+	calculated !OROINT_OS_KERNEL && OROINT_OS_KERNEL_MODULE
+	make  {
+	    <PREFIX>/modules/apci1710.o : <PACKAGE>/src/apci1710/apci1710.c <PACKAGE>/src/apci1710/apci1710.h
+	    @mkdir -p $(PREFIX)/modules
+	    $(CC) $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -c $(REPOSITORY)/$(PACKAGE)/src/apci1710/apci1710.c -o $@
+	}
+    }
+
+    cdl_option OROFUN_DEVICE_DRIVERS_APCI1710_LIB {
+	no_define
+	display "Calls to kernel module"
+	description "
+Only LXRT currently supports userspace code to call the kernel module." 
+	calculated OROBLD_DEVICE_DRIVERS_APCI1710_KM && OROPKG_OS_LXRT
+	implements OROINT_DEVICE_DRIVERS_APCI1710
+	define_proc {
+	    puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_APCI1710_MODULE_T void"
+	    puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_APCI1710_T void"
+	}
+    }
+
+    cdl_component OROPKG_DEVICE_DRIVERS_APCI1710_SSI {
+	display "SSI protocol support"
+	flavor bool
+	default_value 1
+	compile EncoderSSIapci1710.cxx
+
+	cdl_option OROFUN_DEVICE_DRIVERS_APCI1710_SSI_IK {
+	    display "Built-in device driver"
+	    compile apci1710/ssi.c
+	    calculated OROINT_OS_KERNEL
+	    implements OROINT_DEVICE_DRIVERS_APCI1710_SSI
+	}
+
+	cdl_component OROBLD_DEVICE_DRIVERS_APCI1710_SSI_KM {
+	    display "Separate kernel module"
+	    description "
+This option enables the build of a separate kernel module
+when the target requires it."
+	    #requires !OROINT_OS_KERNEL
+	    calculated !OROINT_OS_KERNEL && OROINT_OS_KERNEL_MODULE 
+	    make {
+		<PREFIX>/modules/ssi.o: <PACKAGE>/src/apci1710/ssi.c
+		$(CC) $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -c $(REPOSITORY)/$(PACKAGE)/src/apci1710/ssi.c -o $@
+	    }
+	}
+	
+	cdl_option OROFUN_DEVICE_DRIVERS_APCI1710_SSI_LIB {
+	    no_define
+	    display "Calls to kernel module"
+	    description "
+Only LXRT currently supports userspace code to call the kernel module." 
+	    calculated OROBLD_DEVICE_DRIVERS_APCI1710_SSI_KM && OROPKG_OS_LXRT
+ 	    implements OROINT_DEVICE_DRIVERS_APCI1710_SSI
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_PROFILE {
+	    display "SSI profile length"
+	    flavor data
+	    default_value 21
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_POSITION_BITS {
+	    display "SSI Position bitlength"
+	    flavor data
+	    default_value 12
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_TURN_BITS {
+	    display "SSI Trun bitlength"
+	    flavor data
+	    default_value 9
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_FREQ {
+	    display "SSI Clock frequency in Hz"
+	    flavor data
+	    #valid_range ...
+	    default_value 100000
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE {
+	    display "SSI encoder reading frequency in Hz"
+	    requires OROPKG_CORELIB_TASKS
+	    flavor booldata
+	    #valid_range ...
+	    default_value 500
+	}
+
+    }
+
+    cdl_component OROPKG_DEVICE_DRIVERS_APCI1710_INC {
+	display "Incremental encoder support"
+	flavor bool
+	default_value 1
+	compile EncoderIncrementalapci1710.cxx
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_INC_COUNTER {
+	    display "Counter type"
+	    flavor data
+	    default_value {"APCI1710_32BIT_COUNTER"}
+	    legal_values {"APCI1710_32BIT_COUNTER" "APCI1710_16BIT_COUNTER" }
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_INC_MODE {
+	    display "Counter mode"
+	    flavor data
+	    default_value {"APCI1710_DOUBLE_MODE"}
+	    legal_values {"APCI1710_DOUBLE_MODE" "APCI1710_QUADRUPLE_MODE" "APCI1710_SIMPLE_MODE" "APCI1710_DIRECT_MODE" }
+	}
+
+	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_INC_HYSTERESIS {
+	    display "Hysteresis"
+	    flavor data
+	    default_value {"APCI1710_HYSTERESIS_ON"}
+	    legal_values {"APCI1710_HYSTERESIS_ON" "APCI1710_HYSTERESIS_OFF" }
+	}
+
+	cdl_option OROPKG_DEVICE_DRIVERS_APCI1710_INC_IK {
+	    display "Built-in device driver"
+	    compile apci1710/incr.c
+	    calculated OROINT_OS_KERNEL
+	    implements OROINT_DEVICE_DRIVERS_APCI1710_INC
+	}
+
+	cdl_component OROBLD_DEVICE_DRIVERS_APCI1710_INC_KM {
+	    display "Separate kernel module"
+	    description "
+This option enables the build of a separate kernel module
+when the target requires it."
+	    #requires !OROINT_OS_KERNEL
+	    calculated !OROINT_OS_KERNEL && OROINT_OS_KERNEL_MODULE
+	    make {
+		<PREFIX>/modules/incr.o: <PACKAGE>/src/apci1710/incr.c
+		$(CC) $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -c $(REPOSITORY)/$(PACKAGE)/src/apci1710/incr.c -o $@
+	    }
+	}
+
+	cdl_option OROFUN_DEVICE_DRIVERS_APCI1710_INC_LIB {
+	    no_define
+	    display "Calls to kernel module"
+	    description "
+Only LXRT currently supports userspace code to call the kernel module." 
+	    calculated OROBLD_DEVICE_DRIVERS_APCI1710_INC_KM && \
+		OROPKG_OS_LXRT
+ 	    implements OROINT_DEVICE_DRIVERS_APCI1710_INC
+	}
+    }

@@ -1,0 +1,7 @@
+
+db:
+	@find support -name "*.cdl" | xargs rm -f
+	@./config.status
+	@cp ecos.db.in ecos.db
+	@echo "Generating ecos.db file ..."
+	@python ecosdbgen.py >>ecos.db

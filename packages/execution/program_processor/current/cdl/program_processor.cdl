@@ -1,0 +1,17 @@
+
+cdl_package OROPKG_EXECUTION_PROGRAM_PROCESSOR {
+    display "Program processing infrastructure"
+    include_dir execution
+    
+    parent OROPKG_EXECUTION
+
+    requires OROPKG_CORELIB_STATE
+
+    compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
+    compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
+    compile Processor.cxx  ProcessorState.cxx  ProcessorStateConfig.cxx  ProcessorStateExec.cxx  ProcessorStateInit.cxx  ProcessorStateLoad.cxx  
+    compile Program.cxx  ProgramNode.cxx
+    compile Rule.cxx  RulesAbortList.cxx  RulesCheckList.cxx  RulesList.cxx
+    compile SystemContext.cxx  SystemState.cxx  TerminationClause.cxx  TerminationClauseList.cxx
+    compile AsynchCommandDecorator.cxx
+}

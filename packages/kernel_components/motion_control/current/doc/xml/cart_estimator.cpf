@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the Generator component -->
+<properties>
+    <simple name="Name" type="string"><description>The unique name of this component</description><value>CartesianEstimator</value></simple>
+    <simple name="Kinematics" type="string"><description>The name of the KinematicsStub to use</description><value>Kuka361</value></simple>
+</properties>

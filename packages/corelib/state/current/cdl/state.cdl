@@ -1,0 +1,10 @@
+
+cdl_package OROPKG_CORELIB_STATE {
+    display "State infrastructure"
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    include_dir corelib
+
+    compile StateInterface.cxx
+}

@@ -1,0 +1,63 @@
+cdl_package OROPKG_OS_RTLINUX {
+  display "RTLINUX OS abstraction layer"
+  include_dir os
+
+  compile ComponentThreaded.cxx EventInterrupt.cxx cpp.cxx
+  compile vsprintf.c
+
+  cdl_component CYGBLD_GLOBAL_OPTIONS {
+    display "Global build options"
+    flavor none
+    parent CYGPKG_NONE
+    description "
+      Global build options including control over
+      compiler flags, linker flags and choice of toolchain."
+
+    cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+      display "Global command prefix"
+      flavor  data
+      no_define
+      default_value { "" }
+      description "
+        This option specifies the command prefix used when
+        invoking the build tools."
+    }
+
+      cdl_option CYGBLD_GLOBAL_CFLAGS {
+        display "Global compiler flags"
+        flavor  data
+        no_define
+        default_value { "-Wall -g -pipe -Wall -Wstrict-prototypes -O2" }
+        description   "
+          This option controls the global compiler flags which
+          are used to compile all packages by
+          default. Individual packages may define
+          options which override these global flags."
+    }
+
+      cdl_option CYGBLD_GLOBAL_LDFLAGS {
+        display "Global linker flags"
+        flavor  data
+        no_define
+        default_value { "-g" }
+        description   "
+          This option controls the global linker flags. Individual
+          packages may define options which override these global flags."
+    }
+  }
+
+  cdl_option CYGBLD_LINKER_SCRIPT {
+    display "Linker script"
+    flavor data
+    no_define
+    calculated  { "" }
+  }
+
+  cdl_option CYGHWR_MEMORY_LAYOUT {
+    display "Memory layout"
+    flavor data
+    no_define
+    calculated { "" }
+  }
+
+}

@@ -1,0 +1,9 @@
+
+cdl_package OROPKG_DEVICE_INTERFACE_IO {
+    display "C++ Interfaces to A/D IO cards"
+    parent OROPKG_DEVICE_INTERFACE
+
+    include_dir device_interface
+
+    compile io.cxx
+}

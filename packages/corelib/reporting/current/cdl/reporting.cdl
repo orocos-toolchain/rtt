@@ -1,0 +1,18 @@
+
+cdl_package OROPKG_CORELIB_REPORTING {
+    display "Reporting infrastructure"
+    description "This package adds binary to text reporting
+of internal data in a separate thread. It is mainly used for
+logging and data gathering. See the README for a short 
+description of the nomenclature."
+
+    include_dir corelib
+
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    compile ReportHandler.cxx  ReportWriter.cxx
+
+    requires OROINT_OS_STDSTRING
+    requires OROPKG_CORELIB_PROPERTIES
+}

@@ -1,0 +1,33 @@
+cdl_package OROPKG_APPLICATIONS_TESTCASE {
+    display "CoreLib TestCase application (APP)"
+    description "
+This application tests some CoreLib functions.
+Always a good way of checking your installation."
+
+    include_files
+
+    compile TestCase.cxx                        TestCaseEvent.cxx               TestCaseSimple.cxx              TestInit.cxx                  TestSuite.cxx
+    compile TestCaseCPFDemarshaller.cxx         TestCaseEventInterrupt.cxx      TestCaseTasks.cxx               tests.cxx
+    compile TestCaseCPFMarshaller.cxx           TestCaseHeartBeatGenerator.cxx  TestCaseTiming.cxx              
+    compile TestCaseReporting.cxx               TestRunnerNonInteractive.cxx    
+
+    compile InitFramework.cxx RunFramework.cxx
+    
+    #TestRunnerInteractive.cxx TestCaseConditionVariableTimed.cxx TestCaseXMLRPCDemarshaller.cxx
+
+    # Please, how can this look cleaner ?
+    make {
+	<PREFIX>/bin/test-cases: <PACKAGE>/*.cxx <PACKAGE>/*.hpp <PREFIX>/lib/libtarget.a
+	@mkdir -p $$(dirname $@)
+	rm -f $@
+	$(CC) $(INCLUDE_PATH) $(CFLAGS) -c -o $@.o ${REPOSITORY}/${PACKAGE}/TestMain.cxx
+	$(CXX) -o $@ $@.o -L$$(dirname $@)/../lib -ltarget -lxerces-c $(LDFLAGS)
+    }
+
+    requires OROPKG_CORELIB
+    requires OROPKG_CORELIB_EVENTS
+    requires OROPKG_CORELIB_TIMING
+    requires OROPKG_CORELIB_TASKS
+    requires OROPKG_CORELIB_PROPERTIES
+    requires OROPKG_CORELIB_REPORTING
+}

@@ -1,0 +1,1000 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+<book>
+  <bookinfo>
+    <title>Orocos Core</title>
+    <authorgroup>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+
+      <author>
+	<firstname>Herman</firstname>
+	<surname>Bruyninckx</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+      
+      <author>
+	<firstname>Panagiotis</firstname>
+	<surname>Issaris</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002</year>
+      <holder>Peter Soetens, Herman Bruyninckx</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the design and implementation of the
+	<emphasis>Core</emphasis> component of &orocos;, the <emphasis>Open
+RObot COntrol Software</emphasis> project. The Core provides
+infrastructural support for the functional and application components
+of the &orocos; framework. An overview of that &orocos; framework
+(including installation) is
+given in the general &orocos; overview document.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>22 Aug 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.9</revnumber>
+	<date>11 Nov 2002</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>lots of updates</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </bookinfo>
+
+<chapter>
+	<title>The Realtime Core</title>
+    <para>
+This Section describes the semantics of the services
+available in the &orocos; Core Package. Only Framework Builders,
+Component Builders and Application Builders should use the Core
+directly; End Users do not.
+    </para>
+<para>
+The Core makes an abstraction of the operating system on which it runs.
+	  It provides C++ interfaces to only the <emphasis>minimal
+set</emphasis> of operating system
+	  primitives that it needs: mutexes, condition variables and tasks.
+This is in accordance with the general developers requirements of the
+project: a minimalistic approach is much easier to scale, to maintain,
+and to port.
+The abstraction also allows &orocos; users to build their software on all supported systems with only
+	  a recompilation step. But the Core goes further than restricting
+the abstracted OS primitives: it also imposes a hard realtime
+<emphasis>architecture</emphasis>. This architecture is explained and
+motivated in a later Section.
+ The goal of this fixed architecture is to keep 
+applications deterministic, by avoiding the classical pitfalls of
+letting application programmers freely choose the priorities of their
+tasks, and their communication primitives. Practice has indeed showed
+that most programmers do not succeed in strictly decoupling the
+functional and algorithmic parts of their code from the OS-specific
+primitives used to execute them.
+</para>
+<para>
+Of course, the realtime performance depends not only on
+	  the underlying operating system 
+	  <emphasis>but also on the hardware.</emphasis> The &orocos; Core
+Package also provides an abstraction of the hardware, again in order
+to facilitate maintenance and porting.
+</para>
+<para>
+The abstractions cause (almost) no execution overhead, because the wrapping
+is solved at compile or configuration time, i.e., before the hard
+realtime tasks are running.
+</para>
+
+<sect1>
+<title>Beyond Realtime</title>
+<para>Not everything must be executed in realtime in a control system,
+on the contrary. User
+interaction,
+	  some environment interaction, and system configuration can not
+execute within deterministic time
+	  limits. &orocos; also provides this interaction and configuration
+	  without disturbing the determinism
+	  of the control task execution.
+	</para>
+    </sect1>
+
+<sect1>
+<title>The Framework Operating System Interface (FOSI)</title>
+<para>
+Keeping the &orocos; core portable requires an extra abstraction of
+some operating system (OS) or kernel functionalities. For example, we
+all know that a task can be created, started, paused, scheduled, etc.,
+but each OS uses other function calls to do this. &orocos; prefers
+C++ interfaces, which led to the
+<classname>ComponentActive</classname> class interface as the
+abstraction of a task.  Each OS implements in its
+<filename class="directory">os/&lt;OS-name-here&gt;</filename> directory the
+specific system calls to get the desired effect.  Other abstractions
+are the <classname>HeartBeatGenerator</classname> class (to keep track
+of (virtual network) time), and the
+<classname>EventInterrupt</classname> class (to cover interrupt
+handlers). So, using the Core header files, every application should
+run on every supported OS.
+</para>
+<para>
+<figure><title>FOSI overview</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject>
+	      <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+</para>
+<para>
+When building kernel space applications, the realtime code does not 
+run in a C++ friendly environment and we had to wrap some libraries 
+with our own headers to guarantee
+correct functioning. If you want to use the Standard C++ library
+(without iostreams), you
+have to include <filename>rtstl/rtstl.hpp</filename>.  You can include
+<filename>math.h</filename> without problems. The following table
+contains the latest &orocos;-approved header files:
+	<table frame="all">
+	  <title>Header files</title>
+	  <tgroup cols="3" colsep="1" rowsep="1">
+	    <thead >
+	      <row>
+		<entry>Library</entry>
+		<entry>Which file to include</entry>
+		<entry>Remarks</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry align="center" valign="middle">OS functionality</entry>
+		<entry align="center" valign="middle">os/fosi.h</entry>
+		<entry align="left" valign="middle">Include this file if you want to make system calls to the
+		  underlying operating system (RTLinux, RTAI, GNU/Linux,...) .</entry></row>
+	      <row>
+		<entry align="center" valign="middle">C++ functionality</entry>
+		<entry align="center" valign="middle">os/cpp.hpp</entry>
+		<entry align="left" valign="middle">Include this file in every C++ program you make.</entry></row>
+	      <row>
+		<entry align="center" valign="middle">Standard Template Library</entry>
+		<entry align="center" valign="middle">rtstl/rtstl.hpp</entry>
+		<entry align="left" valign="middle">No iostream support. RTLinux only supports string and vector.</entry></row>
+	      <row>
+		<entry align="center" valign="middle">Streams</entry>
+		<entry align="center" valign="middle">rtstl/rtstreams.hpp</entry>
+		<entry align="left" valign="middle">Defines StoneHead::cout with limited functionality</entry></row>
+	      <row>
+		<entry align="center" valign="middle">C Math Library</entry>
+		<entry align="center" valign="middle">math.h</entry>
+		<entry align="left" valign="middle">not all functions supported in RTLinux</entry></row></tbody></tgroup>
+	</table>
+
+	OSs implementing the POSIX Threads API <emphasis>correctly</emphasis>
+	greatly 
+	eases our efforts.
+    <note>When using RTAI-LXRT, you can include any headerfile of any library, as long
+    as you don't make system calls in hard realtime threads.</note>
+      </para>
+      
+    </sect1>
+    <sect1>
+      <title>The Framework Device Interface (<acronym>FDI</acronym>)</title>
+      <para>
+	Designing portable software which should interact with hardware is very
+	hard.
+	Some efforts, like <ulink url="http://http://stm.lbl.gov/comedi/">
+	  Comedi</ulink> propose
+	a generic interface to communicate with a certain kind of hardware (mainly
+	analog/digital IO). This allows us to change hardware and still use the
+	same
+	code to communicate with it.  Therefore, we aim at supporting every Comedi
+	
+	supported card.  We invite you to help us writing a C++ wrapper for this
+	API
+	and port comedilib (which adds more functionality) to the realtime
+	kernels.
+      </para>
+      <para>
+	We do not want to force people into using Comedi, and most of us have home
+	written device drivers.  To allow total implementation independence, we
+	are writing a C++ device interface hierarchy (a part of the Orocos
+	Object Hierarchy) which just defines which functionalities a generic
+	device
+	driver should implement. It is up to the developers to wrap their C device
+	driver into a class which implements this interface. You can find an
+	example
+	of this in the devices package.  The core only contains the interface 
+	header files. Other packages should always point to these interface files
+	and never to the real drivers actually used.  It is up to the
+	application
+	writer to decide which driver will actually be used.
+      </para>
+      <para> <emphasis>STRUCTURE</emphasis> The FDI can be structured
+	in two major parts : <emphasis>physical</emphasis>
+	device interfaces and <emphasis>logical</emphasis> device interfaces. 
+	Physical device
+	interfaces can be subdivided in four basic interfaces: Analog Input, Analog
+	Output, Digital Input, Digital Output. The major difference is that 
+	analog devices are addressed with a channel as parameter and write a
+	ranged value, while digital devices are addressed with a bit number as 
+	parameter and a true/false value.
+	Logical device interfaces represent the entities humans like to work
+	with: a drive, a sensor, an encoder, etc. They already make the
+	abstraction on how they are physically addressed. You just want to know
+	the position of a positional encoder in radians for example.
+	Often, the physical layer is device dependent
+	(and thus non-portable) while the logical layer is device independent.
+      </para>
+      <para> 
+	<figure><title>FDI overview</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="fdi.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject>
+	      <imagedata fileref="fdi.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      </para>
+      <para> <emphasis>EXAMPLE</emphasis> An example of the interactions between the logical and the
+	physical layer is the logical encoder with its physical counting card.
+	An encoder is a physical device keeping track of the position of an axis
+	of a robot or machine.
+	The programmer wishes to use the encoder as a sensor and just asks for 
+	the current position. Thus a logical encoder might choose to
+	implement the <interfacename>SensorInterface</interfacename> which provides a
+	<methodname>read(ReadType &amp; )</methodname> function. Upon construction of 
+	the logical sensor, we supply the real device driver as a parameter.
+	This device driver implements for example  
+	<interfacename>AnalogInInterface</interfacename> which provides 
+	<methodname>read(ReadType &amp; data, unsigned int chan)</methodname> and allows
+	to read the position of a certain encoder of that particular card.
+	Of course, we could also put a simulation of an encoder in place of
+	the device driver for testing purposes.
+      </para>
+      <para>
+	<figure><title>(insert example-picture here)</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="example.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject>
+	      <imagedata fileref="example.png" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      </para>
+
+      <sect2>
+	<title>Name Serving</title>
+	<para>
+	  The FDI provides name serving on interface level. This means that one
+	  can ask a certain interface by which objects it is implemented and retrieve
+	  the desired instance. No casting whatsoever is needed for this operation.
+	  For now, only the physical device layer can be queried for entities, since
+	  logical device drivers are typically instantiated where needed, given an 
+	  earlier loaded physical device driver.
+	</para>
+	<para>
+	  <xref linkend="example_name_service"/> shows how one could query the 
+	  <classname>AnalogOutInterface</classname>.
+	  
+	  <example id="example_name_service"><title>Using the name service</title>
+	    
+	    <programlisting>
+	      <![CDATA[
+	      unsigned int pos;
+	      new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
+	      AnalogOutInterface* card = AnalogOutInterface::nameserver.getObjectByName("CardName");
+	      card->read(pos, 0);    // Read some data
+	      delete card;
+	      ]]>
+	    </programlisting>
+	  </example>
+	</para>
+
+      </sect2>
+
+    </sect1>
+
+    <sect1>
+      <title>The Orocos Object Hierarchy</title>
+      <para>
+	It is our aim to gradually build a common class hierarchy in the project
+	describing the interfaces of data structures or devices. This will allow
+	our applications to share the same data format and thus communicate
+	efficiently.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Threads and Realtime execution of your program</title>
+      <sect2>
+	<title>Starting your program</title>
+	<para>
+	  All tasks in the realtime system have to be performed by some
+	  thread.  In userspace, a normal <function>main()</function>
+	  function is already a thread. One can first construct all
+	  components, initialize them and then start the task. After the task
+	  has finished everything is cleaned up and the
+	  <function>main()</function> function exits. You can use &orocos;
+	  perfectly this way, but it won't be realtime unless you are using 
+      userspace realtime (LXRT,...)<emphasis>Things are
+	  a bit more complex in the kernel (RTAI, RTLinux,...)</emphasis>.  
+      For a program to be executed in kernelspace-realtime, 
+      it has to be compiled into a kernel module.
+	  The &orocos; build system does this automatically if you have chosen
+	  a kernel based realtime system. Each kernel module has exactly one
+	  <function>init_module()</function> and
+	  <function>cleanup_module()</function> function call. The former
+	  will be called when the module is loaded, the latter will be called
+	  when the module is unloaded. Our policy is to put these functions
+	  in a <filename>moduleXYZ.c</filename> file, which will call then
+	  our real C++ functions, which reside in another file.  The whole
+	  procedure goes like this :
+	</para>
+	
+	<para>
+	  <figure><title>(insert picture of loading+calling a kernel module) </title>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="loading_calling.png" format="PNG"/>
+	      </imageobject>
+	      <imageobject>
+		<imagedata fileref="loading_calling.eps" format="EPS"/>
+	      </imageobject>
+	      <!--
+	      <caption><para>
+	    </para></caption>
+	      -->
+	    </mediaobject>
+	  </figure>
+	</para>
+
+	<para>
+	  Once can see that first, a special function is called to initialize
+	  all static variables your program might have. When this is done the real
+	  initialisation function is called. There we instantiate all objects
+	  we need, and finally start the services. Each service is now running
+	  as a realtime thread, using the data you provided on instantiation.
+	  Be warned that when this function exits, all local data is destroyed,
+	  that is why we use global variables.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The Orocos Thread System</title>
+	<para>
+	  An &orocos; component, which must execute a task periodically, is
+	  defined by the
+	  <interfacename>ComponentActiveInterface</interfacename>.
+	  The most common operations are <methodname>start()</methodname>,
+	  <methodname>stop()</methodname> and setting the periodicity. What is
+	  executed is defined in the <interfacename>
+	    RunnableInterface</interfacename>. It contains three methods :
+	  <methodname>initialize()</methodname>,
+	  <methodname>step()</methodname> and
+	  <methodname>finalize()</methodname>. You can inherit from this
+	  interface to implement your own functionality. In
+	  <methodname>initialize()</methodname>, you put the code that has to be
+	  executed once when the component is
+	  <methodname>start()</methodname>'ed. In
+	  <methodname>step()</methodname>,
+	  you put the instructions that must be executed periodically. In
+	  <methodname>finalize()</methodname>, you put the instructions that must
+	  be executed right after the last <methodname>step()</methodname> when
+	  the component is <methodname>stop()</methodname>'ed.
+	</para>
+	<para>
+	  &orocos; delivers one implementation of the 
+	  <classname>ComponentActiveInterface</classname> : 
+	  <classname>
+	    ComponentThreaded</classname>, which creates a thread according to
+	  the operating system you are compiling for. 
+	  However, you are encouraged 
+	  <emphasis>NOT</emphasis> to use it ! Other classes explained
+	  in the next section will provide the functionality you really need.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The Orocos Thread Philosophy</title>
+	<sect3>
+	<title></title>
+   <para>
+	  Threads are the major cause of headaches in multithreaded systems
+	    programmers heads.
+	    Synchronisation, data protection, priority tweaking and resource
+	    locking must all be done very carefully and mostly lead to suboptimal
+	    solutions. Even more, the predictability of the system highly decreases
+	    with the introduction of more threads or interactions between threads.
+	    Because of this, we propose the following:
+     </para>
+	  <para>Only two realtime threads : A high priority thread and a low priority thread.
+	    The high priority thread is used for all tasks that need to be executed
+	    atomically. No action in this thread
+	    will ever be pre-empted. 
+	    The low priority thread is used for all tasks which may be 
+	    interrupted but still have hard deadlines. It can always be preempted by the 
+	    high priority thread. 
+	  </para>
+	  <para>The high priority thread is the <classname>ZeroTimeThread</classname>. It will
+	    execute all <classname>TaskNonPreemptable</classname> Components synchronically.
+	    You can create your own not preemtable task by inheriting from this
+	    class. Its name is derived from the fact that some tasks need to be executed
+	    in an infinite small amount of time to work correctly. Control loops
+	    are an example of this. To come as close as possible to this (impossible)
+	    constraint, we make sure that the task is never preempted by another task and
+	    thus is executed 'atomically'.
+	  </para>
+
+	  <para>
+	    <figure><title>Execution collaboration diagram</title>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="execution-collaboration.png" format="PNG"/>
+		</imageobject>
+		<imageobject>
+		  <imagedata fileref="execution-collaboration.eps" format="EPS"/>
+		</imageobject>
+		<!--
+		<caption><para>
+	      </para></caption>
+		-->
+	      </mediaobject>
+	    </figure>
+	  </para>
+	  <para>
+	    <figure><title>Execution sequence diagram</title>
+	      <mediaobject>
+		<imageobject>
+		  <imagedata fileref="execution-sequence.png" format="PNG"/>
+		</imageobject>
+		<imageobject>
+		  <imagedata fileref="execution-sequence.eps" format="EPS"/>
+		</imageobject>
+		<!--
+		<caption><para>
+	      </para></caption>
+		-->
+	      </mediaobject>
+	    </figure>
+	  </para>
+	  <para>The low priority tasks are executed by the <classname>ZeroLatencyThread</classname>
+	    Component.
+	    It will execute all <classname>TaskPreemptable</classname> Components
+	    sequentially, when no non-preemptable tasks are 
+	    executed. Every <classname>TaskPreemptable</classname> can be preempted by a 
+	    <classname>TaskNonPreemptable</classname> but not by another <classname>TaskPreemptable</classname>.
+	    The ZeroLatencyThread has this name because the zero time constraint is
+	    dropped, but replaced by the constraint that no latency may occur and 
+	    thus, execution is still realtime. Again, to satisfy this constraint,
+	    only deterministic time operations may be done in this thread.
+	  </para>
+	  <para> For not realtime executions, as there are userspace communication,
+	    memory allocations,... we use the CompletionProcessor. Roughly put, you
+	    can do <emphasis>anything</emphasis> in this thread, as long as it 
+	    takes finite time. This is the lowest priority thread in the system and
+	    it should never lock a resource of the realtime thread. Tasks being executed
+        in the CompletionProcessor are called <classname>TaskNonRealtime</classname>.
+	  </para>
+	</sect3>
+	<sect3>
+   <title></title>
+   <para>
+	    <emphasis>This is true for each hardware unit of each &orocos; based system.</emphasis>
+	    We will present an Event infrastructure which allows high priority tasks to postpone
+	    partial execution of a task to a later period, when not deterministic actions have
+	    to be taken.
+	</para>
+	</sect3>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Events</title>
+
+      <para>
+	Events are implemented using the <classname>Observer</classname> 
+	design pattern. An object or component which wants to be notified
+	of events, has to implement the <classname>EventListenerInterface</classname>, 
+	in which the
+	<function>handleEvent(CallbackInterface*)</function> method will be called when
+	the event occurs. This is a subscription model (yeah, like the newsletters,
+	but we don't do SPAM), you only get notified when you registered for it.
+      </para>
+      <para>
+        The <classname>EventListener</classname> can decide to call the event completer (if available)
+        by calling the <function>complete()</function>
+        function on the <classname>CallbackInterface</classname> object.  
+	An example is when an EventListener is gathering data and enough data is available, 
+	the Completer should finish the job, so the EventListener invokes the complete() method.
+	<classname>EventListener</classname> and completer can be
+        different or the same objects. Let's look at an example : 
+      </para>
+      <para>
+	<example><title>Using events</title>
+	  <programlisting>
+	    <![CDATA[
+	    class Cat : public EventListenerInterface 
+        {
+    	    public:
+	        virtual void handleEvent(CallbackInterface *cb) {
+	            // Handler code
+    	        std::cout << "Miau!" << std::endl;
+    	        // optional
+	            cb->complete();
+    	    }
+	    };
+
+	    Class Pawn : public EventCompleterInterface 
+        {
+	        public:
+	        virtual void completeEvent() {
+        	    //Completer code
+        	    std::cout << "Scratch!"<<std::endl;
+	        }
+	    };
+
+	    ...
+	    Cat minou;
+	    Pawn sharpy;
+	    Event fullmoon(Event::SYNSYN);
+
+	    std::cout << "Register minou to the fullmoon event\n";
+	    fullmoon.addHandler(&minou, &sharpy);
+
+	    std::cout << "Fire the event\n";
+	    fullmoon.fire();
+
+	    fullmoon.removeHandler(&minou,&sharpy); // automatically removes the completer too
+	    fullmoon.addHandler(&minou, EventCompleterInterface::none );    // No completer will be called
+
+	    std::cout << "Just making noise"<<std::endl;
+	    fullmoon.fire();
+
+	    ...
+	    ]]>
+	  </programlisting>
+
+	  <screen>
+	    Register minou to the fullmoon event
+	    Fire the event
+	    Miau!
+	    Scratch!
+	    Just making noise
+	    Miau!
+	  </screen>
+
+	</example>
+      </para>
+      <para>	
+	We can categorise event handling and
+        completion in two categories: synchronous and asynchronous, both
+        possible for handling and completion. This leaves four types of events :
+        <itemizedlist>
+	  <listitem><para>Synchronous event handling, synchronous completion (think separate components)</para></listitem>
+	  <listitem><para>Synchronous event handling, asynchronous completion (think interrupts)</para></listitem>
+	  <listitem><para>Asynchronous event handling, asynchronous completion (think mission to Mars)</para></listitem>
+	  <listitem><para>Asynchronous event handling, synchronous
+	      completion (think separate components on Mars)</para></listitem>
+        </itemizedlist>
+        One could argue that the first and last one have no practical applications, we're
+        busy thinking of some. All four types are nonetheless implemented in the framework.
+      </para>
+      <para><emphasis>
+	  The aim of this separation of listener and completer is decoupling: both
+	  can be implemented in different objects and do not know about each other. Even
+	  more, the completer should not count on the fact that it is called each time
+	  the listener is called. It is possible that in some cases the listener asks for
+	  completion, and in other cases does not require it (yet).</emphasis>
+      </para>
+      <para>
+	Whether your <function>handleEvent()</function> and <function>completeEvent()</function>
+	methods contain deterministic code or not is up to you. It depends on the choice of the
+	Event type and in which thread it is executed. A good rule of thumb is to make
+	all Synchronous handling/completing deterministic time and do all the rest in 
+	the Asynchronous part, which will be executed by the <classname>CompletionProcessor</classname>.
+      </para>
+
+      <tip><para>You must choose the type of <classname>Event</classname> upon construction. This can no longer
+	  be changed once the <classname>Event</classname> is created (for obvious reasons). You must specify
+	  the type as the first constructor argument with one of the four following:
+	  Event::SYNSYN,Event::ASYNSYN,Event::SYNASYN,Event::ASYNASYN; with the first
+	  [SYN|ASYN] denoting the handling and the second the completion policy</para></tip>
+      <sect2>
+	<title>Other Kinds of Events</title>
+	<para>
+	  Our subscription based Event is just an example of the many possibilities of Events in
+	  general. We provide four other Event primitives which you will need in your Event based
+	  applications.
+	</para>
+      </sect2>
+      <sect2>
+	<title>EventSimple</title>
+	<para>
+	  <classname>EventSimple</classname> is a simplification of the general Event. 
+	  It can have exactly one Listener and one Completer, which can be set or removed.
+	  You can use this Event in case you want to be sure that only one Listener and
+	  one Completer are notified when this event is fire()'d.
+	</para>
+      </sect2>
+      <sect2>
+	<title>EventMultiCast</title>
+	<para>
+	  <classname>EventMultiCast</classname> has one Listener and many Completers.
+	  When the event is fire()d and the Listener calls for complete()'ion,
+	  all subscribed Completers will be notified. In this sence, not the fire
+	  call is MultiCasted, but the complete call is MultiCasted to all Completers.
+	</para>
+      </sect2>
+      <sect2>
+	<title>EventBarrier</title>
+	<para>
+	  <classname>EventBarrier</classname> has many Listeners and one Completer.
+	  When the event is fire()d and the Listener calls for complete()'ion,
+	  the Completer will only be notified if all Listeners called the
+	  complete() method. A new fire() method call will reset all complete() calls
+	  and wait again for all Listeners to call complete() before the Completer
+	  is notified.
+	</para>
+	<para>
+	  An example is an EmergencyStop Event. Some program logic decides that the
+	  EmergencyStop Event must be fired. All Listeners are called and perform
+	  their emergency stop handling and call the complete() method. When
+	  all Listeners called this, the Completer is called which now knows
+	  that everyone stopped safely and can report this to the user or another
+	  component. It is as if the Completer was on hold until all Listeners were
+	  ready, hence the word barrier.
+	</para>
+      </sect2>
+      <sect2>
+	<title>EventPeriodic</title>
+	<para>
+	  <classname>EventPeriodic</classname> is a special case of the Event
+	  subscription model. That is, the Listener-Completer mapping is N to N,
+	  as with the normal Event, but the fireing of the event results in
+	  periodically notifying of Listeners. For example, if the periodicity
+	  is 10 to 1, each Listener will have been called exactly once after
+	  the EventPeriodic was fired ten times. For each Listener, it is as 
+	  if the fire calls are done with longer periods in between.
+	</para>
+	<para>
+	  This Event is used in the &orocos; Threading classes for executing
+	  tasks at a lower frequency than the thread is running.
+	</para>
+      </sect2>
+      <sect2>
+	<title>EventDivider</title>
+	<para>
+	  <classname>EventDivider</classname> is also a special case of the Event
+	  subscription model. That is, the Listener-Completer mapping is N to N,
+	  as with the normal Event, but the notifying of the Listeners of the 
+	  event will only happen after X effective fire calls. It is as if
+	  The Event divides the firing by factor X.
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>The HeartbeatGenerator</title>
+      <para>
+	The <classname>HeartbeatGenerator</classname> is implemented using the <classname>Singleton</classname> design pattern.
+	You can query it for the current (virtual) time in clock ticks or in seconds.
+	The idea here is that it is responsible for synchronising with other (distributed)
+	cores, for doing, for example compliant motion with two robots. This functionality
+	is not yet implemented though.
+      </para>
+    </sect1>
+    <sect1>
+      <title>The Completion Processor</title>
+      <para>
+	The Completion Processor is also implemented using the <classname>Singleton</classname> design pattern.
+	It is the lowest priority, not realtime thread in the &orocos; framework. It will execute all
+	Events that have to be completed asynchronously. The only constraint it has is
+	that all tasks it executes should require finite time to complete.
+      </para>
+    </sect1>
+    <sect1>
+      <title>States and the StateContext</title>
+      <para>
+	Any complex software component will sooner or later need a way to change state, depending
+	on how it is used by the other components. The <classname>StateInterface</classname> 
+	describes how state changes are handled. When the current state is left, its
+	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
+	of the new state is called and right after that its <function>handle()</function> is
+	called. Each time the current state is again requested, the <function>handle()</function>
+	is called again.
+      </para>
+      <para>
+	So the <classname>StateInterface</classname> determines what has to be done, but 
+	the decision to change state is made in the <classname>StateContext</classname>. The 
+	StateContext keeps track of the current state and all valid state transitions.
+	One has to 'program' the StateContext so that it knows which transitions can be made
+	under which conditions
+      </para>
+      <sect2>
+	<title>The ConditionInterface</title>
+	<para>
+	  The ConditionInterface is very basic :
+	  <programlisting>
+	    <![CDATA[
+	    class ConditionInterface
+	    {
+	    virtual bool evaluate() = 0;
+	    };
+	    ]]>
+	  </programlisting>
+
+	  Conditions are classes that evaluate an expression and return the result. This expression
+	  must be defined by the user. Some examples are in the source tree, like <classname>
+	    ConditionOnce</classname> (returns only true when it is the first time evaluated), 
+	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
+	  each state transition a Condition object which it will <function>evaluate()</function>
+	  to determine if the transition is allowed.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Programming and Requesting State Transitions</title>
+	<para>
+	  Now how does it all work together ? First, a StateContext object is created and
+	  all its possible States. 
+	  <programlisting>
+	    <![CDATA[
+	    StateInit startState;
+	    StateA aState;
+	    StateB bState;
+	    StateError errState;
+
+	    ConditionTrue cTrue;
+	    ConditionOnce cOnce;
+
+	    StateContext context;
+
+	    ]]>
+	  </programlisting>
+	  Next, we will tell the <varname>context</varname> object which is the initial state which
+	  state transitions are allowed :
+	  <programlisting>
+	    <![CDATA[
+	    context.initState(&startState);
+
+	    context.transitionSet(&startState, &aState, &cOnce);
+	    context.transitionSet(&aState, &bState, &cTrue);
+	    context.transitionSet(&bState, &aState, &cTrue);
+	    context.transitionSet(&errState, &cTrue);
+
+	    ]]>
+	  </programlisting>
+	  As you can see, you can only go once from the startState to the aState, then you can
+	  always switch from aState to bState and back. All states are allowed to go to the 
+	  errorstate, but in this example, it will be impossible to leave the errorstate:
+	  <programlisting>
+	    <![CDATA[
+	    ...
+	    // we are in the startState
+	    context.requestState(&bState); // will return false !
+	    context.requestState(&aState); // ok, returns true.
+	    context.requestState(&bState); // ok, returns true.
+	    context.requestState(&errState); // returns true, but we are trapped in it.
+
+	    // we are now in the errState
+	    ...
+	    ]]>
+	  </programlisting>
+	  Please take a look at the Doxygen API documentation for a precise description of
+	  all the function calls.
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Properties</title>
+      <para>
+	Properties are well known in object oriented programming languages. 
+	They are used to store primitive data (float, strings,...) in
+	a 'PropertyBag', which can be changed by the user and has immediate
+	effect on the behaviour of the program. Changing parameters of an
+	algorithm is a good example where properties can be used. Each parameter
+	has a value, a name and a description. The user can ask any PropertyBag
+	for its contents and change the values as they see fit. Java for
+	example presents a Property API. 
+      </para><para>
+	However, having Properties in a realtime system is a very hard task. Currently
+	RTLinux does not support it. RTAI, LXRT and GNU/Linux have been tested succesfully
+	with properties. An example of how to build a PropertyBag can be found in the
+	<filename>doc/examples/properties/simple_hibernate.cpp</filename> file. 
+    The Doxygen Property API should
+	provide enough information for succesfully using them in your Software Component.
+	<note>
+	  <para>
+	    Reading and writing a properties value can be done in realtime. Every other 
+	    transaction, like marshalling, demarshalling or building the property
+	    is not a realtime operation.
+	  </para>
+	  <para>
+	    <example><title>Using properties</title> 
+	      <programlisting>
+		<![CDATA[
+		...
+		// a property, respresening a double of value 1.0:
+
+		Property<double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
+		myProp = 10.9; // realtime
+		double a = myProp.get(); // realtime
+		...
+		]]>
+	      </programlisting>
+	    </example>
+	  </para>
+	</note>
+      </para>
+      <sect2>
+	<title>How should I use PropertyBag ?</title>
+	<para>
+        First of all, a PropertyBag is not the owner of the properties it owns,
+        it merely keeps track of them, it defines a logical group of properties
+        belonging together. Thus when you delete a bag, the properties in it are
+        not deleted, when you clone() a bag, the properties are not cloned
+        themselves. PropertyBag is thus a container of pointers to Property objects.
+	</para>
+    <para>
+        If you want to duplicate the contents of a PropertyBag or perform recursive
+        operations on a bag, you can use the helper functions we created and which
+        are defined in <filename>PropertyBag.hpp</filename> (see Doxygen documentation).
+        These operations are however, most likely not realtime.
+    </para>
+    <note>When you want to put a PropertyBag into another PropertyBag, you need
+        to make a Property&lt;PropertyBag&gt; and insert that property into the 
+        first bag.
+    </note>
+      </sect2>
+      <sect2>
+	<title>Marshalling and demarshalling</title>
+	<para>
+        Marshalling is converting an object from machine code to a code suitable
+        for transportation or storage. When an object is marshalled, a copy is made
+        so that it can be restored in its original state. Demarshalling instantiates
+        the object again from the marshalled copy. Common formats of marshalling are
+        writing out properties or efficient binary memory copies. So properties are
+        just an example of objects that can be marshalled. We wrote however specific
+        marshallers for properties and property bags. These are the 
+        SimpleMarshaller, XMLMarshaller, XMLRPCMarshaller, INIMarshaller and
+        the CPFMarshaller (for CORBA). You will need the xerces library for the XML
+        related marshalling.
+	</para>
+    <para>
+        The marshaller uses the <classname>PropertyIntrospectionInterface</classname>
+        for inspecting the type of a Property. This mechanism is called 
+        double dispatching.
+    </para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Reporting</title>
+      <para>
+	Having a realtime process running is one thing, knowing what its internal status
+	is is another. Reporting is made in such a way that existing components can
+	be extended with a Reporting Stub, which creates reports of the internal state
+	of variables and waits for client requests to update or export the data. 
+    A client can then ask each existing Stub to create and
+	deliver a report. A timestamp is used to tag all data. When the client
+	has collected all reports, it may transform it to another format, for example,
+    in a log file or a display on screen. We call these clients often ReportWriters
+    since they write out the gathered reports in one or another format.
+    An example of an application is a realtime robot component
+	which delivers every 10ms its position, velocity and sensor data 
+	to a userspace map building application.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Fifos</title>
+      <para>
+	Fifos are used to send data from one address space to another. For example
+	from realtime to userspace or vice versa. We have four kind of fifos :
+	<itemizedlist>
+	  <listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
+	  <listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
+	  <listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
+	  <listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
+	</itemizedlist>
+        Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
+	They will act as if they get their data from real fifos. The API documentation should
+	be clear about how to use them.
+      </para>
+      <para>
+	Fifos are very important means of communication between userspace and kernelspace.
+	Components requireing data communition will indicate this with a <classname> WriteInterface
+	</classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface 
+	</classname> in their constructors argument list.
+	All fifos implement one of these interfaces.
+      </para>
+      <note>
+      <para>
+	For examining which data would be sent through a fifo, one can always temporarily
+	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data
+	to the screen instead of delivering it.
+      </para>
+      </note>
+    </sect1>
+  </chapter>
+
+<chapter>
+<title>Examples</title>
+    <para>
+      We intend to write many example programs to demonstrate how easily complex components
+      can be built using the core and the existing interfaces. Only the test directory
+      contains some usage examples, but they might not always be clear. For example the 
+      properties test file is a white box test and very inaccesable by non-insiders.
+      Please, feel free to post your example programs on the mailing list, we'll gratefully
+      accept them.
+    </para>
+</chapter>
+
+<chapter>
+    <title>Todo</title>
+    
+	 <para>    The core still misses a lot of functionality:
+      <itemizedlist>
+	<listitem><para>A HeartBeatGenerator that synchronises with other
+	    cores</para></listitem>
+	<listitem><para>A threadsafe C++ Allocator for embedded systems,
+	    RTAI provides one already, RTLinux does not</para></listitem>
+      </itemizedlist>
+    </para>
+
+    <para>    Currently, the core can be extended with four packages : motioncontrol, 
+      drivers, interfacing, lrl (Leuvens Robotics Library) and robots. They can be found
+      on the &orocos; website or in our CVS repository.
+      We'd like to add in the future:
+      <itemizedlist>
+	<listitem><para>Graphical configuration - generating components on
+	    the fly with a GUI</para></listitem>
+	<listitem><para>Remote Access - a secure communication channel for
+	    accessing the framework over a network</para></listitem>
+      </itemizedlist>
+    </para>
+    
+  </chapter>
+
+</book>

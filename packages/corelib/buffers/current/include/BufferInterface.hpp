@@ -1,0 +1,57 @@
+/***************************************************************************
+  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  BufferInterface.hpp 
+
+                        BufferInterface.hpp -  description
+                           -------------------
+    begin                : Thu October 10 2002
+    copyright            : (C) 2002 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+ 
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+ 
+ 
+#ifndef BUFFERINTERFACE_HPP
+#define BUFFERINTERFACE_HPP
+
+typedef unsigned int size_t;
+
+#include "ReadNonBlockingInterface.hpp"
+#include "WriteNonBlockingInterface.hpp"
+
+namespace ORO_CoreLib
+{
+    /**
+     * A buffer is a object where you can write data to and read data from.
+     * All operations are non blocking.
+     * It's possible that not all data written will be read.
+     * @see ReadNonBlockingInterface
+     * @see WriteNonBlockingInterface
+     */
+
+    class BufferInterface :
+                public ReadNonBlockingInterface,
+                public WriteNonBlockingInterface
+    {
+
+        public:
+            virtual ~BufferInterface()
+            {}
+
+            /**
+             * Returns the maximum number of bytes that can be stored in the
+             * buffer.
+            * @return maximum number of bytes
+             */
+            virtual size_t capacityGet() = 0;
+
+    };
+}
+
+#endif

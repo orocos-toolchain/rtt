@@ -1,0 +1,30 @@
+
+Serial schunk driver:
+---------------------
+
+OVERVIEW:
+
+SchunkCommunicationInterface: communication channel interface
+ |-> SchunkCommunicationRTcom: communication channel for rt_com
+ +-> SchunkCommunicationFile: communication channel for /dev/ttyS0
+
+SchunkDataReadInterface
+ |-> SchunkData
+SchunkDataSetInterface
+
+SchunkDevice
+
+SchunkState
+ \->SchunkStateBRL3f
+
+XXX:
+* test SchunkCommunicationRTcom!
+* bug (probably in SchunkCommunicationFile)
+    when reading data fast, en force is put on the sensor, the read blocks
+    (my guess: something with the flushInput)
+
+TODO: 
+* change SchunkDataSetInterface to SchunkDataWriteInterface
+* use ReadInterface and WriteInterface from core
+* make SchunkCommunicationFile more generic (remove hardcoded /dev/ttyS0)
+

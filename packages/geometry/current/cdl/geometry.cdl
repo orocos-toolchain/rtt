@@ -1,0 +1,72 @@
+cdl_package OROPKG_GEOMETRY {
+    display "Geometry library"
+    include_dir geometry
+    
+    compile debug_macros.cxx error_stack.cxx utility.cxx countingnumbers.cxx
+
+#utility_newmat.cxx
+
+    cdl_component OROPKG_GEOMETRY_3D {
+	display "3D Primitives"
+	default_value 1
+
+	cdl_option OROPKG_GEOMETRY_3D_FRAMES {
+	    display "3D Frames, Twists, Wrenches"
+	    description "
+This contains implementations of 3D Vector, Rotation, Frame,
+Twist and Wrench"
+	    default_value 1
+	    compile primitives/frame.cxx primitives/vector.cxx primitives/twist.cxx primitives/plane.cxx primitives/wrench.cxx
+	    compile primitives/rotation.cxx primitives/rframes.cxx primitives/rrframes.cxx primitives/rnframes.cxx
+	    compile primitives/plane.cxx
+	}
+
+	cdl_option OROPKG_GEOMETRY_3D_FRAMES_IO {
+	    display "3D IO conversions"
+	    description "
+This enables the conversion of 3D primitives to text streams
+and back to binary format."
+	    default_value 1
+	    requires OROINT_OS_STDIOSTREAM
+	    compile primitives/frames_io.cxx fileutils.cxx utility_io.cxx
+	}
+
+	cdl_option OROPKG_GEOMETRY_3D_PROPERTIES {
+	    display "Geometry Property Support"
+	    description "
+This enables the conversion of 3D primitives within Properties
+to basic Properties and back. You will need this if you want to
+use Property<Frame> and the like as a property."
+	    default_value 1
+	    requires OROINT_OS_STDIOSTREAM
+	    compile primitives/MotionProperties.cxx
+	}
+
+    }
+
+    cdl_component OROPKG_GEOMETRY_PRIMITIVES {
+	display "Geometry Primitives"
+	description "
+This includes Geometry_Line, Geometry_Point, Geometry_Circle,
+Geometry_Cyclic_Closed, Geometry_Composite and Geometry_RoundedComposite"
+	default_value 1
+	active_if OROPKG_GEOMETRY_3D_FRAMES
+	compile primitives/geometry.cxx  primitives/geometry_circle.cxx  primitives/geometry_composite.cxx  primitives/geometry_cyclic_closed.cxx  
+	compile primitives/geometry_line.cxx  primitives/geometry_point.cxx  primitives/geometry_roundedcomposite.cxx
+    }
+
+    cdl_component OROPKG_GEOMETRY_INTERPOLATION {
+	display "Interpolation algorithms"
+	description "
+Velocity profile planning and trajectory composition"
+	flavor bool
+
+	active_if OROPKG_GEOMETRY_3D_FRAMES && OROPKG_GEOMETRY_PRIMITIVES
+
+	compile interpolation/motionprofile.cxx  interpolation/motionprofile_rect.cxx  interpolation/motionprofile_trap.cxx  interpolation/motionprofile_traphalf.cxx
+	compile interpolation/trajectory.cxx  interpolation/trajectory_composite.cxx  interpolation/trajectory_segment.cxx
+	compile interpolation/orientation.cxx  interpolation/orientation_singleaxis.cxx
+
+    }
+}
+

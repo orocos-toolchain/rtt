@@ -1,0 +1,48 @@
+cdl_package OROPKG_DEVICE_DRIVERS_APCI {
+    display "The APCI device drivers"
+
+    parent OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_INTERFACE
+    requires OROPKG_DEVICE_INTERFACE_IO
+    requires OROPKG_DEVICE_INTERFACE_ENCODER
+
+    include_dir device_drivers
+    # result to nop-classes if source compile option not enabled.
+#     include_files EncoderSSIapci1710.hpp EncoderIncrementalapci1710.hpp
+#     include_files EncoderIncremental.hpp
+#     include_files RelayCardapci2200.hpp
+
+    cdl_option OROPKG_DEVICE_DRIVERS_APCI_CFLAGS_ADD {
+        display "Linux include path"
+	flavor data
+        default_value { " -I".OROBLD_OS_LINUX_KERNEL."/include" }
+	active_if OROPKG_OS_GNULINUX
+    }
+
+    cdl_component OROPKG_DEVICE_DRIVERS_APCI1710 {
+	display "The APCI1710 device driver"
+	flavor bool
+	default_value 1
+
+	script apci1710.cdl
+    }
+
+    cdl_component OROPKG_DEVICE_DRIVERS_APCI2200 {
+	display "The APCI2200 device driver"
+	flavor bool
+	default_value 1
+
+	compile RelayCardapci2200.cxx
+	script apci2200.cdl
+    }
+
+    cdl_component OROPKG_DEVICE_DRIVERS_APCI1032 {
+	display "The APCI1032 device driver"
+	flavor bool
+	default_value 1
+
+	compile SwitchDigitalInapci1032.cxx
+	script apci1032.cdl
+    }
+}

@@ -1,0 +1,25 @@
+
+cdl_package OROPKG_CORELIB_PROPERTIES {
+    display "Generic Property system"
+    description "This package provides an implementation
+       of a foreigntype-friendly properties. Properties are
+       an abstraction of the internal, configurable data of
+       components."
+
+    include_dir corelib
+
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    compile PropertyBag.cxx  PropertySequence.cxx
+
+    cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
+	display "Cast-free property operations"
+	description "This option enables the cast free
+           copy/mutate/update operations on the property base class
+           This code is not yet thread safe and based on the Command-Comply
+           software pattern."
+
+	compile OperationAcceptor.cxx
+    }
+}

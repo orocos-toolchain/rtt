@@ -1,0 +1,19 @@
+[OPTIONS]
+Auto Index=Yes
+Binary Index=No
+Compatibility=1.1 or later
+Compiled file=eCos.chm
+Contents file=eCos.hhc
+Default Window=mainwin
+Default topic=/usr/local/home/psoetens/src/orocos-v1/orocos-svn/orocos-pkg.new/doc/index.html
+Display compile progress=Yes
+Full-text search=Yes
+Language=0x409 English (United States)
+Title=eCos
+[WINDOWS]
+mainwin="eCos Documentation","eCos.hhc",,,"index.html","http://sources.redhat.com/ecos/","Net Release","http://www.redhat.com/products/ecos/","eCos Product",0x40060420,,0xc287e,[0,0,762,400],,,,,,,0
+
+[FILES]
+index.html
+
+[INFOTYPES]

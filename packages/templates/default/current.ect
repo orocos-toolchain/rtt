@@ -1,0 +1,23 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+
+cdl_configuration template_default {
+    description "This is a standard configuration.";
+    package     OROPKG_CORELIB current ;
+    package     OROPKG_OS current ;
+    package     OROPKG_CORELIB_EVENTS current;
+    package     OROPKG_CORELIB_BUFFERS current;
+    package     OROPKG_CORELIB_TASKS current;
+    package     OROPKG_CORELIB_COMMANDS current;
+    package     OROPKG_CORELIB_CONDITIONS current;
+    package     OROPKG_CORELIB_PROPERTIES current;
+    package     OROPKG_CORELIB_REPORTING current;
+    package     OROPKG_CORELIB_TIMING current;
+};

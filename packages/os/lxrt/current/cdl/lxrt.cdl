@@ -1,0 +1,114 @@
+
+
+cdl_package OROPKG_OS_LXRT {
+    display "RTAI/LXRT OS abstraction layer"
+    include_dir os
+    parent OROPKG_OS
+
+    hardware
+
+    compile ComponentThreaded.cxx
+    compile MainThread.cxx
+    compile main.cxx
+
+    implements OROINT_OS_STDCXXLIB
+    implements OROINT_OS_KERNEL_MODULE
+    implements OROINT_OS_MAIN
+
+    cdl_component OROCLS_OS_EVENT_INTERRUPT {
+	display "Interrupt driven event implementation"
+	flavor bool
+	default_value 0
+	implements OROINT_OS_EVENT_INTERRUPT
+	compile EventInterrupt.cxx
+    }
+
+    cdl_component OROSEM_OS_LXRT_SCHEDTYPE {
+	display "Scheduling Algorithm for NOT realtime threads"
+	description "
+This option sets the scheduling algorithm for the threads
+running in non-realtime. See man sched_setscheduler for
+more information on the available types."
+	flavor data
+	default_value { "SCHED_FIFO" }
+	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
+    }
+
+    cdl_component CYGBLD_GLOBAL_OPTIONS {
+	display "Global build options"
+	flavor none
+	parent CYGPKG_NONE
+	description "
+      Global build options including control over
+      compiler flags, linker flags and choice of toolchain."
+
+# 	cdl_option CYGBLD_GLOBAL_CFLAGS_ADD {
+# 	    display "RTAI build directory include directive"
+# 	    flavor data
+# 	    default_value {"-I/usr/src/rtai"}
+# 	    description "
+# This is the location where rtai.h resides. It must
+# point to a properly configured rtai installation."
+# 	}
+
+	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+	    display "Global command prefix"
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description "
+        This option specifies the command prefix used when
+        invoking the build tools."
+	}
+
+	cdl_option CYGBLD_RTAIDIR {
+	    display "RTAI directory"
+	    flavor data
+	    no_define
+	    default_value { "/usr/local/home/psoetens/src/rtai/stable" }
+	    description "
+This option allows you to specify your RTAI installation
+directory once. It will be automatically used in the CFLAGS
+and LDFLAGS options. It is safe to edit the lxrt.cdl file yourself and
+fill in your own directory."
+	}
+
+	cdl_option CYGBLD_GLOBAL_CFLAGS {
+	    display "Global compiler flags"
+	    flavor  data
+	    no_define
+	    default_value { "-g -pipe -Wall -Wstrict-prototypes -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
+	    description   "
+          This option controls the global compiler flags which
+          are used to compile all packages by
+          default. Individual packages may define
+          options which override these global flags."
+	}
+
+	cdl_option CYGBLD_GLOBAL_LDFLAGS {
+	    display "Global linker flags"
+	    flavor  data
+	    no_define
+	    default_value { "-g -L" . CYGBLD_RTAIDIR . "/lxrt/lib -llxrt" }
+	    description   "
+          This option controls the global linker flags. Individual
+          packages may define options which override these global flags."
+	}
+
+    }
+
+    cdl_option CYGBLD_LINKER_SCRIPT {
+	display "Linker script"
+	flavor data
+	no_define
+	calculated  { "" }
+    }
+
+    cdl_option CYGHWR_MEMORY_LAYOUT {
+	display "Memory layout"
+	flavor data
+	no_define
+	calculated { "" }
+    }
+
+}

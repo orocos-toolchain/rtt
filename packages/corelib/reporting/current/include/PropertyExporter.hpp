@@ -1,0 +1,99 @@
+#ifndef PROPERTYEXPORTER_HPP
+#define PROPERTYEXPORTER_HPP
+
+#include "PropertyBag.hpp"
+#include "Property.hpp"
+#include "ReportExporterInterface.hpp"
+
+namespace ORO_CoreLib
+{
+    /**
+     * This PropertyBag is extended to report its contents
+     * as a Report Server. You can use it as a normal PropertyBag
+     * and use the add()/remove() methods to insert or remove a Property
+     * from the bag.
+     *
+     */
+    class PropertyExporter
+        : public Property<PropertyBag>,
+          public PropertyExporterInterface
+    {
+        public:
+            
+            /**
+             * Create a nameserver PropertyExporter.
+             *
+             * @param name The name under which it is listed as StringExporterInterface.
+             * @param copy_on_refresh Indicates if you wish to copy the contents of this
+             *        bag on refresh (to make a snapshot), or just update the timestamp.
+             *        Setting this to true will introduce a time latency due to the copy
+             *        operation, false, the default, assumes it is safe to read the contents
+             *        of this bag later on.
+             */
+            PropertyExporter( const std::string& name, bool copy_on_refresh = false)
+                : Property<PropertyBag>(name,"PropertyExporter"), PropertyExporterInterface(name), 
+                  timeStamp("TimeStamp","Sample time."), bagCopy(name, "PropertyExporter"), copy(copy_on_refresh)
+            {
+                this->value().add( &timeStamp );
+            }
+            
+            /**
+             * Create a PropertyBag whose contents can be reported.
+             */
+            PropertyExporter( bool copy_on_refresh = false) 
+                : Property<PropertyBag>("Bag","PropertyExporter"),
+            timeStamp("TimeStamp","Sample time."), bagCopy("Bag", "PropertyExporter"), copy(copy_on_refresh)
+            {
+                this->value().add( &timeStamp );
+            }
+
+            virtual ~PropertyExporter() 
+            {
+                this->value().remove( &timeStamp );
+            }
+
+            virtual void reportGet(Property<PropertyBag>& report)
+            {
+                if (copy)
+                    this->value().add( &bagCopy );
+                else
+                    this->value().add( this );
+            }
+
+            virtual Property<PropertyBag>& reportGet()
+            {
+                if (copy)
+                    return bagCopy;
+                else
+                    return *this;
+            }
+
+            virtual void refresh( HeartBeatGenerator::Seconds time_stamp )
+            {
+                timeStamp = time_stamp;
+                if (copy)
+                {
+                    copyProperties(bagCopy.value(), this->value() ); 
+                    // this makes a copy of this bag, updating existing values.
+                }
+            }
+
+        protected:
+
+            Property<double> timeStamp;
+
+            /**
+             * A copy of this bag, made on refresh.
+             */
+            Property<PropertyBag> bagCopy;
+
+            /**
+             * On true, the exporter will copy the bag for reporting, on false,
+             * it will pass on the original.
+             */
+            bool copy;
+    };     
+
+}
+
+#endif

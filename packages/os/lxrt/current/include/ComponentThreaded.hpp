@@ -1,0 +1,202 @@
+/***************************************************************************
+  tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  ComponentThreaded.hpp 
+
+                        ComponentThreaded.hpp -  description
+                           -------------------
+    begin                : Mon June 10 2002
+    copyright            : (C) 2002 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+ 
+    ***************************************************************************
+    *                                                                         *
+    *   This program is free software; you can redistribute it and/or modify  *
+    *   it under the terms of the GNU General Public License as published by  *
+    *   the Free Software Foundation; either version 2 of the License, or     *
+    *   (at your option) any later version.                                   *
+    *                                                                         *
+    ***************************************************************************/
+ 
+
+#ifndef COMPONENT_THREADED_HPP
+#define COMPONENT_THREADED_HPP
+
+// Our own package config headers.
+#include "pkgconf/os.h"
+#include "pkgconf/os_lxrt.h"
+
+#include <os/fosi.h>
+
+#include <os/RunnableInterface.hpp>
+#include <os/ComponentActiveInterface.hpp>
+
+#include <string>
+
+namespace ORO_OS
+{
+    class Finalizer;
+
+    /**
+     *
+     *	An active component is a threaded component
+     *
+     *	The periodicity is the time between the starting
+     *	of two runs.
+     */
+    class ComponentThreaded 
+        : public ComponentActiveInterface 
+    {
+        friend void* ComponentThread( void* t );
+
+    public:
+
+        ComponentThreaded(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
+    
+        virtual ~ComponentThreaded();
+        /**
+         * Start the thread
+         */
+        virtual bool start();
+        /**
+         * Stop the thread
+         */
+        virtual bool stop();
+        /**
+         * Set the periodicity of this thread
+         * in seconds.
+         */
+        virtual int periodSet( Seconds s );
+        /**
+         * Set the periodicity of this thread
+         * (seconds, nanoseconds)
+         */
+        virtual int periodSet( secs s, nsecs ns );
+        /**
+         * Get the periodicity of this thread
+         * (seconds, nanoseconds)
+         */
+        virtual void periodGet( secs& s, nsecs& ns ) const;
+        /**
+         * Get the periodicity in seconds
+         */
+        virtual double periodGet() const;
+        /**
+         * Returns whether the thread is running
+         */
+        virtual bool isRunning() const;
+
+        /**
+         * Set the name of this task
+         */
+        virtual void taskNameSet(const char*);
+        /**
+         * Read the name of this task
+         */
+        virtual const char* taskNameGet() const;
+        /**
+         * Exit the thread 
+         * @pre  this is only called from within the thread
+         * @post the thread does no longer exist
+         */
+        virtual void terminate();
+
+        virtual void step();
+    
+        virtual bool initialize();
+
+        virtual void finalize();
+
+        bool makeHardRealtime() 
+        { 
+            if ( !running ) 
+                {
+                    goRealtime = true; 
+                    rt_sem_signal(sem);
+                    rt_sem_wait(confDone);
+                }
+            return goRealtime; 
+        }
+        bool makeSoftRealtime()
+        { 
+            if ( !running ) 
+                {
+                    goRealtime = false; 
+                    rt_sem_signal(sem);
+                    rt_sem_wait(confDone);
+                }
+            return !goRealtime; 
+        }
+        bool isHardRealtime()   { return rt_is_hard_real_time(rt_task); }
+
+    protected:
+        virtual bool setToStop();
+
+        /**
+         * Do configuration actions when the thread is stopped.
+         */
+        void configure();
+        /**
+         * Set the periodicity of this thread
+         */
+        int periodSet(  TIME_SPEC p );
+
+        /**
+         * Wait for the full period periodGet()
+         */
+        void periodWait();
+        /**
+         * Wait only for the remaining period, being
+         * periodGet() - (time_now - start_time_of_this_period)
+         */
+        void periodWaitRemaining();
+
+        Finalizer *finalizer;
+        /**
+         * Periodicity of the thread in ns.
+         */
+        RTIME period;
+
+        /**
+         * When set to 1, the thread will run, when set to 0
+         * the thread will stop
+         */
+        bool running;
+
+        /**
+         * Signals if rt_task is stopped or not
+         */
+        bool stopped;
+
+        /**
+         * True when the thread should go realtime.
+         */
+        bool goRealtime;
+
+        /**
+         * The realtime task
+         */
+        RT_TASK* rt_task;
+
+        /**
+         * The userspace thread carying the rt_task.
+         */
+        pthread_t thread;
+
+        int priority;
+
+        static const int TASKNAMESIZE = 64;
+
+        char taskName[TASKNAMESIZE];
+
+        bool prepareForExit;
+
+        SEM* sem;
+        SEM* confDone;
+        /**
+         * The possible Runnable to run in this Component
+         */
+        RunnableInterface* runComp;
+    };
+
+}
+
+#endif

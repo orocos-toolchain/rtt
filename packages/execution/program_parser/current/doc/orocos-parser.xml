@@ -1,0 +1,807 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+
+<article>
+  <artheader>
+    <title>
+      The OROCOS Project 
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Dominique</firstname>
+	<surname>Devriese</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2003</year>
+      <holder>Herman Bruyninckx</holder>
+    </copyright>
+    
+    <abstract>
+      <para>
+	This document describes the &orocos; Parser system, in the
+	different ways it can be used and extended.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>20 Aug 2003</date>
+	<authorinitials>DD</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </artheader>
+
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      The &orocos; Parser allows users of the &orocos; system to write
+      programs controlling the system in a user-friendly language.  It
+      is implemented using the Boost.Spirit parser library, and should
+      be fairly easy to work with.
+    </para>
+    <para>
+      There are three ways that people need to use the &orocos; Parser
+      framework, and this documentation is split up accordingly.  The
+      following chapters each deal with one of these aspects, and can
+      be read separately.  You are encouraged to skip ahead to the
+      part that interests you.
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    <link linkend="program-syntax">Writing &orocos; Programs.</link>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <link linkend="exporting-component-api">
+	      Exporting the API of an &orocos; component to the
+	      &orocos; Parser.
+	    </link>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <link linkend="extending-the-parser">
+	      Extending the &orocos; parser to support extra types,
+	      overload existing operators, and/or add new operators.
+	    </link>
+	  </para>
+	</listitem>
+      </itemizedlist>
+      This documentation tackles only these three aspects.  If you
+      want to do more advanced things with the &orocos; Parser system,
+      you'll have to dig into the source code.  It should be fairly
+      well documented.
+    </para>
+  </sect1>
+
+  <sect1 id="program-syntax">
+    <title>Program Syntax</title>
+    <sect2 id="program-syntax-general-concepts">
+      <title>General concepts</title>
+      <para>
+	Before starting to explain Program Syntax, it is necessary to
+	explain some general concepts that are used throughout the
+	program syntax.
+      </para>
+      <sect3 id="program-syntax-comments">
+	<title>Comments</title>
+	<para>
+	  Various sorts of comments are supported in the syntax.  Here
+	  is a small listing showing the various syntaxes:
+	  <programlisting>
+# A perl-style comment, starting at a &apos;#&apos;, and running until
+# the end of the line.
+
+// A C++/Java style comment, starting at &apos;//&apos;, and running
+// until the end of the line.
+
+/* A C-style comment, starting at &apos;/*&apos;, and running until
+   the first closing */ /* Nesting is not allowed, that&apos;s
+   why I have to start a new comment here :-) 
+*/
+	  </programlisting>
+	  Whitespace is in general ignored, except for the fact that it
+	  is used to separate tokens.
+	</para>
+      </sect3>
+      <sect3 id="program-syntax-identifiers">
+	<title>Identifiers</title>
+	<para>
+	  Identifiers are names that the user can assign to variables,
+	  constants, aliases, labels.  The same identifier can only be
+	  used once, except that for labels you can use an identifier
+	  that has already been used as a variable, constant or alias.
+	  However, this is generally a bad idea, and you shouldn't do
+	  it.
+	</para>
+	<para>
+	  Some words cannot be used as identifiers, because they are
+	  reserved by the &orocos; Scripting Framework, either for
+	  current use, or for future expansions.  These are called
+	  keywords.  The current list of reserved keywords is included
+	  here:
+	  <simplelist columns="7">
+	    <member>alias</member>
+	    <member>and</member>
+	    <member>async</member>
+	    <member>bool</member>
+	    <member>char</member>
+	    <member>const</member>
+	    <member>define</member>
+	    <member>do</member>
+	    <member>done</member>
+	    <member>double</member>
+	    <member>else</member>
+	    <member>end</member>
+	    <member>false</member>
+	    <member>for</member>
+	    <member>foreach</member>
+	    <member>frame</member>
+	    <member>if</member>
+	    <member>include</member>
+	    <member>int</member>
+	    <member>let</member>
+	    <member>next</member>
+	    <member>not</member>
+	    <member>nothing</member>
+	    <member>or</member>
+	    <member>rotation</member>
+	    <member>set</member>
+	    <member>stop</member>
+	    <member>string</member>
+	    <member>then</member>
+	    <member>time</member>
+	    <member>to</member>
+	    <member>true</member>
+	    <member>twist</member>
+	    <member>until</member>
+	    <member>var</member>
+	    <member>vector</member>
+	    <member>while</member>
+	    <member>wrench</member>
+	  </simplelist>
+	  These, and all variations on the (upper- or lower-) case of
+	  each of the letters are reserved, and cannot be used as
+	  identifiers. 
+	</para>
+      </sect3>
+      <sect3 id="program-syntax-expressions">
+	<title>Expressions</title>
+	<para>
+	  Expressions are a general concept used throughout the Parser
+	  system.  Expressions represent values that can be calculated
+	  at runtime.  They can be used as arguments to functions,
+	  conditions and whatmore.  Expressions implicitly are of a
+	  certain type, and the Parser system does strong
+	  type-checking.  Expressions can be constructed in various
+	  ways, that are described below...
+	</para>
+	<sect4>
+	  <title>Component data</title>
+	  <para>
+	    Components export some data.  This data can be of any
+	    possible type, and the Parser system retains that type
+	    information.  Getting component data is done using an
+	    expression of the following form:
+	    <programlisting>
+component.dataname( argument1, argument2, ..., argumentN ) 
+	    </programlisting>
+	    where "component" is the name of the component whose data
+	    you want to access, dataname is the name of the data
+	    member of the component you want to access.  "argument1"
+	    through "argumentN" are the arguments you want to pass to
+	    the data call, and can be any kind of expression.  If a
+	    data call needs no arguments, the parentheses can be left
+	    out, like this:
+	    <programlisting>
+// equivalent to component.dataname()
+component.dataname
+	    </programlisting>
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Literals</title>
+	  <para>
+	    Literal values of various types are supported: string,
+	    int, double, bool.  Boolean literals are either the word
+	    "true" or the word "false".  Integer literals are normal,
+	    positive or negative integers.  Double literals are C/C++
+	    style double-precision floating point literals.  The only
+	    difference is that in order for the Parser to be able to
+	    see the difference with integers, we require a dot to be
+	    present.  String literals are surrounded by double quotes,
+	    and can contain all the normal C/C++ style escaped
+	    characters.  Here are some examples:
+	    <programlisting>
+// a string with some escaped letters:
+&quot;\&quot;OROCOS rocks, \&quot; my mother said...&quot;
+// a normal integer
+-123
+// a double literal
+3.14159265358979
+// and another one..
+1.23e10
+	    </programlisting>
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Constants, Variables and Aliases</title>
+	  <para>
+	    Constants, variables and aliases allow you to work with
+	    data in an easier way.  A constant is a name which is
+	    assigned a value at the place of its definition, and keeps
+	    that value throughout the rest of the program.  A variable
+	    is like a constant, but its value can be changed at other
+	    places in the program.  An alias does not carry a value,
+	    it is defined with an expression, for which it acts as an
+	    alias or an abbreviation during the rest of the program.
+	    All of them can always be used as expressions.  Here is
+	    some code showing how to use them.
+	    <programlisting>
+// define a constant of type double, with name "pi",
+// and value 3.14159265358979
+const double pi = 3.14159265358979
+// define a constant string and give it the initial
+// value "apples"
+const string applestring = &quot;apples&quot;
+
+// define a variable of type int, called counter,
+// and give it the initial value 0.
+var int counter = 0
+// add 1 to the counter variable
+set counter = counter + 1
+// equivalent to the above
+set counter to 1 + counter
+
+// make the name "counterPlusOne" an alias for the
+// expression counter + 1.  After this, using
+// counterPlusOne is completely equivalent to using
+// counter + 1
+alias counterPlusOne = counter + 1
+// you can assign an arbitrarily complex expression
+// to an alias
+alias reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
+	    </programlisting>
+	  </para>
+	  <para>
+	    Variables, constants and aliases are only supported for
+	    the following types: bool, int, double, string, rotation,
+	    vector, frame.  You cannot use them for values of other
+	    types.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Operators</title>
+	  <para>
+	    Expressions can be combined using the c-style operators
+	    that you are already familiar with if you have ever
+	    programmed in C, C++ or Java.  All operators are
+	    supported, except for the if-then-else operator ("a?b:c"),
+	    and the precedence is the same as the one used in C, C++,
+	    Java and similar languages.
+	  </para>
+	  <para>
+	    However, the operators are only defined for a limited set
+	    of types.  You can apply the usual operators to
+	    expressions of types bool, int, double, bool and vector.
+	    I'm not going to include an exhaustive list here of the
+	    available operators, but in general all that you would
+	    expect, is present.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Constructors</title>
+	  <para>
+	    For some special types, a special kind of operator is
+	    provided.  These are called constructors.  The simplest
+	    example is the vector constructor, that looks like this:
+	    <programlisting>
+vector( arg1, arg2, arg3 )
+	    </programlisting>
+	    where arg1, arg2 and arg3 are expressions of type double.
+	    This returns an expression of type vector, with arg1 as
+	    the x component, arg2 as the y component, and arg3 as the
+	    z component.
+	  </para>
+	  <para>
+	    Other constructors currently available are:
+	    <programlisting>
+// alfa, beta and gamma are double expressions, this
+// returns a rotation, that is constructed using the
+// EulerZYZ convention:
+// First rotate around Z with alfa, then around the
+// new Y with beta, then around new Z with gamma.
+rotation( alfa, beta, gamma )
+
+// Vect is a vector expression, rot is a rotation
+// expression.  This returns a frame, constructed
+// using the vector x as the origin, and rotation
+// rot as the rotation..
+frame( vect, rot )
+	    </programlisting>
+	  </para>
+	</sect4>
+      </sect3>
+    </sect2>
+    <sect2 id="program-syntax-specifics">
+      <title>Specifics</title>
+      <para>
+	An &orocos; program looks like this:
+	<programlisting>
+program {
+  // an arbitrary number of statements
+}
+	</programlisting>
+	The statements are executed in order, starting at the first.
+	One statement is executed per tick.  There are currently three
+	kinds of statements, they are explained below.
+      </para>
+      <sect3>
+	<title>Command Call Statements</title>
+	<para>
+	  A command call statement is a statement that calls a certain
+	  command, and checks where to go next..  It looks like:
+	  <programlisting>
+do comp.action( args ) until {
+  if condition then goto label
+  if condition2 then goto label2
+}
+	  </programlisting>
+	  It calls the command "action", on the component "comp", with
+	  the comma-separated list of expressions args as the
+	  arguments.  The Processor executes the command once, and
+	  then checks where to go next using the "termination clauses"
+	  in the until part.  If none are true, then it waits another
+	  tick, and checks them again..
+	</para>
+	<para>
+	  Sometimes, you want to continue executing the command, while
+	  checking the termination conditions, instead of only
+	  executing it the first time..  In that case, you can put the
+	  keyword "sync" before the command call.
+	  <programlisting>
+	    // continue moving to the right until you hit the wall..
+	    do sync robot.move( robot.position + vector( 1,0,0 ) )
+	      until { if robot.hitWall() then goto stop }
+	  </programlisting>
+	  The example above may be a bit stupid, but it only serves to
+	  show the use of the sync keyword..
+	</para>
+	<para>
+	  A termination clause always looks like
+	  <programlisting>
+if condition then goto label
+	  </programlisting>
+	  condition can be any kind of expression, that is of type
+	  boolean.  One special condition is provided, the keyword
+	  "done".  Every command has an associated "implicit
+	  termination condition", and the condition "done" is
+	  equivalent to that condition.  You can also combine the
+	  "done" condition with other expressions, as if it were a
+	  normal boolean expression.  Label is a label specifying a
+	  place in the program to jump to when the condition becomes
+	  true.  Two special labels are provided: "next" jumps to the
+	  next statement, and "stop" jumps to the end of the program.
+	  You can also define your own labels by putting "labelname:"
+	  before a certain statement, where labelname is a valid
+	  identifier.  From then on, you can use labelname as a label
+	  which will refer to the specified position in the program.
+	</para>
+	<para>
+	  If a termination list is left out, then an implicit one is
+	  generated.  This means that the two following statements are
+	  equivalent:
+	  <programlisting>
+do comp.action( args )
+// the implicitly generated termination list always looks like
+// "if done then goto next"
+do comp.action( args ) until { if done then goto next }
+	  </programlisting>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Variable Set Statements</title>
+	<para>
+	  A variable set statement is a statement that sets a variable
+	  to a certain value.  It looks like this:
+	  <programlisting>
+set variablename = expression
+set variablename to expression
+	  </programlisting>
+	  ( the two syntaxes ( with "to" or "=" ) are equivalent ).
+	  Variablename is the name of the variable you want to assign
+	  to.  It should already have been defined.  Expression is an
+	  expression of the same type as the type of the variable.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The 'nothing' Command</title>
+	<para>
+	  A special command 'nothing' is provided, and I'm sure you
+	  can already guess what it does..  It is useful to implement
+	  statements, where the termination list is really the only
+	  useful thing to do.  Control structures can be implemented
+	  this way.  Here is an example of an &orocos; program
+	  calculating the faculty function using this.
+	  <programlisting>
+program {
+  // n is the number of which we want to calculate the faculty
+  const int n = 8
+  // i is a counter
+  var int i = n
+  // ret is the variable in which we are building the result..
+  var int ret = 1
+
+begin: set ret = ret * i
+  set i to i - 1
+  do nothing until { 
+    // we're done
+    if i &lt;= 1 then goto next
+    // not done yet..
+    if true then goto begin
+  }
+  // send the result somewhere..
+  do test.command( ret )
+}
+	  </programlisting>
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+  
+  <sect1 id="exporting-component-api">
+    <title>Exporting a Component's API</title>
+    <sect2 id="exporting-component-api-data-and-commands">
+      <title>Data and Commands</title>
+      <para>
+	A component's API can consist of two things: Data and
+	Commands.  The difference is that data is used to form
+	expressions, while Commands are used in call commands.  More
+	generally, data should be accessible without any side effects.
+	It should be simple data that can be read out.  Commands are
+	specifically meant to generate side effects.  Suppose you're
+	writing a robot component, then an example of a command would
+	be: "robot.moveTo", telling the robot to move to the specified
+	position, and an example of a data value would be
+	"robot.isAtPosition", checking whether the robot has already
+	reached the specified position.  "robot.position" could also
+	be a data value.
+      </para>
+      <para>
+	An &orocos; program is not executed at the same time it is
+	parsed.  It is first parsed, and compiled down to an object
+	representation of it, allowing the program to be executed in a
+	near-realtime environment. 
+      </para>
+      <para>
+	Specifically, Commands are represented by child classes of 
+	the C++ class CommandInterface, and Data is represented by
+	child classes of the C++ class DataSource.  Actually, there
+	is a different DataSource type for every type used in the
+	&orocos; Parser system.  This is accomplished by making
+	DataSource a template class, parametrized by its result
+	value.
+      </para>
+      <para>
+	Command calls, and data calls are translated to
+	CommandInterface and DataSource classes by respectively
+	CommandFactory's and DataSourceFactory's.  These are provided
+	by the various components.  Every component has one
+	CommandFactory and one DataSourceFactory.  Continue reading
+	for more information on how to add one to your own component. 
+      </para>
+    </sect2>
+    <sect2 id="exporting-api-the-extension">
+      <title>The MotionScriptableExtension</title>
+      <para>
+	The part of the kernel that the parser talks to to get hold of
+	the API's of the components is the MotionScriptableExtension.
+	It is an &orocos; kernel extension that talks to the kernel
+	components and keeps a list of their data and command
+	factories.  If you are composing an &orocos; kernel, then you
+	need to make the MotionScriptableExtension part of the kernel
+	in the normal way.  Check the motioncontrol documentation for
+	more details.
+      </para>
+    </sect2>
+    <sect2 id="exporting-api-getting-to-it">
+      <title>Getting to it</title>
+      <para>
+	In order for a component to export its API, it should
+	implement two virtual methods: 
+	<programlisting>
+virtual CommandFactoryInterface* createCommandFactory();
+virtual DataSourceFactory* createDataSourceFactory();
+	</programlisting>
+	These will each be called once during the startup of the
+	kernel, and they should return a CommandFactory and a
+	DataSourceFactory containing information on how to construct
+	the Command's and DataSource's that the component supports.
+      </para>
+      <para>
+	It is possible to write the DataSourceFactory and
+	CommandFactory for your component yourself, but this would
+	require a pretty large amount of work consisting mostly of
+	boilerplate code.  Therefore, standard factories have been
+	written to take care of most of the process.
+      </para>
+      <para>
+	Suppose the API of your component looks like this:
+	<programlisting>
+class Robot
+{
+public:
+  void moveToHomePosition();
+  bool isAtHomePosition();
+  
+  void moveTo( const Vector&amp; position );
+  bool isAtPosition( const Vector&amp; position );
+  
+  Vector position();
+  double movingSpeed();
+  
+  double distanceTo( const Vector&amp; position );
+};
+	</programlisting>
+	Then the code needed to export this API to the &orocos;
+	scripting framework would look like this:
+	<programlisting>
+#include "TemplateDataSourceFactory.hpp"
+#include "TemplateCommandFactory.hpp"
+
+using namespace ORO_CoreLib;
+
+DataSourceFactory* Robot::createDataSourceFactory()
+{
+  TemplateDataSourceFactory&lt;Robot&gt;* ret =
+    newTemplateDataSourceFactory( this );
+  ret-&gt;add( &quot;position&quot;, 
+            data( &amp;Robot::position, &quot;The current position &quot;
+                                    &quot;of the robot.&quot; ) );
+  ret-&gt;add( &quot;movingSpeed&quot;,
+            data( &amp;Robot::movingSpeed, 
+                  &quot;The speed at which the robot is &quot;
+                  &quot;currently moving.&quot; ) );
+  ret-&gt;add( &quot;distanceTo&quot;,
+            data( &amp;Robot::distanceTo,
+                  &quot;The distance between the current &quot;
+                  &quot;position of the robot and pos.&quot;, &quot;pos&quot;,
+                  &quot;Query position&quot; ) ); 
+}
+
+CommandFactoryInterface* Robot::createCommandFactory()
+{
+  TemplateCommandFactory&lt;Robot&gt;* ret =
+    newTemplateCommandFactory( this );
+  ret-&gt;add( &quot;moveToHomePosition&quot;, 
+            command( &amp;Robot::moveToHomePosition,
+                     &amp;Robot::isAtHomePosition,
+                     &quot;Move the robot to its home position&quot; ) );
+  ret-&gt;add( &quot;moveTo&quot;,
+            command( &amp;Robot::moveTo,
+                     &amp;Robot::isAtPosition,
+                     &quot;Move the Robot to a specified position.&quot;, &quot;pos&quot;,
+                     &quot;The position to move the robot to.&quot; ) );
+}
+	</programlisting>
+	This probably deserves some explanation...
+      </para>
+      <para>
+	The first statement 
+	<programlisting>
+TemplateDataSourceFactory&lt;Robot&gt;* ret =
+  newTemplateDataSourceFactory( this );
+	</programlisting>
+	constructs a new TemplateDataSourceFactory, this should be
+	straightforward.  After this factory is constructed, we add
+	data to it using the add() method.  This method requires a
+	name for the added data, and information on the data to be
+	associated with that name.  The latter is generated using the
+	function data().
+      </para>
+      <para>
+	The data function requires a pointer to a member function
+	having a number of arguments, and returning the appropriate
+	data.  The function's signature will automatically define the
+	signature in the exported API.  After the member function
+	pointer follows a C string containing a description of the
+	function, followed by a name and description for each of the
+	arguments.  An extra feature is that instead of a pointer to a
+	member function, you can also pass a pointer to a member
+	variable to the data function.  This will then simply be read
+	out, instead of called.
+      </para>
+      <para>
+	The command factory is created in a similar way.  The first
+	statement is almost the same, and the next are also similar.
+	The only difference with the DataSource factory creation is
+	that in place of the data function, the command function is
+	used, which requires some different arguments.
+      </para>
+      <para>
+	The command function requires two member pointers instead of
+	one.  The first one is a void function that does the actual
+	work that the command will invoke, and the second is a bool
+	function having the same signature as the first one, except
+	for its return type.  This last function will be called to see
+	whether the associated command is finished.  The rest of the
+	arguments to the command function remain the same.  It
+	also requires a constant C string describing the function, and
+	two constant C strings giving a description and name for every
+	argument.
+      </para>
+    </sect2>
+  </sect1>
+      
+  <sect1 id="extending-the-parser">
+    <title>Extending the parser</title>
+    <sect2 id="parser-limitations">
+      <title>Parser Limitations</title>
+      <para>
+	For various reasons, during the development of the &orocos;
+	parser, it has proven necessary to hard-code various things,
+	mostly relating to the defined types, and the operations
+	supported on them.  The parser supports using different types
+	of objects than the predefined ones, but the major limitations
+	are:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Only a hardcoded set of types can be used as variables,
+	      constants and aliases
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Operators like +, *, >= etc. are only supported for a
+	      hardcoded set of types.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      For some types like vectors, rotations and frames,
+	      special syntax was added.  Currently, this is limited to
+	      the so-called constructors, that allow you to construct
+	      e.g. a vector from three doubles.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect2>
+    <sect2 id="alleviating-parser-limitations">
+      <title>Alleviating the Limitations</title>
+      <para>
+	We will address the ways to address the various limitations in
+	the same order as they were given above..
+      </para>
+      <sect3 id="adding-types">
+	<title>Adding value types</title>
+	<para>
+	  Adding types that can be used as variables, constants or
+	  aliases should be very trivial.  It should suffise to simply
+	  add a single line to a single file.
+	</para>
+	<para>
+	  The value types supported are kept in the TypesRepository
+	  class in orocos-tree/parser/src/Types.hpp.  The list of
+	  value types is constructed in the TypesRepository
+	  constructor in the Types.cpp file.  It looks something like
+	  the following:
+	  <programlisting>
+data[&quot;int&quot;] = new TemplateTypeInfo&lt;int&gt;();
+data[&quot;string&quot;] = new TemplateTypeInfo&lt;std::string&gt;();
+data[&quot;double&quot;] = new TemplateTypeInfo&lt;double&gt;();
+data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
+	  </programlisting>
+	  Adding your own type comes down to just adding a similar
+	  line there.  There are however some restrictions on what
+	  types can be used, but if you have properly designed your
+	  class as a normal C++ value-based class, then there should
+	  be no problem.
+	</para>
+      </sect3>
+      <sect3 id="overloading-operators">
+	<title>Overloading operators</title>
+	<para>
+	  Operator overloads are stored in the class OperatorRegistry
+	  in orocos-tree/parser/src/Operators.hpp.  The list of
+	  supported operators is built up in the OperatorRegistry
+	  constructor in the Operators.cpp file.  It looks something
+	  like this:
+	  <programlisting>
+// boolean stuff:
+add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
+	  </programlisting>
+	  Adding your own should not be terribly hard.  The hardest
+	  part is that as the second argument to newUnaryOperator or
+	  newTernaryOperator, you need to specify a STL Adaptable
+	  Functor, and even though the STL provides many predefined
+	  one's, it does not provide all possible combinations, and
+	  you might end up having to write your own..  The STL does
+	  not at all provide any "ternary operators", so if you need
+	  one of those, you'll definitely have to write it yourself.
+	</para>
+	<para>
+	  Note that this section is only about adding overloads for
+	  existing operators, if you want to add new operators, you
+	  should look at the <link linkend="adding-syntax">next
+	  section</link>.
+	</para>
+      </sect3>
+      <sect3 id="adding-syntax">
+	<title>Adding special syntax</title>
+	<para>
+	  This section will explain how to add a custom constructor,
+	  or a custom operator, that you will then be able to use in
+	  expressions..  The operator can take one to three arguments
+	  of any type, and can return any type..
+	</para>
+	<para>
+	  You need to do two things in order to do this: 
+	  <itemizedlist>
+	    <listitem>
+	      <para>make the parser know about the new syntax</para>
+	    </listitem>
+	    <listitem>
+	      <para>tell the parser what the new syntax means</para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+	  You should make the parser aware of the new syntax in the
+	  file orocos-tree/parser/src/ExpressionParser.cpp.  There, in
+	  the ExpressionParser constructor, the syntax of an
+	  expression is defined.  There, you should add the new
+	  syntax.  I'm afraid I can't explain you other than either
+	  copying from an existing syntax or reading the Boost.spirit
+	  documentation.  You need to couple your new syntax with a
+	  semantic action like &quot;bind(
+	  &amp;ExpressionParser::seen_binary, this, &quot;%&quot; )
+	  for a binary action that you want to give the name "%".  The
+	  name &quot;%&quot; is just an identifier that should be
+	  unique to your new operator, it can be any string you want.
+	</para>
+	<para>
+	  Next, you need to define the operator in Operators.cpp, in
+	  much the same way as you should do for <link
+	  linkend="overloading-operators">overloading an existing
+	  operator</link>.  However, instead of then using an existing string
+	  like "+", you should use the string you chose while defining
+	  your new syntax above.
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+</article>

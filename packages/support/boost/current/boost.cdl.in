@@ -1,0 +1,7 @@
+cdl_package OROPKG_SUPPORT_BOOST {
+    display "Generated Boost package"
+    description " 
+The presence of this package indicates that the configure
+script detected a valid Boost installation, which can now
+be used by other packages."
+}

@@ -1,0 +1,19 @@
+
+cdl_package OROPKG_CORELIB_PROPERTIES_MARSHALLING {
+    display "Property Marshalling and Demarshalling"
+    description "This package contains implementations of
+many types of Marshaller and Demarshallers. They are used
+to convert binary information to text (or another format) and vice
+versa. There are marshallers for XML files, INI files and streaming
+tables (for logging)."
+
+    parent OROPKG_CORELIB_PROPERTIES
+    requires OROPKG_CORELIB_PROPERTIES
+
+    include_dir corelib/marshalling
+
+    include_files CPFDemarshaller.hpp  INIMarshaller.hpp       Orocos1Demarshaller.hpp  SimpleDemarshaller.hpp  TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp
+    include_files CPFMarshaller.hpp    MarshallerAdaptors.hpp  Orocos1Marshaller.hpp    SimpleMarshaller.hpp    TableMarshaller.hpp        XMLMarshaller.hpp    XMLRPCMarshaller.hpp
+    include_files StreamProcessor.hpp
+
+}

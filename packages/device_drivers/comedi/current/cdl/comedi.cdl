@@ -1,0 +1,18 @@
+cdl_package OROPKG_DEVICE_DRIVERS_COMEDI {
+    display "Comedi implementation of IO"
+
+    include_dir comedi
+
+    parent   OROPKG_DEVICE_DRIVERS
+
+    requires OROPKG_SUPPORT_COMEDI
+    requires OROPKG_SUPPORT_COMEDILIB
+    requires OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_INTERFACE
+    requires OROPKG_DEVICE_INTERFACE_IO
+    requires OROPKG_DEVICE_INTERFACE_ENCODER
+    
+    compile v2/ComediDevice.cxx  
+    #compile v2/ComediEncoderIncremental.cxx
+    include_files v2/ComediDevice.hpp  v2/ComediEncoderIncremental.hpp  v2/ComediSubDeviceAIn.hpp  v2/ComediSubDeviceAOut.hpp  v2/ComediSubDeviceDIn.hpp  v2/ComediSubDeviceDOut.hpp
+}

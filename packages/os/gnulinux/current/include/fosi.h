@@ -1,0 +1,233 @@
+/***************************************************************************
+ tag: Peter Soetens  Mon Jun 10 14:42:55 CEST 2002  fosi.h 
+
+                       fosi.h -  description
+                          -------------------
+   begin                : Mon June 10 2002
+   copyright            : (C) 2002 Peter Soetens
+   email                : peter.soetens@mech.kuleuven.ac.be
+
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************/
+
+
+/**
+ * This file translates the FOSI (Framework Operating System Interface) from
+ * orocos calls to native RTOS calls  
+ *
+ * TODO : split in multiple files
+ */
+
+#ifndef __FOSI_H
+#define __FOSI_H
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include <stdio.h>
+#include <semaphore.h>
+#include <pthread.h>
+    typedef pthread_t RTOS_TASK;
+
+
+    // Time Related
+#include <sys/time.h>
+#include <unistd.h>
+    typedef long long NANO_TIME;
+
+    typedef struct timespec TIME_SPEC;
+
+    inline NANO_TIME rtos_get_time_ns( void )
+    {
+
+        struct timeval tv;
+
+        struct timezone tz;
+        int res = gettimeofday( &tv, &tz );
+
+        if ( res == -1 )
+            printf( "ERROR invoking gettimeofday in fosi.h\n" );
+
+#ifdef __cplusplus 
+        //  printf("TimeOFDay: %e ns\n", double(tv.tv_usec*1000LL + tv.tv_sec*1000000000LL));
+        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_usec ) * 1000LL;
+
+#else
+
+        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_usec * 1000LL );
+
+#endif 
+        //  gethrtime();
+
+    }
+
+    /**
+     * This function should return ticks,
+     * but we use ticks == nsecs in userspace
+     */
+    inline NANO_TIME systemTimeGet()
+    {
+        return rtos_get_time_ns();
+    }
+
+    inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
+    {
+        //    return usleep(rqtp->tv_nsec/1000L);
+        return nanosleep( rqtp, rmtp );
+    }
+
+    /**
+     * No conversions are needed in userspace.
+     * The HBGenerator needs this for accurate timekeeping,
+     * which is an anachronism in userspace.
+     */
+    inline
+    long long nano2count( long long nano )
+    {
+        return nano;
+    }
+
+    inline
+    long long count2nano( long long count )
+    {
+        return count;
+    }
+
+    // Mutex functions
+
+    typedef pthread_mutex_t rt_mutex_t;
+
+    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    {
+        pthread_mutexattr_t ma_t;
+        pthread_mutexattr_init(&ma_t);
+/* 	pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP); */
+        return pthread_mutex_init(m, &ma_t);
+    }
+
+    static inline int rtos_mutex_destroy(rt_mutex_t* m )
+    {
+        return pthread_mutex_destroy(m);
+    }
+
+    static inline int rtos_mutex_lock( rt_mutex_t* m)
+    {
+        return pthread_mutex_lock(m);
+    }
+
+    static inline int rtos_mutex_trylock( rt_mutex_t* m)
+    {
+        return pthread_mutex_trylock(m);
+    }
+
+    static inline int rtos_mutex_unlock( rt_mutex_t* m)
+    {
+        return pthread_mutex_unlock(m);
+    }
+
+
+    typedef pthread_cond_t rt_cond_t;
+    static inline int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr)
+    {
+        return pthread_cond_init(cond, cond_attr);
+    }
+
+    static inline int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        return pthread_cond_destroy(cond);
+    }
+
+    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime)
+    {
+        return pthread_cond_timedwait(cond, mutex, abstime);
+    }
+
+    static inline int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        return pthread_cond_broadcast(cond);
+    }
+
+#define rtos_printf printf
+
+    inline void rtos_enable_fpu( pthread_attr_t * pt )
+    {}
+
+    // RT FIFO emulated by a socket
+    // this is done because an rtfifo really is a socket (it has 2 endpoints
+    // both of which can be written to/read from)
+
+#ifdef __cplusplus
+    extern "C"
+    {
+#endif
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+
+#include <stdlib.h>
+
+        // ugly hack
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX 108
+#endif
+
+
+        typedef int ( *fifohandler ) ( unsigned int, int );
+
+        /*
+         * Tries to be the equivalent of rtai's rtf_create
+         * @param fnr the number of the fifo you wish to create
+         * @param bytes the length of the ring buffer associated with the fifo
+         *  this parameter is ignored
+         * @return 0 if okay
+         *  negative otherwise
+         */
+        int rtosf_create( int fnr, size_t bytes );
+
+        void rtosf_destroy( int fnr );
+
+        int rtosf_get( int fnr, char * msg, size_t bytes );
+
+        int rtosf_resize( int fnr, size_t size );
+
+        int rtosf_put( int fnr, const char * text, size_t bytes ) ;
+
+        int rtosf_set_handler( int fnr, int ( *h ) ( unsigned int, int ) );
+
+        void rtosf_remove_all_handlers( int fnr );
+
+#ifdef __cplusplus
+    }
+
+#endif
+
+    // high-resolution time to timespec
+#ifdef __GNUC__
+#define hrt2ts(hrt) ((const TIME_SPEC *) ({TIME_SPEC timevl; timevl.tv_nsec = hrt % (1000000000LL); timevl.tv_sec= hrt / (1000000000LL); &timevl; }))
+#else
+
+#warning "Memory leaking code... do not use with GNU compiler"
+inline const TIME_SPEC* hrt2ts(NANO_TIME hrt) 
+{ 
+    TIME_SPEC *timevl = (TIME_SPEC*)malloc(sizeof(TIME_SPEC)); 
+    timevl->tv_nsec = hrt % (1000000000LL); 
+    timevl->tv_sec= hrt / (1000000000LL); 
+    return timevl;
+}
+#endif
+
+#ifdef __cplusplus
+}
+
+#endif
+#endif

@@ -1,0 +1,35 @@
+cdl_package OROPKG_CONTROL_KERNEL {
+    display "The Generic Feedback Control Kernel"
+    description "
+The templates and implementations for control kernels
+and extensions. You will need this if you want to build
+an open controller."
+
+    include_dir control_kernel
+
+    compile KernelInterfaces.cxx
+
+    cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
+	display "Control Kernel Extensions"
+	default_value 1
+	
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_REPORTING {
+	    display "Binary-to-text Reporting"
+	    default_value 1
+	    active_if OROPKG_CORELIB_REPORTING
+	    compile ReportingExtension.cxx
+	}
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY {
+	    display "Configure Components through properties"
+	    default_value 1
+	    active_if OROPKG_CORELIB_PROPERTIES
+	    compile PropertyExtension.cxx
+	}
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION {
+	    display "Program script parsing and execution"
+	    default_value 1
+	    active_if OROPKG_EXECUTION_PROGRAM_PARSER && OROPKG_EXECUTION_PROGRAM_PROCESSOR
+	    compile ExecutionExtension.cxx
+	}
+    }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the Controller component -->
+<properties>
+    <simple name="Name" type="string"><description>The unique name of this component</description><value>CartesianController</value></simple>
+    <simple name="Gain"    type="double"><description>The gain of the controller </description><value>2</value></simple>
+</properties>

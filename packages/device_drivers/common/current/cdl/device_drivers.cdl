@@ -1,0 +1,4 @@
+cdl_package OROPKG_DEVICE_DRIVERS {
+    display "Custom device drivers"
+    include_dir device_drivers
+}

@@ -1,0 +1,16 @@
+<para>
+<figure><title></title>
+  <mediaobject>
+    <imageobject>
+      <imagedata fileref=".png" format="PNG"/>
+    </imageobject>
+    <imageobject>
+      <imagedata fileref=".eps" format="EPS"/>
+    </imageobject>
+    <!--
+    <caption><para>
+    </para></caption>
+    -->
+  </mediaobject>
+</figure>
+</para>

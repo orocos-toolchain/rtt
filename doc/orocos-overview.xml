@@ -1,0 +1,1417 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+
+<article>
+ <artheader>
+ <title>
+  The OROCOS Project 
+ </title>
+ <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+</subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Herman</firstname>
+	<surname>Bruyninckx</surname>
+      </author>
+      
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+
+      <author>
+	<firstname>Panagiotis</firstname>
+	<surname>Issaris</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002</year>
+      <holder>Herman Bruyninckx, Peter Soetens, Panagiotis Issaris</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+This document explains the goals, vision, design, implementation and
+packages of 
+<ulink url="http://www.orocos.org">&orocos;</ulink>,
+the <emphasis>Open RObot COntrol Software</emphasis> project. 
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>05 Dec 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+</artheader>
+
+<sect1 id="intro">
+<title>What is Orocos?</title>
+<para>
+&ldquo;&orocos;&rdquo; is the acronym of the
+<emphasis><ulink url="http://www.orocos.org">Open Robot Control
+Software</ulink></emphasis> project. The project's aim is to develop
+a general-purpose, free software, and modular <emphasis>framework</emphasis>
+for <emphasis>robot control</emphasis> (including extensive and
+high-quality documentation).
+</para>
+<para>
+A framework is a set of source code from which applications in a
+particular domain can be made <citation>Johnson97</citation>). So, the
+framework is not an application
+in itself, but it provides the infrastructure and the functionalities to
+build applications.  Usually, application builders must fill
+in some &ldquo;hot spots&rdquo; that are specific to their
+application, and hence, which cannot be provided by the framework.
+</para>
+<para>
+&orocos; works in a &ldquo;bottom-up&rdquo; fashion, so current
+activities are currently more focused on developing 
+<emphasis>basic infrastructure</emphasis> than on implementing
+advanced control, planning or sensor processing algorithms.
+</para>
+<para>
+&orocos; is a free software project, hence its code and documentation
+are released under Free Software licenses.
+</para>
+<para>
+Your feedback and suggestions are greatly appreciated. Please, use the
+project's 
+<ulink
+url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
+</para>
+
+
+<sect2 id="audience">
+<title>Target audience</title>
+<para>
+Robotics is a very broad field, and many roboticists are pursuing
+quite different goals, dealing with different levels of
+complexity, real-time control constraints, application areas, user
+interaction, etc.  So, because the robotics community is not
+homogeneous, &orocos; targets
+four different categories of &ldquo;Users&rdquo; (or, in the first
+place, &ldquo;Developers&rdquo;):
+<orderedlist>
+
+<listitem>
+<para>
+<emphasis>Framework Builders.</emphasis>
+</para>
+<para>
+These developers do not work on any specific robotics application, but
+they provide the infrastructure code to support applications. This
+level of supporting code is most often neglected in robot software
+projects, because in the (rather limited) scope of each individual 
+project, putting a lot of effort in a generic support platform is
+often considered to be &ldquo;overkill&rdquo;, or even not taken into
+consideration at all. However, because of the large scope of the
+&orocos; project, the supporting code (the &ldquo;Framework&rdquo;)
+gets a lot of attention. The hope is, of course, that this work will
+pay of by facilitating the developments for the other
+&ldquo;Users&rdquo;.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Component Builders.</emphasis>
+</para>
+<para>
+These developers implement basic robotics functionality, on top of the
+generic Framework. The functionality is offered as a
+&ldquo;service&rdquo;, in the form of a <emphasis>(Software)
+Component</emphasis>, <citation>Szyperski98</citation>. Such a
+component is not (necessarily) a full application in itself, but the
+Component Builders do their best to
+provide high-quality functionality, in an application-independent way.
+That is, the <emphasis>programming interface</emphasis> to the robotics
+functionality is rich and well documented, and the component can be
+used as a stand-alone part in various applications.
+</para>
+<para>
+Components come in roughly three different types. The simplest is an
+object-oriented <emphasis>class hierarchy</emphasis>, offering direct
+access to the objects data and functionality. The medium-level
+component provides <emphasis>monitored access</emphasis> to the
+objects' functionality, in the sense that it guarantees that different
+accesses do not interfere with each other, and that the object always
+remains in a consistent state. The highest-level Component has the
+properties as described in the <emphasis>CORBA Component
+Model</emphasis>. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Application Builders.</emphasis>
+</para>
+<para>
+These developers use the &orocos;' Framework and Components, and
+integrate them into one particular application. That means that they
+add a specific, application-dependent
+<emphasis>architecture</emphasis> and <emphasis>API</emphasis> on top
+of the functionalities offered by the Framework and the Components.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>End Users.</emphasis>
+</para>
+<para>
+These people use the products of the Application Builders to program
+and run their particular tasks.
+</para>
+</listitem>
+
+</orderedlist>
+The focus in the &orocos; project lies primarily with the Framework
+Builders and the Component Builders. But, since all contributors
+are motivated by their own particular applications, the needs of
+the Application Builders are also taken into account, albeit
+indirectly. 
+</para>
+<para>
+End Users do not directly belong to the target audience of
+the &orocos; project, because &orocos; concentrates on the common
+<emphasis>framework</emphasis>, independent of any application
+architecture. Serving the needs of the End Users is left to
+(commercial and non-commercial) Application Builders.
+</para>
+</sect2>
+
+
+<sect2 id="vision">
+<title>Vision</title>
+<para>
+<blockquote>
+<para>
+<emphasis>
+The long-term goal of &orocos; is to provide
+<emphasis>all possible</emphasis> software, for 
+<emphasis>all possible</emphasis> robots (manipulator arms, mobile
+robots, humanoids, rehabilitation devices, etc.).
+</emphasis>
+</para>
+</blockquote>
+This is a very ambitious goal, and will inevitably lead to a very
+large code tree, various sub-projects, and contributors that are only
+interested in one or two of these sub-projects. So, the danger of
+arriving at a chaotic and incoherent project is real.
+This danger will be fought by adhering to a clear
+&ldquo;roadmap&rdquo;, or &ldquo;vision&rdquo; for both of the
+following aspects (discussed in more detail in the following Sections):
+<orderedlist>
+
+<listitem>
+<para>
+<emphasis>Software engineering requirements.</emphasis>
+</para>
+<para>
+What quality and approach are expected from contributions to the project?
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Directory structure of the source code.</emphasis>
+</para>
+<para>
+How is the project structured into sub-projects?
+</para>
+</listitem>
+
+</orderedlist>
+The project maintainers will <emphasis>strictly impose</emphasis>
+adherence to the project's vision and roadmap when considering
+incorporation of contributions to the project. However, they always
+welcome a motivated discussion about these topics on the project's
+<ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+ mailinglist.
+</ulink>
+</para>
+
+
+<sect3 id="proj-dev-req">
+<title>Software engineering requirements</title>
+<para>
+&orocos; has a vision on <emphasis>how</emphasis> developers should
+design, implement and present new functionality, in order to guarantee
+the project's coherence and scalability. These are the software
+engineering guidelines that support the implementation of the
+project's vision:
+<orderedlist>
+
+<listitem>
+<para>
+<emphasis>Object-oriented design.</emphasis>
+</para>
+<para>
+This seems an obvious requirement for modern-day software development.
+However, the experience within the project has learned that designing
+an appropriate class hierarchy is a <emphasis>major</emphasis>
+challenge, mainly because of the diversity of the field.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Extreme decoupling and modularity.</emphasis>
+</para>
+<para>
+This is the fundamental criterium to keep in mind when designing
+and/or refactoring the project's class hierarchy.
+Object classes encapsulate data and activities, and the choice of
+classes should be such that:
+ <itemizedlist>
+
+ <listitem>
+ <para>
+The implementation of one class should not rely on knowing something
+about the internals of another class. Relying on such knowledge is
+called <emphasis>coupling</emphasis> between both classes, and this
+must be avoided at all costs, because it prevents the independent
+evolution or re-implementation of the classes.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+Every class should have an interface that fits more or less on one
+single page. Elaborate interfaces are a sign that the implemented
+functionality may better be split into multiple objects.
+ </para>
+ </listitem>
+
+ </itemizedlist>
+The strong desire to <emphasis>decouple</emphasis> software parts
+wherever possible is a key feature of the project; it may seem a bit
+of an overkill for each individual application built with the &orocos;
+code (and hence a burden for the individual contributor), but for the
+whole project it is expected to become its major competitive advantage.
+</para>
+</listitem>
+ 
+<listitem>
+<para>
+<emphasis>Small and shallow interfaces.</emphasis>
+</para>
+<para>
+It is useful to separate the <emphasis>interface</emphasis> of a
+certain functionality from its <emphasis>implementation</emphasis> (as
+a class or as a component). The interfaces are what Application
+Builders and End Users need to construct their programs; the
+class and component implementations are contructed by the Framework and
+Component Builders.
+</para>
+<para>
+Separated interfaces give more flexibility in changing
+implementations, and in allowing &ldquo;third-party&rdquo; providers
+of components. They also allow to discuss functionality without being
+biased by possible implementations problems or opportunities.
+</para>
+<para>
+&orocos; prefers interfaces that are:
+ <itemizedlist>
+
+ <listitem>
+ <para><emphasis>Small.</emphasis>
+This improves the focus of the interface, and hence (hopefully) its
+quality. In this sense, it corresponds to the minimality requirement
+discussed below.  Another motivation is that &orocos; wants to avoid
+&ldquo;exceptions&rdquo; in implementations of the interfaces: when
+the interface is large, the chance increases that a particular
+developer will not be able to provide a <emphasis>complete</emphasis>
+implementation. In that case, the implementation must return an
+exception &ldquo;functionality not implemented&rdquo;, and this
+complicates the execution logic of the component that uses the
+interface, and reduces the real-time performance.
+</para>
+ </listitem>
+
+ <listitem>
+ <para><emphasis>Shallow.</emphasis>
+In an object-oriented paradigm, much functionality is provided by
+class <emphasis>hierarchies</emphasis>. Every hierarchy may seem
+natural in the context on one particular application, but it will most
+certainly not be natural in other applications. For example, a
+robotics engineer may find it normal to have a &ldquo;robot&rdquo;
+object at the top of a large and deep hierarchy. But that same word
+&ldquo;robot&rdquo; will not be well received by machine tool builders
+that construct milling machines, or laser cutters. Although most of
+the functionality of motion control and task execution will be the
+same in both application areas. Therefore, class hierarchies should
+not be deep.
+</para>
+ </listitem>
+
+ </itemizedlist>
+In addition to the technical reasons to use small and shallow
+interfaces, they are a key feature for free software projects that
+expect significant contributions from their community: the complexity
+of the whole system can only be tackled by restricting the scope of
+each individual piece of code. An <emphasis>increased
+flexibility</emphasis> is a derived property that comes for free.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Distributable.</emphasis>
+</para>
+<para>
+Future robot control systems will most certainly use multiple
+processors, connected through a network with sensors and actuators
+that most probably will have their own embedded intelligence.
+Hence, the robot control software will have to be scalable and
+distributable.
+</para>
+<para>
+Having a design that is modular and maximally decoupled fulfills already
+more than half of the requirements for such distributed control
+systems. The other half will come from making software components
+with an internal design that allows their different parts to cooperate
+over a network.
+</para>
+<para>
+Two software aspects are important in this respect: the ubiquitous use
+of <emphasis>events</emphasis> for synchronization, and of a
+<emphasis>virtual (network) time</emphasis> (instead of the time
+delivered by the local processor). Both events and virtual time are
+general <emphasis>abstractions</emphasis>, that are easily mapped on
+corresponding primitives of the particular operating system the
+component is running on. For example, a hardware interrupt is also an
+event, and for the logic of a component it almost never matters
+whether the event comes from the hardware or from a local
+&ldquo;stub&rdquo; of remote hardware.
+So, make sure that your components don't use system calls 
+that tie them to a particular operating system or a particular device.
+</para>
+<para>
+&orocos; provides <emphasis>abstraction layers</emphasis> for both the
+operating system and the interfacing hardware. These abstractions
+follow the principles of minimality and decoupling. Especially for the
+operating system abstraction this is a big advantage, because typical
+(real-time) OSs tend to have way too large and too primitive APIs,
+that are easily abused.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Minimalistic .</emphasis>
+</para>
+<para>
+Developers should only offer features that are
+<emphasis>absolutely</emphasis> necessary: practical experience has
+learned that the availability of superfluous APIs leads to
+implementations with similar functionality but with different
+implementations. And, worse, to implementations where the programmers
+do not know very well what parts of the available functionality to
+use.  Both effects lead to <emphasis>sub-optimal</emphasis> results,
+and applications that are more difficult to re-use and maintain.
+</para>
+<para>
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Platform independent.</emphasis>
+</para>
+<para>
+Because of its Free Software nature, Linux is the normal environment
+for both host development and target runtimes. This can in practice
+lead very quickly to an unperceived bias towards Linux, that would
+compromise the portability to other operating systems. Developers must
+try to use only portable language constructs.
+</para>
+<para>
+Of course, sooner or later, the project will be confronted with the
+trade-off between portability and the choice for a particular desired
+feature that can not be supported by all initially targeted platforms.
+These trade-offs must be discussed on the mailinglist.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Thorough large-scale design.</emphasis>
+</para>
+<para>
+Developers must <emphasis>always</emphasis> consider that their
+designs will possibly be used in a very complex, distributed and hard
+real-time implementation. Therefore, the design of such large-scale
+robotics systems must be made clear before starting the implementation
+of classes and components. And the implementators must provide
+contributions that can safely and efficiently work in such
+large-scale systems.
+</para>
+<para>
+One particular item is <emphasis>real-time</emphasis>: if an algorithm
+<emphasis>is</emphasis> inherently real-time (i.e., it has a
+deterministic execution time), then its implementation
+<emphasis>must</emphasis> be implemented with constructs that are
+real-time safe. For example, all variables and temporary objects must
+be allocated before execution of the functionality proper, and no
+exceptions or run-time type checking must be used. (So, Java
+and C++ programmers need to be careful.)
+</para>
+</listitem>
+
+</orderedlist>
+</para>
+<para>
+All these requirements illustrate the project's emphasis on
+<emphasis>design</emphasis>: most things in robotics have already been
+tried out in various ways, so the &orocos; implementation should
+<emphasis>at least</emphasis> be as good as the best of these
+tried-out predecessors. In addition, &orocos; aims at a number of
+extra features, such as &ldquo;ultimate generality&rdquo;.
+This generality is the reason why the project follows a development
+approach which is maybe a bit different from traditional free software
+projects: the trade-off during the current development is towards
+having a very well thought-out and very general design, and not in the
+first place towards adding as many functionality features as possible.
+This approach is motivated by the observation that all existing robot
+control software packages are very difficult to use in applications
+that are different from the first application they were built for. And
+that sharing source or binary code is very hard in practice, because
+of ill-defined interfaces, that are most often also strongly coupled
+to one particular application.
+</para>
+<para>
+The development approach of the project follows from the
+above-mentioned vision: the project works in a &ldquo;bottom-up&rdquo;
+fashion, on small interfaces at a time, <emphasis>but</emphasis> while
+keeping the long-term goal in mind. So, it is currently building the
+lowest levels of the framework, such as the hard real-time
+&ldquo;Core&rdquo;, motion control functionality, primitives for
+communication between &orocos; components, robot kinematics, etc.
+</para>
+</sect3>
+
+
+<sect3 id="proj-structure">
+<title>Code directory structure: the Packages</title>
+<para>
+The functionality available in &orocos; is structured in a number of
+sub-projects; each of these is called an
+<emphasis>(&orocos;) Package</emphasis>.
+A Package contains a coherent and related set of functionality, in the
+form of documentation, and <emphasis>class libraries</emphasis> and
+<emphasis>components</emphasis>, <xref linkend="components"/>.  In
+principle, each Package could be a separate, independent project in
+itself, and the couplings with &orocos; are loose. 
+</para>
+<para>
+The following Packages exist, are will be created in the near future:
+motion specification, kinematics and dynamics, robotics device
+drivers, task specification, task sequencing, user interfacing,
+simulation, control, framework core, generic control core.
+robots, XY tables, pan-tilt units.
+</para>
+<para>
+The directories of each Package contain a detailed documentation of
+the Package in their local <filename class="directory">/doc</filename>
+directories.
+</para>
+
+</sect3>
+
+</sect2>
+
+
+<sect2 id="components">
+<title>Objects and Components</title>
+<para>
+The basic functionality of &orocos; is implemented in libraries of 
+object classes. Objects are the building blocks for encapsulation and
+modularity; their functionality is accessed by directly calling the
+member and data functions on objects created by those libraries. But
+&orocos; also want to offer &ldquo;higher-level&rdquo; objects:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis>Monitors.</emphasis>
+</para>
+<para>
+A Monitor, or &ldquo;protected object&rdquo; doesn't allow direct
+calls on its member and data functions. Instead, it implements its own
+internal <emphasis>serialization</emphasis> mechanism to allow only
+one calling client at a time to really access the object.
+</para>
+<para>
+Monitors offer more protection, and are hence better suited to be used
+in a &ldquo;hostile&rdquo; application environment, but they are much
+less efficient than &ldquo;naked&rdquo; objects.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Components.</emphasis>
+</para>
+<para>
+A Component is also an encapsulation for the functionalities of one or
+more objects, but it is more: it behaves as a full application in
+itself, that can dynamically be created or deleted, possibly while
+preserving its state during the period it is deactivated. A Component
+also notifies a so-called <emphasis>broker agent</emphasis> when it
+comes on-line, what kind of services it offers, and how these services
+must be accessed. This means that it allows other Components to
+discover it on-line, and to &ldquo;browse&rdquo; its interface. 
+</para>
+</listitem>
+
+</itemizedlist>
+&orocos; is inspired by the <emphasis>CORBA</emphasis>
+specification for components (version 3.0 of the CORBA standard). This
+doesn't mean at all that CORBA will be the default way to access
+&orocos;' functionalities (especially not at the real time level), but
+it would be stupid not to use the experience, suggestions and tools
+available in the CORBA world.
+</para>
+<para>
+&orocos; imposes a consistent framework interface for its components;
+i.e., they use the same API to be activated/deactivated, configured
+and accessed in an application that runs in the &orocos; Core. Most
+&orocos; Packages will contain one or more Components.
+</para>
+<para>
+The documentation of the Core Package contains more details.
+</para>
+</sect2>
+
+
+<sect2 id="history">
+<title>Project history</title>
+<para>
+The idea for starting a Free Software project for robot control was
+born in December 2000, motivated by over two decades of rather
+disappointing experiences and failures in trying to use commercial
+robot control software for advanced robotics research. The idea,
+together with a draft of a possible project proposal, was launched on
+the mailinglist of <ulink url="http://www.euron.org/">EURON</ulink>,
+the European Robotics Network. This email gave rise to a lot of
+responses, even though it was sent during the Christmas period. Within
+about two weeks, a proposal was made ready, and sent to the European
+Union. Contacts with the responsible Officer made clear that the size
+of the project had to be very modest, so that only three partners were
+selected: K.U.Leuven in Belgium, LAAS Toulouse in France, and KTH
+Stockholm in Sweden. Each of these three groups would later receive
+only one full man-year of support. The EU-sponsored project started in
+September 2001, and has a duration for two years.
+</para>
+<para>
+The EU sponsoring also provides some travel grants to invite
+non-sponsored people to the &orocos; project meetings. This, together
+with the classical attributes of a 
+<ulink url="http://www.orocos.org">web page</ulink> and a 
+<ulink
+  url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist
+</ulink>,
+stimulated quite some discussions and exchanges of ideas.
+</para>
+<para>
+A first version of the hard real-time core was released in the Summer
+of 2002, but it was very preliminary and hard to use. In November
+2002, the first version was released with which simple position and
+velocity control of a six degrees-of-freedom robot manipulator arm was
+possible.
+</para>
+<para>
+Two packages with support for distributed, CORBA-based communication
+between robot systems were also released in 2002.
+</para>
+</sect2>
+
+
+</sect1>
+
+
+<sect1 id="installtion">
+    <title>Installation and configuration</title>
+
+    <sect2>
+      <title>Supported platforms</title>
+      <para>
+	&orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
+	(<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
+	userspace, and RTLinux (<ulink
+	  url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink>). So,
+	you can first write your software as a normal program, using the framework
+	for testing and debugging purposes. But, of course, you will not have realtime functionality
+	in userspace. After testing, you can make your program into a kernel module
+	and load it as a realtime application. Only recompilation is needed.
+	<note><para>To make this possible, you must use &orocos; libraries and
+	  header files.</para> </note>
+      </para>
+      <para>
+	RTAI and LXRT is the best supported platform at this moment. RTLinux can
+only partially use all &orocos; features, because it lacks a decent
+kernel space memory manager.
+      </para>
+</sect2>
+
+<sect2>
+      <title>The versioning scheme</title>
+      <para>
+&orocos; uses the well-known even/stable uneven/unstable version
+numbering scheme, just as the Linux kernel and many other projects. A
+particular version is represented by three numbers separated by dots.
+An <emphasis>even</emphasis> middle number indicates a
+<emphasis>stable</emphasis> version. For example :
+        <itemizedlist>
+	  <listitem><para>0.1.4 : Release 0, unstable (1), revision 4.</para></listitem>
+	  <listitem><para>1.2.1 : Release 1, stable   (2), revision 1.</para></listitem>
+        </itemizedlist>
+        This numbering allows to develop and release two kinds of versions,
+        where the unstable version is mainly for testing new features and designs and
+        the stable version is for people wanting to run a reliable system.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Installing Orocos from CVS</title>
+      <para>
+	Installing &orocos; from &cvs; gets you the latest and greatest, but requires
+	some familiarity
+	with the tools we use.  This section will do its best to help you through
+	the CVS installation
+	process.
+      </para>
+      <para>
+The commands below show how to obtain the <emphasis>Core</emphasis>
+Package from the CVS tree; other parts of the &orocos; code are
+retrieved in a similar way.
+	<screen width="60">
+	  cvs -d:pserver:cvsread@cvs.mech.kuleuven.ac.be:/repos/pub login
+	  cvs -d:pserver:cvsread@cvs.mech.kuleuven.ac.be:/repos/pub co orocos/core
+	  cd orocos/core
+	</screen>
+Make sure you have &ldquo;<application>cvs</application>&rdquo;
+installed; enter &ldquo;anon&rdquo; as password when asked for.
+      </para>
+      <para>
+The next step requires that you use
+<ulink url="http://www.gnu.org/software/automake/">automake</ulink>
+version 1.6.3,
+<ulink url="http://www.gnu.org/software/autoconf/">autconf</ulink>
+version 2.54, and libtool version 1.4 or higher. You can check your
+versions with the <parameter>--version</parameter> option:
+	<screen>
+	  $ automake --version
+	  automake (GNU automake) 1.6.3
+	  ...
+	  $ autoconf --version
+	  autoconf (GNU Autoconf) 2.54
+	  ...
+	  $ libtool --version
+	  ltmain.sh (GNU libtool) 1.4.2 (1.922.2.53 2001/09/11 03:18:52)
+	</screen>
+<note>You need these programs if you intend to modify the makefiles</note>
+When you get something similar, proceed with calling the <command>
+./autogen.sh </command> command, in order to initialize the
+<filename>autoconf</filename> and <filename>automake</filename> files:
+	<screen>
+	  ./autogen.sh
+	</screen>
+The next steps are exactly the same as when you install the system
+starting from a so-called &ldquo;tarball&rdquo;, as explained in the
+next section. Of course, you don't have to apply the
+<command>tar</command> command when installing from CVS.
+      </para>
+
+    </sect2>
+    <sect2>
+      <title>Installing Orocos from the tar.gz package</title>
+      <para>
+First, get the tarball from the &orocos; web site; it is a file named
+like <filename>orocos-core-0.9.0.tar.gz</filename>. Extract the
+package into an appropriate directory:
+<screen>
+	  tar xvzf orocos-core-0.9.0.tar.gz
+	  cd orocos-core-0.9.0
+</screen>
+</para>
+<para>
+	&orocos; uses the GNU Autotools for configuration and building.
+	Therefore, the configuration and building
+	process is pretty well standardised, and you can use the familiar procedure.
+        (We assume here that you already set up a properly working operating
+	system/Linux kernel; if not, take a look at the
+<ulink url="http://www.linux.org/docs/ldp/howto/Kernel-HOWTO.html">Linux kernel
+	  HOWTO</ulink> and <xref linkend="general_setup_rtai"/> for more
+	information.)
+      </para>
+      <sect3>
+	<title>Using &orocos; concurrently for multiple targets</title>
+	<para>
+	  The easiest way to configure, build and use &orocos; for multiple
+	  targets is by using different build directories for each target in the
+	  package root directory.  The following example shows how you can try
+	  to build for every supported platform. You'll probably like to choose one
+	  or two instead of all. It's the idea that counts.
+	  <note> <para>The following examples will only work for the operating systems
+	    you have installed.</para> </note>
+	</para>
+	
+	<screen>
+	  tar xvzf orocos-core-0.9.0.tar.gz
+	  cd orocos-core-0.9.0
+	  mkdir build-rtai
+	  mkdir bulid-lxrt
+	  mkdir build-rtlinux
+	  mkdir build-gnulinux
+	  cd build-rtai
+	  ../configure --with-rtai
+	  cd build-lxrt
+	  ../configure --with-lxrt
+	  cd ../build-rtlinux
+	  ../configure --with-rtlinux
+	  cd ../build-gnulinux
+	  ../configure
+	</screen>
+
+	<note>
+<para>
+If this step fails, it means that you have not everyting installed
+which is needed for a basic &orocos; build. Most users don't have the
+Boost library (<filename>libboost-dev</filename> or
+l<filename>ibboost-devel</filename>) installed.  Please install this
+package from the binary or source package repository of your Linux
+distribution, or download and install it from the <ulink
+url="http://www.boost.org">Boost project.</ulink> As soon as the
+configure step succeeds, all the rest will succeed too. Please use the
+mailinglist at <email>orocos@mail.mech.kuleuven.ac.be</email> for
+technical support.
+</para>
+</note>
+	
+	<para>
+	  The following commands build &orocos; for those different
+	  targets, and perform the basic tests.
+	</para>
+	
+	<screen>
+	  cd ../build-gnulinux
+	  make
+	  make check
+	  cd ../build-rtlinux
+	  make
+	  make check
+	  cd ../build-rtai
+	  make 
+	  make check
+	  cd ../build-lxrt
+	  make 
+	  make check
+	</screen>
+	<para>
+	  You can use the <command>make check</command> command to start building
+	  test programs and executing them. The <command>make docs</command> or
+	  <command>doxygen</command> commands build API documentation.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Installing an Orocos Package </title>
+	<para>After you have compiled the &orocos; Package, you have to
+install it, so that other packages can use its include files and its
+compiled libraries. There are two install instructions:</para>
+<screen>
+make install
+make modules_install
+</screen>
+<para>
+The <command>make install</command> command installs the header files
+for <emphasis>all</emphasis> operating systems and the necessary
+<filename>liborocos_core-gnulinux.a</filename> for the
+<parameter>gnulinux</parameter> target.
+The <command>make module_install</command> command installs the kernel
+modules and some special files other packages will need to build their
+own kernel modules. The special files will be installed in the 
+<filename class="directory">/prefix/share/orocos/</filename>
+directory, the kernel modules will be installed in the
+<filename class="directory">/lib/modules/kernel.version/orocos</filename>
+directory.
+</para>
+<para>
+If you build for RTAI or RTLinux, you have to do this at
+least once as a normal user, so that the special files will get
+installed.  You have to be root if you also want to have the kernel
+modules installed in the appropriate directory.
+</para>
+<tip>
+ <para>If other packages complain about a missing
+<filename>crt.o</filename>, you probably forgot the 
+<command>make modules_install</command> command.
+	  </para>
+	</tip>
+      </sect3>
+</sect2>
+
+<sect2>
+<title>Configuration</title>
+<sect3>
+<title>Configuring an Orocos Package</title>
+<para>
+	  By default, &orocos; will be built to install in
+	  <filename class="directory">/usr/local/orocos</filename>.
+	  You can use the standard <parameter>prefix</parameter> flag to specify a
+	  different path; for example:
+	  <userinput>./configure --prefix=/i/want/orocos/over/there</userinput>.
+	  By running <command>./configure --help</command> you can see the possible flags
+	  you can pass to
+	  the configure script. You can choose to build for userspace GNU/Linux, for
+	  RTLinux, or for RTAI.
+	</para>
+
+	<para>
+	  Just running <command>./configure</command> or <command>./configure
+	    --with-gnulinux</command> builds
+	  for userspace GNU/Linux. The necessary compilation flags will be determined
+	  automatically.
+	</para>
+
+	<para>
+	  When running <command>./configure --with-rtlinux</command> the configure
+	  scripts will search for RTLinux and it will configure the source
+	  tree for it. The configure script will automatically determine the
+	  correct flags to build &orocos; with. If it cannot find RTLinux,
+it will notify you and you can run
+<command>./configure --with-rtlinux=/usr/src/rtlinux-3.1</command>, or
+use a similar indication of where the compiler can find the RTLinux
+you are using.
+	</para>
+
+	<para>
+	  When running <command>./configure --with-rtai</command>, the
+configure scripts will search for RTAI and it will configure the
+source tree for it. The configure script will automatically determine
+the correct flags to build &orocos; with. If it cannot find RTAI it
+will notify you of this and you can run
+<command>./configure --with-rtai=/usr/src/rtai-24.1.11</command>, or a
+similar indication of where the compiler can find the location of the
+	  RTAI you are using.
+	  <tip>
+	    <para>
+	      Read <xref linkend="general_setup_rtai"/> about possible patches you
+	      should apply to RTAI before a run will compile.
+	    </para>
+	  </tip>
+	</para>
+
+      </sect3>
+
+      <sect3>
+	<title>Compiler flags</title>
+	<para>
+	  By default, the configuration script takes your default system compilation
+	  flags and adds the necessary &orocos;
+	  flags. On most systems, this means that the <parameter>-O2</parameter> flag will be used by default.
+	  You can override this
+	  by using <command>./configure CXXFLAGS=-O0</command>.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2 id="general_setup_rtai">
+      <title >Configuring for RTAI</title>
+<para>
+	Read first the 'Getting Started' section from 
+        <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this page</ulink> if you
+	are not familiar with RTAI instalation
+</para>
+<para>
+We recommend using RTAI version 24.1.11. You can obtain it from 
+<ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
+<screen>
+	  export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
+	  cvs login
+      
+password: anoncvs
+
+	  cvs -z3 co etna
+	  cvs -z3 up 
+</screen>
+Read The README.* files in the
+<filename class="directory">rtai</filename> directory for detailed
+instructions.  First, you need to patch your Linux kernel. A patch per
+kernel version can be found in the rtai/patches directory. You should
+apply the <filename>patch-X.Y.Z-adeos-r6</filename> patch to a clean
+Linux kernel.  We refer to the RTAI installation instructions for more
+details.
+      </para>
+      <para>
+      There's an extra Orocos patch you need to apply to the stable RTAI branch.
+      You find this patch in <filename> core/doc/rtai-24.1.11.patch </filename>
+      and apply it to your RTAI tree:
+      <screen>
+      cp rtai-24.1.11.patch /usr/src/rtai/
+      cd /usr/src/rtai
+      patch -p0 &lt; rtai-24.1.11.patch
+    </screen>
+    Next do <command>make menuconfig; make dep; make;</command>
+    </para>
+<para>
+As a last measure, take a look at the main RTAI Makefile (e.g.
+	<filename>/usr/src/rtai/Makefile</filename>), and check whether the
+line <literal>SUBDIRS</literal> contains
+<parameter>rtai_cpp</parameter>. If not, add it before you start the 
+building process. 
+      </para>
+      <sect3>
+        <title> RTAI settings </title>
+        <para>
+	  RTAI comes with extensive documentation for configuration and
+	  installation.
+	  In the configuration process, make sure that you enable the following
+	  options:
+	  <screen>
+	    --- Code maturity level options
+	    [*] Prompt for experimental code
+	    --- Scheduler
+	    &lt;*&gt; UP Scheduler
+	    --- Features
+	    [*] Enable floating point support
+	    &lt;*&gt; RTAI Math library support
+	    [*] Strange APIC support
+	    --- Subsystems
+            &lt;*&gt; RT memory manager
+            [*]   Use vmalloc() instead of kmalloc()
+            &lt;M&gt; FIFOs
+            &lt;M&gt; Shared Memory
+            &lt;M&gt; POSIX API
+            &lt; &gt; Watchdog
+            &lt;M&gt; LXRT - Realtime in User Space
+            &lt;M&gt; NEWLXRT - Native Linux Hard Realtime (NEW)
+            &lt;M&gt; C++ support
+            [*]   New rtai_cpp interface (EXPERIMENTAL)
+            &lt;M&gt; Tasklets
+            &lt;M&gt; Bits
+            &lt;M&gt; Typed mailboxes
+            &lt; &gt; Real-Time serial driver (rt_com)
+            &lt; &gt; Real-Time serial driver (spdrv) (NEW)
+            &lt; &gt; Real-Time networking (rtnet) (EXPERIMENTAL)
+<!---	    &lt;M&gt; POSIX API
+	    &lt;M&gt; RT memory manager
+	    [*]   Use vmalloc() instead of kmalloc()
+	    &lt;M&gt; FIFOs
+	    &lt;M&gt; LXRT - Realtime in User Space
+	    &lt; &gt;   LXRT Real-Time Workshop wrapper
+	    &lt; &gt;   LXRT rt_com wrapper
+	    &lt; &gt;   LXRT FIFOs wrapper
+	    &lt;M&gt; C++ support
+	    [*]   New rtai_cpp interface (EXPERIMENTAL)
+	    &lt;M&gt; Tasklets
+-->
+	  </screen>
+	  After configuring you can run 'make' in your RTAI directory
+        </para>
+      </sect3>
+      <sect3>
+        <title> Loading RTAI without LXRT (not recommended)</title>
+        <para>
+	  To enable RTAI without LXRT run in your rtai directory one of the programs
+<screen>
+./setsched up    # for uniprocessor systems OR
+./setsched smp   # for smp systems
+</screen>
+	  next you can 'make  install'. 
+	  Make sure that the following RTAI kernel modules are loaded:
+	  <itemizedlist>
+	    <listitem><para>rtai_cpp</para></listitem>
+	    <listitem><para>rtai_sched_ext</para></listitem>
+	    <listitem><para>rtai_bits</para></listitem>
+	    <listitem><para>rtai_tbx</para></listitem>
+	    <listitem><para>rtai_pthread</para></listitem>
+	    <listitem><para>rtai_sched</para></listitem>
+	    <listitem><para>rtai_fifos</para></listitem>
+	    <listitem><para>rtai_utils</para></listitem>
+	    <listitem><para>rt_mem_mgr</para></listitem>
+	    <listitem><para>rtai</para></listitem>
+	    <listitem><para>adeos</para></listitem>
+	  </itemizedlist>
+	  For example, by executing as root:
+	  <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>.
+        </para>
+      </sect3>
+      <sect3>
+        <title> Loading RTAI with (NEW)LXRT (recommended)</title>
+        <para>
+	  NEWLXRT is a all-in-one scheduler that works for kernel and userspace.
+	  So if you use this, you can still run kernel programs but have the ability
+	  to run realtime programs in userspace. Orocos provides you the libraries
+	  to build these programs. When we say LXRT, we mean NEWLXRT.
+	  To enable RTAI with NEWLXRT run in your rtai directory the program
+<screen>
+./setsched newlxrt
+</screen>
+	  next you can 'make  install'. 
+	  Make sure that the following RTAI kernel modules are loaded for using:
+	  <itemizedlist>
+	    <listitem><para>rtai_fifos_lxrt</para></listitem>
+	    <listitem><para>rtai_lxrt</para></listitem>
+	    <listitem><para>rtai_sched</para></listitem>
+	    <listitem><para>rtai_fifos</para></listitem>
+	    <listitem><para>rt_mem_mgr</para></listitem>
+	    <listitem><para>rtai</para></listitem>
+	    <listitem><para>adeos</para></listitem>
+	  </itemizedlist>
+	  For example, by executing as root:
+	  <command>modprobe rtai_lxrt; modprobe rtai_fifos_lxrt</command>.
+        </para>
+      <para>For a more detailed description of what (NEW)LXRT really is,
+      you can read the LXRT HOWTO 
+      <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">here</ulink>
+      </para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Configuring for RTLinux</title>
+<para>
+The latest free release of RTLinux was 3.2. RTLinux has no memory
+management, and this puts a limit on our use of STL (Standard Template
+Library) vectors in realtime. (In fact, we need maps too.) For these
+reasons, RTLinux is less supported and might lead to unstability. 
+</para>
+<para>
+	For a recent kernel patch, look at <ulink
+	  url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to
+	  newer Linux kernels</ulink> webpage. The RTLinux 
+	<ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more
+	information.
+      </para>
+      
+      <sect3>
+        <title>Loading RTLinux</title>
+	<para>
+	  The following RTLinux kernel modules should be loaded in the specified order:
+	  <orderedlist>
+	    <listitem><para>rtl</para></listitem>
+	    <listitem><para>rtl_time</para></listitem>
+	    <listitem><para>rtl_posixio</para></listitem>
+	    <listitem><para>rtl_fifo</para></listitem>
+	    <listitem><para>rtl_sched</para></listitem>
+	  </orderedlist>
+	  You can use the <command>modprobe</command> or <command>insmod</command> as root
+	  to load these needed kernel modules.
+	</para>
+      </sect3>
+    </sect2> 
+
+    
+  </sect1>
+
+<sect1 id="started">
+<title>Getting started with the code</title>
+    <para>
+    This Section provides the semantics of the services available in the
+    &orocos; Packages.
+    </para>
+    
+    <sect2>
+    <title>A quick test</title>
+        <para>
+        To quickly test &orocos; code, you can run <command>make
+        check</command> in your build directory. You have to do this as root
+        when you are building for RTAI or RTLinux. You'll see a lot of text
+        scrolling over the screen, being the output of the programs in the
+        <filename>tests</filename> directory.  You can start examining
+        <filename>test.cpp</filename> and work your way up to more complex
+        tests. We may provide, some time in the near future, a <command>make
+        examples</command> target and an examples subdirectory. But for now,
+        the tests are the example programs. The tests are called by the
+        <filename>UnitTest.hpp</filename> file. See the documentation in that
+        file for how it works.
+        </para>
+        </sect2>
+        <sect2>
+          <title> Where's main() ?</title>
+          <para>
+            The first question asked by many users is : How do I write a test program to see
+            how it works? 
+          </para>
+        <para>
+        The short answer is: modify a program in the
+        <filename class="directory">tests</filename> directory.  The even
+        shorter answer is: <emphasis>There is no main (Neo realized that
+        too!). </emphasis> 
+        In the current implementation, realtime execution in the kernel
+        of your program is provided by inserting kernel modules into the
+        kernel using the commands <command>insmod</command> and
+        <command>rmmod</command> as the root user. <command>insmod</command>
+        will call a function <function>init_module()</function> and
+        <command>rmmod</command> will call a function
+        <function>cleanup_module()</function>. You must
+        provide them, so that when they are called, they start your realtime
+        program. You can see an example in <filename>src/module.c</filename>.
+        As you will see, <filename>module.c</filename> calls our real C++
+        function which then starts or stops our program.
+        <filename>src/moduleStartStop.c</filename> is another example we use
+        for starting and stopping the framework in kernel space.
+        </para>
+        <para>
+        When you want to run the framework in userspace or LXRT, you
+        <emphasis>can</emphasis> write your own <function>main()</function>
+        function which includes the <filename>Framework.hpp</filename> file
+        and starts the framework manually. You can take a look at
+        <filename>tests/TestMain.cpp</filename> to see how that works.
+        For beginners, this is really the easiest way.
+        </para>
+    </sect2>
+    
+    <sect2>
+      <title> How do I compile my program ? </title>
+      <para> 
+	First of all, you can download the orocos-template
+	package which provides you with a documented template how to
+	use it. You do need the automake and autoconf tools to use this.
+	</para>
+      <para>
+	Take a look at the <filename>Makefile.am</filename> file in the
+<filename class="directory">tests</filename> directory.  You will see
+first a list of all the header files and below that, some AutoMake
+directives abou how to build a specific program. 
+	<screen>
+	  test_gnulinux_SOURCES = test.cpp module.c
+	  test_gnulinux_LDADD = -L ../src -lorocos_core-gnulinux -lstdc++
+	</screen>
+	Above you see how the program <filename>test-gnulinux</filename> is
+compiled from <filename>test.cpp</filename>. LXRT has a similar syntax.
+ We suggest you copy/paste
+this line and fill in your own filenames. For a realtime kernel module
+you need something like the following line:
+	<screen>
+	  test-rt.sh:
+	          $(top_srcdir)/tests/create_module_testscript.sh test-rt
+
+	  test_rt_o_SOURCES = test.cpp module.c
+
+	  test-rt.o: ${CRTBEGIN} $(test_rt_o_OBJECTS) ${CRTEND}
+	          ${LD} -r -o $@ ${CRTBEGIN} ${test_rt_o_OBJECTS} ${CRTEND} -lm -lc
+	</screen>
+The first two lines are common for all tests and instruct how a
+start/stop shell script must be made. The next line says that the
+module <filename>test-rt.o</filename> consists of two source files.
+The next two lines are standard for linking kernel modules in
+&orocos;.  A copy paste of these five lines should do for making your
+own kernel module.  You are obliged to add the programs name to the
+<literal>EXTRA_PROGRAMS</literal> line on top of your
+<filename>Makefile.am</filename>.
+      </para>
+      <para>
+If you happened to rename the <filename>test-rt.o</filename> or
+<filename>test-gnulinux</filename> targets (or added your own), you
+need to add the new name to the <filename>configure.ac</filename> file
+in the packages root directory:
+	<screen>
+	  OROCOS_PRODUCTS_RTLINUX(
+	  [orocos_core-rtlinux.o orocos_core_run-rt.o],
+	  [test-rt.o test_heartbeat-rt.o test_event-rt.o test_eventinterrupt-rt.o]
+	  )
+	</screen>
+	You can see in the above example that RTLinux has two kernel modules
+	<filename>orocos_core-rtlinux.o</filename> and
+<filename>orocos_core_run-rt.o</filename> 
+	as main products. The test products are listed below. Every target operating
+	system has this macro for specifying what should be built. So you
+	can define your own kernel module or user program.
+</para>
+<para>
+Once you modified the source files and the <filename>Makefile.am</filename>
+and <filename>configure.ac</filename>, you can rerun make in your
+build directory.
+
+ <note>
+<para> Changing your <filename>Makefile.am</filename> in your
+<filename class="directory">src</filename> directory will result in a
+rebuilding of the Makefile in your build directory. You will need the
+automake and autoconf tools which are probably provided by your Linux
+distribution.  See the installation Section for more information.
+</para>
+ </note>
+</para>
+<para>
+	Yes, we are thinking about providing a template package with everything
+	in it. However, once you understand the above concepts, you can apply
+	them in every &orocos; package. 
+</para>
+</sect2>
+    
+</sect1>
+
+<sect1>
+<title>Examples</title>
+<para>
+The project maintainers intend to write many example programs to
+demonstrate how to build components and applications. At this time,
+only the test directories contain some usage examples, but they may
+not always be sufficiently clear. Please, post your example programs
+on the mailing list, and the project will gratefully accept the good
+ones.
+</para>
+</sect1>
+
+
+<sect1>
+ <title>Todo</title>
+<para>
+The current Orocos framework has the following Packages: core, motioncontrol,
+drivers, interfacing, lrl (Leuvens Robotics Library) and robots. 
+Besides improving these Packages, some new Packages are needed:
+<itemizedlist>
+	<listitem><para>(Graphical) configuration: generating components 
+	    ineractively with a (G)UI</para></listitem>
+	<listitem><para>Remote Access: secure communication for
+	    accessing the framework over a network</para></listitem>
+      </itemizedlist>
+    </para>
+    
+  </sect1>
+  <!--
+  Having a glossary would be very helpfull for those trying to understand
+  &orocos;.
+
+  <glossary>
+  <glossentry id="gnu">
+  <glossterm>Concurrent Versioning System</glossterm>
+  <acronym>CVS</acronym>
+  <glossdef>
+  <para>
+  CVS is a version control system, which allows you to keep old versions
+  of files (usually source code), keep a log of who, when, and why
+  changes occurred, etc., like RCS or SCCS.  Unlike the simpler systems,
+  CVS does not just operate on one file at a time or one directory at a
+  time, but operates on hierarchical collections of directories
+  consisting of version controlled files.
+      </para>
+  <glossseealso otherterm="gnu">GNU</glossseealso>
+    </glossdef>
+  </glossentry>
+</glossary>
+  -->
+
+<bibliography>
+<title>Bibliography</title>
+
+<biblioentry xreflabel="posa96">
+  <title>Pattern-oriented software architecture: a system of
+         patterns
+  </title>
+  <authorgroup>
+    <author>
+      <firstname>Frank</firstname>
+      <surname>Buschmann</surname>
+    </author>
+    <author>
+      <firstname>Regine</firstname>
+      <surname>Meunier</surname>
+    </author>
+    <author>
+      <firstname>Hans</firstname>
+      <surname>Rohnert</surname>
+    </author>
+  </authorgroup>
+  <pubdate>1996</pubdate>
+  <publisher> <publishername>Wiley Chicester</publishername>
+</publisher>
+</biblioentry>
+
+
+<biblioentry xreflabel="gof94">
+  <title>Design Patterns Elements of Reusable Object-Oriented Software
+  </title>
+  <authorgroup>
+    <author>
+      <firstname>Erich</firstname>
+      <surname>Gamma</surname>
+    </author>
+    <author>
+      <firstname>Richard</firstname>
+      <surname>Helm</surname>
+    </author>
+    <author>
+      <firstname>Ralph</firstname>
+      <surname>Johnson</surname>
+    </author>
+    <author>
+      <firstname>John</firstname>
+      <surname>Vlissides</surname>
+    </author>
+  </authorgroup>
+  <pubdate>1994</pubdate>
+  <publisher> <publishername>Addison Wesley</publishername>
+</publisher>
+</biblioentry>
+
+
+<biblioentry xreflabel="Johnson97">
+ <biblioset relation="article">
+  <title>Frameworks = (components + patterns)</title>
+  <authorgroup>
+    <author>
+      <firstname>R. E.</firstname>
+      <surname>Johnson</surname>
+    </author>
+  </authorgroup>
+  <pagenums>39&ndash;42</pagenums>
+  <volumenum>40</volumenum><issuenum>10</issuenum>
+  <pubdate>1997</pubdate>
+ </biblioset>
+ <biblioset relation="journal">
+  <title>Communications of the ACM</title>
+ </biblioset>
+</biblioentry> 
+  
+
+<biblioentry xreflabel="Szyperski98">
+ <biblioset relation="book">
+  <title>Component Software: Beyond Object-Oriented Programming</title>
+  <authorgroup>
+    <author>
+      <firstname>C,</firstname>
+      <surname>Szyperski</surname>
+    </author>
+  </authorgroup>
+  <publisher>
+   <publishername>Addison Wesley</publishername>
+  </publisher>
+  <pubdate>1998</pubdate>
+ </biblioset>
+</biblioentry> 
+  
+</bibliography>
+
+</article>

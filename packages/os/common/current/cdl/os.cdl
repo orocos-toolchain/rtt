@@ -1,0 +1,114 @@
+cdl_package OROPKG_OS {
+    display "Common C and C++ OS interfaces"
+    include_dir os
+    
+    #compile ConditionVariableTimed.cxx  
+    compile startstop.cxx
+    compile StartStopManager.cxx
+
+    cdl_option OROBLD_OS_LINUX_KERNEL {
+	display "The source directory of the target Linux kernel"
+	description "
+This path is needed  when kernel modules or the like needs
+to be build."
+	flavor data
+	parent CYGPKG_NONE
+	default_value { "/usr/src/linux" }
+    }
+
+    cdl_option OROCLS_OS_MINIMAL_STREAMS {
+	display "Minimal streams implementation"
+	description "
+This provides an <iostream> like implementation of
+streams, but suitable for hard realtime at the cost
+of generality (so it is less configurable as the 
+std C++ library"
+	flavor bool
+	default_value 1
+	compile rtstreams.cxx
+	compile rtconversions.cxx  rtctype.cxx
+    }
+
+    cdl_option OROFUN_OS_ALTERNATE_RTTI {
+	display "Alternate C++ Run Time Type Info (EXP)"
+	flavor bool
+	default_value 0
+	compile rt_tinfo.cxx rt_tinfo2.cxx
+	active_if OROCFG_CORELIB_EXPERIMENTAL
+    }
+
+    cdl_interface OROINT_OS_GLOBAL_CRT {
+	display "Target calls global constructors"
+	flavor bool
+	requires OROINT_OS_GLOBAL_CRT <= 1
+	define HAVE_MANUAL_CRT
+    }
+
+    cdl_interface OROINT_OS_MAIN {
+	display "Target which simulates a main function"
+	flavor bool
+	requires OROINT_OS_MAIN <= 1
+	define HAVE_MANUAL_MAIN
+    }
+
+    cdl_interface OROINT_OS_EVENT_INTERRUPT {
+	display "Support for interrupt based Events"
+	flavor bool
+	requires OROINT_CORELIB_EVENT_INTERFACE
+    }
+
+    cdl_interface OROINT_OS_STDCXXLIB {
+	display "Support for the Standard C++ Library"
+	flavor bool
+	implements OROINT_OS_STDVECTOR
+	implements OROINT_OS_STDLIST
+	implements OROINT_OS_STDMAP
+	implements OROINT_OS_STDSTRING
+	implements OROINT_OS_STDIOSTREAM
+    }
+
+    cdl_interface OROINT_OS_STDVECTOR {
+	display "Vector of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STDLIST {
+	display "List of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STDQUEUE {
+	display "Queue of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STDMAP {
+	display "Map of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STDSTRING {
+	display "String of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STDIOSTREAM {
+	display "IOStreams of the Standard C++ Library"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_KERNEL {
+	display "Inside-kernel interface"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_KERNEL_MODULE {
+	display "Kernel module loader support"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_RECURSIVE_MUTEX {
+	display "Support for recursive mutex"
+	flavor bool
+    }
+}

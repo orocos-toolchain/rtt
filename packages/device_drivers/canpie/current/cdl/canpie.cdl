@@ -1,0 +1,137 @@
+
+cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
+    display "CANPie CAN Layer 2 Abstraction"
+
+    description " CANPie is written and copyright by Uwe Koppe of 
+     MicroControl Hmbg ( http://www.microcontrol.net/ ).
+     This package is distributed with his kind permission.
+     It is an abstraction layer for accessing CAN Controllers."
+
+    cdl_option OROPKG_DEVICE_DRIVERS_CANPIE_CFLAGS_ADD {
+        display "Linux include path"
+	flavor data
+        default_value { " -I".OROBLD_OS_LINUX_KERNEL."/include" }
+	active_if OROPKG_OS_GNULINUX
+    }
+
+
+    include_dir can
+
+    parent   OROPKG_DEVICE_DRIVERS
+
+    requires OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_INTERFACE
+    
+    cdl_interface OROINT_DEVICE_DRIVERS_CP_CORE {
+	display "CANPie Core implementation"
+	flavor bool
+    }
+
+    cdl_component OROFUN_DEVICE_DRIVERS_CANPIE_LIB {
+        no_define
+	display "Calls to kernel module"
+	description "
+Only LXRT currently supports userspace code to call the kernel module." 
+ 	calculated OROBLD_DEVICE_DRIVERS_CANPIE_KM && OROPKG_OS_LXRT
+	implements OROINT_DEVICE_DRIVERS_CANPIE
+
+	define_proc {
+            puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_CANPIE_T void"
+        }
+}
+
+cdl_option OROFUN_DEVICE_DRIVERS_CANPIE_IK {
+    display "Built-in device driver"
+    compile cpfifo.c  cpfilter.c cpmsg.c cpuser.c
+    calculated OROINT_OS_KERNEL
+    requires   OROINT_DEVICE_DRIVERS_CP_CORE
+    implements OROINT_DEVICE_DRIVERS_CANPIE
+    define_proc {
+	puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_CANPIE_T void"
+    }
+}
+
+cdl_component OROBLD_DEVICE_DRIVERS_CANPIE_SJA1000 {
+    display "SJA1000 CAN Driver implementation"
+    description "
+This provides a kernel module for accessing the common
+SJA1000 CAN controller."
+    default_value 1
+
+    define_proc {
+	puts $::cdl_header "#define OROBLD_DEVICE_DRIVERS_CP_CORE_H cpcore_lvd.h"
+    }
+
+    implements OROINT_DEVICE_DRIVERS_CP_CORE
+    
+    make -priority=100 {
+	cpcore.o: $(REPOSITORY)/$(PACKAGE)/src/cpcore_lvd.c
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+    }
+}
+
+cdl_component OROBLD_DEVICE_DRIVERS_CANPIE_KM {
+    display "Separate kernel module"
+    description "
+This option enables the build of a separate kernel module
+when the target requires it."
+    #requires !OROINT_OS_KERNEL
+    calculated !OROINT_OS_KERNEL && OROINT_OS_KERNEL_MODULE
+    requires   OROINT_DEVICE_DRIVERS_CP_CORE
+
+    cdl_option OROBLD_DEVICE_DRIVERS_CANPIE_GNULINUX {
+	display "Linux support"
+	description "The module can be loaded in a plain Linux kernel"
+	flavor bool
+	calculated OROPKG_OS_GNULINUX
+	make -priority=100 {
+	    cpint_linux.o: <PACKAGE>/src/cplinux.c
+	    $(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+	}
+    }
+
+    cdl_option OROBLD_DEVICE_DRIVERS_CANPIE_LXRT {
+	display "LXRT support"
+	description "Provides an LXRT interface"
+	flavor bool
+	calculated OROPKG_OS_LXRT
+	make -priority=100 {
+	    cpint_lxrt.o: <PACKAGE>/src/cplxrt.c
+	    $(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+	}
+    }
+    cdl_option ORONUM_CANPIE_LXRT_IDX {
+	flavor data
+	display "LXRT Interrupt index"
+	description "
+This index will be used to register the LXRT system calls
+and must be unique within the system."
+	default_value 15
+	legal_values 11 to 15
+	active_if OROPKG_OS_LXRT
+    }
+}
+	
+
+    make -priority=100 {
+	cpuser.o: $(REPOSITORY)/$(PACKAGE)/src/cpuser.c
+	$(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+    }
+    make -priority=100 {
+	cpfifo.o: $(REPOSITORY)/$(PACKAGE)/src/cpfifo.c
+	$(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+    }
+    make -priority=100 {
+	cpfilter.o: $(REPOSITORY)/$(PACKAGE)/src/cpfilter.c
+	$(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+    }
+    make -priority=100 {
+	cpmsg.o: $(REPOSITORY)/$(PACKAGE)/src/cpmsg.c
+	$(CC) $(CFLAGS)  $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
+    }
+    make -priority=200 {
+	<PREFIX>/modules/canpie.o : cpuser.o cpcore.o cpfifo.o cpfilter.o cpmsg.o cpint*.o
+	mkdir -p $(dirname $@)
+	${LD} -r -o $@ $+
+    }
+}

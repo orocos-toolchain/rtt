@@ -1,0 +1,3 @@
+cdl_package OROPKG_DEVICE_INTERFACE {
+    display "C++ Hardware Device Interfaces"
+}

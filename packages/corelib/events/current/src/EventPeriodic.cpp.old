@@ -1,0 +1,223 @@
+#include "EventPeriodic.hpp"
+
+#include "CompletionProcessor.hpp"
+
+namespace ORO_CoreLib
+{
+    EventPeriodic::EventPeriodic(nsecs average_period, nsecs trigger_period)
+        : avPeriod(average_period), trigPeriod(trigger_period), runIter(0), lastSlot(0), turns_per_fire(0), turnsLeft(0), completerHack(0), current(0)
+    {
+        if (trigPeriod == 0) trigPeriod = avPeriod;
+#ifndef HAVE_STL_MAP
+        listenerList.reserve( 128 );
+#endif
+        cp = CompletionProcessor::Instance();
+        update();
+    }
+        
+    void EventPeriodic::fire()
+    {
+        /**
+         * Note : imagine that a Listener removes itself in its handleEvent method
+         *        call. I believe that this particular algorithm will not fail (=crash)
+         *        but it might hickle in some cases. Changing the listenerList within
+         *        the fire() call invalidates the contract for a short time. This is
+         *        a kind of robustness i hope we will never need.
+         */
+#ifndef HAVE_STL_MAP
+//         if (turnsLeft > 0)
+//             {
+//                 // doing one full turn
+//                 for (unsigned int i=0; i < turns_per_fire +( ) && turnsLeft > 0 ; ++i)
+//                     {
+//                         completerHack = listenerList[runIter].second;
+//                         listenerList[runIter].first->handleEvent(this);
+//                         ++runIter;
+//                     }
+//                 if ( < lastSlot )
+                    
+//                 --turnsLeft;
+//             }
+//         else
+//             if ( listenerList.size() -  runIter < lastSlot)
+//             {
+//                 // doing last ones of not full turn.
+//                 completerHack = listenerList[runIter].second;
+//                 listenerList[runIter].first->handleEvent(this);
+//                 ++runIter;
+//             } else
+//                 if ( ++runIter == (turns_per_fire+1) * relPeriod )
+//                     {
+//                         // wrapping the iterator, when it wraps, all events
+//                         // should have been fired with period avPeriod
+//                         runIter = 0;
+//                         turnsLeft = turns_per_fire;
+//                     }
+
+        // IMPORTANT NOTE
+        // Since a task is allowed to remove itself when its handleEvent() is
+        // called, runIter might shift one to the right and come outside
+        // the listenerList. We have to detect for self removal.
+
+        // debugging code
+        //if (runIter >= int(listenerList.size()) && runIter != 0 ) 
+        //    cout <<"Error in EventPeriodic ! Iterator: "<<runIter<<" list size: "<<listenerList.size()<<endl;
+
+        if ( !listenerList.empty() )
+        if ( turns_per_fire == 0   )
+            {
+                // Case where only first times must be fired.
+                if ( runIter < int(lastSlot) )
+                    {
+                        completerHack = listenerList[runIter ].second;
+                        current = listenerList[runIter].first;
+                        current->handleEvent(this);
+                    }
+                ++runIter; // need to increase always
+            } 
+        else if ( runIter / int(turns_per_fire)  < int(lastSlot) )
+            {
+                completerHack = listenerList[runIter ].second;
+                current = listenerList[runIter].first;
+                current->handleEvent(this);
+                ++runIter;
+            }
+
+
+        // I need to handle turns_per_fire listeners per fire.
+        for (unsigned int i=0; i< turns_per_fire; ++i)
+            {
+                completerHack = listenerList[runIter].second;
+                current = listenerList[runIter].first;
+                current->handleEvent(this);
+                ++runIter;
+                if (runIter >= turns_per_fire*relPeriod +lastSlot) // when the last listener removes itself.
+                    break;
+            }
+
+        // wrapping the iterator, when it wraps, all events
+        // should have been fired with period avPeriod
+        int s = listenerList.size();
+        if ( ( turns_per_fire != 0 && runIter >= turns_per_fire*relPeriod +lastSlot)  || runIter <0 || ( turns_per_fire == 0 && runIter >= relPeriod ) ) 
+            {
+                runIter = 0;
+            }
+
+#else // HAVE_STL_MAP
+
+#error untested code
+        if (turnsLeft > 0)
+            {
+                --turnsLeft;
+                for (unsigned int i=0; i< relPeriod ; ++i)
+                    {
+                        ++runIter;
+                        completerHack = runIter->second;
+                        runIter->first->handleEvent(this);
+                    }
+            }
+        else
+            if (runIter - listenerMap.begin() < lastSlot)
+            {
+                //
+                ++runIter;
+                completerHack = runIter->second;
+                runIter->first->handleEvent(this);
+            }
+
+        // wrapping the iterator, when it wraps, all events
+        // should have been fired with period avPeriod
+        if ( ++runIter == listenerMap.end() )
+            {
+                runIter = listenerMap.begin();
+                turnsLeft = turns_per_fire;
+            }
+#endif
+    }
+
+    void EventPeriodic::complete()
+    {
+        // We might find a nicer way but it respects the contract.
+        if (completerHack != 0 )
+            cp->queue( completerHack );
+    }
+
+    void EventPeriodic::complete(EventListenerInterface* eli)
+    {
+        vector<pair<EventListenerInterface*,EventCompleterInterface*> >::iterator itl;
+        itl = find_if(listenerList.begin(), listenerList.end(), bind2nd( CMP(), eli) );
+        if ( itl != listenerList.end() && itl->second != 0 ) cp->queue( itl->second );
+    }
+
+    void EventPeriodic::addHandler( EventListenerInterface* eli, EventCompleterInterface* eci )
+    {
+        listenerList.push_back( make_pair(eli,eci) );
+
+        update();
+    }
+
+    void EventPeriodic::removeHandler( EventListenerInterface* eli, EventCompleterInterface* eci )
+    {
+#ifdef HAVE_STL_MAP
+#error untested code
+        multimap<EventListenerInterface*,EventCompleterInterface* >::iterator itl;
+        itl = find_if(listenerMap.begin(), listenerMap.end(), bind2nd(CMP(), eli) );
+        if ( itl != listenerMap.end() ) 
+            {
+                if (runIter == itl)
+                    ++runIter;
+                if (runIter == listenerMap.end())
+                    {
+                        runIter = listenerMap.begin();
+                        turnsLeft = turns_per_fire;
+                    }
+                listenerMap.erase(itl);
+                update();
+            }
+#else
+        vector<pair<EventListenerInterface*,EventCompleterInterface*> >::iterator itl;
+        itl = find_if(listenerList.begin(), listenerList.end(), bind2nd(CMP(), eli) );
+        if ( itl != listenerList.end() ) 
+            {
+                // this also detects self removal ! runIter will be increased when the call returns in fire()
+                if ( itl->first == current )//&& runIter != 0)
+                    { --runIter; }
+                else if ( runIter > int(itl - listenerList.begin()) && runIter > 0 ) // erasure before runIter in List
+                    { --runIter; } // avoid skipping one listener
+
+                listenerList.erase(itl);
+
+                if ( runIter == int(listenerList.size()) )
+                    { runIter = 0;
+                    //cout << "runIter now : "<<runIter<<endl;
+                    }
+                update();
+            }
+#endif
+    }
+
+    void EventPeriodic::update()
+    {
+        relPeriod = long(avPeriod)/long(trigPeriod);
+        if (relPeriod == 0) relPeriod = 1;
+#ifndef HAVE_STL_MAP
+        lastSlot = listenerList.size() % relPeriod;
+        turns_per_fire = listenerList.size() / relPeriod;
+        //cout << "Turns :"<<turns_per_fire<<" LastSlot: "<<lastSlot<<" iter: "<<runIter<<" max: "<<listenerList.size()<<endl;
+#else
+        lastSlot = listenerMap.size() % relPeriod;
+        turns_per_fire = listenerMap.size() / relPeriod;
+#endif
+    }
+
+    nsecs EventPeriodic::periodGet()
+    {
+        return avPeriod;
+    }
+
+    void EventPeriodic::triggerPeriodSet(nsecs n)
+    {
+        trigPeriod = n;
+        update();
+    }
+}

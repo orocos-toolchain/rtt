@@ -1,0 +1,12 @@
+
+cdl_package OROPKG_CORELIB_CONDITIONS {
+    display "Condition abstraction interface definition"
+    description "This package provides the ConditionInterface for
+dynamic conditional execution of logic programs."
+
+    include_dir corelib
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+}
+

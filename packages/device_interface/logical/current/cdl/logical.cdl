@@ -1,0 +1,6 @@
+
+cdl_package OROPKG_DEVICE_INTERFACE_LOGICAL {
+    display "Logical device abstraction interfaces"
+    parent OROPKG_DEVICE_INTERFACE
+    include_dir device_interface
+}

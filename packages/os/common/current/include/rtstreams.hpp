@@ -1,0 +1,192 @@
+/***************************************************************************
+  tag: Peter Soetens  Thu Oct 10 16:17:00 CEST 2002  rtstreams.hpp 
+
+                        rtstreams.hpp -  description
+                           -------------------
+    begin                : Thu October 10 2002
+    copyright            : (C) 2002 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+ 
+ ***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+ 
+ 
+#include <os/fosi.h>
+
+#include "rtconversions.hpp"
+#include "rtstreambufs.hpp"
+
+#ifndef RTSTREAMS_HPP
+#define RTSTREAMS_HPP
+
+
+namespace rt_std
+{
+
+    /**
+     * This is a stream class for use in limited environments.
+     * It is supposed to mimic the std::iostream classes to some extent.
+     * Formatting and locale support are not provided for example.
+     *
+     * The default stream class does not store anything and can
+     * thus be used as 'grabage bin'.
+     *
+     * @todo TODO there is no streambuf and string is used, maybe 
+     * a streamsbuf might be better, for encapsulating buffering
+     * policies (like BS meant it of course). Another todo is to
+     * have at least the save get and put/write functions as in istream
+     * and ostream. Thanks to the GCC 3.X cleanup, we might be able to mimic
+     * quite a lot.
+     */
+    class basic_streams
+    {
+
+        public:
+            virtual ~basic_streams();
+
+            /**
+             * Write methods. These do nothing in the stream class,
+             * but can be overloaded in subclasses to implement the proper
+             * functionality.
+             */
+/*
+            virtual void write( const char * c );
+            virtual void write( const char * c, size_t n );
+            virtual void write( const string s );
+            virtual void put( char ch );
+*/
+            /**
+             * Read methods. These do nothing in the stream class,
+             * but can be overloaded in subclasses to implement the proper
+             * functionality.
+             */
+/*            
+            virtual string read( int n );
+            virtual string read( char delimiter );
+            virtual char read();
+*/
+    };
+
+    /**
+     * An basic_istream is a stream which can be read. Write
+     * operations will have no effect.
+     *
+     * @detail Each part that is read from the string is discared,
+     * so no seeking is possible. The problem is otherwise that the
+     * string in iostreams would grow unlimited.
+     */
+    class basic_istreams
+        : virtual public basic_streams
+    {
+
+        public:
+            typedef streambufs::streamsize streamsize;
+
+            basic_istreams( streambufs& s ) : buf(s) {}
+            virtual ~basic_istreams();
+
+            int get();
+            basic_istreams& get(char& c);
+            basic_istreams& get(char* c, streamsize n, char delim);
+            basic_istreams& get(char* c, char delim);
+
+            basic_istreams& read( char* c, streamsize n );
+            streamsize readsome( char* c, streamsize n);
+
+
+            basic_istreams& operator>>( int &i );
+            basic_istreams& operator>>( char &c );
+            basic_istreams& operator>>( double &f );
+            basic_istreams& operator>>( std::string &s );
+            basic_istreams& operator>>( unsigned int &u );
+        private:
+            streambufs& buf;
+    };
+
+    /**
+     * An basic_ostreams is a stream which can be written to.
+     * Read operations will have no effect.
+     */
+    class basic_ostreams : virtual public basic_streams
+    {
+
+        public:
+            typedef streambufs::streamsize streamsize;
+
+            basic_ostreams( streambufs& s ) : buf(s) {}
+            virtual ~basic_ostreams();
+
+            virtual basic_ostreams& put( char c );
+            virtual basic_ostreams& write( const char * c, streamsize n );
+
+            /**
+             * Operators. These can not be virtual, so each one calls the
+             * appropriate read or write method defined above.
+             */
+            basic_ostreams& operator<<( int i );
+            basic_ostreams& operator<<( long i );
+            basic_ostreams& operator<<( char c );
+            basic_ostreams& operator<<( char * c );
+            basic_ostreams& operator<<( double f );
+            basic_ostreams& operator<<( std::string s );
+            basic_ostreams& operator<<( unsigned int u );
+            basic_ostreams& operator<<( basic_ostreams & ( *f ) ( basic_ostreams & ) );
+        private:
+            streambufs& buf;
+    };
+
+//#ifdef __KERNEL__
+// defined in the namespace rt_std
+    basic_ostreams& endl( basic_ostreams& );
+//#endif
+
+    /**
+     * An IO stream based on strings.
+     */
+    class basic_iostreams
+        : public basic_istreams, public basic_ostreams
+    {
+        public:
+        basic_iostreams( streambufs& s) 
+            : basic_istreams(s), basic_ostreams(s) {}
+    };
+            
+
+    struct print_helper { printbufs printer; };
+
+    /**
+     * The printstream is a stream for printing characters
+     * to the terminal window. It mimics the behaviour of
+     * iostreams cout.
+     */
+    class printstream
+        : private print_helper, public basic_ostreams
+    {
+
+        public:
+            printstream() : basic_ostreams(printer) {}
+            virtual ~printstream();
+    };
+
+    extern printstream cout;
+    
+    struct string_helper { string_helper() : str() {}; string_helper(const std::string& _init) :  str(_init) {};  stringbufs str; };
+    
+    class stringstreams
+        : private string_helper, public basic_iostreams
+        {
+            public:
+                stringstreams(const std::string& _init) : string_helper(_init), basic_iostreams(str) {}
+                stringstreams() : string_helper(), basic_iostreams(str) {}
+                virtual ~stringstreams();
+        };
+        
+}
+
+#endif

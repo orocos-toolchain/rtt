@@ -1,0 +1,538 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY motcontrol  "<acronym>Motion Control</acronym>">
+]
+>
+
+<book>
+  <bookinfo>
+  <title> Orocos ControlKernel </title>
+    <authorgroup>
+      <author>
+        <firstname>Peter</firstname>
+        <surname>Soetens</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+
+      <author>
+        <honorific>Dr. ir</honorific>
+        <firstname>Herman</firstname>
+        <surname>Bruyninckx</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+
+      <author>
+        <firstname>Panagiotis</firstname>
+        <surname>Issaris</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002</year>
+      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
+      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+    </copyright>
+
+  <abstract>
+<para>
+This document explains the design and implementation of the
+ControlKernel component.
+</para>
+  </abstract>
+
+  <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>22 Aug 2002</date>
+    <authorinitials>hb</authorinitials>
+    <revremark>Initial version</revremark>
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>19 Sep 2002</date>
+    <authorinitials>hb</authorinitials>
+    <revremark>Initial interface description</revremark>
+  </revision>
+  <revision>
+    <revnumber>0.9</revnumber>
+    <date>13 Nov 2002</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Updated for release</revremark>
+  </revision>
+  </revhistory>
+
+  <legalnotice>
+  <para>
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation, with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of this license can be found at
+<ulink
+ url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+  </para>
+  </legalnotice>
+
+ </bookinfo>
+
+
+  
+  <chapter>
+    <title>Introduction</title>
+    <para>
+      This chapter explains installation, and gives an overview of the
+features and interface of the &orocos; &motcontrol; module.
+    </para>
+
+    <sect1>
+      <title>Installation</title>
+      <para>
+        Install the ORO_Geometry library first, we use it for all the kinematic calculations. 
+	A package is provided on the Orocos web page.
+      </para>
+      <para>
+	&orocos; uses the GNU Autotools for configuration and building. 
+	Therefore the configuration and building 
+	process is pretty well standardised. We refer to the Orocos Core installation
+	instructions for the advised configuration and installation procedure. Just
+	read 'motioncontrol' where it says 'core'. After configuration you can do :
+      </para>
+      
+      <screen>
+make
+make install
+make modules_install
+      </screen>
+      <tip>
+	<para>Make sure that you configured motioncontrol with the same parameters
+	as the core, or the compiler will not find the core header files and libraries.</para>
+      </tip>
+
+      <para>
+	You can use the <command>make check</command> command to start 
+	building testprograms and executing them. The <command>make docs</command> 
+	or <command>doxygen</command> command builds API documentation. 
+      </para>
+      <para>
+      Further information can be found in the &orocos; core documentation.
+      </para>
+   <para>
+	By running <command>./configure --help</command> you can see the possible flags you can pass to
+	the configure script.
+   </para>
+      <para>
+	If you got  &motcontrol; from <application>CVS</application>, run 
+	<command>./autogen.sh</command> first.
+      </para>
+    </sect1>
+    <sect1><title>A last piece of advice</title>
+    <para>
+          <tip>
+          We highly advise you to read first the Orocos Core documentation before going on.
+	  Its nomenclature will be used extensively.
+	  </tip>
+    </para>
+    </sect1>
+</chapter>
+<chapter><title>Ready To Use Components</title>
+    <sect1>
+      <title>Control Components</title>
+      <para>
+	This section gives an overview of the services used for control
+      </para>
+      <para>
+      We refer to the source code documentation or the <application>doxygen</application> generated files for the most recent
+      documentation about which functions exist and do what. 
+      </para>
+      <sect2>
+      <title>SignalTypes</title>
+      <para>
+        An important aspect of the ControlKernel Interfaces is the SignalType 
+	(<classname>SignalTp</classname>), which allows the user to define an
+	arbitrary number of Signals with semantical meaning. For example,
+	a reference signal, an error signal, but also a Position defined
+	with respect to another position etc. By using these types explicitly
+	in interfaces, you can restrict which type of signal connects to the
+	interface at compile time.
+	This is done by giving the 
+	semantical type as a template parameter. This incurs no runtime overhead
+	and detects wrongly connected components at compile time.
+      </para>
+      </sect2>
+      <sect2>
+      <title>The Motion Kernel</title>
+      <para>
+        This documentation is in construction, the following source files are fairly
+        documented however : MotionKernelExtensions.hpp,  MotionProperties.hpp,
+        MotionReportingExtension.hpp,
+        MotionKernel.hpp,   MotionKernelInterfaces.hpp,  MotionPropertyExtension.hpp.
+      </para>
+      <para>
+        ref to paper and generic description
+      </para>
+      <sect3>
+      <title>Basic Interfaces</title>
+      <para>
+        DataObjects, Components, the Default kernel
+      </para>
+      </sect3>
+      <sect3>
+      <title>Kernel Extensions</title>
+      <para>
+        Extending the Default kernel, composing extensions
+      </para>
+      </sect3>
+      <sect3>
+      <title>Component Aspects</title>
+      <para>
+        Extensions add Aspects to Components.
+      </para>
+      </sect3>
+      <sect3>
+      <title>The Property Extension</title>
+      <para>
+        Extending your components with properties.
+      </para>
+      </sect3>
+      <sect3>
+      <title>The Reporting Extension</title>
+      <para>
+        Reporting components and dataobjects values.
+      </para>
+      </sect3>
+      </sect2>
+      <sect2>
+	<title>Trajectories and Interpolators</title>
+	<para>
+	We use the ORO_Geometry (Leuvens Robotics Library) Trajectory planning software which 
+	can be found on the Orocos webpage. The library already provides Cartesian
+	path planning and interpolation. We provided actuator (joint) level
+	interpolators described by the <interfacename>TrajectoryInterpolatorInterface
+	</interfacename>. It is used to decouple two control loops which run with
+	different periodicities. Internally, a fifo buffer is used to make the
+	decoupling. The slower loop writes a new setpoint to the interpolator,
+	the interpolator reads new setpoints from its buffer when its needed.
+	A setpoint is always set in combination with a relative timeperiod
+	which indicates how long the interpolater must do between its current
+	value and the new setpoint. After this time, a new setpoint will be read.
+	When time zero is given, the interpolater will go as fast as possible
+	( obeying limits ) to the latest setpoint and will use the new one
+	as soon as it arrives. The interpolators buffer can thus be filled with
+	a series of setpoints in advance and then process them as desired.
+	</para><para>
+	Two implementations exist : 
+	<interfacename>TrajectoryInterpolatorSimple</interfacename>, which is more for
+	testing since it does not interpolate, but does use the buffer,
+	timing and limiting infrastructure. 
+	The <interfacename>TrajectoryInterpolatorParabolic</interfacename>provides
+	an integrater which allows variable period interpolations and parabolic
+	interpolation between two consecutive setpoints.
+	</para>
+	<para>
+	The interpolator is mostly placed at an end of the control loop, 
+	generating reference signals.
+	</para>
+      </sect2>
+      <sect2>
+        <title>Properties and the MotionMonitor</title>
+        <para>
+	&motcontrol; provides some extentions to the ORO_Geometry. We have written 
+	PropertySets which represent structures as Frame, Twist, etc from
+	the ORO_Geometry. The <classname>MotionMonitor</classname> extends the
+	core <classname>ReportHandler</classname> to allow reporting
+	of these structures also. 
+	The Properties exist in two kinds,
+	on one hand is the <classname>PropertyObject</classname>
+	(or <classname>PropXYZ</classname>), which extends the
+	existing structures with a property like interface. This means
+	that you can anywhere replace an existing structure with
+	a <classname>PropertyObject</classname>. On the other hand
+	are the predefined <classname>PropertySet</classname> 
+	(or <classname>PropertySetXYZ</classname> objects
+	which extends the <classname>PropertySet</classname> class
+	to extract the represented structure (e.g. Frame, Twist,...).
+	</para>
+	<para>
+	These properties become handy for reporting to userspace and
+	setting parameters of the realtime system. The interfacing
+	package provides a way of changing properties in
+	an easy way. (all we need now is a GUI :-)
+	</para>
+	<para>
+	<note>
+	RTLinux users can not use this until they have a memory allocator.
+	</note>
+        </para>
+      </sect2>
+      <sect2>
+        <title>Motion Commands and the RobotInterface</title>
+	<para>
+	The &motcontrol; package extends the interfacing package with
+	some &motcontrol; specific extensions. Please read the
+	interfacing package documentation for further explanations
+	of the terms below
+	</para>
+        <para>
+	This package also defines a generic <classname>RobotInterface
+	</classname>, designed for a 6 degrees of freedom robot.
+	It is nameserved which means that we can control any
+	known robot in a generic way.
+	This interface is far from definate, but it should map on
+	most robots.
+	
+	When the configure script detects that the interfacing package
+	is installed, it will also compile a series of
+	 <classname>Command</classname> classes, designed for 
+	calling the methods in the <classname>RobotInterface</classname>.
+	A <classname>Parser</classname> will create and relay all commands
+	for nameserved robots.
+	</para>
+	<para>
+	<note>
+	RTLinux users can not use this until they have a memory allocator.
+	</note>
+        </para>
+      </sect2>
+
+    </sect1>
+  </chapter>
+
+<chapter>
+<title>Kinematics</title>
+    <sect1>
+    <title>Introduction</title>
+    <para>
+    Kinematics are used for converting postions, velocities,... expressed in one
+    (orthogonal) frame, to another frame or another space. The two major
+    spaces in Robotics are Cartesian space and Joint space. Cartesian space uses 3D
+    coordinates for position and a kind of convention for orientation (
+    the homogeneous transformation matrix, Euler angles,...), while 
+    joint space is just the radial position of each joint, thus for a
+    6 degrees of freedom robot, this is a vector with 6 values, denoting
+    the six joint positions.
+    </para>
+    <para>
+    Forward kinematics is used to calculate from a given set of joint
+    positions the end effector position of the robot in a kind of
+    reference frame. Inverse kinematics is used to calculate from a
+    given end effector position, expressed in a certain frame,
+    the joint positions which lead to this position. The solutions
+    of the inverse kinematics can not always be found because :
+    The position might be impossible to reach by the robot, or,
+    the position might be reachable in many ways by the robot
+    (called different configurations), or, 
+    the joint positions can not be calculated because the end
+    effectors position is singular, which means that it can be
+    reached in an infinite amount of ways by the joints.
+    </para>
+    <para>
+    Our kinematics algorithms keep track of all the above and 
+    much more. This can clearly be seen from the used interfaces too.
+    </para>
+         <sect2>
+	     <title>The KinematicsInterface</title>
+	 <para>
+	 This interface describes the library side of the kinematics
+	 algorithms. The interface allows you to calculate all
+	 forward and inverse jacobians, positions and velocities.
+	 A desired <classname>Configuration</classname> 
+	 and a <classname>Singularity</classname>
+	 class instance must be provide where approriate.
+	 How the kinematics are calculated depends on the actual
+	 implementation. We provide the Featherstone algorithms
+	 for many kinds of robots. Only the ZXXDWH and ZYYDWH robots
+	 are converted to the KinematicsInterface. You can take a
+	 look at how we converted them to fit into the framework
+	 if you have a different kind of robot.
+	 </para>
+	 <para>
+	 The KinematicsInterface is completely stateless and returns
+	 theoretical values, thus does not take into account any
+	 geometry constraints or winding of joints (angles larger
+	 than 360 degrees). All state information is kept in the
+	 <classname>KinematicsComponent</classname>.
+	 </para>
+	 </sect2>
+	 <sect2>
+	     <title>The KinematicsComponent</title>
+	 <para>
+	 As each robot only needs one instance of the 
+	 <interfacename>KinematicsInterface</interfacename>, for doing
+	 the calculations, many are needed to keep track of the current
+	 path and configuration of the robot in different places of 
+	 your program. The KinematicsComponent makes sure that between
+	 two consecutive calls, the robot stays in the same configuration
+	 and the joints follow a continuous path. It will return in error
+	 when an impossible jump is detected. It provides methods
+	 for setting or extracting the desired robot configuration.
+	 For example, your trajectory generator and
+	 the actual robot might be using a different KinematicsComponent
+	 to keep track of the state of the calculations.
+	 </para>
+	 </sect2>
+    </sect1>
+</chapter>
+
+<chapter id="chap-interface">
+<title>Interfaces</title>
+<para>
+This chapter describes the <emphasis>interfaces</emphasis> of the
+different components in the motion control part of &orocos;.
+</para>
+
+<sect1 id="interface-motivation">
+<title>Motivation</title>
+<para>
+A complex and feature-rich application such as motion control can be
+given various different interfaces. This Section explains and
+motivates the guidelines we follow in the &orocos; project to define
+interfaces:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis>Loose coupling.</emphasis>
+Every object that implements an interface must implement the whole
+interface. This means that interfaces are kept as small a possible,
+and that every object usually implements several interfaces. The
+reasons for this choice are: (i) it avoids the need to return
+&ldquo;method not implemented&rdquo; error messages and the
+corresponding error recovery; and (ii) it forces the developers to
+classify functionality into parts with the least possible amount of
+interdependencies.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Application independence.</emphasis>
+The words &ldquo;robot&rdquo; or &ldquo;machine tool&rdquo; are
+avoided whenever possible, because most of the functionalities are
+much more general than just for robots or machine tools.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Shallow inheritance hierarchies.</emphasis>
+We avoid inheritance hierarchies of more than two levels deep, because
+deep hierarchies lead to ambiguous inheritance structure. For example,
+one could suggest to have a hierarchy such as &ldquo;robot&rdquo;
+&map; &ldquo;6DOF robot&rdquo; &map; &ldquo;6DOF velocity-controlled
+robot&rdquo; &map; &ldquo;6DOF hybrid velocity/force-controlled robot&rdquo;
+&map; &hellip; But the latter interface could originate equally well
+from another hierarchy, such as &ldquo;control law&rdquo; &map;
+&ldquo;velocity control&rdquo; &map; &ldquo;hybrid force/velocity
+control&rdquo; &map; &ldquo;6DOF hybrid force/velocity
+control.&rdquo;
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Inheritance versus aggregation and composition.</emphasis>
+A particular interface can be a <emphasis>specialisation</emphasis> of
+an already existing interface, for which inheritance is an appropriate
+formalism. But an interface can also the
+<emphasis>composition</emphasis> or <emphasis>aggregation</emphasis>
+of other interfaces, i.e., the interface contains other interfaces,
+and possibly puts extra constraints on how to use the individual
+interfaces. The difference between aggregation and composition is
+that, in the latter case, the object that implements the composed
+interface cannot exist if one of its sub-interfaces is taken out.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</sect1>
+
+
+<sect1 id="interface-cart-motion">
+<title>Cartesian motion</title>
+<para>
+moveTo (Cartesian position); move (Cartesian velocity);
+</para>
+
+</sect1>
+
+<sect1 id="interface-axis-motion">
+<title>Axis</title>
+<para>
+readId(); setId();
+</para>
+<para>
+moveTo (joint position set); move (joint velocity set);
+</para>
+<para>
+readPos (joint position set); readVel (joint position set);
+</para>
+<para>
+applyForce (joint velocity set); readForce (joint velocity set); 
+</para>
+<para>
+home ();
+</para>
+
+</sect1>
+
+<sect1 id="interface-device">
+<title>Device</title>
+<para>
+readId(); setId();
+</para>
+<para>
+Activate(), deactivate().
+</para>
+
+</sect1>
+
+<sect1 id="interface-robot">
+<title>Robot</title>
+<para>
+readId(); setId();
+</para>
+<para>
+composite of Axis objects;
+</para>
+
+</sect1>
+
+<sect1 id="interface-servo">
+<title>Servo</title>
+<para>
+</para>
+
+</sect1>
+
+<sect1 id="interface-trajectory">
+<title>Trajectory</title>
+<para>
+</para>
+
+</sect1>
+
+<sect1 id="interface-interpolation">
+<title>Interpolation</title>
+<para>
+</para>
+
+</sect1>
+
+</chapter>
+
+</book>

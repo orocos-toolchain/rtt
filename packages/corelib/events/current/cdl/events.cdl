@@ -1,0 +1,48 @@
+
+cdl_package OROPKG_CORELIB_EVENTS {
+    display "Synchronous-Asynchronous Event system"
+    description "
+This package provides an Event implementation for
+synchronous and asynchronous communication."
+
+    include_dir corelib
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    compile Event.cxx  EventBarrier.cxx  EventInterfaces.cxx  
+    compile EventMultiCast.cxx  EventPeriodic.cxx  EventSimple.cxx
+
+    implements OROINT_CORELIB_EVENT_INTERFACE
+
+    cdl_option OROSEM_CORELIB_EVENTS_ASYN {
+	display "Enable asynchronous event completion"
+	flavor bool
+	compile CompletionProcessor.cxx
+	implements OROINT_CORELIB_COMPLETION_INTERFACE
+    }
+
+    cdl_component OROPKG_CORELIB_EVENTS_CP {
+	display "Completion Processor Properties"
+	flavor none
+	requires OROSEM_CORELIB_EVENTS_ASYN
+	
+	cdl_option ORODAT_CORELIB_EVENTS_CP_NAME {
+	    display "The name of the completion processor"
+	    flavor data
+	    default_value {"\"CompletionProcessor\""}
+	    #legal_values string
+	}
+	cdl_option ORONUM_CORELIB_EVENTS_CP_PERIOD {
+	    display "The periodicity of the completion processor in seconds"
+	    flavor data
+	    default_value 0.01
+	    #legal_values positive number
+	}
+	cdl_option ORONUM_CORELIB_EVENTS_CP_PRIORITY {
+	    display "The priority of the completion processor"
+	    flavor data
+	    default_value 5
+	    #legal_values positive number
+	}
+    }
+}

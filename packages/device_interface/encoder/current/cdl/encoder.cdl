@@ -1,0 +1,7 @@
+
+cdl_package OROPKG_DEVICE_INTERFACE_ENCODER {
+    display "C++ Interface to encoder cards"
+    parent OROPKG_DEVICE_INTERFACE
+    include_dir device_interface
+    compile encoder.cxx
+}

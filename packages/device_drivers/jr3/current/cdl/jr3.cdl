@@ -1,0 +1,42 @@
+cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
+    display "JR3 Force-Torque Sensor"
+
+    include_dir jr3
+#    include_files JR3Sensor.hpp
+    parent OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_DRIVERS
+
+    cdl_option OROPKG_DEVICE_DRIVERS_JR3_CFLAGS_ADD {
+        display "Linux include path"
+	flavor data
+        default_value { " -I".OROBLD_OS_LINUX_KERNEL."/include" }
+	active_if OROPKG_OS_GNULINUX
+    }
+
+    cdl_option OROBLD_DEVICE_DRIVERS_JR3_KM {
+	display "Compile kernel module"
+	default_value 1
+	make  {
+	    <PREFIX>/modules/jr3dsp.o : <PACKAGE>/src/JR3DSP.c <PACKAGE>/src/JR3DSP.h
+	    @mkdir -p $(PREFIX)/modules
+	    $(CC) -I/lib/modules/$$(uname -r)/build/include $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/JR3DSP.c -o $@
+	}
+    }
+
+    cdl_option OROBLD_DEVICE_DRIVERS_JR3_SENSOR {
+	display "Compile LXRT Sensor for JR3"
+	default_value 1
+	requires OROPKG_OS_LXRT
+	requires OROPKG_CORELIB_TASKS
+	compile JR3Sensor.cxx
+	make  {
+	    <PREFIX>/modules/jr3dsp_lxrt.o : <PACKAGE>/src/jr3dsp_lxrt.c <PACKAGE>/src/jr3dsp_lxrt.h
+	    @mkdir -p $(PREFIX)/modules
+	    $(CC) -I/lib/modules/$$(uname -r)/build/include $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/jr3dsp_lxrt.c  -o $@
+	}
+    }
+}
+
+       
+
+    

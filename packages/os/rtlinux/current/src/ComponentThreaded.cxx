@@ -1,0 +1,219 @@
+/***************************************************************************
+ tag: Peter Soetens  Mon Jun 10 14:44:13 CEST 2002  ComponentThreaded.cpp 
+
+                       ComponentThreaded.cpp -  description
+                          -------------------
+   begin                : Mon June 10 2002
+   copyright            : (C) 2002 Peter Soetens
+   email                : peter.soetens@mech.kuleuven.ac.be
+
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************/
+
+
+
+#include "corelib/ComponentThreaded.hpp" 
+//#include <time.h>
+#include "corelib/Time.hpp"
+
+namespace ORO_OS
+{
+
+    void *ComponentThread( void *t )
+    {
+        rtos_printf( "Component thread created\n" );
+        ComponentThreaded* comp = ( ComponentThreaded* ) t;
+        // must become a check on condition objects
+        //    pthread_attr_setfp_np(comp->threadAttributeGet(), 1);
+        //pthread_setfp_np(pthread_self(),1);
+
+        while ( 1 )
+        {
+            //        rtos_printf(".");
+
+            while ( !comp->isRunning() )
+                comp->periodWait(); //POSIX
+
+            if ( comp->runner != 0 )
+                comp->runner->step();
+            else
+                comp->step(); // one cycle
+
+            comp->periodWaitRemaining();
+        }
+    }
+
+    ComponentThreaded::ComponentThreaded(int priority, const string& name, RunnableInterface* r = 0 )
+            : runner( r )
+    {
+        rtos_printf( "ComponentThreaded Constructor\n" );
+        running = 0;
+        taskNameSet( name.c_str() );
+        periodSet( 0, msecs_to_nsecs(10) ); // 10 ms
+        periodMark = 0;
+        pthread_attr_init( threadAttributeGet() );
+        //    pthread_attr_setstacksize(threadAttributeGet(), 40*1024);
+        // NON PORTABLE !!
+        //pthread_attr_setfp_np(threadAttributeGet(), 1);
+        rtos_enable_fpu( threadAttributeGet() );
+        struct sched_param sp;
+        sp.sched_priority = priority;
+        
+        pthread_attr_setschedparam(threadAttributeGet(), &sp );
+        //    pthread_create(&thread, NULL, ComponentThread, (void*) this);
+        rtos_printf( "creating...." );
+        pthread_create( &thread, threadAttributeGet(), ComponentThread, this );
+        //    rt_task_init(&thread, ComponentThread, (int)this, 8096, 1, 1, NULL);
+        //    rt_task_resume(&thread);
+    }
+
+    ComponentThreaded::~ComponentThreaded()
+    {
+        if ( isRunning() )
+            stop();
+
+        rtos_printf( "Terminating %s\n", taskName );
+
+        //    terminate();
+        // should wait until step is completed and exit then... ( FSM )
+        pthread_cancel( thread );
+
+        //pthread_join(&thread); // join is not recommended
+        pthread_attr_destroy( threadAttributeGet() );
+    }
+
+    bool ComponentThreaded::start()
+    {
+
+        if ( isRunning() )
+            return false;
+
+        if ( runner )
+            runner->initialize();
+        else
+            initialize();
+
+        running = true;
+
+        return true;
+    }
+
+    bool ComponentThreaded::stop()
+    {
+        if ( !isRunning() )
+            return false;
+
+        running = false;
+
+        if ( runner )
+            runner->finalize();
+        else
+            finalize();
+
+        return true;
+    }
+
+    void ComponentThreaded::setToStop()
+    {
+        // finalize will be called in the thread of the
+        // Completion processor
+        stop();
+    }
+
+    bool ComponentThreaded::isRunning() const
+    {
+        return running;
+    }
+
+    int ComponentThreaded::periodSet( secs s, nsecs ns )
+    {
+        if ( isRunning() )
+            return -1;
+
+        period.tv_sec = s;
+
+        period.tv_nsec = ns;
+
+        return 0;
+    }
+
+    void ComponentThreaded::periodGet( secs& s, nsecs& ns ) const
+    {
+        s = period.tv_sec;
+        ns = period.tv_nsec;
+    }
+
+    double ComponentThreaded::periodGet() const
+    {
+        return ( double ) period.tv_sec + ( double ) period.tv_nsec / ( 1000.0 * 1000.0 * 1000.0 );
+    }
+
+    // this is non POSIX and will be removed later on
+    // when time events come in
+    void ComponentThreaded::periodWaitRemaining()
+    {
+        if ( periodMark == 0 )
+        {
+            periodMark = rtos_get_time_ns();
+        }
+
+        // CALCULATE in nsecs
+        NANO_TIME timeRemaining = secs_to_nsecs(period.tv_sec) + period.tv_nsec - ( rtos_get_time_ns() - periodMark );
+
+        //rtos_printf("Waiting for %d nsec\n",timeRemaining);
+
+        if ( timeRemaining > 0 )
+            rtos_nanosleep( hrt2ts( timeRemaining ), NULL );
+        else
+            rtos_printf( "%s did not get deadline !", taskNameGet() );
+
+        periodMark = rtos_get_time_ns() ;
+
+    }
+
+    void ComponentThreaded::periodWait()
+    {
+        rtos_nanosleep( &period, NULL );
+    }
+
+    void ComponentThreaded::terminate()
+    {
+        rtos_printf( "Called fake terminate() in ComponentThreaded, task %s", taskNameGet() );
+    }
+
+    pthread_attr_t* ComponentThreaded::threadAttributeGet()
+    {
+        return & threadAttribute;
+    }
+
+
+    void ComponentThreaded::taskNameSet( const char* nm )
+    {
+        snprintf( taskName, 31, "%s", nm );
+    }
+
+    const char* ComponentThreaded::taskNameGet() const
+    {
+        return taskName;
+    }
+
+    void ComponentThreaded::step()
+    {
+        periodWait();
+    }
+
+    bool ComponentThreaded::initialize()
+    {   return true; }
+
+    void ComponentThreaded::finalize()
+    {}
+
+}
+
+;

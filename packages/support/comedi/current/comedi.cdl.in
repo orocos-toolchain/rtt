@@ -1,0 +1,7 @@
+cdl_package OROPKG_SUPPORT_COMEDI {
+    display "Generated Comedi package"
+    description " 
+The presence of this package indicates that the configure
+script detected a valid Comedi installation, which can now
+be used by other packages."
+}

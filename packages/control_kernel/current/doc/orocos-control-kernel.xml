@@ -1,0 +1,1118 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY control  "<acronym>ControlKernel</acronym>">
+]
+>
+
+<book>
+  <bookinfo>
+    <title> Orocos ControlKernel </title>
+    <authorgroup>
+      <author>
+        <firstname>Peter</firstname>
+        <surname>Soetens</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+
+      <author>
+        <honorific>Dr. ir</honorific>
+        <firstname>Herman</firstname>
+        <surname>Bruyninckx</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+
+      <author>
+        <firstname>Panagiotis</firstname>
+        <surname>Issaris</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002</year>
+      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
+      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the design and implementation of the
+	Control Kernel Framework.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>22 Aug 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.02</revnumber>
+	<date>19 Sep 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial interface description</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.9</revnumber>
+	<date>13 Nov 2002</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated for release</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </bookinfo>
+
+
+  
+  <chapter>
+    <title>Introduction</title>
+    <para>
+      This chapter explains installation, and gives an overview of the
+      features and interface of the &orocos; &control; module.
+    </para>
+
+    <sect1>
+      <title>Installation</title>
+      <para>
+	&orocos; uses the eCos tools for configuration and building. 
+	Therefore the configuration and building 
+	process is pretty well standardised. We refer to the Orocos Base installation
+	instructions for the advised configuration and installation procedure. 
+      </para>
+    </sect1>
+    <sect1><title>A last piece of advice</title>
+      <tip>
+	We highly advise you to read first the Orocos Core documentation before going on.
+	Its nomenclature will be used extensively.
+      </tip>
+      <tip>
+	This document only covers some generic use cases. If you want detailed
+	information about a class or function, read the Doxygen generated reference,
+	you will find a lot of information in there not presented here.
+      </tip>
+    </sect1>
+  </chapter>
+  <chapter><title>The Default Control Kernel</title>
+    <sect1>
+      <title>Purpose</title>
+      <para>
+	Anyone wanting to write his own software (feedback) controller will need a control
+	kernel to do the work. In this kernel, five basic responsabilities are identified
+	and placed under the responsability of a Component. The responsabilities are :
+	gathering sensor data (Sensor Component), estimating a model (Estimator Component),
+	generating setpoints (Generator Component), taking a control action (Controller Component)
+	and sending the outputs to the hardware (Effector Component). Depending on the application,
+	other components will be used, together with other types of data being exchanged. The
+	Default Control Kernel is an empty box. It just defines the basis for which data is exchanged
+	between components and what functionality the components can use (more on this later).
+      </para>
+      <para>
+	We refer to the source code documentation or the <application>doxygen</application> generated files for the most recent
+	documentation about which functions exist and do what. 
+      </para>
+      <sect2>
+	<title>Theoretic background</title>
+	<para>
+	  The implementation of the Control Kernel is based on the software pattern for
+	  control. A paper is to be published, which gives a high level explanation of
+	  its purpose. This paper is available on the &orocos; website.
+	</para>
+	<para>
+	  <ulink url="http://www.orocos.org/documents/motconframe.pdf">See the 
+	    Control Kernel paper.</ulink>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Basic Kernel Interfaces ( Kernel, DataObjects, Components )</title>
+	<para>
+	  When you start thinking about a control application, you mostly have a control
+	  scheme at hand. This scheme identifies data flows from data sources (sensors)
+	  over algoriths to data sinks (effectors). In any application the following 
+	  data must be passed around : Input data from sensors, Command data from a
+	  higher level producer, Model data representing the current system state, 
+	  SetPoint data denoting the desired system state, Output data to send to the
+	  system's effectors. Identifying what is exactly in these five data types is
+	  the first step for creating a control kernel. In Orocos, these five types
+	  must be given as a template parameter to the DefaultControlKernel. The
+	  most simple invocation is when only a double is passed on (think one axis control):
+	</para>
+	<programlisting>
+	  typedef DefaultControlKernel &lt;double, double, double, double, double&gt; My1DKernel;
+	</programlisting>
+	<para>
+	  What is shown above is defining the type My1DKernel as being a DefaultControlKernel
+	  where only a double is exchanged between each component. The meaning of the template
+	  parameters is like this :
+	</para>
+	<programlisting>
+	  DefaultControlKernel &lt;InputType, ModelType, CommandType, SetPointType, OutputType&gt;;
+	</programlisting>
+	<para>
+	  Which you can remember by the acronym IMCSO ;-). If that doesn't work, looking at the
+	  data flow (cfr the uni-directional graph) might help to to find the correct order. But do
+	  not worry, you only need to do this once for your application. Next you can create an
+	  instance of your new kernel :
+	</para>
+	<programlisting>
+	  My1DKernel first_kernel;
+	</programlisting>
+	
+	<para>
+	  What really happend is that you created a kernel with five DataObjects for each DataType
+	  (being all doubles) and 5 default components which do just nothing. Other kernels may
+	  define other DataObjects and/or other default components. It is the programmers task
+	  to replace the default components with 'functional' components, actually doing something
+	  with the data. Each component can be set and get with the respective method calls on
+	  the kernel.
+	</para>
+	<sect3>
+	  <title>DataObjects</title>
+	  <para>
+	    Data must be guarded agains concurrent (multi-threaded) access, or it may be needed
+	    to fetch the data from a server or to instruct the data-producer to provide a new
+	    sample. All these actions are the responsibility of the DataObjects. They shield
+	    or extend data access as the kernel requires. A kernel based on CORBA components
+	    will need DataObjects which understand CORBA, a kernel running in a single threaded
+	    system will need no protection at all and thus can use an efficient DataObject. The
+	    data guarded by the DataObjects can be any valid C++ type, so mostly people use 
+	    classes or structs (instead of double). The default constructor of the data is called
+	    on creation time.
+	  </para>
+	  <para>
+	    Choosing a Kernel means choosing DataObjects. Once the kernel is fixed, the DataObjects
+	    can no longer be changed. The type of the data they hold is determined and the means
+	    of protection also. There are many possible kinds, the most common are listed below:
+	  </para>
+	  <sect4>
+	    <title>DataObjectInterface</title>
+	    <para>This Interface describes the Get() and Set() methods each DataObject must have.
+	      Set() and Get() retrieve all contents of the DataObject. This might be a bit heavy
+	      for some applications, but fortunately, nameserving can relief this (see DataServed).
+	    </para>
+	  </sect4>
+	  <sect4>
+	    <title>DataObject</title>
+	    <para>This is the most simple DataObject implementation. The Get() and Set() methods
+	      directly map onto the contents and can always be inlined by the compiler. It offers
+	      no thread safety, but maximum efficiency for copying data.
+	    </para>
+	  </sect4>
+	  <sect4>
+	    <title>DataObjectLocked</title>
+	    <para>This is a thread safe DataObject which Set() and Get() methods are guarded
+	      by a single mutex. The second thread accessing this object will always block, which
+	      is not always wanted in a realtime system.
+	    </para>
+	  </sect4>
+	  <sect4>
+	    <title>DataObjectPrioritySet</title>
+	    <para>This is a more complex DataObject which gives always priority to the thread
+	      calling Set(), which will never block. The thread accessing Get() will block if the
+	      Set() thread is accessing the contents.It is mainly used for sharing data between
+	      two kernels, running at different priorities.</para>
+	    <note>
+	      <para>This DataObject will only work if the Set() thread has the highest priority.
+		When the inverse is true, data corruption will occur. It is obvious that this
+		DataObject can only be used if both threads have static priorities (which is the
+		case for all threads in the Orocos framework)</para>
+	    </note>
+	  </sect4>
+	  <sect4>
+	    <title>DataObjectPriorityGet</title>
+	    <para>The inverse of DataObjectPrioritySet. The thread accessing Get() will never block.</para>
+	  </sect4>
+	</sect3>
+	<sect3>
+	  <title>Components</title>
+	  <sect4>
+	    <title>Defining your own Component</title>
+	    <para>As mentioned before, the Default Kernel will have made Default Components which do nothing.
+	      The kernel is equiped with setController(), setGenerator(),.. methods which allow a clean insertion
+	      of a new component and which guarantee a clean removal of the old component. Defining a Component
+	      of your own goes like this :
+	    </para>
+	    <screen>
+	      #include &lt;Kernel.hpp&gt;
+
+	      template &lt; class _DefaultGenerator &gt;
+	      class MyGenerator 
+	      : public _DefaultGenerator
+	      {
+	      void pull() {
+	      // ...
+	      }
+	      void calculate() {
+	      // ...
+	      }
+	      void push() {
+	      // ...
+	      }
+	      };
+	    </screen>
+	    <para>What you see is that the class MyGenerator has one template argument, _DefaultGenerator, 
+	      which must be supplied on object creation and this template argument is a base class of MyGenerator.
+	      This might look a bit strange to people not familiar with templates, but the aim of this construct
+	      is to allow the changing of the base class of a Component, without having to adjust the code each time.
+	      As you can guess, the _DefaultGenerator type is supplied by the kernel. You can access it like this :</para>
+	    <screen>
+	      My1DKernel::DefaultGenerator</screen>
+	    <para>These types exist for all components. Of course, the type is useless in that form, it must be
+	      supplied to your own written component : </para>
+	    <screen>
+	      MyGenerator&lt; My1DKernel::DefaultGenerator &gt; my_gen;</screen>
+	    <para>The above line has created an instance of MyGenerator called my_gen and which now has the 
+	      DefaultGenerator as base class. Since MyGenerator is a subclass of DefaultGenerator, it can be
+	      used with the setGenerator() method call of the DefaultKernel. The next line could then be :</para>
+	    <screen>
+	      first_kernel.setGenerator( &amp;my_gen );
+	    </screen>
+	    <para>which would cause my_gen to be loaded into the kernel and the default generator unloaded.
+	      This is possible for all components of the kernel.</para>
+	  </sect4>
+	  <sect4>
+	    <title>Inserting Functionality and Algorithms</title> 
+	    <para>As seen in the previous section, each component you write should have at least a
+	      pull(), calculate(), push() method for data processing. The pull() method will Get() the
+	      data objects and copy its contents to local variables, the calculate() method will perform
+	      some algorithmic functionality on the data and the push() method must Set() the results in
+	      the next DataObject. This division is done to isolate communication in different methods
+	      so that a more intelligent interaction between kernel and component is possible. For example,
+	      a certain kernel implementation could only call the pull() method if new data is effectively
+	      available, but always calls the calculate/push() method. A practical example of this is the
+	      Interpolator residing in a Generator component.</para>
+	    <para>A DataObject can be accessed from within the component as such :</para>
+	    <screen>
+	      // ...
+	      _DefaultGenerator::InputType localCopy;
+	      _DefaultGenerator::SetPointType localResult;
+	      // ...
+	      void pull() {
+	      localCopy = _DefaultGenerator::Inputs::dObj()->Get();
+	      }
+	      void calculate() {
+	      // ... calculate the setpoint
+	      }
+	      void push() {
+	      _DefaultGenerator::SetPoints::dObj()->Set( localResult );
+	      }
+	    </screen>
+	    <para>
+	      These methods are used for the Data-Flow of the kernel. You copy data from one
+	      component to the other, purely for doing calculations, not doing configurations.
+	      If you want to configure/modify a component, you must add a method call to it,
+	      which does the action. An example is a method to turn off the D action of a PID
+	      Controller Component. The wrong way to do this is to insert a 'bool' member in the
+	      SetPointType to indicate if the D action should be enabled. The correct way is to
+	      provide a method. If it must be switched off dynamically, an Event can be created
+	      which is fired by the component (Generator, Estimator or even an external object)
+	      which demands that the D action must be stopped.  The Controller can locate this 
+	      Event and register the disable/enable-method as a handler. How this is practically 
+	      done is described later.
+	    </para>
+	    <para>
+	      Fortunately, a Template file is provided from which you can copy/paste to start
+	      writing your own components. This file is called <filename>ComponentTemplates.hpp</filename>
+	      and is provided with this package. You will see that for each component different DataObjects
+	      can be accessed and different types will be defined to facilitate that access.
+	    </para>
+	  </sect4>
+	  <sect4>
+	    <title>Standard Kernel Events</title>
+	    <para>
+	      A component might be interested in the fact if it is inserted in a kernel and if
+	      this kernel is running or not. A kernel might possibly do an init- run of the
+	      components so that the member variables can be initialised correctly, with sensor
+	      readings for example. All these actions are quite standard for every component and
+	      kernel. For each such action, an Event is created by the Kernel which will be fired
+	      by the kernel when it occurs. In some cases, a method of the DefaultComponent can
+	      be overriden and act as an event handler for a specific action.
+	    </para>
+	    <para>
+	      To summarize, each Kernel has some Events to which each component can subscribe.
+	      As an alternative, some Events have a method counterpart which can be overriden.
+	      This method is guaranteed to be called when the Event occurs (together with
+	      all the registered handlers).
+	    </para>
+	    <para>Each DefaultComponent (and thus each component you will insert into the kernel)
+	      is a subclass of the <classname>ComponentBaseInterface</classname>, which is
+	      defined in the file <filename>KernelInterfaces.hpp</filename>. This interface
+	      allows each component to locate the kernel in which it is loaded by the kernel()
+	      method returns a pointer to the <classname>KernelBaseExtension</classname>, which
+	      is the base class of each kernel. The <classname>ComponentBaseInterface</classname>
+	      defines the methods you can override, the <classname>KernelBaseExtension</classname>
+	      interface allows you to access the Standard Kernel Events. We refer to the Doxygen
+	      API documentation for the full documentation of these interfaces. The Events document
+	      explains how Events work and how a handler can be added.
+	    </para>
+	  </sect4>
+	</sect3>
+      </sect2>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title>Extending the DefaultKernel</title>
+    <sect2>
+      <title>Kernel Extensions</title>
+      <para>
+	Extending the Default Kernel, composing extensions
+      </para>
+      <para>
+	The DefaultControlKernel has only little features. It can be used to write a closed
+	control cycle, but it offers no facilities to report data or configure it at run time.
+	A kernel extension mechanism has been designed to extend the kernel, and all its 
+	components with additional features. A kernel can have as many extensions as possible,
+	but each extension can only be added once. There are currently two extensions provided :
+	the Property extension and the Reporting extension, which are both described below. Each
+	kernel has also a <classname>KernelBaseExtension</classname>, which defines the basic features each kernel
+	must have.
+      </para>
+      <para>
+	Each extension is accompanied by a piece of code, which is inserted in all components
+	of the kernel. This allows the component to communicate information to the extension
+	and back. This piece of code is called a Component Aspect. As the previous section
+	explained, the <classname>KernelBaseExtension</classname> is coupled with
+	the <classname>ComponentBaseInterface</classname> Aspect. What the Aspect does is
+	providing extra method calls to each component, which are related to a particular
+	extension. The extension on the otherhand can access the component through the Aspect
+	interface.
+      </para>
+      <para>
+	How does one add an extension to the Default Kernel ? It happens by adding an
+	extra template parameter on creation. To revisit the My1DKernel example :
+      </para>
+      <screen>
+	// equivalent typedef as before :
+	typedef DefaultControlKernel &lt;double, double, double, double, double, KernelBaseExtension&gt; My1DKernel;
+	// adding a new extension to the KernelBaseExtension :
+	typedef CompositeExtension&lt; KernelBaseExtension, PropertyExtension&gt; MyExtension;
+	typedef DefaultControlKernel &lt;double, double, double, double, double, MyExtension&gt; My1DPropertyKernel;
+      </screen>
+      <para>
+	As can be seen, Extensions are composed using the <classname>CompositeExtension</classname>
+	class, specifying the &lt; First, Second &gt; extension, where First and Second are allowed to be 
+	Composite Extensions themselves. The order First, Second determines which Extension is executed
+	before the other. In the example above, the <classname>KernelBaseExtension</classname> is
+	executed by the kernel before the <classname>PropertyExtension</classname>, as it should be. Adding
+	the reporting extension is then analogouos :
+      </para>
+      <screen>
+	// ...
+	// A kernel with two additional Extensions :
+	typedef CompositeExtension&lt; MyFirstExtension, ReportingExtension&gt; MySecondExtension;
+	typedef DefaultControlKernel &lt;double, double, double, double, double, MySecondExtension&gt; My1DPropRepKernel;
+      </screen>
+      <para>
+	The order in which the extensions are composed is important. If one extension fails
+	on startup, the other will not be initialised and the starting of the kernel will fail.
+	Logically, you can read from left to right : If the first works, check then if the
+	second works, then the third etc. A whole dependency tree can be built in that way,
+	but each extension can occur only once.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Component Aspects</title>
+      <para>
+	Extensions add Aspects to Components.
+      </para>
+      <para>
+	Adding an Extension to the kernel does not (visibly) change the existing components.
+	So a component does not need to anticipate any possible extension (nor does the Kernel).
+	The Aspect, which is added to the Component does however add a hook, into which the
+	Component can place code which will be executed when the Extension accesses the 
+	Component. If a component wants to export some data when the kernel supports reporting,
+	it will put some code into the <methodname>exportReports()</methodname> hook. If the
+	reporting extension is not present in the kernel, the <methodname>exportReports()</methodname>
+	method will never be called. The Extension can know if a component has put code into
+	the hook by providing a default implementation which gets called if the component
+	does no want to use it. Each Aspect is defined as such that the Component has a passive
+	role, meaning that the hook is always called by the Extension, and the component does
+	not need to call the Extension (which would lead to locking the component into an Extension).
+      </para>
+      <sect3>
+	<title>Extension Method Hooks</title>
+	<para>
+	  Almost every Extension will provide a hook method that each component can override
+	  ( re-implement ) to make use of the functionality. One hook might be used by different
+	  Extensions, as long as the semantical meaning remains the same for both Extensions.
+	  The following hooks are defined until now :
+	  <table>
+	    <title>Extension Method Hooks</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Used For</entry>
+		  <entry>Used By Extension</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>
+		    void exportReports( PropertyBag&amp; bag )
+		  </entry>
+		  <entry>The component needs to fill the bag with its own Properties
+		    which will be read after each kernel cycle. This is how the Extension
+		    knows what the Component wants to report.
+		  </entry>
+		  <entry>ReportingExtension, CORBAExtension</entry>
+		</row>
+		<row>
+		  <entry>bool updateProperties( const PropertyBag&amp; bag )</entry>
+		  <entry>The component can use the Properties found in the bag to
+		    update its own properties. The Extension got the Properties from
+		    a .cdl xml file.</entry>
+		  <entry>PropertyExtension</entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Configuring a Kernel.</title>
+      <para>This section explains how a ControlKernel can be configured in your program.</para>
+      <sect3>
+	<title>The KernelConfigurator</title>
+	<para>Kernels ( and Components )  can be configured at runtime with an XML file
+	  in the CPF (Component Property Format) format, defined by the OMG group. The
+	  KernelConfigurator is a class which can read a given xml file and configure a
+	  kernel with that information. The KernelConfigurator parses the file and
+	  passes the result to the <methodname>updateKernelProperties()</methodname> method.
+	  If you want to add your own configuration options to a Kernel subclass, you can
+	  override this method, with your own which parses the extra properties 
+	  and then call the method of the base class with the rest of the bag.
+	</para>
+	<para>A kernel configuration file might look like this :</para>
+	<programlisting>
+	  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+	  &lt;properties&gt;
+	  &lt;struct name="KernelProperties" type="type_less"&gt;
+	  &lt;description&gt;The Basic characteristics of this kernel.&lt;/description&gt;
+	  &lt;simple name="name"      type="string"&gt;&lt;description&gt;The Name of this kernel&lt;/description&gt;&lt;value&gt;Default&lt;/value&gt;&lt;/simple&gt;
+	  &lt;simple name="frequency" type="double"&gt;&lt;description&gt;The periodic execution frequency in Hz&lt;/description&gt;&lt;value&gt;1000&lt;/value&gt;&lt;/simple&gt;
+	  &lt;simple name="priority"  type="string"&gt;&lt;description&gt;The priority of the kernel.&lt;/description&gt;&lt;value&gt;NonPreemptible&lt;/value&gt;&lt;/simple&gt;
+	&lt;/struct&gt;
+
+	  &lt;struct name="Extensions" type="type_less"&gt;
+	  &lt;simple name="Interpreter" type="string"&gt;
+	  &lt;description&gt;The property file of the interpreter&lt;/description&gt;
+	  &lt;value&gt;interpreter.cpf&lt;/value&gt;&lt;/simple&gt;
+
+	  &lt;simple name="Reporter" type="string"&gt;
+	  &lt;description&gt;The property file of the reporter&lt;/description&gt;
+	  &lt;value&gt;reporter.cpf&lt;/value&gt;&lt;/simple&gt;
+
+	  &lt;simple name="Sequencer" type="string"&gt;
+	  &lt;description&gt;The property file of the sequencer&lt;/description&gt;
+	  &lt;value&gt;sequencer.cpf&lt;/value&gt;&lt;/simple&gt;
+
+	  &lt;simple name="Property" type="string"&gt;
+	  &lt;description&gt;The property file of the property manager&lt;/description&gt;
+	  &lt;value&gt;property.cpf&lt;/value&gt;&lt;/simple&gt;
+	&lt;/struct&gt;
+	&lt;/properties&gt;
+	</programlisting>
+	<para>
+	  It has two major parts : KernelProperties and Extensions. The first contains general options which apply
+	  to any kernel. The second specifies the property file for each (possible) extension. If the file is not found,
+	  an error is raised by the KernelConfigurator. The XML format is further explained in the Property Extension
+	  section. It is allowed to define your own properties in this file and update them in your
+	  own <methodname>updateKernelProperties</methodname> method. 
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring the Kernel with XML files</title>
+	<para>
+	  Runtime configuration of the Kernel and its Components can happen with XML files,
+	  so that you don't have to recompile your program each time you want to change an option.
+	  The CPF format is defined in the cpf.dtd file and is equal to the CORBA 3 standard's
+	  property file format. The Default Kernel and each extension have an own cpf file, which
+	  defines the values some (or all) properties should take. There may be more
+	  properties than listed in the cpf file and vice versa. The parser will do its 
+	  best effort to configure each component with the given data.
+	</para>
+	<tip>
+	  Example cpf files can often be found in the doc directory of the packages.
+	</tip>
+      </sect3>
+      <sect3>
+	<title>Properties</title>
+	<para>
+	  Properties are a way to represent configuration options in an abstract way.
+	  The property contains data or has a value, which is of one certain, immutable type.
+	  Any type can be encapsulated by a Property. A Property of a double is written as :
+	  <screen>Property&lt;double&gt; d_prop;</screen>. A Property of an arbitrary type
+	  A is equally written as <screen>Property&lt; A &gt; a_prop;</screen>. This
+	  however does not enable the  marshallers or demarshallers to know how
+	  to convert a property to a text file and vice versa. For each unknown type,
+	  the user has to write an composeProperty and decomposeProperty method.
+	  How this must happen can be read in the 
+	  <filename>corelib/properties/base PropertyComposition.hpp</filename> and
+	  <filename>corelib/properties/base PropertyDecomposition.hpp</filename> files.
+	</para>
+	<example>
+	  The Geometry primitives have also such custom functions which can be found
+	  in the file <filename>geometry MotionProperties.hpp</filename> file.
+	</example>      
+      </sect3>
+    </sect2>
+  </chapter>
+  <chapter>
+    <title>Available Extensions</title>
+    <sect1>
+      <title>The Property Extension</title>
+      <para>
+        Extending your components with properties.
+      </para>
+      <para>
+	By default, only the Kernel has a limited set of properties, Components have none. 
+	The PropertyExtension adds properties also to the components. The properties.cpf
+	file lists the cpf file for each component type. The components present
+	in the kernel will get the properties updated on starting the kernel. An option
+	can be enabled to configure all components, even those not loaded in the kernel.
+      </para>
+      <sect2>
+	<title>Configuring the Property Extension</title>
+	<para>
+	  The PropertyExtension can be configured through the cpf
+	  file given in the kernel configuration file. Not all configuration options
+	  are yet implemented and the layout may change in future releases.
+	  An example looks like this :
+	</para>
+	<example>
+	  <title>Example properties.cpf file</title>
+	  <programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
+&lt;properties&gt;
+    &lt;!--Possible future syntax : --&gt;
+    &lt;struct name="Generator" type="ComponentEntry"&gt;
+        &lt;simple name="Type"&gt;&lt;value&gt;Generator&lt;/value&gt;&lt;/simple&gt;
+        &lt;simple name="Filename"&gt;&lt;value&gt;MotionGenerator.cpf&lt;/value&gt;&lt;/simple&gt;
+    &lt;/struct&gt;
+
+    &lt;!--Current syntax : --&gt;
+    &lt;simple name="Generator"  type="string"&gt;&lt;description&gt;The Generator Component Property File.&lt;/description&gt;&lt;value&gt;generator.cpf&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Estimator"  type="string"&gt;&lt;description&gt;The Estimator Component Property File.&lt;/description&gt;&lt;value&gt;estimator.cpf&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Controller" type="string"&gt;&lt;description&gt;The Controller Component Property File.&lt;/description&gt;&lt;value&gt;controller.cpf&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Sensor"     type="string"&gt;&lt;description&gt;The Sensor Component Property File.&lt;/description&gt;&lt;value&gt;sensor.cpf&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Effector"   type="string"&gt;&lt;description&gt;The Effector Component Property File.&lt;/description&gt;&lt;value&gt;effector.cpf&lt;/value&gt;&lt;/simple&gt;
+
+    &lt;simple name="SaveProperties" type="boolean"&gt;
+        &lt;description&gt; True if properties of components need to be saved when stopping the kernel.&lt;/description&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="SaveFilePrefix"   type="string"&gt;
+        &lt;description&gt;The suffix of the filename to store the components state into&lt;/description&gt;&lt;value&gt;saved_&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="SaveFileExtension"   type="string"&gt;
+        &lt;description&gt;The extension of the filename to store the components state into&lt;/description&gt;&lt;value&gt;cpf&lt;/value&gt;
+    &lt;/simple&gt;
+
+&lt;/properties&gt;
+	  </programlisting>
+	</example>
+      </sect2>
+      <sect2>
+	<title>Hooks</title>
+	<para>The Property Extension has one hook : the 
+	  <methodname>updateProperties( const PropertyBag&amp; bag )</methodname>
+	  method. The user must extract properties from the bag and assign
+	  his own proper property with the value found. A helper function 
+	  can be written to facilitate this for any type.
+	</para>
+	<example>
+	  <title>The PropertyExtension used in CartesianComponents.hpp</title>
+	  <para>
+	    A simple component with only one property. If composeProperty
+	    can not find the gain property back, it will return false, and 
+	    the kernel will not start.
+	  </para>
+	  <programlisting>
+	    // In constructor, gain defaults to zero :
+	       , gain("Gain","The gain of the controller",0)
+
+	    // Hook In Controller Component :
+	    virtual bool updateProperties( const PropertyBag&amp; bag)
+            {
+	        return composeProperty(bag, gain ); // returns true if successful.
+            }
+
+	    // ... The gain of the Controller ...
+	    Property&lt;double&gt; gain;
+
+	    // ...
+	  </programlisting>
+	  <para>The cpf file looks like this :</para>
+	  <programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
+&lt;properties&gt;
+    &lt;simple name="Name" type="string"&gt;&lt;description&gt;The unique name of this component&lt;/description&gt;&lt;value&gt;CartesianController&lt;/value&gt;&lt;/simple&gt;
+    &lt;simple name="Gain"    type="double"&gt;&lt;description&gt;The gain of the controller &lt;/description&gt;&lt;value&gt;2&lt;/value&gt;&lt;/simple&gt;
+&lt;/properties&gt;
+	  </programlisting>
+	</example>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>The Reporting Extension</title>
+      <para>
+        Reporting components and dataobjects values.
+      </para>
+      <para>
+	A second functional Extension is the Reporting Extension. It enables components
+	to report the status of internal variables to the screen or to a file, independent
+	of the kernel's execution period. It can be used for synchronous reporting of data
+	(every sample), but the design favoured determinism of execution time over 
+	determinism of data acquisition.
+	This means that it is possible that a data sample is lost, but never possible that
+	the kernel stalls because of the reporting activity. Another extension does not need
+	to make the same choice however.
+      </para>
+      <para>
+	What happens is that after each kernel step, the Extension tries to make
+	a backup of the components data. If by accident the data is accessed by
+	the report writing task, the copy operation is cancelled. A better buffering
+	mechanism (swinging buffers) might solve this in a better way.
+      </para>
+      <sect2>
+	<title>Configuring the Reporting Extension</title>
+	<para>
+	  The ReportingExtension can be configured through the cpf
+	  file given in the kernel configuration file. Not all configuration options
+	  are yet implemented and the layout may change in future releases.
+	  An example looks like this :
+	</para>
+	<example>
+	  <title>Example reporting.cpf file</title>
+	  <programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
+&lt;!-- Properties of the ReportingExtension --&gt;
+&lt;properties&gt;
+
+    &lt;simple name="ReportPeriod" type="double"&gt;
+            &lt;description&gt;The period, in seconds, for making reports.&lt;/description&gt;
+            &lt;value&gt;0.1&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="ReportFile" type="string"&gt;
+        &lt;description&gt;The file to write the reports to.&lt;/description&gt;
+        &lt;value&gt;reports.txt&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="ReportServer" type="string"&gt;
+        &lt;description&gt;The name of the report server to use.&lt;/description&gt;
+        &lt;value&gt;MyReporter&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="WriteToStdOut" type="boolean"&gt;
+        &lt;description&gt;True if the report needs to be written to standard output.&lt;/description&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;simple name="WriteToFile" type="boolean"&gt;
+        &lt;description&gt;True if the report needs to be written to a file.&lt;/description&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/simple&gt;
+    &lt;struct name="Exporters" type="type_less"&gt;
+        &lt;simple name="Component" type="string"&gt;&lt;value&gt;Sensor&lt;/value&gt;&lt;/simple&gt;
+        &lt;simple name="Component" type="string"&gt;&lt;value&gt;Effector&lt;/value&gt;&lt;/simple&gt;
+        &lt;simple name="Component" type="string"&gt;&lt;value&gt;Controller&lt;/value&gt;&lt;/simple&gt;
+        &lt;simple name="Component" type="string"&gt;&lt;value&gt;Estimator&lt;/value&gt;&lt;/simple&gt;
+        &lt;simple name="Component" type="string"&gt;&lt;value&gt;Generator&lt;/value&gt;&lt;/simple&gt;
+    &lt;/struct&gt;
+&lt;/properties&gt;
+	  </programlisting>
+	</example>
+      </sect2>
+      <sect2>
+	<title>Hooks</title>
+	<para>The ReportingExtension has one hook : the 
+	  <methodname>void exportReports( PropertyBag&amp; bag) </methodname>
+	  method. The user must put every value he wishes to report in a 
+	  Property of the according type. For example to report a 6D position,
+	  one would create a Property <screen>Property&lt; Double6D &gt; q6;</screen>
+	  in the component class. The exportReports method will then insert this
+	  property into the given bag. Of course, a component does not need to
+	  report all its properties, depending on the configuration, other
+	  types might be reported. 
+	</para>
+	<para>
+	  The Decomposition constraint of the 
+	  PropertyExtension also applies here.
+	</para>
+	<example>
+	  <title>Reporting in CartesianComponents.hpp</title>
+	  <para>
+	    A simple component with only one value to report.
+	  </para>
+	  <programlisting>
+	    // In constructor :
+	       :end_pos("End Position","One of many variables which can be reported.")
+
+	    // Hook in Generator Component:
+                 virtual void exportReports(PropertyBag&amp; bag)
+                 {
+                     bag.add(&amp;end_pos);
+                 }
+
+	    // The property itself
+	    Property&lt; ORO_Geometry::Frame &gt; end_pos;
+
+	    // ...
+	  </programlisting>
+	</example>
+      </sect2>
+    </sect1>
+  </chapter>
+  <chapter>
+    <title> Motion Control Components </title>
+    <sect1>
+      <title>Stuff to move to kernel_components documentation</title>
+      <sect2>
+	<title>Trajectories and Interpolators</title>
+	<para>
+	  We use the LRL (Leuvens Robotics Library) Trajectory planning software which 
+	  can be found on the Orocos webpage. The library already provides Cartesian
+	  path planning and interpolation. We provided actuator (joint) level
+	  interpolators described by the <interfacename>TrajectoryInterpolatorInterface
+	  </interfacename>. It is used to decouple two control loops which run with
+	  different periodicities. Internally, a fifo buffer is used to make the
+	  decoupling. The slower loop writes a new setpoint to the interpolator,
+	  the interpolator reads new setpoints from its buffer when its needed.
+	  A setpoint is always set in combination with a relative timeperiod
+	  which indicates how long the interpolater must do between its current
+	  value and the new setpoint. After this time, a new setpoint will be read.
+	  When time zero is given, the interpolater will go as fast as possible
+	  ( obeying limits ) to the latest setpoint and will use the new one
+	  as soon as it arrives. The interpolators buffer can thus be filled with
+	  a series of setpoints in advance and then process them as desired.
+	</para><para>
+	  Two implementations exist : 
+	  <interfacename>TrajectoryInterpolatorSimple</interfacename>, which is more for
+	  testing since it does not interpolate, but does use the buffer,
+	  timing and limiting infrastructure. 
+	  The <interfacename>TrajectoryInterpolatorParabolic</interfacename>provides
+	  an integrater which allows variable period interpolations and parabolic
+	  interpolation between two consecutive setpoints.
+	</para>
+	<para>
+	  The interpolator is mostly placed at an end of the control loop, 
+	  generating reference signals.
+	</para>
+      </sect2>
+      <sect2>
+        <title>Properties and the MotionMonitor</title>
+        <para>
+	  &control; provides some extentions to the LRL. We have written 
+	  PropertySets which represent structures as Frame, Twist, etc from
+	  the LRL. The <classname>MotionMonitor</classname> extends the
+	  core <classname>ReportHandler</classname> to allow reporting
+	  of these structures also. 
+	  The Properties exist in two kinds,
+	  on one hand is the <classname>PropertyObject</classname>
+	  (or <classname>PropXYZ</classname>), which extends the
+	  existing structures with a property like interface. This means
+	  that you can anywhere replace an existing structure with
+	  a <classname>PropertyObject</classname>. On the other hand
+	  are the predefined <classname>PropertySet</classname> 
+	  (or <classname>PropertySetXYZ</classname> objects
+	  which extends the <classname>PropertySet</classname> class
+	  to extract the represented structure (e.g. Frame, Twist,...).
+	</para>
+	<para>
+	  These properties become handy for reporting to userspace and
+	  setting parameters of the realtime system. The interfacing
+	  package provides a way of changing properties in
+	  an easy way. (all we need now is a GUI :-)
+	</para>
+	<para>
+	  <note>
+	    RTLinux users can not use this until they have a memory allocator.
+	  </note>
+        </para>
+      </sect2>
+      <sect2>
+        <title>Motion Commands and the RobotInterface</title>
+	<para>
+	  The &control; package extends the interfacing package with
+	  some &control; specific extensions. Please read the
+	  interfacing package documentation for further explanations
+	  of the terms below
+	</para>
+        <para>
+	  This package also defines a generic <classname>RobotInterface
+	  </classname>, designed for a 6 degrees of freedom robot.
+	  It is nameserved which means that we can control any
+	  known robot in a generic way.
+	  This interface is far from definate, but it should map on
+	  most robots.
+	  
+	  When the configure script detects that the interfacing package
+	  is installed, it will also compile a series of
+	  <classname>Command</classname> classes, designed for 
+	  calling the methods in the <classname>RobotInterface</classname>.
+	  A <classname>Parser</classname> will create and relay all commands
+	  for nameserved robots.
+	</para>
+	<para>
+	  <note>
+	    RTLinux users can not use this until they have a memory allocator.
+	  </note>
+        </para>
+      </sect2>
+
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Kinematics</title>
+    <sect1>
+      <title>Introduction</title>
+      <para>
+	Kinematics are used for converting postions, velocities,... expressed in one
+	(orthogonal) frame, to another frame or another space. The two major
+	spaces in Robotics are Cartesian space and Joint space. Cartesian space uses 3D
+	coordinates for position and a kind of convention for orientation (
+	the homogeneous transformation matrix, Euler angles,...), while 
+	joint space is just the radial position of each joint, thus for a
+	6 degrees of freedom robot, this is a vector with 6 values, denoting
+	the six joint positions.
+      </para>
+      <para>
+	Forward kinematics is used to calculate from a given set of joint
+	positions the end effector position of the robot in a kind of
+	reference frame. Inverse kinematics is used to calculate from a
+	given end effector position, expressed in a certain frame,
+	the joint positions which lead to this position. The solutions
+	of the inverse kinematics can not always be found because :
+	The position might be impossible to reach by the robot, or,
+	the position might be reachable in many ways by the robot
+	(called different configurations), or, 
+	the joint positions can not be calculated because the end
+	effectors position is singular, which means that it can be
+	reached in an infinite amount of ways by the joints.
+      </para>
+      <para>
+	Our kinematics algorithms keep track of all the above and 
+	much more. This can clearly be seen from the used interfaces too.
+      </para>
+      <sect2>
+	<title>The KinematicsInterface</title>
+	<para>
+	  This interface describes the library side of the kinematics
+	  algorithms. The interface allows you to calculate all
+	  forward and inverse jacobians, positions and velocities.
+	  A desired <classname>Configuration</classname> 
+	  and a <classname>Singularity</classname>
+	  class instance must be provide where approriate.
+	  How the kinematics are calculated depends on the actual
+	  implementation. We provide the Featherstone algorithms
+	  for many kinds of robots. Only the ZXXDWH and ZYYDWH robots
+	  are converted to the KinematicsInterface. You can take a
+	  look at how we converted them to fit into the framework
+	  if you have a different kind of robot.
+	</para>
+	<para>
+	  The KinematicsInterface is completely stateless and returns
+	  theoretical values, thus does not take into account any
+	  geometry constraints or winding of joints (angles larger
+	  than 360 degrees). All state information is kept in the
+	  <classname>KinematicsComponent</classname>.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The KinematicsComponent</title>
+	<para>
+	  As each robot only needs one instance of the 
+	  <interfacename>KinematicsInterface</interfacename>, for doing
+	  the calculations, many are needed to keep track of the current
+	  path and configuration of the robot in different places of 
+	  your program. The KinematicsComponent makes sure that between
+	  two consecutive calls, the robot stays in the same configuration
+	  and the joints follow a continuous path. It will return in error
+	  when an impossible jump is detected. It provides methods
+	  for setting or extracting the desired robot configuration.
+	  For example, your trajectory generator and
+	  the actual robot might be using a different KinematicsComponent
+	  to keep track of the state of the calculations.
+	</para>
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter id="chap-interface">
+    <title>Interfaces</title>
+    <para>
+      This chapter describes the <emphasis>interfaces</emphasis> of the
+      different components in the motion control part of &orocos;.
+    </para>
+
+    <sect1 id="interface-motivation">
+      <title>Motivation</title>
+      <para>
+	A complex and feature-rich application such as motion control can be
+	given various different interfaces. This Section explains and
+	motivates the guidelines we follow in the &orocos; project to define
+	interfaces:
+	<itemizedlist>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Loose coupling.</emphasis>
+	      Every object that implements an interface must implement the whole
+	      interface. This means that interfaces are kept as small a possible,
+	      and that every object usually implements several interfaces. The
+	      reasons for this choice are: (i) it avoids the need to return
+	      &ldquo;method not implemented&rdquo; error messages and the
+	      corresponding error recovery; and (ii) it forces the developers to
+	      classify functionality into parts with the least possible amount of
+	      interdependencies.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Application independence.</emphasis>
+	      The words &ldquo;robot&rdquo; or &ldquo;machine tool&rdquo; are
+	      avoided whenever possible, because most of the functionalities are
+	      much more general than just for robots or machine tools.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Shallow inheritance hierarchies.</emphasis>
+	      We avoid inheritance hierarchies of more than two levels deep, because
+	      deep hierarchies lead to ambiguous inheritance structure. For example,
+	      one could suggest to have a hierarchy such as &ldquo;robot&rdquo;
+	      &map; &ldquo;6DOF robot&rdquo; &map; &ldquo;6DOF velocity-controlled
+	      robot&rdquo; &map; &ldquo;6DOF hybrid velocity/force-controlled robot&rdquo;
+	      &map; &hellip; But the latter interface could originate equally well
+	      from another hierarchy, such as &ldquo;control law&rdquo; &map;
+	      &ldquo;velocity control&rdquo; &map; &ldquo;hybrid force/velocity
+	      control&rdquo; &map; &ldquo;6DOF hybrid force/velocity
+	      control.&rdquo;
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Inheritance versus aggregation and composition.</emphasis>
+	      A particular interface can be a <emphasis>specialisation</emphasis> of
+	      an already existing interface, for which inheritance is an appropriate
+	      formalism. But an interface can also the
+	      <emphasis>composition</emphasis> or <emphasis>aggregation</emphasis>
+	      of other interfaces, i.e., the interface contains other interfaces,
+	      and possibly puts extra constraints on how to use the individual
+	      interfaces. The difference between aggregation and composition is
+	      that, in the latter case, the object that implements the composed
+	      interface cannot exist if one of its sub-interfaces is taken out.
+	    </para>
+	  </listitem>
+
+	</itemizedlist>
+      </para>
+
+    </sect1>
+
+
+    <sect1 id="interface-cart-motion">
+      <title>Cartesian motion</title>
+      <para>
+	moveTo (Cartesian position); move (Cartesian velocity);
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-axis-motion">
+      <title>Axis</title>
+      <para>
+	readId(); setId();
+      </para>
+      <para>
+	moveTo (joint position set); move (joint velocity set);
+      </para>
+      <para>
+	readPos (joint position set); readVel (joint position set);
+      </para>
+      <para>
+	applyForce (joint velocity set); readForce (joint velocity set); 
+      </para>
+      <para>
+	home ();
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-device">
+      <title>Device</title>
+      <para>
+	readId(); setId();
+      </para>
+      <para>
+	Activate(), deactivate().
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-robot">
+      <title>Robot</title>
+      <para>
+	readId(); setId();
+      </para>
+      <para>
+	composite of Axis objects;
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-servo">
+      <title>Servo</title>
+      <para>
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-trajectory">
+      <title>Trajectory</title>
+      <para>
+      </para>
+
+    </sect1>
+
+    <sect1 id="interface-interpolation">
+      <title>Interpolation</title>
+      <para>
+      </para>
+
+    </sect1>
+
+  </chapter>
+
+</book>
