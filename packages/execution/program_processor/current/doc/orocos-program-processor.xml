@@ -168,7 +168,7 @@
 	However, before it will accept commands, it must be attached
 	to a periodic task and be started. It implements the
 	<classname>ORO_CoreLib::RunnableInterface</classname> class,
-	which allows it to be run by periodic tasks :
+	which allows it to be run by periodic and non periodic tasks :
       </para>
       <programlisting>
   #include &lt;execution/Processor.hpp&gt;
@@ -203,15 +203,23 @@
 	Infrastructure Manual for more elaborate examples of Command
 	queueing. 
       </para>
-      <figure><title>Threads Sending Commands</title>
+      <figure><title>Tasks Sending Commands</title>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="Commands" />
+	    <imagedata fileref="TaskCommandSerialisation" />
 	  </imageobject>
 	  <caption>
 	    <para>
 	      Tasks of different threads communicate by sending
-	      commands to each others Processors.
+	      commands to each other's Processors. When Task T1,
+	      running in Thread (a), requests that T2, running
+	      in Thread (b) processes a command, the command
+	      is stored in a command queue of that task's Processor.
+	      When T2 runs its Processor, the queue is checked and
+	      the command is executed. T1 can optionally check if
+	      the command was accepted and executed, using a
+	      Completion Condition ( see TaskContext and Program
+	      Parser manuals. )
 	    </para>
 	  </caption>
 	</mediaobject>
@@ -321,65 +329,6 @@
 	should be try'ed and catch'ed on load and unload or deletion
 	of a State Machine in the Processor.
       </para>
-    </sect2>
-  </sect1>
-  <sect1>
-    <title>StateMachine and Program Implementation Details</title>
-    <para>
-      This section gives a short description of the inside
-      of Programs and StateMachines, and can be skipped by most users.
-    </para>
-    <sect2 id="progproc-condition">
-      <title>( State ) Transitions : Condition Edge</title>
-      <para>
-	The <classname>ConditionEdge</classname> defines an edge
-	of the state diagram. It contains
-	a condition on which a next state is entered. The 
-	<classname>ConditionInterface</classname> encapsulates
-	that logic. Conditions
-	can be ordered by priority, so that it is defined in which
-	order they are checked. A multiple of
-	conditions can lead to the same state.
-      </para>
-      </sect2>
-      <sect2 id="progproc-command">
-	<title>Statements : Command Node</title>
-	<para>
-	  The <classname>CommandNode</classname> contains a
-	  <classname>Command</classname> and is connected by edges of
-	  the type <classname>ConditionEdge</classname>, these edges
-	  connect one node with another and allow the transition
-	  if the contained condition evaluates to true. When a program
-	  is executed, it executes the command and runs through the
-	  list of edges of that node. When a <classname>
-	    Condition</classname> is found valid, the next program
-	  node to be executed is found. If no condition is
-	  fulfilled, the same command node will be executed again.
-	  Also a line number can be associated with each command node,
-	  as a reference to the input file formatted by the user.
-	</para>
-      </sect2>
-      <sect2>
-	<title>The Command class</title>
-	<para>
-	  The <classname>Command</classname> is the abstraction of a
-	  user directive that has to be executed. A Command can be
-	  execute()'ed and reset()'ed. For each action exists one
-	  Command, but a Command can be composed of other Commands.
-	  The basic interface, CommandInterface, is provided by the
-	  Orocos CoreLib.
-	</para>
-      </sect2>
-      <sect2>
-	<title>The Condition class</title>
-	<para>
-	  The <classname>Condition</classname> is the abstraction of a
-	  user expression that has to be evaluated. A Condition can be
-	  evaluated()'ed and reset()'ed. Many primitive expressions
-	  can be evaluated and a Condition can be composed of other
-	  Conditions. The basic interface, ConditionInterface, is
-	  provided by the Orocos CoreLib
-	</para>
     </sect2>
   </sect1>
   <sect1>
@@ -513,6 +462,65 @@
 	commands in the Processor after the control calculations
 	are done. In this way, safe data access can be guaranteed.
       </para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>StateMachine and Program Implementation Details</title>
+    <para>
+      This section gives a short description of the inside
+      of Programs and StateMachines, and can be skipped by most users.
+    </para>
+    <sect2 id="progproc-condition">
+      <title>( State ) Transitions : Condition Edge</title>
+      <para>
+	The <classname>ConditionEdge</classname> defines an edge
+	of the state diagram. It contains
+	a condition on which a next state is entered. The 
+	<classname>ConditionInterface</classname> encapsulates
+	that logic. Conditions
+	can be ordered by priority, so that it is defined in which
+	order they are checked. A multiple of
+	conditions can lead to the same state.
+      </para>
+      </sect2>
+      <sect2 id="progproc-command">
+	<title>Statements : Command Node</title>
+	<para>
+	  The <classname>CommandNode</classname> contains a
+	  <classname>Command</classname> and is connected by edges of
+	  the type <classname>ConditionEdge</classname>, these edges
+	  connect one node with another and allow the transition
+	  if the contained condition evaluates to true. When a program
+	  is executed, it executes the command and runs through the
+	  list of edges of that node. When a <classname>
+	    Condition</classname> is found valid, the next program
+	  node to be executed is found. If no condition is
+	  fulfilled, the same command node will be executed again.
+	  Also a line number can be associated with each command node,
+	  as a reference to the input file formatted by the user.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The Command class</title>
+	<para>
+	  The <classname>Command</classname> is the abstraction of a
+	  user directive that has to be executed. A Command can be
+	  execute()'ed and reset()'ed. For each action exists one
+	  Command, but a Command can be composed of other Commands.
+	  The basic interface, CommandInterface, is provided by the
+	  Orocos CoreLib.
+	</para>
+      </sect2>
+      <sect2>
+	<title>The Condition class</title>
+	<para>
+	  The <classname>Condition</classname> is the abstraction of a
+	  user expression that has to be evaluated. A Condition can be
+	  evaluated()'ed and reset()'ed. Many primitive expressions
+	  can be evaluated and a Condition can be composed of other
+	  Conditions. The basic interface, ConditionInterface, is
+	  provided by the Orocos CoreLib
+	</para>
     </sect2>
   </sect1>
 </article>

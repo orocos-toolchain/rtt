@@ -803,6 +803,20 @@ ORO_main( int argc, char** argv)
       thread. The thread which will execute the deferred callback
       is chosen at connection time.
     </para>
+    <figure><title>Event Handling</title>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="TaskEventSerialisation" />
+      </imageobject>
+      <caption><para>Task T1 runs in PeriodicThread (a) while Task T2
+      runs in PeriodicThread (b). At some time, T1 registers a
+      synchonous and asynchronous callback function ( reaction ) with
+      task T2's Event. When T2 fires (emits) the Event, the
+      synchronous Event callback is executed first ( within Thread (b)
+      ), while the asynchronous ( deferred ) callback is queued and
+      executed after T1 has run, in Thread (a).  </para></caption>
+    </mediaobject>
+    </figure>
     <para>
       The Orocos Event system has been adapted since version 0.18 to 
       use the <ulink url="http://www.boost.org/">boost::signals</ulink> library.
@@ -814,7 +828,7 @@ ORO_main( int argc, char** argv)
     <para>
       The Orocos Event extends the boost signal with asynchronous event handling. 
       Any kind of function can be connected to the event as long as it has the
-      same signature as the Event. The raise method of an Orocos Event is
+      same signature as the Event. The 'raise' or 'emit' method of an Orocos Event is
       called <methodname>fire()</methodname>.
     </para>
     <example id="core-event-example">
@@ -830,7 +844,7 @@ using boost::bind;
 class SafetyStopRobot
 {
 public:
-    void handle() {
+    void handle_now() {
         // Synchronous Handler code
     std::cout << " Putting the robot in a safe state fast !" << std::endl;
     }
@@ -839,7 +853,7 @@ public:
 Class NotifyUser
 {
 public:
-    void complete() {
+    void handle_later() {
 	    //Asynchronous Completer code
 	    std::cout << "The program stopped the robot !"<<std::endl;
     }
@@ -857,8 +871,8 @@ Handle emergencyHandle;
 // an event.
 std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
 emergencyHandle = 
-   emergencyStop.connect( bind( &SafetyStopRobot::handle, &safety),
-	                  bind( &NotifyUser::complete, &notify) );
+   emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety),
+	                  bind( &NotifyUser::handle_later, &notify) );
 
 std::cout << "Fire the event\n";
 emergencyStop.fire();
@@ -868,7 +882,7 @@ emergencyHandle.disconnect();
 
 // Add only synchronous callback :
 emergencyHandle = 
-   emergencyStop.connect( bind( &SafetyStopRobot::handle, &safety) );
+   emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety) );
 
 std::cout << "Doing a quiet safety stop..."<<std::endl;
 emergencyStop.fire(); // User not notified
@@ -1243,6 +1257,18 @@ emergencyStop.fire(); // User not notified
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
+    <figure><title>DataObjects versus Buffers</title>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="DataObjectBuffer" />
+      </imageobject>
+      <caption><para>DataObjects are most suitable for single writer, many readers,
+      and always return the last written value. Buffers have a fixed queue length
+      and are used for processing all produced data by any number of producers and
+      consumers.
+      </para></caption>
+    </mediaobject>
+    </figure>
     <sect2 id="corelib-buffers">
       <title>Buffers</title>
       <para>
