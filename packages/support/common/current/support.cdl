@@ -1,0 +1,7 @@
+cdl_package OROPKG_SUPPORT {
+    display "Detected Support Libraries"
+    description "
+This package groups all detected libraries
+the packages/configure script found. Their
+presence allows other packages to be built."
+}

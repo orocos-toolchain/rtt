@@ -1,0 +1,22 @@
+cdl_package OROPKG_SUPPORT_RTAI {
+    display "RTAI Installation"
+    parent OROPKG_SUPPORT
+
+    description " 
+The presence of this package indicates that the configure
+script detected a valid RTAI installation, which can now
+be used by other packages."
+    cdl_option OROBLD_SUPPORT_RTAI_DIR {
+	display "RTAI installation directory"
+	description "
+The RTAI installation path, typically
+/usr/realtime or /usr/local/realtime."
+	flavor data
+	default_value { "@RTAI_DIR@" }
+    }
+    cdl_option OROBLD_SUPPORT_RTAI_VERSION {
+	display "Detected RTAI Version"
+	flavor data
+	default_value { "@RTAI_VERSION@" }
+    }
+}
