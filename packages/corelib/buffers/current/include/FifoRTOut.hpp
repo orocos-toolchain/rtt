@@ -29,7 +29,7 @@
 #define FIFORTOUT_HPP
 
 
-#include "WriteNonBlockingInterface.hpp"
+#include "WriteInterface.hpp"
 #include "FifoRTCommon.hpp"
 
 namespace ORO_CoreLib
@@ -41,7 +41,7 @@ namespace ORO_CoreLib
      * will be used.
      */
     class FifoRTOut :
-        public WriteNonBlockingInterface
+        public WriteInterface
     {
         public:
             /**
