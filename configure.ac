@@ -107,8 +107,7 @@ cd -
 AC_CONFIG_FILES([ 
   Doxyfile Makefile 
   doc/Makefile
-  doc/orocos-manual.xml
-  doc/orocos-control-manual.xml
+  doc/catalog.xml
   tests/Makefile
   ])
 

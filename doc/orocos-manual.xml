@@ -14,7 +14,7 @@
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
-    <subtitle>@VERSION@</subtitle>
+    <subtitle>&oversion;</subtitle>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>

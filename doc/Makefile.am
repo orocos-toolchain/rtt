@@ -11,7 +11,9 @@ EXTRA_DIST = \
 # we do not distribute the ps files, they are to large,
 # but i make them for the website
 
-XMLDOCS=orocos-overview.xml orocos-installation.xml orocos-changes.xml orocos-faq.xml
+XMLDOCS=orocos-overview.xml orocos-installation.xml
+# the faq only renders correctly in html, the changes is only for online viewing.
+HTMLXMLDOCS=orocos-faq.html orocos-changes.html
 XML_CATALOG_FILES="catalog.xml"
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
@@ -31,7 +33,7 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 
 DIAS=ApplicationStack.dia
 
-HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS))
+HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS)) $(HTMLXMLDOCS)
 PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))
 PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))  #$(patsubst %.sgml,%.ps,$(DOCBOOKS))
 TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS)) # $(patsubst %.sgml,%.txt,$(DOCBOOKS))
