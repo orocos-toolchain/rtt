@@ -52,7 +52,7 @@ but it will do nothing and will not react on interrupts."
 	    display "Global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value { "-pipe -Wall -Wstrict-prototypes -Woverloaded-virtual -Wnon-virtual-dtor -O2" }
+	    default_value { "-pipe -Wall -Woverloaded-virtual -Wnon-virtual-dtor -O2" }
 	    description   "
           This option controls the global compiler flags which
           are used to compile all packages by

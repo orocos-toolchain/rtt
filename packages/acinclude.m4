@@ -129,14 +129,14 @@ m4_define([ACX_VERSION_POST],[
 
  SVN=$(which svn)
 
- if test x$SVN != xno; then
+ if test x$SVN != x; then
  echo "{ print $""1  }" > print-svn.awk
  SVN_VERSION=$(svn log http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 2>/dev/null \
 	| head -2 |tail -1 | awk -f print-svn.awk )
  fi;
- rm print-svn.awk
+ rm -f print-svn.awk
 
- if test x$SVN != xno; then
+ if test x$SVN != x; then
 	 BUILD=-$SVN_VERSION
  fi;
 

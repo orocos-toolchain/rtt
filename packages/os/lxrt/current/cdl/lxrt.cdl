@@ -93,7 +93,7 @@ fill in your own directory."
 	    display "Global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value { " -pipe -Wall -Wstrict-prototypes -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
+	    default_value { " -pipe -Wall -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
 	    description   "
           This option controls the global compiler flags which
           are used to compile all packages by
