@@ -155,7 +155,7 @@ bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
     this->preLoad( comp );
     if (  comp->componentLoaded() )
         {
-            components.push_back(comp);
+            components.insert( std::make_pair(comp->getName(), comp) );
             this->postLoad( comp );
             return true;
         }
@@ -165,8 +165,8 @@ bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
 
 void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
 {
-    std::vector<ComponentBaseInterface*>::iterator itl 
-        = std::find(components.begin(), components.end(), comp);
+    ComponentMap::iterator itl 
+        = components.find( comp->getName() );
     if (itl != components.end() ) {
         this->preUnload( comp );
         comp->componentUnloaded();
@@ -184,28 +184,78 @@ CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
     ret->add( "selectController", 
               command
               ( &KernelBaseFunction::selectController ,
-                &KernelBaseFunction::isSelectedController,
+                &KernelBaseFunction::true_gen,
                 "Select a Controller Component", "Name", "The name of the Controller" ) );
     ret->add( "selectGenerator", 
               command
               ( &KernelBaseFunction::selectGenerator ,
-                &KernelBaseFunction::isSelectedGenerator,
+                &KernelBaseFunction::true_gen,
                 "Select a Generator Component", "Name", "The name of the Generator" ) );
     ret->add( "selectEstimator", 
               command
               ( &KernelBaseFunction::selectEstimator ,
-                &KernelBaseFunction::isSelectedEstimator,
+                &KernelBaseFunction::true_gen,
                 "Select a Estimator Component", "Name", "The name of the Estimator" ) );
     ret->add( "selectSensor", 
               command
               ( &KernelBaseFunction::selectSensor ,
-                &KernelBaseFunction::isSelectedSensor,
+                &KernelBaseFunction::true_gen,
                 "Select a Sensor Component", "Name", "The name of the Sensor" ) );
     ret->add( "selectEffector", 
               command
               ( &KernelBaseFunction::selectEffector ,
-                &KernelBaseFunction::isSelectedEffector,
+                &KernelBaseFunction::true_gen,
                 "Select a Effector Component", "Name", "The name of the Effector" ) );
+    ret->add( "startController", 
+              command
+              ( &KernelBaseFunction::startController ,
+                &KernelBaseFunction::true_gen,
+                "Start a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "startGenerator", 
+              command
+              ( &KernelBaseFunction::startGenerator ,
+                &KernelBaseFunction::true_gen,
+                "Start a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "startEstimator", 
+              command
+              ( &KernelBaseFunction::startEstimator ,
+                &KernelBaseFunction::true_gen,
+                "Start a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "startSensor", 
+              command
+              ( &KernelBaseFunction::startSensor ,
+                &KernelBaseFunction::true_gen,
+                "Start a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "stopEffector", 
+              command
+              ( &KernelBaseFunction::stopEffector ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Effector Component", "Name", "The name of the Effector" ) );
+    ret->add( "stopController", 
+              command
+              ( &KernelBaseFunction::stopController ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "stopGenerator", 
+              command
+              ( &KernelBaseFunction::stopGenerator ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "stopEstimator", 
+              command
+              ( &KernelBaseFunction::stopEstimator ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "stopSensor", 
+              command
+              ( &KernelBaseFunction::stopSensor ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "stopEffector", 
+              command
+              ( &KernelBaseFunction::stopEffector ,
+                &KernelBaseFunction::true_gen,
+                "Stop a Effector Component", "Name", "The name of the Effector" ) );
     return ret;
 }
 
@@ -213,21 +263,27 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
 {
     TemplateDataSourceFactory< KernelBaseFunction >* ret =
         newDataSourceFactory( this );
-    ret->add( "usingGenerator", 
-              data( &KernelBaseFunction::isSelectedGenerator, "Check if this generator is used.",
+    ret->add( "isSelectedGenerator", 
+              data( &KernelBaseFunction::isSelectedGenerator, "Check if this generator is selected.",
                     "Name", "The name of the Generator") );
-    ret->add( "usingController", 
-              data( &KernelBaseFunction::isSelectedController, "Check if this controller is used.",
+    ret->add( "isSelectedController", 
+              data( &KernelBaseFunction::isSelectedController, "Check if this controller is selected.",
                     "Name", "The name of the Controller") );
-    ret->add( "usingEstimator", 
-              data( &KernelBaseFunction::isSelectedEstimator, "Check if this estimator is used.",
+    ret->add( "isSelectedEstimator", 
+              data( &KernelBaseFunction::isSelectedEstimator, "Check if this estimator is selected.",
                     "Name", "The name of the Estimator") );
-    ret->add( "usingEffector", 
-              data( &KernelBaseFunction::isSelectedEffector, "Check if this effector is used.",
+    ret->add( "isSelectedEffector", 
+              data( &KernelBaseFunction::isSelectedEffector, "Check if this effector is selected.",
                     "Name", "The name of the Effector") );
-    ret->add( "usingSensor", 
-              data( &KernelBaseFunction::isSelectedSensor, "Check if this sensor is used.",
+    ret->add( "isSelectedSensor", 
+              data( &KernelBaseFunction::isSelectedSensor, "Check if this sensor is selected.",
                     "Name", "The name of the Sensor") );
+    ret->add( "isStarted", 
+              data( &KernelBaseFunction::isStarted, "Check if this Component is started.",
+                    "Name", "The name of the Component") );
+    ret->add( "isLoaded", 
+              data( &KernelBaseFunction::isLoaded, "Check if this Component is loaded.",
+                    "Name", "The name of the Component") );
     return ret;
 }
 

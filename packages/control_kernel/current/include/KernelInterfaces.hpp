@@ -281,11 +281,111 @@ namespace ORO_ControlKernel
          *         False otherwise.
          */
         virtual bool isSelectedEffector( const std::string& name ) const = 0;
+
+        /**
+         * @brief Query if a named Component is started.
+         * @param  name The name of the Component
+         * @return True if the Component is started
+         *         False otherwise.
+         */
+        virtual bool isStarted( const std::string& name ) const = 0;
+
+        /**
+         * @brief Query if a named Component is loaded.
+         * @param  name The name of the Component
+         * @return True if the Component is loaded
+         *         False otherwise.
+         */
+        virtual bool isLoaded( const std::string& name ) const = 0;
+
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() ;
 
         virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory() ;
 #endif
+
+        /**
+         * @brief Start a Sensor Component from the kernel.
+         *
+         * @param  name The name of the Sensor Component to start.
+         * @return True if the Sensor Component could be found and started,
+         *         False otherwise.
+         */
+        virtual bool startSensor( const std::string& name ) = 0;
+        /**
+         * @brief Start a Estimator Component from the kernel.
+         *
+         * @param  name The name of the Estimator Component to start.
+         * @return True if the Estimator Component could be found and started,
+         *         False otherwise.
+         */
+        virtual bool startEstimator( const std::string& name ) = 0;
+        /**
+         * @brief Start a Generator Component from the kernel.
+         *
+         * @param  name The name of the Generator Component to start.
+         * @return True if the Generator Component could be found and started,
+         *         False otherwise.
+         */
+        virtual bool startGenerator( const std::string& name ) = 0;
+        /**
+         * @brief Start a Controller Component from the kernel.
+         *
+         * @param  name The name of the Controller Component to start.
+         * @return True if the Controller Component could be found and started,
+         *         False otherwise.
+         */
+        virtual bool startController( const std::string& name ) = 0;
+        /**
+         * @brief Start a Effector Component from the kernel.
+         *
+         * @param  name The name of the Effector Component to start.
+         * @return True if the Effector Component could be found and started,
+         *         False otherwise.
+         */
+        virtual bool startEffector( const std::string& name ) = 0;
+
+
+        /**
+         * @brief Stop a Sensor Component from the kernel.
+         *
+         * @param  name The name of the Sensor Component to stop.
+         * @return True if the Sensor Component could be found and stopped,
+         *         False otherwise.
+         */
+        virtual bool stopSensor( const std::string& name ) = 0;
+        /**
+         * @brief Stop a Estimator Component from the kernel.
+         *
+         * @param  name The name of the Estimator Component to stop.
+         * @return True if the Estimator Component could be found and stopped,
+         *         False otherwise.
+         */
+        virtual bool stopEstimator( const std::string& name ) = 0;
+        /**
+         * @brief Stop a Generator Component from the kernel.
+         *
+         * @param  name The name of the Generator Component to stop.
+         * @return True if the Generator Component could be found and stopped,
+         *         False otherwise.
+         */
+        virtual bool stopGenerator( const std::string& name ) = 0;
+        /**
+         * @brief Stop a Controller Component from the kernel.
+         *
+         * @param  name The name of the Controller Component to stop.
+         * @return True if the Controller Component could be found and stopped,
+         *         False otherwise.
+         */
+        virtual bool stopController( const std::string& name ) = 0;
+        /**
+         * @brief Stop a Effector Component from the kernel.
+         *
+         * @param  name The name of the Effector Component to stop.
+         * @return True if the Effector Component could be found and stopped,
+         *         False otherwise.
+         */
+        virtual bool stopEffector( const std::string& name ) = 0;
 
         /**
          * This method can be called to abort the startup process 
@@ -361,9 +461,32 @@ namespace ORO_ControlKernel
          */
         virtual bool restart( ComponentBaseInterface* c) = 0;
 
+        /*
+         * @brief Select ( startup ) a previously added Component.
+         * @param c The Component to select.
+         *
+         * @return true if the component is present and could be restarted.
+         */
+        //virtual bool select( ComponentBaseInterface* c) = 0;
+
         /** @} */
 
+        /**
+         * @{
+         * @brief Nameserved components
+         *
+         */
+        NameServer<ComponentBaseInterface*> controllers;
+        NameServer<ComponentBaseInterface*>  generators;
+        NameServer<ComponentBaseInterface*>   effectors;
+        NameServer<ComponentBaseInterface*>  estimators;
+        NameServer<ComponentBaseInterface*>     sensors;
+        NameServer<ComponentBaseInterface*>    supports;
+        /* @} */
+
     protected:
+        bool true_gen() const { return true; }
+
         /**
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.
@@ -440,9 +563,11 @@ namespace ORO_ControlKernel
          */
         Property<double> frequency;
 
-        std::vector<ComponentBaseInterface*> components;
-
     protected:
+        typedef std::map<std::string,ComponentBaseInterface*> ComponentMap;
+
+        ComponentMap components;
+
         Event<void(void)> kernelStarted;
         Event<void(void)> kernelStopped;
         Event<void(void)> nullEvent;

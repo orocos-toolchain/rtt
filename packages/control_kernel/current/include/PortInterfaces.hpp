@@ -460,8 +460,8 @@ namespace ORO_ControlKernel
              * FrontEnd. This is intended when a loaded component
              * changes the contents of the ServedTypes structure
              * and wants the new types to be constructed. This is
-             * part of a component reload. All present DataObjects
-             * are destroyed and recreated.
+             * part of a component reload. Only new DataObjects are
+             * added, old ones remain.
              */
             template< class _DataObjectContainer >
             void reloadDataObject( _DataObjectContainer dummy )

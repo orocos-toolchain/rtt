@@ -394,7 +394,7 @@ namespace ORO_ControlKernel
          */
         virtual ~NameSubClass() 
         {
-            this->unload();
+            //this->unload();
         }
 
         void unload() {
@@ -416,9 +416,14 @@ namespace ORO_ControlKernel
                     // if the index is equal to our index
                     if ( it->first == index )
                         {
-                            First*  item = new First( it->second );
-                            fv.push_back( item );
-                            ServerType::reg( item );
+                            // Check for duplicate entries :
+                            if ( ! ServerType::has( it->second ) ) {
+                                First*  item = new First( it->second );
+                                fv.push_back( item );
+                                ServerType::reg( item );
+                            } else {
+                                // store shared_ptr to existing ?
+                            }
                         }
                 }
         }
@@ -427,7 +432,6 @@ namespace ORO_ControlKernel
         void recursiveReload(const pair_type& t, index_type index)
         {
             NameSubClass<Rest>::recursiveReload(t, index+1);
-            unload();
             load(t, index);
         }
             
@@ -512,7 +516,7 @@ namespace ORO_ControlKernel
          */
         virtual ~NameSubClass() 
         {
-            this->unload();
+            //this->unload();
         }
 
         void unload() {
@@ -534,9 +538,12 @@ namespace ORO_ControlKernel
                     // if the index is equal to our index
                     if ( it->first == index )
                         {
-                            First*  item = new First( it->second );
-                            fv.push_back( item );
-                            ServerType::reg( item );
+                            // Check for duplicate entries :
+                            if ( ! ServerType::has( it->second ) ) {
+                                First*  item = new First( it->second );
+                                fv.push_back( item );
+                                ServerType::reg( item );
+                            }
                         }
                 }
         }
@@ -544,7 +551,6 @@ namespace ORO_ControlKernel
         template< typename pair_type, typename index_type>
         void recursiveReload(const pair_type& t, index_type index)
         {
-            unload();
             load(t, index);
         }
     private:
@@ -711,6 +717,7 @@ namespace ORO_ControlKernel
          */
         template< class Iter >
         void reload(const Iter&  b, const Iter& e ) {
+            // A reload is non destructive, it only adds new entries.
             this->_NameContainer::tree::recursiveReload( std::make_pair( b, e ), 0 );
         }
 

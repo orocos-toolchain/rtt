@@ -28,15 +28,6 @@
 #ifndef NEXTGEN_KERNEL_HPP
 #define NEXTGEN_KERNEL_HPP
 
-#include <pkgconf/control_kernel.h>
-#ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
-#error "The Kernel you are using is not supported in the OLD \n\
-Kernel Architecture. Please, DISABLE Backwards Compatibility in \
-the configuration of the kernel package. \
-Revisit the Control Kernel Documentation to see how the new \
-StandardControlKernel supercedes all previous Kernel architectures."
-#endif
-
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
@@ -60,13 +51,16 @@ namespace ORO_ControlKernel
                 virtual void create() = 0;
                 virtual void erase() = 0;
             };
+            // Write Port Interface, DataObjectType container
             template<class WPI, class DOT>
             struct DOCreator : public DOCreationInterface {
                 std::string name;
+                // prefix
                 std::string pref;
                 WPI* wpi;
                 DOCreator(WPI* wp, std::string _n, std::string _p ) :  name(_n), pref(_p), wpi(wp) {}
                 virtual void create() {
+                    // Create the DataObject Server
                     wpi->createDataObject( name, pref, DOT() );
                 }
                 virtual void erase() {
@@ -96,7 +90,7 @@ namespace ORO_ControlKernel
             public _Extension
     {
         typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
-                                                            shared_ptr<DOCreationInterface> > > ComponentMap;
+                                                            shared_ptr<DOCreationInterface> > > ComponentStateMap;
     public:
         typedef _Extension Extension;
             
@@ -199,27 +193,27 @@ namespace ORO_ControlKernel
 
         virtual bool isSelectedController( const std::string& name ) const
         {
-            return controllers.getObject( name ) == controller;
+            return this->controllers.getObject( name ) == controller;
         }
 
         virtual bool isSelectedGenerator( const std::string& name ) const
         {
-            return generators.getObject( name ) == generator;
+            return this->generators.getObject( name ) == generator;
         }
 
         virtual bool isSelectedEstimator( const std::string& name ) const
         {
-            return estimators.getObject( name ) == estimator;
+            return this->estimators.getObject( name ) == estimator;
         }
 
         virtual bool isSelectedSensor( const std::string& name ) const
         {
-            return sensors.getObject( name ) == sensor;
+            return this->sensors.getObject( name ) == sensor;
         }
 
         virtual bool isSelectedEffector( const std::string& name ) const
         {
-            return effectors.getObject( name ) == effector;
+            return this->effectors.getObject( name ) == effector;
         }
 
         virtual bool initialize() 
@@ -281,35 +275,35 @@ namespace ORO_ControlKernel
          */
         virtual bool selectController( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = controllers.getObjectByName( name )) )
+            if ( (c = this->controllers.getObjectByName( name )) )
                 return selectController(c);
             return false;
         }
 
         virtual bool selectSensor( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = sensors.getObjectByName( name )) )
+            if ( (c = this->sensors.getObjectByName( name )) )
                 return selectSensor(c);
             return false;
         }
 
         virtual bool selectGenerator( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = generators.getObjectByName( name )) )
+            if ( (c = this->generators.getObjectByName( name )) )
                 return selectGenerator(c);
             return false;
         }
 
         virtual bool selectEstimator( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = estimators.getObjectByName( name )) )
+            if ( (c = this->estimators.getObjectByName( name )) )
                 return selectEstimator(c);
             return false;
         }
 
         virtual bool selectEffector( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = effectors.getObjectByName( name )) )
+            if ( (c = this->effectors.getObjectByName( name )) )
                 return selectEffector(c);
             return false;
         }
@@ -325,6 +319,99 @@ namespace ORO_ControlKernel
          * @}
          */
 
+        /**
+         * @name Name Based Start methods
+         * @{
+         * @brief Start a previously loaded Controller Component.
+         *
+         * This will only succeed if isLoadedController(\a c).
+         *
+         */
+        virtual bool startController( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->controllers.getObjectByName( name )) )
+                return startup(c);
+            return false;
+        }
+
+        virtual bool startSensor( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->sensors.getObjectByName( name )) )
+                return startup(c);
+            return false;
+        }
+
+        virtual bool startGenerator( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->generators.getObjectByName( name )) )
+                return startup(c);
+            return false;
+        }
+
+        virtual bool startEstimator( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->estimators.getObjectByName( name )) )
+                return startup(c);
+            return false;
+        }
+
+        virtual bool startEffector( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->effectors.getObjectByName( name )) )
+                return startup(c);
+            return false;
+        }
+
+        /**
+         * @}
+         */
+
+        /**
+         * @name Name Based Stop methods
+         * @{
+         * @brief Stop a previously loaded Controller Component.
+         *
+         * This will only succeed if isLoadedController(\a c).
+         *
+         */
+        virtual bool stopController( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->controllers.getObjectByName( name )) )
+                return shutdown(c);
+            return false;
+        }
+
+        virtual bool stopSensor( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->sensors.getObjectByName( name )) )
+                return shutdown(c);
+            return false;
+        }
+
+        virtual bool stopGenerator( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->generators.getObjectByName( name )) )
+                return shutdown(c);
+            return false;
+        }
+
+        virtual bool stopEstimator( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->estimators.getObjectByName( name )) )
+                return shutdown(c);
+            return false;
+        }
+
+        virtual bool stopEffector( const std::string& name ) {
+            ComponentBaseInterface* c;
+            if ( (c = this->effectors.getObjectByName( name )) )
+                return shutdown(c);
+            return false;
+        }
+
+        /**
+         * @}
+         */
 
 
         /**
@@ -336,27 +423,27 @@ namespace ORO_ControlKernel
          * @return True if the Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoadedSensor( const std::string& name ) {
-            return sensors.isNameRegistered(name);
+        bool isLoadedSensor( const std::string& name ) const {
+            return this->sensors.isNameRegistered(name);
         }
 
-        bool isLoadedEstimator( const std::string& name ) {
-            return estimators.isNameRegistered(name);
+        bool isLoadedEstimator( const std::string& name ) const {
+            return this->estimators.isNameRegistered(name);
         }
 
-        bool isLoadedGenerator( const std::string& name ) {
-            return generators.isNameRegistered(name);
+        bool isLoadedGenerator( const std::string& name ) const {
+            return this->generators.isNameRegistered(name);
         }
 
-        bool isLoadedController( const std::string& name ) {
-            return controllers.isNameRegistered(name);
+        bool isLoadedController( const std::string& name ) const {
+            return this->controllers.isNameRegistered(name);
         }
 
-        bool isLoadedEffector( const std::string& name ) {
-            return effectors.isNameRegistered(name);
+        bool isLoadedEffector( const std::string& name ) const {
+            return this->effectors.isNameRegistered(name);
         }
 
-        bool isLoadedSupport( const std::string& name ) {
+        bool isLoadedSupport( const std::string& name ) const {
             return supports.isNameRegistered( name );
         }
         /**
@@ -370,30 +457,74 @@ namespace ORO_ControlKernel
          * @param c The component
          * @return True if it is loaded.
          */
-        bool isLoadedController( ComponentBaseInterface* c) {
-            return controllers.isObjectRegistered(c);
+        bool isLoadedController( ComponentBaseInterface* c) const {
+            return this->controllers.isObjectRegistered(c);
         }
 
-        bool isLoadedGenerator(ComponentBaseInterface* c) {
-            return generators.isObjectRegistered(c);
+        bool isLoadedGenerator(ComponentBaseInterface* c) const{
+            return this->generators.isObjectRegistered(c);
         }
 
-        bool isLoadedEstimator(ComponentBaseInterface* c) {
-            return estimators.isObjectRegistered(c);
+        bool isLoadedEstimator(ComponentBaseInterface* c) const {
+            return this->estimators.isObjectRegistered(c);
         }
 
-        bool isLoadedSensor(ComponentBaseInterface* c) {
-            return sensors.isObjectRegistered(c);
+        bool isLoadedSensor(ComponentBaseInterface* c) const {
+            return this->sensors.isObjectRegistered(c);
         }
 
-        bool isLoadedEffector(ComponentBaseInterface* c) {
-            return effectors.isObjectRegistered(c);
+        bool isLoadedEffector(ComponentBaseInterface* c) const {
+            return this->effectors.isObjectRegistered(c);
         }
 
-        bool isLoadedSupport(ComponentBaseInterface* c) {
+        bool isLoadedSupport(ComponentBaseInterface* c) const {
             return supports.isObjectRegistered( c );
         }
 
+        /**
+         * @}
+         */
+
+        /**
+         * @name General Component State Inspection Methods
+         * @(
+         * @brief Check if a component is loaded or started.
+         *
+         * There is no difference with the full \a isLoadedX() and
+         * \a isSelectedX() methods.
+         */
+        ComponentBaseInterface* findComponent( const std::string& name ) const
+        {
+            typename Extension::KernelBaseFunction::ComponentMap::const_iterator it = this->components.find( name );
+            if ( it != this->components.end() )
+                return it->second;
+            return 0;
+        }
+
+        bool isLoaded( const std::string& name) const {
+            ComponentBaseInterface* c = findComponent( name );
+            if (c)
+                return isLoaded(c);
+            else
+                return false;
+        }
+
+        bool isLoaded( ComponentBaseInterface* c) const {
+            return isLoadedSensor(c) || isLoadedEstimator(c)
+                || isLoadedGenerator(c) || isLoadedController(c) || isLoadedEffector(c);
+        }
+
+        bool isStarted( const std::string& name ) const {
+            ComponentBaseInterface* c = findComponent( name );
+            if (c)
+                return c->isSelected();
+            else
+                return false;
+        }
+
+        bool isStarted( ComponentBaseInterface* c) const {
+            return c->isSelected();
+        }
         /**
          * @}
          */
@@ -517,101 +648,101 @@ namespace ORO_ControlKernel
 
         template< class _Sensor>
         bool addSensor(_Sensor* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new SensorC< ThisType, _Sensor>(this, c),
+            componentStates.insert( std::make_pair(c, std::make_pair(new SensorC< ThisType, _Sensor>(this, c),
                                                                 new DOCreator< typename _Sensor::Input, InputPortType>(c, this->getKernelName() + "::Inputs",this->inp_prefix ) ) ) );
             return true;
         }
 
         template< class _Sensor>
         bool removeSensor(_Sensor* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
         template< class _Estimator>
         bool addEstimator(_Estimator* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new EstimatorC< ThisType, _Estimator>(this, c),
+            componentStates.insert( std::make_pair(c, std::make_pair(new EstimatorC< ThisType, _Estimator>(this, c),
                                                                 new DOCreator< typename _Estimator::Model, ModelPortType>(c,  this->getKernelName() + "::Models",this->mod_prefix ) ) ) );
             return true;
         }
 
         template< class _Estimator>
         bool removeEstimator(_Estimator* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
         template< class _Generator>
         bool addGenerator(_Generator* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new GeneratorC< ThisType, _Generator>(this, c),
+            componentStates.insert( std::make_pair(c, std::make_pair(new GeneratorC< ThisType, _Generator>(this, c),
                                                                 new DOCreator< typename _Generator::SetPoint, SetPointPortType>(c,  this->getKernelName() + "::SetPoints",this->setp_prefix )) ));
             return true;
         }
 
         template< class _Generator>
         bool removeGenerator(_Generator* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
         template< class _Controller>
         bool addController(_Controller* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new ControllerC< ThisType, _Controller>(this, c),
+            componentStates.insert( std::make_pair(c, std::make_pair(new ControllerC< ThisType, _Controller>(this, c),
                                                                 new DOCreator< typename _Controller::Output, OutputPortType>(c,  this->getKernelName() + "::Outputs",this->outp_prefix )) ) );
             return true;
         }
 
         template< class _Controller>
         bool removeController(_Controller* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
         template< class _Effector>
         bool addEffector(_Effector* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new EffectorC< ThisType, _Effector>(this, c), new NOPCreator() ) ) );
+            componentStates.insert( std::make_pair(c, std::make_pair(new EffectorC< ThisType, _Effector>(this, c), new NOPCreator() ) ) );
             return true;
         }
 
         template< class _Effector>
         bool removeEffector(_Effector* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
         template< class _Support>
         bool addSupport(_Support* c) {
-            if ( components.count( c ) != 0)
+            if ( componentStates.count( c ) != 0)
                 return false;
-            components.insert( std::make_pair(c, std::make_pair(new SupportC< ThisType, _Support>(this, c), new NOPCreator() ) ) );
+            componentStates.insert( std::make_pair(c, std::make_pair(new SupportC< ThisType, _Support>(this, c), new NOPCreator() ) ) );
             return true;
         }
 
         template< class _Support>
         bool removeSupport(_Support* c) {
-            if ( components.count( c ) == 0)
+            if ( componentStates.count( c ) == 0)
                 return false;
-            components.erase(c);
+            componentStates.erase(c);
             return true;
         }
 
@@ -631,7 +762,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be loaded.
          */
         bool load( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->load();
+            return ( componentStates.count( c ) != 0) && componentStates[c].first->load();
         }
 
         /**
@@ -641,7 +772,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be unloaded.
          */
         bool unload( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->unload();
+            return ( componentStates.count( c ) != 0) && componentStates[c].first->unload();
         }
 
         /**
@@ -651,7 +782,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be reloaded.
          */
         bool reload( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->reload();
+            return ( componentStates.count( c ) != 0) && componentStates[c].first->reload();
         }
 
         /**
@@ -662,7 +793,11 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be shutdowned.
          */
         bool shutdown( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->shutdown();
+            if (this->isLoaded(c) && this->isStarted(c) ) {
+                this->stopComponent(c);
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -672,7 +807,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be started.
          */
         bool startup( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->startup();
+            return this->isLoaded(c) && !this->isStarted(c) && this->startComponent( c );
         }
 
         /**
@@ -682,8 +817,13 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be restarted.
          */
         bool restart( ComponentBaseInterface* c) {
-            return ( components.count( c ) != 0) && components[c].first->restart();
+            if ( this->isStarted(c) ) {
+                this->stopComponent(c) ;
+                return this->startComponent(c);
+            }
+            return false;
         }
+
 
         /** @} */
 
@@ -706,8 +846,6 @@ namespace ORO_ControlKernel
             // Create the frontend ( dObj() )
             c->_Sensor::Input::createPort( this->getKernelName() + "::Inputs",this->inp_prefix );
 
-            // Create the DataObject itself
-            //c->_Sensor::Input::createDataObject( this->getKernelName() + "::Inputs",this->inp_prefix, InputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Sensor::Input::erasePort();
@@ -728,7 +866,6 @@ namespace ORO_ControlKernel
 
             c->_Estimator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
             c->_Estimator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
-            //c->_Estimator::Model::createDataObject( this->getKernelName() + "::Models",mod_prefix, ModelPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Estimator::Model::erasePort();
@@ -737,7 +874,7 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    estimators.registerObject( c, c->ComponentBaseInterface::getName() );
+                    this->estimators.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -752,8 +889,6 @@ namespace ORO_ControlKernel
             c->_Generator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
             c->_Generator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
             c->_Generator::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix  );
-//             c->_Generator::SetPoint::createDataObject( this->getKernelName() + "::SetPoints",setp_prefix,
-//                                                        SetPointPortType());
             if ( ! c->enableAspect(this) )
                 {
                     c->_Generator::Command::erasePort();
@@ -764,7 +899,7 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    generators.registerObject( c, c->ComponentBaseInterface::getName() );
+                    this->generators.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -779,8 +914,6 @@ namespace ORO_ControlKernel
             c->_Controller::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
             c->_Controller::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
             c->_Controller::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
-//             c->_Controller::Output::createDataObject( this->getKernelName() + "::Outputs", outp_prefix,
-//                                                       OutputPortType() );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Controller::Output::erasePort();
@@ -791,7 +924,7 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    controllers.registerObject( c, c->ComponentBaseInterface::getName() );
+                    this->controllers.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -810,7 +943,7 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    effectors.registerObject( c, c->ComponentBaseInterface::getName() );
+                    this->effectors.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -862,14 +995,14 @@ namespace ORO_ControlKernel
          */
         template< class _Sensor>
         bool reloadSensor(_Sensor* c) {
-            if ( this->isRunning() || !sensors.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->sensors.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             //c->_Sensor::Input::reloadDataObject( InputPortType() );
             if ( ! c->enableAspect(this) )
                 {
-                    sensors.unregisterObject( c );
+                    this->sensors.unregisterObject( c );
                     c->_Sensor::Input::erasePort();
                     return false;
                 }
@@ -878,14 +1011,14 @@ namespace ORO_ControlKernel
 
         template< class _Estimator>
         bool reloadEstimator(_Estimator* c) {
-            if ( this->isRunning() || !estimators.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->estimators.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             //c->_Estimator::Model::reloadDataObject( ModelPortType() );
             if ( ! c->enableAspect(this) )
                 {
-                    estimators.unregisterObject( c );
+                    this->estimators.unregisterObject( c );
                     c->_Estimator::Input::erasePort();
                     c->_Estimator::Model::erasePort();
                     return false;
@@ -895,14 +1028,14 @@ namespace ORO_ControlKernel
 
         template< class _Generator>
         bool reloadGenerator(_Generator* c) {
-            if ( this->isRunning() || !generators.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->generators.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             //c->_Generator::SetPoint::reloadDataObject( SetPointPortType() );
             if ( ! c->enableAspect(this) )
                 {
-                    generators.unregisterObject( c );
+                    this->generators.unregisterObject( c );
                     c->_Generator::Input::erasePort();
                     c->_Generator::Model::erasePort();
                     c->_Generator::Command::erasePort();
@@ -914,14 +1047,14 @@ namespace ORO_ControlKernel
 
         template< class _Controller>
         bool reloadController(_Controller* c) {
-            if ( this->isRunning() || !controllers.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->controllers.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             //c->_Controller::Output::reloadDataObject( OutputPortType() );
             if ( ! c->enableAspect(this) )
                 {
-                    controllers.unregisterObject( c );
+                    this->controllers.unregisterObject( c );
                     c->_Controller::Input::erasePort();
                     c->_Controller::Model::erasePort();
                     c->_Controller::Output::erasePort();
@@ -932,13 +1065,13 @@ namespace ORO_ControlKernel
 
         template< class _Effector>
         bool reloadEffector(_Effector* c) {
-            if ( this->isRunning() || !effectors.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->effectors.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             if ( ! c->enableAspect(this) )
                 {
-                    effectors.unregisterObject( c );
+                    this->effectors.unregisterObject( c );
                     return false;
                 }
             return true;
@@ -973,9 +1106,9 @@ namespace ORO_ControlKernel
         bool unloadSensor(_Sensor* c) {
             if ( this->isRunning() )
                 return false;
-            if ( sensors.isObjectRegistered( c ) )
+            if ( this->sensors.isObjectRegistered( c ) )
                 {
-                    sensors.unregisterObject( c );
+                    this->sensors.unregisterObject( c );
                     c->disableAspect();
                     c->_Sensor::Input::erasePort();
                     return true;
@@ -987,9 +1120,9 @@ namespace ORO_ControlKernel
         bool unloadEstimator(_Estimator* c) {
             if ( this->isRunning() )
                 return false;
-            if ( estimators.isObjectRegistered(c) )
+            if ( this->estimators.isObjectRegistered(c) )
                 {
-                    estimators.unregisterObject( c );
+                    this->estimators.unregisterObject( c );
                     c->_Estimator::Model::erasePort();
                     c->_Estimator::Input::erasePort();
                     return true;
@@ -1001,9 +1134,9 @@ namespace ORO_ControlKernel
         bool unloadGenerator(_Generator* c) {
             if ( this->isRunning() )
                 return false;
-            if (  generators.isObjectRegistered( c ) )
+            if (  this->generators.isObjectRegistered( c ) )
                 {
-                    generators.unregisterObject( c );
+                    this->generators.unregisterObject( c );
                     c->disableAspect();
                     c->_Generator::Command::erasePort();
                     c->_Generator::SetPoint::erasePort();
@@ -1018,9 +1151,9 @@ namespace ORO_ControlKernel
         bool unloadController(_Controller* c) {
             if ( this->isRunning() )
                 return false;
-            if ( controllers.isObjectRegistered( c ) )
+            if ( this->controllers.isObjectRegistered( c ) )
                 {
-                    controllers.unregisterObject( c );
+                    this->controllers.unregisterObject( c );
                     c->disableAspect();
                     c->_Controller::Output::erasePort();
                     c->_Controller::SetPoint::erasePort();
@@ -1035,9 +1168,9 @@ namespace ORO_ControlKernel
         bool unloadEffector(_Effector* c) {
             if ( this->isRunning() )
                 return false;
-            if ( effectors.isObjectRegistered( c ) )
+            if ( this->effectors.isObjectRegistered( c ) )
                 {
-                    effectors.unregisterObject( c ); 
+                    this->effectors.unregisterObject( c ); 
                     c->disableAspect();
                     c->_Effector::Output::erasePort();
                     return true;
@@ -1062,7 +1195,7 @@ namespace ORO_ControlKernel
          */
     protected:
         virtual void preLoad(ComponentBaseInterface* comp) {
-            components[comp].second->create();
+            componentStates[comp].second->create();
         }
 
         //virtual void postLoad(ComponentBaseInterface* comp) {}
@@ -1070,7 +1203,9 @@ namespace ORO_ControlKernel
         //virtual void preUnload(ComponentBaseInterface* comp) { }
 
         virtual void postUnload(ComponentBaseInterface* comp) {
-            components[comp].second->erase();
+            // erase semantics are wrong and delete to much
+            // if multiple comps write the same DO
+            //componentStates[comp].second->erase();
         }
 
         /**
@@ -1086,7 +1221,7 @@ namespace ORO_ControlKernel
 
         /**
          * @{
-         * Pointers to the Component we will actually use.
+         * @brief Pointers to the Components which are selected
          */
         ComponentBaseInterface *controller;
         ComponentBaseInterface  *generator;
@@ -1096,23 +1231,10 @@ namespace ORO_ControlKernel
         /* @} */
 
         /**
-         * @{
-         * @brief Nameserved components
-         *
-         */
-        NameServer<ComponentBaseInterface* > controllers;
-        NameServer<ComponentBaseInterface*>  generators;
-        NameServer<ComponentBaseInterface*>   effectors;
-        NameServer<ComponentBaseInterface*>  estimators;
-        NameServer<ComponentBaseInterface*>     sensors;
-        NameServer<ComponentBaseInterface*>    supports;
-        /* @} */
-
-        /**
          * Every loaded component is placed
          * in this map.
          */
-        ComponentMap components;
+        ComponentStateMap componentStates;
 
         std::string inp_prefix;
         std::string mod_prefix;
