@@ -33,6 +33,8 @@
 #include "Singularity.hpp"
 #include <corelib/MultiVector.hpp>
 
+#pragma interface
+
 namespace ORO_KinDyn
 {
     using ORO_CoreLib::Double6D;
