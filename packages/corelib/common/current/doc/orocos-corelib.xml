@@ -896,8 +896,7 @@ emergencyStop.fire(); // User not notified
 	is executed by the Event.
       </para>
       <para>When you want to call free ( C ) functions, you do not need bind :
-	<programlisting>
-  Event&lt;void(void)> event;
+	<programlisting>  Event&lt;void(void)> event;
   void foo() { ... }
   event.connect( &amp;foo );</programlisting>
       </para>
@@ -957,8 +956,7 @@ emergencyStop.fire(); // User not notified
 	an additional argument can be given in the
 	<methodname>connect</methodname> method :
 	<programlisting>
-  event.connect(&amp;syn_func, &amp; asyn_func, ZeroLatencyThread::Instance() );
-	</programlisting>
+  event.connect(&amp;syn_func, &amp; asyn_func, ZeroLatencyThread::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is fired(). It will do this after it has processed
 	all its tasks. The other Orocos threads can do this likewise :

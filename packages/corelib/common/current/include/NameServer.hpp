@@ -143,20 +143,6 @@ namespace ORO_CoreLib
         }
 
         /**
-         * @brief Get the object registered earlier by that name.
-         *
-         * @param s the name of the object you need.
-         * @deprecated by GetObject()
-         *
-         * @return the object the name is registered with,
-         *  if the name isn't registered, it will return 0
-         */
-        ValueType getObjectByName( const NameType& s ) const
-        {
-            return getObject(s);
-        }
-
-        /**
          * @brief Get the name registered for a object.
          *
          * @param s the object of the name you need
@@ -177,21 +163,6 @@ namespace ORO_CoreLib
         }
 
         /**
-         * @brief Get the name registered for a object.
-         *
-         * @param s the object of the name you need
-         * @deprecated by getName()
-         *
-         * @return the name the object is registered with,
-         *  if the object isn't registered, it will return 0
-         */
-        const NameType&
-        getNameByObject( const ValueType s ) const
-        {
-            return getName( s );
-        }
-
-        /**
          * @brief Register an object with a name. If an object with such
          * a name already exists, the present one will not be overwritten,
          * and this call is a no-op.
@@ -199,14 +170,15 @@ namespace ORO_CoreLib
          * @param obj  The instance you wish to register with a name
          * @param name The name of the object
          */
-        void registerObject( const ValueType obj, const NameType& name )
+        bool registerObject( const ValueType obj, const NameType& name )
         {
             if ( isNameRegistered( name ) )
-                return;
+                return false;
 // #ifdef OROPKG_CORELIB_REPORTING
 //             Logger::log() << Logger::Debug << "NameServer : Adding " << name << Logger::endl;
 // #endif
             objects.insert(std::make_pair(name,obj));
+            return true;
         }
 
         /**
