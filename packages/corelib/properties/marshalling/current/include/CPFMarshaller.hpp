@@ -112,18 +112,30 @@ namespace ORO_CoreLib
                 *(this->s) << "\n</properties>\n";
 			}
 
-			std::string escape(std::string s)
-			{
-				std::string::size_type n;
-				while ((n = s.find("&")) != s.npos)
-					s.replace(n, 1, std::string("&amp;"));
-				while ((n = s.find("<")) != s.npos)
-					s.replace(n, 1, std::string("&lt;"));
-				while ((n = s.find(">")) != s.npos)
-					s.replace(n, 1, std::string("&gt;"));
-				// TODO: Added escapes for other XML entities
-				return s;
-			}
+            std::string escape(std::string s)
+            {
+                std::string::size_type n=0;
+                // replace amps first.
+                while ((n = s.find("&",n)) != s.npos) {
+                    s.replace(n, 1, std::string("&amp;"));
+                    n += 5;
+                }
+
+                n=0;
+                while ((n = s.find("<",n)) != s.npos) {
+                    s.replace(n, 1, std::string("&lt;"));
+                    n += 4;
+                }
+
+                n=0;
+                while ((n = s.find(">",n)) != s.npos) {
+                    s.replace(n, 1, std::string("&gt;"));
+                    n += 4;
+                }
+
+                // TODO: Added escapes for other XML entities
+                return s;
+            }
 
 			virtual void serialize(const Property<PropertyBag> &b) 
 			{
