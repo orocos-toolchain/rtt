@@ -105,11 +105,57 @@ namespace ORO_Execution
         bool result = true;
 
         while ( current != exit && count++ <= maxsteps && result )
-            result = execute();
+            result = executeStep();
         return result;
     }
 
-    bool FunctionGraph::execute()
+    bool FunctionGraph::executeUntil()
+    {
+        graph_traits<Graph>::out_edge_iterator ei, ei_end;
+        // the map contains _references_ to all vertex_command properties
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get(vertex_command, program);
+        boost::property_map<Graph, edge_condition_t>::type
+            emap = get(edge_condition, program);
+
+        do {
+            // Check this always on entry of executeUntil :
+            // initialise current node if needed and reset all its out_edges
+            // if previous == current, we DO NOT RESET, because we want to check
+            // if previous command has completed !
+            if ( previous != current )
+                {
+                    for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
+                        emap[*ei].reset();
+                    cmap[current].startExecution();
+                }
+
+            // initial conditions :
+            previous = current;
+            // execute the current command.
+            if ( !cmap[current].execute() ) {
+                error = true;
+                return false;
+            } else
+                error = false; // it is possible to get out of error without resetting.
+        
+            // Branch selecting Logic :
+            for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
+                {
+                    if ( emap[*ei].evaluate() )
+                        {
+                            current = boost::target(*ei, program);
+                            // a new node has been found ...
+                            // so continue
+                            break; // exit from for loop.
+                        }
+                }
+        } while ( previous != current ); // keep going if we found a new node
+
+        return true; // we need to wait.
+    }
+
+    bool FunctionGraph::executeStep()
     {
         graph_traits<Graph>::out_edge_iterator ei, ei_end;
         // the map contains _references_ to all vertex_command properties

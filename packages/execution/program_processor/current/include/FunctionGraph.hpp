@@ -123,9 +123,11 @@ namespace ORO_Execution
          */
         void finish();
 
-        virtual bool execute();
+        virtual bool executeStep();
 
         virtual bool executeAll();
+
+        virtual bool executeUntil();
 
         virtual void reset();
 

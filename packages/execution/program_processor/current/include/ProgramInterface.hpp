@@ -47,13 +47,21 @@ namespace ORO_Execution
          * Execute the next logical step of this program interface.
          * @return false if a program error occured.
          */
-        virtual bool execute()= 0;
+        virtual bool executeStep()= 0;
 
         /**
          * Execute all steps of this program interface.
          * @return false if a program error occured.
          */
         virtual bool executeAll()= 0;
+
+        /**
+         * Execute as much steps until the program needs to
+         * wait on a condition to become true. This is the
+         * 'golden middle way' between \a execute() and \a executeAll().
+         * @return false if a program error occured.
+         */
+        virtual bool executeUntil()= 0;
 
         /**
          * Reset the execution point to the beginning of this program interface.

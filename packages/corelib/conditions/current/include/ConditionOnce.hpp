@@ -36,41 +36,47 @@ namespace ORO_CoreLib
 
     /**
      * A conditional that evaluates the first time true
-     * and afterwards always false
+     * and afterwards always false (or vice versa).
      */
-
     class ConditionOnce
-                : public ConditionInterface
+        : public ConditionInterface
     {
 
-        public:
-            ConditionOnce() : ran( false )
-            {}
+    public:
+        /**
+         * Create a condition which will return once \a true
+         * or once \a false.
+         * @param what supply \a false it must return once false and
+         * supply \a true if it must return once true.
+         */
+        ConditionOnce(bool what) : ran( false ), _what(what)
+        {}
 
-            virtual ~ConditionOnce()
-            {}
+        virtual ~ConditionOnce()
+        {}
 
-            virtual bool evaluate()
-            {
-                return ( ran == true ? false : ran = true );
-            }
+        virtual bool evaluate()
+        {
+            return ( ran == true ? !_what : ran = true, _what );
+        }
 
-            virtual void reset()
-            {
-                ran = false;
-            };
+        virtual void reset()
+        {
+            ran = false;
+        };
 
-            ConditionInterface* clone() const
-            {
-                return new ConditionOnce;
-            }
+        ConditionInterface* clone() const
+        {
+            return new ConditionOnce( _what );
+        }
 
-        private:
-            /**
-             * Becomes true after one evaluation after its reset()
-             * method has been called.
-             */
-            bool ran;
+    private:
+        /**
+         * Becomes true after one evaluation after its reset()
+         * method has been called.
+         */
+        bool ran;
+        bool _what;
     };
 
 }

@@ -51,7 +51,18 @@
 	  <emphasis>ticksGet()</emphasis> and <emphasis>secondsGet()</emphasis> functions are deprecated and renamed to
 	  <emphasis>getTicks()</emphasis> and <emphasis>getSeconds()</emphasis>, for consistency.
 	</para>
-      </Listitem>
+      <listitem>
+	<para>
+	  The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
+	  in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
+	  Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reach <emphasis>and</emphasis>
+	  this command is not immediately done ( its completion condition returns <emphasis>false</emphasis> ). The next periodic step will
+	  check if the command is done, and if so, execute again as much as possible <emphasis>etc</emphasis>. To introduce
+	  a pause in your program, issue a <command>do nothing</command> command, which will act as a command which pauses your
+	  program for one step, such that you can wait on changes in a while loop or similar.
+	</para>
+      </listitem>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="general">

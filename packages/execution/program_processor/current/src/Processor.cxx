@@ -544,7 +544,7 @@ namespace ORO_Execution
     void _executeProgram( Processor::ProgramInfo& p)
     {
         if (p.pstate == Processor::ProgramStatus::running) {
-            if ( p.program->execute() == false )
+            if ( p.program->executeUntil() == false )
                 p.pstate = Processor::ProgramStatus::error;
             if ( p.program->isFinished() )
                 p.pstate = Processor::ProgramStatus::stopped;
@@ -563,7 +563,7 @@ namespace ORO_Execution
     {
         if (p.pstate == Processor::ProgramStatus::stepmode && p.step)
             {
-                if ( p.program->execute() == false )
+                if ( p.program->executeStep() == false )
                     p.pstate = Processor::ProgramStatus::error;
                 if ( p.program->isFinished() )
                     p.pstate = Processor::ProgramStatus::stopped;
@@ -630,7 +630,7 @@ namespace ORO_Execution
                     if ( (*it)->isFinished() || (*it)->inError() )
                         (*it) = 0;
                     else
-                        (*it)->execute(); // should we check on inError() ?
+                        (*it)->executeUntil(); // should we check on inError() ?
         }
 
         // Execute any additional (deferred/external) command.

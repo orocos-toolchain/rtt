@@ -38,6 +38,7 @@
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionTrue.hpp"
+#include "corelib/ConditionOnce.hpp"
 #include "execution/GlobalCommandFactory.hpp"
 #include "execution/CommandFactoryInterface.hpp"
 
@@ -112,7 +113,7 @@ namespace ORO_Execution
   void CommandParser::seennopcommand()
   {
     retcommand = new CommandNOP;
-    implicittermcondition = new ConditionTrue;
+    implicittermcondition = new ConditionOnce( false );
   }
 
   void CommandParser::seenstartofcall()
@@ -204,6 +205,7 @@ namespace ORO_Execution
     assert( cfi || mfi );
 
     ComCon comcon;
+    bool ismethod = false;
     if ( cfi && cfi->hasCommand( mcurmethod ) )
         try
             {
@@ -235,6 +237,7 @@ namespace ORO_Execution
                 else
                     comcon.first =  new CommandDataSourceBool( dsb_res );
                 comcon.second = new ConditionTrue();
+                ismethod = true;
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -275,7 +278,8 @@ namespace ORO_Execution
     // it is interpreted here, with the implcond. Other condition branches
     // must be guarded likewise with wrapCondition().
     // we compare processors, as dispatching is not done if the processor is shared.
-    if ( peer->getProcessor() != context->getProcessor() ) {
+    // Also, methods are not dispatched.
+    if ( peer->getProcessor() != context->getProcessor() && !ismethod ) {
         tcom = new TryCommand( com );
         com = new CommandDispatch( peer->getProcessor(), tcom, tcom->result().get() );
          // compose impl term cond with accept filter and do not invert the result :

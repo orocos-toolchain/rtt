@@ -339,7 +339,7 @@ void ProgramTest::loopProgram( FunctionGraph* f)
     f->reset();
     while ( loops-- != 0 ) {
         while ( !f->isFinished() && !f->inError() )
-            f->execute();
+            f->executeUntil();
         f->reset();
         //std::cerr << ".";
     }
