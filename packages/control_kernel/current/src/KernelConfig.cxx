@@ -60,7 +60,7 @@ namespace ORO_ControlKernel
             // need our own xml parser.
             // Iterate over all extensions
             ExtensionInterface::NameServerType::value_iterator it = ExtensionInterface::nameserver.getValueBegin();
-            while (it != ExtensionInterface::nameserver.getValueEnd() && *it != kernel ) // do not update the kernelbasefunction !
+            while (it != ExtensionInterface::nameserver.getValueEnd() )
                 {
                     // read the file associated with each extension
                     //cout <<"Checking "<< ExtensionInterface::nameserver.getNameByObject(*it)<<endl;
