@@ -26,6 +26,7 @@ HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOK
 PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))
 PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))  #$(patsubst %.sgml,%.ps,$(DOCBOOKS))
 TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS)) # $(patsubst %.sgml,%.txt,$(DOCBOOKS))
+CHUNKSDOCS= $(patsubst %.xml,%.chunks,$(XMLDOCS)) # $(patsubst %.sgml,%.chunks,$(DOCBOOKS))
 
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
@@ -37,6 +38,7 @@ else
 DOC = dochtml
 endif
 
+.PHONY: docs docxml dochtml docpdf docps doctxt pngimages epsimages docchunks
 
 docs: $(DOC)
 
@@ -49,6 +51,8 @@ docpdf: epsimages $(PDFDOCS)
 docps: epsimages $(PSDOCS)
 
 doctxt: $(TXTDOCS)
+
+docchunks: $(CHUNKSDOCS)
 
 pngimages: $(PNGIMGS)
 
@@ -65,7 +69,11 @@ epsimages: $(EPSIMGS)
 	docbook2pdf $<
 
 .xml.html:
-	$(XMLPROCESSOR) --xinclude /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos-html.xsl $< > $@
+
+.xml.chunks:
+	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-chunk.xsl $< 
+	touch $@
 
 .xml.fo:
 	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
@@ -98,4 +106,5 @@ epsimages: $(EPSIMGS)
 	$(IMAGEMAGICK) $< $@
 
 clean-local:
-	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS)
+	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks
+	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))

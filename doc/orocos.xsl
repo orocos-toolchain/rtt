@@ -8,7 +8,7 @@
 
 <!-- 
   These parameters are specific for the Orocos project and override
-  the default ones. They must be set first !
+  the default ones. They must be set after import !
  -->
   <xsl:param name="draft.mode" select="'no'"/>
   <xsl:param name="paper.type" select="'A4'"/>
