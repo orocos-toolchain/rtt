@@ -28,6 +28,12 @@ A CORBA server which allows your kernel to be used with the KernelClient GUI.
     }
 
     make_object {
+	src/KernelInterfaceS_T.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
+	touch $@
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceS_T.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS_T.o
+    }
+
+    make_object {
 	src/KernelInterfaceC.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
 	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceC.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceC.o
