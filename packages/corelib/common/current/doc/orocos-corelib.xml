@@ -164,7 +164,7 @@ of the &orocos; framework.
     </para>
   </sect1>
   <sect1>
-    <title>The Orocos Thread Philosophy</title>
+    <title>Periodic and non Periodic Tasks</title>
     <para>
       Threads are the major cause of headaches in multithreaded
       systems programmers heads. Synchronisation, data protection,
@@ -1027,11 +1027,11 @@ emergencyStop.fire(); // User not notified
     </sect2>
   </sect1>
   <sect1>
-    <title>The HeartbeatGenerator</title>
+    <title>Time Measurement and Conversion</title>
     <sect2>
-      <title>Purpose</title>
+      <title>The TimeService</title>
       <para>
-	The <classname>HeartbeatGenerator</classname> is implemented using the
+	The <classname>TimeService</classname> is implemented using the
 	<classname>Singleton</classname> design pattern.
 	You can query it for the current (virtual) time in clock ticks or in seconds.
 	The idea here is that it is responsible for synchronising with other (distributed)
@@ -1039,23 +1039,24 @@ emergencyStop.fire(); // User not notified
 	is not yet implemented though.
       </para>
       <para>
-	When the SimulationThread is used and started, it will change the HeartBeatGenerator's
-	clock with each period, also other threads in the system will notice this change, but
+	When the SimulationThread is used and started, it will change the TimeService's
+	clock with each period ( to simulate time progress).
+	Also other threads (!) In the system will notice this change, but
 	time is guaranteed to increase monotonously.
       </para>
     </sect2>
     <sect2>
-      <title>Usage</title>
+      <title>Usage Example</title>
       <para>
 	Also take a look at the interface documentation.
 	<programlisting>
-  #include &lt;corelib/HeartBeatGenerator.hpp>
+  #include &lt;corelib/TimeService.hpp>
   #include &lt;corelib/Time.hpp>
 
-  HeartBeatGenerator::ticks timestamp = HeartBeatGenerator::Instance()->ticksGet();
+  TimeService::ticks timestamp = TimeService::Instance()->ticksGet();
   //...
 
-  Seconds elapsed = HeartBeatGenerator::Instance()->secondsSince( timestamp );
+  Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );
 	</programlisting>
       </para>
     </sect2>
@@ -1211,134 +1212,6 @@ emergencyStop.fire(); // User not notified
 	The above technique is used in many classes inside &orocos;. Events, Devices, 
 	Control Kernels and Components, ... anything you wish to configure at runtime
 	can be nameserved.
-      </para>
-    </sect2>
-  </sect1>
-  <sect1>
-      <title>States and the StateContext</title>
-    <sect2>
-      <title>Introduction</title>
-      <para>
-	Any complex software component will sooner or later need a way to change state, depending
-	on how it is used by the other components. The <classname>StateInterface</classname> 
-	describes how state changes are handled. When the current state is left, its
-	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
-	of the new state is called and right after that its <function>handle()</function> is
-	called. Each time the current state is again requested, the <function>handle()</function>
-	is called again (instead of onExit() and onEntry()).
-      </para>
-      <para>
-	So the <classname>StateInterface</classname> determines what has to be done, but 
-	the decision to change state is made in the <classname>StateContext</classname>. The 
-	StateContext keeps track of the current state and all valid state transitions.
-	One has to 'program' the StateContext so that it knows which transitions can be made
-	under which conditions. 
-      </para>
-    </sect2>
-     <sect2>
-	<title>The ConditionInterface</title>
-	<para>
-	  The ConditionInterface is very basic :
-	  <programlisting>
-  <![CDATA[
-  class ConditionInterface
-  {
-  virtual bool evaluate() = 0;
-
-  virtual void reset() {}
-  };
-  ]]>
-	  </programlisting>
-
-	  Conditions are classes that evaluate an expression and return the result. This expression
-	  must be defined by the user. Some examples are in the source tree, like <classname>
-	    ConditionOnce</classname> (returns only true when it is the first time evaluated), 
-	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
-	  each state transition a Condition object which it will <function>evaluate()</function>
-	  to determine if the transition is allowed. All condition objects are reset() when the
-	  state is entered. The Condition implementations can optionally provide a reset() method.
-	  All Conditions are reset() just before the new state is entered (onEntry).
-	</para>
-      </sect2>
-      <sect2>
-	<title>Programming and Requesting State Transitions</title>
-	<para>
-	  Now how does it all work together? First, a StateContext object is created and
-	  all its possible States. 
-	  <programlisting>
-  <![CDATA[
-  StateInit startState;
-  StateFini endState;
-  StateA aState;
-  StateB bState;
-  StateError errState;
-
-  ConditionTrue cTrue;
-  ConditionOnce cOnce;
-
-  StateContext context;
-
-  ]]>
-	  </programlisting>
-	  Next, we will tell the <varname>context</varname> object which is the initial state which
-	  state transitions are allowed :
-	  <programlisting>
-	    <![CDATA[
-	    context.initState(&startState, &endState);
-
-	    context.transitionSet(&startState, &aState, &cOnce);
-	    context.transitionSet(&aState, &bState, &cTrue);
-	    context.transitionSet(&aState, &errState, &cTrue);
-	    context.transitionSet(&bState, &aState, &cTrue);
-	    context.transitionSet(&bState, &errState, &cTrue);
-
-	    ]]>
-	  </programlisting>
-	As you can see, you can only go once from the startState to the aState, then you can
-	always switch from aState to bState and back. All states are allowed to go to the 
-	errorstate, but in this example, it will be impossible to leave the errorstate.</para>
-      <para>
-	The StateContext needs activation before it may be used :
-	  <programlisting>
-  <![CDATA[
-  ...
-  context.activate();            // brings us in the startState
-  context.requestState(&bState); // will return false !
-  context.requestState(&aState); // ok, returns true.
-  context.requestState(&bState); // ok, returns true.
-  context.requestState(&errState); // returns true, but we are trapped in it.
-
-  // we are now in the errState, recover
-  context.requestFinalState();   // succeeds always !
-  context.requestInitialState(); // ok from Final or Initial state
- 
-  // start over
-  ...
-   ]]> </programlisting>
-	When the StateContext is in the Final State, it can be deactivated, upon which the
-	Final State is left.
-	<programlisting>
-  context.requestFinalState();
-  context.deactivate();        // context.currentState() == 0
-	</programlisting>
-	</para>
-      </sect2>
-    <sect2>
-      <title>Practical use of the StateContext</title>
-      <para>
-	The StateContext has a method <function>requestNextState()</function> which
-	tries to make the first valid transition from the current state to the
-	another state it encounters. To make this workable, transitions can be
-	given an optional parameter which denotes the priority. It defaults to
-	zero. A high number denotes a high priority, a low number denotes a 
-	low priority.
-      </para>
-      <para>
-	Writing States and StateContexts in this way is cumbersome. The Orocos Framework has
-	therefore developped a Program and State
-	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
-	<ulink url="orocos-program-processor.html">Processor</ulink> which allow
-	to define states and transitions in a scripting language.
       </para>
     </sect2>
   </sect1>
@@ -1618,6 +1491,134 @@ contents  = my_Do.Get(); // equivalent
 	An example of an application which uses the CoreLib reporting infrastructure
 	is the Orocos Control Kernel framework.
       </para>
+  </sect1>
+  <sect1>
+    <title>States and the StateContext</title>
+    <sect2>
+      <title>Introduction</title>
+      <para>
+	Any complex software component will sooner or later need a way to change state, depending
+	on how it is used by the other components. The <classname>StateInterface</classname> 
+	describes how state changes are handled. When the current state is left, its
+	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
+	of the new state is called and right after that its <function>handle()</function> is
+	called. Each time the current state is again requested, the <function>handle()</function>
+	is called again (instead of onExit() and onEntry()).
+      </para>
+      <para>
+	So the <classname>StateInterface</classname> determines what has to be done, but 
+	the decision to change state is made in the <classname>StateContext</classname>. The 
+	StateContext keeps track of the current state and all valid state transitions.
+	One has to 'program' the StateContext so that it knows which transitions can be made
+	under which conditions. 
+      </para>
+    </sect2>
+    <sect2>
+      <title>The ConditionInterface</title>
+      <para>
+	The ConditionInterface is very basic :
+	<programlisting>
+  <![CDATA[
+  class ConditionInterface
+  {
+  virtual bool evaluate() = 0;
+
+  virtual void reset() {}
+  };
+  ]]>
+	</programlisting>
+
+	Conditions are classes that evaluate an expression and return the result. This expression
+	must be defined by the user. Some examples are in the source tree, like <classname>
+	  ConditionOnce</classname> (returns only true when it is the first time evaluated), 
+	<classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
+	each state transition a Condition object which it will <function>evaluate()</function>
+	to determine if the transition is allowed. All condition objects are reset() when the
+	state is entered. The Condition implementations can optionally provide a reset() method.
+	All Conditions are reset() just before the new state is entered (onEntry).
+      </para>
+    </sect2>
+    <sect2>
+      <title>Programming and Requesting State Transitions</title>
+      <para>
+	Now how does it all work together? First, a StateContext object is created and
+	all its possible States. 
+	<programlisting>
+  <![CDATA[
+  StateInit startState;
+  StateFini endState;
+  StateA aState;
+  StateB bState;
+  StateError errState;
+
+  ConditionTrue cTrue;
+  ConditionOnce cOnce;
+
+  StateContext context;
+
+  ]]>
+	</programlisting>
+	Next, we will tell the <varname>context</varname> object which is the initial state which
+	state transitions are allowed :
+	<programlisting>
+	  <![CDATA[
+	  context.initState(&startState, &endState);
+
+	  context.transitionSet(&startState, &aState, &cOnce);
+	  context.transitionSet(&aState, &bState, &cTrue);
+	  context.transitionSet(&aState, &errState, &cTrue);
+	  context.transitionSet(&bState, &aState, &cTrue);
+	  context.transitionSet(&bState, &errState, &cTrue);
+
+	  ]]>
+	</programlisting>
+	As you can see, you can only go once from the startState to the aState, then you can
+	always switch from aState to bState and back. All states are allowed to go to the 
+	errorstate, but in this example, it will be impossible to leave the errorstate.</para>
+      <para>
+	The StateContext needs activation before it may be used :
+	<programlisting>
+  <![CDATA[
+  ...
+  context.activate();            // brings us in the startState
+  context.requestState(&bState); // will return false !
+  context.requestState(&aState); // ok, returns true.
+  context.requestState(&bState); // ok, returns true.
+  context.requestState(&errState); // returns true, but we are trapped in it.
+
+  // we are now in the errState, recover
+  context.requestFinalState();   // succeeds always !
+  context.requestInitialState(); // ok from Final or Initial state
+ 
+  // start over
+  ...
+   ]]> </programlisting>
+	When the StateContext is in the Final State, it can be deactivated, upon which the
+	Final State is left.
+	<programlisting>
+  context.requestFinalState();
+  context.deactivate();        // context.currentState() == 0
+	</programlisting>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Practical use of the StateContext</title>
+      <para>
+	The StateContext has a method <function>requestNextState()</function> which
+	tries to make the first valid transition from the current state to the
+	another state it encounters. To make this workable, transitions can be
+	given an optional parameter which denotes the priority. It defaults to
+	zero. A high number denotes a high priority, a low number denotes a 
+	low priority.
+      </para>
+      <para>
+	Writing States and StateContexts in this way is cumbersome. The Orocos Framework has
+	therefore developped a Program and State
+	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
+	<ulink url="orocos-program-processor.html">Processor</ulink> which allow
+	to define states and transitions in a scripting language.
+      </para>
+    </sect2>
   </sect1>
   <sect1>
     <title>Fifos</title>
