@@ -223,6 +223,7 @@ namespace ORO_ControlKernel
         virtual void step() 
         { 
             // update the components 
+            updateComponents();
         }
         virtual void finalize() 
         { 

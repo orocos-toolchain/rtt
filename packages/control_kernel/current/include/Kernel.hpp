@@ -40,7 +40,7 @@ namespace ORO_ControlKernel
          */
         Controller() : Aspect::BaseClass( "Controller" ) {}
         Controller(const std::string& name ) 
-            : NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this), Aspect::BaseClass( "Controller" )  
+            : NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this), Aspect::BaseClass( name )  
         {}
             
 
@@ -123,7 +123,7 @@ namespace ORO_ControlKernel
          */
         Generator( ) : Aspect::BaseClass( "Generator" ) {}
         Generator(const std::string& name ) 
-            : Aspect::BaseClass( "Generator" ), 
+            : Aspect::BaseClass( name ), 
               NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >(nameserver,name,this) 
         {}
             
@@ -174,7 +174,7 @@ namespace ORO_ControlKernel
          */
         Estimator() : Aspect::BaseClass( "Estimator" ) {}
         Estimator(const std::string& name ) 
-            : Aspect::BaseClass( "Estimator" ), 
+            : Aspect::BaseClass( name ), 
               NameServerRegistrator< Estimator<_InputType, _ModelType,  _Aspect>* >(nameserver,name,this) 
         {}
             
@@ -213,7 +213,7 @@ namespace ORO_ControlKernel
          */
         Effector() : Aspect::BaseClass( "Effector" ) {}
         Effector(const std::string& name ) 
-            : Aspect::BaseClass( "Effector" ), 
+            : Aspect::BaseClass( name ), 
               NameServerRegistrator< Effector<_OutputType, _Aspect>* >(nameserver,name,this) 
         {}
             
@@ -249,7 +249,7 @@ namespace ORO_ControlKernel
          */
         Sensor() : Aspect::BaseClass( "Sensor" ) {}
         Sensor(const std::string& name ) 
-            : Aspect::BaseClass( "Sensor" ), 
+            : Aspect::BaseClass( name ), 
               NameServerRegistrator< Sensor<_InputType, _Aspect>* >(nameserver,name,this) 
         {}
             

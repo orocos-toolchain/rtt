@@ -12,7 +12,8 @@
 #include <corelib/TaskNonRealTime.hpp>
 #include <corelib/PropertyComposition.hpp>
 
-#ifdef OROINT_OS_STDFILEIO
+#include <pkgconf/os.h>
+#ifdef OROINT_OS_STDIOSTREAM
 #include <fstream>
 #endif
 
@@ -120,7 +121,7 @@ namespace ORO_ControlKernel
                   interval("SubSamplingInterval","", 1),
                   repFile("ReportFile","", "report.txt"),
                   toStdOut("WriteToStdOut","", false),
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
                   toFile("WriteToFile","", false),
 #endif
                   reportServer("ReportServer","The name of the report server", "Default"),
@@ -167,7 +168,7 @@ namespace ORO_ControlKernel
 
             virtual bool initialize()
             {
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
                 if ( toFile && toStdOut )
                 {
                     fileStream = new ofstream( repFile.get().c_str() );
@@ -250,7 +251,7 @@ namespace ORO_ControlKernel
                     delete reporterTask;
                     delete reporter;
                 }
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
                 if ( toFile )
                 {
                     delete fileStream;
@@ -326,7 +327,7 @@ namespace ORO_ControlKernel
                 composeProperty(bag, repFile);
                 composeProperty(bag, reportServer);
                 composeProperty(bag, toStdOut);
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
                 composeProperty(bag, toFile);
 #endif
                 
@@ -354,7 +355,7 @@ namespace ORO_ControlKernel
         protected:
             typedef MarshallConfiguration<SplitStream, TableHeaderMarshaller<SplitStream>, TableMarshaller<SplitStream> > MarshallTableType;
 
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
             std::ofstream* fileStream;
 #endif
             SplitStream*  splitStream;
@@ -370,7 +371,7 @@ namespace ORO_ControlKernel
             Property<int> interval;
             Property<std::string> repFile;
             Property<bool> toStdOut;
-#ifdef OROINT_OS_STDFILEIO
+#ifdef OROINT_OS_STDIOSTREAM
       Property<bool> toFile;
 #endif
             Property<std::string> reportServer;
