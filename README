@@ -10,12 +10,13 @@ then proceed with the build instructions as described
 in the installation manual. For a quick start you can
 do :
 
-mkdir buid
+mkdir build
 cd build
 ../configure
 make new_packages
 cd packages-gnulinux
 configtool ecos.ecc [save changes]
+cd ..
 make all_packages
 
 
