@@ -64,6 +64,11 @@ namespace ORO_Execution {
         ParsedStateContext();
         virtual ~ParsedStateContext();
 
+        /**
+         * @brief Create a ParsedStateContext which is parsed from \a text.
+         */
+        ParsedStateContext(const std::string& text);
+
         std::vector<std::string> getSubContextList() const;
         ParsedStateContext* getSubContext( const std::string& name ) const;
         /**
@@ -103,6 +108,8 @@ namespace ORO_Execution {
         // instantiated by in this context.
         void setName( const std::string& name );
 
+        const std::string& getText() const { return _text; }
+        void setText(const std::string& text) { _text = text; }
     private:
         VariableDataSource<std::string>::shared_ptr nameds;
 
@@ -113,6 +120,8 @@ namespace ORO_Execution {
         VisibleWritableValuesMap parametervalues;
 
         VisibleReadOnlyValuesMap visiblereadonlyvalues;
+
+        std::string _text;
     };
 }
 

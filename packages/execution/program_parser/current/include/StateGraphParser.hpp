@@ -183,6 +183,7 @@ namespace ORO_Execution
       void seenvaluechange();
 
       void seenstatecontextname( iter_t begin, iter_t end );
+      void saveText( iter_t begin, iter_t end );
       void seenrootcontextinstantiation();
       void seenstatecontextend();
       void seensubcontextinstantiation();

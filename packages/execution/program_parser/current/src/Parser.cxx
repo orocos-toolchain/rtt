@@ -42,7 +42,7 @@ using namespace boost;
 namespace ORO_Execution
 {
 
-  ProgramGraph* Parser::parseProgram( std::istream& s, Processor* proc,
+  std::vector<ProgramGraph*> Parser::parseProgram( std::istream& s, Processor* proc,
                                       GlobalFactory* ext )
   {
     our_buffer_t program;
@@ -58,8 +58,8 @@ namespace ORO_Execution
 
     // The internal parser.
     ProgramGraphParser gram( parsebegin, proc, ext );
-    ProgramGraph* ret = gram.parse( parsebegin, parseend );
-    if ( ret )
+    std::vector<ProgramGraph*> ret = gram.parse( parsebegin, parseend );
+    if ( !ret.empty() )
       std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;
   };

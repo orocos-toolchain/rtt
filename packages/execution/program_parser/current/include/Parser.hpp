@@ -72,7 +72,7 @@ namespace ORO_Execution
      * ProgramGraph..
      * @throw parse_exception Throws exceptions of type parse_exception.
      */
-      ProgramGraph* parseProgram( std::istream& s, Processor*,
+      std::vector<ProgramGraph*> parseProgram( std::istream& s, Processor*,
                                   GlobalFactory* );
 
     /**

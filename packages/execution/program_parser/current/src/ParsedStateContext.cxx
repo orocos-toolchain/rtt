@@ -50,7 +50,7 @@ namespace ORO_Execution {
 
     ParsedStateContext* ParsedStateContext::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const {
         std::map<const StateInterface*, StateDescription*> statemapping;
-        ParsedStateContext* ret = new ParsedStateContext();
+        ParsedStateContext* ret = new ParsedStateContext( this->getText() );
 
         ret->nameds = nameds->copy( replacements );
 
@@ -157,6 +157,13 @@ namespace ORO_Execution {
 
     ParsedStateContext::ParsedStateContext()
         : StateContextTree( 0 ) // no parent
+    {
+        nameds = new VariableDataSource<std::string>( "" );
+    };
+
+    ParsedStateContext::ParsedStateContext(const std::string& text)
+        : StateContextTree( 0 ) // no parent
+          ,_text(text)
     {
         nameds = new VariableDataSource<std::string>( "" );
     };

@@ -381,7 +381,7 @@ namespace ORO_Execution
 
         newline = ch_p( '\n' );
 
-        production = *( newline | statecontext ) >> *( newline | rootcontextinstantiation );
+        production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation );
 
         rootcontextinstantiation =
             str_p( "RootContext" )
@@ -394,7 +394,7 @@ namespace ORO_Execution
             >> expect_open( ch_p( '{' ) )
             >> statecontextcontent
             >> expect_end( ch_p( '}' ) )
-            >> newline[ bind( &StateGraphParser::seenstatecontextend, this ) ];
+            >> newline;
 
         // Zero or more declarations and Zero or more states
         statecontextcontent = ( *varline >> *( state | newline ) );
@@ -919,6 +919,11 @@ namespace ORO_Execution
         assert( curcontextname.empty() );
         curcontextname = std::string ( begin, end );
         curtemplatecontext = new ParsedStateContext();
+    }
+
+    void StateGraphParser::saveText( iter_t begin, iter_t end ) {
+        assert ( curtemplatecontext != 0 );
+        curtemplatecontext->setText( std::string( begin, end) );
     }
 
     void StateGraphParser::inpreconditions() {

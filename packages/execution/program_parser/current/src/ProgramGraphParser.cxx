@@ -109,7 +109,7 @@ namespace ORO_Execution
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = *function >> program ;
+    production = (*function >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] ;
 
     // a function is very similar to a program, but it also has a name
     function = (
@@ -158,7 +158,7 @@ namespace ORO_Execution
       >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
       ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];
 
-    andpart = str_p("and")
+    andpart = *newline >> str_p("and")
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
     // a function statement : "call functionname"
@@ -260,6 +260,7 @@ namespace ORO_Execution
 
     void ProgramGraphParser::startofprogram()
     {
+        program_graph = new ProgramGraph();
         program_graph->startProgram();
     }
 
@@ -267,6 +268,11 @@ namespace ORO_Execution
   {
       std::string def(begin, end);
       program_graph->setName( def );
+  }
+
+  void ProgramGraphParser::programtext( iter_t begin, iter_t end )
+  {
+      program_text = std::string(begin, end);
   }
 
   void ProgramGraphParser::functiondef( iter_t begin, iter_t end )
@@ -430,16 +436,19 @@ namespace ORO_Execution
       program_graph->returnProgram( new ConditionTrue );
       program_graph->proceedToNext( mpositer.get_position().line );
       program_graph->endProgram( context.processor );
+      program_graph->reset();
+      program_list.push_back(program_graph);
+      program_graph = 0;
   }
 
-  ProgramGraph* ProgramGraphParser::parse( iter_t& begin, iter_t end )
+  std::vector<ProgramGraph*> ProgramGraphParser::parse( iter_t& begin, iter_t end )
   {
     skip_parser_t skip_parser = SKIP_PARSER;
     iter_pol_t iter_policy( skip_parser );
     scanner_pol_t policies( iter_policy );
     scanner_t scanner( begin, end, policies );
 
-    program_graph = new ProgramGraph();
+    program_list.clear();
 
     try {
       if ( ! production.parse( scanner ) )
@@ -449,15 +458,25 @@ namespace ORO_Execution
                   << std::endl;
         delete program_graph;
         program_graph = 0;
-        return 0;
+        for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
+            delete *it;
+        program_list.clear();
+        return std::vector<ProgramGraph*>();
       }
-      program_graph->reset();
-      return program_graph;
+      // set the program text in each program :
+      for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
+          (*it)->setText( program_text );
+      return program_list;
     }
     catch( const parser_error<std::string, iter_t>& e )
         {
             delete program_graph;
             program_graph = 0;
+            for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
+                 it!=program_list.end();
+                 ++it)
+                delete *it;
+            program_list.clear();
             throw file_parse_exception(
                 new parse_exception_syntactic_error( e.descriptor ),
                 mpositer.get_position().file, mpositer.get_position().line,
@@ -468,10 +487,14 @@ namespace ORO_Execution
     {
       delete program_graph;
       program_graph = 0;
+      for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
+           it!=program_list.end();
+           ++it)
+          delete *it;
+      program_list.clear();
       throw file_parse_exception(
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
-      return 0;
     }
   }
 
@@ -502,6 +525,10 @@ namespace ORO_Execution
                 _f->execute();
                 _s->execute();
             }
+            virtual void reset() {
+                _f->reset();
+                _s->reset();
+            }
             virtual CommandInterface* clone() const {
                 return new CommandComposite( _f->clone(), _s->clone() );
             }
@@ -514,11 +541,11 @@ namespace ORO_Execution
 
   void ProgramGraphParser::seenandcall()
   {
-      // retrieve previous 'do' or 'and' command:
-    CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() );
+      // retrieve a clone of the previous 'do' or 'and' command:
+    CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() )->clone();
     // set composite command : (oldcmnd can be zero)
     CommandComposite* compcmnd = new CommandComposite( oldcmnd, commandparser.getCommand() );
-    program_graph->setCommand( compcmnd );
+    program_graph->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( commandparser.getImplTermCondition() );
 

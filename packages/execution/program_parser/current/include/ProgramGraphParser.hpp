@@ -35,13 +35,13 @@
 #include "ProgramGraph.hpp"
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace ORO_Execution
 {
   /**
-   * This is not a parser in the Boost.spirit sense of the word, it's
-   * just a class used to hold the parser and semantic actions..
+   * @brief A Parser for Orocos Program Scripts.
    *
    * This class does the actual work.  It generates a Program, by
    * constructing the ProgramNode's.  We just go over the code one
@@ -119,6 +119,7 @@ namespace ORO_Execution
       void startofprogram();
       void programdef( iter_t begin, iter_t end );
       void seenprogramend();
+      void programtext(iter_t, iter_t);
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           callstatement, statement, line, content, program, valuechange_parsers,
@@ -133,15 +134,19 @@ namespace ORO_Execution
       ValueChangeParser valuechangeparser;
 
       ProgramGraph* program_graph;
+      std::vector<ProgramGraph*> program_list;
 
       CommandInterface* for_init_command;
       CommandInterface* for_incr_command;
+      std::string program_text;
   public:
     ProgramGraphParser( iter_t& positer, Processor* proc,
                         GlobalFactory* ext );
 
-    // tries to parse, returns the generated program on success, 0 on
-    // failure..  should not throw..
-    ProgramGraph* parse( iter_t& begin, iter_t end );
+      /**
+       * @brief Tries to parse programs, returns the generated programs on success.
+       * @throw file_parse_exception The parser found an error.
+       */
+    std::vector<ProgramGraph*> parse( iter_t& begin, iter_t end );
   };
 }
