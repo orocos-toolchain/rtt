@@ -6,6 +6,8 @@
 namespace ORO_CoreLib
 {
     /**
+     * @brief Interface to start/stop a task.
+     *
      * A RunnableTaskInterface provides the control methods
      * for tasks. They can be started, stopped
      * and be queried for their state and period.

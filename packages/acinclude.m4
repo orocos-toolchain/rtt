@@ -83,8 +83,7 @@ m4_define([ACX_VERSION],[
  define([acx_major_version],[$1])
  define([acx_minor_version],[$2])
  define([acx_micro_version],[$3])
- define([acx_build_nr],[$4])
- define([acx_version],[acx_major_version.acx_minor_version.acx_micro_version-acx_build_nr])
+ define([acx_version],[acx_major_version.acx_minor_version.acx_micro_version])
 ]) # ACX_VERSION
 
 
@@ -98,16 +97,19 @@ m4_define([ACX_VERSION_POST],[
  MAJOR_VERSION=acx_major_version
  MINOR_VERSION=acx_minor_version
  MICRO_VERSION=acx_micro_version
- BUILD=acx_build_nr
+ # XXX need to find the global SVN repos number here !
+ BUILD=$(svn info . |grep Revision | sed -e's/Revision: //')
  DATE=`date +"%Y%m%d_%k%M"`
  VERSION=acx_version
- VERSION="$VERSION-$DATE"
+ VERSION="$VERSION-$BUILD"
  PACKAGE_VERSION=$VERSION
  AC_SUBST(MAJOR_VERSION)
  AC_SUBST(MINOR_VERSION)
  AC_SUBST(MICRO_VERSION)
  AC_SUBST(VERSION)
+ AC_SUBST(PACKAGE_VERSION)
  AC_SUBST(DATE)
+ AC_SUBST(BUILD)
 ]) # ACX_VERSION_POST
 
 
@@ -138,7 +140,7 @@ dnl OROCOS_INIT(name,major,minor,micro)
 m4_define([PACKAGES_INIT],[
 # Define the version number of the package
 # Format: major,minor,micro,build
-ACX_VERSION($2,$3,$4,$5)
+ACX_VERSION($2,$3,$4)
 
 # Check if Autoconf version is recent enough
 AC_PREREQ(2.53)

@@ -71,10 +71,53 @@ using namespace ORO_ControlKernel;
     };
 
 
+template <class InputType>
+class InputKernel
+    :public BaseKernel< ... >
+{
+    typedef NameServedDataObject< DataObjectContainer<InputType> Inputs;
+};
+
+template <class ImplementationKernel>
+class PublicKernel
+{
+    typedef ImplementationKernel::Inputs Inputs;
+};    
+
+template <class I, class M, class C, class S, class O, class Ext=DefaultExt>
+class DefaultControlKernel
+    : public BaseKernel<DataObject<I>, DataObject<M>, DataObjectLocked<C>, DataObject<S>, DataObject<0>, Ext>
+{
+    using BaseKernel::Inputs;
+    using BaseKernel::Models;
+    //...
+    using BaseKernel::DefaultGenerator;
+    //...
+};
+
+template <class I, class M, class C, class S, class O, class Ext=DefaultExt>
+class HighPriorityControlKernel
+    : public BaseKernel<DataObjectPriorityGet<I>, DataObject<M>, DataObjectPriorityGet<C>, DataObject<S>, DataObjectPrioritySet<0>, Ext>
+{
+    using BaseKernel::Inputs;
+    using BaseKernel::Models;
+    //...
+    using BaseKernel::DefaultGenerator;
+    //...
+};
+
+
+
 int main()
 {
+    NamesKernel<MyInputTypes, MyExtension> NKernel;
+
     // Example use in the kernel :
     typedef NameServedDataObject< DataObjectPrioritySetContainer<MyInputTypes> > Inputs;
+   
+    // old use :
+    typedef DataObject< NormalInputs > OldInputs;
+
     Inputs dObj;
 
     // reading the UnServedType data.

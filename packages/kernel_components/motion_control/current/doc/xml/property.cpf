@@ -4,8 +4,8 @@
 <properties>
 <!--
     <struct name="Generator" type="ComponentEntry">
-        <simple name="Type"><value>Generator</value></simple>
-        <simple name="Filename"><value>ORO_GeometryGenerator.cpf</value></simple>
+        <simple name="Component" type="string"><value>CartesianGenerator</value></simple>
+        <simple name="Filename"  type="string"><value>CartesianGenerator.cpf</value></simple>
     </struct>
     -->
     

@@ -35,7 +35,9 @@ namespace ORO_CoreLib
     class CompletionProcessor;
     using namespace detail;
     /**
-     * A most generic event.  An event can 'happen' and is then 'fired'.
+     * @brief A most generic event.  
+     *
+     * If an event is fired, all listeners are notified.
      *
      * @detail We used the strategy pattern and detail namespace to encapsulate the
      * choice of event upon construction. This might seem 'ugly' but is 

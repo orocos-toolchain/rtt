@@ -30,14 +30,12 @@ namespace ORO_CoreLib
     class TaskNonPreemptible;
     /**
      * This thread is the fastest, non preemptible thread in the
-     * Orocos realtime system
-     * Uses the Singleton pattern, since there will be only one EVER.
+     * Orocos realtime system. It can not be interrupted by another thread
+     * and executes its functionality as fast as possible on the current
+     * CPU, in a short (zero) timespan.
      *
-     * ABOUT THREADSAFETY: map does not invalidate its iterators when an element is removed
-     * or inserted in the map (except for the removed elements iterator itself).
-     * This could mean we don't need mutexes. mutexes don't work in init_module/cleanup_module
-     * (yet)
-     * 
+     * It Uses the Singleton pattern, since there will be only one EVER.
+     *
      * @see ComponentThreaded
      */
     class ZeroTimeThread

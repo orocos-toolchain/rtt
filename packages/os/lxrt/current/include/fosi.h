@@ -27,6 +27,8 @@
 #ifndef __FOSI_H
 #define __FOSI_H
 
+#define _XOPEN_SOURCE 600   // use all Posix features.
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

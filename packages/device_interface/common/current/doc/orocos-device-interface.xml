@@ -118,8 +118,8 @@
 	value, while digital devices are addressed with a bit number
 	as parameter and a true/false value. Logical device interfaces
 	represent the entities humans like to work with: a drive, a
-	sensor, an encoder, etc. They already make the abstraction on
-	how they are physically addressed. You just want to know the
+	sensor, an encoder, etc. They put <emphasis>semantics</emphasis> on top
+of the physical interfaces they use underneath. You just want to know the
 	position of a positional encoder in radians for example.
 	Often, the physical layer is device dependent (and thus
 	non-portable) while the logical layer is device independent.

@@ -7,6 +7,8 @@ namespace ORO_CoreLib
 {
 
     /**
+     * @brief An Event-driven task implementation.
+     *
      * This class represents a Task which can be attached
      * to an event and execute its functionality each time
      * the event is fired. By default, only the listener
@@ -17,6 +19,13 @@ namespace ORO_CoreLib
         :public RunnableTaskInterface
     {
     public:
+        /**
+         * Create an TaskEventDriven with a given event and optional 
+         * RunnableInterface instance.
+         * @param _event The Event which will trigger execution of this task,
+         *        once this task is started.
+         * @param _r The optional runner, if none, this->step() is called.
+         */
         TaskEvenDriven( EventRegistrationInterface* _event, RunnableInterface _r = 0 )
             : onListener(true), onCompleter(false), event(_event), runner(_r), running(false),
               listener( new StandardListener(TaskEventDriven::handler, this) ),
@@ -53,6 +62,10 @@ namespace ORO_CoreLib
 
         bool isRunning() { return running; }
 
+        /**
+         * Run another (or none in case of null)
+         * task.
+         */
         bool run(RunnableInterface* _r)
         {
             if ( running )
@@ -61,6 +74,10 @@ namespace ORO_CoreLib
             return true;
         }
 
+        /**
+         * Set the Event which will trigger the execution
+         * of this task, once started.
+         */
         void setEvent( EventRegistrationInterface* _event)
         {
             if ( running )
@@ -70,11 +87,19 @@ namespace ORO_CoreLib
             return true;
         }
 
+        /**
+         * Configure to run when the Listeners of the
+         * Event are called.
+         */
         void runOnListener(bool doit)
         {
             onListener = doit;
         }
 
+        /**
+         * Configure to run when the Completers of the
+         * Event are called.
+         */
         void runOnCompleter(bool doit)
         {
             onCompleter = doit;

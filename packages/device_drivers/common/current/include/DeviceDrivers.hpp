@@ -1,5 +1,6 @@
 /**
  * @brief This namespace contains all classes of the device_drivers package.
+ *
  * It is meant to group all packages which provide implementations to the 
  * hardware abstraction APIs, defined by the device_interface package.
  * Examples are IO cards, Encoder cards, CAN drivers, 

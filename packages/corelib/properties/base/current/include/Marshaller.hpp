@@ -10,6 +10,7 @@ namespace ORO_CoreLib
 	template<typename T> class Property;
 
 	/**
+     * @brief Used for converting properties to a format.
 	 * An interface which all classes which serialize property bags
 	 * should implement.
 	 *
@@ -72,6 +73,7 @@ namespace ORO_CoreLib
 	};
 
 	/**
+     * @brief Used for extracting properties from a format.
 	 * An interface which all classes which deserialize data
 	 * should implement.
 	 *
@@ -85,7 +87,7 @@ namespace ORO_CoreLib
 			/**
 			 * Deserialize data to a property bag.
 			 * @param v The property bag which will contain the results
-             *          of the deserialization..
+             *          of the deserialization.
 			 * @see PropertyBag
 			 */
             virtual bool deserialize(PropertyBag &v) = 0;

@@ -17,8 +17,10 @@
 namespace ORO_CoreLib
 {
 	/**
-	 * A container for properties.
-	 * This class groups properties of different types into a single
+	 * @brief A container for holding references to properties.
+     *
+	 * Introduction
+     * This class groups properties of different types into a single
 	 * container. A PropertyBag object can handed to a Marshaller object
 	 * which will serialize the contents of the PropertyBag.
      *
@@ -31,14 +33,14 @@ namespace ORO_CoreLib
      * contains another PropertyBag, this bag is considered as a 'pointer'
      * to other properties. Even such a bag is not owned by the PropertyBag.
      *
-     * Constructing PropertyBags.
-     * It can happen in an applycation that a PropertyBag is filled with
+     * Constructing PropertyBags
+     * It can happen in an application that a PropertyBag is filled with
      * dynamically created Property objects. The bag is not responsible for
      * cleaning up these objects once they are no longer needed. The application
      * which uses the PropertyBag has to find a way of deleting the possible
      * dangling pointers.
      *
-     * The elements in a PropertyBag are <em>unordered</em>. Operations on the
+     * @warning The elements in a PropertyBag are <em>unordered</em>. Operations on the
      * bag may change the relative order of the elements.
      *
 	 * @see PropertyBase

@@ -44,13 +44,15 @@ namespace ORO_CoreLib
      * @}
      */
 
-		class PropertyMutatingIntrospection;
+    class PropertyMutatingIntrospection;
 
 	/**
-	 * A property of any type.
+	 * @brief A property represents data of any type.
+     *
 	 * A property is a tuple of a name, a description and a variable of any
 	 * type.
 	 *
+     * @param T The type of the data contained within the Property.
 	 */
     template<typename T>
     class Property : public PropertyBase

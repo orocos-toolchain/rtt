@@ -15,3 +15,17 @@ clean:
 	rm -f support.epk pkgadd.db
 	find support -name "*.cdl" | xargs rm -f
 	rm -f ecos.db
+
+orocos-dist:
+	@echo "Making doc tarballs..."
+	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) dist; done
+	@rm -rf orocos-docs
+	@mkdir  orocos-docs
+	@echo "Copying..."
+	@cp  $$(find . -name "*.tgz") orocos-docs
+	@echo "Running Doxygen... (warnings in doxygen.warnings)"
+	@doxygen >/dev/null || exit 1
+	@echo "Tarring API docs..." 
+	@tar -cjf orocos-docs/orocos-api.tar.bz2 doc
+	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz *.bz2; )
+	@echo "Done !"

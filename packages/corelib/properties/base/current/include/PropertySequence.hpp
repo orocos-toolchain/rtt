@@ -3,51 +3,43 @@
 
 #include "PropertyBase.hpp"
 
-#ifdef HAVE_VECTOR
-#include <vector>
-#endif
-
-#ifdef HAVE_ALGORITHM
-#include <algorithm>
-#endif
-
-#ifdef HAVE_IOSTREAM
-#include <iostream>
-#else
-#include "rtstl/rtstl.hpp"
-#endif
-
 namespace ORO_CoreLib
 {
 	/**
-	 * A container for a sequence of properties of the same type Property<T>.
+	 * @brief A container for a sequence of properties of the same type Property<T> [EXPERIMENTAL]
      * 
 	 * This class groups properties of equal types into a single
-	 * container. A PropertyBag object can handed to a Marshaller object
-	 * which will serialize the contents of the PropertyBag.
+	 * container. It is used for optimised access to fixed type contents. It
+     * is thus very much like a vector.
      *
-     * All operations on a PropertyBag are non recursive. The PropertyBag
+     * A PropertySequence object can handed to a Marshaller object
+	 * which will serialize the contents of the PropertySequence.
+     *
+     * All operations on a PropertySequence are non recursive. The PropertySequence
      * itself is not aware of the possible hierarchical structure. You need
      * to use the global scope functions for handling hierarchical structures.
      *
-     * A PropertyBag is not the owner of the properties within. It defines
+     * A PropertySequence is not the owner of the properties within. It defines
      * a group of properties, nothing more. When this group of properties
-     * contains another PropertyBag, this bag is considered as a 'pointer'
-     * to other properties. Even such a bag is not owned by the PropertyBag.
+     * contains another PropertySequence, this sequence is considered as a 'pointer'
+     * to other properties. Even such a sequence is not owned by the PropertySequence.
      *
-     * Constructing PropertyBags.
-     * It can happen in an applycation that a PropertyBag is filled with
-     * dynamically created Property objects. The bag is not responsible for
+     * Constructing PropertySequences.
+     * It can happen in an application that a PropertySequence is filled with
+     * dynamically created Property objects. The sequence is not responsible for
      * cleaning up these objects once they are no longer needed. The application
-     * which uses the PropertyBag has to find a way of deleting the possible
+     * which uses the PropertySequence has to find a way of deleting the possible
      * dangling pointers.
      *
-     * The elements in a PropertyBag are <em>unordered</em>. Operations on the
-     * bag may change the relative order of the elements.
+     * The elements in a PropertySequence are <em>unordered</em>. Operations on the
+     * sequence may change the relative order of the elements.
      * 
-	 * @see PropertyBase
+	 * @see PropertyBag
+     * @param T The type of the sequence.
+     * @note THIS CLASS IS EXPERIMENTAL AND SHOULD NOT BE USED BY THE UNWARY
 	 */
-    class PropertyBag
+    template<class T>
+    class PropertySequence
     {
         public:
 			typedef std::vector<PropertyBase*> PropertyContainerType;
@@ -57,25 +49,25 @@ namespace ORO_CoreLib
 			/**
 			 * The default constructor.
 			 */
-            PropertyBag( )
+            PropertySequence( )
                 : _properties(), type("type_less")
             {}
 
 			/**
 			 * The typed constructor.
              *
-             * @param type The type of PropertyBag.
+             * @param type The type of PropertySequence.
 			 */
-            PropertyBag( const std::string& _type)
+            PropertySequence( const std::string& _type)
                 : _properties(), type(_type)
             {}
 
             /**
              * The copy constructor.
-             * The copy constructor of the PropertyBag makes
+             * The copy constructor of the PropertySequence makes
              * non-deep copies of its elements.
              */
-            PropertyBag( const PropertyBag& orig)
+            PropertySequence( const PropertySequence& orig)
                 : _properties( orig.getProperties() ), type( orig.getType() )
             {
 #if 0
@@ -111,7 +103,7 @@ namespace ORO_CoreLib
             }
 
             /**
-             * Removes all PropertyBases from this bag, without deleting
+             * Removes all PropertyBases from this sequence, without deleting
              * them. This is a not recursive function.
              */
             void clear()
@@ -153,10 +145,10 @@ namespace ORO_CoreLib
             
             /**
              * This assignment assigns all
-             * PropertyBases of another bag in this bag, making
+             * PropertyBases of another sequence in this sequence, making
              * an exact copy or the original.
              */
-            PropertyBag& operator=(const PropertyBag& orig)
+            PropertySequence& operator=(const PropertySequence& orig)
             {
                 _properties.clear();
 
@@ -171,11 +163,11 @@ namespace ORO_CoreLib
 
             /**
              * The update operator. 
-             * It updates this bag so it contains all PropertyBases
-             * of another bag, removing own PropertyBases if duplicate names
-             * exist in the source bag.
+             * It updates this sequence so it contains all PropertyBases
+             * of another sequence, removing own PropertyBases if duplicate names
+             * exist in the source sequence.
              */
-            PropertyBag& operator<<=(const PropertyBag& source)
+            PropertySequence& operator<<=(const PropertySequence& source)
             {
                 //iterate over orig, update or clone PropertyBases
                 const_iterator it(source.getProperties().begin());
@@ -211,77 +203,78 @@ namespace ORO_CoreLib
 
     /**
      * Some helper functions to retrieve PropertyBases from
-     * PropertyBags.
+     * PropertySequences.
      *
-     * @param bag The bag to look for a Property.
+     * @param sequence The sequence to look for a Property.
      * @param nameSequence A sequence of names, separated by
-     *        a double colon indicating the path in the bag to a property,
-     *        omitting the name of the <bag> itself.
+     *        a double colon indicating the path in the sequence to a property,
+     *        omitting the name of the <sequence> itself.
      */
-    PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator = std::string("::") );
+    PropertyBase* find(const PropertySequence& sequence, const std::string& nameSequence, const std::string& separator = std::string("::") );
 
 
     /**
-     * @group BagOperations These functions operate on the contents of bags,
+     * @group SequenceOperations These functions operate on the contents of sequences,
      *        possibly modifying, deleting or creating new Property objects.
      * @{
      */
     
     /**
-     * This function refreshes the values of the properties in one PropertyBag with
-     * the values of the properties of another PropertyBag.
+     * This function refreshes the values of the properties in one PropertySequence with
+     * the values of the properties of another PropertySequence.
      * No new properties will be created.
      * 
-     * You can use this function to update the properties of a fixed bag.
+     * You can use this function to update the properties of a fixed sequence.
      */
-    void refreshProperties(PropertyBag& target, const PropertyBag& source);
+    void refreshProperties(PropertySequence& target, const PropertySequence& source);
     
     /**
-     * This function updates the values of Property objects of one Bag with the 
-     * values of Property objects of another bag. 
+     * @brief This function updates the values of Property objects of one Sequence with the 
+     * values of Property objects of another sequence. 
      * It creates new Property instances using if a Property
      * is not present in the target and class copy on that Property.
      * 
-     * You can use this function to add a copy of the contents of a property bag.
+     * You can use this function to add a copy of the contents of a property sequence.
      */
-    void copyProperties(PropertyBag& target, const PropertyBag& source);
+    void copyProperties(PropertySequence& target, const PropertySequence& source);
         
     /**
-     * This function iterates over a PropertyBag and deletes all Property objects in
+     * This function iterates over a PropertySequence and deletes all Property objects in
      * it without recursion.
      */
-    void deleteProperties(PropertyBag& target);
+    void deleteProperties(PropertySequence& target);
 
     /**
-     * This function flattens a PropertyBag recursively.
-     * The names of the Propety objects of the included bags are
-     * placed in this bag with the included bag's name prefixed. If the Property object
-     * in that bag is also a bag, the same operation is performed recursively.
-     * So any bag in <target> will show up at the
+     * @brief This function flattens a PropertySequence recursively.
+     *
+     * The names of the Propety objects of the included sequences are
+     * placed in this sequence with the included sequence's name prefixed. If the Property object
+     * in that sequence is also a sequence, the same operation is performed recursively.
+     * So any sequence in <target> will show up at the
      * root of <target> with the path prefixed.
      */
-    void flattenPropertyBag(PropertyBag& target, const std::string& separator="::");
+    void flattenPropertySequence(PropertySequence& target, const std::string& separator="::");
     
     /**
      * @}
      */
 
     /**
-     * Updating a bag is actually refreshing the bag.
+     * Updating a sequence is actually refreshing the sequence.
      */
     inline
-    void update(PropertyBag& a, const PropertyBag& b)
+    void update(PropertySequence& a, const PropertySequence& b)
     {
         refreshProperties(a,b);
     }
 
     /**
-     * Copying a bag is actually making a deep copy of the bag.
+     * Copying a sequence is actually making a deep copy of the sequence.
      */
     inline
-    void copy(PropertyBag& a, const PropertyBag& b)
+    void copy(PropertySequence& a, const PropertySequence& b)
     {
-        std::cout << "Copy Bag "<<std::endl;
+        std::cout << "Copy Sequence "<<std::endl;
         copyProperties(a,b);
     }
 

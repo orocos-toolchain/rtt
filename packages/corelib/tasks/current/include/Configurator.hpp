@@ -11,7 +11,13 @@
 namespace ORO_CoreLib
 {
     /**
-     * Configures in a separate thread other components.
+     * @brief A task which configures components.
+     *
+     * This is a step-wise configurator which instructs
+     * another class to do a configuration 'step'. After
+     * the specified period, it instructs to do the next
+     * step and so on until an error occured or the configuration
+     * is finished.
      *
      * @param TaskBase Template : The Task formalism to use.
      */
