@@ -27,9 +27,8 @@ echo -e \
 " Next do something like : 
      mkdir build 
      cd build 
-     ../configure --with-lxrt 
-     make new_packages  
-     make all_packages 
+     ../configure
+     make 
      .... (see manual)
 "
 

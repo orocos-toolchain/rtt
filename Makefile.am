@@ -1,4 +1,4 @@
-SUBDIRS = . doc
+SUBDIRS = . tests doc
 
 # These are not distributed by default (adds to many megs)
 # The i386linux package will copy them.
@@ -29,12 +29,25 @@ docs:
 packages/ecos.db:
 	touch @abs_srcdir@/packages/ecos.db
 
+clean-local: clean_packages
+
+uninstall-local: clean_install
+
+all-local:	test_new_packages all_packages
+
+test_new_packages: .new-pkg-stamp
+
+.new-pkg-stamp:
+	$(MAKE) -C . new_packages
+	touch .new-pkg-stamp
+
 # This sets up a new packages build directory.
 # You only need to do this once.
 new_packages:
-	mkdir -p packages-@ECOS_TARGET@
-	@echo "Setting up packages-@ECOS_TARGET@..."
-	@cd packages-@ECOS_TARGET@ &&\
+	@rm -f .new-pkg-stamp
+	mkdir -p packages
+	@echo "Setting up packages..."
+	@cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@;\
 	ecosconfig new @ECOS_TARGET@ minimal ;\
 	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
@@ -47,40 +60,51 @@ new_packages:
 # This configures the selected packages with
 # a graphical tool.
 configure_packages:
-	cd packages-@ECOS_TARGET@ &&\
+	cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
 	configtool ecos.ecc
 
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
 all_packages:
-	cd packages-@ECOS_TARGET@ &&\
+	cd packages &&\
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
 	ecosconfig tree
-	$(MAKE) -C packages-@ECOS_TARGET@
+	$(MAKE) -C packages
+
+precompile_headers:
+	$(MAKE) headers -C packages
+	cd packages/install/include &&\
+	rm -f all.h &&\
+	echo "#ifdef __cplusplus" >> all.h &&\
+	for i in $$(find . -path ./geometry -prune -not -type d -o -path ./os -prune -not -type d -o -path ./can -prune -not -type d -o -name '*.hpp' -o -name '*.h' | grep -v NSControlKernel.hpp |grep -v BaseKernel.hpp |grep -v all.h); do echo "#include \"$$i\"" >> all.h; done &&\
+	echo "#endif" >> all.h &&\
+	g++-3.4 -O2 -c -x c++ all.h -o all.h.gch -I. 
+	echo "#error all.h.gch is not used. You must use CC=gcc-3.4" > all.h
+
 
 # This cleans out the object files but leaves
 # the headers and library
 clean_packages:
-	$(MAKE) -C packages-@ECOS_TARGET@ clean
+	$(MAKE) -C packages clean
 
 # This checks the configuration
 check_packages:
-	cd packages-@ECOS_TARGET@ ;\
+	cd packages ;\
 	export ECOS_REPOSITORY=@ECOS_REP@ ;\
 	ecosconfig -v check
 
 # This removes the whole ! packages build directory
 mrproper:
-	rm -rf packages-@ECOS_TARGET@
+	rm -rf packages
 
 # This cleans the install directory, meaning
 # the install/include, install/lib, install/modules
 # and install/bin directories.
 clean_install:
 	@echo -e "\nThis command will erase the install directory !\n"
-	cd packages-@ECOS_TARGET@ && \
-	rm -rf packages-@ECOS_TARGET@/install
+	cd packages && \
+	rm -rf packages/install
 
 ########################################################################
 # KUL specific :

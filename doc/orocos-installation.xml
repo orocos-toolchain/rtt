@@ -15,7 +15,7 @@
 <article>
   <articleinfo>
     <title>
-      The OROCOS Project Installation Guide 
+      The OROCOS Installation Guide 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -36,7 +36,7 @@
     </authorgroup>
     <copyright>
       <year>2002,2003,2004</year>
-      <holder>Herman Bruyninckx, Peter Soetens, Panagiotis Issaris</holder>
+      <holder>Peter Soetens, Panagiotis Issaris</holder>
     </copyright>
 
     <abstract>
@@ -91,16 +91,16 @@
 	  &orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
 	  (<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
 	  userspace, and very limited RTLinux (<ulink
-	    url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink>, RTLinux
-	  is now a commercial product ). So,
+	    url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink> and
+	  <ulink url="http://www.rtlinux-gpl.org/"></ulink>). So,
 	  you can first write your software as a normal program, using the framework
 	  for testing and debugging purposes in plain userspace Linux and recompile
 	  later to another target.
 	</para>
 	<para>
-	  RTAI and LXRT is the best supported platform at this moment. RTLinux can
+	  RTAI with LXRT is the best supported realtime platform at this moment. RTLinux can
 	  only partially use all &orocos; features, because it lacks a decent
-	  kernel space memory manager. Furthermore, Since no one is using the 
+	  kernel space memory manager. Furthermore, since no one is using the 
 	  FSMLabs RTLinux port, it is no longer updated.
 	</para>
       </sect3>
@@ -128,10 +128,11 @@
     <sect2>
       <title>Installing Orocos from Subversion ( similar to CVS )</title>
       <para>
-	Installing &orocos; from &svn; gets you the latest and
-	greatest, but requires some familiarity with the tools we use.
 	This section will do its best to help you through the
-	Subversion (SVN) installation  process.
+	Subversion ( svn ) installation process.
+	Installing &orocos; from &svn; is optional and requires
+	some familiarity with the tools we use. It is only advised for
+	Orocos developers.
       </para>
       <para>
 	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
@@ -140,8 +141,9 @@
 	  svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
 	  cd orocos-trunk
 	</screen>
-	Make sure you have &ldquo;<application>svn</application>&rdquo;
-	installed.
+	So, make sure you have
+	the Subversion program installed, i.e., the command "svn" works on your
+	 system.
       </para>
       <para>
 	The next step requires that you use
@@ -689,7 +691,7 @@ configure script will select the os/rtai target
   <sect1 id="started">
     <title>Getting started with the code</title>
     <para>
-      This Section provides the semantics of the services available in the
+      This Section provides a short overview of how to proceed next using the
       &orocos; Packages.
     </para>
     <sect2>
