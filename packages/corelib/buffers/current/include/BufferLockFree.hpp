@@ -30,6 +30,8 @@
 #include "os/CAS.hpp"
 #include <vector>
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 
@@ -204,4 +206,6 @@ namespace ORO_CoreLib
         }
 
     };
+
+    extern template class BufferLockFree<double>;
 }
