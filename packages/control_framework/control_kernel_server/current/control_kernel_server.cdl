@@ -8,8 +8,8 @@ A CORBA server which allows your kernel to be used with the KernelClient GUI.
 
     include_dir control_kernel
 
-    compile KernelInterfaceI.cpp
-    compile kernelserver.cpp
-    compile directkernelinterface.cc
-    compile kernelinterface.cpp
+    compile KernelInterfaceI.cxx
+    compile kernelserver.cxx
+    compile directkernelinterface.cxx
+    compile kernelinterface.cxx
 }
