@@ -87,7 +87,7 @@ namespace ORO_ControlKernel
     virtual void push();
 
     // commands
-    virtual CommandFactoryInterface* createCommandFactory();
+    //virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
     bool moveTo(const std::vector<double>& position, double time=0);
     bool moveFinished() const;
