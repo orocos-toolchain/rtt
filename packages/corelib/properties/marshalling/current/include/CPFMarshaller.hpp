@@ -116,9 +116,12 @@ namespace ORO_CoreLib
 			{
 				int n;
 				while ((n = s.find("<")) != s.npos)
-					s.replace(n,1,std::string("&lt;"));
+					s.replace(n, 1, std::string("&lt;"));
 				while ((n = s.find(">")) != s.npos)
-					s.replace(n,1,std::string("&gt;"));
+					s.replace(n, 1, std::string("&gt;"));
+				while ((n = s.find("&")) != s.npos)
+					s.replace(n, 1, std::string("&amp;"));
+				// TODO: Added escapes for other XML entities
 				return s;
 			}
 
