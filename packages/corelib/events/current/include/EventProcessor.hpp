@@ -378,7 +378,7 @@ namespace ORO_CoreLib
      * asynchronous callbacks in their own implementation. The EventProcessor
      * must be given as an argument in the Event's connect method.
      *
-     * @see TaskExecution, CompletionProcessor
+     * @see TimerThread, CompletionProcessor
      */
     class EventProcessor
         : public ORO_OS::RunnableInterface

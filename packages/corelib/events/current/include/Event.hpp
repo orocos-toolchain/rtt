@@ -28,7 +28,7 @@
 #include "Logger.hpp"
 #include "CompletionProcessor.hpp"
 #include "TaskInterface.hpp"
-#include "TaskExecution.hpp"
+#include "EventProcessor.hpp"
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
 #include <assert.h>
