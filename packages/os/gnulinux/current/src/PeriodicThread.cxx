@@ -67,11 +67,9 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" created."<<Logger::endl;
 #endif
-        sem_post( &comp->msyncer );
         while ( 1 )
         {
             while ( !comp->isRunning() && !comp->timeToQuit ) {
-                comp->periodWait(); //POSIX
                 sem_post( &comp->msyncer );
                 sem_wait( &comp->tsyncer );
             }
