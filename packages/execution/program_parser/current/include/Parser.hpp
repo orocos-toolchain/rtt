@@ -86,10 +86,10 @@ namespace ORO_Execution
       std::string& s, GlobalFactory* ext );
 
       /**
-       * Parses a command in s.
+       * Parses the command in s. errors are sent down errorstream.
        */
       std::pair<CommandInterface*,ConditionInterface*>
-      parseCommand( std::string&s, GlobalFactory* gFact);
+      parseCommand( const std::string&s, GlobalFactory* gFact, std::ostream& errorstream = std::cerr );
   };
 };
 #endif

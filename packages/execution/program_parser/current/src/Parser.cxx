@@ -113,12 +113,15 @@ namespace ORO_Execution
   };
 
   std::pair<CommandInterface*, ConditionInterface*>
-  Parser::parseCommand( std::string& s,
-                        GlobalFactory* e )
+  Parser::parseCommand( const std::string& _s,
+                        GlobalFactory* e,
+                        std::ostream& errorstream )
   {
+    // we need a writable version of the string..
+    std::string s( _s );
       // This code is copied from parseCondition
 
-    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+    our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
     our_pos_iter_t parseend;
 
     ParseContext pc( 0, e );
@@ -129,9 +132,9 @@ namespace ORO_Execution
     }
     catch( const parse_exception& e )
     {
-      std::cerr << "Parse error at line "
-                << parsebegin.get_position().line
-                << ": " << e.what() << std::endl;
+      errorstream << "Parse error at line "
+                  << parsebegin.get_position().line
+                  << ": " << e.what() << std::endl;
       return std::pair<CommandInterface*,ConditionInterface*>(0,0);
     };
     CommandInterface* ret = parser.getCommand();
