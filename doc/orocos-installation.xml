@@ -172,6 +172,10 @@
 	The configure script will detect the installed software on your
 	system and generate the appropriate scripts. A <command>make db</command>
 	command will create a new database containing a list of all the packages.
+	This command generates an index of all installed packages, the configure command
+	may detect installed software on your system and generate support packages
+	to reflect this. When you install new relevant software, you must rerun <command> configure </command>
+	and <command>make db</command>.
       </para>
       <para>
 	The next steps are exactly the same as when you install the system
@@ -186,104 +190,219 @@
 	Orocos has switched to a less common system for distribution
 	and configuration. It it taken from the eCos operating system,
 	but, apart from the name, has nothing to do with it when used
-	with &orocos;. The tools you will need are ecosconfig and
-	configtool. In Debian, one can install them using : 
-	<screen>
-	  apt-get -t unstable install ecosconfig 
-	</screen> 
-	Other
-	distributions might need to build ecosconfig themselves from
-	this tarball : <ulink
-	  url="http://people.mech.kuleuven.ac.be/psoetens/ecos/
-	  ecosconfig-2.0.tar.gz">ecosconfig-2.0.tar.gz</ulink>. 
+	with &orocos;. </para>
+
+      <sect2>
+	<title>Orocos Build and Configuration Tools </title>
+	<para>
+	  The tools you will need are <command>ecosconfig</command>
+	  and <command>configtool</command>. In Debian, you can
+	  download a package for testing and unstable from <ulink
+	    url="http://www.orocos.org/downloads.html"> The Orocos
+	    Download Page</ulink>
+	  <screen>
+	    dpkg -i ecosconfig_2.0-0pre3_i386.deb
+	  </screen> 
+	  If this does not
+	  work for you, consult the <ulink
+	    url="http://sources.redhat.com/ecos/ct2.html"> eCos
+	    Configuration Tool Version 2</ulink> webpage. For source
+	  and binary downloads.
 	</para>
-      <note>
-	<para>The graphical configtool program uses the libwxgtk2.4 library</para>
-      </note>
-      <para>
-	These tools both serve the same purpose : to control package
-	configuration and installation. Ecosconfig is command-line
-	based, configtool is a graphical tool. The eCos folks wrote an
-	(eCos-oriented) manual which explains them in great detail in
-	<ulink url=
-	  "http://sources.redhat.com/ecos/docs-latest/user-guide/ecos-user-guide.html"> 
-	  the user guide</ulink> and how packages work internally is
-	written in the <ulink
-	  url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html"> 
-	  eCos Component Writer Guide</ulink>.
-      </para>
-      <note>
-	<para>	In the eCos operating system, a target is a hardware platform, in Orocos,
-	a target is RTAI, GNU/Linux, LXRT and so on, so you can skip all hardware
-	specific sections in the eCos manuals.
+	<note>
+	  <para>The graphical configtool program uses the libwxgtk2.4 library</para>
+	</note>
+	<para>
+	  These tools both serve the same purpose : to control package
+	  configuration and installation. Ecosconfig is command-line
+	  based, configtool is a graphical tool. The eCos folks wrote
+	  an (eCos-oriented) manual which explains them in great
+	  detail in <ulink url=
+	    "http://sources.redhat.com/ecos/docs-latest/user-guide/ecos-user-guide.html"> 
+	    the user guide</ulink> and how packages work internally is
+	  written in the <ulink
+	    url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html"> 
+	    eCos Component Writer Guide</ulink>.
 	</para>
-      </note>
-      <para>
-	When these tools are present, proceed as follows :
-      </para>
+	<note>
+	  <para>
+	    In the eCos operating system, a target is a
+	    hardware platform, in Orocos, a target is RTAI, GNU/Linux,
+	    LXRT and so on, so you can skip all hardware specific
+	    sections in the eCos manuals.
+	  </para>
+	</note>
+      </sect2>
+      <sect2>
+	<title>Quick Installation Instructions</title>
+	<para>
+	  When the tools are present, proceed as follows :
+	</para>
 	<orderedlist>
-	  <listitem><para>Download orocos base package from the Orocos webpage</para></listitem>
-	  <listitem><para>Extract it using : tar -xvzf orocos-base-0.10.0.tar.gz</para></listitem>
-	  <listitem><para>Setup the base environment : 
-	      <command>cd orocos-0.10.0; ./autogen.sh; </command></para></listitem>
-	  <listitem><para>Setup the packages environment :
-	      <command>cd orocos-0.10.0/packages; ./autogen.sh;</command></para></listitem>
-	  <listitem><para>Download the required Orocos .epk packages</para></listitem>
-	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
-	      <command>cd orocos-0.10.0/packages; tclsh ecosadmin.tcl add &lt;filename.epk&gt;</command>
-	      This action is also documented in the ecos manuals and equivalent to the installation
-	      of any eCos package, see 
-<ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
-	      The eCos Userguide</ulink> for the synopsis.
+	  <listitem><para>Download orocos-base package from the Orocos webpage</para></listitem>
+	  <listitem><para>Extract it using :
+	      <screen><command>
+tar -xvzf orocos-base-0.10.0.tar.gz
+		</command></screen>
 	    </para></listitem>
-	  <listitem><para>When all packages are installed, generate the ecos.db file using:
-	    <command>cd orocos-0.10.0/packages; ./configure ; make db</command>
-	    This command generates an index of all installed packages, the configure command
-	    may detect installed software on your system and generate support packages
-	    to reflect this. When you install new relevant software, you must rerun <command> configure </command>
-	    and <command>make db</command>.</para></listitem>
-	  <listitem><para>Finally, you can now choose between using the plain ecos tools or 
-	    our supplied make targets which enhance convenience : 
+	  <listitem><para>Setup the base environment : 
+	      <screen>
+		<command>
+cd orocos-base-0.10.0
+./bootstrap.sh
+		</command>
+	      </screen>
+	    </para></listitem>
+	  <listitem><para>Download the Orocos .epk packages</para></listitem>
+	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
+	      <screen><command>
+cd orocos-base-0.10.0/packages
+./ecosadmin.tcl add /path/to/filename.epk;
+		</command></screen>
+	      This action is also documented in the eCos manuals and equivalent to the installation
+	      of any eCos package, see 
+	      <ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
+		The eCos Userguide</ulink> for the synopsis.
+	    </para></listitem>
+	  <listitem><para>Finally, you can now choose between using the plain eCos tools or 
+	      our supplied make targets which enhance convenience : 
 	      <screen> 
-		mkdir orocos-0.10.0/build 
-		cd orocos-0.10.0/build
-		../configure --with-&lt;target&gt;
-		make new_packages 
-		make configure_packages
-	        make build_packages
+mkdir orocos-0.10.0/build 
+cd orocos-0.10.0/build
+../configure --with-&lt;target&gt;
+make new_packages 
+make configure_packages
+make all_packages
 	      </screen>
 	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
 	    </para></listitem>
-      </orderedlist>
-      <para>
-	Each package will have been installed in a
-	packages/package-name/version/ directory, allowing multiple
-	versions to be installed next to each other. The repository version
-	is always called 'current', and considered as the most recent
-	version. If you downloaded the epk files, you will find a version number
-	in place.
-      </para>
-      <para>
-	The make build_packages command will have made a directory
-	packages-&lt;target&gt; where the building takes place. The
-	results of the build are in the
-	packages-&lt;target&gt;/install directory. You will find the
-	header files and a library called libtarget.a (literally).
-	These files allow you to build external applications with
-	&orocos;. Of course a package itself can also be an
-	application, resulting in an executable in the
-	packages-&lt;target&gt;/install/bin directory.
-      </para>
-      <para>
-	The make configure_packages will pop up a graphical frontend
-	to configuration. When you save and exit, a file
-	<filename>packages-&lt;target&gt;/ecos.ecc</filename> will
-	be generated which contains all your custom options.
-	<tip>
-	  <para>Make a copy of the ecos.ecc file so that you always have
-	  a backup when it gets accidentally overwritten.</para>
-	</tip>
-      </para>
+	</orderedlist>
+	<para>
+	  Each package will have been installed in a
+	  <filename>packages/package-name/version/</filename> directory,
+	  allowing multiple versions to be installed next to each other.
+	  The repository version is always called 'current', and
+	  considered as the most recent version. If you downloaded the
+	  epk files, you will find a version number in place.
+	</para>
+	<para>
+	  The above make commands are optional. Take a
+	  look at the Makefile to see what they really do. A
+	  standard eCos configuration goes as follows :
+	  <orderedlist>
+	    <listitem>
+	      <para>Set the environment variable :
+		<screen>export ECOS_REPOSITORY=/path/to/orocos-0.10.0/packages/</screen>
+		All The ecos tools need this variable to be able to work
+		on the packages. The make targets did this automatically,
+		but if you want to invoke the tools yourself, you need to
+		set it once.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>Install any new .epk packages using
+		<screen><command>ecosadmin.tcl add filename.epk</command></screen> in the 
+		packages directory.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Go to the eCos build directory. In Orocos this is :
+		<screen><filename>
+		    orocos-base-0.10.0/build/packages-&lt;target&gt;
+		  </filename></screen>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>Start a new build using the 
+		<screen><command>ecosconfig new gnulinux corelib-os</command></screen>
+		command. Where gnulinux or lxrt is the target name and
+		corelib-os is the template name. A template selects some
+		standard packages in a convenient way.
+		<warning>
+		  <para>This will overwrite any previous ecos.ecc configuration
+		  file in that directory !</para>
+		</warning>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>Add all detected support packages. The make target
+		new_packages does this by running :
+		<screen><command>
+for i in $(find $ECOS_REPOSITORY/support -name "*.cdl"); do \
+ecosconfig add support_$(basename $i .cdl); done
+		  </command></screen>
+		Fortunately, you can allso add the support (or any other) packages
+		in the graphical configtool menu->Build->Packages.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Select additional packages for your build with the graphical
+		configtool or <screen><command>ecosconfig add package_name
+		  </command></screen> Configtool will give you a list
+		of all available packages in the repository if you go to
+		menu->Build->Packages.
+		<screen><command>ecosconfig list</command></screen> does the same.
+		This will add the package and its options to the ecos.ecc
+		file (which contains all used packages).
+		Now the packages will show up when you run configtool or
+		run <command>ecosconfig check</command>.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>Configure the selected packages with the graphical
+		program <screen><command>configtool ecos.ecc
+		  </command></screen>Save and exit.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Create the makefiles using
+		<screen><command>configtool tree</command></screen>
+	      The build tree is setup now. You need to run this command
+	      each time you change the configuration in the above step !</para>
+	    </listitem>
+	    <listitem>
+	      <para>Compile using
+		<screen><command>make</command></screen>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>The results (headers and libtarget.a)
+		are in the install directory.</para>
+	    </listitem>
+	  </orderedlist>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Using the pre-defined make targets</title>
+	<para>
+	  The make all_packages command will have made a directory
+	  <filename>packages-&lt;target&gt;</filename> where the
+	  building takes place. The results of the build are in the
+	  <filename>packages-&lt;target&gt;/install</filename>
+	  directory. You will find the header files and a library called
+	  <filename>libtarget.a</filename> (literally). These files
+	  allow you to build external applications with &orocos;. Of
+	  course a package itself can also be an application, resulting
+	  in an executable in the
+	  <filename>packages-&lt;target&gt;/install/bin</filename>
+	  directory.
+	</para>
+	<para>
+	  The make configure_packages will pop up a graphical frontend
+	  to configuration. When you save and exit, a file
+	  <filename>packages-&lt;target&gt;/ecos.ecc</filename> will
+	  be generated which contains all your custom options.
+	  <tip>
+	    <para>Make a copy of the ecos.ecc file so that you always have
+	      a backup when it gets accidentally overwritten.</para>
+	  </tip>
+	</para>
+	<para>
+	  You will need to read the previous section to have
+	  more fine grained control of the build process.
+	</para>
+      </sect2>
       <sect2>
 	<title>Using &orocos; concurrently for multiple targets</title>
 	<para>
@@ -365,10 +484,10 @@
 	<note>
 	  <para>
 	    ecosconfig and configtool both use a different namingscheme
-	  for installation and build directories. configtool uses the
-	  &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
-	  subdirectories while ecosconfig uses the current dir to build and
-	  the install directory for installation. 
+	    for installation and build directories. configtool uses the
+	    &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
+	    subdirectories while ecosconfig uses the current dir to build and
+	    the install directory for installation. 
 	  </para>
 	</note>
 	<note>
@@ -427,8 +546,10 @@ configure script will select the os/rtai target
 	  page</ulink> if you are not familiar with RTAI instalation
       </para>
       <para>
-	We recommend using RTAI version 24.1.12 or later. You can obtain it from 
-	<ulink url="http://www.aero.polimi.it/projects/rtai/"> the RTAI home page</ulink> or as follows from CVS:
+	We recommend using RTAI version 24.1.12 or later.
+	RTAI 3.0 is also supported. You can obtain it from 
+	<ulink url="http://www.aero.polimi.it/projects/rtai/">
+	  the RTAI home page</ulink> or as follows from CVS:
 	<screen>
 	    export CVSROOT=":pserver:guest@cvs.zentropix.com:/opt/cvsroot/rtai"
 	    cvs login
@@ -442,7 +563,8 @@ configure script will select the os/rtai target
 	<filename class="directory">rtai</filename> directory for detailed
 	instructions.  First, you need to patch your Linux kernel. A patch per
 	kernel version can be found in the rtai/patches directory. You should
-	apply the <filename>patch-X.Y.Z-adeos-rx</filename> patch to a clean
+	apply the <filename>patch-X.Y.Z-adeos-rx</filename>
+	or the <filename>hal10-X.Y.Z.patch</filename> for RTAI 3.0 patch to a clean
 	Linux kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>
@@ -494,6 +616,23 @@ configure script will select the os/rtai target
 	    [*]   New rtai_cpp interface (EXPERIMENTAL)
 	    &lt;M&gt; Tasklets
 -->
+	  <itemizedlist>
+	    <listitem>
+	      <para>Floating Point support</para>
+	    </listitem>
+	    <listitem>
+	      <para>Fifos, Bits or Events and Mailboxes</para>
+	    </listitem>
+	    <listitem>
+	      <para>POSIX API</para>
+	    </listitem>
+	    <listitem>
+	      <para>LXRT</para>
+	    </listitem>
+	    <listitem>
+	      <para>C++ support</para>
+	    </listitem>
+	  </itemizedlist>
 	  </screen>
 	  After configuring you can run 'make' in your RTAI directory
 	</para>
@@ -507,7 +646,8 @@ configure script will select the os/rtai target
 	      ./setsched smp   # for smp systems
 	  </screen>
 	  next you can 'make  install'. 
-	  Make sure that the following RTAI kernel modules are loaded:
+	  Make sure that the following RTAI kernel modules are loaded
+	  ( this may vary if you are using RTAI 3.0 ) :
 	  <itemizedlist>
 	    <listitem><para>rtai_cpp</para></listitem>
 	    <listitem><para>rtai_sched_ext</para></listitem>
@@ -552,7 +692,7 @@ configure script will select the os/rtai target
 	</para>
 	<para>For a more detailed description of what (NEW)LXRT really is,
 	  you can read the LXRT HOWTO 
-	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">here</ulink>
+	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
 	</para>
       </sect2>
     </sect1>

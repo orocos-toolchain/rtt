@@ -4,10 +4,12 @@ SUBDIRS = .
 EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia \
 	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
 	orocos-overview.html orocos-installation.html  \
+	orocos-overview.ps orocos-installation.ps  \
+	orocos-overview.pdf orocos-installation.pdf  \
         rtai-24.1.11.patch
 
 if HAVE_XMLPROCESSOR
-DOC = dochtml
+DOC = docxml
 else
 DOC = dochtml
 endif
@@ -15,7 +17,7 @@ endif
 
 docs: $(DOC)
 
-docxml: dochtml docpdf
+docxml: dochtml docpdf docps
 
 dochtml: orocos-installation.html orocos-overview.html
 
