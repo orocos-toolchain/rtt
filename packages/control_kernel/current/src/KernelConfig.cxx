@@ -51,7 +51,9 @@ namespace ORO_ControlKernel
                 }
 
             cout << "Setting KernelProperties..."<<endl;
+            // this updates the 'standard' properties
             kernel->updateProperties( baseBag->value() );
+            // this updates the user's properties
             kernel->updateKernelProperties( baseBag->value() );
 
             // other possibility :  do not store in bag, dispatch right away, but then

@@ -106,8 +106,10 @@ namespace ORO_ControlKernel
         
             /**
              * Initialize the ComponentAspect with the name of the Aspect.
+             * Once set, a name can no longer be changed.
              */
-            ComponentAspectInterface(const std::string& comp_name ) : aspectName(comp_name) {}
+            ComponentAspectInterface(const std::string& comp_name )
+                : aspectName("Name", "The Name of this Component", comp_name) {}
 
             virtual ~ComponentAspectInterface() {}
         
@@ -126,9 +128,10 @@ namespace ORO_ControlKernel
             /**
              * Return the name of this Aspect instance.
              */
-            virtual const std::string& getName() { return aspectName; }
+            virtual const std::string& getName() { return aspectName.get(); }
 
-            const std::string aspectName;
+        protected:
+            const Property<std::string> aspectName;
         };
     }
 
@@ -153,7 +156,7 @@ namespace ORO_ControlKernel
          * Constructor.
          */
         ComponentBaseInterface(const std::string& name)
-            : detail::ComponentAspectInterface< KernelBaseFunction >( name + std::string("::Base") ),
+            : detail::ComponentAspectInterface< KernelBaseFunction >( name ),
               kern(0) {}
 
         virtual ~ComponentBaseInterface() {}
@@ -204,6 +207,7 @@ namespace ORO_ControlKernel
         virtual void componentShutdown() {}
             
         virtual void disableAspect();
+
     private:
         KernelBaseFunction* kern;
     };
@@ -323,6 +327,15 @@ namespace ORO_ControlKernel
         {
             composeProperty(bag, name);
             return composeProperty(bag, frequency);
+        }
+
+        /**
+         * This is the hook for user kernel properties.
+         * Add properties to your kernel config file and they
+         * will be passed to this function.
+         */
+        virtual bool updateKernelProperties(const PropertyBag& bag)
+        {
         }
         
         /**
