@@ -1,11 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY hardwcomp   "<acronym>Generic Hardware Components</acronym>">
-<!ENTITY hardw       "<acronym>Generic Hardware</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -48,10 +46,6 @@
   </articleinfo>
   <sect1>
     <title>Introduction</title>
-    <para>
-      This section explains installation, and gives an overview of the
-      features and interface of the &orocos; &hardwcomp;.
-    </para>
     <para>
       This package depends on the interfaces defined in the 
       Orocos Device Interface package and implementations of the
@@ -397,11 +391,8 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
 	<figure>
 	  <title>Control Kernel Layout with GenericSensor and GenericEffector</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="hardware-pattern.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="hardware-pattern.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="hardware-pattern" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>

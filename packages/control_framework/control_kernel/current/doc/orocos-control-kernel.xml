@@ -1,10 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY control  "ControlKernel">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -936,13 +935,8 @@
 	    The formal structure of a bare feedback control loop.
 	  </title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="standard-control-kernel.png"
-		format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="standard-control-kernel.eps"
-		format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="standard-control-kernel" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -1080,13 +1074,8 @@
 	  non-realtime Components.
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="control-pattern.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="control-pattern.eps"
-           format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="control-pattern" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -1648,11 +1637,8 @@ public:
 	<figure>
 	  <title>Data Flow Components Produce Data</title>
 	<mediaobject>
- 	  <imageobject role="html">
-	    <imagedata fileref="component_data_production.png" format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="component_data_production.eps" format="EPS"/>
+ 	  <imageobject>
+	    <imagedata fileref="component_data_production" />
 	  </imageobject>
 	</mediaobject>
 	</figure>
@@ -1794,11 +1780,8 @@ public:
 	  <figure>
 	    <title>Component Life Cycle</title>
 	    <mediaobject>
-	      <imageobject role="html">
-		<imagedata fileref="component_life_cycle.png" format="PNG"/>
-	      </imageobject>
-	      <imageobject role="fo">
-		<imagedata fileref="component_life_cycle.eps" format="EPS"/>
+	      <imageobject>
+		<imagedata fileref="component_life_cycle" />
 	      </imageobject>
 	    </mediaobject>
 	  </figure>
@@ -1808,11 +1791,8 @@ public:
 	  <figure>
 	    <title>Control Kernel - Component Interaction</title>
 		<mediaobject>
-		  <imageobject role="html">
-		    <imagedata fileref="kernel_component_interaction.png" format="PNG"/>
-		  </imageobject>
-		  <imageobject role="fo">
-		    <imagedata fileref="kernel_component_interaction.eps" format="EPS"/>
+		  <imageobject>
+		    <imagedata fileref="kernel_component_interaction" />
 		  </imageobject>
 		</mediaobject>
 	      </figure>
@@ -2166,11 +2146,8 @@ if ( this->inKernel() )
       </para>
       <figure><title>Component Aspects versus Kernel Extensions</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="ExtensionAspect.png" format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="ExtensionAspect.eps" format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="ExtensionAspect" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -2313,11 +2290,8 @@ typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
       </para>
       <figure><title>Ordering Extensions</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="ExtensionTimeLine.png" format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="ExtensionTimeLine.eps" format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="ExtensionTimeLine" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -2402,13 +2376,8 @@ class MyGenerator
 	  Overview of the Property Extension
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="property-ext.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="property-ext.eps"
-	      format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="property-ext" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -2600,13 +2569,8 @@ private:
 	  Overview of the Reporting Extension
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="reporting-ext.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="reporting-ext.eps"
-	      format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="reporting-ext" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -2868,13 +2832,8 @@ private:
 	  Overview of the Execution Extension
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="execution-ext.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="execution-ext.eps"
-	      format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="execution-ext" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -2890,13 +2849,8 @@ private:
 	  Interfacing the Control Kernel
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="KernelInterfacing.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="KernelInterfacing.eps"
-	      format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="KernelInterfacing" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -3460,13 +3414,8 @@ program DemoRun {
 	  Overview of three Cascading NameServing Control Kernels
 	</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="cascnames.png"
-	      format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="cascnames.eps"
-	      format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="cascnames" />
 	  </imageobject>
 	</mediaobject>
       </figure>

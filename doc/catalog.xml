@@ -28,11 +28,14 @@
          uri="schema/dtd/4.3/docbookx.dtd" />
 
     </group>
-    <group xml:base="file:///usr/local/orocos/">
+    <group xml:base="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/">
+    <system
+         systemId="orocos.ent"
+         uri="orocos.ent" />
     <!-- To resolve short stylesheet references -->
-    <uri
-        name="orocos.ent"
-        uri="orocos.ent" />
+<!--     <uri -->
+<!--         name="orocos.ent" -->
+<!--         uri="orocos.ent" /> -->
 <!--     <uri  -->
 <!--         name="chunk.xsl" -->
 <!--         uri="docbook-xsl-1.68.1/html/chunk.xsl" /> -->

@@ -1,10 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY interf  "<acronym>Program Processor</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -145,8 +144,8 @@
     <sect2>
       <title>The Processor</title>
       <para>
-	The <classname>Processor</classname> is the core class of
-	&interf;. It is capable of loading and processing a state machine and
+	The <classname>Processor</classname> is the core class of this package
+	It is capable of loading and processing a state machine and
 	loading and executing additional programs on that system. A
 	system's configuration (or part of) can be defined in a State
 	Machine ( a State Machine is a real-time state machine which
@@ -206,11 +205,8 @@
       </para>
       <figure><title>Threads Sending Commands</title>
 	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="Commands.png" format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="Commands.eps" format="EPS"/>
+	  <imageobject>
+	    <imagedata fileref="Commands" />
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -244,11 +240,8 @@
       </para>
 	<figure><title>Executing Program Statements</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="ProgramTransitions.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="ProgramTransitions.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="ProgramTransitions" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -261,11 +254,8 @@
       </para>
 	<figure><title>Using a Program</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="ProgramStates.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="ProgramStates.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="ProgramStates" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -306,11 +296,8 @@
       </para>
 	<figure><title>Executing a StateMachine</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="StateTransitions.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="StateTransitions.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="StateTransitions" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -322,13 +309,10 @@
       </para>
 	<figure><title>Using a StateMachine</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="MachineStates.png" format="PNG"/>
+	    <imageobject>
+	      <imagedata fileref="MachineStates" />
 	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="MachineStates.eps" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
+	</mediaobject>
 	</figure>
       <para>
 	Loading, unloading and deleting a State Machine may throw
@@ -419,11 +403,8 @@
       </para>
 	<figure><title>A Generic Functor</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="Functor.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="Functor.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="Functor" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>

@@ -1,11 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY rtai        "<acronym>RTAI</acronym>">
-<!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -153,11 +151,8 @@
 	respect to device driver interfacing (DI) and the rest of
 	&orocos; <figure><title>OS Interface overview</title>
 	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
+	    <imageobject>
+	      <imagedata fileref="FDIvsFOSI" />
 	    </imageobject>
 	  </mediaobject>
       </figure>

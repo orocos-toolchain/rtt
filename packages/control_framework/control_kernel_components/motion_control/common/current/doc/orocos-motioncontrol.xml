@@ -1,10 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY motcontrol  "<acronym>Motion Control</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -47,10 +46,6 @@
   </articleinfo>
   <sect1>
     <title>Introduction</title>
-    <para>
-      This document explains installation, and gives an overview of the
-      features and interface of the &orocos; &motcontrol; Components.
-    </para>
     <para>
       Install the Orocos Geometry and Kinematics package first, 
       it is used for the kinematic calculations. A package is

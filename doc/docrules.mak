@@ -11,7 +11,10 @@ JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
 
-dist: dochtml docpdf
+.PHONY=dist docxml dochtml docpdf docps doctxt epsimages pngimages
+
+dist: $(HTMLDOCS) $(PDFDOCS) $(PNGIMGS)
+	$(MAKE) -C . dochtml docpdf
 	tar -czf $(PKGNAME)-doc.tgz \
 	$(HTMLDOCS) \
 	$(PDFDOCS) \

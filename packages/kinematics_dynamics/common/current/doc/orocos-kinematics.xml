@@ -1,10 +1,9 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY kinematics  "<acronym>Kinematics</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
 
@@ -22,7 +21,6 @@
       </author>
 
       <author>
-        <honorific>Dr. ir</honorific>
         <firstname>Herman</firstname>
         <surname>Bruyninckx</surname>
         <affiliation>
@@ -31,14 +29,6 @@
         </affiliation>
       </author>
 
-      <author>
-        <firstname>Panagiotis</firstname>
-        <surname>Issaris</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
     </authorgroup>
     <copyright>
       <year>2002</year>
@@ -69,7 +59,7 @@
     <title>Introduction</title>
     <para>
       This section explains installation, and gives an overview of the
-      features and interface of the &orocos; &kinematics; module.
+      features and interface of the &orocos; &kindynpkg;.
     </para>
     <sect2>
       <title>Installation</title>
@@ -177,7 +167,7 @@
       </sect3>
     </sect2>
   </sect1>
-
+<!--
   <sect1 id="chap-interface">
     <title>Interfaces</title>
     <para>
@@ -335,5 +325,5 @@ A complex and feature-rich application such as motion control can be
     </sect2>
 
   </sect1>
-
+-->
 </article>

@@ -1,19 +1,11 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY cvs         "<acronym>CVS</acronym>">
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY task        "Task Infrastructure">
-<!ENTITY rtai        "<acronym>RTAI</acronym>">
-<!ENTITY rtos        "<acronym>RTOS</acronym>">
-<!ENTITY procman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-processor.html'>Program Processor Manual</ulink>">
-<!ENTITY parseman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-parser.html'>Program Parser Manual</ulink>">
-<!ENTITY coreman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html'>CoreLib Manual</ulink>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
-
 
 <article>
   <articleinfo>
@@ -68,7 +60,7 @@
     <para>
       This manual documents how multi-threaded tasks can be defined in &orocos;
       such that they form a thread-safe robotics/machine control application.
-      The overall idea of the &task; and the mechanisms behind it are published in a 
+      The overall idea of the &taskpkg; and the mechanisms behind it are published in a 
       <ulink url="http://www.orocos.org/pub/task-infrastructure04.pdf">6 page technical report</ulink>
       which can be found on the Orocos website.  
     </para>
@@ -77,13 +69,8 @@
 	Tasks Run in Threads
       </title>
       <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="TaskPeers.png"
-	    format="PNG"/>
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="TaskPeers.eps"
-	    format="EPS"/>
+	<imageobject>
+	  <imagedata fileref="TaskPeers" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -162,7 +149,7 @@
 	  <glossdef>
 	    <para> is an application which uses all of the above
 	      and provides an (although complex) example of how
-	      the &task; can be used in practice.
+	      the &taskpkg; can be used in practice.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -230,13 +217,8 @@
 	Schematic Overview of a TaskContext
       </title>
       <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="ATaskContext.png"
-	    format="PNG"/>
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="ATaskContext.eps"
-	    format="EPS"/>
+	<imageobject>
+	  <imagedata fileref="ATaskContext" />
 	</imageobject>
 	<caption>
 	  <para>The Execution Flow is formed by Programs and
@@ -382,13 +364,8 @@
 	  Template Factories and Classes UML Diagram
       </title>
       <mediaobject>
-	<imageobject role="html">
-	  <imagedata fileref="TaskFactories.png"
-	    format="PNG"/>
-	</imageobject>
-	<imageobject role="fo">
-	  <imagedata fileref="TaskFactories.eps"
-	    format="EPS"/>
+	<imageobject>
+	  <imagedata fileref="TaskFactories" />
 	</imageobject>
 	<caption>
 	  <para> This diagram demonstrates how TemplateFactories

@@ -14,14 +14,14 @@ EXTRA_DIST = \
 XMLDOCS=orocos-overview.xml orocos-installation.xml
 # the faq only renders correctly in html, the changes is only for online viewing.
 HTMLXMLDOCS=orocos-faq.html orocos-changes.html
-XML_CATALOG_FILES="catalog.xml"
+XML_CATALOG_FILES=catalog.xml
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
 CLEANXMLDOCS= $(notdir $(EXTRAXMLDOCS))
-#need eps to include in pdf
-# EXTRAEPS= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*eps" )
-EXTRAEPS=$(shell ls $(ECOS_REP)/eps/*.eps)
-CLEANEPS=$(notdir $(EXTRAEPS))
+#need jpg to include in pdf
+# EXTRAJPG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*jpg" )
+EXTRAJPG=$(shell ls $(ECOS_REP)/jpg/*.jpg)
+CLEANJPG=$(notdir $(EXTRAJPG))
 # no need to copy png's the html will link to them
 #EXTRAPNG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*png" )
 
@@ -56,21 +56,21 @@ endif
 
 docs: $(DOC)
 
-manual: pngimages epsimages jpgimages
+manual: pngimages jpgimages
 	-cp -a $(EXTRAXMLDOCS) .
-	-cp -a $(EXTRAEPS) .
-	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
-	$(MAKE) orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+	-cp -a $(EXTRAJPG) .
+	$(RM)  orocos-manual.html orocos-manual.pdf 
+	$(MAKE) orocos-manual.html orocos-manual.pdf 
 	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANEPS)
+	$(RM) $(CLEANJPG)
 
-control-manual: pngimages epsimages jpgimages
+control-manual: pngimages jpgimages
 	-cp -a $(EXTRAXMLDOCS) .
-	-cp -a $(EXTRAEPS) .
-	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
-	$(MAKE) orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
+	-cp -a $(EXTRAJPG) .
+	$(RM)  orocos-control-manual.html orocos-control-manual.pdf 
+	$(MAKE) orocos-control-manual.html orocos-control-manual.pdf 
 	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANEPS)
+	$(RM) $(CLEANJPG)
 
 docxml: dochtml docpdf
 
@@ -138,13 +138,10 @@ tiffimages: $(TIFFIMGS)
 	$(DIA) -t eps --nosplash $<
 	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
 
-.eps.png:
-	convert $< $@
-
-.eps.jpg:
+.png.jpg:
 	convert -quality 100 $< $@
 
-.eps.tiff:
+.png.tiff:
 	convert $< $@
 
 .dia.png:
@@ -155,6 +152,6 @@ clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) $(JPGIMGS) *.chunks *.website
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
 	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANEPS)
+	$(RM) $(CLEANJPG)
 	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
 	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
