@@ -7,14 +7,14 @@
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
 
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    ***************************************************************************
+    *                                                                         *
+    *   This program is free software; you can redistribute it and/or modify  *
+    *   it under the terms of the GNU General Public License as published by  *
+    *   the Free Software Foundation; either version 2 of the License, or     *
+    *   (at your option) any later version.                                   *
+    *                                                                         *
+    ***************************************************************************/
 
 
 #include "os/EventInterrupt.hpp"
@@ -22,180 +22,115 @@
 #include "os/DSRInterface.hpp"
 
 #include "os/fosi.h"
-/**
- * TODO : Use assertions (Boost ?) instead of if (irq !=0)...
- */
+#include <sys/mman.h> // fixes include bug in rtai_tasklets.h
+#include <rtai_tasklets.h>
+#include <../usi/rtai_usi.h>
 
 namespace ORO_OS
 {
 
-std::vector<EventInterrupt*> EventInterrupt::_instances;
+    EventInterrupt::EventInterrupt()
+        :Event(Event::SYNASYN), enable_f(false)
+    {
+        tasklet = rt_init_tasklet();
+        rt_insert_tasklet(tasklet, 0, &EventInterrupt::EventInterruptTasklet, 111, rt_get_name(0), 1);
+    }
 
-
-EventInterrupt::EventInterrupt()
-    :Event(Event::SYNSYN),irq(0),initHardWare(0)
-{
-    EventInterrupt::InstanceAdd(this);    
-}
-
-EventInterrupt::~EventInterrupt()
-{
-    EventInterrupt::InstanceRemove(this);
-}
+    EventInterrupt::~EventInterrupt()
+    {
+        rt_remove_tasklet(tasklet);
+        rt_delete_tasklet(tasklet);
+    }
         
-void EventInterrupt::hardwareInitSet(void (*init)() )
-{
-    initHardWare=init;
-}
-
-//void EventInterrupt::hardwareInitSet( Command* );
-/*
-void EventInterrupt::addHandler( ISRInterface* thi )
-{
-    addHandler(thi, NULL);
-}
-
-
-void EventInterrupt::addHandler( EventListenerInterface* eli )
-{
-    Event::addHandler(eli, NULL);
-}
-*/
-void EventInterrupt::addHandler( ISRInterface* thi, DSRInterface* bhi )
-{
-    myTable.insert(std::make_pair(thi,bhi));
-}
-
-void EventInterrupt::addHandler( EventListenerInterface* eli, EventCompleterInterface* eci )
-{
-    Event::addHandler(eli,eci);
-}
-
-void EventInterrupt::removeHandler(EventListenerInterface* eli, EventCompleterInterface* eci)
-{
-    Event::removeHandler(eli,eci);
-}
-
-
-void EventInterrupt::removeHandler( ISRInterface * eli, DSRInterface* eci )
-{
-    myTable.erase(eli);
-}
-
-int EventInterrupt::IRQRequest()
-{
-    int status = -1;
-    
-    if (irq !=0)
+    void EventInterrupt::addHandler( ISRInterface* thi, DSRInterface* bhi )
     {
-        status = rt_request_linux_irq(irq, EventInterruptHandler24,"EventInterrupt",(void*)this);
-    
-        // XXX this is confusing for us
-        if (initHardWare != 0)
-            initHardWare();
-        else
-            hardwareInit();
-    
-//        enable(); // maybe skip this
+        myTable.insert(std::make_pair(thi,bhi));
     }
 
-    return status;
-}
-
-void EventInterrupt::enable()
-{
-//    if (irq != 0)
-//        rt_startup_irq(irq);
-}
-
-void EventInterrupt::disable()
-{
-//    if (irq != 0)
-//        rt_shutdown_irq(irq);
-}
-
-void EventInterrupt::IRQFree()
-{
-//    if (irq !=0 )
-//        rt_free_linux_irq(irq, (void*)this);
-}
-
-void EventInterrupt::fire()
-{
-    Event::fire();// calls only supers notify
-}
-
-void EventInterrupt::interrupt(int irq, void* dev_id, struct pt_regs* regs)
-{
-    Event::fire();// call supers
-
-    std::map<ISRInterface*,DSRInterface*>::iterator itl;
-    for (itl = myTable.begin(); itl != myTable.end(); itl++)
-        itl->first->handleInterrupt(irq, dev_id, regs); 
-}
-
-void EventInterrupt::complete(EventListenerInterface* eli)
-{
-    // Implement here starting of the completion thread, and let it call complete
-    Event::complete(eli);  // calls supers complete in case it was a normal event
-}
-
-void EventInterrupt::complete(ISRInterface* ii)
-{
-    if (myTable[ii] != NULL)
-        myTable[ii]->completeInterrupt();
-}
-
-unsigned int EventInterrupt::EventInterruptHandler22(unsigned int irq, struct pt_regs* regs)
-{
-    EventInterrupt* ei = EventInterrupt::InstanceGet(irq);
-
-    if (ei != 0)
+    void EventInterrupt::addHandler( EventListenerInterface* eli, EventCompleterInterface* eci )
     {
-        ei->interrupt(irq, (void*)ei, regs); // fire is the C++ handler version of this interrupt
-        ei->enable();
+        Event::addHandler(eli,eci);
     }
-    return 0;  // store significant return value in EventInterrupt itself XXX
-               // must be done in TopHalfs handler function
-}
 
-void EventInterrupt::EventInterruptHandler24(int irq,void* dev_id, struct pt_regs* regs)
-{
-    EventInterrupt* ei = EventInterrupt::InstanceGet(irq);
-    rtos_printf("IRQ :%d\n ei: %X",irq,ei);
-    if (ei != 0)
+    void EventInterrupt::removeHandler(EventListenerInterface* eli, EventCompleterInterface* eci)
     {
-        ei->interrupt(irq, dev_id, regs); // fire is the C++ handler version of this interrupt
-        ei->enable();
+        Event::removeHandler(eli,eci);
     }
-}
 
 
-EventInterrupt* EventInterrupt::InstanceGet(unsigned int irq)
-{
-//    if (_instances == 0 ) return 0;
-    std::vector<EventInterrupt*>::iterator itl = _instances.begin();
-    while ((*itl)->IRQGet() != irq && itl != _instances.end() )
-        ++itl;
-    return (itl == _instances.end() ? 0 : *itl);
-}
+    void EventInterrupt::removeHandler( ISRInterface * eli, DSRInterface* eci )
+    {
+        myTable.erase(eli);
+    }
 
-void EventInterrupt::InstanceAdd(EventInterrupt* ei)
-{
-//    if (_instances == 0) _instances = new vector<EventInterrupt*>;
-    _instances.push_back(ei);
-}
+    int EventInterrupt::IRQRequest()
+    {
+        int status = -1;
+        if (irq !=0)
+            {
+                status = rt_request_global_irq(irq, tasklet, USI_TASKLET);
+                if (initHardWare != 0)
+                    initHardWare();
+                else
+                    hardwareInit();
+            }
+        return status;
+    }
 
-void EventInterrupt::InstanceRemove(EventInterrupt* ei)
-{
-    std::vector<EventInterrupt*>::iterator itl;
-    itl = std::find(_instances.begin(), _instances.end(), ei);
-    if ( itl != _instances.end() ) _instances.erase(itl);
-/*    if(_instances.size() == 0) {
-        delete _instances;
-        _instances=0;
-    }*/
-}
+    void EventInterrupt::enable()
+    {
+           if (irq != 0)
+               enable_f = true;
+    }
 
+    void EventInterrupt::disable()
+    {
+           if (irq != 0)
+               enable_f = false;
+    }
+
+    void EventInterrupt::IRQFree()
+    {
+           if (irq !=0 )
+               rt_free_global_irq(irq);
+    }
+
+    void EventInterrupt::interrupt( int irq )
+    {
+        if ( !enable_f )
+            return;
+
+        Event::fire();// call supers
+
+        std::map<ISRInterface*,DSRInterface*>::iterator itl;
+        for (itl = myTable.begin(); itl != myTable.end(); itl++)
+            itl->first->handleInterrupt(irq, static_cast<void*>(this), 0); 
+    }
+
+    void EventInterrupt::complete(ISRInterface* ii)
+    {
+        if ( myTable[ii] != 0 )
+            myTable[ii]->completeInterrupt();
+    }
+
+    void EventInterrupt::complete( EventListenerInterface* cb )
+    {
+        Event::complete(cb);
+    }
+
+    void EventInterrupt::EventInterruptTasklet(unsigned long data)
+    {
+        int irq;
+        rt_expand_handler_data( data, &irq);
+        EventInterruptInterface* ei = EventInterrupt::InstanceGet(irq);
+        rtos_printf("IRQ :%d\n ei: %X", irq, ei);
+        if (ei != 0)
+            {
+                ei->interrupt( irq ); // fire is the C++ handler version of this interrupt
+                ei->enable();
+            }
+        hard_sti();
+        rt_pend_linux_irq( irq );
+    }
 
 };
