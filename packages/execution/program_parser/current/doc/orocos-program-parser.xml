@@ -199,7 +199,8 @@
 	  <simplelist columns="7">
 	    <member>alias</member>
 	    <member>and</member>
-	    <member>sync</member>
+	    <member>array</member>
+	    <member>break</member>
 	    <member>bool</member>
 	    <member>char</member>
 	    <member>catch</member>
@@ -862,6 +863,25 @@
 	<para>
 	  As with the if statement, you can optionally put
 	  parentheses around the condition.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The break Statement</title>
+	<para>
+	  To break out of a while or for loop, the 
+	  break statement is available. It will break
+	  out of the innermost loop, in case of nesting.
+	</para>
+	  <programlisting>
+  var int i = 0
+  while <emphasis>true</emphasis>  {
+      set i = i + 1
+      if i == 50 then
+          <emphasis>break</emphasis> 
+      // ...
+  }  </programlisting>
+	<para>
+	  It can be used likewise in a for loop.
 	</para>
       </sect3>
       <sect3>
