@@ -59,8 +59,8 @@ namespace ORO_Execution
     // The internal parser.
     ProgramGraphParser gram( parsebegin, proc, ext );
     std::vector<ProgramGraph*> ret = gram.parse( parsebegin, parseend );
-    if ( !ret.empty() )
-      std::cerr << "Program Parsed Successfully !" << std::endl;
+//     if ( !ret.empty() )
+//       std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;
   };
 

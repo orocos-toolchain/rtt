@@ -434,7 +434,7 @@ namespace ORO_Execution
       // Fake a 'return' statement at the last line.
       program_graph->returnProgram( new ConditionTrue );
       program_graph->proceedToNext( mpositer.get_position().line );
-      program_graph->endProgram( context.processor );
+      program_graph->endProgram();
       program_graph->reset();
       program_list.push_back(program_graph);
       program_graph = new ProgramGraph(); // will be deleted if no other progs follow

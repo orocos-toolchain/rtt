@@ -40,7 +40,6 @@
 #include "execution/ParsedValue.hpp"
 #include "execution/EventHandle.hpp"
 #include "execution/StateDescription.hpp"
-#include "execution/CommandProgramEndToken.hpp"
 #include "execution/ParsedStateContext.hpp"
 #include "corelib/CommandEmitEvent.hpp"
 
@@ -458,11 +457,11 @@ namespace ORO_Execution
                         >> expect_end( str_p( "}" ) )[
                             bind( &StateGraphParser::seenpreconditions, this )];
 
-        entry = str_p( "entry" )[ bind( &StateGraphParser::inprogram, this)]
+        entry = str_p( "entry" )[ bind( &StateGraphParser::inprogram, this, "entry" )]
                 >> expect_open(str_p("{"))>> *eeline >> expect_end(str_p("}"))[
                     bind( &StateGraphParser::seenentry, this )];
 
-        exit = str_p( "exit" )[ bind( &StateGraphParser::inprogram, this)]
+        exit = str_p( "exit" )[ bind( &StateGraphParser::inprogram, this, "exit" )]
                >> expect_open(str_p("{")) >> *eeline >> expect_end(str_p("}"))[
                    bind( &StateGraphParser::seenexit, this )];
 
@@ -483,7 +482,7 @@ namespace ORO_Execution
             >> ( str_p( "=" ) | "to" )
             >> expressionparser.parser()[bind( &StateGraphParser::seenscvcexpression, this )];
 
-        handle = str_p( "handle" )[ bind( &StateGraphParser::inprogram, this)]
+        handle = str_p( "handle" )[ bind( &StateGraphParser::inprogram, this, "handle" )]
                  >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"))[
                      bind( &StateGraphParser::seenhandle, this )];
 
@@ -584,19 +583,19 @@ namespace ORO_Execution
         curfinalstateflag = false;
     }
 
-    void StateGraphParser::inprogram()
+    void StateGraphParser::inprogram(const std::string& name)
     {
         assert( curprogram == 0 );
         curprogram = new ProgramGraph();
         curprogram->startProgram();
-        curprogram->setName( "FIXME-GIVE_STATE_PROGRAMS_NAMES" );
+        curprogram->setName( name );
     }
 
     ProgramGraph* StateGraphParser::finishProgram()
     {
         curprogram->returnProgram( new ConditionTrue );
         curprogram->proceedToNext( mpositer.get_position().line );
-        curprogram->endProgram( context.processor, new CommandProgramEndToken );
+        curprogram->endProgram();
         curprogram->reset();
         ProgramGraph* ret = curprogram;
         curprogram = 0;
@@ -788,7 +787,7 @@ namespace ORO_Execution
         ProgramGraph* initentryprogram = initstate->getEntryProgram();
         if ( ! initentryprogram )
         {
-            initentryprogram = emptyProgram();
+            initentryprogram = emptyProgram("entry");
             initstate->setEntryProgram( initentryprogram );
         }
         // prepend the commands for initialising the subcontext
@@ -951,7 +950,7 @@ namespace ORO_Execution
         if ( !entryprog )
         {
             // it's possible that the initial state does not have an entryprogram
-            entryprog = emptyProgram();
+            entryprog = emptyProgram("entry");
             initialstate->setEntryProgram( entryprog );
         }
 
@@ -1062,13 +1061,13 @@ namespace ORO_Execution
     curtemplatecontext->addParameter( valuechangeparser.lastParsedDefinitionName(), valuechangeparser.lastDefinedValue()->clone() );
   }
 
-  ProgramGraph* StateGraphParser::emptyProgram() {
+  ProgramGraph* StateGraphParser::emptyProgram( const std::string& name ) {
     ProgramGraph* ret = new ProgramGraph();
     ret->startProgram();
-    ret->setName( "FIXME-GIVE_STATE_PROGRAMS_NAMES" );
+    ret->setName( name );
     ret->returnProgram( new ConditionTrue );
     ret->proceedToNext( mpositer.get_position().line );
-    ret->endProgram( context.processor, new CommandProgramEndToken );
+    ret->endProgram();
     ret->reset();
     return ret;
   }

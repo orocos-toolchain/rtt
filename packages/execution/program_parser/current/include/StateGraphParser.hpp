@@ -160,7 +160,7 @@ namespace ORO_Execution
       void statedef( iter_t s, iter_t f);
       void seenstateend();
 
-      void inprogram();
+      void inprogram( const std::string& name );
       void seenentry();
       void seenexit();
       void seenhandle();
@@ -204,7 +204,7 @@ namespace ORO_Execution
       void seenscvcparamname( iter_t begin, iter_t end );
       void seenscvcexpression();
 
-      ProgramGraph* emptyProgram();
+      ProgramGraph* emptyProgram(const std::string& name);
   public:
     StateGraphParser( iter_t& positer, Processor* proc, GlobalFactory* ext );
     ~StateGraphParser();

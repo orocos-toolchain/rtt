@@ -70,7 +70,7 @@ namespace ORO_Execution {
             "rotation",
             "twist",
             "wrench",
-            "nothing",
+            "nothing", // do not exclude 'do nothing' !
             "var",
             "set",
             "let",

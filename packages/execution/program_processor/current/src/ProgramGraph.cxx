@@ -27,9 +27,6 @@
 #include "execution/ProgramGraph.hpp"
 #include "execution/FunctionGraph.hpp"
 
-#include "execution/CommandStopProgram.hpp"
-#include "execution/CommandProgramEndToken.hpp"
-
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"
 #include "corelib/ConditionTrue.hpp"
@@ -128,9 +125,8 @@ namespace ORO_Execution
             for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
                 emap[*ei].reset();
             cmap[current].startExecution();
+            previous = current;
         }
-
-        previous = current;
 
         // execute the current command.
         cmap[current].execute();
@@ -152,6 +148,11 @@ namespace ORO_Execution
     {
         current = root;
         previous = end;
+    }
+
+    bool ProgramGraph::isFinished() const 
+    {
+        return current == end;
     }
 
     const ProgramGraph::Graph& ProgramGraph::getGraph() const
@@ -304,9 +305,9 @@ namespace ORO_Execution
         add_edge(current, end, EdgeCondition(cond), program );
     }
 
-    void ProgramGraph::endProgram( ProcessorInterface* pci, CommandInterface* finalCommand ) {
+    void ProgramGraph::endProgram( CommandInterface* finalCommand ) {
         if ( !finalCommand )
-            finalCommand = new CommandStopProgram( pci, myName );
+            finalCommand = new CommandNOP();
         // End of all processing. return already linked to end.
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);

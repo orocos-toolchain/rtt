@@ -54,6 +54,11 @@ namespace ORO_Execution
         virtual void reset() = 0;
 	
         /**
+         * Returns true if the program has finished executing.
+         */
+        virtual bool isFinished() const = 0;
+	
+        /**
          * Return the current 'line number' of the program.
          */
         virtual int getLineNumber() const = 0;

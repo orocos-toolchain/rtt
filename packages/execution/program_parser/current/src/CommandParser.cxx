@@ -68,7 +68,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( command );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
 
-    command = callcommand | nopcommand;
+    command = nopcommand | callcommand;
 
     nopcommand = str_p( "nothing" )[
       bind( &CommandParser::seennopcommand, this ) ];

@@ -95,6 +95,8 @@ namespace ORO_Execution
 
         virtual void reset();
 
+        virtual bool isFinished() const;
+
         /**
          * Clone this ProgramGraph.  This will produce a completely
          * new ProgramGraph, that has nothing in common with this one.
@@ -228,17 +230,14 @@ namespace ORO_Execution
         CommandNode startProgram();
 
         /**
-         * Program end is detected. The last instruction
-         * of the program will inform the Processor that
-         * the program has ended. After this method is called,
+         * Program end is detected. After this method is called,
          * no more build methods may be called.
-         * @param pci The Processor which will execute this program
          * @param finalCommand The command to run when the program is
          *        finished.  If you pass 0 for this argument ( the
-         *        default ), the value new CommandStopProgram( pci,
-         *        this->getName() ) will be used.
+         *        default ), the value new CommandNOP()
+         *        will be used.
          */
-        void endProgram(ProcessorInterface* pci, CommandInterface* finalCommand = 0);
+        void endProgram( CommandInterface* finalCommand = 0);
 
         /**
          * Append a function to the current CommandNode.
