@@ -30,6 +30,11 @@
         <description>True if the report needs to be written to a file.</description>
         <value>1</value>
     </simple>
+    <simple name="WriteHeader" type="boolean">
+        <description>True if the report needs a header
+        </description>
+        <value>1</value>
+    </simple>
     <struct name="Exporters" type="type_less">
         <simple name="Component" type="string"><value>Sensor</value></simple>
         <simple name="Component" type="string"><value>Effector</value></simple>

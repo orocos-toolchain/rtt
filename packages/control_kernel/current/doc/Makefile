@@ -1,7 +1,7 @@
 
 dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
-	orocos-control-kernel.html kernel_component_interaction.png \
+	orocos-control-kernel.html kernel_component_interaction.png control-pattern.png \
 	component_life_cycle.png ExtensionTimeLine.png component_data_production.png \
 	orocos-control-kernel.pdf \
 	orocos-control-kernel.ps
@@ -16,16 +16,18 @@ docps: epsimages orocos-control-kernel.ps
 
 doctxt: orocos-control-kernel.txt
 
-epsimages: kernel_component_interaction.eps component_life_cycle.eps ExtensionTimeLine.eps component_data_production.eps
-pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTimeLine.png component_data_production.png
+epsimages: kernel_component_interaction.eps component_life_cycle.eps ExtensionTimeLine.eps component_data_production.eps control-pattern.eps
+
+pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTimeLine.png component_data_production.png control-pattern.png
 
 #orocos-control-kernel.html: 
 
 %.html:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
+	xsltproc -o $@ /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $<
 
 %.fo:%.xml
-	xsltproc orocos.xsl $< > $@
+	xsltproc -o $@ orocos.xsl $<
+	cp $@ $@.bak
 
 %.ps:%.fo
 	fop $< $@

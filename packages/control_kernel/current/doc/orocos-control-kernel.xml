@@ -2262,7 +2262,7 @@ struct MyNamesModel
 ]]>
 	  </programlisting>
 	<para>
-	  The numbers correspond to the n'th type ( as in ServedTypes< Type0, Type1,...> )
+	  The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
 	  listed in the ServedTypes list. So "EndPosition" and
 	  "OldPosition" are of type Frame and "Temperature" is of type double.
 	</para>
