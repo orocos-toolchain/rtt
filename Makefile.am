@@ -94,3 +94,28 @@ clean_drivers:
 	make clean
 
 
+# LVD Specific :
+
+lvd_new:
+	mkdir -p lvd-@ECOS_TARGET@
+	cd lvd-@ECOS_TARGET@ ;\
+	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	ecosconfig -v new @ECOS_TARGET@ minimal > new_drivers.log ; \
+	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
+	ecosconfig add support_$$(basename $$i .cdl) > support.log; done ;\
+	ecosconfig template lvd
+
+lvd_config:
+	cd lvd-@ECOS_TARGET@ ;\
+	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	configtool ecos.ecc
+
+lvd:
+	cd lvd-@ECOS_TARGET@ ;\
+	export ECOS_REPOSITORY=${ECOS_REP} ;\
+	ecosconfig -v tree ;\
+	make
+
+lvd_clean:
+	cd lvd-@ECOS_TARGET@ ;\
+	make clean
