@@ -795,7 +795,7 @@ next section. Of course, you don't have to apply the
 	      <command>cd orocos-0.10.0/packages; ./autogen.sh;</command></para></listitem>
 	  <listitem><para>Download the required Orocos .epk packages</para></listitem>
 	  <listitem><para>Install each of them in the orocos-0.10.0/packages subdir, using
-	      <command>cd orocos-0.10.o/packages; tclsh ecosadmin.tcl add &lt;filename.epk&gt;</command>
+	      <command>cd orocos-0.10.0/packages; tclsh ecosadmin.tcl add &lt;filename.epk&gt;</command>
 	      This action is also documented in the ecos manuals and equivalent to the installation
 	      of any eCos package, see 
 <ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
