@@ -214,6 +214,15 @@ namespace ORO_ControlKernel
     return my_commandFactory;
   }
 
+
+  MethodFactoryInterface* nAxesGeneratorCartesianPos::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesGeneratorCartesianPos>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "finishedMoving", method( &nAxesGeneratorCartesianPos::moveFinished, "Arrived at new position" ));
+
+    return my_methodFactory;
+  }
+
   
   bool nAxesGeneratorCartesianPos::moveTo(const ORO_Geometry::Frame& frame, double time)
   {

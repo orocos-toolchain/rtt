@@ -26,6 +26,7 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <execution/TemplateCommandFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
 #include <corelib/HeartBeatGenerator.hpp>
@@ -86,7 +87,7 @@ namespace ORO_ControlKernel
     virtual void push();
 
     virtual CommandFactoryInterface* createCommandFactory();
-
+    virtual MethodFactoryInterface*  createMethodFactory();
     bool moveTo(const ORO_Geometry::Frame& frame, double time=0);
     bool moveFinished() const;
     
