@@ -5,7 +5,7 @@
 
 <book>
   <bookinfo>
-  <title> Orocos Device Drivers </title>
+    <title> Orocos Device Drivers </title>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -36,29 +36,29 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2003</year>
       <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
       <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
     </copyright>
 
-  <abstract>
-<para>
-This document explains the design and implementation of the
-Drivers components.
-</para>
-  </abstract>
+    <abstract>
+      <para>
+	This document explains the design and implementation of the
+	Drivers components.
+      </para>
+    </abstract>
 
-  <legalnotice>
-  <para>
-Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
-any later version published by the Free Software Foundation, with no
-Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
-Texts. A copy of this license can be found at
-<ulink
- url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
-  </para>
-  </legalnotice>
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
   </bookinfo>
 
   <title>Orocos Device Drivers</title>
@@ -66,181 +66,82 @@ Texts. A copy of this license can be found at
     <title>Introduction</title>
     <para>
       This chapter gives you the basic knowledge to start working with the
- Orocos Drivers package.
+      Orocos Device Drivers package.
     </para>
 
     <sect1>
-    <title>Requirements</title>
-    <para>
-    This package has a dependency on the orocos-core package. So you need to install
-    that package first before you can proceed. Further, this package extends the
-    <ulink url="http://www.comedi.org">comedi</ulink> library and integrates it
-    into the framework. Comedi is a realtime device drivers package and supports a lot
-    of hardware. You might want to install comedi and comedilib when they support your
-    hardware or if you want to port your home made drivers to comedi. We refer to
-    their website for installation instructions.
-    </para>
+      <title>Requirements</title>
+      <para>
+	This package has a dependency on the Orocos-corelib and Orocos-device_interface
+	packages. So you need to install
+	that package first before you can proceed. Further, this package extends the
+	<ulink url="http://www.comedi.org">comedi</ulink> library and integrates it
+	into the framework. Comedi is a realtime device drivers package and supports a lot
+	of hardware. You might want to install comedi and comedilib when they support your
+	hardware or if you want to port your home made drivers to comedi. We refer to
+	their website for installation instructions.
+      </para>
     </sect1>
     <sect1>
-    <title>What's in this package</title>
-    <para>
+      <title>What's in this package</title>
+      <para>
         <itemizedlist>
-        <listitem>This package contains a primitive wrapper to the kernel comedi functionality
-        and comedilib (userspace).</listitem>
-        <listitem>A home made driver for the APCI1710, APCI2200 and APCI1032 PCI cards 
-        and a C++ classes for reading/resetting the cards and some event handling.</listitem>
-        <listitem>An example of how an Axis class could implement homing</listitem>
-    	<listitem>An example of how a Schunk 6D Force Sensor can be accessed (serial and 
+	  <listitem>This package contains a primitive wrapper to the kernel comedi functionality
+	    and comedilib (userspace).</listitem>
+	  <listitem>A home made driver for the APCI1710, APCI2200 and APCI1032 PCI cards 
+	    and a C++ classes for reading/resetting the cards and some event handling.</listitem>
+	  <listitem>An example of how an Axis class could implement homing</listitem>
+	  <listitem>An example of how a Schunk 6D Force Sensor can be accessed (serial and 
 	    via comedi)</listitem>
-    	<listitem>Classes for reading SSI encoders and incremental encoders.</listitem>
-    	<listitem>A sample implementation for wrapping the whole Comedi Library to C++</listitem>
+	  <listitem>Classes for reading SSI encoders and incremental encoders.</listitem>
+	  <listitem>A sample implementation for wrapping the whole Comedi Library to C++</listitem>
         </itemizedlist>
-    </para>
-    The aim of this package is to show how a driver can implement one or more interfaces of the
-    FDI (see orocos-core). Other packages will exclusively refer to the
-    FDI, and the decision of which driver to actually use, can be deferred
-    until run time.
+      </para>
+      The aim of this package is to show how a driver can implement one or more interfaces of the
+      FDI (see orocos-core). Other packages will exclusively refer to the
+      FDI, and the decision of which driver to actually use, can be deferred
+      until run time.
     </sect1>
   </chapter>
   <chapter>
-        <title>Installation Instructions</title>
-	<sect1>
-	<para>
-        This chapter will shortly discuss how the package should be installed.
-	<tip>
-	    Read the Orocos Core installation instructions first to have fully
-	    documented installation instructions.
-	</tip>
-	</para>
-	</sect1>
-        <sect1>
-	<para>
-        You can obtain the drivers package from CVS or from our
-        <ulink url="http://www.orocos.org">website</ulink>.
-        We refer to the orocos-core documentation for how to set up a build directory and how
-        to retrieve the source from CVS. The name of the drivers module is
-        <parameter>orocos-v1/drivers</parameter> .
-
-        When you obtained a package, you may extract it with the command
-        <screen>
-        tar -xvzf orocos-drivers-0.9.0.tar.gz
-        cd orocos-drivers-0.9.0
-        </screen>
-        As every orocos package, it needs an installed version of the core. Further
-	you must again specify for which operating system you will build :
-	<parameter>--with-gnulinux or --with-rtai or --with-rtlinux</parameter>.
-        <screen>
-        mkdir build
-        cd build
-        ../configure --with-prefix=/your/core/install/dir --with-OS_NAME_HERE
-        </screen>
-	You will notice that this builds only a fraction of the present software.
-	You can check with <command>../configure --help</command> which drivers can be
-	enabled. At present these are :
-            <itemizedlist>
-            <listitem>--enable-apci1032 (A digital input card)</listitem>
-            <listitem>--enable-apci1710 (An encoder card)</listitem>
-            <listitem>--enable-apci2200 (A digital relay card)</listitem>
-            <listitem>--enable-schunk   (Force Sensor, requires comedi)</listitem>
-            </itemizedlist>
-	These drivers will always build, even if you don't have the cards installed.
-	
-        You can proceed then with
-        <screen>
-        make
-        make check
-        make install</screen>
-	</para>
-        </sect1>
+    <title>Installation Instructions</title>
+    <para>
+      We refer to the orocos-installation manual on how to install this package.
+    </para>
   </chapter>
   <chapter>
-        <title>Developers Documentation</title>
-        <para>
-            All the drivers code resides in the <classname>CBDeviceDriver</classname> namespace,
-            which stands for "Component Based Device Driver". A CBDD is a class which implements
-            one or more interfaces of the FDI (xref orocos-core). One can configure the CBDD
-            to choose which physical device is to be addressed for each instance of the class.
-            Examples of CBDDs are : encoder drivers, closed controller interfacers, camera
-            drivers, etc.
-        </para>
-        <sect1>
-            <title>Comedi C++</title>
-            <para>
-	    We have currently two Comedi C++ implementations. The one in the main source
-	    tree provides <classname>ComediDevice</classname>, <classname>ComediSubDeviceAIn
-	    </classname> and <classname> ComediSubDeviceAOut</classname> classes which
-	    provide basic device access and nameserving. 
-            The wrapper classes <classname>ComediSubDeviceAOut</classname> and <classname>ComediSubDeviceAIn</classname>
-            show how the <classname>AnalogOutInterface</classname> and the <classname>AnalogInInterface</classname>
-            interfaces of the FDI can be implemented.
-	    A more extended, but experimental
-	    implementation can be found in the comedi subdirectory. We do not currently
-	    use it, but you are encouraged to experiment with it or provide us suggestions
-	    and patches.
-            </para>
-        </sect1>
-        <sect1>
-            <title>EncoderIncremental</title>
-            <para>
-            This class implements the <classname>EncoderIncrementalInterface</classname>.
-            It is meant to control the APCI1710 counter
-            cards, and in that sense should reflect that actually in its class name.
-	    This is a card specific implementation of the FDI.
-            </para>
-            <para>This class will only be usefull to you if you have this card</para>
-        </sect1>
-        <sect1>
-            <title>SwitchHomingParPort</title>
-            <para>
-            This class implements the detection of a homing switch through a parallel port
-            interrupt. Each interrupt leads to a 'HomingEvent' which, when fired, indicates
-            that the switch was passed. Depending on your type of homing switch and connection
-            to the parallel port, your implementation may differ. It implements the FDI
-            interface <classname>SwitchHomingInterface</classname>.
-            </para>
-        </sect1>
-        <sect1>
-            <title>Axis</title>
-            <para>
-            This is a generic, quite templated class. An Axis consists of an encoder,
-            a homingswitch and an actuator. For now, it only implements a homing method.
-            One could easily extend it with a drive function to steer the actuator or export
-            certain state changes with events. See the tests/testHoming.cpp for an example.
-
-            Any kind of actuators, encoders and homing switches can be used as long as they
-            implement the ActuatorInterface, EncoderIncrementalInterface and SwitchHomingInterface
-            methods. These interfaces are naturally part of the FDI and everyone is encouraged
-            to port their own drivers to the FDI and use them in our example programs.
-            </para>
-        </sect1>
-        <sect1>
-            <title>Generic Driver Classes ?</title>
-            <para>
-	    In the end, our drivers are only usefull for computers having the same hardware.
-	    As long as you have Comedi installed, most drivers will compile anyway but won't
-	    detect the cards on loading time. Some files might be usefull for you as a
-	    starting point to write higher level device drivers. <filename>Drive.hpp</filename>
-	    serves as an example for motor steering. Many files in this package however, 
-	    need many improvements and implementation should be extended above the 
-	    present minimum. 
-            </para>
-        </sect1>
-        <sect1>
-        <title>The future and more documentation</title>
-        <para>
-            As one can see, this package is left fairly simple, however, we hope that very soon
-            some valuable hardware drivers might emerge from collaborative development.
-        </para>
-        <para>
-            Our current todo list consists of the following items:
-            <itemizedlist>
-            <listitem>Complete the full C++ Comedi wrapper</listitem>
-	    <listitem>Cleanup the drivers, make them more generic</listitem>
-            </itemizedlist>
-        </para>
-        You can build the doxygen documentation by running <command>make doc</command>
-        and browsing the doc dir for API information. All these documents are also
-        online on the Orocos website.
-        </sect1>
+    <title>Developers Documentation</title>
+    <para>
+      All the drivers code resides in the <classname>CBDeviceDriver</classname> namespace,
+      which stands for "Component Based Device Driver". A CBDD is a class which implements
+      one or more interfaces of the FDI (xref orocos-core). One can configure the CBDD
+      to choose which physical device is to be addressed for each instance of the class.
+      Examples of CBDDs are : encoder drivers, closed controller interfacers, camera
+      drivers, etc.
+    </para>
+    <sect1>
+      <title>Comedi C++</title>
+      <para>
+	We have currently two Comedi C++ implementations. The one in the main source
+	tree provides <classname>ComediDevice</classname>, <classname>ComediSubDeviceAIn
+	</classname> and <classname> ComediSubDeviceAOut</classname> classes which
+	provide basic device access and nameserving. 
+	The wrapper classes <classname>ComediSubDeviceAOut</classname> and <classname>ComediSubDeviceAIn</classname>
+	show how the <classname>AnalogOutInterface</classname> and the <classname>AnalogInInterface</classname>
+	interfaces of the FDI can be implemented.
+	A more extended, but experimental
+	implementation can be found in the comedi subdirectory. We do not currently
+	use it, but you are encouraged to experiment with it or provide us suggestions
+	and patches.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Logical Device Drivers</title>
+      <para>
+	This contains implementation of logical devices such as DigitalInput,
+	DigitalOutput, AnalogInput, AnalogOutput, Axis, Drive,... they are
+	access-wrappers around the more general IO Interfaces.
+      </para>
+    </sect1>
   </chapter>
 </book>
