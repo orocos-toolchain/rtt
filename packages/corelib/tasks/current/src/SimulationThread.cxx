@@ -96,23 +96,12 @@ namespace ORO_CoreLib
     {
         this->continuousStepping( true );
         Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"ms periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_SIM_PRIORITY << Logger::nl;
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_SIM_PRIORITY << Logger::endl;
     }
 
     SimulationThread::~SimulationThread()
     {
     }
-
-    bool SimulationThread::taskAdd( TaskSimulation* t, const nsecs n )
-    {
-        return TaskExecution::taskAdd( t, n );
-    }
-
-    void SimulationThread::taskRemove( TaskSimulation* t )
-    {
-        TaskExecution::taskRemove( t );
-    }
-
     bool SimulationThread::initialize()
     {
         Logger::log() << Logger::Info << "SimulationThread takes over system time."<<Logger::nl;

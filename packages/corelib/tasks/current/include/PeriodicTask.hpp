@@ -38,22 +38,21 @@
 
 namespace ORO_CoreLib
 {
-    class TaskTimer;
+    class TaskTimerInterface;
+    class TaskExecution;
     /**
      * @brief A PeriodicTask is the general implementation of a Task
-     * which has realtime, periodic constraints.
+     * which has (realtime,) periodic constraints.
      *
      * It will execute a RunnableInterface, or the equivalent methods in
      * it's own interface when none is given.
-     * When initialize() returns false, it will finalize() it in the
-     * CompletionProcessor. If the PeriodicTask is normally stop()'ed, finalize()
+     * When initialize() returns false, it will abort start().
+     * If the PeriodicTask is normally stop()'ed, finalize()
      * is called in the calling thread of stop().
      */
     class PeriodicTask
         : public TaskInterface
     {
-	protected:
-        friend class TaskTimer;
     public:
 
         /**
@@ -62,10 +61,12 @@ namespace ORO_CoreLib
          *
          * @param period
          *        The periodicity of the PeriodicTask
+         * @param thread
+         *        The thread this Task will be run in.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        PeriodicTask(Seconds period, RunnableInterface* r=0 );
+        PeriodicTask(Seconds period, TaskExecution* thread, RunnableInterface* r=0 );
 
         /**
          * @brief Create a RealTime Task with a given period which runs
@@ -75,10 +76,12 @@ namespace ORO_CoreLib
          *        The periodicity of the PeriodicTask, seconds partition
          * @param nsec
          *        The periodicity of the PeriodicTask, nanoseconds partition
+         * @param thread
+         *        The thread this Task will be run in.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        PeriodicTask(secs sec, nsecs nsec, RunnableInterface* r=0 );
+        PeriodicTask(secs sec, nsecs nsec, TaskExecution* thread, RunnableInterface* r=0 );
 
         /**
          * Stops and terminates a PeriodicTask
@@ -102,34 +105,21 @@ namespace ORO_CoreLib
 
         virtual Seconds periodGet() const;
 
+        virtual TaskThreadInterface* thread() const;
+
+        virtual bool initialize();
+        
+        virtual void step();
+        
+        virtual void finalize();
+
     protected:
-        /**
-         * Adds the task to the corresponding thread
-         */
-        virtual bool taskAdd()=0;
-
-        /**
-         * Removes this task from the corresponding thread
-         */
-        virtual void taskRemove()=0; 
-
-        virtual bool initialize() { return true; }
-        
-        virtual void step() {}
-        
-        virtual void finalize() {}
-
-        //virtual TaskInterface* taskGet( ) const { return this; }; // deprecated
-
-        /**
-         * Calls the runners or own step function
-         */
-        void doStep();
+        void init();
 
         /**
          * Does an unconditional stop.
          */
-        void doStop();
+        bool doStop();
 
         /**
          * When runner != 0 it will be executed instead of
@@ -156,6 +146,16 @@ namespace ORO_CoreLib
          * Used when two threads try to stop simultanously.
          */
         ORO_OS::Mutex stop_lock;
+
+        /**
+         * The thread which runs this task.
+         */
+        TaskExecution* _thread;
+
+        /**
+         * The timer which steps this task.
+         */
+        TaskTimerInterface* _timer;
     };
 
 }

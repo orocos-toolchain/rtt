@@ -1,45 +1,18 @@
-/***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  EventPeriodic.hpp 
-
-                        EventPeriodic.hpp -  description
-                           -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/ 
- 
-#ifndef TASKTIMER_HPP
-#define TASKTIMER_HPP
+#ifndef ORO_TASKTIMERSEQUENCER_HPP
+#define ORO_TASKTIMERSEQUENCER_HPP
 
 #include "Time.hpp"
 #include "os/Mutex.hpp"
+#include "TaskTimerInterface.hpp"
 
 #include <list>
 #include <functional>
 
 namespace ORO_CoreLib
 {
-    class PeriodicTask;
 
     /**
-     * An TaskTimer is an object that will step() a TaskInterface every
+     * An TaskTimerSequencer is an object that will step() a PeriodicTask every
      * n'th time it is tick()'ed such that when n tasks are present,
      * each task will be stepped on a different tick call of one period.
      * It will try to spread the stepping
@@ -52,11 +25,12 @@ namespace ORO_CoreLib
      *
      * @todo More efficient implementation if average_period == trigger_period.
      */
-    class TaskTimer
+    class TaskTimerSequencer
+        : public TaskTimerInterface
     {
     public:
         /**
-         * Creates an TaskTimer which will have step() all tasks after
+         * Creates an TaskTimerSequencer which will have step() all tasks after
          * <average_period> / <trigger_period> times it is ticked.
          *
          * @param average_period The Average time between step()'ing each
@@ -64,35 +38,30 @@ namespace ORO_CoreLib
          * @param trigger_period The period between consecutive tick() calls.
          *        Defaults to average_period.
          */
-        TaskTimer( Seconds average_period, Seconds trigger_period = 0 );
+        TaskTimerSequencer( Seconds average_period, Seconds trigger_period = 0 );
 
         /**
-         * Creates an TaskTimer which will have step()'ed each task
+         * Creates an TaskTimerSequencer which will have step()'ed each task
          * after tick() was called <divider> times.
          *
          * @param divider The average number of times tick() is called before
          *        each task is step()'ed. ( So N Tasks will all be 
          *        step()'ed after tick() was called <divider> times. )
          */
-        TaskTimer( unsigned int divider );
+        TaskTimerSequencer( unsigned int divider );
 
         void tick();
 
-        bool addTask( PeriodicTask* task );
+        bool taskAdd( PeriodicTask* task );
 
-        void removeTask( PeriodicTask* task );
+        bool taskRemove( PeriodicTask* task );
 
-        /**
-         * Returns the minimum periodicity ( in nano s ) with which the tasks are step()'ed.
-         */
-        nsecs periodGet();
+        nsecs periodGet() const;
 
-        /**
-         * Sets the period with which this timer will be ticked.
-         */
-        void triggerPeriodSet(nsecs ns);
+        nsecs triggerGet() const;
+
+        void triggerSet(nsecs ns);
         
-        static const unsigned int MAX_TASKS=32;
     protected:
 
         struct ListItem

@@ -27,34 +27,23 @@
  
  
 #include "corelib/TaskSimulation.hpp"
+#include "corelib/SimulationThread.hpp"
 
 namespace ORO_CoreLib
 {
     
     TaskSimulation::TaskSimulation(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, r)
+        :PeriodicTask(period,SimulationThread::Instance(), r)
     {
-        simt = SimulationThread::Instance();
     }
 
     TaskSimulation::TaskSimulation(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, r)
+        :PeriodicTask(sec, nsec,SimulationThread::Instance(), r)
     {
-        simt = SimulationThread::Instance();
     }
 
     TaskSimulation::~TaskSimulation()
     {
         stop();
-    }
-
-    bool TaskSimulation::taskAdd()
-    {
-        return simt->taskAdd(this, this->per_ns);
-    }
-
-    void TaskSimulation::taskRemove()
-    {
-        simt->taskRemove(this);
     }
 }

@@ -98,16 +98,4 @@ namespace ORO_CoreLib
     {
         Logger::log() << Logger::Debug << ORODAT_CORELIB_TASKS_ZLT_NAME <<" destructor." << Logger::endl;
     }
-
-    bool ZeroLatencyThread::taskAdd( TaskPreemptible* t, const nsecs n )
-    {
-        return TaskExecution::taskAdd( t, n );
-    }
-
-    void ZeroLatencyThread::taskRemove( TaskPreemptible* t )
-    {
-        TaskExecution::taskRemove( t );
-    }
-
-
 }

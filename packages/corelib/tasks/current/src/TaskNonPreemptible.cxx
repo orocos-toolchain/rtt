@@ -25,34 +25,23 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/TaskNonPreemptible.hpp"
+#include "corelib/ZeroTimeThread.hpp"
 
 namespace ORO_CoreLib
 {
     
     TaskNonPreemptible::TaskNonPreemptible(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, r)
+        :PeriodicTask(period, ZeroTimeThread::Instance(), r)
     {
-        ztt = ZeroTimeThread::Instance();
     }
 
     TaskNonPreemptible::TaskNonPreemptible(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, r)
+        :PeriodicTask(sec, nsec, ZeroTimeThread::Instance(), r)
     {
-        ztt = ZeroTimeThread::Instance();
     }
 
     TaskNonPreemptible::~TaskNonPreemptible()
     {
         stop();
-    }
-
-    bool TaskNonPreemptible::taskAdd()
-    {
-        return ztt->taskAdd(this, per_ns);
-    }
-
-    void TaskNonPreemptible::taskRemove()
-    {
-        ztt->taskRemove(this);
     }
 }

@@ -88,27 +88,6 @@ namespace ORO_CoreLib
             return false;
         }
 
-        /**
-         * Add a PriorityTask<Priority> which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( PriorityTask<Priority>* t, const nsecs n )
-        {
-            return TaskExecution::taskAdd( t, n);
-        }
-
-        /**
-         * Remove a PriorityTask<Priority> from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( PriorityTask<Priority>* t )
-        {
-            TaskExecution::taskRemove( t );
-        }
-
     protected:
 
         /**

@@ -25,35 +25,24 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/TaskNonRealTime.hpp"
+#include "corelib/NonRealTimeThread.hpp"
 
 namespace ORO_CoreLib
 {
     
     TaskNonRealTime::TaskNonRealTime(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, r)
+        :PeriodicTask(period, NonRealTimeThread::Instance(), r)
     {
-        cproc = NonRealTimeThread::Instance();
     }
 
     TaskNonRealTime::TaskNonRealTime(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, r)
+        :PeriodicTask(sec, nsec, NonRealTimeThread::Instance(), r)
     {
-        cproc = NonRealTimeThread::Instance();
     }
 
     TaskNonRealTime::~TaskNonRealTime()
     {
         stop();
-    }
-
-    bool TaskNonRealTime::taskAdd()
-    {
-        return cproc->taskAdd(this, per_ns);
-    }
-
-    void TaskNonRealTime::taskRemove()
-    {
-        cproc->taskRemove(this);
     }
 }
 

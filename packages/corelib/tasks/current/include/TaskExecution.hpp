@@ -42,7 +42,7 @@ namespace ORO_CoreLib
 {
     using ORO_OS::MutexLock;
 
-    class TaskTimer;
+    class TaskTimerInterface;
     class PeriodicTask;
 
     /**
@@ -68,25 +68,6 @@ namespace ORO_CoreLib
         : public TaskThreadInterface
     {
 
-        /**
-         * A structure to keep track of ownership
-         * of timers.
-         */
-        struct TimerItem
-        {
-            TimerItem(TaskTimer* ev, bool _owner = false) : timer(ev), owner(_owner) {}
-            TaskTimer* timer;
-            bool owner;
-
-            struct Locator : public std::binary_function<TimerItem, TaskTimer*, bool>
-            {
-                bool operator()(const TimerItem& p, const TaskTimer* ev) const
-                {
-                    return p.timer == ev;
-                }
-            };
-        };
-
     public:
 
         /**
@@ -96,13 +77,22 @@ namespace ORO_CoreLib
 
         /**
          * Add an Timer that will be ticked every execution period
+         * Once added, a timer can not be removed.
+         * @return false if there are more timers added than MAX_TASK_TIMERS
          */
-        void timerAdd( TaskTimer* );
+        bool timerAdd( TaskTimerInterface* );
 
         /**
-         * Remove an Timer from being ticked every execution period
+         * Get a Timer ticking at a certain period.
          */
-        void timerRemove( TaskTimer* );
+        TaskTimerInterface* timerGet( Seconds period ) const;
+
+        /**
+         * This constant is currently not in use. Since timers are added
+         * at startup time, the storage is dynamically extended with each timerAdd().
+         */
+        static const unsigned int MAX_TASK_TIMERS = 0;
+
     protected:
         /**
          * Constructor. To be called from the friend classes.
@@ -116,26 +106,7 @@ namespace ORO_CoreLib
 
         virtual void step();
 
-        /**
-         * Add a PeriodicTask which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( PeriodicTask* t, const nsecs n );
-
-        /**
-         * Remove a PeriodicTask from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( PeriodicTask* t );
-        
-        /**
-         * Internal method for keeping track of TaskTimer
-         * ownership.
-         */
-        void doTimerAdd( TaskTimer* ev, bool myTimer);
+        typedef std::vector<TaskTimerInterface*> TimerList;
 
         /**
          * A list containing all the TaskTimer instances
@@ -143,10 +114,13 @@ namespace ORO_CoreLib
          *
          * @see TaskTimer
          */ 
-        std::list<TimerItem> clocks;
+        TimerList clocks;
 
-        ORO_OS::MutexRecursive lock;
-
+        /**
+         * A Task can not create a task of same priority from step().
+         * If so a deadlock will occur.
+         */
+        ORO_OS::Mutex lock;
     };
 } // namespace ORO_CoreLib
 

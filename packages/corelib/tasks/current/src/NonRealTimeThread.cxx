@@ -92,20 +92,4 @@ namespace ORO_CoreLib
     {
         Logger::log() << Logger::Debug << ORODAT_CORELIB_TASKS_NRT_NAME <<" destructor." << Logger::endl;
     }
-
-    bool NonRealTimeThread::taskAdd( TaskNonRealTime* t, const nsecs n )
-    {
-        return TaskExecution::taskAdd( t, n);
-    }
-
-    void NonRealTimeThread::taskRemove( TaskNonRealTime* t )
-    {
-        TaskExecution::taskRemove( t );
-    }
-
-    void NonRealTimeThread::step()
-    {
-        // Execute the TaskNonRealTime instances.
-        TaskExecution::step();
-    }
 }

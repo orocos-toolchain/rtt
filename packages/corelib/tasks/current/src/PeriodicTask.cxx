@@ -31,24 +31,52 @@
 #include "corelib/Logger.hpp"
 #include "corelib/TaskExecution.hpp"
 
+// This define is used for creating and static_casting the Timer.
+#include <pkgconf/corelib_tasks.h>
+#ifdef OROSEM_CORELIB_TASKS_TASKTIMER_TaskTimerOneShot
+#include "corelib/TaskTimerOneShot.hpp"
+#elif defined(OROSEM_CORELIB_TASKS_TASKTIMER_TaskTimerSequencer)
+#include "corelib/TaskTimerSequencer.hpp"
+#else
+#include "corelib/TaskTimerOneShot.hpp" // default
+#endif
+
 #include <cmath>
 
 namespace ORO_CoreLib
 {
     
-    PeriodicTask::PeriodicTask(Seconds period, RunnableInterface* r )
-       : runner(r), running(false), inError(false)
+    PeriodicTask::PeriodicTask(Seconds period, TaskExecution* thread, RunnableInterface* r )
+        : runner(r), running(false), inError(false), _thread(thread)
     {
-        if (runner)
-            runner->setTask(this);
-        per_ns = nsecs( rint( period * secs_to_nsecs(1) ) );
+        per_ns = Seconds_to_nsecs( period );
+        this->init();
     }
 
-    PeriodicTask::PeriodicTask(secs s, nsecs ns, RunnableInterface* r )
-       : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
-    {
+    void PeriodicTask::init() {
         if (runner)
             runner->setTask(this);
+
+        TaskTimerInterface* timer = _thread->timerGet( this->periodGet() );
+        if ( timer == 0 ) {
+            timer = new TaskTimerOneShot( per_ns );
+//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
+            // The timer is owned by the thread !
+            if ( _thread->timerAdd( timer ) == false ) {
+                delete timer;
+                timer = 0;
+            }
+        }
+//         else
+//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->periodGet() <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
+
+        _timer = timer;
+    }
+
+    PeriodicTask::PeriodicTask(secs s, nsecs ns, TaskExecution* thread, RunnableInterface* r )
+        : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns), _thread(thread)
+    {
+        this->init();
     }
 
     PeriodicTask::~PeriodicTask()
@@ -72,17 +100,14 @@ namespace ORO_CoreLib
 
     bool PeriodicTask::start()
     {
-        if ( isRunning() ) return false;
+        if ( isRunning() || !_thread->isRunning() ) return false;
 
-        if (runner != 0)
-            inError = !runner->initialize();
-        else
-            inError = !initialize();
+        inError = !this->initialize();
 
-        if ( !inError )
-            running = taskAdd();
-        else
-            Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
+        if ( !inError && _timer )
+            running = _timer->taskAdd( this );
+//         else
+//             Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
 
         return running;
     }
@@ -91,25 +116,21 @@ namespace ORO_CoreLib
     {
         if ( !isRunning() ) return false;
 
-        doStop();
-        
-        return true;
+        return doStop();
     }
 
-    void PeriodicTask::doStop()
+    bool PeriodicTask::doStop()
     {
         ORO_OS::MutexTryLock locker(stop_lock);
         if ( !locker.isSuccessful() )
-            return; // stopping is in progress
+            return true; // stopping is in progress
 
-        taskRemove();
-
-        running = false;
-
-        if (runner != 0)
-            runner->finalize();
-        else
-            finalize();
+        if ( _timer->taskRemove( this ) ) {
+            running = false;
+            this->finalize();
+            return true;
+        }
+        return false;
     }
 
     bool PeriodicTask::isRunning() const
@@ -119,18 +140,28 @@ namespace ORO_CoreLib
 
     Seconds PeriodicTask::periodGet() const
     {
-        return Seconds(per_ns) / (1000.0*1000.0*1000.0);
+        return nsecs_to_Seconds( per_ns );
     }
 
-    void PeriodicTask::doStep()
-    {
-        if ( running )
-        {
-            if (runner != 0)
-                runner->step();
-            else
-                step();
-        }
+    bool PeriodicTask::initialize() { 
+        if (runner != 0)
+            return runner->initialize();
+        else
+            return true;
     }
+        
+    void PeriodicTask::step()
+    {
+        // overload this method to avoid running runner.
+        if (runner != 0)
+            runner->step();
+    }
+
+    void PeriodicTask::finalize() {
+        if (runner != 0)
+            runner->finalize();
+    }
+
+    TaskThreadInterface* PeriodicTask::thread() const { return _thread; }
 
 }

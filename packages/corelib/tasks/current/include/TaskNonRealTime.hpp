@@ -28,7 +28,6 @@
 #ifndef TASKNONREALTIME_HPP
 #define TASKNONREALTIME_HPP
 
-#include "NonRealTimeThread.hpp"
 #include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
@@ -62,18 +61,6 @@ namespace ORO_CoreLib
          */
         virtual  ~TaskNonRealTime();
                                  
-    protected:
-        virtual bool taskAdd();
-
-        virtual void taskRemove(); 
-
-        virtual TaskThreadInterface* thread() const { return cproc; }
-
-        /**
-         * The NonRealTimeThread used for scheduling this task
-         */
-        NonRealTimeThread* cproc;
-
     };
 
 }

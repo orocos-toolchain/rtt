@@ -38,95 +38,56 @@ namespace ORO_CoreLib
     TaskExecution::TaskExecution(int priority, const std::string& name, double periodicity)
         : TaskThreadInterface( priority, name, periodicity)
     {
+//         clocks.reserve( MAX_TASK_TIMERS );
     }
 
     TaskExecution::~TaskExecution()
     {
         // make sure the thread does not run when we start deleting clocks...
         this->stop();
-#if OROSEM_CORELIB_TASKS_DYNAMIC_REG
-        // cleanup tasks.
-        for (std::list<TimerItem>::iterator itl= clocks.begin(); itl != clocks.end(); ++itl)
-            if ( itl->owner )
-                delete ( itl->timer );
-#endif
+        // cleanup all timers :
+        TimerList::iterator itl;
+        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
+            delete *itl; 
     }
 
     void TaskExecution::step()
     {
-        std::list<TimerItem>::iterator itl;
-        MutexLock locker(lock);
-        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            if ( itl->timer )  // We do not remove our timers at runtime.
-                itl->timer->tick();
+        TimerList::iterator itl;
+        {
+            // This critical section can be 'removed' if we
+            // clocks.reserve() enough elements.
+            // now it is needed as the thread is running while timerAdd() is called.
+            MutexLock locker(lock);
+            for (itl = clocks.begin(); itl != clocks.end(); ++itl)
+                (*itl)->tick();
+        }
         // Execute event completion handlers :
         EventProcessor::step();
     }        
 
-    void TaskExecution::timerAdd( TaskTimer* ei)
-    {
-        doTimerAdd( ei, false);
+    TaskTimerInterface* TaskExecution::timerGet( Seconds period ) const {
+        for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
+            if ( (*it)->periodGet() == Seconds_to_nsecs(period) )
+                return *it;
+        //Logger::log() << Logger::Debug << "Failed to find Timer in "<< this->taskNameGet()<<" : "<< period << Logger::endl;
+
+        return 0;
     }
 
-    void TaskExecution::doTimerAdd( TaskTimer* ev, bool myTimer)
+    bool TaskExecution::timerAdd( TaskTimerInterface* t)
     {
+//         if ( clocks.size() == MAX_TASK_TIMERS ) {
+//                 Logger::log() << Logger::Critical << "TaskExecution: Could not add Timer with period_ns: "<< t->periodGet() <<" in thread :"<< this->taskNameGet() <<Logger::nl;
+//                 Logger::log() << Logger::Critical << "  Advice : increase MAX_TASK_TIMERS ( current value : " << TaskExecution::MAX_TASK_TIMERS <<" )." << Logger::endl;
+//             return false;
         secs s;
         nsecs ns;
         periodGet(s,ns);
-        ev->triggerPeriodSet( secs_to_nsecs(s) + ns );
+        t->triggerSet( secs_to_nsecs(s) + ns );
         MutexLock locker(lock);
-        clocks.push_back( TimerItem(ev, myTimer) );
-    }
-
-    void TaskExecution::timerRemove( TaskTimer* ev)
-    {
-        std::list<TimerItem>::iterator itl;
-        MutexLock locker(lock);
-        itl = std::find_if(clocks.begin(), clocks.end(), bind2nd( TimerItem::Locator(), ev ) );
-        if (itl != clocks.end() )
-            *itl = 0;
-        //            clocks.erase(itl);
-    }
-
-    bool TaskExecution::taskAdd( PeriodicTask* t, const nsecs n )
-    {
-        { 
-            // scoped mutexlock with the for loop
-            std::list<TimerItem>::iterator itl;
-            MutexLock locker(lock);
-            for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-                if ( itl->timer && itl->timer->periodGet() == n )
-                    {
-                        Logger::log() << Logger::Debug << "Found TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
-                        return itl->timer->addTask( t );
-                    }
-        }
-#if OROSEM_CORELIB_TASKS_DYNAMIC_REG
-        Logger::log() << Logger::Debug << "Added new TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
-        Logger::log() << Logger::Debug << " in thread " << this->taskNameGet() << Logger::endl;
-        /**
-         * Create the timer when not existing.
-         */
-        TaskTimer* ep = new TaskTimer( Seconds(n)/NSECS_IN_SECS );
-        ep->addTask(t);
-
-        doTimerAdd(ep, true);  // my timer.
-
+        clocks.push_back( t );
         return true;
-#else
-        Logger::log() << Logger::Critical << "Did not find a TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
-        return false;
-#endif
     }
 
-    void TaskExecution::taskRemove( PeriodicTask* t )
-    {
-        // this is doing it the hard way.
-        std::list<TimerItem>::iterator itl;
-        MutexLock locker(lock);
-        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            if ( itl->timer )
-                itl->timer->removeTask(t);
-    }
-        
 }

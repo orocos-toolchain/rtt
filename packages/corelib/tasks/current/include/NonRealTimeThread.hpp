@@ -29,13 +29,10 @@
 #ifndef NONREALTIMETHREAD_HPP
 #define NONREALTIMETHREAD_HPP
 
-#include "os/Mutex.hpp"
-#include "os/PeriodicThread.hpp"
 #include "TaskExecution.hpp"
 
 namespace ORO_CoreLib
 {
-    class TaskNonRealTime;
 
     /**
      * It is used to run periodically TaskNonRealTime instances, which
@@ -59,21 +56,6 @@ namespace ORO_CoreLib
          */
         static bool Release();
 
-        /**
-         * Add a TaskNonRealTime which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( TaskNonRealTime* t, const nsecs n );
-
-        /**
-         * Remove a TaskNonPreemptible from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( TaskNonRealTime* t );
-
         protected:
 
         /**
@@ -88,10 +70,6 @@ namespace ORO_CoreLib
         static NonRealTimeThread* cp;
 
         virtual ~NonRealTimeThread();
-
-        virtual void step();
-
-        ORO_OS::Mutex qLock;
 
     };
 }

@@ -29,7 +29,6 @@
 #ifndef TASKSIMULATION_HPP
 #define TASKSIMULATION_HPP
 
-#include "SimulationThread.hpp"
 #include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
@@ -64,18 +63,6 @@ namespace ORO_CoreLib
          */
         virtual  ~TaskSimulation();
                                  
-    protected:
-        virtual bool taskAdd();
-
-        virtual void taskRemove(); 
-
-        virtual TaskThreadInterface* thread() const { return simt; }
-
-        /**
-         * The SimulationThread used for scheduling this task
-         */
-        SimulationThread* simt;
-
     };
 
 }

@@ -28,7 +28,6 @@
 #ifndef TASKNONPREEMPTIBLE_HPP
 #define TASKNONPREEMPTIBLE_HPP
 
-#include "ZeroTimeThread.hpp"
 #include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
@@ -63,18 +62,6 @@ namespace ORO_CoreLib
          */
         virtual  ~TaskNonPreemptible();
                                  
-    protected:
-        virtual bool taskAdd();
-
-        virtual void taskRemove(); 
-
-        virtual TaskThreadInterface* thread() const { return ztt; }
-
-        /**
-         * The ZeroTimeThread used for scheduling this task
-         */
-        ZeroTimeThread* ztt;
-
     };
 
 }

@@ -1,34 +1,9 @@
-/***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  EventPeriodic.cxx 
-
-                        EventPeriodic.cxx -  description
-                           -------------------
-    begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
 #include "corelib/TaskTimer.hpp"
-#include "corelib/PeriodicTask.hpp"
 #include <os/MutexLock.hpp>
 #include <cmath>
 #include <algorithm>
+#include "corelib/PeriodicTask.hpp"
+
 
 #include <iostream>
 using namespace std;
@@ -37,7 +12,7 @@ namespace ORO_CoreLib
 {
     using std::find_if;
 
-    TaskTimer::TaskTimer( Seconds average_period, Seconds trigger_period )
+    TaskTimerSequencer::TaskTimerSequencer( Seconds average_period, Seconds trigger_period )
         : avPeriod( nsecs(rint(average_period * NSECS_IN_SECS)) ), 
           trigPeriod( nsecs(rint(trigger_period * NSECS_IN_SECS)) ),
           total_added(0), turn(0), reset_f_iter(false), in_tick(false)
@@ -45,24 +20,24 @@ namespace ORO_CoreLib
         if (trigger_period == 0 )
             trigPeriod = nsecs(rint(average_period * NSECS_IN_SECS));
         // resize list if needed
-        triggerPeriodSet( trigPeriod );
+        triggerSet( trigPeriod );
 
         // list contains MAX_TASKS items.
         f_iter = sortedList.begin();
     }
 
-    TaskTimer::TaskTimer( unsigned int divider)
+    TaskTimerSequencer::TaskTimerSequencer( unsigned int divider)
         : avPeriod(divider), trigPeriod(1),
           total_added(0), turn(0),
           reset_f_iter(false), in_tick(false)
     {
         // resize list if needed
-        triggerPeriodSet(trigPeriod);
+        triggerSet(trigPeriod);
 
         f_iter = sortedList.begin();
     }
         
-    void TaskTimer::tick()
+    void TaskTimerSequencer::tick()
     {
         ORO_OS::MutexLock locker(mut);
         //cout <<"tick"<<endl;
@@ -75,7 +50,7 @@ namespace ORO_CoreLib
             {
                 if (f_iter->task != 0) 
                     {
-                        f_iter->task->doStep();
+                        f_iter->task->step();
                     }
                 if (reset_f_iter) 
                     {
@@ -95,7 +70,7 @@ namespace ORO_CoreLib
         in_tick = false;
     }
 
-    bool TaskTimer::addTask( PeriodicTask* task )
+    bool TaskTimerSequencer::taskAdd( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
@@ -116,13 +91,13 @@ namespace ORO_CoreLib
         return true;
     }
 
-    void TaskTimer::removeTask( PeriodicTask* task )
+    bool TaskTimerSequencer::taskRemove( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
         itl = find_if(sortedList.begin(), sortedList.end(), bind2nd( CMP(), task) );
         if (itl == sortedList.end())
-            return;
+            return false;
         // Detection of self removal (recursive mutex) :
         // move f_iter one back to previous node.
         // on return in tick(), f_iter will be incremented again
@@ -147,9 +122,10 @@ namespace ORO_CoreLib
         sortedList.sort( PrioritySort() );
 
         update();
+        return true;
     }
 
-    void TaskTimer::update()
+    void TaskTimerSequencer::update()
     {
         // numbering of turns
         std::list<ListItem>::iterator itl = sortedList.begin();
@@ -162,12 +138,17 @@ namespace ORO_CoreLib
             }
     }
 
-    nsecs TaskTimer::periodGet()
+    nsecs TaskTimerSequencer::periodGet() const
     {
         return avPeriod;
     }
 
-    void TaskTimer::triggerPeriodSet(nsecs n)
+    nsecs TaskTimerSequencer::triggerGet() const
+    {
+        return trigPeriod;
+    }
+
+    void TaskTimerSequencer::triggerSet(nsecs n)
     {
         trigPeriod = n;
 

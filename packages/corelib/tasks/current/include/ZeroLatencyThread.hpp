@@ -63,20 +63,6 @@ namespace ORO_CoreLib
          */
         virtual ~ZeroLatencyThread();
 
-        /**
-         * Add a TaskPreemptible which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( TaskPreemptible* t, const nsecs n );
-
-        /**
-         * Remove a TaskPreemptible from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( TaskPreemptible* t );
     protected:
 
         /**

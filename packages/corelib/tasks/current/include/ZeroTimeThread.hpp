@@ -62,20 +62,6 @@ namespace ORO_CoreLib
          */
         static bool Release();
 
-        /**
-         * Add a TaskNonPreemptible which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( TaskNonPreemptible* t, const nsecs n );
-
-        /**
-         * Remove a TaskNonPreemptible from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( TaskNonPreemptible* t );
     protected:
 
         /**

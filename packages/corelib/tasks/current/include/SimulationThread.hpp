@@ -65,21 +65,6 @@ namespace ORO_CoreLib
          */
         virtual ~SimulationThread();
 
-        /**
-         * Add a TaskSimulation which is handled each n nanoseconds
-         * 
-         * @param t The task to handle each n nanoseconds
-         * @param n handle every n nanoseconds
-         */
-        bool taskAdd( TaskSimulation* t, const nsecs n );
-
-        /**
-         * Remove a TaskSimulation from handleing
-         *
-         * @post <t> is no longer handled by this thread
-         */
-        void taskRemove( TaskSimulation* t );
-
     protected:
         bool initialize();
         void step();

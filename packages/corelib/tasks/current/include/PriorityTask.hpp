@@ -52,9 +52,8 @@ namespace ORO_CoreLib
          * Seconds
          */
         PriorityTask(Seconds period, RunnableInterface* r=0 )
-            :PeriodicTask(period, r)
+            :PeriodicTask(period, PriorityThread<Priority>::Instance(), r)
         {
-            pt = PriorityThread<Priority>::Instance();
         }
 
         /**
@@ -62,9 +61,8 @@ namespace ORO_CoreLib
          * <s> seconds and <ns> nanoseconds
          */
         PriorityTask(secs s, nsecs ns, RunnableInterface* r=0 )
-            :PeriodicTask(s, ns, r)
+            :PeriodicTask(s, ns, PriorityThread<Priority>::Instance(), r)
         {
-            pt = PriorityThread<Priority>::Instance();
         }
 
         /**
@@ -75,22 +73,6 @@ namespace ORO_CoreLib
             stop();
         }
                                  
-        virtual TaskThreadInterface* thread() { return pt; }
-    protected:
-        virtual bool taskAdd()
-        {
-            return pt->taskAdd(this, per_ns);
-        }
-
-        virtual void taskRemove()
-        {
-            pt->taskRemove(this);
-        }
-
-        /**
-         * The PriorityThread<Priority> used for scheduling this task
-         */
-        PriorityThread<Priority>* pt;
     };
 
 }

@@ -25,20 +25,19 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/TaskPreemptible.hpp"
+#include "corelib/ZeroLatencyThread.hpp"
 
 namespace ORO_CoreLib
 {
     
     TaskPreemptible::TaskPreemptible(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, r)
+        :PeriodicTask(period, ZeroLatencyThread::Instance(), r )
     {
-        zlt = ZeroLatencyThread::Instance();
     }
 
     TaskPreemptible::TaskPreemptible(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, r)
+        :PeriodicTask(sec, nsec, ZeroLatencyThread::Instance(), r)
     {
-        zlt = ZeroLatencyThread::Instance();
     }
 
     TaskPreemptible::~TaskPreemptible()
@@ -46,13 +45,4 @@ namespace ORO_CoreLib
         stop();
     }
 
-    bool TaskPreemptible::taskAdd()
-    {
-        return zlt->taskAdd(this, per_ns);
-    }
-
-    void TaskPreemptible::taskRemove()
-    {
-        zlt->taskRemove(this);
-    }
 }
