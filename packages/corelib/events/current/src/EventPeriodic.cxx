@@ -143,7 +143,7 @@ namespace ORO_CoreLib
     {
         trigPeriod = n;
 
-        relPeriod = long(avPeriod)/long(trigPeriod);
+        relPeriod = nsecs(avPeriod)/nsecs(trigPeriod);
         if (relPeriod == 0) relPeriod = 1;
 
         sortedList.resize(MAX_LISTENERS * relPeriod);
