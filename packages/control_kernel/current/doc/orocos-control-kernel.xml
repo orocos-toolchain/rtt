@@ -738,7 +738,7 @@
 		  <entry>bool updateProperties( const PropertyBag&amp; bag )</entry>
 		  <entry>The component can use the Properties found in the bag to
 		    update its own properties. The Extension got the Properties from
-		    a .cdl xml file.</entry>
+		    a CPF file.</entry>
 		  <entry>PropertyExtension</entry>
 		</row>
 	      </tbody>
