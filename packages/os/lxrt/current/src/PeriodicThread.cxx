@@ -168,7 +168,7 @@ namespace ORO_OS
         h = new ORO_CoreLib::Handle();
         stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
-        if ( !name.empty() && rt_get_adr(nam2num( name.c_str() ) == 0 ) )
+        if ( !name.empty() && rt_get_adr(nam2num( name.c_str() )) == 0 )
             taskNameSet(name.c_str());
         else
             num2nam(rt_get_name(0), taskName);
