@@ -2,7 +2,7 @@
 #include <fdi/SensorInterface.hpp>
 #include <fdi/AnalogInInterface.hpp>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     using namespace ORO_CoreLib;
 

@@ -24,7 +24,7 @@
 
 #include "DigitalInput.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_CoreLib;

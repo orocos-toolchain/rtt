@@ -21,7 +21,7 @@
 #include <device_interface/AnalogInInterface.hpp>
 #include <device_interface/SensorInterface.hpp>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     using namespace ORO_CoreLib;
     using namespace ORO_DeviceInterface;

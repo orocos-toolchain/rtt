@@ -29,7 +29,7 @@
 
 /* Forward declarations */
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     /**
      * A C++ wrapper for the APCI 2200 digital relay card.

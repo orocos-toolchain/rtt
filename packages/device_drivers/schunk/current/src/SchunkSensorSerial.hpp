@@ -30,7 +30,7 @@ extern "C"
 
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     // using namespace ORO_CoreLib;
     // SchunkSensorSerial is the SchunkSensorInterface for Serial Communication

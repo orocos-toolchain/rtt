@@ -40,7 +40,7 @@ extern "C"
 #endif
 
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   EncoderIncrementalACPI1710::EncoderIncrementalACPI1710( unsigned int encNr, 
 							  const std::string& name , 

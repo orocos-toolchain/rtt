@@ -32,7 +32,7 @@
 
 #include <string>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     /**
      * A class for reading a ssi module of the apci1710 card

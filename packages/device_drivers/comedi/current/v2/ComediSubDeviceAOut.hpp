@@ -25,7 +25,7 @@
 #include <device_interface/AnalogOutInterface.hpp>
 #include "ComediDevice.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
   using namespace ORO_CoreLib;

@@ -21,7 +21,7 @@ extern "C"
 }
 
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     SchunkSensor::SchunkSensor( unsigned int devmin, unsigned int subd, double pollperiod ) 

@@ -1,6 +1,6 @@
 #include "corelib/SwitchEndLimit.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
 };

@@ -18,7 +18,7 @@
 #include "device_drivers/DistanceSensor.hpp"
 
 using namespace ORO_CoreLib;
-using namespace CBDeviceDriver;
+using namespace ORO_DeviceDriver;
 
 
 DistanceSensor::DistanceSensor(AnalogInInterface<unsigned int> * a_in, 

@@ -32,7 +32,7 @@
 
 // EncoderAbsolute contains 1 ssiModule, 1 ssiModule contains 3 encoders.
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_CoreLib;

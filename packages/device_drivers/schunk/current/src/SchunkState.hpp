@@ -24,7 +24,7 @@
 //#include "SchunkDevice.hpp"
 #include "SchunkData.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     class SchunkDevice;

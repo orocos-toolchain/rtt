@@ -28,7 +28,7 @@
 //#include <device_interface/ActuatorInterface.hpp>
 #include <iostream>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 
 {
     using namespace ORO_CoreLib;

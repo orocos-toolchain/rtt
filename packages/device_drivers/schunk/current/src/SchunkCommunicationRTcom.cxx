@@ -4,7 +4,7 @@
 //#include <rtai.h>
 //#include <rtai_sched.h>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 
             public:
             SchunkCommunicationRTcom::SchunkCommunicationRTcom( Event* event )

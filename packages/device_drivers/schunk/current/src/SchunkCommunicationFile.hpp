@@ -35,7 +35,7 @@ extern "C"
 #include <stdio.h>
 }
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     class SchunkCommunicationFile : public SchunkCommunicationInterface

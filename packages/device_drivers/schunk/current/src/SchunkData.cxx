@@ -3,7 +3,7 @@
 
 #include "corelib/SchunkData.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     inline void SchunkData::setOverloaded( bool overload )

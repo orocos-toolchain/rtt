@@ -7,7 +7,7 @@
 #include <corelib/TaskNonPreemptible.hpp>
 #include "jr3dsp.h"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
 class JR3Sensor : public ORO_CoreLib::TaskNonPreemptible
@@ -48,6 +48,6 @@ private:
     ORO_OS::Mutex _readLock;
 };
 
-}; // namespace CBDeviceDriver
+}; // namespace ORO_DeviceDriver
 
 #endif   // JR3SENSOR_H

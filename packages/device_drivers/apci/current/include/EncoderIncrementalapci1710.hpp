@@ -49,7 +49,7 @@
 // typedef void apci1710_module_t;
 // #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   using namespace ORO_CoreLib;
     using namespace ORO_DeviceInterface;

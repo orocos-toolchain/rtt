@@ -30,7 +30,7 @@
 #include <device_interface/DigitalOutInterface.hpp>
 #include "ComediDevice.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   using namespace ORO_CoreLib;
   using namespace ORO_DeviceInterface;

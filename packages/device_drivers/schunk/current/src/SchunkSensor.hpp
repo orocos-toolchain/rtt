@@ -43,7 +43,7 @@ typedef struct comedi_t_struct comedi_t;
 
 
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_CoreLib;

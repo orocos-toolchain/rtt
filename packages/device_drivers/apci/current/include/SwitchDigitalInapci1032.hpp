@@ -30,7 +30,7 @@
 #include <corelib/ListenerRegistration.hpp>
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_DeviceInterface;

@@ -42,7 +42,7 @@ extern "C"{
  #endif
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
   /**

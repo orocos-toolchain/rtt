@@ -26,7 +26,7 @@
 
 #define RING_BUFFER_T_SIZE      256
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     class SchunkCommunicationRTcom : public SchunkCommunicationRTcomInterface,

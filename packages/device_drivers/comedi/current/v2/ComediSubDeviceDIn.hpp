@@ -5,7 +5,7 @@
 #include <device_interface/DigitalInInterface.hpp>
 #include "ComediDevice.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
   using namespace ORO_CoreLib;

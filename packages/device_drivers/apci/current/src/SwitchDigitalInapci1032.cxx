@@ -14,7 +14,7 @@ extern "C"
 }
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     SwitchDigitalInapci1032::SwitchDigitalInapci1032( const std::string& name ) :

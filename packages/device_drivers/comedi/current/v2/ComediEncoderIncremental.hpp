@@ -28,7 +28,7 @@
 #include "ComediDevice.hpp"
 #include <device_interface/EncoderIncremental.hpp>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   typedef double UnitType;  
   /**

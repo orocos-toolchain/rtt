@@ -11,7 +11,7 @@ extern "C"
 
 // TODO -> check flushInput
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     SchunkCommunicationFile::SchunkCommunicationFile()

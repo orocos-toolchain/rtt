@@ -6,9 +6,10 @@
  * but also logical devices like an Axis.
  *
  * Most Device Drivers have defined their own namespace again.
- * CBDeviceDriver stands for Component Based Device Driver.
+ * @see CAN
+ * @see Beckhoff
  *
  * The device drivers are documented in <a href="../../../orocos-device-drivers.html">
  * The Orocos Device Drivers Online Manual</a>
  */
-namespace ORO_CBDeviceDriver {}
+namespace ORO_DeviceDriver {}

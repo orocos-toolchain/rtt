@@ -17,7 +17,7 @@
 
 #include "ComediEncoderIncremental.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   ComediEncoderIncremental::ComediEncoderIncremental(ComediDevice * cd, 
 						     unsigned int subd, 

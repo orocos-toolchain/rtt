@@ -16,7 +16,7 @@ extern "C"
 }
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     RelayCardapci2200::RelayCardapci2200( const std::string& name )

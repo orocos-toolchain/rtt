@@ -30,7 +30,7 @@
 #include <os/rtstreams.hpp>
 #include <math.h>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_CoreLib;

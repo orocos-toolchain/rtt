@@ -24,7 +24,7 @@
 #include "SchunkState.hpp"
 #include "SchunkDevice.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     /**

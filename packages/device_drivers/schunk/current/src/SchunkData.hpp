@@ -26,7 +26,7 @@
 #include "SchunkDataReadInterface.hpp"
 #include "SchunkDataSetInterface.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     class SchunkData :

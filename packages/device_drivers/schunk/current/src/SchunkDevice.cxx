@@ -1,7 +1,7 @@
 
 #include "corelib/SchunkDevice.hpp"
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     SchunkDevice::SchunkDevice( SchunkCommunicationInterface *comm )

@@ -21,7 +21,7 @@
 #include "corelib/EncoderAbsolute.hpp"
 
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     const double PI = 3.14159265358979320;
 

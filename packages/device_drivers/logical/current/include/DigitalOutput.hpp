@@ -1,7 +1,7 @@
  
 #include <device_interface/DigitalOutInterface.hpp>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     using namespace ORO_DeviceInterface;

@@ -30,7 +30,7 @@
 #include "ComediDevice.hpp"
 #include <pkgconf/system.h>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
   using namespace ORO_CoreLib;

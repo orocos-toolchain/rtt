@@ -43,7 +43,7 @@
     }
 #endif
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     using std::endl;
     using ORO_CoreLib::HeartBeatGenerator;

@@ -23,7 +23,7 @@
 
 #include <os/cpp.hpp>
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
     class SchunkDataReadInterface

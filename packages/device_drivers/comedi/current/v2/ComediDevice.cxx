@@ -27,7 +27,7 @@ extern "C"
 #include <errno.h>
 }
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
   typedef unsigned int Data;
 

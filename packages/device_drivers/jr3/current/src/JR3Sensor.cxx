@@ -12,7 +12,7 @@
 #define CUTOFF_FREQUENCY_FILTER5   1.953
 #define CUTOFF_FREQUENCY_FILTER6   0.4883
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
 
 JR3Sensor::JR3Sensor(unsigned int DSP ) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6), _dsp(DSP)
@@ -166,4 +166,4 @@ void JR3Sensor::setSamplePeriod(float period)
     rt_std::cout << "JR3Sensor setSamplePeriod:" << _filterToReadFrom << rt_std::endl;
 };
 
-}; //namespace CBDeviceDriver
+}; //namespace ORO_DeviceDriver

@@ -21,7 +21,7 @@
 #ifndef SCHUNKCOMMUNICATIONINTERFACE_HPP
 #define SCHUNKCOMMUNICATIONINTERFACE_HPP
 
-namespace CBDeviceDriver
+namespace ORO_DeviceDriver
 {
     //using namespace ORO_CoreLib;
 
