@@ -6,5 +6,5 @@ cdl_package OROPKG_CORELIB_STATE {
 
     include_dir corelib
 
-    compile StateInterface.cxx
+    compile StateInterface.cxx StateContext.cxx
 }

@@ -7,14 +7,14 @@
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
  
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    ***************************************************************************
+    *                                                                         *
+    *   This program is free software; you can redistribute it and/or modify  *
+    *   it under the terms of the GNU General Public License as published by  *
+    *   the Free Software Foundation; either version 2 of the License, or     *
+    *   (at your option) any later version.                                   *
+    *                                                                         *
+    ***************************************************************************/
  
  
 #ifndef STATECONTEXT_HPP
@@ -32,7 +32,7 @@ namespace ORO_CoreLib
      * A StateContext keeps track of the current StateInterface and all
      * transitions from this StateInterface to another. One can request
      * a transition from one StateInterface to another which will fail
-     * or succeed depending on a prefiously set condition. 
+     * or succeed depending on a previously set condition. 
      *
      * By default, any state transition fails.
      *
@@ -40,22 +40,24 @@ namespace ORO_CoreLib
      *       from and to the current state is not disallowed in the 
      *       "from Any to X-State" case. The user should check herself with
      *       currentState() when it should not occur.
-     *       
+     *
+     * @note A more efficient implementation might be needed
+     *       for the case this->requestState( this->nextState() );
      */
     class StateContext
     {
-            typedef map< std::pair<StateInterface*, StateInterface*>, ConditionInterface*>
-            TransitionMap;
-            typedef map< StateInterface*, ConditionInterface*>
-            TransitionAnyMap;
+        typedef map< StateInterface*, std::pair<ConditionInterface*, StateInterface*> >
+        TransitionMap;
+        typedef map< StateInterface*, ConditionInterface*>
+        TransitionAnyMap;
 
-        public:
+    public:
 
         /**
          * Create a StateContext instance with an empty initial state.
          */
-            StateContext() : current( 0 )
-            {}
+        StateContext();
+
         /**
          * Create a StateContext instance with a given initial state.
          *
@@ -63,10 +65,7 @@ namespace ORO_CoreLib
          *        The first state which must be entered.
          * @post The StateContext is in state <s_init>
          */
-            StateContext( StateInterface* s_init ) : current( 0 )
-            {
-                enterState( s_init );
-            }
+        StateContext( StateInterface* s_init );
 
         /**
          * Enter the initial state of the StateContext.
@@ -75,132 +74,95 @@ namespace ORO_CoreLib
          *        The first state of the StateContext.
          * @post  The StateContext has entered and handled <s_init>.
          */
-            void initState( StateInterface* s_init )
-            {
-                if ( current == 0 )
-                    enterState( s_init );
-            }
+        void initState( StateInterface* s_init );
 
-            /**
-             * Request a state transition to a new state.
-             * If the transition is not set by transitionSet(), acquiering
-             * the state will fail.
-             * 
-             * @param  s_n
-             *         The state to change to
-             * @return true 
-             *          if the transition is successfull
-             *         false
-             *          if the transition is not allowed
-             */
-            bool requestState( StateInterface * s_n )
-            {
-                // to current state
+        /**
+         * Search from the current state a candidate next state.
+         * If none is found, the current state is taken.
+         * Next, handle the resulting state.
+         *
+         * This call is equivalent to
+         * this->requestState( this->nextState() ), but more
+         * efficient.
+         *
+         * @return The current state.
+         */
+        StateInterface* requestNextState();
 
-                if ( current == s_n )
-                {
-                    current->handle();
-                    return true;
-                }
+        /**
+         * Search from the current state a candidate next state.
+         * If none is found, the current state is returned.
+         */
+        StateInterface* nextState();
 
-                // between 2 specific states
-                TransitionMap::iterator it = stateMap.find( std::make_pair( current, s_n ) );
+        /**
+         * Request a state transition to a new state.
+         * If the transition is not set by transitionSet(), acquiering
+         * the state will fail.
+         * 
+         * @param  s_n
+         *         The state to change to
+         * @return true 
+         *          if the transition is successfull
+         *         false
+         *          if the transition is not allowed
+         */
+        bool requestState( StateInterface * s_n );
 
-                if ( it != stateMap.end()
-                        && ( *it ).second->evaluate() )
-                {
-                    leaveState( current );
-                    enterState( s_n );
-                    return true;
-                }
+        /**
+         * Express a possible transition from one state to another under
+         * a certain condition.
+         *
+         * @param from
+         *        The state which should be left
+         * @param to
+         *        The state which should be entered
+         * @param cnd
+         *        The Condition under which the transition may succeed
+         * @post  All transitions from <from> to <to> will succeed under
+         *        condition <cnd>
+         */
+        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd );
 
-                // between any state and a specific state
-                TransitionAnyMap::iterator itA = stateAnyMap.find( s_n );
+        /**
+         * Express a possible transition from any state (including <target> )
+         * to a specified one  under a certain condition.
+         *
+         * @param target
+         *        The state which can be entered
+         * @param cnd
+         *        The Condition under which the transition may succeed
+         * @post  All transitions to <target> will succeed under
+         *        condition <cnd>
+         */
+        void transitionSet( StateInterface* target, ConditionInterface* cnd );
 
-                if ( itA != stateAnyMap.end()
-                        && ( *itA ).second->evaluate() )
-                {
-                    leaveState( current );
-                    enterState( s_n );
-                    return true;
-                }
+        /**
+         * Retrieve the current state of the context
+         */
+        StateInterface* currentState();
 
-                return false;
-            }
+    private:
+        void leaveState( StateInterface* s );
 
-            /**
-             * Express a possible transition from one state to another under
-             * a certain condition.
-             *
-             * @param from
-             *        The state which should be left
-             * @param to
-             *        The state which should be entered
-             * @param cnd
-             *        The Condition under which the transition may succeed
-             * @post  All transitions from <from> to <to> will succeed under
-             *        condition <cnd>
-             */
-            void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd )
-            {
-                stateMap[ std::make_pair( from, to ) ] = cnd;
-            }
+        void enterState( StateInterface* s );
 
-            /**
-             * Express a possible transition from any state (including <target> )
-             * to a specified one  under a certain condition.
-             *
-             * @param target
-             *        The state which can be entered
-             * @param cnd
-             *        The Condition under which the transition may succeed
-             * @post  All transitions to <target> will succeed under
-             *        condition <cnd>
-             */
-            void transitionSet( StateInterface* target, ConditionInterface* cnd )
-            {
-                stateAnyMap[ target ] = cnd;
-            }
+        /**
+         * The current state the Context is in
+         */
+        StateInterface* current;
 
-            /**
-             * Retrieve the current state of the context
-             */
-            StateInterface* currentState()
-            {
-                return current;
-            }
+        /**
+         * A map keeping track of all conditional transitions
+         * between two states
+         */
+        TransitionMap stateMap;
 
-        private:
-            void leaveState( StateInterface* s )
-            {
-                s->onExit();
-                current = 0;
-            }
-
-            void enterState( StateInterface* s )
-            {
-                s->onEntry();
-                current = s;
-
-                current->handle();
-            }
-
-            /**
-             * The current state the Context is in
-             */
-            StateInterface* current;
-
-            /**
-             * A map keeping track of all conditional transitions
-             * between two states
-             */
-            TransitionMap stateMap;
-
-            /**
-             * A map keeping track of all conditional transitions
-             * to a specific state
-             */
-            TransitionAnyMap stateAnyMap;
+        /**
+         * A map keeping track of all conditional transitions
+         * to a specific state
+         */
+        TransitionAnyMap stateAnyMap;
     };
 }
 
