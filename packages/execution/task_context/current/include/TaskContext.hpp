@@ -46,11 +46,12 @@ namespace ORO_Execution
      *
      * When a peer is added, the (script) programs of this task can access
      * the peer using peername.methodname() or peername.objname.methodname().
-     * Peer commands should always be executed by the peer's Processor.
+     * The commands of this TaskContext must be executed by this TaskContext's
+     * Processor (which is what scripts take care of). The methods and datasources
+     * can be queried by any peer TaskContext at any time.
      *
-     * It is assumed that the RunnableInterface of the TaskInterface
-     * instance of this TaskContext invokes
-     * the Processor::doStep() method in its RunnableInterface::step() method.
+     * The Processor::step() must be invoked seperately from a PeriodicTask or other TaskInterface
+     * implementation, as long as that Task is not started, this TaskContext will not accept any commands.
      * In this way, the user of this class can determine himself at which
      * point and at which moment remote commands and local programs can be executed.
      */
