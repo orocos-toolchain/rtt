@@ -93,6 +93,7 @@ namespace ORO_ControlKernel
     bool                                                                  _properties_read;
     ORO_ControlKernel::Property< double >                                 _mass;    
     ORO_ControlKernel::Property< ORO_Geometry::Vector >                   _center_gravity;
+    ORO_ControlKernel::Property< ORO_Geometry::Wrench >                   _offset;
 
   }; // class
 

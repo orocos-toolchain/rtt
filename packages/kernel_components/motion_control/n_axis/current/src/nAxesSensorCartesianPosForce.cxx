@@ -48,7 +48,8 @@ namespace ORO_ControlKernel
       _MP_FS(MP_FS),
       _properties_read(false),
       _mass("mass", "Mass attached to force sensor"),
-      _center_gravity("center_gravity", "Center of gravity from mass attached to force sensor")
+      _center_gravity("center_gravity", "Center of gravity from mass attached to force sensor"),
+      _offset("offset", "Offset on measured values of force sensor")
   {
     assert(_axes.size() == num_axes);
 
@@ -76,6 +77,9 @@ namespace ORO_ControlKernel
 
   void nAxesSensorCartesianPosForce::calculate()
   {
+    // substract offset
+    _force -= _offset;
+
     // forwarard kinematics
     ORO_CoreLib::Double6D temp;
     for (unsigned int i=0; i<_num_axes; i++)
@@ -137,7 +141,8 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _mass) ||
-	!composeProperty(bag, _center_gravity )){
+	!composeProperty(bag, _center_gravity ) ||
+	!composeProperty(bag, _offset) ){
       cerr << "nAxesSensorCartesianPosForce::updateProperties() failed" << endl;
       return false;
     }
