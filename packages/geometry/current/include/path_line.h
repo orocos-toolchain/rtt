@@ -63,6 +63,11 @@ class Path_Line : public Path
 			RotationalInterpolation* orient,
 			double eqradius,
 			bool _aggregate=true);
+		Path_Line(const Frame& F_base_start,
+			const Twist& twist_in_base,
+			RotationalInterpolation* orient,
+			double eqradius,
+			bool _aggregate=true);
 		double LengthToS(double length);
 		virtual double PathLength();
 		virtual Frame Pos(double s) const;

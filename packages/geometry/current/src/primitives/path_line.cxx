@@ -53,6 +53,44 @@ Path_Line::Path_Line(const Frame& startpos,
 
    }
 
+Path_Line::Path_Line(const Frame& startpos,
+		   const Twist& starttwist,
+		   RotationalInterpolation* _orient,
+		   double _eqradius,
+           bool _aggregate ):
+			   orient(_orient),
+			   V_base_start(startpos.p),
+			   V_base_end(startpos.p + starttwist.vel),
+			   eqradius(_eqradius),
+               aggregate(_aggregate)
+   {	
+       // startframe and starttwist are expressed in Wo.
+       // after 1 time unit, startframe has translated over starttwist.vel
+       // and rotated over starttwist.rot.Norm() (both vectors can be zero)
+       // Thus the frame on the path after 1 time unit is defined by
+       // startframe.Integrate(starttwist, 1);
+	   	V_start_end = V_base_end - V_base_start;
+	   	double dist = V_start_end.Normalize(); // distance traveled during 1 time unit
+		orient->SetStartEnd(startpos.M, (startpos*Frame( Rotation::Rot(starttwist.rot, starttwist.rot.Norm() ), starttwist.vel )).M);
+		double alpha = orient->Angle();        // rotation during 1 time unit
+
+		// See what has the slowest eq. motion, and adapt 
+		// the other to this slower motion
+		// use eqradius to transform between rot and transl.
+		if (alpha*eqradius > dist) {
+			// rotational_interpolation is the limitation
+			pathlength = alpha*eqradius;
+			scalerot   = 1/eqradius;
+			scalelin   = dist/pathlength;
+		} else {
+			// translation is the limitation
+			pathlength = dist;
+			scalerot   = alpha/pathlength;
+			scalelin   = 1;
+		}
+
+   }
+
 double Path_Line::LengthToS(double length) {
 	return length/scalelin;
 }
@@ -78,13 +116,23 @@ Path_Line::~Path_Line() {
 }
 
 Path* Path_Line::Clone() {
-	return new Path_Line(
-		Frame(orient->Pos(0),V_base_start),
-		Frame(orient->Pos(pathlength*scalerot),V_base_end),
-		orient->Clone(),
-		eqradius, 
-        aggregate
-	);
+    if (aggregate )
+        return new Path_Line(
+                             Frame(orient->Pos(0),V_base_start),
+                             Frame(orient->Pos(pathlength*scalerot),V_base_end),
+                             orient->Clone(),
+                             eqradius, 
+                             true
+                             );
+    // else :
+    return new Path_Line(
+                         Frame(orient->Pos(0),V_base_start),
+                         Frame(orient->Pos(pathlength*scalerot),V_base_end),
+                         orient,
+                         eqradius, 
+                         false
+                         );
+    
 }
 
 #if OROINT_OS_STDIOSTREAM
