@@ -29,6 +29,7 @@
 
 #pragma implementation
 #include "corelib/TaskEventDriven.hpp"
+#include "corelib/TimerThread.hpp"
 #include <boost/bind.hpp>
 
 
