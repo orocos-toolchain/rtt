@@ -25,6 +25,13 @@
 #include <corelib/Property.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
 #include <corelib/PropertyBag.hpp>
+
+#include <pkgconf/system.h>
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateCommandFactory.hpp"
+#endif
+
     
 namespace ORO_ControlKernel
 {
@@ -33,6 +40,9 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_DeviceInterface;
     using namespace ORO_DeviceDriver;
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+    using namespace ORO_Execution;
+#endif
 
     struct AxisPositionGeneratorSetPoint
         : public ServedTypes< std::vector<double> >
@@ -82,12 +92,20 @@ namespace ORO_ControlKernel
             return Base::SetPoint::dObj()->Get("ChannelValues", setp_dObj );
         }
 
+        void componentShutdown()
+        {
+            cout << "Shutdown APG" <<endl;
+        }
+
         bool componentStartup()
         {
+            cout << "Startup APG"<<endl;
             // we need the inputs for the stand-still setpoint
             if ( Base::Input::dObj()->Get("ChannelMeasurements", inp_dObj ) )
                 {
-                    setpoints = inp_dObj->Get();
+                    inputs = inp_dObj->Get();
+                    setpoints = inputs;
+                    push();
                     return true;
                 }
             return false;
@@ -102,7 +120,12 @@ namespace ORO_ControlKernel
         {
             for (typename std::vector<AxisInfo>::iterator it = axes.begin(); it != axes.end(); ++it)
                 if ( it->traj_ptr )
-                    setpoints[ it - axes.begin() ] = it->traj_ptr->Pos( hbg->secondsSince( it->timestamp ) );
+                    {
+                        double t =  hbg->secondsSince( it->timestamp );
+                        setpoints[ it - axes.begin() ] = it->traj_ptr->Pos( t );
+                        if ( it->traj_ptr->Duration() < t )
+                            it->traj_ptr = 0; //indicates we are ready for next command.
+                    }
         }
 
         virtual void push()      
@@ -121,17 +144,23 @@ namespace ORO_ControlKernel
          * 
          * @return true if so.
          */
-        bool isReady( int nr )
+        bool isReady( int nr ) const
         {
-            --nr;
             if ( nr < 1 || nr > num_axes )
                 return false;
+            --nr;
             //ready if no current traj or current traj done.
             if (axes[nr].traj_ptr == 0 )
                 return true;
-            if (axes[nr]->traj_ptr->Duration() < hbg->secondsSince(axes[nr]->timestamp) )
-                return true;
             return false;
+        }
+
+        double position( int nr ) const
+        {
+            if ( nr < 1 || nr > num_axes )
+                return 0;
+            --nr;
+            return setpoints[nr];
         }
 
         /** 
@@ -149,13 +178,28 @@ namespace ORO_ControlKernel
                 return false;
 
             --axis_nr;
-            axes[axis_nr].traj_ptr = 0;
-            axes[axis_nr].traj_planner->SetMax( velocity, maxAcc );
-            axes[axis_nr].SetProfile( inputs[axis_nr], position );
+            axes[axis_nr].traj_planner.SetMax( velocity, maxAcc );
+            axes[axis_nr].traj_planner.SetProfile( setpoints[axis_nr], position );
             axes[axis_nr].timestamp = hbg->ticksGet();
-            axes[axis_nr].traj_ptr  = axes[axis_nr].traj_planner;
+            axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
             return true;
-        } 
+        }
+
+        /**
+         * @brief Wait for a specified time (in seconds).
+         */
+        bool wait( int axis_nr, double time )
+        {
+            if ( isReady(axis_nr) )
+                return false;
+            --axis_nr;
+            axes[axis_nr].traj_planner.SetMax( 0 , maxAcc );
+            axes[axis_nr].traj_planner.SetProfileDuration( setpoints[axis_nr], setpoints[axis_nr], time );
+            axes[axis_nr].timestamp = hbg->ticksGet();
+            axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
+            return true;
+        }
+        
         // @}
 
         virtual bool updateProperties( const PropertyBag& bag )
@@ -166,7 +210,48 @@ namespace ORO_ControlKernel
         }
             
     protected:
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 
+        CommandFactoryInterface* createCommandFactory()
+        {
+            TemplateCommandFactory< AxisPositionGenerator<Base> >* ret =
+                newCommandFactory( this );
+            ret->add( "move",
+                      command( &AxisPositionGenerator<Base>::move,
+                               &AxisPositionGenerator<Base>::isReady,
+                               "Move an axis to a position with a given velocity",
+                               "AxisNr","The Axis number (starting from 1).",
+                               "Velocity","The maximum velocity of the movement.",
+                               "Position","The end position of the movement."
+                               ) ); 
+            ret->add( "wait",
+                      command( &AxisPositionGenerator<Base>::wait,
+                               &AxisPositionGenerator<Base>::isReady,
+                               "Hold the axis still for an amount of time",
+                               "AxisNr","The Axis number (starting from 1).",
+                               "Time", "The time to wait, in seconds."
+                               ) ); 
+            return ret;
+        }
+
+        DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< AxisPositionGenerator<Base> >* ret =
+                newDataSourceFactory( this );
+            ret->add( "position",
+                      data( &AxisPositionGenerator<Base>::position,
+                            "Get the axis position",
+                            "AxisNr","The Axis number (starting from 1)."
+                               ) ); 
+            ret->add( "isReady",
+                      data( &AxisPositionGenerator<Base>::isReady,
+                            "Inspect if an Axis is ready for a next command.",
+                            "AxisNr","The Axis number (starting from 1)."
+                            ) ); 
+            return ret;
+        }
+#endif
+            
         Property<double> maxVel;
         Property<double> maxAcc;
         int num_axes;
