@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	orocos.xsl \
         rtai-24.1.11.patch \
 	$(XMLDOCS) \
+	$(DOCBOOKS) \
 	$(DIAS) \
 	$(HTMLDOCS) \
 	$(PDFDOCS)
@@ -13,19 +14,20 @@ EXTRA_DIST = \
 # but i make them for the website
 
 XMLDOCS=orocos-overview.xml   orocos-installation.xml
-	applications-doc.xml  deep-shallow-api.xml      \
-	geometry-doc.xml       motion-api.xml \
-	components-doc.xml    interpolation-api.xml     \
-	decoupling.xml        general-dynamics-doc.xml  \
-	kindyn-doc.xml       robot-api.xml 
+
+DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
+	geometry-doc.sgml       motion-api.sgml \
+	components-doc.sgml    interpolation-api.sgml     \
+	decoupling.sgml        general-dynamics-doc.sgml  \
+	kindyn-doc.sgml       robot-api.sgml 
 
 DIAS=orocos-core.dia properties.dia \
 	simple-overview.dia  heartbeat-tree.dia
 
-HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS))
-PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))
-PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))
-TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
+HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS))
+PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))
+PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))  #$(patsubst %.sgml,%.ps,$(DOCBOOKS))
+TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS)) # $(patsubst %.sgml,%.txt,$(DOCBOOKS))
 
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
@@ -53,6 +55,15 @@ doctxt: $(TXTDOCS)
 pngimages: $(EPSIMGS)
 
 epsimages: $(PNGIMGS)
+
+.sgml.html:
+	docbook2html -u $<
+
+.sgml.ps:
+	docbook2ps $<
+
+.sgml.pdf:
+	docbook2pdf $<
 
 .xml.html:
 	$(XMLPROCESSOR)  /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
