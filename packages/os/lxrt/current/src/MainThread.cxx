@@ -68,7 +68,11 @@ namespace ORO_OS
         param.sched_priority = 99;
         sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_LXRT_SCHEDTYPE, &param);
         //init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
+
         unsigned long name = nam2num("MAINTHREAD");
+        while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
+            ++name;
+
         if( !(rt_task = rt_task_init(name, 10,0,0)) ) // priority, stack, msg_size
             {
 	      std::cerr << "Cannot rt_task_init() MainThread." << std::endl;

@@ -170,8 +170,12 @@ namespace ORO_OS
 #endif
         if ( !name.empty() && rt_get_adr(nam2num( name.c_str() )) == 0 )
             taskNameSet(name.c_str());
-        else
-            num2nam(rt_get_name(0), taskName);
+        else {
+            unsigned long nname = nam2num( name.c_str() );
+            while ( rt_get_adr( nname ) != 0 ) // check for existing 'NAME'
+                ++nname;
+            num2nam( nname, taskName); // set taskName to new name
+        }
 
         confDone = rt_sem_init( rt_get_name(0), 0 );
 
