@@ -30,7 +30,6 @@
 #ifndef RELAYCARDAPCI12200_HPP
 #define RELAYCARDAPCI12200_HPP
 
-#include <device_interface/SwitchReadableInterface.hpp>
 #include <device_interface/DigitalOutInterface.hpp>
 
 #include <pkgconf/device_drivers_apci.h>
