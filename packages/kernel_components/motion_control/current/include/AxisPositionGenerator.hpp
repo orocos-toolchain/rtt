@@ -77,18 +77,26 @@ namespace ORO_ControlKernel
      * @brief An Axis Position Generator. Axes are numbered from 1 .. N.
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base = Generator< Expects<AxisPositionGeneratorInput>,
+    class AxisPositionGenerator 
+        : public Generator< Expects<AxisPositionGeneratorInput>,
                                       Expects<NoModel>,
                                       Expects<NoCommand>,
                                       Writes<AxisPositionGeneratorSetPoint>,
-                                      MakeExtension<PropertyExtension,KernelBaseFunction
+                                      MakeAspect<PropertyExtension,KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                     ,ExecutionExtension
 #endif
-                                                    >::CommonBase >  >
-    class AxisPositionGenerator 
-        : public Base
+                                                    >::Result >
     {
+        typedef Generator< Expects<AxisPositionGeneratorInput>,
+                           Expects<NoModel>,
+                           Expects<NoCommand>,
+                           Writes<AxisPositionGeneratorSetPoint>,
+                           MakeAspect<PropertyExtension,KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                      ,ExecutionExtension
+#endif
+                                      >::Result > Base;
         typedef std::vector<double> ChannelType;
         struct AxisInfo
         {
@@ -144,7 +152,7 @@ namespace ORO_ControlKernel
 
         virtual void calculate()
         {
-            for (typename std::vector<AxisInfo>::iterator it = axes.begin(); it != axes.end(); ++it)
+            for ( std::vector<AxisInfo>::iterator it = axes.begin(); it != axes.end(); ++it)
                 if ( it->traj_ptr )
                     {
                         double t =  hbg->secondsSince( it->timestamp );
@@ -240,19 +248,19 @@ namespace ORO_ControlKernel
 
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< AxisPositionGenerator<Base> >* ret =
+            TemplateCommandFactory< AxisPositionGenerator >* ret =
                 newCommandFactory( this );
             ret->add( "move",
-                      command( &AxisPositionGenerator<Base>::move,
-                               &AxisPositionGenerator<Base>::isReady,
+                      command( &AxisPositionGenerator::move,
+                               &AxisPositionGenerator::isReady,
                                "Move an axis to a position with a given velocity",
                                "AxisNr","The Axis number (starting from 1).",
                                "Velocity","The maximum velocity of the movement.",
                                "Position","The end position of the movement."
                                ) ); 
             ret->add( "wait",
-                      command( &AxisPositionGenerator<Base>::wait,
-                               &AxisPositionGenerator<Base>::isReady,
+                      command( &AxisPositionGenerator::wait,
+                               &AxisPositionGenerator::isReady,
                                "Hold the axis still for an amount of time",
                                "AxisNr","The Axis number (starting from 1).",
                                "Time", "The time to wait, in seconds."
@@ -262,15 +270,15 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< AxisPositionGenerator<Base> >* ret =
+            TemplateDataSourceFactory< AxisPositionGenerator >* ret =
                 newDataSourceFactory( this );
             ret->add( "position",
-                      data( &AxisPositionGenerator<Base>::position,
+                      data( &AxisPositionGenerator::position,
                             "Get the axis position",
                             "AxisNr","The Axis number (starting from 1)."
                                ) ); 
             ret->add( "isReady",
-                      data( &AxisPositionGenerator<Base>::isReady,
+                      data( &AxisPositionGenerator::isReady,
                             "Inspect if an Axis is ready for a next command.",
                             "AxisNr","The Axis number (starting from 1)."
                             ) ); 
@@ -290,7 +298,6 @@ namespace ORO_ControlKernel
         HeartBeatGenerator* hbg;
     };
 
-    extern template class AxisPositionGenerator<>;
 }
 
 #endif

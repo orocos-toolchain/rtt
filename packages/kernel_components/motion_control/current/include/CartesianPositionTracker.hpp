@@ -129,7 +129,8 @@ namespace ORO_ControlKernel
      *
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base = Generator< Expects<CPTSensorInput>,
+    class CartesianPositionTracker
+        : public Generator< Expects<CPTSensorInput>,
                                       Expects<CPTModel>,
                                       Expects<CPTCommand>,
                                       Writes<CPTSetPoint>,
@@ -137,24 +138,18 @@ namespace ORO_ControlKernel
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                     , ExecutionExtension
 #endif
-                                                    >::CommonBase > >
-    class CartesianPositionTracker
-        : public Base
+                                                    >::CommonBase >
     {
+        typedef Generator< Expects<CPTSensorInput>,
+                           Expects<CPTModel>,
+                           Expects<CPTCommand>,
+                           Writes<CPTSetPoint>,
+                           MakeAspect<PropertyExtension,KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                      , ExecutionExtension
+#endif
+                                      >::Result > Base;
     public:
-        typedef CPTCommand       CommandDataObject;
-        typedef CPTSensorInput   InputDataObject;
-        typedef CPTModel         ModelDataObject;
-        typedef CPTSetPoint      SetPointDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::SetPointType SetPointType;
-        typedef typename Base::InputType InputType;
-        typedef typename Base::CommandType CommandType;
-        typedef typename Base::ModelType ModelType;
-            
         /**
          * Constructor.
          */
@@ -422,13 +417,13 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< CartesianPositionTracker<Base> >* ret =
+            TemplateDataSourceFactory< CartesianPositionTracker >* ret =
                 newDataSourceFactory( this );
             ret->add( "position", 
-                      data( &CartesianPositionTracker<Base>::position, "The current position "
+                      data( &CartesianPositionTracker::position, "The current position "
                             "of the robot." ) );
             ret->add( "time",
-                      data( &CartesianPositionTracker<Base>::time, 
+                      data( &CartesianPositionTracker::time, 
                             "The current time in the movement "
                             ) );
             return ret;
@@ -439,18 +434,18 @@ namespace ORO_ControlKernel
 
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< CartesianPositionTracker<Base> >* ret =
+            TemplateCommandFactory< CartesianPositionTracker >* ret =
                 newCommandFactory( this );
             ret->add( "trackPositionInput",
-                      command( &CartesianPositionTracker<Base>::trackPositionInput,
-                               &CartesianPositionTracker<Base>::isTracking,
+                      command( &CartesianPositionTracker::trackPositionInput,
+                               &CartesianPositionTracker::isTracking,
                                "Track the Frame in the Input DataObject",
                                "FrameName","The DataObject Name of the Frame to track",
                                "TimeName", "The DataObject Name of the duration of one setpoint."
                                ) ); 
             ret->add( "trackTaskFrameInput",
-                      command( &CartesianPositionTracker<Base>::trackTaskFrameInput,
-                               &CartesianPositionTracker<Base>::isTaskTracking,
+                      command( &CartesianPositionTracker::trackTaskFrameInput,
+                               &CartesianPositionTracker::isTaskTracking,
                                "Use the Task Frame in the Input DataObject",
                                "FrameName","The DataObject Name of the Task Frame"
                                ) ); 
@@ -517,7 +512,6 @@ namespace ORO_ControlKernel
         Property<std::string> interpol_prop;
     };
 
-    extern template class CartesianPositionTracker<>;
 }
 #endif
 

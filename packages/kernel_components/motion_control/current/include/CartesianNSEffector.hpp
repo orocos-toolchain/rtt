@@ -68,18 +68,13 @@ namespace ORO_ControlKernel
      * @brief A Cartesian Effector, can be used by the CartesianSensor for 'simulation' purposes.
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base = Effector< Expects<CartesianNSDriveOutput>,
-                                     MakeExtension<KernelBaseFunction, ReportingExtension>::CommonBase > >
     class CartesianEffector
-        : public Base
+        : public Effector< Expects<CartesianNSDriveOutput>,
+                                     MakeAspect<KernelBaseFunction, ReportingExtension>::Result >
     {
+        typedef Effector< Expects<CartesianNSDriveOutput>,
+                          MakeAspect<KernelBaseFunction, ReportingExtension>::Result > Base;
     public:
-        typedef CartesianNSDriveOutput OutputDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::OutputType OutputType;
             
         CartesianEffector(SimulatorInterface* _sim) 
             :  Base("CartesianEffector"),endTwist("Twist","The End Effector twist"), sim(_sim)
@@ -129,7 +124,6 @@ namespace ORO_ControlKernel
         DataObjectInterface<Double6D>* qdot_DObj;
     };
 
-    extern template class CartesianEffector<>;
 }
 #endif
 

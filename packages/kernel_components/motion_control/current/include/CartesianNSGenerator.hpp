@@ -78,7 +78,8 @@ namespace ORO_ControlKernel
      * @brief An advanced Cartesian Trajectory Generator.
      * @ingroup kcomps kcomp_generator
      */
-    template <class Base = Generator<Expects<CartesianNSSensorInput>,
+    class CartesianGenerator 
+        : public Generator<Expects<CartesianNSSensorInput>,
                                      Expects<CartesianNSModel>,
                                      Expects<CartesianNSCommand>,
                                      Writes<CartesianNSSetPoint>,
@@ -86,24 +87,18 @@ namespace ORO_ControlKernel
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                    , ExecutionExtension
 #endif
-                                                   >::CommonBase > >
-    class CartesianGenerator 
-        : public Base
+                                                   >::Result >
     {
+        typedef Generator<Expects<CartesianNSSensorInput>,
+                          Expects<CartesianNSModel>,
+                          Expects<CartesianNSCommand>,
+                          Writes<CartesianNSSetPoint>,
+                          MakeAspect<PropertyExtension, KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                     , ExecutionExtension
+#endif
+                                     >::Result > Base;
     public:
-        typedef CartesianNSCommand CommandDataObject;
-        typedef CartesianNSSetPoint SetPointDataObject;
-        typedef CartesianNSSensorInput InputDataObject;
-        typedef CartesianNSModel ModelDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::SetPointType SetPointType;
-        typedef typename Base::InputType InputType;
-        typedef typename Base::CommandType CommandType;
-        typedef typename Base::ModelType ModelType;
-            
         /**
          * Constructor.
          */
@@ -406,20 +401,20 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
+            TemplateDataSourceFactory< CartesianGenerator >* ret =
                 newDataSourceFactory( this );
             ret->add( "currentPosition", 
-                      data( &CartesianGenerator<Base>::currentPosition, "The current position "
+                      data( &CartesianGenerator::currentPosition, "The current position "
                             "of the robot." ) );
             ret->add( "targetPosition", 
-                      data( &CartesianGenerator<Base>::targetPosition, "The target position "
+                      data( &CartesianGenerator::targetPosition, "The target position "
                             "of the robot." ) );
             ret->add( "currentTime",
-                      data( &CartesianGenerator<Base>::currentTime, 
+                      data( &CartesianGenerator::currentTime, 
                             "The current time in the movement "
                             ) );
             ret->add( "trajectoryDone",
-                      data( &CartesianGenerator<Base>::trajectoryDone,
+                      data( &CartesianGenerator::trajectoryDone,
                             "The state of the current trajectory "
                             ) ); 
             return ret;
@@ -430,30 +425,30 @@ namespace ORO_ControlKernel
 
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< CartesianGenerator<Base> >* ret =
+            TemplateCommandFactory< CartesianGenerator >* ret =
                 newCommandFactory( this );
             ret->add( "moveTo", 
-                      command( &CartesianGenerator<Base>::moveTo,
-                               &CartesianGenerator<Base>::trajectoryDone,
+                      command( &CartesianGenerator::moveTo,
+                               &CartesianGenerator::trajectoryDone,
                                "Move the robot to a position",
                                "Frame", "The Frame to move to.",
                                "Time", "The time the movement must take.") );
             ret->add( "wait", 
-                      command( &CartesianGenerator<Base>::wait,
-                               &CartesianGenerator<Base>::trajectoryDone,
+                      command( &CartesianGenerator::wait,
+                               &CartesianGenerator::trajectoryDone,
                                "Wait on a certain position",
                                "Time", "The time that must be waited.") );
             ret->add( "home", 
-                      command( &CartesianGenerator<Base>::home,
-                               &CartesianGenerator<Base>::isHomed,
+                      command( &CartesianGenerator::home,
+                               &CartesianGenerator::isHomed,
                                "Move the robot to its home position" ) );
             ret->add( "setHomeFrame", 
-                      command( &CartesianGenerator<Base>::setHomeFrame,
-                               &CartesianGenerator<Base>::true_gen,
+                      command( &CartesianGenerator::setHomeFrame,
+                               &CartesianGenerator::true_gen,
                             "The home position of the robot.", "Frame", "Homing End Frame" ) );
             ret->add( "loadTrajectory",
-                      command( &CartesianGenerator<Base>::loadTrajectory,
-                               &CartesianGenerator<Base>::isTrajectoryLoaded,
+                      command( &CartesianGenerator::loadTrajectory,
+                               &CartesianGenerator::isTrajectoryLoaded,
                                "Load a new trajectory." ) );
             return ret;
         }
@@ -485,7 +480,6 @@ namespace ORO_ControlKernel
         Property<std::string> interpol_prop;
     };
 
-    extern template class CartesianGenerator<>;
 }
 #endif
 

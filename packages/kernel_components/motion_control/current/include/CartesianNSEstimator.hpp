@@ -71,21 +71,15 @@ namespace ORO_ControlKernel
      * joint positions.
      * @ingroup kcomps kcomp_estimator
      */
-    template <class Base = Estimator<Expects<CartesianNSSensorInput>,
-                                     Writes<CartesianNSModel>,
-                                     MakeExtension<PropertyExtension, KernelBaseFunction>::CommonBase > >
     class CartesianEstimator
-        : public Base
+        : public Estimator<Expects<CartesianNSSensorInput>,
+                           Writes<CartesianNSModel>,
+                           MakeAspect<PropertyExtension, KernelBaseFunction>::Result >
     {
+        typedef Estimator<Expects<CartesianNSSensorInput>,
+            Writes<CartesianNSModel>,
+            MakeAspect<PropertyExtension, KernelBaseFunction>::Result > Base;
     public:
-        typedef CartesianNSSensorInput InputDataObject;
-        typedef CartesianNSModel ModelDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::InputType InputType;
-        typedef typename Base::ModelType ModelType;
             
         CartesianEstimator() 
             : Base("CartesianEstimator"),
@@ -183,7 +177,6 @@ namespace ORO_ControlKernel
         DataObjectInterface<Frame>* endframe_DObj;
     };
 
-    extern template class CartesianEstimator<>;
 }
 #endif
 

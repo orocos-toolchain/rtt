@@ -70,27 +70,19 @@ namespace ORO_ControlKernel
      * to joint positions and does the control on joint level.
      * @ingroup kcomps kcomp_controller
      */
-    template <class Base = Controller<Expects<CartesianNSSensorInput>,
-                                      Expects<CartesianNSModel>,
-                                      Expects<CartesianNSSetPoint>,
-                                      Writes<CartesianNSDriveOutput>,
-                                      MakeExtension<PropertyExtension, KernelBaseFunction, ReportingExtension>::CommonBase > >
     class CartesianController
-        : public Base
+        : public Controller<Expects<CartesianNSSensorInput>,
+                            Expects<CartesianNSModel>,
+                            Expects<CartesianNSSetPoint>,
+                            Writes<CartesianNSDriveOutput>,
+                            MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
     {
+        typedef Controller<Expects<CartesianNSSensorInput>,
+                           Expects<CartesianNSModel>,
+                           Expects<CartesianNSSetPoint>,
+                           Writes<CartesianNSDriveOutput>,
+                           MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
     public:
-        typedef CartesianNSDriveOutput OutputDataObject;
-        typedef CartesianNSSetPoint SetPointDataObject;
-        typedef CartesianNSSensorInput InputDataObject;
-        typedef CartesianNSModel ModelDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::SetPointType SetPointType;
-        typedef typename Base::InputType InputType;
-        typedef typename Base::ModelType ModelType;
-        typedef typename Base::OutputType OutputType;
             
         CartesianController(KinematicsInterface* k) 
             :  Base("CartesianController"),gain("Gain","The error gain.",0),
@@ -192,7 +184,6 @@ namespace ORO_ControlKernel
         DataObjectInterface<Double6D>* jvel_DObj;
     };
 
-    extern template class CartesianController<>;
 }
 #endif
 

@@ -67,17 +67,13 @@ namespace ORO_ControlKernel
      * @brief A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
      * @ingroup kcomps kcomp_sensor
      */
-    template <class Base = Sensor< Writes<CartesianNSSensorInput>,
-                                   MakeAspect<ReportingExtension, KernelBaseFunction>::Result > >
     class CartesianSensor
-        : public Base
+        : public Sensor< Writes<CartesianNSSensorInput>,
+                         MakeAspect<ReportingExtension, KernelBaseFunction>::Result >
     {
+        typedef Sensor< Writes<CartesianNSSensorInput>,
+            MakeAspect<ReportingExtension, KernelBaseFunction>::Result > Base;
     public:
-        typedef CartesianNSSensorInput InputDataObject;
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::InputType InputType;
             
         CartesianSensor(SimulatorInterface* _sim = 0) 
             : Base("CartesianSensor"),
@@ -135,7 +131,6 @@ namespace ORO_ControlKernel
         SimulatorInterface* sim;
     };
 
-    extern template class CartesianSensor<>;
 }
 #endif
 
