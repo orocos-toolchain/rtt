@@ -1,3 +1,4 @@
+#if 0
 /***************************************************************************
   tag: Peter Soetens  Tue May 4 16:49:13 CEST 2004  EndPositionDetector.hpp 
 
@@ -30,6 +31,7 @@
 
 #include <device_interface/DigitalInInterface.hpp>
 #include <device_interface/SensorInterface.hpp>
+#include <limits>
 
 namespace ORO_DeviceDriver
 {
@@ -61,7 +63,8 @@ namespace ORO_DeviceDriver
          * @param _maxpos The maximal limit, if omitted, the _sensor->maxMeasurement() is taken.
          */
         EndLimitDetector( ORO_DeviceInterface::SensorInterface<double>* _sensor,
-                             double _minpos = 1.0/0.0, double _maxpos = 1.0/0.0 )
+                          double _minpos = -std::numeric_limits<double>::max(),
+                          double _maxpos = std::numeric_limits<double>::max() )
             : sens(_sensor), minpos(_minpos), maxpos(_maxpos)
         {}
 
@@ -99,4 +102,5 @@ namespace ORO_DeviceDriver
 
 }
 
+#endif
 #endif

@@ -28,6 +28,7 @@
 #ifndef FAKEENCODER_HPP
 #define FAKEENCODER_HPP
 
+#include <device_interface/EncoderInterface.hpp>
 
 namespace ORO_DeviceDriver
 {

@@ -28,23 +28,33 @@
 #ifndef ANALOGSENSOR_HPP
 #define ANALOGSENSOR_HPP
 
-namespace ORO_DeviceInterface
+#include "AnalogInput.hpp"
+#include <device_interface/SensorInterface.hpp>
+
+namespace ORO_DeviceDriver
 {
 
+    using ORO_DeviceInterface::SensorInterface;
+
     /**
-     * A sensor which reads its data from an analog channel.
+     * A SensorInterface which reads its data from an analog channel.
      */
     class AnalogSensor
         : public SensorInterface<double>
     {
+        AnalogInput<unsigned int>* ain;
+        double min_meas;
+        double max_meas;
+        double scale;
+        double offset;
         public:
         /**
          * Create an AnalogSensor, connected to an AnalogInput, with a minimal and maximal
          * measurement value. A scale and offset are used to convert the analog signal
          * to the measurement.
          */
-        AnalogSensor(AnalogInput<unsigned int>* ain, double _min_meas, double _max_meas, double _scale=1.0, double _offset=0.0)
-            : analogDevice( an_out ),
+        AnalogSensor(AnalogInput<unsigned int>* _ain, double _min_meas, double _max_meas, double _scale=1.0, double _offset=0.0)
+            : ain( _ain ),
               min_meas(_min_meas), max_meas(_max_meas),
               scale(_scale), offset( _offset )
         {}

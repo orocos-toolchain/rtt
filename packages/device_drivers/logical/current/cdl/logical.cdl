@@ -5,13 +5,11 @@ cdl_package OROPKG_DEVICE_DRIVERS_LOGICAL {
 This package has some 'common' implementations
 for addressing single channels of devices. For
 example, a DigitalInput channel, an Axis or
-a Drive. They interface with Device Interface
+an AnalogDrive. They interface with Device Interface
 classes."
     parent OROPKG_DEVICE_DRIVERS
 
     include_dir device_drivers
 
-    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx DistanceSensor.cxx
-    #compile SwitchEndLimit.cxx
-
+    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx
 }
