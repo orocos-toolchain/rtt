@@ -427,12 +427,12 @@ namespace ORO_Execution
       {
       };
 
-    std::vector<std::string> dataNames() const
+    std::vector<std::string> getNames() const
       {
         return _TF::getNames();
       };
 
-    bool hasData( const std::string& name ) const
+    bool hasName( const std::string& name ) const
       {
         return _TF::hasName( name );
       };
