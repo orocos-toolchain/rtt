@@ -89,22 +89,9 @@ str_BoardInformations *BoardInformations;
 
 struct file_operations APCI1032_fops =
     {
-        NULL,  /* llseek */
-        NULL,  /* read */
-        NULL,  /* write */
-        NULL,  /* readdir */
-        NULL,  /* poll */
-        APCI1032_ioctl,
-        NULL,         /* mmap */
-        APCI1032_open,
-        NULL,  /* flush */
-        APCI1032_release,
-        NULL,  /* fsync */
-        NULL,     /* fasync */
-        NULL,     /* check_media_change */
-        NULL,     /* revalidate */
-        NULL     /* lock */
-
+        .ioctl = APCI1032_ioctl,
+        .open = APCI1032_open,
+        .release = APCI1032_release
     };
 
 int APCI1032_open ( struct inode *inode, struct file *filp )
