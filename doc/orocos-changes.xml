@@ -422,6 +422,13 @@
 	  queue.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The On Request (requestState) Mode for State Machines has been made available in scripting
+	  commands, allowing to request a transition to a particular state by command, in contrast
+	  to the automatic state changes.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="interfacing">
@@ -435,6 +442,14 @@
 	  server process (ie remote control kernel). Furthermore,
 	  line number tracking in State Machines has been
 	  implemented.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  KernelClient version 0.5 has split of the Control Kernel server
+	  to the orocos control_framework package. KernelClient now
+	  builds completely independent of an Orocos installation 
+	  directory.
 	</para>
       </listitem>
     </itemizedlist>
