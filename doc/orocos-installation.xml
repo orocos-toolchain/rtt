@@ -206,9 +206,10 @@
 	  </screen> 
 	  If this does not
 	  work for you, consult the <ulink
-	    url="http://sources.redhat.com/ecos/ct2.html"> eCos
-	    Configuration Tool Version 2</ulink> webpage. For source
-	  and binary downloads.
+	    url="http://www.ecoscentric.com/devzone/configtool.shtml"> eCos
+	    Configuration Tool Version 2</ulink> webpage for source
+	  and binary downloads or consult the <ulink url="http://www.orocos.org/download.php#ecostools">
+	    Orocos download page</ulink>.
 	</para>
 	<note>
 	  <para>The graphical configtool program uses the libwxgtk2.4 library</para>
@@ -280,7 +281,14 @@ make configure_packages
 make all_packages
 	      </screen>
 	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
-	    </para></listitem>
+	    </para>
+	      <note>
+		<para>
+		  The <command>./bootstrap.sh</command> script must be rerun after
+		  you installed missing libraries (like boost, xerces,...).
+		</para>
+	      </note>
+	  </listitem>
 	</orderedlist>
 	<para>
 	  Each package will have been installed in a
