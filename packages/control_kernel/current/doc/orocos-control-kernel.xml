@@ -1875,15 +1875,21 @@ typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MySec
       <title>The ExecutionExtension</title>
       <para>
 	The ExecutionExtension allows the kernel to execute Orocos
-	program scripts synchronous with the kernel loop. For convenience,
+	program scripts and Orocos state descriptions
+	synchronous with the kernel loop. For convenience,
 	it contains a program parser which will read an std::istream 
-	object to obtain the program text.
+	object to obtain the program text and another one to obtain
+	the state graph.
       </para>
       <para>
 	The Orocos execution package contains two manuals which
 	explain the behaviour of the Program Processor and the Program
-	Parser. The Processor is a state machine which executes the
-	code presented in a hierarchical tree of ProgramNodes (which
+	and State 
+	Parsers. The Processor is a state machine which
+	keeps track of the user defined system states and transitions,
+	which define the states of the machine. On top of this it
+	executes a
+	program presented in a hierarchical tree of ProgramNodes (which
 	may contain loops). A ProgramNode contains about one script
 	command with its termination conditions. The Parser converts a
 	program script to a tree of ProgramNodes, which is called a
@@ -1894,8 +1900,22 @@ typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MySec
       <sect2>
 	<title>Configuring the ExecutionExtension</title>
 	<para>
-	  The ExecutionExtension can not be configured yet.
-	  It receives all its data from the program script.</para>
+	  The ExecutionExtension has the following xml options :
+	  <programlisting>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
+&lt;!-- Properties of the ExecutionExtension --&gt;
+&lt;properties&gt;
+    &lt;simple name="Interval"  type="short"&gt;
+	&lt;description&gt;The relative interval of executing a program step.&lt;/description&gt;
+	&lt;value&gt;1&lt;/value&gt;
+    &lt;/simple&gt;
+&lt;/properties&gt;
+	  </programlisting>
+	  For example, if Interval is 5, every fifth cycle, the
+	  extension will run one statement of the program and recheck
+	  the State transitions.
+	</para>
       </sect2>
     </sect1>
   </chapter>
