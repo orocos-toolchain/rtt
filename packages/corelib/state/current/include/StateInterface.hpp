@@ -32,6 +32,8 @@
 #pragma interface
 #endif
 
+#include <string>
+
 namespace ORO_CoreLib
 {
     /**
@@ -78,6 +80,11 @@ namespace ORO_CoreLib
          * each time the state is left.
          */
         virtual void onExit() = 0;
+
+        /**
+         * @brief Get the name of this state.
+         */
+        virtual const std::string& getName() const = 0;
     };
 }
 
