@@ -9,7 +9,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-corelib.html
 
-docpdf: pngimages orocos-corelib.pdf
+docpdf: epsimages orocos-corelib.pdf
 
 docps: epsimages orocos-corelib.ps
 
@@ -25,7 +25,7 @@ epsimages: events.eps execution-collaboration.eps execution-sequence.eps  io-ove
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc --stringparam fop.extensions 1 /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
 
 %.ps:%.fo
 	fop -fo $< -ps $@

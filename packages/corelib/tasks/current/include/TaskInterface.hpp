@@ -1,7 +1,7 @@
 /***************************************************************************
   tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  RunnableTaskInterface.hpp 
 
-                        RunnableTaskInterface.hpp -  description
+                        TaskInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -17,24 +17,24 @@
  ***************************************************************************/
  
  
-#ifndef RUNNABLETASKINTERFACE_HPP
-#define RUNNABLETASKINTERFACE_HPP
+#ifndef TASK_INTERFACE_HPP
+#define TASK_INTERFACE_HPP
 
 #include "Time.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief Interface to start/stop a task.
+     * @brief Interface to start/stop and query a Task.
      *
-     * A RunnableTaskInterface provides the control methods
+     * A TaskInterface provides the control methods
      * for tasks. They can be started, stopped
      * and be queried for their state and period.
      *
      * It is complementary to the RunnableInterface, which
      * defines the methods for the functionality.
      */
-    class RunnableTaskInterface
+    class TaskInterface
     {
     public:
 

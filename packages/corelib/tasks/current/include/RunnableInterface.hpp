@@ -17,18 +17,41 @@
  ***************************************************************************/
  
  
-#ifndef RUNNABLE_INTERFACE_TASKS_HPP
-#define RUNNABLE_INTERFACE_TASKS_HPP
+#ifndef CORELIB_RUNNABLE_INTERFACE_HPP
+#define CORELIB_RUNNABLE_INTERFACE_HPP
 
 #include "os/RunnableInterface.hpp"
+#include "TaskInterface.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * This is the same class as in ORO_OS.
-     * For convenience.
+     * This is the same class as in ORO_OS, but it adds
+     * Task specific semantics and sits in the ORO_CoreLib
+     * namespace. Applications should always use this class
+     * instead of the ORO_OS version.
      */
-    typedef ORO_OS::RunnableInterface RunnableInterface;
+    class RunnableInterface
+        : public ORO_OS::RunnableInterface
+    {
+    public:
+        /**
+         * Query for the task this interface is run in.
+         * Zero denotes that no task is present to run
+         * it, and hence no detailed information is available.
+         *
+         * @return The Task which runs this RunnableInterface.
+         */
+        virtual TaskInterface* getTask() const = 0;
+
+        /**
+         * Set the task this interface is run in.
+         * A Zero means no task is running it.
+         *
+         * @param task The TaskInterface running this interface.
+         */
+        virtual void setTask( TaskInterface* task ) = 0;
+    };
 }
 
 #endif

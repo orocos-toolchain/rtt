@@ -164,6 +164,14 @@ given in the general &orocos; overview document.
 	deadline guarantees.
 	  </para>
       <para>
+	For users needing to solve more complex control problems,
+	The PriorityThread and PriorityTask are provided with which you can create
+	an arbitrary number of threads with no more than one thread per priority
+	level. It needs a bit more setup than the standard Orocos threads, since
+	you still have to set the priority and start the thread. An example is
+	given below.
+      </para>
+      <para>
 	If you want to execute functionality in one of these threads, you need to 
 	create a Task of a certain type, depending on the thread type. The table
 	below summarises which Task type there is per thread.
@@ -194,39 +202,45 @@ given in the general &orocos; overview document.
 		<entry>NonRealTimeThread</entry>
 		<entry>TaskNonRealTime</entry>
 	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>PriorityThread< N ></entry>
+		<entry>PriorityTask< N ></entry>
+	      </row>
 	    </tbody>
 	  </tgroup>
 	</table>
       </para>
-	  <para>
-	    The high priority thread is the <classname>ZeroTimeThread</classname>. It will
-	    execute all <classname>TaskNonPreemptable</classname> Components synchronically.
-	    You can create your own not preemtable task by inheriting from this
-	    class. Its name is derived from the fact that some tasks need to be executed
-	    in an infinite small amount of time to work correctly. Control loops
-	    are an example of this. To come as close as possible to this (impossible)
-	    constraint, we make sure that the task is never preempted by another task and
-	    thus is executed 'atomically'.
-	  </para>
-	  <para>
-	    <figure><title>Execution collaboration diagram</title>
-	      <mediaobject>
-		<imageobject role="fo">
-		  <imagedata fileref="execution-collaboration.eps" format="EPS"/>
-		</imageobject>
-		<imageobject role="html">
-		  <imagedata fileref="execution-collaboration.png" format="PNG"/>
-		</imageobject>
-         	<textobject><phrase>Collaboration diagram</phrase></textobject>
-	    <caption><para>Internal call flow of task execution.</para>
-	    </caption>
-	    <!--
-		<caption><para>
-	      </para></caption>
-		-->
-	  </mediaobject>
-	</figure>
+      <example>
+	<title>Example Task Creation</title>
+	<para>
+	  This example shows how a task can be created. When it
+	  is started it will add itself to the correct thread.
+	</para>
+	<programlisting>
+#include "corelib/TaskNonPreemptible.hpp"
+#include "corelib/TaskPreemptible.hpp"
+#include "corelib/TaskNonRealTime.hpp"
+#include "corelib/PriorityTask.hpp"
+
+using namespace ORO_CoreLib;
+
+
+	</programlisting>
+      </example>
+      <para>
+	The high priority thread is the
+	<classname>ZeroTimeThread</classname>. It will execute all
+	<classname>TaskNonPreemptable</classname> Components
+	synchronically. You can create your own not preemtable task by
+	inheriting from this class. Its name is derived from the fact
+	that some tasks need to be executed in an infinite small
+	amount of time to work correctly. Control loops are an example
+	of this. To come as close as possible to this (impossible)
+	constraint, we make sure that the task is never preempted by
+	another task and thus is executed 'atomically'.
       </para>
+
 	  <para>
 	    <figure><title>Execution sequence diagram</title>
 	      <mediaobject>

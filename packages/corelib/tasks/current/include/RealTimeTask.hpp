@@ -26,19 +26,22 @@
 #include "Time.hpp"
 #include "TaskExecution.hpp"
 #include "EventPeriodic.hpp"
-#include "RunnableTaskInterface.hpp"
+#include "TaskInterface.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * A RealTimeTask is the general implementation of a Task
-     * which has realtime constraints. It will execute a RunnableTaskInterface.
-     * When this interface's method returns false, it will finalize() it in the
+     * @brief A RealTimeTask is the general implementation of a Task
+     * which has realtime, periodic constraints.
+     *
+     * It will execute a RunnableInterface, or the equivalent methods in
+     * it's own interface when none is given.
+     * When initialize() returns false, it will finalize() it in the
      * CompletionProcessor. If the RealTimeTask is normally stop()'ed, finalize()
      * is called in the calling thread of stop().
      */
     class RealTimeTask
-        : public RunnableTaskInterface
+        : public TaskInterface
     {
 	protected:
         struct Handler;
@@ -54,7 +57,7 @@ namespace ORO_CoreLib
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        RealTimeTask(Seconds period, ORO_OS::RunnableInterface* r=0 );
+        RealTimeTask(Seconds period, RunnableInterface* r=0 );
 
         /**
          * Create a RealTime Task with a given period which runs
@@ -67,7 +70,7 @@ namespace ORO_CoreLib
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        RealTimeTask(secs sec, nsecs nsec, ORO_OS::RunnableInterface* r=0 );
+        RealTimeTask(secs sec, nsecs nsec, RunnableInterface* r=0 );
 
         /**
          * Stops and terminates a RealTimeTask
@@ -81,7 +84,7 @@ namespace ORO_CoreLib
          *        The RunnableInterface to run exclusively.
          * @return true if succeeded, false otherwise
          */
-        virtual bool run( ORO_OS::RunnableInterface* r );
+        virtual bool run( RunnableInterface* r );
 
         virtual bool start();
 
@@ -109,6 +112,8 @@ namespace ORO_CoreLib
         
         virtual void finalize() {}
 
+        virtual TaskInterface* taskGet( ) { return this; };
+
         /**
          * Calls the runners or own step function
          */
@@ -135,7 +140,7 @@ namespace ORO_CoreLib
          * When runner != 0 it will be executed instead of
          * this instances initialize(), step() and finalize() functions
          */
-        ORO_OS::RunnableInterface* runner;
+        RunnableInterface* runner;
 
         /**
          * State info.

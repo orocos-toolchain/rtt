@@ -9,31 +9,41 @@
 namespace ORO_CoreLib
 {
     
-    RealTimeTask::RealTimeTask(Seconds period, ORO_OS::RunnableInterface* r )
+    RealTimeTask::RealTimeTask(Seconds period, RunnableInterface* r )
         :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep, this) ), taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
         runner(r), running(false), inError(false)
     {
+        if (runner)
+            runner->setTask(this);
         per_ns = nsecs( rint( period * secs_to_nsecs(1) ) );
     }
 
-    RealTimeTask::RealTimeTask(secs s, nsecs ns, ORO_OS::RunnableInterface* r )
+    RealTimeTask::RealTimeTask(secs s, nsecs ns, RunnableInterface* r )
         :evHandler( listener(&ORO_CoreLib::RealTimeTask::doStep,this) ), taskCompleter( completer(&ORO_CoreLib::RealTimeTask::doStop, this)), 
         runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
     {
+        if (runner)
+            runner->setTask(this);
     }
 
     RealTimeTask::~RealTimeTask()
     {
         stop();
+        if (runner)
+            runner->setTask(0);
         delete evHandler;
         delete taskCompleter;
     }
      
-    bool RealTimeTask::run( ORO_OS::RunnableInterface* r )
+    bool RealTimeTask::run( RunnableInterface* r )
     {
         if ( isRunning() )
             return false;
+        if (runner)
+            runner->setTask(0);
         runner = r;
+        if (runner)
+            runner->setTask(this);
         return true;
     }
 
