@@ -3,7 +3,7 @@
 #define CONFIGURATOR_HPP
 
 #include "ConfigurationInterface.hpp"
-#include "TaskNonRealtime.hpp"
+#include "TaskNonRealTime.hpp"
 #include "TaskPreemptible.hpp"
 #include "TaskNonPreemptible.hpp"
 #include "Time.hpp"
@@ -29,7 +29,7 @@ namespace ORO_CoreLib
          * @param period The period between each configuration step.
          */
         Configurator( double period )
-            :Base( period ), target(0)
+            :Base( period ), target(0), status (false)
         {
         }
 
@@ -40,18 +40,22 @@ namespace ORO_CoreLib
          *
          * @return true if the configuration finished, false otherwise.
          */
-        bool configure( ConfigurationInterface* _target )
+        bool configure( ConfigurationInterface* _target, Seconds _timeout = 0 )
         {
             target = _target;
+            HeartBeatGenerator::ticks timestamp = HeartBeatGenerator::Instance()->ticksGet();
             this->start();
 
-            while ( this->isRunning() )
+            while ( this->isRunning() && ( _timeout == 0 ||
+                                           HeartBeatGenerator::Instance()->secondsSince(timestamp) < _timeout ) )
                 {
-                    struct timespec tt = { 0, 1000*1000*10 };
+                    struct timespec tt;
+                    tt.tv_nsec=100*1000*1000; // 0.1 Hz
+                    tt.tv_sec =0;
                     nanosleep(&tt, 0);
                 }
                     
-            return target->isFinished();
+            return status;
         }
 
         /**
@@ -76,11 +80,17 @@ namespace ORO_CoreLib
 
         void finalize()
         {
+            status = target->isFinished();
             target->configCleanup();
         }
 
     protected:
         ConfigurationInterface* target;
+
+        /**
+         * Flag to save status of the target.
+         */
+        bool status;
     };
 
     /**
