@@ -29,6 +29,7 @@
 #define PI_PROPERTIES_TABLESERIALIZER
 
 #include <corelib/Property.hpp>
+#include <corelib/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
 namespace ORO_CoreLib

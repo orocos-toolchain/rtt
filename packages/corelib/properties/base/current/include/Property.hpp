@@ -224,15 +224,12 @@ namespace ORO_CoreLib
         private:
     };
 
-#ifdef HAVE_IOSTREAM
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
     {
-        // os << T( p );
         os << p.get();
         return os;
     }
-#endif
 
     extern template class Property<double>;
     extern template class Property<bool>;
@@ -244,6 +241,8 @@ namespace ORO_CoreLib
     extern template class Property<PropertyBag>;
 
 }
+
+#include "PropertyIntrospection.hpp"
 
 // By PS : these are confusing, thus removed.
 
