@@ -28,9 +28,9 @@
 
 namespace ORO_Execution
 {
-#warning "member data is not deleted"
   ConditionBoolDataSource::~ConditionBoolDataSource()
   {
+      // data is shared_ptr !
   }
 
   bool ConditionBoolDataSource::evaluate()
@@ -38,7 +38,6 @@ namespace ORO_Execution
     return data->get();
   }
 
-#warning "member data is not cloned"
   ConditionBoolDataSource* ConditionBoolDataSource::clone() const
   {
     return new ConditionBoolDataSource( data.get() );

@@ -89,7 +89,7 @@ namespace ORO_Execution
             ~MapDataSourceFactory();
 
             std::vector<std::string> getNames() const;
-            bool hasData( const std::string& s ) const;
+            bool hasMember( const std::string& s ) const;
             std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
             PropertyBag getArgumentSpec( const std::string& method ) const;
             DataSourceBase* create( const std::string& name, const PropertyBag& args ) const;
@@ -113,7 +113,7 @@ namespace ORO_Execution
             return mystd::keys( mmap );
         }
 
-        bool MapDataSourceFactory::hasData( const std::string& s ) const
+        bool MapDataSourceFactory::hasMember( const std::string& s ) const
         {
             return mmap.find( s ) != mmap.end();
         }

@@ -25,10 +25,15 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/DataSourceFactoryInterface.hpp"
+#include "execution/MethodFactoryInterface.hpp"
 
 namespace ORO_Execution
 {
   DataSourceFactoryInterface::~DataSourceFactoryInterface()
+  {
+  }
+
+  MethodFactoryInterface::~MethodFactoryInterface()
   {
   }
 }

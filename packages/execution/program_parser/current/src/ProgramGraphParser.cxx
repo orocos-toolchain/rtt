@@ -153,9 +153,9 @@ namespace ORO_Execution
 
     // a call statement: "do xxx <and y> <and...> until { terminationclauses }"
     callstatement = (
-                     (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ] )
+                     (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ]
                      |
-                     (str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")] )
+                     str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")] )
       >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
       >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
       ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];

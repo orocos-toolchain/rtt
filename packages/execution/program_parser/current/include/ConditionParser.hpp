@@ -48,7 +48,7 @@ namespace ORO_Execution
    */
   class ConditionParser
   {
-      DataSource<bool>* ds_bool;
+      DataSource<bool>::shared_ptr ds_bool;
 
     void seendonecondition();
     void seenexpression();

@@ -67,16 +67,12 @@ namespace ORO_Execution
 
   void ConditionParser::reset()
   {
+      // not strictly needed because its a smart_ptr
       ds_bool = 0;
   };
 
   ConditionParser::~ConditionParser()
   {
-    // if ret is non-zero, then we delete it..  The parser above us
-    // should have called reset to prevent this and the fact that it
-    // didn't probably indicates that a parse_exception was thrown
-    // somewhere..
-    delete ds_bool;
   };
 
   void ConditionParser::seenexpression()
@@ -103,7 +99,7 @@ namespace ORO_Execution
     ConditionInterface* ConditionParser::getParseResult()
       {
           // wrap the datasource in a ConditionBoolDataSource..
-          return new ConditionBoolDataSource( ds_bool );
+          return new ConditionBoolDataSource( ds_bool.get() );
       };
 
       /**
