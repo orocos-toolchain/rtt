@@ -1143,8 +1143,8 @@ this
   Argument 1 : State Name - State Name
     </screen>
     <para>
-      Not all TaskContexts have a implemented a 'this' interface,
-      It might be that it only has objects :
+      Not all TaskContexts have implemented a 'this' interface,
+      it might be that it only has objects :
     </para>
     <screen>
  In Task MyAxisKernel. Enter a command. (Status of previous command : none )
