@@ -42,9 +42,6 @@ class TasksTest : public CppUnit::TestFixture
     // Start - Stop Test :
     CPPUNIT_TEST( testStartStop );
 
-    // Configuration Test :
-    //CPPUNIT_TEST( testThreadConfig );
-
     // Runnable Interface Test :
     CPPUNIT_TEST( testRunnableInterface );
     
@@ -82,7 +79,6 @@ public:
     void testPause();
     void testStop();
 
-    void testThreadConfig();
     void testSelfRemove();
 
     void testTimer();

@@ -158,38 +158,6 @@ TasksTest::tearDown()
     delete tti;
 }
 
-void TasksTest::testThreadConfig()
-{
-    // stop thread
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    // switching hard/soft
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
-
-    testPause();
-
-    // all must fail, except first statement
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() == false );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->setPeriod(0.3) == false );
-    
-    // reconfigure periodicity
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->setPeriod(0.3) );
-    CPPUNIT_ASSERT_EQUAL( 0.3, PriorityThread<15>::Instance()->getPeriod() );
-
-    // some quick start/stops.
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
-}
-
 void TasksTest::testTimer()
 {
     // Add 5 tasks.

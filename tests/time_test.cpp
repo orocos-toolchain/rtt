@@ -48,6 +48,7 @@ TimeTest::setUp()
 void 
 TimeTest::tearDown()
 {
+    hbg->enableSystemClock( true );
 }
 
 void 
