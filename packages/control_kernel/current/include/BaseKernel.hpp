@@ -317,12 +317,7 @@ namespace ORO_ControlKernel
             if ( ! isLoadedController(c) || !this->isRunning() )
                 return false;
 
-            controller->componentShutdown();
-            if ( c->componentStartup() )
-                controller=c;
-            else
-                controller->componentStartup();
-
+            controller = this->switchComponent( controller, c );
             return controller == c;
         }
 
@@ -412,12 +407,7 @@ namespace ORO_ControlKernel
             if ( ! isLoadedGenerator(c) || !this->isRunning() )
                 return false;
 
-            generator->componentShutdown();
-            if ( c->componentStartup() )
-                generator=c;
-            else
-                generator->componentStartup();
-
+            generator = this->switchComponent( generator, c );
             return generator == c;
         }
 
@@ -501,12 +491,7 @@ namespace ORO_ControlKernel
             if ( ! isLoadedEstimator(c) || !this->isRunning() )
                 return false;
 
-            estimator->componentShutdown();
-            if ( c->componentStartup() )
-                estimator=c;
-            else
-                estimator->componentStartup();
-
+            estimator = this->switchComponent( estimator, c );
             return estimator == c;
         }
 
@@ -587,12 +572,7 @@ namespace ORO_ControlKernel
             if ( ! isLoadedSensor(c) || !this->isRunning() )
                 return false;
 
-            sensor->componentShutdown();
-            if ( c->componentStartup() )
-                sensor=c;
-            else
-                sensor->componentStartup();
-
+            sensor = this->switchComponent( sensor, c );
             return sensor == c;
         }
             
@@ -673,12 +653,7 @@ namespace ORO_ControlKernel
             if ( ! isLoadedEffector(c) || !this->isRunning() )
                 return false;
 
-            effector->componentShutdown();
-            if ( c->componentStartup() )
-                effector=c;
-            else
-                effector->componentStartup();
-
+            effector = this->switchComponent( effector, c );
             return effector == c;
         }
             

@@ -163,18 +163,20 @@ namespace ORO_ControlKernel
         :public ModuleControlInterface,
          public detail::ComponentAspectInterface< KernelBaseFunction >
     {
+        friend class KernelBaseFunction;
     public:
         /**
          * Constructor.
          */
         ComponentBaseInterface(const std::string& name)
             : detail::ComponentAspectInterface< KernelBaseFunction >( name ),
-              kern(0) {}
+              selected(false), kern(0) {}
 
         virtual ~ComponentBaseInterface() {}
             
         /**
          * Inspect if this component is placed in a kernel.
+         * This is the 'isLoaded()' query actually.
          * 
          * @return true if it is so.
          */
@@ -220,6 +222,13 @@ namespace ORO_ControlKernel
             
         virtual void disableAspect();
 
+        /**
+         * Query if this component is selected in the kernel.
+         */
+        bool isSelected() { return selected; }
+
+    protected:
+        bool selected;
     private:
         KernelBaseFunction* kern;
     };
@@ -438,6 +447,25 @@ namespace ORO_ControlKernel
          * must be updated is known in the Kernel subclass.
          */
         virtual void updateComponents() = 0;
+
+        /**
+         * Used to switch two components, unselecting the old
+         * one and selecting the new one.
+         */
+        ComponentBaseInterface* switchComponent(ComponentBaseInterface* oldC, ComponentBaseInterface* newC ) const
+        {
+            oldC->componentShutdown();
+            if ( newC->componentStartup() )
+                {
+                    oldC->selected = false;
+                    newC->selected = true;
+                    return newC;
+                }
+            else
+                oldC->componentStartup();
+
+            return oldC;
+        }
         
         /**
          * Flag to keep track of running state.

@@ -110,18 +110,6 @@ namespace ORO_ControlKernel
 
         virtual ~ExecutionExtension();
 
-        /**
-         * The factory for creating the commands this Kernel
-         * wants to export.
-         */
-        virtual CommandFactoryInterface* createCommandFactory();
-
-        /**
-         * The factory for creating the data this Kernel
-         * wants to export.
-         */
-        virtual DataSourceFactoryInterface* createDataSourceFactory();
-
         virtual bool initialize();
 
         /**
@@ -199,6 +187,11 @@ namespace ORO_ControlKernel
             return &proc;
         }
 
+        bool steppedStateContext(const std::string& name);
+
+        bool continuousStateContext(const std::string& name);
+
+
         virtual TaskInterface* getTask() const;
 
         virtual void setTask( TaskInterface* task );
@@ -213,6 +206,7 @@ namespace ORO_ControlKernel
         void initKernelCommands();
         //bool foo( bool( ExecutionExtension::*cond)() const, bool (*adapter)(const bool&) ) const;
     private:
+        bool true_gen() const { return true; }
         bool running_progr;
         
         Processor proc;

@@ -129,6 +129,16 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.stopStateContext(name);
     }
 
+    bool ExecutionExtension::steppedStateContext(const std::string& name)
+    {
+        return proc.steppedStateContext(name);
+    }
+
+    bool ExecutionExtension::continuousStateContext(const std::string& name)
+    {
+        return proc.continuousStateContext(name);
+    }
+
     bool ExecutionExtension::isStateContextRunning(const std::string& name) const
     {
         return proc.isStateContextRunning(name);
@@ -151,18 +161,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     void ExecutionExtension::finalize() 
     {
         proc.stopStateContext("Default");
-    }
-
-    CommandFactoryInterface* ExecutionExtension::createCommandFactory()
-    {
-        // see initKernelCommands()
-        return 0;
-    }
-
-    DataSourceFactoryInterface* ExecutionExtension::createDataSourceFactory()
-    {
-        // see initKernelCommands()
-        return 0;
     }
 
     void ExecutionExtension::initKernelCommands()
@@ -199,34 +197,44 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         ret->add( "startProgram", 
                   command
                   ( &ExecutionExtension::startProgram ,
-                    &ExecutionExtension::isProgramRunning ,
+                    &ExecutionExtension::true_gen ,
                     "Start a program", "Name", "The Name of the Loaded Program" ) );
         ret->add( "stopProgram", 
                   command
                   ( &ExecutionExtension::stopProgram ,
                     //bind(&ExecutionExtension::foo, _1, mem_fn(&ExecutionExtension::isProgramRunning), std::logical_not<bool>() ),
-                    &ExecutionExtension::isProgramRunning ,
-                    "Stop a program", "Name", "The Name of the Started Program", true ) ); // true ==  invert the result.
+                    &ExecutionExtension::true_gen ,
+                    "Stop a program", "Name", "The Name of the Started Program" ) ); // true ==  invert the result.
         ret->add( "resetProgram", 
                   command
                   ( &ExecutionExtension::resetProgram ,
-                    &ExecutionExtension::isProgramRunning ,
-                    "Reset a program", "Name", "The Name of the Stopped Program", true ) );
+                    &ExecutionExtension::true_gen ,
+                    "Reset a program", "Name", "The Name of the Stopped Program" ) );
         ret->add( "startStateContext", 
                   command
                   ( &ExecutionExtension::startStateContext ,
-                    &ExecutionExtension::isStateContextRunning ,
+                    &ExecutionExtension::true_gen ,
                     "Start a program", "Name", "The Name of the Loaded StateContext" ) );
         ret->add( "stopStateContext", 
                   command
                   ( &ExecutionExtension::stopStateContext ,
-                    &ExecutionExtension::isStateContextRunning ,
-                    "Stop a program", "Name", "The Name of the Started StateContext", true ) );
+                    &ExecutionExtension::true_gen ,
+                    "Stop a program", "Name", "The Name of the Started StateContext" ) );
         ret->add( "resetStateContext", 
                   command
                   ( &ExecutionExtension::resetStateContext ,
-                    &ExecutionExtension::isStateContextRunning ,
-                    "Reset a stateContext", "Name", "The Name of the Stopped StateContext", true ) );
+                    &ExecutionExtension::true_gen ,
+                    "Reset a stateContext", "Name", "The Name of the Stopped StateContext") );
+        ret->add( "steppedStateContext", 
+                  command
+                  ( &ExecutionExtension::steppedStateContext ,
+                    &ExecutionExtension::true_gen ,
+                    "Set a stateContext in step-at-a-time mode", "Name", "The Name of the StateContext") );
+        ret->add( "continuousStateContext", 
+                  command
+                  ( &ExecutionExtension::continuousStateContext ,
+                    &ExecutionExtension::true_gen ,
+                    "Set a stateContext in continuous mode", "Name", "The Name of the StateContext") );
         commandFactory().registerObject( "engine", ret );
     }
 

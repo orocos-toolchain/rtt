@@ -233,3 +233,4 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
                     "Name", "The name of the Sensor") );
     return ret;
 }
+

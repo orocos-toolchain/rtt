@@ -1673,6 +1673,43 @@ void push()
 	      </figure>
 	</para>
       </sect2>
+      <sect2>
+	<title>Component Base Methods</title>
+	<para>
+	  The ComponentBaseInterface contains some handy methods
+	  to check its status, which evolves as in the figures
+	  above. Although these methods are mostly called from within the
+	  component, it is also legal to call them from outside the component :
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>bool : this->inKernel()</para>
+	    <para>Query if this component is loaded in a kernel.
+	      Use it to prevent a crash if the method requires
+	      that the component is loaded in a kernel (e.g.
+	      it operates on Data Objects ).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>bool : this->isSelected()</para>
+	    <para>Query if this component is selected in the kernel.
+	      Use it to guard methods that only have meaningfull effect
+	      if the component is selected (i.e. it requires a running
+	      kernel).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>KernelBaseInterface* : this->kernel()</para>
+	    <para>Returns a pointer to the KernelBaseInterface of the
+	      kernel this component is loaded in. Returns null if
+	      this->inKernel() == false. Usefull to query the kernel's
+	      configuration parameters, like its period (see
+	      section <link linkend="kernel-configuration">
+	      Control Kernel Configuration</link> ).
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </sect2>
     </sect1>
     <sect1 id="kernel-configuration">
       <title>Control Kernel Configuration</title>
