@@ -11,7 +11,7 @@ EXTRA_DIST = \
 # we do not distribute the ps files, they are to large,
 # but i make them for the website
 
-XMLDOCS=orocos-overview.xml   orocos-installation.xml orocos-manual.xml orocos-changes.xml
+XMLDOCS=orocos-overview.xml   orocos-installation.xml orocos-manual.xml orocos-changes.xml orocos-faq.xml
 
 DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	geometry-doc.sgml       motion-api.sgml \

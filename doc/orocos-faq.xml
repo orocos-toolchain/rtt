@@ -1,0 +1,399 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+<article class="faq">
+  <articleinfo>
+    <title>
+      Orocos Frequently Asked Questions (FAQ)
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <pubdate>15 January, 2005</pubdate>
+    <revhistory>
+      <revision>
+        <revnumber>0.1</revnumber>
+        <date>15 Jan 2005</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Initial version.
+        </revremark>
+      </revision>
+    </revhistory>
+    <abstract>
+      <para>
+	This document provides answers to frequently asked questions (faq) about
+	Orocos installation, configuration and usage.
+      </para>
+    </abstract>
+  </articleinfo>
+
+  <qandaset defaultlabel="qanda">
+    <qandadiv>
+      <title>General Questions</title>
+      <qandaentry>
+	<question>
+	  <para>What is Orocos?</para>
+	</question>
+	<answer>
+	  <para>
+	    Orocos stands for Open Robot Control Software and is a
+	    library for writing hard realtime control applications in
+	    C++. It supports hard realtime <ulink
+	      url="http://www.rtai.org">RTAI/LXRT</ulink> and non
+	    realtime GNU/Linux programs. Take a look at the webpage for <ulink
+	      url="http://www.orocos.org/about.php"> Orocos history
+	    </ulink> and the <ulink
+	      url="http://www.orocos.org"> 
+	      main page</ulink> for a high level overview.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Where can I find the latest Orocos documentation?</para>
+	</question>
+	<answer>
+	  <para>
+	    In the <ulink
+	      url="http://www.orocos.org/documentation.php">
+	      Documentation Section </ulink> of the Orocos website,
+	    you can find all online documents (and this FAQ). Also,
+	    the <ulink url="http://www.orocos.org/downloads.php">
+	      Download Section </ulink> contains separate manuals for
+	    all software packages.
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Where can I find download and installation instructions?</para>
+	</question>
+	<answer>
+	  <para>
+	    In the <ulink url="http://www.orocos.org/downloads.php">
+	      Download Section</ulink> of the Orocos website and the
+	    <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
+	      Orocos Installation Manual</ulink>.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Where can I find the software manuals?</para>
+	</question>
+	<answer>
+	  <para>
+	    In the <ulink url="http://www.orocos.org/downloads.php">
+	      Download Section</ulink> of the Orocos website. An all
+	    in one manual is available too ( The Complete Orocos Software Manual ).
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Where can I ask Orocos software related questions (even newbie questions) ?</para>
+	</question>
+	<answer>
+	  <para>
+	    On the <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">
+	      Orocos-dev mailinglist</ulink> (medium traffic).
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Where can I ask Orocos 'philosophical' questions ?</para>
+	</question>
+	<answer>
+	  <para>
+	    On the <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+	      Orocos mailinglist</ulink> ( low traffic ).
+	  </para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
+      <title>Configuring and Setting up Orocos</title>
+      <qandaentry>
+	<question>
+	  <para>Where can I find the latest configuration instructions?</para>
+	</question>
+	<answer>
+	  <para>In the <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html">
+	    Orocos Installation Manual</ulink>. </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Which Linux version should I use?</para>
+	</question>
+	<answer>
+	  <para>Orocos works with <ulink url="http://www.kernel.org">
+	      vanilla </ulink> Linux 2.4 and 2.6 kernels.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Which RTAI version should I use?</para>
+	</question>
+	<answer>
+	  <para>
+	    Orocos works with RTAI 3.0r4 ( you need to apply a <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai3.0rx.patch">patch</ulink> 
+	    ) and RTAI 3.1
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>How should I configure my Linux Kernel?</para>
+	</question>
+	<answer>
+	  <para>The following Linux options must be disabled to guarantee
+	    the most stable performance :
+	    <itemizedlist>
+	      <listitem>
+		<para>Disable APM / ACPI. These can interfere with scheduling and RTAI.</para>
+	      </listitem>
+	      <listitem>
+		<para>Disable MTRR. This can interfere when using RTAI.</para>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	  <para>The follwing Linux options must be enabled to guarantee
+	    the most stable performance :
+	    <itemizedlist>
+	      <listitem>
+		<para>Enable your USB driver ( or disable USB in your BIOS ). The aim
+		of using a Linux USB driver is to disable the BIOS USB driver.</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  Enable your IDE chipset and choose the correct CPU.
+		  Wrong settings for one of these will cause lock-ups.
+		</para>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>How should I configure RTAI?</para>
+	</question>
+	<answer>
+	  <para>The follwing RTAI options must be enabled (and modules must be loaded) :
+	    <itemizedlist>
+	      <listitem>
+		<para>
+		  LXRT scheduler (rtai_hal+rtai_lxrt)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  Semaphores (rtai_sem)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  FPU Support
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>RealTime Memory Manager (with vmalloc)</para>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>How can I change which files get compiled in Orocos ?</para>
+	</question>
+	<answer>
+	  <para>
+	    Use <command>make configure_packages</command> in your build directory , which will
+	    popup the configuration GUI. If you unload packages (see also Build->Packages...)
+	    they will no longer be compiled (without removing them physically).
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>What are the system requirements of Orocos?</para>
+	</question>
+	<answer>
+	  <para>
+	    For compiling Orocos, you need a very fast machine with minimum 256MB RAM,
+	    and 512MB RAM to be comfortable.
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    For running an Orocos application, you need an Intel Pentium Processor with minimum 32MB RAM,
+	    but much depends on the application itself. Orocos has not been tested
+	    on other (PowerPC, ARM,...) processors, but an FPU unit is surely needed.
+	  </para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
+      <title>Runtime Problems with RTAI/LXRT</title>
+      <qandaentry>
+	<question>
+	  <para>The first message I get is 'Segmentation fault' !</para>
+	</question>
+	<answer>
+	  <para>Check if your rtai_lxrt and rtai_sem kernel modules are loaded.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>The first message I get is 'LXRT NOT INITIALISED IN THIS THREAD pid=1234,
+	    BUT TRIES TO INVOKE LXRT FUNCTION &gt;&gt;rtos_mutex_init&lt;&lt; ANYWAY'. What did
+	    I do wrong ?</para>
+	</question>
+	<answer>
+	  <para>You tried to use RTAI's functions while RTAI was not yet initialised.
+	    This happens if you use global objects which contain Mutexes. Examples
+	    are ORO_CoreLib::Event and some DataObjects, Buffers and the Logger class.
+	    The solution is not to use global objects, but use global pointers and
+	    create the objects in ORO_main() with new.
+	  </para>
+	</answer>
+	<answer>
+	  <para>You did not put your program in the ORO_main()
+	    function. ( see <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
+	      The Installation Manual </ulink> and <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-os.html"> 
+	      The Orocos OS Manual</ulink>. )
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>The realtime performance is Terrible !</para>
+	</question>
+	<answer>
+	  <para>
+	    Well, that is not a question really, but anyway...
+	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    Are you calling Linux system calls from a hard-realtime
+	    thread ? See <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html"> 
+	      this document </ulink> for what you can and can't do
+	    within hard-realtime LXRT tasks.
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para><command>make check</command> crashes my system. What did I
+	  do wrong ?</para>
+	</question>
+	<answer>
+	  <para>
+	    The Orocos testcases test the system to its limits and may
+	    crash RTAI if not properly configured. Especially RTAI 3.0 and older.
+	  </para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
+      <title>Orocos Design Questions</title>
+      <qandaentry>
+	<question>
+	  <para>The Control Kernel architecture does not fit my application.
+	  So is Orocos useless for me ?</para>
+	</question>
+	<answer>
+	  <para>
+	    No, the Control Kernel is designed for flexible realtime feedback control.
+	    If that does not fit your application, take a look
+	    at the Realtime Task Infrastructure and all surrounding documents
+	    to map your realtime tasks into Orocos.
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Don't you have a shorter document than the 150 pages manual ?</para>
+	</question>
+	<answer>
+	  <para>We have, but it tells completely different things.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>What is the overhead of all this C++, can it be Realtime ?</para>
+	</question>
+	<answer>
+	  <para>
+	    C++ is a fundamental pillar of Orocos' design. If need to
+	    be convinced that this actually works, take a look at
+	    <ulink url="http://www.orocos.org/applications.php">
+	      Demonstration movies </ulink> , and read <ulink
+	      url="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1396.pdf"> 
+	      a Technical Report on C++ Performance </ulink>, but
+	    Google can point you to <ulink
+	      url="http://www.google.com/search?hl=en&amp;ie=UTF-8&amp;c2coff=1&amp;q=C%2B%2B+Embedded+Real+time&amp;spell=1"> 
+	      lots more documents</ulink>. We are still finding ways
+	    to measure the overhead of using Orocos itself, and much
+	    depends on the application, but the minimum system
+	    requirements to run it are a Pentium processor with 32 MB
+	    of RAM. 
+	  </para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+  </qandaset>
+  <appendix>
+    <title>About Orocos</title>
+    <para>
+      Please send general, non technical, Orocos questions to <ulink
+	url="mailto:orocos@mail.mech.kuleuven.ac.be">
+	orocos@mail.mech.kuleuven.ac.be </ulink>. 
+    </para>
+    <para>
+      These pages are maintained by <ulink
+	url="http://www.orocos.org/about.php">the Orocos
+	team</ulink>.
+    </para>
+    <para>
+      For questions related to the use of the Orocos Software, please consult these
+      web pages and the <ulink
+	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
+      that fails, the  <ulink
+	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
+	orocos-dev@mail.mech.kuleuven.ac.be </ulink> mailing list might help.
+      Please
+      send comments on these web pages and the development of Orocos to
+      our developer mailing list at  <ulink
+	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
+	orocos-dev@mail.mech.kuleuven.ac.be </ulink>. All of
+      our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
+	archives</ulink> ( <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
+	archive</ulink> ) .
+      </para>
+    <para>
+      Copyright (C) Peter Soetens
+    </para>
+    <para>
+      Verbatim copying and distribution of this entire article is
+      permitted in any medium, provided this notice is preserved.
+    </para>
+  </appendix>
+</article>
