@@ -2,6 +2,7 @@
 dist: dochtml docpdf docps
 	tar -czf orocos-hardware-components-doc.tgz \
 	orocos-hardware-components.html \
+	hardware-pattern.png \
 	orocos-hardware-components.pdf
 
 docxml: dochtml docpdf
@@ -14,9 +15,9 @@ docps: epsimages orocos-hardware-components.ps
 
 doctxt: orocos-hardware-components.txt
 
-pngimages:
+pngimages: hardware-pattern.png
 
-epsimages:
+epsimages: hardware-pattern.eps
 
 
 #orocos-control-kernel.html: 

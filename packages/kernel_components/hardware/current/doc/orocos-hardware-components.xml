@@ -22,7 +22,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002-2004</year>
+      <year>2002-2005</year>
       <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
       <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
     </copyright>
@@ -59,7 +59,7 @@
       with the Orocos Control Kernel package and the Corelib.
     </para>
   </sect1>
-  <sect1>
+  <sect1 id="generic-sens-eff">
     <title>Generic Hardware Abstraction</title>
     <para>
       This section explains how hardware sensors and outputs
@@ -187,6 +187,20 @@
 	  </programlisting>
 	</para>
       </sect3>
+      <sect3>
+	<title>Loading the GenericSensor</title>
+	<para>As usual, the component needs to be loaded in the Control Kernel
+	before it can be used :
+	</para>
+	<programlisting>
+StandardControlKernel&lt;> myKernel;
+myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
+	<para>
+	  As long as the kernel is not running, new inputs may be added,
+	  which will trigger an automatic reinitialisation of all the DataObjects,
+	  such that the new inputs become visible.
+	</para>
+      </sect3>
     </sect2>
     <sect2>
       <title>GenericEffector : Effector Hardware Abstraction</title>
@@ -301,20 +315,97 @@
 	  </programlisting>
 	</para>
       </sect3>
+      <sect3>
+	<title>Loading the GenericEffector</title>
+	<para> This is analogous to the GenericSensor :
+	</para>
+	<programlisting>
+  StandardControlKernel&lt;> myKernel;
+  myKernel.loadEffector( &amp;hardw_eff );	</programlisting>
+	<para>
+	  As long as the kernel is not running, new outputs may be added,
+	  which will trigger an automatic reinitialisation of all the DataObjects,
+	  such that the new outputs become visible.
+	</para>
+      </sect3>
     </sect2>
-    <sect2>
-      <title>Using Components with the GenericEffector and GenericSensor</title>
+  </sect1>
+  <sect1>
+    <title>Using the GenericEffector and GenericSensor</title>
+    <para>
+      The GenericEffector and GenericSensor allow for a quick test of the
+      available hardware. An example can be found in the
+      <filename>kernel_samples/hardware_components</filename> directory.
+      A <classname>SignalGenerator</classname> or
+      <classname>SignalTracker</classname> with a
+      <classname>FeedForwardController</classname> can be used to generate
+      a signal on an analog ouput, or replicate a signal on an analog input.
+      These components can be found in the
+      signal_processing and process_control packages.
+    </para>
+    <example>
+      <title>Control Kernel Layout with GenericSensor and GenericEffector</title>
       <para>
-	The GenericEffector and GenericSensor allow for a quick test of the
-	available hardware. An example can be found in the
-	<filename>kernel_samples/hardware_components</filename> directory.
-	A <classname>SignalGenerator</classname> or
-	<classname>SignalTracker</classname> with a
-	<classname>FeedForwardController</classname> can be used to generate
-	a signal on an analog ouput, or replicate a signal on an analog input.
-	These components can be found in the
-	signal_processing and process_control packages.
+	This example shows how a <emphasis>minimal</emphasis> kernel configuration can work with these
+	two components :
       </para>
-    </sect2>
+      <programlisting>
+  #include &lt;kernel_components/PID_Controller.hpp>
+  #include &lt;kernel_components/SignalGenerator.hpp>
+  #include &lt;kernel_components/GenericSensor.hpp>
+  #include &lt;kernel_components/GenericEffector.hpp>
+  #include &lt;control_kernel/StandardControlKernel.hpp>
+  #include &lt;control_kernel/KernelConfig.hpp>
+  #include &lt;corelib/TaskPreemptible.hpp>
+
+  using namespace ORO_ControlKernel;
+
+  int ORO_main() {
+    int MAX_CHANNELS = 16;
+    StandardControlKernel&lt;> kernel;
+    PID_Controller pid(MAX_CHANNELS);
+    SignalGenerator gen(MAX_CHANNELS);
+    GenericSensor   hardw_sens(MAX_CHANNELS);
+    GenericEffector hardw_eff(MAX_CHANNELS);
+
+    kernel.loadController( &amp;pid );
+    kernel.loadGenerator( &amp;gen );
+    kernel.loadEffector( &amp;hardw_sens );
+    kernel.loadSensor( &amp;hardw_eff );
+
+    // configure inputs/outputs as in <xref linkend="generic-sens-eff"/>
+    // ...
+
+    // configure components from cpf files :
+    KernelConfig kconfig( &amp;kernel );
+    kconfig.configure();
+
+    ORO_CoreLib::TaskPreemptible ktask(0.01, &amp;kernel );
+    ktask.start();
+   
+    // wait for user interruption ...
+    // ( See also TaskBrowser / TaskContext ).
+
+    ktask.stop();
+    return 0;
+  }
+      </programlisting>
+      <para>
+	The figure below shows the contents of the DataObjects of the Control Kernel
+	when the GenericEffector and GenericSensor are used with a SignalGenerator
+	and a PIDController component and are configured as above.
+	<figure>
+	  <title>Control Kernel Layout with GenericSensor and GenericEffector</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="hardware-pattern.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="hardware-pattern.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      </para>
+    </example>
   </sect1>
 </article>
