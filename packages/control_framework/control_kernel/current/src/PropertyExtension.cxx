@@ -219,7 +219,7 @@ namespace ORO_ControlKernel
             return false;
         }
         if ( ( kernel()->base() && kernel()->base()->isStarted( compname ) ) ) {
-            Logger::log() << Logger::Info << "PropertyExtension::writeProperties: Can not write properties of a running Component : "<< compname << Logger::endl;
+            Logger::log() << Logger::Error << "PropertyExtension::writeProperties: Can not write properties of a running Component : "<< compname << Logger::endl;
             return false;
         }
 
