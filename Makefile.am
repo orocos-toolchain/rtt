@@ -106,10 +106,12 @@ new_packages:
 # This configures the selected packages with
 # a graphical tool.
 configure_packages: test_new_packages
-	cd packages &&\
+	@cd packages &&\
 	export ECOS_REPOSITORY=$(ECOS_REP) &&\
 	ln -sf ecos.ecc orocos.ecc &&\
-	configtool orocos.ecc
+	configtool orocos.ecc &&\
+	ecosconfig export .upgrade.ecc
+
 
 test_all_packages: .all-stamp
 
@@ -130,17 +132,19 @@ dist_packages:
 	$(MAKE) -C . packages
 
 # make all packages from current template
+# in packages dir, then export the config info.
 packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	{ $(MAKE) -C . || exit -1; } &&\
+	ecosconfig export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
 
 init_packages: test_new_packages
-	cd packages &&\
+	@cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	export ECOS_REPOSITORY=$(ECOS_REP) &&\
-	{ ecosconfig tree || exit -1; }
+	{ ecosconfig tree || { echo -e "\necosconfig tree failed.\n  Try 'make upgrade_packages' or contact the Orocos-dev mailinglist.\n"; exit -1; } }
 
 precompile_headers:
 	$(MAKE) headers -C packages
@@ -154,7 +158,7 @@ precompile_headers:
 
 # Reset the template to build the coreservices
 core_packages: test_new_packages
-	if test -f packages/ecos.ecc; then \
+	@if test -f packages/ecos.ecc; then \
 	cd packages; \
 	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	ecosconfig template controlservices;\
@@ -192,6 +196,12 @@ mrproper:
 clean_install:
 	@echo -e "\nThis command will erase the install directory !\n"
 	@rm -rvf packages/install
+
+# use this to *try* to fix your .ecc file in an upgrade
+upgrade_packages:
+	export ECOS_REPOSITORY=$(ECOS_REP) ; cd packages ;\
+	$(MAKE) -C .. new_packages &&\
+	ecosconfig import .upgrade.ecc
 
 ########################################################################
 # KUL specific :
