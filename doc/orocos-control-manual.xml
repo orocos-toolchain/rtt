@@ -38,7 +38,7 @@
 
     <legalnotice>
       <para>
-	Orocos Version @VERSION@.
+	Orocos Version &oversion;.
       </para>
       <para>
 	Permission is granted to copy, distribute and/or modify this document

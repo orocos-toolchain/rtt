@@ -56,7 +56,7 @@ endif
 
 docs: $(DOC)
 
-manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
+manual: pngimages epsimages jpgimages
 	-cp -a $(EXTRAXMLDOCS) .
 	-cp -a $(EXTRAEPS) .
 	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
@@ -64,7 +64,7 @@ manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANEPS)
 
-control-manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
+control-manual: pngimages epsimages jpgimages
 	-cp -a $(EXTRAXMLDOCS) .
 	-cp -a $(EXTRAEPS) .
 	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
@@ -72,13 +72,13 @@ control-manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANEPS)
 
-docxml: dochtml docpdf docps
+docxml: dochtml docpdf
 
 dochtml: pngimages $(HTMLDOCS)
 
-docpdf: epsimages $(PDFDOCS)
+docpdf: jpgimages $(PDFDOCS)
 
-docps: jpgimages $(PSDOCS)
+docps: epsimages $(PSDOCS)
 
 doctxt: $(TXTDOCS)
 
@@ -142,7 +142,7 @@ tiffimages: $(TIFFIMGS)
 	convert $< $@
 
 .eps.jpg:
-	convert $< $@
+	convert -quality 100 $< $@
 
 .eps.tiff:
 	convert $< $@
@@ -152,7 +152,9 @@ tiffimages: $(TIFFIMGS)
 	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
 
 clean-local:
-	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks *.website
+	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) $(JPGIMGS) *.chunks *.website
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANEPS)
+	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 

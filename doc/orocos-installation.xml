@@ -592,7 +592,7 @@
 	  detect a valid installation. This can be done
 	  by providing two flags :
 	  <screen>
-	    ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
+../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
 	  </screen>
 	  If both are found, the Comedi support package will
 	  be generated, and you will be able to add the
@@ -614,7 +614,7 @@
 	<para>
 	  Orocos has a preliminary CAN Controller implementation
 	  using the CANPie interface. To use it, the <filename>CANPie</filename>
-	  and <filename>CANOpen</filename> packages must be 
+	  and <filename>CANopen</filename> packages must be 
 	  added to your configuration. The device driver
 	  works with RTAI/LXRT.
 	</para>
@@ -1011,15 +1011,15 @@ all: myprogram.cpp
 	    <listitem>
 	      <para>
 		Go to the eCos build directory. In Orocos this is :
-		<screen><filename>orocos-&oversion;/build/packages
-		  </filename></screen> But technically, it can be any directory
+		<screen><filename>orocos-&oversion;/build/packages</filename></screen>
+	      But technically, it can be any directory
 		where you create an orocos.ecc configuration file.
 	      </para>
 	    </listitem>
 	    <listitem>
 	      <para>Start a new build using the
-		<screen><command>ecosconfig new gnulinux
-		    corelib-os</command></screen> command. Where
+		<screen><command>ecosconfig new gnulinux  corelib-os</command></screen>
+	      command. Where
 		<option>gnulinux</option> or <option>lxrt</option> is
 		the target name and <option>corelib-os</option> is the
 		template name. A template selects a number of packages
@@ -1049,8 +1049,9 @@ ecosconfig add support_$(basename $i .cdl); done
 	    <listitem>
 	      <para>
 		Select additional packages for your build with the graphical
-		configtool or with <screen><command>ecosconfig add package_name
-		  </command></screen> Configtool will give you a list
+		configtool or with
+	      <screen><command>ecosconfig add package_name</command></screen>
+	      Configtool will give you a list
 		of all available packages in the repository if you go to
 		menu->Build->Packages and
 		<screen><command>ecosconfig list</command></screen> does the same.
@@ -1062,8 +1063,8 @@ ecosconfig add support_$(basename $i .cdl); done
 	    </listitem>
 	    <listitem>
 	      <para>Configure the selected packages with the graphical
-		program <screen><command>configtool orocos.ecc
-		  </command></screen>Save and exit.</para>
+		program <screen><command>configtool orocos.ecc</command></screen>
+	      Save and exit.</para>
 	    </listitem>
 	    <listitem>
 	      <para>Create the makefiles using
@@ -1084,7 +1085,7 @@ ecosconfig add support_$(basename $i .cdl); done
 	</para>
     </sect2>
     <sect2>
-      <title>Installing Orocos from Subversion ( similar to CVS )</title>
+      <title>Installing Orocos from Subversion (similar to CVS)</title>
       <para>
 	This section will do its best to help you through the
 	Subversion ( svn ) installation process.
@@ -1096,8 +1097,8 @@ ecosconfig add support_$(basename $i .cdl); done
 	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
 	Package Tree from the Subversion tree.
 	<screen width="60">
-	  svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
-	  cd orocos-trunk
+svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
+cd orocos-trunk
 	</screen>
 	So, make sure you have
 	the Subversion program installed, i.e., the command "svn" works on your
@@ -1111,11 +1112,11 @@ ecosconfig add support_$(basename $i .cdl); done
 	version 2.54 or later. You can check your
 	versions with the <parameter>--version</parameter> option:
 	<screen>
-	  $ automake --version
-	  automake (GNU automake) 1.7.3
-	  ...
-	  $ autoconf --version
-	  autoconf (GNU Autoconf) 2.54
+$ automake --version
+automake (GNU automake) 1.7.3
+ ...
+$ autoconf --version
+autoconf (GNU Autoconf) 2.54
 	</screen>
 	<note>
 	  <para> You need these programs if you intend to modify the makefiles</para>
@@ -1125,7 +1126,7 @@ ecosconfig add support_$(basename $i .cdl); done
 	, in order to initialize the <filename>autoconf</filename> 
 	and <filename>automake</filename> files:
 	<screen>
-	  ./autogen.sh
+./autogen.sh
 	</screen>
 	The configure script will detect the installed software on your
 	system and generate the appropriate scripts.

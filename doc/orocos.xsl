@@ -3,6 +3,8 @@
   xmlns:src="http://nwalsh.com/xmlns/litprog/fragment"
   exclude-result-prefixes="src" version="1.0">
 
+<!-- THIS XSL IS FOR GENERATING FO OUTPUT -->
+
 <!-- Include the default settings -->
   <xsl:import href="/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl"/>
 
@@ -18,14 +20,15 @@
   <xsl:param name="section.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel.max.depth" select="3"></xsl:param>
 
+<!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
-  <xsl:param name="admon.graphics.path" select="'images/'"/>
-  <xsl:param name="admon.graphics.extension" select="'.eps'"/>
+  <xsl:param name="admon.graphics.path" select="'../../doc/images/'"/>
+  <xsl:param name="admon.graphics.extension" select="'.jpg'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
-<!-- use this to select the extension for pdf / ps output across all files. -->
-  <xsl:param name="graphic.default.extension" select="'eps'"></xsl:param>
+<!-- use this to select the image type used for pdf / ps output across all files. -->
+  <xsl:param name="graphic.default.extension" select="'jpg'"></xsl:param>
 
 <xsl:attribute-set name="monospace.verbatim.properties" 
                    use-attribute-sets="verbatim.properties monospace.properties">

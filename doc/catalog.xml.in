@@ -28,11 +28,14 @@
          uri="schema/dtd/4.3/docbookx.dtd" />
 
     </group>
-    <group xml:base="file://@DOC_DIR@">
+    <group xml:base="file://@DOC_DIR@/">
     <!-- To resolve short stylesheet references -->
     <uri
         name="orocos.ent"
         uri="orocos.ent" />
+    <uri
+        name="images/"
+        uri="images/" />
 <!--     <uri  -->
 <!--         name="chunk.xsl" -->
 <!--         uri="docbook-xsl-1.68.1/html/chunk.xsl" /> -->
