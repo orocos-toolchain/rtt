@@ -96,7 +96,7 @@ namespace ORO_CoreLib
          */
         PriorityThread(double _period)
             : TaskExecution( Priority, 
-                             "", 
+                             "PriorityThread", 
                              _period )
         {
             Logger::log() << Logger::Info <<"PriorityThread created with "<< _period <<"s periodicity";

@@ -117,15 +117,8 @@ namespace ORO_CoreLib
     {
         if ( !isRunning() ) return false;
 
-        return doStop();
-    }
-
-    bool PeriodicTask::doStop()
-    {
-        ORO_OS::MutexTryLock locker(stop_lock);
-        if ( !locker.isSuccessful() )
-            return true; // stopping is in progress
-
+        // since removeTask synchronises, we do not need to mutex-lock
+        // stop()
         if ( _timer->removeTask( this ) ) {
             running = false;
             this->finalize();

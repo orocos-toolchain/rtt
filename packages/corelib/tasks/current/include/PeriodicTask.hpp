@@ -117,11 +117,6 @@ namespace ORO_CoreLib
         void init();
 
         /**
-         * Does an unconditional stop.
-         */
-        bool doStop();
-
-        /**
          * When runner != 0 it will be executed instead of
          * this instances initialize(), step() and finalize() functions
          */
@@ -141,11 +136,6 @@ namespace ORO_CoreLib
          * This tasks period in nanoseconds.
          */
         nsecs per_ns;
-
-        /**
-         * Used when two threads try to stop simultanously.
-         */
-        ORO_OS::Mutex stop_lock;
 
         /**
          * The thread which runs this task.
