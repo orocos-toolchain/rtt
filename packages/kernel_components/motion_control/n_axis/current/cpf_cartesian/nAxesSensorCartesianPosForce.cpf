@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the Position-Force Sensor component -->
+<properties>
+   <simple name="Name" type="string"><description>The unique name of this component</description><value>nAxesSensorCartesianPosForce</value></simple>
+   <simple name="mass" type="double"><description>The mass at the force sensor.</description>	<value>10.0</value>  </simple>
+   <simple name="center_gravity" type="Wrench"><description>The COG of the mass at the force sensor.</description> 
+      <simple name="d00" type="double"><description>Axis x</description><value>0.5</value></simple>
+      <simple name="d01" type="double"><description>Axis y</description><value>0.5</value></simple>
+      <simple name="d02" type="double"><description>Axis z</description><value>0.5</value></simple>
+   </struct>
+</properties>

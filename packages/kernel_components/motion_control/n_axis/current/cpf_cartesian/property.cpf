@@ -3,6 +3,7 @@
 <!-- Properties of the PropertyExtension -->
 <properties>
    <sequence name="PropertyFiles" type="ComponentEntry">
+      <simple name="nAxesSensorCartesianPosForce" type="string"> <description>The Property File.</description> <value>cpf_cartesian/nAxesSensorCartesianPosForce.cpf</value> </simple>  
       <simple name="nAxesControllerCartesianVel" type="string"> <description>The Property File.</description> <value>cpf_cartesian/nAxesControllerCartesianVel.cpf</value> </simple>  
       <simple name="nAxesControllerCartesianPos" type="string"> <description>The Property File.</description> <value>cpf_cartesian/nAxesControllerCartesianPos.cpf</value> </simple>  
       <simple name="nAxesControllerCartesianPosVel" type="string"> <description>The Property File.</description> <value>cpf_cartesian/nAxesControllerCartesianPosVel.cpf</value> </simple>  
