@@ -1,6 +1,8 @@
 
 #include <corelib/Event.hpp>
 #include <corelib/PriorityThread.hpp>
+#include <corelib/RunnableInterface.hpp>
+#include <corelib/TaskPreemptible.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -9,6 +11,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
 
 using namespace ORO_CoreLib;
+using namespace boost;
 
 void 
 EventTest::setUp()
@@ -54,6 +57,47 @@ void
 EventTest::testEmpty()
 {
     t_event->fire();
+}
+
+struct Runner : public RunnableInterface
+{
+    bool result;
+    int data;
+    Event<void(int)>& e;
+    Handle h;
+    Runner( Event<void(int)>& e_) : e(e_) {}
+    bool initialize() {
+        result = false;
+        // connect sync and async handler with event
+        // and run async handler in thread of this task.
+        h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), this->getTask() );
+    }
+    void step() {}
+    void finalize() {
+        h.disconnect();
+    }
+
+    void handle(int i) {
+        data = i;
+    }
+    void complete(int i) {
+        result = (i == data);
+    }
+};
+        
+
+void EventTest::testTask()
+{
+    Event<void(int)> event;
+    Runner runobj(event);
+    TaskPreemptible task(0.01, &runobj);
+    task.start();
+    event.fire( 123456 );
+    CPPUNIT_ASSERT( runobj.data == 123456 );
+    sleep(1);
+    task.stop();
+
+    CPPUNIT_ASSERT( runobj.result );
 }
 
 void EventTest::testSyncListener()
@@ -114,6 +158,27 @@ void EventTest::testSyncListenerString()
     CPPUNIT_ASSERT_EQUAL( t_listener_what, std::string("What") );
     CPPUNIT_ASSERT( !t_listener_value );
     CPPUNIT_ASSERT( !t_completer_value );
+}
+
+void EventTest::testCompletionProcessor()
+{
+    // in thread completer:
+    reset();
+
+    Handle h = t_event->connect( boost::bind(&EventTest::listener,this),
+                                 boost::bind(&EventTest::completer,this) // default == CP
+                                 );
+    CPPUNIT_ASSERT( h.connected() );
+
+    t_event->fire();
+
+    // This will block until all completers are processed.
+    sleep(1);
+    h.disconnect();
+    CPPUNIT_ASSERT( !h.connected() );
+    // both must be called.
+    CPPUNIT_ASSERT( t_listener_value );
+    CPPUNIT_ASSERT( t_completer_value );
 }
 
     
