@@ -1,28 +1,29 @@
 #ifndef PI_PROPERTYBASE
 #define PI_PROPERTYBASE
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
+#include <pkgconf/corelib_properties.h>
 #include <string>
 
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
 #include "OperationAcceptor.hpp"
+#endif
 #include "PropertyIntrospection.hpp"
 #include "PropertyMutatingIntrospection.hpp"
 
 namespace ORO_CoreLib
 {
-
-    using namespace detail;
 	class Marshaller;
-
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
+    using namespace detail;
+#endif
 	/**
 	 * Virtual base class for all property classes.
 	 *
 	 */
     class PropertyBase
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
         : public OperationAcceptor
+#endif
     {
         public:
 			
@@ -91,8 +92,9 @@ namespace ORO_CoreLib
              */
             virtual void identify( PropertyIntrospection* pi) const = 0;
 
-						virtual void mutate( PropertyMutatingIntrospection * pmi) = 0;
+            virtual void mutate( PropertyMutatingIntrospection * pmi) = 0;
 
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
             /**
              * Updates the value of the Property with the value of
              * another Property.
@@ -104,6 +106,7 @@ namespace ORO_CoreLib
              * Property into this property.
              */
             virtual bool copy(const PropertyBase* other) = 0;
+#endif
 
             /**
              * Deliver an identical clone of this PropertyBase. The

@@ -20,6 +20,7 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
            This code is not yet thread safe and based on the Command-Comply
            software pattern."
 
+	default_value 1
 	compile OperationAcceptor.cxx
     }
 }

@@ -1,10 +1,6 @@
 #ifndef PI_PROPERTYINTROSPECTION_HPP
 #define PI_PROPERTYINTROSPECTION_HPP
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <string>
 
 namespace ORO_CoreLib

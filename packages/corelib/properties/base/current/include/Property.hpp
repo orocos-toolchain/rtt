@@ -1,10 +1,13 @@
 #ifndef PI_PROPERTY
 #define PI_PROPERTY
 
+#include <pkgconf/corelib_properties.h>
 #include "Marshaller.hpp"
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
 #include "PropertyOperation.hpp"
+#endif
 #include "PropertyDecomposition.hpp"
 
 #ifdef HAVE_STRING
@@ -15,7 +18,9 @@
 
 namespace ORO_CoreLib
 {
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
     using namespace detail;
+#endif
     /**
      * @group helpers Helper functions for Property operations.
      *
@@ -159,6 +164,7 @@ namespace ORO_CoreLib
 								pmi->introspect( *this );
 						}
 
+#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
             virtual bool update( const PropertyBase* b)
             {
                 // could do it like :
@@ -175,6 +181,18 @@ namespace ORO_CoreLib
                 return cop_op.command(*this, b);
             }
 
+
+            virtual bool comply(FillOperation* op) const
+            {
+                return op->comply( this );
+            }
+
+            virtual bool comply(DeepCopyOperation* op) const
+            {
+                return op->comply( this );
+            }
+
+#endif
             /**
              * Update the value, leave the rest.
              */
@@ -202,17 +220,6 @@ namespace ORO_CoreLib
             {
                 return new Property<T>( _name, _description );
             }
-
-            virtual bool comply(FillOperation* op) const
-            {
-                return op->comply( this );
-            }
-
-            virtual bool comply(DeepCopyOperation* op) const
-            {
-                return op->comply( this );
-            }
-
         protected:
             T _value;
         private:

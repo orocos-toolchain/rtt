@@ -134,9 +134,8 @@ given in the general &orocos; overview document.
       </para>
   </chapter>
   <chapter>
-    <sect2>
-	<title>The Orocos Thread Philosophy</title>
-	<sect3>
+    <title>The Orocos Thread Philosophy</title>
+    <sect1>
 	<title>Introduction : Task versus Thread</title>
 	  <para>
 	    Threads are the major cause of headaches in multithreaded systems
@@ -217,8 +216,7 @@ given in the general &orocos; overview document.
 	    it should never lock a resource of the realtime thread. Tasks being executed
 	    in the NonRealTimeThread are called <classname>TaskNonRealTime</classname>.
 	  </para>
-	</sect3>
-      </sect2>
+    </sect1>
   </chapter>
     <chapter>
       <title>Events</title>
@@ -331,14 +329,13 @@ given in the general &orocos; overview document.
 	  the type as the first constructor argument with one of the four following:
 	  Event::SYNSYN,Event::ASYNSYN,Event::SYNASYN,Event::ASYNASYN; with the first
 	  [SYN|ASYN] denoting the handling and the second the completion policy</para></tip>
-      <sect2>
+      <sect1>
 	<title>Other Kinds of Events</title>
 	<para>
 	  Our subscription based Event is just an example of the many possibilities of Events in
 	  general. We provide four other Event primitives which you will need in your Event based
 	  applications.
 	</para>
-      </sect2>
       <sect2>
 	<title>EventSimple</title>
 	<para>
@@ -403,7 +400,8 @@ given in the general &orocos; overview document.
 	  The Event divides the firing by factor X.
 	</para>
       </sect2>
-     <sect1>
+    </sect1>
+    <sect1>
       <title>The Completion Processor</title>
       <para>
 	The Completion Processor is also implemented using the <classname>Singleton</classname> design pattern.
@@ -412,8 +410,8 @@ given in the general &orocos; overview document.
 	that all tasks it executes should require finite time to complete.
       </para>
     </sect1>
-    </chapter>
-    <chapter>
+  </chapter>
+  <chapter>
       <title>The HeartbeatGenerator</title>
       <para>
 	The <classname>HeartbeatGenerator</classname> is implemented using the <classname>Singleton</classname> design pattern.
@@ -422,8 +420,8 @@ given in the general &orocos; overview document.
 	cores, for doing, for example compliant motion with two robots. This functionality
 	is not yet implemented though.
       </para>
-    </chapter>
-    <chapter>
+  </chapter>
+  <chapter>
       <title>States and the StateContext</title>
       <para>
 	Any complex software component will sooner or later need a way to change state, depending
