@@ -1,26 +1,26 @@
 #ifndef CARTESIAN_COMPONENTS_HPP
 #define CARTESIAN_COMPONENTS_HPP
 
-#include <lrl/frames.h>
-#include <lrl/trajectory.h>
-#include <lrl/trajectory_segment.h>
-#include <lrl/geometry_line.h>
-#include <lrl/motionprofile_trap.h>
-#include <lrl/orientation_singleaxis.h>
+#include <geometry/frames.h>
+#include <geometry/trajectory.h>
+#include <geometry/trajectory_segment.h>
+#include <geometry/geometry_line.h>
+#include <geometry/motionprofile_trap.h>
+#include <geometry/orientation_singleaxis.h>
 #include <corelib/HeartBeatGenerator.hpp>
-#include <corelib/KinematicsComponent.hpp>
-#include <corelib/KinematicsFactory.hpp>
+#include <kindyn/KinematicsComponent.hpp>
+#include <kindyn/KinematicsFactory.hpp>
 #include <corelib/EventInterfaces.hpp>
-#include <corelib/Simulator.hpp>
+#include <kernel_components/Simulator.hpp>
     
 namespace ORO_ControlKernel
 {
-    using namespace LRL;
+    using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
+    using namespace ORO_KinDyn;
 
     /**
-     * A Simple Cartesian Generator. See also LRLGenerator for the
-     * more advanced version.
+     * A Simple Cartesian Generator.
      */
     template <class Base>
     class CartesianGenerator 
@@ -119,13 +119,13 @@ namespace ORO_ControlKernel
                 return true;
             }
 
-            void setTrajectory(LRL::Trajectory* _t)
+            void setTrajectory(Trajectory* _t)
             {
                 tr = _t;
             }
             
         protected:
-            Property<LRL::Frame> end_pos;
+            Property<Frame> end_pos;
             InputType    input;
             CommandType  command;
             ModelType    model;

@@ -1,10 +1,17 @@
 #ifndef SIMULATOR_HPP
 #define SIMULATOR_HPP
 
-#include "KinematicsComponent.hpp"
+#include <kindyn/KinematicsComponent.hpp>
 
-namespace ControlKernel
+namespace ORO_ControlKernel
 {
+    using ORO_CoreLib::Double6D;
+    using ORO_Geometry::Twist;
+    using ORO_Geometry::Frame;
+    using ORO_KinDyn::KinematicsComponent;
+    using ORO_KinDyn::KinematicsInterface;
+    using ORO_KinDyn::Configuration;
+
     /**
      * A simulator for a 6DOF robot. One can set the twist or joint
      * velocity which must be integrated over a certain time. The resulting
@@ -28,7 +35,7 @@ namespace ControlKernel
              * @param t     The end effector twist.
              * @param time  The time period these must be applied.
              */
-            virtual void setTwist(const ORO_Geometry::Twist& t, double time) = 0;
+            virtual void setTwist(const Twist& t, double time) = 0;
             
             /**
              * Read the resulting joint positions.
@@ -73,7 +80,7 @@ namespace ControlKernel
                 kineComp.stateSet(q6);
             }
             
-            virtual void setTwist(const ORO_Geometry::Twist& t, double time)
+            virtual void setTwist(const Twist& t, double time)
             {
                 //cout << t<<endl;
                 if (kineComp.positionForward(q6, frame) )
@@ -93,7 +100,7 @@ namespace ControlKernel
                 return q6;
             }
         protected:
-            ORO_Geometry::Frame frame;
+            Frame frame;
             Double6D q6;
             KinematicsComponent kineComp;
     };

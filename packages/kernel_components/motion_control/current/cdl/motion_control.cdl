@@ -5,7 +5,7 @@ Components for 2D or 3D motion control, e.g. trajectory
 planning and interpolation, axis-level control,..."
     parent OROPKG_KERNEL_COMPONENTS
 
-    include_dir control_kernel
+    include_dir kernel_components
 
     #include_files KinematicEstimator.hpp  TrajectoryGenerator.hpp  Simulator.hpp
 }
