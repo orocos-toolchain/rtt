@@ -69,18 +69,29 @@ namespace ORO_ControlKernel
     {
     public:
 
-        /**
-         * @brief Set up a control kernel.
+        /** 
+         * @brief Set up a control kernel. 
+         * 
+         * @param prefix The namespace prefix of the data objects.
+         * 
          */
-        NSControlKernel()
+        NSControlKernel(const std::string& prefix)
+            : BaseKernel( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                          prefix + "::SetPoints", prefix + "::Outputs")
         {}
 
         /**
          * @brief Create a nameserved control kernel.
+         
+         * @param prefix The namespace prefix of the data objects.
+         * @param name The name of the kernel
          */
-        NSControlKernel(const std::string& name)
-            :NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
-        {}
+        NSControlKernel(const std::string& prefix, const std::string& name)
+            : BaseKernel( prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                          prefix + "::SetPoints", prefix + "::Outputs"),
+              NameServerRegistrator< NSControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
+        {
+        }
 
         /**
          * @brief The NSControlKernel nameserver.

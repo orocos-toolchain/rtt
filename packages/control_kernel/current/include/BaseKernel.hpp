@@ -62,12 +62,6 @@ namespace ORO_ControlKernel
          * @}
          */
 
-        // XXX TODO : Nameserved DataObject :
-        // typedef DataContainer<SetPointType>::default SePointData; 
-        // typedef DataContainer<CommandType>::locked CommandData;
-        // typedef DataContainer<ModelType>::set_priority ModelType; 
-
-
         /**
          * @defgroup def_comp Default Component Definitions
          * @{
@@ -83,14 +77,26 @@ namespace ORO_ControlKernel
             
         /**
          * @brief Set up the base kernel.
+         *
+         * Optionally, specify the names of the data objects.
          */
-        BaseKernel()
+        BaseKernel(const std::string& inp_name=std::string("Inputs"),
+                   const std::string& mod_name=std::string("Models"),
+                   const std::string& com_name=std::string("Commands"),
+                   const std::string& setp_name=std::string("SetPoints"),
+                   const std::string& out_name=std::string("Outputs") )
             : _Extension(this),
               controller(&dummy_controller), generator(&dummy_generator),
               estimator(&dummy_estimator), effector(&dummy_effector), sensor(&dummy_sensor),
+
+              local_setpoints(setp_name), local_commands(com_name),
+              local_inputs(inp_name), local_models(mod_name), local_outputs(out_name),
+
               setpoints(&local_setpoints), commands(&local_commands),
               inputs(&local_inputs), models(&local_models), outputs(&local_outputs),
-              startup(false)
+
+              startup(false), externalInputs(false), externalOutputs(false),
+              externalModels(false), externalSetPoints(false), externalCommands(false)
         {
             // Load the default (empty) components.
             loadController(controller);
@@ -776,27 +782,27 @@ namespace ORO_ControlKernel
         /**
          * @brief Sets the commands DataObject for this ControlKernel.
          */
-        void setCommands(CommandData* c) { commands = c ; }
+        void setCommands(CommandData* c) { externalCommands=true; commands = c ; }
 
         /**
          * @brief Sets the setpoints DataObject for this ControlKernel.
          */
-        void setSetpoints(SetPointData* s) { setpoints = s; }
+        void setSetpoints(SetPointData* s) { externalSetPoints=true; setpoints = s; }
 
         /**
          * @brief Sets the models DataObject for this ControlKernel.
          */
-        void setModels(ModelData* m) { models = m; }
+        void setModels(ModelData* m) { externalModels=true; models = m; }
 
         /**
          * @brief Sets the inputs DataObject for this ControlKernel.
          */
-        void setInputs(InputData* i) { inputs = i; }
+        void setInputs(InputData* i) { externalInputs=true; inputs = i; }
 
         /**
          * @brief Sets the outputs DataObject for this ControlKernel.
          */
-        void setOutputs(OutputData* o) { outputs = o; }
+        void setOutputs(OutputData* o) { externalOutputs=true; outputs = o; }
     protected:
 
         /**
@@ -847,6 +853,13 @@ namespace ORO_ControlKernel
         std::vector<DefaultEffector*>   effectors;
         std::vector<DefaultEstimator*>  estimators;
         std::vector<DefaultSensor*>     sensors;
+
+        bool externalInputs;
+        bool externalOutputs;
+        bool externalModels;
+        bool externalSetPoints;
+        bool externalCommands;
+
     };
     }
 }

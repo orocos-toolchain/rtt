@@ -1059,7 +1059,7 @@
       </para>
     </sect1>
     <sect1>
-      <title>Cascading Standard Control Kernels</title>
+      <title>Cascading Control Kernels</title>
       <sect2>
 	<title>The CascadeControlKernel</title>
 	<para>
@@ -1085,14 +1085,14 @@
 	<para>The CascadeInnerControlKernel can thus be used as a normal
 	  standalone kernel, since it has all the components present.
 	  The CascadeControlKernel can only exist on top of an
-	  CascadeInnerControlComponent, which is reflected by its
+	  CascadeInnerControlKernel, which is reflected by its
 	  constructor. It must also have the same DataTypes for its
 	  Model and Inputs as the CascadeInnerControlKernel. The DataType
 	  of the Output must match the Command DataType of the
 	  CascadeInnerControlKernel.
 	</para>
 	<example>
-	  <title>Cascaded Standard Control Kernel</title>
+	  <title>Cascaded Control Kernel</title>
 	  <para>This example shows a cascade of three
 	    control kernels.
 	  </para>
@@ -1131,18 +1131,138 @@ CascadeControlKernel<Casc2CommandT, Casc2SetPointT, InputT, ModelT, Casc1Command
 	  robotics for example, this kernel configuration
 	  is most suitable for calculating the inverse kinematics. 
 	</para>
-	<para></para>
+	<para>
+	  
+	</para>
+	<example>
+	  <title>The ModelControlKernel and ModelInnerControlKernel</title>
+	  <para>
+	    This example demonstrates a three layer kernel layout with the
+	    model being calculated in the middle layer. It is similar to the
+	    CascadeControlKernel, but in addition,
+	    the other kernels must be told where the model resides.
+	  </para>
+	  <programlisting><![CDATA[
+// The only inner kernel ...
+ModelInnerControlKernel<InnerCommandT, InnerSetPointT, InputT, ModelT, OutputT> innerKernel;
+
+// A cascade.
+// InnerCommandT is used as output type.
+// Further, we pass the dataobjects of the innerkernel to the constructor
+ModelControlKernel<Mod1CommandT, Mod1SetPointT, InputT, ModelT, InnerCommandT>
+    mod1Kernel( innerKernel.getInputs(), innerKernel.getCommands() );
+    // load & select the estimator in this mod1Kernel object
+
+// same as above, but the Casc1CommandT is used as output type, and no
+// estimator is loaded.
+ModelControlKernel<Mod2CommandT, Mod2SetPointT, InputT, ModelT, Casc1CommandT> 
+    mod2Kernel( innerKernel.getInputs(), mod1Kernel.getCommands() );
+
+// ... repeat as much as you want
+
+// Tell the other kernels where the model is
+innerKernel.setModels( mod1Kernel.getModels() );
+mod2Kernel.setModels( mod1Kernel.getModels() );
+
+// Load and Select components...
+// only the estimator of the mod1Kernel will be used.
+]]>
+	  </programlisting>
+	  <para>
+	    The model is thus calculated by an estimator in the mod1Kernel
+	    object. All other kernels (inner and outer) must be informed which
+	    model to use. Only one estimator can be used.
+	  </para>
+	</example>
       </sect2>
     </sect1>
     <sect1>
       <title>Cascading NS Control Kernels</title>
+      <para>Cascading NS Control kernels is in fact easier than its
+      not nameserved counterpart. Only one type of kernel is to be used
+      ( so no inner kernel ) and sharing data is mainly based on names
+      instead of exchanging dataobjects. There is only one implementation of the
+      NSControlKernel which is meant for cascading and that is the
+      CascadeNSControlKernel. </para>
       <sect2>
 	<title>The CascadeNSControlKernel</title>
-	<para></para>
-      </sect2>
-      <sect2>
-	<title>The ModelNSControlKernel</title>
-	<para></para>
+	<para>
+	  This kernel is usable for the most complex cascades imaginable.
+	  Each cascaded kernel can have all components and all dataobjects
+	  can be shared across these kernels, if the user wants to. The
+	  only limitation is that only one component may write to a certain
+	  nameserved dataobject, all the others may read it, independent
+	  of the priority level. This is logical since if more than one
+	  component writes data into a DataObject, the contents become
+	  ambiguous.
+	</para>
+	<para>
+	  From the public interface, the CascadeNSControlKernel does not
+	  look differently than the NSControlKernel. However, its
+	  DataObjects are choosen in such a way that they are fully
+	  thread safe and non blocking by using the DataObjectBuffer
+	  implementation. In this kernel however, you want the prefix
+	  to match the one of another kernel, so that they share 
+	  the same DataObjects. The NonServed type of each DataObject
+	  is not shared across kernels though. If you want this behaviour,
+	  you need to use the classical set/get methods to assign dataobjects
+	  to other kernels. 
+	  <warning>
+	    This will cause one kernel to become the owner
+	    and thus the other will no longer update the component that writes
+	    to that dataobject. This can lead to unexpected behaviour so 
+	    assigning a different DataObject to a kernel must be done with care
+	    since the kernel will only read from it and not write to it.
+	  </warning>
+	</para>
+	<para>
+	  The Outputs of one kernel will be automatically introduced
+	  in the Commands namespace of the other kernels. One should be
+	  aware of possible name clashes. Of course, what one kernel
+	  expects as a command should be produced by another kernel as
+	  output. If this is not the case, the DataObject will not be
+	  found by the nameserver, and the component will fail to startup.
+	</para>
+	<para>
+	  <example>
+	    <title>Cascading Three Nameserved Kernels</title>
+	    <para>
+	      This example demonstrates a three layer kernel layout with
+	      the CascadeNSControlKernel. The model may be calculated 
+	      anywhere and different parts of the model may be calculated
+	      in different kernels. Again, only one component in one kernel
+	      may write to a specific nameserved DataObject, while all
+	      the others may read from it.
+	    </para>
+	    <programlisting><![CDATA[
+// The highest priority kernel
+CascadeNSControlKernel<Casc1CommandT, Casc1SetPointT, Casc1InputT, Casc1ModelT, Casc1OutputT> 
+    casc1Kernel( "my_cascade" );
+
+// A cascade.
+CascadeNSControlKernel<Casc2CommandT, Casc2SetPointT, Casc2InputT, Casc2ModelT, Casc2OutputT>
+    casc2Kernel( "my_cascade" );
+
+// same as above
+CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, Casc3OutputT> 
+    casc3Kernel( "my_cascade" );
+
+// ... repeat as much as you want
+
+// Load and Select components...
+
+// Start kernels in tasks.
+]]>
+	    </programlisting>
+	    <para>
+	      As you can see, the types of all three kernels are completely different.
+	      But what is not shown above is that they introduce the same ServedTypes.
+	      and the CascadeNSControlKernel knows it has to put the output of the
+	      one kernel in the namespace of the commands of the other kernels.
+	      A more elaborated example can be found in the kernel_samples package.
+	    </para>
+	  </example>
+	</para>
       </sect2>
     </sect1>
   </chapter>

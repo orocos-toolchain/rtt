@@ -65,6 +65,13 @@ namespace ORO_ControlKernel
             : prefix(_prefix) {}
 
         /**
+         * Change the prefix of this server.
+         *
+         * @param _prefix The new prefix.
+         */
+        void changePrefix(const std::string& _prefix) { prefix = _prefix; }
+
+        /**
          * Get a member variable of a DataObject.
          * @return true if it could be get, false otherwise.
          */
@@ -74,7 +81,6 @@ namespace ORO_ControlKernel
             if ( (res = ns.getObject(prefix + name) ) )
                 {
                     res->Get(m);
-                    //m = *res;
                     return true;
                 }
             return false;
@@ -105,7 +111,6 @@ namespace ORO_ControlKernel
             DataObjectType_ptr res;
             if (( res = ns.getObject(prefix + name)) ) {
                 res->Set(m);
-                //*res = m;
                 return true;
             }
             return false;
@@ -222,6 +227,7 @@ namespace ORO_ControlKernel
                     delete *it;
                 }
         }
+        void changePrefix(const std::string& prefix) { DataObjectServer<First>::changePrefix(prefix); }
     private:
         /**
          * The nameserved DataObject.
@@ -271,6 +277,7 @@ namespace ORO_ControlKernel
                     delete *it;
                 }
         }
+        void changePrefix(const std::string& prefix) { DataObjectServer<First>::changePrefix(prefix); }
     private:
         std::vector< First* > fv;
     };
@@ -286,6 +293,7 @@ namespace ORO_ControlKernel
         bool Set( First<nil_type>& ) {}
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
+        void changePrefix(const std::string& prefix) { }
     };
 
     /**
@@ -299,6 +307,7 @@ namespace ORO_ControlKernel
         bool Set( First& ) {}
         template< typename pair_type, typename index_type>
         NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
+        void changePrefix(const std::string& prefix) { }
     };
 
     template< typename _T0= nil_type,
@@ -378,6 +387,15 @@ namespace ORO_ControlKernel
         typedef NameSubClass< NameList<DataObjectPriorityGet<typename C::T0>, NameList<DataObjectPriorityGet<typename C::T1>, NameList<DataObjectPriorityGet<typename C::T2>, NameList<DataObjectPriorityGet<typename C::T3>, NameList<DataObjectPriorityGet<typename C::T4>,NameList<DataObjectPriorityGet<typename C::T5>,NameList<DataObjectPriorityGet<typename C::T6>, NameList<DataObjectPriorityGet<typename C::T7>, NameList<DataObjectPriorityGet<typename C::T8>, NameList< DataObjectPriorityGet<typename C::T9> > > > > > > > > > > > tree;
     };
 
+    template< typename C>
+    struct DataObjectBufferContainer
+    {
+        typedef C NamesTypes; 
+        template< typename D>
+        struct DataObjectType { typedef DataObjectBuffer<D> type; };
+        typedef NameSubClass< NameList<DataObjectBuffer<typename C::T0>, NameList<DataObjectBuffer<typename C::T1>, NameList<DataObjectBuffer<typename C::T2>, NameList<DataObjectBuffer<typename C::T3>, NameList<DataObjectBuffer<typename C::T4>,NameList<DataObjectBuffer<typename C::T5>,NameList<DataObjectBuffer<typename C::T6>, NameList<DataObjectBuffer<typename C::T7>, NameList<DataObjectBuffer<typename C::T8>, NameList< DataObjectBuffer<typename C::T9> > > > > > > > > > > > tree;
+    };
+
     // Deprecated, erase when code is stable :
 //     template< typename C>
 //     struct NakedContainer
@@ -396,9 +414,8 @@ namespace ORO_ControlKernel
          * (simple, locked, priority_set,...) and which contains one not nameserved type and
          * multiple nameserved types.
          *
-         *  Automatic registration.
-         * BaseContainer contains all not nameserved objects in a standard DataObject.
-         * NameContainer contains all names of the following types, retrievable by an std::iterator.
+         * NameContainer is one of the specialised containers for holding type info of
+         * the objects to be served.
          */
     template<typename _NameContainer>
     class NameServedDataObject
@@ -423,11 +440,16 @@ namespace ORO_ControlKernel
          * @param prefix The scope of the nameserver, to avoid clashes with
          *        other nameservers (the user does not see this).
          */
-        NameServedDataObject(const std::string prefix="") 
+        NameServedDataObject(const std::string& prefix = std::string()) 
             : _NameContainer::NamesTypes(), 
               // MemberFromBase<typename _NameContainer::NamesTypes::reverse_iterator>( rend() ), // deprecated
               _NameContainer::tree( prefix, std::make_pair( begin(), end() ), 0 )
         {
+        }
+
+        void changePrefix(const std::string& prefix)
+        {
+            _NameContainer::tree::changePrefix(prefix);
         }
 
         /**
@@ -445,9 +467,6 @@ namespace ORO_ControlKernel
 
         typedef typename _NameContainer::NamesTypes::DataType DataType;
 
-//      void Get( DataType& pull) const;
-//      const DataType& Get() const;
-//      void Set( const DataType& push);
     };
 
 
@@ -468,6 +487,7 @@ namespace ORO_ControlKernel
             typedef NameServedDataObject< DataObjectLockedContainer< DataNames > > locked;
             typedef NameServedDataObject< DataObjectPrioritySetContainer< DataNames > > priority_set;
             typedef NameServedDataObject< DataObjectPriorityGetContainer< DataNames > > priority_get;
+            typedef NameServedDataObject< DataObjectBufferContainer< DataNames > > buffer;
         }; 
 
 

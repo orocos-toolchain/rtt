@@ -74,7 +74,23 @@ namespace ORO_ControlKernel
         _DataType data;
 
         mutable _DataType cache;
+        
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObjectLocked by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectLocked(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -143,7 +159,22 @@ namespace ORO_ControlKernel
         _DataType copy;
 
         mutable _DataType cache;
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObjectPriorityGet by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectPrioritySet(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -223,7 +254,22 @@ namespace ORO_ControlKernel
         _DataType copy;
 
         mutable _DataType cache;
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObjectPriorityGet by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectPriorityGet(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -300,13 +346,28 @@ namespace ORO_ControlKernel
         DataBuf data[BUF_LEN];
 
         mutable _DataType cache;
+
+        const std::string name;
     public:
-        DataObjectBuffer() 
+        /** 
+         * Construct a DataObjectBuffer by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectBuffer(const std::string& _name = std::string()) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               head(&data[ 0 ]), 
-              tail(&data[ BUF_LEN-1 ]) {}
-        
+              tail(&data[ BUF_LEN-1 ]),
+              name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -344,7 +405,8 @@ namespace ORO_ControlKernel
              * This method can not be called concurrently (only one
              * producer). With a minimum of 3 buffers, if the 
              * write_ptr+1 field is not occupied, it will remain so
-             * because the read_ptr is at write_ptr-1. Hence, no
+             * because the read_ptr is at write_ptr-1 (and can
+             * not increment the counter on write_ptr+1). Hence, no
              * locking is needed.
              */
             // writeout in any case
@@ -375,7 +437,22 @@ namespace ORO_ControlKernel
          */
         _DataType data;
 
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObject by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObject(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -415,7 +492,23 @@ namespace ORO_ControlKernel
          */
         _DataType data;
         mutable Event    updated;
+
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObject by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectUpdated(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         /**
          * The type of the data.
          */
@@ -506,7 +599,22 @@ namespace ORO_ControlKernel
          * Time of last measurement.
          */
         mutable HeartBeatGenerator::ticks timeStamp;
+        const std::string name;
     public:
+        /** 
+         * Construct a DataObject by name.
+         * 
+         * @param _name The name of this DataObject.
+         */
+        DataObjectRefreshed(const std::string& _name = std::string()) : name(_name) {}
+
+        /** 
+         * Return the name of this DataObject.
+         * 
+         * @return The name
+         */
+        const string& getName() const { return name;}
+
         typedef _DataType DataType;
 
         /**

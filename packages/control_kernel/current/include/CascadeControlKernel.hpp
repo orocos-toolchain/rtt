@@ -97,7 +97,6 @@ namespace ORO_ControlKernel
     };
 
     template <class C, class S, class I, class M, class O, class E >
-    //CascadeControlKernel<C,S,I,M,O,E>::NameServer<CascadeControlKernel<C,S,I,M,O,E>* > nameserver;
     NameServer<CascadeControlKernel<C,S,I,M,O,E>*> CascadeControlKernel<C,S,I,M,O,E>::nameserver;
 
     /**
@@ -154,7 +153,6 @@ namespace ORO_ControlKernel
     };
 
     template <class C, class S, class I, class M, class O, class E >
-    //CascadeInnerControlKernel<C,S,I,M,O,E>::NameServer<CascadeInnerControlKernel<C,S,I,M,O,E>* > nameserver;
     NameServer<CascadeInnerControlKernel<C,S,I,M,O,E>*> CascadeInnerControlKernel<C,S,I,M,O,E>::nameserver;
 
                 
