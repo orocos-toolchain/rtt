@@ -25,39 +25,32 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef BUFFERINTERFACE_HPP
-#define BUFFERINTERFACE_HPP
+#ifndef ORO_CORELIB_BUFFERINTERFACE_HPP
+#define ORO_CORELIB_BUFFERINTERFACE_HPP
 
-typedef unsigned int size_t;
-
-#include "ReadNonBlockingInterface.hpp"
-#include "WriteNonBlockingInterface.hpp"
+#include "ReadInterface.hpp"
+#include "WriteInterface.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * A buffer is a object where you can write data to and read data from.
-     * All operations are non blocking.
-     * It's possible that not all data written will be read.
-     * @see ReadNonBlockingInterface
-     * @see WriteNonBlockingInterface
+     * A buffer is a object where you can write byte data to and read byte data from.
      */
-
     class BufferInterface :
-                public ReadNonBlockingInterface,
-                public WriteNonBlockingInterface
+        public ReadInterface,
+        public WriteInterface
     {
+        typedef unsigned int size_t;
+    public:
+        virtual ~BufferInterface()
+        {}
 
-        public:
-            virtual ~BufferInterface()
-            {}
-
-            /**
-             * Returns the maximum number of bytes that can be stored in the
-             * buffer.
-            * @return maximum number of bytes
-             */
-            virtual size_t capacityGet() = 0;
+        /**
+         * Returns the maximum number of bytes that can be stored in the
+         * buffer.
+         * @return maximum number of bytes
+         */
+        virtual size_t capacityGet() = 0;
 
     };
 }

@@ -20,35 +20,25 @@
 
 
 
-#ifndef BUFFERSIMPLE_HPP
-#define BUFFERSIMPLE_HPP
+#ifndef ORO_CORELIB_BUFFERSIMPLE_HPP
+#define ORO_CORELIB_BUFFERSIMPLE_HPP
 
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
 #include "BufferInterface.hpp"
-#include "ReadNonBlockingInterface.hpp"
-#include "WriteNonBlockingInterface.hpp"
-
 
 namespace ORO_CoreLib
 {
 
     /**
-     * Implements a very simple threadsafe buffer using swinging buffers.
+     * Implements a very simple blocking threadsafe buffer using swinging buffers.
      * A reader will always read the last written value, so it is possible
      * the reader won't read all 'messages' sent.
-     * Both reading as writing is non blocking (as is for all buffers).
      *
-     * @see ReadNonBlockingInterface
-     * @see WriteNonBlockingInterface
-     * @todo TODO: change names (buf, _buf, length, len look too much alike)
-     * @todo TODO: Lock has to become Spinlock.
      */
-
-    class BufferSimple :
-                public BufferInterface
+    class BufferSimple
+        :public BufferInterface
     {
-
         public:
             /**
              * Create a buffer of size <length>.
@@ -58,7 +48,7 @@ namespace ORO_CoreLib
             /**
              * Destructor
              */
-            virtual ~BufferSimple();
+            ~BufferSimple();
 
             /**
              * Write <length> bytes of buffer.
@@ -67,7 +57,7 @@ namespace ORO_CoreLib
              * If the length specified is larger than the capacity of
              * this buffer, only the first part will be written.
              */
-            virtual int write( const char* buffer, size_t length );
+            int write( const char* buffer, size_t length );
 
             /**
              * Read <length> bytes of buffer.
@@ -76,9 +66,9 @@ namespace ORO_CoreLib
              * the remaining data is lost.
              * A next read (before a write) will return 0.
              */
-            virtual int read( char *buffer, size_t length );
+            int read( char *buffer, size_t length );
 
-            virtual size_t capacityGet();
+            size_t capacityGet();
 
         private:
 

@@ -43,7 +43,8 @@ namespace ORO_CoreLib
      * MAX_THREADS - 1.
      */
     template< class T>
-    class BufferLockFree {
+    class BufferLockFree
+    {
         const static unsigned int MAX_THREADS = 8;
         struct Item {
             Item()  {
@@ -183,6 +184,8 @@ namespace ORO_CoreLib
                     break;
                 atomic_dec( &start->count );
                 ++start;
+                if (start == bufs+MAX_THREADS)
+                    start = bufs; // in case of races, rewind
             }
             return start; // unique pointer across all threads
         }

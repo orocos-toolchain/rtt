@@ -26,10 +26,8 @@
  ***************************************************************************/ 
  
 
-#ifndef READINTERFACE_HPP
-#define READINTERFACE_HPP
-
-#include "os/fosi.h"
+#ifndef ORO_CORELIB_READINTERFACE_HPP
+#define ORO_CORELIB_READINTERFACE_HPP
 
 namespace ORO_CoreLib
 {
@@ -39,6 +37,7 @@ namespace ORO_CoreLib
      */
     class ReadInterface
     {
+        typedef unsigned int size_t;
         public:
             /**
              * Read <length> bytes into <buf>.

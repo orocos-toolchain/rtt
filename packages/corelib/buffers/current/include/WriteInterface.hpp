@@ -25,10 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef WRITEINTERFACE_HPP
-#define WRITEINTERFACE_HPP
-
-typedef unsigned int size_t;
+#ifndef ORO_CORELIB_WRITEINTERFACE_HPP
+#define ORO_CORELIB_WRITEINTERFACE_HPP
 
 namespace ORO_CoreLib
 {
@@ -38,6 +36,7 @@ namespace ORO_CoreLib
      */
     class WriteInterface
     {
+        typedef unsigned int size_t;
 
         public:
             /**
@@ -61,7 +60,6 @@ namespace ORO_CoreLib
 
             virtual ~WriteInterface()
             {}
-
     };
 }
 

@@ -34,7 +34,7 @@ namespace ORO_CoreLib
 {
 
     class WriteCout :
-                public WriteInterface
+        public WriteInterface
     {
 
         public:

@@ -28,22 +28,17 @@
 #ifndef BUFFERCIRCULAR_HPP
 #define BUFFERCIRCULAR_HPP
 
-#include "BufferInterface.hpp"
-#include "ReadNonBlockingInterface.hpp"
-#include "WriteNonBlockingInterface.hpp"
 #include <os/Mutex.hpp>
+#include "BufferInterface.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * This class implements a ring buffer, it supports writing and reading
+     * This class implements a blocking ring buffer, it supports writing and reading
      * for temporary storage in a ring buffer of a fixed size.
-     * @see ReadNonBlockingInterface
-     * @see WriteNonBlockingInterface
      */
-
-    class BufferCircular :
-                public BufferInterface
+    class BufferCircular
+        :public BufferInterface
     {
 
         public:
@@ -58,7 +53,7 @@ namespace ORO_CoreLib
             * Returns the size of the buffer in bytes.
             * @return the size of the buffer.
             */
-            virtual size_t capacityGet();
+            size_t capacityGet();
 
             /**
             * Puts 'size' number of bytes from the given address 'buffer' into
@@ -68,7 +63,7 @@ namespace ORO_CoreLib
             * @param size the number of bytes to be copied from the source 
             * address
             */
-            virtual int write( const char * buffer, size_t size );
+            int write( const char * buffer, size_t size );
 
             /**
              * Gets values from the circular buffer and stores them to 
@@ -78,7 +73,7 @@ namespace ORO_CoreLib
              * @param size the number of bytes to be copied from the circular
              * buffer to the destination address
              */
-            virtual int read( char * buffer, size_t size );
+            int read( char * buffer, size_t size );
 
         private:
             char * _buffer;
