@@ -336,6 +336,7 @@ namespace ORO_ControlKernel
          */
         virtual bool updateKernelProperties(const PropertyBag& bag)
         {
+            return true;
         }
         
         /**
