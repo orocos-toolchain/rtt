@@ -142,7 +142,7 @@ namespace ORO_DeviceDriver
       return (double) range.min / 1000000;
 #else
 #ifdef OROPKG_OS_LXRT
-#define __KERNEL__
+//#define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
 			_sd_range[chan], &range);
@@ -178,12 +178,12 @@ namespace ORO_DeviceDriver
       return (double) range.max / 1000000;
 #else
 #ifdef OROPKG_OS_LXRT
-#define __KERNEL__
+//#define __KERNEL__
       comedi_krange range;
       comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
-			_sd_range[chan], range);
+			_sd_range[chan], &range);
       return (double) range.max / 1000000;
-      }
+      
 #else // Userspace
       comedi_range * range_p;
       if ((range_p = comedi_get_range(myCard->getDevice(), 
