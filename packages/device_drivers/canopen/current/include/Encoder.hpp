@@ -29,21 +29,21 @@ namespace CAN
     using Beckhoff::BeckhoffSSI;
 
     class Encoder 
-        : public EncoderInterface
+        : public ORO_DeviceInterface::EncoderInterface
     {
         BeckhoffSSI* bhssi;
         unsigned int chan;
     public:
         Encoder( BeckhoffSSI* ssi, unsigned int channel ) : bhssi(ssi), chan(channel) {}
 
-        int positionGet()
+        int positionGet() const
         {
             int p;
             bhssi->positionGet(chan, p);
             return p;
         }
 
-        int turnGet()
+        int turnGet() const
         {
             int t;
             bhssi->turnGet(chan, t);
@@ -60,9 +60,14 @@ namespace CAN
             bhssi->turnSet(chan, t);
         }
 
-        int resolution()
+        int resolution() const
         {
             return bhssi->resolution();
+        }
+
+        bool upcounting() const
+        {
+            return bhssi->upcounting();
         }
     };
 }

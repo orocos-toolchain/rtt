@@ -20,6 +20,8 @@
 #ifndef NODEGUARD_HPP
 #define NODEGUARD_HPP
 
+#include <corelib/RunnableInterface.hpp>
+
 namespace CAN
 {
 
@@ -27,7 +29,7 @@ namespace CAN
      * A class which encapsulates node guarding when it runs.
      */
     class NodeGuard
-        : public ORO_OS::RunnableInterface ,
+        : public ORO_CoreLib::RunnableInterface ,
           public CANListenerInterface
     {
         CANOpenBus* bus;
@@ -36,7 +38,7 @@ namespace CAN
         unsigned int toggle;
         bool toggle_ok;
         char status;
-
+        TaskInterface* _t;
     public:
 
         /**
@@ -73,6 +75,12 @@ namespace CAN
          */
         bool validToggle() { return toggle_ok; }
 
+        virtual TaskInterface* getTask() const {
+            return _t;
+        }
+        virtual void setTask( TaskInterface* task ) {
+            _t = task;
+        }
 
         bool initialize() 
         { 

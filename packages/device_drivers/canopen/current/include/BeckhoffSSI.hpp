@@ -21,7 +21,7 @@
 #define BECKHOFFSSI_HPP
 
 #include <device_interface/DigitalInInterface.hpp>
-#include <device_interface/EncoderAbsoluteInterface.hpp>
+#include <device_interface/EncoderInterface.hpp>
 #include <corelib/ConfigurationInterface.hpp>
 #include "CANRequest.hpp"
 
@@ -45,7 +45,7 @@ namespace Beckhoff
 	 */
 	class BeckhoffSSI
         : public DigitalInInterface, 
-          //public EncoderAbsoluteInterface, // leave out because of channel issue
+          //public EncoderInterface, // leave out because of channel issue
           // Counter... or 
           public ConfigurationInterface
     {
@@ -72,9 +72,15 @@ namespace Beckhoff
                 }
         }
 
-        int resolution()
+        int resolution() const
         {
             return 4096;
+        }
+
+
+        bool upcounting() const
+        {
+            return true;
         }
 
         void update( const CANMessage* msg )
@@ -114,7 +120,7 @@ namespace Beckhoff
             ++totalTerminals;
         }
 
-        int positionGet( unsigned int channel, int& counter)
+        int positionGet( unsigned int channel, int& counter) const
         {
             if (channel <0 || channel > SSI_TERMINALS)
                 return -1;
@@ -130,7 +136,7 @@ namespace Beckhoff
             return 0;
         }
 
-        int turnGet( unsigned channel, int& turn)
+        int turnGet( unsigned channel, int& turn) const
         {
             if (channel <0 || channel > SSI_TERMINALS)
                 return -1;

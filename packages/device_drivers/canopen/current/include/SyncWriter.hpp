@@ -20,6 +20,8 @@
 #ifndef SYNCWRITER_HPP
 #define SYNCWRITER_HPP
 
+#include <corelib/RunnableInterface.hpp>
+
 namespace CAN
 {
     /**
@@ -27,14 +29,21 @@ namespace CAN
      * it is run.
      */
     class SyncWriter 
-        : public ORO_OS::RunnableInterface 
+        : public ORO_CoreLib::RunnableInterface 
     {
         CANOpenBus* bus;
+        TaskInterface* _t;
     public:
         SyncWriter( CANOpenBus* _bus) : bus(_bus) {}
         bool initialize() { return true; }
         void step() { bus->sync(); }
         void finalize() {}
+        virtual TaskInterface* getTask() const {
+            return _t;
+        }
+        virtual void setTask( TaskInterface* task ) {
+            _t = task;
+        }
     };
 }
 
