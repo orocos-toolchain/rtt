@@ -1,13 +1,12 @@
 #ifndef KERNEL_CONFIG_HPP
 #define KERNEL_CONFIG_HPP
 
-#include <rtstl/rtstl.hpp>
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
-#include <corelib/CPFDemarshaller.hpp>
+#include <corelib/marshalling/CPFDemarshaller.hpp>
 #include "KernelInterfaces.hpp"
 #include <xercesc/framework/LocalFileInputSource.hpp>
-#include <corelib/StreamProcessor.hpp>
+#include <corelib/marshalling/StreamProcessor.hpp>
 
 namespace ORO_ControlKernel
 {

@@ -16,7 +16,7 @@ namespace ORO_ControlKernel
      */
     template <class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultAspect >
     class Controller
-        : public _Aspect::Port::ReadPort< _SetPointType >,
+        : public _Aspect::Port::ReadPort< _SetPointType > ,
           public _Aspect::Port::ReadPort< _ModelType >,
           public _Aspect::Port::ReadPort< _InputType >,
           public _Aspect::Port::WritePort< _OutputType >,
@@ -30,10 +30,10 @@ namespace ORO_ControlKernel
         typedef typename _OutputType::DataType OutputType;
         typedef _Aspect Aspect;
 
-        typedef typename Aspect::Port::WritePort< OutputType > Output;
-        typedef typename Aspect::Port::ReadPort< SetPointType > SetPoint;
-        typedef typename Aspect::Port::ReadPort< InputType > Input;
-        typedef typename Aspect::Port::ReadPort< ModelType > Model;
+        typedef typename Aspect::Port::WritePort< _OutputType > Output;
+        typedef typename Aspect::Port::ReadPort< _SetPointType > SetPoint;
+        typedef typename Aspect::Port::ReadPort< _InputType > Input;
+        typedef typename Aspect::Port::ReadPort< _ModelType > Model;
 
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
@@ -113,10 +113,10 @@ namespace ORO_ControlKernel
         typedef typename _ModelType::DataType ModelType;
         typedef _Aspect Aspect;
 
-        typedef typename Aspect::Port::ReadPort< CommandType >   Command;
-        typedef typename Aspect::Port::ReadPort< InputType >     Input;
-        typedef typename Aspect::Port::ReadPort< ModelType >  Model ;
-        typedef typename Aspect::Port::WritePort< SetPointType > SetPoint;
+        typedef typename Aspect::Port::ReadPort< _CommandType >   Command;
+        typedef typename Aspect::Port::ReadPort< _InputType >     Input;
+        typedef typename Aspect::Port::ReadPort< _ModelType >  Model ;
+        typedef typename Aspect::Port::WritePort< _SetPointType > SetPoint;
             
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
@@ -166,8 +166,8 @@ namespace ORO_ControlKernel
         typedef typename _ModelType::DataType ModelType;
         typedef _Aspect Aspect;
 
-        typedef typename Aspect::Port::ReadPort< InputType > Input;
-        typedef typename Aspect::Port::WritePort< ModelType > Model;
+        typedef typename Aspect::Port::ReadPort< _InputType > Input;
+        typedef typename Aspect::Port::WritePort< _ModelType > Model;
             
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
@@ -206,7 +206,7 @@ namespace ORO_ControlKernel
         typedef typename _OutputType::DataType OutputType;
         typedef _Aspect Aspect;
 
-        typedef typename Aspect::Port::ReadPort< OutputType > Output;
+        typedef typename Aspect::Port::ReadPort< _OutputType > Output;
 
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
@@ -242,7 +242,7 @@ namespace ORO_ControlKernel
         typedef typename _InputType::DataType InputType;
         typedef _Aspect Aspect;
             
-        typedef typename Aspect::Port::WritePort< InputType > Input;
+        typedef typename Aspect::Port::WritePort< _InputType > Input;
             
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
@@ -313,7 +313,6 @@ namespace ORO_ControlKernel
         typedef DataObject<InputType>    InputData;
         typedef DataObject<ModelType>    ModelData;
         typedef DataObject<OutputType>   OutputData;
-
 
         typedef Controller<SetPointData, InputData, ModelData, OutputData, CommonAspect> DefaultController;
         typedef Generator<CommandData, InputData, ModelData, SetPointData, CommonAspect> DefaultGenerator;
