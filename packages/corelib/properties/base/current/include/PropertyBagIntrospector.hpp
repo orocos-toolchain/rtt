@@ -31,6 +31,8 @@
 #include "PropertyBag.hpp"
 #include <stack>
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 

@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#pragma implementation
 #include "corelib/PropertyBag.hpp"
 #include "corelib/Property.hpp"
 

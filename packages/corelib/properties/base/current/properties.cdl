@@ -12,14 +12,12 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
     requires OROPKG_CORELIB
 
     compile PropertyBag.cxx  PropertySequence.cxx VectorComposition.cxx
-    compile Property.cxx PropertyBase.cxx
+    compile Property.cxx PropertyBase.cxx PropertyBagIntrospector.cxx
 
     cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
 	display "Cast-free property operations"
-	description "This option enables the cast free
-           copy/mutate/update operations on the property base class
-           This code is not yet thread safe and based on the Command-Comply
-           software pattern."
+	description "This option enables the
+           copy/mutate/update operations on the PropertyBase class."
 
 	default_value 1
 	compile OperationAcceptor.cxx

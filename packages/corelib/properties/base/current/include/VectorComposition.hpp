@@ -48,7 +48,7 @@ namespace ORO_CoreLib
      * A composeProperty method for composing a property of a vector<double>
      * The dimension of the vector must be less than 100.
      */
-    void composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result);
+    bool composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result);
 
 }; // namespace ORO_CoreLib
 

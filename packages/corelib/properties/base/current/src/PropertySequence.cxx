@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#pragma implementation
 #include "corelib/PropertySequence.hpp"
 #include "corelib/Property.hpp"
 

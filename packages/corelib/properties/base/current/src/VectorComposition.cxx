@@ -39,11 +39,13 @@ namespace ORO_CoreLib
     Property<PropertyBag> result(c.getName(),"std::vector<double>", PropertyBag("std::vector<double>") );
 
     std::vector<double> vec = c.get();
-    unsigned int dimension = vec.size();
+    Property<int>* dimension = new Property<int>("dim","Dimension of the Vector", vec.size() );
+
+    result.value().add( dimension );
 
     std::string data_name = "d00";
 
-    for (unsigned int i=0; i < dimension ; i++)
+    for ( int i=0; i < dimension->get() ; i++)
     {
         result.value().add( new Property<double>(data_name,"",vec[i]) ); // Put variables in the bag
 
@@ -63,6 +65,7 @@ namespace ORO_CoreLib
     }
 
     pi->introspect(result); // introspect the bag.
+    deleteProperties( result.value() );
   }
 
 
@@ -70,7 +73,7 @@ namespace ORO_CoreLib
   // A composeProperty method for composing a property of a vector<double>
   // The dimension of the vector must be less than 100.
 
-  void composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result)
+  bool composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result)
   {
     PropertyBase* v_base = bag.find( result.getName() );
     Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
@@ -81,9 +84,9 @@ namespace ORO_CoreLib
         Property<double>* comp;
 
         // cerr << "Getting dimension ... ";
-        Property<double>* dim;
-        dim = dynamic_cast< Property<double>* >(v_bag->get().find("dim"));
-        int dimension = int (dim->get());
+        Property<int>* dim;
+        dim = dynamic_cast< Property<int>* >(v_bag->get().find("dim"));
+        int dimension = dim->get();
         // cerr << dimension << endl;
 
         if (dimension > 99)
@@ -116,7 +119,9 @@ namespace ORO_CoreLib
     else
     {
       // cerr << "\033[1;33mWarning: Bag was empty! \033[0m" << endl;
+        return false;
     }
+    return true;
   }
 
 

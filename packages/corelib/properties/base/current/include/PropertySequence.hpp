@@ -31,6 +31,8 @@
 #include "PropertyBase.hpp"
 #include <vector>
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 	/**

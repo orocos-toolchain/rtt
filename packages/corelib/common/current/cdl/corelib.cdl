@@ -26,4 +26,6 @@ which will in turn be able to build or use experimental
 code. Most users will not need this."
 	flavor bool
     }
+
+    compile MultiVector.cxx
 }

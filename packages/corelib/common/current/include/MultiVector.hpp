@@ -35,6 +35,8 @@
 #include <ostream>
 #endif
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
 
@@ -78,7 +80,7 @@ namespace ORO_CoreLib
          */
         operator T&()
         {
-            return &data;
+            return *data;
         }
 
         /**
@@ -324,6 +326,11 @@ namespace ORO_CoreLib
      * A MultiVector consisting of 6 longs
      */
     typedef MultiVector<6, long> Long6D;
+
+    extern template class MultiVector<6, double>;
+    extern template class MultiVector<6, int>;
+    extern template class MultiVector<6, bool>;
+    extern template class MultiVector<6, long>;
 
 #if OROINT_OS_STDIOSTREAM
 
