@@ -33,17 +33,17 @@
 **  The Jacobian maps joint velocities to end effector velocities,
 **  expressed with respect to the base frame:
 **
-**   |v_ee(x)|  |qdot[0]|
+**   |v_ee(x)|        |qdot[0]|
 **   |   .   | =   J  |   .   |
-**   |w_ee(z)|  |qdot[5]|
+**   |w_ee(z)|        |qdot[5]|
 **
 **  `J' is a function of `q[i]'.
 **
 ** ALGORITHM: We took the Jacobian of the `equivalent' robot
 **  (``ForJacZXXZXZ.c''), and multiplied it (on the right) by `A6':
-**   | I3  0 | | 1  B  0 |
-**     A6 = | |, A3 = | 0  A  0 |,
-**   | 0  A3 | | 1  -B 0 |
+**          | I3  0 |        | 1  B  0 |
+**     A6 = |       |,  A3 = | 0  A  0 |,
+**          | 0  A3 |        | 1  -B 0 |
 **  `A' is the factor multiplying the fifth joint velocity of
 **  a ZXXZXZ robot to obtain the fifth joint velocity of the ZXXDWH.
 **  `B' is `A' * `alphadot' (see e.g. ``ForVelZXXDWH.c'').

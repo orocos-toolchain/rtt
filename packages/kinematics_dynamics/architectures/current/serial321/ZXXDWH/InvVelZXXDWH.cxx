@@ -80,7 +80,7 @@
 **  - "feathZXXZXZ.doc"
 */
 
-#include <iostream>
+//#include <iostream>
 
 #define SQRT3d2 (double)(0.8660254037844386) /* sqrt(3)/2 */
 #define SQRT3t2 (double)(3.46410161513775) /* sqrt(3)*2 */
@@ -90,7 +90,7 @@
 namespace ORO_KinDyn
 {
 
-    using namespace std;
+  //  using namespace std;
     bool SerialZXXDWH::velocityInverse ( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel, Configuration c, Double6D& q, Double6D& qdot, Singularity& s ) const
     {
         double P6x, P6y, P6z; /* Coordinates (in the base frame) of the 6th link */

@@ -36,8 +36,6 @@
 namespace ORO_KinDyn
 {
 
-    using ORO_CoreLib::Double6D;
-
     /**
      * This class provides the kinematics for an ZYYDWH robot.
      * It uses the ZXXDWH implementation for that.
@@ -50,21 +48,21 @@ namespace ORO_KinDyn
     public:
         virtual ~SerialZYYDWH();
 
-        virtual bool jacobianForward( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
+        virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
-        virtual bool jacobianInverse( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
+        virtual bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
-        virtual bool positionForward( const Double6D& q, ORO_Geometry::Frame& mp_base, Singularity& s ) const;
+        virtual bool positionForward( const ORO_CoreLib::Double6D& q, ORO_Geometry::Frame& mp_base, Singularity& s ) const;
 
-        virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, Configuration c, Double6D& q, Singularity& s ) const;
+        virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, Configuration c, ORO_CoreLib::Double6D& q, Singularity& s ) const;
 
-        virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, Configuration c,  Double6D& q, Double6D& qdot, Singularity& s ) const;
+        virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, Configuration c,  ORO_CoreLib::Double6D& q, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
 
-        virtual bool velocityInverse( const Double6D& q, const ORO_Geometry::Twist& vel_base, Double6D& qdot, Singularity& s ) const;
+        virtual bool velocityInverse( const ORO_CoreLib::Double6D& q, const ORO_Geometry::Twist& vel_base, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
 
-        virtual bool velocityForward( const Double6D& q, const Double6D& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const;
+        virtual bool velocityForward( const ORO_CoreLib::Double6D& q, const ORO_CoreLib::Double6D& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const;
 
-        virtual void configurationGet(const Double6D& q, Configuration& c) const;
+        virtual void configurationGet(const ORO_CoreLib::Double6D& q, Configuration& c) const;
 
     virtual void geometrySet( const double len1, const double len2, const double len3,
                       const double len4, const double len5, const double len6 )
