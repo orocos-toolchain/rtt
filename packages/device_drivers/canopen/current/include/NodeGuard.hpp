@@ -26,7 +26,7 @@ namespace CAN
          * @param _bus The bus the node is on.
          * @param node The node number on that bus.
          */
-        NodeGuard( CANOpenBus* _bus, int node ) : bus(_bus), nodeId(node), toggle(2) {}
+        NodeGuard( CANOpenBus* _bus, int node ) : bus(_bus), nodeId(node), toggle(2), toggle_ok(false) {}
 
         /**
          * Returns the status bits of the Remote Transmission Request.
@@ -88,7 +88,7 @@ namespace CAN
         
         void process(const CANMessage* msg)
         {
-            if ( msg->getStdId() == 0x700 + nodeId)
+            if ( msg->getStdId() == 0x700 + nodeId && ! msg->isRemote() )
                 {
                     toggle_ok = false;
                     status = msg->getData(0) & 0x7F;

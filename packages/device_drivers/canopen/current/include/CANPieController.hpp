@@ -45,13 +45,18 @@ namespace CAN
 #ifdef OROPKG_CORELIB_TASKS
              TaskNonPreemptible( period ), 
 #endif
-             CANPieChannel(0),  process_in_int(interrupt)
+             CANPieChannel(0),  process_in_int(interrupt), 
+             total_recv(0), total_trns(0), failed_recv(0), failed_trns(0)
         {
         }
             
         virtual ~CANPieController()
         {
             CpUserAppDeInit(0);
+            cout << "CANPie Controller Statistics :"<<endl;
+            cout << " Total Received    : "<<total_recv<< ".  Failed to Receive (FIFO empty) : "<< failed_recv<<endl;
+            cout << " Total Transmitted : "<<total_trns<< ".  Failed to Transmit (FIFO full) : "<< failed_trns<<
+                ".  Generic Transmit Errors: "<<generic_trns<<endl<<endl;
         }
 
 #ifdef OROPKG_CORELIB_TASKS
@@ -103,8 +108,13 @@ namespace CAN
         {
             int status = CpErr_FIFO_EMPTY;
 
-            if ( (status = CpUserMsgRead(CANPieChannel, &msg) ) )
+            if ( (status = CpUserMsgRead(CANPieChannel, &msg) ) == CpErr_OK )
+                {
                     msg.origin = this;
+                    ++total_recv;
+                }
+            else
+                ++failed_recv;
 
             return (status == CpErr_OK);
         }
@@ -112,6 +122,12 @@ namespace CAN
         bool writeToBuffer(const CANMessage& msg)
         {
             int status = CpUserMsgWrite(CANPieChannel, &msg);
+            if (status == CpErr_OK)
+                ++total_trns;
+            else if (status == CpErr_FIFO_FULL)
+                ++failed_trns;
+            else 
+                ++generic_trns;
             return (status == CpErr_OK);
         }
     protected:
@@ -125,6 +141,7 @@ namespace CAN
                 {
                     CANmsg = *msg;
                     CANmsg.origin = this;
+                    ++total_recv;
 
                     bus->write(&CANmsg);
 
@@ -146,6 +163,11 @@ namespace CAN
 
         CANMessage CANmsg;
 
+        unsigned int total_recv;
+        unsigned int total_trns;
+        unsigned int failed_recv;
+        unsigned int failed_trns;
+        unsigned int generic_trns;
 	};
 			
 }

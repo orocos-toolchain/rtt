@@ -84,6 +84,12 @@ namespace Beckhoff
             StartUpmsg.setData(0,0x01);
             StartUpmsg.setData(1,0x00);
             bus->write(&StartUpmsg);
+
+            /**
+             * Initialisation.
+             */
+            bus->sync();
+            writeOutputs();
             sleep(1);
         }
 

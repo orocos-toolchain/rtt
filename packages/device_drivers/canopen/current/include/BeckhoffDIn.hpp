@@ -22,7 +22,7 @@ namespace Beckhoff
         /**
          */
         BeckhoffDIn(CANDeviceInterface* _coupler)
-            : coupler(_coupler), bit_status(), totalInputs(0)
+            : coupler(_coupler), bit_status(0), totalInputs(0)
         {
         }
         

@@ -63,6 +63,12 @@ namespace CAN
          * @param msg A CANMessage which will be put on the bus.
          */
         virtual void write(const CANMessage *msg) = 0;
+
+        /**
+         * Put a sync message on the bus.
+         */
+        virtual void sync() = 0;
+
 	};
 			
 }
