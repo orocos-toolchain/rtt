@@ -36,6 +36,7 @@
 #include <vector>
 #include "parse_exception.hpp"
 #include "DataSource.hpp"
+#include "ParsedStateContext.hpp"
 
 namespace ORO_CoreLib
 {
