@@ -85,11 +85,10 @@ namespace ORO_CoreLib
             }
         };
 
-    using boost::function;
-
     /**
      * The Orocos Event is a thread-safe wrapper around the boost::signal library
      * and extends its connection syntax with asynchronous event handling.
+     * @see The Orocos CoreLib manual for usage.
      */
     template<
         typename _Signature, // function type R (T1, T2, ..., TN)
@@ -108,6 +107,11 @@ namespace ORO_CoreLib
     {
         ORO_OS::MutexRecursive _mutex;
     public:
+        /**
+         * @see EventProcessor::AsynStorageType
+         */
+        typedef EventProcessor::AsynStorageType AsynStorageType;
+
         typedef boost::signal<
             _Signature,
             Combiner,
@@ -125,6 +129,10 @@ namespace ORO_CoreLib
         typedef _Signature Signature;
         typedef _SlotFunction SlotFunction;
 
+        /**
+         * Create a named Synchronous/Asynchronous Event.
+         * @see boost::signals library
+         */
         explicit Event(const std::string name,
                        const Combiner& combiner = Combiner(),
                        const GroupCompare& group_compare = GroupCompare())
@@ -134,7 +142,10 @@ namespace ORO_CoreLib
             Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;
         }
 
-
+        /**
+         * Create a Synchronous/Asynchrnous Event.
+         * @see boost::signals library
+         */
         explicit Event(const Combiner& combiner = Combiner(),
                        const GroupCompare& group_compare = GroupCompare()) :
             signal_type(combiner, group_compare)
@@ -153,33 +164,33 @@ namespace ORO_CoreLib
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, TaskInterface* task)
+        Handle connect( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( task->thread()->connect( l, *this ), _mutex );
+            return Handle( task->thread()->connect( l, *this, t ), _mutex );
         }
 
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, EventProcessor* ep)
+        Handle connect( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( ep->connect( l, *this ), _mutex );
+            return Handle( ep->connect( l, *this, t ), _mutex );
         }
 
         /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task)
+        Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( signal_type::connect( l ), task->thread()->connect( c, *this ), _mutex );
+            return Handle( signal_type::connect( l ), task->thread()->connect( c, *this, t ), _mutex );
         }
 
         /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance() )
+        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
-            return Handle( signal_type::connect( l ), ep->connect( c, *this ), _mutex );
+            return Handle( signal_type::connect( l ), ep->connect( c, *this, t ), _mutex );
         }
 
         /**
