@@ -44,9 +44,10 @@
 /**
  * @file CartesianNSComponents.hpp
  *
- * This file contains components for
- * use in cartesian path planning. Only Nameserved
- * DataObjects are used.
+ * This file contains some 'example' components for
+ * use in cartesian path planning. Mainly Nameserved
+ * DataObjects are used, but it demonstrates that
+ * they can be mixed with classical DataObjects.
  */
     
 namespace ORO_ControlKernel
@@ -57,12 +58,16 @@ namespace ORO_ControlKernel
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
     using namespace ORO_Execution;
 #endif
+    struct CartesianCommands     { Trajectory* trajectory; Frame task_frame; Frame tool_mp_frame; };
 
     /**
-     * @brief The Nameserved Command DataObjects.
+     * This class represents twice the same data types, once nameserved
+     * and once not nameserved. It is intended to show how an equivalent functionality
+     * can be reached in the NSKernel. (ServedTypes and UnServedTypes are
+     * representing different data, they are not copies or links to each other.)
      */
     struct CartNSCommands
-        : public ServedTypes< Trajectory*, Frame>, public UnServedType<>
+        : public ServedTypes< Trajectory*, Frame>, public UnServedType< CartesianCommands >
     {
         CartNSCommands()
         {
@@ -74,16 +79,20 @@ namespace ORO_ControlKernel
         }
     };
  
+    struct CartesianSetPoints {
+        Frame mp_base_frame;
+        //Frame task_frame;
+        //Double6D q6;
+    };
+
     /**
-     * The SetPoint is expressed in the robot base frame.
+     * Specifying an empty ServedTypes allows you to be compatible
+     * with components written for the DefaultControlKernel . No nameserving is done.
+     * This still can only used in the NSControlKernel.
      */
     struct CartNSSetPoints
-        : public ServedTypes<Frame>, public UnServedType< >
+        : public ServedTypes<>, public UnServedType< CartesianSetPoints >
     {
-        CartNSSetPoints()
-        {
-            this->insert( make_pair(0, "EndEffectorFrame"));
-        }
     };
 
     /**
@@ -107,11 +116,11 @@ namespace ORO_ControlKernel
          */
         CartesianGenerator() 
             : Base("CartesianGenerator"),
-              homepos(Frame::Identity()),
+              end_pos("End Position","One of many variables which can be reported."),
               timestamp(0), _time(0), cur_tr(0),
+              homepos(Frame::Identity()),
               task_frame(Frame::Identity()),
-              tool_mp_frame(Frame::Identity()),
-              end_pos("End Position","One of many variables which can be reported.")
+              tool_mp_frame(Frame::Identity())
         {}
 
         /**
@@ -126,16 +135,16 @@ namespace ORO_ControlKernel
         {
             // startup the component, acquire all the data objects,
             // put sane defaults in the setpoint dataobject.
-            if ( !Base::Command::dObj()->Get("Trajectory", traj_DObj) ||
-                 !Base::Command::dObj()->Get("ToolFrame", tool_f_DObj) ||
-                 !Base::Command::dObj()->Get("TaskFrame", task_f_DObj) ||
-                 !Base::Model::dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
-                 !Base::SetPoint::dObj()->Get("EndEffectorFrame", end_f_DObj) )
+            if ( !Base::Command::dObj()->Get(string("Trajectory"), com_tr) )
                 return false;
+            Base::Input::dObj()->Get(input);
+            Base::Command::dObj()->Get(_command);
+            Base::Model::dObj()->Get(model);
 
             // stay as is.
-            mp_base_f_DObj->Get( mp_base_frame );
-            end_f_DObj->Set( mp_base_frame );
+            result.mp_base_frame = model.mp_base_frame;
+            //cout << "Result :"<< result.mp_base_frame<<endl;
+            Base::SetPoint::dObj()->Set(result);
 
             // record the startup time. 
             timestamp = HeartBeatGenerator::Instance()->ticksGet();
@@ -147,8 +156,9 @@ namespace ORO_ControlKernel
          */
         virtual void pull()
         {
-            // Always read the current position
-            mp_base_f_DObj->Get( mp_base_frame );
+            Base::Command::dObj()->Get( _command );
+            Base::Model::dObj()->Get(model);
+            mp_base_frame = model.mp_base_frame;
             _time = HeartBeatGenerator::Instance()->secondsSince(timestamp);
         }
             
@@ -159,7 +169,8 @@ namespace ORO_ControlKernel
         {
             if ( cur_tr )
                 {
-                    end_pos = task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse();
+                    //result.task_frame = task_frame;
+                    end_pos = result.mp_base_frame = task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse();
                 }
         }
             
@@ -168,7 +179,7 @@ namespace ORO_ControlKernel
          */
         virtual void push()      
         {
-            end_f_DObj->Set( end_pos );
+            Base::SetPoint::dObj()->Set(result);
         }
             
         bool trajectoryDone()
@@ -180,7 +191,7 @@ namespace ORO_ControlKernel
         
         Frame position()
         {
-            return mp_base_frame;
+            return result.mp_base_frame;
         }
 
         double time()
@@ -195,32 +206,19 @@ namespace ORO_ControlKernel
         void loadTrajectory()
         {
             if ( kernel()->isRunning() && trajectoryDone() )
-                {
-                    /**
-                     * First, be sure the given traj is not zero.
-                     * Then, check if we are interpolating a traj or not.
-                     * In wichever case we are, the new traj should start within
-                     * a margin from the current generated position.
-                     */
-                    if (  traj_DObj->Get() != 0 && 
-                          (( cur_tr !=0 &&
-                             Equal( task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse(), 
-                                    task_f_DObj->Get() * traj_DObj->Get()->Pos(0) * tool_mp_frame.Inverse(),0.01) )
-                           ||
-                           ( cur_tr == 0 &&
-                             Equal( mp_base_frame,
-                                    task_f_DObj->Get() * traj_DObj->Get()->Pos(0) * tool_mp_frame.Inverse(),0.01))))
-                        {
-                            cout << "Load Trajectory"<<endl;
-                            // get new trajectory
-                            traj_DObj->Get(cur_tr);
-                            task_f_DObj->Get(task_frame);
-                            tool_f_DObj->Get(tool_mp_frame);
-                            timestamp = HeartBeatGenerator::Instance()->ticksGet();
-                            _time = 0;
-                        }
-                    else cout << "Trajectory not loaded"<<endl;
-                }
+                if ( _command.trajectory !=0 && 
+                     Equal( task_frame * cur_tr->Pos(_time) * tool_mp_frame.Inverse(), 
+                            _command.task_frame * _command.trajectory->Pos(0) * tool_mp_frame.Inverse(),0.01) )
+                    {
+                        cout << "Load Trajectory"<<endl;
+                        // get new trajectory
+                        cur_tr = _command.trajectory;
+                        task_frame = _command.task_frame;
+                        tool_mp_frame = _command.tool_mp_frame;
+                        timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                        _time = 0;
+                    }
+                else cout << "Trajectory not loaded"<<endl;
             cout << "exit loadTrajectory()"<<endl;
         }
 
@@ -232,14 +230,14 @@ namespace ORO_ControlKernel
             // XXX insert proper delete code.
             if ( kernel()->isRunning() && trajectoryDone() )
                 {
-                    cout <<"Home : from "<< mp_base_frame <<" to "<<endl<< homepos <<endl;
+                    cout <<"Home : from "<< model.mp_base_frame <<" to "<<endl<< homepos <<endl;
+                    _time = 0;
                     cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, homepos,
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
                                                      new VelocityProfile_Trap(1,10),10.0);
-                    task_frame = Frame::Identity();
+                    task_frame = Frame::Identity(); //only used for storing the homing pos
                     tool_mp_frame = Frame::Identity();
                     timestamp = HeartBeatGenerator::Instance()->ticksGet();
-                    _time = 0;
                 }
         }
 
@@ -301,36 +299,34 @@ namespace ORO_ControlKernel
         }
 #endif
     protected:
-        Frame homepos;
+        Property<Frame> end_pos;
+        InputType    input;
+        CommandType  _command;
+        ModelType    model;
+        SetPointType result;
+
         HeartBeatGenerator::ticks timestamp;
         Seconds      _time;
 
         Trajectory*  cur_tr;
-        typename Base::Command::DataObject<Trajectory*>::type* traj_DObj;
+        Trajectory*  com_tr;
 
+        Frame homepos;
         Frame task_frame;
-        typename Base::Command::DataObject<Frame>::type* task_f_DObj;
-
         Frame tool_mp_frame;
-        typename Base::Command::DataObject<Frame>::type* tool_f_DObj;
-
-        Property<Frame> end_pos;
-        typename Base::SetPoint::DataObject<Frame>::type* end_f_DObj;
-
         Frame mp_base_frame;
-        typename Base::Model::DataObject<Frame>::type* mp_base_f_DObj;
     };
     
+    // one Model :
+    struct CartesianModel { Frame mp_base_frame; };
+
     /**
-     * The Estimator only estimates the cartesian coordinates.
+     * Specifying an empty ServedTypes allows you to be compatible
+     * with the DefaultControlKernel implementation. No nameserving is done.
      */
     struct CartNSModel
-        : public ServedTypes<Frame>, public UnServedType< >
-    {
-        CartNSModel() {
-            this->insert(make_pair(0, "EndEffPosition"));
-        }
-    };
+        : public ServedTypes<>, public UnServedType< CartesianModel >
+    {};
 
     /**
      * A Cartesian Estimator
@@ -366,12 +362,8 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
         {
-            // Get the JointPositions DataObject and the 
-            if ( !Base::Input::dObj()->Get( "JointPositions", jpos_DObj ) ||
-                 !Base::Model::dObj()->Get( "EndEffPosition", endframe_DObj ) )
-                return false;
             pull();
-            if ( !kineComp->positionForward( q6, mp_base_frame) )
+            if ( !kineComp->positionForward(input.q6, model.mp_base_frame) )
                 return false;
             push();
             return true;
@@ -382,7 +374,7 @@ namespace ORO_ControlKernel
          */
         virtual void pull()      
         {
-            jpos_DObj->Get( q6 );
+            Base::Input::dObj()->Get(input);
         }
             
         /**
@@ -390,7 +382,7 @@ namespace ORO_ControlKernel
          */
         virtual void calculate() 
         {
-            if ( !kineComp->positionForward( q6, mp_base_frame) )
+            if ( !kineComp->positionForward(input.q6, model.mp_base_frame) )
                 {
                     EventOperationInterface* es = EventOperationInterface::nameserver.getObjectByName("SingularityDetected");
                     if ( es != 0 )
@@ -403,7 +395,7 @@ namespace ORO_ControlKernel
          */
         virtual void push()      
         {
-            endframe_DObj->Set( mp_base_frame );
+            Base::Model::dObj()->Set(model);
         }
             
         /**
@@ -434,25 +426,23 @@ namespace ORO_ControlKernel
         Property<string> kineName;
         KinematicsInterface* kine;
         KinematicsComponent* kineComp;
-
-        Double6D q6;
-        typename Base::Input::DataObject<Double6D>::type* jpos_DObj;
-
-        Frame mp_base_frame;
-        typename Base::Model::DataObject<Frame>::type* endframe_DObj;
+        ModelType model;
+        InputType input;
     };
 
-    /**
-     * Calculated joint velocities.
-     */
-    struct CartNSDriveOutputs
-        : public ServedTypes<Double6D>, public UnServedType< >
-    {
-        CartNSDriveOutputs()
-        {
-            this->insert(make_pair(0, "JointVelocities"));
-        }
+    // Send velocities to the drives :
+    struct CartesianDriveOutputs {
+        //Twist mp_base_twist;
+        Double6D q_dot;
     };
+
+/**
+ * Specifying an empty ServedTypes allows you to be compatible
+ * with the DefaultControlKernel implementation. No nameserving is done.
+ */
+struct CartNSDriveOutputs
+    : public ServedTypes<>, public UnServedType< CartesianDriveOutputs >
+{};
 
     /**
      * A Cartesian Controller
@@ -474,28 +464,16 @@ namespace ORO_ControlKernel
             :  Base("CartesianController"),gain("Gain","The error gain.",0),
               end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints","")
         {}
-
-        virtual bool componentStartup()
-        {
-            // Resolve the DataObjects :
-            if ( !Base::Input::dObj()->Get("JointPositions", jpos_DObj) ||
-                 !Base::Model::dObj()->Get("EndEffPosition", curFrame_DObj) ||
-                 !Base::SetPoint::dObj()->Get("EndEffectorFrame", desFrame_DObj) ||
-                 !Base::Output::dObj()->Get("JointVelocities", jvel_DObj) )
-                return false;
-            return true;
-        }
             
         /**
          * @see KernelInterfaces.hpp class ModuleControlInterface
          */
         virtual void pull()      
         {
-            jpos_DObj->Get( q6 );
-            curFrame_DObj->Get( mp_base_frame );
-            desFrame_DObj->Get( setpoint_frame );
-                
-            kineComp.stateSet( q6 );
+            Base::Input::dObj()->Get(input);
+            Base::Model::dObj()->Get(model);
+            Base::SetPoint::dObj()->Get(setpoint);
+            kineComp.stateSet( input.q6 );
         }
             
         /**
@@ -504,17 +482,23 @@ namespace ORO_ControlKernel
         virtual void calculate() 
         {
             // OK FOR ROTATIONAL PART OF TWIST :
-            ee_base = mp_base_frame;
+            ee_base = model.mp_base_frame;
             //ee_base.p = Vector::Zero();
                 
-            kineComp.positionInverse(setpoint_frame, q_des );
-            q_err = q_des - q6; 
-            q_dot = q_err.value() * gain ;
+            kineComp.positionInverse(setpoint.mp_base_frame, q_des );
+            q_err = q_des - input.q6; 
+            output.q_dot = q_err.value() * gain ;
             // ( goal_frame, current_frame )
 #if 0
-            mp_base_twist.vel = FrameDifference(setpoint_frame, mp_base_frame).vel*gain;
-            mp_base_twist.rot = (ee_base * FrameDifference(setpoint_frame, mp_base_frame)).rot*gain;
+            output.mp_base_twist.vel = FrameDifference(setpoint.mp_base_frame, model.mp_base_frame).vel*gain;
+            output.mp_base_twist.rot = (ee_base * FrameDifference(setpoint.mp_base_frame, model.mp_base_frame)).rot*gain;
+            end_twist = output.mp_base_twist;
 #endif
+            //output.mp_base_twist.vel = Vector::Zero();
+            //output.mp_base_twist = ee_base * output.mp_base_twist;
+            //output.mp_base_twist.vel += FrameDifference(setpoint.mp_base_frame, model.mp_base_frame).vel;
+            //output.mp_base_twist = ee_base * FrameDifference(setpoint.mp_base_frame, model.mp_base_frame);
+                
         }
             
         /**
@@ -522,7 +506,7 @@ namespace ORO_ControlKernel
          */
         virtual void push()      
         {
-            jvel_DObj->Set( q_dot );
+            Base::Output::dObj()->Set(output);
         }
             
         /**
@@ -551,23 +535,15 @@ namespace ORO_ControlKernel
             
     protected:
         Property<double> gain;
+        ModelType model;
+        InputType input;
+        SetPointType setpoint;
+        OutputType output;
         Frame ee_base;
         Property<Twist> end_twist;
         Double6D q_des;
         KinematicsComponent kineComp;
         Property<Double6D> q_err;
-
-        Double6D q6;
-        typename Base::Input::DataObject<Double6D>::type* jpos_DObj;
-
-        Frame mp_base_frame;
-        typename Base::Model::DataObject<Frame>::type* curFrame_DObj;
-
-        Frame setpoint_frame;
-        typename Base::SetPoint::DataObject<Frame>::type* desFrame_DObj;
-
-        Double6D q_dot;
-        typename Base::Output::DataObject<Double6D>::type* jvel_DObj;
     };
 
 
@@ -588,19 +564,12 @@ namespace ORO_ControlKernel
             :  Base("CartesianEffector"),endTwist("Twist","The End Effector twist"), sim(_sim)
         {}
 
-        virtual bool componentStartup()
-        {
-            if ( !Base::Output::dObj()->Get("JointVelocities",qdot_DObj) )
-                return false;
-            return true;
-        }
-
         /**
          * @see KernelInterfaces.hpp class ModuleControlInterface
          */
         virtual void pull()      
         {
-            qdot_DObj->Get( q_dot );
+            Base::Output::dObj()->Get(output);
         }
             
         /**
@@ -612,7 +581,7 @@ namespace ORO_ControlKernel
              * Acces device drivers
              */
             if (sim !=0)
-                sim->setQDots(q_dot, 0.05);
+                sim->setQDots(output.q_dot, 0.05);
             //endTwist = output.mp_base_twist;
         }
             
@@ -626,22 +595,20 @@ namespace ORO_ControlKernel
 
     protected:
         Property<Twist> endTwist;
+        OutputType output;
         SimulatorInterface* sim;
-
-        Double6D q_dot;
-        typename Base::Output::DataObject<Double6D>::type* qdot_DObj;
     };
 
-    /*
+    // Sensor measures positions :
+    struct CartesianSensorInputs { Double6D q6; };
+
+    /**
+     * Specifying an empty ServedTypes allows you to be compatible
+     * with the DefaultControlKernel implementation. No nameserving is done.
      */
     struct CartNSSensorInputs
-        : public ServedTypes<Double6D>, public UnServedType< >
-    {
-        CartNSSensorInputs()
-        {
-            this->insert(make_pair(0,"JointPositions"));
-        }
-    };
+        : public ServedTypes<>, public UnServedType< CartesianSensorInputs >
+    {};
 
     /**
      * A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
@@ -664,8 +631,6 @@ namespace ORO_ControlKernel
             
         virtual bool componentStartup()
         {
-            if ( !Base::Input::dObj()->Get("JointPositions", jpos_DObj ) )
-                return false;
             pull();
             push();
             return true;
@@ -680,9 +645,9 @@ namespace ORO_ControlKernel
              * Fake physical sensor data.
              */
             if (sim != 0)
-                q6 = sim->getJointPositions();
+                input.q6 = sim->getJointPositions();
             else
-                q6 = 0;
+                input.q6 = 0;
         }
 
         /**
@@ -690,7 +655,8 @@ namespace ORO_ControlKernel
          */
         virtual void push()      
         {
-            jpos_DObj->Set( q6 );
+            Base::Input::dObj()->Set(input);
+            q6 = input.q6;
         }
 
             
@@ -705,10 +671,8 @@ namespace ORO_ControlKernel
             
     protected:
         Event sensorError;
-
         Property<Double6D> q6;
-        typename Base::Input::DataObject<Double6D>::type* jpos_DObj;
-
+        InputType input;
         SimulatorInterface* sim;
     };
 
