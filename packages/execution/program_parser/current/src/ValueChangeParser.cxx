@@ -90,9 +90,8 @@ namespace ORO_Execution
     variabledefinition = (
          "var"
          >> baredefinition
-         >> expect_is( ch_p('=') )
-         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
-
+         >> !( (ch_p('=') >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] )));
+    
     variableassignment = (
          "set"
          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] )

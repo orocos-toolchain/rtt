@@ -438,6 +438,13 @@ namespace ORO_Execution
       return d6[index];
   }
 
+  double array_index( std::vector<double>& v,  int index )
+  {
+      if ( index >= (int)(v.size()) || index < 0 )
+          return 0.0;
+      return v[index];
+  }
+
 
   OperatorRegistry::OperatorRegistry()
   {
@@ -534,6 +541,7 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", mystl::multiplies<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
+    add( newBinaryOperator( "[]", std::ptr_fun( &array_index ) ) );
   };
 
   void OperatorRegistry::add( UnaryOp* a )

@@ -122,6 +122,12 @@ namespace ORO_Execution
   }
 
   // check the validity of an index
+  bool ArrayIndexChecker( const std::vector<double>& v, int i )
+  {
+    return i > -1 && i < (int)(v.size());
+  }
+
+  // check the validity of an index
   bool Double6DIndexChecker( const Double6D& d, int i )
   {
     return i > -1 && i < 6;
@@ -162,5 +168,6 @@ namespace ORO_Execution
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
     data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double>( &Double6DIndexChecker );
+    data["array"] = new TemplateIndexTypeInfo<std::vector<double>,int, double>( &ArrayIndexChecker );
   }
 }
