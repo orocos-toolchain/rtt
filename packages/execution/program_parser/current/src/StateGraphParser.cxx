@@ -30,7 +30,7 @@
 #include "execution/StateGraphParser.hpp"
 #include "execution/StateContextBuilder.hpp"
 #include "execution/DataSourceFactory.hpp"
-#include "execution/TaskContext.hpp"
+#include "execution/GlobalFactory.hpp"
 #include "execution/mystd.hpp"
 
 #include "execution/Processor.hpp"
@@ -316,8 +316,9 @@ namespace ORO_Execution
     }
 
     StateGraphParser::StateGraphParser( iter_t& positer,
-                                        TaskContext* tc )
-        : context( tc ),
+                                        Processor* proc,
+                                        GlobalFactory* e )
+        : context( proc, e ),
           mpositer( positer ),
           curtemplatecontext( 0 ),
           curinstantiatedcontext( 0 ),
@@ -333,8 +334,7 @@ namespace ORO_Execution
           conditionparser( context ),
           commandparser( context ),
           valuechangeparser( context ),
-          expressionparser( context ),
-          valueparser( context->valueRepository )
+          expressionparser( context )
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( newline );
@@ -501,7 +501,7 @@ namespace ORO_Execution
         statecommand = emitcommand;
 
         emitcommand = str_p("emit") >> expect_open(str_p("(") )
-                                    >> valueparser.parser()[bind( &StateGraphParser::seenemit, this ) ]
+                                    >> context.valueparser.parser()[bind( &StateGraphParser::seenemit, this ) ]
                                     >> expect_end( str_p( ")" ) );
 
         // You are able to do something everywhere except in transistions :
@@ -524,7 +524,7 @@ namespace ORO_Execution
 
         eventbinding = expect_open(str_p("("))
                        // We use the valueparser to get the const_string actually.
-                       >> valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
+                       >> context.valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
                        >> expect_comma(str_p(","))
                        >> commandparser.parser()[ bind( &StateGraphParser::seensink, this)]
                        >> expect_end( str_p(")") );
@@ -650,7 +650,7 @@ namespace ORO_Execution
 
     void StateGraphParser::seenemit()
     {
-        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( valueparser.lastParsed()) ;
+        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception_semantic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
@@ -707,7 +707,7 @@ namespace ORO_Execution
     void StateGraphParser::eventselected()
     {
         assert( !curevent );
-        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( valueparser.lastParsed()) ;
+        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception_syntactic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
@@ -803,7 +803,7 @@ namespace ORO_Execution
         std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
         for ( std::vector<std::string>::iterator i = subcontextnames.begin();
               i != subcontextnames.end(); ++i )
-            context->dataFactory.unregisterObject( *i );
+            context.globalfactory->dataFactory().unregisterObject( *i );
 
         StateContextBuilder* scb = new StateContextBuilder( curtemplatecontext );
         contextbuilders[curcontextname] = scb;
@@ -811,7 +811,7 @@ namespace ORO_Execution
         curcontextname.clear();
         curtemplatecontext = 0;
         curcontextname.clear();
-        valueparser.clear();
+        context.valueparser.clear();
     }
 
     std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end )
@@ -821,7 +821,7 @@ namespace ORO_Execution
         scanner_pol_t policies( iter_policy );
         scanner_t scanner( begin, end, policies );
 
-        valueparser.clear();
+        context.valueparser.clear();
 
         // reset the condition-transition priority.
         rank = 0;
@@ -870,9 +870,6 @@ namespace ORO_Execution
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
         }
-//         catch( ... ) {
-//             assert( false );
-//         }
     }
 
     StateGraphParser::~StateGraphParser() {
@@ -905,7 +902,7 @@ namespace ORO_Execution
           std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
           for ( std::vector<std::string>::iterator i = subcontextnames.begin();
                 i != subcontextnames.end(); ++i )
-            context->dataFactory.unregisterObject( *i );
+            context.globalfactory->dataFactory().unregisterObject( *i );
           delete curtemplatecontext;
           curtemplatecontext = 0;
         }
@@ -974,7 +971,7 @@ namespace ORO_Execution
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
-        if ( context->dataFactory.getObjectFactory( curinstcontextname ) != 0 )
+        if ( context.globalfactory->dataFactory().getObjectFactory( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );
@@ -982,14 +979,14 @@ namespace ORO_Execution
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         ParsedAliasValue<std::string>* pv = new ParsedAliasValue<std::string>( curinstantiatedcontext->getNameDS() );
-        context->valueRepository.setValue( curinstcontextname, pv );
+        context.valueparser.setValue( curinstcontextname, pv );
 
         // we add a SubContextDataSourceFactory for this subcontext to
         // the global data source factory, so that we can support
         // subcontext introspection...
         SubContextDataSourceFactory* scdsf =
             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
-        context->dataFactory.registerObject( curinstcontextname, scdsf );
+        context.globalfactory->dataFactory().registerObject( curinstcontextname, scdsf );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();

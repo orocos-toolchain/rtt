@@ -32,7 +32,6 @@
 #include "AssignVariableCommand.hpp"
 #include <corelib/CommandInterface.hpp>
 #include "CommonParser.hpp"
-#include "ValueRepository.hpp"
 
 #include <memory>
 #include <map>
@@ -40,9 +39,11 @@
 namespace ORO_Execution
 {
     /**
-     * @brief A class for parsing const values.
+     * @brief A class for keeping track of parsed values/variables.
      *
-     * It recognizes types and stores them in a ParsedValueBase.
+     * It recognizes types and stores them in a map,
+     * so that they can be referenced to later on.
+     * If the 'context' has changed, it must be reset.
      */
   class ValueParser
   {
@@ -50,6 +51,8 @@ namespace ORO_Execution
       const_string;
     CommonParser commonparser;
 
+    typedef std::map<const std::string, ParsedValueBase*> map_t;
+    map_t values;
     // a auto_ptr used only to make sure we don't forget to delete
     // the ParsedValueBase it holds..  Here we store a pointer to
     // the ParsedValueBase for a temporary variable we've just
@@ -75,14 +78,9 @@ namespace ORO_Execution
     void push_str_char( char c );
     void seenstring();
 
-      ValueRepository& _repos;
   public:
-    ValueParser( ValueRepository& repos );
-
+    ValueParser();
     ~ValueParser();
-      /**
-       * Clears this parser, not the repository where it stores its results.
-       */
     void clear();
 
     rule_t& parser();
@@ -90,7 +88,21 @@ namespace ORO_Execution
     const ParsedValueBase* lastParsed() const
       {
         return ret;
-      }
+      };
+
+    bool isDefined( const std::string& name ) const;
+
+    void addConstant( const std::string& name, bool value );
+    void addConstant( const std::string& name, double value );
+    void addConstant( const std::string& name, int value );
+    void addConstant( const std::string& name, const std::string& value );
+    void setValue( const std::string& name, ParsedValueBase* pc );
+    void removeValue( const std::string& name );
+    /**
+     * Get the value with name name.  If no such value exists, this
+     * returns 0.
+     */
+    ParsedValueBase* getValue( const std::string& name );
   };
 }
 

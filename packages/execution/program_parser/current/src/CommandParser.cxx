@@ -44,10 +44,8 @@
 #include "execution/GlobalFactory.hpp"
 #include "execution/AsynchCommandDecorator.hpp"
 
-#include "execution/TaskContext.hpp"
+#include "execution/ParseContext.hpp"
 #include "execution/ArgumentsParser.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/TryCommand.hpp"
 
 namespace ORO_Execution
 {
@@ -59,10 +57,10 @@ namespace ORO_Execution
         assertion<std::string> expect_methodname("Expected a method call on object.");
         assertion<std::string> expect_args( "Expected method call arguments between ()." );
     }
-  CommandParser::CommandParser( TaskContext* c )
-    : masync( true ),  tcom(0), retcommand( 0 ),
-      implicittermcondition( 0 ), dispatchCond(0), peer(0), context( c ),
-      argsparser( 0 ), expressionparser( c ), peerparser( c )
+  CommandParser::CommandParser( ParseContext& c )
+    : masync( true ), retcommand( 0 ),
+      implicittermcondition( 0 ), context( c ),
+      argsparser( 0 ), expressionparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( objectmethod );
     BOOST_SPIRIT_DEBUG_RULE( callcommand );
@@ -87,9 +85,12 @@ namespace ORO_Execution
            bind( &CommandParser::seencallcommand, this ) ]);
 
     // the "x.y" part of a function call..
-    // when 'x.' is ommitted, 'this.' is assumed.
-    objectmethod = peerparser.parser()
-        >> lexeme_d[ expect_methodname( commonparser.lexeme_identifier[
+    objectmethod =
+      lexeme_d[
+        commonparser.lexeme_identifier[
+          bind( &CommandParser::seenobjectname, this, _1, _2 ) ]
+        >> ch_p( '.' )
+        >> expect_methodname( commonparser.lexeme_identifier[
            bind( &CommandParser::seenmethodname, this, _1, _2 ) ])
         ];
   }
@@ -102,22 +103,19 @@ namespace ORO_Execution
 
   void CommandParser::seenstartofcall()
   {
-      mcurobject =  peerparser.object();
-      peer = peerparser.peer();
-
     const GlobalCommandFactory& gcf =
-      peer->commandFactory;
+      context.globalfactory->commandFactory();
     const GlobalMethodFactory& gmf =
-      peer->methodFactory;
+      context.globalfactory->methodFactory();
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
     if ( ! cfi && ! mfi )
-      throw parse_exception_no_such_component( peer->getName()+"::"+mcurobject );
+      throw parse_exception_no_such_component( mcurobject );
 
     // One of both must have the method
     if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) ) )
         throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
-    argsparser = new ArgumentsParser( expressionparser, peer,
+    argsparser = new ArgumentsParser( expressionparser, context,
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();
   }
@@ -165,56 +163,19 @@ namespace ORO_Execution
             }
             
         };
-
-        // Dispatch to another processor.
-        // combine with TryCommand, which provides the DataSource.
-        struct CommandDispatch :
-            public CommandInterface
-        {
-            DataSource<bool>::shared_ptr _dsb;
-            bool send;
-            Processor* proc;
-            CommandInterface* com;
-            CommandDispatch(Processor* p, CommandInterface* c,  DataSource<bool>* dsb )
-                : _dsb(dsb), send(true), proc(p), com(c) {}
-            bool execute() {
-                if ( send ) {
-                    if (proc->process( com ) == true) // try to send each time.
-                    {
-                        send = false;
-                        //cout << "Message Dispatched !" <<endl;
-                    }
-                }
-                // return the accept/reject status.
-                return _dsb->get();
-            }
-            void reset() {
-                send = true;
-                com->reset();
-                _dsb->reset();
-            }
-            CommandInterface* clone() const {
-                return new CommandDispatch( proc, com, _dsb.get() );
-            }
-
-            CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandDispatch( proc, com, _dsb->copy( alreadyCloned ) );
-            }
-        };
     }
 
   void CommandParser::seencallcommand()
   {
-      assert( peer );
     // not really necessary, since mcurobject and mcurmethod should
     // still be valid, but anyway :)
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
     const GlobalCommandFactory& gcf =
-      peer->commandFactory;
+      context.globalfactory->commandFactory();
     const GlobalMethodFactory& gmf =
-      peer->methodFactory;
+      context.globalfactory->methodFactory();
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
 
@@ -287,66 +248,21 @@ namespace ORO_Execution
       throw parse_exception_semantic_error(
         "Something weird went wrong in calling method \"" + mcurmethod +
         "\" on object \"" + mcurobject + "\"." );
-    if ( ! implcond )
-        implcond = new ConditionTrue;
 
-    // Asynchwrapping must happen before dispatch wrapping.
-    // ( it is the asynch that is dispatched, not a asynch dispatch ! )
     if ( masync )
-        com = new AsynchCommandDecorator( com );
-
-    // dispatch a TryCommand to other processor, overthere, the result is ignored,
-    // it is interpreted here, with the implcond. Other condition branches
-    // must be guarded likewise with wrapCondition().
-    if ( peer != context ) {
-        tcom = new TryCommand( com );
-        com = new CommandDispatch( peer->getProcessor(), tcom, tcom->result().get() );
-         // compose impl term cond with accept filter and do not invert the result :
-        implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), implcond);
-    }
+      com = new AsynchCommandDecorator( com );
 
     retcommand = com;
     implicittermcondition = implcond;
   }
 
-    ConditionInterface* CommandParser::wrapCondition( ConditionInterface* c )
-    {
-        if ( peer != context )
-            return new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), c);
-        else 
-            return c;
-    }
-
-    ConditionInterface* CommandParser::dispatchCondition()
-    {
-        if ( tcom == 0 )
-            return 0;
-        if ( dispatchCond == 0 )
-            dispatchCond = new TryCommandResult( tcom->executed(), false );
-        return dispatchCond;
-    }
-
-    CommandParser::~CommandParser()
-    {
-        // if argsparser is non-zero, then something went wrong ( someone
-        // threw an exception, and we didn't reach seencallcommand() ), so
-        // we need to delete the argsparser..
-        delete argsparser;
-        delete retcommand;
-        delete implicittermcondition;
-    }
-
-    void CommandParser::reset()
-      {
-        delete dispatchCond;
-        dispatchCond = 0;
-        peer = 0;
-        tcom = 0;
-        retcommand = 0;
-        implicittermcondition = 0;
-        masync = true;
-        mcurobject.clear();
-        mcurmethod.clear();
-      }
-
+  CommandParser::~CommandParser()
+  {
+    // if argsparser is non-zero, then something went wrong ( someone
+    // threw an exception, and we didn't reach seencallcommand() ), so
+    // we need to delete the argsparser..
+    delete argsparser;
+    delete retcommand;
+    delete implicittermcondition;
+  }
 }

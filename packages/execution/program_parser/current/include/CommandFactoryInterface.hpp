@@ -34,7 +34,6 @@
 #include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include "Processor.hpp"
 
 namespace ORO_Execution
 {

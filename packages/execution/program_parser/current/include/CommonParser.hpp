@@ -40,12 +40,9 @@ namespace ORO_Execution
       std::string lastparsedident;
   public:
       symbols<nil_t> keywords;
-
       // the normal identifier throws an error if it fails to match
       // because a keyword was used.  Normally this is no problem, but
       // if it really is, use notassertingidentifier.
-      rule_t idr;
-      lexeme_rule_t idlr;
       rule_t identifier;
       rule_t notassertingidentifier;
       lexeme_rule_t lexeme_identifier;

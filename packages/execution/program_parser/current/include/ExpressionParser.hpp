@@ -30,8 +30,6 @@
 
 #include "parser-types.hpp"
 #include "CommonParser.hpp"
-#include "PeerParser.hpp"
-#include "ValueParser.hpp"
 #include "DataSource.hpp"
 #include "corelib/Time.hpp"
 
@@ -53,21 +51,24 @@ namespace ORO_Execution
 
     rule_t datacall, arguments;
 
+    void seenobjectname( iter_t begin, iter_t end )
+      {
+        std::string name( begin, end );
+        mobject = name;
+      };
     void seenmethodname( iter_t begin, iter_t end )
       {
         std::string name( begin, end );
         mmethod = name;
       };
-
     void seendataname();
     void seendatacall();
     CommonParser commonparser;
     ExpressionParser& expressionparser;
-    PeerParser peerparser;
-    TaskContext* context;
+    ParseContext& context;
     std::stack<ArgumentsParser*> argparsers;
   public:
-    DataCallParser( ExpressionParser& p, TaskContext* pc );
+    DataCallParser( ExpressionParser& p, ParseContext& pc );
     ~DataCallParser();
 
     rule_t& parser()
@@ -124,14 +125,11 @@ namespace ORO_Execution
     void seendatacall();
     void seentimespec( int n );
     void seentimeunit( iter_t begin, iter_t end );
-      void inverttime();
 
-      TaskContext* context;
-      DataCallParser datacallparser;
-      ValueParser valueparser;
-      bool _invert_time;
+    ParseContext& context;
+    DataCallParser datacallparser;
   public:
-    ExpressionParser( TaskContext* pc );
+    ExpressionParser( ParseContext& pc );
     ~ExpressionParser();
 
     rule_t& parser();

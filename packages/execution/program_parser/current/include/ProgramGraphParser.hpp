@@ -30,7 +30,7 @@
 #include "CommonParser.hpp"
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
-#include "TaskContext.hpp"
+#include "ParseContext.hpp"
 #include "ValueChangeParser.hpp"
 #include "ProgramGraph.hpp"
 
@@ -55,7 +55,7 @@ namespace ORO_Execution
       typedef ProgramGraph::ConditionEdge ConditionEdge;
       typedef ProgramGraph::Graph  Graph;
 
-      TaskContext* context;
+      ParseContext context;
 
       our_pos_iter_t& mpositer;
 
@@ -86,9 +86,6 @@ namespace ORO_Execution
       ConditionInterface* mcondition;
       // try-block condition
       ConditionInterface* try_cond;
-
-      // Dispatch Condition
-      ConditionInterface* dc;
 
       void seencondition();
 
@@ -152,7 +149,8 @@ namespace ORO_Execution
       CommandInterface* for_incr_command;
       std::string program_text;
   public:
-      ProgramGraphParser( iter_t& positer, TaskContext*);
+    ProgramGraphParser( iter_t& positer, Processor* proc,
+                        GlobalFactory* ext );
 
       /**
        * @brief Tries to parse programs, returns the generated programs on success.

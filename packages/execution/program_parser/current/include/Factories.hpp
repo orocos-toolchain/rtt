@@ -1,4 +1,4 @@
 
-#include "GlobalCommandFactory.hpp"
-#include "GlobalMethodFactory.hpp"
-#include "GlobalDataSourceFactory.hpp"
+#include "TemplateCommandFactory.hpp"
+#include "TemplateMethodFactory.hpp"
+#include "TemplateDataSourceFactory.hpp"

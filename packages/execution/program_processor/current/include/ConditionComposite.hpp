@@ -60,12 +60,12 @@ namespace ORO_Execution {
     ConditionBinaryComposite( ConditionInterface* l, ConditionInterface* r )
       : lhs( l ), rhs( r ), o()
       {
-      }
+      };
 
     virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryComposite<op>( lhs->clone(), rhs->clone() );
-      }
+      };
 
       ConditionBinaryComposite<op>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new ConditionBinaryComposite<op>(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
@@ -84,7 +84,7 @@ namespace ORO_Execution {
       {
         lhs->reset();
         rhs->reset();
-      }
+      };
   };
 
   typedef ConditionBinaryComposite<std::logical_or<bool> > ConditionCompositeOR;
@@ -98,7 +98,7 @@ namespace ORO_Execution {
     ConditionCompositeNOT( ConditionInterface* c )
       : cond( c )
       {
-      }
+      };
     ~ConditionCompositeNOT();
     bool evaluate();
     ConditionCompositeNOT* clone() const;

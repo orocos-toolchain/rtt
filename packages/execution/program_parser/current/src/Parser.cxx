@@ -42,7 +42,8 @@ using namespace boost;
 namespace ORO_Execution
 {
 
-  std::vector<ProgramGraph*> Parser::parseProgram( std::istream& s, TaskContext* c)
+  std::vector<ProgramGraph*> Parser::parseProgram( std::istream& s, Processor* proc,
+                                      GlobalFactory* ext )
   {
     our_buffer_t program;
 
@@ -56,14 +57,15 @@ namespace ORO_Execution
     our_pos_iter_t parseend; // not used.
 
     // The internal parser.
-    ProgramGraphParser gram( parsebegin, c );
+    ProgramGraphParser gram( parsebegin, proc, ext );
     std::vector<ProgramGraph*> ret = gram.parse( parsebegin, parseend );
 //     if ( !ret.empty() )
 //       std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;
   };
 
-  std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, const std::string& filename, TaskContext* c)
+  std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, const std::string& filename, Processor* proc,
+                                                              GlobalFactory* ext )
   {
       // This code is copied from parseProgram()
 
@@ -79,7 +81,7 @@ namespace ORO_Execution
     our_pos_iter_t parseend;
 
     // The internal parser.
-    StateGraphParser gram( parsebegin, c );
+    StateGraphParser gram( parsebegin, proc, ext );
     std::vector<ParsedStateContext*> ret;
     try {
       ret = gram.parse( parsebegin, parseend );
@@ -94,12 +96,15 @@ namespace ORO_Execution
   };
 
   ConditionInterface* Parser::parseCondition( std::string& s,
-                                              TaskContext* tc )
+                                              GlobalFactory* e )
   {
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
     our_pos_iter_t parseend;
 
-    ConditionParser parser( tc );
+    // TODO: get a processor from somewhere, even though the condition
+    // parser doesn't really need it..
+    ParseContext pc( 0, e );
+    ConditionParser parser( pc );
     try
     {
       parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
@@ -115,7 +120,7 @@ namespace ORO_Execution
 
   std::pair<CommandInterface*, ConditionInterface*>
   Parser::parseCommand( const std::string& _s,
-                        TaskContext* tc )
+                        GlobalFactory* e )
   {
     // we need a writable version of the string..
     std::string s( _s );
@@ -124,7 +129,8 @@ namespace ORO_Execution
     our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
     our_pos_iter_t parseend;
 
-    CommandParser parser( tc );
+    ParseContext pc( 0, e );
+    CommandParser parser( pc );
     try
     {
       boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );

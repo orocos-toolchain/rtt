@@ -29,7 +29,7 @@
 #include "execution/parse_exception.hpp"
 #include "execution/ValueChangeParser.hpp"
 
-#include "execution/TaskContext.hpp"
+#include "execution/ParseContext.hpp"
 #include "execution/ParsedValue.hpp"
 #include "execution/Types.hpp"
 
@@ -50,7 +50,7 @@ namespace ORO_Execution
     }
 
 
-  ValueChangeParser::ValueChangeParser( TaskContext* pc )
+  ValueChangeParser::ValueChangeParser( ParseContext& pc )
     : assigncommand( 0 ), lastdefinedvalue( 0 ),
       type( 0 ), context( pc ), expressionparser( pc )
   {
@@ -114,7 +114,7 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     ParsedValueBase* var = type->buildConstant();
-    context->valueRepository.setValue( valuename, var );
+    context.valueparser.setValue( valuename, var );
     try
     {
       assigncommand = var->assignCommand( expr.get(), true );
@@ -133,7 +133,7 @@ namespace ORO_Execution
   void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    if ( context->valueRepository.isDefined( name ) )
+    if ( context.valueparser.isDefined( name ) )
       throw parse_exception_semantic_error( "Identifier \"" + name +
                                             "\" is already defined." );
     valuename = name;
@@ -156,7 +156,7 @@ namespace ORO_Execution
     if ( ! alias )
       throw parse_exception_semantic_error(
         "Attempt to define an alias to an expression of a different type." );
-    context->valueRepository.setValue( valuename, alias );
+    context.valueparser.setValue( valuename, alias );
     lastdefinedvalue = alias;
     lastparseddefname = valuename;
     assigncommand = 0;
@@ -165,7 +165,7 @@ namespace ORO_Execution
   void ValueChangeParser::seenvariabledefinition()
   {
     ParsedValueBase* var = type->buildVariable();
-    context->valueRepository.setValue( valuename, var );
+    context.valueparser.setValue( valuename, var );
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     try
@@ -187,7 +187,7 @@ namespace ORO_Execution
   void ValueChangeParser::seenparamdefinition()
   {
     ParsedValueBase* var = type->buildVariable();
-    context->valueRepository.setValue( valuename, var );
+    context.valueparser.setValue( valuename, var );
     lastdefinedvalue = var;
     lastparseddefname = valuename;
     type = 0;
@@ -200,7 +200,7 @@ namespace ORO_Execution
 
   void ValueChangeParser::seenvariableassignment()
   {
-    ParsedValueBase* var = context->valueRepository.getValue( valuename );
+    ParsedValueBase* var = context.valueparser.getValue( valuename );
     if ( !var )
       throw parse_exception_semantic_error(
         "Variable \"" + valuename + "\" not defined." );

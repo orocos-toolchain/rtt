@@ -96,16 +96,7 @@ namespace ORO_Execution {
             "try",
             "catch";
 
-        // chset is copy-constructable, so decl on stack is ok.
         chset<> identchar( "a-zA-Z_0-9" );
-
-        BOOST_SPIRIT_DEBUG_RULE( idr );
-        BOOST_SPIRIT_DEBUG_RULE( idlr );
-        BOOST_SPIRIT_DEBUG_RULE( keywords );
-        BOOST_SPIRIT_DEBUG_RULE( identifier );
-        BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
-        BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
-        BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
 
         // an identifier is a word which can be used to identify a
         // label, or be the name of an object or method.  it is required
@@ -118,16 +109,16 @@ namespace ORO_Execution {
         // both inside and outside of lexeme_d, we need two versions of
         // it.  Those are provided here: lexeme_identifier and
         // identifier..
-        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords];
-        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords];
-        // #warning " Rule on stack  ?? "
-        //RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords] );
-        //BOOST_SPIRIT_DEBUG_RULE( identifier_base );
-        lexeme_identifier = idlr | keywords[bind( &CommonParser::seenillegalidentifier, this )];
-        lexeme_notassertingidentifier = idlr;
+        RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords]);
+        lexeme_identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        notassertingidentifier = identifier_base;
+        identifier = identifier_base | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        lexeme_notassertingidentifier = identifier_base;
 
-        notassertingidentifier = idr;
-        identifier = idr | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+        BOOST_SPIRIT_DEBUG_RULE( identifier );
+        BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
+        BOOST_SPIRIT_DEBUG_RULE( lexeme_identifier );
+        BOOST_SPIRIT_DEBUG_RULE( lexeme_notassertingidentifier );
     }
 
     void CommonParser::seenillegalidentifier()

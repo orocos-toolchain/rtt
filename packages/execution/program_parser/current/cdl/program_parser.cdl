@@ -20,8 +20,6 @@ is very powerful."
     compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactoryInterface.cxx 
     compile GlobalDataSourceFactory.cxx
     compile ParsedStateContext.cxx
-    compile PeerParser.cxx
-    compile ParsedValue.cxx ValueRepository.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 
