@@ -35,7 +35,7 @@ namespace ORO_KinDyn
     bool SerialZYYDWH::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
     {
         Double6D q = original_q;
-
+	//Change from ZYYDWH to ZXXDWH and changing the directions of axis 0, 3 and 5
         q[ 0 ] = - q[ 0 ] - M_PI / 2.0;
         q[ 3 ] = - q[ 3 ];
         q[ 5 ] = - q[ 5 ] + M_PI / 2.0;

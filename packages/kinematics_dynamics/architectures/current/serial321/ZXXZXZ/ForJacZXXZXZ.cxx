@@ -1,4 +1,4 @@
-/*  N O T  F U L L Y  I M P L E M E N T E D !!!
+/*
 ** FILE: ForJacZXXZXZ.c
 ** CREATED: 6 Dec 1992
 ** AUTHOR: Herman Bruyninckx, PMA, KU Leuven, Belgium.
@@ -55,23 +55,7 @@ namespace ORO_KinDyn
         double dWv, dWh;
         
         
-        /*---  VRIJWILLIG INGEZETTE FOUT ------------------------------------------*/
-        //    a =
-
-        /*
-           Vooraleer deze fout te verwijderen, ga na of de kinenatica van de robot
-           goed geimplementeerd is. Lees in het intern rapport 93R20, Wim Persoons,
-           hoe je de waarden van de Jacobiaan, de inverse en voorwaartse snelheids
-           transformatie algorithmes moet interpreteren en hoe je de kinematica bij
-           moet schaven.
-
-           Voor vragen kan je terecht bij Herman of bij WimP
-
-           19 juli 1993
-           ----------------------------------------------------------------------------*/
-
-
-
+  
         c1 = cos( q[ 0 ] );
         s1 = sin( q[ 0 ] );
         c23 = cos( q[ 1 ] + q[ 2 ] );
@@ -118,25 +102,25 @@ namespace ORO_KinDyn
         J[ 0 ][ 1 ] = J[ 0 ][ 2 ] = s1 * Pwz;
         J[ 0 ][ 1 ] -= s1 * dWv;
         J[ 0 ][ 2 ] -= s1c23 * l3;
-        J[ 0 ][ 3 ] = -J[ 5 ][ 3 ] * Pwy + J[ 4 ][ 3 ] * Pwz;
-        J[ 0 ][ 4 ] = -J[ 5 ][ 4 ] * Pwy + J[ 4 ][ 4 ] * Pwz;
-        J[ 0 ][ 5 ] = -J[ 5 ][ 5 ] * Pwy + J[ 4 ][ 5 ] * Pwz;
+        J[ 0 ][ 3 ] = J[ 5 ][ 3 ] * Pwy - J[ 4 ][ 3 ] * Pwz;
+        J[ 0 ][ 4 ] = J[ 5 ][ 4 ] * Pwy - J[ 4 ][ 4 ] * Pwz;
+        J[ 0 ][ 5 ] = J[ 5 ][ 5 ] * Pwy - J[ 4 ][ 5 ] * Pwz;
 
         J[ 1 ][ 0 ] = -s1 * dWh - Pwx;
         J[ 1 ][ 1 ] = J[ 1 ][ 2 ] = -c1 * Pwz;
         J[ 1 ][ 1 ] += c1 * dWv;
         J[ 1 ][ 2 ] += c1c23 * l3;
-        J[ 1 ][ 3 ] = -J[ 3 ][ 3 ] * Pwz + J[ 5 ][ 3 ] * Pwx;
-        J[ 1 ][ 4 ] = -J[ 3 ][ 4 ] * Pwz + J[ 5 ][ 4 ] * Pwx;
-        J[ 1 ][ 5 ] = -J[ 3 ][ 5 ] * Pwz + J[ 5 ][ 5 ] * Pwx;
+        J[ 1 ][ 3 ] = J[ 3 ][ 3 ] * Pwz - J[ 5 ][ 3 ] * Pwx;
+        J[ 1 ][ 4 ] = J[ 3 ][ 4 ] * Pwz - J[ 5 ][ 4 ] * Pwx;
+        J[ 1 ][ 5 ] = J[ 3 ][ 5 ] * Pwz - J[ 5 ][ 5 ] * Pwx;
 
         J[ 2 ][ 0 ] = 0.;
         J[ 2 ][ 1 ] = J[ 2 ][ 2 ] = c1 * Pwy - s1 * Pwx;
         J[ 2 ][ 1 ] -= dWh;
         J[ 2 ][ 2 ] -= s23 * l3;
-        J[ 2 ][ 3 ] = -J[ 4 ][ 3 ] * Pwx + J[ 3 ][ 3 ] * Pwy;
-        J[ 2 ][ 4 ] = -J[ 4 ][ 4 ] * Pwx + J[ 3 ][ 4 ] * Pwy;
-        J[ 2 ][ 5 ] = -J[ 4 ][ 5 ] * Pwx + J[ 3 ][ 5 ] * Pwy;
+        J[ 2 ][ 3 ] = J[ 4 ][ 3 ] * Pwx - J[ 3 ][ 3 ] * Pwy;
+        J[ 2 ][ 4 ] = J[ 4 ][ 4 ] * Pwx - J[ 3 ][ 4 ] * Pwy;
+        J[ 2 ][ 5 ] = J[ 4 ][ 5 ] * Pwx - J[ 3 ][ 5 ] * Pwy;
 
         /* Calculation of configuration: */
 #if 0

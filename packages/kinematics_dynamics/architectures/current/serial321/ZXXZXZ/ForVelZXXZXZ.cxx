@@ -49,20 +49,6 @@ namespace ORO_KinDyn
         double dWv, dWh;
         double Pwx, Pwy, Pwz;
 
-        /*---  VRIJWILLIG INGEZETTE FOUT ------------------------------------------*/
-        //    a =
-        /*
-           Vooraleer deze fout te verwijderen, ga na of de kinenatica van de robot
-           goed geimplementeerd is. Lees in het intern rapport 93R20, Wim Persoons,
-           hoe je de waarden van de Jacobiaan, de inverse en voorwaartse snelheids
-           transformatie algorithmes moet interpreteren en hoe je de kinematica bij
-           moet schaven.
-
-           Voor vragen kan je terecht bij Herman of bij WimP
-
-           19 juli 1993
-           ----------------------------------------------------------------------------*/
-
 
         c1 = cos( q[ 0 ] );
         s1 = sin( q[ 0 ] );
@@ -169,11 +155,13 @@ namespace ORO_KinDyn
 
         Vy = dWv * qdot[ 1 ] + l3 * c23 * qdot[ 2 ];
 
-        vel_base( 0 ) = c1 * Vx - s1 * Vy + vel_base( 4 ) * P6z - vel_base( 5 ) * P6y;
+	//29/03/2005 changed velocity_base from ee-frame to base_frame
 
-        vel_base( 1 ) = c1 * Vy + s1 * Vx + vel_base( 5 ) * P6x - vel_base( 3 ) * P6z;
+        vel_base( 0 ) = c1 * Vx - s1 * Vy - vel_base( 4 ) * Pwz + vel_base( 5 ) * Pwy;
 
-        vel_base( 2 ) = -dWh * qdot[ 1 ] - l3 * s23 * qdot[ 2 ] + vel_base( 3 ) * P6y - vel_base( 4 ) * P6x;
+        vel_base( 1 ) = c1 * Vy + s1 * Vx - vel_base( 5 ) * Pwx + vel_base( 3 ) * Pwz;
+
+        vel_base( 2 ) = -dWh * qdot[ 1 ] - l3 * s23 * qdot[ 2 ] - vel_base( 3 ) * Pwy + vel_base( 4 ) * Pwx;
 
         if ( s.isSingular( Singularity::AnySingularity ) )
             return false;

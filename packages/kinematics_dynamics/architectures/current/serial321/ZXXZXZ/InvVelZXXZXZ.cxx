@@ -211,11 +211,11 @@ namespace ORO_KinDyn
         /* Inverse velocity calculations: */
 
         /* Calculation of wrist velocity: Low & Dubey, eq.(47) */
-        Vwx = vel( 0 ) - vel( 4 ) * P6z + vel( 5 ) * P6y;
+        Vwx = vel( 0 ) + vel( 4 ) * Pwz - vel( 5 ) * Pwy;
 
-        Vwy = vel( 1 ) - vel( 5 ) * P6x + vel( 3 ) * P6z;
+        Vwy = vel( 1 ) + vel( 5 ) * Pwx - vel( 3 ) * Pwz;
 
-        Vwz = vel( 2 ) - vel( 3 ) * P6y + vel( 4 ) * P6x;
+        Vwz = vel( 2 ) + vel( 3 ) * Pwy - vel( 4 ) * Pwx;
 
         /* First, second and third joint velocities: eqs.(44)-(45), Low & Dubey,
            eqs.(6.24),(6.25) Brochier & Haverhals */
@@ -228,18 +228,18 @@ namespace ORO_KinDyn
         qdot[ 2 ] = -( dWh * temp3 + dWv * Vwz ) / l2 / l3 / s3;
 
         /* Velocity of end effector wrt the wrist: */
-        Wwx = c1 * vel( 3 ) + s1 * vel( 4 ) + qdot[ 1 ] + qdot[ 2 ];
+        Wwx = c1 * vel( 4 ) - s1 * vel( 3 );
 
-        Wwy = c1 * vel( 4 ) - s1 * vel( 3 );
+        Wwy = qdot[ 1 ] + qdot[ 2 ] + c1 * vel( 3 ) + s1 * vel( 4 );
 
-        Wwz = c23 * Wwy - s23 * ( vel( 5 ) - qdot[ 0 ] );
+        Wwz = c23 * Wwx - s23 * ( vel( 5 ) - qdot[ 0 ] );
 
         /* Fourth, fifth and sixth joint velocities: eqs.(48)-(50) Low & Dubey */
-        qdot[ 4 ] = -c4 * Wwx - s4 * Wwz;
+        qdot[ 4 ] = -c4 * Wwy - s4 * Wwz;
 
-        qdot[ 5 ] = ( c4 * Wwz - s4 * Wwx ) / s5;
+        qdot[ 5 ] = ( c4 * Wwz - s4 * Wwy ) / s5;
 
-        qdot[ 3 ] = c23 * ( vel( 5 ) - qdot[ 0 ] ) + s23 * Wwy - c5 * qdot[ 5 ];
+        qdot[ 3 ] = c23 * ( vel( 5 ) - qdot[ 0 ] ) + s23 * Wwx - c5 * qdot[ 5 ];
 
         return true;
     }

@@ -1,4 +1,4 @@
-/* N O T  F U L L Y  I M P L E M E N T E D !!!
+/*
 ** NAME: InvJacZXXZXZ.c
 ** CREATED: 6 Dec 1992
 ** AUTHOR: Herman Bruyninckx, PMA, KU Leuven, Belgium
@@ -50,22 +50,6 @@ namespace ORO_KinDyn
         double CONST1;
         double dWv, dWh;
  
-        /*---  VRIJWILLIG INGEZETTE FOUT ------------------------------------------*/
-        //a =
-
-        /*
-           Vooraleer deze fout te verwijderen, ga na of de kinenatica van de robot
-           goed geimplementeerd is. Lees in het intern rapport 93R20, Wim Persoons,
-           hoe je de waarden van de Jacobiaan, de inverse en voorwaartse snelheids
-           transformatie algorithmes moet interpreteren en hoe je de kinematica bij
-           moet schaven.
-
-           Voor vragen kan je terecht bij Herman of bij WimP
-
-           19 juli 1993
-           ----------------------------------------------------------------------------*/
-
-
         s1 = sin( q[ 0 ] );
         c1 = cos( q[ 0 ] );
         s23 = sin( q[ 1 ] + q[ 2 ] );
@@ -181,6 +165,6 @@ namespace ORO_KinDyn
 
         JInv[ 3 ][ 5 ] = c23 * ( 1.0 - JInv[ 0 ][ 5 ] ) - c5 * JInv[ 5 ][ 5 ];
 
-        return ( 0 );
+        return true;
     }
 }
