@@ -78,7 +78,8 @@ namespace ORO_Execution
 
     void PeerParser::seenobjectname( iter_t begin, iter_t end )
     {
-        std::string name( begin, --end ); // compensate for extra "."
+        std::string name( begin, end );
+	name.erase( name.length() - 1 ); // compensate for extra "."
         callqueue.push( name );
         //std::cerr << "seen " << name <<std::endl;
         ++end;

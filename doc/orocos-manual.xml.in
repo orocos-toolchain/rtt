@@ -100,12 +100,10 @@
   </chapter>
 
   <chapter>
-    <title>Control Kernel</title>
-    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
+    <title>The Task Infrastructure</title>
+    <xi:include  href="@ECOS_REP@/execution/task_context/current/doc/orocos-task-context.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect2[*])"  
+    <xi:include  href="@ECOS_REP@/execution/task_context/current/doc/orocos-task-context.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
@@ -122,6 +120,16 @@
     <xi:include  href="@ECOS_REP@/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="@ECOS_REP@/execution/program_parser/current/doc/orocos-program-parser.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Control Kernel</title>
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/appendix/sect2[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

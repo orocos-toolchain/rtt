@@ -19,6 +19,12 @@
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
+  <para>
+    This document provides a quick overview of what changed between two
+    Orocos releases. If your application does not work, look here for
+    possible causes and solutions. Also feature additions and improvements
+    are documented.
+  </para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -156,6 +162,11 @@
 	  changes to users.
 	</para>
       </listitem>
+      <listitem>
+	<para>The Orocos Manuals have been reordered and reviewed.
+	  Look for the online versions for the latest version.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="corelib">
@@ -291,6 +302,13 @@
       </listitem>
       <listitem>
 	<para>
+	  Programs and State Contexts can be started and stopped
+	  from other scripts, even running in other Tasks.
+	  This is documented in the Parser Manual.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  Orocos commands can fail. A Program and State Context
 	  will go into the error state if the program does not
 	  catch this itself.
@@ -298,7 +316,7 @@
       </listitem>
       <listitem>
 	<para>
-	  Orocos scripting component methods have been added. They are
+	  Orocos scripting component Methods have been added. They are
 	  an advanced version of DataSources. They can be called
 	  like a command and can return a value, which can
 	  be used in an expression, or be ignored. 
@@ -321,7 +339,7 @@
 	<para>
 	  Orocos commands can be dispatched over Task boundaries.
 	  See the TaskContext class and documentation in the 
-	  Program Parser manual. This allows to define 
+	  Task Infrastructure Manual. This allows to define 
 	</para>
       </listitem>
       <listitem>
@@ -357,6 +375,14 @@
 	  CORBA version. It communicates with a control server
 	  transparantly and allows connection/disconnection
 	  with a running server.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  A <classname>TaskBrowser</classname> class has been
+	  added which allows to browse tasks from a command
+	  line. It allows to send script commands and evaluate 
+	  script expressions.
 	</para>
       </listitem>
     </itemizedlist>

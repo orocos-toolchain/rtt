@@ -106,7 +106,6 @@ namespace ORO_Execution
                     icom->add( (*tit)->assignCommand( *dit, true ) );
             }
             catch( const bad_assignment& e) {
-                delete copy;
                 delete icom;
                 int parnb = (dit - args.begin());
                 throw wrong_types_of_args_exception(parnb);

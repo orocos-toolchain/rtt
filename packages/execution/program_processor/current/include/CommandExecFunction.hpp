@@ -62,7 +62,6 @@ namespace ORO_Execution
         }
 
         ~CommandExecFunction() {
-            delete _foo;
         }
 
         bool execute()

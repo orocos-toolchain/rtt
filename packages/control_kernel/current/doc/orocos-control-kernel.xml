@@ -10,7 +10,8 @@
 
 <article>
   <articleinfo>
-    <title> The Orocos Control Kernel</title>
+    <title>The Orocos Control Kernel</title>
+    <subtitle>An Orocos Application</subtitle>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -2259,7 +2260,7 @@ if ( this->inKernel() )
 		    functions as DataSources which a Component wants to
 		    expose to the &orocos; scripting language. What the
 		    function needs to contain is documented in the
-		    &orocos; Program Parser manual.
+		    &orocos; Program Parser and Task Infrastructure manual.
 		  </entry>
 		  <entry>ExecutionExtension</entry>
 		</row>
@@ -2272,7 +2273,20 @@ if ( this->inKernel() )
 		    functions as Commands which a Component wants to expose
 		    to the &orocos; scripting language. What the
 		    function needs to contain is documented in the
-		    &orocos; Program Parser manual.
+		    &orocos; Program Parser and Task Infrastructure manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
+		<row>
+		  <entry>
+		    CommandFactoryInterface* createMethodFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export Component
+		    functions as Methods which a Component wants to expose
+		    to the &orocos; scripting language. What the
+		    function needs to contain is documented in the
+		    &orocos; Program Parser and Task Infrastructure manual.
 		  </entry>
 		  <entry>ExecutionExtension</entry>
 		</row>
@@ -2817,6 +2831,8 @@ private:
     <sect2 id="scripting-extension">
       <title>Command Interpreter and Command Processing : ExecutionExtension</title>
       <para>
+	This extension makes from the Kernel a Task, such that it can
+	be used by the Orocos Task Infrastructure.
 	The Execution Extension allows the kernel to execute &orocos;
 	program scripts and &orocos; state descriptions
 	synchronous with the kernel loop. For convenience,
@@ -2825,7 +2841,7 @@ private:
 	the state graph.
       </para>
       <para>
-	The &orocos; execution package contains two manuals which
+	The &orocos; execution package contains three manuals which
 	explain the behavior of the Program Processor and the Program
 	and State 
 	Parsers. The Processor can load a state machine which
@@ -2912,18 +2928,22 @@ my_kernel.startStateContext("MyState");
 	  it is safe to start a program. To do this in the state
 	  the commands
 	<programlisting>
-do Execution.startProgram("MyProgram")
+do programs.MyProgram.start()
 //...
-do Execution.stopProgram("MyProgram")
+do programs.MyProgram.stop()
 	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateContexts from within a program or another 
 	  State Context :
 	<programlisting>
-do Execution.startStateContext("SecondContext")
+do states.SecondContext.activate()
+do states.SecondContext.start()
 //...
-do Execution.stopStateContext("SecondContext")
+do states.SecondContext.stop()
+do states.SecondContext.deactivate()
 	</programlisting>
+	  Consult the Program Parser and Task Infrastructure manuals
+	  for all details.
 	</para>
       </sect3>
       <sect3>
@@ -3018,11 +3038,11 @@ StateContext MachineContext
      */
     state exec_state {
 	entry {
-	    do Execution.startProgram("MyProgram")
+            do programs.MyProgram.start()
 	    }
 
 	exit {
-	    do Execution.stopProgram("MyProgram")
+            do programs.MyProgram.stop()
 	    }
 
 	transitions {

@@ -1,3 +1,25 @@
+OROCOS v0.18.0 Release Notes
+   http://www.orocos.org
+----------------------------
+
+
+We announce the release of Orocos 0.18.0, the Realtime
+Framework for Robot and Machine Control. 
+
+This release marks a new shift in Orocos software
+development. It focusses on the creation of 
+machine-architecture independent Realtime tasks within
+applications. Example tasks are control tasks, 
+sensor measurement tasks or supervision tasks.
+Tasks within applications are online browsable and 
+can be manipulated interactively using the TaskBrowser. 
+For Control Kernel users, a GUI was designed for
+KDE 3 which allows to interact with the Control Kernel.
+
+Feature improvements, bugfixes and caveats can be found
+in 
+<http://www.orocos.org/releases/orocos-changes-0.18.0.html>
+
 OROCOS v0.16.0 Release Notes
    http://www.orocos.org
 ----------------------------

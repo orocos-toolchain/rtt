@@ -32,7 +32,7 @@ if test -e configure.ac; then
     make
     
     For more information on options, use ./configure --help"
-#    exit 1
+    exit 1
 fi
 
 
