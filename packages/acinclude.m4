@@ -100,6 +100,17 @@ PACKAGES="support/comedilib/current/comedilib.cdl $PACKAGES"
 ])
 ])
 
+m4_define([DETECT_READLINE],
+[
+AC_CHECK_HEADERS([ readline/readline.h ],
+[
+PACKAGES="support/readline/current/readline.cdl $PACKAGES"
+],
+[
+  AC_MSG_WARN([No readline installation found (readline/readline.h). Readline will be unavailable.])
+])
+])
+
 
 
 

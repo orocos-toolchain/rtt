@@ -9,7 +9,7 @@ if ! test -e configure.ac; then
 "
 fi
 
-AC_CHECK_PROGS(PYTHON, python python1.5,no)
+AC_CHECK_PROGS(PYTHON, python python2.3,no)
 if test $PYTHON = no; then
  AC_MSG_ERROR([
 The Packaging system requires Python 2.3 
@@ -28,6 +28,7 @@ DETECT_BOOST_GRAPHPKG
 DETECT_XERCESCPKG
 DETECT_COMEDIPKG
 DETECT_COMEDILIBPKG
+DETECT_READLINE
 
 AC_CONFIG_FILES([ 
   Doxyfile Makefile
