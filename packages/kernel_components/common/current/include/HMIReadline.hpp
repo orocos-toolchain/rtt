@@ -267,7 +267,8 @@ namespace ORO_ControlKernel
               startEvent(Event::SYNASYN,"HMIReadline::StartEvent"),
               condition(0), command(0), command_fact(0), datasource_fact(0),
               prompt(" (type 'quit' for exit) :"),
-              coloron("\033[1;34m"), coloroff("\033[0m")
+              coloron("\033[1;34m"), coloroff("\033[0m"),
+              line_read(0)
         {
             ee = _ee;
             rl_completion_append_character = '\0'; // avoid adding spaces
