@@ -1,4 +1,4 @@
-cdl_package OROPKG_KERNEL_COMPONENTS {
+cdl_package OROPKG_CONTROL_KERNEL_COMPONENTS {
     display "Control Kernel components"
     description "
 Components for Control Kernels. This parent
@@ -6,10 +6,12 @@ package contains some common, application
 independent Components like a console command reader
 and a console output component."
 
+    parent   OROPKG_CONTROL_FRAMEWORK
+    requires OROPKG_CONTROL_FRAMEWORK
     requires OROPKG_CONTROL_KERNEL
     requires OROPKG_SUPPORT_READLINE
 
-    include_dir kernel_components
+    include_dir control_kernel
 
     compile HMIConsoleOutput.cxx HMIConsoleInput.cxx
     compile HMIReadline.cxx

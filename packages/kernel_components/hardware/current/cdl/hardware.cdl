@@ -1,5 +1,5 @@
-cdl_package OROPKG_KERNEL_COMPONENTS_HARDWARE {
-    display "Hardware access components"
+cdl_package OROPKG_CONTROL_KERNEL_COMPONENTS_HARDWARE {
+    display "Control Kernel Components Hardware access"
     description "
 Easy to use Components that can use device drivers
 which implement the Orocos Device Interface. The 
@@ -7,10 +7,11 @@ Components will read or write to kernel DataObjects
 and provide commands for the Program Execution Extension.
 The package contains a Sensor and an Effector
 Component."
-    parent OROPKG_KERNEL_COMPONENTS
-    requires OROPKG_KERNEL_COMPONENTS
 
-    include_dir kernel_components
+    parent   OROPKG_CONTROL_KERNEL_COMPONENTS
+    requires OROPKG_CONTROL_KERNEL_COMPONENTS
+
+    include_dir control_kernel
 
     compile GenericSensor.cxx GenericEffector.cxx
 

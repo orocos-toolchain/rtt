@@ -1,6 +1,5 @@
-cdl_package OROPKG_KERNEL_COMPONENTS_PROCESS_CONTROL {
-    parent OROPKG_KERNEL_COMPONENTS
-    display "Signal and Process Control Components"
+cdl_package OROPKG_CONTROL_KERNEL_COMPONENTS_PROCESS_CONTROL {
+    display "Control Kernel Components for Signal and Process Control"
     description "
 This package contains components for generating or
 processing signals. It is usefull for rapid testing
@@ -12,9 +11,10 @@ and a signal tracker Generator Components.
 Works very good in conjunction with the Motion Control
 and Hardware Components.
 "
-    requires OROPKG_KERNEL_COMPONENTS
+    parent   OROPKG_CONTROL_KERNEL_COMPONENTS
+    requires OROPKG_CONTROL_KERNEL_COMPONENTS
 
-    include_dir kernel_components
+    include_dir control_kernel
 
     compile SignalGenerator.cxx
     compile SignalTracker.cxx
