@@ -147,7 +147,7 @@ namespace ORO_ControlKernel
                    const std::string& _com_prefix,
                    const std::string& _setp_prefix,
                    const std::string& _outp_prefix)
-            :
+            : ControlKernelInterface( kernel_name ),
               _Extension(this),
               dummy_controller("DefaultController"),
               dummy_generator("DefaultGenerator"),
@@ -186,7 +186,6 @@ namespace ORO_ControlKernel
             selectSensor(&dummy_sensor);
             this->running = false;
 
-            ControlKernelInterface::setKernelName( kernel_name );
         }
 
         ~BaseKernel()

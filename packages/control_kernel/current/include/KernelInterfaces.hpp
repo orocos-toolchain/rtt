@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
 
         virtual ~ControlKernelInterface() {}
 
-        ControlKernelInterface() : name("name","The name of the kernel.", "Default") {}
+        ControlKernelInterface(const std::string& kname) : name("name","The name of the kernel.", kname) {}
 
         /**
          * @brief This is the hook for user kernel properties.
