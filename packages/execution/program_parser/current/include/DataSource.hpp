@@ -20,7 +20,7 @@ namespace
 namespace ORO_Execution
 {
   /**
-   * The base class for all DataSource's...
+   * @brief The base class for all DataSource's
    *
    * We make all DataSource's inherit a base class, so that we can
    * treat them alike.  Among other things, it allows us to have a
@@ -53,6 +53,7 @@ namespace ORO_Execution
     virtual ~DataSourceBase();
 
     virtual void reset();
+
   };
 
   /**
@@ -73,13 +74,18 @@ namespace ORO_Execution
     : public DataSourceBase
   {
   public:
-    typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
+      typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
-    virtual ~DataSource();
-    /**
-     * return the data you need to return..
-     */
-    virtual T get() const = 0;
+      virtual ~DataSource();
+      /**
+       * return the data you need to return..
+       */
+      virtual T get() const = 0;
+
+      /**
+       * Clone Software Pattern.
+       */
+      virtual DataSource<T>* clone() const = 0;
   };
 
   template<typename T>
@@ -97,24 +103,34 @@ namespace ORO_Execution
   class VariableDataSource
     : public DataSource<T>
   {
-    T mdata;
+      T mdata;
   public:
-    typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
+      typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
 
-    VariableDataSource( T data )
-      : mdata( data )
+      VariableDataSource( T data )
+          : mdata( data )
       {
-      };
+      }
 
-    T get() const
+      T get() const
       {
-        return mdata;
-      };
+          return mdata;
+      }
 
-    void set( T t )
+      void set( T t )
       {
-        mdata = t;
-      };
+          mdata = t;
+      }
+      
+      VariableDataSource<T>* duplicate() const
+      {
+          return new VariableDataSource<T>(mdata);
+      }
+
+      virtual VariableDataSource<T>* clone() const
+      {
+          return new VariableDataSource<T>(mdata);
+      }
   };
 
   // No longer seems too useful, now that I've seen what Property's
@@ -185,6 +201,11 @@ namespace ORO_Execution
         ma->reset();
         mb->reset();
       }
+
+      virtual DataSource<typename function::result_type>* clone() const
+      {
+          return new BinaryDataSource<function>(ma->clone(), mb->clone(), fun);
+      }
   };
 
   /**
@@ -227,6 +248,11 @@ namespace ORO_Execution
         mb->reset();
         mc->reset();
       }
+
+      virtual DataSource<typename function::result_type>* clone() const
+      {
+          return new TernaryDataSource<function>(ma->clone(), mb->clone(), mc->clone(), fun);
+      }
   };
 
   /**
@@ -256,6 +282,11 @@ namespace ORO_Execution
     void reset()
       {
         ma->reset();
+      }
+
+      virtual DataSource<typename function::result_type>* clone() const
+      {
+          return new UnaryDataSource<function>(ma->clone(), fun);
       }
   };
 }

@@ -6,7 +6,7 @@ cdl_package OROPKG_EXECUTION_PROGRAM_PARSER {
     parent OROPKG_EXECUTION
 
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
-    compile ValueParser.cxx CommandParser.cxx ProgramParser.cxx ValueChangeParser.cxx
+    compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
     compile Types.cxx DataSourceCondition.cxx Operators.cxx CommandFactoryInterface.cxx
     compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactory.cxx 
 

@@ -22,21 +22,30 @@ namespace ORO_Execution
   class AssignVariableCommand
     : public CommandInterface
   {
-    typename VariableDataSource<T>::shared_ptr lhs;
-    typename DataSource<T>::shared_ptr rhs;
+      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      LHSSource lhs;
+      typedef typename DataSource<T>::shared_ptr RHSSource;
+      RHSSource rhs;
   public:
-    AssignVariableCommand( VariableDataSource<T>* l, DataSource<T>* r )
-      : lhs( l ), rhs( r )
+      AssignVariableCommand( VariableDataSource<T>* l, DataSource<T>* r )
+          : lhs( l ), rhs( r )
       {
-      };
-    void execute()
+      }
+      
+      void execute()
       {
         lhs->set( rhs->get() );
-      };
-    std::string toString()
+      }
+
+      std::string toString()
       {
         return "AssignVariableCommand";
-      };
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new AssignVariableCommand( lhs->duplicate(), rhs->clone() );
+      }
   };
 }
 

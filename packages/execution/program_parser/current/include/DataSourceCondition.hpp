@@ -26,10 +26,13 @@ namespace ORO_Execution
      * DataSourceCondition takes ownership of the condition you pass
      * it..
      */
-    DataSourceCondition( ConditionInterface* c );
-    ~DataSourceCondition();
-    bool get() const;
-    void reset();
+      DataSourceCondition( ConditionInterface* c );
+      DataSourceCondition( const DataSourceCondition& orig );
+      ~DataSourceCondition();
+      bool get() const;
+      void reset();
+      ConditionInterface* condition() const;
+      virtual DataSource<bool>* clone() const;
   };
 }
 

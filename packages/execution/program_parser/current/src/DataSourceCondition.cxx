@@ -9,6 +9,11 @@ namespace ORO_Execution
   {
   }
 
+  DataSourceCondition::DataSourceCondition( const DataSourceCondition& orig )
+    : cond( orig.condition()->clone() )
+  {
+  }
+
   DataSourceCondition::~DataSourceCondition()
   {
     delete cond;
@@ -19,8 +24,18 @@ namespace ORO_Execution
     return cond->evaluate();
   }
 
+  ConditionInterface* DataSourceCondition::condition() const
+  {
+      return cond;
+  }
+
   void DataSourceCondition::reset()
   {
     cond->reset();
+  }
+
+  DataSource<bool>* DataSourceCondition::clone() const
+  {
+      return new DataSourceCondition( cond->clone() );
   }
 }

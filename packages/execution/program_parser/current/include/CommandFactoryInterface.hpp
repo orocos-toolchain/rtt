@@ -12,7 +12,8 @@ namespace ORO_Execution
     typedef std::pair<CommandInterface*, ConditionInterface*> ComCon;
 
     /**
-     * An interface for creating CommandInterface instances.
+     * @brief An interface for creating CommandInterface instances.
+     *
      * Basically, this class is something which you can ask "give me
      * an object that will call a method by a certain name ( that you
      * pass as a string ), with these arguments ( that you pass in one
@@ -29,7 +30,6 @@ namespace ORO_Execution
 
         public:
             virtual ~CommandFactoryInterface();
-
 
             /**
              * Return whether the command com is available..

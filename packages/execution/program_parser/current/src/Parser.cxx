@@ -1,6 +1,6 @@
 #include "execution/Parser.hpp"
 #include "execution/parser-common.hpp"
-#include "execution/ProgramParser.hpp"
+#include "execution/ProgramGraphParser.hpp"
 #include "execution/ConditionParser.hpp"
 #include "corelib/ConditionInterface.hpp"
 
@@ -11,7 +11,7 @@ using namespace boost;
 namespace ORO_Execution
 {
 
-  Program* Parser::parseProgram( std::istream& s, Processor* proc,
+  ProgramGraph* Parser::parseProgram( std::istream& s, Processor* proc,
                                  const GlobalFactory* ext )
   {
     our_buffer_t program;
@@ -26,8 +26,8 @@ namespace ORO_Execution
     our_pos_iter_t parseend;
 
     // The internal parser.
-    ProgramParser gram( parsebegin, proc, ext );
-    Program* ret = gram.parse( parsebegin, parseend );
+    ProgramGraphParser gram( parsebegin, proc, ext );
+    ProgramGraph* ret = gram.parse( parsebegin, parseend );
     if ( ret )
       std::cerr << "Program Parsed Successfully !" << std::endl;
     return ret;

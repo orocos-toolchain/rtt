@@ -301,14 +301,18 @@ namespace ORO_Execution
   {
     // the string starting at begin, ending at end is either ms, us,
     // ns or s, so we only need to check the first letter...
+      ORO_CoreLib::nsecs total = 0;
     switch( *begin )
     {
-    case 's': nsecs *= 1000000000;
-    case 'm': nsecs *= 1000000;
-    case 'u': nsecs *= 1000;
+    case 's': total = nsecs * 1000000000;
+        break;
+    case 'm': total = nsecs * 1000000;
+        break;
+    case 'u': total = nsecs * 1000;
     };
+
     DataSourceBase* dsb = new DataSourceCondition(
-      new ConditionDuration( nsecs ) );
+      new ConditionDuration( total ) );
     dsb->ref();
     parsestack.push( dsb );
   }

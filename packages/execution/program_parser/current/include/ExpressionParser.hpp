@@ -3,6 +3,7 @@
 
 #include "parser-common.hpp"
 #include "DataSource.hpp"
+#include "corelib/Time.hpp"
 
 #include <stack>
 
@@ -84,7 +85,7 @@ namespace ORO_Execution
     std::string mpropname;
 
     // the amount of nanoseconds specified for a ConditionDuration
-    int nsecs;
+    ORO_CoreLib::nsecs nsecs;
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );

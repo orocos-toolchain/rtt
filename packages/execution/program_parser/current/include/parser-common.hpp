@@ -8,8 +8,9 @@
 
 namespace ORO_Execution
 {
-  class Program;
-  class ProgramNode;
+  class ProgramGraph;
+  class VertexNode;
+  class EdgeCondition;
   class Processor;
 }
 
@@ -90,7 +91,7 @@ namespace ORO_Execution
   };
 
   /**
-   * This class contains some very common parser definitions.
+   * @brief This class contains some very common parser definitions.
    */
   class CommonParser
   {
@@ -107,7 +108,8 @@ namespace ORO_Execution
           "define", "end", "then", "else", "for", "foreach", "while", "true",
           "false", "stop", "async", "time", "const", "frame", "double",
           "int", "bool", "char", "string", "vector", "rotation", "twist",
-          "wrench", "nothing", "var", "set", "let", "alias", "to", "sync";
+          "wrench", "nothing", "var", "set", "let", "alias", "to", "sync",
+          "return", "call";
 
         chset<> identchar( "a-zA-Z-_0-9" );
 

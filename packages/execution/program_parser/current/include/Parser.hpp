@@ -5,8 +5,7 @@
 
 namespace ORO_Execution
 {
-    class Program;
-    class ProgramNode;
+    class ProgramGraph;
     class Processor;
     class GlobalFactory;
 }
@@ -30,9 +29,9 @@ namespace ORO_Execution
   {
   public:
     /**
-     * Reads out the stream, parses it, and returns a new @ref Program..
+     * Reads out the stream, parses it, and returns a new @ref ProgramGraph..
      */
-    Program* parseProgram( std::istream& s, Processor*,
+    ProgramGraph* parseProgram( std::istream& s, Processor*,
                            const GlobalFactory* );
 
     /**

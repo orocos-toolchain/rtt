@@ -40,6 +40,11 @@ namespace ORO_Execution
         {
           return gen();
         };
+
+        virtual DataSource<value_t>* clone() const
+        {
+            return new FunctorDataSource0( gen );
+        }
     };
 
   template<typename FunctorT, typename Arg1T>
@@ -63,6 +68,11 @@ namespace ORO_Execution
         Arg1T a = arg1->get();
         return gen( a );
       };
+
+        virtual DataSource<value_t>* clone() const
+        {
+            return new FunctorDataSource1( gen, arg1 );
+        }
   };
   /**
    * @}

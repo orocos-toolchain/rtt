@@ -51,6 +51,11 @@ namespace ORO_Execution
       {
         return "FunctorCommand0";
       };
+
+      virtual CommandInterface* clone() const
+      {
+          return new FunctorCommand0( *this );
+      }
   };
 
   /**
@@ -80,6 +85,11 @@ namespace ORO_Execution
     void reset()
       {
         aa->reset();
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new FunctorCommand1( fun, aa->clone() );
       }
   };
 
