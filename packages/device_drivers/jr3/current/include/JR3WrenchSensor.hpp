@@ -107,7 +107,7 @@ protected:
     
 private:
     // Copy constructor not implemented
-    JR3WrenchSensor(const JR3WrenchSensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6) {};
+    JR3WrenchSensor(const JR3WrenchSensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6), _my_task_context("Kuka361Axis", &_my_processor) {};
     void refresh();
     void switchBuffers();
 
@@ -133,7 +133,7 @@ private:
 
     ORO_Execution::Processor   _my_processor;
     ORO_Execution::TaskContext _my_task_context;
-    ORO_Execution::TemplateMethodFactory<Kuka361AxisHardware>* _my_factory;
+    ORO_Execution::TemplateMethodFactory<JR3WrenchSensor>* _my_factory;
 
 };
 

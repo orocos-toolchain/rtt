@@ -38,6 +38,9 @@
 #define CUTOFF_FREQUENCY_FILTER5   1.953
 #define CUTOFF_FREQUENCY_FILTER6   0.4883
 
+using namespace ORO_Execution;
+
+
 namespace ORO_DeviceDriver
 {
 
