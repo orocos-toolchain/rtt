@@ -132,6 +132,7 @@ int init_module(void)
   local_addr.sin_addr.s_addr = local_ip;
   if ( (ret=bind_rt(sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)))<0 ) {
     rt_printk("can't bind rtsocket\n");
+    close_rt(sock);
     return ret;
   }
 
