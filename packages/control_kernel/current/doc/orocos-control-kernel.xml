@@ -36,6 +36,14 @@
           <address><country>Belgium</country></address>
         </affiliation>
       </author>
+      <author>
+        <firstname>Klaas</firstname>
+        <surname>Gadeyne</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
     </authorgroup>
     <copyright>
       <year>2002,2003,2004</year>
@@ -112,6 +120,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>New DataFlow Components</revremark>
       </revision>
+      <revision>
+	<revnumber>0.16b</revnumber>
+	<date>30 September 2004</date>
+	<authorinitials>kg</authorinitials>
+	<revremark>Fix typos and code example errors</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -133,7 +147,7 @@
     <para>
       This document explains the design and programming interface of
       feedback control applications developed with the <emphasis>Open
-	RObot COntol Software</emphasis> project &orocos;. It covers
+	RObot COntrol Software</emphasis> project &orocos;. It covers
       only high-level material, and some generic use cases. If you
       want detailed information about a class or function, please read
       the Doxygen-generated reference of the corresponding package. 
@@ -146,7 +160,7 @@
 	role="strong">Control Application</emphasis>&rdquo; is a
       collection of one or more &ldquo;appropriately connected&rdquo;
       Control Kernels that provide a more complex and completely
-      functioning control system. Each of  the Controle Application's
+      functioning control system. Each of  the Control Application's
       individual Control Kernels possibly run in their own operating
       system threads, different processes, or even on different
       processors in a network.
@@ -295,7 +309,7 @@
     <para>
       &orocos; has a somewhat non-traditional view on how to build
       feedback control applications. We think we have found a good
-      balance between the opposing forces of user-friendlines and
+      balance between the opposing forces of user-friendliness and
       efficiency of an application on the one hand, and formal
       structure, distributability and reuse on the other hand. An
       important motivation is that &orocos; should support (in the
@@ -395,7 +409,7 @@
 	    However, we want to impose very stringent constraints
 	    about how to interconnect things: the availability of the
 	    source code &ldquo;invites&rdquo; Application Builders to
-	    interconnect &ldquo;everyting to everything&rdquo;,
+	    interconnect &ldquo;everything to everything&rdquo;,
 	    without giving much thought about the resulting
 	    &ldquo;spaghetti&rdquo; code. In addition, automatic
 	    computer support and code optimization can only be done
@@ -542,7 +556,7 @@
 	  The first type of communication flow is normally also the
 	  one you encounter first when using an &orocos; control
 	  application. All components in the system need to be
-	  configured to suit the needs of the targetted application.
+	  configured to suit the needs of the targeted application.
 	  Configuration information can be provided in several ways:
 	  hard coded into the program, read from an XML file, or given
 	  by the user through a Command Line or Graphical User
@@ -554,7 +568,7 @@
 	  framework prevents, whenever possible, further configuration
 	  once the hard realtime loop in the system is running. That
 	  loop must be stopped, reconfigured and restarted if the user
-	  whishes to reconfigure and restart the system. This is not
+	  wishes to reconfigure and restart the system. This is not
 	  always acceptable, since some systems can not be stopped
 	  right away, at any given moment. The <link
 	    linkend="execution-flow">Execution Flow</link>
@@ -590,7 +604,7 @@
 	  place where the above-mentioned <link
 	    linkend="formal-rules">structural rules</link> show up:
 	  all the above-mentioned data flows are kept <emphasis
-	    role="strong">unidirectional</emphasis>. This strucure
+	    role="strong">unidirectional</emphasis>. This structure
 	  allow for an efficient implementation: all actions on the
 	  data can be nicely serialized, and each data object has only
 	  one writer, but possibly multiple readers.
@@ -728,7 +742,7 @@
 	  linkend="optimal">optimal</link>&rdquo; decoupling of the
 	whole application into sub-applications. As mentioned before,
 	finding the optimal decoupling is best done via a thorough
-	discussion on the &orocos; mailinglist.
+	discussion on the &orocos; mailing list.
       </para>
       <para>
 	Control Kernels can run in parallel (e.g. for two uncoupled
@@ -889,7 +903,7 @@
 	<emphasis>can</emphasis> be distributed, by cutting through
 	one or more of the DataObjects. In that case, the
 	implementation of the cut DataObjects must take care of the
-	network-transparant copying of its content. The Data Object
+	network-transparent copying of its content. The Data Object
 	Interface thus decouples Data Flows between Components.
       </para>
 	<figure id="fig-standard-control-kernel"  pgwide="0">
@@ -1216,7 +1230,7 @@ contents  = my_Do.Get(); // equivalent
 	  <classname>StandardControlKernel</classname> makes
 	  <classname>DefaultComponents</classname> which do not
 	  act on the Data Flow.
-	  The control kernel is equiped with
+	  The control kernel is equipped with
 	  <function>loadController()</function>,
 	  <function>unloadGenerator()</function>, &hellip; methods
 	  which allow a clean insertion of a new Component
@@ -1284,7 +1298,7 @@ contents  = my_Do.Get(); // equivalent
 	</para>
 	<para>
 	  The name ("MyGeneratorName") of the component must be unique within 
-	  the type (Generator) in one kernel. It will be used lateron
+	  the type (Generator) in one kernel. It will be used later on
 	  to identify it from scripts or configuration files. The name of
 	  a Component should be as stable as possible, as many configuration
 	  files must be changed if the name changes.
@@ -1456,6 +1470,11 @@ class MyGenerator
 	  Writes<MG_SetPointData> 
 	  >
 { 
+  typedef Generator<Expects<MG_InputData>,
+	            Expects<NoModel>,
+	            Expects<MG_CommandData>,
+	            Writes<MG_SetPointData> > BaseGen;
+  
   // Our internal copy of the data
   Frame end_frame;
   Frame base_frame;	    
@@ -1477,9 +1496,9 @@ public:
   {
     // called when the component is loaded into the kernel.
     // Early Resolving of Write DataObjects :
-    if ( !Generator::SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
-         !Generator::SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
-         !Generator::SetPoint::dObj()->Get("Velocity", velocity_dobj )
+    if ( !BaseGen::SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
+         !BaseGen::SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
+         !BaseGen::SetPoint::dObj()->Get("Velocity", velocity_dobj )
 	)
     { 
 	  // Error, "Velocity", "EndPosition" or "BasePosition" not found !
@@ -1492,8 +1511,8 @@ public:
   {
     // called when the component is started in the kernel.
     // Early Resolving of Expect DataObjects :
-    if ( !Generator::Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
-	  !Generator::Input::dObj()->Get("EndPosition", input_f_dobj ))
+    if ( !BaseGen::Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
+	  !BaseGen::Input::dObj()->Get("EndPosition", input_f_dobj ))
     { 
 	  // Error, "Temperature" or "EndPosition"  not found !
 	  return false;
@@ -1511,7 +1530,7 @@ public:
   // ...
   void push()
   {
-      // Writeout the resulting data.
+      // Write out the resulting data.
       end_f_dobj->Set(end_frame);
       base_f_dobj->Set(base_frame);
       velocity_dobj->Set( velocity );	    
@@ -1560,7 +1579,7 @@ public:
 	  user at &ldquo;low frequency&rdquo; but must produce a new
 	  setpoint for the Controller Component at a &ldquo;high
 	  frequency&rdquo;. The Component Builder can implement
-	  this behaviour by overriding the update() method,
+	  this behavior by overriding the update() method,
 	  defined in the <classname>DataFlowInterface</classname>.
 	</para>
       </sect3>
@@ -1661,7 +1680,7 @@ public:
 	  Application Builders that the Components match each other
 	  for writing and reading data, otherwise, a compile time
 	  error or runtime error will occur. The
-	  figure below illustrates the responsabilities for each
+	  figure below illustrates the responsibilities for each
 	  Component in the framework.
 	</para>
 	<figure>
@@ -1720,8 +1739,8 @@ public:
 	  inserted in a Control Kernel, and whether this Control
 	  Kernel is running or not. For example, a Control Kernel
 	  needs to startup its Components, so that their member
-	  variables can be initialised correctly. All these actions
-	  are standardised for every Component and Control Kernel.
+	  variables can be initialized correctly. All these actions
+	  are standardized for every Component and Control Kernel.
 <!-- 	  And for each such action, an Event is created -->
 <!-- 	  and fired by the Control Kernel.  However, Events do, by -->
 <!-- 	  definition, not provided <emphasis -->
@@ -1788,7 +1807,7 @@ public:
 		  <entry>virtual bool componentStartup() {}</entry>
 		  <entry>
 		    Called when the Control Kernel is started and all
-		    Components are initialised. The Component must
+		    Components are initialized. The Component must
 		    write meaningful information to its data objects
 		    and is guaranteed to find meaningful information
 		    in its readable data objects. If a failure is
@@ -1927,7 +1946,7 @@ kernel.loadSupport( &amp;hmi_out );
 	  All Support components are used when the kernel is 
 	  started, thus no <function>selectSupport()</function>
 	  function exists. In the example above, the HMIConsoleOutput
-	  component will become visisble in the Command Interpreter.
+	  component will become visible in the Command Interpreter.
 	</para>
       <para>
 	It is common for support components to export a command interface which
@@ -2064,7 +2083,7 @@ kernel.loadSupport( &amp;hmi_out );
 	  Each Component inherits from the <classname>ComponentBaseInterface</classname>
 	  which provides, among others, the <function>bool inKernel() const</function>
 	  function and the <function>KernelBaseFunction* kernel() const</function>
-	  funtion. The former returns true if the component is loaded in
+	  function. The former returns true if the component is loaded in
 	  a kernel, the latter returns a pointer to the base class of
 	  that kernel.
 	</para>
@@ -2130,7 +2149,7 @@ if ( this->inKernel() )
 	  <para>
 	    Each Extension is accompanied by a piece of code (called
 	    the <emphasis role="strong">Component Aspect</emphasis>),
-	    which is present in all Components which which to use
+	    which is present in all Components that wish to use
 	    the extension.
 	    It provides method calls (<link
 	      linkend="events-hooks-states">hooks</link>) to each
@@ -2168,7 +2187,7 @@ if ( this->inKernel() )
 	Adding an Extension to a Control Kernel does not (visibly)
 	change the existing Components. So a Component does not need
 	to anticipate any possible extension (nor does the Control
-	Kernel). <emphasis>The Component indicates that it whiches to use
+	Kernel). <emphasis>The Component indicates that it wishes to use
 	an Extension by inheriting from the Aspect of that Extension.</emphasis>
 	For example, if a Component wants to export some data when the
 	Control Kernel has the reporting extension, it will implement
@@ -2303,7 +2322,7 @@ typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
       <para>
 	The order in which the Extensions are composed is important.
 	If one Extension fails on startup, the other will not be
-	initialised and the starting of the Control Kernel will fail
+	initialized and the starting of the Control Kernel will fail
 	(return false). Logically, you can read from left to right: if
 	the first works, check then if the second works, then the
 	third, etc. Each Extension can occur only once. 
@@ -2387,7 +2406,7 @@ class MyGenerator
 	properties, Components have none. The <type>PropertyExtension</type> adds
 	properties also to the Components. The
 	<filename>properties.cpf</filename> file lists the CPF
-	(Component Property Fromat) file
+	(Component Property Format) file
 	for each component type. All the Components which loaded in the Control
 	Kernel will get the properties updated on starting the Control
 	Kernel. The Property Extension can be configured to configure the
@@ -2558,7 +2577,7 @@ private:
 	the status of internal variables to the screen or to a file,
 	independent of the kernel's execution period. It can be used
 	for synchronous reporting of data (every sample), but the
-	design favours determinism of execution time over determinism
+	design favors determinism of execution time over determinism
 	of data acquisition. This means that it is possible that a
 	data sample is lost, but never possible that the Control
 	Kernel stalls because of the reporting activity.
@@ -2670,7 +2689,7 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 ]]>
 	  </programlisting>
 	  <para>
-	    Most options are self explanitory. The Exporters list has two types
+	    Most options are self explanatory. The Exporters list has two types
 	    of entries : <emphasis>Component</emphasis> and <emphasis>DataObject</emphasis>.
 	    The value of Component is the name of the Data Flow Component to query for
 	    reports. If the Component is not present in the Control Kernel, the rule
@@ -2761,11 +2780,11 @@ private:
 	  implementation is provided at compile time of the ReportingExtension.
 	  This is so for any primitive type (double, string,...) and
 	  the Geometry primitives (Frame, Vector,...). Reporting of 
-	  DataObjects is very interesting for tracking or visualising
+	  DataObjects is very interesting for tracking or visualizing
 	  the Data Flow afterwards.
 	</para>
 	<para>
-	  It is also possible to log the dataobjects of other
+	  It is also possible to log the data objects of other
 	  StandardControlKernels, given that they have the same prefix.
 	</para>
       </sect3>
@@ -2780,7 +2799,7 @@ private:
 	    logging the evolution of the Data. The TimeStamp is
 	    the realtime instant when the data was copied to a
 	    buffer. Each generated report is always made with
-	    a timestamp.
+	    a time stamp.
 	  </para>
 	  <screen>
 <![CDATA[
@@ -2807,7 +2826,7 @@ private:
       </para>
       <para>
 	The &orocos; execution package contains two manuals which
-	explain the behaviour of the Program Processor and the Program
+	explain the behavior of the Program Processor and the Program
 	and State 
 	Parsers. The Processor can load a state machine which
 	keeps track of the user defined system states and transitions,
@@ -2861,7 +2880,7 @@ private:
       <sect3>
 	<title>Using the ExecutionExtension</title>
 	<para>
-	  The ExecutionExtension provides a more userfriendly 
+	  The ExecutionExtension provides a more user friendly 
 	  interface for managing Programs and StateContexts.
 	  A StateContext file and Program file
 	  can be loaded as such :
@@ -3136,7 +3155,7 @@ program DemoRun {
 	rule</link> that data sharing can only be done through
       DataObjects, any kind of data can be guarded against concurrent
       access by careful design of the DataObjects. (This design is
-      sometimes refered to as the &ldquo;monitor software
+      sometimes referred to as the &ldquo;monitor software
       pattern&rdquo;.) &orocos; provides concurrent access primitives
       for all relevant synchronization cases (see section <link 
 	linkend="data-objects"> DataObjects</link>.
@@ -3254,7 +3273,7 @@ CascadeControlKernel<>
       <title>Converting from the Old StandardControlKernel</title>
       <para>
 	The Data Flow Components and Control Kernel have been adapted such that
-	Component and Kernel can be seperately compiled. This was only possible
+	Component and Kernel can be separately compiled. This was only possible
 	because of name served Data Objects. The Old StandardControlKernel
 	did not use this feature. The example shows first an old style
 	implementation :
@@ -3284,7 +3303,7 @@ CascadeControlKernel<>
     : public ServedTypes&lt;InputType&gt;
   {
       NSInputType() {
-	  this->insert(0,"Input");
+	  this->insert(make_pair(0,"Input"));
       }
   };
 
@@ -3300,6 +3319,13 @@ CascadeControlKernel<>
     // "Input" DataObject.
   };
 	</programlisting>
+	<note>If you were using Extensions/Aspects such as 
+	<function>exportReports()</function> or
+    <function>updateProperties()</function>, you will need an extra
+    template parameter <classname>MakeAspect</classname>.  See <link
+	linkend="control-kernel-extensions">Section 4.3</link> for
+    more information.
+       </note>
       </example>
     </sect2>
     <sect2>
