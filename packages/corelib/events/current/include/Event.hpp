@@ -188,7 +188,7 @@ namespace ORO_CoreLib
         /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->processor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
             return Handle( signal_type::connect( l ), ep->connect( c, *this, t ), _mutex );
         }

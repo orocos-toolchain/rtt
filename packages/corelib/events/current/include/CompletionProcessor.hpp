@@ -21,8 +21,7 @@
 #define COMPLETIONPROCESSOR_HPP
 
 #include "os/Mutex.hpp"
-#include "os/PeriodicThread.hpp"
-#include "EventProcessor.hpp"
+#include "TaskNonPeriodic.hpp"
 
 namespace ORO_CoreLib
 {
@@ -40,8 +39,7 @@ namespace ORO_CoreLib
      *
      */
     class CompletionProcessor 
-        : public ORO_OS::PeriodicThread,
-          public EventProcessor
+        : public TaskNonPeriodic
     {
     public:
         /**
@@ -64,18 +62,7 @@ namespace ORO_CoreLib
          */
         CompletionProcessor();
 
-        virtual ~CompletionProcessor()
-        {}
-
-        virtual bool initialize() {
-            return  EventProcessor::initialize();
-        }
-        virtual void step() {
-            EventProcessor::step();
-        }
-        virtual void finalize() {
-            EventProcessor::finalize();
-        }
+        virtual ~CompletionProcessor();
 
     private:
         /**

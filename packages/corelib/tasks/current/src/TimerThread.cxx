@@ -28,6 +28,7 @@
 #include "corelib/TimerThread.hpp"
 #include "corelib/PeriodicTask.hpp"
 #include "corelib/TaskTimerInterface.hpp"
+#include "corelib/TaskTimerOneShot.hpp"
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
@@ -38,6 +39,9 @@ namespace ORO_CoreLib
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
         : TaskThreadInterface( priority, name, periodicity)
     {
+        // create one default timer for the tasks with this periodicity.
+        TaskTimerInterface* timer = new TaskTimerOneShot( Seconds_to_nsecs( periodicity ) );
+        this->timerAdd( timer );
     }
 
     TimerThread::~TimerThread()
@@ -94,10 +98,7 @@ namespace ORO_CoreLib
 
     bool TimerThread::timerAdd( TaskTimerInterface* t)
     {
-        secs s;
-        nsecs ns;
-        getPeriod(s,ns);
-        nsecs p = secs_to_nsecs(s) + ns ;
+        nsecs p = Seconds_to_nsecs( this->getPeriod() );
         // if period is too small or not a multiple :
         // we also detect t with period zero, 
         if ( t->getPeriod() < p || t->getPeriod() % p != 0  ) // comparison in nsecs

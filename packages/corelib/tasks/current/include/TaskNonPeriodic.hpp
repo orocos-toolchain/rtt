@@ -29,10 +29,25 @@ namespace ORO_CoreLib
          * Create an TaskNonPeriodic with a given priority and
          * RunnableInterface instance.
          * @param priority The priority of the underlying thread.
-         * @param _r The optional runner, if none, this->step() is called.
+         * @param _r The optional runner, if none, this->loop() is called.
          */
         TaskNonPeriodic(int priority, RunnableInterface* _r = 0 )
             : ORO_OS::SingleThread(priority, "TaskNonPeriodic" ),proc( new BlockingEventProcessor() ), runner(_r)
+        {
+            if ( runner )
+                runner->setTask(this);
+        }
+
+        /**
+         * Create an TaskNonPeriodic with a given priority, name and
+         * RunnableInterface instance.
+         * @param priority The priority of the underlying thread.
+         * @param name The name of the underlying thread.
+         * @param _r The optional runner, if none, this->loop() is called.
+         */
+        TaskNonPeriodic(int priority, const std::string& name, RunnableInterface* _r = 0 )
+            : ORO_OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
+              runner(_r)
         {
             if ( runner )
                 runner->setTask(this);

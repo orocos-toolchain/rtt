@@ -26,8 +26,6 @@
  ***************************************************************************/
 
 #include "corelib/CompletionProcessor.hpp"
-#include "os/MutexLock.hpp"
-#include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
 
 #include <pkgconf/corelib_events.h>
@@ -84,12 +82,14 @@ namespace ORO_CoreLib
     }
 
     CompletionProcessor::CompletionProcessor()
-        : ORO_OS::PeriodicThread(  ORONUM_CORELIB_EVENTS_CP_PRIORITY, 
-                                   ORODAT_CORELIB_EVENTS_CP_NAME, 
-                                   ORONUM_CORELIB_EVENTS_CP_PERIOD )
+        : TaskNonPeriodic(  ORONUM_CORELIB_EVENTS_CP_PRIORITY, 
+                            ORODAT_CORELIB_EVENTS_CP_NAME )
     {
-        Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with "<< ORONUM_CORELIB_EVENTS_CP_PERIOD <<"ms periodicity";
-        Logger::log() << " and priority " << ORONUM_CORELIB_EVENTS_CP_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";
+        Logger::log() << ORONUM_CORELIB_EVENTS_CP_PRIORITY <<Logger::endl;
     }
+
+    CompletionProcessor::~CompletionProcessor()
+    {}
 
 }

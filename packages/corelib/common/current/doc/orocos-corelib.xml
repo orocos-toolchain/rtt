@@ -106,7 +106,7 @@ of the &orocos; framework.
 	<revnumber>0.20.0</revnumber>
 	<date>31 Jan 2005</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added DataObject section within Buffer section.</revremark>
+	<revremark>Added DataObject section within Buffer section. Added TaskNonPeriodic.</revremark>
       </revision>
     </revhistory>
 
@@ -221,8 +221,7 @@ of the &orocos; framework.
 	<para>
 	    This example shows how to create the PriorityThread.
 	</para>
-	<programlisting><![CDATA[
-#include "corelib/PriorityTask.hpp"
+	<programlisting><![CDATA[#include "corelib/PriorityTask.hpp"
 
 using namespace ORO_CoreLib;
 
@@ -262,9 +261,7 @@ ORO_main( int argc, char** argv)
   own_task->stop();
 
   return 0;
-}
-]]>
-	</programlisting>
+}]]></programlisting>
       </example>
       </para>
     </sect2>
@@ -323,8 +320,7 @@ ORO_main( int argc, char** argv)
 	      ( functions initialize, step and finalize ). The RunnableInterface object (i.e. run_impl) can
 	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
 	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
-	      <programlisting>
-  #include &lt;corelib/RunnableInterface.hpp>
+	      <programlisting>  #include &lt;corelib/RunnableInterface.hpp>
   #include &lt;corelib/TaskNonPreemptible.hpp>
 
   class MyPeriodicTask
@@ -431,8 +427,7 @@ ORO_main( int argc, char** argv)
 	  This example shows how all kinds of tasks can be created. When a task
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting><![CDATA[
-#include "corelib/TaskNonPreemptible.hpp"
+	<programlisting><![CDATA[#include "corelib/TaskNonPreemptible.hpp"
 #include "corelib/TaskPreemptible.hpp"
 #include "corelib/TaskNonRealTime.hpp"
 #include "corelib/PriorityTask.hpp"
@@ -471,9 +466,7 @@ ORO_main( int argc, char** argv)
   nrt_task->stop();
 
   return 0;
-}
-]]>
-	</programlisting>
+}]]></programlisting>
       </example>
     </sect2>
     <sect2>
@@ -533,8 +526,7 @@ ORO_main( int argc, char** argv)
 	periodicity can be changed with the configuration tool, or
 	before its started.
       </para>
-	<programlisting><![CDATA[
-#include "corelib/SimulationTask.hpp"
+	<programlisting><![CDATA[#include "corelib/SimulationTask.hpp"
 
 using namespace ORO_CoreLib;
 
@@ -567,9 +559,7 @@ ORO_main( int argc, char** argv)
   slow_sim_task->stop();
 
   return 0;
-}
-]]>
-	</programlisting>
+}]]>	</programlisting>
       <warning>
 	<para>
 	  If other threads are running in the same program executable,
@@ -581,23 +571,76 @@ ORO_main( int argc, char** argv)
       </warning>
     </sect2>
     <sect2>
-      <title>Non Periodic Tasks</title>
+      <title>Non Periodic Tasks Run in Their Own Thread</title>
       <para>
-	Non periodic ( blocking ) tasks can only run in <emphasis>non periodic</emphasis> threads, or 
-	( non blocking ) <emphasis>after</emphasis> all periodic tasks of a certain periodic thread. The
+	Non periodic ( if blocking ) tasks can only run in <emphasis>non periodic</emphasis> threads, or 
+	( if non blocking ) <emphasis>after</emphasis> all periodic tasks of a certain periodic thread. The
 	latter to avoid excessive jitter in periodic task execution.
       </para>
       <para>
 	If you want to create a task which reads file-IO, or displays
-	information or does any other possibly blocking operation, 
-	the <classname>ORO_OS::SingleThread</classname> implementation must be
-	used. When it is <function>start()</function>'ed, its step() method will be called
-	exactly once and then it will stop, after which it can be started again.
-	The user needs to implement a <classname>ORO_OS::RunnableInterface</classname> which can be used
-	by the thread for executing the user's functions.
-	This thread is also introduced in the Orocos Operating System
-	Abstraction Manual. 
+	information or does any other possibly blocking operation, the
+	<classname>TaskNonPeriodic</classname> implementation can be
+	used. When it is <function>start()</function>'ed, its loop()
+	method will be called exactly once and then it will stop,
+	after which it can be started again.  Analogous to periodic
+	tasks, the user can implement
+	<function>initialize()</function>, <function>loop()</function>
+	and <function>finalize()</function> functions in a
+	<classname>RunnableInterface</classname> which will be used by
+	the task for executing the user's functions. Alternatively,
+	you can reimplement said functions in a derived class of
+	TaskNonPeriodic. The task's loop() will be executed in its own
+	thread, thus creating a TaskNonPeriodic means creating a new
+	thread :
       </para>
+      <programlisting>  int priority = 5;
+  
+  TaskNonPeriodic task( priority, blocking_task );
+  task.start(); // calls blocking_task->initialize()
+
+  // now blocking_task->loop() is called in a thread with priority 5.  </programlisting>
+      <para>
+	After loop() returns, finalize() is called. TaskNonPeriodic
+	differs from the periodic tasks in the way it is
+	stopped. Since the task may be blocked in the user's loop()
+	function, there is no way to provide a general stop()
+	function. If you want to stop a TaskNonPeriodic, you'll have
+	to implement an extra functions which makes sure that the
+	loop() method returns, and this will stop the task
+	automatically.
+      </para>
+      <para>
+	There is another use for TaskNonPeriodic, it can be used to
+	wait for Events (see <xref linkend="corelib-events" /> ). If a
+	TaskNonPeriodic is not given a RunnableInterface, and it's
+	methods are not overridden in a derived class, it will call
+	it's EventProcessor's loop() method and wait for Asynchronous
+	Events to process. If stop() is called in this case, the task
+	will break from the EventProcessor's loop() and be stopped. If
+	you want to process Events in your own RunnableInterface
+	implementation, you need to manually call the step() method of
+	the processor() :
+      </para>
+      <programlisting>  // in your implementation :
+  void loop() {
+     while ( ... ) {
+        // &lt; do non periodic stuff &gt;
+   
+        // process any pending Events :
+        this->getTask()->processor()->step();
+     }
+  }
+  // ...  </programlisting>
+       <para>
+	 If you call <function>processor()->loop()</function> instead,
+	 the EventProcessor will loop for events until it is stopped,
+	 which might not be what you want. So use step() to process
+	 all pending Events.
+       </para>
+    </sect2>
+    <sect2>
+      <title>Event Driven Tasks</title>
       <para>
 	An alternative way to use non periodic tasks is to use
 	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
@@ -607,8 +650,7 @@ ORO_main( int argc, char** argv)
 	This will happen from the moment the task's start method is called
 	until the stop method is called. The following example shows
 	how such a task can be run asynchronously.
-	<programlisting>
-  #include &lt;corelib/TaskEventDriven.hpp>
+	<programlisting>  #include &lt;corelib/TaskEventDriven.hpp>
 
   //...
   Event&lt;void(void)> task_event;
@@ -619,8 +661,7 @@ ORO_main( int argc, char** argv)
   task.start();      // initialize()s task
   task_event.fire(); // task's step() will be executed once in ZeroTimeThread
 
-  task.stop();       // finalize()s task
-	</programlisting>
+  task.stop();       // finalize()s task</programlisting>
       </para>
     </sect2>
     <sect2 id="core-priority-inversions">
@@ -688,7 +729,10 @@ ORO_main( int argc, char** argv)
 		TaskNonPreemptible).
 		Uses Mutex for serialising concurrent access.
 		Alternative implementation might be possible in certain
-		cases.</para>
+		cases, however, since stop() guarantees that finalize() will
+		be called <emphasis>after</emphasis> the last step(), it
+		will block until the step() returns and then call finalize().
+		</para>
 	      </entry>
 	    </row>
 	    <row>
@@ -779,9 +823,7 @@ ORO_main( int argc, char** argv)
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
       </para>
-      <programlisting>
-	    <![CDATA[
-#include <corelib/Event.hpp>
+      <programlisting> <![CDATA[#include <corelib/Event.hpp>
 
 using boost::bind;
 
@@ -831,10 +873,7 @@ emergencyHandle =
 std::cout << "Doing a quiet safety stop..."<<std::endl;
 emergencyStop.fire(); // User not notified
 
-...
-]]>
-      </programlisting>
-
+...]]>     </programlisting>
       <screen>
 	  Register apropriate handlers to the Emergency Stop Event
 	  Fire the event
@@ -848,8 +887,7 @@ emergencyStop.fire(); // User not notified
 	<ulink url="http://www.boost.org/libs/bind/bind.html">bind manual</ulink>.
 	You must use bind if you want to call C++ class member functions to 
 	'bind' the member function to an object :
-	<programlisting>
-  ClassName object;
+	<programlisting>  ClassName object;
   boost::bind( &amp;ClassName::FunctionName, &amp;object)	</programlisting>
 	Where ClassName::FunctionName must have the same signature as the Event.
 	When the Event is <function>fire( args )</function>'d,
@@ -880,18 +918,14 @@ emergencyStop.fire(); // User not notified
       the fire() method must given other arguments. For example :
       <example>
 	<title>Event Types</title>
-	<programlisting>
-<![CDATA[
-  Event<void(void)> e_1;
+	<programlisting><![CDATA[  Event<void(void)> e_1;
   e_1.fire();
 
   Event<void(int)>  e_2;
   e_2.fire( 3 );
 
   Event<void(double,double,double)>  positionEvent;
-  positionEvent.fire( x, y, z);
-]]>
-	</programlisting>
+  positionEvent.fire( x, y, z);]]></programlisting>
       </example>
       The return type for synchronous events can be used analogous to
       the boost::signals library. For asynchronous callbacks, the return
@@ -928,12 +962,11 @@ emergencyStop.fire(); // User not notified
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is fired(). It will do this after it has processed
 	all its tasks. The other Orocos threads can do this likewise :
-	<programlisting>
-  event.connect(&amp;syn_func, &amp; asyn_func, ZeroTimeThread::Instance() );
+	<programlisting>  event.connect(&amp;syn_func, &amp; asyn_func, ZeroTimeThread::Instance() );
   event.connect(&amp;syn_func, &amp; asyn_func, NonRealTimeThread::Instance() );
   event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); <emphasis>// Default</emphasis>
   event.connect(&amp;syn_func, &amp; asyn_func, PriorityThread&lt;N&gt;::Instance() );
-	</programlisting>
+  event.connect(&amp;syn_func, &amp; asyn_func, &amp;nonperiodic_task );	</programlisting>
 	If you would write above listings in a real program, on <function>
 	  event.fire()</function>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
@@ -942,29 +975,23 @@ emergencyStop.fire(); // User not notified
       <para>
 	It is also possible to only have the asyn_func called. In this
 	case the synopsis is :
-	<programlisting>
-  event.connect( &amp; asyn_func, ZeroLatencyThread::Instance() );
+	<programlisting>  event.connect( &amp; asyn_func, ZeroLatencyThread::Instance() );
 	</programlisting>
 	to distinguish from a synchronous callback connection. In this case
 	there is no default, so if you wish to use the CompletionProcessor,
 	you must specify it explicitly.
-	<programlisting>
-  event.connect( &amp; asyn_func, CompletionProcessor::Instance() );
+	<programlisting>  event.connect( &amp; asyn_func, CompletionProcessor::Instance() );
 	</programlisting>
       </para>
       <para>
 	For convenience, the Orocos Task threads can also be choosen in another way
 	by specifying the Task :
-	<programlisting>
-  TaskNonPreemptible my_task;
-  event.connect(&amp;syn_func, &amp; asyn_func, &amp;my_task );
-	</programlisting>
+	<programlisting>  TaskNonPreemptible my_task;
+  event.connect(&amp;syn_func, &amp; asyn_func, &amp;my_task );	</programlisting>
 	or even :
-	<programlisting>
-  RunnableInterface* my_function;
+	<programlisting>  RunnableInterface* my_function;
   // put my_function in a task;
-  event.connect(&amp;syn_func, &amp; asyn_func, my_function->getTask() );
-	</programlisting>
+  event.connect(&amp;syn_func, &amp; asyn_func, my_function->getTask() );</programlisting>
 	The above says that the asyn_func function should be executed
 	after the my_function's task execution period.
 	This is a very powerfull way of synchronising function calls
@@ -997,8 +1024,7 @@ emergencyStop.fire(); // User not notified
 	overhead in execution time. To choose which policy is used,
 	an optional parameter can be given during connect :
       </para>
-      <programlisting>
-  event.connect( &amp; asyn_func, mytask, Event::OnlyLast );
+      <programlisting>  event.connect( &amp; asyn_func, mytask, Event::OnlyLast );
   event.connect( &amp; asyn_func, mytask, Event::OnlyFirst ); // default
   event.connect( &amp; asyn_func, mytask ); // same as previous line</programlisting>
     </sect2>
@@ -1006,18 +1032,22 @@ emergencyStop.fire(); // User not notified
       <title>The Completion Processor</title>
       <para>
 	The Completion Processor is implemented using the
-	<classname>Singleton</classname> design pattern, like the
+	<classname>Singleton</classname> design pattern, analogous to the
 	periodic task threads. It is the lowest priority, not realtime
 	thread in the &orocos; framework. It will execute all
 	asynchronous event callbacks that have to be completed when no other work has to
 	be done. The only constraint it imposes is that all functions it
 	executes must require finite time to complete (it cannot
 	detect timeouts). You can get its thread pointer like this :
-	<programlisting>
-  #include &lt;corelib/CompletionProcessor.hpp>
+	<programlisting>  #include &lt;corelib/CompletionProcessor.hpp>
 
-  CompletionProcessor::Instance()-> ... 
-	</programlisting>
+  CompletionProcessor::Instance()-> ... </programlisting>
+      </para>
+      <para>
+	The CompletionProcessor is a TaskNonPeriodic, thus not consuming
+	time resources when no Events need to be processed. If you need a 
+	hard realtime CompletionProcessor, use a TaskNonPeriodic ( see
+	
       </para>
     </sect2>
   </sect1>
@@ -1044,15 +1074,13 @@ emergencyStop.fire(); // User not notified
       <title>Usage Example</title>
       <para>
 	Also take a look at the interface documentation.
-	<programlisting>
-  #include &lt;corelib/TimeService.hpp>
+	<programlisting>  #include &lt;corelib/TimeService.hpp>
   #include &lt;corelib/Time.hpp>
 
   TimeService::ticks timestamp = TimeService::Instance()->ticksGet();
   //...
 
-  Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );
-	</programlisting>
+  Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
       </para>
     </sect2>
   </sect1>
@@ -1083,17 +1111,13 @@ emergencyStop.fire(); // User not notified
 	  </para>
 	  <para>
 	    <example><title>Using properties</title> 
-	      <programlisting>
-<![CDATA[
-  ...
+	      <programlisting><![CDATA[  ...
   // a property, respresening a double of value 1.0:
 
   Property<double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
   myProp = 10.9; // realtime
-  double a = myProp.get(); // realtime
-  ...
-]]>
-	      </programlisting>
+  double a = myProp.get(); // realtime  
+  ...]]>  </programlisting>
 	    </example>
 	  </para>
 	</note>
@@ -1178,16 +1202,14 @@ emergencyStop.fire(); // User not notified
 	A NameServer almost always takes pointers to an object as arguments and 
 	returns a pointer when the object is looked up again.</para>
       </note>
-      <programlisting>
-  // A NameServer collecting pointers to ClassA objects
+      <programlisting>  // A NameServer collecting pointers to ClassA objects
   NameServer&lt; ClassA* &gt; nameserver;
   ClassA my_a;
   nameserver.registerObject( &amp;my_a, "ATeam" );
   // ...
   ClassA* an_a = nameserver.getObject( "ATeam" );
   if (an_a != 0 )
-      cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;
-      </programlisting>
+      cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
       <para>
 	A typical use of nameserving is that the nameserver is nested inside the class
 	it is nameserving itself. For convenience, the constructor of that class is then
@@ -1195,14 +1217,12 @@ emergencyStop.fire(); // User not notified
 	of the object. Imagine that the above ClassA had such a nested nameserver,
 	in that case, it would be used as follows :
       </para>
-      <programlisting>
-  ClassA my_a( "The ATeam" ); // give name in constructor
+      <programlisting>  ClassA my_a( "The ATeam" ); // give name in constructor
   // ...
   // notice the scope ClassA:: the nameserver is nested in :
   ClassA* an_a = ClassA::nameserver.getObject( "The ATeam" );
   if (an_a != 0 )
-    cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;
-      </programlisting>
+    cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
       <para>
 	The above technique is used in many classes inside &orocos;. Events, Devices, 
 	Control Kernels and Components, ... anything you wish to configure at runtime
@@ -1265,19 +1285,15 @@ emergencyStop.fire(); // User not notified
 	DataObject :
 	<example>
 	  <title>Accessing a DataObject</title>
-	  <programlisting>
-	    <![CDATA[
-#include <corelib/DataObjectInterfaces.hpp>
+	  <programlisting>  <![CDATA[  #include <corelib/DataObjectInterfaces.hpp>
 
-// A DataObject may also contain a class, instead of the simple
-// double in this example
-DataObject<double> my_Do; 
-my_Do.Set( 3.14 ); 
-double  contents; 
-my_Do.Get( contents );   // contents == 3.14
-contents  = my_Do.Get(); // equivalent
-]]>
-	  </programlisting>
+  // A DataObject may also contain a class, instead of the simple
+  // double in this example
+  DataObject<double> my_Do; 
+  my_Do.Set( 3.14 ); 
+  double  contents; 
+  my_Do.Get( contents );   // contents == 3.14
+  contents  = my_Do.Get(); // equivalent]]>  </programlisting>
 	</example>
       </para>
       <para>
@@ -1450,9 +1466,7 @@ contents  = my_Do.Get(); // equivalent
     </para>
     <example>
       <title>Using the Logger class</title>
-      <programlisting>
-  <![CDATA[
-  #include <corelib/Logger.hpp>
+      <programlisting>  <![CDATA[  #include <corelib/Logger.hpp>
 
   Logger::log() << Logger::Error << "An error Occured : " << 333 << "." << Logger::endl;
   Logger::log() << Logger::Debug << debugstring << data << Logger::endl;

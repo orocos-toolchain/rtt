@@ -41,21 +41,21 @@
 namespace ORO_CoreLib
 {
     namespace detail {
+        using ORO_OS::Semaphore;
+
         struct EventCatcher {
-            virtual ~EventCatcher() {}
+            EventCatcher(Semaphore* s);
+            virtual ~EventCatcher();
             virtual void complete() = 0;
 
             boost::signals::connection h;
 
-            boost::signals::connection getConnection() const
-            {
-                return h;
-            }
+            boost::signals::connection getConnection() const;
 
+            Semaphore* sem;
         };
 
         using boost::tuples::get;
-        using ORO_OS::Semaphore;
 
         template<int, class SignalType, class ContainerType>
         struct EventCatcherImpl;
@@ -73,9 +73,8 @@ namespace ORO_CoreLib
             const Function f;
             bool work;
 
-            Semaphore* sem;
             EventCatcherImpl(const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), work(false), sem(s)
+                : EventCatcher(s), f(f_), work(false)
             {
                 // What happens if a h.disconnect() or this connect occurs when the
                 // event is fired ? This will probably lead to corruption,
@@ -112,10 +111,10 @@ namespace ORO_CoreLib
 
             typename ContainerType::template Data<typename Function::arg1_type> _a1;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<1, SignalType, ContainerType>::handler,
                                                                        this, _1) );
@@ -199,10 +198,10 @@ namespace ORO_CoreLib
                                  typename Function::arg2_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
                                                                        this, _1, _2) );
@@ -235,10 +234,10 @@ namespace ORO_CoreLib
                                  typename Function::arg3_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<3, SignalType, ContainerType>::handler,
                                                                        this, _1, _2, _3) );
@@ -277,10 +276,10 @@ namespace ORO_CoreLib
                                  typename Function::arg4_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<4, SignalType, ContainerType>::handler,
                                                                        this, _1, _2, _3, _4) );
@@ -322,10 +321,10 @@ namespace ORO_CoreLib
                                  typename Function::arg5_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<5, SignalType, ContainerType>::handler,
                                                                        this, _1, _2, _3, _4, _5) );
@@ -364,10 +363,10 @@ namespace ORO_CoreLib
                                  typename Function::arg6_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            Semaphore* sem;
+            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : f(f_), sem(s)
+                : EventCatcher(s), f(f_)
             {
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<6, SignalType, ContainerType>::handler,
                                                                        this, _1, _2, _3, _4, _5, _6) );
@@ -405,41 +404,29 @@ namespace ORO_CoreLib
     class EventProcessor
         : public ORO_OS::RunnableInterface
     {
+    protected:
         typedef std::vector<detail::EventCatcher*> List;
         List catchers;
         ORO_OS::Mutex m;
-    protected:
-        ORO_OS::Semaphore* sem;
+        boost::shared_ptr<ORO_OS::Semaphore> sem;
+        /**
+         *  Used by derived classes.
+         */
+        EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s);
+
     public:
-        EventProcessor() : sem(0)
-        {
-            // TODO define MAX_ASYN_EVENTS
-            catchers.reserve(128);
-        }
+        /**
+         * Create a periodic EventProcessor
+         */
+        EventProcessor();
 
-        ~EventProcessor() {
-            // TODO All slots are only deleted on destruction. Disconnected
-            // slots remain in the list. We could fix this by signal connection tracking
-            // and/or defining our own asyn connection object.
-            for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-                delete *it;
-            delete sem; // delete if any.
-        }
+        ~EventProcessor();
 
-        bool initialize() { return true;}
+        bool initialize();
 
-        void step() {
-            if ( catchers.empty() )
-                return;
-            ORO_OS::MutexLock lock(m);
-            for( List::iterator it = catchers.begin(); it != catchers.end(); ++it) {
-                (*it)->complete();
-            }
-        }
+        void step();
 
-        void finalize() {
-        }
-
+        void finalize();
 
         /**
          * For Asynchronous callbacks, this enum defines
@@ -460,11 +447,11 @@ namespace ORO_CoreLib
             switch ( t ) {
             case OnlyFirst:
                 // Use function arity to select implementation :
-                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem);
+                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem.get());
                 break;
             case OnlyLast:
                 // Use function arity to select implementation :
-                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem);
+                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem.get());
                 break;
             }
             {
@@ -483,27 +470,36 @@ namespace ORO_CoreLib
     class BlockingEventProcessor
         : public EventProcessor
     {
+    protected:
+        ORO_OS::Mutex breaker;
         bool doloop;
     public:
-        BlockingEventProcessor()
-            : EventProcessor()
-        {
-            sem = new ORO_OS::Semaphore(0);
-        }
-        ~BlockingEventProcessor() {
-            this->breakloop();
-            // race condition here, this->getTask()->isRunning() better be false
-            // before EventProcessor is destructed, otherwise, solve with extra semaphore
-        }
-        void loop() {
-            // wait/block for one event 
-            sem->wait();
-            this->step();
-        }
+        /**
+         * Create a blocking (non periodic) EventProcessor, which will wait on ORO_OS::Semaphore  \a s.
+         * All connected Events will signal this semaphore if an Event needs 
+         * processing. Also, signal this semaphore to break loop(), or call breakloop().
+         * The semaphore is shared through a shared_ptr, meaning that it will only delete
+         * \a s if it holds the last reference to it.
+         */
+        BlockingEventProcessor( boost::shared_ptr<ORO_OS::Semaphore> s = boost::shared_ptr<ORO_OS::Semaphore>( new ORO_OS::Semaphore(0) ) );
 
-        void breakloop() {
-            sem->signal();
-        }
+        ~BlockingEventProcessor();
+
+        /**
+         * Process Events until \a breakloop() (or destructor) is called.
+         */
+        void loop();
+
+        /**
+         * Force the loop() method to return.
+         */
+        void breakloop();
+
+        /**
+         * Let all registered (and future) connections use
+         * ORO_OS::Semaphore s to signal work to be done.
+         */
+        void setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s);
     };
 
 }
