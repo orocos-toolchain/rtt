@@ -578,6 +578,9 @@ namespace ORO_Execution
         __s->addPeer( curcontext );   // store in __states.
         curtemplatecontext->setTaskContext( curcontext ); // store.
         
+        // add the 'task' peer :
+        curcontext->addPeer( context, "task" );
+
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
         progParser = new ProgramGraphParser(mpositer, context);
