@@ -22,7 +22,7 @@
 
 
 #include <corelib/CommandInterface.hpp>
-#include "CommandStopExecution.hpp"
+//#include "CommandStopExecution.hpp"
 
 #include <boost/graph/adjacency_list.hpp>
 
@@ -89,11 +89,11 @@ namespace ORO_Execution
          * @return A program node with no conditional branches and that
          * contains a stop execution command.
          */
-        static VertexNode* leafNode( ProcessorControlInterface* proc)
-        {
-            CommandStopExecution* cmd = new CommandStopExecution( proc );
-            return new VertexNode( cmd );
-        }
+//         static VertexNode* leafNode( ProcessorInterface* proc)
+//         {
+//             CommandStopExecution* cmd = new CommandStopExecution( proc );
+//             return new VertexNode( cmd );
+//         }
 
          ~VertexNode();
 

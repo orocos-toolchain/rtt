@@ -67,20 +67,6 @@ namespace ORO_Execution
 			 */
 			virtual bool loadStateContext(StateContext* sc);
 			
-			
-			
-            virtual bool startConfiguration(){output("already in configuration state"); return false;}           
-			
-			virtual bool deleteProgram(){output("no program defined in configuration state"); return false;}
-			
-			virtual bool startExecution(){output("no start execution in configuration state"); return false;}
-			
-			virtual bool stopExecution(){output("no stop execution in configuration state"); return false;}
- 			
- 			virtual bool loadProgram(ProgramInterface* pi){output("no loading in configuration state"); return false;}
-			
-			virtual bool resetProgram(){output("no legal action in configuration state"); return false;} 
-			
         virtual void doStep();
 			
 		private :

@@ -33,21 +33,6 @@ namespace ORO_Execution
         return true;
 	}
 
-
-	bool ProcessorStateExec::deleteProgram()
-	{
-		ProcessorStateConfig* newState= new ProcessorStateConfig(processor);
-		newState->loadStateContext(systemContext);
-        // we pass ownership of the systemContext to the
-        // config state
-        systemContext = 0;
-        delete program;
-        program = 0;
-		changeState(newState);
-        return true;
-	}
-
-
 	void ProcessorStateExec::doStep()
 	{
         // search for a next state.

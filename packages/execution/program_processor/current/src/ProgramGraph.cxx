@@ -1,7 +1,7 @@
 #include "execution/ProgramGraph.hpp"
 #include "execution/FunctionGraph.hpp"
 
-#include "execution/CommandStopExecution.hpp"
+#include "execution/CommandStopProgram.hpp"
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"
@@ -18,7 +18,8 @@ namespace ORO_Execution
     using ORO_CoreLib::CommandNOP;
     using ORO_CoreLib::ConditionTrue;
 
-	ProgramGraph::ProgramGraph()
+	ProgramGraph::ProgramGraph(const std::string& _name)
+        : myName(_name)
 	{
 	}
 
@@ -145,14 +146,16 @@ namespace ORO_Execution
         delete cmap[cn].setCommand( comm );
     }
 
-    ProgramGraph::CommandNode ProgramGraph::proceedToNext( ConditionInterface* cond )
+    ProgramGraph::CommandNode ProgramGraph::proceedToNext( ConditionInterface* cond, int this_line )
     {
         add_edge(current, next, EdgeCondition(cond), *graph);
-        return proceedToNext();
+        return proceedToNext( this_line );
     }
 
-    ProgramGraph::CommandNode ProgramGraph::proceedToNext()
+    ProgramGraph::CommandNode ProgramGraph::proceedToNext( int this_line )
     {
+        if ( this_line )
+            this->setLineNumber( this_line );
         current = next;
         next    = add_vertex( *graph );
         put(vertex_exec, *graph, next, VertexNode::normal_node );
@@ -164,7 +167,7 @@ namespace ORO_Execution
         add_edge( v, next, EdgeCondition(cond), *graph);
     }
 
-    ProgramGraph::CommandNode ProgramGraph::startProgram(ProcessorControlInterface* pci)
+    ProgramGraph::CommandNode ProgramGraph::startProgram(ProcessorInterface* pci)
     {
         // we work now on the program.
         graph = &program;
@@ -178,12 +181,17 @@ namespace ORO_Execution
         end    = add_vertex( *graph );
         boost::property_map<Graph, vertex_command_t>::type 
             cmap = get(vertex_command, program);
-        delete cmap[end].setCommand( new CommandStopExecution( pci ) );
+        delete cmap[end].setCommand( new CommandStopProgram( pci, myName ) );
         put(vertex_exec, *graph, end, VertexNode::prog_exit_node );
 
         root = current;
 
         return current;
+    }
+
+    const std::string& ProgramGraph::getName() const
+    {
+        return myName;
     }
     
     void ProgramGraph::returnProgram( ConditionInterface* cond )
@@ -276,6 +284,20 @@ namespace ORO_Execution
     ProgramGraph::CommandNode ProgramGraph::nextNode() const
     {
         return next;
+    }
+
+    int ProgramGraph::getLineNumber()
+    {
+        boost::property_map<Graph, vertex_command_t>::type 
+            cmap = get(vertex_command, program);
+        return cmap[current].getLineNumber();
+    }
+
+    void ProgramGraph::setLineNumber( int line)
+    {
+        boost::property_map<Graph, vertex_command_t>::type 
+            cmap = get(vertex_command, program);
+        cmap[current].setLineNumber( line );
     }
 
     void ProgramGraph::setLabel( const std::string& str )

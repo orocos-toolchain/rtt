@@ -18,6 +18,8 @@ which encapsulates the command to be executed."
     compile VertexNode.cxx EdgeCondition.cxx ProgramGraph.cxx 
     compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
     compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
-    compile Processor.cxx  ProcessorState.cxx  ProcessorStateConfig.cxx  ProcessorStateExec.cxx  ProcessorStateInit.cxx  ProcessorStateLoad.cxx  
+    compile Processor.cxx
+    #compile ProcessorState.cxx  ProcessorStateConfig.cxx  ProcessorStateExec.cxx  ProcessorStateInit.cxx  ProcessorStateLoad.cxx  
+    #compile ProcessorStateStepping.cxx
     compile AsynchCommandDecorator.cxx
 }

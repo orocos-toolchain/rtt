@@ -27,6 +27,11 @@ namespace ORO_Execution
 	 * @brief This class represents a finite state machine
 	 * in a state graph tree, based on the
      * Boost Graph Library.
+     *
+     * The StateContext base class is used at run-time
+     * for doing the state transitions. This subclass 
+     * implements the construction of states and transitions
+     * and it is mostly accessed by the StateGraphParser.
 	 */
 	class StateGraph
         : public ORO_CoreLib::StateContext
@@ -56,9 +61,8 @@ namespace ORO_Execution
         typedef Edge ConditionEdge ;
 
         /**
-         * Constructs an empty state (NOPstate)
+         * Constructs an empty state diagram.
          *
-         * @post This state is created with a NOP root.
          */
         StateGraph();
 
@@ -77,16 +81,18 @@ namespace ORO_Execution
 
         /**
          * Reset the internal state before
-         * starting execution.
+         * starting execution. This must be done before
+         * the StateGraph is used (process'ed) the first time.
          */
         void reset();
+
         /**
          * Create a new, empty, state.
          */
         StateDescription* newState();
 
         /**
-         * Start filling up (defining) a new state.
+         * Start filling up (defining) a given state.
          */
         void startState( StateDescription* state );
 
@@ -210,12 +216,6 @@ namespace ORO_Execution
          * The node that was run before this one.
          */
         CommandNode previous;
-
-        /**
-         * The r00t of all evil
-         * (thus the start of the state).
-         */
-        CommandNode root;
 
 	};
 

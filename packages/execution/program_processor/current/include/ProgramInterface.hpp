@@ -20,34 +20,40 @@
 #ifndef PROGRAMINTERFACE_HPP
 #define	PROGRAMINTERFACE_HPP
 
+#include <string>
 
 namespace ORO_Execution
 {
 	
 	/**
 	 * This abstract class represents a collection of 
-	 * data that can be executed.
+	 * instructions that can be executed.
 	 */
 	class ProgramInterface
 	{
-		public:
-		
-			ProgramInterface()
-			{}
-	
-			virtual ~ProgramInterface()
-			{}
+    public:
+        virtual ~ProgramInterface()
+        {}
 
-			/**
-			 * Execute the next logical step of this program interface.
-			 */
-			virtual void execute()= 0;
+        /**
+         * Execute the next logical step of this program interface.
+         */
+        virtual void execute()= 0;
 
-			/**
-			 * Reset the execution point to the beginning of this program interface.
-			 */
-			virtual void reset() = 0;
+        /**
+         * Reset the execution point to the beginning of this program interface.
+         */
+        virtual void reset() = 0;
 	
+        /**
+         * Return the current 'line number' of the program.
+         */
+        virtual int getLineNumber() = 0;
+
+        /**
+         * Programs can be refered to by name.
+         */
+        virtual const std::string& getName() const = 0;
 	};
 
 

@@ -1,6 +1,7 @@
 #include "execution/ProcessorStateLoad.hpp"
 #include "execution/ProcessorStateConfig.hpp"
 #include "execution/ProcessorStateExec.hpp"
+#include "execution/ProcessorStateStepping.hpp"
 #include "execution/Processor.hpp"
 
 #include <iostream>
@@ -9,7 +10,7 @@ namespace ORO_Execution
 {
 
 	ProcessorStateLoad::ProcessorStateLoad(Processor* proc, StateContext* sc)
-       : ProcessorState(proc), systemContext(sc), program(0)
+        : ProcessorState(proc), systemContext(sc), program(0), command(0)
 	{
 	}
 
@@ -56,6 +57,21 @@ namespace ORO_Execution
         return true;
 	}
 
+	bool ProcessorStateLoad::startStepping()
+	{
+        if ( !program )
+            return false;
+
+        // Reset the program, just before execution is entered.
+        ProcessorStateStepping* newState=new ProcessorStateStepping(processor, systemContext, program);
+        // we pass ownership of the programand systemContext to
+        // ProcessorStateStepping.
+        program = 0;
+        systemContext = 0;
+        changeState(newState);
+        return true;
+	}
+
 
 	bool ProcessorStateLoad::loadProgram(ProgramInterface* pi)
 	{
@@ -86,8 +102,21 @@ namespace ORO_Execution
 	{
         // If stepping is requested, we process the systemContext;
         systemContext->requestNextState( );
+
+        if ( command )
+            {
+                command->execute();
+                command = 0;
+            }
 	}
 
+    bool ProcessorStateLoad::process( CommandInterface* c)
+    {
+        if (command != 0)
+            return false;
+        command = c;
+        return true;
+    }
 
 }
 

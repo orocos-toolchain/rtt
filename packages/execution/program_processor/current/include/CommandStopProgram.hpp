@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  CommandStopExecution.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  CommandStopProgram.hpp 
 
-                        CommandStopExecution.hpp -  description
+                        CommandStopProgram.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -17,47 +17,48 @@
  ***************************************************************************/
  
  
-#ifndef ORO_COMMAND_STOP_EXECUTION_HPP
-#define ORO_COMMAND_STOP_EXECUTION_HPP
+#ifndef ORO_COMMAND_STOP_PROGRAM_HPP
+#define ORO_COMMAND_STOP_PROGRAM_HPP
 
 #include <corelib/CommandInterface.hpp>
-#include "ProcessorControlInterface.hpp"
+#include "ProcessorInterface.hpp"
 
-namespace ORO_Execution 
+namespace ORO_Execution
 {
 	using  ORO_CoreLib::CommandInterface;
 
 	/**
      * @brief This command will instruct the Processor to
-     * stop execution if it is executed.
+     * stop program if it is executed.
      */
-	class CommandStopExecution : public CommandInterface
+	class CommandStopProgram : public CommandInterface
 	{
 		
 		public:
-		CommandStopExecution(ProcessorControlInterface * _pci) : pci(_pci)
+		CommandStopProgram(ProcessorInterface * _pci, const std::string prog_name) : pci(_pci), name(prog_name)
 		{
 		}
 		
-		~CommandStopExecution()
+		~CommandStopProgram()
 		{}
 		
 		void execute() 
         {
-			pci->stopExecution();
+			pci->stopProgram(name);
 		}
 	
 		std::string toString() {
-			return "CommandStopExecution";
+			return "CommandStopProgram";
 		}
 	
         virtual CommandInterface* clone() const
         {
-            return new CommandStopExecution( *this );
+            return new CommandStopProgram( pci, name );
         }
 
 		private:
-			ProcessorControlInterface * pci;
+			ProcessorInterface * pci;
+        std::string name;
 	};
 
 }

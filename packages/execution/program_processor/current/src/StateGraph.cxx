@@ -1,7 +1,7 @@
 #include "execution/StateGraph.hpp"
 #include "execution/StateDescription.hpp"
 
-#include "execution/CommandStopExecution.hpp"
+#include "execution/CommandStopProgram.hpp"
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"

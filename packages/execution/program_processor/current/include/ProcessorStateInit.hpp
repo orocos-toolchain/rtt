@@ -50,17 +50,6 @@ namespace ORO_Execution
          */
         virtual bool startConfiguration();
 			
-        //rest of interface
-        virtual bool endConfiguration(){output("endConfiguration : No configuration defined yet"); return false;}
-        virtual bool deleteProgram(){output("deleteProgram : No configuration defined yet"); return false;}
-        virtual bool startExecution(){output("startExecution : No configuration defined yet"); return false;}
-        virtual bool stopExecution(){output("stopExecution : No configuration defined yet"); return false;}
-        virtual bool abort(){output("abort : Already in init state"); return false;}
-        virtual bool loadStateContext(StateContext* sc){output("loadStateContext : No configuration defined yet"); return false;} 
-        virtual bool loadProgram(ProgramInterface* pi){output("loadProgram : No configuration defined yet"); return false;}
-        virtual bool resetProgram(){output("resetProgram : No configuration defined yet"); return false;}
-        virtual void doStep(){}
-	
 	};
 
 }

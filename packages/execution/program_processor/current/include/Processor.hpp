@@ -25,6 +25,7 @@
 #include "ProcessorState.hpp"
 #include "ProcessorStateInit.hpp"
 
+#include <list>
 
 namespace ORO_Execution
 {
@@ -33,7 +34,8 @@ namespace ORO_Execution
      * This class represents a controllable execution engine.
      * (see interfaces)
      */
-    class Processor: public ProcessorInterface, public ProcessorControlInterface
+    class Processor
+        : public ProcessorInterface
     {
 
         public:
@@ -47,35 +49,72 @@ namespace ORO_Execution
 
             virtual ~Processor();
 
-			//see ProcessorControlInterface
-            virtual bool startConfiguration();
-			virtual bool abort();
-			virtual bool endConfiguration();
-			virtual bool deleteProgram();
-			virtual bool startExecution();
-			virtual bool stopExecution();
+//             virtual bool startConfiguration();
+// 			virtual bool abort();
+// 			virtual bool endConfiguration();
+			virtual bool startStepping(const std::string& name);
 
-			//see ProcessorInterface
-			virtual bool loadStateContext(StateContext* sc);
-			virtual bool loadProgram(ProgramInterface* pi) ;
-			virtual bool resetProgram() ;
+			virtual bool loadStateContext(const std::string& name, StateContext* sc);
+            virtual bool startStateContext(const std::string& name);
+            virtual bool stopStateContext(const std::string& name);
+            virtual bool resetStateContext(const std::string& name);
+            virtual bool deleteStateContext(const std::string& name);
+
+			virtual bool loadProgram(const std::string& name, ProgramInterface* pi) ;
+			virtual bool startProgram(const std::string& name);
+			virtual bool stopProgram(const std::string& name);
+			virtual bool resetProgram(const std::string& name);
+			virtual bool deleteProgram(const std::string& name);
+
 			virtual void doStep();
+			virtual bool nextStep(const std::string& name);
+			virtual bool process(CommandInterface* c);
 
+        struct ProgramInfo
+        {
+            ProgramInfo(const std::string&_name, ProgramInterface* p)
+                : program(p),
+                  running(false),
+                  stepping(false), name(_name) {}
+            ProgramInterface* program;
+            bool running;
+            bool stepping;
+            std::string name;
+        };
 
-        private:
+        struct StateInfo
+        {
+            StateInfo(const std::string& _name, StateContext* s)
+                : state(s),
+                  init(false),running(false),final(false),
+                  name(_name) {}
+            StateContext* state;
+            bool init;
+            bool running;
+            bool final;
+            std::string name;
+        };
 
-        	friend class ProcessorState;
-        	//state setters
-        	virtual void changeState(ProcessorState* newState);
-            virtual void resetState();
+    private:
 
-            /**
-             * current state of this processor
-             *
-             * @invar currentState != 0
-             */
-            ProcessorState* currentState;
+        //friend class ProcessorState;
+        //state setters
+        //virtual void changeState(ProcessorState* newState);
+        //virtual void resetState();
 
+        /**
+         * current state of this processor
+         *
+         * @invar currentState != 0
+         */
+        //ProcessorState* currentState;
+
+        typedef std::list<ProgramInfo>::iterator program_iter;
+        typedef std::list<StateInfo>::iterator state_iter;
+        std::list<ProgramInfo> programs;
+        std::list<StateInfo>   states;
+
+        CommandInterface *command;
     };
 
 }

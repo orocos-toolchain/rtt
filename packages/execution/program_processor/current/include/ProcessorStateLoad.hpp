@@ -46,7 +46,6 @@ namespace ORO_Execution
 			
 			virtual ~ProcessorStateLoad();
 			
-			
 			/**
 			 * Leave the system unconfigured and the program undefined
 			 * and put the associated processor in init mode.
@@ -66,8 +65,14 @@ namespace ORO_Execution
 			virtual bool startExecution();
 			
 			/**
+			 * If a valid program is defined, put the 
+			 * associated processor in stepping mode.
+			 */
+			virtual bool startStepping();
+			
+			/**
 			 * Loads given program if it is valid.
-			 * @param <pi> The program to be loaded.
+			 * @param pi The program to be loaded.
 			 * @post If given program was valid, it was loaded.
 			 */
 			virtual bool loadProgram(ProgramInterface* pi);	
@@ -77,14 +82,12 @@ namespace ORO_Execution
 			 */
 			virtual bool resetProgram(); 
 			
-			
-			//rest of interface
-            virtual bool startConfiguration(){output("startConfiguration : Processor is in load state"); return false;}
-            virtual bool endConfiguration(){output("endConfiguration : Processor is in load state"); return false;}
-			virtual bool loadStateContext(StateContext* sc){output("loadStateContext : Processor is in load state"); return false;}  
+        /**
+         * Step over the System Config.
+         */
         virtual void doStep();
-			virtual bool stopExecution(){output("stopExecution : Processor is in load state"); return false;}
-			
+
+        virtual bool process( CommandInterface* c);
 		private :
 		
 			/**
@@ -103,6 +106,8 @@ namespace ORO_Execution
 			 * The program associated with this state.
 			 */
 			ProgramInterface* program;	  
+
+        CommandInterface* command;
 	};
 
 }

@@ -21,13 +21,12 @@
 #define PROGRAMGRAPH_HPP
 
 #include "ProgramInterface.hpp"
-#include "ProcessorControlInterface.hpp"
+#include "ProcessorInterface.hpp"
 
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 
 #include <utility>                   // for std::pair
-#include <algorithm>                 // for std::for_each
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp> // the type of our graph
 
@@ -70,23 +69,26 @@ namespace ORO_Execution
         typedef Edge ConditionEdge ;
 
         /**
-         * Constructs an empty program (NOPprogram)
+         * Constructs an empty program (NOPprogram).
          *
-         * @post This program is created with a NOP root.
          */
-        ProgramGraph();
+        ProgramGraph(const std::string& _name="Default");
 
         virtual ~ProgramGraph();
 
-        /**
-         * Executes the next step of this program.
-         */
         virtual void execute();
 
-        /**
-         * Reset the next node to be executed to the root node.
-         */
         virtual void reset();
+
+        virtual int  getLineNumber();
+
+        virtual const std::string& getName() const;
+
+        /**
+         * Set the line number of the current command node.
+         * @param ln The line number.
+         */
+        void setLineNumber( int ln );
 
         /**
          * Returns the Graph of the program.
@@ -165,7 +167,7 @@ namespace ORO_Execution
          *
          * @param pci The Processor which will execute this program
          */
-        CommandNode startProgram( ProcessorControlInterface* pci);
+        CommandNode startProgram( ProcessorInterface* pci);
         
         /** 
          * Program end is detected. The last instruction
@@ -196,17 +198,20 @@ namespace ORO_Execution
         /**
          * Proceed to the 'next' CommandNode.
          *
+         * @param line_nr The line number of the 'current' command.
          * @return The new current CommandNode.
          */
-        CommandNode proceedToNext();
+        CommandNode proceedToNext( int line_nr = 0 );
 
         /**
          * Proceed to the 'next' CommandNode and add an edge
          * with a condition.
          *
+         * @param cond The condition under which to proceed to the next node.
+         * @param line_nr The line number of the 'current' command.
          * @return The new current CommandNode.
          */
-        CommandNode proceedToNext( ConditionInterface* cond );
+        CommandNode proceedToNext( ConditionInterface* cond, int line_nr = 0 );
 
         /**
          * Connect the given CommandNode to the 'next' CommandNode.
@@ -271,6 +276,10 @@ namespace ORO_Execution
          */
         CommandNode end;
 
+        /**
+         * The (unique) name of this program.
+         */
+        std::string myName;
 	};
 
 

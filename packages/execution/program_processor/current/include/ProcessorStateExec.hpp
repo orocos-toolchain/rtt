@@ -63,28 +63,9 @@ namespace ORO_Execution
 			virtual bool stopExecution();
 			
 			/**
-			 * Stops execution of and deletes the associated program
-			 * and puts associated processor in configuration mode.
-			 */
-			virtual bool deleteProgram();
-			
-			/**
 		 	 * Execute the next logic step of associated program. 
 		 	 */
 			virtual void doStep();			
-			
-			
-            virtual bool startConfiguration(){output("startConfiguration: no legal action in execution state"); return false;}
-            
-            virtual bool endConfiguration(){output("endConfiguration: no legal action in execution state"); return false;}
-			
-			virtual bool startExecution(){output("startExecution: no legal action in execution state"); return false;}
-			
-			virtual bool loadStateContext(StateContext* sc){output("loadStateContext: no legal action in execution state"); return false;} 
-			
-			virtual bool loadProgram(ProgramInterface* pi){output("loadProgram: no legal action in execution state"); return false;}
-			
-			virtual bool resetProgram(){output("resetProgram: no legal action in execution state"); return false;} 
 			
 		private:
 

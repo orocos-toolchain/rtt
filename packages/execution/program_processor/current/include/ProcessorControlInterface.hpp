@@ -7,14 +7,14 @@
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
  
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    ***************************************************************************
+    *                                                                         *
+    *   This program is free software; you can redistribute it and/or modify  *
+    *   it under the terms of the GNU General Public License as published by  *
+    *   the Free Software Foundation; either version 2 of the License, or     *
+    *   (at your option) any later version.                                   *
+    *                                                                         *
+    ***************************************************************************/
  
  
 #ifndef PROCESSORCONTROLINTERFACE_HPP
@@ -29,46 +29,11 @@ namespace ORO_Execution
      */
     class ProcessorControlInterface
     {
-
-        public:
+    public:
         
-            virtual ~ProcessorControlInterface()
-            {}
+        virtual ~ProcessorControlInterface()
+        {}
 
-            /**
-             * Start execution mode, only if not yet started 
-             * and data has been loaded. 
-             */
-            virtual bool startExecution() = 0;
-
-            /**
-             * End execution mode, only if already started.
-             */
-            virtual bool stopExecution() = 0;
-            
-            /**
-             * Start configuration mode.
-             */
-            virtual bool startConfiguration() = 0;
-                        
-            /**
-             * Discard the data currently loaded.
-             * If that data was being executed, execution stopped.
-             */
-            virtual bool deleteProgram() = 0;
-            
-			/**
-			 * Retreat to init mode (data and configuration were discarded).
-			 */
-			virtual bool abort() = 0;
-			
-			/**
-			 * End configuration mode and start loading mode, only
-			 * if a configuration has been loaded.
-			 */
-			virtual bool endConfiguration() = 0; 
-			
-			
     };
 
 }
