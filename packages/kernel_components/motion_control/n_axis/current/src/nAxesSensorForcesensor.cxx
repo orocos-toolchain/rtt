@@ -139,16 +139,24 @@ namespace ORO_ControlKernel
   {
     TemplateMethodFactory<nAxesSensorForcesensor>* my_methodFactory = newMethodFactory( this );
     my_methodFactory->add( "finishedMeasuring", method( &nAxesSensorForcesensor::finishedMeasuring, "Arrived at new position" ));
+    my_methodFactory->add( "getMeasurement", method( &nAxesSensorForcesensor::getMeasurement, "Get last measurement" ));
 
     return my_methodFactory;
   }
 
 
 
-  bool nAxesSensorForcesensor::startMeasuring(unsigned int num_meas)
+  bool nAxesSensorForcesensor::startMeasuring(int num_meas)
   {
+    // we want positive value
+    if (num_meas < 1)
+      num_meas = 1;
+
+    // don't do anything if still measuring
     if (_is_measuring)
       return false;
+
+    // get new measure
     else{
       _num_measurements = num_meas;
       _counter_measurements = 0;
@@ -165,7 +173,7 @@ namespace ORO_ControlKernel
   }
   
 
-  Wrench nAxesSensorForcesensor::getMeasurement()
+  Wrench nAxesSensorForcesensor::getMeasurement() const
   {
     return _average_measurement;
   }
