@@ -129,6 +129,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         commandfactory = createCommandFactory();
         if ( commandfactory )
             commandFactory().registerObject( "kernel", commandfactory );
+
         dataSourceFactory = createDataSourceFactory();
         if ( dataSourceFactory )
             dataFactory().registerObject( "kernel", dataSourceFactory );

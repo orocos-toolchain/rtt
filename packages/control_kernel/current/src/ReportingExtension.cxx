@@ -50,11 +50,13 @@ namespace ORO_ControlKernel
           interval("SubSamplingInterval","", 1),
           repFile("ReportFile","", "report.txt"),
           toStdOut("WriteToStdOut","", false),
+          writeHeader("WriteHeader","", true),
 #ifdef OROINT_OS_STDIOSTREAM
           toFile("WriteToFile","", false),
 #endif
           reportServer("ReportServer","The name of the report server", "Default"),
-          serverOwner(false), base(_base)
+          serverOwner(false), count( 0 ),
+          base(_base)
     {
     }
 
@@ -126,21 +128,43 @@ namespace ORO_ControlKernel
                                 {
                                     // do nothing.
                                     config = 0;
+                                    nh_config = 0;
                                     splitStream = 0;
                                     reporter = 0;
                                     reporterTask = 0;
                                     return true;
                                 }
                     
-        config = new MarshallTableType( *splitStream );
-        // check for existing server
+        if ( writeHeader )
+            config = new MarshallTableType( *splitStream );
+        else
+            nh_config = new NoHeaderMarshallTableType( *splitStream );
+
+        // check for existing servers
         reporter = PropertyReporter<MarshallTableType>::nameserver.getObjectByName( reportServer );
         if ( !reporter )
             {
-                // create a new report server with this name.
-                reporter = new PropertyReporter<MarshallTableType>( *config, reportServer );
-                reporterTask = new TaskNonRealTime(period, reporter);
-                serverOwner = true;
+                reporter = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObjectByName( reportServer );
+                if ( !reporter )
+                    {
+                        RunnableInterface* tmp_run;
+                        if ( writeHeader )
+                            {
+                                PropertyReporter<MarshallTableType>* tmp_ptr;
+                                tmp_ptr = new PropertyReporter<MarshallTableType>( *config, reportServer );
+                                tmp_run = tmp_ptr;
+                                reporter = tmp_ptr;
+                            }
+                        else
+                            {
+                                PropertyReporter<NoHeaderMarshallTableType>* tmp_ptr;
+                                tmp_ptr = new PropertyReporter<NoHeaderMarshallTableType>( *nh_config, reportServer );
+                                tmp_run = tmp_ptr;
+                                reporter = tmp_ptr;
+                            }
+                        reporterTask = new TaskNonRealTime(period, tmp_run);
+                        serverOwner = true;
+                    }
             }
                 
         // iterate over all external exporters :
@@ -170,7 +194,14 @@ namespace ORO_ControlKernel
     {
         // copy contents, if possible, on frequency of reporter.
         if ( reporter && serverOwner )
-            reporter->trigger(); // instruct copy.
+            {
+                if ( count % interval == 0 )
+                    {
+                        reporter->trigger(); // instruct copy.
+                        count = 0;
+                    }
+                ++count;
+            }
     }
 
     void ReportingExtension::finalize()
@@ -196,10 +227,9 @@ namespace ORO_ControlKernel
                 delete fileStream;
             }
 #endif
-        if ( splitStream )
-            delete splitStream;
-        if ( config )
-            delete config;
+        delete splitStream;
+        delete config;
+        delete nh_config;
     }
 
     /**
@@ -266,6 +296,7 @@ namespace ORO_ControlKernel
         composeProperty(bag, repFile);
         composeProperty(bag, reportServer);
         composeProperty(bag, toStdOut);
+        composeProperty(bag, writeHeader);
 #ifdef OROINT_OS_STDIOSTREAM
         composeProperty(bag, toFile);
 #endif
@@ -288,7 +319,7 @@ namespace ORO_ControlKernel
                         ++it;
                     }
             }
-        return true;
+        return interval > 0;
     }
             
 }

@@ -47,9 +47,10 @@
 namespace ORO_ControlKernel
 {
     /**
-     * An Interface for registering DataObject members 
+     * @brief An Interface for registering DataObject members 
      * into a public namespace. One nameserver will be
-     * created for each _MemberType.
+     * created for each _DataObjectType.
+     *
      * It is intended to be a base class of a 'normal'
      * DataObject, so that the DataObject offers a
      * NameServer interface. The DataObjectServer can do
@@ -66,9 +67,12 @@ namespace ORO_ControlKernel
     public :
         typedef _DataObjectType DataObjectType;
         typedef _DataObjectType* DataObjectType_ptr;
-        typedef typename _DataObjectType::DataType _MemberType;
-        typedef _MemberType MemberType;
-        typedef _MemberType* MemberType_ptr;
+        
+        /**
+         * The MemberType is the DataType of the DataObject.
+         */
+        typedef typename _DataObjectType::DataType MemberType;
+        typedef MemberType* MemberType_ptr;
 
         /**
          * Create a 'stub' like object which grants access
@@ -92,6 +96,9 @@ namespace ORO_ControlKernel
 
         /**
          * Get a member variable of a DataObject.
+         * @param m Returns the resulting contents of a DataObject.
+         * @param name The name (without prefix) of the DataObject
+         * which must be Get.
          * @return true if it could be get, false otherwise.
          */
         bool Get(const std::string& name, MemberType& m) const
@@ -108,6 +115,9 @@ namespace ORO_ControlKernel
         /**
          * @brief Get a pointer to a DataObject.
          *
+         * @param m Returns the resulting DataObject.
+         * @param name The name (without prefix) of the DataObject
+         * which must be Get.
          * @return true if it could be get, false otherwise.
          */
         bool Get( const std::string& name, DataObjectType*& m )
@@ -123,6 +133,9 @@ namespace ORO_ControlKernel
 
         /**
          * @brief Set a member variable of a DataObject.
+         * @param m The new value for the DataObject contents.
+         * @param name The name (without prefix) of the DataObject
+         * which must be Set.
          * @return true if it could be set, false otherwise.
          */
         bool Set( const std::string& name, const MemberType& m)
@@ -137,6 +150,8 @@ namespace ORO_ControlKernel
 
         /**
          * @brief Register a DataObject with a certain name.
+         * @param m The DataObject to add.
+         * @param name The name (without prefix) it should have.
          */
         void reg( DataObjectType_ptr m, const std::string& name)
         {
@@ -145,12 +160,12 @@ namespace ORO_ControlKernel
 
         /**
          * @brief Deregister a DataObject.
+         * @param m The DataObject to remove
          */
         void deReg( DataObjectType_ptr m )
         {
             ns.unregisterObject( m );
         }
-
     };
 
     template< class _DataObjectType >

@@ -1033,7 +1033,7 @@ void push()
 	very costly in demanding applications. This can be solved by
 	resolving the DataObject which holds the DataType instead of the 
 	DataType directly.  This method is called indirect access, since a
-	step in between must be done to get the data.
+	step in between (but on beforehand) must be done to get the data.
       </para>
       <para>
 	We adapt the above example again to demonstrate

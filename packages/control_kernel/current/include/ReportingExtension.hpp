@@ -28,6 +28,7 @@
 
 #include <corelib/marshalling/TableMarshaller.hpp>
 #include <corelib/marshalling/TableHeaderMarshaller.hpp>
+#include <corelib/marshalling/EmptyHeaderMarshaller.hpp>
 #include <corelib/TaskNonRealTime.hpp>
 
 #include <pkgconf/os.h>
@@ -184,7 +185,10 @@ namespace ORO_ControlKernel
         virtual bool updateProperties(const PropertyBag& bag);
             
     protected:
-        typedef MarshallConfiguration<SplitStream, TableHeaderMarshaller<SplitStream>, TableMarshaller<SplitStream> > MarshallTableType;
+        typedef MarshallConfiguration<TableHeaderMarshaller<SplitStream>,
+                                      TableMarshaller<SplitStream> > MarshallTableType;
+        typedef MarshallConfiguration<EmptyHeaderMarshaller<SplitStream>,
+                                      TableMarshaller<SplitStream> > NoHeaderMarshallTableType;
 
 #ifdef OROINT_OS_STDIOSTREAM
         std::ofstream* fileStream;
@@ -192,16 +196,18 @@ namespace ORO_ControlKernel
         SplitStream*  splitStream;
 
         MarshallTableType* config;
+        NoHeaderMarshallTableType* nh_config;
 
         /**
          * The reporter for properties.
          */
-        PropertyReporter<MarshallTableType>* reporter;
+        PropertyCollectorInterface* reporter;
             
         Property<double> period;
         Property<int> interval;
         Property<std::string> repFile;
         Property<bool> toStdOut;
+        Property<bool> writeHeader;
 #ifdef OROINT_OS_STDIOSTREAM
         Property<bool> toFile;
 #endif
@@ -244,6 +250,11 @@ namespace ORO_ControlKernel
          * True if we own the report server.
          */
         bool serverOwner;
+
+        /**
+         * Used for sub-sampling interval
+         */
+        int count;
 
         /**
          * The base kernel of this extension.

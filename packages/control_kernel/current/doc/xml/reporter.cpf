@@ -4,13 +4,16 @@
 <properties>
 
     <simple name="ReportPeriod" type="double">
-            <description>The period, in seconds, for making reports.</description>
+            <description>The period, in seconds, for writing reports.</description>
             <value>0.1</value>
     </simple>
+
     <simple name="SubSamplingInterval" type="short">
-            <description>The sub sampling interval for making reports, relative to the kernel.</description>
+            <description>The sub sampling interval for copying reports (making snapshots),
+			 relative to the kernel cycle.</description>
             <value>10</value>
     </simple>
+
     <simple name="ReportFile" type="string">
         <description>The file to write the reports to.</description>
         <value>reports.txt</value>
@@ -33,6 +36,9 @@
         <simple name="Component" type="string"><value>Controller</value></simple>
         <simple name="Component" type="string"><value>Estimator</value></simple>
         <simple name="Component" type="string"><value>Generator</value></simple>
+
+	<simple name="DataObject" type="string"><value>Model</value></simple>
+	<simple name="DataObject" type="string"><value>TrackingError</value></simple>
     </struct>
 
 
