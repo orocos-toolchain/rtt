@@ -173,7 +173,7 @@ features and interface of the &orocos; &interf; package.
 	  of states, linked to each other and is defined in
 	  the <ulink url="orocos-corelib.html">Orocos CoreLib</ulink>
 	  . It represents a  state machine of the
-	  system logic. Every device has physical and logical
+	  realtime system's logic. Every device has some
 	  configurations in which a specific action must be taken
 	  (on entry, during or on exit) and transitions between states are defined
 	  by boundary conditions. Every such state is defined by
@@ -204,6 +204,13 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
+      <para>
+	Loading, unloading and deleting a State Context may throw
+	an exception. The <exceptionname>program_load_exception</exceptionname>
+	and <exceptionname>program_unload_exception</exceptionname>
+	should be try'ed and catch'ed on load and unload or deletion
+	of a State Context.
+      </para>
       </sect2>
       <sect2>
 	<title>State Transitions</title>
@@ -250,6 +257,13 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
+      <para>
+	Loading, unloading and deleting a Program may throw
+	an exception. The <exceptionname>program_load_exception</exceptionname>
+	and <exceptionname>program_unload_exception</exceptionname>
+	should be try'ed and catch'ed on load and unload or deletion
+	of a Program.
+      </para>
       </sect2>
 
       <sect2>

@@ -109,9 +109,7 @@ namespace ORO_Execution
         static const int maxsteps = 5000;
         int count = 0;
 
-        boost::property_map<Graph, vertex_command_t>::type
-            cmap = get(vertex_command, program);
-        while ( ! dynamic_cast<CommandProgramEndToken*>( cmap[current].getCommand() ) && count++ <= maxsteps )
+        while ( current != end && count++ <= maxsteps )
             execute();
     }
 
