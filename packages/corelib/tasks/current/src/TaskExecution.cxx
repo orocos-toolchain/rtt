@@ -27,7 +27,7 @@
 
 #include "corelib/TaskExecution.hpp"
 #include "corelib/PeriodicTask.hpp"
-#include "corelib/TaskTimer.hpp"
+#include "corelib/TaskTimerInterface.hpp"
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
