@@ -98,8 +98,15 @@ namespace ORO_Execution
 
     value_t get() const
       {
-        Arg1T a = arg1->get();
-        return gen( a );
+          // The "Forwarding problem" : gen is a boost::bind functor
+          // and can not be given non-const temporaries or literal constants.
+          // thus _to_be_sure_, we _must_ copy the result to a local variable
+          // and then pass that variable on. Fortunately, if Arg1T is a reference,
+          // this does not involve a value copy and if Arg1T is a value, 
+          // the gen( ) function takes a reference to it, thus, again,
+          // no additional copy is made.
+          Arg1T a = arg1->get();
+          return gen( a );
       }
 
     virtual DataSource<value_t>* clone() const
