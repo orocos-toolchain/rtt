@@ -2252,6 +2252,15 @@ if ( this->inKernel() )
 		  <entry>PropertyExtension</entry>
 		</row>
 		<row>
+		  <entry>void exportProperties( PropertyBag&amp; bag )</entry>
+		  <entry>
+		    A component may add() its properties to this bag
+		    such that they can be read out from within another
+		    part of the program.
+		  </entry>
+		  <entry>PropertyExtension</entry>
+		</row>
+		<row>
 		  <entry>
 		   DataSourceFactoryInterface* createDataSourceFactory()
 		  </entry>
@@ -2515,12 +2524,14 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
       </sect3>
       <sect3>
 	<title>Hooks</title>
-	<para>The Property Extension has one hook: the
+	<para>The Property Extension has two hooks : the
 	  <function>updateProperties(const PropertyBag&amp;
-	    bag)</function> method. The user must extract properties
+	    bag)</function> method and the <function>exportProperties(PropertyBag&amp;
+	    bag)</function> method. In the former, the user must extract properties
 	  from the bag and assign his own proper property with the
-	  value found. A helper function can be written to facilitate
-	  this for any type.
+	  value found, in the latter, the inverse happens and the 
+	  component adds its properties to the bag.
+	  A helper function can be written to facilitate this for any type.
 	</para>
 	<example>
 	  <title>The PropertyExtension used in
@@ -2552,6 +2563,12 @@ public:
       return composeProperty(bag, gain ) &&
 	     composeProperty(bag, max_track_error);
       // returns true if successful.
+  }
+
+  virtual void exportProperties( PropertyBag& bag )
+  {
+      bag.add( &gain );
+      bag.add( &max_track_error );
   }
 
 private:
