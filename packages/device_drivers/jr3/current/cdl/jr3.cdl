@@ -6,6 +6,10 @@ cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
     parent OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_DRIVERS
 
+    cdl_interface OROINT_DEVICE_DRIVERS_JR3 {
+	flavor bool
+    }
+    
     cdl_option OROPKG_DEVICE_DRIVERS_JR3_CFLAGS_ADD {
         display "Linux include path"
 	flavor data
@@ -28,6 +32,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
 	default_value 1
 	requires OROPKG_OS_LXRT
 	requires OROPKG_CORELIB_TASKS
+    implements OROINT_DEVICE_DRIVERS_JR3
 	compile JR3Sensor.cxx
 	make  {
 	    <PREFIX>/modules/jr3dsp_lxrt.o : <PACKAGE>/src/jr3dsp_lxrt.c <PACKAGE>/src/jr3dsp_lxrt.h
