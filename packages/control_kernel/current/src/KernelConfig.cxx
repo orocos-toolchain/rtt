@@ -67,17 +67,17 @@ namespace ORO_ControlKernel
             PropertyBase* base = config.find("KernelProperties");
             if (base)
                 baseBag = dynamic_cast<Property<PropertyBag>*>(base);
-            else cerr << "No base." << endl;
+            else cerr << "KernelConfig : No KernelProperties defined." << endl;
 
             PropertyBase* extension = config.find("Extensions");
             if (extension)
                 extensionBag = dynamic_cast<Property<PropertyBag>*>(extension);
-            else cerr << "No extension" << endl;
+            else cerr << "KernelConfig : No extensions listed." << endl;
 
             PropertyBase* complist = config.find("StartupComponents");
             if (complist)
                 selectBag = dynamic_cast<Property<PropertyBag>*>(complist);
-            else cerr << "No KernelComponents" << endl;
+            else cerr << "KernelConfig : No KernelComponents listed." << endl;
 
 
             if ( baseBag == 0 )
@@ -99,14 +99,13 @@ namespace ORO_ControlKernel
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.
             // Iterate over all extensions
-            if ( ExtensionInterface::nameserver.getValueBegin() == ExtensionInterface::nameserver.getValueEnd() )
+            if ( kernel->getExtensions().empty() )
                 cerr << "No Extensions present in this kernel."<<endl;
-            ExtensionInterface::NameServerType::value_iterator it = ExtensionInterface::nameserver.getValueBegin();
-            while (it != ExtensionInterface::nameserver.getValueEnd() )
+            vector<ExtensionInterface*>::const_iterator it = kernel->getExtensions().begin();
+            while (it != kernel->getExtensions().end() )
                 {
                     // read the file associated with each extension
-                    //cout <<"Checking "<< ExtensionInterface::nameserver.getNameByObject(*it)<<endl;
-                    PropertyBase* res = extensionBag->get().find( ExtensionInterface::nameserver.getNameByObject(*it) );
+                    PropertyBase* res = extensionBag->get().find( (*it)->getName() );
                     Property<string>*  extFileName;
                     if ( res && (extFileName = dynamic_cast<Property<string>* >(res)) )
                         {
@@ -124,8 +123,8 @@ namespace ORO_ControlKernel
                                             // update nameserved props.
                                             if ( (*it)->updateProperties( extensionConfig ) == false )
                                                 {
-                                                    cerr << "  The "<< ExtensionInterface::nameserver.getNameByObject(*it)
-                                                         << " Extenstion failed to update its properties from file "
+                                                    cerr << "  The "<< (*it)->getName()
+                                                         << " Extension failed to update its properties from file "
                                                          << extFileName->get() <<" !"<<endl
                                                          << "  The file contained valid XML, but the wrong properties."<<endl
                                                          << "  Check your configuration files." << endl;
@@ -147,7 +146,7 @@ namespace ORO_ControlKernel
                         
                         }
                     else {
-                        cerr << "  Warning: Extension \'" << ExtensionInterface::nameserver.getNameByObject(*it) << endl <<
+                        cerr << "  Warning: Extension \'" << (*it)->getName() << endl <<
                             " is present in the Control Kernel, but not listed in the file \'"<<
                             filename <<"\'."<<endl;
                     }

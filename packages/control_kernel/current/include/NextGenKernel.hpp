@@ -312,12 +312,13 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /*
         virtual bool selectSupport( const std::string& name ) {
             ComponentBaseInterface* c;
             if ( (c = supports.getObjectByName( name )) )
                 return selectSupport(c);
             return false;
-        }
+            }*/
         /**
          * @}
          */

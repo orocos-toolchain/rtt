@@ -48,55 +48,7 @@ namespace ORO_ControlKernel
 
     namespace detail 
     {
-
-        /**
-         * @brief This interface is the base class of all Extensions.
-         *
-         * An Extension to the ControlKernel has a name and properties,
-         * which define the behaviour of the Extension. Extensions 
-         * communicate with components through their ComponentAspectInterface.
-         */
-        struct ExtensionInterface
-            :public NameServerRegistrator<ExtensionInterface*,std::string>
-        {
-            typedef NameServer<ExtensionInterface*> NameServerType;
-            /**
-             * Construct a not nameserved ExtensionInterface.
-             */
-            ExtensionInterface() {}
-
-            /**
-             * Construct an ExtensionInterface with name <name>, registred with
-             * ExtensionInterface::nameserver
-             *
-             */
-            ExtensionInterface(const std::string name) 
-                : NameServerRegistrator<ExtensionInterface*, std::string>(nameserver,name,this)
-            {}
-
-            virtual ~ExtensionInterface() {}
-
-            /**
-             * Returns the name of this extension.
-             */
-            const std::string& getName() { return extensionName; }
-        
-            /**
-             * Update the properties with configuration data.
-             */
-            virtual bool updateProperties( const PropertyBag& bag ) = 0;
-        
-            /**
-             * Nameserver for this interface.
-             */
-            static NameServer<ExtensionInterface*> nameserver;
-        protected:
-            /**
-             * Unique name of this extension.
-             */
-            std::string extensionName;
-        };
-
+        struct ExtensionInterface;
     }
 
     /**
@@ -134,20 +86,20 @@ namespace ORO_ControlKernel
         const std::string& getKernelName() const;
 
         /**
-         * Returns true if the kernel is running, false
+         * @brief Returns true if the kernel is running, false
          * otherwise.
          */
         bool isRunning() const { return running; }
 
         /**
-         * Get the running periodicity in seconds.
+         * @brief Get the running periodicity in seconds.
          *
          * @return the running periodicity in seconds
          */
         double getPeriod() const;
 
         /**
-         * Set the running periodicity in seconds.
+         * @brief Set the running periodicity in seconds.
          *
          * @param p The periodicity in seconds.
          */
@@ -158,7 +110,8 @@ namespace ORO_ControlKernel
         void startupComponents(const PropertyBag& bag);
 
         /**
-         * This is the hook for user kernel properties.
+         * @brief This is the hook for user kernel properties.
+         *
          * Add properties to your kernel config file and they
          * will be passed to this function.
          */
@@ -173,7 +126,7 @@ namespace ORO_ControlKernel
          */
         virtual bool selectSensor( const std::string& name ) = 0;
         /**
-         * Select a Estimator Component from the kernel.
+         * @brief Select a Estimator Component from the kernel.
          *
          * @param  name The name of the Estimator Component to select.
          * @return True if the Estimator Component could be found and selected,
@@ -181,7 +134,7 @@ namespace ORO_ControlKernel
          */
         virtual bool selectEstimator( const std::string& name ) = 0;
         /**
-         * Select a Generator Component from the kernel.
+         * @brief Select a Generator Component from the kernel.
          *
          * @param  name The name of the Generator Component to select.
          * @return True if the Generator Component could be found and selected,
@@ -189,7 +142,7 @@ namespace ORO_ControlKernel
          */
         virtual bool selectGenerator( const std::string& name ) = 0;
         /**
-         * Select a Controller Component from the kernel.
+         * @brief Select a Controller Component from the kernel.
          *
          * @param  name The name of the Controller Component to select.
          * @return True if the Controller Component could be found and selected,
@@ -322,7 +275,22 @@ namespace ORO_ControlKernel
 
         /** @} */
 
+        /**
+         * @brief Get a vector of all ExtensionInterfaces of this Kernel.
+         */
+        const std::vector<detail::ExtensionInterface*>& getExtensions() const
+        {
+            return extensions;
+        }
     protected:
+        friend class detail::ExtensionInterface;
+
+        /**
+         * Method for ExtensionInterface to register itself.
+         */
+        void addExtension( detail::ExtensionInterface* e) {
+            extensions.push_back(e);
+        }
 
         void setKernelName( const std::string& _name);
 
@@ -416,8 +384,53 @@ namespace ORO_ControlKernel
         Property<std::string> startupGenerator;
         Property<std::string> startupController;
         Property<std::string> startupEffector;
+
+        std::vector<detail::ExtensionInterface*> extensions;
     };
 
+
+    namespace detail 
+    {
+
+        /**
+         * @brief This interface is the base class of all Extensions.
+         *
+         * An Extension to the ControlKernel has a name and properties,
+         * which define the behaviour of the Extension. Extensions 
+         * communicate with components through their ComponentAspectInterface.
+         */
+        struct ExtensionInterface
+        {
+            /**
+             * @brief Construct an ExtensionInterface with name \a name
+             *
+             */
+            ExtensionInterface(KernelBaseFunction* kernel, const std::string name) 
+                :extensionName(name)
+            {
+                kernel->addExtension(this);
+            }
+
+            virtual ~ExtensionInterface() {}
+
+            /**
+             * @brief Returns the name of this extension.
+             */
+            const std::string& getName() const { return extensionName; }
+        
+            /**
+             * @brief Update the properties with configuration data.
+             */
+            virtual bool updateProperties( const PropertyBag& bag ) = 0;
+        
+        protected:
+            /**
+             * @brief Unique name of this extension.
+             */
+            std::string extensionName;
+        };
+
+    }
 
     namespace detail {
         /**

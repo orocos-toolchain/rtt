@@ -48,7 +48,7 @@ namespace ORO_ControlKernel
     using namespace boost;
 
     ExecutionExtension::ExecutionExtension( KernelBaseFunction* _base )
-        : detail::ExtensionInterface( "Execution" ), program(0), context(0),
+        : detail::ExtensionInterface( _base, "Execution" ), program(0), context(0),
           running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
 with respect to the Kernels period. Should be strictly positive ( > 0).", 1)

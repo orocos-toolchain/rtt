@@ -72,7 +72,7 @@ namespace ORO_ControlKernel
     }
 
     ReportingExtension::ReportingExtension( KernelBaseFunction* _base )
-        : detail::ExtensionInterface("Reporter"),
+        : detail::ExtensionInterface(_base, "Reporter"),
           period("ReportPeriod","in seconds", 0.1 ), 
           interval("SubSamplingInterval","", 1),
           repFile("ReportFile","", "report.txt"),

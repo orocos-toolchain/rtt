@@ -41,13 +41,6 @@ using namespace ORO_CoreLib;
         using namespace ORO_Execution;
 #endif
 
-namespace ORO_ControlKernel
-{
-    namespace detail
-    {
-        NameServer<ExtensionInterface*> ExtensionInterface::nameserver;
-    }
-}
 
 KernelBaseFunction::KernelBaseFunction( KernelBaseFunction* _base )
     : running(false), 
