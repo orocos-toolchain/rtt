@@ -9,5 +9,4 @@ based."
 
     parent OROPKG_DEVICE_INTERFACE
     include_dir device_interface
-    compile encoder.cxx
 }
