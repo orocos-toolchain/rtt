@@ -302,7 +302,7 @@ namespace ORO_ControlKernel
             running = false;
         }
     
-        HandlerRegistrationInterface* eventGet(const std::string& name);
+        Event<void(void)>* eventGet(const std::string& name);
 
 
         /**
@@ -443,9 +443,9 @@ namespace ORO_ControlKernel
         std::vector<ComponentBaseInterface*> components;
 
     protected:
-        Event kernelStarted;
-        Event kernelStopped;
-        Event nullEvent;
+        Event<void(void)> kernelStarted;
+        Event<void(void)> kernelStopped;
+        Event<void(void)> nullEvent;
 
         Property<std::string> startupSensor;
         Property<std::string> startupEstimator;

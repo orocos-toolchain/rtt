@@ -52,13 +52,12 @@ namespace ORO_ControlKernel
         virtual ~DataFlowInterface() {}
 
         /**
-         * @brief This will do a full update of the Component.
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
          *
          * It will pull
          * new data, do the required calculations and push them
          * to the output data object. 
-         * You may specialize this function if you have a more
-         * efficient behaviour.
          */
         virtual void update()
         {

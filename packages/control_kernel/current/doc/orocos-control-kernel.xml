@@ -1874,15 +1874,28 @@ public:
 	  </listitem>
 	</itemizedlist>
       </sect3>
-      <sect3>
-	<title>Support Components</title>
+    </sect2>
+    <sect2>
+	<title>Support Components</title>\
 	<para>
-	  There are components which have nothing to do with the
+	  Support Components do
+	  not operate in the data flow and thus do not have 'select' semantics
+	  (which 'inserts' a loaded component in the dataflow). However, they can
+	  use properties, the execution extension etc.
+	</para>
+	<para>
+	  Put otherwise, they are components which have nothing to do with the
 	  control loop (ie Data Flow) but still need to be integrated
 	  in the realtime kernel. Examples are :
 	  <itemizedlist>
 	    <listitem>
-	      <para>User interfacing components (HMI)</para>
+	      <para>User interfacing components (HMI Components)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Safety components (Requires a Kernel Extension)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Knowledge repositories (Reading parameters from property files)</para>
 	    </listitem>
 	    <listitem>
 	      <para>Synchronisation components (the HeartBeat) </para>
@@ -1896,7 +1909,7 @@ public:
 	</para>
 	<para>
 	  In short, Support Components are with one foot in the
-	  kernel and one foot outside, providing or using user services.
+	  kernel and one foot outside, providing or using external services.
 	</para>
 	<para>
 	  Support Components must be loaded in the kernel as regular
@@ -1911,12 +1924,15 @@ kernel.loadSupport( &amp;hmi_out );
 
 // When the kernel is started, hmi_out is automatically selected.
 	  </programlisting>
-	  All Support components are selected when the kernel is 
+	  All Support components are used when the kernel is 
 	  started, thus no <function>selectSupport()</function>
 	  function exists. In the example above, the HMIConsoleOutput
 	  component will become visisble in the Command Interpreter.
 	</para>
-      </sect3>
+      <para>
+	It is common for support components to export a command interface which
+	allows scripts to use their functionality.
+      </para>
     </sect2>
     <sect2 id="kernel-configuration">
       <title>Control Kernel Configuration</title>

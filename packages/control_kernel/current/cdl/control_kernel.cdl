@@ -30,10 +30,10 @@ to make use of an Extension. Most users will want this."
 	default_value 1
 	
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_REPORTING {
-	    display "Binary-to-text Reporting"
+	    display "Runtime Data-to-Text Reporting"
 	    description "
 Allow Components and DataObjects to report numerical values
-to a file or standard output. The ReportingExtension implements
+(the Data Flow) to a file or standard output. The ReportingExtension implements
 this functionality."
 	    default_value 1
 	    active_if OROPKG_CORELIB_REPORTING

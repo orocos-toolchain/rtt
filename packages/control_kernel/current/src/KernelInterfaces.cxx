@@ -72,7 +72,7 @@ KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* _base )
       running(false), 
       //              priority("priority","The priority of the kernel."),
       frequency("frequency","The periodic execution frequency of this kernel",0),
-      kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN),
+      //kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN),
       startupSensor("Sensor", "", "DefaultSensor"),
       startupEstimator("Estimator", "", "DefaultEstimator"),
       startupGenerator("Generator", "", "DefaultGenerator"),
@@ -141,7 +141,7 @@ bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
     return composeProperty(bag, frequency);
 }
 
-HandlerRegistrationInterface* KernelBaseFunction::eventGet(const std::string& name)
+Event<void(void)>* KernelBaseFunction::eventGet(const std::string& name)
 {
     if ( name == std::string("kernelStarted") )
         return &kernelStarted;

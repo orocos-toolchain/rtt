@@ -32,10 +32,11 @@
 #include <corelib/PropertyBag.hpp>
 #include <corelib/PropertyComposition.hpp>
 //#include <lrl/frames.h>
-#include <corelib/SimpleMarshaller.hpp>
-#include <corelib/SimpleDemarshaller.hpp>
+#include <corelib/marshalling/SimpleMarshaller.hpp>
+#include <corelib/marshalling/SimpleDemarshaller.hpp>
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/KernelInterfaces.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/ComponentInterfaces.hpp>
 //#include <corelib/CPFDemarshaller.hpp>
 //#include <xercesc/framework/LocalFileInputSource.hpp>
 
@@ -50,7 +51,7 @@ namespace ORO_ControlKernel
      * to export them to the user or update them with user defined values.
      */
     class PropertyUpdaterComponentInterface
-        :public ComponentAspectInterface<PropertyUpdaterExtension>
+        :public detail::ComponentAspectInterface<PropertyUpdaterExtension>
     {
         friend class PropertyUpdaterExtension;
     public:
@@ -58,7 +59,7 @@ namespace ORO_ControlKernel
          * The Default constructor 
          */
         PropertyUpdaterComponentInterface( const std::string& _name )
-            : ComponentAspectInterface<PropertyUpdaterExtension>(_name + std::string("::PropertyUpdater") ),
+            : detail::ComponentAspectInterface<PropertyUpdaterExtension>(_name + std::string("::PropertyUpdater") ),
               master(0), localStore(_name,"Component Runtime Properties")
         {
         }
@@ -74,14 +75,6 @@ namespace ORO_ControlKernel
         {
         }
 
-        /**
-         * Get the name of the component with the aspect.
-         */
-        const std::string& getName() const
-        {
-            return aspectName;
-        }
-    
         /**
          * Register local properties so that an external application
          * can modify them.
@@ -116,7 +109,7 @@ namespace ORO_ControlKernel
      * source, like a GUI.
      */
     class PropertyUpdaterExtension
-        : public ExtensionInterface
+        : public detail::ExtensionInterface
     {
         public:
         typedef PropertyUpdaterComponentInterface CommonBase;
@@ -125,8 +118,8 @@ namespace ORO_ControlKernel
         /**
          * Create a PropertyUpdaterExtension.
          */
-        PropertyUpdaterExtension() 
-            : ExtensionInterface("PropertyUpdater"),
+        PropertyUpdaterExtension(ControlKernelInterface* k) 
+            : detail::ExtensionInterface(k, "PropertyUpdater")
         {
             // create GUI
         }
