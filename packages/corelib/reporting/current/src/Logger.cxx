@@ -25,7 +25,8 @@
  *                                                                         *
  ***************************************************************************/
  
- 
+// to retrieve RTAI version, if any.
+#define OROBLD_OS_LXRT_INTERNAL 
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
