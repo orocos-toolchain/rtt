@@ -201,7 +201,7 @@ namespace ORO_OS
     {
         if ( isRunning() )
             return false;
-        runner = r;
+        runComp = r;
         return true;
     }
 
