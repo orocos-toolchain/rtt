@@ -9,7 +9,7 @@ AM_CXXFLAGS= $(CPPUNIT_CFLAGS) -g
 
 # Rules for the test code (use `make check` to execute)
 if DOTESTS
-TESTS = core-test parser-test program-test state-test
+TESTS = core-test task-test parser-test program-test state-test
 else
 TESTS = 
 endif
@@ -23,7 +23,7 @@ endif
 
 check_PROGRAMS = $(TESTS) $(PROFTESTS)
 EXTRA_PROGRAMS = core-test parser-test program-test state-test event-prof tasks-prof mtasks-prof buffers-prof \
-	state-prof dispatch-prof function-prof types-prof program-prof
+	state-prof dispatch-prof function-prof types-prof program-prof task-test
 
 #LD_ADDS= $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread -L/usr/realtime/lib
 #CXX_FLAGS= $(CPPUNIT_CFLAGS) -g
@@ -32,11 +32,13 @@ core_test_SOURCES = test-runner.cpp \
 	time_test.cpp time_test.hpp \
 	property_test.cpp property_test.hpp \
 	event_test.cpp event_test.hpp \
-	tasks_test.cpp tasks_test.hpp \
-	taskthread_test.cpp taskthread_test.hpp \
-	tasks_multiple_test.cpp tasks_multiple_test.hpp \
 	buffers_test.cpp buffers_test.hpp \
 	logger_test.cpp logger_test.hpp
+
+task_test_SOURCES = test-runner.cpp \
+	tasks_test.cpp tasks_test.hpp \
+	taskthread_test.cpp taskthread_test.hpp \
+	tasks_multiple_test.cpp tasks_multiple_test.hpp
 
 #core_test_LDADD = $(LD_ADDS)
 #core_test_CXXFLAGS = $(CXX_FLAGS)
