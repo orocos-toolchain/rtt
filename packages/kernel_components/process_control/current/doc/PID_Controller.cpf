@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the PID_Controller component -->
+<properties>
+    <struct name="K" type="std::vector&lt;double&gt;">
+      <description>The position Prop feedback gain.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>1</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>1</value></simple>
+    </struct>
+    <struct name="Ti" type="std::vector&lt;double&gt;">
+      <description>Integrative time ct.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>100</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>100</value></simple>
+    </struct>
+    <struct name="Td" type="std::vector&lt;double&gt;">
+      <description>The derivative time ct.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>0.0</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>0.0</value></simple>
+    </struct>
+    <struct name="N" type="std::vector&lt;double&gt;">
+      <description>Limitation of derivative gain.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>1</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>1</value></simple>
+    </struct>
+    <struct name="Tt" type="std::vector&lt;double&gt;">
+      <description>Tracking time ct.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>5</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>50</value></simple>
+    </struct>
+    <struct name="min_u" type="std::vector&lt;double&gt;">
+      <description>Minimal input.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>-100</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>-100</value></simple>
+    </struct>
+    <struct name="max_u" type="std::vector&lt;double&gt;">
+      <description>Maximal Input.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><description>Channel 1</description><value>+100</value></simple>
+      <simple name="d01" type="double"><description>Channel 2</description><value>+100</value></simple>
+    </struct>
+</properties>

@@ -15,5 +15,6 @@ controlling processes.
     compile SignalTracker.cxx
     compile FeedForwardController.cxx
     compile P_Controller.cxx
+    compile PID_Controller.cxx
 }
 

@@ -75,7 +75,7 @@ namespace ORO_ControlKernel
 
       ChannelType _xyerr;
 
-      Property<double> _controller_gain;
+      Property< ChannelType > _controller_gain;
 
   public:
       P_Controller(unsigned int _num_axes);
