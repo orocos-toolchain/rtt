@@ -25,6 +25,9 @@ EXTRA_DIST = \
         packages/pkgconf/ssletter.dsl \
         packages/pkgconf/stylesheet.dsl
 
+docs:
+	$(MAKE) -C docs docs
+
 packages/ecos.db:
 	touch @abs_srcdir@/packages/ecos.db
 

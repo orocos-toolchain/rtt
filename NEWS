@@ -15,7 +15,7 @@ list of this release :
 * Added Axis Motion Control Components
 * Generic DataObject "out of the box" Reporting
 * XML Parser memory leak fixes
-* More interactive Motion/Machine Control Examples
+* More interactive Motion/Machine Control Examples (see program_states)
 * Improved thread abstraction
 * Updated documentation
 

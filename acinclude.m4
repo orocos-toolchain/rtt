@@ -310,7 +310,7 @@ AC_CONFIG_SRCDIR([config.h.in])
 AM_CONFIG_HEADER([config.h])
 
 dnl Initialize Automake
-AM_INIT_AUTOMAKE(1.6.3)
+AM_INIT_AUTOMAKE(1.7.8)
 
 dnl Default installation path
 AC_PREFIX_DEFAULT([/usr/local/orocos])
