@@ -110,14 +110,16 @@ namespace ORO_DeviceDriver
         virtual double readSensor() const
         {
             if ( enc->upcounting() )
-            {
-                return ( enc->turnGet() * resolution + enc->positionGet() ) / unit_to_inc - posOffset;
-	    }
-	    
+	      return ( enc->turnGet() * resolution + enc->positionGet() ) / unit_to_inc - posOffset;
             else
-                return ( enc->turnGet() * resolution + ( resolution - enc->positionGet() ) ) / unit_to_inc - posOffset;
-        }
-
+	      return ( enc->turnGet() * resolution + ( resolution - enc->positionGet() ) ) / unit_to_inc - posOffset;
+	}
+        
+        virtual void writeSensor(double q) const
+        {
+	  enc->positionSet((int)(unit_to_inc * q));
+	}
+      
         virtual double maxMeasurement() const
         {
             return calibrated ? max : std::numeric_limits<double>::max();
