@@ -29,9 +29,13 @@
 #define KERNELSCRIPTABLEEXTENSION_HPP
 
 #include "KernelInterfaces.hpp"
+#include "ComponentInterfaces.hpp"
+#include <corelib/Property.hpp>
 
 #include <execution/Processor.hpp>
 #include <execution/GlobalFactory.hpp>
+
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -51,15 +55,20 @@ namespace ORO_ControlKernel
      * @see ExecutionExtension
      *
      */
-    struct ExecutionComponentInterface
-        : detail::ComponentAspectInterface<ExecutionExtension>
+    class ExecutionComponentInterface
+        : public detail::ComponentAspectInterface<ExecutionExtension>
     {
+        friend class ExecutionExtension;
+
+    protected:
         std::string name;
         ExecutionExtension* master;
-    protected:
+
+        using detail::ComponentAspectInterface<ExecutionExtension>::enableAspect;
+
         CommandFactoryInterface* commandfactory;
         DataSourceFactoryInterface* dataSourceFactory;
-    public:
+
         ExecutionComponentInterface( const std::string& _name );
 
         /**
@@ -82,8 +91,10 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * The ExecutionExtension: provides the parser with access to
-     * useful commands and data inside components.  A component should
+     * @brief The ExecutionExtension provides the parser with access to
+     * useful commands and data inside components.
+     *
+     * A component should
      * assign a useful command factory to commandFactory in its
      * constructor, and a useful DataSource factory to
      * dataSourceFactory.  Check out TemplateCommandFactory and

@@ -31,7 +31,10 @@
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
 #include "KernelInterfaces.hpp"
+#include "ComponentInterfaces.hpp"
 #include "ComponentConfigurator.hpp"
+
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -49,7 +52,8 @@ namespace ORO_ControlKernel
     {
         friend class PropertyExtension;
         friend class ComponentConfigurator;
-    public:
+    protected:
+        using detail::ComponentAspectInterface<PropertyExtension>::enableAspect;
         /**
          * The Default constructor 
          */

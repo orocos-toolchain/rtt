@@ -34,8 +34,15 @@
 #include <corelib/PropertyReporter.hpp>
 #include <corelib/PropertyBagIntrospector.hpp>
 
+
+#pragma interface
+
 namespace ORO_ControlKernel
 {
+    using ORO_CoreLib::Property;
+    using ORO_CoreLib::PropertyBag;
+    using ORO_CoreLib::PropertyExporter;
+    using ORO_CoreLib::PropertyIntrospection;
 
     /**
      * @brief An interface for gathering reports from DataObjects.
@@ -46,7 +53,7 @@ namespace ORO_ControlKernel
      */
     struct DataObjectReporting
     {
-        static NameServer<DataObjectReporting*> nameserver;
+        static ORO_CoreLib::NameServer<DataObjectReporting*> nameserver;
         /**
          * Create a new DataObject suitable for reporting its contents.
          

@@ -24,6 +24,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+#pragma implementation
 #include "control_kernel/PropertyExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>

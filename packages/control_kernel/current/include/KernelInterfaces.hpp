@@ -25,27 +25,27 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef MOTIONKERNELINTERFACES_HPP
-#define MOTIONKERNELINTERFACES_HPP
+#ifndef KERNELINTERFACES_HPP
+#define KERNELINTERFACES_HPP
 
 
 #include <corelib/NameServerRegistrator.hpp>
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/PropertyBag.hpp>
-#include <corelib/PropertyComposition.hpp>
+#include <corelib/Property.hpp>
 #include <corelib/Event.hpp>
-#include "ModuleControlInterface.hpp"
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/CommandFactoryInterface.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
 #endif
 
+#pragma interface
+
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
-    
+
     namespace detail 
     {
 
@@ -96,168 +96,8 @@ namespace ORO_ControlKernel
              */
             std::string extensionName;
         };
-    
-        /**
-         * @brief An Aspect is a base class of a component, implementing a
-         * functionality like reporting, configuration,...
-         *
-         * A template class for Aspects, which can be used, optionally, by Extensions of the
-         * ControlKernel. This interface instructs the Aspect to register itself with a certain
-         * Extension. You must use this as a base class for every Aspect you want to provide
-         * to a component.
-         *
-         * The base class of most Extensions is the ExtensionInterface.
-         */
-        template< class _Extension >
-        struct ComponentAspectInterface
-        {
-            /**
-             * The Extension (of the kernel) that this Aspect provides support for.
-             */
-            typedef _Extension Extension;
-        
-            /**
-             * @brief Initialize the ComponentAspect with the name of the Aspect.
-             * Once set, a name can no longer be changed.
-             */
-            ComponentAspectInterface(const std::string& comp_name )
-                : aspectName("Name", "The Name of this Component", comp_name) {}
 
-            virtual ~ComponentAspectInterface() {}
-        
-            /**
-             * @brief Instructs the component to enable an aspect so that this aspect can
-             * deliver a service to the Extension <ext> of the ControlKernel.
-             *
-             * This will be called when the component is loaded into the kernel.
-             */
-            virtual bool enableAspect( Extension* ext ) = 0;
-
-            /**
-             * @brief Fall-back method if the kernel wants to enable
-             * this Aspect while it is not present in the Kernel.
-             * @return true in all cases
-             */
-            template< class Ext >
-            bool enableAspect( Ext* e)
-            {
-                return true;
-            }
-
-            /**
-             * @brief Disable this aspect and no longer use the Extension of the kernel.
-             */
-            virtual void disableAspect() = 0;
-
-            /**
-             * @brief Return the name of this Aspect.
-             */
-            virtual const std::string& getName() { return aspectName.get(); }
-
-        protected:
-            const Property<std::string> aspectName;
-        };
     }
-
-    class KernelBaseFunction;
-
-    /**
-     * @brief The Base class of each ControlKernel Component
-     *
-     * The most fundamental aspect of a Component is that it belongs
-     * to a ControlKernel and can be notified of the kernel's status.
-     * This aspect introduces the ability to detect if the component
-     * is placed in a ControlKernel and to return a pointer to this kernel.
-     * It is the aspect of the KernelBaseFunction.
-     * 
-     */
-    class ComponentBaseInterface 
-        :public ModuleControlInterface,
-         public detail::ComponentAspectInterface< KernelBaseFunction >
-    {
-        friend class KernelBaseFunction;
-    public:
-        /**
-         * Constructor.
-         */
-        ComponentBaseInterface(const std::string& name)
-            : detail::ComponentAspectInterface< KernelBaseFunction >( name ),
-              selected(false), kern(0) {}
-
-        virtual ~ComponentBaseInterface() {}
-            
-        /**
-         * @brief Inspect if this component is placed in a kernel.
-         * This is the 'isLoaded()' query actually.
-         * 
-         * @return true if it is so.
-         */
-        bool inKernel() { return kern != 0; }
-            
-        /**
-         * @brief Return the kernel this component belongs to.
-         * 
-         * @return The kernel it belongs to, zero if none.
-         */
-        KernelBaseFunction* kernel() { return kern; }
-
-        virtual bool enableAspect(KernelBaseFunction* e);
-
-        /**
-         * @brief This method is a hook which is called when the component
-         * is loaded into the kernel.
-         *
-         * @return true on success, false otherwise
-         */
-        virtual bool componentLoaded() { return true;}
-            
-        /**
-         * @brief This method is a hook which is called when a component
-         * was unloaded from the kernel.
-         */
-        virtual void componentUnloaded() {}
-
-        /**
-         * @brief This method is a hook which is called when the kernel
-         * is started and the component must initialise the data
-         * objects with meaningfull data.
-         *
-         * @return true on success, false otherwise
-         */
-        virtual bool componentStartup() { return true; }
-
-        /**
-         * @brief This method is a hook which is called when the kernel
-         * is stopped and the component must return to a safe state.
-         */
-        virtual void componentShutdown() {}
-            
-        virtual void disableAspect();
-
-        /**
-         * @brief Query if this component is selected in the kernel.
-         */
-        bool isSelected() { return selected; }
-
-    protected:
-        bool selected;
-    private:
-        KernelBaseFunction* kern;
-    };
-
-    /**
-     * @brief The DefaultBase is defined for
-     * ControlKernels that do not know of 
-     * Component Aspects. It will be used as default
-     * template parameter for the components.
-     *
-     * A Component Aspect is the base class that a Component
-     * must have to be able to be queried by the respective Kernel Extension.
-     * As a consequence, Extensions themselves define the component base class they 
-     * require. That class is passed through by the kernel to the Component.
-     * This relieves the burden of figuring it out manually from the shoulders of the user.
-     */
-    typedef ComponentBaseInterface DefaultBase;
 
     /**
      * @brief The 'Extension' that updates the components.
@@ -312,18 +152,6 @@ namespace ORO_ControlKernel
          * @param p The periodicity in seconds.
          */
         void setPeriod( double p );
-
-//         template<class T>
-//         void enable(detail::ComponentAspectInterface<T>* c)
-//         {
-//             c->enableAspect(this);
-//         }
-
-//         template<class T>
-//         void disable(detail::ComponentAspectInterface<T>* c)
-//         {
-//             c->disableAspect();
-//         }
 
         bool updateProperties(const PropertyBag& bag);
 
@@ -412,7 +240,7 @@ namespace ORO_ControlKernel
          *         False otherwise.
          */
         virtual bool isSelectedEffector( const std::string& name ) const = 0;
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         virtual ORO_Execution::CommandFactoryInterface* createCommandFactory();
 
         virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory();
@@ -434,6 +262,65 @@ namespace ORO_ControlKernel
         }
     
         HandlerRegistrationInterface* eventGet(const std::string& name);
+
+
+        /**
+         * @name Generic Component Methods
+         * @brief After a component is \a add() 'ed, these
+         * methods can be called to change their state.
+         * @{
+         */
+
+        /**
+         * @brief Load a previously added Component.
+         * @param c The Component to load.
+         *
+         * @return true if the component is present and could be loaded.
+         */
+        virtual bool load( ComponentBaseInterface* c) = 0;
+
+        /**
+         * @brief Unload a previously added Component.
+         * @param c The Component to unload.
+         *
+         * @return true if the component is present and could be unloaded.
+         */
+        virtual bool unload( ComponentBaseInterface* c) = 0;
+
+        /**
+         * @brief Reload a previously loaded Component.
+         * @param c The Component to reload.
+         *
+         * @return true if the component is present and could be reloaded.
+         */
+        virtual bool reload( ComponentBaseInterface* c)  = 0;
+
+        /**
+         * @brief Shutdown (deselect) a previously added Component.
+         * @param c The Component to shutdown.
+         * @post  The default component will be selected.
+         *
+         * @return true if the component is present and could be shutdowned.
+         */
+        virtual bool shutdown( ComponentBaseInterface* c) = 0;
+
+        /**
+         * @brief Startup (select) a previously added Component.
+         * @param c The Component to startup.
+         *
+         * @return true if the component is present and could be started.
+         */
+        virtual bool startup( ComponentBaseInterface* c) = 0;
+
+        /**
+         * @brief Restart (deselect + select) a previously added Component.
+         * @param c The Component to restart.
+         *
+         * @return true if the component is present and could be restarted.
+         */
+        virtual bool restart( ComponentBaseInterface* c) = 0;
+
+        /** @} */
 
     protected:
 
@@ -460,23 +347,16 @@ namespace ORO_ControlKernel
         virtual void updateComponents() = 0;
 
         /**
-         * Used to switch two components, unselecting the old
+         * @brief Used to switch two components, unselecting the old
          * one and selecting the new one.
+         * @return the newly selected component, zero in case
+         * the switching completely failed (none of both could be started/restarted).
          */
-        ComponentBaseInterface* switchComponent(ComponentBaseInterface* oldC, ComponentBaseInterface* newC ) const
-        {
-            oldC->componentShutdown();
-            if ( newC->componentStartup() )
-                {
-                    oldC->selected = false;
-                    newC->selected = true;
-                    return newC;
-                }
-            else
-                oldC->componentStartup();
+        ComponentBaseInterface* switchComponent(ComponentBaseInterface* oldC, ComponentBaseInterface* newC ) const;
 
-            return oldC;
-        }
+        bool startComponent(ComponentBaseInterface* c ) const ;
+        
+        void stopComponent(ComponentBaseInterface* c ) const ;
         
         /**
          * Flag to keep track of running state.
@@ -507,127 +387,13 @@ namespace ORO_ControlKernel
     };
 
 
+    namespace detail {
         /**
-         * @brief A class for composing Aspects (if you want more than
-         * one Aspect in your component).
-         * 
+         * @brief This is the base class of any kernel. It is
+         * deliberately empty.
          */
-        template<class First, class Second>
-        struct CompositeAspect
-            : public First, public Second
-        {
-            CompositeAspect( const std::string& _name ) 
-                :First(_name), Second(_name) {}
-
-            virtual ~CompositeAspect() {}
-
-            // this removes compiler warnings, about
-            // enableAspect being hidden, we want them
-            // to be hidden, but hey, at least we lost the
-            // warning...and this also works.
-            using First::enableAspect;
-            using Second::enableAspect;
-
-            template< class Extension >
-            bool enableAspect(Extension* ext) 
-            {
-                // Enable first aspect, if successful, enable second,
-                // if also successful, return true, otherwise, disable first
-                // aspect (~undo) and return false.
-                return (First::enableAspect(ext) &&
-                        ( Second::enableAspect(ext) || (First::disableAspect(), false) ) );
-            }
-
-            void disableAspect() 
-            {
-                First::disableAspect();
-                Second::disableAspect();
-            }
-
-        };
-    
-    /**
-     * @brief A class for composing extensions (if you want more than
-     * one extension in your kernel). 
-     *
-     * Composing allows the user to specify order of initialisation,
-     * execution and cleanup of multiple Extensions in one kernel.
-     * 
-     * @param First The first Extension to be started and executed
-     * relatively to the Second.
-     * @param Second The second Extension to be started and executed
-     * relatively to the First.
-     */
-    template<class First, class Second>
-    struct CompositeExtension
-        : public First, public Second
-    {
-        /**
-         * The Aspects of Both Extensions are composed 
-         * automatically in the same First,Second way.
-         */
-        typedef CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
-            
-        CompositeExtension() {}
-        CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
-
-        virtual ~CompositeExtension() {}
-
-        virtual bool initialize() 
-        {
-            return (First::initialize() &&
-                    (Second::initialize() || (First::finalize(),false) ) );
-        }
-
-        virtual void step() 
-        {
-            First::step();
-            Second::step();
-        }
-
-        virtual void finalize() 
-        {
-            First::finalize();
-            Second::finalize();
-        }
-    };
-
-    struct nil_ext {};
-
-    template<class First>
-    struct CompositeExtension< First, nil_ext>
-        : public First
-    {
-        typedef typename First::CommonBase CommonBase;
-        CompositeExtension() {}
-        CompositeExtension( KernelBaseFunction* _base ) : First(_base){}
-        virtual ~CompositeExtension() {}
-    };
-
-        template
-        < typename T1  = nil_ext, typename T2  = nil_ext, typename T3  = nil_ext,
-          typename T4  = nil_ext, typename T5  = nil_ext, typename T6  = nil_ext >
-        struct MakeExtension
-        {
-        private:
-            typedef typename MakeExtension
-            <
-                T2 , T3 , T4 , 
-                T5 , T6
-            >
-            ::Result TailResult;
-            
-        public:
-            typedef CompositeExtension<T1, TailResult> Result;
-        };
-
-        template<>
-        struct MakeExtension<>
-        {
-            typedef nil_ext Result;
-        };
-
-
+        struct ControlKernelInterface {};
+    }
 }
 
 #endif

@@ -29,32 +29,29 @@
 #define PORTINTERFACES_HPP
 
 
-#include <corelib/EventCompleterInterface.hpp>
-#include <corelib/CallbackInterface.hpp>
 #include "DataServer.hpp"
 
 namespace ORO_ControlKernel
 {
     namespace detail 
     {
-        using ORO_CoreLib::CallbackInterface;
-        using ORO_CoreLib::Completer;
-
         /**
          * @brief The DataObjectType templated interface of a port for
          * reading a \a DataObjectType object.
+         * @param _DataObjectType The Type of DataObject accessed through this port,
+         * for example <tt> DataObjectInterface< double > </tt>.
          */
         template <class _DataObjectType>
         class ReadPortInterface
         {
         public:
             /**
-             * The type of data the Port will read
+             * @brief The type of data the Port will read
              */
             typedef _DataObjectType DataObjectType;
 
             /**
-             * This is a helper class for use in the
+             * @brief This is a helper class for use in the
              * NSControlKernel (it is nonnensical in other kernels).
              */
             template < class _DataType >
@@ -66,26 +63,26 @@ namespace ORO_ControlKernel
             virtual ~ReadPortInterface() {}
 
             /**
-             * Read from the following data object.
+             * @brief Read from the following data object.
              *
              * @param _data The data to be added.
              */
             virtual void readFrom( const DataObjectType* _data ) = 0;
 
             /**
-             * No longer read from the following data object.
+             * @brief No longer read from the following data object.
              *
              * @param _data The data to be removed.
              */
             virtual void disconnect( const DataObjectType* _data ) = 0;
 
             /**
-             * Inspect the port if the data it is pointing to is updated.
+             * @brief Inspect the port if the data it is pointing to is updated.
              */
             virtual bool isUpdated() const = 0;
 
             /**
-             * checked access to the DataObject.
+             * @brief Checked access to the DataObject.
              */
             virtual const DataObjectType* dObj() = 0;
         };
@@ -121,11 +118,6 @@ namespace ORO_ControlKernel
              */
             StandardReadPort() : _dObj(0) {}
 
-            /**
-             * Read from the following data object.
-             *
-             * @param _data The data to be added.
-             */
             void readFrom( const DataObjectType* _data ) 
             { 
                 if(_dObj == 0) 
@@ -134,22 +126,11 @@ namespace ORO_ControlKernel
                     }
             }
 
-            /**
-             * No longer read from the following data object.
-             *
-             * @param _data The data to be removed.
-             */
             void disconnect( const DataObjectType* _data ) 
             { if (_dObj == _data) _dObj = 0; }
 
-            /**
-             * Inspect the port if the data it is pointing to is updated.
-             */
             bool isUpdated() const { return true; }
 
-            /**
-             * checked access to the DataObject.
-             */
             const DataObjectType* dObj()
             {
                 return _dObj;
@@ -162,6 +143,7 @@ namespace ORO_ControlKernel
             const DataObjectType* _dObj;
         };
 
+#if 0 //  Not used
         /**
          * @brief An Event based Port which can be used to connect to, read from and
          * disconnect from a DataObject of a given type.
@@ -188,11 +170,6 @@ namespace ORO_ControlKernel
              */
             ReadPortUpdated() : _dObj(0), updated(false) {}
 
-            /**
-             * Read from the following data object.
-             *
-             * @param _data The data to be added.
-             */
             void readFrom( const DataObjectType* _data ) 
             { 
                 if(_dObj == 0) 
@@ -202,11 +179,6 @@ namespace ORO_ControlKernel
                     }
             }
 
-            /**
-             * No longer read from the following data object.
-             *
-             * @param _data The data to be removed.
-             */
             void disconnect( const DataObjectType* _data ) 
             { 
                 if (_dObj == _data) 
@@ -216,9 +188,6 @@ namespace ORO_ControlKernel
                     }
             }
 
-            /**
-             * Inspect the port if the data it is pointing to is updated.
-             */
             bool isUpdated() const { return updated; }
 
             virtual void handleEvent( CallbackInterface* )
@@ -226,9 +195,6 @@ namespace ORO_ControlKernel
                 updated = true;
             }
 
-            /**
-             * checked access to the DataObject.
-             */
             const DataObjectType* dObj()
             {
                 updated = false;
@@ -247,6 +213,8 @@ namespace ORO_ControlKernel
             bool updated;
         };
 
+#endif
+
         /**
          * @brief The DataObjectType templated interface of a port for
          * writing a \a _DataObjectType object.
@@ -256,12 +224,12 @@ namespace ORO_ControlKernel
         {
         public:
             /**
-             * The type of data the Port will read
+             * @brief The type of data the Port will read
              */
             typedef _DataObjectType DataObjectType;
 
             /**
-             * This is a helper class for use in the
+             * @brief This is a helper class for use in the
              * NSControlKernel (it is nonnensical in other kernels).
              */
             template < class _DataType >
@@ -273,21 +241,21 @@ namespace ORO_ControlKernel
             virtual ~WritePortInterface() {}
 
             /**
-             * Read from the following data object.
+             * @brief Read from the following data object.
              *
              * @param _data The data to be added.
              */
             virtual void writeTo( DataObjectType* _data ) = 0;
 
             /**
-             * No longer read from the following _data object.
+             * @brief No longer read from the following _data object.
              *
              * @param _data The data to be removed.
              */
             virtual void disconnect( DataObjectType* _data ) = 0;
 
             /**
-             * checked access to the DataObject.
+             * @brief Checked access to the DataObject.
              */
             virtual DataObjectType* dObj() = 0;
         };
@@ -323,25 +291,12 @@ namespace ORO_ControlKernel
              */
             StandardWritePort() : _dObj(0) {}
 
-            /**
-             * Read from the following data object.
-             *
-             * @param _data The data to be added.
-             */
             void writeTo( DataObjectType* _data ) 
             { if(_dObj == 0) _dObj = _data; }
 
-            /**
-             * No longer read from the following _data object.
-             *
-             * @param _data The data to be removed.
-             */
             void disconnect( DataObjectType* _data )
             { if (_dObj == _data) _dObj = 0; }
 
-            /**
-             * checked access to the DataObject.
-             */
             DataObjectType* dObj()
             {
                 return _dObj;
@@ -441,9 +396,7 @@ namespace ORO_ControlKernel
             : public detail::WritePortInterface< _DataObjectType >
         {
             _DataObjectType* front_end;
-            // only needed for storage, DataObjectReporting is a common class
-            // of all NameSubClass specialisations.
-            DataObjectReporting* data_object;
+            NameServedDataObjectBase* data_object;
         public:
             typedef _DataObjectType DataObjectType;
 
@@ -463,7 +416,25 @@ namespace ORO_ControlKernel
                 // create the dataobject servers (for storage)
                 typedef detail::NameServedDataObject<typename _DataObjectContainer::template DataObject<typename DataObjectType::NamesTypes> > DataStorage;
                 data_object = new DataStorage( name, prefix );
+            }
 
+            /**
+             * Recreate the DataObjects of this Port, using the 
+             * FrontEnd. This is intended when a loaded component
+             * changes the contents of the ServedTypes structure
+             * and wants the new types to be constructed. This is
+             * part of a component reload. All present DataObjects
+             * are destroyed and recreated.
+             */
+            template< class _DataObjectContainer >
+            void reloadPort( _DataObjectContainer dummy )
+            {
+                // Reload the DataObject struct, it may be changed by
+                // the writing component.
+                typedef detail::NameServedDataObject<typename _DataObjectContainer::template DataObject<typename DataObjectType::NamesTypes> > DataStorage;
+                DataStorage* current = dynamic_cast<DataStorage*>(data_object);
+                assert( current != 0 );
+                current->reload( front_end->begin(), front_end->end() );
             }
 
             void erasePort()
@@ -495,13 +466,15 @@ namespace ORO_ControlKernel
     }
 
     /**
-     * User friendly read-port construction.
+     * @brief Read-port construction, Use this class to construct a component
+     * which expects certain types in its DataObjects.
+     * @param DataList A list of ServedTypes containing all the expected Data types.
      */
     template< typename DataList >
     struct Expects
     {
         /**
-         * Our DataObjecType is a NameServedDataObject of DataObjectInterfaces
+         * Our DataObjectType is a NameServedDataObject of DataObjectInterfaces
          */
         typedef typename detail::NamesDOFactory<DataList>::interface DataObjectType;
 
@@ -514,13 +487,15 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * User friendly write-port construction.
+     * @brief Write-port construction, Use this class to construct a component
+     * which writes/produces certain types in its DataObjects.
+     * @param DataList A list of ServedTypes containing all the to-be produced Data types.
      */
     template< typename DataList >
     struct Writes
     {
         /**
-         * Our DataObjecType is a NameServedDataObject of DataObjectInterfaces
+         * Our DataObjectType is a NameServedDataObject of DataObjectInterfaces
          */
         typedef typename detail::NamesDOFactory<DataList>::interface DataObjectType;
         typedef typename detail::NamesDOFactory<DataList>::interface::DataType DataType;

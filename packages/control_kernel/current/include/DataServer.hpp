@@ -57,6 +57,7 @@
 
 namespace ORO_ControlKernel
 {
+    using ORO_CoreLib::NameServer;
 
     /**
      * @brief An Interface for registering DataObject members 
@@ -385,7 +386,29 @@ namespace ORO_ControlKernel
             : ServerType(name,prefix), 
               NameSubClass<Rest>(name, prefix, t, index + 1 )
         {
-            // t contains start and end iterator of the multimap
+            this->load(t, index);
+        }
+
+        /**
+         * The destructor cleans up all its DataObjectServer instances.
+         */
+        virtual ~NameSubClass() 
+        {
+            this->unload();
+        }
+
+        void unload() {
+            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
+                {
+                    ServerType::deReg( *it );
+                    delete *it;
+                }
+            fv.clear();
+        }
+
+        template< typename pair_type, typename index_type>
+        void load(const pair_type& t, index_type index)
+        {
             for ( typename pair_type::first_type it = t.first;
                  it != t.second;
                  ++it)
@@ -400,17 +423,14 @@ namespace ORO_ControlKernel
                 }
         }
 
-        /**
-         * The destructor cleans up all its DataObjectServer instances.
-         */
-        virtual ~NameSubClass() 
-        { 
-            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
-                {
-                    ServerType::deReg( *it ); 
-                    delete *it;
-                }
+        template< typename pair_type, typename index_type>
+        void recursiveReload(const pair_type& t, index_type index)
+        {
+            NameSubClass<Rest>::recursiveReload(t, index+1);
+            unload();
+            load(t, index);
         }
+            
 
         /**
          * Change the local name prefix.
@@ -464,7 +484,7 @@ namespace ORO_ControlKernel
     /**
      * This class holds one nameserved element of a DataObject.
      * Evenmore, it offers the DataObject Interface for a nameserved
-     * element.
+     * element. 
      *
      */
     template<typename First>
@@ -484,7 +504,29 @@ namespace ORO_ControlKernel
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index) 
             : ServerType(name, prefix)
         {
-            // t contains start and end iterator of the multimap
+            this->load(t, index);
+        }
+
+        /**
+         * The destructor cleans up all its DataObjectServer instances.
+         */
+        virtual ~NameSubClass() 
+        {
+            this->unload();
+        }
+
+        void unload() {
+            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
+                {
+                    ServerType::deReg( *it ); 
+                    delete *it;
+                }
+            fv.clear();
+        }
+
+        template< typename pair_type, typename index_type>
+        void load(const pair_type& t, index_type index)
+        {
             for ( typename pair_type::first_type it = t.first;
                  it != t.second;
                  ++it)
@@ -499,13 +541,11 @@ namespace ORO_ControlKernel
                 }
         }
 
-        virtual ~NameSubClass()
-        { 
-            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
-                {
-                    ServerType::deReg( *it ); 
-                    delete *it;
-                }
+        template< typename pair_type, typename index_type>
+        void recursiveReload(const pair_type& t, index_type index)
+        {
+            unload();
+            load(t, index);
         }
     private:
         std::vector< First* > fv;
@@ -538,6 +578,14 @@ namespace ORO_ControlKernel
         void inspectReports( PropertyIntrospection* introspector ) const {}
         void exportReports( PropertyBag& bag ) const  {}
         void cleanupReports( PropertyBag& bag ) const {}
+
+        void unload() {}
+
+        template< typename pair_type, typename index_type>
+        void load(const pair_type& t, index_type index) {}
+
+        template< typename pair_type, typename index_type>
+        void recursiveReload(const pair_type& t, index_type index) {}
     };
 
     /**
@@ -605,6 +653,12 @@ namespace ORO_ControlKernel
     namespace detail
     {
 
+        /** 
+         * This class is the non templated base of a NameServedDataObject.
+         */
+        struct NameServedDataObjectBase {
+            virtual ~NameServedDataObjectBase() {}
+        };
 
         /**
          * @brief The templated nameserved dataobject. It can be of any DataType/DataObjectType.
@@ -618,7 +672,8 @@ namespace ORO_ControlKernel
          */
         template<typename _NameContainer>
         class NameServedDataObject
-            : public _NameContainer::NamesTypes,
+            : public NameServedDataObjectBase,
+              public _NameContainer::NamesTypes,
               public _NameContainer::tree
     {
     public :
@@ -639,11 +694,22 @@ namespace ORO_ControlKernel
          * @param name The unique name of the DataObject.
          * @param prefix The scope of the nameserver, to avoid clashes with
          *        other nameservers (the user does not see this).
+         * @todo Create the NameServedDataObjectInterface
          */
         NameServedDataObject(const std::string& name, const std::string& prefix )// = name ) 
             :  _NameContainer::NamesTypes(),
               _NameContainer::tree(name, prefix, std::make_pair( this->begin(), this->end() ), 0 )
         {
+        }
+
+        /**
+         * @brief Instruct the nameserver to reload all DataObjects.
+         * @param  b Specify an iterator range containing the
+         * the 'build recepe' for which types to build.
+         */
+        template< class Iter >
+        void reload(const Iter&  b, const Iter& e ) {
+            this->_NameContainer::tree::recursiveReload( std::make_pair( b, e ), 0 );
         }
 
         void changePrefix(const std::string& prefix)
@@ -668,13 +734,13 @@ namespace ORO_ControlKernel
     };
 
         /**
-         * @brief A class which serves as a DataObjectServer frontend/facade with CompositeDataObject.
+         * @brief A class which serves as a DataObjectServer frontend/facade.
          *
          * Since DataObjectServers are hierarchies nested in NameSubClasses,
          * this is the single point of acces for the underlying DataObjectServer methods.
          * If it was not here, the compiler would complain about ambiguity with method
-         * calls. This could become the standard way of composing DataObjectServers 
-         * when CompositeDataObject is not used.
+         * calls. This is the standard way of getting access to DataObjectServers .
+         * 
          */
         template<class>
         struct NameFrontEnd;
@@ -684,11 +750,13 @@ namespace ORO_ControlKernel
             : public DataObjectServer<Head>,
               public NameFrontEnd<Tail>
         {
-            using DataObjectServer<Head>::Get;
-            using DataObjectServer<Head>::Set;
-            using DataObjectServer<Head>::has;
-            using DataObjectServer<Head>::reg;
-            using DataObjectServer<Head>::deReg;
+            typedef DataObjectServer<Head> ServerType;
+
+            using ServerType::Get;
+            using ServerType::Set;
+            using ServerType::has;
+            using ServerType::reg;
+            using ServerType::deReg;
 
             using NameFrontEnd<Tail>::Get;
             using NameFrontEnd<Tail>::Set;
@@ -698,11 +766,38 @@ namespace ORO_ControlKernel
 
             template< typename pair_type, typename index_type>
             NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index ) :
-                DataObjectServer<Head>(name, prefix),
+                ServerType(name, prefix),
                 NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
-            virtual void changePrefix(const std::string& prefix) { DataObjectServer<Head>::changePrefix( prefix); }
+            virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
+
+        virtual void refreshReports( PropertyBag& bag ) const
+        {
+            // Delegate to the subclass's implementation.
+            ServerType::refreshReports(bag);
+            NameFrontEnd<Tail>::refreshReports(bag);
+        }
+
+        void exportReports( PropertyBag& bag ) const
+        {
+            // Delegate to the subclass's implementation.
+            ServerType::exportReports(bag);
+            NameFrontEnd<Tail>::exportReports(bag);
+        }
+
+        virtual void inspectReports(PropertyIntrospection* i) const
+        {
+            // Delegate to the subclass's implementation.
+            ServerType::inspectReports(i);
+            NameFrontEnd<Tail>::inspectReports(i);
+        }
+
+        virtual void cleanupReports( PropertyBag& bag ) const
+        {
+            ServerType::cleanupReports(bag);
+            NameFrontEnd<Tail>::cleanupReports(bag);
+        }
 
         };
 
@@ -710,16 +805,18 @@ namespace ORO_ControlKernel
         struct NameFrontEnd< Typelist<Head, nil_type> >
             : public DataObjectServer<Head>
         {
-            using DataObjectServer<Head>::Get;
-            using DataObjectServer<Head>::Set;
-            using DataObjectServer<Head>::has;
-            using DataObjectServer<Head>::reg;
-            using DataObjectServer<Head>::deReg;
+            typedef DataObjectServer<Head> ServerType;
+
+            using ServerType::Get;
+            using ServerType::Set;
+            using ServerType::has;
+            using ServerType::reg;
+            using ServerType::deReg;
             template< typename pair_type, typename index_type>
             NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
-                DataObjectServer<Head>(name, prefix)
+                ServerType(name, prefix)
             {}
-            virtual void changePrefix(const std::string& prefix) { DataObjectServer<Head>::changePrefix( prefix); }
+            virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
         };            
             
         // Container case
@@ -1042,6 +1139,12 @@ namespace ORO_ControlKernel
 
 
     } // namespace detail
+
+    struct NoSetPoint : public ServedTypes<> {};
+    struct NoInput : public ServedTypes<> {};
+    struct NoOutput : public ServedTypes<> {};
+    struct NoCommand : public ServedTypes<> {};
+    struct NoModel : public ServedTypes<> {};
 
 }
 

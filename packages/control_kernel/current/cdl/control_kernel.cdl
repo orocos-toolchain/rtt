@@ -7,8 +7,18 @@ an open controller."
 
     include_dir control_kernel
 
-    compile KernelInterfaces.cxx ComponentConfigurator.cxx KernelConfig.cxx
-    compile DataServer.cxx
+    compile KernelInterfaces.cxx ComponentInterfaces.cxx
+    compile ComponentConfigurator.cxx KernelConfig.cxx
+    compile DataObjectReporting.cxx
+
+    cdl_option OROSEM_CONTROL_KERNEL_OLDKERNEL {
+	display "Enable backward old-style Kernel"
+	description "
+Enable if you want to use the old-style kernels by
+default. Some Orocos components will refuse to compile if this
+option is enabled."
+	default_value 0
+    }
 
     cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
 	display "Control Kernel Extensions"

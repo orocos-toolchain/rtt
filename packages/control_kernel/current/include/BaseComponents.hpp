@@ -28,7 +28,7 @@
 #ifndef BASECOMPONENTS_HPP
 #define BASECOMPONENTS_HPP
 
-#include "KernelInterfaces.hpp"
+#include "ComponentInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
 
@@ -72,7 +72,7 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_controller
      */
-    template <class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _SetPointType, class _OutputType, class _Aspect = DefaultBase >
     class Controller
         : public _SetPointType::ReadPort,
           public _ModelType::ReadPort,
@@ -148,7 +148,7 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_generator
      */
-    template <class _CommandType, class _InputType, class _ModelType, class _SetPointType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _CommandType, class _SetPointType, class _Aspect = DefaultBase >
     class Generator
         : public _CommandType::ReadPort,
           public _InputType::ReadPort,

@@ -28,6 +28,8 @@
 #ifndef STANDARDCONTROLKERNEL_HPP
 #define STANDARDCONTROLKERNEL_HPP
 
+#include <pkgconf/control_kernel.h>
+#ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
 #include "BaseKernel.hpp"
 
 namespace ORO_ControlKernel
@@ -106,4 +108,96 @@ namespace ORO_ControlKernel
                 
 }
 
+#else
+
+#include "NextGenKernel.hpp"
+#include "DataServer.hpp"
+
+namespace ORO_ControlKernel
+{
+
+    using ORO_CoreLib::NameServer;
+    using ORO_CoreLib::NameServerRegistrator;
+
+    /**
+     * @brief The StandardControlKernel is the latest Control Kernel Architecture which supports
+     * separate compiled Components.
+     *
+     * See the Control Kernel Manual for more information.
+     */
+    template <class _Extension = KernelBaseFunction >
+    class StandardControlKernel
+        : public detail::BaseKernel< detail::DataObjectLockedC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                        detail::DataObjectC,
+                                       _Extension >,
+          public NameServerRegistrator< StandardControlKernel<_Extension>* >        
+    {
+    public:
+
+        /** 
+         * @brief Set up a control kernel. 
+         * 
+         * @param name The unique name of the kernel.
+         * 
+         */
+        StandardControlKernel(const std::string& name)
+            : detail::BaseKernel< detail::DataObjectLockedC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     detail::DataObjectC,
+                                     _Extension >( name, name + "::Inputs", name + "::Models", name + "::Commands",
+                                                   name + "::SetPoints", name + "::Outputs")
+        {
+        }
+
+        /**
+         * @brief Create a nameserved control kernel.
+         
+         * @param name The unique name of the kernel
+         * @param prefix The prefix to use for the DataObject names. Set prefix
+         * to the name of another kernel, to be able to access its data objects.
+         */
+        StandardControlKernel(const std::string& name, const std::string& prefix)
+            : detail::BaseKernel< detail::DataObjectLockedC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
+                                  detail::DataObjectC,
+                                  _Extension >( name, prefix + "::Inputs", prefix + "::Models", prefix + "::Commands",
+                                                prefix + "::SetPoints", prefix + "::Outputs"),
+              NameServerRegistrator< StandardControlKernel<_Extension>* >(nameserver,name,this)
+        {
+        }
+
+        /**
+         * @brief The StandardControlKernel nameserver.
+         */
+        static NameServer< StandardControlKernel<_Extension>* > nameserver;
+
+    protected:
+
+        virtual void updateComponents()
+        {
+            // This is called from the KernelBaseFunction
+            // one step is one control cycle
+            // The figure is a unidirectional graph
+            this->sensor->update();
+            this->estimator->update();
+            this->generator->update();
+            this->controller->update();
+            this->effector->update();
+        }
+    };
+
+    template < class E >
+    NameServer<StandardControlKernel<E>*> StandardControlKernel<E>::nameserver;
+
+                
+}
+
+#endif
 #endif

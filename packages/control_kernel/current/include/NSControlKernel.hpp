@@ -43,12 +43,10 @@ namespace ORO_ControlKernel
      * As it has very much in common with the StandardControlKernel, the way of addressing
      * DataObjects is done through nameserving (strings). The basic interface to dataobjects
      * is defined by the DataObjectServer. The Get and Set methods of that class are extended
-     * with an extra parameter which denotes the name of the object you need. The kernel
-     * also supports the 'Old way' of accessing DataObjects through a Get() method without
-     * strings. 
+     * with an extra parameter which denotes the name of the object you need.
      *
      * The user must defines its DataTypes in such a way that the kernel can distinguish
-     * what must be nameserved (and under which name ) and what not. An example is as
+     * what must be nameserved (and under which name ). An example is as
      * follows :
      * @verbatim
      *
@@ -58,7 +56,7 @@ namespace ORO_ControlKernel
      * using std::make_pair;
      *
      * struct MyInputTypes 
-     *   : public ServedTypes<PosXY, MouseVelocities>, public UnServedType<NormalInputs>
+     *   : public ServedTypes<PosXY, MouseVelocities>
      * {
      *   //
      *   // Obliged giving of names to all ServedTypes
@@ -78,9 +76,7 @@ namespace ORO_ControlKernel
      * @endverbatim
      *
      * Next, you can pass this class name as the _InputType parameter of the 
-     * NSControlKernel. The UnServedType< T > class can be used to convert
-     * your StandardControlKernel components first, with substituting T with the
-     * type you used in that kernel.
+     * NSControlKernel.
      *
      * See the manual for more information.
      */

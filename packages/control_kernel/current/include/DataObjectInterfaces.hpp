@@ -29,13 +29,8 @@
 #define DATAOBJECTINTERFACES_HPP
 
 
-#include "ModuleControlInterface.hpp"
-#include <corelib/Time.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
-#include <corelib/Event.hpp>
 #include <os/MutexLock.hpp>
 #include <os/oro_atomic.h>
-#include "DataObjectReporting.hpp"
 
 namespace ORO_ControlKernel
 {
@@ -569,6 +564,8 @@ namespace ORO_ControlKernel
 
     };
 
+    // These classes are unused.  (ps)
+#if 0
     /**
      * @brief A class which provides update based access to one typed element of data.
      */
@@ -668,7 +665,6 @@ namespace ORO_ControlKernel
         mutable ModuleControlInterface* module;
     };
 
-#if 0
     using ORO_CoreLib::HeartBeatGenerator;
 
     /**

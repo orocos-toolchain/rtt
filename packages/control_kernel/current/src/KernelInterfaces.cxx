@@ -24,8 +24,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#pragma implementation
 #include "control_kernel/KernelInterfaces.hpp"
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "control_kernel/ComponentInterfaces.hpp"
+#include "corelib/PropertyComposition.hpp"
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -33,7 +37,7 @@
 using namespace ORO_ControlKernel;
 using namespace ORO_CoreLib;
 
-#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         using namespace ORO_Execution;
 #endif
 
@@ -43,28 +47,6 @@ namespace ORO_ControlKernel
     {
         NameServer<ExtensionInterface*> ExtensionInterface::nameserver;
     }
-}
-
-bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
-{
-    kern = e;
-    kern->addComponent(this);
-    if ( ! componentLoaded() )
-        {
-            kern->removeComponent(this);
-            return false;
-        }
-    return true;
-}
-
-void ComponentBaseInterface::disableAspect()
-{
-    if ( inKernel() )
-        {
-            kern->removeComponent(this);
-            kern = 0;
-            componentUnloaded();
-        }
 }
 
 KernelBaseFunction::KernelBaseFunction( KernelBaseFunction* _base )
@@ -180,6 +162,8 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
         components.erase(itl);
 }
 
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
 {
     TemplateCommandFactory< KernelBaseFunction  >* ret =
@@ -233,4 +217,35 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
                     "Name", "The name of the Sensor") );
     return ret;
 }
+
+        ComponentBaseInterface* KernelBaseFunction::switchComponent(ComponentBaseInterface* oldC, ComponentBaseInterface* newC ) const
+        {
+            stopComponent(oldC);
+            if ( startComponent( newC ) )
+                return newC;
+            else
+                if ( startComponent( oldC ) )
+                    return oldC;
+            return 0; // quite severe failure
+        }
+
+        bool KernelBaseFunction::startComponent(ComponentBaseInterface* c ) const 
+        {
+            if ( c->componentStartup() )
+                {
+                    c->selected = true;
+                    return true;
+                }
+            return false;
+        }
+        
+        void KernelBaseFunction::stopComponent(ComponentBaseInterface* c ) const 
+        {
+            c->componentShutdown();
+            c->selected = false;
+        }
+
+
+
+#endif
 

@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#pragma implementation
 #include "control_kernel/ReportingExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
 

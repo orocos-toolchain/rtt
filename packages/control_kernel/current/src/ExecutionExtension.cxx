@@ -24,6 +24,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+#pragma implementation
 #include "control_kernel/ExecutionExtension.hpp"
 
 #include <execution/CommandFactoryInterface.hpp>
@@ -32,6 +33,8 @@
 #include <execution/DataSourceFactoryInterface.hpp>
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
+
+#include <corelib/PropertyComposition.hpp>
 
 #include "execution/TemplateDataSourceFactory.hpp"
 #include <execution/TemplateCommandFactory.hpp>
@@ -268,6 +271,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     void ExecutionComponentInterface::disableAspect()
     {
+        if (master == 0 )
+            return;
         master->commandFactory().unregisterObject( name );
         master->dataFactory().unregisterObject( name );
     }

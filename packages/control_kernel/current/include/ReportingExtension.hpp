@@ -30,6 +30,7 @@
 
 
 #include "KernelInterfaces.hpp"
+#include "ComponentInterfaces.hpp"
 #include "DataServer.hpp"
 
 #include <corelib/PropertyExporter.hpp>
@@ -47,6 +48,8 @@
 #include <fstream>
 #endif
 
+#pragma interface
+
 namespace ORO_ControlKernel
 {
     using namespace std;
@@ -56,7 +59,7 @@ namespace ORO_ControlKernel
     class BackendReportingExtension;
 
     /**
-     * The base class for reporting components.
+     * @brief The base class for reporting Components.
      *
      * @see ReportingExtension
      * @see DefaultAspect
@@ -67,7 +70,8 @@ namespace ORO_ControlKernel
         friend class ORO_ControlKernel::ReportingExtension;
         friend class ORO_ControlKernel::BackendReportingExtension;
 
-    public:
+    protected:
+        using detail::ComponentAspectInterface<ReportingExtension>::enableAspect;
         /**
          * Initialize the components name.
          */
@@ -127,9 +131,11 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * A ControlKernel extension for periodically reporting component
-     * properties to a human readable
-     * text format. It can report to a file or to the screen.
+     * @brief A ControlKernel extension for periodically reporting Component
+     * properties and DataObject contents to a human readable
+     * text format.
+     *
+     * It can report to a file or to the screen.
      * This extension is purely meant for text based data gathering.
      * It can also report DataObjects when used in the NSControlKernel.
      *

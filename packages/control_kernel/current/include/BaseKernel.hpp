@@ -28,6 +28,16 @@
 #ifndef BASE_KERNEL_HPP
 #define BASE_KERNEL_HPP
 
+#include <pkgconf/control_kernel.h>
+#ifndef OROSEM_CONTROL_KERNEL_OLDKERNEL
+#error "The Kernel you are using is not supported in the new \n\
+Kernel Architecture. Please, enable Backwards Compatibility in \
+the configuration of the kernel package. Some of the Orocos Kernel \
+Components will not work then however (eg AxisSensor, GenericSensor). \
+Revisit the Control Kernel Documentation to see how the new \
+StandardControlKernel supercedes all previous Kernel architectures."
+#endif
+
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
 #include "PortInterfaces.hpp"
@@ -40,6 +50,7 @@ namespace ORO_ControlKernel
 
     namespace detail
     {
+
     /**
      * @brief The BaseKernel is for internal use only.
      *
@@ -51,7 +62,7 @@ namespace ORO_ControlKernel
      */
     template <class _CommandPort, class _SetPointPort, class _InputPort, class _ModelPort, class _OutputPort, class _Extension = KernelBaseFunction>
     class BaseKernel
-        : public _Extension
+        : public _Extension, public ControlKernelInterface
     {
     public:
         /**
@@ -94,8 +105,8 @@ namespace ORO_ControlKernel
          * Default Component Definitions
          * @{
          */
-        typedef Controller<_SetPointPort, _InputPort, _ModelPort, _OutputPort, CommonBase> DefaultController;
-        typedef Generator<_CommandPort, _InputPort, _ModelPort, _SetPointPort, CommonBase> DefaultGenerator;
+        typedef Controller< _InputPort, _ModelPort, _SetPointPort, _OutputPort, CommonBase> DefaultController;
+        typedef Generator<_InputPort, _ModelPort, _CommandPort, _SetPointPort, CommonBase> DefaultGenerator;
         typedef Estimator<_InputPort, _ModelPort, CommonBase> DefaultEstimator;
         typedef Effector<_OutputPort, CommonBase> DefaultEffector;
         typedef Sensor<_InputPort, CommonBase> DefaultSensor;
@@ -761,6 +772,18 @@ namespace ORO_ControlKernel
          * @brief Sets the outputs DataObject for this ControlKernel.
          */
         void setOutputs(OutputData* o) { externalOutputs=true; outputs = o; }
+
+        virtual bool load( ComponentBaseInterface* c) { return false; }
+
+        virtual bool unload( ComponentBaseInterface* c) { return false; }
+
+        virtual bool reload( ComponentBaseInterface* c)  { return false; }
+
+        virtual bool shutdown( ComponentBaseInterface* c) { return false; }
+
+        virtual bool startup( ComponentBaseInterface* c) { return false; }
+
+        virtual bool restart( ComponentBaseInterface* c) { return false; }
     protected:
 
         /**
