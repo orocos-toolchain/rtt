@@ -4,6 +4,7 @@
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY svn         "<acronym>SVN</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
@@ -126,7 +127,7 @@
     <sect1>
       <title>Installing Orocos from Subversion ( similar to CVS )</title>
       <para>
-	Installing &orocos; from &cvs; gets you the latest and
+	Installing &orocos; from &svn; gets you the latest and
 	greatest, but requires some familiarity with the tools we use.
 	This section will do its best to help you through the
 	Subversion (SVN) installation  process.
