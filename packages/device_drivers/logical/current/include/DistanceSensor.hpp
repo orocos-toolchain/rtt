@@ -46,10 +46,11 @@ namespace ORO_DeviceDriver
     virtual ~DistanceSensor();
 
     // Redefine Pure virtuals
-    virtual int readSensor (SensorData & data);
-    virtual SensorData maxMeasurement ();
-    virtual SensorData minMeasurement ();
-    virtual SensorData zeroMeasurement ();
+    virtual int readSensor (SensorData & data) const;
+    virtual SensorData readSensor () const;
+    virtual SensorData maxMeasurement () const;
+    virtual SensorData minMeasurement () const;
+    virtual SensorData zeroMeasurement () const;
     // The following are deprecated ...
     virtual void offsetSet (const SensorData &);
     virtual void scaleSet (const SensorData &);

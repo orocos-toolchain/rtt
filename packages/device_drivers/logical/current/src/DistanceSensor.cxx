@@ -29,7 +29,7 @@ DistanceSensor::DistanceSensor(AnalogInInterface<unsigned int> * a_in,
 
 DistanceSensor::~DistanceSensor(){};
 
-int DistanceSensor::readSensor (SensorData & data)
+int DistanceSensor::readSensor (SensorData & data) const
 {
   unsigned int d;
   _aIn->read(_chan,d);
@@ -46,17 +46,34 @@ int DistanceSensor::readSensor (SensorData & data)
   return 1;
 }
 
-SensorData DistanceSensor::maxMeasurement()
+SensorData DistanceSensor::readSensor () const
+{
+  unsigned int d;
+  _aIn->read(_chan,d);
+  /* First, take into account resolution and offset of
+     AnalogInInterface
+     Conversion from bits -> Volts (or Ampere or ...)
+  */
+  SensorData data = (double (d - _aIn->binaryLowest()) / _aIn->resolution(_chan)) + _aIn->lowest(_chan);
+  /* Then apply conversion from Volts -> Distance Unit */
+  data += _offset;
+  data *= _scale;
+  // Cannot check if _aIn->read() worked (no return value, so this is
+  // always true :-(
+  return data;
+}
+
+SensorData DistanceSensor::maxMeasurement() const
 {
   return (SensorData) _aIn->highest(_chan);
 }
 
-SensorData DistanceSensor::minMeasurement()
+SensorData DistanceSensor::minMeasurement() const
 {
    return (SensorData) _aIn->lowest(_chan);
 }
 
-SensorData DistanceSensor::zeroMeasurement()
+SensorData DistanceSensor::zeroMeasurement() const
 {
   // Don't know what Peter means with this function
   /* I quote
