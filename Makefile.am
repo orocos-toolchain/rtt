@@ -63,7 +63,7 @@ install-exec-local:
 	install -m 755 -d $(prefix)/include
 	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done
 	install -m 755 -d $(prefix)/lib
-	for i in $( ls packages/install/lib/libtarget.a ); do \
+	for i in $$( ls packages/install/lib/libtarget.a ); do \
 	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
 	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
 	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; done
