@@ -9,8 +9,7 @@ namespace ORO_ControlKernel
         if (master == 0)
             {
                 master = ext;
-                master->addComponent( this );
-                return true;
+                return master->addComponent( this );
             }
         return false;
     }
@@ -123,9 +122,12 @@ namespace ORO_ControlKernel
             }
     }
         
-    void PropertyExtension::addComponent(PropertyComponentInterface* comp)
+    bool PropertyExtension::addComponent(PropertyComponentInterface* comp)
     {
+        if ( myMap.count(comp->getLocalStore().getName() ) != 0  )
+            return false;
         myMap[ comp->getLocalStore().getName() ] = comp;
+        return true;
     }
 
     void PropertyExtension::removeComponent(PropertyComponentInterface* comp)

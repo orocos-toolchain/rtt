@@ -137,7 +137,7 @@ namespace ORO_ControlKernel
          * Used by the PropertyComponentInterface to register itself to
          * this Extension.
          */
-        void addComponent(PropertyComponentInterface* comp);
+        bool addComponent(PropertyComponentInterface* comp);
 
         /**
          * Used by the PropertyComponentInterface to deregister itself
