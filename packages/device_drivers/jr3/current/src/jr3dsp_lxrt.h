@@ -25,7 +25,7 @@ extern "C" {
 
 
 #ifdef OROINT_DEVICE_DRIVERS_JR3    
-#include "jr3dsp.h"
+#include "jr3/jr3dsp.h"
 
 #ifdef __KERNEL__
 extern void JR3DSP_check_sensor_and_DSP( unsigned int dsp );

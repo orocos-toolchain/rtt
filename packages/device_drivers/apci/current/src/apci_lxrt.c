@@ -18,7 +18,7 @@
 
 #include <linux/module.h>
 
-#include <rtai/config.h>
+#include <rtai_config.h>
 #include "apci_lxrt.h"
 #include <rtai.h>
 #include <rtai_lxrt.h>
