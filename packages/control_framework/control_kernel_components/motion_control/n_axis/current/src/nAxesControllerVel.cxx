@@ -126,7 +126,7 @@ namespace ORO_ControlKernel
     }
 
     // check size of properties
-    assert(_controller_gain.value().size() >= _num_axes);
+    assert(_controller_gain.value().size() == _num_axes);
 
     return true;
   }
