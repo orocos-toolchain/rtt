@@ -148,7 +148,7 @@ class Vector
 {
 public:
     double data[3];
-#ifdef ORO_GEOMETRY_DEFAULT_INITIALISATION
+#ifdef OROSEM_GEOMETRY_DEFAULT_INIT
      IMETHOD Vector() : data( {0,0,0} ) { }
 #else
      //! Does not initialise the Vector to zero. use Vector::Zero() or SetToZero for that
@@ -288,7 +288,7 @@ class Rotation
 public:
     double data[9];
 
-#ifdef ORO_GEOMETRY_DEFAULT_INITIALISATION
+#ifdef OROSEM_GEOMETRY_DEFAULT_INIT
     IMETHOD Rotation() :
 		Xx(1.0), Yx(0), Zx(0),
 		Xy(0), Yy(1.0), Zy(0),
