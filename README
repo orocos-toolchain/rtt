@@ -1,0 +1,4 @@
+To check out the latest orocos tree from subversion,
+use the following command :
+
+svn co http://cvs.mech.kuleuven.ac.be/svn/orocos
