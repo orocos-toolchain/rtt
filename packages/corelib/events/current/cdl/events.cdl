@@ -21,6 +21,16 @@ synchronous and asynchronous communication."
 	implements OROINT_CORELIB_COMPLETION_INTERFACE
     }
 
+    cdl_option OROSEM_CORELIB_EVENTS_AUTOSTART {
+	display "Automatically start the CompletionProcessor"
+	description "
+This option will enable starting the CompletionProcessor thread
+automatically in the background so that the application does
+no longer have to do so."
+	flavor bool
+	default_value 1
+    }
+
     cdl_component OROPKG_CORELIB_EVENTS_CP {
 	display "Completion Processor Properties"
 	flavor none

@@ -3,7 +3,32 @@
 #include "os/MutexLock.hpp"
 #include "corelib/Time.hpp"
 
-#include "pkgconf/corelib_events.h"
+#include <pkgconf/corelib_events.h>
+
+#ifdef OROSEM_CORELIB_EVENTS_AUTOSTART
+#include <os/StartStopManager.hpp>
+namespace ORO_CoreLib
+{
+    namespace
+    {
+        int startCPPThread()
+        {
+            CompletionProcessor::Instance()->start();
+            return true;
+        }
+
+        void stopCPPThread()
+        {
+            CompletionProcessor::Release();
+        }
+
+        ORO_OS::InitFunction CPPInit( &startCPPThread );
+        ORO_OS::CleanupFunction CPPCleanup( &stopCPPThread );
+    }
+}
+#endif
+
+
 
 namespace ORO_CoreLib
 {
