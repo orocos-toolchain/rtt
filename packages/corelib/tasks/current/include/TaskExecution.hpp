@@ -120,7 +120,7 @@ namespace ORO_CoreLib
          * A Task can not create a task of same priority from step().
          * If so a deadlock will occur.
          */
-        ORO_OS::Mutex lock;
+        mutable ORO_OS::Mutex lock;
     };
 } // namespace ORO_CoreLib
 

@@ -38,7 +38,6 @@ namespace ORO_CoreLib
     TaskExecution::TaskExecution(int priority, const std::string& name, double periodicity)
         : TaskThreadInterface( priority, name, periodicity)
     {
-//         clocks.reserve( MAX_TASK_TIMERS );
     }
 
     TaskExecution::~TaskExecution()
@@ -67,6 +66,7 @@ namespace ORO_CoreLib
     }        
 
     TaskTimerInterface* TaskExecution::timerGet( Seconds period ) const {
+        MutexLock locker(lock);
         for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
             if ( (*it)->getPeriod() == Seconds_to_nsecs(period) )
                 return *it;
@@ -77,14 +77,15 @@ namespace ORO_CoreLib
 
     bool TaskExecution::timerAdd( TaskTimerInterface* t)
     {
-//         if ( clocks.size() == MAX_TASK_TIMERS ) {
-//                 Logger::log() << Logger::Critical << "TaskExecution: Could not add Timer with period_ns: "<< t->getPeriod() <<" in thread :"<< this->taskNameGet() <<Logger::nl;
-//                 Logger::log() << Logger::Critical << "  Advice : increase MAX_TASK_TIMERS ( current value : " << TaskExecution::MAX_TASK_TIMERS <<" )." << Logger::endl;
-//             return false;
         secs s;
         nsecs ns;
         getPeriod(s,ns);
-        t->setTrigger( secs_to_nsecs(s) + ns );
+        nsecs p = secs_to_nsecs(s) + ns ;
+        // if period is too small or not a multiple :
+        // we also detect t with period zero, 
+        if ( t->getPeriod() < p || t->getPeriod() % p != 0  ) // comparison in nsecs
+            return false; // can not use this timer.
+        t->setTrigger( p );
         MutexLock locker(lock);
         clocks.push_back( t );
         return true;

@@ -61,15 +61,18 @@ namespace ORO_CoreLib
         TaskTimerInterface* timer = _thread->timerGet( this->getPeriod() );
         if ( timer == 0 ) {
             timer = new TaskTimerOneShot( per_ns );
-//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
+//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< _thread->getName() <<Logger::endl;
             // The timer is owned by the thread !
             if ( _thread->timerAdd( timer ) == false ) {
                 delete timer;
                 timer = 0;
+                Logger::log() << Logger::Critical << "PeriodicTask with period "<<this->getPeriod()
+                              << "s failed to schedule in thread " << this->thread()->getName()
+                              << " which has period "<< this->thread()->getPeriod()<<"s."<< Logger::endl;
             }
         }
 //         else
-//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
+//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< _thread->getName() <<Logger::endl;
 
         _timer = timer;
     }
