@@ -26,16 +26,12 @@
  ***************************************************************************/
 
 
-#ifndef GLOBALDATASOURCEFACTORY_HPP
-#define GLOBALDATASOURCEFACTORY_HPP
-
 #include <string>
 #include <vector>
 #include <map>
 #include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include "DataSourceFactoryInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -49,11 +45,11 @@ namespace ORO_Execution
    * certain name, and the parser can ask for the factory registered
    * under a certain name..
    */
-  class GlobalDataSourceFactory
+  class GLOBALMEMBERFACTORY
   {
-    typedef std::map<std::string, const DataSourceFactoryInterface*> map_t;
+    typedef std::map<std::string, const MEMBERFACTORYINTERFACE*> map_t;
   public:
-    GlobalDataSourceFactory()
+    GLOBALMEMBERFACTORY()
       {
       };
 
@@ -61,7 +57,7 @@ namespace ORO_Execution
     const std::string& objectname,
     const std::string& source )
   {
-    const DataSourceFactoryInterface* o = getObjectFactory( objectname );
+    const MEMBERFACTORYINTERFACE* o = getObjectFactory( objectname );
     if ( o ) return o->hasMember( source );
     else return false;
   };
@@ -73,7 +69,7 @@ namespace ORO_Execution
      * while the factory is registered with us.. )
      */
     void registerObject( const std::string& name,
-                         const DataSourceFactoryInterface* fact )
+                         const MEMBERFACTORYINTERFACE* fact )
       {
         mdata[name] = fact;
       };
@@ -89,7 +85,7 @@ namespace ORO_Execution
      * @return the requested factory, or 0, indicating no factory
      * has been registered under that name..
      */
-    const DataSourceFactoryInterface* getObjectFactory( const std::string& name ) const
+    const MEMBERFACTORYINTERFACE* getObjectFactory( const std::string& name ) const
       {
         map_t::const_iterator i = mdata.find( name );
         if ( i == mdata.end() ) return 0;
@@ -107,5 +103,3 @@ namespace ORO_Execution
     map_t mdata;
   };
 }
-
-#endif
