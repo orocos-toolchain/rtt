@@ -3,10 +3,13 @@
 #define PRIORITYTHREAD_HPP
 
 #include "TaskExecution.hpp"
-
+#include "Time.hpp"
 
 namespace ORO_CoreLib
 {
+
+    template< int Priority >
+    class PriorityTask;
 
     /**
      * This is a Task Executing Thread with a fixed priority. It is used
@@ -24,16 +27,14 @@ namespace ORO_CoreLib
         /**
          * Create a PriorityThread with a certain periodicity.
          *
-         * @note period is ignored if the thread was created
-         * before. One can check if the correct period was
-         * set with the periodGet() function call.
+         * @note period is to be set with the periodSet() method
+         * Before any tasks are added.
          *
-         * @param period The periodicity of the thread in seconds
          */
-        static PriorityThread<Priority>* Instance(double period)
+        static PriorityThread<Priority>* Instance()
         {
             if ( _instance == 0 )
-                _instance = new PriorityThread<Priority>( period );
+                _instance = new PriorityThread<Priority>( 0.01 );// XXX use some DEFAULT_PRIO define
             return _instance;
         }
 
@@ -107,6 +108,7 @@ namespace ORO_CoreLib
     };
 
     // The static class variables
+    template< int Priority>
     PriorityThread<Priority>* PriorityThread<Priority>::_instance;
 
 } // namespace ORO_CoreLib
