@@ -433,7 +433,7 @@ namespace ORO_Execution
         str_p( "double6d" )
       >> open_brace
       >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
+      >> ')' )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
 
     double6Dctor6 = (
         str_p( "double6d" )
