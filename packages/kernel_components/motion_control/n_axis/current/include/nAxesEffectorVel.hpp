@@ -1,4 +1,4 @@
-// $Id: nAxisVelEffector.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
+// $Id: nAxisEffectorVel.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
 // Copyright (C) 2003 Klaas Gadeyne <klaas.gadeyne@mech.kuleuven.ac.be>
 //                    Wim Meeussen  <wim.meeussen@mech.kuleuven.ac.be>
 //  
@@ -17,8 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#ifndef __N_AXES_VEL_EFFECTOR_H__
-#define __N_AXES_VEL_EFFECTOR_H__
+#ifndef __N_AXES_EFFECTOR_VEL_H__
+#define __N_AXES_EFFECTOR_VEL_H__
 
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/PropertyExtension.hpp>
@@ -33,10 +33,10 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesEffectorOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
+  class nAxesEffectorVelOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
-    nAxesEffectorOutput_vel() {}
+    nAxesEffectorVelOutput_vel() {}
   }; // class
 
 
@@ -45,16 +45,16 @@ namespace ORO_ControlKernel
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<nAxesEffectorOutput_vel>,
+  typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<nAxesEffectorVelOutput_vel>,
 				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								     ORO_ControlKernel::KernelBaseFunction>::Result > nAxesVelEffector_typedef;
+								     ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
 
-  class nAxesVelEffector
-    : public nAxesVelEffector_typedef
+  class nAxesEffectorVel
+    : public nAxesEffectorVel_typedef
   {
   public:
-    nAxesVelEffector(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
-    virtual ~nAxesVelEffector();
+    nAxesEffectorVel(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
+    virtual ~nAxesEffectorVel();
 
     virtual bool componentLoaded();
     virtual bool componentStartup();
@@ -76,4 +76,4 @@ namespace ORO_ControlKernel
 
 } // namespace
 
-#endif // __N_AXES_VEL_EFFECTOR_H__
+#endif // __N_AXES_EFFECTOR_VEL_H__

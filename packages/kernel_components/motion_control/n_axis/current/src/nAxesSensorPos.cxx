@@ -8,10 +8,10 @@ namespace ORO_ControlKernel
   using namespace ORO_DeviceInterface;
 
 
-  nAxesPosSensor::nAxesPosSensor(unsigned int num_axes, 
+  nAxesSensorPos::nAxesSensorPos(unsigned int num_axes, 
 				 std::vector<AxisInterface*> axes,
 				 std::string name)
-    : nAxesPosSensor_typedef(name),
+    : nAxesSensorPos_typedef(name),
       _num_axes(num_axes), 
       _axes(axes),
       _position_local(num_axes),
@@ -27,10 +27,10 @@ namespace ORO_ControlKernel
   }
 
 
-  nAxesPosSensor::~nAxesPosSensor(){};
+  nAxesSensorPos::~nAxesSensorPos(){};
   
 
-  void nAxesPosSensor::pull()
+  void nAxesSensorPos::pull()
   {
     // copy values from position sensors to local variable
     for (unsigned int i=0; i<_num_axes; i++)
@@ -39,23 +39,23 @@ namespace ORO_ControlKernel
 
 
 
-  void nAxesPosSensor::calculate()
+  void nAxesSensorPos::calculate()
   {}
 
 
   
-  void nAxesPosSensor::push()      
+  void nAxesSensorPos::push()      
   {
     _position_DOI->Set(_position_local);
   }
 
 
 
-  bool nAxesPosSensor::componentLoaded()
+  bool nAxesSensorPos::componentLoaded()
   {
     // get interface to Input data types
-    if (!Sensor< Writes<nAxesPosSensorInput_pos> >::Input::dObj()->Get("Position", _position_DOI)){
-      cerr << "nAxesPosSensor::componentLoaded() DataObjectInterface not found" << endl;
+    if (!Sensor< Writes<nAxesSensorPosInput_pos> >::Input::dObj()->Get("Position", _position_DOI)){
+      cerr << "nAxesSensorPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
 
@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
   }
 
 
-  bool nAxesPosSensor::componentStartup()
+  bool nAxesSensorPos::componentStartup()
   {
     return true;
   }

@@ -158,8 +158,8 @@ namespace ORO_ControlKernel
     }
 
     // check size of properties
-    assert(_maximum_velocity.value().size() >= _num_axes);
-    assert(_maximum_acceleration.value().size() >= _num_axes);
+    assert(_maximum_velocity.value().size() == _num_axes);
+    assert(_maximum_acceleration.value().size() == _num_axes);
 
     // Instantiate Motion Profiles
     for( unsigned int i=0; i<_num_axes; i++)
@@ -173,6 +173,9 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorPos::moveTo(const std::vector<double>& position, double time)
   {
     MutexLock locker(_my_lock);
+
+    cerr << "nAxesGeneratorPos moveto" << endl;
+    
 
     // set desired position and time
     _traject_position = position;

@@ -13,7 +13,6 @@ namespace ORO_ControlKernel
       _num_axes(num_axes), 
       _velocity_local(num_axes),
       _position_desired(num_axes),
-      _timestep(0),
       _properties_read(false),
       _controller_gain("K", "Proportional Gain")
   {}

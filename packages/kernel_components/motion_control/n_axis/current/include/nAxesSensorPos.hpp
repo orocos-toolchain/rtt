@@ -1,4 +1,4 @@
-// $Id: nAxesPosSensor.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
+// $Id: nAxesSensorPos.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
 // Copyright (C) 2003 Klaas Gadeyne <klaas.gadeyne@mech.kuleuven.ac.be>
 //                    Wim Meeussen  <wim.meeussen@mech.kuleuven.ac.be>
 //  
@@ -17,8 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#ifndef __N_AXES_POS_SENSOR_H__
-#define __N_AXES_POS_SENSOR_H__
+#ifndef __N_AXES_SENSOR_POS_H__
+#define __N_AXES_SENSOR_POS_H__
 
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/PropertyExtension.hpp>
@@ -34,10 +34,10 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesPosSensorInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
+  class nAxesSensorPosInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
-    nAxesPosSensorInput_pos()
+    nAxesSensorPosInput_pos()
     {
       this->insert(ORO_ControlKernel::make_pair(0,"Position"));
     }
@@ -49,17 +49,17 @@ namespace ORO_ControlKernel
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesPosSensorInput_pos>,
+  typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorPosInput_pos>,
 				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesPosSensor_typedef;
+								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorPos_typedef;
 
-  class nAxesPosSensor
-    : public nAxesPosSensor_typedef
+  class nAxesSensorPos
+    : public nAxesSensorPos_typedef
   {
   public:
-    nAxesPosSensor(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
+    nAxesSensorPos(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
 
-    virtual ~nAxesPosSensor();
+    virtual ~nAxesSensorPos();
   
     // Redefining virtual members
     virtual void pull();
@@ -80,4 +80,4 @@ namespace ORO_ControlKernel
 
 } // end namespace ORO_nAxesControlKernel
 
-#endif // __N_AXES_POS_SENSOR_H__
+#endif // __N_AXES_SENSOR_POS_H__

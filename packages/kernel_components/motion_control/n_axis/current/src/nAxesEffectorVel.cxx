@@ -8,10 +8,10 @@ namespace ORO_ControlKernel
   using namespace ORO_DeviceInterface;
 
 
-  nAxesVelEffector::nAxesVelEffector(unsigned int num_axes, 
+  nAxesEffectorVel::nAxesEffectorVel(unsigned int num_axes, 
 					 std::vector<AxisInterface*> axes,
 					 std::string name)
-    : nAxesVelEffector_typedef(name),
+    : nAxesEffectorVel_typedef(name),
       _num_axes(num_axes), 
       _axes(axes),
       _velocity_local(num_axes)
@@ -20,45 +20,45 @@ namespace ORO_ControlKernel
   }
 
 
-  nAxesVelEffector::~nAxesVelEffector(){};
+  nAxesEffectorVel::~nAxesEffectorVel(){};
   
 
-  void nAxesVelEffector::pull()
+  void nAxesEffectorVel::pull()
   {
     // copy Output to local values
     _velocity_DOI->Get(_velocity_local);
   }
 
 
-  void nAxesVelEffector::calculate()
+  void nAxesEffectorVel::calculate()
   {}
 
   
-  void nAxesVelEffector::push()      
+  void nAxesEffectorVel::push()      
   {
     for (unsigned int i=0; i<_num_axes; i++)
       _axes[i]->drive(_velocity_local[i]);
   }
 
 
-  bool nAxesVelEffector::componentLoaded()
+  bool nAxesEffectorVel::componentLoaded()
   {
     return true;
   }
 
 
-  bool nAxesVelEffector::componentStartup()
+  bool nAxesEffectorVel::componentStartup()
   {
     // get interface to Output data type
-    if ( !nAxesVelEffector_typedef::Output::dObj(   )->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesVelEffector::componentStartup() DataObjectInterface not found" << endl;
+    if ( !nAxesEffectorVel_typedef::Output::dObj(   )->Get("Velocity", _velocity_DOI) ){
+      cerr << "nAxesEffectorVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
     return true;
   }
   
 
-  bool nAxesVelEffector::updateProperties(const PropertyBag& bag)
+  bool nAxesEffectorVel::updateProperties(const PropertyBag& bag)
   {
     cerr << "(Effector)  updateProperties()" << endl;
     return true;

@@ -16,7 +16,8 @@ planning and interpolation.
     include_dir kernel_components
 
     compile nAxesControllerPos.cxx nAxesControllerPosVel.cxx nAxesControllerVel.cxx
-    compile nAxesEffectorVel.cxx
-    compile nAxesGeneratorPos.cxx nAxesGeneratorSin.cxx
-    compile nAxesSensorPos.cxx
+    compile nAxesControllerCartesianPosVel.cxx nAxesControllerCartesianPos.cxx nAxesControllerCartesianVel.cxx
+    compile nAxesEffectorVel.cxx nAxesEffectorCartesianVel.cxx
+    compile nAxesGeneratorPos.cxx nAxesGeneratorSin.cxx nAxesGeneratorCartesianPos.cxx
+    compile nAxesSensorPos.cxx nAxesSensorCartesianPos.cxx 
 }
