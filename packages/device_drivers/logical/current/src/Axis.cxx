@@ -54,16 +54,16 @@ namespace CBDeviceDriver
 
     void Axis::positionSet( double newpos )
     {
-        posOffset = positionGet() - newpos;
+        posOffset = newpos -  positionGet();
     }
 
-    void Axis::callibrate( double calpos, double sign )
+    double Axis::calibrate( double calpos, double sign )
     {
         double currentPos;
         if ( sign < 0 )
             {
                 if ( mm_to_inc > 0)
-                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet()) / mm_to_inc;
+                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet() ) / mm_to_inc;
                 else
                     currentPos = calpos - encoder->positionGet() / mm_to_inc;
             }
@@ -74,8 +74,9 @@ namespace CBDeviceDriver
                 else
                     currentPos = calpos + (encoder->resolution() - encoder->positionGet() ) / mm_to_inc;
             }
-
+        double oldposition = positionGet();
         positionSet( currentPos );
+        return positionGet() - oldposition;
     }
 
     void Axis::turnSet( int t )

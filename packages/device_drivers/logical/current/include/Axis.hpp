@@ -78,7 +78,7 @@ namespace CBDeviceDriver
         /**
          * Resets the component.
          * @post The actuator is stopped
-         * @post Callibration is undone
+         * @post Calibration is undone
          */
         void reset();
 
@@ -94,7 +94,16 @@ namespace CBDeviceDriver
 
         void positionSet( double newpos );
         
-        void callibrate( double cal_pos, double direction);
+        /**
+         * Calibrate the Axis with a given calibration position
+         * and direction of the counter.
+         *
+         * @param cal_pos The postion of the last motor-zero before the switch.
+         * @param direction The positive or negative counting of the position
+         *        with respect to the positive movement.
+         * @return The change in position caused by this calibration.
+         */
+        double calibrate( double cal_pos, double direction);
 
         double velocity();
 
