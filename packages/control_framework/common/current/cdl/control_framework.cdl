@@ -1,0 +1,6 @@
+cdl_package OROPKG_CONTROL_FRAMEWORK {
+    display "Control Framework"
+    description "
+Control framework, including Control Kernel and Control
+Kernel Components."
+}
