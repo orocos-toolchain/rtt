@@ -81,6 +81,7 @@ SimulationEncoder::setDrive(double velocity)
 SimulationAxis::SimulationAxis(double initial, double min, double max):
   _enable(false),
   _velocity(0),
+  _max_drive_value(std::numeric_limits<double>::max()),
   _encoder(initial, min, max)
 {}
 
