@@ -19,5 +19,5 @@ planning and interpolation.
     compile nAxesControllerCartesianPosVel.cxx nAxesControllerCartesianPos.cxx nAxesControllerCartesianVel.cxx
     compile nAxesEffectorVel.cxx nAxesEffectorCartesianVel.cxx
     compile nAxesGeneratorPos.cxx nAxesGeneratorSin.cxx nAxesGeneratorCartesianPos.cxx
-    compile nAxesSensorPos.cxx nAxesSensorCartesianPos.cxx nAxesSensorCartesianPosForce.cxx 
+    compile nAxesSensorPos.cxx nAxesSensorCartesianPos.cxx nAxesSensorCartesianPosForce.cxx  nAxesSensorForce.cxx 
 }
