@@ -1,0 +1,112 @@
+#ifndef NAMESCONTROLKERNEL_HPP
+#define NAMESCONTROLKERNEL_HPP
+
+#include "BaseKernel.hpp"
+#include "DataServer.hpp"
+
+namespace ORO_ControlKernel
+{
+
+    using ORO_CoreLib::NameServer;
+    using ORO_CoreLib::NameServerRegistrator;
+
+    /**
+     * @brief The NamesControlKernel is a more advanced version than the DefaultControlKernel.
+     *
+     * As it has very much in common with the DefaultControlKernel, the way of addressing
+     * DataObjects is done through nameserving (strings). The basic interface to dataobjects
+     * is defined by the DataObjectServer. The Get and Set methods of that class are extended
+     * with an extra parameter which denotes the name of the object you need. The kernel
+     * also supports the 'Old way' of accessing DataObjects through a Get() method without
+     * strings. 
+     *
+     * The user must defines its DataTypes in such a way that the kernel can distinguish
+     * what must be nameserved (and under which name ) and what not. An example is as
+     * follows :
+     * @verbatim
+     *
+     * Example : A Container indicating the ServedTypes and the UnServedType of a DataObject.
+     * The constructor must contain the names for the ServedTypes.
+     *
+     * using std::make_pair;
+     *
+     * struct MyInputTypes 
+     *   : public ServedTypes<PosXY, MouseVelocities>, public UnServedType<NormalInputs>
+     * {
+     *   /**
+     *    * Obliged giving of names to all ServedTypes
+     *    *\/
+     *   InputTypes() 
+     *   {
+     *       // two objects of PosXY :
+     *       this->insert( make_pair(0,"Position1"));
+     *       this->insert( make_pair(0,"Position2"));
+     *       // one object of MouseVelocities :
+     *       this->insert( make_pair(1,"MouseVels"));
+     *       // not used, but allowed :
+     *       this->insert( make_pair(2,"Forces"));
+     *       this->insert( make_pair(3,"Torques"));
+     *   }
+     * };
+     * @endverbatim
+     *
+     * Next, you can pass this class name as the _InputType parameter of the 
+     * NamesControlKernel. The UnServedType< T > class can be used to convert
+     * your DefaultControlKernel components first, with substituting T with the
+     * type you used in that kernel.
+     *
+     * See the manual for more information.
+     */
+    template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
+    class NamesControlKernel
+        : public detail::BaseKernel< detail::StandardPort< typename detail::NamesDOFactory<_CommandType>::locked >, 
+                                     detail::StandardPort< typename detail::NamesDOFactory<_SetPointType>::fast >, 
+                                     detail::StandardPort< typename detail::NamesDOFactory<_InputType>::fast >, 
+                                     detail::StandardPort< typename detail::NamesDOFactory<_ModelType>::fast >, 
+                                     detail::StandardPort< typename detail::NamesDOFactory<_OutputType>::fast >, 
+                                     _Extension >,
+          public NameServerRegistrator< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
+    {
+    public:
+
+        /**
+         * Set up a control kernel.
+         */
+        NamesControlKernel()
+        {}
+
+        /**
+         * Create a nameserved control kernel.
+         */
+        NamesControlKernel(const std::string& name)
+            :NameServerRegistrator< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this)
+        {}
+
+        /**
+         * The NamesControlKernel nameserver.
+         */
+        static NameServer< NamesControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* > nameserver;
+            
+    protected:
+
+        virtual void updateComponents()
+        {
+            // This is called from the KernelBaseFunction
+            // one step is one control cycle
+            // The figure is a unidirectional graph
+            sensor->update();
+            estimator->update();
+            generator->update();
+            controller->update();
+            effector->update();
+        }
+    };
+
+    template <class C, class S, class I, class M, class O, class E >
+    //NamesControlKernel<C,S,I,M,O,E>::NameServer<NamesControlKernel<C,S,I,M,O,E>* > nameserver;
+    NameServer<NamesControlKernel<C,S,I,M,O,E>*> NamesControlKernel<C,S,I,M,O,E>::nameserver;
+
+                
+}
+
+#endif

@@ -34,6 +34,18 @@
  * This package is documented in <a href="../../../orocos-control-kernel.html">
  * The Orocos ControlKernel Manual</a>.
  */
-namespace ORO_ControlKernel {}
+namespace ORO_ControlKernel 
+{
+    /**
+     * @brief Private namespace for the Control Kernel
+     *
+     * This namespace is to hide all implementation 
+     * specific classes of the Control Kernel, which the
+     * user must not see to be able to use it.
+     */
+    namespace detail 
+    {
+    }
+}
 
 #endif

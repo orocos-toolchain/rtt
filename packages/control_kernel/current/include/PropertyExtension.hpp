@@ -18,7 +18,7 @@ namespace ORO_ControlKernel
      * to export them to the user or update them with user defined values.
      */
     class PropertyComponentInterface
-        :public ComponentAspectInterface<PropertyExtension>
+        :public detail::ComponentAspectInterface<PropertyExtension>
     {
         friend class PropertyExtension;
         friend class ComponentConfigurator;
@@ -27,7 +27,7 @@ namespace ORO_ControlKernel
          * The Default constructor 
          */
         PropertyComponentInterface( const std::string& _name )
-            : ComponentAspectInterface<PropertyExtension>(_name + std::string("::Property") ),
+            : detail::ComponentAspectInterface<PropertyExtension>(_name + std::string("::Property") ),
               master(0), localStore(_name,"Component Properties")
         {
         }
@@ -84,7 +84,7 @@ namespace ORO_ControlKernel
      * of the component property files.
      */
     class PropertyExtension
-        : public ExtensionInterface
+        : public detail::ExtensionInterface
     {
         public:
         typedef PropertyComponentInterface CommonBase;
@@ -94,7 +94,7 @@ namespace ORO_ControlKernel
          * Create a PropertyExtension.
          */
         PropertyExtension(KernelBaseFunction* _base ) 
-            : ExtensionInterface("Property"),
+            : detail::ExtensionInterface("Property"),
               // marshaller(out), demarshaller(in),
               save_props("SaveProperties","",false), generator("Generator","filename"),
               estimator("Estimator","filename"), controller("Controller","filename"), sensor("Sensor","filename"),

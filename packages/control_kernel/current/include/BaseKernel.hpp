@@ -1,334 +1,90 @@
-#ifndef MOTIONKERNEL_HPP
-#define MOTIONKERNEL_HPP
+#ifndef BASE_KERNEL_HPP
+#define BASE_KERNEL_HPP
 
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
 #include <corelib/RunnableInterface.hpp>
+#include "BaseComponents.hpp"
 
 namespace ORO_ControlKernel
 {
 
-    using namespace ORO_CoreLib;
-
-    /**
-     * A controller defined by the topological connections to Data Objects and
-     * its ports to it.
-     */
-    template <class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultAspect >
-    class Controller
-        : public _Aspect::Port::ReadPort< _SetPointType > ,
-          public _Aspect::Port::ReadPort< _ModelType >,
-          public _Aspect::Port::ReadPort< _InputType >,
-          public _Aspect::Port::WritePort< _OutputType >,
-          public _Aspect::BaseClass,
-          public NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >
+    namespace detail
     {
-    public:
-        typedef typename _SetPointType::DataType SetPointType;
-        typedef typename _InputType::DataType InputType;
-        typedef typename _ModelType::DataType ModelType;
-        typedef typename _OutputType::DataType OutputType;
-        typedef _Aspect Aspect;
-
-        typedef typename Aspect::Port::WritePort< _OutputType > Output;
-        typedef typename Aspect::Port::ReadPort< _SetPointType > SetPoint;
-        typedef typename Aspect::Port::ReadPort< _InputType > Input;
-        typedef typename Aspect::Port::ReadPort< _ModelType > Model;
-
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
-        Controller() : Aspect::BaseClass( "Controller" ) {}
-        Controller(const std::string& name ) 
-            : NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this), Aspect::BaseClass( name )  
-        {}
-            
-
-        /*
-          void addController( Controller* c)
-          {
-          if ( inKernel() )
-          {
-          c.readFrom(Input::dObj);
-          c.readFrom(Setpoint::dObj);
-          c.readFrom(Model::dObj);
-          c.writeTo (Output::dObj);
-          }
-          plugins.push_back(c);
-          }
-
-          void readFrom( const InputType* _data)
-          {
-          for (it
-            
-
-          void removeController( Controller* c)
-          {
-          vector<Controller*>::iterator it = find(plugins.begin(), plugins.end(), c);
-          if (it != plugins.end() )
-          plugins.erase(it);
-          }*/
-            
-        /**
-         * Method Overloading is not done across scopes.
-         * These lines introduce the methods anyway in this class.
-         */
-        using Input::readFrom;
-        using Model::readFrom;
-        using SetPoint::readFrom;
-        using Input::disconnect;
-        using Model::disconnect;
-        using SetPoint::disconnect;
-        using Output::disconnect;
-            
-            
-        /**
-         * The Controller nameserver.
-         */
-        static NameServer< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* > nameserver;
-            
-    };
-    
-    template <class S, class I, class M, class O, class A >
-    NameServer<Controller<S,I,M,O,A>*> Controller<S,I,M,O,A>::nameserver;
 
     /**
-     * A generator defined by the topological connections to Data Objects and
-     * its ports to it.
-     */
-    template <class _CommandType, class _InputType, class _ModelType, class _SetPointType, class _Aspect = DefaultAspect >
-    class Generator
-        : public _Aspect::Port::ReadPort< _CommandType >,
-          public _Aspect::Port::ReadPort< _InputType >,
-          public _Aspect::Port::ReadPort< _ModelType >,
-          public _Aspect::Port::WritePort< _SetPointType >,
-          public _Aspect::BaseClass,
-          public NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >
-            
-    {
-    public:
-        typedef typename _CommandType::DataType CommandType;
-        typedef typename _SetPointType::DataType SetPointType;
-        typedef typename _InputType::DataType InputType;
-        typedef typename _ModelType::DataType ModelType;
-        typedef _Aspect Aspect;
-
-        typedef typename Aspect::Port::ReadPort< _CommandType >   Command;
-        typedef typename Aspect::Port::ReadPort< _InputType >     Input;
-        typedef typename Aspect::Port::ReadPort< _ModelType >  Model ;
-        typedef typename Aspect::Port::WritePort< _SetPointType > SetPoint;
-            
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
-        Generator( ) : Aspect::BaseClass( "Generator" ) {}
-        Generator(const std::string& name ) 
-            : Aspect::BaseClass( name ), 
-              NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >(nameserver,name,this) 
-        {}
-            
-        /**
-         * Method Overloading is not done across scopes.
-         * These lines introduce the methods anyway in this class.
-         */
-        using Input::readFrom;
-        using Model::readFrom;
-        using Command::readFrom;
-        using Input::disconnect;
-        using Model::disconnect;
-        using Command::disconnect;
-        using SetPoint::disconnect;
-
-        /**
-         * The Generator nameserver.
-         */
-        static NameServer< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* > nameserver;
-    };
-
-    template <class C, class I, class M, class S, class A >
-    //Generator<C,I,M,S,A>::NameServer<Generator<C,I,M,S,A>* > nameserver;
-	NameServer<Generator<C,I,M,S,A>*> Generator<C,I,M,S,A>::nameserver;
-
-    /**
-     * An estimator defined by the topological connections to Data Objects and
-     * its ports to it.
-     */
-    template <class _InputType, class _ModelType, class _Aspect = DefaultAspect >
-    class Estimator
-        : public _Aspect::Port::ReadPort< _InputType >,
-          public _Aspect::Port::WritePort< _ModelType >,
-          public _Aspect::BaseClass,
-          public NameServerRegistrator< Estimator<_InputType, _ModelType, _Aspect>* >
-        
-    {
-    public:
-        typedef typename _InputType::DataType InputType;
-        typedef typename _ModelType::DataType ModelType;
-        typedef _Aspect Aspect;
-
-        typedef typename Aspect::Port::ReadPort< _InputType > Input;
-        typedef typename Aspect::Port::WritePort< _ModelType > Model;
-            
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
-        Estimator() : Aspect::BaseClass( "Estimator" ) {}
-        Estimator(const std::string& name ) 
-            : Aspect::BaseClass( name ), 
-              NameServerRegistrator< Estimator<_InputType, _ModelType,  _Aspect>* >(nameserver,name,this) 
-        {}
-            
-
-        using Input::disconnect;
-        using Model::disconnect;
-            
-        /**
-         * The Estimator nameserver.
-         */
-        static NameServer< Estimator<_InputType, _ModelType, _Aspect>* > nameserver;
-    };
-
-    template <class I, class M, class A >
-    NameServer<Estimator<I,M,A>*> Estimator<I,M,A>::nameserver;
-
-
-    /**
-     * An effector defined by the topological connections to Data Objects and
-     * its ports to it.
-     */
-    template <class _OutputType, class _Aspect = DefaultAspect >
-    class Effector
-        : public _Aspect::Port::ReadPort< _OutputType >,
-          public _Aspect::BaseClass,
-          public NameServerRegistrator< Effector<_OutputType, _Aspect>* >
-    {
-    public:
-        typedef typename _OutputType::DataType OutputType;
-        typedef _Aspect Aspect;
-
-        typedef typename Aspect::Port::ReadPort< _OutputType > Output;
-
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
-        Effector() : Aspect::BaseClass( "Effector" ) {}
-        Effector(const std::string& name ) 
-            : Aspect::BaseClass( name ), 
-              NameServerRegistrator< Effector<_OutputType, _Aspect>* >(nameserver,name,this) 
-        {}
-            
-        /**
-         * The Effector nameserver.
-         */
-        static NameServer< Effector<_OutputType, _Aspect>* > nameserver;
-            
-    };
-    template <class O, class A >
-    //Effector<O,A>::NameServer<Effector<O,A>* > nameserver;
-    NameServer<Effector<O,A>*> Effector<O,A>::nameserver;
-
-    /**
-     * A sensor defined by the topological connections to Data Objects and
-     * its ports to it.
-     */
-    template <class _InputType, class _Aspect = DefaultAspect >
-    class Sensor
-        : public _Aspect::Port::WritePort< _InputType >,
-          public _Aspect::BaseClass,
-          public NameServerRegistrator< Sensor<_InputType, _Aspect>* >
-        
-    {
-    public:
-        typedef typename _InputType::DataType InputType;
-        typedef _Aspect Aspect;
-            
-        typedef typename Aspect::Port::WritePort< _InputType > Input;
-            
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
-        Sensor() : Aspect::BaseClass( "Sensor" ) {}
-        Sensor(const std::string& name ) 
-            : Aspect::BaseClass( name ), 
-              NameServerRegistrator< Sensor<_InputType, _Aspect>* >(nameserver,name,this) 
-        {}
-            
-        /**
-         * The Sensor nameserver.
-         */
-        static NameServer< Sensor<_InputType, _Aspect>* > nameserver;
-    };
-
-    template <class I, class A >
-	//Sensor<I,A>::NameServer<Sensor<I,A>* > nameserver;
-    NameServer<Sensor<I,A>*> Sensor<I,A>::nameserver;
-
-    /**
-     * DefaultControlKernel is an example container class with default Components and user specified DataObjects.
-     * This is the main class you should be using as a starting point. It is the most simple implementation of
-     * a control kernel, new features will be added here first.
+     * @brief The BaseKernel is for internal use only.
      *
-     * The aim is such : 
-     * First, create a ControlKernel with al the types of the DataObjects filled in. Then you get access
-     * to the default components which are generated automatically by the ControlKernel. You inherit from
-     * these Components to fill in the specific functionality you wish to put in.
+     * It is the base class for all kinds of kernels which have
+     * all 5 data objects of the pattern for control. The aim is to
+     * provide the kernel developer with the most common functions
+     * which each specialised kernel will need. 
      *
-     * Extensions : An extension allows the DefaultControlKernel to extend the Components with methods and members
-     * of arbitrary interfaces. These Component extensions are called 'Aspects'. Furthermore, the extension defines
-     * functionality which will be executed after the DefaultControlKernel's functionality is done. This allows you
-     * to add data reporting, logic control etc to be executed after the control loop has finished.
      */
-    template <class _CommandType, class _SetPointType, class _InputType, class _ModelType, class _OutputType, class _Extension = KernelBaseFunction>
-    class DefaultControlKernel
-        : public _Extension,
-          public NameServerRegistrator< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >        
+    template <class _CommandPort, class _SetPointPort, class _InputPort, class _ModelPort, class _OutputPort, class _Extension = KernelBaseFunction>
+    class BaseKernel
+        : public _Extension
     {
     public:
-        typedef _CommandType CommandType;
-        typedef _SetPointType SetPointType;
-        typedef _InputType InputType;
-        typedef _ModelType ModelType;
-        typedef _OutputType OutputType;
+        /**
+         * @defgroup data_obj The Data Object Types
+         * @{
+         */
+        typedef typename _CommandPort::DataObjectType CommandData;
+        typedef typename _SetPointPort::DataObjectType SetPointData;
+        typedef typename _InputPort::DataObjectType InputData;
+        typedef typename _ModelPort::DataObjectType ModelData;
+        typedef typename _OutputPort::DataObjectType OutputData;
         typedef _Extension Extension;
+        /**
+         * @}
+         */
             
         /**
-         * The Aspect is defined by Kernel and user, through the Extension.
+         * @brief The Aspect, which serves as a common base class for all components,
+         * is defined through the Extension.
+         *
          * The Kernel specifies the port type, the user the extension and aspect.
          */
-        template< class E >
-        struct BaseAspect
-        {
-            typedef StandardPort Port;
-
-            typedef typename E::CommonBase BaseClass;
-        };
-
-        typedef BaseAspect<Extension> CommonAspect;
+        typedef typename Extension::CommonBase CommonBase;
 
         /**
+         * @defgroup data_types The Data Types for each DataObject
          * Determine here the different DataObject kinds of this kernel.
+         * @{
          */
-        typedef DataObject<SetPointType> SetPointData;
-        typedef DataObjectLocked<CommandType>  CommandData;
-        typedef DataObject<InputType>    InputData;
-        typedef DataObject<ModelType>    ModelData;
-        typedef DataObject<OutputType>   OutputData;
+        typedef typename SetPointData::DataType SetPointType;
+        typedef typename CommandData::DataType  CommandType;
+        typedef typename InputData::DataType    InputType;
+        typedef typename ModelData::DataType    ModelType;
+        typedef typename OutputData::DataType   OutputType;
+        /**
+         * @}
+         */
 
         // XXX TODO : Nameserved DataObject :
         // typedef DataContainer<SetPointType>::default SePointData; 
         // typedef DataContainer<CommandType>::locked CommandData;
         // typedef DataContainer<ModelType>::set_priority ModelType; 
 
-        typedef Controller<SetPointData, InputData, ModelData, OutputData, CommonAspect> DefaultController;
-        typedef Generator<CommandData, InputData, ModelData, SetPointData, CommonAspect> DefaultGenerator;
-        typedef Estimator<InputData, ModelData, CommonAspect> DefaultEstimator;
-        typedef Effector<OutputData, CommonAspect> DefaultEffector;
-        typedef Sensor<InputData, CommonAspect> DefaultSensor;
+
+        /**
+         * @defgroup def_comp Default Component Definitions
+         * @{
+         */
+        typedef Controller<_SetPointPort, _InputPort, _ModelPort, _OutputPort, CommonBase> DefaultController;
+        typedef Generator<_CommandPort, _InputPort, _ModelPort, _SetPointPort, CommonBase> DefaultGenerator;
+        typedef Estimator<_InputPort, _ModelPort, CommonBase> DefaultEstimator;
+        typedef Effector<_OutputPort, CommonBase> DefaultEffector;
+        typedef Sensor<_InputPort, CommonBase> DefaultSensor;
+        /**
+         * @}
+         */
             
         /**
-         * Set up a control kernel.
+         * @brief Set up the base kernel.
          */
-        DefaultControlKernel()
+        BaseKernel()
             : _Extension(this), controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
               effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
         {
@@ -346,25 +102,6 @@ namespace ORO_ControlKernel
             selectSensor(sensor);
         }
 
-        DefaultControlKernel(const std::string& name)
-            :NameServerRegistrator< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this),
-             controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
-             effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
-        {
-            // Load the default (empty) components.
-            loadController(controller);
-            loadGenerator(generator);
-            loadEstimator(estimator);
-            loadEffector(effector);
-            loadSensor(sensor);
-            // Select the default components for execution.
-            selectController(controller);
-            selectGenerator(generator);
-            selectEstimator(estimator);
-            selectEffector(effector);
-            selectSensor(sensor);
-        }
-            
         virtual bool initialize() 
         { 
             if ( !Extension::initialize() )
@@ -433,7 +170,8 @@ namespace ORO_ControlKernel
         }
             
         /**
-         * This method can be used to update the properties of this kernel.
+         * @brief This method is for updating the properties of this kernel.
+         *
          * Each application kernel will have different properties here.
          *
          * @param bag A PropertyBag containing the properties of this kernel.
@@ -447,7 +185,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Load a Controller Component into the kernel.
+         * @brief Load a Controller Component into the kernel.
          *
          * @param  name The name of the Controller Component.
          * @return True if the Controller Component could be found and loaded,
@@ -749,7 +487,7 @@ namespace ORO_ControlKernel
         }
             
         /**
-         * Load a Sensor Component into the kernel.
+         * @brief Load a Sensor Component into the kernel.
          *
          * @param  name The name of the Sensor Component.
          * @return True if the Sensor Component could be found and loaded,
@@ -763,7 +501,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * UnLoad a Sensor Component from the kernel.
+         * @brief UnLoad a Sensor Component from the kernel.
          *
          * @param  name The name of the Sensor Component.
          * @return True if the Sensor Component could be found and unloaded,
@@ -777,7 +515,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Select a Sensor Component from the kernel.
+         * @brief Select a Sensor Component from the kernel.
          *
          * @param  name The name of the Sensor Component to select.
          * @return True if the Sensor Component could be found and selected,
@@ -791,7 +529,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Query if a Sensor Component is loaded in the kernel.
+         * @brief Query if a Sensor Component is loaded in the kernel.
          *
          * @param  name The name of the Sensor Component to query.
          * @return True if the Sensor Component is loaded in the kernel,
@@ -845,7 +583,7 @@ namespace ORO_ControlKernel
         }
             
         /**
-         * Load a Effector Component into the kernel.
+         * @brief Load a Effector Component into the kernel.
          *
          * @param  name The name of the Effector Component.
          * @return True if the Effector Component could be found and loaded,
@@ -859,7 +597,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * UnLoad a Effector Component from the kernel.
+         * @brief UnLoad a Effector Component from the kernel.
          *
          * @param  name The name of the Effector Component.
          * @return True if the Effector Component could be found and unloaded,
@@ -873,7 +611,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Select a Effector Component from the kernel.
+         * @brief Select a Effector Component from the kernel.
          *
          * @param  name The name of the Effector Component to select.
          * @return True if the Effector Component could be found and selected,
@@ -887,7 +625,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Query if a Effector Component is loaded in the kernel.
+         * @brief Query if a Effector Component is loaded in the kernel.
          *
          * @param  name The name of the Effector Component to query.
          * @return True if the Effector Component is loaded in the kernel,
@@ -941,11 +679,6 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * The DefaultControlKernel nameserver.
-         */
-        static NameServer< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* > nameserver;
-            
-        /**
          * Returns the commands DataObject for this ControlKernel.
          */
         CommandData* getCommands() { return &commands; }
@@ -971,18 +704,6 @@ namespace ORO_ControlKernel
         OutputData* getOutputs() { return &outputs; }
 
     protected:
-
-        virtual void updateComponents()
-        {
-            // This is called from the KernelBaseFunction
-            // one step is one control cycle
-            // The figure is a unidirectional graph
-            sensor->update();
-            estimator->update();
-            generator->update();
-            controller->update();
-            effector->update();
-        }
 
         /**
          * The default Components, They write defaults to the DataObjects.
@@ -1019,12 +740,7 @@ namespace ORO_ControlKernel
         std::vector<DefaultEstimator*>  estimators;
         std::vector<DefaultSensor*>     sensors;
     };
-
-    template <class C, class S, class I, class M, class O, class E >
-    //DefaultControlKernel<C,S,I,M,O,E>::NameServer<DefaultControlKernel<C,S,I,M,O,E>* > nameserver;
-    NameServer<DefaultControlKernel<C,S,I,M,O,E>*> DefaultControlKernel<C,S,I,M,O,E>::nameserver;
-
-                
+    }
 }
 
 #endif

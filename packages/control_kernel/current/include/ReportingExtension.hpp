@@ -31,7 +31,7 @@ namespace ORO_ControlKernel
      * @see DefaultAspect
      */
   class ReportingComponent
-      : public ComponentAspectInterface<ReportingExtension>
+      : public detail::ComponentAspectInterface<ReportingExtension>
         {
 	  friend class ORO_ControlKernel::ReportingExtension;
 	  friend class ORO_ControlKernel::BackendReportingExtension;
@@ -102,7 +102,7 @@ namespace ORO_ControlKernel
      *
      */
     class ReportingExtension
-        :  public ExtensionInterface
+        :  public detail::ExtensionInterface
     {
         public:
                 
@@ -116,7 +116,7 @@ namespace ORO_ControlKernel
              *
              */
             ReportingExtension( KernelBaseFunction* _base=0 )
-                : ExtensionInterface("Reporter"), 
+                : detail::ExtensionInterface("Reporter"), 
                   period("ReportPeriod","in seconds", 0.1 ), 
                   interval("SubSamplingInterval","", 1),
                   repFile("ReportFile","", "report.txt"),

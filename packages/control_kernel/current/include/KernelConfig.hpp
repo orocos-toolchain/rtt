@@ -11,6 +11,7 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
+    using detail::ExtensionInterface;
 
     /**
      * A class for managing the initial kernel configuration.

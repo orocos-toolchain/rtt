@@ -7,42 +7,37 @@
 
 namespace ORO_ControlKernel
 {
-
-    using ORO_CoreLib::CallbackInterface;
-    using ORO_CoreLib::Completer;
-
-    /**
-     * A wrapper class that contains the ReadPort for a certain
-     * DataObjectType.
-     */
-    struct StandardReadPort
+    namespace detail 
     {
+        using ORO_CoreLib::CallbackInterface;
+        using ORO_CoreLib::Completer;
 
         /**
-         * A KernelModulReadPort interface defines an object that
-         * can read certain data from a _DataType.
-         * 
+         * @brief A Port which can be used to connect to, read from and
+         * disconnect from a DataObject of a given type.
+         *
+         * @param _DataObjectType The type of the DataObject to be read.
          */
-        template <class DataObjectType>
-        class ReadPort
+        template <class _DataObjectType>
+        class StandardReadPort
         {
         public:
             /**
              * The type of data the Port will read
              */
-            typedef DataObjectType DataType;
+            typedef _DataObjectType DataObjectType;
 
             /**
              * Default contructor.
              */
-            ReadPort() : _dObj(0) {}
+            StandardReadPort() : _dObj(0) {}
 
             /**
              * Read from the following data object.
              *
              * @param _data The data to be added.
              */
-            void readFrom( const DataType* _data ) 
+            void readFrom( const DataObjectType* _data ) 
             { 
                 if(_dObj == 0) 
                     {
@@ -55,7 +50,7 @@ namespace ORO_ControlKernel
              *
              * @param _data The data to be removed.
              */
-            void disconnect( const DataType* _data ) 
+            void disconnect( const DataObjectType* _data ) 
             { if (_dObj == _data) _dObj = 0; }
 
             /**
@@ -66,7 +61,7 @@ namespace ORO_ControlKernel
             /**
              * checked access to the DataObject.
              */
-            const DataType* dObj()
+            const DataObjectType* dObj()
             {
                 return _dObj;
             }
@@ -75,24 +70,20 @@ namespace ORO_ControlKernel
             /**
              * The real data.
              */
-            const DataType* _dObj;
+            const DataObjectType* _dObj;
         };
-    };
-
-    /**
-     * A wrapper class that holds the ReadPort implementation
-     * for an updated readport.
-     */
-    struct UpdatedReadPort
-    {
 
         /**
-         * A KernelModulReadPort interface defines an object that
-         * can read certain data from a _DataType. This port uses an
+         * @brief An Event based Port which can be used to connect to, read from and
+         * disconnect from a DataObject of a given type.
+         *
+         * This port uses an
          * event-update based isUpdated() method, which means that the DataObject
          * will notify this port when new data is available.
+         *
+         * @param _DataObjectType The type of the DataObject to be read.
          */
-        template <class DataObjType>
+        template <class _DataObjectType>
         class ReadPortUpdated
             : public ORO_CoreLib::EventListenerInterface
         {
@@ -100,7 +91,7 @@ namespace ORO_ControlKernel
             /**
              * The type of data the Port will read
              */
-            typedef DataObjType DataType;
+            typedef _DataObjectType DataObjectType;
 
             /**
              * Default contructor.
@@ -112,7 +103,7 @@ namespace ORO_ControlKernel
              *
              * @param _data The data to be added.
              */
-            void readFrom( const DataType* _data ) 
+            void readFrom( const DataObjectType* _data ) 
             { 
                 if(_dObj == 0) 
                     {
@@ -126,7 +117,7 @@ namespace ORO_ControlKernel
              *
              * @param _data The data to be removed.
              */
-            void disconnect( const DataType* _data ) 
+            void disconnect( const DataObjectType* _data ) 
             { 
                 if (_dObj == _data) 
                     {
@@ -148,7 +139,7 @@ namespace ORO_ControlKernel
             /**
              * checked access to the DataObject.
              */
-            const DataType* dObj()
+            const DataObjectType* dObj()
             {
                 updated = false;
                 return _dObj;
@@ -158,46 +149,40 @@ namespace ORO_ControlKernel
             /**
              * The real data.
              */
-            const DataType* _dObj;
+            const DataObjectType* _dObj;
 
             /**
              * Flag keeping track of DataObject updates.
              */
             bool updated;
         };
-    };
 
-    /**
-     * A wrapper class for a write port for writing to data objects
-     * of a certain type.
-     */
-    struct StandardWritePort
-    {
         /**
-         * A WritePort interface defines an object that
-         * can write certain data from a DataObject.
-         * 
+         * @brief A Port which can be used to connect to, write to and
+         * disconnect from a DataObject of a given type.
+         *
+         * @param _DataObjectType The type of the DataObject to be written to.
          */
-        template <class DataObjType>
-        class WritePort
+        template <class _DataObjectType>
+        class StandardWritePort
         {
         public:
             /**
              * The type of data the Port will read
              */
-            typedef DataObjType DataType;
+            typedef _DataObjectType DataObjectType;
 
             /**
              * Default contructor.
              */
-            WritePort() : _dObj(0) {}
+            StandardWritePort() : _dObj(0) {}
 
             /**
              * Read from the following data object.
              *
              * @param _data The data to be added.
              */
-            void writeTo( DataType* _data ) 
+            void writeTo( DataObjectType* _data ) 
             { if(_dObj == 0) _dObj = _data; }
 
             /**
@@ -205,13 +190,13 @@ namespace ORO_ControlKernel
              *
              * @param _data The data to be removed.
              */
-            void disconnect( DataType* _data )
+            void disconnect( DataObjectType* _data )
             { if (_dObj == _data) _dObj = 0; }
 
             /**
              * checked access to the DataObject.
              */
-            DataType* dObj()
+            DataObjectType* dObj()
             {
                 return _dObj;
             }
@@ -220,15 +205,40 @@ namespace ORO_ControlKernel
             /**
              * The real data.
              */
-            DataType* _dObj;
+            DataObjectType* _dObj;
         };
-    };
 
-    /**
-     * Grouping ports together.
-     */
-    struct StandardPort : public StandardReadPort, public StandardWritePort {};
-    struct UpdatedPort : public UpdatedReadPort, public StandardWritePort {};
+        /**
+         * @brief Type container which holds info about the DataObject type, 
+         * WritePort type and ReadPort type for standard ports.
+         *
+         * @param _DataObjectType The type of DataObject to be used.
+         */
+        template<class _DataObjectType>
+        struct StandardPort
+        {
+            /**
+             * @brief The DataObjectType of this port.
+             */
+            typedef _DataObjectType DataObjectType;
+
+            /**
+             * @brief The DataType of the DataObjectType of this port.
+             */
+            typedef typename DataObjectType::DataType DataType;
+
+            /**
+             * @brief The WritePort type of this port.
+             */
+            typedef StandardWritePort<DataObjectType> WritePort;
+
+            /**
+             * @brief The ReadPort type of this port.
+             */
+            typedef StandardReadPort<DataObjectType> ReadPort;
+        };
+    }
+
 }
 
 #endif

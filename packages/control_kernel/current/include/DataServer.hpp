@@ -85,7 +85,7 @@ namespace ORO_ControlKernel
          *
          * @return true if it could be get, false otherwise.
          */
-        bool Get( const std::string& name, DataObjectType &* m )
+        bool Get( const std::string& name, DataObjectType & m )
         {
             DataObjectType_ptr res;
             if ( (res = ns.getObject(prefix + name) ) )
@@ -301,7 +301,7 @@ namespace ORO_ControlKernel
         NameSubClass(const std::string& prefix, const pair_type& t, index_type index) {}
     };
 
-    template< typename _T0,
+    template< typename _T0= nil_type,
               typename _T1= nil_type,
               typename _T2= nil_type,
               typename _T3= nil_type,
@@ -325,14 +325,18 @@ namespace ORO_ControlKernel
         typedef _T9 T9;
     };
 
-    template<typename _DataType>
+    template<typename _DataType = nil_type>
     struct UnServedType
     {
         typedef _DataType DataType;
     };
 
+    namespace detail
+    {
+
     /**
-     * The containers below are used by the kernel to select the type of DataObject.
+     * @brief The containers below are used by the kernel to select the type of DataObject.
+     *
      * The template parameter is a user supplied ServedTypes derived type, which
      * conains the names and the types of each nameserved DataObject.
      *
@@ -385,9 +389,17 @@ namespace ORO_ControlKernel
 //         typedef NameSubClass< NameList<typename C::T0, NameList<typename C::T1, NameList<typename C::T2, NameList<typename C::T3, NameList<typename C::T4,NameList<typename C::T5,NameList<typename C::T6, NameList<typename C::T7, NameList<typename C::T8, NameList< typename C::T9> > > > > > > > > > > tree;
 //     };
 
-    // Automatic registration.
-    // BaseContainer contains all not nameserved objects in a standard DataObject.
-    // NameContainer contains all names of the following types, retrievable by an std::iterator.
+        /**
+         * @brief The templated nameserved dataobject. It can be of any DataType/DataObjectType.
+         *
+         * This class is the toplevel class that represents a dataobject of a given type
+         * (simple, locked, priority_set,...) and which contains one not nameserved type and
+         * multiple nameserved types.
+         *
+         *  Automatic registration.
+         * BaseContainer contains all not nameserved objects in a standard DataObject.
+         * NameContainer contains all names of the following types, retrievable by an std::iterator.
+         */
     template<typename _NameContainer>
     class NameServedDataObject
         : public _NameContainer::NamesTypes, 
@@ -403,6 +415,14 @@ namespace ORO_ControlKernel
         using DefaultDataObject::Get;
         using DefaultDataObject::Set;
 
+        /**
+         * @brief Create a NameServedDataObject, with a prefixed name.
+         *
+         * This constructs the nameserver for data objects for use
+         * within a kernel.
+         * @param prefix The scope of the nameserver, to avoid clashes with
+         *        other nameservers (the user does not see this).
+         */
         NameServedDataObject(const std::string prefix="") 
             : _NameContainer::NamesTypes(), 
               // MemberFromBase<typename _NameContainer::NamesTypes::reverse_iterator>( rend() ), // deprecated
@@ -411,9 +431,11 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * This allows the user to retrieve a DataObject<T> of his own type.
-         * He needs this to retrieve the DataObject itself from the NameServer (instead
-         * of its contents).
+         * @brief This allows the user to retrieve a DataObject<T> of type T.
+         *
+         * He needs this to retrieve the DataObject type itself from the NameServer 
+         * (instead of its contents or the type of its contents). It is a helper
+         * class.
          */
         template< typename _DataT >
         struct DataObject
@@ -429,6 +451,27 @@ namespace ORO_ControlKernel
     };
 
 
+        /**
+         * @brief A helper class for nameskernels, which defines the type
+         * for various kinds of dataobjects (locked, priority_set,...) 
+         *  within nameservers.
+         *
+         * This is purely for aiding in shorter writing of some template
+         * code. Its use is optional.
+         *
+         * @param DataNames The datatypes of the data exchanged.
+         */
+        template <class DataNames>
+        struct NamesDOFactory
+        {
+            typedef NameServedDataObject< DataObjectContainer< DataNames > > fast;
+            typedef NameServedDataObject< DataObjectLockedContainer< DataNames > > locked;
+            typedef NameServedDataObject< DataObjectPrioritySetContainer< DataNames > > priority_set;
+            typedef NameServedDataObject< DataObjectPriorityGetContainer< DataNames > > priority_get;
+        }; 
+
+
+    } // namespace detail
 
 }
 

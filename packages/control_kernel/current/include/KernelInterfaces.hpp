@@ -15,6 +15,9 @@ namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
     
+    namespace detail 
+    {
+
     /**
      * This interface allows us to manage extensions for configuration.
      */
@@ -97,6 +100,8 @@ namespace ORO_ControlKernel
         const std::string aspectName;
     };
 
+    }
+
     class KernelBaseFunction;
 
     /**
@@ -165,34 +170,22 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * The DefaultAspect is defined for ControlKernels that do not know of Aspects.
-     * This will be used as default template parameter for the components.
+     * @brief The DefaultBase is defined for ControlKernels that do not know of 
+     * Component Aspects.
+     * It will be used as default template parameter for the components.
      *
-     * An Aspect showing default ports and a ModuleControlInterface as base class.
-     * The Aspect defines some structural properties of a Component. These can be
-     * partially provided by the ControlKernel implementation and partially by the
-     * user. More typically, the user will provide the BaseClass through using
-     * Extensions and the ControlKernel will provide the Ports and DataObjects.
+     * A Component Aspect is the base classe that a Component
+     * must have to be able to be queried by the respective Kernel Extension.
+     * As a consequence, Extensions themselves define the base class they 
+     * require. This base class is passed through by the kernel to the Component.
+     * This relieves the burden of figuring it out manually from the shoulders of the user.
      */
-    struct DefaultAspect
-    {
-        /**
-         * The port includes the type information for the read and write
-         * ports of a component.
-         */
-        typedef StandardPort Port;
+    typedef ComponentBaseInterface DefaultBase;
 
-        /**
-         * The BaseClass is the type of which the component must inherit to acquire
-         * the envisioned functionality. Default is the BaseAspect.
-         */
-        typedef ComponentBaseInterface BaseClass;
-    };
-    
     /**
-     * Each extension to the DefaultControlKernel needs 
+     * Each extension to the BaseKernel needs 
      * to implement the RunnableInterface and define a
-     * common Aspect (CommonBase). 
+     * common Aspect (DefaultBase). 
      * This Extension is actually the base functionality
      * of a kernel, which can handle aspects.
      */
@@ -251,13 +244,13 @@ namespace ORO_ControlKernel
         void setPeriod( double p ) { frequency = 1./p; }
 
         template<class T>
-        void enable(ComponentAspectInterface<T>* c)
+        void enable(detail::ComponentAspectInterface<T>* c)
         {
             c->enableAspect(this);
         }
 
         template<class T>
-        void disable(ComponentAspectInterface<T>* c)
+        void disable(detail::ComponentAspectInterface<T>* c)
         {
             c->disableAspect();
         }
@@ -338,7 +331,11 @@ namespace ORO_ControlKernel
         Event kernelStopped;
         Event nullEvent;
     };
-        
+
+
+    namespace detail 
+    {
+
     /**
      * A class for composing Aspects (if you want more than
      * one Aspect in your component).
@@ -374,11 +371,20 @@ namespace ORO_ControlKernel
             }
 
         };
+
+    }
     
     /**
-     * A class for composing extensions (if you want more than
-     * one extension in your kernel).
+     * @brief A class for composing extensions (if you want more than
+     * one extension in your kernel). 
+     *
+     * Composing allows the user to specify order of initialisation,
+     * execution and cleanup of multiple Extensions in one kernel.
      * 
+     * @param First The first Extension to be started and executed
+     * relatively to the Second.
+     * @param Second The second Extension to be started and executed
+     * relatively to the First.
      */
     template<class First, class Second>
     struct CompositeExtension
@@ -388,7 +394,7 @@ namespace ORO_ControlKernel
              * The Aspects of Both Extensions are composed 
              * automatically in the same First,Second way.
              */
-            typedef CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
+            typedef detail::CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
             
             CompositeExtension() {}
             CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}

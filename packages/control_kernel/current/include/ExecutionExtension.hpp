@@ -1,7 +1,7 @@
 #ifndef KERNELSCRIPTABLEEXTENSION_HPP
 #define KERNELSCRIPTABLEEXTENSION_HPP
 
-#include "KernelExtensions.hpp"
+#include "KernelInterfaces.hpp"
 
 #include <execution/Processor.hpp>
 #include <execution/SystemContext.hpp>
@@ -26,7 +26,7 @@ namespace ORO_ControlKernel
     class ExecutionExtension;
 
     struct ExecutionComponentInterface
-        : ComponentAspectInterface<ExecutionExtension>
+        : detail::ComponentAspectInterface<ExecutionExtension>
     {
         std::string name;
         ExecutionExtension* master;
@@ -35,7 +35,7 @@ namespace ORO_ControlKernel
         DataSourceFactory* dataSourceFactory;
     public:
         ExecutionComponentInterface( const std::string& _name )
-            : ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
+            : detail::ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
               name( _name ), master( 0 ),
               commandfactory( 0 ), dataSourceFactory( 0 )
         {
@@ -61,7 +61,7 @@ namespace ORO_ControlKernel
      * the generated commands at runtime.
      */
     class ExecutionExtension
-        : public ExtensionInterface,
+        : public detail::ExtensionInterface,
         public GlobalFactory
     {
         Program* program;
@@ -70,7 +70,7 @@ namespace ORO_ControlKernel
         typedef ExecutionComponentInterface CommonBase;
 
         ExecutionExtension()
-            : ExtensionInterface( "Execution" ), program(0), sys_context( new SystemContext(  new SystemState ) )
+            : detail::ExtensionInterface( "Execution" ), program(0), sys_context( new SystemContext(  new SystemState ) )
         {
         }
 
