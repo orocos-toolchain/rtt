@@ -148,6 +148,9 @@ namespace ExecutionClient
             case Processor::StateMachineStatus::inactive:
                 return "inactive";
                 break;
+            case Processor::StateMachineStatus::stopping:
+                return "stopping";
+                break;
             case Processor::StateMachineStatus::stopped:
                 return "stopped";
                 break;
@@ -351,7 +354,7 @@ namespace ExecutionClient
                 }
             }
         catch (...) {
-            Logger::log() << Logger::Error << "Illegal Command."<<Logger::endl;
+            Logger::log() << Logger::Error << "Illegal Command : '"<< code <<"'"<<Logger::endl;
             return 0;
         }
                 
@@ -363,10 +366,11 @@ namespace ExecutionClient
         int id = task->getProcessor()->process( parseresult.first );
         // returns null if Processor not running or not accepting.
         if ( id == 0 ) {
-            Logger::log() << Logger::Error << "Command not accepted by"<<task->getName()<<"'s Processor !" <<Logger::endl;
+            Logger::log() << Logger::Error << "Command '"<< code <<"'not accepted by"<<task->getName()<<"'s Processor !" <<Logger::endl;
             delete parseresult.first;
             delete parseresult.second;
         } else {
+            Logger::log() << Logger::Debug << "Queueing Command "<<id<<" : '" << code << "'" <<Logger::endl;
             commandlist[ id ] = parseresult;
             checkCommandFinished( id );
             return id;
@@ -415,7 +419,7 @@ namespace ExecutionClient
     CommandInterface* command = i->second.first;
     ConditionInterface* condition = i->second.second;
     if ( command && executionext->getProcessor()->isProcessed( id ) &&
-         ( !condition || condition->evaluate() ) )
+         condition->evaluate() )
     {
         Logger::log() << Logger::Info << "Command " << id <<" finished."<<Logger::endl;
         delete command;
@@ -430,7 +434,7 @@ namespace ExecutionClient
     if ( i == commandlist.end() )
       return;
     if ( executionext->getProcessor()->isProcessed( id ) ) {
-        Logger::log() << Logger::Info << "Abandonning Command " << id <<Logger::endl;
+        Logger::log() << Logger::Debug << "Command " << id << " was processed."<<Logger::endl;
         delete i->second.first;
         delete i->second.second;
         commandlist.erase( i );

@@ -104,14 +104,12 @@ namespace ORO_Execution
             }
 
             void stop() {
-                if ( state->executePending() ) {
-                    action = 0;
+                if ( state->executePending() || state->inError() ) {
+                    action = &StateInfo::gostop;
                     state->requestFinalState();
-                    sstate = StateMachineStatus::stopped;
-                } else {
-                    if ( state->inError() )
-                        sstate = StateMachineStatus::error;
-                    return;
+                    sstate = StateMachineStatus::stopping;
+                    // try to 'atomically' stop :
+                    this->gostop();
                 }
             }
             void reset() {
@@ -139,6 +137,7 @@ namespace ORO_Execution
             bool stepping;
             std::string name;
         protected:
+            // Go through the entry of the initial state:
             void goactive() {
                 if ( state->executePending() == false ) {
                     if ( state->inError() )
@@ -148,6 +147,7 @@ namespace ORO_Execution
                 sstate = StateMachineStatus::active;
                 action = 0;
             }
+            // Go through the exit of the final state:
             void goinactive() {
                 if ( state->executePending() == false ) {
                     if ( state->inError() )
@@ -155,6 +155,16 @@ namespace ORO_Execution
                     return;
                 }
                 sstate = StateMachineStatus::inactive;
+                action = 0;
+            }
+            // Go through exit of former and entry of final state:
+            void gostop() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+                sstate = StateMachineStatus::stopped;
                 action = 0;
             }
             void run() {
@@ -457,9 +467,7 @@ namespace ORO_Execution
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && ( it->sstate == StateMachineStatus::paused
-                                     || it->sstate == StateMachineStatus::active
-                                     || it->sstate == StateMachineStatus::running) )
+        if ( it != states->end() && ( it->sstate != StateMachineStatus::inactive) )
             {
                 it->action = &StateInfo::stop;
                 return true;

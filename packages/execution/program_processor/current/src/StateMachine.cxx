@@ -67,9 +67,11 @@ namespace ORO_Execution
 
     void StateMachine::requestFinalState()
     {
-        // if we are inactive, don't do anything.
-        if ( current == 0 || this->inTransition() )
+        // if we are inactive or in transition, don't do anything.
+        if ( current == 0 || ( error == false && this->inTransition() ) )
             return;
+        // clear error flag
+        error = false;
         // If we are already in Final state, just handle again.
         if ( current == finistate )
         {
@@ -78,7 +80,11 @@ namespace ORO_Execution
         }
         else
         {
-            leaveState( current );
+            // if error in current Exit, skip it.
+            if ( currentExit && currentExit->inError() )
+                currentExit = 0;
+            else
+                leaveState( current );
             enterState( finistate );
             this->executePending();
         }
@@ -103,8 +109,6 @@ namespace ORO_Execution
                 {
                     // execute the default action (handle current)
                     handleState( current );
-                    // reset the reqstep iterator
-                    reqstep = stateMap.find( current )->second.end();
                     break;
                 }
                 else
@@ -190,8 +194,8 @@ namespace ORO_Execution
         ProgramInterface* copy = currentProg;
         if ( copy )
             return copy->getLineNumber();
-        if ( reqstep != stateMap.find(statecopy)->second.end() )
-            return get<3>(*reqstep); // if valid, return it.
+//         if ( reqstep != stateMap.find(statecopy)->second.end() )
+//             return get<3>(*reqstep); // if valid, return it.
 
         // if none of the above, return entry point :
         return statecopy->getEntryPoint();
@@ -273,8 +277,10 @@ namespace ORO_Execution
             }
             else
                 return false; // transition in progress
-        } else // if no currentExit, go to the next (or same) state right away.
+        } else { // if no currentExit, go to the next (or same) state right away.
             current = next;
+            reqstep = stateMap.find( current )->second.end();
+        }
         
         // if exit done :
         if( currentEntry ) {
@@ -342,13 +348,19 @@ namespace ORO_Execution
         if ( current != 0 && next != 0 )
         {
             // whatever state we are in, leave it.
-            leaveState( current );
+            // but if current exit is in error, skip it alltogether.
+            if ( currentExit && currentExit->inError() )
+                currentExit = 0;
+            else
+                leaveState( current );
             // do not call enterState( 0 )
             currentEntry = 0;
             currentHandle  = 0;
             next = 0;
             if ( initc )
                 initc->reset();
+            // reset error flag.
+            error = false;
             // this will execute the exitFunction (if any) and, if successfull,
             // set current to zero (using next).
             this->executePending();

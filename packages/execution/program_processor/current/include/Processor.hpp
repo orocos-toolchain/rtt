@@ -103,7 +103,7 @@ namespace ORO_Execution
          * The status of a StateMachine.
          */
         struct StateMachineStatus {
-            enum status { unloaded, inactive, activating, active, running, stopped, deactivating, paused, error };
+            enum status { unloaded, inactive, activating, active, running, stopping, stopped, deactivating, paused, error };
         };
 
         /**
