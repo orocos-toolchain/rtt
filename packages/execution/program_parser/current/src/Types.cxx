@@ -27,14 +27,12 @@
 #include "execution/Types.hpp"
 
 #include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
 // Include geometry support
+#ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #endif
 
-// Cappellini Consonni Extension
 #include <corelib/MultiVector.hpp>
-
 #include "execution/TaskVariable.hpp"
 
 namespace ORO_Execution
@@ -46,7 +44,6 @@ namespace ORO_Execution
   using ORO_Geometry::Wrench;
   using ORO_Geometry::Twist;
 #endif
-  // Cappellini Consonni Extension
   using ORO_CoreLib::Double6D;
 
   template<typename T>
@@ -72,10 +69,12 @@ namespace ORO_Execution
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type.
-  template<typename T, typename IndexType, typename SetType, typename Pred>
+  template<typename T, typename IndexType, typename SetType>
   class TemplateIndexTypeInfo
     : public TypeInfo
   {
+    typedef bool (*Pred)(IndexType);
+
       Pred _p;
   public:
       TemplateIndexTypeInfo(Pred p) : _p (p) {}
@@ -87,7 +86,7 @@ namespace ORO_Execution
 
     TaskAttributeBase* buildVariable()
       {
-        return new TaskIndexVariable<T, IndexType, SetType, Pred>(_p);
+        return new TaskIndexVariable<T, IndexType, SetType>(_p);
       }
 
     TaskAttributeBase* buildAlias( DataSourceBase* b )
@@ -140,15 +139,15 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
     data["frame"] = new TemplateTypeInfo<Frame>();
     data["rotation"] = new TemplateTypeInfo<Rotation>();
-    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double, bool (*)(int)>( &D6IndexChecker );
-    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double, bool (*)(int)>( &D6IndexChecker );
-    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double, bool (*)(int)>( &D3IndexChecker );
+    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double>( &D6IndexChecker );
+    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double>( &D6IndexChecker );
+    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double>( &D3IndexChecker );
 #endif
     data["int"] = new TemplateTypeInfo<int>();
     data["char"] = new TemplateTypeInfo<char>();
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
-    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, bool (*)(int)>( &D6IndexChecker );
+    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double>( &D6IndexChecker );
   }
 }

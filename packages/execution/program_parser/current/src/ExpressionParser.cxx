@@ -271,7 +271,6 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( wrenchexp );
     BOOST_SPIRIT_DEBUG_RULE( twistexp );
     BOOST_SPIRIT_DEBUG_RULE( vectorexp );
-    // Cappellini Consonni Extension
     BOOST_SPIRIT_DEBUG_RULE( double6Dexp );
     BOOST_SPIRIT_DEBUG_RULE( rotexp );
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
@@ -281,7 +280,6 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( wrenchctor );
     BOOST_SPIRIT_DEBUG_RULE( twistctor );
     BOOST_SPIRIT_DEBUG_RULE( vectorctor );
-    // Cappellini Consonni Extension
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor6 );
     BOOST_SPIRIT_DEBUG_RULE( rotationctor );
@@ -428,7 +426,6 @@ namespace ORO_Execution
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
 
-    // Cappellini Consonni Extension
     double6Dctor = (
         str_p( "double6d" )
       >> open_brace

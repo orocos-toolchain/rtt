@@ -177,6 +177,8 @@ namespace ORO_Execution
 
   void ValueChangeParser::seenbaredefinition()
   {
+    // type has been stored by calling 'seentype'
+    // valuename has been stored by calling 'storename'
     TaskAttributeBase* var = type->buildVariable();
     context->attributeRepository.setValue( valuename, var );
     lastdefinedvalue = var;

@@ -79,10 +79,12 @@ namespace ORO_Execution
       }
   };
 
-  template<typename T, typename Index, typename SetType, typename Pred>
+  template<typename T, typename Index, typename SetType>
   class TaskIndexVariable
     : public TaskAttribute<T>
   {
+    typedef bool (*Pred)(Index);
+
     Pred p;
   protected:
     typename VariableDataSource<T>::shared_ptr data;
@@ -119,16 +121,16 @@ namespace ORO_Execution
         DataSource<Index>* ind = dynamic_cast<DataSource<Index>*>( i.get() );
         if ( ! ind )
           throw bad_assignment();
-        return new AssignIndexCommand<T, Index, SetType,Pred>(data.get(), ind ,t, p );
+        return new AssignIndexCommand<T, Index, SetType>(data.get(), ind ,t, p );
       }
 
-    TaskIndexVariable<T, Index, SetType, Pred>* clone() const
+    TaskIndexVariable<T, Index, SetType>* clone() const
       {
-        return new TaskIndexVariable<T, Index, SetType, Pred>( p, data );
+        return new TaskIndexVariable<T, Index, SetType>( p, data );
       }
-    TaskIndexVariable<T, Index, SetType, Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
+    TaskIndexVariable<T, Index, SetType>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
       {
-        return new TaskIndexVariable<T, Index, SetType, Pred>( p, data->copy( replacements ) );
+        return new TaskIndexVariable<T, Index, SetType>( p, data->copy( replacements ) );
       }
   };
 

@@ -75,10 +75,12 @@ namespace ORO_Execution
       }
   };
 
-  template<typename T, typename Index, typename SetType, typename Pred>
+  template<typename T, typename Index, typename SetType>
   class AssignIndexCommand
     : public CommandInterface
   {
+      typedef bool (*Pred)(Index);
+
       typedef typename DataSource<Index>::shared_ptr IndexSource;
       IndexSource i;
       typedef typename VariableDataSource<T>::shared_ptr LHSSource;
