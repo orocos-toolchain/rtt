@@ -74,23 +74,8 @@ namespace ORO_CoreLib
      * \endcode 
      *  @see PropertyComposition.hpp
 	 */
-// 	template<typename T>
-// 	void decomposeProperty(PropertyMutatingIntrospection *pi, Property<T> &b)
-// 	{
-// //#warning Your newly defined type cannot be introspected because you have not defined a decomposeProperty function for you new type yet.
-// 		Property<std::string> error("error","Error PropertyIntrospection",
-//                 std::string("unknown type, see ") + std::string(__FILE__) + std::string(" for more information ") );
-// 		pi->introspect(error);
-// 	} 
-	
 	template<typename T>
-	void decomposeProperty(PropertyIntrospection *pi, const Property<T> &b)
-	{
-	  //#warning Your newly defined type cannot be introspected because you have not defined a decomposeProperty function for you new type yet.
-	  Property<std::string> error("error","Error PropertyIntrospection",
-				      std::string("unknown type ") + b.getName() + std::string(", see ") + std::string(__FILE__) + std::string(" for more information ") );
-	  pi->introspect(error);
-	} 
+	void decomposeProperty(PropertyIntrospection *pi, const Property<T> &b);
 	
 }
 
