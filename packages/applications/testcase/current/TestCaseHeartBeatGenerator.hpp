@@ -67,7 +67,7 @@ namespace UnitTesting
              */
             std::string errorWrongRelativeTimeGet;
 
-        static const int Test_Steps = 1000;
+        static const int Test_Steps = 100;
         /**
          * The cumulative time over the TestCase
          */

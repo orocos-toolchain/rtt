@@ -9,7 +9,7 @@ Always a good way of checking your installation."
     compile TestCase.cxx                        TestCaseEvent.cxx               TestCaseSimple.cxx              TestInit.cxx                  TestSuite.cxx
     compile TestCaseCPFDemarshaller.cxx         TestCaseEventInterrupt.cxx      TestCaseTasks.cxx               tests.cxx
     compile TestCaseCPFMarshaller.cxx           TestCaseHeartBeatGenerator.cxx  TestCaseTiming.cxx              
-    compile TestCaseReporting.cxx               TestRunnerNonInteractive.cxx    TestMain.cxx
+    compile TestCaseReporting.cxx               TestRunnerNonInteractive.cxx
 
      #TestRunnerInteractive.cxx TestCaseConditionVariableTimed.cxx TestCaseXMLRPCDemarshaller.cxx
 
