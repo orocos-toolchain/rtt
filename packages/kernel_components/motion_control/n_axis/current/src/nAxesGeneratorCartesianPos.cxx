@@ -115,7 +115,7 @@ namespace ORO_ControlKernel
     // go to desired stop position
     else{
       _position_out_local = _position_desired;
-      _velocity_out_local = _velocity_out_local * 0;
+      SetToZero(_velocity_out_local);
     }
   }
 
