@@ -13,6 +13,12 @@ EXTRA_DIST = \
 
 XMLDOCS=orocos-overview.xml   orocos-installation.xml orocos-manual.xml orocos-changes.xml orocos-faq.xml
 
+EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
+#need eps to include in pdf
+EXTRAEPS= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*eps" )
+# no need to copy png's the html will link to them
+#EXTRAPNG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*png" )
+
 DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	geometry-doc.sgml       motion-api.sgml \
 	components-doc.sgml    interpolation-api.sgml     \
@@ -43,6 +49,12 @@ endif
 
 docs: $(DOC)
 
+manual: pngimages epsimages
+	-cp $(EXTRAXMLDOCS) .
+	-cp $(EXTRAEPS) .
+	rm -f  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+	$(MAKE) orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+
 docxml: dochtml docpdf docps
 
 dochtml: pngimages $(HTMLDOCS)
@@ -60,7 +72,6 @@ docwebsite: $(WEBSITEDOCS)
 pngimages: $(PNGIMGS)
 
 epsimages: $(EPSIMGS)
-	cp @ECOS_REP@/eps/*.eps .
 
 .sgml.html:
 	docbook2html -u $<
@@ -114,3 +125,5 @@ epsimages: $(EPSIMGS)
 clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks *.website
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
+	$(RM) $(notdir $(EXTRAXMLDOCS))
+	$(RM) $(notdir $(EXTRAEPS))
