@@ -29,7 +29,6 @@
 #define PI_PROPERTYINTROSPECTION_HPP
 
 #include <string>
-#include "PropertyDecomposition.hpp"
 
 namespace ORO_CoreLib
 {
@@ -110,5 +109,7 @@ namespace ORO_CoreLib
             }
 	};
 }
+
+#include "PropertyDecomposition.hpp"
 
 #endif

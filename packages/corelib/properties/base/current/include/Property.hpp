@@ -170,11 +170,8 @@ namespace ORO_CoreLib
                 return _value;
             }
 
-            virtual void identify( PropertyIntrospection* pi) const
-            {
-                pi->introspect( *this );
-            }
-
+        virtual void identify( PropertyIntrospection* pi) const;
+        
         virtual bool update( const PropertyBase* other) 
         {
             detail::FillOperation<T> fillop(this);
@@ -243,6 +240,16 @@ namespace ORO_CoreLib
 }
 
 #include "PropertyIntrospection.hpp"
+
+namespace ORO_CoreLib
+{
+    template< class T>
+    void Property<T>::identify( PropertyIntrospection* pi) const
+    {
+        pi->introspect( *this );
+    }
+
+}
 
 // By PS : these are confusing, thus removed.
 

@@ -46,13 +46,6 @@ namespace ORO_CoreLib
     class PropertyBase
     {
         public:
-			
-			/**
-			 * The default constructor.
-			 */
-            PropertyBase()
-            {}
-
 			/**
 			 * The default destructor.
 			 */
