@@ -107,15 +107,28 @@ namespace ORO_CoreLib
 
         /**
          * Update the value of this Property with the value of an \a other Property.
+         * Update does a full update of the value, adding extra
+         * information if necessary, or in case of a Property<PropertyBag> adding missing
+         * Properties.
          * @return false if the Properties are of different type.
          */
         virtual bool update( const PropertyBase* other ) = 0;
 
         /**
-         * Make a deep copy of this Property with the value of an \a other Property.
+         * Make a deep copy of this Property with the value of an \a other Property,
+         * possibly causing duplicate information.
          * @return false if the Properties are of different type.
          */
         virtual bool copy( const PropertyBase* other ) = 0;
+
+        /**
+         * Refresh the value of this Property with the value of an \a other Property.
+         * Refresh does only the minimal update of the value, not adding extra
+         * information, or in case of a Property<PropertyBag> not adding extra
+         * Properties.
+         * @return false if the Properties are of different type.
+         */
+        virtual bool refresh( const PropertyBase* other ) = 0;
 
         /**
          * Helper function for update and copy. Implements the Visitor pattern

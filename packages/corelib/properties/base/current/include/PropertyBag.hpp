@@ -276,14 +276,23 @@ namespace ORO_CoreLib
     void refreshProperty( PropertyBag& target, const PropertyBase& source);
 
     /**
-     * This function updates the values of Property objects of one Bag with the
-     * values of Property objects of another bag.
-     * It creates new Property instances using if a Property
-     * is not present in the target and class copy on that Property.
+     * This function copies (recursively) the Properties of one Bag into
+     * another Bag. This may cause duplicate entries in \a target if \a source
+     * contains Properties with the same name. Use updateProperties to avoid
+     * duplicates and update exiting Properties.
      *
-     * You can use this function to add a copy of the contents of a property bag.
      */
     void copyProperties(PropertyBag& target, const PropertyBag& source);
+
+    /**
+     * This function updates (recursively) the values of Property objects of one Bag with the
+     * values of Property objects of another bag.
+     * It creates new Property instances if a Property
+     * is not present in the target and updates existing Properties.
+     *
+     * Use copyProperties if you want complete duplication.
+     */
+    void updateProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
@@ -309,12 +318,12 @@ namespace ORO_CoreLib
      */
 
     /**
-     * Updating a bag is actually refreshing the bag.
+     * Updating a bag is actually updating the bag.
      */
     inline
     void update(PropertyBag& a, const PropertyBag& b)
     {
-        refreshProperties(a,b);
+        updateProperties(a,b);
     }
 
     /**
@@ -322,6 +331,15 @@ namespace ORO_CoreLib
      */
     inline
     void copy(PropertyBag& a, const PropertyBag& b)
+    {
+        copyProperties(a,b);
+    }
+
+    /**
+     * Refresh a bag is actually refreshing a bag.
+     */
+    inline
+    void refresh(PropertyBag& a, const PropertyBag& b)
     {
         copyProperties(a,b);
     }

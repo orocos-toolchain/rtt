@@ -93,22 +93,36 @@ namespace ORO_CoreLib
     void copyProperties(PropertyBag& target, const PropertyBag& source)
     {
         // Make a full deep copy.
+        //iterate over source, clone all PropertyBases
+        PropertyBag::const_iterator it( source.getProperties().begin() );
+        while ( it != source.getProperties().end() )
+        {
+            // step 1 : clone a new instance (non deep copy)
+            PropertyBase* temp = (*it)->create();
+            // step 2 : deep copy clone with original.
+            temp->copy( *it );
+            // step 3 : add result to target bag.
+            target.add( temp );
+            ++it;
+        }
+    }
+
+    void updateProperties(PropertyBag& target, const PropertyBag& source)
+    {
+        // Make an updated if present, create if not present
         //iterate over source, update or clone PropertyBases
         PropertyBag::const_iterator it( source.getProperties().begin() );
         while ( it != source.getProperties().end() )
         {
             PropertyBase* mine = target.find( (*it)->getName() );
-            // This is the mistake, the clone created a 'symlink' to the
-            // exiting one and we copy into the original instead of 
-            // a clone().
             if (mine != 0)
-                mine->copy( (*it) );  // no need to make new one, just copy over existing one.
+                mine->update( (*it) );  // no need to make new one, just update existing one
             else
             {
                 // step 1 : clone a new instance (non deep copy)
-                PropertyBase* temp = (*it)->create();  // 1. XXX bag refers to props
+                PropertyBase* temp = (*it)->create();
                 // step 2 : deep copy clone with original.
-                temp->copy( *it );                     // 2. XXX make copy in refers !
+                temp->update( *it );
                 // step 3 : add result to target bag.
                 target.add( temp );
             }

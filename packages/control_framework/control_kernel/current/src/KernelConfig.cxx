@@ -100,7 +100,7 @@ namespace ORO_ControlKernel
             // update the list of selected components
             PropertyBag kernelbasebag( baseBag->value() );
             if (selectBag)
-                copyProperties( kernelbasebag, selectBag->value() );
+                updateProperties( kernelbasebag, selectBag->value() );
 
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.

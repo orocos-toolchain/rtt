@@ -204,6 +204,49 @@ namespace ORO_CoreLib
         };
 
         /**
+         * This operation refreshes one Property with another of the same type.
+         */
+        template< class T>
+        class RefreshOperation
+            : public PropertyOperation
+        {
+            Property<T>* incentor;
+            public:
+            RefreshOperation( Property<T>* _incentor ) : incentor(_incentor) {}
+            /**
+             * A binary operation. Operate on the Incentor if the complier agrees
+             * to cooperate with the operation.
+             */
+            bool command( const PropertyBase* _complier)
+            {
+                return _complier->accept(this);
+            }
+
+            using PropertyOperation::comply;
+
+            /**
+             * Comply with the RefreshOperation<T>. This function uses the
+             * efficient full-type Property<T>::refresh function and specialises
+             * the apropriate PropertyOperation base class method.
+             */
+            bool comply( const Property<T>* _complier )
+            {
+                incentor->refresh( *_complier );
+                return true;
+            }
+
+            virtual bool comply(const PropertyBase* _complier )
+            {
+                const Property<T>* comp = dynamic_cast< const Property<T>* >( _complier );
+                if ( comp ) {
+                    incentor->refresh( *comp );
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        /**
          * This operation makes a deep copy of one Property to a Property of the same type.
          */
         template< class T>

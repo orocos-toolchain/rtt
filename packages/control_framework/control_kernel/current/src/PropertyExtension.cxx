@@ -262,7 +262,7 @@ namespace ORO_ControlKernel
         comp->exportProperties( compProps );
         // merge with target file contents,
         // override allProps.
-        copyProperties( allProps, compProps );
+        ORO_CoreLib::updateProperties( allProps, compProps );
         // serialize and cleanup
         std::ofstream file( filename.c_str() );
         if ( file )

@@ -50,9 +50,9 @@ namespace ORO_CoreLib
      * @brief Helper functions for Property operations.
      *
      * These helper functions define for each type which
-     * operators need to be applied to copy or update a type T.
+     * operators need to be applied to copy, refresh or update a type T.
      *
-     * Remark that PropertyBag for example overloads these two functions.
+     * Remark that PropertyBag for example overloads these functions.
      * Standard STL Containers (like vector) don't need an overload ( operator= ).
      * All overloads must be in namespace ORO_CoreLib.
      *
@@ -66,6 +66,12 @@ namespace ORO_CoreLib
 
     template< class T>
     inline void update(T& a, const T& b)
+    {
+        a = b;
+    }
+
+    template< class T>
+    inline void refresh(T& a, const T& b)
     {
         a = b;
     }
@@ -178,6 +184,12 @@ namespace ORO_CoreLib
             return fillop.command( other );
         }
 
+        virtual bool refresh( const PropertyBase* other) 
+        {
+            detail::RefreshOperation<T> refop(this);
+            return refop.command( other );
+        }
+
         virtual bool copy( const PropertyBase* other )
         {
             detail::DeepCopyOperation<T> copop(this);
@@ -198,6 +210,14 @@ namespace ORO_CoreLib
                 if ( _description.empty() )
                     _description = orig.getDescription();
                 ORO_CoreLib::update( _value, orig.get() );
+            }
+
+            /**
+             * Refresh only the value.
+             */
+            void refresh( const Property<T>& orig)
+            {
+                ORO_CoreLib::refresh( _value, orig.get() );
             }
 
             /**

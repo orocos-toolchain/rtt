@@ -101,6 +101,8 @@ namespace ORO_CoreLib
                     return *this;
             }
 
+        using Property<PropertyBag>::refresh;
+
             virtual void refresh( TimeService::Seconds time_stamp )
             {
                 timeStamp = time_stamp;
