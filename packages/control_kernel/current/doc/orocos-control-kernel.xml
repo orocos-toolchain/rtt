@@ -969,7 +969,7 @@
 	<title>The KernelConfigurator</title>
 	<para>Control kernels ( and components )  can be configured at
 	  runtime with an XML file in the CPF (Component Property
-	  Format <citation>corba3</citation> ) format, 
+	  File <citation>CCM</citation> ) format, 
 	  defined by the OMG group. This group defines
 	  the standards to be used within CORBA, but they are usable
 	  outside CORBA too. The KernelConfigurator is a class which
@@ -1290,6 +1290,7 @@
   </chapter>
 <bibliography><title>Bibliography</title>
   <biblioentry xreflabel="corba3">
+    <abbrev>CCM</abbrev>
     <title>CORBA Components</title>
     <pubdate>2002</pubdate>
     <publisher><publishername>Object Management Group</publishername></publisher>
