@@ -65,8 +65,10 @@ public:
   virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const;
   virtual std::vector<std::string> sensorList() const;
 
+  double getDriveValue() const;
   void   setMaxDriveValue( double v_max ) { _max_drive_value = v_max; }
 private:
+  double      _drive_value;
   bool        _enable;
   double      _velocity;
   double      _max_drive_value;
