@@ -24,8 +24,10 @@
 namespace ORO_DeviceInterface
 {
     /**
-     * The most generic interface to a position/turn counter,
-     * for encoding positions. Within one turn, there are
+     * @brief The most generic interface to a position/turn counter,
+     * for encoding positions.
+     *
+     * Within one turn, there are
      * resolution() position increments. After a turn-increment,
      * the position will be exactly zero or resolution(). An
      * upcounting() == true encoder will count from zero to
@@ -36,6 +38,8 @@ namespace ORO_DeviceInterface
     class EncoderInterface
     {
     public:
+        virtual ~EncoderInterface() {}
+
         /**
          * Get the position within the current turn.
          */

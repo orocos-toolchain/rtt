@@ -32,7 +32,7 @@ namespace ORO_DeviceInterface
      * A class for reading digital inputs.
      */
     class DigitalInInterface
-                : public NameServerRegistrator<DigitalInInterface*, std::string>
+                : private NameServerRegistrator<DigitalInInterface*, std::string>
     {
         public:
         /**
@@ -42,7 +42,9 @@ namespace ORO_DeviceInterface
          * @param name
          *        The name which will refer to this instance.
          */
-        DigitalInInterface( const std::string& name ) : NameServerRegistrator<DigitalInInterface*, std::string>( nameserver, name, this )
+        DigitalInInterface( const std::string& name )
+            : NameServerRegistrator<DigitalInInterface*, std::string>
+        ( nameserver, name, this )
         { }
 
         /**

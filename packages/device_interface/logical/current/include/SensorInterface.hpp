@@ -29,53 +29,42 @@ namespace ORO_DeviceInterface
      * You can read a value/structure
      *
      * The OutputData is the actual SI unit of the measured data
-     * (e.g. force, velocity,...)
+     * (e.g. force, velocity,...) and is in case of a 1D sensor a double.
      */
     template <class SensorData>
     class SensorInterface
     {
         public:
-        typedef SensorData Data;
+        typedef SensorData DataType;
 
         /**
-         * Read T, the structure that this sensor 'exports'
+         * Read the Data, the structure that this sensor 'exports'
          * @return 0 on success
          * @return -1 on failure
          */
-        virtual int readSensor( Data& p ) = 0;
+        virtual int readSensor( DataType& p ) const = 0;
+
+        /**
+         * Return the last measurement.
+         */
+        virtual DataType readSensor() const = 0;
 
         /**
          * Returns the maximum value this sensor can read
          */
-        virtual Data maxMeasurement() = 0;
+        virtual DataType maxMeasurement() const = 0;
 
         /**
          * Returns the minimum value this sensor can read
          */
-        virtual Data minMeasurement() = 0;
+        virtual DataType minMeasurement() const = 0;
 
         /**
          * Returns the value which would be given with the sensor in ideal
          * rest.
          */
-        virtual Data zeroMeasurement() = 0;
-
-        /**
-         * Apply an offset to the Data
-         * 
-         * @deprecated
-         */
-        virtual void offsetSet( const Data& ) {}
-
-        /**
-         * Scale the raw data so that the Data conforms
-         * an SI unit.
-         *
-         * @deprecated
-         */
-        virtual void scaleSet( const Data&  ) {}
+        virtual DataType zeroMeasurement() const = 0;
     };
-
 }
 
 #endif // SENSORINTERFACE_HPP
