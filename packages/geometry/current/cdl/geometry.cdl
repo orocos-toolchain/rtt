@@ -1,5 +1,10 @@
 cdl_package OROPKG_GEOMETRY {
     display "Geometry library"
+    description "
+A Library representing the classes Vector, Rotation,
+Frame, Twist, Wrench, Path, VelocityProfile, Trajectory
+and others for 3D path planning and interpolation."
+
     include_dir geometry
     
     compile debug_macros.cxx error_stack.cxx utility.cxx countingnumbers.cxx

@@ -2,7 +2,7 @@
 dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
 	orocos-control-kernel.html kernel_component_interaction.png control-pattern.png \
-	component_life_cycle.png ExtensionTimeLine.png component_data_production.png
+	component_life_cycle.png ExtensionTimeLine.png component_data_production.png \
 	control-pattern.png standard-control-kernel.png \
 	orocos-control-kernel.pdf \
 	orocos-control-kernel.ps

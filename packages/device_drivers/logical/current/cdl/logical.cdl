@@ -1,6 +1,12 @@
 
 cdl_package OROPKG_DEVICE_DRIVERS_LOGICAL {
     display "C++ Interfaces to Logical Devices"
+    description "
+This package has some 'common' implementations
+for addressing single channels of devices. For
+example, a DigitalInput channel, an Axis or
+a Drive. They interface with Device Interface
+classes."
     parent OROPKG_DEVICE_DRIVERS
 
     include_dir device_drivers

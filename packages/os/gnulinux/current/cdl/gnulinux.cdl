@@ -2,6 +2,13 @@
 
 cdl_package OROPKG_OS_GNULINUX {
     display "GNU/Linux OS abstraction layer"
+    description "
+This package is used if you want to compile
+Orocos for 'User Space', not realtime. The
+periodic threading support is very limited
+and the package is mainly used for testing and
+debugging other packages."
+
     include_dir os
     parent OROPKG_OS
 

@@ -1,6 +1,12 @@
 
 cdl_package OROPKG_CORELIB_TASKS {
     display "Realtime Task Infrastructure"
+    description "
+This packages allows you to create Tasks and (realtime) Threads.
+Tasks of equal priority are serialised in the same Thread.
+Tasks execute RunnableInterface instances or their own
+overridable methods."
+
     include_dir corelib
 
     parent OROPKG_CORELIB

@@ -1,5 +1,12 @@
 cdl_package OROPKG_OS {
     display "Common C and C++ OS interfaces"
+    description "
+This Package groups operating system abstractions.
+It defines a Thread, Mutex, IO and the capabilities
+of the system for which Orocos is compiled. You
+can only select one OS Package which is called the
+'target'."
+
     include_dir os
     
     #compile ConditionVariableTimed.cxx  

@@ -1,7 +1,13 @@
 
 cdl_package OROPKG_CORELIB_STATE {
     display "State infrastructure"
-    parent OROPKG_CORELIB
+    description "
+This package contains classes describing
+States and how transitions between states
+can be defined. It is used by the Execution
+Package to form Machine States."
+
+    Parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
     include_dir corelib
