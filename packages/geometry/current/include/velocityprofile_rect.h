@@ -22,7 +22,10 @@
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
-
+	/**
+	 * A rectangular VelocityProfile generates a constant velocity
+	 * for moving from A to B.
+	 */
 	class VelocityProfile_Rectangular : public VelocityProfile 
 		// Defines a rectangular velocityprofile.
 		// (i.e. constant velocity)

@@ -43,16 +43,18 @@ namespace ORO_Geometry {
 
 
 
+	/**
+	 * An abstract class that implements
+	 * a trajectory contains a cartesian space trajectory and an underlying
+	 * velocity profile.
+	 */
 	class Trajectory 
-	// An abstract class that implements
-	// a trajectory contains a cartesian space trajectory and an underlying
-	// velocity profile.
 	{
 	public:
-        virtual Path*      GetPath() = 0;
+        //virtual Path*      GetPath() = 0;
         // The underlying Path
 
-        virtual VelocityProfile* GetProfile() = 0;
+        //virtual VelocityProfile* GetProfile() = 0;
         // The velocity profile
        
 		virtual double Duration() const = 0;
@@ -66,6 +68,7 @@ namespace ORO_Geometry {
 		virtual Twist Acc(double time) const = 0;
 		// The acceleration of the trajectory at <time>.
 
+		virtual Trajectory* Clone() const = 0;
 #if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const = 0;
 		static Trajectory* Read(istream& is);

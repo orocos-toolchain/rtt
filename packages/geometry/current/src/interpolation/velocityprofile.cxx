@@ -17,6 +17,7 @@
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
 #include "geometry/velocityprofile_rect.h"
+#include "geometry/velocityprofile_dirac.h"
 #include "geometry/velocityprofile_trap.h"
 #include "geometry/velocityprofile_traphalf.h"
 
@@ -31,7 +32,11 @@ VelocityProfile* VelocityProfile::Read(istream& is) {
 	char storage[25];
 	EatWord(is,"[",storage,sizeof(storage));
 	Eat(is,'[');
-	if (strcmp(storage,"CONSTVEL")==0) {
+	if (strcmp(storage,"DIRACVEL")==0) {
+		Eat(is,']');
+		IOTracePop();
+		return new VelocityProfile_Dirac();
+	} else if (strcmp(storage,"CONSTVEL")==0) {
 		double vel;
 		is >> vel;
 		Eat(is,']');

@@ -18,11 +18,7 @@
 
 #include "frames.h"
 
-#ifdef HAVE_RTSTL
-#include <rtstl/rtstl.hpp>
-#else
 #include <vector>
-#endif
 
 #if OROINT_OS_STDIOSTREAM
 #include "frames_io.h"

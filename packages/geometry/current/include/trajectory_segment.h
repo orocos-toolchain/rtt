@@ -28,11 +28,10 @@ namespace ORO_Geometry {
 #endif
 
 
-/**
- * Trajectory_Segment combines a VelocityProfile and a Path to a 
- * trajectory
- */
-
+	/**
+	 * Trajectory_Segment combines a VelocityProfile and a Path to a 
+	 * trajectory
+	 */
 	class Trajectory_Segment :  public Trajectory 
 	{
 		VelocityProfile* motprof;
@@ -42,12 +41,13 @@ namespace ORO_Geometry {
 		/**
 		 * This constructor assumes that <geom> and <_motprof> are initialised correctly.
 		 */
-		Trajectory_Segment(Path* geom, VelocityProfile* _motprof, bool _aggregate=true);
+		Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, bool _aggregate=true);
+
 		/**
 		 * This constructor assumes that <geom> is initialised and <_motprof> needs to be
 		 * set according to <duration>.
 		 */
-		Trajectory_Segment(Path* geom, VelocityProfile* _motprof, double duration, bool _aggregate=true);
+		Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, double duration, bool _aggregate=true);
 
 		virtual Path* GetPath();
 		virtual VelocityProfile* GetProfile();
@@ -61,6 +61,13 @@ namespace ORO_Geometry {
 		// The velocity of the trajectory at <time>.
 		virtual Twist Acc(double time) const;
 		// The acceleration of the trajectory at <time>.
+
+ 		virtual Trajectory* Clone() const
+			{
+				if ( aggregate )
+					return new Trajectory_Segment( geom->Clone(), motprof->Clone(), true );
+				return new Trajectory_Segment( geom, motprof, false );
+			}
 
 #if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;

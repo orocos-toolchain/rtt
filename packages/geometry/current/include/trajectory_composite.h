@@ -19,45 +19,54 @@
 
 #include "trajectory.h"
 
-#ifdef HAVE_RTSTL
-#include <rtstl/rtstl.hpp>
-#else
 #include <vector>
-#endif
-
-
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
 
-class Trajectory_Composite: public Trajectory 
-	// Trajectory_Composite implements a trajectory that is composed
-	// of underlying trajectoria.  Call Add to add a trajectory
-	{
-		typedef std::vector<Trajectory*> VectorTraj;
-		typedef std::vector<double>         VectorDouble;
-		VectorTraj vt;      // contains the element Trajectories
-		VectorDouble  vd;      // contains end time for each Trajectory
-		double duration;    // total duration of the composed Trajectory
-	public:
-		Trajectory_Composite();
-		// Constructs an empty composite
+	/*
+	 * Trajectory_Composite implements a trajectory that is composed
+	 * of underlying trajectoria.  Call Add to add a trajectory.
+     *
+     * @deprecated Use Path_Composite or Path_RoundedComposite with Trajectory_Segment.
+	 */
+	class Trajectory_Composite: public Trajectory 
+    {
+        typedef std::vector<Trajectory*> VectorTraj;
+        typedef std::vector<double>      VectorDouble;
+        VectorTraj vt;      // contains the element Trajectories
+        VectorDouble  vd;      // contains end time for each Trajectory
+        double duration;    // total duration of the composed Trajectory
+    public:
+        Trajectory_Composite();
+        // Constructs an empty composite
 
-		virtual double Duration() const;
-		virtual Frame Pos(double time) const;
-		virtual Twist Vel(double time) const;
-		virtual Twist Acc(double time) const;
+        virtual double Duration() const;
+        virtual Frame Pos(double time) const;
+        virtual Twist Vel(double time) const;
+        virtual Twist Acc(double time) const;
 
-		virtual void Add(Trajectory* elem);
-		// Adds trajectory <elem> to the end of the sequence.
+        virtual void Add(Trajectory* elem);
+        // Adds trajectory <elem> to the end of the sequence.
 
-		virtual void Destroy();
+        virtual void Destroy();
+
+        virtual Trajectory* Clone() const
+        {
+            Trajectory_Composite* tmp =  new Trajectory_Composite();
+            VectorTraj::const_iterator it;
+            for (it=vt.begin();it!=vt.end();it++) {
+                tmp->Add( (*it)->Clone() );
+            }
+            return tmp;
+        }
+
 #if OROINT_OS_STDIOSTREAM
-		virtual void Write(ostream& os) const;
+        virtual void Write(ostream& os) const;
 #endif
-		virtual ~Trajectory_Composite();
-	};
+        virtual ~Trajectory_Composite();
+    };
 
 
 #ifdef USE_NAMESPACE

@@ -27,6 +27,9 @@ namespace ORO_Geometry {
 
 
 
+	/**
+	 * A Trapezoidal VelocityProfile implementation.
+	 */
 class VelocityProfile_Trap : public VelocityProfile 
 	{
 		// For "running" a motion profile :

@@ -28,7 +28,11 @@ namespace ORO_Geometry {
 #endif
 
 
-
+	/**
+	 * A 'Half' Trapezoidal VelocityProfile. A contructor flag
+	 * indicates if the calculated profile should be starting
+	 * or ending.
+	 */
 class VelocityProfile_TrapHalf : public VelocityProfile 
 	{
 		// For "running" a motion profile :

@@ -36,7 +36,7 @@ namespace ORO_Geometry {
     {
         if ((!is.good())&&(is.eof()) )
             {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_File err;
                 cout << err.Description();
                 abort();
@@ -119,7 +119,7 @@ void Eat( istream& is, int delim )
     int ch;
     ch=_EatSpace(is);
     if (ch != delim) {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_Exp_Delim err;
                 cout << err.Description();
                 abort();
@@ -139,7 +139,7 @@ void EatEnd( istream& is, int delim )
     int ch;
     ch=_EatSpace(is);
     if (ch != delim) {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_Exp_Delim err;
                 cout << err.Description();
                 abort();
@@ -186,7 +186,7 @@ void Eat(istream& is,const char* descript)
             is.putback(ch);
             if (count==0)
                 {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_Not_A_Space err;
                 cout << err.Description();
                 abort();
@@ -198,7 +198,7 @@ void Eat(istream& is,const char* descript)
             ch=(char)is.get();
             if (chdescr!=Upper(ch))
                 {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_Unexpected err;
                 cout << err.Description();
                 abort();
@@ -228,7 +228,7 @@ void EatWord(istream& is,const char* delim,char* storage,int maxsize)
         *p = (char) toupper(ch);
         ++p;
         if (size==maxsize) {
-#ifdef HAVE_RTSTL
+#ifdef HAVE_EXCEPTIONS
                 Error_BasicIO_ToBig err;
                 cout << err.Description();
                 abort();
