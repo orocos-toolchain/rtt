@@ -119,7 +119,7 @@ namespace ORO_Execution
       rule_t state;
       rule_t vardec;
       rule_t eventhandledecl;
-      rule_t subcontextdecl;
+      rule_t subMachinedecl;
       rule_t statecontent;
       rule_t statecontentline;
       rule_t entry;
@@ -149,7 +149,7 @@ namespace ORO_Execution
       rule_t contextparam;
       rule_t contextconstant;
       rule_t contextalias;
-      rule_t subcontextvarchange;
+      rule_t subMachinevarchange;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
@@ -194,7 +194,7 @@ namespace ORO_Execution
       void saveText( iter_t begin, iter_t end );
       void seenrootcontextinstantiation();
       void seenstatecontextend();
-      void seensubcontextinstantiation();
+      void seensubMachineinstantiation();
 
       void inpreconditions();
       void seenpreconditions();
@@ -208,7 +208,7 @@ namespace ORO_Execution
       void seencontextvariable();
       void seencontextparam();
 
-      void seenscvcsubcontextname( iter_t begin, iter_t end );
+      void seenscvcsubMachinename( iter_t begin, iter_t end );
       void seenscvcparamname( iter_t begin, iter_t end );
       void seenscvcexpression();
 

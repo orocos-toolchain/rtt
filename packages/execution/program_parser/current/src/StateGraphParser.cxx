@@ -115,7 +115,7 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( state );
         BOOST_SPIRIT_DEBUG_RULE( vardec );
         BOOST_SPIRIT_DEBUG_RULE( eventhandledecl );
-        BOOST_SPIRIT_DEBUG_RULE( subcontextdecl );
+        BOOST_SPIRIT_DEBUG_RULE( subMachinedecl );
         BOOST_SPIRIT_DEBUG_RULE( statecontent );
         BOOST_SPIRIT_DEBUG_RULE( statecontentline );
         BOOST_SPIRIT_DEBUG_RULE( entry );
@@ -145,18 +145,18 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( contextparam );
         BOOST_SPIRIT_DEBUG_RULE( contextconstant );
         BOOST_SPIRIT_DEBUG_RULE( contextalias );
-        BOOST_SPIRIT_DEBUG_RULE( subcontextvarchange );
+        BOOST_SPIRIT_DEBUG_RULE( subMachinevarchange );
 
         newline = ch_p( '\n' );
 
         production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation );
 
         rootcontextinstantiation =
-            (str_p( "RootContext" ) | str_p("RootMachine"))
+            str_p("RootMachine")
             >> contextinstantiation[ bind( &StateGraphParser::seenrootcontextinstantiation, this ) ];
 
         statecontext =
-            (str_p("StateMachine") | str_p("StateMachine"))[bind( &StateGraphParser::storeOffset, this)]
+            str_p("StateMachine")[bind( &StateGraphParser::storeOffset, this)]
             >> expect_ident( commonparser.identifier[ bind( &StateGraphParser::seenstatecontextname, this, _1, _2 )] )
             >> !newline
             >> expect_open( ch_p( '{' ) )
@@ -169,7 +169,7 @@ namespace ORO_Execution
 
         varline = !vardec >> newline;
 
-        vardec = eventhandledecl | subcontextdecl | contextmemvar | contextparam;
+        vardec = eventhandledecl | subMachinedecl | contextmemvar | contextparam;
 
         contextmemvar = ( contextconstant | contextvariable | contextalias )[bind( &StateGraphParser::seencontextvariable, this )];
         contextconstant = valuechangeparser.constantDefinitionParser();
@@ -180,8 +180,8 @@ namespace ORO_Execution
 
         eventhandledecl = "EventHandle"
                           >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::handledecl, this, _1, _2) ]);
-        subcontextdecl = ( str_p("SubContext") | str_p("SubMachine") )
-                         >> contextinstantiation[bind( &StateGraphParser::seensubcontextinstantiation, this )];
+        subMachinedecl = str_p("SubMachine")
+                         >> contextinstantiation[bind( &StateGraphParser::seensubMachineinstantiation, this )];
 
         contextinstantiation =
             expect_ident( commonparser.identifier[ bind( &StateGraphParser::seencontexttypename, this, _1, _2 )] )
@@ -236,16 +236,16 @@ namespace ORO_Execution
 
         eeline = !( varchanges | eecommand ) >> newline;
 
-        varchanges = subcontextvarchange | (
+        varchanges = subMachinevarchange | (
             valuechangeparser.constantDefinitionParser()
             | valuechangeparser.variableDefinitionParser()
             | valuechangeparser.aliasDefinitionParser()
             | valuechangeparser.variableAssignmentParser()
             )[ bind( &StateGraphParser::seenvaluechange, this ) ];
 
-        subcontextvarchange =
+        subMachinevarchange =
             "set"
-            >> commonparser.identifier[bind( &StateGraphParser::seenscvcsubcontextname, this, _1, _2 )]
+            >> commonparser.identifier[bind( &StateGraphParser::seenscvcsubMachinename, this, _1, _2 )]
             >> "."
             >> commonparser.identifier[bind( &StateGraphParser::seenscvcparamname, this, _1, _2 )]
             >> ( str_p( "=" ) | "to" )
@@ -574,7 +574,7 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error("State " + it->first + " not defined, but referenced to.");
         }
 
-        // prepend the commands for initialising the subcontext
+        // prepend the commands for initialising the subMachine
         // variables..
         assert( curtemplatecontext->getInitCommand() == 0);
         if ( varinitcommands.size() > 1 )
@@ -590,7 +590,7 @@ namespace ORO_Execution
 
         varinitcommands.clear();
 
-        // remove temporary subcontext peers from current task.
+        // remove temporary subMachine peers from current task.
         for( StateMachine::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
              it != curtemplatecontext->getChildren().end(); ++it ) {
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( *it );
@@ -847,19 +847,19 @@ namespace ORO_Execution
         curinstcontextname.clear();
     }
 
-    void StateGraphParser::seensubcontextinstantiation() {
-        if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
-            throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
+    void StateGraphParser::seensubMachineinstantiation() {
+        if( curtemplatecontext->getSubMachine( curinstcontextname ) != 0 )
+            throw parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." );
 
         // Since we parse in the task context, we must _temporarily_
-        // make each subcontext a peer of the task so that we can access
+        // make each subMachine a peer of the task so that we can access
         // its methods.
         if ( !context->addPeer( curinstantiatedcontext->getTaskContext() ) )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used as peer name in task '"+context->getName()+"'." );
             
-        curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
+        curtemplatecontext->addSubMachine( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         TaskAliasAttribute<std::string>* pv = new TaskAliasAttribute<std::string>( curinstantiatedcontext->getNameDS() );
@@ -904,7 +904,7 @@ namespace ORO_Execution
 
     void StateGraphParser::seencontextinstantiation()
     {
-        // Create a full depth copy (including subcontexts)
+        // Create a full depth copy (including subMachines)
         ParsedStateMachine* nsc = curcontextbuilder->build();
 
         // we stored the attributes which are params of nsc 
@@ -938,7 +938,7 @@ namespace ORO_Execution
 
         curinstantiatedcontext = nsc;
 
-        // prepend the commands for initialising the subcontext
+        // prepend the commands for initialising the subMachine
         // parameters
         if ( paraminitcommands.size() > 0 )
             {
@@ -980,7 +980,7 @@ namespace ORO_Execution
         return ret;
     }
 
-  void StateGraphParser::seenscvcsubcontextname( iter_t begin, iter_t end )
+  void StateGraphParser::seenscvcsubMachinename( iter_t begin, iter_t end )
   {
     // will fail if we have had our parse rule failing before (
     // happens when we encounter a normal set command... )
@@ -998,15 +998,15 @@ namespace ORO_Execution
   void StateGraphParser::seenscvcexpression()
   {
     assert( curtemplatecontext != 0 );
-    ParsedStateMachine* psc = curtemplatecontext->getSubContext( curscvccontextname );
+    ParsedStateMachine* psc = curtemplatecontext->getSubMachine( curscvccontextname );
     if ( ! psc )
       throw parse_exception_semantic_error(
-        "Use of unknown subcontext \"" + curscvccontextname +
-        "\"in subcontext parameter assignment." );
+        "Use of unknown SubMachine \"" + curscvccontextname +
+        "\"in SubMachine parameter assignment." );
     TaskAttributeBase* pvb = psc->getParameter( curscvcparamname );
     if ( !pvb )
       throw parse_exception_semantic_error(
-          "Subcontext \"" + curscvccontextname +
+          "SubMachine \"" + curscvccontextname +
           "\" does not have a parameter by the name \"" +
           curscvcparamname + "\"." );
 

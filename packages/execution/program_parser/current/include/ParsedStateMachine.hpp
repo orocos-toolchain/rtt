@@ -44,18 +44,18 @@ namespace ORO_Execution {
         : public StateMachine
     {
         typedef std::map<std::string, StateDescription*> StateNameMap;
-        // We need to keep the pointers to subcontexts in a
+        // We need to keep the pointers to subMachines in a
         // datasource, so that commands in the state methods can refer
         // to it using a single datasource.  On copying, we first copy
-        // the subcontexts, adding the datasources containing their
+        // the subMachines, adding the datasources containing their
         // pointers to the replacement map, so that the new commands
-        // refer to the correct subcontexts...  We store this as a
+        // refer to the correct subMachines...  We store this as a
         // DataSource refering to a StateMachine, even though we know
         // that it will only contain ParsedStateMachine's.  This is
         // because it will be used to call functions that accept
         // arguments of type StateMachine, and the DataSource's
         // unfortunately don't know about inheritance or casting...
-        typedef std::map<std::string, DataSource<StateMachine*>::shared_ptr> SubContextNameMap;
+        typedef std::map<std::string, DataSource<StateMachine*>::shared_ptr> SubMachineNameMap;
 
         typedef std::map<std::string, DataSourceBase::shared_ptr> VisibleReadOnlyValuesMap;
         typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
@@ -69,14 +69,14 @@ namespace ORO_Execution {
          */
         ParsedStateMachine(const std::string& text);
 
-        std::vector<std::string> getSubContextList() const;
-        ParsedStateMachine* getSubContext( const std::string& name ) const;
+        std::vector<std::string> getSubMachineList() const;
+        ParsedStateMachine* getSubMachine( const std::string& name ) const;
         /**
-         * Add a new SubContext to this context.  This function
+         * Add a new SubMachine to this context.  This function
          * returns the DataSource by which the program can refer to
          * the given StateMachine...
          */
-        DataSource<StateMachine*>* addSubContext( const std::string& name, ParsedStateMachine* sc );
+        DataSource<StateMachine*>* addSubMachine( const std::string& name, ParsedStateMachine* sc );
 
         ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const;
 
@@ -108,7 +108,7 @@ namespace ORO_Execution {
         DataSource<std::string>* getNameDS() const;
 
         /**
-         * Set the name of this context. If \a recurisive == true, this also sets subcontexts'
+         * Set the name of this context. If \a recurisive == true, this also sets subMachines'
          * names, to the given name + "." + the name they have been
          * instantiated by in this context.
          */
@@ -130,7 +130,7 @@ namespace ORO_Execution {
     private:
         VariableDataSource<std::string>::shared_ptr nameds;
 
-        SubContextNameMap subcontexts;
+        SubMachineNameMap subMachines;
 
         StateNameMap states;
 

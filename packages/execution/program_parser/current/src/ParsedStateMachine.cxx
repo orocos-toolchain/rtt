@@ -151,13 +151,13 @@ namespace ORO_Execution {
 
     using ORO_CoreLib::ConditionInterface;
 
-    std::vector<std::string> ParsedStateMachine::getSubContextList() const {
-        return mystd::keys( subcontexts );
+    std::vector<std::string> ParsedStateMachine::getSubMachineList() const {
+        return mystd::keys( subMachines );
     }
 
-    ParsedStateMachine* ParsedStateMachine::getSubContext( const std::string& name ) const {
-        SubContextNameMap::const_iterator i = subcontexts.find( name );
-        if ( i == subcontexts.end() )
+    ParsedStateMachine* ParsedStateMachine::getSubMachine( const std::string& name ) const {
+        SubMachineNameMap::const_iterator i = subMachines.find( name );
+        if ( i == subMachines.end() )
             return 0;
         assert( dynamic_cast<ParsedStateMachine*>( i->second->get() ) );
         return static_cast<ParsedStateMachine*>( i->second->get() );
@@ -192,9 +192,9 @@ namespace ORO_Execution {
         }
 
         // TODO : these DS'es are no longer used, since all goes through the StateGraphCommands now.
-        for ( SubContextNameMap::const_iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
+        for ( SubMachineNameMap::const_iterator i = subMachines.begin(); i != subMachines.end(); ++i )
         {
-            // we first copy the subcontexts, and add the datasources
+            // we first copy the subMachines, and add the datasources
             // containing their pointers to the replacements map, so
             // that the new commands will work on the correct
             // contexts...
@@ -203,7 +203,7 @@ namespace ORO_Execution {
             ParsedStateMachine* newcontext = oldcontext->copy( replacements );
 
             DataSource<StateMachine*>::shared_ptr ncds = new VariableDataSource<StateMachine*>( newcontext );
-            ret->subcontexts[i->first] = ncds;
+            ret->subMachines[i->first] = ncds;
             ret->addChild( newcontext ); // also copy tree info to StateMachine !
             newcontext->setParent( ret );
             replacements[i->second.get()] = ncds.get();
@@ -279,9 +279,9 @@ namespace ORO_Execution {
         for ( StateNameMap::iterator i = states.begin();
               i != states.end(); ++i )
             delete i->second;
-        // we own our subcontexts...
-        for ( SubContextNameMap::iterator i = subcontexts.begin();
-              i != subcontexts.end(); ++i )
+        // we own our subMachines...
+        for ( SubMachineNameMap::iterator i = subMachines.begin();
+              i != subMachines.end(); ++i )
             delete i->second->get();
         if ( context && context->getPeer("states") )
             context->getPeer("states")->removePeer( context->getName() );
@@ -318,10 +318,10 @@ namespace ORO_Execution {
         states[name] = state;
     }
 
-    DataSource<StateMachine*>* ParsedStateMachine::addSubContext( const std::string& name, ParsedStateMachine* sc ) {
-        assert( subcontexts.find( name ) == subcontexts.end() );
+    DataSource<StateMachine*>* ParsedStateMachine::addSubMachine( const std::string& name, ParsedStateMachine* sc ) {
+        assert( subMachines.find( name ) == subMachines.end() );
         DataSource<StateMachine*>* newds = new VariableDataSource<StateMachine*>( sc );
-        subcontexts[name] = newds;
+        subMachines[name] = newds;
         this->addChild( sc );
         sc->setParent( this );
         context->addPeer( sc->getTaskContext() );
@@ -394,7 +394,7 @@ namespace ORO_Execution {
         nameds->set( name );
         if ( recursive == false )
             return;
-        for ( SubContextNameMap::iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
+        for ( SubMachineNameMap::iterator i = subMachines.begin(); i != subMachines.end(); ++i )
         {
             std::string subname = name + "." + i->first;
             ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->second->get() );

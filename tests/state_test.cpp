@@ -226,7 +226,7 @@ void StateTest::testParseState()
         + " }\n"
         + " }\n"
         + " }\n"
-        + " RootContext X x( isten = 10,istrue = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        + " RootMachine X x( isten = 10,istrue = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
         ;
 
     this->doState( prog, &gtc );
@@ -271,7 +271,7 @@ void StateTest::testStateFailure()
         + " }\n"
         + " }\n"
         + " }\n"
-        + " RootContext X x\n" // instantiate a non hierarchical SC
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
 
     // should fail each time
@@ -338,10 +338,10 @@ void StateTest::testStateChildren()
         + " param double isnegative\n"
         + " var double d_dummy = -2.0\n"
         + " var int    i_dummy = -1\n"
-        + " SubContext Y y1(isnegative = d_dummy)\n"
-        + " SubContext Y y2(isnegative = -3.0)\n"
-        + " SubContext Y y3(isnegative = isnegative)\n"
-        + " SubContext Z z1( neg = d_dummy)\n"
+        + " SubMachine Y y1(isnegative = d_dummy)\n"
+        + " SubMachine Y y2(isnegative = -3.0)\n"
+        + " SubMachine Y y3(isnegative = isnegative)\n"
+        + " SubMachine Z z1( neg = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
         + "     do test.instantDone()\n"
@@ -400,7 +400,7 @@ void StateTest::testStateChildren()
         + " }\n"
         + " }\n"
         + " }\n"
-        + " RootContext X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
+        + " RootMachine X x( isnegative = -1.0) \n" // instantiate a hierarchical SC
         ;
     this->doState( prog, &gtc );
     this->finishState( &gtc, "x");
