@@ -49,8 +49,8 @@ namespace ORO_Geometry {
 		 */
 		Trajectory_Segment(Geometry* geom, MotionProfile* _motprof, double duration, bool _aggregate=true);
 
-        virtual Geometry* GetGeometry();
-        virtual MotionProfile* GetProfile();
+		virtual Geometry* GetGeometry();
+		virtual MotionProfile* GetProfile();
 		virtual double Duration() const;
 		// The duration of the trajectory
 

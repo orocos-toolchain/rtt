@@ -45,14 +45,14 @@ use Property<Frame> and the like as a property."
     }
 
     cdl_component OROPKG_GEOMETRY_PRIMITIVES {
-	display "Geometry Primitives"
+	display "Path Primitives"
 	description "
-This includes Geometry_Line, Geometry_Point, Geometry_Circle,
-Geometry_Cyclic_Closed, Geometry_Composite and Geometry_RoundedComposite"
+This includes Path_Line, Path_Point, Path_Circle,
+Path_Cyclic_Closed, Path_Composite and Path_RoundedComposite"
 	default_value 1
 	active_if OROPKG_GEOMETRY_3D_FRAMES
-	compile primitives/geometry.cxx  primitives/geometry_circle.cxx  primitives/geometry_composite.cxx  primitives/geometry_cyclic_closed.cxx  
-	compile primitives/geometry_line.cxx  primitives/geometry_point.cxx  primitives/geometry_roundedcomposite.cxx
+	compile primitives/path.cxx  primitives/path_circle.cxx  primitives/path_composite.cxx  primitives/path_cyclic_closed.cxx  
+	compile primitives/path_line.cxx  primitives/path_point.cxx  primitives/path_roundedcomposite.cxx
     }
 
     cdl_component OROPKG_GEOMETRY_INTERPOLATION {
@@ -63,9 +63,9 @@ Velocity profile planning and trajectory composition"
 	default_value 1
 	active_if OROPKG_GEOMETRY_3D_FRAMES && OROPKG_GEOMETRY_PRIMITIVES
 
-	compile interpolation/motionprofile.cxx  interpolation/motionprofile_rect.cxx  interpolation/motionprofile_trap.cxx  interpolation/motionprofile_traphalf.cxx
+	compile interpolation/velocityprofile.cxx  interpolation/velocityprofile_rect.cxx  interpolation/velocityprofile_trap.cxx  interpolation/velocityprofile_traphalf.cxx
 	compile interpolation/trajectory.cxx  interpolation/trajectory_composite.cxx  interpolation/trajectory_segment.cxx
-	compile interpolation/orientation.cxx  interpolation/orientation_singleaxis.cxx
+	compile interpolation/rotational_interpolation.cxx  interpolation/rotational_interpolation_sa.cxx
 
     }
 }

@@ -56,6 +56,6 @@ namespace ORO_Geometry
         void reset( const Vector &v1, const Vector &v2, const Vector &v3 );
     };
 
-} // End namespace SCIRun
+}
 
 #endif
