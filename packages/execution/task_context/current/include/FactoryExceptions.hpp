@@ -28,6 +28,8 @@
 #ifndef FACTORYEXCEPTIONS_HPP
 #define FACTORYEXCEPTIONS_HPP
 
+#include <string>
+
 /**
  * \file This files contains some structs that can be thrown by both
  * DataSourceFactory's and CommandFactory's.

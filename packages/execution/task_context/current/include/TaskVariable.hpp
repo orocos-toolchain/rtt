@@ -154,7 +154,7 @@ namespace ORO_Execution
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
         if ( ! t )
           throw bad_assignment();
-        return new AssignContainerCommand<T>( data.get(), t );
+        return new AssignContainerCommand<T>( this->data.get(), t );
       }
 
     ParsedIndexContainerVariable<T, Index, SetType,Pred>* clone() const

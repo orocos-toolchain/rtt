@@ -102,7 +102,7 @@ namespace ORO_Execution
                 alreadyCloned[this] = n;
                 return n;
             }
-            assert( dynamic_cast< DataSourceAdaptor<From,To>* >( i->second ) );
+            //assert( dynamic_cast< DataSourceAdaptor<From,To>* >( i->second ) );
             return static_cast< DataSourceAdaptor<From,To>* >( i->second );
         }
 
