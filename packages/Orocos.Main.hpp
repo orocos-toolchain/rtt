@@ -51,6 +51,7 @@
  * independent core services : ORO_OS, ORO_CoreLib, ORO_DeviceInterface and ORO_Execution,
  * which define the portable framework using the ORO_CoreLib::Event, ORO_CoreLib::PeriodicTask, ORO_Execution::TaskContext,
  * ORO_CoreLib::DataObject, the script ORO_Execution::Parser, command ORO_Execution::Processor and many other classes.
+ * The <a href="../../orocos-manual.html">Orocos Software Manual</a> introduces these classes.
  *
  * @section apps Applications
  * The following application frameworks are available : 
@@ -62,10 +63,11 @@
  * 1D and 6D ORO_Geometry::Path and ORO_Geometry::VelocityProfile planning in a
  * ORO_Geometry::Trajectory ( using ORO_Geometry ), and mere signal processing
  * ( using ORO_SignalProcessing ).
+ * The <a href="../../orocos-control-manual.html">Orocos Control Manual</a> introduces these classes.
  *
  * @note The Control Kernel Client GUI is not documented in this document.
  * It comes with its own documentation and you can fetch it from the 
- * <a href="http://www.orocos.org/Download.php">Download</a> page.
+ * <a href="http://www.orocos.org/download.php">Download</a> page.
  *
  * @subsection can CANOpen Device Communication
  * The CAN namespace contains device independent
