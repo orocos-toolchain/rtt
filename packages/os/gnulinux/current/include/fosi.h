@@ -39,6 +39,8 @@ extern "C"
 #include <errno.h>
     typedef pthread_t RTOS_TASK;
 
+	// Orocos Implementation (i386 specific)
+#include "oro_atomic.h"
 
     // Time Related
 #include <sys/time.h>

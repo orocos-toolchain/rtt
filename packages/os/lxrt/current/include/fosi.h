@@ -41,6 +41,9 @@
 extern "C" {
 #endif
 
+	// Orocos Implementation (i386 specific)
+#include "oro_atomic.h"
+
   // include custom redirect-like include
 #include <pkgconf/os_lxrt.h>
 #if ORONUM_RTAI_VERSION == 3
