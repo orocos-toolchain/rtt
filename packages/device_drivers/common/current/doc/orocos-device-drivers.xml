@@ -144,7 +144,7 @@
       <classname>ORO_DeviceDriver</classname> namespace. An Orocos
       Device Driver is a class which implements one or more interfaces
       of the <ulink
-	url="http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-device-interface.html"> 
+	url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-device-interface.html"> 
 	Device Interface</ulink>.
     </para>
     <sect2>

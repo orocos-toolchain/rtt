@@ -314,7 +314,7 @@
       <tip>
 	<para>
 	We advise you to read first the &orocos; <ulink
-	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-corelib.html">CoreLib</ulink> 
+	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html">CoreLib</ulink> 
 	documentation before going on. That document explains Events,
 	Tasks versus Threads, NameServing, and many other basic
 	&orocos; functionalities, and this text assumes that the
