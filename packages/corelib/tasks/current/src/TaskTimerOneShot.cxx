@@ -19,7 +19,7 @@ namespace ORO_CoreLib
     TaskTimerOneShot::~TaskTimerOneShot()
     {}
 
-    bool TaskTimerOneShot::taskAdd( PeriodicTask* t ) {
+    bool TaskTimerOneShot::addTask( PeriodicTask* t ) {
         MutexLock lock(mutex);
         if ( tasks.size() == TaskTimerInterface::MAX_TASKS ) {
 //             Logger::log() << Logger:: << "TaskTimerOneShot : tasks queue full, failed to add Task : "<< t << Logger::endl;
@@ -34,7 +34,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    bool TaskTimerOneShot::taskRemove( PeriodicTask* t ) {
+    bool TaskTimerOneShot::removeTask( PeriodicTask* t ) {
         MutexLock lock(mutex);
         TaskList::iterator it = find(tasks.begin(), tasks.end(), t);
         if ( it != tasks.end() ) {
@@ -42,14 +42,14 @@ namespace ORO_CoreLib
             cleanup = true;
 //             Logger::log() << Logger::Debug << "TaskTimerOneShot : successfully stopped Task : "<< t  << Logger::endl;
 //             if ( find(tasks.begin(), tasks.end(), t) != tasks.end() ) {
-//                 Logger::log() << Logger::Fatal << "TaskTimerOneShot : taskRemove failed to remove "<< t << Logger::endl;
+//                 Logger::log() << Logger::Fatal << "TaskTimerOneShot : removeTask failed to remove "<< t << Logger::endl;
 //                 for ( it = tasks.begin(); it != tasks.end(); ++it)
 //                     Logger::log() << Logger::Error << *it << Logger::endl;
 //                 assert(false);
 //             }
             return true;
         }
-//         Logger::log() << Logger::Debug << "TaskTimerOneShot : failed to stop Task : "<< t->periodGet() << Logger::endl;
+//         Logger::log() << Logger::Debug << "TaskTimerOneShot : failed to stop Task : "<< t->getPeriod() << Logger::endl;
         return false;
     }
 

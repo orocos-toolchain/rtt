@@ -55,7 +55,7 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
     // wrong type
     assert(0);
 
-  chooseFilter( this->periodGet() );
+  chooseFilter( this->getPeriod() );
   _readBuffer  = &_buffer1;
   _writeBuffer = &_buffer2;
 

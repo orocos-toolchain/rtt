@@ -59,7 +59,7 @@ namespace ORO_CoreLib
          * Create a PriorityThread with a certain periodicity.
          * @param period The periodicity of the instance. When omitted, 0.01s will be used as default.
          *
-         * @note period is to be set (or checked) with the periodSet()/Get() methods
+         * @note period is to be set (or checked) with the setPeriod()/Get() methods
          * before any tasks are added.
          *
          */

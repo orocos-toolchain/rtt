@@ -29,7 +29,7 @@
 #include <os/cpp.hpp>
 
 #include "corelib/Framework.hpp"
-#include "corelib/HeartBeatGenerator.hpp"
+#include "corelib/TimeService.hpp"
 #include "corelib/ZeroTimeThread.hpp"
 #include "corelib/ZeroLatencyThread.hpp"
 #include "corelib/CompletionProcessor.hpp"

@@ -57,7 +57,7 @@ namespace ORO_ControlKernel
 
     // is moving: do we have to stop?
     if (_is_moving){
-      _time_passed = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
+      _time_passed = TimeService::Instance()->secondsSince(_time_begin);
       if ( _time_passed > _max_duration ){
 	// set end position
 	_position_desired = _traject_end;
@@ -86,7 +86,7 @@ namespace ORO_ControlKernel
 	for (unsigned int i=0; i<6; i++)
 	  _motion_profile[i]->SetProfileDuration( 0, _velocity_begin_end(i), _max_duration );
 
-	_time_begin = HeartBeatGenerator::Instance()->ticksGet();
+	_time_begin = TimeService::Instance()->getTicks();
 	_time_passed = 0;
 
 	_new_values = false;

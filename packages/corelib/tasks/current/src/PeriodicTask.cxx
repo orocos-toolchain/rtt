@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
+#include "corelib/Time.hpp"
 #include "corelib/PeriodicTask.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
@@ -57,7 +58,7 @@ namespace ORO_CoreLib
         if (runner)
             runner->setTask(this);
 
-        TaskTimerInterface* timer = _thread->timerGet( this->periodGet() );
+        TaskTimerInterface* timer = _thread->timerGet( this->getPeriod() );
         if ( timer == 0 ) {
             timer = new TaskTimerOneShot( per_ns );
 //             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
@@ -68,7 +69,7 @@ namespace ORO_CoreLib
             }
         }
 //         else
-//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->periodGet() <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
+//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< _thread->taskNameGet() <<Logger::endl;
 
         _timer = timer;
     }
@@ -105,9 +106,9 @@ namespace ORO_CoreLib
         inError = !this->initialize();
 
         if ( !inError && _timer )
-            running = _timer->taskAdd( this );
+            running = _timer->addTask( this );
 //         else
-//             Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
+//             Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->getPeriod()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
 
         return running;
     }
@@ -125,7 +126,7 @@ namespace ORO_CoreLib
         if ( !locker.isSuccessful() )
             return true; // stopping is in progress
 
-        if ( _timer->taskRemove( this ) ) {
+        if ( _timer->removeTask( this ) ) {
             running = false;
             this->finalize();
             return true;
@@ -138,7 +139,7 @@ namespace ORO_CoreLib
         return running;
     }
 
-    Seconds PeriodicTask::periodGet() const
+    Seconds PeriodicTask::getPeriod() const
     {
         return nsecs_to_Seconds( per_ns );
     }

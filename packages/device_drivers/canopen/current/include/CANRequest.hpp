@@ -31,7 +31,7 @@
 #include "CANMessage.hpp"
 #include "CANBusInterface.hpp"
 
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <corelib/Time.hpp>
 #include <os/rtstreams.hpp>
 
@@ -73,7 +73,7 @@ namespace CAN
             bus = _bus;
             result = 0;
             bus->write(write);
-            timestamp = HeartBeatGenerator::Instance()->ticksGet();
+            timestamp = TimeService::Instance()->getTicks();
             return true;
         }
  
@@ -127,7 +127,7 @@ namespace CAN
             if ( timeout == 0 )
                 return false;
             else
-                return HeartBeatGenerator::Instance()->secondsSince(timestamp) > timeout;
+                return TimeService::Instance()->secondsSince(timestamp) > timeout;
         }
     
         /**
@@ -183,7 +183,7 @@ namespace CAN
         CANMessage* expected;
         CANMessage* result;
         CANMessage result_cache;
-        HeartBeatGenerator::ticks timestamp;
+        TimeService::ticks timestamp;
         Seconds timeout;
     };
 

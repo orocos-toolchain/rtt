@@ -678,7 +678,7 @@ namespace ORO_CoreLib
         mutable DataFlowInterface* module;
     };
 
-    using ORO_CoreLib::HeartBeatGenerator;
+    using ORO_CoreLib::TimeService;
 
     /**
      * @brief This DataObject refreshes the data after time S when a Get() method call is done.
@@ -704,7 +704,7 @@ namespace ORO_CoreLib
         /**
          * Time of last measurement.
          */
-        mutable HeartBeatGenerator::ticks timeStamp;
+        mutable TimeService::ticks timeStamp;
         std::string name;
     public:
         /** 
@@ -738,9 +738,9 @@ namespace ORO_CoreLib
             
         void Get( DataType& pull ) const  
         { 
-            if ( period < HeartBeatGenerator::secondsSince(period) )
+            if ( period < TimeService::secondsSince(period) )
                 {
-                    period = HeartBeatGenerator::secondsGet();
+                    period = TimeService::getSeconds();
                     module->update(); 
                 }
             pull = data; 
@@ -748,9 +748,9 @@ namespace ORO_CoreLib
             
         DataType Get() const
         { 
-            if ( period < HeartBeatGenerator::secondsSince(period) )
+            if ( period < TimeService::secondsSince(period) )
                 {
-                    period = HeartBeatGenerator::secondsGet();
+                    period = TimeService::getSeconds();
                     module->update(); 
                 }
             return data; 

@@ -94,7 +94,7 @@ namespace ORO_ControlKernel
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_desi_DOI, *_velocity_out_DOI;
 
     bool                                                                  _properties_read, _is_initialized;
-    ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
+    ORO_CoreLib::TimeService::ticks                                _time_begin;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
   }; // class

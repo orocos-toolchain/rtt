@@ -94,7 +94,7 @@ namespace ORO_OS
             periodMark( 0 ), running( false ), stopped( true ), finalizer( this ), prepareForExit( false ), runComp( r )
     {
         taskNameSet( name.c_str() ) ;
-        periodSet( 0, msecs_to_nsecs(10) ); // 10 ms
+        setPeriod( 0, msecs_to_nsecs(10) ); // 10 ms
     }
 
     PeriodicThread::~PeriodicThread()
@@ -161,7 +161,7 @@ namespace ORO_OS
         return running;
     }
 
-    int PeriodicThread::periodSet( secs s, nsecs ns )
+    int PeriodicThread::setPeriod( secs s, nsecs ns )
     {
         if ( isRunning() )
             return -1;
@@ -173,7 +173,7 @@ namespace ORO_OS
         return 0;
     }
 
-    int PeriodicThread::periodSet( TIME_SPEC p )
+    int PeriodicThread::setPeriod( TIME_SPEC p )
     {
         if ( isRunning() )
             return -1;
@@ -183,13 +183,13 @@ namespace ORO_OS
         return 0;
     }
 
-    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::getPeriod( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    PeriodicThread::Seconds PeriodicThread::periodGet() const
+    PeriodicThread::Seconds PeriodicThread::getPeriod() const
     {
         return double ( period.tv_sec ) + double ( period.tv_nsec ) / ( 1000.0 * 1000.0 * 1000.0 );
     }

@@ -28,7 +28,7 @@
 #include <execution/TemplateCommandFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <os/MutexLock.hpp>
 
 namespace ORO_ControlKernel
@@ -98,8 +98,8 @@ namespace ORO_ControlKernel
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI, *_position_DOI, *_velocity_DOI;
 
     std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _motion_profile;
-    ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
-    ORO_CoreLib::HeartBeatGenerator::Seconds                              _time_passed;
+    ORO_CoreLib::TimeService::ticks                                _time_begin;
+    ORO_CoreLib::TimeService::Seconds                              _time_passed;
     mutable ORO_OS::Mutex                                                 _my_lock;
     double                                                                _max_duration, _traject_duration;
     

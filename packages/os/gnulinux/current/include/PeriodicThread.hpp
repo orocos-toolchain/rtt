@@ -66,6 +66,8 @@ namespace ORO_OS
          */
         virtual ~PeriodicThread();
 
+        virtual bool run( RunnableInterface* r );
+
             /**
              * Start the thread
              */
@@ -78,34 +80,34 @@ namespace ORO_OS
              * Set the periodicity of this thread
              * in seconds.
              */
-            virtual int periodSet( Seconds s );
+            virtual bool setPeriod( Seconds s );
             /**
              * Set the periodicity of this thread
              * (seconds, nanoseconds)
              */
-            virtual int periodSet( const secs s, const nsecs ns );
+            virtual bool setPeriod( const secs s, const nsecs ns );
             /**
              * Get the periodicity of this thread
              * (seconds, nanoseconds)
              */
-            virtual void periodGet( secs& s, nsecs& ns ) const;
+            virtual void getPeriod( secs& s, nsecs& ns ) const;
             /**
              * Get the periodicity in seconds
              */
-            virtual Seconds periodGet() const;
+            virtual Seconds getPeriod() const;
             /**
              * Returns whether the thread is running
              */
             virtual bool isRunning() const {  return running; };
 
             /**
-             * Set the name of this task
+             * Set the name of this thread
              */
-            virtual void taskNameSet( const char* );
+            virtual void setName( const char* );
             /**
-             * Read the name of this task
+             * Read the name of this thread
              */
-            virtual const char* taskNameGet() const;
+            virtual const char* getName() const;
 
             /**
              * Used to terminate the thread from within destructor
@@ -121,7 +123,7 @@ namespace ORO_OS
             /**
              * Set the periodicity of this thread
              */
-            int periodSet( TIME_SPEC p );
+            bool setPeriod( TIME_SPEC p );
 
             virtual void step();
 
@@ -137,12 +139,12 @@ namespace ORO_OS
              */
             pthread_attr_t* threadAttributeGet();
             /**
-             * Wait for the full period periodGet()
+             * Wait for the full period getPeriod()
              */
             void periodWait();
             /**
              * Wait only for the remaining period, being
-             * periodGet() - (time_now - start_time_of_this_period)
+             * getPeriod() - (time_now - start_time_of_this_period)
              */
             void periodWaitRemaining();
 

@@ -60,7 +60,7 @@ namespace ORO_CoreLib
          */
         TaskEventDriven( Event<void(void)>* _event, TaskThreadInterface* thread, RunnableInterface* _r = 0 );
 
-        virtual Seconds periodGet() const { return 0; }
+        virtual Seconds getPeriod() const { return 0; }
 
         TaskThreadInterface* thread() const { return mthread; }
 

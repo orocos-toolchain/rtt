@@ -80,15 +80,15 @@ namespace ORO_ControlKernel
                     typename Base::CommandType new_com;
                     Commands::dObj()->Get(new_com);
                     tr = new_com.trajectory;
-                    time_stamp = HeartBeatGenerator::Instance()->ticksGet();
+                    time_stamp = TimeService::Instance()->getTicks();
                 } else 
                     if (repeat && trajectDone() )
                 {
                     // Repeat current traject (dangerous !)
-                    time_stamp = HeartBeatGenerator::Instance()->ticksGet();
+                    time_stamp = TimeService::Instance()->getTicks();
                 }
 
-                time = HeartBeatGenerator::Instance()->secondsGet(time_stamp);
+                time = TimeService::Instance()->getSeconds(time_stamp);
             }
 
             void calculate()
@@ -146,7 +146,7 @@ namespace ORO_ControlKernel
 
             void resetTime( double newTime = 0)
             {
-                time_stamp = HeartBeatGenerator::Instance()->ticksGet() - HeartBeatGenerator::nsecs2ticks(newTime);
+                time_stamp = TimeService::Instance()->getTicks() - TimeService::nsecs2ticks(newTime);
             }
 
             /**
@@ -179,7 +179,7 @@ namespace ORO_ControlKernel
                 if (tr)
                     run = true;
                 
-                time_stamp = HeartBeatGenerator::Instance()->ticksGet();
+                time_stamp = TimeService::Instance()->getTicks();
             }
 
             void stop()
@@ -218,7 +218,7 @@ namespace ORO_ControlKernel
             Frame fr;
             Twist tw;
             const Trajectory* tr;
-            HeartBeatGenerator::ticks time_stamp;
+            TimeService::ticks time_stamp;
             double time;
             bool run;
     };

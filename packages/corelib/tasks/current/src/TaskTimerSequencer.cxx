@@ -20,7 +20,7 @@ namespace ORO_CoreLib
         if (trigger_period == 0 )
             trigPeriod = nsecs(rint(average_period * NSECS_IN_SECS));
         // resize list if needed
-        triggerSet( trigPeriod );
+        setTrigger( trigPeriod );
 
         // list contains MAX_TASKS items.
         f_iter = sortedList.begin();
@@ -32,7 +32,7 @@ namespace ORO_CoreLib
           reset_f_iter(false), in_tick(false)
     {
         // resize list if needed
-        triggerSet(trigPeriod);
+        setTrigger(trigPeriod);
 
         f_iter = sortedList.begin();
     }
@@ -70,7 +70,7 @@ namespace ORO_CoreLib
         in_tick = false;
     }
 
-    bool TaskTimerSequencer::taskAdd( PeriodicTask* task )
+    bool TaskTimerSequencer::addTask( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
@@ -91,7 +91,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    bool TaskTimerSequencer::taskRemove( PeriodicTask* task )
+    bool TaskTimerSequencer::removeTask( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
@@ -138,17 +138,17 @@ namespace ORO_CoreLib
             }
     }
 
-    nsecs TaskTimerSequencer::periodGet() const
+    nsecs TaskTimerSequencer::getPeriod() const
     {
         return avPeriod;
     }
 
-    nsecs TaskTimerSequencer::triggerGet() const
+    nsecs TaskTimerSequencer::getTrigger() const
     {
         return trigPeriod;
     }
 
-    void TaskTimerSequencer::triggerSet(nsecs n)
+    void TaskTimerSequencer::setTrigger(nsecs n)
     {
         trigPeriod = n;
 

@@ -85,7 +85,7 @@ namespace MotionControl
             , ref_gen( 0 )
             , measurement( 0 )
     {
-        T = sli->periodGet();          // sample period
+        T = sli->getPeriod();          // sample period
 
         // discrete time parameters
         bi = _attr.K * T / _attr.Ti;

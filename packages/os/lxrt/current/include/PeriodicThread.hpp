@@ -69,6 +69,9 @@ namespace ORO_OS
         PeriodicThread(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
+
+        bool run( RunnableInterface* r);
+
         /**
          * Start the thread
          */
@@ -81,21 +84,21 @@ namespace ORO_OS
          * Set the periodicity of this thread
          * in seconds.
          */
-        virtual int periodSet( Seconds s );
+        virtual bool setPeriod( Seconds s );
         /**
          * Set the periodicity of this thread
          * (seconds, nanoseconds)
          */
-        virtual int periodSet( secs s, nsecs ns );
+        virtual bool setPeriod( secs s, nsecs ns );
         /**
          * Get the periodicity of this thread
          * (seconds, nanoseconds)
          */
-        virtual void periodGet( secs& s, nsecs& ns ) const;
+        virtual void getPeriod( secs& s, nsecs& ns ) const;
         /**
          * Get the periodicity in seconds
          */
-        virtual double periodGet() const;
+        virtual double getPeriod() const;
         /**
          * Returns whether the thread is running
          */
@@ -104,11 +107,11 @@ namespace ORO_OS
         /**
          * Set the name of this task
          */
-        virtual void taskNameSet(const char*);
+        virtual void setName(const char*);
         /**
          * Read the name of this task
          */
-        virtual const char* taskNameGet() const;
+        virtual const char* getName() const;
         /**
          * Exit the thread 
          * @pre  this is only called from within the thread
@@ -137,15 +140,15 @@ namespace ORO_OS
         /**
          * Set the periodicity of this thread
          */
-        int periodSet(  TIME_SPEC p );
+        bool setPeriod(  TIME_SPEC p );
 
         /**
-         * Wait for the full period periodGet()
+         * Wait for the full period getPeriod()
          */
         void periodWait();
         /**
          * Wait only for the remaining period, being
-         * periodGet() - (time_now - start_time_of_this_period)
+         * getPeriod() - (time_now - start_time_of_this_period)
          */
         void periodWaitRemaining();
 

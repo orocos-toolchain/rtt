@@ -75,7 +75,7 @@ namespace ORO_CoreLib
          *
          * @return The execution period of this task
          */
-        virtual Seconds periodGet() const = 0;
+        virtual Seconds getPeriod() const = 0;
 
         /**
          * Returns a pointer to the thread which will

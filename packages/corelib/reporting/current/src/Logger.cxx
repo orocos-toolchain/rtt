@@ -99,10 +99,10 @@ namespace ORO_CoreLib
             return;
         started = true;
             
-        timestamp = HeartBeatGenerator::Instance()->ticksGet();
+        timestamp = TimeService::Instance()->getTicks();
         *this<<xtramsg<<Logger::nl;
         *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
-        *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(HeartBeatGenerator::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
+        *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(TimeService::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::endl;
 #endif
     }
@@ -161,7 +161,7 @@ namespace ORO_CoreLib
     {
         std::stringstream time;
         if ( showtime )
-            time <<fixed<< showpoint << setprecision(3) << HeartBeatGenerator::Instance()->secondsSince(timestamp);
+            time <<fixed<< showpoint << setprecision(3) << TimeService::Instance()->secondsSince(timestamp);
         return time.str();
     }
 

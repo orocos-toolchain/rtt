@@ -37,7 +37,7 @@ namespace Beckhoff
           digitalOutputs(),
           ssiTerminals(this,_bus), 
           bus(_bus), node_id(_node_id),
-          hb ( HeartBeatGenerator::Instance() )
+          hb ( TimeService::Instance() )
     {
         // Reset this node message :
         Resetmsg.setStdId(0x00);
@@ -74,7 +74,7 @@ namespace Beckhoff
 
     void BeckhoffCANCoupler::configInit()
     {
-        stamp = hb->ticksGet();
+        stamp = hb->getTicks();
         resetCount = 0;
         this->resetNode();
         ssiTerminals.configInit();
@@ -86,7 +86,7 @@ namespace Beckhoff
         if ( this->status == Initialisation
              && hb->secondsSince( stamp ) > 5.0 ) {
             this->resetNode();
-            stamp = hb->ticksGet();
+            stamp = hb->getTicks();
             ++resetCount;
         }
         // if after 5 resets, still no preop, return false.

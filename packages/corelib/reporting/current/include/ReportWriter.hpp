@@ -32,7 +32,7 @@
 #include "WriteInterface.hpp"
 #include "ReportExporterInterface.hpp"
 #include "TaskPreemptible.hpp"
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 
 #include <vector>
 #include <string>
@@ -89,7 +89,7 @@ namespace ORO_CoreLib
 
             std::string message;
 
-            HeartBeatGenerator::ticks localTime;
+            TimeService::ticks localTime;
     };
 
 }

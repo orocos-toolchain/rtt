@@ -33,17 +33,17 @@ namespace ORO_CoreLib
 
         virtual ~TaskTimerOneShot();
 
-        bool taskAdd( PeriodicTask* t );
+        bool addTask( PeriodicTask* t );
 
-        bool taskRemove( PeriodicTask* t );
+        bool removeTask( PeriodicTask* t );
 
         virtual void tick();
 
-        virtual nsecs periodGet() const { return task_per; }
+        virtual nsecs getPeriod() const { return task_per; }
 
-        virtual nsecs triggerGet() const { return trig_per; }
+        virtual nsecs getTrigger() const { return trig_per; }
 
-        virtual void triggerSet(nsecs ns) { trig_per = ns; }
+        virtual void setTrigger(nsecs ns) { trig_per = ns; }
 
     };
 }

@@ -33,7 +33,7 @@ namespace ORO_CoreLib
 {
 
     ConditionDuration::ConditionDuration( nsecs t, bool invert )
-        : time( t ), hb( HeartBeatGenerator::Instance() ),
+        : time( t ), hb( TimeService::Instance() ),
           mark( 0 ), _invert( invert )
     {}
 
@@ -42,12 +42,12 @@ namespace ORO_CoreLib
 
     bool ConditionDuration::evaluate()
     {
-        return _invert != ( time < HeartBeatGenerator::ticks2nsecs( hb->ticksSince( mark ) ) );
+        return _invert != ( time < TimeService::ticks2nsecs( hb->ticksSince( mark ) ) );
     }
 
     void ConditionDuration::reset()
     {
-        mark = hb->ticksGet();
+        mark = hb->getTicks();
     }
 
     ConditionInterface* ConditionDuration::clone() const

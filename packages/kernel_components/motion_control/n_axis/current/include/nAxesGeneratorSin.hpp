@@ -26,7 +26,7 @@
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 
 
 namespace ORO_ControlKernel
@@ -87,8 +87,8 @@ namespace ORO_ControlKernel
     std::vector<double>                                                   _position_desired, _position_meas_local, _position_initial,  _position_local, _velocity_local;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI, *_position_DOI, *_velocity_DOI;
 
-    ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
-    ORO_CoreLib::HeartBeatGenerator::Seconds                              _time_passed;
+    ORO_CoreLib::TimeService::ticks                                _time_begin;
+    ORO_CoreLib::TimeService::Seconds                              _time_passed;
     
     bool                                                                  _properties_read, _is_initialized;
     ORO_ControlKernel::Property< std::vector<double> >                    _sin_frequency, _sin_amplitude, _sin_phase;

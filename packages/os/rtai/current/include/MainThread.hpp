@@ -152,7 +152,7 @@ namespace ORO_OS
             MainThread()
                 :PeriodicThread(10, "MainThread") //priority=10
             {
-                periodSet( 0, usecs_to_nsecs(1000) ); // 1ms = 1000us
+                setPeriod( 0, usecs_to_nsecs(1000) ); // 1ms = 1000us
             }
 
             virtual ~MainThread()

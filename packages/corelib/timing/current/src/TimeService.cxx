@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  HeartBeatGenerator.cpp 
+ tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimeService.cpp 
 
-                       HeartBeatGenerator.cpp -  description
+                       TimeService.cpp -  description
                           -------------------
    begin                : Wed April 17 2002
    copyright            : (C) 2002 Peter Soetens
@@ -23,34 +23,34 @@
  */
 
 #include "os/fosi.h"
-#include "corelib/HeartBeatGenerator.hpp"
+#include "corelib/TimeService.hpp"
 
 namespace ORO_CoreLib
 {
-    HeartBeatGenerator* HeartBeatGenerator::_instance = 0;
+    TimeService* TimeService::_instance = 0;
 
-    HeartBeatGenerator::ticks HeartBeatGenerator::nsecs2ticks( const nsecs m )
+    TimeService::ticks TimeService::nsecs2ticks( const nsecs m )
     {
         return nano2ticks( m );
     }
 
-    HeartBeatGenerator::nsecs HeartBeatGenerator::ticks2nsecs( const ticks t )
+    TimeService::nsecs TimeService::ticks2nsecs( const ticks t )
     {
         return ticks2nano( t );
     }
 
-    HeartBeatGenerator* HeartBeatGenerator::Instance()
+    TimeService* TimeService::Instance()
     {
         if ( _instance == 0 )
         {
-            _instance = new HeartBeatGenerator();
+            _instance = new TimeService();
         }
 
         return _instance;
     }
 
 
-    bool HeartBeatGenerator::Release()
+    bool TimeService::Release()
     {
         if ( _instance != 0 )
         {
@@ -63,18 +63,18 @@ namespace ORO_CoreLib
     }
 
 
-    HeartBeatGenerator::HeartBeatGenerator()
+    TimeService::TimeService()
         : offset(0), use_clock(true)
     {
         //rt_std::cout << "HeartBeat Created\n";
     }
 
-    HeartBeatGenerator::~HeartBeatGenerator()
+    TimeService::~TimeService()
     {
         //rt_std::cout << "HB DESTRUCTOR\n";
     }
 
-    void HeartBeatGenerator::enableSystemClock( bool yes_no )
+    void TimeService::enableSystemClock( bool yes_no )
     {
         // guarantee monotonous time increase :
         if ( yes_no == use_clock )
@@ -94,44 +94,44 @@ namespace ORO_CoreLib
     }
 
 
-    HeartBeatGenerator::ticks
-    HeartBeatGenerator::ticksGet() const
+    TimeService::ticks
+    TimeService::getTicks() const
     {
         return use_clock ? systemTimeGet() + offset : 0 + offset;
     }
 
-    HeartBeatGenerator::ticks
-    HeartBeatGenerator::ticksGet( HeartBeatGenerator::ticks &relativeTime ) const
+    TimeService::ticks
+    TimeService::getTicks( TimeService::ticks &relativeTime ) const
     {
         if ( relativeTime == 0 )
         {
-            relativeTime = ticksGet();
+            relativeTime = getTicks();
             return 0;
         }
-        return ( ticksGet() - relativeTime );
+        return ( getTicks() - relativeTime );
     }
 
-    HeartBeatGenerator::ticks
-    HeartBeatGenerator::ticksSince( HeartBeatGenerator::ticks relativeTime ) const
+    TimeService::ticks
+    TimeService::ticksSince( TimeService::ticks relativeTime ) const
     {
-        return ( ticksGet() - relativeTime );
+        return ( getTicks() - relativeTime );
     }
 
 
-    HeartBeatGenerator::Seconds
-    HeartBeatGenerator::secondsGet( HeartBeatGenerator::ticks &relativeTime ) const
+    TimeService::Seconds
+    TimeService::getSeconds( TimeService::ticks &relativeTime ) const
     {
-        return nsecs_to_Seconds( ticks2nsecs( ticksGet( relativeTime ) ) ) ;
+        return nsecs_to_Seconds( ticks2nsecs( getTicks( relativeTime ) ) ) ;
     }
 
-    HeartBeatGenerator::Seconds
-    HeartBeatGenerator::secondsSince( HeartBeatGenerator::ticks relativeTime ) const
+    TimeService::Seconds
+    TimeService::secondsSince( TimeService::ticks relativeTime ) const
     {
         return nsecs_to_Seconds( ticks2nsecs( ticksSince( relativeTime ) ) ) ;
     }
 
-    HeartBeatGenerator::Seconds
-    HeartBeatGenerator::secondsChange( HeartBeatGenerator::Seconds delta )
+    TimeService::Seconds
+    TimeService::secondsChange( TimeService::Seconds delta )
     {
         offset += nsecs2ticks( Seconds_to_nsecs( delta ) );
         return nsecs_to_Seconds( ticks2nsecs( ticksSince( 0 ) ) ) ;

@@ -433,7 +433,7 @@
   #include &lt;corelib/TaskPreemptible.hpp&gt;
   #include &lt;execution/TaskContext.hpp&gt;
   #include &lt;execution/Parser.hpp&gt;
-  #include &lt;iostream&gt;      // std::ifstream
+
   #include &lt;functional&gt;    // std::for_each
   #include &lt;boost/bind.hpp&gt;// boost::bind
 
@@ -445,7 +445,7 @@
 
   std::vector&lt;ProgramGraph*&gt; pg_list;
   try {
-      pg_list = parser.parseProgram( std::ifstream("program.ops"), &amp;tc );
+      pg_list = parser.parseProgram( "program.ops", &amp;tc );
   }
   catch( const file_parse_exception&amp; exc )
   {
@@ -918,7 +918,7 @@
   #include &lt;corelib/TaskPreemptible.hpp&gt;
   #include &lt;execution/TaskContext.hpp&gt;
   #include &lt;execution/Parser.hpp&gt;
-  #include &lt;iostream&gt;      // std::ifstream
+
   #include &lt;functional&gt;    // std::for_each
   #include &lt;boost/bind.hpp&gt;// boost::bind
 
@@ -930,7 +930,7 @@
 
   std::vector&lt;ParsedStateContext*&gt; sc_list;
   try {
-      sc_list = parser.parseStateContext( std::ifstream("state-machine.osd"), &amp;tc );
+      sc_list = parser.parseStateContext( "state-machine.osd", &amp;tc );
   }
   catch( const file_parse_exception&amp; exc )
   {

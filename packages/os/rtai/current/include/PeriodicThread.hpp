@@ -70,16 +70,16 @@ namespace ORO_OS
              * Set the periodicity of this thread
              * (seconds, nanoseconds)
              */
-            int periodSet( secs s, nsecs ns );
+            int setPeriod( secs s, nsecs ns );
             /**
              * Get the periodicity of this thread
              * (seconds, nanoseconds)
              */
-            void periodGet( secs& s, nsecs& ns ) const;
+            void getPeriod( secs& s, nsecs& ns ) const;
             /**
              * Get the periodicity in seconds
              */
-            Seconds periodGet() const;
+            Seconds getPeriod() const;
             /**
              * Returns whether the thread is running
              */
@@ -109,7 +109,7 @@ namespace ORO_OS
             /**
              * Set the periodicity of this thread
              */
-            int periodSet( TIME_SPEC p );
+            int setPeriod( TIME_SPEC p );
             /**
              * This method will be executed in each period once,
              * when isRunning() == 1
@@ -123,12 +123,12 @@ namespace ORO_OS
             virtual void setToStop();
 
             /**
-             * Wait for the full period periodGet()
+             * Wait for the full period getPeriod()
              */
             void periodWait();
             /**
              * Wait only for the remaining period, being
-             * periodGet() - (time_now - start_time_of_this_period)
+             * getPeriod() - (time_now - start_time_of_this_period)
              */
             void periodWaitRemaining();
 

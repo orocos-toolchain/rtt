@@ -68,7 +68,7 @@ namespace ORO_CoreLib
 
     TaskTimerInterface* TaskExecution::timerGet( Seconds period ) const {
         for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
-            if ( (*it)->periodGet() == Seconds_to_nsecs(period) )
+            if ( (*it)->getPeriod() == Seconds_to_nsecs(period) )
                 return *it;
         //Logger::log() << Logger::Debug << "Failed to find Timer in "<< this->taskNameGet()<<" : "<< period << Logger::endl;
 
@@ -78,13 +78,13 @@ namespace ORO_CoreLib
     bool TaskExecution::timerAdd( TaskTimerInterface* t)
     {
 //         if ( clocks.size() == MAX_TASK_TIMERS ) {
-//                 Logger::log() << Logger::Critical << "TaskExecution: Could not add Timer with period_ns: "<< t->periodGet() <<" in thread :"<< this->taskNameGet() <<Logger::nl;
+//                 Logger::log() << Logger::Critical << "TaskExecution: Could not add Timer with period_ns: "<< t->getPeriod() <<" in thread :"<< this->taskNameGet() <<Logger::nl;
 //                 Logger::log() << Logger::Critical << "  Advice : increase MAX_TASK_TIMERS ( current value : " << TaskExecution::MAX_TASK_TIMERS <<" )." << Logger::endl;
 //             return false;
         secs s;
         nsecs ns;
-        periodGet(s,ns);
-        t->triggerSet( secs_to_nsecs(s) + ns );
+        getPeriod(s,ns);
+        t->setTrigger( secs_to_nsecs(s) + ns );
         MutexLock locker(lock);
         clocks.push_back( t );
         return true;

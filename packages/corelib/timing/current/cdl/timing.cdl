@@ -1,14 +1,14 @@
 
 cdl_package OROPKG_CORELIB_TIMING {
-    display "Time management infrastructure"
-    description "This package contains the not yet finished
-HeartbeatGenerator which will be used to keep track of system
-time and synchornise time between distribute systems."
+    display "Time measurement infrastructure"
+    description "This package contains the 
+TimeService which will be used to keep track of system
+time and defines time conversions."
 
     include_dir corelib
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile HeartBeatGenerator.cxx
+    compile TimeService.cxx
 }

@@ -30,7 +30,7 @@
 
 #include "CANDeviceInterface.hpp"
 #include <corelib/ConfigurationInterface.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 
 #include "BeckhoffDOut.hpp"
 #include "BeckhoffDIn.hpp"
@@ -58,7 +58,7 @@ namespace Beckhoff
         CANMessage StartUpmsg;
         CANMessage Stopmsg;
         CANMessage Preopmsg;
-        HeartBeatGenerator::ticks stamp;
+        TimeService::ticks stamp;
         int resetCount;
     public:
         BeckhoffCANCoupler(CANBusInterface* _bus, unsigned int _node_id);
@@ -113,7 +113,7 @@ namespace Beckhoff
         CANBusInterface* bus;
         unsigned int node_id;
 
-        HeartBeatGenerator* hb;
+        TimeService* hb;
     };
 			
 }

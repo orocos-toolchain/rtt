@@ -31,7 +31,7 @@
 #include "PropertyBag.hpp"
 #include "Property.hpp"
 #include "ReportExporterInterface.hpp"
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 
 #pragma interface
 
@@ -100,7 +100,7 @@ namespace ORO_CoreLib
                     return *this;
             }
 
-            virtual void refresh( HeartBeatGenerator::Seconds time_stamp )
+            virtual void refresh( TimeService::Seconds time_stamp )
             {
                 timeStamp = time_stamp;
                 if (copy)

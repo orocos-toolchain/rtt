@@ -20,7 +20,7 @@
 #define _SIM_AXIS_HPP
 
 #include <device_interface/AxisInterface.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 
 namespace ORO_DeviceDriver
 {
@@ -41,8 +41,8 @@ public:
   
 private:
   double _position, _velocity, _min, _max;
-  ORO_CoreLib::HeartBeatGenerator::ticks _previous_time;
-  ORO_CoreLib::HeartBeatGenerator::Seconds _delta_time;
+  ORO_CoreLib::TimeService::ticks _previous_time;
+  ORO_CoreLib::TimeService::Seconds _delta_time;
   bool _first_drive;
 
 }; // class

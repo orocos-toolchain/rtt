@@ -65,13 +65,13 @@ extern "C"
 #include <iostream>
 
 #ifdef OROPKG_CORELIB_TIMING
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #endif
 
 namespace ORO_DeviceDriver
 {
 
-using ORO_CoreLib::HeartBeatGenerator;
+using ORO_CoreLib::TimeService;
 
 // --------------------------
 // Constructor for 1 module
@@ -99,10 +99,10 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1 )
 
 #ifdef OROPKG_CORELIB_TIMING
     // init one buffer, display some statistics
-    HeartBeatGenerator::ticks t=HeartBeatGenerator::Instance()->ticksGet();
+    TimeService::ticks t=TimeService::Instance()->getTicks();
     readCard( readbuffer );
-    t = HeartBeatGenerator::Instance()->ticksSince(t);
-    HeartBeatGenerator::nsecs n = HeartBeatGenerator::ticks2nsecs(t);
+    t = TimeService::Instance()->ticksSince(t);
+    TimeService::nsecs n = TimeService::ticks2nsecs(t);
     std::cout << "Reading SSI module takes about " << long(n) << " nanoseconds" << std::endl;
 #endif
 
@@ -148,10 +148,10 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigne
 
 #ifdef OROPKG_CORELIB_TIMING
     // init one buffer, display some statistics
-    HeartBeatGenerator::ticks t=HeartBeatGenerator::Instance()->ticksGet();
+    TimeService::ticks t=TimeService::Instance()->getTicks();
     readCard( readbuffer );
-    t = HeartBeatGenerator::Instance()->ticksSince(t);
-    HeartBeatGenerator::nsecs n = HeartBeatGenerator::ticks2nsecs(t);
+    t = TimeService::Instance()->ticksSince(t);
+    TimeService::nsecs n = TimeService::ticks2nsecs(t);
     std::cout << "Reading SSI modules takes about " << long(n) << " nanoseconds" << std::endl;
 #endif
 
@@ -205,10 +205,10 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigne
 
 #ifdef OROPKG_CORELIB_TIMING
     // init one buffer, display some statistics
-    HeartBeatGenerator::ticks t=HeartBeatGenerator::Instance()->ticksGet();
+    TimeService::ticks t=TimeService::Instance()->getTicks();
     readCard( readbuffer );
-    t = HeartBeatGenerator::Instance()->ticksSince(t);
-    HeartBeatGenerator::nsecs n = HeartBeatGenerator::ticks2nsecs(t);
+    t = TimeService::Instance()->ticksSince(t);
+    TimeService::nsecs n = TimeService::ticks2nsecs(t);
     std::cout << "Reading SSI modules takes about " << long(n) << " nanoseconds" << std::endl;
 #endif
 
@@ -270,10 +270,10 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigne
 
 #ifdef OROPKG_CORELIB_TIMING
     // init one buffer, display some statistics
-    HeartBeatGenerator::ticks t=HeartBeatGenerator::Instance()->ticksGet();
+    TimeService::ticks t=TimeService::Instance()->getTicks();
     readCard( readbuffer );
-    t = HeartBeatGenerator::Instance()->ticksSince(t);
-    HeartBeatGenerator::nsecs n = HeartBeatGenerator::ticks2nsecs(t);
+    t = TimeService::Instance()->ticksSince(t);
+    TimeService::nsecs n = TimeService::ticks2nsecs(t);
     std::cout << "Reading SSI modules takes about " << long(n) << " nanoseconds" << std::endl;
 #endif
 

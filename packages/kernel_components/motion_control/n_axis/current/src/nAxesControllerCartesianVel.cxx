@@ -51,12 +51,12 @@ namespace ORO_ControlKernel
     if (!_is_initialized){
       _is_initialized = true;
       _position_integrated = _position_meas_local;
-      _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+      _time_begin = TimeService::Instance()->getTicks();
     }
 
     // integrate velocity
-    double time_difference = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
-    _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+    double time_difference = TimeService::Instance()->secondsSince(_time_begin);
+    _time_begin = TimeService::Instance()->getTicks();
     _position_integrated = addDelta(_position_integrated, _velocity_desi_local, time_difference);
 
     // position feedback on integrated velocity

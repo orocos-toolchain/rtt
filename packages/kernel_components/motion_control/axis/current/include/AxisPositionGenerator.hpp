@@ -31,7 +31,7 @@
 #include <geometry/velocityprofile_trap.h>
 #include <geometry/velocityprofile_traphalf.h>
 #include <corelib/Property.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/BaseComponents.hpp>
@@ -103,7 +103,7 @@ namespace ORO_ControlKernel
             AxisInfo() : traj_planner(1.,1.), traj_ptr(0), timestamp(0) {}
             VelocityProfile_Trap traj_planner;
             VelocityProfile*     traj_ptr;
-            HeartBeatGenerator::ticks timestamp;
+            TimeService::ticks timestamp;
         };            
     public:
         /**
@@ -115,7 +115,7 @@ namespace ORO_ControlKernel
               maxAcc("MaxAcc",""),
               num_axes(_num_axes),
               axes(_num_axes),
-              hbg( HeartBeatGenerator::Instance() )
+              hbg( TimeService::Instance() )
         {
             setpoints.resize(num_axes,0);
             axes.resize( num_axes );
@@ -214,7 +214,7 @@ namespace ORO_ControlKernel
                 velocity = maxVel.get()[axis_nr];
             axes[axis_nr].traj_planner.SetMax( velocity, maxAcc.get()[axis_nr] );
             axes[axis_nr].traj_planner.SetProfile( setpoints[axis_nr], position );
-            axes[axis_nr].timestamp = hbg->ticksGet();
+            axes[axis_nr].timestamp = hbg->getTicks();
             axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
             return true;
         }
@@ -229,7 +229,7 @@ namespace ORO_ControlKernel
             --axis_nr;
             axes[axis_nr].traj_planner.SetMax( 0 , maxAcc.get()[axis_nr] );
             axes[axis_nr].traj_planner.SetProfileDuration( setpoints[axis_nr], setpoints[axis_nr], time );
-            axes[axis_nr].timestamp = hbg->ticksGet();
+            axes[axis_nr].timestamp = hbg->getTicks();
             axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
             return true;
         }
@@ -304,7 +304,7 @@ namespace ORO_ControlKernel
         DataObjectInterface<ChannelType>* setp_dObj;
         ChannelType inputs;
         ChannelType setpoints;
-        HeartBeatGenerator* hbg;
+        TimeService* hbg;
     };
 
 }

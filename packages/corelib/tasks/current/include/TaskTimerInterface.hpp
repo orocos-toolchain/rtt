@@ -30,12 +30,12 @@ namespace ORO_CoreLib
         /**
          * Add a task which must be step()'ed.
          */
-        virtual bool taskAdd( PeriodicTask* t ) = 0;
+        virtual bool addTask( PeriodicTask* t ) = 0;
 
         /**
          * Remove a task which must no longer be step()'ed.
          */
-        virtual bool taskRemove( PeriodicTask* t ) = 0;
+        virtual bool removeTask( PeriodicTask* t ) = 0;
 
         /**
          * Execute a PeriodicTask, according to the average period.
@@ -45,17 +45,17 @@ namespace ORO_CoreLib
         /**
          * Returns the (average) periodicity ( in nano s ) with which the tasks are step()'ed.
          */
-        virtual nsecs periodGet() const = 0;
+        virtual nsecs getPeriod() const = 0;
 
         /**
          * Returns the (average) periodicity ( in nano s ) with which the timer is tick()'ed.
          */
-        virtual nsecs triggerGet() const = 0;
+        virtual nsecs getTrigger() const = 0;
 
         /**
          * Sets the (average) period at which this timer will be ticked.
          */
-        virtual void triggerSet(nsecs ns) = 0;
+        virtual void setTrigger(nsecs ns) = 0;
         
     };
 

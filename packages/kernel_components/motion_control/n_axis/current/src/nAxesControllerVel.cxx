@@ -58,16 +58,16 @@ namespace ORO_ControlKernel
       _is_initialized = true;
       for (unsigned int i=0; i<_num_axes; i++)
 	_position_desired[i] = _position_meas_local[i];
-      _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+      _time_begin = TimeService::Instance()->getTicks();
     }
 
     // position feedback on integrated velocity
-    double time_difference = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
+    double time_difference = TimeService::Instance()->secondsSince(_time_begin);
     for(unsigned int i=0; i<_num_axes; i++){
       _position_desired[i] += _velocity_desi_local[i] * time_difference;
       _velocity_local[i] = (_controller_gain.value()[i] * (_position_desired[i] - _position_meas_local[i])) + _velocity_desi_local[i];
     }
-    _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+    _time_begin = TimeService::Instance()->getTicks();
   }
 
   

@@ -28,7 +28,7 @@
  
 
 #include "corelib/SimulationThread.hpp"
-#include "corelib/HeartBeatGenerator.hpp"
+#include "corelib/TimeService.hpp"
 #include "corelib/TaskSimulation.hpp"
 #include "corelib/Logger.hpp"
 
@@ -92,7 +92,7 @@ namespace ORO_CoreLib
         : TaskExecution(ORONUM_CORELIB_TASKS_SIM_PRIORITY,
                         ORODAT_CORELIB_TASKS_SIM_NAME, 
                         ORONUM_CORELIB_TASKS_SIM_PERIOD),
-          beat( HeartBeatGenerator::Instance() )
+          beat( TimeService::Instance() )
     {
         this->continuousStepping( true );
         Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"ms periodicity";

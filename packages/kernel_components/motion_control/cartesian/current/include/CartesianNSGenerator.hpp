@@ -41,7 +41,7 @@
 #include <geometry/velocityprofile_dirac.h>
 #include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/PropertyExtension.hpp>
 #include <control_kernel/BaseComponents.hpp>
@@ -142,7 +142,7 @@ namespace ORO_ControlKernel
             end_pos = mp_base_frame;
 
             // record the startup time. 
-            timestamp = HeartBeatGenerator::Instance()->ticksGet();
+            timestamp = TimeService::Instance()->getTicks();
             return true;
         }            
                 
@@ -153,7 +153,7 @@ namespace ORO_ControlKernel
         {
             // Always read the current position
             mp_base_f_DObj->Get( mp_base_frame );
-            _time = HeartBeatGenerator::Instance()->secondsSince(timestamp);
+            _time = TimeService::Instance()->secondsSince(timestamp);
         }
             
         /**
@@ -219,7 +219,7 @@ namespace ORO_ControlKernel
                     delete cur_tr;
                     cur_tr = new Trajectory_Segment( new Path_Point( pos ),
                                                      interpol->Clone(), time );
-                    timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                    timestamp = TimeService::Instance()->getTicks();
                     _time = 0;
                     return true;
                 }
@@ -245,7 +245,7 @@ namespace ORO_ControlKernel
                     cur_tr = new Trajectory_Segment( new Path_Line( pos, new_pos,
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
                                                      interpol->Clone(), time );
-                    timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                    timestamp = TimeService::Instance()->getTicks();
                     _time = 0;
                     return true;
                 }
@@ -317,7 +317,7 @@ namespace ORO_ControlKernel
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
                                                      interpol->Clone(), time );
                     delete tr_copy;
-                    timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                    timestamp = TimeService::Instance()->getTicks();
                     _time = 0;
                     return true;
                 }
@@ -353,7 +353,7 @@ namespace ORO_ControlKernel
                             cur_tr = traj_DObj->Get()->Clone();
                             task_f_DObj->Get(task_frame);
                             tool_f_DObj->Get(tool_mp_frame);
-                            timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                            timestamp = TimeService::Instance()->getTicks();
                             _time = 0;
                             return true;
                         }
@@ -471,7 +471,7 @@ namespace ORO_ControlKernel
     protected:
         Property<Frame> homepos;
         Property<double> hometime;
-        HeartBeatGenerator::ticks timestamp;
+        TimeService::ticks timestamp;
         Seconds      _time;
 
         VelocityProfile* interpol;

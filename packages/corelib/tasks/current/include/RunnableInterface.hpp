@@ -34,8 +34,8 @@
 namespace ORO_CoreLib
 {
     /**
-     * This is the same class as in ORO_OS, but it adds
-     * Task specific semantics and sits in the ORO_CoreLib
+     * This class adds
+     * Task specific semantics to ORO_OS::RunnableInterface and sits in the ORO_CoreLib
      * namespace. Applications should always use this class
      * instead of the ORO_OS version.
      */

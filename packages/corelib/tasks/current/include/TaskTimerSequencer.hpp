@@ -52,15 +52,15 @@ namespace ORO_CoreLib
 
         void tick();
 
-        bool taskAdd( PeriodicTask* task );
+        bool addTask( PeriodicTask* task );
 
-        bool taskRemove( PeriodicTask* task );
+        bool removeTask( PeriodicTask* task );
 
-        nsecs periodGet() const;
+        nsecs getPeriod() const;
 
-        nsecs triggerGet() const;
+        nsecs getTrigger() const;
 
-        void triggerSet(nsecs ns);
+        void setTrigger(nsecs ns);
         
     protected:
 

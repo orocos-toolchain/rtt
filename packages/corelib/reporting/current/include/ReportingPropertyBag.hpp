@@ -30,7 +30,7 @@
 
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Property.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include "ReportExporterInterface.hpp"
 #include "ReportCollectorInterface.hpp"
 #include <corelib/marshalling/XMLMarshaller.hpp>
@@ -103,7 +103,7 @@ namespace ORO_CoreLib
                 return result;
             }
 
-            virtual void refresh( HeartBeatGenerator::Seconds time_stamp )
+            virtual void refresh( TimeService::Seconds time_stamp )
             {
                 timeStamp = time_stamp;
                 strategy->serialize( *this );

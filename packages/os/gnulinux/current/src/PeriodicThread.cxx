@@ -94,8 +94,8 @@ namespace ORO_OS
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new ORO_CoreLib::Handle();
 #endif
-        taskNameSet( name.c_str() );
-        periodSet( period );
+        setName( name.c_str() );
+        setPeriod( period );
         sem_init( &tsyncer, 0, 0 );
         sem_init( &msyncer, 0, 0 );
         pthread_attr_init( threadAttributeGet() );
@@ -116,6 +116,14 @@ namespace ORO_OS
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         delete h;
 #endif
+    }
+
+    bool PeriodicThread::run( RunnableInterface* r)
+    {
+        if ( isRunning() )
+            return false;
+        runner = r;
+        return true;
     }
 
     bool PeriodicThread::start()
@@ -175,38 +183,38 @@ namespace ORO_OS
     }
 
 
-    int PeriodicThread::periodSet( double s )
+    bool PeriodicThread::setPeriod( double s )
     {
         if ( isRunning() )
-            return -1;
+            return false;
 
         period.tv_sec = long(s);
 
         period.tv_nsec = long( (s - period.tv_sec )* 1000*1000*1000);
 
-        return 0;
+        return true;
     }
 
-    int PeriodicThread::periodSet( const secs s, const nsecs ns )
+    bool PeriodicThread::setPeriod( const secs s, const nsecs ns )
     {
         if ( isRunning() )
-            return -1;
+            return false;
 
         period.tv_sec = s;
 
         period.tv_nsec = ns;
 
-        return 0;
+        return true;
     }
 
-    int PeriodicThread::periodSet( TIME_SPEC p )
+    bool PeriodicThread::setPeriod( TIME_SPEC p )
     {
         if ( isRunning() )
-            return -1;
+            return false;
 
         period = p;
 
-        return 0;
+        return true;
     }
 
     void PeriodicThread::step()
@@ -228,13 +236,13 @@ namespace ORO_OS
             runner->finalize();
     }
 
-    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::getPeriod( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    PeriodicThread::Seconds PeriodicThread::periodGet() const
+    PeriodicThread::Seconds PeriodicThread::getPeriod() const
     {
         return ( double ) period.tv_sec + ( double ) period.tv_nsec / ( 1000.0 * 1000.0 * 1000.0 );
     }
@@ -288,13 +296,13 @@ namespace ORO_OS
     }
 
 
-    void PeriodicThread::taskNameSet( const char* nm )
+    void PeriodicThread::setName( const char* nm )
     {
         if ( strlen( nm ) < TASKNAME_SIZE )
             snprintf( taskName, TASKNAME_SIZE - 1, "%s", nm );
     }
 
-    const char* PeriodicThread::taskNameGet() const
+    const char* PeriodicThread::getName() const
     {
         return taskName;
     }

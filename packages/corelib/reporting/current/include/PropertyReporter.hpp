@@ -38,7 +38,7 @@
 #include <os/MutexLock.hpp>
 #include "RunnableInterface.hpp"
 #include "NameServerRegistrator.hpp"
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 
 namespace ORO_CoreLib
 {
@@ -80,7 +80,7 @@ namespace ORO_CoreLib
 
         virtual bool initialize()
         {
-            time = HeartBeatGenerator::Instance()->ticksGet();
+            time = TimeService::Instance()->getTicks();
             refreshAll(0);
             streamHeader();
             return true;
@@ -128,7 +128,7 @@ namespace ORO_CoreLib
             //adaptor.body().flush();
         }
 
-        void refreshAll( HeartBeatGenerator::Seconds timeStamp )
+        void refreshAll( TimeService::Seconds timeStamp )
         {
             root_bag.clear();
             for (Exporters::iterator it( exporters.begin() ); it != exporters.end(); ++it )
@@ -144,16 +144,16 @@ namespace ORO_CoreLib
             ORO_OS::MutexTryLock locker(copy_lock);
             if ( locker.isSuccessful() )
             {
-                refreshAll( HeartBeatGenerator::Instance()->secondsSince(time) );
+                refreshAll( TimeService::Instance()->secondsSince(time) );
                 return true;
             }
             return false;
         }
         
-        virtual void resetTime( HeartBeatGenerator::Seconds s=0)
+        virtual void resetTime( TimeService::Seconds s=0)
         {
-            time = HeartBeatGenerator::Instance()->ticksGet();
-            time += HeartBeatGenerator::nsecs2ticks( nsecs(s)*nsecs(1000.0*1000.0*1000.0) );
+            time = TimeService::Instance()->getTicks();
+            time += TimeService::nsecs2ticks( nsecs(s)*nsecs(1000.0*1000.0*1000.0) );
         }
 
         static NameServer<PropertyReporter<Configuration>* > nameserver;
@@ -181,7 +181,7 @@ namespace ORO_CoreLib
         /**
          * Timestamp since initialize().
          */
-        HeartBeatGenerator::ticks time;
+        TimeService::ticks time;
 
         /**
          * Locking for multi threaded reporting.

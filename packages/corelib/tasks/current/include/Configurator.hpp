@@ -33,7 +33,7 @@
 #include "TaskNonRealTime.hpp"
 #include "TaskPreemptible.hpp"
 #include "TaskNonPreemptible.hpp"
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 #include "Time.hpp"
 
 namespace ORO_CoreLib
@@ -77,11 +77,11 @@ namespace ORO_CoreLib
         bool configure( ConfigurationInterface* _target, Seconds _timeout = 0 )
         {
             target = _target;
-            HeartBeatGenerator::ticks timestamp = HeartBeatGenerator::Instance()->ticksGet();
+            TimeService::ticks timestamp = TimeService::Instance()->getTicks();
             this->start();
 
             while ( this->isRunning() && ( _timeout == 0 ||
-                                           HeartBeatGenerator::Instance()->secondsSince(timestamp) < _timeout ) )
+                                           TimeService::Instance()->secondsSince(timestamp) < _timeout ) )
                 {
                     struct timespec tt;
                     tt.tv_nsec=100*1000*1000; // 0.1 Hz

@@ -39,7 +39,7 @@ SimulationEncoder::readSensor() const
 
   else{
     // get new position, using time and velocity
-    HeartBeatGenerator::Seconds _delta_time = HeartBeatGenerator::Instance()->secondsSince(_previous_time);
+    TimeService::Seconds _delta_time = TimeService::Instance()->secondsSince(_previous_time);
     return _position + (_velocity*(double)_delta_time);
   }
 }
@@ -60,12 +60,12 @@ SimulationEncoder::setDrive(double velocity)
     _first_drive = false;
 
   else{
-    _delta_time = HeartBeatGenerator::Instance()->secondsSince(_previous_time);
+    _delta_time = TimeService::Instance()->secondsSince(_previous_time);
     _position += _velocity*(double)_delta_time;
   }
   
   // set new velocity and start time
-  _previous_time = ORO_CoreLib::HeartBeatGenerator::Instance()->ticksGet();
+  _previous_time = ORO_CoreLib::TimeService::Instance()->getTicks();
   _velocity = velocity;
 }
 

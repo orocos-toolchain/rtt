@@ -28,8 +28,8 @@
 
 
 
-#ifndef RUNNABLEINTERFACE_HPP
-#define RUNNABLEINTERFACE_HPP
+#ifndef ORO_OS_RUNNABLEINTERFACE_HPP
+#define ORO_OS_RUNNABLEINTERFACE_HPP
 
 namespace ORO_OS
 {
@@ -37,9 +37,9 @@ namespace ORO_OS
     /**
      * @brief A class for running a certain piece of code in a thread.
      *
-     * It defines three methods for executing functionality. It is 
-     * complementary to the \a TaskInterface, which defines the
-     * control methods as starting and stopping tasks in the CoreLib
+     * It defines three methods for executing functionality. It allows
+     * to execute code in a PeriodicThreadInterface or SingleThreadInterface, which define the
+     * control methods as starting and stopping (periodic) threads.
      * 
      * In a start-run-stop cycle, before step() is called the first time,
      * initialize() will be called.
@@ -54,16 +54,16 @@ namespace ORO_OS
             {}
 
             /**
-             * The method that will be periodically executed when this
-             * class is run.
-             */
-            virtual void step() = 0;
-
-            /**
              * The method that will be called once each time before the periodical
              * execution of step() is started.
              */
             virtual bool initialize() = 0;
+
+            /**
+             * The method that will be periodically executed when this
+             * class is run.
+             */
+            virtual void step() = 0;
 
             /**
              * The method that will be called once each time after the periodical

@@ -43,7 +43,7 @@ namespace ORO_DeviceDriver
 
 JR3Sensor::JR3Sensor(unsigned int DSP, float samplePeriod ) : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
 {
-    chooseFilter( this->periodGet() );
+    chooseFilter( this->getPeriod() );
     _readBuffer  = &_buffer1;
     _writeBuffer = &_buffer2;
 

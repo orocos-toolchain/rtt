@@ -46,7 +46,7 @@ tag: Peter Soetens  Mon Jun 10 14:35:52 CEST 2002  InitFramework.cpp
 #include <os/fosi.h>
 #include <os/cpp.hpp>
 #include "corelib/Framework.hpp"
-#include "corelib/HeartBeatGenerator.hpp"
+#include "corelib/TimeService.hpp"
 #include "corelib/CompletionProcessor.hpp"
 #include "corelib/ZeroTimeThread.hpp"
 #include "corelib/ZeroLatencyThread.hpp"
@@ -69,7 +69,7 @@ tag: Peter Soetens  Mon Jun 10 14:35:52 CEST 2002  InitFramework.cpp
 using namespace ORO_CoreLib;
     
 
-static HeartBeatGenerator* heartbeat;
+static TimeService* heartbeat;
 static CompletionProcessor* comp_proc;
 static ZeroTimeThread* ztt;
 static ZeroLatencyThread* zlt;
@@ -80,7 +80,7 @@ static EventPeriodic* events[10];
 extern "C"
 void initFramework( void )
 {
-    heartbeat = HeartBeatGenerator::Instance();
+    heartbeat = TimeService::Instance();
     comp_proc = CompletionProcessor::Instance();
     ztt = ZeroTimeThread::Instance();
     zlt = ZeroLatencyThread::Instance();
@@ -120,7 +120,7 @@ void cleanupFramework( void )
 {
     // these calls try to delete the component
     
-    HeartBeatGenerator::Release();
+    TimeService::Release();
     
     CompletionProcessor::Release();
     ZeroTimeThread::Release();

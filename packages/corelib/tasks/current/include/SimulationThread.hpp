@@ -37,7 +37,7 @@ namespace ORO_CoreLib
 {
 
     class TaskSimulation;
-    class HeartBeatGenerator;
+    class TimeService;
     /**
      * This thread is the simulated realtime thread in the
      * Orocos system. It behaves (to the TaskSimulation) like a perfect scheduler.
@@ -85,7 +85,7 @@ namespace ORO_CoreLib
         /**
          * The System clock.
          */
-        HeartBeatGenerator* beat;
+        TimeService* beat;
 
     };
 } // namespace ORO_CoreLib

@@ -58,14 +58,14 @@ namespace ORO_ControlKernel
       for (unsigned int i=0; i<_num_axes; i++)
 	_position_initial[i] = _position_meas_local[i] - ( _sin_amplitude.value()[i] * sin(_sin_phase.value()[i]) );
 
-      _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+      _time_begin = TimeService::Instance()->getTicks();
     }
   }
 
 
   void nAxesGeneratorSin::calculate()
   {
-    _time_passed = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
+    _time_passed = TimeService::Instance()->secondsSince(_time_begin);
     for (unsigned int i=0; i<_num_axes; i++){
       _position_local[i] = _position_initial[i] + (_sin_amplitude.value()[i] * sin( (_sin_frequency.value()[i] * _time_passed) + _sin_phase.value()[i] ));
       _velocity_local[i] = _sin_amplitude.value()[i] * _sin_frequency.value()[i] * cos( (_sin_frequency.value()[i] * _time_passed) + _sin_phase.value()[i] );

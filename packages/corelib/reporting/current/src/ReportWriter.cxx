@@ -27,14 +27,14 @@
 
 #include "corelib/ReportWriter.hpp"
 #include "corelib/FifoRTOut.hpp"
-#include "corelib/HeartBeatGenerator.hpp"
+#include "corelib/TimeService.hpp"
 //#include "corelib/rtconversions.hpp"
 
 
 namespace ORO_CoreLib
 {
      ReportWriter::ReportWriter(WriteInterface* f, double period)
-         :TaskPreemptible(period), rtf(f), localTime( HeartBeatGenerator::Instance()->ticksGet() )
+         :TaskPreemptible(period), rtf(f), localTime( TimeService::Instance()->getTicks() )
      {
          rtos_printf("Creating ReportWriter\n");
          expList.reserve(DEFAULT_EXPLIST_SIZE);
@@ -62,7 +62,7 @@ namespace ORO_CoreLib
          // Trigger rereading the data
          std::vector<StringExporterInterface*>::iterator itl;
          for (itl= expList.begin(); itl != expList.end(); ++itl)
-             (*itl)->refresh( HeartBeatGenerator::Instance()->secondsSince(localTime) );
+             (*itl)->refresh( TimeService::Instance()->secondsSince(localTime) );
          return true;
      }
 
@@ -89,8 +89,8 @@ namespace ORO_CoreLib
 
      void ReportWriter::resetTime( Seconds s)
      {
-         localTime = HeartBeatGenerator::Instance()->ticksGet();
-         localTime += HeartBeatGenerator::nsecs2ticks( long(s * 1000.*1000*1000) );
+         localTime = TimeService::Instance()->getTicks();
+         localTime += TimeService::nsecs2ticks( long(s * 1000.*1000*1000) );
      }
 
  }

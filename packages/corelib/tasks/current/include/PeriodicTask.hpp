@@ -103,7 +103,7 @@ namespace ORO_CoreLib
 
         virtual bool isRunning() const;
 
-        virtual Seconds periodGet() const;
+        virtual Seconds getPeriod() const;
 
         virtual TaskThreadInterface* thread() const;
 

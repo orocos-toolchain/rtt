@@ -32,7 +32,7 @@
 #include <ostream>
 #include <fstream>
 #include <sstream>
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 #include "os/Mutex.hpp"
 #include "os/MutexLock.hpp"
 
@@ -215,7 +215,7 @@ namespace ORO_CoreLib
         std::ofstream logfile;
         LogLevel inloglevel, outloglevel;
 
-        HeartBeatGenerator::ticks timestamp;
+        TimeService::ticks timestamp;
 
         Logger();
 

@@ -38,7 +38,7 @@
 #include <geometry/velocityprofile_dirac.h>
 #include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/PropertyExtension.hpp>
@@ -182,7 +182,7 @@ namespace ORO_ControlKernel
             end_pos = mp_base_frame;
 
             // record the startup time. 
-            timestamp = HeartBeatGenerator::Instance()->ticksGet();
+            timestamp = TimeService::Instance()->getTicks();
             return true;
         }            
                 
@@ -214,12 +214,12 @@ namespace ORO_ControlKernel
                             cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, track_frame,
                                                                            new RotationalInterpolation_SingleAxis(),1.0 ),
                                                              interpol->Clone(), track_time );
-                            timestamp = HeartBeatGenerator::Instance()->ticksGet();
+                            timestamp = TimeService::Instance()->getTicks();
                             _time = 0;
                         }
                 }
 
-            _time = HeartBeatGenerator::Instance()->secondsSince(timestamp);
+            _time = TimeService::Instance()->secondsSince(timestamp);
         }
             
         /**
@@ -488,7 +488,7 @@ namespace ORO_ControlKernel
         bool tracking;
         bool task_tracking;
 
-        HeartBeatGenerator::ticks timestamp;
+        TimeService::ticks timestamp;
         Seconds      _time;
 
         VelocityProfile* interpol;

@@ -77,7 +77,7 @@ namespace ORO_OS
 
         PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
 
-        mytask_name = nam2num( task->taskNameGet() );
+        mytask_name = nam2num( task->getName() );
 
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
@@ -168,7 +168,7 @@ namespace ORO_OS
         stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
         if ( !name.empty() && rt_get_adr(nam2num( name.c_str() )) == 0 )
-            taskNameSet(name.c_str());
+            setName(name.c_str());
         else {
             unsigned long nname = nam2num( name.c_str() );
             while ( rt_get_adr( nname ) != 0 ) // check for existing 'NAME'
@@ -178,7 +178,7 @@ namespace ORO_OS
 
         confDone = rt_sem_init( rt_get_name(0), 0 );
 
-        periodSet(period);
+        setPeriod(period);
         pthread_create( &thread, 0, ComponentThread, this);
         rt_sem_wait(confDone);
     }
@@ -196,6 +196,15 @@ namespace ORO_OS
         delete static_cast<Event<bool(void)>*>(stopEvent);
 #endif
     }
+
+    bool PeriodicThread::run( RunnableInterface* r)
+    {
+        if ( isRunning() )
+            return false;
+        runner = r;
+        return true;
+    }
+
 
     bool PeriodicThread::start() 
     {
@@ -352,37 +361,37 @@ namespace ORO_OS
             runComp->finalize();
     }
 
-    int PeriodicThread::periodSet( double s )
+    bool PeriodicThread::setPeriod( double s )
     {
         if ( isRunning() )
-            return -1;
+            return false;
 
         period = long(s) + long( (s - long(s) )* 1000*1000*1000);
 
-        return 0;
+        return true;
     }
 
-    int PeriodicThread::periodSet(secs s, nsecs ns) 
+    bool PeriodicThread::setPeriod(secs s, nsecs ns) 
     {
-        if ( isRunning() ) return -1;
+        if ( isRunning() ) return false;
         period = ns + 1000*1000*1000*s;
-        return 0;
+        return true;
     }
 
-    int PeriodicThread::periodSet( TIME_SPEC p) 
+    bool PeriodicThread::setPeriod( TIME_SPEC p) 
     {
-        if (isRunning()) return -1;
+        if (isRunning()) return false;
         period = 1000*1000*1000* p.tv_sec + p.tv_nsec;
-        return 0;
+        return true;
     }
 
-    void PeriodicThread::periodGet(secs& s, nsecs& ns) const
+    void PeriodicThread::getPeriod(secs& s, nsecs& ns) const
     {
         s = period/(1000*1000*1000);
         ns = period - s*1000*1000*1000;
     }
 
-    double PeriodicThread::periodGet() const
+    double PeriodicThread::getPeriod() const
     {
         return double(period)/(1000.0*1000.0*1000.0);
     }
@@ -436,12 +445,12 @@ namespace ORO_OS
 #endif
     }
 
-    void PeriodicThread::taskNameSet(const char* nm)
+    void PeriodicThread::setName(const char* nm)
     {
         snprintf(taskName,TASKNAMESIZE,"%s",nm);
     }
 
-    const char* PeriodicThread::taskNameGet() const
+    const char* PeriodicThread::getName() const
     {
         return taskName;
     }

@@ -58,12 +58,12 @@ namespace ORO_OS
              * Set the periodicity of this thread
              * (seconds, nanoseconds)
              */
-            int periodSet( secs s, nsecs ns );
-            void periodGet( secs& s, nsecs& ns ) const;
+            int setPeriod( secs s, nsecs ns );
+            void getPeriod( secs& s, nsecs& ns ) const;
             /**
              * Get the periodicity in seconds
              */
-            double periodGet() const;
+            double getPeriod() const;
             /**
              * Returns whether the thread is running
              */
@@ -107,12 +107,12 @@ namespace ORO_OS
              */
             pthread_attr_t* threadAttributeGet();
             /**
-             * Wait for the full period periodGet()
+             * Wait for the full period getPeriod()
              */
             void periodWait();
             /**
              * Wait only for the remaining period, being
-             * periodGet() - (time_now - start_time_of_this_period)
+             * getPeriod() - (time_now - start_time_of_this_period)
              */
             void periodWaitRemaining();
 

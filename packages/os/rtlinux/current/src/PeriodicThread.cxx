@@ -81,7 +81,7 @@ namespace ORO_OS
         rtos_printf( "PeriodicThread Constructor\n" );
         running = 0;
         taskNameSet( name.c_str() );
-        periodSet( 0, msecs_to_nsecs(10) ); // 10 ms
+        setPeriod( 0, msecs_to_nsecs(10) ); // 10 ms
         periodMark = 0;
         pthread_attr_init( threadAttributeGet() );
         //    pthread_attr_setstacksize(threadAttributeGet(), 40*1024);
@@ -157,7 +157,7 @@ namespace ORO_OS
         return running;
     }
 
-    int PeriodicThread::periodSet( secs s, nsecs ns )
+    int PeriodicThread::setPeriod( secs s, nsecs ns )
     {
         if ( isRunning() )
             return -1;
@@ -169,13 +169,13 @@ namespace ORO_OS
         return 0;
     }
 
-    void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
+    void PeriodicThread::getPeriod( secs& s, nsecs& ns ) const
     {
         s = period.tv_sec;
         ns = period.tv_nsec;
     }
 
-    double PeriodicThread::periodGet() const
+    double PeriodicThread::getPeriod() const
     {
         return ( double ) period.tv_sec + ( double ) period.tv_nsec / ( 1000.0 * 1000.0 * 1000.0 );
     }

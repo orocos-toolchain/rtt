@@ -116,7 +116,7 @@ namespace ORO_ControlKernel
             for( chaniter it= channel.begin(); it != channel.end(); ++it, ++i)
                 if (it->enable && it->gen)
                     if ( !it->freeze )
-                        set_point[i]  = it->factor * it->gen->result( HeartBeatGenerator::Instance()->secondsSince(it->timestamp) );
+                        set_point[i]  = it->factor * it->gen->result( TimeService::Instance()->secondsSince(it->timestamp) );
                 else
                     set_point[i] = 0;
         }
@@ -171,7 +171,7 @@ namespace ORO_ControlKernel
             if (chan_num >= max_chans )
                 return false;
             channel[chan_num].freezetime = 0;
-            channel[chan_num].timestamp = HeartBeatGenerator::Instance()->ticksGet();
+            channel[chan_num].timestamp = TimeService::Instance()->getTicks();
             channel[chan_num].enable = true;
             return true;
         }
@@ -216,7 +216,7 @@ namespace ORO_ControlKernel
             if (chan_num >= max_chans || channel[chan_num].enable==false || channel[chan_num].freeze == true)
                 return false;
             channel[chan_num].freeze = true;
-            channel[chan_num].freezetime = HeartBeatGenerator::Instance()->ticksGet();
+            channel[chan_num].freezetime = TimeService::Instance()->getTicks();
             return true;
         }
 
@@ -230,7 +230,7 @@ namespace ORO_ControlKernel
             if (chan_num >= max_chans || channel[chan_num].enable==false || channel[chan_num].freeze == false)
                 return false;
             // add the frozen time to the timestamp
-            channel[chan_num].timestamp += HeartBeatGenerator::Instance()->ticksSince( channel[chan_num].freezetime );
+            channel[chan_num].timestamp += TimeService::Instance()->ticksSince( channel[chan_num].freezetime );
             channel[chan_num].freeze = false;
             return true;
         }
@@ -347,9 +347,9 @@ namespace ORO_ControlKernel
             bool freeze;
             SignalGeneratorInterface* gen;
             // the time when the signal was started
-            HeartBeatGenerator::ticks timestamp;
+            TimeService::ticks timestamp;
             // freezetime is the accumulated frozen time
-            HeartBeatGenerator::ticks freezetime;
+            TimeService::ticks freezetime;
         };
 
         typedef std::vector<Channel>::iterator chaniter;

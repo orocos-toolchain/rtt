@@ -30,7 +30,7 @@
 #define CONDITIONDURATION_HPP
 
 #include "ConditionInterface.hpp"
-#include "HeartBeatGenerator.hpp"
+#include "TimeService.hpp"
 
 namespace ORO_CoreLib
 {
@@ -42,8 +42,8 @@ namespace ORO_CoreLib
     class ConditionDuration
         : public ConditionInterface
     {
-        typedef HeartBeatGenerator::nsecs nsecs;
-        typedef HeartBeatGenerator::ticks ticks;
+        typedef TimeService::nsecs nsecs;
+        typedef TimeService::ticks ticks;
         
     public:
         /**
@@ -72,7 +72,7 @@ namespace ORO_CoreLib
         /**
          * A local reference to the HeartBeat Generator
          */
-        HeartBeatGenerator *hb;
+        TimeService *hb;
         /**
          * The time the evaluation is called the first time
          */
