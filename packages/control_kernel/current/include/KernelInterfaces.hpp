@@ -227,7 +227,7 @@ namespace ORO_ControlKernel
 
         KernelBaseFunction( KernelBaseFunction* _base=0 )
             : running(false), 
-              frequency("frequency","The periodic execution frequency of this kernel",0),
+              frequency("frequency","The periodic execution frequency of this kernel",0), mytask(0),
               kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN)
         {}
 
@@ -246,6 +246,16 @@ namespace ORO_ControlKernel
         virtual void finalize() 
         { 
             running = false; 
+        }
+
+        virtual TaskInterface* getTask() const
+        {
+            return mytask;
+        }
+
+        virtual void setTask( TaskInterface* task )
+        {
+            mytask = task;
         }
 
         /**
@@ -351,6 +361,7 @@ namespace ORO_ControlKernel
 
         std::vector<ComponentBaseInterface*> components;
 
+        TaskInterface* mytask;
     protected:
         Event kernelStarted;
         Event kernelStopped;

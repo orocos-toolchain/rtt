@@ -23,8 +23,6 @@
 #include "KernelInterfaces.hpp"
 
 #include <execution/Processor.hpp>
-#include <execution/SystemContext.hpp>
-#include <execution/SystemState.hpp>
 #include <execution/GlobalFactory.hpp>
 
 namespace ORO_ControlKernel
@@ -33,8 +31,6 @@ namespace ORO_ControlKernel
     using ORO_Execution::CommandFactoryInterface;
     using ORO_Execution::DataSourceFactory;
     using ORO_Execution::ProgramGraph;
-    using ORO_Execution::SystemContext;
-    using ORO_Execution::SystemState;
     using ORO_Execution::Processor;
     using ORO_Execution::GlobalFactory;
 
@@ -151,6 +147,10 @@ namespace ORO_ControlKernel
             return &proc;
         }
 
+        virtual TaskInterface* getTask() const;
+
+        virtual void setTask( TaskInterface* task );
+
         virtual void step() ;
 
         virtual void finalize();
@@ -164,6 +164,9 @@ namespace ORO_ControlKernel
         
         Processor proc;
         int count;
+        
+        KernelBaseFunction* base;
+
         Property<int> interval;
     };
 }

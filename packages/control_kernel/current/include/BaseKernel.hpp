@@ -22,7 +22,6 @@
 
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
-#include <corelib/RunnableInterface.hpp>
 #include "BaseComponents.hpp"
 
 #include <pkgconf/system.h>

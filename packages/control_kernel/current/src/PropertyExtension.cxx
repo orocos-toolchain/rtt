@@ -35,6 +35,16 @@ namespace ORO_ControlKernel
     {
     }
 
+    TaskInterface* PropertyExtension::getTask() const
+    {
+        return base->getTask();
+    }
+    
+    void PropertyExtension::setTask( TaskInterface* task )
+    {
+        base->setTask( task );
+    }
+
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
         composeProperty(bag, save_props);

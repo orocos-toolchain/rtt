@@ -14,7 +14,7 @@ namespace ORO_ControlKernel
 
     ExecutionExtension::ExecutionExtension( KernelBaseFunction* _base )
         : detail::ExtensionInterface( "Execution" ), program(0), context(0),
-          running_progr(false),count(0),
+          running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
 with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     {
@@ -26,6 +26,16 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     using std::cerr;
     using std::endl;
+
+    TaskInterface* ExecutionExtension::getTask() const
+    {
+        return base->getTask();
+    }
+    
+    void ExecutionExtension::setTask( TaskInterface* task )
+    {
+        base->setTask( task );
+    }
 
     bool ExecutionExtension::initialize() 
     { 
