@@ -54,6 +54,14 @@
       </listitem>
       <listitem>
 	<para>
+	  The PeriodicThread's <function>periodGet</function> and
+	  <function>periodSet</function> have been renamed to
+	  <function>getPeriod</function> and
+	  <function>setPeriod</function>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
 	  in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
 	  Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reached <emphasis>and</emphasis>
@@ -86,7 +94,25 @@
 	    The OS package was cleaned up to remove deprecated classes such as <classname>ConditionVariable</classname>
 	    and <classname>EventInterrupt</classname> and related classes.
 	  </para>
-      </listitem>
+	</listitem>
+	<listitem>
+	  <para>
+	    PeriodicThread implementations guard against exceptions being thrown in step(),
+	    analogous to the ORO_main protection against uncaught exception.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <classname>PeriodicThread</classname> stepping is a bit more efficient.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    It is now possible to give your processor architecture in the configuration tool.
+	    A very sane default has been set, so only change if necessarily. Orocos applications
+	    are recommended to build with the same flags.
+	  </para>
+	</listitem>
     </itemizedlist>
     </section>
     <section>
@@ -94,8 +120,9 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    A race condition in <classname>PeriodicThread</classname> start()/stop() has been solved. It could lead
-	    to finalize() being called before step() completed.
+	    A race condition in <classname>PeriodicThread</classname>
+	    start()/stop() has been solved. It could lead to
+	    finalize() being called before step() completed.
 	  </para>
       </listitem>
     </itemizedlist>
@@ -105,13 +132,19 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    <classname>PeriodicThread</classname> stepping is a bit more efficient.
+	    Orocos tries to find an alternative <emphasis>RTAI
+	      Name</emphasis> for its threads if the preconfigured one
+	    is already taken, allowing to run multiple Orocos
+	    applications in parallel.
 	  </para>
-      </listitem>
+	</listitem>
 	<listitem>
 	  <para>
-	    Orocos tries to find an alternative <emphasis>RTAI Name</emphasis> for its threads if the preconfigured one is already taken,
-	    allowing to run multiple Orocos applications in parallel.
+	    The default scheduler for PeriodicThreads is now
+	    <option>SCHED_OTHER</option>, thus the default Linux
+	    scheduler. This default can be changed with the
+	    configuration tool. Be warned, inproper use of other
+	    Linux schedulers might lock-up your application.
 	  </para>
 	</listitem>
     </itemizedlist>
