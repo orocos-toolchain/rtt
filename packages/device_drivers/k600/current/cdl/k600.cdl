@@ -1,0 +1,13 @@
+cdl_package OROPKG_DEVICE_DRIVERS_K600 {
+    display "Real-time drivers for Krypton K600 Measuring device"
+
+    parent   OROPKG_DEVICE_DRIVERS
+
+    requires OROPKG_OS_LXRT
+    requires OROPKG_CORELIB_TASKS
+    requires OROPKG_DEVICE_DRIVERS
+    requires OROPKG_DEVICE_INTERFACE
+    requires OROPKG_DEVICE_INTERFACE_IO
+
+    include_files KryptonK600PositionInterfaceThread.hpp KryptonK600PositionInterfaceThread.inc
+}
