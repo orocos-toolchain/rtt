@@ -66,6 +66,40 @@ void PropertyTest::testPrimitives()
 }
 void PropertyTest::testBags()
 {
+    PropertyBag bag;
+
+    Property<float> pf("pf","pfd", -1.0);
+    Property<double> pd("pd","pdd", +1.0);
+    Property<std::string> ps("ps","psd", "std::string");
+    Property<char> pc("pc","pcd", 'c');
+    
+    Property<PropertyBag> subbag1("s1", "s1d");
+    Property<PropertyBag> subbag2("s2", "s2d");
+
+    bag.add( pi1 );
+    bag.add( pi2 );
+    bag.add( &subbag1 );
+    subbag1.set().add( &subbag2 );
+    subbag1.set().add( &pf );
+    subbag1.set().add( &pd );
+
+    subbag2.set().add( &ps );
+    subbag2.set().add( &pc );
+
+    // non recursive search :
+    CPPUNIT_ASSERT( bag.find( "pf" ) == 0 );
+    CPPUNIT_ASSERT( bag.find( "s1" ) == &subbag1 );
+    CPPUNIT_ASSERT( bag.find( "pi1" ) == pi1 );
+
+    // recursive search :
+    CPPUNIT_ASSERT( find( bag, "/pf", "/" ) == 0 );
+    CPPUNIT_ASSERT( find( bag, "::pi1" ) == pi1 ); // default is ::
+    CPPUNIT_ASSERT( find( bag, "s1" ) == &subbag1 );
+    CPPUNIT_ASSERT( find( bag, "pi1" ) == pi1 );
+    CPPUNIT_ASSERT( find( bag, "/s1/s2", "/" ) == &subbag2 );
+    CPPUNIT_ASSERT( find( bag, "/s1/s2/ps", "/" ) == &ps );
+    CPPUNIT_ASSERT( find( bag, "s1::s2::pc" ) == &pc );
+                    
 }
 void PropertyTest::testBagOperations()
 {
