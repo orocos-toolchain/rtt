@@ -71,14 +71,13 @@ namespace ORO_ControlKernel
       temp[i] = _position_joint[i];
 
     _kinematics->positionForward(temp, _position_out_local );
-    _position_out_local = _position_out_local * _offset;
   }
 
 
   
   void nAxesSensorCartesianPos::push()      
   {
-    _position_out_DOI->Set(_position_out_local);
+    _position_out_DOI->Set(_position_out_local * _offset);
   }
 
 

@@ -28,7 +28,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
-
+  using namespace ORO_Execution;
 
   nAxesSensorCartesianPosForce::nAxesSensorCartesianPosForce(unsigned int num_axes, 
 							     std::vector<AxisInterface*> axes,
@@ -152,6 +152,31 @@ namespace ORO_ControlKernel
 
   void nAxesSensorCartesianPosForce::exportProperties(ORO_CoreLib::PropertyBag& bag)
   {};
+
+
+  
+  MethodFactoryInterface* nAxesSensorCartesianPosForce::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesSensorCartesianPosForce>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "setMassProperties", method( &nAxesSensorCartesianPosForce::setMassProperties, "set mass properties",
+							"offset","constant offset on measurements of forcesensor",
+							"center_gravity","center of gravity of object attached to forcesensor",
+							"mass","mass of object attached to forcesensor"));
+
+    return my_methodFactory;
+  }
+
+
+
+  void nAxesSensorCartesianPosForce::setMassProperties(const ORO_Geometry::Wrench offset, const ORO_Geometry::Vector center_gravity, const double mass)
+  {
+    _mass = mass;
+    _offset = offset;
+    _center_gravity = center_gravity;
+
+    _gravity.force  = Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));
+  }
+  
 
 
   

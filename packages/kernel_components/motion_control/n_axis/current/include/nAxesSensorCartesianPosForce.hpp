@@ -24,6 +24,8 @@
 #include <control_kernel/PropertyExtension.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <device_interface/AxisInterface.hpp>
 #include <kindyn/KinematicsComponent.hpp>
@@ -52,7 +54,8 @@ namespace ORO_ControlKernel
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorCartesianPosForceInput_pos_force>,
 				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorCartesianPosForce_typedef;
+								   ORO_ControlKernel::KernelBaseFunction,
+								   ORO_ControlKernel::ExecutionExtension>::Result > nAxesSensorCartesianPosForce_typedef;
   
   class nAxesSensorCartesianPosForce
     : public nAxesSensorCartesianPosForce_typedef
@@ -77,6 +80,9 @@ namespace ORO_ControlKernel
     virtual void calculate();
     virtual void push();
 
+    virtual MethodFactoryInterface*  createMethodFactory();
+    void setMassProperties(const ORO_Geometry::Wrench offset, const ORO_Geometry::Vector center_gravity, const double mass);
+    
   private:
     unsigned int                                                          _num_axes;
     std::vector<ORO_DeviceInterface::AxisInterface*>                      _axes;
