@@ -20,11 +20,7 @@
 #ifndef AXIS_HPP
 #define AXIS_HPP
 
-//#include <device_interfac/ActuatorInterface.hpp>
-#include <device_interface/EncoderIncrementalInterface.hpp>
-//#include <device_drivers/Encoder.hpp>
-#include <can/Encoder.hpp>
-//#include <fdi/SwitchHomingInterface.hpp>
+#include <device_interface/EncoderInterface.hpp>
 #include "DigitalInput.hpp"
 #include "Drive.hpp"
 
@@ -66,7 +62,7 @@ namespace CBDeviceDriver
          * 
          * @post the actuator is stopped
          */
-        Axis( Drive* a, double _v_to_u,  Encoder* e, double _mm_to_inc,  DigitalInput* s ) 
+        Axis( Drive* a, double _v_to_u,  EncoderInterface* e, double _mm_to_inc,  DigitalInput* s ) 
             : act( a ), encoder( e ), swt( s ), v_to_u(_v_to_u), mm_to_inc(_mm_to_inc), posOffset(0)
         {
             act->disableDrive();
@@ -115,7 +111,7 @@ namespace CBDeviceDriver
         /**
          * Returns the encoder used
          */
-        Encoder* encoderGet();
+        EncoderInterface* encoderGet();
 
         /**
          * Returns the homing switch used
@@ -130,7 +126,7 @@ namespace CBDeviceDriver
         /**
          * Our encoder
          */
-        Encoder* encoder;
+        EncoderInterface* encoder;
 
         /**
          * Our homing switch

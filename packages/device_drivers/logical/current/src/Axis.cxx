@@ -100,7 +100,7 @@ namespace CBDeviceDriver
         return act;
     }
 
-    Encoder* Axis::encoderGet()
+    EncoderInterface* Axis::encoderGet()
     {
         return encoder;
     }
