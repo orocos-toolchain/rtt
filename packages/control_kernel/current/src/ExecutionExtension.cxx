@@ -78,7 +78,9 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     bool ExecutionExtension::initialize()
     {
         initKernelCommands();
-        if ( !proc.startStateContext("Default") )
+        if ( !proc.activateStateContext("Default") )
+            cerr << "Warning : Processor could not activate \"Default\" StateContext."<<endl;
+        else if ( !proc.startStateContext("Default") )
             cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
         return true;
     }
@@ -114,12 +116,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.loadProgram( program );
     }
 
-    void ExecutionExtension::loadStateContexts( std::istream& state_stream, const std::string& filename )
+    void ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& filename )
     {
         initKernelCommands();
         Parser    parser;
-        typedef std::vector<ParsedStateContext*> contexts_t;
-        contexts_t contexts;
+        std::vector<ParsedStateContext*> contexts;
         try {
           contexts = parser.parseStateContext( state_stream, filename, &proc, this );
         }
@@ -130,36 +131,37 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         }
         if ( contexts.empty() )
         {
-          throw statecontext_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
+          throw program_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
         }
-        contexts_t::iterator i;
-        for ( i = contexts.begin(); i != contexts.end(); ++i )
-        {
-            if ( !( *i )->registerWithProcessor( getProcessor() ) )
-                break;
-        }
-        if ( i != contexts.end() )
-        {
-            std::string error(
-                "Could not register StateContext \"" + ( *i )->getName() +
-                "\" with the processor.  Probably the name is already used." );
-            // something went wrong while registering *i -> unregister
-            // the previous contexts.
-            for ( contexts_t::iterator j = contexts.begin(); j != i; ++j )
-                ( *j )->unregisterFromProcessor( getProcessor () );
-            throw statecontext_load_exception( error );
-        }
+
+        // this can throw a program_load_exception
+        std::vector<ParsedStateContext*>::iterator it;
+        for( it= contexts.begin(); it !=contexts.end(); ++it)
+            getProcessor()->loadStateContext( *it );
+    }
+
+    bool ExecutionExtension::activateStateContext(const std::string& name)
+    {
+        return proc.activateStateContext(name);
+    }
+
+    bool ExecutionExtension::deactivateStateContext(const std::string& name)
+    {
+        return proc.deactivateStateContext(name);
     }
 
     bool ExecutionExtension::startStateContext(const std::string& name)
     {
-        proc.resetStateContext(name);
         return proc.startStateContext(name);
+    }
+
+    bool ExecutionExtension::pauseStateContext(const std::string& name)
+    {
+        return proc.pauseStateContext(name);
     }
 
     bool ExecutionExtension::deleteStateContext( const std::string& name )
     {
-        proc.stopStateContext( name );
         return proc.deleteStateContext( name );
     }
 
@@ -200,6 +202,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     void ExecutionExtension::finalize()
     {
         proc.stopStateContext("Default");
+        proc.deactivateStateContext("Default");
     }
 
     void ExecutionExtension::initKernelCommands()
@@ -260,16 +263,31 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                   ( &ExecutionExtension::resetProgram ,
                     &ExecutionExtension::true_gen ,
                     "Reset a program", "Name", "The Name of the Stopped Program" ) );
+        ret->add( "activateStateContext",
+                  command
+                  ( &ExecutionExtension::activateStateContext ,
+                    &ExecutionExtension::true_gen ,
+                    "Activate a StateContext", "Name", "The Name of the Loaded StateContext" ) );
+        ret->add( "deactivateStateContext",
+                  command
+                  ( &ExecutionExtension::deactivateStateContext ,
+                    &ExecutionExtension::true_gen ,
+                    "Deactivate a StateContext", "Name", "The Name of the Stopped StateContext" ) );
         ret->add( "startStateContext",
                   command
                   ( &ExecutionExtension::startStateContext ,
                     &ExecutionExtension::true_gen ,
-                    "Start a program", "Name", "The Name of the Loaded StateContext" ) );
+                    "Start a StateContext", "Name", "The Name of the Activated/Paused StateContext" ) );
+        ret->add( "pauseStateContext",
+                  command
+                  ( &ExecutionExtension::pauseStateContext ,
+                    &ExecutionExtension::true_gen ,
+                    "Pause a StateContext", "Name", "The Name of a Started StateContext" ) );
         ret->add( "stopStateContext",
                   command
                   ( &ExecutionExtension::stopStateContext ,
                     &ExecutionExtension::true_gen ,
-                    "Stop a program", "Name", "The Name of the Started StateContext" ) );
+                    "Stop a StateContext", "Name", "The Name of the Started/Paused StateContext" ) );
         ret->add( "resetStateContext",
                   command
                   ( &ExecutionExtension::resetStateContext ,

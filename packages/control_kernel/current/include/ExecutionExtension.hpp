@@ -48,21 +48,6 @@ namespace ORO_ControlKernel
 
     class ExecutionExtension;
 
-    class statecontext_load_exception
-    {
-        std::string merror;
-    public:
-        statecontext_load_exception( const std::string& error )
-            : merror( error )
-            {
-            }
-        const std::string what() const
-            {
-                return merror;
-            }
-    };
-
-
     /**
      * @brief This is the default interface a kernel Component gets
      * when the kernel is extended with the ExecutionExtension.
@@ -155,7 +140,7 @@ namespace ORO_ControlKernel
          * statecontext_load_exception ( defined in
          * this header ) if loading fails...
          */
-        void loadStateContexts(
+        void loadStateContext(
           std::istream& state_stream, const std::string& filename );
 
         /**
@@ -188,10 +173,28 @@ namespace ORO_ControlKernel
         bool resetProgram(const std::string& name);
 
         /**
-         * Start a previously loaded StateContext.
+         * Activate a previously loaded StateContext.
+         * @param name The name of the StateContext.
+         */
+        bool activateStateContext(const std::string& name);
+
+        /**
+         * Deactivate a stopped StateContext.
+         * @param name The name of the StateContext.
+         */
+        bool deactivateStateContext(const std::string& name);
+
+        /**
+         * Start a previously activated StateContext.
          * @param name The name of the StateContext.
          */
         bool startStateContext(const std::string& name);
+
+        /**
+         * Pause a previously activated StateContext.
+         * @param name The name of the StateContext.
+         */
+        bool pauseStateContext(const std::string& name);
 
         /**
          * Returns true if the program was successfully started.
