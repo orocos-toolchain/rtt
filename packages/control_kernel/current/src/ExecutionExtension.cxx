@@ -76,7 +76,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     bool ExecutionExtension::initialize() 
     { 
         if ( !proc.startStateContext("Default") )
-            cerr << "Processor could not start \"Default\" StateContext."<<endl;
+            cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
         return true;
     }
 
@@ -101,14 +101,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.resetProgram(name);
     }
 
-    bool ExecutionExtension::loadProgram( std::istream& prog_stream, const std::string& name )
+    bool ExecutionExtension::loadProgram( std::istream& prog_stream )
     {
         initKernelCommands();
         Parser    parser;
         program = parser.parseProgram( prog_stream, &proc, this );
         if (program == 0) 
             return false;
-        return proc.loadProgram(name, program);
+        return proc.loadProgram( program );
     }
 
     bool ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& name )

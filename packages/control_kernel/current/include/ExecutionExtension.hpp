@@ -126,10 +126,9 @@ namespace ORO_ControlKernel
         /**
          * Set a ProgramGraph to be used the next time the kernel is started.
          *
-         * @param prog_stream A stream containing the program script to be executed.
-         * @param name The name of the Program.
+         * @param prog_stream A stream containing a program.
          */
-        bool loadProgram( std::istream& prog_stream, const std::string& name );
+        bool loadProgram( std::istream& prog_stream );
 
         /**
          * Set a StateGraph to be used the next time the kernel is started.
