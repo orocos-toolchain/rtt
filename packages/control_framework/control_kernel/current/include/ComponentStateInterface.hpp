@@ -29,6 +29,9 @@
 #define COMPONENT_STATE_INTERFACE_HPP
 
 namespace ORO_ControlKernel {
+
+    class ComponentBaseInterface;
+
     namespace detail {
 
         /**

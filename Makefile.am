@@ -13,7 +13,6 @@ EXTRA_DIST = \
 	packages/support/common/current/support.cdl.in \
 	packages/support/boost/current/boost.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
-	packages/support/comedilib/current/comedilib.cdl.in \
 	packages/support/xercesc/current/xercesc.cdl.in \
 	packages/support/readline/current/readline.cdl.in \
 	packages/support/rtai/current/rtai.cdl.in \
@@ -31,7 +30,7 @@ EXTRA_DIST = \
 
 DISTCHECK_CONFIGURE_FLAGS = --disable-tests
 
-PATHHEADERS=$$(cd packages/install/include; find . -type f )
+PATHHEADERS=$$(cd packages/install/include && find . -type f )
 PATHEXISTS =$$( if test -d packages/install/include; echo yes; fi )
 
 .PHONY: docs myinstall myuninstall new_packages configure_packages all_packages dist_packages clean_packages init_packages inst-headers check-headers
@@ -64,10 +63,11 @@ install-exec-local:
 	install -m 755 -d $(prefix)/include
 	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done
 	install -m 755 -d $(prefix)/lib
-	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a
-	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a
-	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a
-	libtool --mode=finish $(prefix)/lib
+	for i in $( ls packages/install/lib/libtarget.a ); do \
+	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
+	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
+	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; done
+	libtool --mode=finish $(prefix)/lib 
 
 all-local: test_new_packages test_all_packages
 

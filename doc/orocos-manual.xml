@@ -10,7 +10,7 @@
 <book>
   <bookinfo>
     <title>
-      The Complete OROCOS Software Guide
+      The OROCOS Open Realtime Control Services
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -22,7 +22,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004, 2005</year>
+      <year>2002,2003,2004,2005</year>
       <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 

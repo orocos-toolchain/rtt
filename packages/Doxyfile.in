@@ -446,8 +446,7 @@ WARN_LOGFILE           = doxygen.warnings
 
 INPUT                  = corelib \
                          execution \
-                         control_kernel \
-                         kernel_components \
+                         control_framework \
                          device_drivers \
                          device_interface \
                          execution \

@@ -10,7 +10,7 @@
 <book>
   <bookinfo>
     <title>
-      The Orocos Control Kernel Application
+      The Orocos Robot Control Application
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -22,7 +22,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004, 2005</year>
+      <year>2002,2003,2004,2005</year>
       <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 
@@ -32,7 +32,7 @@
 	the <ulink url="http://www.orocos.org">&orocos;</ulink>
 	<emphasis> ( Open RObot COntrol Software ) </emphasis> Control
 	Kernel Infrastructure. It is complementary to the Orocos
-	Software Guide.
+	Realtime Control Services Manual.
       </para>
     </abstract>
 
