@@ -56,7 +56,7 @@ namespace ORO_KinDyn
         static
         KinematicsInterface* create(const std::string& name)
       {
-	if (name == "kuka361"){
+	if (name == "Kuka361"){
 	  SerialZYYDWH* ki = new SerialZYYDWH();
 	  ki->geometrySet( 1.020,0.480,0.645,0.,0.,0.120 );
 	  ki->offsetSet(0.);
