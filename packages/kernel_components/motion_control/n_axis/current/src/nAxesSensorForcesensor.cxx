@@ -138,8 +138,7 @@ namespace ORO_ControlKernel
   MethodFactoryInterface* nAxesSensorForcesensor::createMethodFactory()
   {
     TemplateMethodFactory<nAxesSensorForcesensor>* my_methodFactory = newMethodFactory( this );
-    my_methodFactory->add( "finishedMeasuring", method( &nAxesSensorForcesensor::finishedMeasuring, "Arrived at new position" ));
-    my_methodFactory->add( "getMeasurement", method( &nAxesSensorForcesensor::getMeasurement, "Get last measurement" ));
+    my_methodFactory->add( "getMeasurement", method( &nAxesSensorForcesensor::getMeasurement, "Get Wrench measurement" ));
 
     return my_methodFactory;
   }

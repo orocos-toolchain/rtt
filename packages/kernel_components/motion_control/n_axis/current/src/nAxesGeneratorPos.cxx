@@ -57,6 +57,8 @@ namespace ORO_ControlKernel
   {
     // initialize
     if (!_is_initialized){
+      _new_values = false;
+      _is_moving = false;
       _is_initialized = true;
       _position_meas_DOI->Get(_position_desired);
     }
@@ -215,6 +217,15 @@ namespace ORO_ControlKernel
   }
 
 
+  MethodFactoryInterface* nAxesGeneratorPos::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesGeneratorPos>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "reset", method( &nAxesGeneratorPos::reset, "Reset generator" ));
+
+    return my_methodFactory;
+  }
+
+
   bool nAxesGeneratorPos::moveTo(const std::vector<double>& position, double time)
   {
     MutexLock locker(_my_lock);
@@ -237,6 +248,12 @@ namespace ORO_ControlKernel
   {
     MutexLock locker(_my_lock);
     return (!_is_moving && !_new_values);
+  }
+
+
+  void nAxesGeneratorPos::reset()
+  {
+    _is_initialized = false;
   }
 
 

@@ -26,6 +26,7 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <execution/TemplateCommandFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
 #include <corelib/TimeService.hpp>
@@ -87,8 +88,10 @@ namespace ORO_ControlKernel
 
     // commands
     virtual CommandFactoryInterface* createCommandFactory();
+    virtual MethodFactoryInterface*  createMethodFactory();
     bool moveTo(const std::vector<double>& position, double time=0);
     bool moveFinished() const;
+    void reset();
 
   private:
     unsigned int                                                          _num_axes;

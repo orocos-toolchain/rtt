@@ -84,9 +84,9 @@ namespace ORO_ControlKernel
 
     virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
-    bool nAxesSensorForcesensor::startMeasuring(int num_meas);
-    bool nAxesSensorForcesensor::finishedMeasuring() const;
-    ORO_Geometry::Wrench nAxesSensorForcesensor::getMeasurement() const;
+    bool startMeasuring(int num_meas);
+    bool finishedMeasuring() const;
+    ORO_Geometry::Wrench getMeasurement() const;
     
 
   private:

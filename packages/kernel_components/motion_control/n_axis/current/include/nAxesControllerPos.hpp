@@ -23,7 +23,10 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <execution/TemplateCommandFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 
 
@@ -67,6 +70,7 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<nAxesControllerPosSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerPosOutput_vel>,
 					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+								       ORO_ControlKernel::ExecutionExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerPos_typedef;
 
   class nAxesControllerPos
@@ -85,13 +89,20 @@ namespace ORO_ControlKernel
     virtual void calculate();
     virtual void push();
 
+    virtual CommandFactoryInterface* createCommandFactory();
+    virtual MethodFactoryInterface*  createMethodFactory();
+    bool startMeasuring(double treshold_moving);
+    bool finishedMeasuring() const;
+    double getMeasurement(int axis) const;
+
   private:
     unsigned int                                                          _num_axes;
 
-    std::vector<double>                                                   _position_meas_local, _position_desi_local, _velocity_local;
+    std::vector<double>                                                   _position_meas_local, _position_desi_local, _velocity_local, _offset_measurement;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_position_desi_DOI,  *_velocity_DOI;
+    double                                                                _treshold_moving;
 
-    bool                                                                  _properties_read;
+    bool                                                                  _properties_read, _is_measuring;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
   }; // class

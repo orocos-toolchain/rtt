@@ -25,6 +25,7 @@ namespace ORO_ControlKernel
 {
 
   using namespace ORO_ControlKernel;
+  using namespace ORO_Execution;
 
 
   nAxesControllerPos::nAxesControllerPos(unsigned int num_axes, 
@@ -34,7 +35,9 @@ namespace ORO_ControlKernel
       _position_meas_local(num_axes),
       _position_desi_local(num_axes),
       _velocity_local(num_axes),
+      _offset_measurement(num_axes),
       _properties_read(false),
+      _is_measuring(false),
       _controller_gain("K", "Proportional Gain")
   {}
 
@@ -50,12 +53,23 @@ namespace ORO_ControlKernel
   }
 
 
-
   void nAxesControllerPos::calculate()
   {
     for(unsigned int i=0; i<_num_axes; i++)
-     _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
+      _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
+
+    if (_is_measuring){
+      bool is_moving = false;
+      for (unsigned int i=0; i<_num_axes; i++)
+	if (abs(_velocity_local[i]) > _treshold_moving) is_moving = true;
+      if ( !is_moving ){
+	for (unsigned int i=0; i<_num_axes; i++)
+	  _offset_measurement[i] = _velocity_local[i];
+	_is_measuring = false;
+      }
+    }
   }
+  
 
   
   void nAxesControllerPos::push()      
@@ -119,5 +133,58 @@ namespace ORO_ControlKernel
   void nAxesControllerPos::exportProperties(ORO_CoreLib::PropertyBag&)
   {};
   
+
+
+  CommandFactoryInterface* nAxesControllerPos::createCommandFactory()
+  {
+    TemplateCommandFactory<nAxesControllerPos>* my_commandFactory = newCommandFactory( this );
+    my_commandFactory->add( "offsetMeasure", command( &nAxesControllerPos::startMeasuring,
+						      &nAxesControllerPos::finishedMeasuring,
+						      "calculate the velocity offset on the axes",
+						      "treshold_moving", "treshold to check if axis is moving or not"));
+    return my_commandFactory;
+  }
+
+
+  MethodFactoryInterface* nAxesControllerPos::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesControllerPos>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "getMeasurement", method( &nAxesControllerPos::getMeasurement, "Get offset measurement", "axis_num", "offset of axis number axis_num" ));
+
+    return my_methodFactory;
+  }
+
+
+
+  bool nAxesControllerPos::startMeasuring(double treshold_moving)
+  {
+    // don't do anything if still measuring
+    if (_is_measuring)
+      return false;
+
+    // get new measurement
+    else{
+      for (unsigned int i=0; i<_num_axes; i++)
+	_offset_measurement[i] = 0;
+      _treshold_moving = treshold_moving;
+      _is_measuring = true;
+      return true;
+    }
+  }
+
+  
+  bool nAxesControllerPos::finishedMeasuring() const
+  {
+    return !_is_measuring;
+  }
+  
+
+  double nAxesControllerPos::getMeasurement(int i) const
+  {
+    if (i<0 || i>((int)_num_axes)-1)
+      return 0.0;
+    else
+      return _offset_measurement[i];
+  }
 
 } // namespace

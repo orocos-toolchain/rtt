@@ -90,7 +90,7 @@ namespace ORO_ControlKernel
     virtual MethodFactoryInterface*  createMethodFactory();
     bool moveTo(const ORO_Geometry::Frame& frame, double time=0);
     bool moveFinished() const;
-    
+    void reset();
 
   private:
     ORO_Geometry::Frame                                                   _traject_end, _traject_begin;

@@ -51,6 +51,8 @@ namespace ORO_ControlKernel
   {
     // initialize
     if (!_is_initialized){
+      _new_values = false;
+      _is_moving = false;
       _is_initialized = true;
       _position_meas_DOI->Get(_position_desired);
     }
@@ -167,8 +169,6 @@ namespace ORO_ControlKernel
       return false;
     }
 
-    _is_moving  = false;
-    
     return true;
   }
 
@@ -215,15 +215,17 @@ namespace ORO_ControlKernel
   }
 
 
+  
   MethodFactoryInterface* nAxesGeneratorCartesianPos::createMethodFactory()
   {
     TemplateMethodFactory<nAxesGeneratorCartesianPos>* my_methodFactory = newMethodFactory( this );
-    my_methodFactory->add( "finishedMoving", method( &nAxesGeneratorCartesianPos::moveFinished, "Arrived at new position" ));
+    my_methodFactory->add( "reset", method( &nAxesGeneratorCartesianPos::reset, "Reset generator" ));
 
     return my_methodFactory;
   }
 
-  
+
+
   bool nAxesGeneratorCartesianPos::moveTo(const ORO_Geometry::Frame& frame, double time)
   {
     MutexLock locker(_my_lock);
@@ -241,12 +243,19 @@ namespace ORO_ControlKernel
       return false;
   }
 
+
   bool nAxesGeneratorCartesianPos::moveFinished() const
   {
     MutexLock locker(_my_lock);
     return (!_is_moving && !_new_values);
   }
 
+
+  void nAxesGeneratorCartesianPos::reset()
+  {
+    _is_initialized = false;
+  }
+  
 
 } // namespace
 
