@@ -445,7 +445,7 @@ int init_module( void )
         printk( " |      %4lX, %4lX, %4lX        |\n", pci_resource_start( pPCILinuxStruct, 0 ), pci_resource_start( pPCILinuxStruct, 1 ), pci_resource_start( pPCILinuxStruct, 2 ) );
         printk( " | Interrupt No.:               |\n" );
 
-        printk( " |     %2lX                       |\n", pPCILinuxStruct->irq );
+        printk( " |     %2X                       |\n", pPCILinuxStruct->irq );
 
         printk( " +------26.09.2001---09:29------+\n" );
 
