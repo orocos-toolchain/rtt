@@ -403,7 +403,7 @@ namespace ORO_ControlKernel
               name(_name)
         {
             // prepare the buffer.
-            for (int i = 0; i < BUF_LEN-1; ++i)
+            for (unsigned int i = 0; i < BUF_LEN-1; ++i)
                 data[i].next = &data[i+1];
             data[BUF_LEN-1].next = &data[0];
         }

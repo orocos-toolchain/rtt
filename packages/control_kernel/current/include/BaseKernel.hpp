@@ -196,23 +196,27 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-//        virtual DataSourceFactory* createDataSourceFactory()
-//{
-//             TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
-//                 newDataSourceFactory( this );
-//             ret->add( "position", 
-//                       data( &CartesianGenerator<Base>::position, "The current position "
-//                             "of the robot." ) );
-//             ret->add( "time",
-//                       data( &CartesianGenerator<Base>::time, 
-//                             "The current time in the movement "
-//                             ) );
-//             ret->add( "trajectoryDone",
-//                       data( &CartesianGenerator<Base>::trajectoryDone,
-//                             "The state of the current trajectory "
-//                             ) ); 
-//             return ret;
-//        }
+        virtual DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< ThisType >* ret =
+                newDataSourceFactory( this );
+            ret->add( "usingGenerator", 
+                      data( &ThisType::isSelectedGenerator, "Check if this generator is used.",
+                            "Name", "The name of the Generator") );
+            ret->add( "usingController", 
+                      data( &ThisType::isSelectedController, "Check if this controller is used.",
+                            "Name", "The name of the Controller") );
+            ret->add( "usingEstimator", 
+                      data( &ThisType::isSelectedEstimator, "Check if this estimator is used.",
+                            "Name", "The name of the Estimator") );
+            ret->add( "usingEffector", 
+                      data( &ThisType::isSelectedEffector, "Check if this effector is used.",
+                            "Name", "The name of the Effector") );
+            ret->add( "usingSensor", 
+                      data( &ThisType::isSelectedSensor, "Check if this sensor is used.",
+                            "Name", "The name of the Sensor") );
+            return ret;
+       }
 #endif
 
         virtual bool initialize() 
