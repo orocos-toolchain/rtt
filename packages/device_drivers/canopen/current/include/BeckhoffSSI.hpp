@@ -6,7 +6,11 @@
 #include <corelib/ConfigurationInterface.hpp>
 #include "CANRequest.hpp"
 
+// rt_std :
+#include <os/rtstreams.hpp>
+
 #include <vector>
+#include <iostream>
 #include <os/rtstreams.hpp>
 
 namespace Beckhoff
@@ -14,6 +18,7 @@ namespace Beckhoff
     using namespace ORO_CoreLib;
     using namespace CAN;
     using std::vector;
+    using namespace std;
 
 	/**
      * TODO : extend so that # of terminals can be larger than 2.
@@ -42,21 +47,32 @@ namespace Beckhoff
 
         void update( const CANMessage* msg )
         {
+            //rt_std::cout << "Update !" << rt_std::endl;
             unsigned long data = 0;
+            typedef unsigned long ul;
             if (msg->getDLC() == 4 || msg->getDLC() == 8)
             {
-                 data = lower_u32(msg->v_MsgData);
-                 // we get 24 bits per ssi module
-                 ssi_value[0] = data & 0xFFF;
-                 ref[0]       = data >> 12 & 0x1;
+                //rt_std::cout << msg->getData(0)<< msg->getData(1) << msg->getData(2) << msg->getData(3)<<rt_std::endl;
+                //data = lower_u32(msg->v_MsgData);
+                //ssi_value[0] = data & 0xFFF;
+                //ref[0]       = (data >> 12) & 0x1;
+                // we get 24 bits per ssi module
+                data = ul(msg->getData(0)) + (ul(msg->getData(1)) << 8) + (ul(msg->getData(2)) <<16) + (ul(msg->getData(3)) << 24);
+                //rt_std::cout << long(data) << rt_std::endl;
+                ssi_value[0] = ( data >> 12 ) & 0xFFF;
+                ref[0]       = ( data >> 11) & 0x1;
+                //rt_std::cout << ssi_value[0] << " " << ref[0]<< rt_std::endl;
             }
             
             if (msg->getDLC() == 8)
             {
-                data = higher_u32(msg->v_MsgData);
+                //data = higher_u32(msg->v_MsgData);
                 // we get 24 bits per ssi module
-                ssi_value[1] = data & 0xFFF;
-                ref[1]       = data >> 12 & 0x1;
+                //ssi_value[1] = data & 0xFFF;
+                //ref[1]       = (data >> 12) & 0x1;
+                data = ul(msg->getData(4)) + (ul(msg->getData(5)) << 8) + (ul(msg->getData(6)) <<16) + (ul(msg->getData(7)) << 24);
+                ssi_value[1] = ( data >> 12 ) & 0xFFF;
+                ref[1]       = ( data >> 11) & 0x1;
             }
         }
 
@@ -68,7 +84,7 @@ namespace Beckhoff
 
         int read( unsigned int channel, unsigned int& counter)
         {
-            if (channel <0 || channel >= SSI_TERMINALS)
+            if (channel <0 || channel > SSI_TERMINALS)
                 return -1;
             counter = ssi_value[channel];
             return 0;
@@ -118,7 +134,7 @@ namespace Beckhoff
                 fillData(d, 0x60, 0x01, 0x45, nr, 0x00, 0x00, 0x00, 0x00);
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 2
                 cm_write = new CANMessage(coupler);
@@ -132,12 +148,12 @@ namespace Beckhoff
                 fillData(d, 0x43, 0x01, 0x45, nr, 0x35, 0x12, 0x1f, 0x80 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 3
                 cm_write = new CANMessage(coupler);
                 cm_write->setStdId( 0x600 + coupler->nodeId() );
-                fillData(d, 0x23, 0x01, 0x45, nr, 0x08, 0x00, 0x20, 0x80 );
+                fillData(d, 0x23, 0x01, 0x45, nr, 0x12, 0x00, 0x20, 0x80 ); // 0x12 was 0x08
                 cm_write->setDataDLC(d, 8);
 
                 // create answer 3
@@ -146,7 +162,7 @@ namespace Beckhoff
                 fillData(d, 0x60, 0x01, 0x45, nr, 0x00, 0x00, 0x00, 0x00 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 4
                 cm_write = new CANMessage(coupler);
@@ -160,7 +176,7 @@ namespace Beckhoff
                 fillData(d, 0x43, 0x01, 0x45, nr, 0x08, 0x00, 0x20, 0x80 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 5
                 cm_write = new CANMessage(coupler);
@@ -174,7 +190,7 @@ namespace Beckhoff
                 fillData(d, 0x60, 0x01, 0x45, nr, 0x00, 0x00, 0x00, 0x00 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 6
                 cm_write = new CANMessage(coupler);
@@ -188,7 +204,7 @@ namespace Beckhoff
                 fillData(d, 0x43, 0x01, 0x45, nr, 0x02, 0x00, 0x21, 0x80 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 7
                 cm_write = new CANMessage(coupler);
@@ -202,7 +218,7 @@ namespace Beckhoff
                 fillData(d, 0x60, 0x01, 0x45, nr, 0x00, 0x00, 0x00, 0x00 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 8
                 cm_write = new CANMessage(coupler);
@@ -216,7 +232,7 @@ namespace Beckhoff
                 fillData(d, 0x43, 0x01, 0x45, nr, 0x18, 0x00, 0x22, 0x80 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 9
                 cm_write = new CANMessage(coupler);
@@ -230,7 +246,7 @@ namespace Beckhoff
                 fillData(d, 0x60, 0x01, 0x45, nr, 0x00, 0x00, 0x00, 0x00 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
 
                 // create request 10
                 cm_write = new CANMessage(coupler);
@@ -244,7 +260,7 @@ namespace Beckhoff
                 fillData(d, 0x43, 0x01, 0x45, nr, 0x00, 0x12, 0x1f, 0x80 );
                 cm_expect->setDataDLC(d, 8);
 
-                requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+                requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
             }
             
             /**
@@ -253,30 +269,34 @@ namespace Beckhoff
             // create request 1.
             CANMessage* cm_write = new CANMessage(coupler);
             cm_write->setStdId( 0x600 + coupler->nodeId() );
+            //CANMessage::Data d[8] = { 0x23, 0x00, 0x18,0x01, 0x82, 0x01, 0x00, 0x00 };
             CANMessage::Data d[8] = { 0x23, 0x02, 0x18,0x01, 0x82, 0x03, 0x00, 0x00 };
             cm_write->setDataDLC(d, 8);
             
             // create answer 1
             CANMessage* cm_expect = new CANMessage(coupler);
             cm_expect->setStdId(0x580 + coupler->nodeId() );
+            //fillData(d, 0x60, 0x00, 0x18,0x01, 0x00, 0x00, 0x00, 0x00 );
             fillData(d, 0x60, 0x02, 0x18,0x01, 0x00, 0x00, 0x00, 0x00 );
             cm_expect->setDataDLC(d, 8);
             
-            requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+            requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
             
             // create request 2
             cm_write = new CANMessage(coupler);
             cm_write->setStdId( 0x600 + coupler->nodeId() );
+            //fillData(d, 0x2f, 0x00, 0x18,0x02, 0x01, 0x00, 0x00, 0x00 );
             fillData(d, 0x2f, 0x02, 0x18,0x02, 0x01, 0x00, 0x00, 0x00 );
             cm_write->setDataDLC(d, 8);
             
             // create answer 2
             cm_expect = new CANMessage(coupler);
             cm_expect->setStdId(0x580 + coupler->nodeId() );
+            //fillData(d, 0x60, 0x00, 0x18,0x02, 0x00, 0x00, 0x00, 0x00 );
             fillData(d, 0x60, 0x02, 0x18,0x02, 0x00, 0x00, 0x00, 0x00 );
             cm_expect->setDataDLC(d, 8);
             
-            requests.push_back(new CANRequest(cm_write, cm_expect, 0.1));
+            requests.push_back(new CANRequest(cm_write, cm_expect, 1.0));
             
         }
             
@@ -286,7 +306,7 @@ namespace Beckhoff
          */
         virtual bool configStep()
         {
-            if ( i == -1 || requests[i]->isReceived() && requests[i]->isExactMatch() )
+            if ( i == -1 || requests[i]->isReceived() )//&& requests[i]->isExactMatch() )
             {
                 if (i == int(requests.size()) - 1 )
                     status = true;
@@ -294,8 +314,11 @@ namespace Beckhoff
                     requests[++i]->sendTo(bus);
             }
             
-            if ( requests[i]->isExpired() )
-                return false;
+            if ( i != -1 && requests[i]->isExpired() )
+                {
+                    rt_std::cout << "Request " <<i<<" expired!"<<rt_std::endl;
+                    return false;
+                }
             
             return true;
         }

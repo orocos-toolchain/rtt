@@ -3,6 +3,7 @@
 
 #include <can/cpmacro.h>
 #include "CANDeviceInterface.hpp"
+#include <string.h>
 
 #define fillData(data, d0, d1, d2 ,d3, d4, d5, d6, d7) do { \
         data[0] = d0; data[1] = d1; data[2] = d2; data[3] = d3; \

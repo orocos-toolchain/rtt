@@ -28,7 +28,7 @@ namespace Beckhoff
     {
         vector<CANRequest*> requests;
 
-        public:
+    public:
         BeckhoffCANCoupler(CANBusInterface* _bus, unsigned int _node_id)
             : analogOutputs(),
               digitalInputs(this),
@@ -37,32 +37,23 @@ namespace Beckhoff
               bus(_bus), node_id(_node_id)
         {
             requests.reserve(10);
-            
-            CANMessage* msg = new CANMessage(this);
-            msg->setStdId(0x00);
-            msg->setDLC(0x02);
-            msg->setData(0,0x01);
-            msg->setData(1,0x00);
-
-            bus->write(msg);
-
-            delete msg;
-
             digitalInputs.addTerminal(1,2);
             digitalInputs.addTerminal(2,2);
             digitalOutputs.addTerminal(3,2);
             digitalOutputs.addTerminal(4,2);
-            analogOutputs.addTerminal(5,2);
+            ssiTerminals.addTerminal(5);
             ssiTerminals.addTerminal(6);
-            ssiTerminals.addTerminal(7);
+            analogOutputs.addTerminal(7,2);
         }
 
         virtual ~BeckhoffCANCoupler()
         {
+            stopNode();
         }
 
         void configInit()
         {
+            //resetNode();
             ssiTerminals.configInit();
         }
 
@@ -74,11 +65,52 @@ namespace Beckhoff
         void configCleanup()
         {
             ssiTerminals.configCleanup();
+            //startNode();
         }
 
-        bool isFinished()
+        bool isFinished() const
         {
             return ssiTerminals.isFinished();
+        }
+
+        void startNode() 
+        {
+            bus->addDevice(this);
+            cout << "Sending StartUp..."<<endl;
+            CANMessage StartUpmsg;
+            StartUpmsg.setStdId(0x00);
+            StartUpmsg.setDLC(0x02);
+            StartUpmsg.setData(0,0x01);
+            StartUpmsg.setData(1,0x00);
+            bus->write(&StartUpmsg);
+            sleep(2); // give bus time to reset
+        }
+
+        void resetNode()
+        {
+            cout << "Sending Reset..."<<endl;
+            // XXX move this to configStep and remove sleep(1)
+            CANMessage Resetmsg;
+            Resetmsg.setStdId(0x00);
+            Resetmsg.setDLC(0x02);
+            Resetmsg.setData(0,0x81);
+            Resetmsg.setData(1,0x00);
+            bus->write(&Resetmsg);
+            sleep(2); // give bus time to reset
+        }
+
+        void stopNode()
+        {
+            bus->removeDevice(this);
+            cout << "Sending Stop..."<<endl;
+            // XXX move this to configStep and remove sleep(1)
+            CANMessage Resetmsg;
+            Resetmsg.setStdId(0x00);
+            Resetmsg.setDLC(0x02);
+            Resetmsg.setData(0,0x80);
+            Resetmsg.setData(1,0x00);
+            bus->write(&Resetmsg);
+            sleep(2); // give bus time to reset
         }
 
         virtual void process(const CANMessage* msg)

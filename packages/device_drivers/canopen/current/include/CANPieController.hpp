@@ -2,6 +2,7 @@
 #define CANPIECONTROLLER_HPP
 
 #include "CANControllerInterface.hpp"
+#include "CANBusInterface.hpp"
 #include <iostream>
 
 #include <pkgconf/system.h>

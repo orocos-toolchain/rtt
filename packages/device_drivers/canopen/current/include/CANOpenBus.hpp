@@ -88,7 +88,7 @@ namespace CAN
 
         virtual void write(const CANMessage *msg)
         {
-            rt_std::cout <<"Writing...";
+            //rt_std::cout <<"Writing...";
             // All listeners are notified.
             list<CANListenerInterface*>::iterator itl = listeners.begin();
             while ( itl != listeners.end() )
@@ -102,12 +102,12 @@ namespace CAN
                 return;
             if (msg->origin == 0 || msg->origin->nodeId() !=  controller->nodeId() )
                 {
-                    rt_std::cout <<"to controller !\n";
+                    //rt_std::cout <<"to controller !\n";
                     controller->process(msg);
                 }
             else
                 {
-                    rt_std::cout <<"to devicelist !\n";
+                    //rt_std::cout <<"to devicelist !\n";
                     list<CANDeviceInterface*>::iterator itd = devices.begin();
                     while ( itd != devices.end() )
                         {
