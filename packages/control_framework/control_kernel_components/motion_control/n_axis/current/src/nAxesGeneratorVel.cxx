@@ -36,6 +36,7 @@ namespace ORO_ControlKernel
       _duration_desired(num_axes),      
       _duration_trajectory(num_axes),      
       _velocity_local(num_axes),
+      _maintain_velocity(num_axes),
       _time_begin(num_axes),
       _time_passed(num_axes),
       _vel_profile(num_axes),
@@ -46,8 +47,10 @@ namespace ORO_ControlKernel
 
   {
     // by default initial velocity is set to zero
-    for (unsigned int i=0; i<_num_axes; i++)
+    for (unsigned int i=0; i<_num_axes; i++){
       _velocity_local[i] = 0;
+      _maintain_velocity[i] = false;
+    }
   }
 
 
@@ -70,12 +73,12 @@ namespace ORO_ControlKernel
   {
     for (unsigned int i = 0 ; i < _num_axes ; i++){
       // still moving
-      if (_time_passed[i] <= _duration_desired[i] || _duration_desired[i] == 0)
+      if (_maintain_velocity[i] || _time_passed[i] <= _duration_desired[i] || _duration_desired[i] == 0)
 	_velocity_local[i] = _vel_profile[i]->Pos( min(_time_passed[i], _duration_trajectory[i]) );
       
       // stop moving if time is up
       else
-	driveAxis(i, 0.0, 0.0);
+	applyVelocity(i, 0.0, 0.0);
     }
   }
 
@@ -114,7 +117,7 @@ namespace ORO_ControlKernel
 
     // generate initial trajectory to maintain current velocity
     for (unsigned int i=0; i<_num_axes; i++)
-      driveAxis(i, _velocity_local[i], 0.0);
+      applyVelocity(i, _velocity_local[i], 0.0);
 
     return true;
   }
@@ -155,31 +158,78 @@ namespace ORO_ControlKernel
   CommandFactoryInterface* nAxesGeneratorVel::createCommandFactory()
   {
     TemplateCommandFactory<nAxesGeneratorVel>* my_commandFactory = newCommandFactory( this );
-    my_commandFactory->add( "drive", command( &nAxesGeneratorVel::drive,
-					      &nAxesGeneratorVel::driveFinished,
+    my_commandFactory->add( "applyVelocities", command( &nAxesGeneratorVel::applyVelocities,
+					       &nAxesGeneratorVel::velocitiesFinished,
+					       "Set the velocity",
+					       "velocity", "joint velocity for all axes",
+					       "duration", "duration of movement") );
+    my_commandFactory->add( "gotoVelocities", command( &nAxesGeneratorVel::gotoVelocities,
+					      &nAxesGeneratorVel::velocitiesFinished,
 					      "Set the velocity",
 					      "velocity", "joint velocity for all axes",
 					      "duration", "duration of movement") );
-    my_commandFactory->add( "driveAxis", command( &nAxesGeneratorVel::driveAxis,
-					      &nAxesGeneratorVel::driveAxisFinished,
-					      "Set the velocity for one axis",
-                                              "axis", "selected axis",
-					      "velocity", "joint velocity for axis",
-					      "duration", "duration of movement") );
+    my_commandFactory->add( "applyVelocity", command( &nAxesGeneratorVel::applyVelocity,
+					     &nAxesGeneratorVel::velocityFinished,
+					     "Set the velocity for one axis",
+                                             "axis", "selected axis",
+					     "velocity", "joint velocity for axis",
+					     "duration", "duration of movement") );
+    my_commandFactory->add( "gotoVelocity", command( &nAxesGeneratorVel::gotoVelocity,
+					    &nAxesGeneratorVel::velocityFinished,
+					    "Set the velocity for one axis",
+                                            "axis", "selected axis",
+					    "velocity", "joint velocity for axis",
+					    "duration", "duration of movement") );
     return my_commandFactory;
   }
 
 
 
 
-  bool nAxesGeneratorVel::driveAxis(const int axis, const double velocity, double duration)
+  bool nAxesGeneratorVel::gotoVelocity(const int axis, const double velocity, double duration)
   {
     if ( duration < 0 || axis < 0 || axis >= (int)_num_axes)   
       return false;
     else{
-      _time_begin[axis]       = TimeService::Instance()->getTicks();
-      _time_passed[axis]      = 0;
-      _duration_desired[axis] = duration;
+      _time_begin[axis]        = TimeService::Instance()->getTicks();
+      _time_passed[axis]       = 0;
+      _maintain_velocity[axis] = true;
+
+      // calculate velocity profile
+      _vel_profile[axis]->SetProfileDuration(_velocity_local[axis], velocity, duration);
+
+      // get duration of acceleration
+      _duration_trajectory[axis] = _vel_profile[axis]->Duration();
+      _duration_desired[axis] = _duration_trajectory[axis];
+
+      return true;
+    }
+  }
+
+
+  bool nAxesGeneratorVel::gotoVelocities(const std::vector<double>& velocity,std::vector<double>& duration)
+  {
+    assert(velocity.size() == _num_axes);
+    assert(duration.size() == _num_axes);
+
+    bool success = true;
+    for (unsigned int i=0; i<_num_axes; i++)
+      if (!gotoVelocity(i, velocity[i], duration[i]))
+	success = false;
+    return success;
+  }
+
+
+
+  bool nAxesGeneratorVel::applyVelocity(const int axis, const double velocity, double duration)
+  {
+    if ( duration < 0 || axis < 0 || axis >= (int)_num_axes)   
+      return false;
+    else{
+      _time_begin[axis]        = TimeService::Instance()->getTicks();
+      _time_passed[axis]       = 0;
+      _duration_desired[axis]  = duration;
+      _maintain_velocity[axis] = false;
 
       // calculate velocity profile
       _vel_profile[axis]->SetProfile(_velocity_local[axis], velocity);
@@ -192,14 +242,14 @@ namespace ORO_ControlKernel
   }
 
 
-  bool nAxesGeneratorVel::drive(const std::vector<double>& velocity,std::vector<double>& duration)
+  bool nAxesGeneratorVel::applyVelocities(const std::vector<double>& velocity,std::vector<double>& duration)
   {
     assert(velocity.size() == _num_axes);
     assert(duration.size() == _num_axes);
 
     bool success = true;
     for (unsigned int i=0; i<_num_axes; i++)
-      if (!driveAxis(i, velocity[i], duration[i]))
+      if (!applyVelocity(i, velocity[i], duration[i]))
 	success = false;
     return success;
   }
@@ -208,17 +258,17 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesGeneratorVel::driveAxisFinished(const int axis) const
+  bool nAxesGeneratorVel::velocityFinished(const int axis) const
   {
     return (_time_passed[axis] > _duration_desired[axis] || _duration_desired[axis] == 0);
   }
 
 
-  bool nAxesGeneratorVel::driveFinished() const
+  bool nAxesGeneratorVel::velocitiesFinished() const
   {
     bool returnValue=true;
     for (unsigned int i = 0 ; i < _num_axes ; i++)
-      if (! driveAxisFinished(i))
+      if (! velocityFinished(i))
 	returnValue = false;
 
     return returnValue;
