@@ -3,7 +3,6 @@
 
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
-#include <corelib/PropertyComposition.hpp>
 #include "KernelInterfaces.hpp"
 #include "ComponentConfigurator.hpp"
 
@@ -93,111 +92,35 @@ namespace ORO_ControlKernel
         /**
          * Create a PropertyExtension.
          */
-        PropertyExtension(KernelBaseFunction* _base ) 
-            : detail::ExtensionInterface("Property"),
-              // marshaller(out), demarshaller(in),
-              save_props("SaveProperties","",false), generator("Generator","filename"),
-              estimator("Estimator","filename"), controller("Controller","filename"), sensor("Sensor","filename"),
-              effector("Effector","filename"), base(_base)
-        {
-        }
+        PropertyExtension(KernelBaseFunction* _base = 0 );
 
-        virtual ~PropertyExtension()
-        {
-        }
+        virtual ~PropertyExtension();
 
-        virtual bool updateProperties(const PropertyBag& bag)
-        {
-            composeProperty(bag, save_props);
-            
-            // build new list of present component config files
-            componentFileNames.clear();
-            if ( composeProperty(bag, generator ) )
-                componentFileNames.push_back( &generator );
-            if ( composeProperty(bag, estimator ) )
-                componentFileNames.push_back( &estimator );
-            if ( composeProperty(bag, controller ) )
-                componentFileNames.push_back( &controller );
-            if ( composeProperty(bag, sensor ) )
-                componentFileNames.push_back( &sensor );
-            if ( composeProperty(bag, effector ) )
-                componentFileNames.push_back( &effector );
-            return true;
-        }
+        virtual bool updateProperties(const PropertyBag& bag);
         
         /**
          * Read the XML cpf files and try to configure all the components.
          */
-        virtual bool initialize()
-        {
-            cout << "PropertyExtension::initialize" << endl;
-            // read xml file for each component, if we know it.
-            for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
-            {
-                CompMap::iterator tg = myMap.find( (*it)->getName() );
-                if ( tg == myMap.end() )
-                {
-                    cout << "Component "<<(*it)->getName() << " does not support properties !"<<endl;
-                    continue;
-                }
-                PropertyComponentInterface* target = tg->second;
+        virtual bool initialize();
 
-                ComponentConfigurator cc;
-                if ( !cc.configure( (*it)->value(), target) && base )
-                {
-                    cout << "Aborting initialize ! Component "<< (*it)->getName()
-                         << " does not accept its properties."<< endl 
-                         << "Fix your config file first."<< endl;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        virtual void step()
-        {
-            // do nothing ?
-        }
+        virtual void step();
 
         /**
          * If needed, save the components properties.
          */
-        virtual void finalize()
-        {
-            if ( save_props )
-            {
-                std::cout << "Need to save props !"<<std::endl;
-                /*
-                // iterate over components
-                std::map<std::string, PropertyComponentInterface*>::iterator comp_it = myMap.begin();
-                while ( comp_it != myMap.end() )
-                {
-                    // collect properties
-                }
-                // serialize and cleanup
-                marshaller.serialize( allProps );
-                newProps.clear();
-                */
-            }
-        }
+        virtual void finalize();
         
         /**
          * Used by the PropertyComponentInterface to register itself to
          * this Extension.
          */
-        void addComponent(PropertyComponentInterface* comp)
-        {
-            myMap[ comp->getLocalStore().getName() ] = comp;
-        }
+        void addComponent(PropertyComponentInterface* comp);
 
         /**
          * Used by the PropertyComponentInterface to deregister itself
          * from this Extension.
          */
-        void removeComponent(PropertyComponentInterface* comp)
-        {
-            myMap.erase( comp->getLocalStore().getName() );
-        }
+        void removeComponent(PropertyComponentInterface* comp);
 
         private:
         /**

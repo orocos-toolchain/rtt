@@ -1482,6 +1482,32 @@ typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MySec
 		    a CPF file.</entry>
 		  <entry>PropertyExtension</entry>
 		</row>
+		<row>
+		  <entry>
+		   DataSourceFactory* createDataSourceFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export component
+		    functions as DataSources which a component wants to
+		    expose to the Orocos scripting language. What the
+		    function needs to contain is documented in the
+		    Orocos Program Parser manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
+		<row>
+		  <entry>
+		    CommandFactoryInterface* createCommandFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export component
+		    functions as Commands which a component wants to expose
+		    to the Orocos scripting language. What the
+		    function needs to contain is documented in the
+		    Orocos Program Parser manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
 	      </tbody>
 	    </tgroup>
 	  </table>
@@ -1847,6 +1873,33 @@ typedef StandardControlKernel &lt;Input, Model, Command, SetPoint, Output, MySec
   // ...
 	  </programlisting>
 	</example>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>The ExecutionExtension</title>
+      <para>
+	The ExecutionExtension allows the kernel to execute Orocos
+	program scripts synchronous with the kernel loop. For convenience,
+	it contains a program parser which will read an std::istream 
+	object to obtain the program text.
+      </para>
+      <para>
+	The Orocos execution package contains two manuals which
+	explain the behaviour of the Program Processor and the Program
+	Parser. The Processor is a state machine which executes the
+	code presented in a hierarchical tree of ProgramNodes (which
+	may contain loops). A ProgramNode contains about one script
+	command with its termination conditions. The Parser converts a
+	program script to a tree of ProgramNodes, which is called a
+	Program. The scriptcommands are all functions of kernel
+	components or external objects which have registered
+	themselves to the parser framework.
+      </para>
+      <sect2>
+	<title>Configuring the ExecutionExtension</title>
+	<para>
+	  The ExecutionExtension can not be configured yet.
+	  It receives all its data from the program script.</para>
       </sect2>
     </sect1>
   </chapter>

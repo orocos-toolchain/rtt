@@ -6,20 +6,14 @@
 #include <execution/Processor.hpp>
 #include <execution/SystemContext.hpp>
 #include <execution/SystemState.hpp>
-#include <execution/Program.hpp>
-#include <execution/Parser.hpp>
 #include <execution/GlobalFactory.hpp>
-#include <execution/CommandFactoryInterface.hpp>
-#include <execution/GlobalCommandFactory.hpp>
-#include <execution/DataSourceFactory.hpp>
 
 namespace ORO_ControlKernel
 {
     using ORO_CoreLib::PropertyBag;
     using ORO_Execution::CommandFactoryInterface;
     using ORO_Execution::DataSourceFactory;
-    using ORO_Execution::Program;
-    using ORO_Execution::Parser;
+    using ORO_Execution::ProgramGraph;
     using ORO_Execution::SystemContext;
     using ORO_Execution::SystemState;
     using ORO_Execution::Processor;
@@ -27,6 +21,13 @@ namespace ORO_ControlKernel
 
     class ExecutionExtension;
 
+    /**
+     * @brief This is the default interface a kernel Component gets
+     * when the kernel is extended with the ExecutionExtension.
+     *
+     * @see ExecutionExtension
+     *
+     */
     struct ExecutionComponentInterface
         : detail::ComponentAspectInterface<ExecutionExtension>
     {
@@ -36,18 +37,24 @@ namespace ORO_ControlKernel
         CommandFactoryInterface* commandfactory;
         DataSourceFactory* dataSourceFactory;
     public:
-        ExecutionComponentInterface( const std::string& _name )
-            : detail::ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
-              name( _name ), master( 0 ),
-              commandfactory( 0 ), dataSourceFactory( 0 )
-        {
-        }
+        ExecutionComponentInterface( const std::string& _name );
 
+        /**
+         * The factory for creating the commands this Component
+         * wants to export.
+         */
         virtual CommandFactoryInterface* createCommandFactory();
+
+        /**
+         * The factory for creating the data this Component
+         * wants to export.
+         */
         virtual DataSourceFactory* createDataSourceFactory();
 
         bool enableAspect( ExecutionExtension* ext );
+
         void disableAspect();
+
         ~ExecutionComponentInterface();
     };
 
@@ -66,40 +73,22 @@ namespace ORO_ControlKernel
         : public detail::ExtensionInterface,
         public GlobalFactory
     {
-        Program* program;
+        ProgramGraph* program;
     public:
         typedef ExecutionComponentInterface CommonBase;
 
-        ExecutionExtension( KernelBaseFunction* _base=0 )
-            : detail::ExtensionInterface( "Execution" ), program(0)
-        {
-        }
+        ExecutionExtension( KernelBaseFunction* _base=0 );
 
-        virtual ~ExecutionExtension()
-        {
-        }
+        virtual ~ExecutionExtension();
 
-        bool initialize() 
-        { 
-            return proc.startConfiguration() &&
-                proc.loadSystemContext( new SystemContext(  new SystemState ) ) &&
-                proc.endConfiguration() &&
-                proc.loadProgram(program) && // pass ownership to the processor
-                proc.startExecution();
-        }
+        virtual bool initialize();
 
         /**
-         * Set a Program to be used the next time the kernel is started.
+         * Set a ProgramGraph to be used the next time the kernel is started.
          *
          * @param p A stream containing the program script to be executed.
          */
-        bool loadProgram( std::istream& prog_stream )
-        {
-            program = parser.parseProgram( prog_stream, &proc, this );
-            if (program == 0) 
-                return false;
-            return true;
-        }
+        bool loadProgram( std::istream& prog_stream );
 
         /**
          * The Processor is needed during program construction,
@@ -112,18 +101,16 @@ namespace ORO_ControlKernel
             return &proc;
         }
 
-        void step() { proc.doStep(); }
+        virtual void step() ;
 
-        void finalize() 
-        {
-            proc.stopExecution();
-        }
+        virtual void finalize();
 
-        bool updateProperties( const PropertyBag& bag );
+        virtual bool updateProperties( const PropertyBag& bag );
 
     private:
         Processor proc;
-        Parser    parser;
+        int count;
+        Property<int> interval;
     };
 }
 
