@@ -79,6 +79,7 @@ namespace ORO_Execution
       const CommandFactoryInterface* getObjectFactory(
         const std::string& objectname ) const;
 
+        std::vector<std::string> getObjectList() const;
     private:
       /**
        * our data..

@@ -25,6 +25,7 @@
 #include <utility>
 #include "parser-common.hpp"
 #include "FactoryExceptions.hpp"
+#include "ArgumentDescription.hpp"
 
 namespace ORO_Execution
 {
@@ -46,31 +47,32 @@ namespace ORO_Execution
      */
     class CommandFactoryInterface
     {
-
         public:
             virtual ~CommandFactoryInterface();
 
             /**
-             * Return whether the command com is available..
+             * @brief Return whether the command com is available..
              * throws nothing.
              */
             virtual bool hasCommand(const std::string& com) const = 0;
 
             /**
-             * Return a list of all available commands..
+             * @brief Return a list of all available command methods.
              * throws nothing.
              */
-            virtual std::vector<std::string> commandNames() const = 0;
+            virtual std::vector<std::string> getMethodList() const = 0;
 
             /**
-             * Return the description of a given command.
+             * @brief Return the description of a given command.
              * @param com The command to get the description from.
              */
             virtual std::string getDescription( const std::string& com ) const = 0;
 
             /**
-             * We need to be able to find out what types of arguments
-             * a method needs.  This method returns a PropertyBag
+             * @brief Used to find out what types of arguments
+             * a method needs.
+             *
+             * This method returns a PropertyBag
              * containing Property's of the types of the arguments..
              * The user can then fill up this PropertyBag, and
              * construct a command with it via the create method
@@ -89,8 +91,13 @@ namespace ORO_Execution
             virtual PropertyBag
             getArgumentSpec( const std::string& method ) const = 0;
 
+        /**
+         * @brief Return the list of arguments of a certain method.
+         */
+        virtual std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const = 0;
+
             /**
-             * The companion to getArgumentSpec().  It takes a
+             * @brief The companion to getArgumentSpec().  It takes a
              * PropertyBag, containing Property's of the same type and
              * in the same order as the ones that getArgumentSpec()
              * returned, and constructs a ComCon with it..
@@ -107,7 +114,8 @@ namespace ORO_Execution
                                    const PropertyBag& args ) const = 0;
 
             /**
-             * We also support passing DataSources as the arguments.
+             * @brief Create a Command passing DataSources as the arguments.
+             *
              * In this case, the command factory should *not* read out
              * the DataSource's, but it should return a Command and a
              * Condition that store the DataSources, and read them out
@@ -124,12 +132,6 @@ namespace ORO_Execution
             virtual ComCon create(
                 const std::string& method,
                 const std::vector<DataSourceBase*>& args ) const = 0;
-
-             /**
-             * Return a std::string identifying the name
-             * of this CommandFactory
-             */
-            //virtual std::string toString() = 0;
 
     };
 };

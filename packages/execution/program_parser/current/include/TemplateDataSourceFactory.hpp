@@ -237,6 +237,11 @@ namespace ORO_Execution
         return _TF::getArgumentSpec( method );
       };
 
+    std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const
+      {
+          return _TF::getArgumentList( method );
+      }
+
     DataSourceBase* create(
       const std::string& name,
       const PropertyBag& args ) const

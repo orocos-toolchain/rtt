@@ -33,6 +33,7 @@
 #include <corelib/Property.hpp>
 #include "DataSource.hpp"
 #include "FactoryExceptions.hpp"
+#include "ArgumentDescription.hpp"
 
 /**
  * @file This file contains some code that is common between
@@ -112,6 +113,7 @@ namespace ORO_Execution
         return mdesc;
       }
     virtual PropertyBag getArgumentSpec() const = 0;
+    virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
     virtual ResultT produce( ComponentT* com,
                              const PropertyBag& args ) const = 0;
     virtual ResultT produce(
@@ -134,6 +136,11 @@ namespace ORO_Execution
     PropertyBag getArgumentSpec() const
       {
         return PropertyBag();
+      }
+
+    std::vector<ArgumentDescription> getArgumentList() const
+      {
+        return std::vector<ArgumentDescription>();
       }
 
     ResultT produce( ComponentT* c, const PropertyBag& bag ) const
@@ -171,6 +178,13 @@ namespace ORO_Execution
       : TemplateFactoryPart<ComponentT,ResultT>( desc ),
         fun( f ), arg1name( a1n ), arg1desc( a1d )
       {
+      }
+
+     std::vector< ArgumentDescription > getArgumentList( ) const
+      {
+          std::vector< ArgumentDescription > mlist;
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
+          return mlist;
       }
 
     PropertyBag getArgumentSpec() const
@@ -227,6 +241,14 @@ namespace ORO_Execution
         arg1name( a1n ), arg1desc( a1d ), arg2name( a2n ),
         arg2desc( a2d )
       {
+      }
+
+     std::vector< ArgumentDescription > getArgumentList( ) const
+      {
+          std::vector< ArgumentDescription > mlist;
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
+          return mlist;
       }
 
     PropertyBag getArgumentSpec() const
@@ -303,6 +325,15 @@ namespace ORO_Execution
         ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
         ret.add( new Property<third_argument_type>( arg3name, arg3desc ) );
         return ret;
+      }
+
+     std::vector< ArgumentDescription > getArgumentList( ) const
+      {
+          std::vector< ArgumentDescription > mlist;
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
+          mlist.push_back( ArgumentDescription( arg3name, arg3desc ) );
+          return mlist;
       }
 
     ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
@@ -446,6 +477,13 @@ namespace ORO_Execution
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->getArgumentSpec();
+      }
+
+    std::vector<ArgumentDescription> getArgumentList( const std::string& name ) const
+      {
+        typename map_t::const_iterator i = data.find( name );
+        if ( i == data.end() ) throw name_not_found_exception();
+        return i->second->getArgumentList();
       }
 
     std::string getDescription( const std::string& name ) const

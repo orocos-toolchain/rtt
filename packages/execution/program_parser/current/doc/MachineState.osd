@@ -1,0 +1,63 @@
+
+// This lines fetches all from AxisHoming.osd. 
+import AxisHoming;
+
+StateContext Machine
+{
+	Initial_State machine_init
+	Final_State   machine_exit
+
+	// 2 sub contexts, which can run in parallel
+	AxisHoming  axis1 : axis_nr(1), error(0);
+	AxisHoming  axis2 : axis_nr(2), error(0);
+
+	Context {
+		const int total_axis = 2;
+	}
+}
+
+state machine_init
+{
+	//...
+}
+
+state machine_exit
+{
+	//...
+}
+
+// Start homing of axis 1 and wait for result
+state HomeAxis1 {
+	entry
+	{
+		startContext( axis1 ); // is a no-op if already started.
+		//engine.startStateContext( "axis1" );
+	}
+	
+	exit
+	{
+		console_output.display("Axis 1 Homed with result");
+		console_output.displayInt( axis1.error );
+	}
+		
+	transitions
+	{
+		if joinContext( axis1 ) then
+			select nextState
+		if axis1.error == true then
+			select notifyError
+	}
+}
+
+// start homing and do not wait
+state DeferedHomeAxis1 {
+	handle
+	{	
+		startContext( axis1 );
+	}
+	transitions
+	{
+		select nextState
+	}
+}
+	

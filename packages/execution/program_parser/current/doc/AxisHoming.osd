@@ -1,0 +1,38 @@
+
+// in AxisHoming.osd
+StateContext AxisHoming
+{
+	Initial_State home_init
+	Final_State   home_exit
+
+	// All 'global' variables
+	// A StateContext must be initialised
+	// with these variables.
+	// See MachineState.osd for usage
+	Context
+	{	
+		var int axis_nr;
+	}	
+}
+
+
+state InitHome( HomeToken mytoken ) 
+{
+	transitions {
+		if ( axis_nr == -1 )
+			select ErrorState
+		select startHoming
+	}
+}
+
+state ErrorState
+{
+	entry {
+		console_output.display("Error in Homing Axis ");
+		console_output.displayInt(axis_nr);
+	}
+}
+
+state FiniHome
+{
+}

@@ -696,7 +696,7 @@ namespace ORO_Execution
       {
       };
 
-    std::vector<std::string> commandNames() const
+    std::vector<std::string> getMethodList() const
       {
         return _TF::getNames();
       };
@@ -715,6 +715,11 @@ namespace ORO_Execution
       {
         return _TF::getArgumentSpec( name );
       };
+
+    std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const
+      {
+          return _TF::getArgumentList( method );
+      }
 
     ComCon create( const std::string& name, const PropertyBag& args ) const
       {

@@ -38,4 +38,13 @@ namespace ORO_Execution {
   {
     mdata.erase( objectname );
   }
+
+    std::vector<std::string> GlobalCommandFactory::getObjectList() const
+    {
+        std::vector<std::string> mlist;
+        for (const_iter_t r = mdata.begin(); r != mdata.end(); ++r )
+            mlist.push_back( r->first );
+        return mlist;
+    }
+            
 }
