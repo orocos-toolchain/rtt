@@ -1,9 +1,3 @@
-dnl
-dnl WARNING: Do not alter this file. It is overwritten automatically. 
-dnl If you need to make changes to this file, apply the changes to the
-dnl orocos-core.m4 file in the orocos-core package instead.
-dnl
-
 dnl Autoconf macros use the AC_ prefix, Automake macros use
 dnl the AM_ prefix. Our extensions use the ACX_ prefix when
 dnl they are general enough to be used outside of the project.
@@ -15,9 +9,7 @@ m4_define([OROCOS_BOOSTPKG],[
 AC_LANG_CPLUSPLUS
 # Check for boost
 AC_CHECK_HEADERS([boost/call_traits.hpp],
-[
-   PACKAGES="packages/support/boost/boost.cdl $PACKAGES"
-],
+[],
 [
 AC_MSG_ERROR([
 
@@ -25,7 +17,13 @@ Could not find Boost headers. Please install Boost.
 
 You can find Boost at http://www.boost.org/
 or if you are a Debian GNU/Linux user, just do:
-apt-get install libboost-dev
+
+apt-get install libboost-dev libboost-graph-dev
+
+RedHat and others may call these boost-devel or libboost-devel.
+
+and be sure to rerun bootstrap.sh in the main directory,
+so that the package management system can detect the installation.
 ])
 ])
 AC_LANG_C
@@ -145,15 +143,7 @@ dnl Check if doxygen is available.
 m4_define([AC_PROG_DOXYGEN],[
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,no)
 if test "x$DOXYGEN" = "xno"; then
-DOXYGEN="@echo Not generating docs from source code"
-AC_MSG_WARN([
-Doxygen was not found on your system. Using doxygen you can generate
-API documentation for the Orocos project.
-
-You can download Doxygen from http://doxygen.sourceforge.net/
-or if you are using Debian GNU/Linux just use: apt-get install doxygen
-to install Doxygen.
-])
+	DOXYGEN="@echo Not generating docs from source code"
 fi
 AC_SUBST(DOXYGEN)
 ])

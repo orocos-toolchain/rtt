@@ -32,7 +32,8 @@ packages/ecos.db:
 # You only need to do this once.
 new_packages:
 	mkdir -p packages-@ECOS_TARGET@
-	cd packages-@ECOS_TARGET@ &&\
+	@echo "Setting up packages-@ECOS_TARGET@..."
+	@cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=${ECOS_REP};\
 	ecosconfig new @ECOS_TARGET@ minimal ;\
 	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \

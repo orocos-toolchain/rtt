@@ -993,7 +993,9 @@ proc ecos_install::preconfigure { } {
     set pdir [ file join $idir $ecos_install::ecos_repo_suffix ]
     cd $pdir
     exec sh -c "./configure 2> config.errors"
-    exec sh -c "make db 2> config.errors"
+    exec sh -c "cat config.errors"
+    exec sh -c "make db 2> makedb.errors"
+    exec sh -c "cat makedb.errors"
     file delete config.errors
 }
 

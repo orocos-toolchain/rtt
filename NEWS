@@ -13,6 +13,7 @@ list of this release :
 * There are now 4 demonstration compile/run-ready sample kernels
 * Runtime machine state descriptions added to the Program Parser and Processor
 * The Program Parser and Processor have had much testing and documentation
+* Comedi and APCI Device Drivers updated
 * The usual bugfixes...
 
 
