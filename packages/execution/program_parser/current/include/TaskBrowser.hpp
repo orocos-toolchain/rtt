@@ -314,6 +314,8 @@ namespace ORO_Execution
          */
         void loop()
         {
+            using boost::lambda::_1;
+
             cout << endl<< coloron <<
                 "  This console reader allows you to browse TaskContexts. \n\
   You can type in a command (type 'help' for info),\n\
@@ -322,7 +324,7 @@ namespace ORO_Execution
             cout << "    TAB completion and HISTORY is available for commands" <<coloroff<<endl<<endl;
             while (1)
                 {
-                    cout << " Enter a command. (Status of previous command : ";
+                    cout << " In Task "<< taskcontext->getName() << ". Enter a command. (Status of previous command : ";
                     cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
                     cout << endl;
 
@@ -333,9 +335,15 @@ namespace ORO_Execution
                     } else if ( command == "help") {
                         printHelp();
                     } else if ( command == "" ) { // nop
+                    } else if ( command == "peers" ) {
+                        std::vector<std::string> objlist;
+                        cout <<endl<< "  This task's peer tasks are :"<<endl;
+                        objlist = taskcontext->getPeerList();
+                        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
                     } else if ( command.find("switch") == 0  ) {
                         int pos = command.find("switch");
-                        command = std::string(command, pos, command.length());
+                        command = std::string(command, pos+6, command.length());
+                        cerr << " Switching to " << command <<endl;
                         switchTask( command );
                     } else
                         evalCommand( command );
@@ -467,8 +475,8 @@ namespace ORO_Execution
             cout << endl<< coloron;
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
-            cout << "  CartesianGenerator.moveTo( frame( vector( .75, .5, .8), rotation( 90., 0., 90. ) ), 15.0 ) [then press enter] "<<endl;
-            cout << "  cout.displayDouble( CartesianGenerator.currentTime ) [enter]" <<endl << coloroff;
+            cout << "  myTask.orderBeers(\"Palm\", 5) [then press enter] "<<endl;
+            cout << "  1+1 [enter]" <<endl << coloroff;
             cout << endl<<"  The available Components are :"<<endl;
             std::vector<std::string> objlist = taskcontext->commandFactory.getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
@@ -478,7 +486,11 @@ namespace ORO_Execution
             cout << "  The available Methods are :"<<endl;
             objlist = taskcontext->methodFactory.getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-            cout << coloron <<"  For the Argument list of an object, just type the object name (eg 'kernel')" <<endl<< coloroff;
+            cout << "  This task's peers are (also : type 'peers') :"<<endl;
+            objlist = taskcontext->getPeerList();
+            std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
+            cout << coloron <<"  For a detailed argument list of the object's methods, "<<endl;
+            cout <<"   just type the object name (eg 'myTask')" <<endl<< coloroff;
             cout <<endl;
         }
         

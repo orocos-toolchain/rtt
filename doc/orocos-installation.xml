@@ -61,6 +61,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>ecostools updates</revremark>
       </revision>
+      <revision>
+	<revnumber>0.18.0</revnumber>
+	<date>1 Dec 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>easier make system documented</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
