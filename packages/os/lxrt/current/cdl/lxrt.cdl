@@ -1,7 +1,7 @@
 
 
 cdl_package OROPKG_OS_LXRT {
-    display "RTAI/LXRT OS abstraction layer"
+    display "RTAI/LXRT OS Abstraction Layer"
     description "
 Use this package if you want to compile 
 Orocos for RTAI Realtime Userspace. It has
@@ -21,7 +21,6 @@ support for all packages used in Orocos."
     compile fosi.c
 
     implements OROINT_OS_STDCXXLIB
-    implements OROINT_OS_KERNEL_MODULE
     implements OROINT_OS_MAIN
 
 #removed
@@ -104,26 +103,78 @@ package.
 "
 	}
 
+#     cdl_option OROBLD_OS_LINUX_KERNEL {
+# 	display "Target Linux Kernel Directory"
+# 	description "
+# Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux."
+# 	flavor booldata
+# 	default_value { "" }
+# 	implements OROINT_OS_KERNEL_MODULE
+#     }
+
+    cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
+	display "Build LXRT kernel Modules"
+	description "
+Enable this option when LXRT KERNEL MODULES need
+to be build and set the correct path, for example
+/usr/src/linux-rt"
+	flavor bool
+	default_value { 0 }
+	implements OROINT_OS_KERNEL_MODULE
+
+	cdl_option OROBLD_OS_LINUX_KERNEL {
+	    display "Target Linux Kernel path"
+	    flavor  data
+	    no_define
+	    default_value { "/usr/src/linux-rt" }
+	    description "Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux-rt."
+	}
+    }
+	cdl_option OROBLD_GLOBAL_CFLAGS_ADD {
+	    display "User defined global compiler flags"
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description   "
+          This option allows you to override some global compiler flags.
+The options you provide here will be appended to the CFLAGS variable.
+You can add the '-g -O0' flags here for example."
+	}
+
 	cdl_option CYGBLD_GLOBAL_CFLAGS {
 	    display "Global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value { " -pipe -Wall -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include" }
+	    calculated { " -pipe -Wall -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include -march=". OROBLD_OS_ARCHITECTURE . " -mcpu=" .  OROBLD_OS_PROCESSOR . " " . OROBLD_GLOBAL_CFLAGS_ADD }
 	    description   "
-          This option controls the global compiler flags which
+          This option shows the global compiler flags which
           are used to compile all packages by
           default. Individual packages may define
-          options which override these global flags."
+          options which override these global flags. You can not change these
+          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD"
+	}
+
+	cdl_option CYGBLD_GLOBAL_LDFLAGS_ADD {
+	    display "User defined linker flags"
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description   "
+          This option allows you to override the global linker flags.
+          The options you provide here will be appended to the LDFLAGS variable.
+          You can add additional library paths and flags here."
 	}
 
 	cdl_option CYGBLD_GLOBAL_LDFLAGS {
 	    display "Global linker flags"
 	    flavor  data
 	    no_define
-	    default_value { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib -L". CYGBLD_RTAIDIR. "/lib -llxrt" }
+	    calculated { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib -L". CYGBLD_RTAIDIR. "/lib -llxrt" . CYGBLD_GLOBAL_LDFLAGS_ADD }
 	    description   "
           This option controls the global linker flags. Individual
-          packages may define options which override these global flags."
+          packages may define options which override these global flags.
+          You can not change these
+          flags but override them in the CYGBLD_GLOBAL_LDFLAGS_ADD"
 	}
 
     }

@@ -1,11 +1,15 @@
 cdl_package OROPKG_DEVICE_DRIVERS_APCI {
     display "The APCI device drivers"
+	description "
+  These are device drivers ( as Linux Kernel Modules ) for the APCI
+  1710, 2200 and 1032 card, both for gnulinux and lxrt." 
 
     parent OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_INTERFACE
     requires OROPKG_DEVICE_INTERFACE_IO
     requires OROPKG_DEVICE_INTERFACE_ENCODER
+    requires OROINT_OS_KERNEL_MODULE
 
     include_dir device_drivers
     # result to nop-classes if source compile option not enabled.
@@ -15,10 +19,14 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 
     cdl_option OROFUN_DEVICE_DRIVERS_APCI_LXRT_LIB {
 	display "Compile LXRT driver KM"
+	description "
+  Be sure to enable the Build LXRT Kernel Modules flag
+  in the Global Build Options, or the APCI kernel modules
+  will not be built." 
 	flavor bool
-	calculated OROFUN_DEVICE_DRIVERS_APCI2200_LIB || \
+	calculated ( OROFUN_DEVICE_DRIVERS_APCI2200_LIB || \
 	    OROFUN_DEVICE_DRIVERS_APCI1032_LIB || \
-	    OROFUN_DEVICE_DRIVERS_APCI1710_LIB
+	    OROFUN_DEVICE_DRIVERS_APCI1710_LIB )
 
 	make  {
 	    <PREFIX>/modules/apci_lxrt.o : <PACKAGE>/src/apci_lxrt.c <PACKAGE>/src/apci_lxrt.h
@@ -30,23 +38,37 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 
     cdl_option OROPKG_DEVICE_DRIVERS_APCI_CFLAGS_ADD {
         display "Linux include path"
+	description "
+  Be sure to enable the Build Linux or LXRT Kernel Modules flag
+  in the Global Build Options, or the APCI kernel modules
+  will not be built." 
 	flavor data
-        default_value { " -I".OROBLD_OS_LINUX_KERNEL."/include" }
-	active_if OROPKG_OS_GNULINUX
+        calculated { " -I".OROBLD_OS_LINUX_KERNEL."/include" }
+	active_if OROINT_OS_KERNEL_MODULE
     }
 
     cdl_component OROPKG_DEVICE_DRIVERS_APCI1710 {
 	display "The APCI1710 device driver"
+	description "
+  Be sure to enable the Build Linux or LXRT Kernel Modules flag
+  in the Global Build Options, or the APCI kernel modules
+  will not be built." 
 	flavor bool
 	default_value 1
+	active_if OROINT_OS_KERNEL_MODULE
 
 	script apci1710.cdl
     }
 
     cdl_component OROPKG_DEVICE_DRIVERS_APCI2200 {
 	display "The APCI2200 device driver"
+	description "
+  Be sure to enable the Build Linux or LXRT Kernel Modules flag
+  in the Global Build Options, or the APCI kernel modules
+  will not be built." 
 	flavor bool
 	default_value 1
+	active_if OROINT_OS_KERNEL_MODULE
 
 	compile RelayCardapci2200.cxx
 	script apci2200.cdl
@@ -54,8 +76,13 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 
     cdl_component OROPKG_DEVICE_DRIVERS_APCI1032 {
 	display "The APCI1032 device driver"
+	description "
+  Be sure to enable the Build Linux or LXRT Kernel Modules flag
+  in the Global Build Options, or the APCI kernel modules
+  will not be built." 
 	flavor bool
 	default_value 1
+	active_if OROINT_OS_KERNEL_MODULE
 
 	compile SwitchDigitalInapci1032.cxx
 	script apci1032.cdl

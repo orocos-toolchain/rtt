@@ -1,5 +1,5 @@
 cdl_package OROPKG_OS {
-    display "Common C and C++ OS interfaces"
+    display "OS Abstraction Layer"
     description "
 This Package groups operating system abstractions.
 It defines a Thread, Mutex, IO and the capabilities
@@ -27,16 +27,6 @@ will be used instead of the system header files.
         default_value 1
     }
 
-    cdl_option OROBLD_OS_LINUX_KERNEL {
-	display "Target Linux kernel directory"
-	description "
-This path is needed when KERNEL MODULES need
-to be build."
-	flavor data
-	parent CYGPKG_NONE
-	default_value { "/usr/src/linux" }
-    }
-
     cdl_option OROCLS_OS_MINIMAL_STREAMS {
 	display "Minimal streams implementation"
 	description "
@@ -52,10 +42,38 @@ std C++ library). It resides in the rt_std namespace."
 
     cdl_option OROFUN_OS_ALTERNATE_RTTI {
 	display "Alternate C++ Run Time Type Info (EXP)"
+	description "
+Enable to compile a C++ RTTI implementation, based on the
+gcc compilers implementation. Only use if your target's
+C++ libraries have no RTTI support *and* use with care."
 	flavor bool
 	default_value 0
 	compile rt_tinfo.cxx rt_tinfo2.cxx
 	active_if OROCFG_CORELIB_EXPERIMENTAL
+    }
+
+    cdl_option OROBLD_OS_ARCHITECTURE {
+	display "Processor Target Architecture"
+        description "
+This option will be added to the compiler flags.
+Select here the processor architecture for which at least the
+compiled code will run on."
+	flavor data
+	default_value { "pentium" }
+        legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" }
+    }
+
+    cdl_option OROBLD_OS_PROCESSOR {
+	display "Tune to Processor Type"
+        description "
+This option will be added to the compiler flags.
+Select here the processor architecture at which the code will run
+most tuned. We are forced to omit pentium/k6 processors, since this
+would trigger non-thread-safe code generation when compiling. However,
+your program will run on a pentium if selecting pentium4 or even athlon-xp for example."
+	flavor data
+	default_value { "pentium2" }
+        legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" }
     }
 
     cdl_interface OROINT_OS_GLOBAL_CRT {

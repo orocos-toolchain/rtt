@@ -21,6 +21,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
 
     requires OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_INTERFACE
+    requires OROINT_OS_KERNEL_MODULE
     
     cdl_interface OROINT_DEVICE_DRIVERS_CP_CORE {
 	display "CANPie Core implementation"
@@ -32,7 +33,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
 	display "Calls to kernel module"
 	description "
 Only LXRT currently supports userspace code to call the kernel module." 
- 	calculated OROBLD_DEVICE_DRIVERS_CANPIE_KM && OROPKG_OS_LXRT
+ 	calculated OROBLD_DEVICE_DRIVERS_CANPIE_KM && OROPKG_OS_LXRT && OROINT_OS_KERNEL_MODULE
 	implements OROINT_DEVICE_DRIVERS_CANPIE
 
 	define_proc {
@@ -45,7 +46,7 @@ cdl_option OROFUN_DEVICE_DRIVERS_CANPIE_IK {
     display "Built-in device driver"
     compile cpfifo.c  cpfilter.c cpmsg.c cpuser.c
     calculated OROINT_OS_KERNEL
-    requires   OROINT_DEVICE_DRIVERS_CP_CORE
+    requires   OROINT_DEVICE_DRIVERS_CP_CORE 
     implements OROINT_DEVICE_DRIVERS_CANPIE
     define_proc {
 	puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_CANPIE_T void"
@@ -58,6 +59,7 @@ cdl_component OROBLD_DEVICE_DRIVERS_CANPIE_SJA1000 {
 This provides a kernel module for accessing the common
 SJA1000 CAN controller."
     default_value 1
+    requires OROINT_OS_KERNEL_MODULE
 
     define_proc {
 	puts $::cdl_header "#define OROBLD_DEVICE_DRIVERS_CP_CORE_H cpcore_sja.h"
