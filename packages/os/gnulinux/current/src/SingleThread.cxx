@@ -32,6 +32,10 @@
 #ifdef OROPKG_CORELIB
 #include "pkgconf/corelib.h"
 #endif
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+using ORO_CoreLib::Logger;
+#endif
 
 #include <iostream>
 #include <sys/mman.h>
@@ -44,10 +48,12 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        rtos_printf("Single Thread created...\n");
 
         SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
 
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" created."<<Logger::endl;
+#endif
         sem_init( &task->sem, 0, 0 );
         sem_post( &task->confDone );
 
@@ -76,11 +82,14 @@ namespace ORO_OS
                     task->finalize();
             }
     
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" exiting."<<Logger::endl;
+#endif
         /**
          * Cleanup stuff
          */
         sem_destroy( &task->sem);
-        rtos_printf("SingleThread terminating.\n");
+
         sem_post( &task->confDone );
         return 0;
     }
@@ -94,12 +103,13 @@ namespace ORO_OS
         else
             taskNameSet("unnamed");
 
-        rtos_printf("Creating SingleThread %s.\n", taskName );
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "SingleThread: Creating "<< taskName <<"."<<Logger::endl;
+#endif
 
         sem_init( &confDone, 0, 0);
         pthread_create( &thread, 0, singleThread_f, this);
         sem_wait( &confDone );
-	rtos_printf("Exiting Constructor\n");
     }
     
     SingleThread::~SingleThread() 
@@ -112,7 +122,13 @@ namespace ORO_OS
         sem_wait( &confDone );
         sem_destroy(&confDone);
 
-        rtos_printf("SingleThread %s destroyed.\n", taskName );
+        if ( pthread_join(thread,0) != 0 ) 
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Error << "SingleThread: Failed to join with thread "<< taskName <<"."<<Logger::endl;
+        else
+            Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl
+#endif
+                ;
     }
 
     bool SingleThread::start() 
