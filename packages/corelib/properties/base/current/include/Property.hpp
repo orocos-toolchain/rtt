@@ -179,11 +179,11 @@ namespace ORO_CoreLib
                 pi->introspect( *this );
             }
 
-						virtual void mutate( PropertyMutatingIntrospection * pmi)
-						{
-							std::cout << __PRETTY_FUNCTION__ << std::endl;
-								pmi->introspect( *this );
-						}
+        virtual void mutate( PropertyMutatingIntrospection * pmi)
+        {
+            std::cout << __PRETTY_FUNCTION__ << std::endl;
+            pmi->introspect( *this );
+        }
 
 #ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
             virtual bool update( const PropertyBase* b)

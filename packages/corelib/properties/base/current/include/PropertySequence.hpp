@@ -21,6 +21,7 @@
 #define PI_PROPERTY_SEQUENCE_HPP
 
 #include "PropertyBase.hpp"
+#include <vector>
 
 namespace ORO_CoreLib
 {
@@ -57,13 +58,13 @@ namespace ORO_CoreLib
      * @param T The type of the sequence.
      * @note THIS CLASS IS EXPERIMENTAL AND SHOULD NOT BE USED BY THE UNWARY
 	 */
-    template<class T>
+    template< class T >
     class PropertySequence
     {
         public:
-			typedef std::vector<PropertyBase*> PropertyContainerType;
-			typedef PropertyContainerType::iterator iterator;
-            typedef PropertyContainerType::const_iterator const_iterator;
+			typedef std::vector<T*> PropertyContainerType;
+			typedef typename PropertyContainerType::iterator iterator;
+            typedef typename PropertyContainerType::const_iterator const_iterator;
 
 			/**
 			 * The default constructor.
@@ -86,24 +87,16 @@ namespace ORO_CoreLib
              * The copy constructor of the PropertySequence makes
              * non-deep copies of its elements.
              */
-            PropertySequence( const PropertySequence& orig)
+            PropertySequence( const PropertySequence<T>& orig)
                 : _properties( orig.getProperties() ), type( orig.getType() )
             {
-#if 0
-                const_iterator i( orig.getProperties().begin() );
-                while ( i != orig.getProperties().end() )
-                {
-                    add( (*i) );
-                    ++i;
-                }
-#endif
             }
 
 			/**
 			 * Add a property to the container.
 			 * @param p Pointer to the property to be added.
 			 */
-            void add(PropertyBase *p)
+            void add(T *p)
             {
                 _properties.push_back(p);
             }
@@ -112,11 +105,9 @@ namespace ORO_CoreLib
 			 * Remove a property from the container.
 			 * @param p Pointer to the property to be removed.
 			 */
-			void remove(PropertyBase *p)
+			void remove(T *p)
             {
-                iterator i = _properties.begin();
-                i = _properties.end();
-				i = std::find(_properties.begin(), _properties.end(), p);
+				iterator i = std::find(_properties.begin(), _properties.end(), p);
                 if ( i != _properties.end() )
                     _properties.erase(i);
             }
@@ -154,7 +145,7 @@ namespace ORO_CoreLib
              * @return The PropertyBase with this name, zero
              *         if it does not exist.
              */
-            PropertyBase* find(const std::string& name) const
+            T* find(const std::string& name) const
             {
 				const_iterator i( std::find_if(_properties.begin(), _properties.end(), std::bind2nd(FindProp(), name ) ) );
                 if ( i != _properties.end() )
@@ -167,7 +158,7 @@ namespace ORO_CoreLib
              * PropertyBases of another sequence in this sequence, making
              * an exact copy or the original.
              */
-            PropertySequence& operator=(const PropertySequence& orig)
+            PropertySequence<T>& operator=(const PropertySequence<T>& orig)
             {
                 _properties.clear();
 
@@ -186,13 +177,13 @@ namespace ORO_CoreLib
              * of another sequence, removing own PropertyBases if duplicate names
              * exist in the source sequence.
              */
-            PropertySequence& operator<<=(const PropertySequence& source)
+            PropertySequence<T>& operator<<=(const PropertySequence<T>& source)
             {
-                //iterate over orig, update or clone PropertyBases
+                //iterate over orig, update or clone Ts
                 const_iterator it(source.getProperties().begin());
                 while ( it != source.getProperties().end() )
                 {
-                    PropertyBase* mine = find( (*it)->getName() );
+                    T* mine = find( (*it)->getName() );
                     if (mine != 0)
                         remove(mine);
                     add( (*it) );
@@ -211,25 +202,13 @@ namespace ORO_CoreLib
             /**
              * A function object for finding a Property by name.
              */
-            struct FindProp : public std::binary_function<const PropertyBase*,const std::string, bool>
+            struct FindProp : public std::binary_function<const T*,const std::string, bool>
             {
-                bool operator()(const PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
+                bool operator()(const T* b1, const std::string& b2) const { return b1->getName() == b2; }
             };
 
             const std::string type;
     };
-
-
-    /**
-     * Some helper functions to retrieve PropertyBases from
-     * PropertySequences.
-     *
-     * @param sequence The sequence to look for a Property.
-     * @param nameSequence A sequence of names, separated by
-     *        a double colon indicating the path in the sequence to a property,
-     *        omitting the name of the <sequence> itself.
-     */
-    PropertyBase* find(const PropertySequence& sequence, const std::string& nameSequence, const std::string& separator = std::string("::") );
 
 
     /**
@@ -245,7 +224,8 @@ namespace ORO_CoreLib
      * 
      * You can use this function to update the properties of a fixed sequence.
      */
-    void refreshProperties(PropertySequence& target, const PropertySequence& source);
+    template< class T>
+    void refreshProperties(PropertySequence<T>& target, const PropertySequence<T>& source);
     
     /**
      * @brief This function updates the values of Property objects of one Sequence with the 
@@ -255,25 +235,16 @@ namespace ORO_CoreLib
      * 
      * You can use this function to add a copy of the contents of a property sequence.
      */
-    void copyProperties(PropertySequence& target, const PropertySequence& source);
+    template< class T>
+    void copyProperties(PropertySequence<T>& target, const PropertySequence<T>& source);
         
     /**
      * This function iterates over a PropertySequence and deletes all Property objects in
      * it without recursion.
      */
-    void deleteProperties(PropertySequence& target);
+    template< class T>
+    void deleteProperties(PropertySequence<T>& target);
 
-    /**
-     * @brief This function flattens a PropertySequence recursively.
-     *
-     * The names of the Propety objects of the included sequences are
-     * placed in this sequence with the included sequence's name prefixed. If the Property object
-     * in that sequence is also a sequence, the same operation is performed recursively.
-     * So any sequence in <target> will show up at the
-     * root of <target> with the path prefixed.
-     */
-    void flattenPropertySequence(PropertySequence& target, const std::string& separator="::");
-    
     /**
      * @}
      */
@@ -281,8 +252,9 @@ namespace ORO_CoreLib
     /**
      * Updating a sequence is actually refreshing the sequence.
      */
+    template< class T>
     inline
-    void update(PropertySequence& a, const PropertySequence& b)
+    void update(PropertySequence<T>& a, const PropertySequence<T>& b)
     {
         refreshProperties(a,b);
     }
@@ -290,8 +262,9 @@ namespace ORO_CoreLib
     /**
      * Copying a sequence is actually making a deep copy of the sequence.
      */
+    template< class T>
     inline
-    void copy(PropertySequence& a, const PropertySequence& b)
+    void copy(PropertySequence<T>& a, const PropertySequence<T>& b)
     {
         std::cout << "Copy Sequence "<<std::endl;
         copyProperties(a,b);

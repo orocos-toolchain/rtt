@@ -253,7 +253,7 @@ namespace ORO_CoreLib
 
 
     /**
-     * A demarshaller for extracting properties and property bags
+     * @brief A demarshaller for extracting properties and property bags
      * from a Component Property File following the CORBA 3 standard.
      */
     template <typename input_stream>
