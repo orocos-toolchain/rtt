@@ -1,4 +1,36 @@
-To check out the latest orocos tree from subversion,
+
+The Open RObot COntrol Software (OROCOS) Framework
+==================================================
+
+After orocos-install.tcl
+========================
+If you got here after executing orocos-install.tcl,
+source the orocosenv.sh scripts as told earlier,
+then proceed with the build instructions as described
+in the installation manual. For a quick start you can
+do :
+
+mkdir buid
+cd build
+../configure
+make new_packages
+cd packages-gnulinux
+configtool ecos.ecc [save changes]
+make all_packages
+
+
+General Instructions
+====================
+
+The installation manual can be found in the doc dir of 
+this package (orocos-base). You can also consult it
+online on the http://www.orocos.org website.
+
+Each separate software package comes with its own
+documentation in the common/doc dir. They are also
+online consultable.
+
+To check out the latest Orocos source with subversion,
 use the following command :
 
 svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk

@@ -58,9 +58,10 @@ m4_define([ACX_VERSION_POST],[
  MAJOR_VERSION=acx_major_version
  MINOR_VERSION=acx_minor_version
  MICRO_VERSION=acx_micro_version
- BUILD=$(svn info packages |grep Revision | sed -e's/Revision: //')
  DATE=`date +"%Y%m%d_%k%M"`
- VERSION=acx_version-$BUILD
+dnl BUILD=$(svn info packages |grep Revision | sed -e's/Revision: //')
+dnl VERSION=acx_version-$BUILD
+ VERSION=acx_version
  PACKAGE_VERSION=$VERSION
  AC_SUBST(MAJOR_VERSION)
  AC_SUBST(MINOR_VERSION)

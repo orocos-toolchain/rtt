@@ -102,6 +102,7 @@ namespace eval ecos_install {
         # meant to be a rehash of the mirrors list.
 	# 	   
         variable metadata_url { \
+				 "http://www.orocos.org/orocos-install.db"\
 			         "http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-install.db"\
 				 "http://localhost/orocos-install.db"\
 				}

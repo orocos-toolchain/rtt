@@ -2,6 +2,10 @@ SUBDIRS = . doc
 
 ECOS_REP=@abs_srcdir@/packages
 
+# These are not distributed by default (adds to many megs)
+# The i386linux package will copy them.
+#	tools/bin/ecosconfig tools/bin/configtool 
+
 EXTRA_DIST = \
 	packages/ecosadmin.tcl packages/ecosdbgen.py packages/ecospkggen.py \
 	packages/configure.ac packages/configure bootstrap.sh \
@@ -9,6 +13,7 @@ EXTRA_DIST = \
 	packages/Makefile.in packages/Doxyfile.in \
 	doc/CODING_STYLE.txt \
 	packages/support/boost/current/boost.cdl.in \
+	packages/support/boost_graph/current/boost_graph.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
 	packages/support/comedilib/current/comedilib.cdl.in \
 	packages/support/xercesc/current/xercesc.cdl.in \
@@ -27,10 +32,12 @@ packages/ecos.db:
 new_packages:
 	mkdir -p packages-@ECOS_TARGET@
 	cd packages-@ECOS_TARGET@ &&\
-	export ECOS_REPOSITORY=${ECOS_REP} &&\
-	ecosconfig new @ECOS_TARGET@ corelib-os &&\
+	export ECOS_REPOSITORY=${ECOS_REP};\
+	{ ecosconfig new @ECOS_TARGET@ corelib-os || ecosconfig new @ECOS_TARGET@ allpackages; };\
 	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
-	ecosconfig add support_$$(basename $$i .cdl); done
+	ecosconfig add support_$$(basename $$i .cdl); done ;\
+	ecosconfig check
+
 
 # This configures the selected packages with
 # a graphical tool.
@@ -57,8 +64,9 @@ clean_packages:
 check_packages:
 	cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=${ECOS_REP} &&\
-	ecosconfig template default &&\
-	ecosconfig add applications_testcase &&\
+	ecosconfig template corelib-os &&\
+	ecosconfig remove applications_testcase ;\
+	{ ecosconfig add applications_testcase || exit 1; } ;\
 	ecosconfig tree &&\
 	make
 
