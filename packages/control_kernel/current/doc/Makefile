@@ -1,9 +1,10 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
 	orocos-control-kernel.html kernel_component_interaction.png \
 	component_life_cycle.png ExtensionTimeLine.png \
-	orocos-control-kernel.pdf
+	orocos-control-kernel.pdf \
+	orocos-control-kernel.ps
 
 docxml: dochtml docpdf
 

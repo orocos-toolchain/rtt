@@ -892,13 +892,13 @@
 	number of ServedTypes is.
       </para>
       <para> 
-	You must do this for all five types of the NamesControlKernel,
+	You must do this for all five datatypes of the NamesControlKernel,
 	just like you did with the DefaultControlKernel. Once the five
 	classes are defined, one can define the kernel :
       </para>
       <programlisting>
 	#include &lt;control_kernel/NamesControlKernel.hpp&gt;
-	typedef DefaultControlKernel &lt;MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput&gt; MyNamesKernel;
+	typedef NamesControlKernel &lt;MyNamesInput, MyNamesModel, MyNamesCommand, MyNamesSetPoint, MyNamesOutput&gt; MyNamesKernel;
       </programlisting>
       <para>
 	This kernel can be used in exactly the same way
