@@ -73,6 +73,8 @@ namespace ORO_Execution {
             ParsedStateContext* newcontext = oldcontext->copy( replacements );
             DataSource<StateContextTree*>::shared_ptr ncds = new VariableDataSource<StateContextTree*>( newcontext );
             ret->subcontexts[i->first] = ncds;
+            ret->addChild( newcontext ); // also copy tree info to StateContextTree !
+            newcontext->setParent( ret );
             replacements[i->second.get()] = ncds.get();
         }
 

@@ -175,7 +175,7 @@ namespace ORO_Execution
 
     const std::string what() const
       {
-        return "No component registered by the name \"" + mname + "\".";
+        return "Component \"" + mname + "\" registered no commands.";
       }
 
     parse_exception_no_such_component* copy() const
