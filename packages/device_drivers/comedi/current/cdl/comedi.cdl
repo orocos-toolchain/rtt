@@ -18,6 +18,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_COMEDI {
     requires OROPKG_DEVICE_INTERFACE_IO
     requires OROPKG_DEVICE_INTERFACE_ENCODER
     
-    compile v2/ComediDevice.cxx v2/ComediEncoderIncremental.cxx
-    include_files v2/ComediDevice.hpp  v2/ComediEncoderIncremental.hpp  v2/ComediSubDeviceAIn.hpp  v2/ComediSubDeviceAOut.hpp  v2/ComediSubDeviceDIn.hpp  v2/ComediSubDeviceDOut.hpp
+    compile v2/ComediDevice.cxx v2/ComediEncoder.cxx
+    include_files v2/ComediEncoder.hpp v2/ComediDevice.hpp  v2/ComediSubDeviceAIn.hpp  v2/ComediSubDeviceAOut.hpp  v2/ComediSubDeviceDIn.hpp  v2/ComediSubDeviceDOut.hpp
 }
