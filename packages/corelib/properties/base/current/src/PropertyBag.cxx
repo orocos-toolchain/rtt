@@ -35,19 +35,29 @@ namespace ORO_CoreLib
     PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;
-        PropertyBag*  result_bag;
+        Property<PropertyBag>*  result_bag;
         std::string token;
-        std::string::size_type len = nameSequence.find(separator);
-        if (len != std::string::npos)
-            token = nameSequence.substr(0,len);
-        else
-            token = nameSequence;
+        std::string::size_type start = 0;
+        if ( separator.length() != 0 && nameSequence.find(separator) == 0 ) // detect 'root' attribute
+            start = separator.length();
+        std::string::size_type len = nameSequence.find(separator, start);
+        if (len != std::string::npos) {
+            token = nameSequence.substr(start,len-start);
+            start = len + separator.length();      // reset start to next token.
+            if ( start >= nameSequence.length() )
+                start = std::string::npos;
+        }
+        else {
+            token = nameSequence.substr(start);
+            start = std::string::npos; // do not look further.
+        }
         result = bag.find(token);
-        if (result != 0) // get the base with this name
+        if (result != 0 ) // get the base with this name
         {
-            result_bag = dynamic_cast<PropertyBag*>(result);
-            if ( result_bag != 0 )
-                return find( *result_bag, nameSequence.substr( len+2 ) );// a bag so search recursively
+            result_bag = dynamic_cast<Property<PropertyBag>*>(result);
+            if ( result_bag != 0 && start != std::string::npos ) {
+                return find( result_bag->get(), nameSequence.substr( start ), separator );// a bag so search recursively
+            }
             else
                 return result; // not a bag, so it is a result.
         }
