@@ -2964,7 +2964,7 @@ private:
   // adding the extension to the KernelBaseFunction: 
   typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
   typedef StandardControlKernel<ExecExtension> MyExecKernel;
-]]>
+
   MyExecKernel my_kernel;
   // ... load components, then :
   try {
@@ -2976,7 +2976,7 @@ private:
   } catch ( program_load_exception & ple ) {
     cerr << ple.what() << endl;
     // parsed fine, but failed to load
-  }      </programlisting>
+  }   ]]>   </programlisting>
 	<para>
 	  The Program name is given in the program.ops file.
 	  Both Program and StateContext can cause parse errors or

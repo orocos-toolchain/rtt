@@ -1241,11 +1241,12 @@ emergencyStop.fire(); // User not notified
     <example>
       <title>Using the Logger class</title>
       <programlisting>
-  #include &lt;corelib/Logger.hpp>
+  <![CDATA[
+  #include <corelib/Logger.hpp>
 
   Logger::log() << Logger::Error << "An error Occured : " << 333 << "." << Logger::endl;
   Logger::log() << Logger::Debug << debugstring << data << Logger::endl;
-  Logger::log() << " more debug info." << data << Logger::endl; </programlisting>
+  Logger::log() << " more debug info." << data << Logger::endl; ]]></programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
 	You may change the Log message's level using the <classname>Logger::...</classname>
 	enums. The above message could result in :
