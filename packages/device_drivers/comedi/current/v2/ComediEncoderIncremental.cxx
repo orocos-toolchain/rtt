@@ -62,7 +62,7 @@ namespace CBDeviceDriver
     /* Configure the counter subdevice
        Configure the GPCT for use as an encoder 
     */
-#define ENCODER_CONFIG_DATA 2 // Could change, see todo in .hpp file
+#define ENCODER_CONFIG_DATA 4
     typedef unsigned int Data;
     
     comedi_insn insn;
@@ -73,6 +73,9 @@ namespace CBDeviceDriver
     config_data[0] = GPCT_QUADRATURE_ENCODER;
     // Should become an option
     config_data[1] = GPCT_X4;
+    config_data[2] = GPCT_IndexPhaseHighHigh;
+    config_data[3] = GPCT_CONTINU_COUNTING_WHEN_INDEX_ARRIVES;
+
     insn.data=config_data;
     insn.subdev=_subDevice;
     insn.chanspec=CR_PACK(_channel,0,0);
