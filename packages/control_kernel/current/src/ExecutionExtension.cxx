@@ -31,6 +31,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     using std::cerr;
     using std::endl;
 
+    // is this still needed ???
     TaskInterface* ExecutionExtension::getTask() const
     {
         return base->getTask();
@@ -43,58 +44,62 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     bool ExecutionExtension::initialize() 
     { 
-        class DummyState : public StateInterface
-        { void onEntry() {} void onExit() {} void handle() {} };
-
-//         if ( !proc.startConfiguration() )
-//             cerr << "Configuration of Processor failed !"<<endl;
-        if ( !proc.loadStateContext( "Default", context == 0 ? new StateContext( new DummyState, new DummyState ) : context ) )
-            cerr << "Failed to load Processor State Context !"<<endl;
-//         if ( !proc.endConfiguration() )
-//             cerr << "Could not end Processor Configuration !"<<endl;
-        if ( program !=0 && !proc.loadProgram("Default", program) ) // pass ownership to the processor
-            cerr << "Program present but could not be loaded in Processor !" <<endl;
-
         if ( !proc.startStateContext("Default") )
-            cerr << "Processor could not start State Execution !"<<endl;
+            cerr << "Processor could not start \"Default\" StateContext."<<endl;
         return true;
     }
 
-    void ExecutionExtension::startProgram()
+    void ExecutionExtension::startProgram(const std::string& name)
     {
-        proc.resetProgram("Default");
-        running_progr = proc.startProgram("Default");
+        proc.resetProgram(name);
+        proc.startProgram(name);
     }
 
-    bool ExecutionExtension::isProgramRunning() const
+    bool ExecutionExtension::isProgramRunning(const std::string& name) const
     {
-        return running_progr;
+        return proc.isProgramRunning(name);
     }
 
-    void ExecutionExtension::stopProgram()
+    void ExecutionExtension::stopProgram(const std::string& name)
     {
-        proc.stopProgram("Default");
-        running_progr  = false;
+        proc.stopProgram(name);
     }
 
-    bool ExecutionExtension::loadProgram( std::istream& prog_stream )
+    void ExecutionExtension::resetProgram(const std::string& name)
+    {
+        proc.resetProgram(name);
+    }
+
+    bool ExecutionExtension::loadProgram( std::istream& prog_stream, const std::string& name )
     {
         initKernelCommands();
         Parser    parser;
         program = parser.parseProgram( prog_stream, &proc, this );
         if (program == 0) 
             return false;
+        proc.loadProgram(name, program);
         return true;
     }
 
-    bool ExecutionExtension::loadStateContext( std::istream& state_stream )
+    bool ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& name )
     {
         initKernelCommands();
         Parser    parser;
         context = parser.parseStateContext( state_stream, &proc, this );
         if (context == 0) 
             return false;
+        proc.loadStateContext(name, context);
         return true;
+    }
+
+    bool ExecutionExtension::isStateContextRunning(const std::string& name) const
+    {
+        return proc.isStateContextRunning(name);
+    }
+
+    void ExecutionExtension::resetStateContext(const std::string& name)
+    {
+        proc.resetStateContext(name);
     }
 
     void ExecutionExtension::step() {
@@ -108,16 +113,18 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     void ExecutionExtension::finalize() 
     {
-        proc.stopProgram("Default");
+        proc.stopStateContext("Default");
     }
 
     CommandFactoryInterface* ExecutionExtension::createCommandFactory()
     {
+        // see initKernelCommands()
         return 0;
     }
 
     DataSourceFactory* ExecutionExtension::createDataSourceFactory()
     {
+        // see initKernelCommands()
         return 0;
     }
 
@@ -146,13 +153,33 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                   command
                   ( &ExecutionExtension::startProgram ,
                     &ExecutionExtension::isProgramRunning ,
-                    "Start a program" ) );
+                    "Start a program", "Name", "The Name of the Loaded Program" ) );
         ret->add( "stopProgram", 
                   command
                   ( &ExecutionExtension::stopProgram ,
                     //bind(&ExecutionExtension::foo, _1, mem_fn(&ExecutionExtension::isProgramRunning), std::logical_not<bool>() ),
                     &ExecutionExtension::isProgramRunning ,
-                    "Stop a program", true ) ); // true ==  invert the result.
+                    "Stop a program", "Name", "The Name of the Started Program", true ) ); // true ==  invert the result.
+        ret->add( "resetProgram", 
+                  command
+                  ( &ExecutionExtension::resetProgram ,
+                    &ExecutionExtension::isProgramRunning ,
+                    "Reset a program", "Name", "The Name of the Stopped Program", true ) );
+        ret->add( "startStateContext", 
+                  command
+                  ( &ExecutionExtension::startStateContext ,
+                    &ExecutionExtension::isStateContextRunning ,
+                    "Start a program", "Name", "The Name of the Loaded StateContext" ) );
+        ret->add( "stopStateContext", 
+                  command
+                  ( &ExecutionExtension::stopStateContext ,
+                    &ExecutionExtension::isStateContextRunning ,
+                    "Stop a program", "Name", "The Name of the Started StateContext", true ) );
+        ret->add( "resetStateContext", 
+                  command
+                  ( &ExecutionExtension::resetStateContext ,
+                    &ExecutionExtension::isStateContextRunning ,
+                    "Reset a stateContext", "Name", "The Name of the Stopped StateContext", true ) );
         commandFactory().registerObject( "engine", ret );
     }
 

@@ -119,31 +119,66 @@ namespace ORO_ControlKernel
         /**
          * Set a ProgramGraph to be used the next time the kernel is started.
          *
-         * @param p A stream containing the program script to be executed.
+         * @param prog_stream A stream containing the program script to be executed.
+         * @param name The name of the Program.
          */
-        bool loadProgram( std::istream& prog_stream );
+        bool loadProgram( std::istream& prog_stream, const std::string& name );
 
         /**
          * Set a StateGraph to be used the next time the kernel is started.
          *
-         * @param p A stream containing the state script to be executed.
+         * @param state_stream A stream containing the state script to be executed.
+         * @param name The name of the StateContext.
          */
-        bool loadStateContext( std::istream& state_stream );
+        bool loadStateContext( std::istream& state_stream, const std::string& name );
 
         /**
          * Start a previously loaded Program.
+         * @param name The name of the Program.
          */
-        void startProgram();
+        void startProgram(const std::string& name);
 
         /**
          * Returns true if the program was successfully started.
+         * @param name The name of the Program.
          */
-        bool isProgramRunning() const;
+        bool isProgramRunning(const std::string& name) const;
 
         /**
          * Stops the execution of a program.
+         * @param name The name of the Program.
          */
-        void stopProgram();
+        void stopProgram(const std::string& name);
+
+        /**
+         * Resets the execution of a stopped program to the first instruction.
+         * @param name The name of the Program.
+         */
+        void resetProgram(const std::string& name);
+
+        /**
+         * Start a previously loaded StateContext.
+         * @param name The name of the StateContext.
+         */
+        void startStateContext(const std::string& name);
+
+        /**
+         * Returns true if the program was successfully started.
+         * @param name The name of the StateContext.
+         */
+        bool isStateContextRunning(const std::string& name) const;
+
+        /**
+         * Stops the execution of a StateContext and enters the Final_State.
+         * @param name The name of the StateContext.
+         */
+        void stopStateContext(const std::string& name);
+
+        /**
+         * Resets the execution of a StateContext and enters the Initial_State.
+         * @param name The name of the StateContext.
+         */
+        void resetStateContext(const std::string& name);
 
         /**
          * The Processor is needed during program construction,

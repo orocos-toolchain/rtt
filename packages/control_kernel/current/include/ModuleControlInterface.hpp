@@ -41,7 +41,7 @@ namespace ORO_ControlKernel
      */
     struct ModuleControlInterface
     {
-        ModuleControlInterface() {}
+        virtual ~ModuleControlInterface() {}
 
         /**
          * This will do a full update of the module. It will pull
