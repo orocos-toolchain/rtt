@@ -10,6 +10,8 @@
  * original asm/bitops.h. This file got included by the RTAI
  * header files, which caused warnings on RedHat systems.
  */
+// added :
+#include <asm/types.h> // for __u64
 
 
 #include <linux/config.h>
