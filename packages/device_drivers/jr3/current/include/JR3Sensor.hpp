@@ -32,6 +32,7 @@
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
 #include <corelib/TaskNonPreemptible.hpp>
+#include <iostream>
 #include "jr3dsp.h"
 
 namespace ORO_DeviceDriver
