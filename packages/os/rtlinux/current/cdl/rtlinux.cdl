@@ -2,7 +2,7 @@ cdl_package OROPKG_OS_RTLINUX {
   display "RTLINUX OS abstraction layer"
   include_dir os
 
-  compile ComponentThreaded.cxx EventInterrupt.cxx cpp.cxx
+  compile PeriodicThread.cxx EventInterrupt.cxx cpp.cxx
   compile vsprintf.c
 
   cdl_component CYGBLD_GLOBAL_OPTIONS {

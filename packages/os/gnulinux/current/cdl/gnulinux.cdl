@@ -13,7 +13,7 @@ debugging other packages."
     parent OROPKG_OS
 
     compile fosi.c
-    compile ComponentThreaded.cxx
+    compile PeriodicThread.cxx
     compile SingleThread.cxx
     compile main.cxx
 
