@@ -2,7 +2,6 @@
 #ifndef STARTSTOPMANAGER_HPP
 #define STARTSTOPMANAGER_HPP
 
-#include "os/fosi.h"
 #include <corelib/Time.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
