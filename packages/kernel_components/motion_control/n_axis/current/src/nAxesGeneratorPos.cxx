@@ -206,19 +206,19 @@ namespace ORO_ControlKernel
   {
     MutexLock locker(_my_lock);
 
-    cerr << "nAxesGeneratorPos moveto" << endl;
-    
+    // no new values available
+    if (!_new_values){
+      _traject_position = position;
+      _traject_duration = time;
+      _new_values = true;
 
-    // set desired position and time
-    _traject_position = position;
-    _traject_duration = time;
-
-    assert(_traject_position.size() == _num_axes);
-    _new_values = true;
-    return true;
+      assert(_traject_position.size() == _num_axes);
+      return true;
+    }
+    // new values already set
+    else
+      return false;
   }
-  
-  
 
 
 } // namespace

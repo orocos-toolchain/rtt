@@ -206,15 +206,18 @@ namespace ORO_ControlKernel
   {
     MutexLock locker(_my_lock);
 
-    // set desired position and time
-    _traject_end      = frame;
-    _traject_duration = time;
+    // no new values available
+    if (!_new_values){
+      _traject_end = frame;
+      _traject_duration = time;
+      _new_values = true;
 
-    _new_values = true;
-    return true;
+      return true;
+    }
+    // new values already set
+    else
+      return false;
   }
-  
-  
 
 
 } // namespace
