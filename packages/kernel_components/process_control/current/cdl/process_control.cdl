@@ -12,7 +12,7 @@ and a signal tracker Generator Components.
 Works very good in conjunction with the Motion Control
 and Hardware Components.
 "
-    requires OROPKG_CONTROL_KERNEL
+    requires OROPKG_KERNEL_COMPONENTS
 
     include_dir kernel_components
 
