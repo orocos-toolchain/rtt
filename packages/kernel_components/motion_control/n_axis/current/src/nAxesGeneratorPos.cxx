@@ -9,8 +9,8 @@ namespace ORO_ControlKernel
   using namespace ORO_Geometry;
   
 
-  nAxesPosGenerator::nAxesPosGenerator(unsigned int num_axes,  std::string name)
-    : nAxesPosGenerator_typedef(name),
+  nAxesGeneratorPos::nAxesGeneratorPos(unsigned int num_axes,  std::string name)
+    : nAxesGeneratorPos_typedef(name),
       _num_axes(num_axes), 
       _position_desired(num_axes),
       _position_meas_local(num_axes),
@@ -24,7 +24,7 @@ namespace ORO_ControlKernel
   
 
 
-  nAxesPosGenerator::~nAxesPosGenerator()
+  nAxesGeneratorPos::~nAxesGeneratorPos()
   {
     for( unsigned int i=0; i<_num_axes; i++)
       delete _motion_profile[i];
@@ -32,7 +32,7 @@ namespace ORO_ControlKernel
   
   
 
-  void nAxesPosGenerator::pull()
+  void nAxesGeneratorPos::pull()
   {
     // initialize
     if (!_is_initialized){
@@ -82,7 +82,7 @@ namespace ORO_ControlKernel
   
 
 
-  void nAxesPosGenerator::calculate()
+  void nAxesGeneratorPos::calculate()
   {
     // is moving: follow trajectory
     if (_is_moving){
@@ -103,7 +103,7 @@ namespace ORO_ControlKernel
 
 
   
-  void nAxesPosGenerator::push()      
+  void nAxesGeneratorPos::push()      
   {
     _position_DOI->Set(_position_local);
     _velocity_DOI->Set(_velocity_local);
@@ -111,12 +111,12 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesPosGenerator::componentLoaded()
+  bool nAxesGeneratorPos::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !nAxesPosGenerator_typedef::SetPoint::dObj()->Get("Position", _position_DOI) ||
-	 !nAxesPosGenerator_typedef::SetPoint::dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesPosGenerator::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !nAxesGeneratorPos_typedef::SetPoint::dObj()->Get("Position", _position_DOI) ||
+	 !nAxesGeneratorPos_typedef::SetPoint::dObj()->Get("Velocity", _velocity_DOI) ){
+      cerr << "nAxesGeneratorPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
     return true;
@@ -124,7 +124,7 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesPosGenerator::componentStartup()
+  bool nAxesGeneratorPos::componentStartup()
   {
     // check if updateProperties has been called
     assert(_properties_read);
@@ -133,8 +133,8 @@ namespace ORO_ControlKernel
     _is_initialized = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !nAxesPosGenerator_typedef::Input::dObj()->Get("Position", _position_meas_DOI) ){
-      cerr << "nAxesPosGenerator::componentStartup() DataObjectInterface not found" << endl;
+    if ( !nAxesGeneratorPos_typedef::Input::dObj()->Get("Position", _position_meas_DOI) ){
+      cerr << "nAxesGeneratorPos::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
 
@@ -145,7 +145,7 @@ namespace ORO_ControlKernel
 
 
   
-  bool nAxesPosGenerator::updateProperties(const ORO_ControlKernel::PropertyBag& bag)
+  bool nAxesGeneratorPos::updateProperties(const ORO_ControlKernel::PropertyBag& bag)
   {
     // properties have been read
     _properties_read = true;
@@ -153,7 +153,7 @@ namespace ORO_ControlKernel
     // get properties
     if ( !composeProperty(bag, _maximum_velocity) ||
 	 !composeProperty(bag, _maximum_acceleration) ){
-      cerr << "nAxesPosGenerator::updateProperties() failed" << endl;
+      cerr << "nAxesGeneratorPos::updateProperties() failed" << endl;
       return false;
     }
 
@@ -170,10 +170,8 @@ namespace ORO_ControlKernel
   
 
   
-  bool nAxesPosGenerator::moveTo(std::vector<double> position, double time)
+  bool nAxesGeneratorPos::moveTo(const std::vector<double>& position, double time)
   {
-    cerr << "(Generator)  moveTo" << endl;
-
     MutexLock locker(_my_lock);
 
     // set desired position and time
