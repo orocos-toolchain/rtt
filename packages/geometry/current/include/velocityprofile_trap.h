@@ -9,14 +9,14 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile_trap.h,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile_trap.h,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef MOTIONPROFILE_TRAP_H
 #define MOTIONPROFILE_TRAP_H
 
-#include "motionprofile.h"
+#include "velocityprofile.h"
 
 
 
@@ -27,7 +27,7 @@ namespace ORO_Geometry {
 
 
 
-class MotionProfile_Trap : public MotionProfile 
+class VelocityProfile_Trap : public VelocityProfile 
 	{
 		// For "running" a motion profile :
 		double a1,a2,a3; // coef. from ^0 -> ^2 of first part
@@ -43,7 +43,7 @@ class MotionProfile_Trap : public MotionProfile
 		double endpos;
 	public:
 	
-		MotionProfile_Trap(double _maxvel,double _maxacc);
+		VelocityProfile_Trap(double _maxvel,double _maxacc);
 		// constructs motion profile class with <maxvel> and <maxacc> as parameters of the
 		// trajectory.
 
@@ -61,9 +61,9 @@ class MotionProfile_Trap : public MotionProfile
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual MotionProfile* Clone();
-		// returns copy of current MotionProfile object. (virtual constructor)
-		virtual ~MotionProfile_Trap();
+		virtual VelocityProfile* Clone();
+		// returns copy of current VelocityProfile object. (virtual constructor)
+		virtual ~VelocityProfile_Trap();
 	};
 
 
@@ -72,7 +72,7 @@ class MotionProfile_Trap : public MotionProfile
 
 
 /* Niet OK
-	class MotionProfile_Trap : public MotionProfile {
+	class VelocityProfile_Trap : public VelocityProfile {
 		double maxvel;
 		double maxacc;
 		double _t1,_t2,_T,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10;
@@ -82,7 +82,7 @@ class MotionProfile_Trap : public MotionProfile
 		// Internal method. Sets the parameters <_t1>,..<c10> with the given 
 		// arguments. 
 	public:
-		MotionProfile_Trap(double _maxvel,double _maxacc):
+		VelocityProfile_Trap(double _maxvel,double _maxacc):
 		  maxvel(_maxvel),maxacc(_maxacc) {}
 		// constructs motion profile class with max velocity <maxvel>,
 		// and max acceleration <maxacc> as parameter of the

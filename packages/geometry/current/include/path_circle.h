@@ -10,15 +10,15 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_circle.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_circle.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef GEOMETRY_CIRCLE_H
 #define GEOMETRY_CIRCLE_H
 
-#include "geometry.h"
-#include "orientation.h"
+#include "path.h"
+#include "rotational_interpolation.h"
 
 
 #ifdef USE_NAMESPACE
@@ -27,7 +27,7 @@ namespace ORO_Geometry {
 
 
 
-class Geometry_Circle : public Geometry 
+class Path_Circle : public Path 
 	{
 
 		// Orientatie gedeelte
@@ -54,7 +54,7 @@ class Geometry_Circle : public Geometry
 		 * CAN THROW Error_MotionPlanning_Circle_ToSmall 
 		 * CAN THROW Error_MotionPlanning_Circle_No_Plane
 		 */
-		Geometry_Circle(const Frame& F_base_start,const Vector& V_base_center,
+		Path_Circle(const Frame& F_base_start,const Vector& V_base_center,
 			const Vector& V_base_p,
 			const Rotation& R_base_end,
 			double alpha,
@@ -68,11 +68,11 @@ class Geometry_Circle : public Geometry
 		virtual Frame Pos(double s) const;
 		virtual Twist Vel(double s,double sd) const;
 		virtual Twist Acc(double s,double sd,double sdd) const;
-		virtual Geometry* Clone();
+		virtual Path* Clone();
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os);
 #endif
-		virtual ~Geometry_Circle();
+		virtual ~Path_Circle();
 	};
 
 

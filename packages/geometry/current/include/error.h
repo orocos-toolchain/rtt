@@ -141,7 +141,7 @@ public:
 
 class Error_MotionPlanning_Incompatible: public Error_MotionPlanning {
 public:
-    virtual const char* Description() const { return "Acceleration of a rectangular motionprofile cannot be used";}
+    virtual const char* Description() const { return "Acceleration of a rectangular velocityprofile cannot be used";}
     virtual int GetType() const {return 3003;}
 };
 

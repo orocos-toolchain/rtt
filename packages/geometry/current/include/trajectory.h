@@ -15,7 +15,7 @@
  *     Peter's remark : should seperate I/O from other routines in the
  *     motion/chain directories
  *     The problem is that the I/O uses virtual inheritance to write
- *     the trajectories/geometries/motionprofiles/...
+ *     the trajectories/geometries/velocityprofiles/...
  *     Have no good solution for this, perhaps
  *          * #ifdef's
  *          * declaring dummy ostream/istream and change implementation file .cpp
@@ -31,8 +31,8 @@
 
 #include "frames.h"
 #include "frames_io.h"
-#include "geometry.h"
-#include "motionprofile.h"
+#include "path.h"
+#include "velocityprofile.h"
 
 
 
@@ -49,10 +49,10 @@ namespace ORO_Geometry {
 	// velocity profile.
 	{
 	public:
-        virtual Geometry*      GetGeometry() = 0;
-        // The underlying Geometry
+        virtual Path*      GetPath() = 0;
+        // The underlying Path
 
-        virtual MotionProfile* GetProfile() = 0;
+        virtual VelocityProfile* GetProfile() = 0;
         // The velocity profile
        
 		virtual double Duration() const = 0;

@@ -10,15 +10,15 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_line.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_line.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef GEOMETRY_LINE_H
 #define GEOMETRY_LINE_H
 
-#include "geometry.h"
-#include "orientation.h"
+#include "path.h"
+#include "rotational_interpolation.h"
 
 
 #ifdef USE_NAMESPACE
@@ -27,7 +27,7 @@ namespace ORO_Geometry {
 
 
 
-class Geometry_Line : public Geometry
+class Path_Line : public Path
 	{
 		// Orientatie gedeelte
 		Orientation* orient; 
@@ -47,7 +47,7 @@ class Geometry_Line : public Geometry
 		bool aggregate;
 	public:
 		/** 
-		 * Constructs a Line Geometry
+		 * Constructs a Line Path
 		 * F_base_start and F_base_end give the begin and end frame wrt the base
 		 * orient gives the method of rotation interpolation
 		 * eqradius : equivalent radius :
@@ -56,7 +56,7 @@ class Geometry_Line : public Geometry
 		 *      to be the amount motion of a point at distance eqradius from the
 		 *      rotation axis.
 		 */
-		Geometry_Line(const Frame& F_base_start,
+		Path_Line(const Frame& F_base_start,
 			const Frame& F_base_end,
 			Orientation* orient,
 			double eqradius,
@@ -69,8 +69,8 @@ class Geometry_Line : public Geometry
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os);
 #endif
-		virtual Geometry* Clone();
-		virtual ~Geometry_Line();
+		virtual Path* Clone();
+		virtual ~Path_Line();
 	};
 
 

@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: orientation.h,v 1.1.1.1.2.2 2003/02/24 13:13:06 psoetens Exp $
+ *		$Id: rotational_interpolation.h,v 1.1.1.1.2.2 2003/02/24 13:13:06 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -39,7 +39,7 @@ class Orientation
 	{
 	public:
 		/**
-		 * Set the start and end orientation
+		 * Set the start and end rotational_interpolation
 		 */
 		virtual void SetStartEnd(Rotation start,Rotation end) = 0;
 		

@@ -260,7 +260,7 @@ public:
      X,Y, and Z contain the axes of frame B, expressed in frame A
      Because of linearity expr(1) is valid.
  \endverbatim
-   This class only represents orientation, not translation
+   This class only represents rotational_interpolation, not translation
  Two interpretations are possible for rotation angles.
  * if you rotate with angle around X frame A to have frame B, 
    then the result of SetRotX is equal to frame B expressed wrt A.
@@ -484,7 +484,7 @@ public:
 
 
 /**
-    This class represents a complete Frame transformation (orientation + rotation)
+    This class represents a complete Frame transformation (rotational_interpolation + rotation)
     if V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
     then V2 = Frame.M*V1+Frame.p
 

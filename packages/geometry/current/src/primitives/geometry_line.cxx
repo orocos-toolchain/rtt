@@ -9,18 +9,18 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_line.cpp,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_line.cpp,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
-#include "geometry/geometry_line.h"
+#include "geometry/path_line.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
 
-Geometry_Line::Geometry_Line(const Frame& startpos,
+Path_Line::Path_Line(const Frame& startpos,
 		   const Frame& endpos,
 		   Orientation* _orient,
 		   double _eqradius,
@@ -40,7 +40,7 @@ Geometry_Line::Geometry_Line(const Frame& startpos,
 		// the other to this slower motion
 		// use eqradius to transform between rot and transl.
 		if (alpha*eqradius > dist) {
-			// orientation is the limitation
+			// rotational_interpolation is the limitation
 			pathlength = alpha*eqradius;
 			scalerot   = 1/eqradius;
 			scalelin   = dist/pathlength;
@@ -53,32 +53,32 @@ Geometry_Line::Geometry_Line(const Frame& startpos,
 
    }
 
-double Geometry_Line::LengthToS(double length) {
+double Path_Line::LengthToS(double length) {
 	return length/scalelin;
 }
-double Geometry_Line::PathLength(){
+double Path_Line::PathLength(){
 	return pathlength;
 }
-Frame Geometry_Line::Pos(double s) const  {
+Frame Path_Line::Pos(double s) const  {
 	return Frame(orient->Pos(s*scalerot),V_base_start + V_start_end*s*scalelin );
 }
 
-Twist Geometry_Line::Vel(double s,double sd) const  {
+Twist Path_Line::Vel(double s,double sd) const  {
 	return Twist( V_start_end*sd*scalelin, orient->Vel(s*scalerot,sd*scalerot) );
 }
 
-Twist Geometry_Line::Acc(double s,double sd,double sdd) const  {
+Twist Path_Line::Acc(double s,double sd,double sdd) const  {
 	return Twist( V_start_end*sdd*scalelin, orient->Acc(s*scalerot,sd*scalerot,sdd*scalerot) );
 }
 
 
-Geometry_Line::~Geometry_Line() {
+Path_Line::~Path_Line() {
     if (aggregate)
         delete orient;
 }
 
-Geometry* Geometry_Line::Clone() {
-	return new Geometry_Line(
+Path* Path_Line::Clone() {
+	return new Path_Line(
 		Frame(orient->Pos(0),V_base_start),
 		Frame(orient->Pos(pathlength*scalerot),V_base_end),
 		orient->Clone(),
@@ -88,7 +88,7 @@ Geometry* Geometry_Line::Clone() {
 }
 
 #if HAVE_IOSTREAM
-void Geometry_Line::Write(ostream& os)  {
+void Path_Line::Write(ostream& os)  {
 	os << "LINE[ ";
 	os << "  " << Frame(orient->Pos(0),V_base_start) << endl;
 	os << "  " << Frame(orient->Pos(pathlength*scalerot),V_base_end) << endl;

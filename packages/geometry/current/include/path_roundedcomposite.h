@@ -9,16 +9,16 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_roundedcomposite.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_roundedcomposite.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef GEOMETRY_ROUNDEDCOMPOSITE_H
 #define GEOMETRY_ROUNDEDCOMPOSITE_H
 
-#include "geometry.h"
-#include "geometry_composite.h"
-#include "orientation.h"
+#include "path.h"
+#include "path_composite.h"
+#include "rotational_interpolation.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
@@ -28,18 +28,18 @@ namespace ORO_Geometry {
  * The specification of the geom
  etry of a trajectory.
  */
-class Geometry_RoundedComposite : public Geometry
+class Path_RoundedComposite : public Path
 	{
-		/** a Geometry_Composite is aggregated to hold the rounded trajectory
+		/** a Path_Composite is aggregated to hold the rounded trajectory
 		 * with circles and lines
 		 */
-		Geometry_Composite* comp;
+		Path_Composite* comp;
 
 
 		double radius;
 		double eqradius;
 		Orientation* orient;
-		// cached from underlying geometry objects for generating the rounding :
+		// cached from underlying path objects for generating the rounding :
 		Frame F_base_start;
 		Frame F_base_via;
 		//Frame F_base_end;
@@ -51,9 +51,9 @@ class Geometry_RoundedComposite : public Geometry
 		/**
 		 * @param radius : radius of the rounding circles
 		 * @param eqradius : equivalent radius to compare rotations/velocities
-		 * @param orient   : method of orientation interpolation
+		 * @param orient   : method of rotational_interpolation interpolation
 		 */
-		Geometry_RoundedComposite(double radius,double _eqradius,Orientation* _orient, bool _aggregate=true);
+		Path_RoundedComposite(double radius,double _eqradius,Orientation* _orient, bool _aggregate=true);
 
 
 
@@ -61,8 +61,8 @@ class Geometry_RoundedComposite : public Geometry
 
 		/**
 		 * Adds a point to this rounded composite, between to adjecent points
-		 * a Geometry_Line will be created, between two lines there will be
-		 * rounding with the given radius with a Geometry_Circle
+		 * a Path_Line will be created, between two lines there will be
+		 * rounding with the given radius with a Path_Circle
 		 * Can throw Error_MotionPlanning_Not_Feasible object
 		 */
 		void Add(const Frame& F_base_point);
@@ -103,10 +103,10 @@ class Geometry_RoundedComposite : public Geometry
 
 		/**
 		 * virtual constructor, constructing by copying.
-		 * In this case it returns the Clone() of the aggregated Geometry_Composite
+		 * In this case it returns the Clone() of the aggregated Path_Composite
 		 * because this is all one ever will need.
 		 */
-		virtual Geometry* Clone();
+		virtual Path* Clone();
 
 #if HAVE_IOSTREAM		
 		/**
@@ -115,7 +115,7 @@ class Geometry_RoundedComposite : public Geometry
 		virtual void Write(ostream& os);
 #endif
 		
-		virtual ~Geometry_RoundedComposite();
+		virtual ~Path_RoundedComposite();
 	};
 
 

@@ -9,12 +9,12 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_circle.cpp,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_circle.cpp,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
-#include "geometry/geometry_circle.h"
+#include "geometry/path_circle.h"
 #include "geometry/error.h"
 
 #ifdef USE_NAMESPACE
@@ -23,7 +23,7 @@ namespace ORO_Geometry {
 
 
 
-Geometry_Circle::Geometry_Circle(const Frame& F_base_start,
+Path_Circle::Path_Circle(const Frame& F_base_start,
 			const Vector& _V_base_center,
 			const Vector& V_base_p,
 			const Rotation& R_base_end,
@@ -58,7 +58,7 @@ Geometry_Circle::Geometry_Circle(const Frame& F_base_start,
 					// use eqradius to transform between rot and transl.
 					// the same as for lineair motion
 					if (oalpha*eqradius > dist) {
-						// orientation is the limitation
+						// rotational_interpolation is the limitation
 						pathlength = oalpha*eqradius;
 						scalerot   = 1/eqradius;
 						scalelin   = dist/pathlength;
@@ -72,16 +72,16 @@ Geometry_Circle::Geometry_Circle(const Frame& F_base_start,
 
 				
 		
-double Geometry_Circle::LengthToS(double length) {
+double Path_Circle::LengthToS(double length) {
 	return length/scalelin;
 }
 
 
-double Geometry_Circle::PathLength() {
+double Path_Circle::PathLength() {
 	return pathlength;
 }
 
-Frame Geometry_Circle::Pos(double s) const {
+Frame Path_Circle::Pos(double s) const {
 	double p = s*scalelin / radius;
 	return Frame(orient->Pos(s*scalerot), 
 		         F_base_center*Vector(radius*cos(p),radius*sin(p),0)
@@ -89,7 +89,7 @@ Frame Geometry_Circle::Pos(double s) const {
 				   
 }
 
-Twist Geometry_Circle::Vel(double s,double sd) const {
+Twist Path_Circle::Vel(double s,double sd) const {
 	double p = s*scalelin  / radius;
 	double v = sd*scalelin / radius;
 	return Twist( F_base_center.M*Vector(-radius*sin(p)*v,radius*cos(p)*v,0), 
@@ -97,7 +97,7 @@ Twist Geometry_Circle::Vel(double s,double sd) const {
 		   );
 }
 
-Twist Geometry_Circle::Acc(double s,double sd,double sdd) const {
+Twist Path_Circle::Acc(double s,double sd,double sdd) const {
 	double p = s*scalelin / radius;
 	double cp = cos(p);
 	double sp = sin(p);
@@ -112,8 +112,8 @@ Twist Geometry_Circle::Acc(double s,double sd,double sdd) const {
 		   );
 }
 
-Geometry* Geometry_Circle::Clone() {
-	return new Geometry_Circle(
+Path* Path_Circle::Clone() {
+	return new Path_Circle(
 		Pos(0),
 		F_base_center.p,
 		F_base_center.M.UnitY(),
@@ -125,7 +125,7 @@ Geometry* Geometry_Circle::Clone() {
 	);
 }
 
-Geometry_Circle::~Geometry_Circle() {
+Path_Circle::~Path_Circle() {
     if (aggregate)
         delete orient;
 }
@@ -133,7 +133,7 @@ Geometry_Circle::~Geometry_Circle() {
 
 
 #if HAVE_IOSTREAM
-void Geometry_Circle::Write(ostream& os) {
+void Path_Circle::Write(ostream& os) {
 	os << "CIRCLE[ ";
 	os << "  " << Pos(0) << endl;
 	os << "  " << F_base_center.p << endl;

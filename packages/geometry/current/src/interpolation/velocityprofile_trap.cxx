@@ -9,25 +9,25 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile_trap.cpp,v 1.1.1.1.2.7 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile_trap.cpp,v 1.1.1.1.2.7 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
 //#include "error.h"
-#include "geometry/motionprofile_trap.h"
+#include "geometry/velocityprofile_trap.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
 
 
-MotionProfile_Trap::MotionProfile_Trap(double _maxvel,double _maxacc):
+VelocityProfile_Trap::VelocityProfile_Trap(double _maxvel,double _maxacc):
 		  maxvel(_maxvel),maxacc(_maxacc) {}
 		// constructs motion profile class with <maxvel> as parameter of the
 		// trajectory.
 
-void MotionProfile_Trap::SetProfile(double pos1,double pos2) {
+void VelocityProfile_Trap::SetProfile(double pos1,double pos2) {
 	startpos = pos1;
 	endpos   = pos2;
 	t1 = maxvel/maxacc;
@@ -57,7 +57,7 @@ void MotionProfile_Trap::SetProfile(double pos1,double pos2) {
 	c1 = b1+t2*(b2+b3*t2) - t2*(c2+t2*c3);
 }
 
-void MotionProfile_Trap::SetProfileDuration(
+void VelocityProfile_Trap::SetProfileDuration(
 	double pos1,double pos2,double newduration) {
 	// duration should be longer than originally planned duration
     // Fastest :
@@ -77,16 +77,16 @@ void MotionProfile_Trap::SetProfileDuration(
 	t2 /= factor;
 }
 
-void MotionProfile_Trap::SetMax(double _maxvel,double _maxacc)
+void VelocityProfile_Trap::SetMax(double _maxvel,double _maxacc)
 {
     maxvel = _maxvel; maxacc = _maxacc;
 }
 
-double MotionProfile_Trap::Duration() const {
+double VelocityProfile_Trap::Duration() const {
 	return duration;
 }
 
-double MotionProfile_Trap::Pos(double time) const {
+double VelocityProfile_Trap::Pos(double time) const {
 	if (time < 0) {
 		return startpos;
 	} else if (time<t1) {
@@ -99,7 +99,7 @@ double MotionProfile_Trap::Pos(double time) const {
 		return endpos;
 	}
 }
-double MotionProfile_Trap::Vel(double time) const {
+double VelocityProfile_Trap::Vel(double time) const {
 	if (time < 0) {
 		return 0;
 	} else if (time<t1) {
@@ -113,7 +113,7 @@ double MotionProfile_Trap::Vel(double time) const {
 	}
 }
 
-double MotionProfile_Trap::Acc(double time) const {
+double VelocityProfile_Trap::Acc(double time) const {
 	if (time < 0) {
 		return 0;
 	} else if (time<t1) {
@@ -127,15 +127,15 @@ double MotionProfile_Trap::Acc(double time) const {
 	}
 }
 
-MotionProfile* MotionProfile_Trap::Clone() {
-	return new MotionProfile_Trap(maxvel,maxacc);
+VelocityProfile* VelocityProfile_Trap::Clone() {
+	return new VelocityProfile_Trap(maxvel,maxacc);
 }
 
-MotionProfile_Trap::~MotionProfile_Trap() {}
+VelocityProfile_Trap::~VelocityProfile_Trap() {}
 
 
 #ifdef OROINT_OS_STDIOSTREAM
-void MotionProfile_Trap::Write(ostream& os) const {
+void VelocityProfile_Trap::Write(ostream& os) const {
 	os << "TRAPEZOIDAL[" << maxvel << "," << maxacc <<"]";
 }
 #endif

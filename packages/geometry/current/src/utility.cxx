@@ -33,7 +33,7 @@
  *  Classes are provided to do the same thing with scalar numbers.
  *
  *  For the task of redundancy resolution :
- *      - Trajectory specification (MotionProfile, ... and Trajectory,.. classes)
+ *      - Trajectory specification (VelocityProfile, ... and Trajectory,.. classes)
  *          (The current solution does not scale well to a large number of segments)
  *      - ResolutionTask describes a task for redundancy resolution and provides I/O on it.
  *      - FunctionAccResolve / FunctionVelResolve do the actual work.

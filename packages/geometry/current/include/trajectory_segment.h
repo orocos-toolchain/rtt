@@ -19,8 +19,8 @@
 #include "frames.h"
 #include "frames_io.h"
 #include "trajectory.h"
-#include "geometry.h"
-#include "motionprofile.h"
+#include "path.h"
+#include "velocityprofile.h"
 
 
 #ifdef USE_NAMESPACE
@@ -29,28 +29,28 @@ namespace ORO_Geometry {
 
 
 /**
- * Trajectory_Segment combines a MotionProfile and a Geometry to a 
+ * Trajectory_Segment combines a VelocityProfile and a Path to a 
  * trajectory
  */
 
 	class Trajectory_Segment :  public Trajectory 
 	{
-		MotionProfile* motprof;
-		Geometry*      geom;
+		VelocityProfile* motprof;
+		Path*      geom;
 		bool aggregate;
 	public:
 		/**
 		 * This constructor assumes that <geom> and <_motprof> are initialised correctly.
 		 */
-		Trajectory_Segment(Geometry* geom, MotionProfile* _motprof, bool _aggregate=true);
+		Trajectory_Segment(Path* geom, VelocityProfile* _motprof, bool _aggregate=true);
 		/**
 		 * This constructor assumes that <geom> is initialised and <_motprof> needs to be
 		 * set according to <duration>.
 		 */
-		Trajectory_Segment(Geometry* geom, MotionProfile* _motprof, double duration, bool _aggregate=true);
+		Trajectory_Segment(Path* geom, VelocityProfile* _motprof, double duration, bool _aggregate=true);
 
-		virtual Geometry* GetGeometry();
-		virtual MotionProfile* GetProfile();
+		virtual Path* GetPath();
+		virtual VelocityProfile* GetProfile();
 		virtual double Duration() const;
 		// The duration of the trajectory
 

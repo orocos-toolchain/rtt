@@ -22,25 +22,25 @@ namespace ORO_Geometry {
 #endif
 
 
-Trajectory_Segment::Trajectory_Segment(Geometry* _geom, MotionProfile* _motprof, bool _aggregate):
+Trajectory_Segment::Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, bool _aggregate):
 	motprof(_motprof),geom(_geom), aggregate(_aggregate)
 {
     // assume everything is set or at least check if Duration() != 0
 }
 
-Trajectory_Segment::Trajectory_Segment(Geometry* _geom, MotionProfile* _motprof, double _duration, bool _aggregate):
+Trajectory_Segment::Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, double _duration, bool _aggregate):
 	motprof(_motprof),geom(_geom), aggregate(_aggregate)
 {
     // the duration was specified so assume motprof not yet set.
     motprof->SetProfileDuration(0, geom->PathLength(), _duration);
 }
 
-Geometry* Trajectory_Segment::GetGeometry()
+Path* Trajectory_Segment::GetPath()
 {
     return geom;
 }
 
-MotionProfile* Trajectory_Segment::GetProfile()
+VelocityProfile* Trajectory_Segment::GetProfile()
 {
     return motprof;
 }

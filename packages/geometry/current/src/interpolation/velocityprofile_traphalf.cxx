@@ -9,23 +9,23 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile_traphalf.cpp,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile_traphalf.cpp,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
 //#include "error.h"
-#include "geometry/motionprofile_traphalf.h"
+#include "geometry/velocityprofile_traphalf.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
 
 
-MotionProfile_TrapHalf::MotionProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting):
+VelocityProfile_TrapHalf::VelocityProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting):
 		  maxvel(_maxvel),maxacc(_maxacc),starting(_starting) {}
 
-void MotionProfile_TrapHalf::PlanProfile1(double v,double a) {
+void VelocityProfile_TrapHalf::PlanProfile1(double v,double a) {
 	a3 = 0;
 	a2 = 0;
 	a1 = startpos;
@@ -37,7 +37,7 @@ void MotionProfile_TrapHalf::PlanProfile1(double v,double a) {
 	c1 = endpos - v*duration;
 }
 
-void MotionProfile_TrapHalf::PlanProfile2(double v,double a) {
+void VelocityProfile_TrapHalf::PlanProfile2(double v,double a) {
 	a3 = 0;
 	a2 = v;
 	a1 = startpos;
@@ -49,7 +49,7 @@ void MotionProfile_TrapHalf::PlanProfile2(double v,double a) {
 	c1 = endpos;
 }
 
-void MotionProfile_TrapHalf::SetProfile(double pos1,double pos2) {
+void VelocityProfile_TrapHalf::SetProfile(double pos1,double pos2) {
 	startpos        = pos1;
 	endpos          = pos2;
 	double s        = sign(endpos-startpos);
@@ -65,7 +65,7 @@ void MotionProfile_TrapHalf::SetProfile(double pos1,double pos2) {
 	}
 }
 
-void MotionProfile_TrapHalf::SetProfileDuration(
+void VelocityProfile_TrapHalf::SetProfileDuration(
 	double pos1,double pos2,double newduration) 
 {
     SetProfile(pos1,pos2);
@@ -105,11 +105,11 @@ void MotionProfile_TrapHalf::SetProfileDuration(
 	}
 }
 
-double MotionProfile_TrapHalf::Duration() const {
+double VelocityProfile_TrapHalf::Duration() const {
 	return duration;
 }
 
-double MotionProfile_TrapHalf::Pos(double time) const {
+double VelocityProfile_TrapHalf::Pos(double time) const {
 	if (time < 0) {
 		return startpos;
 	} else if (time<t1) {
@@ -122,7 +122,7 @@ double MotionProfile_TrapHalf::Pos(double time) const {
 		return endpos;
 	}
 }
-double MotionProfile_TrapHalf::Vel(double time) const {
+double VelocityProfile_TrapHalf::Vel(double time) const {
 	if (time < 0) {
 		return 0;
 	} else if (time<t1) {
@@ -136,7 +136,7 @@ double MotionProfile_TrapHalf::Vel(double time) const {
 	}
 }
 
-double MotionProfile_TrapHalf::Acc(double time) const {
+double VelocityProfile_TrapHalf::Acc(double time) const {
 	if (time < 0) {
 		return 0;
 	} else if (time<t1) {
@@ -150,15 +150,15 @@ double MotionProfile_TrapHalf::Acc(double time) const {
 	}
 }
 
-MotionProfile* MotionProfile_TrapHalf::Clone() {
-	return new MotionProfile_TrapHalf(maxvel,maxacc,starting);
+VelocityProfile* VelocityProfile_TrapHalf::Clone() {
+	return new VelocityProfile_TrapHalf(maxvel,maxacc,starting);
 }
 
-MotionProfile_TrapHalf::~MotionProfile_TrapHalf() {}
+VelocityProfile_TrapHalf::~VelocityProfile_TrapHalf() {}
 
 
 #ifdef OROINT_OS_STDIOSTREAM
-void MotionProfile_TrapHalf::Write(ostream& os) const {
+void VelocityProfile_TrapHalf::Write(ostream& os) const {
 	os << "TRAPEZOIDALHALF[" << maxvel << "," << maxacc << "," << starting << "]";
 }
 #endif

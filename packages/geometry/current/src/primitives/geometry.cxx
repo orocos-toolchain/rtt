@@ -10,20 +10,20 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry.cpp,v 1.1.1.1.2.4 2003/07/18 14:49:50 psoetens Exp $
+ *		$Id: path.cpp,v 1.1.1.1.2.4 2003/07/18 14:49:50 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
-#include "geometry/geometry.h"
-#include "geometry/geometry_line.h"
-#include "geometry/geometry_point.h"
-#include "geometry/geometry_circle.h"
-#include "geometry/geometry_composite.h"
-#include "geometry/geometry_roundedcomposite.h"
-#include "geometry/geometry_cyclic_closed.h"
+#include "geometry/path.h"
+#include "geometry/path_line.h"
+#include "geometry/path_point.h"
+#include "geometry/path_circle.h"
+#include "geometry/path_composite.h"
+#include "geometry/path_roundedcomposite.h"
+#include "geometry/path_cyclic_closed.h"
 
 #include <memory>
 
@@ -35,9 +35,9 @@ using namespace std;
 
 #if HAVE_IOSTREAM
 
-Geometry* Geometry::Read(istream& is) {
+Path* Path::Read(istream& is) {
 	// auto_ptr because exception can be thrown !
-	IOTrace("Geometry::Read");
+	IOTrace("Path::Read");
 	char storage[64];
 	EatWord(is,"[",storage,sizeof(storage));
 	Eat(is,'[');
@@ -48,7 +48,7 @@ Geometry* Geometry::Read(istream& is) {
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();
-		return new Geometry_Point(startpos);
+		return new Path_Point(startpos);
 	} else 	if (strcmp(storage,"LINE")==0) {
 		IOTrace("LINE");
 		Frame startpos;
@@ -61,7 +61,7 @@ Geometry* Geometry::Read(istream& is) {
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();
-		return new Geometry_Line(startpos,endpos,orient.release(),eqradius);
+		return new Path_Line(startpos,endpos,orient.release(),eqradius);
 	} else if (strcmp(storage,"CIRCLE")==0) {
 		IOTrace("CIRCLE");
 		Frame F_base_start;
@@ -81,7 +81,7 @@ Geometry* Geometry::Read(istream& is) {
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();
-		return new Geometry_Circle(
+		return new Path_Circle(
 						F_base_start,
 						V_base_center,
 						V_base_p,
@@ -97,8 +97,8 @@ Geometry* Geometry::Read(istream& is) {
 		double eqradius;
 		is >> eqradius;
 		auto_ptr<Orientation> orient( Orientation::Read(is) );
-		auto_ptr<Geometry_RoundedComposite> tr( 
-			new Geometry_RoundedComposite(radius,eqradius,orient.release()) 
+		auto_ptr<Path_RoundedComposite> tr( 
+			new Path_RoundedComposite(radius,eqradius,orient.release()) 
 		);
 		int size;
 		is >> size;		
@@ -116,11 +116,11 @@ Geometry* Geometry::Read(istream& is) {
 	} else if (strcmp(storage,"COMPOSITE")==0) {
 		IOTrace("COMPOSITE");
 		int size;
-		auto_ptr<Geometry_Composite> tr( new Geometry_Composite() );
+		auto_ptr<Path_Composite> tr( new Path_Composite() );
 		is >> size;
 		int i;
 		for (i=0;i<size;i++) {			
-			tr->Add(Geometry::Read(is));
+			tr->Add(Path::Read(is));
 		}
 		EatEnd(is,']');
 		IOTracePop();
@@ -129,12 +129,12 @@ Geometry* Geometry::Read(istream& is) {
 	} else if (strcmp(storage,"CYCLIC_CLOSED")==0) {
 		IOTrace("CYCLIC_CLOSED");
 		int times;
-		auto_ptr<Geometry> tr( Geometry::Read(is) );
+		auto_ptr<Path> tr( Path::Read(is) );
 		is >> times;
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();
-		return new Geometry_Cyclic_Closed(tr.release(),times);
+		return new Path_Cyclic_Closed(tr.release(),times);
 	} else {
 #ifdef HAVE_EXCEPTIONS
 		throw Error_MotionIO_Unexpected_Traj();

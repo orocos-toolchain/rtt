@@ -9,14 +9,14 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: orientation.cpp,v 1.1.1.1.2.3 2003/02/24 13:13:06 psoetens Exp $
+ *		$Id: rotational_interpolation.cpp,v 1.1.1.1.2.3 2003/02/24 13:13:06 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
-#include "geometry/orientation.h"
-#include "geometry/orientation_singleaxis.h"
+#include "geometry/rotational_interpolation.h"
+#include "geometry/rotational_interpolation_singleaxis.h"
 
 #include <memory>
 

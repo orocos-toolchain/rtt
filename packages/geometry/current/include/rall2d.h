@@ -27,7 +27,7 @@
 
 #include <math.h>
 #include <assert.h>
-#include "geometry/utility.h"
+#include "utility.h"
 
 
 #ifdef USE_NAMESPACE

@@ -9,29 +9,29 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile_rect.h,v 1.1.1.1.2.4 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile_rect.h,v 1.1.1.1.2.4 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef MOTIONPROFILE_RECT_H
 #define MOTIONPROFILE_RECT_H
 
-#include "motionprofile.h"
+#include "velocityprofile.h"
 
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif
 
-	class MotionProfile_Rectangular : public MotionProfile 
-		// Defines a rectangular motionprofile.
+	class VelocityProfile_Rectangular : public VelocityProfile 
+		// Defines a rectangular velocityprofile.
 		// (i.e. constant velocity)
 	{
 		double d,p,v;
 	public:
 		double maxvel;
 	
-		MotionProfile_Rectangular(double _maxvel):
+		VelocityProfile_Rectangular(double _maxvel):
 		  maxvel(_maxvel) {}
 		// constructs motion profile class with <maxvel> as parameter of the
 		// trajectory.
@@ -47,11 +47,11 @@ namespace ORO_Geometry {
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual MotionProfile* Clone() {
-			return new MotionProfile_Rectangular(maxvel);
+		virtual VelocityProfile* Clone() {
+			return new VelocityProfile_Rectangular(maxvel);
 		}
-		// returns copy of current MotionProfile object. (virtual constructor)
-		virtual ~MotionProfile_Rectangular() {}
+		// returns copy of current VelocityProfile object. (virtual constructor)
+		virtual ~VelocityProfile_Rectangular() {}
 	};
 
 

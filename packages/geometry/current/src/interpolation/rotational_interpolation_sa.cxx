@@ -9,12 +9,12 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: orientation_singleaxis.cpp,v 1.1.1.1.2.2 2003/02/24 13:13:06 psoetens Exp $
+ *		$Id: rotational_interpolation_singleaxis.cpp,v 1.1.1.1.2.2 2003/02/24 13:13:06 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
-#include "geometry/orientation_singleaxis.h"
+#include "geometry/rotational_interpolation_singleaxis.h"
 #include "geometry/trajectory.h"
  
 #ifdef USE_NAMESPACE

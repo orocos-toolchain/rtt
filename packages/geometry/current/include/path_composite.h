@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_composite.h,v 1.1.1.1.2.5 2003/07/24 13:49:16 rwaarsin Exp $
+ *		$Id: path_composite.h,v 1.1.1.1.2.5 2003/07/24 13:49:16 rwaarsin Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -18,7 +18,7 @@
 
 #include "frames.h"
 #include "frames_io.h"
-#include "geometry.h"
+#include "path.h"
 #include <vector>
 
 #ifdef USE_NAMESPACE
@@ -26,14 +26,14 @@ namespace ORO_Geometry {
 #endif
 
 /**
- * The specification of the geometry of a trajectory.
+ * The specification of the path of a trajectory.
  */
-class Geometry_Composite : public Geometry
+class Path_Composite : public Path
 	{
-		typedef std::vector< std::pair<Geometry*,bool> > GeometryVector;
+		typedef std::vector< std::pair<Path*,bool> > PathVector;
 		typedef std::vector<double>    DoubleVector;
 
-		GeometryVector gv;
+		PathVector gv;
 		DoubleVector   dv;
 		double pathlength;
 
@@ -45,12 +45,12 @@ class Geometry_Composite : public Geometry
 	public:
 
 		
-		Geometry_Composite();
+		Path_Composite();
 
 		/**
-		 * Adds a Geometry* to this composite
+		 * Adds a Path* to this composite
 		 */
-		void Add(Geometry* geom, bool aggregate=true);
+		void Add(Path* geom, bool aggregate=true);
 
 
 		virtual double LengthToS(double length);
@@ -79,7 +79,7 @@ class Geometry_Composite : public Geometry
 		 */
 		virtual Twist Acc(double s,double sd,double sdd) const;
 
-		virtual Geometry* Clone();
+		virtual Path* Clone();
 
 #if HAVE_IOSTREAM
 		/**
@@ -88,7 +88,7 @@ class Geometry_Composite : public Geometry
 		virtual void Write(ostream& os);
 #endif
 		
-		virtual ~Geometry_Composite();
+		virtual ~Path_Composite();
 	};
 
 

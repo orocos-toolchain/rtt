@@ -17,7 +17,7 @@
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
 #include "geometry/trajectory.h"
-#include "geometry/geometry.h"
+#include "geometry/path.h"
 #include "geometry/trajectory_segment.h"
 
 //#ifdef HAVE_RTSTL
@@ -42,8 +42,8 @@ Trajectory* Trajectory::Read(istream& is) {
 	Eat(is,'[');
 	if (strcmp(storage,"SEGMENT")==0) {
 		IOTrace("SEGMENT");
-		auto_ptr<Geometry>      geom(    Geometry::Read(is)       );
-		auto_ptr<MotionProfile> motprof( MotionProfile::Read(is)  );
+		auto_ptr<Path>      geom(    Path::Read(is)       );
+		auto_ptr<VelocityProfile> motprof( VelocityProfile::Read(is)  );
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();

@@ -10,15 +10,15 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_point.h,v 1.1.2.3 2003/07/24 13:40:49 psoetens Exp $
+ *		$Id: path_point.h,v 1.1.2.3 2003/07/24 13:40:49 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 #ifndef GEOMETRY_POINT_H
 #define GEOMETRY_POINT_H
 
-#include "geometry.h"
-#include "orientation.h"
+#include "path.h"
+#include "rotational_interpolation.h"
 
 
 #ifdef USE_NAMESPACE
@@ -27,15 +27,15 @@ namespace ORO_Geometry {
 
 
 
-class Geometry_Point : public Geometry
+class Path_Point : public Path
 	{
 		// Lineair gedeelte
 		Frame F_base_start;
 	public:
 		/** 
-		 * Constructs a Point Geometry
+		 * Constructs a Point Path
 		 */
-		Geometry_Point(const Frame& F_base_start);
+		Path_Point(const Frame& F_base_start);
 		double LengthToS(double length);
 		virtual double PathLength();
 		virtual Frame Pos(double s) const;
@@ -44,8 +44,8 @@ class Geometry_Point : public Geometry
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os);
 #endif
-		virtual Geometry* Clone();
-		virtual ~Geometry_Point();
+		virtual Path* Clone();
+		virtual ~Path_Point();
 	};
 
 

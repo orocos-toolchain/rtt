@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: orientation_singleaxis.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: rotational_interpolation_singleaxis.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -18,7 +18,7 @@
 
 #include "frames.h"
 #include "frames_io.h"
-#include "orientation.h"
+#include "rotational_interpolation.h"
 
 
 #ifdef USE_NAMESPACE

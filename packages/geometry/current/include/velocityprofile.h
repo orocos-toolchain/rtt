@@ -10,7 +10,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile.h,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile.h,v 1.1.1.1.2.5 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -30,12 +30,12 @@ namespace ORO_Geometry {
 
 
     /** 
-     * A MotionProfile stores the velocity profile that
+     * A VelocityProfile stores the velocity profile that
      * is used within a trajectory. A velocity profile is the function that
      * expresses position, velocity and acceleration of a point on a curve
      * in function of time. It defines the how a point s moves on a path S.
      */
-class MotionProfile 
+class VelocityProfile 
 	{
 	public:
 		// trajectory parameters are set in constructor of
@@ -70,14 +70,14 @@ class MotionProfile
 		virtual void Write(ostream& os) const = 0;
 		// Writes object to a stream.
 
-		static MotionProfile* Read(istream& is);
-		// reads a MotionProfile object from the stream and returns it.
+		static VelocityProfile* Read(istream& is);
+		// reads a VelocityProfile object from the stream and returns it.
 #endif
 
-		virtual MotionProfile* Clone() = 0;
-		// returns copy of current MotionProfile object. (virtual constructor)
+		virtual VelocityProfile* Clone() = 0;
+		// returns copy of current VelocityProfile object. (virtual constructor)
 
-		virtual ~MotionProfile() {}
+		virtual ~VelocityProfile() {}
 	};
 
 

@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -33,9 +33,9 @@ namespace ORO_Geometry {
 #endif
 
 /**
- * The specification of the geometry of a trajectory.
+ * The specification of the path of a trajectory.
  */
-class Geometry
+class Path
 	{
 	public:
 
@@ -45,10 +45,10 @@ class Geometry
 		 * in cases with large rotations the parameter s does NOT correspond to
 		 * the lineair length along the trajectory.
 		 * User should be sure that the lineair distance travelled by this 
-		 * geometry object is NOT zero, when using this method !
+		 * path object is NOT zero, when using this method !
 		 * (e.g. the case of only rotational change)
 		 * throws Error_MotionPlanning_Not_Applicable if used on composed
-		 * geometry objects.
+		 * path objects.
 		 */
 		virtual double LengthToS(double length)  = 0;
 		
@@ -87,16 +87,16 @@ class Geometry
 		 * Reads one of the derived objects from the stream and returns a pointer
 		 * (factory method)
 		 */
-		static Geometry* Read(istream& is);
+		static Path* Read(istream& is);
 #endif
 
 		/**
 		 * Virtual constructor, constructing by copying,
-		 * Returns a deep copy of this Geometry Object
+		 * Returns a deep copy of this Path Object
 		 */
-		virtual Geometry* Clone() = 0;
+		virtual Path* Clone() = 0;
 
-		virtual ~Geometry() {}
+		virtual ~Path() {}
 	};
 
 

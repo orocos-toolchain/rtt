@@ -9,16 +9,16 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile.cpp,v 1.1.1.1.2.3 2003/02/24 13:13:06 psoetens Exp $
+ *		$Id: velocityprofile.cpp,v 1.1.1.1.2.3 2003/02/24 13:13:06 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
 
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
-#include "geometry/motionprofile_rect.h"
-#include "geometry/motionprofile_trap.h"
-#include "geometry/motionprofile_traphalf.h"
+#include "geometry/velocityprofile_rect.h"
+#include "geometry/velocityprofile_trap.h"
+#include "geometry/velocityprofile_traphalf.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
@@ -26,8 +26,8 @@ namespace ORO_Geometry {
 
 
 #ifdef OROINT_OS_STDIOSTREAM
-MotionProfile* MotionProfile::Read(istream& is) {
-	IOTrace("MotionProfile::Read");
+VelocityProfile* VelocityProfile::Read(istream& is) {
+	IOTrace("VelocityProfile::Read");
 	char storage[25];
 	EatWord(is,"[",storage,sizeof(storage));
 	Eat(is,'[');
@@ -36,7 +36,7 @@ MotionProfile* MotionProfile::Read(istream& is) {
 		is >> vel;
 		Eat(is,']');
 		IOTracePop();
-		return new MotionProfile_Rectangular(vel);
+		return new VelocityProfile_Rectangular(vel);
 	} else if (strcmp(storage,"TRAPEZOIDAL")==0) {
 		double maxvel;
 		double maxacc;
@@ -45,7 +45,7 @@ MotionProfile* MotionProfile::Read(istream& is) {
 		is >> maxacc;
 		Eat(is,']');
 		IOTracePop();
-		return new MotionProfile_Trap(maxvel,maxacc);
+		return new VelocityProfile_Trap(maxvel,maxacc);
 	} else if (strcmp(storage,"TRAPEZOIDALHALF")==0) {
 		double maxvel;
 		double maxacc;
@@ -57,7 +57,7 @@ MotionProfile* MotionProfile::Read(istream& is) {
 		is >> starting;
 		Eat(is,']');
 		IOTracePop();
-		return new MotionProfile_TrapHalf(maxvel,maxacc,starting);
+		return new VelocityProfile_TrapHalf(maxvel,maxacc,starting);
 	}
 	else {
 #ifdef HAVE_EXCEPTIONS

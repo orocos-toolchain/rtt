@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: motionprofile_traphalf.h,v 1.1.1.1.2.4 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: velocityprofile_traphalf.h,v 1.1.1.1.2.4 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  *  \par Status
  *      Experimental
@@ -18,7 +18,7 @@
 #ifndef MOTIONPROFILE_TRAPHALF_H
 #define MOTIONPROFILE_TRAPHALF_H
 
-#include "motionprofile.h"
+#include "velocityprofile.h"
 
 
 
@@ -29,7 +29,7 @@ namespace ORO_Geometry {
 
 
 
-class MotionProfile_TrapHalf : public MotionProfile 
+class VelocityProfile_TrapHalf : public VelocityProfile 
 	{
 		// For "running" a motion profile :
 		double a1,a2,a3; // coef. from ^0 -> ^2 of first part
@@ -56,7 +56,7 @@ class MotionProfile_TrapHalf : public MotionProfile
 		 * \param starting this value is true when initial velocity is zero
 		 *        and ending velocity is maxvel, is false for the reverse
 		 */
-		MotionProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting);
+		VelocityProfile_TrapHalf(double _maxvel,double _maxacc,bool _starting);
 
         void SetMax(double _maxvel,double _maxacc, bool _starting );
 
@@ -76,9 +76,9 @@ class MotionProfile_TrapHalf : public MotionProfile
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual MotionProfile* Clone();		
+		virtual VelocityProfile* Clone();		
 
-		virtual ~MotionProfile_TrapHalf();
+		virtual ~VelocityProfile_TrapHalf();
 	};
 
 

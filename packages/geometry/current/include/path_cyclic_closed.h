@@ -9,7 +9,7 @@
  *		- $log$
  *
  *	\par Release
- *		$Id: geometry_cyclic_closed.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
+ *		$Id: path_cyclic_closed.h,v 1.1.1.1.2.3 2003/07/24 13:26:15 psoetens Exp $
  *		$Name:  $ 
  ****************************************************************************/
 
@@ -18,7 +18,7 @@
 
 #include "frames.h"
 #include "frames_io.h"
-#include "geometry.h"
+#include "path.h"
 #include <vector>
 
 
@@ -27,15 +27,15 @@ namespace ORO_Geometry {
 #endif
 
 /**
- * The specification of the geometry of a trajectory.
+ * The specification of the path of a trajectory.
  */
-	class Geometry_Cyclic_Closed : public Geometry
+	class Path_Cyclic_Closed : public Path
 	{
 		int times;
-		Geometry* geom;
+		Path* geom;
 		bool aggregate;
 	public:
-		Geometry_Cyclic_Closed(Geometry* _geom,int _times, bool _aggregate=true);
+		Path_Cyclic_Closed(Path* _geom,int _times, bool _aggregate=true);
 		virtual double LengthToS(double length);		
 		virtual double PathLength();
 		virtual Frame Pos(double s) const;
@@ -44,10 +44,10 @@ namespace ORO_Geometry {
 
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os);
-		static Geometry* Read(istream& is);
+		static Path* Read(istream& is);
 #endif
-		virtual Geometry* Clone();
-		virtual ~Geometry_Cyclic_Closed();
+		virtual Path* Clone();
+		virtual ~Path_Cyclic_Closed();
 	};
 
 
