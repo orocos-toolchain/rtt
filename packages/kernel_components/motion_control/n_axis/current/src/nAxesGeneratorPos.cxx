@@ -13,6 +13,7 @@ namespace ORO_ControlKernel
     : nAxesGeneratorPos_typedef(name),
       _num_axes(num_axes), 
       _position_desired(num_axes),
+      _traject_position(num_axes),
       _position_meas_local(num_axes),
       _position_local(num_axes),
       _velocity_local(num_axes),

@@ -13,6 +13,7 @@ namespace ORO_ControlKernel
     : nAxesGeneratorSin_typedef(name),
       _num_axes(num_axes), 
       _position_desired(num_axes),
+      _position_initial(num_axes),
       _position_local(num_axes),
       _velocity_local(num_axes),
       _properties_read(false),

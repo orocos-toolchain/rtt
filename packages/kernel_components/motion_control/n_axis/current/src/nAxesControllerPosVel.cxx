@@ -10,6 +10,9 @@ namespace ORO_ControlKernel
 					       std::string name)
     : nAxesControllerPosVel_typedef(name),
       _num_axes(num_axes), 
+      _position_meas_local(num_axes),
+      _position_desi_local(num_axes),
+      _velocity_desi_local(num_axes),
       _velocity_local(num_axes),
       _properties_read(false),
       _controller_gain("K", "Proportional Gain")
