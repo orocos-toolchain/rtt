@@ -5,14 +5,15 @@
 namespace ORO_Execution
 {
 	ProcessorStateInit::ProcessorStateInit(Processor* proc)
+        : ProcessorState(proc)
 	{
-		processor = proc;		
 	}
 	
-	void ProcessorStateInit::startConfiguration()
+	bool ProcessorStateInit::startConfiguration()
 	{
 		ProcessorStateConfig* newState = new ProcessorStateConfig(processor);
 		changeState(newState);	
+        return true;
 	}
 	
 

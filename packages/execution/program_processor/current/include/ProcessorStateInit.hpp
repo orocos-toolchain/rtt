@@ -14,34 +14,33 @@ namespace ORO_Execution
 	 */
 	class ProcessorStateInit : public ProcessorState
 	{	
-	
-		public:
+    public:
 		
-			/**
-             * Constructs a new processor  init state.
-             *
-             * @post this state is associated with the given processor			 
-             */  
-			ProcessorStateInit(Processor* proc);
+        /**
+         * Constructs a new processor  init state.
+         *
+         * @post this state is associated with the given processor			 
+         */  
+        ProcessorStateInit(Processor* proc);
 			
-			virtual ~ProcessorStateInit()
-			{}
+        virtual ~ProcessorStateInit()
+        {}
 			
-			/**
-			 * Put the associated processor in configuration mode.
-			 */
-			virtual void startConfiguration();
+        /**
+         * Put the associated processor in configuration mode.
+         */
+        virtual bool startConfiguration();
 			
-			//rest of interface
-            virtual void endConfiguration(){output("endConfiguration : No configuration defined yet");}
-			virtual void deleteProgram(){output("deleteProgram : No configuration defined yet");}
-			virtual void startExecution(){output("startExecution : No configuration defined yet");}
-			virtual void stopExecution(){output("stopExecution : No configuration defined yet");}
-			virtual void abort(){output("abort : Already in init state");}
-			virtual void loadSystemContext(SystemContext* sc){output("loadSystemContext : No configuration defined yet");} 
-			virtual void loadProgram(ProgramInterface* pi){output("loadProgram : No configuration defined yet");}
-			virtual void resetProgram(){output("resetProgram : No configuration defined yet");}
-			virtual void doStep(){output("doStep : No configuration defined yet");}   
+        //rest of interface
+        virtual bool endConfiguration(){output("endConfiguration : No configuration defined yet"); return false;}
+        virtual bool deleteProgram(){output("deleteProgram : No configuration defined yet"); return false;}
+        virtual bool startExecution(){output("startExecution : No configuration defined yet"); return false;}
+        virtual bool stopExecution(){output("stopExecution : No configuration defined yet"); return false;}
+        virtual bool abort(){output("abort : Already in init state"); return false;}
+        virtual bool loadSystemContext(SystemContext* sc){output("loadSystemContext : No configuration defined yet"); return false;} 
+        virtual bool loadProgram(ProgramInterface* pi){output("loadProgram : No configuration defined yet"); return false;}
+        virtual bool resetProgram(){output("resetProgram : No configuration defined yet"); return false;}
+        virtual void doStep(){}
 	
 	};
 

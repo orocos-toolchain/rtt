@@ -43,17 +43,17 @@ namespace ORO_Execution
  			{}
 
             //state transitions
-            virtual void startConfiguration()=0;
-            virtual void endConfiguration()=0;
-			virtual void deleteProgram()=0;
-			virtual void startExecution()=0;
-			virtual void stopExecution() =0;
-			virtual void abort() =0;
+            virtual bool startConfiguration()=0;
+            virtual bool endConfiguration()=0;
+			virtual bool deleteProgram()=0;
+			virtual bool startExecution()=0;
+			virtual bool stopExecution() =0;
+			virtual bool abort() =0;
 			
 			//state tasks
-			virtual void loadSystemContext(SystemContext* sc) = 0; 
-			virtual void loadProgram(ProgramInterface* pi) = 0;
-			virtual void resetProgram() = 0; 
+			virtual bool loadSystemContext(SystemContext* sc) = 0; 
+			virtual bool loadProgram(ProgramInterface* pi) = 0;
+			virtual bool resetProgram() = 0; 
 			virtual void doStep() = 0;  
 			
 			
@@ -61,9 +61,9 @@ namespace ORO_Execution
        protected:
        		
        		//only for derived classes
-       		ProcessorState()
+       		ProcessorState(Processor* proc)
+                :processor(proc)
         	{}
-        	
         	
         	/**
         	 * Corresponding execution engine.

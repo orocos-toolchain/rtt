@@ -6,9 +6,8 @@ namespace ORO_Execution
 {
 
 	ProcessorStateConfig::ProcessorStateConfig(Processor* proc)
+       : ProcessorState(proc), systemContext(0)
 	{
-		processor = proc;
-		systemContext = 0;
 	}
 
 	ProcessorStateConfig::~ProcessorStateConfig()
@@ -16,12 +15,13 @@ namespace ORO_Execution
 		delete systemContext;
 	}
 
-	void ProcessorStateConfig::abort()
+	bool ProcessorStateConfig::abort()
 	{
-		resetState(); //roept destructor van this op
+		resetState();
+        return true;
 	}
 
-    void ProcessorStateConfig::endConfiguration()
+    bool ProcessorStateConfig::endConfiguration()
     {
     	if ( isValidConfig(systemContext))
     	{
@@ -31,16 +31,18 @@ namespace ORO_Execution
     		ProcessorStateLoad* newState = new ProcessorStateLoad(processor, systemContext);
             systemContext = 0;
     		changeState(newState);
+            return true;
     	}
     	else
     	{
     		output("A valid system configuration needs to be defined first");
+            return false;
     	}
     }
 
-    void ProcessorStateConfig::loadSystemContext(SystemContext* sc)
+    bool ProcessorStateConfig::loadSystemContext(SystemContext* sc)
     {
-    	if (isValidConfig(sc)){systemContext = sc;}
+    	if (isValidConfig(sc)){systemContext = sc; return true;} return false;
     }
 
 

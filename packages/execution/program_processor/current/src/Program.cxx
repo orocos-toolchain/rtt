@@ -17,7 +17,6 @@ namespace ORO_Execution
 
 	Program::Program(ProgramNode* rootNode)
 	{
-		//init();
 		setRootNode(rootNode);
 		reset();
 	}
@@ -29,9 +28,9 @@ namespace ORO_Execution
 
 	void Program::execute()
 	{
-                if ( previous != current )
-                        current->startExecution();
-                previous = current;
+        if ( previous != current )
+            current->startExecution();
+        previous = current;
 		ProgramNode* next = current->execute();
 		setCurrentNode(next);
 	}
@@ -44,7 +43,7 @@ namespace ORO_Execution
 
 	void Program::setRootNode(ProgramNode* rootNode)
 	{
-                root = rootNode;
+        root = rootNode;
 	}
 
 	void Program::setCurrentNode(ProgramNode* currentNode)

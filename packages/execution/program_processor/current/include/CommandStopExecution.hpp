@@ -20,7 +20,8 @@ namespace ORO_Execution
 		~CommandStopExecution()
 		{}
 		
-		void execute() {
+		void execute() 
+        {
 			pci->stopExecution();
 		}
 	

@@ -42,12 +42,12 @@ namespace ORO_Execution
             /**
              * Load a configured system 
              */
-            virtual void loadSystemContext(SystemContext* sc) = 0; 
+            virtual bool loadSystemContext(SystemContext* sc) = 0; 
 			
 			/**
 			 * Load the data to be executed.
 			 */
-			virtual void loadProgram(ProgramInterface* pi) = 0;
+			virtual bool loadProgram(ProgramInterface* pi) = 0;
 			
 			/**
              * Execute the next logic step of the associated data.
@@ -57,7 +57,7 @@ namespace ORO_Execution
 			/**
 			 * Reset execution logic to the beginning of the associated data.
 			 */
-			virtual void resetProgram() = 0;              
+			virtual bool resetProgram() = 0;              
 
     };
 

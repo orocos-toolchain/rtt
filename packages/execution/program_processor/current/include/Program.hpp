@@ -14,62 +14,62 @@ namespace ORO_Execution
 	class Program : public ProgramInterface
 	{
 
-		public:
+    public:
 
-		   /**
-		    * Constructs an empty program (NOPprogram)
-		    *
-		    * @post This program is created with a NOP root.
-		    */
-		   Program();
+        /**
+         * Constructs an empty program (NOPprogram)
+         *
+         * @post This program is created with a NOP root.
+         */
+        Program();
 
-		   /**
-		    * Constructs a program with a given root node.
-		    *
-		    * @param <rootNode> The node which will serve as root.
-		    * @post Given node is registered as root node for this program
-		    * @post Given node is set as the node to be executed next.
-		    */
-		   Program(ProgramNode* rootNode);
-
-
-		   virtual ~Program();
+        /**
+         * Constructs a program with a given root node.
+         *
+         * @param <rootNode> The node which will serve as root.
+         * @post Given node is registered as root node for this program
+         * @post Given node is set as the node to be executed next.
+         */
+        Program(ProgramNode* rootNode);
 
 
-		   /**
-		    * Executes the next step of this program.
-		    */
-		   virtual void execute();
+        virtual ~Program();
 
 
-		   /**
-		    *Reset the next node to be executed to the root node.
-		    */
-		   virtual void reset();
+        /**
+         * Executes the next step of this program.
+         */
+        virtual void execute();
 
 
-		protected:
+        /**
+         *Reset the next node to be executed to the root node.
+         */
+        virtual void reset();
 
-		   //setters
-		   virtual void setRootNode(ProgramNode* rootNode);
-		   virtual void setCurrentNode(ProgramNode* currentNode);
 
-		private:
+    protected:
 
-		   /**
-		    * The node registered as root for this program.
-		    */
-		   ProgramNode::shared_ptr root;
+        //setters
+        virtual void setRootNode(ProgramNode* rootNode);
+        virtual void setCurrentNode(ProgramNode* currentNode);
 
-		   /**
-		    * The node which will be executed next.
-		    */
-		   ProgramNode* current;
+    private:
 
-                   /**
-                    * The node that was run before this one.
-                    */
-                   ProgramNode* previous;
+        /**
+         * The node registered as root for this program.
+         */
+        ProgramNode::shared_ptr root;
+
+        /**
+         * The node which will be executed next.
+         */
+        ProgramNode* current;
+
+        /**
+         * The node that was run before this one.
+         */
+        ProgramNode* previous;
 	};
 
 

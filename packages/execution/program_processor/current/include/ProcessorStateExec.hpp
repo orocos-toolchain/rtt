@@ -33,7 +33,7 @@ namespace ORO_Execution
 			 * Stops the execution, unloads the program and 
 			 * leaves the system unconfigured.
 			 */
-			virtual void abort();
+			virtual bool abort();
 			
 			/**
 			 * Stops execution of associated program and puts
@@ -41,13 +41,13 @@ namespace ORO_Execution
 			 * (does not reset the counter of associated
 			 * program to the beginning)
 			 */
-			virtual void stopExecution();
+			virtual bool stopExecution();
 			
 			/**
 			 * Stops execution of and deletes the associated program
 			 * and puts associated processor in configuration mode.
 			 */
-			virtual void deleteProgram();
+			virtual bool deleteProgram();
 			
 			/**
 		 	 * Execute the next logic step of associated program. 
@@ -55,19 +55,20 @@ namespace ORO_Execution
 			virtual void doStep();			
 			
 			
-            virtual void startConfiguration(){output("no legal action in execution state");}
+            virtual bool startConfiguration(){output("startConfiguration: no legal action in execution state"); return false;}
             
-            virtual void endConfiguration(){output("no legal action in execution state");}
+            virtual bool endConfiguration(){output("endConfiguration: no legal action in execution state"); return false;}
 			
-			virtual void startExecution(){output("no legal action in execution state");}
+			virtual bool startExecution(){output("startExecution: no legal action in execution state"); return false;}
 			
-			virtual void loadSystemContext(SystemContext* sc){output("no legal action in execution state");} 
+			virtual bool loadSystemContext(SystemContext* sc){output("loadSystemContext: no legal action in execution state"); return false;} 
 			
-			virtual void loadProgram(ProgramInterface* pi){output("no legal action in execution state");}
+			virtual bool loadProgram(ProgramInterface* pi){output("loadProgram: no legal action in execution state"); return false;}
 			
-			virtual void resetProgram(){output("no legal action in execution state");} 
+			virtual bool resetProgram(){output("resetProgram: no legal action in execution state"); return false;} 
 			
 		private:
+
 			/**
 			 * The system configuration associated with this state.
 			 */

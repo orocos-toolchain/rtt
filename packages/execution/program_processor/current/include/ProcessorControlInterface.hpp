@@ -39,34 +39,34 @@ namespace ORO_Execution
              * Start execution mode, only if not yet started 
              * and data has been loaded. 
              */
-            virtual void startExecution() = 0;
+            virtual bool startExecution() = 0;
 
             /**
              * End execution mode, only if already started.
              */
-            virtual void stopExecution() = 0;
+            virtual bool stopExecution() = 0;
             
             /**
              * Start configuration mode.
              */
-            virtual void startConfiguration() = 0;
+            virtual bool startConfiguration() = 0;
                         
             /**
              * Discard the data currently loaded.
              * If that data was being executed, execution stopped.
              */
-            virtual void deleteProgram() = 0;
+            virtual bool deleteProgram() = 0;
             
 			/**
 			 * Retreat to init mode (data and configuration were discarded).
 			 */
-			virtual void abort() = 0;
+			virtual bool abort() = 0;
 			
 			/**
 			 * End configuration mode and start loading mode, only
 			 * if a configuration has been loaded.
 			 */
-			virtual void endConfiguration() = 0; 
+			virtual bool endConfiguration() = 0; 
 			
 			
     };

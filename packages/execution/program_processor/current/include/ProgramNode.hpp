@@ -10,10 +10,10 @@
 namespace ORO_Execution
 {
 
-	class Processor;
+	class ProcessorControlInterface;
 	class ProcessorInterface;
-        class TerminationClause;
-        class TerminationClauseList;
+    class TerminationClause;
+    class TerminationClauseList;
 
 	/**
 	 * This class represents elements in a program tree.
@@ -64,10 +64,10 @@ namespace ORO_Execution
 		     * @return A program node with no conditional branches and that
 		     * contains a stop execution command.
 		     */
-		    static ProgramNode* leafNode(Processor* proc)
+		    static ProgramNode* leafNode( ProcessorControlInterface* proc)
 		    {
-		    	CommandStopExecution* cmd = new CommandStopExecution((ProcessorControlInterface*)proc);
-		    	ProgramNode* result = new ProgramNode( (CommandInterface*) cmd);
+		    	CommandStopExecution* cmd = new CommandStopExecution( proc );
+		    	ProgramNode* result = new ProgramNode( cmd);
 		    	return (result);
 		    }
 

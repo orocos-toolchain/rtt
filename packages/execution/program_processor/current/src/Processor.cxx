@@ -26,16 +26,16 @@ namespace ORO_Execution
     }
 
 	//forward every action to its state
-    void Processor::startConfiguration(){ currentState->startConfiguration();}
-	void Processor::abort(){ currentState->abort();}
-	void Processor::endConfiguration(){currentState->endConfiguration();}
-	void Processor::deleteProgram() {currentState->deleteProgram();}
-	void Processor::startExecution() {currentState->startExecution();}
-	void Processor::stopExecution() {currentState->stopExecution();}
+    bool Processor::startConfiguration(){ return currentState->startConfiguration();}
+	bool Processor::abort(){ return currentState->abort();}
+	bool Processor::endConfiguration(){return currentState->endConfiguration();}
+	bool Processor::deleteProgram() {return currentState->deleteProgram();}
+	bool Processor::startExecution() {return currentState->startExecution();}
+	bool Processor::stopExecution() {return currentState->stopExecution();}
 
-	void Processor::loadSystemContext(SystemContext* sc){currentState->loadSystemContext(sc);}
-	void Processor::loadProgram(ProgramInterface* pi){currentState->loadProgram(pi);}
-	void Processor::resetProgram() {currentState->resetProgram();}
+	bool Processor::loadSystemContext(SystemContext* sc){return currentState->loadSystemContext(sc);}
+	bool Processor::loadProgram(ProgramInterface* pi){return currentState->loadProgram(pi);}
+	bool Processor::resetProgram() {return currentState->resetProgram();}
 	void Processor::doStep(){currentState->doStep();}
 
 }

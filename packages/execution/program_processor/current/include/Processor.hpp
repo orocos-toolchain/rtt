@@ -48,17 +48,17 @@ namespace ORO_Execution
             virtual ~Processor();
 
 			//see ProcessorControlInterface
-            virtual void startConfiguration();
-			virtual void abort();
-			virtual void endConfiguration();
-			virtual void deleteProgram();
-			virtual void startExecution();
-			virtual void stopExecution();
+            virtual bool startConfiguration();
+			virtual bool abort();
+			virtual bool endConfiguration();
+			virtual bool deleteProgram();
+			virtual bool startExecution();
+			virtual bool stopExecution();
 
 			//see ProcessorInterface
-			virtual void loadSystemContext(SystemContext* sc);
-			virtual void loadProgram(ProgramInterface* pi) ;
-			virtual void resetProgram() ;
+			virtual bool loadSystemContext(SystemContext* sc);
+			virtual bool loadProgram(ProgramInterface* pi) ;
+			virtual bool resetProgram() ;
 			virtual void doStep();
 
 

@@ -39,13 +39,21 @@ namespace ORO_Execution
 
 	ProgramNode* ProgramNode::execute()
 	{
-		//command executen
+		/**
+         * Execute the command in any case.
+         * If the command is Asynch, this will do nothing.
+         */
 		command->execute();
 
-		//condities sjekken
+        /**
+         * Check if a termination condition is reached
+         * immediately, and get the next node.
+         */
 		ProgramNode* result = clauses->evaluate();
 
-		//resultaat teruggeven (this of next)
+		/**
+         * If no next node is found, return this node.
+         */
 		if ( result == 0) {result = this;}
 		return result;
 

@@ -32,13 +32,13 @@ namespace ORO_Execution
 			 * Leave the system unconfigured and put the associated
 			 * processor in init mode.
 			 */
-			virtual void abort();
+			virtual bool abort();
 			
 			/**
 			 * If a valid configuration has been defined, put the
 			 * associated processor in load mode. 
 			 */
-			virtual void endConfiguration(); 
+			virtual bool endConfiguration(); 
 			
 			/**
 			 * Loads a given valid system configuration.
@@ -46,23 +46,23 @@ namespace ORO_Execution
 			 * @param <sc> The system configuration to be loaded. 			   
 			 * @post If given system configuration is valid, it is loaded.		
 			 */
-			virtual void loadSystemContext(SystemContext* sc);
+			virtual bool loadSystemContext(SystemContext* sc);
 			
 			
 			
-            virtual void startConfiguration(){output("already in configuration state");}           
+            virtual bool startConfiguration(){output("already in configuration state"); return false;}           
 			
-			virtual void deleteProgram(){output("no program defined in configuration state");}
+			virtual bool deleteProgram(){output("no program defined in configuration state"); return false;}
 			
-			virtual void startExecution(){output("no start execution in configuration state");}
+			virtual bool startExecution(){output("no start execution in configuration state"); return false;}
 			
-			virtual void stopExecution(){output("no stop execution in configuration state");}
+			virtual bool stopExecution(){output("no stop execution in configuration state"); return false;}
  			
- 			virtual void loadProgram(ProgramInterface* pi){output("no loading in configuration state");}
+ 			virtual bool loadProgram(ProgramInterface* pi){output("no loading in configuration state"); return false;}
 			
-			virtual void resetProgram(){output("no legal action in configuration state");} 
+			virtual bool resetProgram(){output("no legal action in configuration state"); return false;} 
 			
-			virtual void doStep(){output("no execution in configuration state");}
+			virtual void doStep(){}
 			
 		private :
 		
@@ -79,7 +79,7 @@ namespace ORO_Execution
 			 * The system configuration associated with this state.
 			 */
 			SystemContext* systemContext;	   
-	
+
 	};
 
 

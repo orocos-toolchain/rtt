@@ -7,10 +7,8 @@ namespace ORO_Execution
 {
 
 	ProcessorStateExec::ProcessorStateExec(Processor* proc, SystemContext* sc, ProgramInterface* pi)
+        :ProcessorState(proc), systemContext(sc), program(pi)
 	{
-		processor = proc;
-		systemContext = sc;
-		program = pi;
 	}
 
 	ProcessorStateExec::~ProcessorStateExec()
@@ -19,28 +17,34 @@ namespace ORO_Execution
 		delete program;
 	}
 
-	void ProcessorStateExec::abort()
+	bool ProcessorStateExec::abort()
 	{
-		resetState(); //die roept destructor van this op
+		resetState();
+        return true;
 	}
 
-	void ProcessorStateExec::stopExecution()
+	bool ProcessorStateExec::stopExecution()
 	{
-		//zonder programmateller te veranderen =  pauze
+		// without changing program counter == pause
 		ProcessorStateLoad* newState= new ProcessorStateLoad(processor,systemContext);
 		newState->loadProgram(program);
+        systemContext = 0;  program = 0;
 		changeState(newState);
+        return true;
 	}
 
 
-	void ProcessorStateExec::deleteProgram()
+	bool ProcessorStateExec::deleteProgram()
 	{
 		ProcessorStateConfig* newState= new ProcessorStateConfig(processor);
 		newState->loadSystemContext(systemContext);
-                // we pass ownership of the systemContext to the
-                // config state
-                systemContext = 0;
+        // we pass ownership of the systemContext to the
+        // config state
+        systemContext = 0;
+        delete program;
+        program = 0;
 		changeState(newState);
+        return true;
 	}
 
 

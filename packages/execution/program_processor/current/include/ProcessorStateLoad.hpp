@@ -32,39 +32,39 @@ namespace ORO_Execution
 			 * Leave the system unconfigured and the program undefined
 			 * and put the associated processor in init mode.
 			 */
-			virtual void abort();
+			virtual bool abort();
 			
 			/**
 			 * Leave the program undefined and put the 
 			 * associated processor in configuration mode.
 			 */
-			virtual void deleteProgram();
+			virtual bool deleteProgram();
 			
 			/**
 			 * If a valid program is defined, put the 
 			 * associated processor in execution mode.
 			 */
-			virtual void startExecution();
+			virtual bool startExecution();
 			
 			/**
 			 * Loads given program if it is valid.
 			 * @param <pi> The program to be loaded.
 			 * @post If given program was valid, it was loaded.
 			 */
-			virtual void loadProgram(ProgramInterface* pi);	
+			virtual bool loadProgram(ProgramInterface* pi);	
 			
 			/**
 			 * Reload the beginning of the program. 
 			 */
-			virtual void resetProgram(); 
+			virtual bool resetProgram(); 
 			
 			
 			//rest of interface
-            virtual void startConfiguration(){output("startConfiguration : Processor is in load state");}
-            virtual void endConfiguration(){output("endConfiguration : Processor is in load state");}
-			virtual void loadSystemContext(SystemContext* sc){output("loadSystemContext : Processor is in load state");}  
-			virtual void doStep(){output(" doStep : Processor is in load state");}  
-			virtual void stopExecution(){output("stopExecution : Processor is in load state");}
+            virtual bool startConfiguration(){output("startConfiguration : Processor is in load state"); return false;}
+            virtual bool endConfiguration(){output("endConfiguration : Processor is in load state"); return false;}
+			virtual bool loadSystemContext(SystemContext* sc){output("loadSystemContext : Processor is in load state"); return false;}  
+			virtual void doStep() {}  
+			virtual bool stopExecution(){output("stopExecution : Processor is in load state"); return false;}
 			
 		private :
 		

@@ -9,10 +9,8 @@ namespace ORO_Execution
 {
 
 	ProcessorStateLoad::ProcessorStateLoad(Processor* proc, SystemContext* sc)
+       : ProcessorState(proc), systemContext(sc), program(0)
 	{
-		processor = proc ;
-		systemContext = sc ;
-		program = 0;
 	}
 
 	ProcessorStateLoad::~ProcessorStateLoad()
@@ -22,49 +20,57 @@ namespace ORO_Execution
 	}
 
 
-	void ProcessorStateLoad::abort()
+	bool ProcessorStateLoad::abort()
 	{
-		resetState(); //die roept destructor van this op
+		resetState(); // calls destructor of this
+        return true;
 	}
 
 
-	void ProcessorStateLoad::deleteProgram()
+	bool ProcessorStateLoad::deleteProgram()
 	{
-		ProcessorStateConfig* newState= new ProcessorStateConfig(processor);
+		ProcessorStateConfig* newState = new ProcessorStateConfig(processor);
 		newState->loadSystemContext(systemContext);
         // we pass ownership of systemContext to the config state.
         systemContext = 0;
+        delete program;
+        program = 0;
 		changeState(newState);
+        return true;
 	}
 
 
-	void ProcessorStateLoad::startExecution()
+	bool ProcessorStateLoad::startExecution()
 	{
 		if ( isValidProgram(program))
 		{
 			ProcessorStateExec* newState=new ProcessorStateExec(processor, systemContext, program);
-                        // we pass ownership of the programand systemContext to
-                        // ProcessorStateExec.
-                        program = 0;
-                        systemContext = 0;
+            // we pass ownership of the programand systemContext to
+            // ProcessorStateExec.
+            program = 0;
+            systemContext = 0;
 			changeState(newState);
+            return true;
 		}
-		else { std::cout << "A valid program needs to be loaded first" <<std::endl; }
+		else { std::cout << "A valid program needs to be loaded first" <<std::endl; return false; }
 	}
 
 
-	void ProcessorStateLoad::loadProgram(ProgramInterface* pi)
+	bool ProcessorStateLoad::loadProgram(ProgramInterface* pi)
 	{
 		if  ( isValidProgram(pi) )
 		{
 			program = pi ;
+            return true;
 		}
+        return false;
 	}
 
 
-	void ProcessorStateLoad::resetProgram()
+	bool ProcessorStateLoad::resetProgram()
 	{
 		program->reset();
+        return true;
 	}
 
 
