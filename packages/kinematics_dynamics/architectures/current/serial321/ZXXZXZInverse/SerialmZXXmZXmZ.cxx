@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:35 CEST 2004  SerialZXXZXZInverse.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:35 CEST 2004  SerialmZXXmZXmZ.cxx 
 
-                        SerialZXXZXZInverse.cxx -  description
+                        SerialmZXXmZXmZ.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
@@ -24,18 +24,18 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "kindyn/SerialZXXZXZInverse.hpp"
+#include "kindyn/SerialmZXXmZXmZ.hpp"
 #include <geometry/frames.h>
 
 namespace ORO_KinDyn
 {
-    SerialZXXZXZInverse::~SerialZXXZXZInverse() 
+    SerialmZXXmZXmZ::~SerialmZXXmZXmZ() 
     {}
 
-    bool SerialZXXZXZInverse::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
+    bool SerialmZXXmZXmZ::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
     {
         Double6D q = original_q;
-	//Change from ZXXZXZInverse to ZXXZXZ and changing the directions of axis 0, 3 and 5
+	//Change from mZXXmZXmZ to ZXXZXZ and changing the directions of axis 0, 3 and 5
         q[ 0 ] = - q[ 0 ];
         q[ 3 ] = - q[ 3 ];
         q[ 5 ] = - q[ 5 ];
@@ -43,7 +43,7 @@ namespace ORO_KinDyn
         return zxxzxz.positionForward(q, mp_base, s);
     }
 
-    bool SerialZXXZXZInverse::positionInverse ( const ORO_Geometry::Frame& mp_base, Configuration c,  Double6D& q, Singularity& s ) const
+    bool SerialmZXXmZXmZ::positionInverse ( const ORO_Geometry::Frame& mp_base, Configuration c,  Double6D& q, Singularity& s ) const
     {
         bool result = zxxzxz.positionInverse( mp_base, c, q, s );
 
@@ -57,7 +57,7 @@ namespace ORO_KinDyn
     }
 
 
-    bool SerialZXXZXZInverse::velocityForward ( const Double6D& original_q, const Double6D& original_qdot, ORO_Geometry::Frame& mp_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const
+    bool SerialmZXXmZXmZ::velocityForward ( const Double6D& original_q, const Double6D& original_qdot, ORO_Geometry::Frame& mp_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const
     {
       Double6D q = original_q;
       q[0] = - q[0];
@@ -72,7 +72,7 @@ namespace ORO_KinDyn
       return zxxzxz.velocityForward( q, qdot, mp_base, vel_base, s);
     }
 
-    bool SerialZXXZXZInverse::velocityInverse ( const ORO_Geometry::Frame& vel_base, const ORO_Geometry::Twist& vel, Configuration c, Double6D& q, Double6D& qdot, Singularity& s ) const
+    bool SerialmZXXmZXmZ::velocityInverse ( const ORO_Geometry::Frame& vel_base, const ORO_Geometry::Twist& vel, Configuration c, Double6D& q, Double6D& qdot, Singularity& s ) const
     {
 
         bool result = zxxzxz.velocityInverse(vel_base, vel, c, q, qdot, s);
@@ -91,7 +91,7 @@ namespace ORO_KinDyn
         return result;
     }
 
-    bool SerialZXXZXZInverse::velocityInverse ( const Double6D& q_or, const ORO_Geometry::Twist& vel, Double6D& qdot, Singularity& s ) const
+    bool SerialmZXXmZXmZ::velocityInverse ( const Double6D& q_or, const ORO_Geometry::Twist& vel, Double6D& qdot, Singularity& s ) const
     {
         Double6D q(q_or);
         q[0] = - q[0];
@@ -110,7 +110,7 @@ namespace ORO_KinDyn
         return result;
     }
 
-    bool SerialZXXZXZInverse::jacobianInverse ( const Double6D& q_or, double JInv[ 6 ][ 6 ], Singularity& s ) const
+    bool SerialmZXXmZXmZ::jacobianInverse ( const Double6D& q_or, double JInv[ 6 ][ 6 ], Singularity& s ) const
     {
         Double6D q(q_or);
 
@@ -121,7 +121,7 @@ namespace ORO_KinDyn
         return zxxzxz.jacobianInverse(q, JInv, s);
     }
 
-    bool SerialZXXZXZInverse::jacobianForward( const Double6D& q_or, double J[ 6 ][ 6 ], Singularity& s ) const
+    bool SerialmZXXmZXmZ::jacobianForward( const Double6D& q_or, double J[ 6 ][ 6 ], Singularity& s ) const
     {
         Double6D q(q_or);
 
@@ -132,7 +132,7 @@ namespace ORO_KinDyn
         return zxxzxz.jacobianForward(q, J, s);
     }
 
-    void SerialZXXZXZInverse::configurationGet(const Double6D& q_or, Configuration& c) const
+    void SerialmZXXmZXmZ::configurationGet(const Double6D& q_or, Configuration& c) const
     {
         Double6D q(q_or);
 
