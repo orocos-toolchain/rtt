@@ -1,7 +1,15 @@
 #include "control_kernel/KernelInterfaces.hpp"
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateCommandFactory.hpp"
+#endif
 
 using namespace ORO_ControlKernel;
 using namespace ORO_CoreLib;
+
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+        using namespace ORO_Execution;
+#endif
 
 namespace ORO_ControlKernel
 {
@@ -144,4 +152,58 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
         = std::find(components.begin(), components.end(), comp);
     if (itl != components.end() )
         components.erase(itl);
+}
+
+CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
+{
+    TemplateCommandFactory< KernelBaseFunction  >* ret =
+        newCommandFactory( this );
+    ret->add( "selectController", 
+              command
+              ( &KernelBaseFunction::selectController ,
+                &KernelBaseFunction::isSelectedController,
+                "Select a Controller Component", "Name", "The name of the Controller" ) );
+    ret->add( "selectGenerator", 
+              command
+              ( &KernelBaseFunction::selectGenerator ,
+                &KernelBaseFunction::isSelectedGenerator,
+                "Select a Generator Component", "Name", "The name of the Generator" ) );
+    ret->add( "selectEstimator", 
+              command
+              ( &KernelBaseFunction::selectEstimator ,
+                &KernelBaseFunction::isSelectedEstimator,
+                "Select a Estimator Component", "Name", "The name of the Estimator" ) );
+    ret->add( "selectSensor", 
+              command
+              ( &KernelBaseFunction::selectSensor ,
+                &KernelBaseFunction::isSelectedSensor,
+                "Select a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "selectEffector", 
+              command
+              ( &KernelBaseFunction::selectEffector ,
+                &KernelBaseFunction::isSelectedEffector,
+                "Select a Effector Component", "Name", "The name of the Effector" ) );
+    return ret;
+}
+
+DataSourceFactory* KernelBaseFunction::createDataSourceFactory()
+{
+    TemplateDataSourceFactory< KernelBaseFunction >* ret =
+        newDataSourceFactory( this );
+    ret->add( "usingGenerator", 
+              data( &KernelBaseFunction::isSelectedGenerator, "Check if this generator is used.",
+                    "Name", "The name of the Generator") );
+    ret->add( "usingController", 
+              data( &KernelBaseFunction::isSelectedController, "Check if this controller is used.",
+                    "Name", "The name of the Controller") );
+    ret->add( "usingEstimator", 
+              data( &KernelBaseFunction::isSelectedEstimator, "Check if this estimator is used.",
+                    "Name", "The name of the Estimator") );
+    ret->add( "usingEffector", 
+              data( &KernelBaseFunction::isSelectedEffector, "Check if this effector is used.",
+                    "Name", "The name of the Effector") );
+    ret->add( "usingSensor", 
+              data( &KernelBaseFunction::isSelectedSensor, "Check if this sensor is used.",
+                    "Name", "The name of the Sensor") );
+    return ret;
 }

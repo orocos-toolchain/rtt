@@ -148,11 +148,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         is_called = true;
 
         // Add the commands / data of the kernel :
-        commandfactory = createCommandFactory();
+        commandfactory = base->createCommandFactory();
         if ( commandfactory )
             commandFactory().registerObject( "kernel", commandfactory );
 
-        dataSourceFactory = createDataSourceFactory();
+        dataSourceFactory = base->createDataSourceFactory();
         if ( dataSourceFactory )
             dataFactory().registerObject( "kernel", dataSourceFactory );
 

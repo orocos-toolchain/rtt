@@ -28,6 +28,12 @@
 #include <corelib/Event.hpp>
 #include "ModuleControlInterface.hpp"
 
+#include <pkgconf/system.h>
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "execution/CommandFactoryInterface.hpp"
+#include "execution/DataSourceFactory.hpp"
+#endif
+
 namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
@@ -301,12 +307,89 @@ namespace ORO_ControlKernel
          */
         virtual bool updateKernelProperties(const PropertyBag& bag);
 
+        /**
+         * @brief Select a Sensor Component from the kernel.
+         *
+         * @param  name The name of the Sensor Component to select.
+         * @return True if the Sensor Component could be found and selected,
+         *         False otherwise.
+         */
         virtual bool selectSensor( const std::string& name ) = 0;
+        /**
+         * Select a Estimator Component from the kernel.
+         *
+         * @param  name The name of the Estimator Component to select.
+         * @return True if the Estimator Component could be found and selected,
+         *         False otherwise.
+         */
         virtual bool selectEstimator( const std::string& name ) = 0;
+        /**
+         * Select a Generator Component from the kernel.
+         *
+         * @param  name The name of the Generator Component to select.
+         * @return True if the Generator Component could be found and selected,
+         *         False otherwise.
+         */
         virtual bool selectGenerator( const std::string& name ) = 0;
+        /**
+         * Select a Controller Component from the kernel.
+         *
+         * @param  name The name of the Controller Component to select.
+         * @return True if the Controller Component could be found and selected,
+         *         False otherwise.
+         */
         virtual bool selectController( const std::string& name ) = 0;
+        /**
+         * @brief Select a Effector Component from the kernel.
+         *
+         * @param  name The name of the Effector Component to select.
+         * @return True if the Effector Component could be found and selected,
+         *         False otherwise.
+         */
         virtual bool selectEffector( const std::string& name ) = 0;
-        
+
+        /**
+         * @brief Query if a named Controller is selected.
+         * @param  name The name of the Controller Component.
+         * @return True if the Controller is selected
+         *         False otherwise.
+         */
+        virtual bool isSelectedController( const std::string& name ) const = 0;
+        /**
+         * @brief Query if a named Generator is selected.
+         * @param  name The name of the Generator Component.
+         * @return True if the Generator is selected
+         *         False otherwise.
+         */
+        virtual bool isSelectedGenerator( const std::string& name ) const = 0;
+        /**
+         * @brief Query if a named Estimator is selected.
+         * @param  name The name of the Estimator Component.
+         * @return True if the Estimator is selected
+         *         False otherwise.
+         */
+        virtual bool isSelectedEstimator( const std::string& name ) const = 0;
+        /**
+         * @brief Query if a named Sensor is selected.
+         * @param  name The name of the Sensor Component.
+         * @return True if the Sensor is selected
+         *         False otherwise.
+         */
+        virtual bool isSelectedSensor( const std::string& name ) const = 0;
+        /**
+         * @brief Query if a named Effector is selected.
+         * @param  name The name of the Effector Component.
+         * @return True if the Effector is selected
+         *         False otherwise.
+         */
+        virtual bool isSelectedEffector( const std::string& name ) const = 0;
+
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+        virtual ORO_Execution::CommandFactoryInterface* createCommandFactory();
+
+        virtual ORO_Execution::DataSourceFactory* createDataSourceFactory();
+#endif
+
         /**
          * This method can be called to abort the startup process 
          * of the kernel, when a not sane configuration was detected

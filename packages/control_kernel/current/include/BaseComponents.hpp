@@ -26,8 +26,8 @@
 namespace ORO_ControlKernel
 {
 
-    using ORO_CoreLib::NameServer;
-    using ORO_CoreLib::NameServerRegistrator;
+    //using ORO_CoreLib::NameServer;
+    //using ORO_CoreLib::NameServerRegistrator;
 
     /**
      * @defgroup kcomps All Available Control Kernel Components.
@@ -44,8 +44,8 @@ namespace ORO_ControlKernel
      */
     template < class _Aspect = DefaultBase >
     class SupportComponent
-        :  public _Aspect,
-          public NameServerRegistrator< SupportComponent< _Aspect>* >
+        :  public _Aspect
+    //, public NameServerRegistrator< SupportComponent< _Aspect>* >
     {
     public:
         typedef _Aspect Aspect;
@@ -54,17 +54,18 @@ namespace ORO_ControlKernel
          * A Support Component.
          */
         SupportComponent(const std::string& name ) 
-            : Aspect( name ), NameServerRegistrator< SupportComponent<_Aspect>* >(nameserver,name,this)
+            : Aspect( name )
+            //, NameServerRegistrator< SupportComponent<_Aspect>* >(nameserver,name,this)
         {}
 
         /**
          * The SupportComponent nameserver.
          */
-        static NameServer< SupportComponent<_Aspect>* > nameserver;
+        //static NameServer< SupportComponent<_Aspect>* > nameserver;
     };
     
-    template < class A >
-    NameServer<SupportComponent<A>*> SupportComponent<A>::nameserver;
+    //template < class A >
+    //NameServer<SupportComponent<A>*> SupportComponent<A>::nameserver;
 
     /**
      * @defgroup kcomp_controller All Available ControlKernel Controller Components
@@ -81,8 +82,8 @@ namespace ORO_ControlKernel
           public _ModelType::ReadPort,
           public _InputType::ReadPort,
           public _OutputType::WritePort,
-          public _Aspect,
-          public NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >
+          public _Aspect
+        //,public NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >
     {
     public:
         typedef typename _SetPointType::DataType SetPointType;
@@ -101,7 +102,8 @@ namespace ORO_ControlKernel
          */
         Controller() : Aspect( "Controller" ) {}
         Controller(const std::string& name ) 
-            : Aspect( name ), NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this)
+            : Aspect( name )
+            //, NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this)
         {}
             
 
@@ -145,11 +147,11 @@ namespace ORO_ControlKernel
         /**
          * The Controller nameserver.
          */
-        static NameServer< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* > nameserver;
+        //static NameServer< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* > nameserver;
     };
     
-    template <class S, class I, class M, class O, class A >
-    NameServer<Controller<S,I,M,O,A>*> Controller<S,I,M,O,A>::nameserver;
+    //template <class S, class I, class M, class O, class A >
+    //NameServer<Controller<S,I,M,O,A>*> Controller<S,I,M,O,A>::nameserver;
 
     /**
      * @defgroup kcomp_generator All Available ControlKernel Generator Components
@@ -166,8 +168,8 @@ namespace ORO_ControlKernel
           public _InputType::ReadPort,
           public _ModelType::ReadPort,
           public _SetPointType::WritePort,
-          public _Aspect,
-          public NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >
+          public _Aspect
+        //,public NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >
             
     {
     public:
@@ -186,8 +188,8 @@ namespace ORO_ControlKernel
          * Pas the Kernel id key on to the Aspect Base Class.
          */
         Generator(const std::string& name ) 
-            : Aspect( name ), 
-              NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >(nameserver,name,this) 
+            : Aspect( name )
+            //,NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >(nameserver,name,this) 
         {}
             
         /**
@@ -205,12 +207,11 @@ namespace ORO_ControlKernel
         /**
          * The Generator nameserver.
          */
-        static NameServer< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* > nameserver;
+        //static NameServer< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* > nameserver;
     };
 
-    template <class C, class I, class M, class S, class A >
-    //Generator<C,I,M,S,A>::NameServer<Generator<C,I,M,S,A>* > nameserver;
-	NameServer<Generator<C,I,M,S,A>*> Generator<C,I,M,S,A>::nameserver;
+    //template <class C, class I, class M, class S, class A >
+	//NameServer<Generator<C,I,M,S,A>*> Generator<C,I,M,S,A>::nameserver;
 
     /**
      * @defgroup kcomp_estimator All Available ControlKernel Estimator Components
@@ -225,8 +226,8 @@ namespace ORO_ControlKernel
     class Estimator
         : public _InputType::ReadPort,
           public _ModelType::WritePort,
-          public _Aspect,
-          public NameServerRegistrator< Estimator<_InputType, _ModelType, _Aspect>* >
+          public _Aspect
+        //,public NameServerRegistrator< Estimator<_InputType, _ModelType, _Aspect>* >
         
     {
     public:
@@ -241,8 +242,8 @@ namespace ORO_ControlKernel
          * Pas the Kernel id key on to the Aspect Base Class.
          */
         Estimator(const std::string& name ) 
-            : Aspect( name ), 
-              NameServerRegistrator< Estimator<_InputType, _ModelType,  _Aspect>* >(nameserver,name,this) 
+            : Aspect( name )
+              //,NameServerRegistrator< Estimator<_InputType, _ModelType,  _Aspect>* >(nameserver,name,this) 
         {}
             
 
@@ -252,11 +253,11 @@ namespace ORO_ControlKernel
         /**
          * The Estimator nameserver.
          */
-        static NameServer< Estimator<_InputType, _ModelType, _Aspect>* > nameserver;
+        //static NameServer< Estimator<_InputType, _ModelType, _Aspect>* > nameserver;
     };
 
-    template <class I, class M, class A >
-    NameServer<Estimator<I,M,A>*> Estimator<I,M,A>::nameserver;
+    //template <class I, class M, class A >
+    //NameServer<Estimator<I,M,A>*> Estimator<I,M,A>::nameserver;
 
 
     /**
@@ -271,8 +272,8 @@ namespace ORO_ControlKernel
     template <class _OutputType, class _Aspect = DefaultBase >
     class Effector
         : public _OutputType::ReadPort,
-          public _Aspect,
-          public NameServerRegistrator< Effector<_OutputType, _Aspect>* >
+          public _Aspect
+        //,public NameServerRegistrator< Effector<_OutputType, _Aspect>* >
     {
     public:
         typedef typename _OutputType::DataType OutputType;
@@ -284,19 +285,18 @@ namespace ORO_ControlKernel
          * Pas the Kernel id key on to the Aspect Base Class.
          */
         Effector(const std::string& name ) 
-            : Aspect( name ), 
-              NameServerRegistrator< Effector<_OutputType, _Aspect>* >(nameserver,name,this) 
+            : Aspect( name )
+              //,NameServerRegistrator< Effector<_OutputType, _Aspect>* >(nameserver,name,this) 
         {}
             
         /**
          * The Effector nameserver.
          */
-        static NameServer< Effector<_OutputType, _Aspect>* > nameserver;
+        //static NameServer< Effector<_OutputType, _Aspect>* > nameserver;
             
     };
-    template <class O, class A >
-    //Effector<O,A>::NameServer<Effector<O,A>* > nameserver;
-    NameServer<Effector<O,A>*> Effector<O,A>::nameserver;
+    //template <class O, class A >
+    //NameServer<Effector<O,A>*> Effector<O,A>::nameserver;
 
     /**
      * @defgroup kcomp_sensor All Available ControlKernel Sensor Components
@@ -310,8 +310,8 @@ namespace ORO_ControlKernel
     template <class _InputType, class _Aspect = DefaultBase >
     class Sensor
         : public _InputType::WritePort,
-          public _Aspect,
-          public NameServerRegistrator< Sensor<_InputType, _Aspect>* >
+          public _Aspect
+        //,public NameServerRegistrator< Sensor<_InputType, _Aspect>* >
         
     {
     public:
@@ -324,19 +324,18 @@ namespace ORO_ControlKernel
          * Pas the Kernel id key on to the Aspect Base Class.
          */
         Sensor(const std::string& name ) 
-            : Aspect( name ), 
-              NameServerRegistrator< Sensor<_InputType, _Aspect>* >(nameserver,name,this) 
+            : Aspect( name )
+              //,NameServerRegistrator< Sensor<_InputType, _Aspect>* >(nameserver,name,this) 
         {}
             
         /**
          * The Sensor nameserver.
          */
-        static NameServer< Sensor<_InputType, _Aspect>* > nameserver;
+        //static NameServer< Sensor<_InputType, _Aspect>* > nameserver;
     };
 
-    template <class I, class A >
-	//Sensor<I,A>::NameServer<Sensor<I,A>* > nameserver;
-    NameServer<Sensor<I,A>*> Sensor<I,A>::nameserver;
+    //template <class I, class A >
+    //NameServer<Sensor<I,A>*> Sensor<I,A>::nameserver;
                 
 }
 

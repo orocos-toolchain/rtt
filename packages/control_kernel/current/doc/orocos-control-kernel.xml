@@ -1539,12 +1539,6 @@ void push()
 	  There are some methods that allow easy working with named
 	  Components. Going further with the <type>MyKernel1D</type> example:
 	<programlisting>
-  // One way to retrieve a previously created generator.
-  My1DKernel::DefaultGenerator* g = 
-     MyKernel1D::DefaultGenerator::nameserver.getObject("GeneratorName"); 
-  
-  // loading a previously created generator
-  first_kernel.loadGenerator( "GeneratorName" );
 
   // ... after start of the kernel task :
   if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 

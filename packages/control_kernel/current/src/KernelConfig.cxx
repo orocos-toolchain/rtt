@@ -12,7 +12,7 @@ namespace ORO_ControlKernel
     
     KernelConfig::KernelConfig( KernelBaseFunction& _k, const std::string& _filename)
         : filename( _filename ),
-          baseBag(0), extensionBag(0), kernel(&_k)
+          baseBag(0), extensionBag(0), selectBag(0), kernel(&_k)
     {
         XMLPlatformUtils::Initialize();
     }
