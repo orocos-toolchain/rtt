@@ -29,11 +29,11 @@
 #ifndef CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 #define CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 
-#include "corelib/StateContext.hpp"
+#include "execution/StateContextTree.hpp"
 #include "execution/DataSource.hpp"
 
 namespace ORO_Execution {
-    using ORO_CoreLib::StateContext;
+    // using ORO_CoreLib::StateContext;
     using ORO_CoreLib::StateInterface;
 
     class StateDescription;
@@ -41,7 +41,7 @@ namespace ORO_Execution {
     class ParsedValueBase;
 
     class ParsedStateContext
-        : public StateContext
+        : public StateContextTree
     {
         typedef std::map<std::string, StateDescription*> StateNameMap;
         // We need to keep the pointers to subcontexts in a
@@ -55,63 +55,54 @@ namespace ORO_Execution {
         // because it will be used to call functions that accept
         // arguments of type StateContext, and the DataSource's
         // unfortunately don't know about inheritance or casting...
-        typedef std::map<std::string, DataSource<StateContext*>::shared_ptr> SubContextNameMap;
+        typedef std::map<std::string, DataSource<StateContextTree*>::shared_ptr> SubContextNameMap;
 
         typedef std::map<std::string, DataSourceBase::shared_ptr> VisibleReadOnlyValuesMap;
         typedef std::map<std::string, ParsedValueBase*> VisibleWritableValuesMap;
 
     public:
         ParsedStateContext();
-        ~ParsedStateContext();
+        virtual ~ParsedStateContext();
 
-        std::vector<std::string> getSubContextList();
-        ParsedStateContext* getSubContext( const std::string& name );
+        std::vector<std::string> getSubContextList() const;
+        ParsedStateContext* getSubContext( const std::string& name ) const;
         /**
          * Add a new SubContext to this context.  This function
          * returns the DataSource by which the program can refer to
          * the given StateContext...
          */
-        DataSource<StateContext*>* addSubContext( const std::string& name, ParsedStateContext* sc );
+        DataSource<StateContextTree*>* addSubContext( const std::string& name, ParsedStateContext* sc );
 
         ParsedStateContext* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const;
 
-        const std::map<std::string, StateDescription*>& getStates() {
+        const std::map<std::string, StateDescription*>& getStates() const {
             return states;
         }
-        std::vector<std::string> getStateList();
+        std::vector<std::string> getStateList() const;
 
-        StateDescription* getState( const std::string& name );
+        StateDescription* getState( const std::string& name ) const;
 
         // is this context currently in the state by the given name ?
-        bool inState( const std::string& name );
+        bool inState( const std::string& name ) const;
 
         void addState( const std::string& name, StateDescription* state );
 
         void addReadOnlyVar( const std::string& name, DataSourceBase* var );
         void addParameter( const std::string& name, ParsedValueBase* var );
-        DataSourceBase* getReadOnlyVar( const std::string& name );
-        ParsedValueBase* getParameter( const std::string& name );
+        DataSourceBase* getReadOnlyVar( const std::string& name ) const;
+        ParsedValueBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
         VisibleReadOnlyValuesMap getReadOnlyValues() const;
         std::vector<std::string> getParameterNames() const;
         std::vector<std::string> getReadOnlyValuesNames() const;
 
-        // make sure to have called setName before calling this.
-        // If you got this ParsedStateContext from the
-        // StateGraphParser, this should already be the case..
-        // returns false on failure ( e.g. one of the names is already
-        // taken.  In that case, all registered statecontexts are
-        // unregistered again... )
-        bool registerWithProcessor( Processor* proc );
-        void unregisterFromProcessor( Processor* proc );
-
-        DataSource<std::string>* getNameDS();
+        DataSource<std::string>* getNameDS() const;
 
         // Set the name of this context.  This also sets subcontexts'
         // names, to the given name + "." + the name they have been
         // instantiated by in this context.
         void setName( const std::string& name );
-        std::string getName();
+
     private:
         VariableDataSource<std::string>::shared_ptr nameds;
 

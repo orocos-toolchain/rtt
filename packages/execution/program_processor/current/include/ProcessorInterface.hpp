@@ -28,17 +28,21 @@
 #ifndef PROCESSORINTERFACE_HPP
 #define PROCESSORINTERFACE_HPP
 
-#include "ProgramInterface.hpp"
-#include <corelib/StateContext.hpp>
-#include <corelib/CommandInterface.hpp>
+#include <string>
+
+namespace ORO_CoreLib {
+    class CommandInterface;
+}
+
 
 namespace ORO_Execution
 {
-    using ORO_CoreLib::StateContext;
     using ORO_CoreLib::CommandInterface;
+    class StateContextTree;
+    class ProgramInterface;
 
     /**
-     * This abstract base class provides functionality to 
+     * @brief This abstract base class provides functionality to 
      * execute data on a configured system.	
      */
     class ProcessorInterface
@@ -51,7 +55,7 @@ namespace ORO_Execution
         /**
          * Load a state context
          */
-        virtual bool loadStateContext(const std::string& name, StateContext* sc) = 0; 
+        virtual bool loadStateContext(StateContextTree* sc) = 0; 
 			
         /**
          * Reset to the initial state

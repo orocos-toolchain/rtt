@@ -141,7 +141,10 @@ namespace ORO_Execution
     {
       // hm, no reason to catch here really
       throw;
-    };
+    } catch( const parser_error<std::string, iter_t>& e )
+        {
+            throw parse_exception_syntactic_error( e.descriptor );
+        }
     CommandInterface* ret = parser.getCommand();
     ConditionInterface* cond_ret = parser.getImplTermCondition();
     parser.reset();

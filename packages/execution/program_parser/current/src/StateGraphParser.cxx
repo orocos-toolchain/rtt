@@ -25,8 +25,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#define BOOST_SPIRIT_DEBUG 1
-
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
 #include "execution/StateGraphParser.hpp"
@@ -157,11 +155,11 @@ namespace ORO_Execution
         class InStateDataSource
             : public DataSource<bool>
         {
-            DataSource<StateContext*>::shared_ptr msc;
+            DataSource<StateContextTree*>::shared_ptr msc;
             DataSource<std::string>::shared_ptr mst;
         public:
             // Note that we assume that msc will always evaluate to a ParsedStateContext.
-            InStateDataSource( DataSource<StateContext*>* msc, DataSource<std::string>* mst );
+            InStateDataSource( DataSource<StateContextTree*>* msc, DataSource<std::string>* mst );
             ~InStateDataSource();
 
             bool get() const;
@@ -170,7 +168,7 @@ namespace ORO_Execution
             InStateDataSource* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
         };
 
-        InStateDataSource::InStateDataSource( DataSource<StateContext*>* sc, DataSource<std::string>* st )
+        InStateDataSource::InStateDataSource( DataSource<StateContextTree*>* sc, DataSource<std::string>* st )
             : msc( sc ), mst( st )
         {
         }
@@ -206,7 +204,7 @@ namespace ORO_Execution
             : public MapDataSourceFactory
         {
             ParsedStateContext* mpsc;
-            DataSource<StateContext*>::shared_ptr mpscds;
+            DataSource<StateContextTree*>::shared_ptr mpscds;
             std::string mscn;
             static const char* instateparamname;
             static const char* instateparamdesc;
@@ -214,7 +212,7 @@ namespace ORO_Execution
             virtual ~SubContextDataSourceFactory();
             // pscds is the DataSource that generated commands will
             // use to refer to the subcontext.
-            SubContextDataSourceFactory( ParsedStateContext* psc, DataSource<StateContext*>* pscds, const std::string& name );
+            SubContextDataSourceFactory( ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name );
 
             std::vector<std::string> dataNames() const;
             bool hasData( const std::string& s ) const;
@@ -235,7 +233,7 @@ namespace ORO_Execution
         }
 
         SubContextDataSourceFactory::SubContextDataSourceFactory(
-            ParsedStateContext* psc, DataSource<StateContext*>* pscds, const std::string& name )
+            ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name )
             : MapDataSourceFactory( psc->getReadOnlyValues() ), mpsc( psc ), mpscds( pscds ), mscn( name )
         {
           assert( !MapDataSourceFactory::hasData( "inState" ) );
@@ -582,7 +580,6 @@ namespace ORO_Execution
         assert( curstate );
         curstate->setDefined( true );
         curstate = 0;
-        curhandles.clear();
         curinitialstateflag = false;
         curfinalstateflag = false;
     }
@@ -764,7 +761,8 @@ namespace ORO_Execution
     {
         assert( curtemplatecontext );
         assert( ! curstate );
-        assert( curhandles.empty() );
+        //assert( curhandles.empty() );
+        curhandles.clear();
 
         // Check if the Initial and Final States are ok.
         if ( curtemplatecontext->getInitialState() == 0 )
@@ -971,7 +969,7 @@ namespace ORO_Execution
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );
-        DataSource<StateContext*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
+        DataSource<StateContextTree*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         ParsedAliasValue<std::string>* pv = new ParsedAliasValue<std::string>( curinstantiatedcontext->getNameDS() );

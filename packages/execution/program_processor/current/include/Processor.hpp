@@ -28,20 +28,49 @@
 #ifndef PROCESSOR_HPP
 #define PROCESSOR_HPP
 
-#include "ProcessorInterface.hpp"
+#include "execution/ProcessorInterface.hpp"
+#include "execution/StateContextTree.hpp"
+#include <os/Mutex.hpp>
 
 #include <list>
 
 namespace ORO_Execution
 {
+    class program_load_exception
+    {
+        std::string merror;
+    public:
+        program_load_exception( const std::string& error )
+            : merror( error )
+            {
+            }
+        const std::string what() const
+            {
+                return merror;
+            }
+    };
+
+    class program_unload_exception
+    {
+        std::string merror;
+    public:
+        program_unload_exception( const std::string& error )
+            : merror( error )
+            {
+            }
+        const std::string what() const
+            {
+                return merror;
+            }
+    };
+
     /**
-     * This class represents a controllable execution engine.
+     * @brief This class represents a controllable execution engine.
      * (see interfaces)
      */
     class Processor
         : public ProcessorInterface
     {
-
         public:
 
             /**
@@ -55,9 +84,12 @@ namespace ORO_Execution
 
 			virtual bool startStepping(const std::string& name);
 
-			virtual bool loadStateContext(const std::string& name, StateContext* sc);
+			virtual bool loadStateContext( StateContextTree* sc );
             virtual bool unloadStateContext( const std::string& name );
+            virtual bool activateStateContext(const std::string& name);
+            virtual bool deactivateStateContext(const std::string& name);
             virtual bool startStateContext(const std::string& name);
+            virtual bool pauseStateContext(const std::string& name);
             virtual bool stopStateContext(const std::string& name);
             virtual bool resetStateContext(const std::string& name);
             virtual bool deleteStateContext(const std::string& name);
@@ -83,42 +115,28 @@ namespace ORO_Execution
       std::vector<std::string> getProgramList();
       std::vector<std::string> getStateContextList();
 
-        struct ProgramInfo
-        {
-            ProgramInfo(const std::string&_name, ProgramInterface* p)
-                : program(p),
-                  running(false),
-                  stepping(false), name(_name) {}
-            ProgramInterface* program;
-            bool running;
-            bool stepping;
-            std::string name;
-        };
-
-        struct StateInfo
-        {
-            StateInfo(const std::string& _name, StateContext* s)
-                : state(s),
-                  init(false),running(false),final(false), stepping(true),
-                  name(_name) {}
-            StateContext* state;
-            bool init;
-            bool running;
-            bool final;
-            bool stepping;
-            std::string name;
-        };
-
+        class ProgramInfo;
+        class StateInfo;
     private:
+        void recursiveLoadStateContext( StateContextTree* sc );
+        void recursiveCheckLoadStateContext( StateContextTree* sc );
+        void recursiveUnloadStateContext( StateContextTree* sc );
+        void recursiveCheckUnloadStateContext(const StateInfo& si );
 
         typedef std::list<ProgramInfo>::iterator program_iter;
         typedef std::list<StateInfo>::iterator state_iter;
         typedef std::list<ProgramInfo>::const_iterator cprogram_iter;
         typedef std::list<StateInfo>::const_iterator cstate_iter;
-        std::list<ProgramInfo> programs;
-        std::list<StateInfo>   states;
+        std::list<ProgramInfo>* programs;
+        std::list<StateInfo>*   states;
 
         CommandInterface *command;
+
+        /**
+         * Guard state list
+         */
+        ORO_OS::Mutex statemonitor;
+        ORO_OS::Mutex progmonitor;
     };
 
 }

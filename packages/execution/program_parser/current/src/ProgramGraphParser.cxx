@@ -35,6 +35,7 @@
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ParsedValue.hpp"
+#include "execution/ConditionComposite.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -59,6 +60,7 @@ namespace ORO_Execution
         assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
         assertion<std::string> expect_expression("Expected an expression.");
         assertion<std::string> expect_command("Expected a command after 'do'.");
+        assertion<std::string> expect_and_command("Expected a command after 'and'.");
     }
 
 
@@ -149,12 +151,15 @@ namespace ORO_Execution
 
     valuechange = valuechange_parsers[ bind( &ProgramGraphParser::seenvaluechange, this ) ];
 
-    // a call statement: "do xxx until { terminationclauses }"
+    // a call statement: "do xxx <and y> <and...> until { terminationclauses }"
     callstatement = (
       str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this ) ]
-      >> expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
-      >> !terminationpart
+      >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
+      >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
       ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];
+
+    andpart = str_p("and")
+        >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
     // a function statement : "call functionname"
     funcstatement = (
@@ -217,6 +222,21 @@ namespace ORO_Execution
 
   }
 
+  void ProgramGraphParser::seencommands()
+  {
+      // Chain all implicit conditions :
+      std::vector<ConditionInterface*>::iterator it = implcond_v.begin();
+      implcond = *it;
+      while ( ++it != implcond_v.end() ) {
+          implcond = new ConditionBinaryComposite< std::logical_and<bool> >( implcond, *it ) ;
+      }
+      implcond_v.clear();
+
+      context.valueparser.setValue(
+      "done", new ParsedAliasValue<bool>(
+        new DataSourceCondition( implcond->clone() ) ) );
+  }
+
   void ProgramGraphParser::seencallstatement()
   {
       // Called after a whole command statement is parsed.
@@ -225,13 +245,14 @@ namespace ORO_Execution
       // which just moves on to the next node..
       if ( program_graph->currentEdges() == 0 )
           {
-              // either use the implicit termination condition, or use
-              // true..
-              ConditionInterface* cond = implcond ? implcond : new ConditionTrue;
-              program_graph->proceedToNext( cond, mpositer.get_position().line );
+              program_graph->proceedToNext( implcond, mpositer.get_position().line );
           }
       else
-          program_graph->proceedToNext( mpositer.get_position().line );
+          {
+              // do not need it.
+              delete implcond;
+              program_graph->proceedToNext( mpositer.get_position().line );
+      }
 
     // the done condition is no longer valid..
     context.valueparser.removeValue( "done" );
@@ -435,20 +456,21 @@ namespace ORO_Execution
     }
     catch( const parser_error<std::string, iter_t>& e )
         {
-            std::cerr << "Parse error at line "
-                      << mpositer.get_position().line
-                      << ": " << e.descriptor << std::endl;
             delete program_graph;
             program_graph = 0;
-            return 0;
+            throw file_parse_exception(
+                new parse_exception_syntactic_error( e.descriptor ),
+                mpositer.get_position().file, mpositer.get_position().line,
+                mpositer.get_position().column );
+
         }
     catch( const parse_exception& e )
     {
-      std::cerr << "Parse error at line "
-                << mpositer.get_position().line
-                << ": " << e.what() << std::endl;
       delete program_graph;
       program_graph = 0;
+      throw file_parse_exception(
+                e.copy(), mpositer.get_position().file,
+                mpositer.get_position().line, mpositer.get_position().column );
       return 0;
     }
   }
@@ -457,13 +479,49 @@ namespace ORO_Execution
   {
     // we get the data from commandparser
     program_graph->setCommand( commandparser.getCommand() );
-    implcond =  commandparser.getImplTermCondition();
+    ConditionInterface* implcond =  commandparser.getImplTermCondition();
 
     if ( !implcond )
       implcond = new ConditionTrue;
-    context.valueparser.setValue(
-      "done", new ParsedAliasValue<bool>(
-        new DataSourceCondition( implcond->clone() ) ) );
+    implcond_v.push_back(implcond); // store
+    commandparser.reset();
+  }
+
+    namespace {
+        struct CommandComposite : public CommandInterface
+        {
+            CommandInterface* _f;
+            CommandInterface* _s;
+            CommandComposite( CommandInterface* f, CommandInterface* s)
+                : _f(f), _s(s) {}
+            virtual ~CommandComposite() {
+                delete _f;
+                delete _s;
+            }
+            virtual void execute() {
+                _f->execute();
+                _s->execute();
+            }
+            virtual CommandInterface* clone() const {
+                return new CommandComposite( _f->clone(), _s->clone() );
+            }
+            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+                return new CommandComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
+            }
+        };
+    }
+            
+
+  void ProgramGraphParser::seenandcall()
+  {
+      // retrieve previous 'do' or 'and' command:
+    CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() );
+    // set composite command : (oldcmnd can be zero)
+    CommandComposite* compcmnd = new CommandComposite( oldcmnd, commandparser.getCommand() );
+    program_graph->setCommand( compcmnd );
+
+    implcond_v.push_back( commandparser.getImplTermCondition() );
+
     commandparser.reset();
   }
 

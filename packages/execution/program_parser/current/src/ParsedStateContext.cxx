@@ -36,12 +36,12 @@ namespace ORO_Execution {
 
     using ORO_CoreLib::ConditionInterface;
 
-    std::vector<std::string> ParsedStateContext::getSubContextList() {
+    std::vector<std::string> ParsedStateContext::getSubContextList() const {
         return mystd::keys( subcontexts );
     }
 
-    ParsedStateContext* ParsedStateContext::getSubContext( const std::string& name ) {
-        SubContextNameMap::iterator i = subcontexts.find( name );
+    ParsedStateContext* ParsedStateContext::getSubContext( const std::string& name ) const {
+        SubContextNameMap::const_iterator i = subcontexts.find( name );
         if ( i == subcontexts.end() )
             return 0;
         assert( dynamic_cast<ParsedStateContext*>( i->second->get() ) );
@@ -71,7 +71,7 @@ namespace ORO_Execution {
             assert( dynamic_cast<ParsedStateContext*>(  i->second->get() ) );
             ParsedStateContext* oldcontext = static_cast<ParsedStateContext*>(  i->second->get() );
             ParsedStateContext* newcontext = oldcontext->copy( replacements );
-            DataSource<StateContext*>::shared_ptr ncds = new VariableDataSource<StateContext*>( newcontext );
+            DataSource<StateContextTree*>::shared_ptr ncds = new VariableDataSource<StateContextTree*>( newcontext );
             ret->subcontexts[i->first] = ncds;
             replacements[i->second.get()] = ncds.get();
         }
@@ -142,18 +142,19 @@ namespace ORO_Execution {
             delete i->second->get();
     }
 
-    std::vector<std::string> ParsedStateContext::getStateList() {
+    std::vector<std::string> ParsedStateContext::getStateList() const {
         return mystd::keys( states );
     }
 
-    StateDescription* ParsedStateContext::getState( const std::string& name ) {
-        StateNameMap::iterator i = states.find( name );
+    StateDescription* ParsedStateContext::getState( const std::string& name ) const{
+        StateNameMap::const_iterator i = states.find( name );
         if ( i == states.end() )
             return 0;
         else return i->second;
     }
 
     ParsedStateContext::ParsedStateContext()
+        : StateContextTree( 0 ) // no parent
     {
         nameds = new VariableDataSource<std::string>( "" );
     };
@@ -163,10 +164,12 @@ namespace ORO_Execution {
         states[name] = state;
     }
 
-    DataSource<StateContext*>* ParsedStateContext::addSubContext( const std::string& name, ParsedStateContext* sc ) {
+    DataSource<StateContextTree*>* ParsedStateContext::addSubContext( const std::string& name, ParsedStateContext* sc ) {
         assert( subcontexts.find( name ) == subcontexts.end() );
-        DataSource<StateContext*>* newds = new VariableDataSource<StateContext*>( sc );
+        DataSource<StateContextTree*>* newds = new VariableDataSource<StateContextTree*>( sc );
         subcontexts[name] = newds;
+        this->addChild( sc );
+        sc->setParent( this );
         return newds;
     }
 
@@ -182,17 +185,17 @@ namespace ORO_Execution {
         // every parameter is also a readonly var...
         visiblereadonlyvalues[name] = var->toDataSource();
     }
-    DataSourceBase* ParsedStateContext::getReadOnlyVar( const std::string& name )
+    DataSourceBase* ParsedStateContext::getReadOnlyVar( const std::string& name ) const
     {
         if( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() )
             return 0;
-        return visiblereadonlyvalues[name].get();
+        return visiblereadonlyvalues.find(name)->second.get();
     }
-    ParsedValueBase* ParsedStateContext::getParameter( const std::string& name )
+    ParsedValueBase* ParsedStateContext::getParameter( const std::string& name ) const
     {
         if( parametervalues.find( name ) == parametervalues.end() )
             return 0;
-        return parametervalues[name];
+        return parametervalues.find(name)->second;
     }
 
     ParsedStateContext::VisibleWritableValuesMap ParsedStateContext::getParameters() const
@@ -215,60 +218,20 @@ namespace ORO_Execution {
         return mystd::keys( visiblereadonlyvalues );
     }
 
-    bool ParsedStateContext::inState( const std::string& name )
+    bool ParsedStateContext::inState( const std::string& name ) const
     {
         assert( getState( name ) != 0 );
         return currentState() == getState( name );
     }
 
-    bool ParsedStateContext::registerWithProcessor( Processor* proc )
-    {
-        SubContextNameMap::iterator i;
-        for ( i = subcontexts.begin(); i != subcontexts.end(); ++i )
-        {
-            ParsedStateContext* psc = static_cast<ParsedStateContext*>( i->second->get() );
-            if ( ! psc->registerWithProcessor( proc ) )
-                break;
-        }
-        if ( i == subcontexts.end() )
-        {
-            proc->loadStateContext( getName(), this );
-            return true;
-        }
-        else
-        {
-            // registering subcontext i failed.  Unregister all the
-            // previous subcontexts again...
-            for ( SubContextNameMap::iterator j = subcontexts.begin(); j != i; ++j )
-            {
-                ParsedStateContext* psc = static_cast<ParsedStateContext*>( i->second->get() );
-                psc->unregisterFromProcessor( proc );
-            }
-            return false;
-        }
-    }
-
-    void ParsedStateContext::unregisterFromProcessor( Processor* proc )
-    {
-        for ( SubContextNameMap::iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
-        {
-            ParsedStateContext* psc = static_cast<ParsedStateContext*>( i->second->get() );
-            psc->unregisterFromProcessor( proc );
-        }
-    }
-
-    DataSource<std::string>* ParsedStateContext::getNameDS()
+    DataSource<std::string>* ParsedStateContext::getNameDS() const
     {
         return nameds.get();
     }
 
-    std::string ParsedStateContext::getName()
-    {
-        return nameds->get();
-    }
-
     void ParsedStateContext::setName( const std::string& name )
     {
+        this->_name = name;
         nameds->set( name );
         for ( SubContextNameMap::iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
         {

@@ -220,6 +220,15 @@ namespace ORO_Execution
         return old;
     }
 
+    CommandInterface* ProgramGraph::getCommand( CommandNode cn )
+    {
+        // the map contains _references_ to all vertex_command properties
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get(vertex_command, *graph);
+        // access the one of current
+        return cmap[cn].getCommand();
+    }
+
     void ProgramGraph::setCommand( CommandInterface* comm )
     {
         this->setCommand(current, comm);

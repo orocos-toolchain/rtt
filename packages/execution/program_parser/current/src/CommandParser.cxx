@@ -53,6 +53,10 @@ namespace ORO_Execution
   using ORO_CoreLib::CommandNOP;
   using ORO_CoreLib::ConditionTrue;
 
+    namespace {
+        assertion<std::string> expect_methodname("Expected a method call on object.");
+        assertion<std::string> expect_args( "Expected method call arguments between ()." );
+    }
   CommandParser::CommandParser( ParseContext& c )
     : masync( true ), retcommand( 0 ),
       implicittermcondition( 0 ), context( c ),
@@ -77,8 +81,8 @@ namespace ORO_Execution
            bind( &CommandParser::seensync, this ) ]
       >> objectmethod [
            bind( &CommandParser::seenstartofcall, this ) ]
-      >> arguments[
-           bind( &CommandParser::seencallcommand, this ) ];
+      >> expect_args( arguments[
+           bind( &CommandParser::seencallcommand, this ) ]);
 
     // the "x.y" part of a function call..
     objectmethod =
@@ -86,8 +90,8 @@ namespace ORO_Execution
         commonparser.lexeme_identifier[
           bind( &CommandParser::seenobjectname, this, _1, _2 ) ]
         >> ch_p( '.' )
-        >> commonparser.lexeme_identifier[
-          bind( &CommandParser::seenmethodname, this, _1, _2 ) ]
+        >> expect_methodname( commonparser.lexeme_identifier[
+           bind( &CommandParser::seenmethodname, this, _1, _2 ) ])
         ];
   }
 

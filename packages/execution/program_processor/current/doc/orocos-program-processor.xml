@@ -71,6 +71,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>Added CommandFunctor docs</revremark>
   </revision>
+  <revision>
+    <revnumber>0.17</revnumber>
+    <date>13 August 2004</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Change in StateContext start/stop semantics</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>

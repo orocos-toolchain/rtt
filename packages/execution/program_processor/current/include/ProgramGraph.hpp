@@ -194,11 +194,16 @@ namespace ORO_Execution
         CommandNode moveTo( CommandNode _current, CommandNode _next );
 
         /**
-         * Sets a new Command on the current CommandNode and
-         * returns the previous one.
+         * Sets a new Command on the current CommandNode.
          *
          */
         void setCommand( CommandInterface* comm );
+
+        /**
+         * Get the Command on a given CommandNode.
+         *
+         */
+        CommandInterface* getCommand( CommandNode cn );
 
         /**
          * Sets a (new) command on a given CommandNode.

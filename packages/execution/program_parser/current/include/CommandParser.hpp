@@ -95,6 +95,13 @@ namespace ORO_Execution
     CommandParser( ParseContext& context );
     ~CommandParser();
 
+      bool foundObject() {
+          return !mcurobject.empty();
+      }
+      bool foundMethod() {
+          return !mcurmethod.empty();
+      }
+
     rule_t& parser()
       {
         return command;
@@ -129,6 +136,8 @@ namespace ORO_Execution
         retcommand = 0;
         implicittermcondition = 0;
         masync = true;
+        mcurobject.clear();
+        mcurmethod.clear();
       }
   };
 }

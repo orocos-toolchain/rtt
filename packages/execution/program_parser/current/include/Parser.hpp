@@ -32,6 +32,7 @@
 #include <utility>
 #include <map>
 #include <string>
+#include "parse_exception.hpp"
 
 namespace ORO_CoreLib
 {
@@ -60,38 +61,41 @@ namespace ORO_Execution
   using ORO_CoreLib::CommandInterface;
   using ORO_CoreLib::ConditionInterface;
   /**
-   * This class is the public interface
+   * @brief This class is the public interface to the
+   * Orocos Program Parser Framework.
    */
   class Parser
   {
   public:
     /**
-     * Reads out the stream, parses it, and returns a new @ref
+     * @brief Reads out the stream, parses it, and returns a new @ref
      * ProgramGraph..
-     * Throws exceptions of type parse_exception.
+     * @throw parse_exception Throws exceptions of type parse_exception.
      */
       ProgramGraph* parseProgram( std::istream& s, Processor*,
                                   GlobalFactory* );
 
     /**
-     * Reads out the stream, parses it, and returns a new @ref
+     * @brief Reads out the stream, parses it, and returns a new @ref
      * StateContext ..
-     * Throws exceptions of type file_parse_exception.
+     * @throw file_parse_exception Throws exceptions of type file_parse_exception.
      */
       std::vector<ParsedStateContext*> parseStateContext(
           std::istream& s, const std::string& filename, Processor*,
           GlobalFactory* );
 
     /**
-     * parses the string as a condition, and returns a new
+     * @brief Parses the string as a condition, and returns a new
      * ConditionInterface..  Will throw parse_exception on
      * failure... Use ext to get the data from the components..
+     * @throw parse_exception
      */
     ORO_CoreLib::ConditionInterface* parseCondition(
       std::string& s, GlobalFactory* ext );
 
       /**
-       * Parses the command in s. Throws exceptions of type parse_exception.
+       * @brief Parses the command in s.
+       * @throw parse_exception Throws exceptions of type parse_exception.
        */
       std::pair<CommandInterface*,ConditionInterface*>
       parseCommand( const std::string&s, GlobalFactory* gFact );

@@ -76,6 +76,7 @@ namespace ORO_Execution
       // The implicit termination condition we just got for the
       // current command from the CommandParser..
       ConditionInterface* implcond;
+      std::vector<ConditionInterface*> implcond_v;
 
       // last seen condition
       ConditionInterface* mcondition;
@@ -88,6 +89,8 @@ namespace ORO_Execution
 
       void startofnewstatement();
       void seencommandcall();
+      void seenandcall();
+      void seencommands();
       void seencallstatement();
 
       void seenvaluechange();
@@ -117,7 +120,7 @@ namespace ORO_Execution
       void programdef( iter_t begin, iter_t end );
       void seenprogramend();
 
-      rule_t newline, terminationclause, jumpdestination, terminationpart,
+      rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           callstatement, statement, line, content, program, valuechange_parsers,
           production, valuechange, returnstatement, function, funcstatement,
           continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement,
