@@ -111,7 +111,6 @@ namespace ExecutionClient
  {
      ParsedStateMachine* ps = executionext->getStateMachine(name);
      if (ps)
-       std::cout << "state line return " << ps->getLineNumber() << std::endl;
        return ps->getLineNumber();
      return -1;
  }
