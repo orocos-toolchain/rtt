@@ -9,7 +9,7 @@
 
 #include <corelib/marshalling/TableMarshaller.hpp>
 #include <corelib/marshalling/TableHeaderMarshaller.hpp>
-#include <corelib/TaskNonRealtime.hpp>
+#include <corelib/TaskNonRealTime.hpp>
 #include <corelib/PropertyComposition.hpp>
 
 #ifdef OROINT_OS_STDFILEIO
@@ -199,7 +199,7 @@ namespace ORO_ControlKernel
                 {
                     // create a new report server with this name.
                     reporter = new PropertyReporter<MarshallTableType>( *config, reportServer );
-                    reporterTask = new TaskNonRealtime(period, reporter);
+                    reporterTask = new TaskNonRealTime(period, reporter);
                     serverOwner = true;
                 }
                 
@@ -375,7 +375,7 @@ namespace ORO_ControlKernel
 #endif
             Property<std::string> reportServer;
 
-            TaskNonRealtime* reporterTask;
+            TaskNonRealTime* reporterTask;
             
             /**
              * A mapping of names and components.
