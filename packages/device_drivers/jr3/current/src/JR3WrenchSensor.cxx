@@ -43,7 +43,8 @@ namespace ORO_DeviceDriver
 
 JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::string type, ORO_CoreLib::Event<void(void)>& maximumload)
 
-  : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
+  : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP),
+    _my_task_context("Kuka361Axis", &_my_processor)
 {
   _maximumload_event = &maximumload;
 
@@ -63,8 +64,16 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
 
   this->checkSensorAndDSP();
 
+  // make task context
+  _my_factory = newMethodFactory( this );
+  _my_factory->add("setOffset", method( &JR3WrenchSensor::offsetSet, "add offset", "offset", "offset as Wrench"));
+  _my_factory->add("addOffset", method( &JR3WrenchSensor::offsetAdd, "set offset", "offset", "offset as Wrench"));
+  _my_task_context.methodFactory.registerObject("this", _my_factory);
+
+  // start task
   rtos_printf("(WrenchSensorJR3) Task started with period %f\n",samplePeriod);
   this->start();
+
 }
   
 
@@ -275,5 +284,14 @@ void JR3WrenchSensor::chooseFilter(float period)
     
     rtos_printf("(WrenchSensorJR3) JR3WrenchSensor chooseFilter: %i\n",_filterToReadFrom);
 };
+
+
+
+TaskContext*
+JR3WrenchSensor::getTaskContext()
+{
+  return &_my_task_context;
+}
+
 
 }; //namespace ORO_DeviceDriver

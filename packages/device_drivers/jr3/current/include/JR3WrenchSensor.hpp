@@ -35,6 +35,9 @@
 #include <corelib/Event.hpp>
 #include <device_interface/SensorInterface.hpp>
 #include <geometry/frames.h>
+#include <execution/TemplateFactories.hpp>
+#include <execution/Processor.hpp>
+#include <execution/TaskContext.hpp>
 #include "jr3dsp.h"
 
 namespace ORO_DeviceDriver
@@ -97,6 +100,8 @@ public:
     void offsetSet( const ORO_Geometry::Wrench& offsets );
     void offsetAdd( const ORO_Geometry::Wrench& offsets );
 
+    // get task context of this object
+    ORO_Execution::TaskContext* getTaskContext();
 protected:
     virtual void step() { refresh(); };
     
@@ -125,6 +130,11 @@ private:
     // The offsets currently in use
     ForceArray       _currentOffset;
     ForceArray       _rotatedOffset;
+
+    ORO_Execution::Processor   _my_processor;
+    ORO_Execution::TaskContext _my_task_context;
+    ORO_Execution::TemplateMethodFactory<Kuka361AxisHardware>* _my_factory;
+
 };
 
 
