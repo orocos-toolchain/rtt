@@ -1,0 +1,8 @@
+
+This directory contains example XML files for configuring
+control kernels and their extensions. They are similar to
+the ones shown in the Control Kernel Documentation Manual.
+The 'main' file is kernel_config.xml, the others are listed
+there in.
+
+CPF stands for Component Property Format
