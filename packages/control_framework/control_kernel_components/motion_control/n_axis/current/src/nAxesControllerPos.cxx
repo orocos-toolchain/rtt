@@ -32,13 +32,13 @@ namespace ORO_ControlKernel
 					 std::string name)
     : nAxesControllerPos_typedef(name),
       _num_axes(num_axes), 
-      _position_meas_local(num_axes),
-      _position_desi_local(num_axes),
-      _velocity_local(num_axes),
+      _position_meas(num_axes),
+      _position_meas_old(num_axes),
+      _position_desi(num_axes),
+      _position_change(num_axes),
+      _velocity_out(num_axes),
       _offset_measurement(num_axes),
-      _average_velocity(num_axes),
       _properties_read(false),
-      _is_measuring(false),
       _controller_gain("K", "Proportional Gain")
   {}
 
@@ -48,9 +48,17 @@ namespace ORO_ControlKernel
 
   void nAxesControllerPos::pull()
   {
+    // initialize
+    if (!_is_initialized){
+      _position_meas_DOI->Get(_position_meas_old);
+      _is_initialized = true;
+    }
+    else
+      _position_meas_old = _position_meas;
+
     // copy Input and Setpoint to local values
-    _position_meas_DOI->Get(_position_meas_local);
-    _position_desi_DOI->Get(_position_desi_local);
+    _position_meas_DOI->Get(_position_meas);
+    _position_desi_DOI->Get(_position_desi);
   }
 
 
@@ -58,26 +66,26 @@ namespace ORO_ControlKernel
   {
     // position feedback
     for(unsigned int i=0; i<_num_axes; i++)
-      _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
+      _velocity_out[i] = _controller_gain.value()[i] * (_position_desi[i] - _position_meas[i]);
 
 
     // check if still moving
     if (_is_moving){
-      // calculate average with weight 0.8 / 0.2
+      // calculate average position change with weight 0.8 / 0.2
       bool stopped = true;
       for (unsigned int i=0; i<_num_axes; i++){
-	_average_velocity[i] = 0.8 * _average_velocity[i] + 0.2 * abs(_velocity_local[i]);
-	if ( _average_velocity[i] > _treshold_moving)  stopped = false;
+	_position_change[i] = 0.8 * _position_change[i] + 0.2 * abs(_position_meas[i] - _position_meas_old[i]);
+	if ( _position_change[i] > _treshold_moving)  stopped = false;
       }
       if (stopped){ _is_moving = false;  _is_measuring = true;  }
     }
       
-    // measure average
+    // measure average velocity_out
       if ( _is_measuring ){
 	for (unsigned int i=0; i<_num_axes; i++)
-	  _offset_measurement[i] += _velocity_local[i] / _num_samples;
-	_num_samples--;
-	if (_num_samples == 0)  _is_measuring = false;
+	  _offset_measurement[i] += _velocity_out[i] / _num_samples;
+	_num_samples_taken++;
+	if (_num_samples_taken == _num_samples)  _is_measuring = false;
       }
   }
   
@@ -85,7 +93,7 @@ namespace ORO_ControlKernel
   
   void nAxesControllerPos::push()      
   {
-    _velocity_DOI->Set(_velocity_local);
+    _velocity_DOI->Set(_velocity_out);
   }
 
 
@@ -121,6 +129,7 @@ namespace ORO_ControlKernel
     }
 
     // initialize
+    _is_initialized = false;
     _is_measuring = false;
     _is_moving = false;
     
@@ -184,10 +193,11 @@ namespace ORO_ControlKernel
     else{
       for (unsigned int i=0; i<_num_axes; i++){
 	_offset_measurement[i] = 0;
-	_average_velocity[i] = 20 * treshold_moving;
+	_position_change[i] = 20 * treshold_moving;
       }
       _treshold_moving = treshold_moving;
       _num_samples = max(1,num_samples);
+      _num_samples_taken = 0;
       _is_moving = true;
       _is_measuring = false;
       return true;
