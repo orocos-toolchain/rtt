@@ -7,11 +7,13 @@
 #include <geometry/geometry_line.h>
 #include <geometry/motionprofile_trap.h>
 #include <geometry/orientation_singleaxis.h>
+#include <geometry/MotionProperties.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
 #include <kindyn/KinematicsComponent.hpp>
 #include <kindyn/KinematicsFactory.hpp>
 #include <corelib/EventInterfaces.hpp>
 #include <kernel_components/Simulator.hpp>
+
     
 namespace ORO_ControlKernel
 {

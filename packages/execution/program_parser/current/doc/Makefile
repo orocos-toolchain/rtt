@@ -1,24 +1,20 @@
 
 dist: dochtml docpdf
-	tar -czf orocos-os-doc.tgz \
-	orocos-os.html orocos-os.pdf \
-	FDIvsFOSI.png
+	tar -czf orocos-program-parser-doc.tgz \
+	orocos-program-parser.html orocos-program-parser.pdf
 
 docxml: dochtml docpdf
 
-dochtml: pngimages orocos-os.html
+dochtml: pngimages orocos-program-parser.html
 
-docpdf: pngimages orocos-os.pdf
+docpdf: pngimages orocos-program-parser.pdf
 
-docps: epsimages orocos-os.ps
+docps: epsimages orocos-program-parser.ps
 
-doctxt: orocos-os.txt
+doctxt: orocos-program-parser.txt
 
-pngimages: FDIvsFOSI.png
-epsimages: FDIvsFOSI.eps
-
-
-#orocos-control-kernel.html: 
+epsimages: 
+pngimages: 
 
 %.html:%.xml
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
@@ -52,4 +48,4 @@ epsimages: FDIvsFOSI.eps
 	imagemagick $< $@
 
 clean-local:
-	rm orocos-os.html
+	rm orocos-control-kernel.html

@@ -1,4 +1,9 @@
 
+dist: dochtml docpdf
+	tar -czf orocos-corelib-doc.tgz \
+	execution-collaboration.png execution-sequence.png \
+	io-overview.png tasks_threads-conceptual.png \
+	orocos-corelib.html orocos-corelib.pdf
 
 docxml: dochtml docpdf
 

@@ -755,7 +755,8 @@
 	      </table>
 	</para>
 	<para>The following image explains the life cycle of a typical
-	  component. <figure><title>Component Life Cycle</title>
+	  component. 
+	  <figure><title>Component Life Cycle</title>
 	    <mediaobject>
 	      <imageobject>
 		<imagedata fileref="component_life_cycle.png" format="PNG"/>
@@ -764,7 +765,7 @@
 		<imagedata fileref="component_life_cycle.eps" format="EPS"/>
 	      </imageobject>
 	    </mediaobject>
-	      </figure>
+	  </figure>
 	      The state the component is in is entirely dependent on the control kernel state.
 	      How control kernel methods change a components state is shown below.
 	      <figure><title>Control Kernel - Component Interaction</title>
@@ -1052,10 +1053,15 @@
 	  an abstract way. The property contains data (has a value),
 	  which is of one certain, immutable, type. Any type can be
 	  encapsulated by a Property. A Property of a double is
-	  written as : <screen>Property&lt;double&gt;
-	    d_prop;</screen>. A Property of an arbitrary type A is
-	  equally written as <screen>Property&lt; A &gt;
-	    a_prop;</screen>. This however does not enable the
+	  written as : 
+	  <screen>
+	    Property&lt;double&gt; d_prop;</screen>
+	  A Property of an arbitrary type A is
+	  equally written as 
+	  <screen>
+	    Property&lt; A &gt; a_prop;
+	  </screen> 
+	  This however does not enable the
 	  marshallers or demarshallers to know how to convert a
 	  property to a text file and vice versa. For each unknown
 	  type, the user has to write a composeProperty and

@@ -23,6 +23,8 @@ namespace ORO_CoreLib
      *
      * Example for type MyClass :
      * \code
+     * namespace ORO_CoreLib {
+     *
      *  void composeProperty(const PropertyBag& bag, Property< MyClass > &result)
      *  {
      *     PropertyBase* v_base = bag.find( result.getName() );
@@ -39,8 +41,13 @@ namespace ORO_CoreLib
      *     }
      *     // done !
 	 *  }
+     * }
      * \endcode
      *  @see PropertyDecomposion.hpp
+     *
+     *  @note <b>IMPORTANT ! <br> 
+     *        The PropertyComposition and PropertyDecomposition functions must reside
+     *        in the ORO_CoreLib namespace, or the compiler will not find them !</b>
 	 */
 	template<typename T>
 	bool composeProperty(const PropertyBag& bag, Property<T> &result)
