@@ -60,7 +60,7 @@ namespace ORO_CoreLib
     {
         std::vector<EventCallbackStub>::iterator itl;
         itl = find_if(evCallback.begin(), evCallback.end(), bind2nd(EventCallbackStub::FindStub(),eli) );
-        if (itl != end() && (*this)[eli] == eci )
+        if (itl != evCallback.end() && (*this)[eli] == eci )
             {
                 erase( eli );
                 evCallback.erase(itl);
