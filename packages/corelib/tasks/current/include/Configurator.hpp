@@ -54,7 +54,9 @@ namespace ORO_CoreLib
                     tt.tv_sec =0;
                     nanosleep(&tt, 0);
                 }
-                    
+
+            this->stop();
+
             return status;
         }
 
