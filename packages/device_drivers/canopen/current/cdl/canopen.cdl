@@ -15,4 +15,5 @@ based CANOpen bus for an industrial partner."
     requires OROPKG_DEVICE_INTERFACE_ENCODER
     
     compile CAN.cxx
+    compile BeckhoffCANCoupler.cxx
 }

@@ -376,7 +376,7 @@ namespace Beckhoff
          */
         virtual bool configStep()
         {
-            if ( i == -1 || requests[i]->isReceived() )//&& requests[i]->isExactMatch() )
+            if ( i == -1 || requests[i]->isReceived() )// && requests[i]->isExactMatch() )
             {
                 if (i == int(requests.size()) - 1 )
                     status = true;

@@ -56,12 +56,28 @@ namespace CAN
 	struct CANDeviceInterface 
         : public CANListenerInterface
     {
+        /**
+         * A CANDevice is in the PowerOff status 
+         * after construction.
+         */
+        CANDeviceInterface()
+            : status( PowerOff ) {}
         virtual ~CANDeviceInterface() {}
 
         /**
          * Returns the node ID of this device.
          */
         virtual unsigned int nodeId() const = 0;
+
+        /**
+         * The CANOpen State Diagram of a Device.
+         */
+        enum NodeStatus { PowerOff, Initialisation, PreOperational, Stopped, Operational };
+
+        /**
+         * The state of this device.
+         */
+        NodeStatus status;
 	};
 			
 }

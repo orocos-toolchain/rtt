@@ -35,7 +35,7 @@ namespace CAN
     class CANControllerInterface;
     
 	/**
-	 * An interface describing a CANBus.
+	 * @brief An interface describing a virtual CANBus.
 	 */
 	struct CANBusInterface 
     {

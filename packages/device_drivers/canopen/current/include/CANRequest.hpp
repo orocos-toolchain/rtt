@@ -40,6 +40,14 @@ namespace CAN
 
     using namespace ORO_CoreLib;
 
+    /**
+     * @brief A CAN Request contains a send CAN message and an
+     *  (expected) answer CAN message.
+     *
+     * It acts like a CANDeviceInterface on the virtual CANBusInterface
+     * and sends a request on it. It then listens until it receives
+     * a message with the same Cob Id.
+     */
     class CANRequest
         :public CANDeviceInterface
     {
@@ -92,7 +100,7 @@ namespace CAN
         }
 
         /**
-         * Abort the reception of an answer.
+         * @brief Abort the reception of an answer.
          */
         void abort()
         {
@@ -104,7 +112,7 @@ namespace CAN
         }        
     
         /**
-         * Returns true if a message with the expected CobId was received.
+         * @brief Returns true if a message with the expected CobId was received.
          */
         bool isReceived() const
         {
@@ -112,7 +120,7 @@ namespace CAN
         }
 
         /**
-         * Returns true if the timeout expired.
+         * @brief Returns true if the timeout expired.
          */
         bool isExpired() const
         {
@@ -123,8 +131,9 @@ namespace CAN
         }
     
         /**
-         * Returns true if a message was received with an exact match
+         * @brief Returns true if a message was received with an exact match
          * of the expected CANMessage.
+         *
          * An Exact match is when the CobId, DLC and data are equal to
          * the expected values.
          */

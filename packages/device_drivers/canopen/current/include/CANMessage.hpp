@@ -58,7 +58,7 @@ namespace CAN
     }
         
 	/**
-	 * A CAN message containing message sender and message data
+	 * @brief A CAN message containing message sender and message data.
 	 */
 	struct CANMessage 
 		: public CANBase
