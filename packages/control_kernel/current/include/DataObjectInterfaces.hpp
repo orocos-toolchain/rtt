@@ -108,7 +108,8 @@ namespace ORO_ControlKernel
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLocked(const std::string& _name, const std::string& _prefix = "") : name(_name) {}
+        DataObjectLocked(const std::string& _name, const std::string& _prefix = "")
+            : data(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -198,7 +199,8 @@ namespace ORO_ControlKernel
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPrioritySet(const std::string& _name, const std::string& _prefix = "") : name(_name) {}
+        DataObjectPrioritySet(const std::string& _name, const std::string& _prefix = "")
+            : data(), copy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -297,7 +299,8 @@ namespace ORO_ControlKernel
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPriorityGet(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
+        DataObjectPriorityGet(const std::string& _name, const std::string& _prefix  = std::string())
+            : data(), copy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -389,7 +392,12 @@ namespace ORO_ControlKernel
         /**
          * Internal buffer structure.
          */
-        struct DataBuf { _DataType data; mutable atomic_t counter; DataBuf* next; };
+        struct DataBuf {
+            DataBuf()
+                : data(), counter(), next()
+            {}
+            _DataType data; mutable atomic_t counter; DataBuf* next;
+        };
 
         DataBuf* read_ptr;
         DataBuf* write_ptr;
@@ -522,7 +530,8 @@ namespace ORO_ControlKernel
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObject(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
+        DataObject(const std::string& _name, const std::string& _prefix  = std::string())
+            : data(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
