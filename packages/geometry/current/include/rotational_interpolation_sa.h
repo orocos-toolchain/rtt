@@ -39,7 +39,7 @@ class RotationalInterpolation_SingleAxis: public RotationalInterpolation
 		virtual Rotation Pos(double th) const;
 		virtual Vector Vel(double th,double thd) const;
 		virtual Vector Acc(double th,double thd,double thdd)   const;
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
 		virtual RotationalInterpolation* Clone() const;

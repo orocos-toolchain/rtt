@@ -50,7 +50,7 @@ Path* Path_Point::Clone() {
 	return new Path_Point( F_base_start	);
 }
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_Point::Write(ostream& os)  {
 	os << "POINT[ "<< F_base_start  << "]"  << endl;
 }

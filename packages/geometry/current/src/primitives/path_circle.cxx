@@ -132,7 +132,7 @@ Path_Circle::~Path_Circle() {
 
 
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_Circle::Write(ostream& os) {
 	os << "CIRCLE[ ";
 	os << "  " << Pos(0) << endl;

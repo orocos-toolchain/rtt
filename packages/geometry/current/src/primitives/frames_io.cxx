@@ -24,7 +24,7 @@
 #include "geometry/frames.h"
 #include "geometry/frames_io.h"
 
-#if !(defined HAVE_FOSI) || (defined HAVE_IOSTREAM)
+#if !(defined HAVE_FOSI) || (defined OROINT_OS_STDIOSTREAM)
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>

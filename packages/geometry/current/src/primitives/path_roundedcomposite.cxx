@@ -107,7 +107,7 @@ Twist Path_RoundedComposite::Acc(double s,double sd,double sdd) const {
 	return comp->Acc(s,sd,sdd);
 }
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_RoundedComposite::Write(ostream& os)  {
 	comp->Write(os);
 }

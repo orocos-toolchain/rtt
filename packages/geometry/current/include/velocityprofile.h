@@ -66,7 +66,7 @@ class VelocityProfile
 		// returns the acceleration at <time> in the units of the input
 		// of the constructor of the derived class.
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const = 0;
 		// Writes object to a stream.
 

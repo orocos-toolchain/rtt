@@ -66,7 +66,7 @@ class Path_Line : public Path
 		virtual Frame Pos(double s) const;
 		virtual Twist Vel(double s,double sd) const ;
 		virtual Twist Acc(double s,double sd,double sdd) const;
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os);
 #endif
 		virtual Path* Clone();

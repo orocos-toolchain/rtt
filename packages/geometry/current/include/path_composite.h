@@ -81,7 +81,7 @@ class Path_Composite : public Path
 
 		virtual Path* Clone();
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		/**
 		 * Writes one of the derived objects to the stream
 		 */ 

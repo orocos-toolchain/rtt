@@ -53,7 +53,7 @@ class Trajectory_Composite: public Trajectory
 		// Adds trajectory <elem> to the end of the sequence.
 
 		virtual void Destroy();
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
 		virtual ~Trajectory_Composite();

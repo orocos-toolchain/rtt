@@ -23,6 +23,8 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <pkgconf/os.h>
+
 #include <cassert>
 #include <cmath>
 

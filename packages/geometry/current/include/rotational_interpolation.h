@@ -18,7 +18,7 @@
 
 #include "frames.h"
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 #include "frames_io.h"
 #endif
 
@@ -69,7 +69,7 @@ class RotationalInterpolation
 		 */
 		virtual Vector Acc(double theta,double thetad,double thetadd) const = 0;
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		/**
 		 * Writes one of the derived objects to the stream
 		 */ 

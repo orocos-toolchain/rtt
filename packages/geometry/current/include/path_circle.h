@@ -69,7 +69,7 @@ class Path_Circle : public Path
 		virtual Twist Vel(double s,double sd) const;
 		virtual Twist Acc(double s,double sd,double sdd) const;
 		virtual Path* Clone();
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os);
 #endif
 		virtual ~Path_Circle();

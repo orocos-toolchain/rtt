@@ -66,7 +66,7 @@ namespace ORO_Geometry {
 		virtual Twist Acc(double time) const = 0;
 		// The acceleration of the trajectory at <time>.
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const = 0;
 		static Trajectory* Read(istream& is);
 #endif

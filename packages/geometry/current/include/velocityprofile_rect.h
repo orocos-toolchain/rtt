@@ -44,7 +44,7 @@ namespace ORO_Geometry {
 		virtual double Pos(double time) const;
 		virtual double Vel(double time) const;
 		virtual double Acc(double time) const;
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
 		virtual VelocityProfile* Clone() {

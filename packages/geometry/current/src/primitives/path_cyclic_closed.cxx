@@ -57,7 +57,7 @@ Path* Path_Cyclic_Closed::Clone() {
 	return new Path_Cyclic_Closed(geom->Clone(),times, aggregate);
 }
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_Cyclic_Closed::Write(ostream& os)  {
 	os << "CYCLIC_CLOSED[ ";
 	os << "  ";geom->Write(os);os << endl;

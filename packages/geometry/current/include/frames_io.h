@@ -62,7 +62,8 @@
 
 #include "utility.h"
 
-#if HAVE_IOSTREAM
+#include <pkgconf/os.h>
+#if OROINT_OS_STDIOSTREAM
 
 #include "utility_io.h"
 #include "frames.h"
@@ -107,6 +108,6 @@ istream& operator >> (istream& is,Frame2& T);
 } // namespace Frame
 #endif
 
-#endif // HAVE_IOSTREAM
+#endif // OROINT_OS_STDIOSTREAM
 
 #endif

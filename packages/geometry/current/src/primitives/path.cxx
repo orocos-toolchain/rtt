@@ -33,7 +33,7 @@ namespace ORO_Geometry {
 
 using namespace std;
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 
 Path* Path::Read(istream& is) {
 	// auto_ptr because exception can be thrown !

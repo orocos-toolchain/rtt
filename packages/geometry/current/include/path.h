@@ -24,7 +24,7 @@
 #include <vector>
 #endif
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 #include "frames_io.h"
 #endif
 
@@ -77,7 +77,7 @@ class Path
 		 */
 		virtual Twist Acc(double s,double sd,double sdd) const  = 0;
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		/**
 		 * Writes one of the derived objects to the stream
 		 */ 

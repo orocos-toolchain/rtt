@@ -93,7 +93,7 @@ Path* Path_Composite::Clone()  {
 	return comp.release();
 }
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_Composite::Write(ostream& os)  {
 	os << "COMPOSITE[ " << endl;
 	os << "   " << dv.size() << endl;

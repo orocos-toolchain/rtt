@@ -62,7 +62,7 @@ namespace ORO_Geometry {
 		virtual Twist Acc(double time) const;
 		// The acceleration of the trajectory at <time>.
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
 

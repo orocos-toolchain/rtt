@@ -42,7 +42,7 @@ namespace ORO_Geometry {
 		virtual Twist Vel(double s,double sd) const;
 		virtual Twist Acc(double s,double sd,double sdd) const;
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 		virtual void Write(ostream& os);
 		static Path* Read(istream& is);
 #endif

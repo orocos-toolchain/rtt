@@ -87,7 +87,7 @@ Path* Path_Line::Clone() {
 	);
 }
 
-#if HAVE_IOSTREAM
+#if OROINT_OS_STDIOSTREAM
 void Path_Line::Write(ostream& os)  {
 	os << "LINE[ ";
 	os << "  " << Frame(orient->Pos(0),V_base_start) << endl;
