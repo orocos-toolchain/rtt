@@ -52,11 +52,13 @@ namespace ORO_ControlKernel
 
             cout << "Setting KernelProperties..."<<endl;
             kernel->updateProperties( baseBag->value() );
+            kernel->updateKernelProperties( baseBag->value() );
 
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.
+            // Iterate over all extensions
             ExtensionInterface::NameServerType::value_iterator it = ExtensionInterface::nameserver.getValueBegin();
-            while (it != ExtensionInterface::nameserver.getValueEnd() )
+            while (it != ExtensionInterface::nameserver.getValueEnd() && *it != kernel ) // do not update the kernelbasefunction !
                 {
                     // read the file associated with each extension
                     //cout <<"Checking "<< ExtensionInterface::nameserver.getNameByObject(*it)<<endl;
@@ -64,9 +66,11 @@ namespace ORO_ControlKernel
                     Property<string>*  extFileName;
                     if ( res && (extFileName = dynamic_cast<Property<string>* >(res)) )
                         {
+                            // We Got the filename of the Extension.
                             PropertyBag extensionConfig;
                             try 
                                 {
+                                    // Parse The properties of the Extension.
                                     LocalFileInputSource extfis(XMLString::transcode( extFileName->get().c_str() ) );
                                     parser.setStream(extfis);
                                     if ( parser.deserialize( extensionConfig ) )
@@ -74,10 +78,11 @@ namespace ORO_ControlKernel
                                             // update nameserved props.
                                             if ( (*it)->updateProperties( extensionConfig ) == false )
                                                 {
-                                                    cerr << "  Extension "<< ExtensionInterface::nameserver.getNameByObject(*it)
-                                                         << " failed to update its properties from file "
+                                                    cerr << "  The "<< ExtensionInterface::nameserver.getNameByObject(*it)
+                                                         << " Extenstion failed to update its properties from file "
                                                          << extFileName->get() <<" !"<<endl
-                                                         << "  Check your configuration files."<<endl;
+                                                         << "  The file contained valid XML, but the wrong properties."<<endl
+                                                         << "  Check your configuration files." << endl;
                                                     return false;
                                                 }
                                         } else
