@@ -431,6 +431,4 @@ static __inline__ unsigned long __ffs(unsigned long word)
 
 #define fls(x) generic_fls(x)
 
-#undef LOCK_PREFIX
-
 #endif /* _I386_BITOPS_H */

@@ -77,10 +77,6 @@ namespace ORO_OS
 
         PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
 
-#ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
-#endif
-
         mytask_name = nam2num( task->taskNameGet() );
 
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
@@ -91,6 +87,10 @@ namespace ORO_OS
 #endif
             return 0;
         }
+
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
+#endif
     
         task->rt_task = mytask;
         task->sem     = rt_sem_init( rt_get_name(0), 0 );
