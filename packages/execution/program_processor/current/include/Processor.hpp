@@ -72,6 +72,18 @@ namespace ORO_Execution
         : public ProcessorInterface
     {
         public:
+        /**
+         * The status of a Program.
+         */
+        struct ProgramStatus {
+            enum status { unloaded, stopped, running, stepmode };
+        };
+        /**
+         * The status of a StateContext.
+         */
+        struct StateContextStatus {
+            enum status { unloaded, inactive, active, running, stopped, paused, todelete };
+        };
 
             /**
              * Constructs a new Processor
@@ -95,6 +107,9 @@ namespace ORO_Execution
             virtual bool deleteStateContext(const std::string& name);
         virtual bool steppedStateContext(const std::string& name);
         virtual bool continuousStateContext(const std::string& name);
+
+        virtual ProgramStatus::status getProgramStatus(const std::string& name) const;
+        virtual StateContextStatus::status getStateContextStatus(const std::string& name) const;
 
 			virtual bool loadProgram( ProgramInterface* pi ) ;
 			virtual bool startProgram(const std::string& name);
@@ -136,7 +151,7 @@ namespace ORO_Execution
         /**
          * Guard state list
          */
-        ORO_OS::Mutex statemonitor;
+        ORO_OS::MutexRecursive statemonitor;
         ORO_OS::Mutex progmonitor;
     };
 

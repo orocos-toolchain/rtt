@@ -81,7 +81,7 @@ namespace ORO_Execution
 //         {
 //         }
 
-        const std::string& getName() { return name; }
+        const std::string& getName() const { return name; }
 
         virtual void onEntry();
 
