@@ -3203,43 +3203,7 @@ CascadeControlKernel<>
     </sect2>
   </sect1>
 
-  <appendix>
-    <title>Left-Overs</title>
-    <sect2 id="prop-intro">
-      <title>Properties</title>
-      <para>
-	Properties are a way to represent configuration options in
-	an abstract way. The property contains data (has a value),
-	which is of one certain, immutable, type. Any type can be
-	encapsulated by a Property. A Property of a double is
-	written as: 
-<screen>
-Property&lt;double&gt; d_prop;
-</screen>
-	A Property of an arbitrary type A is
-	equally written as 
-<screen>
-Property&lt; A &gt; a_prop;
-</screen> 
-	This however does not enable the
-	marshallers or demarshallers (converters) to know how to convert a
-	property to a text file and vice versa. For each unknown
-	type, the user has to write a composeProperty and
-	decomposeProperty method. How this must happen can be read
-	in the <filename>corelib/properties/base
-	  PropertyComposition.hpp</filename> and
-	<filename>corelib/properties/base
-	  PropertyDecomposition.hpp</filename> files.
-      </para>
-      <example>
-	<title>Property Composition and Decomposition</title>
-	<para> The Geometry primitives have also such custom functions
-	  which can be found in the file <filename>geometry
-	    MotionProperties.hpp</filename> file.</para>
-      </example>      
-    </sect2>
-  </appendix>
-  <appendix>
+  <sect1>
     <title>Converting Old-Style Components to New-Style</title>
     <para>
       Prior to the presented StandardControlKernel, two other kernels
@@ -3247,7 +3211,7 @@ Property&lt; A &gt; a_prop;
       gives a short overview of how to migrate these Components to
       the new Infrastructure.
     </para>
-    <sect1>
+    <sect2>
       <title>Converting from the Old StandardControlKernel</title>
       <para>
 	The Data Flow Components and Control Kernel have been adapted such that
@@ -3298,8 +3262,8 @@ Property&lt; A &gt; a_prop;
   };
 	</programlisting>
       </example>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Converting from the NSControlKernel</title>
       <para>
 	Adaptation from this kernel is quite minimal. As above,
@@ -3330,7 +3294,44 @@ Property&lt; A &gt; a_prop;
 	to define the Kernel type, this is no longer needed
 	and each component expects or writes its own DataObjects.
       </para>
-    </sect1>
+    </sect2>
+  </sect1>
+
+  <appendix>
+    <title>Left-Overs</title>
+    <sect2 id="prop-intro">
+      <title>Properties</title>
+      <para>
+	Properties are a way to represent configuration options in
+	an abstract way. The property contains data (has a value),
+	which is of one certain, immutable, type. Any type can be
+	encapsulated by a Property. A Property of a double is
+	written as: 
+<screen>
+Property&lt;double&gt; d_prop;
+</screen>
+	A Property of an arbitrary type A is
+	equally written as 
+<screen>
+Property&lt; A &gt; a_prop;
+</screen> 
+	This however does not enable the
+	marshallers or demarshallers (converters) to know how to convert a
+	property to a text file and vice versa. For each unknown
+	type, the user has to write a composeProperty and
+	decomposeProperty method. How this must happen can be read
+	in the <filename>corelib/properties/base
+	  PropertyComposition.hpp</filename> and
+	<filename>corelib/properties/base
+	  PropertyDecomposition.hpp</filename> files.
+      </para>
+      <example>
+	<title>Property Composition and Decomposition</title>
+	<para> The Geometry primitives have also such custom functions
+	  which can be found in the file <filename>geometry
+	    MotionProperties.hpp</filename> file.</para>
+      </example>      
+    </sect2>
   </appendix>
   <appendix>
     <title>Legal Notices</title>

@@ -11,11 +11,13 @@ Press any key to continue...
 "
 read -s -n1
 
+echo "Running configure in packages..."
 cd packages
 ## Repeat these two steps if you have installed
 ## new libraries which Orocos can use...
 # Detect installed software :
 ./configure
+echo "Make db..."
 # Safe the results in the ecos.db file :
 make db
 

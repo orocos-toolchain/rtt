@@ -3,12 +3,13 @@ db:
 	@find support -name "*.cdl" | xargs rm -f
 	@./config.status
 	@echo "Generating ecos.db file ..."
+	@rm -f ecos.db
 	@touch ecos.db
 	@python ecosdbgen.py >> pkgadd.db
 	@if [ -f ecos.db.in ]; then cat ecos.db.in >> pkgadd.db; fi
 	@tar -czf support.epk pkgadd.db
 	@./ecosadmin.tcl add support.epk
-#@rm support.epk
+	@rm support.epk
 
 clean:
 	@echo "Cleaning up..."
