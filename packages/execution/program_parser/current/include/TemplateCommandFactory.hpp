@@ -152,6 +152,47 @@ namespace ORO_Execution
   };
 
   /**
+   * A functor command that stores a function needing three arguments,
+   * and three DataSources to get the data from.
+   */
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  class FunctorCommand3
+    : public CommandInterface
+  {
+    FunctorT fun;
+    typename DataSource<Arg1T>::shared_ptr aa;
+    typename DataSource<Arg2T>::shared_ptr bb;
+    typename DataSource<Arg2T>::shared_ptr cc;
+  public:
+    FunctorCommand3( FunctorT f, DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c )
+        : fun( f ), aa( a ), bb( b ), cc( c )
+      {
+      };
+    void execute()
+      {
+        Arg1T a = aa->get();
+        Arg2T b = bb->get();
+        Arg3T c = cc->get();
+        fun( a, b, c );
+      };
+    std::string toString()
+      {
+        return "FunctorCommand3";
+      };
+    void reset()
+      {
+        aa->reset();
+        bb->reset();
+        cc->reset();
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new FunctorCommand3( fun, aa->clone(), bb->clone(), cc->clone() );
+      }
+  };
+
+  /**
    * helper functions for the FunctorCommand classes above
    * @{
    */
@@ -174,6 +215,13 @@ namespace ORO_Execution
   newFunctorCommand( FunctorT f, DataSource<Arg1T>* a, DataSource<Arg2T>* b  )
   {
     return new FunctorCommand2<FunctorT, Arg1T, Arg2T>( f, a, b );
+  };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  FunctorCommand3<FunctorT, Arg1T, Arg2T, Arg3T>*
+  newFunctorCommand( FunctorT f, DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c  )
+  {
+    return new FunctorCommand3<FunctorT, Arg1T, Arg2T, Arg3T>( f, a, b, c );
   };
   /**
    * @}
@@ -231,6 +279,20 @@ namespace ORO_Execution
         return std::make_pair( comg( comp, a, b ),
                                cong( comp, a, b ) );
       };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp, a, b, c ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp,
+                       DataSource<Arg1T>* a,
+                       DataSource<Arg2T>* b,
+                       DataSource<Arg3T>* c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ),
+                               cong( comp, a, b, c ) );
+      };
   };
 
   /**
@@ -252,11 +314,6 @@ namespace ORO_Execution
     ComConNullaryComposer( CommandGeneratorT com, ConditionGeneratorT con )
       : comg( com ), cong( con )
       {
-      };
-    template<typename ComponentT>
-    ComCon operator()( ComponentT* comp ) const
-      {
-        return std::make_pair( comg( comp ), cong( comp ) );
       };
 
     template<typename ComponentT, typename Arg1T>
@@ -284,6 +341,20 @@ namespace ORO_Execution
         return std::make_pair( comg( comp, a, b ),
                                cong( comp ) );
       };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp,
+                       DataSource<Arg1T>* a,
+                       DataSource<Arg2T>* b,
+                       DataSource<Arg3T>* c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ),
+                               cong( comp) );
+      };
   };
 
   /**
@@ -294,6 +365,56 @@ namespace ORO_Execution
   comcon_nullary_composer( A a, B b )
   {
     return ComConNullaryComposer<A, B>( a, b );
+  };
+
+  template<typename CommandGeneratorT, typename ConditionGeneratorT>
+  class ComConUnaryComposer
+  {
+    CommandGeneratorT comg;
+    ConditionGeneratorT cong;
+  public:
+    ComConUnaryComposer( CommandGeneratorT com, ConditionGeneratorT con )
+      : comg( com ), cong( con )
+      {
+      };
+
+    template<typename ComponentT, typename Arg1T, typename Arg2T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b ) const
+      {
+        return std::make_pair( comg( comp, a, b ), cong( comp, a ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T>
+    ComCon operator()( ComponentT* comp,
+                       DataSource<Arg1T>* a,
+                       DataSource<Arg2T>* b ) const
+      {
+        return std::make_pair( comg( comp, a, b ),
+                               cong( comp, a ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ), cong( comp, a ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ComCon operator()( ComponentT* comp,
+                       DataSource<Arg1T>* a,
+                       DataSource<Arg2T>* b,
+                       DataSource<Arg3T>* c ) const
+      {
+        return std::make_pair( comg( comp, a, b, c ),
+                               cong( comp, a ) );
+      };
+  };
+
+  /**
+   * Helper function for the ComUnaryConComposer class..
+   */
+  template<typename A, typename B>
+  ComConUnaryComposer<A, B>
+  comcon_unary_composer( A a, B b )
+  {
+    return ComConUnaryComposer<A, B>( a, b );
   };
 
   /**
@@ -345,6 +466,18 @@ namespace ORO_Execution
           // we need to evaluate lateron, otherwise it would evaluate the DS now !
           // I really see no other way (not even overriding the Arg1T() operator)
         return newFunctorCommand( bind( f, c, _1, _2 ), a, b );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b, Arg3T d ) const
+      {
+        return newFunctorCommand( bind( f, c, a, b, d ) );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    CommandInterface* operator()( ComponentT* c,
+                                  DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* d
+      ) const
+      {
+        return newFunctorCommand( bind( f, c, _1, _2, _3 ), a, b, d );
       };
   };
 
@@ -446,6 +579,38 @@ namespace ORO_Execution
   };
 
   /**
+   * An extension of FunctorCondition0 to ternary functions.  This
+   * class stores pointers to three DataSources, where it will get the
+   * arguments for the function from..
+   */
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  class FunctorCondition3
+    : public ConditionInterface
+  {
+    FunctorT fun;
+    typename DataSource<Arg1T>::shared_ptr aa;
+    typename DataSource<Arg2T>::shared_ptr bb;
+    typename DataSource<Arg2T>::shared_ptr cc;
+      bool invert;
+  public:
+    FunctorCondition3( FunctorT f, DataSource<Arg1T>* a , DataSource<Arg2T>* b, DataSource<Arg3T>*c, bool _invert )
+        : fun( f ), aa( a ), bb( b ), cc( c ), invert(_invert)
+      {
+      }
+    bool evaluate()
+      {
+        Arg1T a = aa->get();
+        Arg2T b = bb->get();
+        Arg2T c = cc->get();
+        return fun( a, b, c ) != invert;
+      }
+    ConditionInterface* clone() const
+      {
+        return new FunctorCondition3( fun, aa->clone(), bb->clone(), cc->clone(), invert );
+      };
+  };
+
+  /**
    * Helper functions for the FunctorCondition classes..
    * @{
    */
@@ -467,6 +632,13 @@ namespace ORO_Execution
     FunctorT fun, DataSource<Arg1T>* a, DataSource<Arg2T>* b , bool _invert)
   {
     return new FunctorCondition2<FunctorT, Arg1T, Arg2T>( fun, a, b, _invert );
+  };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  ConditionInterface* newFunctorCondition(
+    FunctorT fun, DataSource<Arg1T>* a, DataSource<Arg2T>* b , DataSource<Arg3T>* c, bool _invert)
+  {
+    return new FunctorCondition3<FunctorT, Arg1T, Arg2T, Arg3T>( fun, a, b, c, _invert );
   };
   /**
    * @}
@@ -515,6 +687,17 @@ namespace ORO_Execution
       {
         return newFunctorCondition( boost::bind( fun, comp, _1, _2 ), a, b, invert );
       };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ConditionInterface* operator()( ComponentT* comp, Arg1T a, Arg2T b, Arg3T c ) const
+      {
+        return newFunctorCondition( boost::bind( fun, comp, a, b, c ), invert );
+      };
+    template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
+    ConditionInterface* operator()(
+      ComponentT* comp, DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c ) const
+      {
+        return newFunctorCondition( boost::bind( fun, comp, _1, _2, _3 ), a, b, c, invert );
+      };
   };
 
   /**
@@ -528,7 +711,9 @@ namespace ORO_Execution
   };
 
   /**
-   * The command function is the function you should use to pass a
+   * @defgroup commandFactories
+   *
+   * @brief The command function is the function you should use to pass a
    * member function to the TemplateCommandFactory..  You can
    * currently only use it with a member function taking a low number
    * of arguments ( current limit is three, but this can be improved
@@ -538,7 +723,8 @@ namespace ORO_Execution
    * called when the command is executed, and the second is a function
    * that will be called as the default termination condition..
    * The condition must have the same arguments as the command or
-   * none (a Nullary condition).
+   * none (a Nullary condition) or the one argument which has the same
+   * type as the first argument of the command.
    *
    * You should pass a description for the command as the third
    * argument, and a name and description for every argument of the
@@ -631,6 +817,22 @@ namespace ORO_Execution
           ), desc, arg1name, arg1desc, arg2name, arg2desc );
   };
 
+    // same as above, but with unary terminationcondition checker
+  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T>
+  TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
+  command( ResT (ComponentT::*comf)( Arg1T, Arg2T ),
+           bool (ComponentT::*conf)( Arg1T ) const,
+           const char* desc, const char* arg1name, const char* arg1desc,
+           const char* arg2name, const char* arg2desc, bool invert = false )
+  {
+    return fun_fact<typename boost::remove_const<ComponentT>::type, ComCon,
+      typename remove_cr<Arg1T>::type,
+      typename remove_cr<Arg2T>::type>(
+        comcon_unary_composer( functor_command_generator( boost::mem_fn( comf ) ),
+                         functor_condition_generator( boost::mem_fn( conf ), invert )
+          ), desc, arg1name, arg1desc, arg2name, arg2desc );
+  };
+
   template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T,
            typename Arg3T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
@@ -666,6 +868,26 @@ namespace ORO_Execution
       typename remove_cr<Arg2T>::type,
       typename remove_cr<Arg3T>::type >(
         comcon_nullary_composer(
+          functor_command_generator( boost::mem_fn( comf ) ),
+          functor_condition_generator( boost::mem_fn( conf ), invert )
+          ), desc, arg1name, arg1desc, arg2name,
+        arg2desc, arg3name, arg3desc );
+  };
+    // Unary Condition Checking.
+  template<typename ComponentT, typename ResT, typename Arg1T, typename Arg2T,
+           typename Arg3T>
+  TemplateFactoryPart<typename boost::remove_const<ComponentT>::type, ComCon>*
+  command( ResT (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
+           bool (ComponentT::*conf)( Arg1T ) const,
+           const char* desc, const char* arg1name, const char* arg1desc,
+           const char* arg2name, const char* arg2desc,
+           const char* arg3name, const char* arg3desc, bool invert = false )
+  {
+    return fun_fact<typename boost::remove_const<ComponentT>::type, ComCon,
+      typename remove_cr<Arg1T>::type,
+      typename remove_cr<Arg2T>::type,
+      typename remove_cr<Arg3T>::type >(
+        comcon_unary_composer(
           functor_command_generator( boost::mem_fn( comf ) ),
           functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name,

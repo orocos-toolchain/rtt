@@ -95,6 +95,7 @@ namespace ORO_Execution
    * be linked with one TemplateFactoryPart that knows how to produce
    * the thing that the name is used for..  Below are standard
    * implementations for functors of various signatures.
+   * @internal
    * @{
    */
   template<typename ComponentT, typename ResultT>

@@ -44,7 +44,9 @@ namespace ORO_Execution
         : context( proc, e ), mpositer( positer ),
           conditionparser( context ),
           commandparser( context ),
-          valuechangeparser( context )
+          valuechangeparser( context ),
+          mhand(0), mevent(0), meventsink(0),
+          mcondition(0), mstate(0)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( line );
