@@ -25,6 +25,8 @@
 #include <corelib/TaskNonRealTime.hpp>
 #include <corelib/TaskPreemptible.hpp>
 #include <corelib/TaskNonPreemptible.hpp>
+#include <corelib/PriorityTask.hpp>
+#include <corelib/TaskSimulation.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -34,6 +36,9 @@ struct TestSelfRemove;
 class TasksTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TasksTest );
+    // Self Removal Test :
+    CPPUNIT_TEST( testTimer );
+
     // Start - Stop Test :
     CPPUNIT_TEST( testStartStop );
 
@@ -51,13 +56,19 @@ class TasksTest : public CppUnit::TestFixture
     TaskNonRealTime*    t_task_nrt;
     TaskNonPreemptible* t_task_np;
     TaskPreemptible*    t_task_p;
+    TaskSimulation*     t_task_sim;
+    PriorityTask<15>*   t_task_prio;
 
     TestRunnableInterface*  t_run_int_np;
     TestRunnableInterface*  t_run_int_p;
     TestRunnableInterface*  t_run_int_nrt;
+    TestRunnableInterface*  t_run_int_sim;
+    TestRunnableInterface*  t_run_int_prio;
 
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;
+
+    TaskTimerInterface* tti;
 public:
 
     void setUp();
@@ -69,6 +80,8 @@ public:
     void testStop();
 
     void testSelfRemove();
+
+    void testTimer();
 
     void testAllocation();
     void testRemoveAllocate();

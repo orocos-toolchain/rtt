@@ -29,6 +29,7 @@ EXTRA_PROGRAMS = core-test parser-test event-prof tasks-prof mtasks-prof buffers
 #CXX_FLAGS= $(CPPUNIT_CFLAGS) -g
 
 core_test_SOURCES = test-runner.cpp \
+	time_test.cpp time_test.hpp \
 	event_test.cpp event_test.hpp \
 	tasks_test.cpp tasks_test.hpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp \
@@ -77,10 +78,10 @@ program_prof_CXXFLAGS = -g -pg
 program_prof_LDFLAGS = -g -pg
 
 parser_test_SOURCES = test-runner.cpp \
-	state_test.cpp state_test.hpp \
 	dispatch_test.cpp dispatch_test.hpp \
+	types_test.cpp types_test.hpp  \
+	state_test.cpp state_test.hpp \
 	function_test.cpp function_test.hpp \
-	types_test.cpp types_test.hpp \
 	program_test.cpp program_test.hpp
 #parser_test_LDADD = $(LD_ADDS)
 #parser_test_CXXFLAGS = $(CXX_FLAGS)

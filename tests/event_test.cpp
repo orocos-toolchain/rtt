@@ -22,6 +22,7 @@
 #include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationThread.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>

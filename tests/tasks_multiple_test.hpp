@@ -30,36 +30,54 @@
 using namespace ORO_CoreLib;
 
 
-class DummyNPTask : public TaskNonPreemptible
+template<class T>
+class DummyTask : public T
 {
     unsigned int inits;
     unsigned int steps;
     unsigned int fins;
+
+    unsigned int starts;
+    unsigned int stops;
+    unsigned int okstarts;
+    unsigned int okstops;
 public:
-    DummyNPTask(double period) : TaskNonPreemptible(period), inits(0), steps(0), fins(0) {}
+    DummyTask(double period)
+        : T(period),
+          inits(0), steps(0), fins(0),
+          starts(0), stops(0),
+          okstarts(0), okstops(0) {}
+    
+    bool start() {
+        ++starts;
+        if ( T::start() ) {
+            ++okstarts;
+            return true;
+        }
+        return false;
+    }
+    bool stop() {
+        ++stops;
+        if ( T::stop() ) {
+            ++okstops;
+            return true;
+        }
+        return false;
+    }
     bool initialize() { ++inits; return true;}
     void step() { ++steps; }
     void finalize() { ++fins; }
+    unsigned int nrOfStarts() { return starts;}
+    unsigned int nrOfOKStarts() { return okstarts;}
     unsigned int nrOfInits() { return inits;}
     unsigned int nrOfSteps() { return steps;}
     unsigned int nrOfFinals() { return fins;}
+    unsigned int nrOfStops() { return stops;}
+    unsigned int nrOfOKStops() { return okstops;}
 };
 
-class DummyPTask : public TaskPreemptible
-{
-    unsigned int inits;
-    unsigned int steps;
-    unsigned int fins;
-public:
-    DummyPTask(double period) : TaskPreemptible(period), inits(0), steps(0), fins(0) {}
-    bool initialize() { ++inits; return true;}
-    void step() { ++steps; }
-    void finalize() { ++fins; }
-    unsigned int nrOfInits() { return inits;}
-    unsigned int nrOfSteps() { return steps;}
-    unsigned int nrOfFinals() { return fins;}
-};
-
+typedef DummyTask<TaskPreemptible> DummyPTask;
+typedef DummyTask<TaskNonPreemptible> DummyNPTask;
 
 /**
  * Test for starting and stopping tasks
