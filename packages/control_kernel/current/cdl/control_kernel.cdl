@@ -22,22 +22,40 @@ option is enabled."
 
     cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
 	display "Control Kernel Extensions"
+	description "
+Extensions allow to add piecewise functionality to a 
+control kernel. Examples are automatic configuration of
+components and data logging. A Component can opt-in
+to make use of an Extension. Most users will want this."
 	default_value 1
 	
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_REPORTING {
 	    display "Binary-to-text Reporting"
+	    description "
+Allow Components and DataObjects to report numerical values
+to a file or standard output. The ReportingExtension implements
+this functionality."
 	    default_value 1
 	    active_if OROPKG_CORELIB_REPORTING
 	    compile ReportingExtension.cxx
 	}
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY {
 	    display "Configure Components through properties"
+	    description "
+Configure Components using an XML property file. Configuration
+can happen at load time or runtime using the PropertyExtension."
 	    default_value 1
 	    active_if OROPKG_CORELIB_PROPERTIES
 	    compile PropertyExtension.cxx
 	}
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION {
 	    display "Program script parsing and execution"
+	    description "
+Allow Components to export methods of their interface to the
+Orocos Program Parser. This enables commandline interaction
+with Components and execution of program scripts and processing
+of state machines in a running kernel. Implemented by the
+ExecutionExtension."
 	    default_value 1
 	    active_if OROPKG_EXECUTION_PROGRAM_PARSER && OROPKG_EXECUTION_PROGRAM_PROCESSOR
 	    compile ExecutionExtension.cxx
