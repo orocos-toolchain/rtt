@@ -19,8 +19,8 @@ namespace ORO_CoreLib
 
         void stopLogger()
         {
-            Logger::log().cleanup();
-            //Logger::Release();
+	  //Logger::log().cleanup();
+	  //Logger::Release();
         }
 
         ORO_OS::InitFunction LogInit( &startLogger );
@@ -37,7 +37,9 @@ namespace ORO_CoreLib
           outloglevel(Warning),
           timestamp(0),
           started(false), showtime(true)
-    {}
+    {
+      this->start();
+    }
 
     Logger* Logger::Instance() {
         if (_instance == 0) {
@@ -81,8 +83,6 @@ namespace ORO_CoreLib
         timestamp = HeartBeatGenerator::Instance()->ticksGet();
         *this<<Logger::nl<<xtramsg<<Logger::nl;
         *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
-        if ( outloglevel == Debug )
-            *this<<" [ Debug logs are only shown on your console's std::cerr. ]"<< Logger::nl;
         *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(HeartBeatGenerator::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::nl;
         stdoutput->flush();
@@ -218,7 +218,7 @@ namespace ORO_CoreLib
             input.str("");   // clear stingstream.
         }
 
-        if ( inloglevel <= Info ) {
+        if ( inloglevel <= Info || inloglevel <= outloglevel) {
             logfile << res << filedata.str() << pf;
             outputstream << res << filedata.str() << pf;
             filedata.str("");

@@ -35,16 +35,26 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+// extern package config headers.
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB
+#include "pkgconf/corelib.h"
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+using ORO_CoreLib::Logger;
+#endif
+
 namespace ORO_OS
 {
-    SchedPolicy::SchedPolicy()
-    {
-        std::cout <<"Sched Policy Init"<<std::endl;
+  SchedPolicy::SchedPolicy()
+  {
 
-        if ( getuid() != 0 ) {
-            std::cout <<"You are not root. This program requires that you are root."<< std::endl;
-            exit(1);
-        }
+      if ( getuid() != 0 ) {
+	  std::cerr << "You are not root. This program requires that you are root." << std::endl;
+	  exit(1);
+      }
 
         /* check to see if rtai_lxrt module is loaded */
 //         struct module_info modInfo;
@@ -61,8 +71,8 @@ namespace ORO_OS
         unsigned long name = nam2num("MAINTHREAD");
         if( !(rt_task = rt_task_init(name, 10,0,0)) ) // priority, stack, msg_size
             {
-                printf("Fatal : Cannot init MainThread!");
-                exit(1);
+	      std::cerr << "Cannot rt_task_init() MainThread." << std::endl;
+	      exit(1);
             }
                 
         //rt_set_periodic_mode();
@@ -73,19 +83,24 @@ namespace ORO_OS
         rt_set_oneshot_mode();
         rt_preempt_always(1);
         start_rt_timer(0);
+#ifdef OROPKG_CORELIB_REPORTING
+      Logger::log() << Logger::Debug << "Sched Policy : RTAI Task Created" << Logger::endl;
+#endif
     }
 
     SchedPolicy::~SchedPolicy()
     {
         // we don't stop the timer
         //stop_rt_timer();
+#ifdef OROPKG_CORELIB_REPORTING
+      Logger::log() << Logger::Debug << "Sched Policy : Deleting RTAI task." << Logger::endl;
+#endif
         rt_task_delete(rt_task);
     }
 
     MemPolicy::MemPolicy(int hp, int stk)
         : alloc_heap(hp), alloc_stack(hp)
     {
-        std::cout <<"Memory Policy Init"<<std::endl;
         // stack, heap : see touchall.c in lxrt/lib
         // lock_all(stk,hp);
         mlockall(MCL_CURRENT | MCL_FUTURE );

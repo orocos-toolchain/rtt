@@ -34,6 +34,18 @@
 #include <os/startstop.h>
 #include <os/main.h>
 #include <iostream>
+
+// extern package config headers.
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB
+#include "pkgconf/corelib.h"
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+using ORO_CoreLib::Logger;
+#endif
+
 using namespace std;
 
 const char* catchflag = "--nocatch";
@@ -49,6 +61,10 @@ int main(int argc, char** argv)
         if ( strncmp(catchflag, argv[i], strlen(catchflag) ) == 0 )
             dotry = false;
         
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "ORO_main starting..." << Logger::endl;
+#endif
+
     if ( dotry ) {
         try {
             res = ORO_main(argc, argv);
@@ -71,6 +87,9 @@ int main(int argc, char** argv)
         res = ORO_main(argc, argv);
     }
 
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "ORO_main done." << Logger::endl;
+#endif
     __os_exit();
 
     return res;

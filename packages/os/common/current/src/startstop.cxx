@@ -36,6 +36,18 @@
 #include <pkgconf/os.h>
 
 #include <os/startstop.h>
+
+    
+// extern package config headers.
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB
+#include "pkgconf/corelib.h"
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+using ORO_CoreLib::Logger;
+#endif
  
 #ifdef HAVE_MANUAL_MAIN
 #include "os/MainThread.hpp"
@@ -59,8 +71,16 @@ int __os_init(int argc, char** argv )
     mainT = ORO_OS::MainThread::Instance();
 
     mainT->start();
+
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
 #endif
 
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
+#endif
     initM = ORO_OS::StartStopManager::Instance();
     return initM->start();
 }
@@ -68,10 +88,16 @@ int __os_init(int argc, char** argv )
 extern "C"
 void __os_exit(void)
 {
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
+#endif
     initM->stop();
     ORO_OS::StartStopManager::Release();
 
 #ifdef HAVE_MANUAL_MAIN
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
+#endif
     ORO_OS::MainThread::Release();
 #endif
 

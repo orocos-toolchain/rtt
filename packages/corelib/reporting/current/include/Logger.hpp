@@ -112,7 +112,7 @@ namespace ORO_CoreLib
                 input << t;
             }
             // log Info or better to log file, even if not started.
-            if ( inloglevel <= Info )
+            if ( inloglevel <= Info || inloglevel <= outloglevel )
                 filedata << t;
 #endif
             return *this;
