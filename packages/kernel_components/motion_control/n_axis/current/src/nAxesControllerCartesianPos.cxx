@@ -20,7 +20,6 @@
 
 #include "kernel_components/nAxesControllerCartesianPos.hpp"
 #include <assert.h>
-#include <geometry/frames_io.h>
 
 
 namespace ORO_ControlKernel
