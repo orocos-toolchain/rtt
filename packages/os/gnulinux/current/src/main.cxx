@@ -50,6 +50,7 @@ int main(int argc, char** argv)
             cout << " in the ORO_main() function."<<endl;
             cout << " You might have called a function which throws"<<endl;
             cout << " without a try {} catch {} block."<< endl << endl;
+            res = -1;
         }
 
     __os_exit();

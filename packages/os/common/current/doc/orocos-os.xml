@@ -49,7 +49,7 @@
       <para>
 	This document gives a short overview of the 
 	philosophy and available classes for Operating
-	System interaction within &orocos;
+	System ( threads, mutexes, etc ) interaction within &orocos;
       </para>
     </abstract>
     
@@ -61,10 +61,18 @@
 	<revremark>Initial version copied from corelib documentation.</revremark>
       </revision>
       <revision>
-	<revnumber>0.2</revnumber>
+	<revnumber>0.16</revnumber>
 	<date>31 March 2004</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>PeriodicThread and SingleThread.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>10 Dec 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Review of all sections. I have removed the kernel space
+	  sections, since it is no longer maintained. Everything in this
+	manual now applies to the GNU/Linux and RTAI/LXRT targets.</revremark>
       </revision>
     </revhistory>
 
@@ -127,14 +135,14 @@
     <para>
       Keeping the &orocos; core portable requires an extra abstraction
       of some operating system (OS) functionalities. For
-      example, we all know that a thread can be created, started,
+      example, a thread can be created, started,
       paused, scheduled, etc., but each OS uses other function calls
       to do this. &orocos; prefers C++ interfaces, which led to the
       <classname>PeriodicThread</classname> class interface as the
-      abstraction of a thread.  Each OS implements in its <filename
+      abstraction of a periodic thread.  Each OS implements in its <filename
 	class="directory">os/&lt;OS-name-here&gt;</filename> directory
       the specific system calls to get the desired effect. The
-      Mutex and MutexRecursive with MutexLock class are also commonly
+      Mutex and MutexRecursive with MutexLock and MutexTryLock class are also commonly
       used abstractions. 
     </para>
     <para>
@@ -153,91 +161,91 @@
       </figure>
       </para>
     </sect2>
-    
-    <sect2>
-      <title>Using the OS abstraction in the Linux kernel</title>
-      <para>
-	When building kernel space applications, the realtime code
-	does not run in a C++ friendly environment and we had to wrap
-	some libraries with our own headers to guarantee correct
-	functioning. If you want to use the Standard C++ library
-	(without iostreams), you can include the desired header, but
-	not a full implementation will be provided. The following
-	table contains the latest kernel-approved header files:
-      </para>
-      <note>
-	See the next section if you want full availability of
-	all libraries.
-      </note>
-      <table frame="all">
-	<title>Header Files for Kernel Applications</title>
-	<tgroup cols="3" colsep="1" rowsep="1">
-	  <thead >
-	    <row>
-	      <entry>Library</entry>
-	      <entry>Which file to include</entry>
-	      <entry>Remarks</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry align="center" valign="middle">OS
-		functionality</entry>
-	      <entry align="center"
-		  valign="middle">os/fosi.h</entry>
-	      <entry align="left" valign="middle">Include this file if
-		you want to make system calls to the underlying
-		operating system ( RTLinux, RTAI ) .</entry></row>
-	    <row>
-	      <entry align="center" valign="middle">Standard Template
-		Library (STL) and Standard C++ Library</entry>
-	      <entry align="center"
-		  valign="middle">&lt;any_header&gt;</entry>
-	      <entry align="left" valign="middle">No iostream support,
-		limited support of other standard library classes for
-		RTAI. RTLinux only supports string and
-		vector.</entry></row>
-	    <row>
-	      <entry align="center" valign="middle">Streams</entry>
-	      <entry align="center"
-		  valign="middle">os/rtstreams.hpp</entry>
-	      <entry align="left" valign="middle">Defines rt_std::cout
-		which allows realtime printing, with limited
-		functionality</entry></row>
-	    <row>
-	      <entry align="center" valign="middle">C Math
-		Library</entry>
-	      <entry align="center" valign="middle">math.h</entry>
-	      <entry align="left" valign="middle">not all functions
-		supported in RTLinux (i.e. log() )</entry></row>
-	    <row>
-	      <entry align="center" valign="middle">OS Abstraction
-		classes</entry>
-	      <entry align="center" valign="middle">
-		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp,
-		EvenInterrupt.hpp
-	      </entry>
-	      <entry align="left" valign="middle">
-		The standard provided C++ OS primitives.</entry></row>
-	  </tbody>
-	</tgroup>
-      </table> 
-      <para>
-	OSs implementing the POSIX Threads API
-	<emphasis>correctly</emphasis> greatly eases porting. Since
-	this api is not present in the Linux kernel itself, only
-	limited support is available for most functions. The next
-	sections provides an alternative.
-      </para>
-    </sect2>
+<!--     <sect2> -->
+<!--       <title>Using the OS abstraction in the Linux kernel </title> -->
+<!--       <para> -->
+<!-- 	When building kernel space applications, the realtime code -->
+<!-- 	does not run in a C++ friendly environment and we had to wrap -->
+<!-- 	some libraries with our own headers to guarantee correct -->
+<!-- 	functioning. If you want to use the Standard C++ library -->
+<!-- 	(without iostreams), you can include the desired header, but -->
+<!-- 	not a full implementation will be provided. The following -->
+<!-- 	table contains the latest kernel-approved header files: -->
+<!--       </para> -->
+<!--       <note> -->
+<!-- 	See the next section if you want full availability of -->
+<!-- 	all libraries. -->
+<!--       </note> -->
+<!--       <table frame="all"> -->
+<!-- 	<title>Header Files for Kernel Applications</title> -->
+<!-- 	<tgroup cols="3" colsep="1" rowsep="1"> -->
+<!-- 	  <thead > -->
+<!-- 	    <row> -->
+<!-- 	      <entry>Library</entry> -->
+<!-- 	      <entry>Which file to include</entry> -->
+<!-- 	      <entry>Remarks</entry> -->
+<!-- 	    </row> -->
+<!-- 	  </thead> -->
+<!-- 	  <tbody> -->
+<!-- 	    <row> -->
+<!-- 	      <entry align="center" valign="middle">OS -->
+<!-- 		functionality</entry> -->
+<!-- 	      <entry align="center" -->
+<!-- 		  valign="middle">os/fosi.h</entry> -->
+<!-- 	      <entry align="left" valign="middle">Include this file if -->
+<!-- 		you want to make system calls to the underlying -->
+<!-- 		operating system ( RTLinux, RTAI ) .</entry></row> -->
+<!-- 	    <row> -->
+<!-- 	      <entry align="center" valign="middle">Standard Template -->
+<!-- 		Library (STL) and Standard C++ Library</entry> -->
+<!-- 	      <entry align="center" -->
+<!-- 		  valign="middle">&lt;any_header&gt;</entry> -->
+<!-- 	      <entry align="left" valign="middle">No iostream support, -->
+<!-- 		limited support of other standard library classes for -->
+<!-- 		RTAI. RTLinux only supports string and -->
+<!-- 		vector.</entry></row> -->
+<!-- 	    <row> -->
+<!-- 	      <entry align="center" valign="middle">Streams</entry> -->
+<!-- 	      <entry align="center" -->
+<!-- 		  valign="middle">os/rtstreams.hpp</entry> -->
+<!-- 	      <entry align="left" valign="middle">Defines rt_std::cout -->
+<!-- 		which allows realtime printing, with limited -->
+<!-- 		functionality</entry></row> -->
+<!-- 	    <row> -->
+<!-- 	      <entry align="center" valign="middle">C Math -->
+<!-- 		Library</entry> -->
+<!-- 	      <entry align="center" valign="middle">math.h</entry> -->
+<!-- 	      <entry align="left" valign="middle">not all functions -->
+<!-- 		supported in RTLinux (i.e. log() )</entry></row> -->
+<!-- 	    <row> -->
+<!-- 	      <entry align="center" valign="middle">OS Abstraction -->
+<!-- 		classes</entry> -->
+<!-- 	      <entry align="center" valign="middle"> -->
+<!-- 		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp, -->
+<!-- 		EvenInterrupt.hpp -->
+<!-- 	      </entry> -->
+<!-- 	      <entry align="left" valign="middle"> -->
+<!-- 		The standard provided C++ OS primitives.</entry></row> -->
+<!-- 	  </tbody> -->
+<!-- 	</tgroup> -->
+<!--       </table>  -->
+<!--       <para> -->
+<!-- 	OSs implementing the POSIX Threads API -->
+<!-- 	<emphasis>correctly</emphasis> greatly eases porting. Since -->
+<!-- 	this api is not present in the Linux kernel itself, only -->
+<!-- 	limited support is available for most functions. The next -->
+<!-- 	sections provides an alternative. -->
+<!--       </para> -->
+<!--     </sect2> -->
     <sect2>
       <title>Using the OS Abstraction in Fully Supported OSes</title>
       <para>
-	The previous section explained which headers to include
-	when building Linux kernel applications. Fortunately, an
-	application does not need to run in the Linux kernel
-	to be realtime. Some OSes (like VxWorks) don't even have
-	the notion of a kernel application. RTAI/LXRT is an
+	<!-- 	The previous section explained which headers to include -->
+<!-- 	when building Linux kernel applications. Fortunately, an -->
+<!-- 	application does not need to run in the Linux kernel -->
+<!-- 	to be realtime. Some OSes (like VxWorks) don't even have -->
+<!-- 	the notion of a kernel application. --> 
+	RTAI/LXRT is an
 	environment that allows user programs to run with realtime
 	determinism next to the normal programs. The advantage is
 	that the realtime application can use normal system libraries
@@ -258,8 +266,8 @@
 	may be used, but not the native Linux ones from within
 	a hard realtime thread. Fortunately these system calls
 	can be done from a not hard realtime thread within the
-	same program. Using the Orocos provided C++ primitives
-	is always correct.
+	same program. <emphasis>Using the Orocos provided C++ primitives
+	is in any case correct.</emphasis>
       </para>
       <table frame="all">
 	<title>Header Files for Fully Supported Applications</title>
@@ -327,7 +335,7 @@
 	<para>
 	  All tasks in the realtime system have to be performed by
 	  some thread.  The OS abstraction expects an
-	  <function>int ORO_main(int argc, const char** argv)</function> 
+	  <function>int ORO_main(int argc, char** argv)</function> 
 	  function (which the user has
 	  written) and will call that after all system initialisation
 	  has been done, meaning thread creation or setting
@@ -344,47 +352,50 @@
 	  </para>
 	</note>
 	<note>
-	  Using global objects which use the OS functions before 
-	  ORO_main() entered (because they are constructed before
-	  main() ), can come into conflict with an uninitialised system.
-	  It is therefor advised not to use static global objects which
-	  use the OS primitives. Events in the CoreLib 
-	  are an example of objects which should not be constructed 
-	  as global static. Dynamic (i.e. created with new ) 
-	  global events are ok.
+	  <para>
+	    Using global objects ( or <emphasis>static</emphasis> class members )
+	    which use the OS functions before 
+	    ORO_main() is entered (because they are constructed before
+	    main() ), can come into conflict with an uninitialised system.
+	    It is therefor advised not to use static global objects which
+	    use the OS primitives. Events in the CoreLib 
+	    are an example of objects which should not be constructed 
+	    as global static. Dynamic (i.e. created with <emphasis>new</emphasis> ) 
+	    global events are ok.
+	  </para>
 	</note>
       </sect3> 
-      <sect3>
-	<title>Starting Kernel Applications</title>
-	<para>
-	<emphasis> Starting an application is a bit more complex in
-	  the kernel (RTAI, RTLinux)</emphasis>. For a program to be
-	executed in kernelspace-realtime, it has to be compiled into a
-	kernel module. Each kernel module needs exactly one
-	<function>init_module()</function> and
-	<function>cleanup_module()</function> function call. The
-	former will be called when the module is loaded, the latter
-	will be called when the module is unloaded. Our policy is to
-	put these functions in a <filename>module.c</filename>
-	file, which will call then our real C++ functions, which
-	reside in another file. 
-	</para>
-	<para>
-	  First, a special function is called to
-	  initialize all static variables your program might have.
-	  When this is done the real initialisation function is
-	  called. There we instantiate all objects we need, and
-	  finally start the services. Each service is now running as a
-	  realtime thread, using the data you provided on
-	  instantiation. Be warned that when this function exits, all
-	  local data is destroyed, that is why we allocate global
-	  variables.
-	</para>
-	<note>
-	  Writing kernel applications is doing it the hard way and
-	  is not advised for beginners. Use RTAI/LXRT instead.
-	</note>
-      </sect3>    
+<!--       <sect3> -->
+<!-- 	<title>Starting Kernel Applications</title> -->
+<!-- 	<para> -->
+<!-- 	<emphasis> Starting an application is a bit more complex in -->
+<!-- 	  the kernel (RTAI, RTLinux)</emphasis>. For a program to be -->
+<!-- 	executed in kernelspace-realtime, it has to be compiled into a -->
+<!-- 	kernel module. Each kernel module needs exactly one -->
+<!-- 	<function>init_module()</function> and -->
+<!-- 	<function>cleanup_module()</function> function call. The -->
+<!-- 	former will be called when the module is loaded, the latter -->
+<!-- 	will be called when the module is unloaded. Our policy is to -->
+<!-- 	put these functions in a <filename>module.c</filename> -->
+<!-- 	file, which will call then our real C++ functions, which -->
+<!-- 	reside in another file.  -->
+<!-- 	</para> -->
+<!-- 	<para> -->
+<!-- 	  First, a special function is called to -->
+<!-- 	  initialize all static variables your program might have. -->
+<!-- 	  When this is done the real initialisation function is -->
+<!-- 	  called. There we instantiate all objects we need, and -->
+<!-- 	  finally start the services. Each service is now running as a -->
+<!-- 	  realtime thread, using the data you provided on -->
+<!-- 	  instantiation. Be warned that when this function exits, all -->
+<!-- 	  local data is destroyed, that is why we allocate global -->
+<!-- 	  variables. -->
+<!-- 	</para> -->
+<!-- 	<note> -->
+<!-- 	  Writing kernel applications is doing it the hard way and -->
+<!-- 	  is not advised for beginners. Use RTAI/LXRT instead. -->
+<!-- 	</note> -->
+<!--       </sect3>     -->
     </sect2>
     <sect2>
       <title>The Orocos Thread System</title>
@@ -413,8 +424,8 @@
 	<classname>PeriodicThreadInterface</classname> : <classname>
 	  PeriodicThread</classname>, which creates a thread
 	according to the operating system you are compiling for.
-	However, you are encouraged <emphasis>NOT</emphasis> to use it
-	! The CoreLib uses this class as a basis to provide a more
+	However, you are encouraged <emphasis>NOT</emphasis> to use it!
+	  The CoreLib uses this class as a basis to provide a more
 	fundamental task-based (as opposite to thread based)
 	execution mechanism which allows to write applications
 	more efficiently. It is provided in the corelib/task package.
@@ -524,7 +535,7 @@
       <sect3>
 	<title>Signals and Semaphores</title>
 	<para>
-	  Orocos does not provide a semaphore abstraction. The higher level
+	  Orocos does not yet provide a semaphore abstraction. The higher level
 	  Event implementation in CoreLib can be used for thread safe signalling and
 	  data exchange.
 	</para>
