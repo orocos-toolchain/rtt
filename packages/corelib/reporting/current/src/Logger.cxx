@@ -1,3 +1,31 @@
+/***************************************************************************
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  Logger.cxx 
+
+                        Logger.cxx -  description
+                           -------------------
+    begin                : Mon January 10 2005
+    copyright            : (C) 2005 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+ 
+ ***************************************************************************
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public            *
+ *   License as published by the Free Software Foundation; either          *
+ *   version 2.1 of the License, or (at your option) any later version.    *
+ *                                                                         *
+ *   This library is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
+ *                                                                         *
+ *   You should have received a copy of the GNU Lesser General Public      *
+ *   License along with this library; if not, write to the Free Software   *
+ *   Foundation, Inc., 59 Temple Place,                                    *
+ *   Suite 330, Boston, MA  02111-1307  USA                                *
+ *                                                                         *
+ ***************************************************************************/
+ 
+ 
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
@@ -45,6 +73,7 @@ namespace ORO_CoreLib
     void Logger::start() {
         if (started)
             return;
+#ifndef OROBLD_DISABLE_LOGGING
         ORO_OS::MutexLock lock( startguard );
         started = true;
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
@@ -71,6 +100,7 @@ namespace ORO_CoreLib
         *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(HeartBeatGenerator::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::nl;
         stdoutput->flush();
+#endif
     }
 
     void Logger::cleanup() {
