@@ -51,10 +51,10 @@ namespace ORO_Geometry {
 	class Trajectory 
 	{
 	public:
-        //virtual Path*      GetPath() = 0;
+        virtual Path*      GetPath() = 0;
         // The underlying Path
 
-        //virtual VelocityProfile* GetProfile() = 0;
+        virtual VelocityProfile* GetProfile() = 0;
         // The velocity profile
        
 		virtual double Duration() const = 0;

@@ -243,12 +243,15 @@ INLINE FVectorVSIZE2<T,N,S> LinComb(const T& alfa,const FVectorVSIZE2<T,N,S>& a,
     return tmp;
 }
 
+ #if 0
+// beta is unknown
 template <class T,int N,class S>
 INLINE void LinCombR(const T& alfa,const FVectorVSIZE2<T,N,S>& a,
                      const T&,const FVectorVSIZE2<T,N,S>& b,FVectorVSIZE2<T,N,S>& result ) {
             int i;
             i=VSIZE;while (i--) LinCombR(alfa,a[i],beta,b[i],result[i]);
 }
+#endif
 
 
 
