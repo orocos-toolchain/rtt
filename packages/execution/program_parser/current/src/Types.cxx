@@ -57,18 +57,18 @@ namespace ORO_Execution
     TaskAttributeBase* buildConstant()
       {
         return new TaskConstant<T>();
-      };
+      }
     TaskAttributeBase* buildVariable()
       {
         return new TaskVariable<T>();
-      };
+      }
     TaskAttributeBase* buildAlias( DataSourceBase* b )
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
         return new TaskAliasAttribute<T>( ds );
-      };
+      }
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type.
@@ -102,13 +102,13 @@ namespace ORO_Execution
 
   TypeInfo::~TypeInfo()
   {
-  };
+  }
 
   TypeInfoRepository& TypeInfoRepository::instance()
   {
     static TypeInfoRepository s;
     return s;
-  };
+  }
 
   TypeInfo* TypeInfoRepository::type( const std::string& name )
   {
@@ -116,11 +116,11 @@ namespace ORO_Execution
     if ( i == data.end() )
       return 0;
     else return i->second;
-  };
+  }
 
   TypeInfoRepository::~TypeInfoRepository()
   {
-  };
+  }
 
   // check the validity of an index
   bool D6IndexChecker( int i )
@@ -150,6 +150,5 @@ namespace ORO_Execution
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
     data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, bool (*)(int)>( &D6IndexChecker );
-
-  };
+  }
 }
