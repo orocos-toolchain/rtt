@@ -14,7 +14,7 @@
 <article>
   <artheader>
     <title>
-      The OROCOS Project 
+      The Orocos Program Parser
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <authorgroup>
@@ -41,6 +41,12 @@
 	<date>20 Aug 2003</date>
 	<authorinitials>DD</authorinitials>
 	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.11</revnumber>
+	<date>31 Oct 2003</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Updated to reflect new release</revremark>
       </revision>
     </revhistory>
 
