@@ -541,8 +541,8 @@ namespace ORO_CoreLib
                 if ( t_bag != 0  && t_bag->get().getType() == string("MotCon::Twist") )
                     {
                         // pass this bag to the vector Composers
-                        VectorComposer vas_vel( *t_bag );
-                        VectorComposer vas_rot( *t_bag );
+                        VectorComposer vas_vel( t_bag->get() );
+                        VectorComposer vas_rot( t_bag->get() );
 
                         return vas_vel.getResult( t.value().vel,"Trans_Vel") && vas_rot.getResult( t.value().rot,"Rot_Vel" );
                     }
@@ -575,8 +575,8 @@ namespace ORO_CoreLib
                 if ( w_bag != 0  && w_bag->get().getType() == string("MotCon::Wrench") )
                     {
                         // pass this bag to the vector Composers
-                        VectorComposer vas_force( *w_bag );
-                        VectorComposer vas_torque( *w_bag );
+                        VectorComposer vas_force( w_bag->get() );
+                        VectorComposer vas_torque( w_bag->get() );
 
                         return vas_force.getResult( w.value().force,"Force") && vas_torque.getResult( w.value().torque, "Torque" );
                     }
