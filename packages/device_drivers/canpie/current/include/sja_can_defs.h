@@ -1,7 +1,7 @@
 /************************************************************************/
 /*																		*/
 /*																		*/
-/* 			INCLUDE FILE FOR LVD CAN COMMUNICATION 					    */
+/* 			INCLUDE FILE FOR SJA CAN COMMUNICATION 					    */
 /*																		*/
 /*			Cedric Herreman  18/06/02									*/
 /*																		*/

@@ -1,7 +1,7 @@
 #ifndef PELICAN_H
 #define PELICAN_H
 
-#include "lvd_can_mod.h"
+#include "sja_can_defs.h"
 #include <asm/io.h>
 
 /************************************************************************/

@@ -38,6 +38,7 @@ Only LXRT currently supports userspace code to call the kernel module."
 	define_proc {
             puts $::cdl_header "#define OROIMP_DEVICE_DRIVERS_CANPIE_T void"
         }
+	compile canpie_lxrtlib.c
 }
 
 cdl_option OROFUN_DEVICE_DRIVERS_CANPIE_IK {
@@ -59,13 +60,13 @@ SJA1000 CAN controller."
     default_value 1
 
     define_proc {
-	puts $::cdl_header "#define OROBLD_DEVICE_DRIVERS_CP_CORE_H cpcore_lvd.h"
+	puts $::cdl_header "#define OROBLD_DEVICE_DRIVERS_CP_CORE_H cpcore_sja.h"
     }
 
     implements OROINT_DEVICE_DRIVERS_CP_CORE
     
     make -priority=100 {
-	cpcore.o: $(REPOSITORY)/$(PACKAGE)/src/cpcore_lvd.c
+	cpcore.o: $(REPOSITORY)/$(PACKAGE)/src/cpcore_sja.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -DMODULE -D__KERNEL__ -c $< -o $@
     }
 }

@@ -38,7 +38,7 @@
 #include "can/cpfilter.h"
 #include "can/cpmacro.h"
 
-/* LVD: Include header for LVD CAN controller */
+/* SJA: Include header for SJA CAN controller */
 #include "can/pelican.h" 
 
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
@@ -54,9 +54,9 @@
  unsigned int cp_trns_int;
 
 
-//#define LVD_DEBUG
+//#define SJA_DEBUG
 
-#ifdef LVD_DEBUG
+#ifdef SJA_DEBUG
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 #define DEBUG(...) rt_printk(__VA_ARGS__)
 #else
@@ -609,7 +609,7 @@ _U08 Cp_PREFIX CpCoreHDI(_U08 ubChannelV, CpStruct_HDI * pHdiV)
    //----------------------------------------------------------------
    // insert the driver name here
    //
-   pHdiV->v_DriverName    = "LVD CAN driver for eNET-CAN (PC-104)";
+   pHdiV->v_DriverName    = "SJA CAN driver for eNET-CAN (PC-104)";
 
 
    //----------------------------------------------------------------
