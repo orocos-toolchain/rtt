@@ -19,6 +19,13 @@
 #define __CHANNEL_P_CONTROLLER_H__
 
 #include <control_kernel/DataServer.hpp>
+#include <control_kernel/KernelInterfaces.hpp>
+#include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
+
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -34,13 +41,23 @@ namespace ORO_ControlKernel
         }
     };
 
+    struct CPC_Input
+        : ServedTypes< std::vector<double> > 
+    {
+    };
+
+    struct CPC_SetPoint
+        : ServedTypes< std::vector<double> > 
+    {
+    };
+
   /**
    *  @brief A simple P controller which operates on signals.
    *  - In: Position Setpoints and Model
    *  - Out: Velocity sendpoints to send to the effector
    *  @ingroup kcomps kcomp_controller 
    */
-  template <class Base>
+  template <class Base = Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<Channel_P_Controller_Output>, MakeExtension<PropertyExtension, KernelBaseFunction>::CommonBase > >
   class Channel_P_Controller
     : public Base
   {
@@ -77,6 +94,8 @@ namespace ORO_ControlKernel
 
 
 #include "Channel_P_Controller.inc"
+
+    extern template class Channel_P_Controller<>;
 
 }
 

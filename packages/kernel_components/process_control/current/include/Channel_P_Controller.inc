@@ -60,7 +60,7 @@ template <class Base>
 bool Channel_P_Controller<Base>::updateProperties(const PropertyBag& bag)
 {
   composeProperty(bag, _controller_gain);
-  cerr << "Channel_P_Controller::updateProperties() : _K = " << _controller_gain.value() << endl;
+  std::cerr << "Channel_P_Controller::updateProperties() : _K = " << _controller_gain.value() << std::endl;
   return true;
 }
 

@@ -7,6 +7,13 @@ processing signals. It is usefull for rapid testing
 hardware with one analog io card or generating/
 controlling processes.
 "
+    requires OROPKG_CONTROL_KERNEL
+
     include_dir kernel_components
+
+    compile SignalGenerator.cxx
+    compile SignalTracker.cxx
+    compile FeedForwardController.cxx
+    compile Channel_P_Controller.cxx
 }
 
