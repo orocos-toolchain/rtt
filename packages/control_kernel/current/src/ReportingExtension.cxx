@@ -85,7 +85,7 @@ namespace ORO_ControlKernel
 #ifdef OROINT_OS_STDIOSTREAM
           toFile("WriteToFile","", false),
 #endif
-          reportServer("ReportServer","The name of the report server", "Default"),
+          reportServer("ReportServer","The name of the report server", _base->getKernelName() ),
           autostart("AutoStart","Start reporting automatically.", true),
           serverOwner(false), count( 0 ),
           base(_base)

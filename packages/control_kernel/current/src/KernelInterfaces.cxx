@@ -228,6 +228,10 @@ MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
               method
               ( &KernelBaseFunction::startSensor ,
                 "Start a Sensor Component", "Name", "The name of the Sensor" ) );
+    ret->add( "startEffector", 
+              method
+              ( &KernelBaseFunction::startEffector ,
+                "Start a Effector Component", "Name", "The name of the Effector" ) );
     ret->add( "stopEffector", 
               method
               ( &KernelBaseFunction::stopEffector ,
@@ -281,6 +285,8 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
     ret->add( "isLoaded", 
               data( &KernelBaseFunction::isLoaded, "Check if this Component is loaded.",
                     "Name", "The name of the Component") );
+    ret->add( "isRunning", 
+              data( &KernelBaseFunction::isRunning, "Check if the Kernel is running."  ) );
     return ret;
 }
 

@@ -61,6 +61,18 @@
       </listitem>
     </itemizedlist>
     </section>
+    <section>
+      <title>RTAI/LXRT</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    A patch has been made  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">
+	    online</ulink> available. You should apply it to your rtai directory in order to fix the 'left over' semaphores
+	    bug in RTAI/LXRT.
+	  </para>
+      </listitem>
+    </itemizedlist>
+    </section>
   </section>
   <section id="doc">
     <title>Documentation Improvements</title>
@@ -68,7 +80,7 @@
       <listitem>
 	<para>
 	  A Logging section has been added to the CoreLib Manual. Small updates
-	  in the ControlKernel Manual.
+	  in the ControlKernel Manual wrt ReportingExtension and PropertyExtension.
 	</para>
       </listitem>
     </itemizedlist>
@@ -82,6 +94,12 @@
 	  class. This feature should enable tracing and debugging your application much better.
 	  See the CoreLib Manual and API for details. Every Orocos user will be able to
 	  track application progress in an automatically generated <filename>orocos.log</filename> file.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The CPFDemarshaller has improved error detection and logging. This has especially
+	  effect on the ControlKernel PropertyExtension.
 	</para>
       </listitem>
     </itemizedlist>
@@ -99,8 +117,14 @@
       </listitem>
       <listitem>
 	<para>
-	  The Property extension is more robust against missing configuration
-	  files.
+	  The Property extension is far more robust against and informative about
+	  missing or malformed configuration files.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Property extension has implemented the 'SaveProperties' property flag
+	  which writes out the properties of each component to a file.
 	</para>
       </listitem>
     </itemizedlist>

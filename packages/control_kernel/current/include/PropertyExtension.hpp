@@ -192,6 +192,16 @@ PropertyExtension* master;
         Property<bool> configureOnLoad;
 
         /**
+         * Set to true to ignore missing property files. If set to false (default),
+         * each missing property file will be replaced by an empty property bag upon
+         * configuration, allowing an updateProperties() to fail ( and thus not start
+         * the ControlKernel).
+         */
+        Property<bool> ignoreMissingFiles;
+
+        Property<std::string> saveFilePrefix;
+        Property<std::string> saveFileExtension;
+        /**
          * The base kernel of this extension.
          */
         ControlKernelInterface* base;

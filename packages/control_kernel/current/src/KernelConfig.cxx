@@ -70,7 +70,7 @@ namespace ORO_ControlKernel
             if (base)
                 baseBag = dynamic_cast<Property<PropertyBag>*>(base);
             else
-                Logger::log() << Logger::Warning << "KernelConfig : "
+                Logger::log() << Logger::Warning << "KernelConfig: "
                               << filename 
                               << " : No KernelProperties defined." << Logger::endl;
 
@@ -78,7 +78,7 @@ namespace ORO_ControlKernel
             if (extension)
                 extensionBag = dynamic_cast<Property<PropertyBag>*>(extension);
             else
-                Logger::log() << Logger::Warning << "KernelConfig : "
+                Logger::log() << Logger::Warning << "KernelConfig: "
                               << filename 
                               << " : No Extensions listed." << Logger::endl;
 
@@ -86,19 +86,19 @@ namespace ORO_ControlKernel
             if (complist)
                 selectBag = dynamic_cast<Property<PropertyBag>*>(complist);
             else
-                Logger::log() << Logger::Info << "KernelConfig : "
+                Logger::log() << Logger::Info << "KernelConfig: "
                               << filename 
                               << " : No KernelComponents listed." << Logger::endl;
 
             if ( baseBag == 0 )
                 {
-                    Logger::log() << Logger::Error << "KernelConfig : "
+                    Logger::log() << Logger::Error << "KernelConfig: "
                                   << filename 
                                   << " : No valid KernelProperties found." << Logger::endl;
                     return false; // failed !
                 }
 
-            Logger::log() << Logger::Debug << "KernelConfig : "
+            Logger::log() << Logger::Debug << "KernelConfig: "
                           << filename 
                           << " : Setting KernelProperties." << Logger::endl;
 
@@ -112,7 +112,7 @@ namespace ORO_ControlKernel
             // Iterate over all extensions
             if ( kernel->getExtensions().empty() )
                 Logger::log() << Logger::Debug
-                              << "No Extensions present in this kernel." << Logger::endl;
+                              << "KernelConfig: No Extensions present in this kernel." << Logger::endl;
 
             vector<ExtensionInterface*>::const_iterator it = kernel->getExtensions().begin();
             while (it != kernel->getExtensions().end() )
@@ -121,7 +121,7 @@ namespace ORO_ControlKernel
                     // does not have an extension property file.
                     if ( (*it)->getName() == "Kernel" ) {
                         if ( (*it)->updateProperties( kernelbasebag ) ==  false )
-                            Logger::log() <<Logger::Error << "  The KernelBaseFunction failed to update its properties from file "
+                            Logger::log() <<Logger::Error << "The KernelBaseFunction failed to update its properties from file "
                                           << filename <<" !"<<Logger::nl
                                           << "  The file contained valid XML, but the wrong properties."<< Logger::nl
                                           << "  Check your configuration files." << Logger::endl;
@@ -142,13 +142,15 @@ namespace ORO_ControlKernel
                                     delete[] fname;
                                     parser.setStream(extfis);
                                     // We Got the filename of the Extension.
+                                    Logger::log() <<Logger::Info << "KernelConfig: Parsing "
+                                                  << extFileName->get() <<"."<<Logger::endl;
                                     PropertyBag extensionConfig;
                                     if ( parser.deserialize( extensionConfig ) )
                                         {
                                             // update nameserved props.
                                             if ( (*it)->updateProperties( extensionConfig ) == false )
                                                 {
-                                                    Logger::log() <<Logger::Error<< "  The "<< (*it)->getName()
+                                                    Logger::log() <<Logger::Error<< "KernelConfig: The "<< (*it)->getName()
                                                          << " Extension failed to update its properties from file "
                                                                   << extFileName->get() <<" !"<<Logger::nl
                                                          << "  The file contained valid XML, but the wrong properties."<< Logger::nl
@@ -157,7 +159,7 @@ namespace ORO_ControlKernel
                                                 }
                                         } else
                                             {
-                                                Logger::log() <<Logger::Error << "File "<< extFileName->get() <<" found but unable to parse !"<<Logger::endl;
+                                                Logger::log() <<Logger::Error << "KernelConfig: File "<< extFileName->get() <<" found but unable to parse !"<<Logger::endl;
                                                 return false;
                                             }
                                     flattenPropertyBag( extensionConfig );
@@ -165,20 +167,20 @@ namespace ORO_ControlKernel
                                 } catch (...)
                                     {
                                         delete[] fname;
-                                        Logger::log() <<Logger::Error << "File "<< extFileName->get() <<" not found !"<<Logger::endl;
+                                        Logger::log() <<Logger::Error << "KernelConfig: File "<< extFileName->get() <<" not found !"<<Logger::endl;
                                         return false;
                                     }
                         
                         }
                     else {
                         Logger::log() <<Logger::Info
-                                      << "Extension \'" << (*it)->getName() << Logger::nl 
+                                      << "KernelConfig: Extension \'" << (*it)->getName() << Logger::nl 
                                       << "\' is present in the Control Kernel, but not listed in the file \'"
                                       << filename <<"\'."<<endl;
                         PropertyBag emptyBag;
                         if ( (*it)->updateProperties(emptyBag) == false) {
                             Logger::log() <<Logger::Error
-                                          << "Extension \'" << (*it)->getName() << Logger::nl 
+                                          << "KernelConfig: Extension \'" << (*it)->getName() << Logger::nl 
                                           << "\' did not accept empty properties. List its property file in \'"
                                           << filename <<"\'."<<endl;
                             return false;
@@ -189,7 +191,7 @@ namespace ORO_ControlKernel
             // this updates the user's properties
             if ( kernel->updateKernelProperties( baseBag->value() ) == false ) {
                 Logger::log() <<Logger::Error
-                              << "User's updateKernelProperties returned false with properties from"
+                              << "KernelConfig: User's updateKernelProperties returned false with properties from"
                               << "\'" << filename <<"\'."<<endl;
                 return false;
             }
@@ -197,7 +199,7 @@ namespace ORO_ControlKernel
             {
                 delete[] fname;
                 Logger::log() <<Logger::Error
-                              <<"Kernel config file "<<filename<<" not found !"<<endl;
+                              <<"KernelConfig: file "<<filename<<" not found !"<<endl;
                 return false;
             }
 

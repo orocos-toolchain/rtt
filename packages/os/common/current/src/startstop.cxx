@@ -94,12 +94,17 @@ void __os_exit(void)
     initM->stop();
     ORO_OS::StartStopManager::Release();
 
-#ifdef HAVE_MANUAL_MAIN
-#ifdef OROPKG_CORELIB_REPORTING
+#if defined(HAVE_MANUAL_MAIN) && defined(OROPKG_CORELIB_REPORTING)
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
+#endif
+
+    // Stop logging
+#ifdef OROPKG_CORELIB_REPORTING
     Logger::Release();
 #endif
+    // Stop Main Thread
+#ifdef HAVE_MANUAL_MAIN
     ORO_OS::MainThread::Release();
 #endif
 

@@ -37,8 +37,6 @@
 
 namespace ORO_CoreLib
 {
-    using  std::string;
-
     /**
      * A class for marshalling a property or propertybag into a
      * component property description, following the CORBA 3 standard.
@@ -48,9 +46,13 @@ namespace ORO_CoreLib
     : public Marshaller, public PropertyIntrospection, public StreamProcessor<output_stream>
     {
         public:
+        /**
+         * Construct a CPFMarshaller.
+         */
             CPFMarshaller(output_stream &os) :
                     StreamProcessor<output_stream>(os)
-            {}
+            {
+            }
 
 			virtual void serialize(const Property<bool> &v) 
 			{ 
@@ -96,7 +98,8 @@ namespace ORO_CoreLib
 			
             virtual void serialize(const PropertyBag &v) 
 			{
-                *(this->s) << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+                *(this->s) <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                           <<"<!DOCTYPE properties SYSTEM \"cpf.dtd\">\n";
                 *(this->s) << "<properties>\n";
 
                 for (
@@ -158,7 +161,9 @@ namespace ORO_CoreLib
 				serialize(v);
             }
             virtual void flush()
-			{}
+			{
+                this->s->flush();
+            }
             
 	};
 }

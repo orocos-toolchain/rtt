@@ -26,12 +26,11 @@
  ***************************************************************************/
 
 #include "corelib/VectorComposition.hpp"
+#include "corelib/Logger.hpp"
 #include <iostream>
 
 namespace ORO_CoreLib
 {
-    using std::cerr;
-    using std::endl;
 
   // A decomposeProperty method for decomposing a Property< vector<double> >
   // into a PropertyBag with Property<double>'s.
@@ -86,16 +85,17 @@ namespace ORO_CoreLib
         std::string data_name = "d00";
         Property<double>* comp;
 
-        // cerr << "Getting dimension ... ";
         Property<int>* dim;
         v_base = v_bag->get().find("dim");
         if ( v_base == 0 ) {
-            cerr << "In Property<PropertyBag of type std::vector<double> : could not find property \"dim\"."<<endl;
+            Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
+                          << result.getName() << " : could not find property \"dim\"."<<Logger::endl;
             return false;
         }
         dim = dynamic_cast< Property<int>* >(v_base);
         if ( dim == 0) {
-            cerr << "In Property<PropertyBag of type std::vector<double> : Expected \"dim\" to be of type short."<<endl;
+            Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
+                          << result.getName() << " : Expected \"dim\" to be of type short."<<Logger::endl;
             return false;
         }
         int dimension = dim->get();
@@ -131,6 +131,7 @@ namespace ORO_CoreLib
     else
     {
       // cerr << "\033[1;33mWarning: Bag was empty! \033[0m" << endl;
+        Logger::log() << Logger::Warning << "Empty PropertyBag given for Property< std::vector<double> > : "<<result.getName()<<Logger::endl;
         return false;
     }
     return true;

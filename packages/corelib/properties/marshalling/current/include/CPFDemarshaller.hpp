@@ -45,14 +45,11 @@
 #include <iostream>
 
 #include <corelib/Property.hpp>
+#include <corelib/Logger.hpp>
 #include "StreamProcessor.hpp"
 
 namespace ORO_CoreLib
 {
-    using  std::string;
-    using  std::cerr;
-    using  std::endl;
-
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
 #endif
@@ -80,10 +77,10 @@ namespace ORO_CoreLib
             /**
              * The name of the property.
              */
-            string name;
-            string description;
-            string type;
-            string value_string;
+            std::string name;
+            std::string description;
+            std::string type;
+            std::string value_string;
 
         public:
 
@@ -98,6 +95,10 @@ namespace ORO_CoreLib
             {
                 //char *ln = XMLString::transcode( localname );
 
+//                 if ( value_string.empty() ) {
+//                     Logger::log()<<Logger::Debug << "SAX2CPFHandler : Empty value for property."
+//                                  <<Logger::endl;
+//                 }
                 switch ( tag_stack.top() )
                 {
                     case TAG_SIMPLE:
@@ -106,31 +107,45 @@ namespace ORO_CoreLib
                             if ( value_string == "1" )
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, true ) );
-                            else
+                            else if ( value_string == "0" )
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, false ) );
+                            else
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain '0' or '1', got '"+ value_string +"'.").c_str());
                         }
-                        else if ( type == "char" )
-                            bag_stack.top().first->add
-                            ( new Property<char>( name, description, value_string[0] ) );
+                        else if ( type == "char" ) {
+                            if ( value_string.length() != 1 )
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain a single character, got '"+ value_string +"'.").c_str());
+                            else 
+                                bag_stack.top().first->add
+                                    ( new Property<char>( name, description, value_string[0] ) );
+                        }
                         else if ( type == "long" || type == "short") 
                         {
                             int v;
-                            sscanf(value_string.c_str(), "%d", &v);
-                            bag_stack.top().first->add
-                            ( new Property<int>( name, description, v ) );
+                            if ( sscanf(value_string.c_str(), "%d", &v) == 1)
+                                bag_stack.top().first->add( new Property<int>( name, description, v ) );
+                            else
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain an integer value, got '"+ value_string +"'.").c_str());
                         }
                         else if ( type == "double") 
                         {
                             double v;
-                            sscanf(value_string.c_str(), "%lf", &v);
-                            bag_stack.top().first->add
-                            ( new Property<double>( name, description, v ) );
+                            if ( sscanf(value_string.c_str(), "%lf", &v) == 1 )
+                                bag_stack.top().first->add
+                                    ( new Property<double>( name, description, v ) );
+                            else
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain a double value, got '"+ value_string +"'.").c_str());
                         }
                         else if ( type == "string") 
                             bag_stack.top().first->add
                             ( new Property<std::string>( name, description, value_string ) );
                         tag_stack.pop();
+                        value_string.clear(); // cleanup
                         break;
 
                     case TAG_SEQUENCE:
@@ -161,7 +176,7 @@ namespace ORO_CoreLib
                                const XMLCh* const qname,
                                const Attributes& attributes )
             {
-                string ln;
+                std::string ln;
                 XMLChToStdString( localname, ln );
 
                 if ( ln == "properties" )
@@ -174,7 +189,7 @@ namespace ORO_CoreLib
 
                         for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                         {
-                            string an;
+                            std::string an;
                             XMLChToStdString( attributes.getLocalName(ac), an );
                             if ( an == "name") 
                             {
@@ -198,7 +213,7 @@ namespace ORO_CoreLib
                             bool hasType = false;
                             for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                             {
-                                string an;
+                                std::string an;
                                 XMLChToStdString( attributes.getLocalName(ac), an );
                                 if ( an == "name") 
                                 {
@@ -228,40 +243,25 @@ namespace ORO_CoreLib
 
             void warning( const SAXParseException& exception )
             {
-                string warn;
+                std::string warn;
                 XMLChToStdString( exception.getMessage(), warn);
-                cerr << "Parse Warning : " << warn <<endl;
+                Logger::log() << Logger::Warning << "SAX2CPFHandler Parsing: " << warn <<Logger::nl;
                 if ( exception.getPublicId() )
                     {
                         XMLChToStdString( exception.getPublicId(), warn);
-                        cerr << " At entity "<< warn <<endl;
+                        Logger::log() << " At entity "<< warn <<Logger::nl;
                     }
-                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
+                Logger::log() << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<Logger::endl;
+                // to not throw.
             }
 
             void error( const SAXParseException& exception )
             {
-                string warn;
-                XMLChToStdString( exception.getMessage(), warn);
-                cerr << "Parse Error : " << warn <<endl;
-                if ( exception.getPublicId() )
-                    {
-                        XMLChToStdString( exception.getPublicId(), warn);
-                        cerr << " At entity "<< warn <<endl;
-                    }
-                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
+                throw exception;
             }
             void fatalError( const SAXParseException& exception )
             {
-                string warn;
-                XMLChToStdString(exception.getMessage(), warn);
-                cerr << "Parse Fatal Error : " << warn <<endl;
-                if ( exception.getPublicId() )
-                    {
-                        XMLChToStdString(exception.getPublicId(), warn);
-                        cerr << " At entity "<< warn <<endl;
-                    }
-                cerr << " Column "<< exception.getColumnNumber()<< " Line " <<exception.getLineNumber()<<endl;
+                throw exception;
             }
             void characters( const XMLCh* const chars, const unsigned int length )
             {
@@ -308,15 +308,15 @@ namespace ORO_CoreLib
                 }
                 catch ( const XMLException & toCatch )
                 {
-                    string error;
+                    std::string error;
                     XMLChToStdString(toCatch.getMessage(), error);
-                    cerr << "Error during initialization! : " <<endl;
-                    cerr << error << endl;
+                    Logger::log() << Logger::Error << "CPFDemarshaller initialization : "
+                                << error << Logger::endl;
                     return false;
                 }
                 catch ( ... )
                 {
-                    cerr << "General System Exception !" << endl;
+                    Logger::log() << Logger::Error << "CPFDemarshaller : General System Exception !" << Logger::endl;
                     return false;
                 }
 
@@ -347,18 +347,40 @@ namespace ORO_CoreLib
                 }
                 catch ( const XMLException & toCatch )
                 {
-                    cerr << "An XML parsing error occurred processing file " <<endl;
+                    Logger::log() << Logger::Error << "CPFDemarshaller: An XML parsing error occurred processing file " <<Logger::nl;
                     if ( XMLString::transcode(toCatch.getSrcFile()) )
-                        cerr <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<endl ;
-                    cerr << " Error: " << endl;
-                    cerr << XMLString::transcode(toCatch.getMessage()) <<endl;
+                        Logger::log() <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<Logger::nl ;
+                    Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
+                    delete parser;
+                    XMLPlatformUtils::Terminate();
+                    return false;
+                }
+                catch ( const SAXParseException & toCatch )
+                {
+                    Logger::log() << Logger::Error << "CPFDemarshaller: An XML SAX parsing error occurred processing file " <<Logger::nl;
+                    Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
+                    if ( toCatch.getPublicId() )
+                    {
+                        std::string ent;
+                        XMLChToStdString(toCatch.getPublicId(), ent);
+                        Logger::log() << " At entity "<< ent <<Logger::nl;
+                    }
+                    Logger::log() << " Column "<< toCatch.getColumnNumber()<< " Line " <<toCatch.getLineNumber()<<Logger::endl;
+                    delete parser;
+                    XMLPlatformUtils::Terminate();
+                    return false;
+                }
+                catch ( const SAXException & toCatch )
+                {
+                    Logger::log() << Logger::Error << "CPFDemarshaller: An XML SAX exception occurred processing file " <<Logger::nl;
+                    Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
                     delete parser;
                     XMLPlatformUtils::Terminate();
                     return false;
                 }
                 catch ( ... )
                 {
-                    cerr << "General System Exception !" << endl;
+                    Logger::log() << Logger::Error << "CPFDemarshaller: General System Exception !" << Logger::endl;
                     delete parser;
                     XMLPlatformUtils::Terminate();
                     return false;

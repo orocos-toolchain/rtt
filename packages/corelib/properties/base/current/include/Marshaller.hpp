@@ -94,7 +94,9 @@ namespace ORO_CoreLib
             virtual void serialize(const Property<PropertyBag> &v) = 0;
 			
 			/**
-			 * Serialize the contents of a property bag.
+			 * Serialize the contents of a property bag with headers and footers. Use this method
+             * on your 'root' PropertyBag, such that headers and footers
+             * are written.
 			 * @param v The property bag to be serialized.
 			 */
             virtual void serialize(const PropertyBag &v) = 0;

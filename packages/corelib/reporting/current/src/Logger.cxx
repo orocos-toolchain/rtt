@@ -66,7 +66,7 @@ namespace ORO_CoreLib
         }
             
         timestamp = HeartBeatGenerator::Instance()->ticksGet();
-        *this<<Logger::nl<<xtramsg<<Logger::nl;
+        *this<<xtramsg<<Logger::nl;
         *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
         *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(HeartBeatGenerator::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::nl;

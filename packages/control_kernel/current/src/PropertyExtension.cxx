@@ -29,10 +29,12 @@
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Logger.hpp>
+#include <corelib/marshalling/CPFMarshaller.hpp>
 
 namespace ORO_ControlKernel
 {
     using namespace std;
+    using namespace ORO_CoreLib;
 
     bool PropertyComponentInterface::enableAspect( PropertyExtension* ext)
     {
@@ -55,9 +57,13 @@ namespace ORO_ControlKernel
 
     PropertyExtension::PropertyExtension(ControlKernelInterface* _base ) 
         : detail::ExtensionInterface(_base, "Property"),
-          save_props("SaveProperties","Not implemented yet.",false),
+          save_props("SaveProperties","Save the components property files on kernel stop.",false),
           configureOnLoad("ConfigureOnLoad","Configure the component when loaded," \
                           "instead of when the kernel is started", true),
+          ignoreMissingFiles("IgnoreMissingFiles","Do not configure a component if no" \
+                             "property file is listed.", false),
+          saveFilePrefix("SaveFilePrefix","The suffix of the filename to store the components state into.", std::string("Exported_")),
+          saveFileExtension("SaveFileExtension","The extension of the filename to store the components state into.",std::string("cpf")),
           base(_base)
     {
     }
@@ -82,10 +88,16 @@ namespace ORO_ControlKernel
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
         composeProperty(bag, save_props);
+        composeProperty(bag, saveFilePrefix);
+        composeProperty(bag, saveFileExtension);
+        composeProperty(bag, ignoreMissingFiles);
         composeProperty(bag, configureOnLoad);
 
         Logger::log() << Logger::Info << "PropertyExtension Properties : "<<Logger::nl
                       << save_props.getName()<< " : " << save_props.get() << Logger::nl
+                      << saveFilePrefix.getName()<< " : " << saveFilePrefix.get() << Logger::nl
+                      << saveFileExtension.getName()<< " : " << saveFileExtension.get() << Logger::nl
+                      << ignoreMissingFiles.getName()<< " : " << ignoreMissingFiles.get() << Logger::nl
                       << configureOnLoad.getName()<< " : " << configureOnLoad.get() << Logger::endl;
             
         // build new list of present component config files
@@ -120,7 +132,7 @@ namespace ORO_ControlKernel
         if (configureOnLoad)
             return true; // All is done.
 
-        Logger::log() << Logger::Info << "PropertyExtension : initialize on start."<< Logger::endl;
+        Logger::log() << Logger::Info << "PropertyExtension : initialize on Kernel.start()."<< Logger::endl;
         // read xml file for each component, if we know it.
 //         for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
 //             {
@@ -136,20 +148,29 @@ namespace ORO_ControlKernel
 //             }
         for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
             {
+                bool didconf=false; // keep track of configuration
                 for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
                     if ( (*it)->getName() == tg->second->getName() )
-                        if ( configureComponent( (*it)->value(), tg->second ) ==  false)
+                        if ( this->configureComponent( (*it)->value(), tg->second ) ==  false) {
                             return false;
-
-                Logger::log() << Logger::Info << "PropertyExtension : ";
-                Logger::log() << "No Property file for Component "<<tg->second->getName() << " found !"<< Logger::endl;
-                PropertyBag emptyBag;
-                if ( tg->second->updateProperties( emptyBag ) == false ) {
-                    Logger::log() << Logger::Error << "PropertyExtension : "
-                                  << "Component " << tg->second->getName() 
-                                  << " does not accept empty properties." 
-                                  << "Fix your property config file first."<< Logger::endl;
-                    return false;
+                        }
+                        else {
+                            didconf = true;
+                            break;
+                        }
+                // If not tg not configured and not ignore unlisted components :
+                if ( ! didconf && !ignoreMissingFiles.get() ) {
+                    Logger::log() << Logger::Info << "PropertyExtension : ";
+                    Logger::log() << "No Property file for Component "<<tg->second->getName() << " listed !"<< Logger::endl;
+                    PropertyBag emptyBag;
+                    if ( tg->second->updateProperties( emptyBag ) == false ) {
+                        Logger::log() << Logger::Error << "PropertyExtension : "
+                                      << "Component " << tg->second->getName() 
+                                      << " does not accept empty properties." << Logger::nl
+                                      << "Fix your PropertyExtension config file first, or set property ignoreMissingFiles to 1."<< Logger::endl;
+                        return false;
+                    }
+                    didconf=false; // reset
                 }
             }
         return true;
@@ -162,8 +183,8 @@ namespace ORO_ControlKernel
             {
                 Logger::log() << Logger::Error << "PropertyExtension : ";
                 Logger::log() << "Component "<<target->getName() 
-                              << " does not accept properties from file '"+filename+"'." 
-                              << "Fix your property config file first."<< Logger::endl;
+                              << " does not accept properties from file '"+filename+"'." << Logger::nl
+                              << "Fix your Component property config file first."<< Logger::endl;
                 return false;
             }
         return true;
@@ -178,18 +199,22 @@ namespace ORO_ControlKernel
     {
         if ( save_props )
             {
-                Logger::log() << Logger::Debug << "Need to save props !"<<Logger::endl;
-                /*
+                Logger::log() << Logger::Debug << "Saving Component Properties to files..."<<Logger::endl;
                 // iterate over components
-                std::map<std::string, PropertyComponentInterface*>::iterator comp_it = myMap.begin();
+                CompMap::iterator comp_it = myMap.begin();
                 while ( comp_it != myMap.end() )
                 {
-                // collect properties
+                    PropertyBag allProps;
+                    // collect properties
+                    comp_it->second->exportProperties( allProps );
+                    // serialize and cleanup
+                    std::ofstream file((saveFilePrefix.get() + comp_it->first+"." + saveFileExtension.get()).c_str());
+                    CPFMarshaller<std::ostream> marshaller( file );
+                    marshaller.serialize( allProps );
+                    allProps.clear();
+                    Logger::log() << Logger::Info << "Wrote "<<saveFilePrefix.get() + comp_it->first +"."+ saveFileExtension.get()<<Logger::endl;
+                    ++comp_it;
                 }
-                // serialize and cleanup
-                marshaller.serialize( allProps );
-                newProps.clear();
-                */
             }
     }
         
@@ -206,12 +231,17 @@ namespace ORO_ControlKernel
                 // reached when not found
                 Logger::log() << Logger::Info << "PropertyExtension : "
                               << "No property file found for "<<comp->getLocalStore().getName()<< Logger::endl;
-                PropertyBag emptyBag;
-                if ( comp->updateProperties( emptyBag ) == false )
-                    Logger::log() << Logger::Error << "PropertyExtension : "
-                                  << "Component " << comp->getName() 
-                                  << " does not accept empty properties." 
-                                  << "Fix your property config file first."<< Logger::endl;
+                if ( !ignoreMissingFiles.get() )
+                    {
+                        PropertyBag emptyBag;
+                        if ( comp->updateProperties( emptyBag ) == false ) {
+                            Logger::log() << Logger::Error << "PropertyExtension : "
+                                          << "Component " << comp->getName() 
+                                          << " does not accept empty properties : not Loading." << Logger::nl 
+                                          << "Fix your PropertyExtension config file first, or set property 'IgnoreMissingFiles' to 1."<< Logger::endl;
+                            return false;
+                        }
+                    }
 
             }
         return true;
