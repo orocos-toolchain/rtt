@@ -59,8 +59,11 @@ namespace ORO_ControlKernel
     /**
      * @brief An Axis Reading Sensor for a Motion Control Kernel
      *
+     * Each added Axis introduces DataObjects (due to its sensors)
+     * and Digital Inputs/Outputs which you can use to read the
+     * status.
+     *
      * @todo : Better channel<->sensor assignment
-     * Break will move from Drive to Axis.       
      * @ingroup kcomps kcomp_sensor
      */
     template <class Base>
@@ -72,14 +75,16 @@ namespace ORO_ControlKernel
         typedef std::vector<double> ChannelType;
 
         /**
-         * Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
+         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
         AxisSensor( int max_chan = 1) 
             :  Base("AxisSensor"),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan)
         {
-            channels.resize(max_chan, 0 );
+            Axis* _a = 0;
+            SensorInterface<double>* _d = 0;
+            channels.resize(max_chan, make_pair(_d,_a) );
             chan_meas.resize(max_chan, 0.0);
         }
 
@@ -105,7 +110,7 @@ namespace ORO_ControlKernel
 
             // gather results.
             for (unsigned int i=0; i < channels.size(); ++i)
-                chan_meas[i] = channels[i] ? channels[i]->readSensor() : 0 ;
+                chan_meas[i] = channels[i].first ? channels[i].first->readSensor() : 0 ;
 
             // writeout.
             chan_DObj->Set( chan_meas );
@@ -116,45 +121,59 @@ namespace ORO_ControlKernel
          * all Axis status info (homed, enabled, breaked, ...)
          *
          */
-        bool addAxisDrive( const std::string& name, Axis* ax )
+        bool addAxis( const std::string& name, Axis* ax )
         {
             if ( axes.count(name) != 0 || kernel()->isRunning() )
                 return false;
 
             // no channel tied == -1
-            axes[name] = make_pair(ax, -1);
+            axes[name] = ax;
 
             d_out[ name + ".Drive" ] = ax->driveGet()->enableGet();
-            d_out[ name + ".Break" ] = ax->driveGet()->breakGet();
-            d_in[ name + ".Home" ] = ax->switchGet();
+            if ( ax->breakGet() )
+            d_out[ name + ".Break" ] = ax->breakGet();
+            if ( ax->homeswitchGet() )
+                d_in[ name + ".Home" ] = ax->homeswitchGet();
 
             // Create the dataobjects in the Input DO.
             typedef typename Base::Input::DataObject<double>::type doubleType;
             drive[ name ] = make_pair( ax->driveGet(), new doubleType(name+".Velocity") );
             Base::Input::dObj()->reg( drive[ name ].second );
 
-            sensor[ name ] = make_pair( ax->sensorGet("Position"), new doubleType( name+".Position"));
-            Base::Input::dObj()->reg( sensor[ name ].second );
+            // Repeat for each additional sensor...
+            std::vector<std::string> res( ax->sensorList() );
+            for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+                {
+                    std::string sname( name+"."+*it );
+                    sensor[ sname ] = make_pair( ax->sensorGet( *it ), new doubleType( sname ));
+                    Base::Input::dObj()->reg( sensor[ sname ].second );
+                }
             return true;
         }
 
-        /**
-         * @brief Add an Axis object with a name on a Channel.
+        /** 
+         * @brief Add a sensor of an Axis object on a Channel.
          *
-         * A Channel is added representing the Position on channel <virt_channel>.
+         * A Channel is added representing the Sensor on channel \a virtual_channel,
+         * 
+         * @param axis_name        The name of the previously added Axis
+         * @param sensor_name      The name of a Sensor of the Axis
+         * @param virtual_channel  The channel number where the Sensor must be added.
+         * 
+         * @return true if successfull, false otherwise.
          */
-        bool addAxisChannel(int virt_channel, const std::string& name, Axis* ax )
+        bool addSensorOnChannel(const std::string& axis_name, const std::string& sensor_name, int virtual_channel )
         {
-            if ( channels[virt_channel] != 0 || axes.count(name) != 0 || kernel()->isRunning() )
+            if ( virtual_channel >= max_channels ||
+                 channels[virtual_channel].first != 0 ||
+                 axes.count(axis_name) != 1 ||
+                 axes[axis_name]->sensorGet( sensor_name ) == 0 ||
+                 kernel()->isRunning() )
                return false;
 
-            if ( addAxisDrive( name , ax) )
-                {
-                    axes[name].second = virt_channel;            // store the channel number
-                    channels[virt_channel] = sensor[ name ].first;
-                    return true;
-                }
-            return false;
+            // The owner Axis is stored in the channel.
+            channels[virtual_channel] = make_pair( axes[axis_name]->sensorGet( sensor_name ), axes[axis_name] );
+            return true;
         }
 
         /**
@@ -165,12 +184,24 @@ namespace ORO_ControlKernel
             if ( axes.count(name) != 1 || kernel()->isRunning() )
                 return false;
 
-            int channr = axes[name].second;
-            if ( channr != -1)
-                channels[channr] = 0;
+            for ( std::vector< pair< const SensorInterface<double>*, Axis* > >::iterator it = channels.begin();
+                  it != channels.end();
+                  ++it )
+                if ( it->second == axes[name] )
+                    {
+                        it->first = 0; // clear the channel occupied by an axis sensor
+                        it->second = 0;
+                    }
 
             drive.erase( name );
-            sensor.erase( name );
+
+            // remove all sensors.
+            std::vector<std::string> res( ax->sensorList() );
+            for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+                {
+                    std::string sname( name+"."+*it );
+                    sensor.erase( sname );
+                }
             d_out.erase( name + ".Drive" );
             d_out.erase( name + ".Break" );
             d_in.erase( name + ".Home" );
@@ -187,29 +218,35 @@ namespace ORO_ControlKernel
         /**
          * @brief Inspect if an axis is enabled.
          */
-        bool isEnabled( const std::string& name )
+        bool isEnabled( const std::string& name ) const
         {
-            return drive[name]->enableGet()->isOn();
+            AxisMap::const_iterator it = axes.find(name);
+            if ( it != axes.end() )
+                return it->second->isEnabled();
+            return false;
         }
 
         /**
          * @brief Inspect the position of an Axis.
          */
-        double position( const std::string& name )
+        double position( const std::string& name ) const
         {
-            return sensor[name]->readSensor();
+            SensorMap::const_iterator it = sensor.find(name+".Position");
+            if ( it != sensor.end() )
+                return it->second.first->readSensor();
+            return 0;
         }
 
         /**
          * @brief Inspect the status of a Digital Input or
          * Digital Output.
          */
-        bool status( const std::string& name )
+        bool isOn( const std::string& name ) const
         {
             if ( d_in.count(name) == 1 )
-                return d_in[name];
+                return d_in.find(name)->second->isOn();
             else if (d_out.count(name) == 1 )
-                return d_out[name];
+                return d_out.find(name)->second->isOn();
             return false;
         }
         /**
@@ -217,6 +254,30 @@ namespace ORO_ControlKernel
          */
 
     protected:
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
+        DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< AxisSensor<Base> >* ret =
+                newDataSourceFactory( this );
+            ret->add( "isOn", 
+                      data( &AxisSensor<Base>::isOn,
+                            "Inspect the status of a Digital Input or Output.",
+                            "Name", "The Name of the Digital IO."
+                            ) );
+            ret->add( "position", 
+                      data( &AxisSensor<Base>::position,
+                            "Inspect the status of the Position of an Axis.",
+                            "Name", "The Name of the Axis."
+                            ) );
+            ret->add( "isEnabled", 
+                      data( &AxisSensor<Base>::isEnabled,
+                            "Inspect the status of an Axis.",
+                            "Name", "The Name of the Axis."
+                            ) );
+            return ret;
+        }
+#endif
 
         /**
          * Write Analog input to DataObject.
@@ -227,7 +288,7 @@ namespace ORO_ControlKernel
             dd.second.second->Set( dd.second.first->driveGet() );
         }
             
-        void sensor_to_do( std::pair<std::string,pair<SensorInterface<double>*,
+        void sensor_to_do( std::pair<std::string,pair< const SensorInterface<double>*,
                            DataObjectInterface<double>* > > dd )
         {
             dd.second.second->Set( dd.second.first->readSensor() );
@@ -235,16 +296,22 @@ namespace ORO_ControlKernel
             
         Property<int> max_channels;
 
-        std::vector< SensorInterface<double>* > channels;
+        std::vector< pair< const SensorInterface<double>*, Axis* > > channels;
         ChannelType chan_meas;
         DataObjectInterface< ChannelType >* chan_DObj;
 
-        std::map<std::string, DigitalInput* > d_in;
+        std::map<std::string, const DigitalInput* > d_in;
         std::map<std::string, DigitalOutput* > d_out;
 
-        std::map<std::string, pair<AnalogDrive*, DataObjectInterface<double>* > > drive;
-        std::map<std::string, pair<SensorInterface<double>*, DataObjectInterface<double>* > > sensor;
-        std::map<std::string, pair<Axis*, int> > axes;
+        typedef
+        std::map<std::string, pair<AnalogDrive*, DataObjectInterface<double>* > > DriveMap;
+        DriveMap drive;
+        typedef
+        std::map<std::string, pair< const SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
+        SensorMap sensor;
+        typedef
+        std::map<std::string, Axis* > AxisMap;
+        AxisMap axes;
         
     };
 

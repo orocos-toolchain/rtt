@@ -139,10 +139,8 @@ namespace ORO_ControlKernel
          * @param DO_name The name of the DataObject.
          * @param input   The AnalogInInterface for reading the input.
          * @param channel The channel of the input.
-         * @param offset  The offset to be added to the converted value of the input.
-         * @param scale   Conversion factor for the raw input value.
          */
-        bool addAnalogInput( const std::string& DO_name, AnalogInInterface<unsigned int>* input, int channel, double offset=0.0, double scale=1.0)
+        bool addAnalogInput( const std::string& DO_name, AnalogInInterface<unsigned int>* input, int channel)
         {
             if ( a_in.count(DO_name) != 0  || kernel()->isRunning() )
                 return false;
@@ -155,7 +153,7 @@ namespace ORO_ControlKernel
             Base::Input::dObj()->reg( doi );
             Base::Input::dObj()->reg( raw_doi );
 
-            a_in[DO_name] = make_tuple( new AnalogInput<unsigned int>( input, channel, offset, scale ), raw_doi, doi );
+            a_in[DO_name] = make_tuple( new AnalogInput<unsigned int>( input, channel ), raw_doi, doi );
 
             return true;
         }
@@ -196,12 +194,12 @@ namespace ORO_ControlKernel
          * @param offset  The offset to be added to the converted value of the input.
          * @param scale   Conversion factor for the raw input value.
          */
-        bool addChannel(int virt_channel, AnalogInInterface<unsigned int>* input, int channel, double offset=0.0, double scale=1.0)
+        bool addChannel(int virt_channel, AnalogInInterface<unsigned int>* input, int channel )
         {
             if ( channels[virt_channel] != 0 || kernel()->isRunning() )
                 return false;
 
-            channels[virt_channel] = new AnalogInput<unsigned int>( input, channel, offset, scale ) ;
+            channels[virt_channel] = new AnalogInput<unsigned int>( input, channel ) ;
 
             return true;
         }

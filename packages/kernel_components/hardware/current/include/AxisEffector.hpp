@@ -90,8 +90,12 @@ namespace ORO_ControlKernel
         {
             // We check if the required DataObjects are present
             // they are introduced by the Controller component.
+            // By PS : if a dataobject is not found, I do not care... I check for nulls everywhere.
+            // otherwise each controller must provide a Axis.Drive dataobject, which eliminates
+            // the use of channels. So : if it is there, I use it, otherwise not.
+            std::count_if( drive.begin(), drive.end(), bind( &AxisEffector<Base>::lacksDrive, this, _1 ) );
             if (
-                std::count_if( drive.begin(), drive.end(), bind( &AxisEffector<Base>::lacksDrive, this, _1 ) ) ||
+                //std::count_if( drive.begin(), drive.end(), bind( &AxisEffector<Base>::lacksDrive, this, _1 ) ) != 0 ||
                  ( usingChannels && ! Base::Output::dObj()->Get("ChannelValues", chan_DObj) ) )
                 return false;
             return true;
@@ -113,7 +117,7 @@ namespace ORO_ControlKernel
             // writeout.
             for (unsigned int i=0; i < channels.size(); ++i)
                 if ( channels[i] )
-                    channels[i]->driveSet( chan_out[i] );
+                    channels[i]->drive( chan_out[i] );
         }
 
         /**
@@ -137,10 +141,10 @@ namespace ORO_ControlKernel
             axes[name] = make_pair(ax, -1);
 
             d_out[ name + ".Drive" ] = ax->driveGet()->enableGet();
-            d_out[ name + ".Break" ] = ax->driveGet()->breakGet();
+            d_out[ name + ".Break" ] = ax->breakGet();
             // we will fill in the dataobject pointer in componentStartup()
             DataObjectInterface<double>* tmp = 0;
-            drive[name + ".Velocity" ] = make_pair( ax->driveGet(), tmp);
+            drive[name + ".Velocity" ] = make_pair( ax, tmp);
 
             return true;
         }
@@ -153,16 +157,17 @@ namespace ORO_ControlKernel
          *
          * A Channel is added representing the Drive velocity on channel <virt_channel>.
          */
-        bool addAxisChannel(int virt_channel, const std::string& name, Axis* ax )
+        bool addAxisOnChannel( const std::string& name, int virt_channel )
         {
-            if ( channels[virt_channel] != 0 || axes.count(name) != 0 || kernel()->isRunning() )
+            if ( virt_channel >= max_channels ||
+                 channels[virt_channel] != 0 ||
+                 axes.count(name) == 0 ||
+                 kernel()->isRunning() )
                 return false;
 
-            if ( !addAxis( name, ax) )
-                return false;
-
+            ++usingChannels;
             axes[name].second = virt_channel;
-            channels[virt_channel] = ax->driveGet();
+            channels[virt_channel] = axes[name].first;
 
             return true;
         }
@@ -177,7 +182,10 @@ namespace ORO_ControlKernel
 
             int channr = axes[name].second;
             if ( channr != -1)
-                channels[channr] = 0;
+                {
+                    channels[channr] = 0;
+                    --usingChannels;
+                }
 
             drive.erase( name + ".Velocity" );
             d_out.erase( name + ".Drive" );
@@ -198,7 +206,7 @@ namespace ORO_ControlKernel
         {
             if ( axes.count(name) != 1 )
                 return;
-            axes[name]->enable();
+            axes[name].first->stop();
         }
 
         /**
@@ -208,24 +216,83 @@ namespace ORO_ControlKernel
         {
             if ( axes.count(name) != 1 )
                 return;
-            axes[name]->disable();
+            axes[name].first->lock();
         }
+
+        /**
+         * @brief Switch on a Digital Output.
+         */
+        void switchOn( const std::string& name )
+        {
+            if (d_out.count(name) != 1)
+                return;
+            d_out[name]->switchOn();
+        }
+                    
+        /**
+         * @brief Switch off a Digital Output.
+         */
+        void switchOff( const std::string& name )
+        {
+            if (d_out.count(name) != 1)
+                return;
+            d_out[name]->switchOff();
+        }
+           
         // @}
 
     protected:
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
+        template< class T >
+        bool true_gen() const { return true; }
+
+        CommandFactoryInterface* createCommandFactory()
+        {
+            TemplateCommandFactory< AxisEffector<Base> >* ret =
+                newCommandFactory( this );
+            ret->add( "switchOn",
+                      command( &AxisEffector<Base>::switchOn,
+                               &AxisEffector<Base>::true_gen,
+                               "Switch A Digital Output on",
+                               "Name","The Name of the DigitalOutput."
+                               ) ); 
+            ret->add( "switchOff",
+                      command( &AxisEffector<Base>::switchOff,
+                               &AxisEffector<Base>::true_gen,
+                               "Switch A Digital Output off",
+                               "Name","The Name of the DigitealOutput."
+                               ) ); 
+            ret->add( "enableAxis",
+                      command( &AxisEffector<Base>::enableAxis,
+                               &AxisEffector<Base>::true_gen,
+                               "Enable an Axis",
+                               "Name","The Name of the Axis."
+                               ) ); 
+            ret->add( "disableAxis",
+                      command( &AxisEffector<Base>::disableAxis,
+                               &AxisEffector<Base>::true_gen,
+                               "Disable (lock) an Axis",
+                               "Name","The Name of the Axis."
+                               ) ); 
+            return ret;
+        }
+#endif
             
         /**
          * Write to Data to AnalogDrives.
          */
-        void write_to_drive( pair<std::string, pair<AnalogDrive*, DataObjectInterface<double>* > > dd )
+        void write_to_drive( pair<std::string, pair<Axis*, DataObjectInterface<double>* > > dd )
         {
-            dd.second.first->driveSet( dd.second.second->Get() );
+            // If it does not lack the Axis.Drive dataobject :
+            if ( dd.second.second != 0)
+                dd.second.first->drive( dd.second.second->Get() );
         }
 
         /**
          * Check if the Output DataObject lacks a user requested AnalogDrive.
          */
-        bool lacksDrive( pair<std::string,pair<AnalogDrive*, DataObjectInterface<double>* > > dd )
+        bool lacksDrive( pair<std::string,pair<Axis*, DataObjectInterface<double>* > > dd )
         {
             // fill in the dataobject, if it fails, abort startup...
             if ( !Base::Output::dObj()->Get(dd.first, dd.second.second) )
@@ -235,13 +302,13 @@ namespace ORO_ControlKernel
             
         Property<int> max_channels;
 
-        std::vector< AnalogDrive* > channels;
+        std::vector< Axis* > channels;
         std::vector<double> chan_out;
         DataObjectInterface< std::vector<double> >* chan_DObj;
 
         std::map<std::string, DigitalOutput* > d_out;
 
-        std::map<std::string, pair<AnalogDrive*, DataObjectInterface<double>* > > drive;
+        std::map<std::string, pair<Axis*, DataObjectInterface<double>* > > drive;
         std::map<std::string, pair<Axis*, int> > axes;
         
         int usingChannels;
