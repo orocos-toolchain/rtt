@@ -70,7 +70,7 @@ namespace ORO_DeviceDriver
             : analogDevice( an_out ),
             enableDevice(dig_out), mySpeed(0.0),
             scale(_scale), offset( _offset ),
-            lowvel( an_out->highest() ), highvel( an_out->lowest() )
+            lowvel( an_out->lowest()*scale - offset ), highvel( an_out->highest()*scale - offset )
         {
             driveSet(0);
             disableDrive();
@@ -123,13 +123,13 @@ namespace ORO_DeviceDriver
         int driveSet( double v )
         {
             mySpeed = v;
-
+#if 0
             // limit v;
             if ( mySpeed < lowvel )
                 mySpeed = lowvel;
             else if ( mySpeed > highvel)
                 mySpeed = highvel;
-
+#endif
             analogDevice->value( (mySpeed+offset)/scale );
 
             return 0;
