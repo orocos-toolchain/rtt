@@ -10,5 +10,6 @@ dynamic conditional execution of logic programs."
 
     compile ConditionInterface.cxx
     compile ConditionDuration.cxx
+    compile ConditionOnce.cxx
 }
 

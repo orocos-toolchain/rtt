@@ -49,26 +49,15 @@ namespace ORO_CoreLib
          * @param what supply \a false it must return once false and
          * supply \a true if it must return once true.
          */
-        ConditionOnce(bool what) : ran( false ), _what(what)
-        {}
+        ConditionOnce(bool what);
 
-        virtual ~ConditionOnce()
-        {}
+        virtual ~ConditionOnce();
 
-        virtual bool evaluate()
-        {
-            return ( ran == true ? !_what : ran = true, _what );
-        }
+        virtual bool evaluate();
 
-        virtual void reset()
-        {
-            ran = false;
-        };
+        virtual void reset();
 
-        ConditionInterface* clone() const
-        {
-            return new ConditionOnce( _what );
-        }
+        ConditionInterface* clone() const;
 
     private:
         /**
