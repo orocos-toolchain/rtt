@@ -24,8 +24,8 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef INCREMENTAL_ENCODER_SENSOR_HPP
-#define INCREMENTAL_ENCODER_SENSOR_HPP
+#ifndef ABSOLUTE_ENCODER_SENSOR_HPP
+#define ABSOLUTE_ENCODER_SENSOR_HPP
 
 #include <device_interface/EncoderInterface.hpp>
 #include <device_interface/SensorInterface.hpp>
