@@ -27,6 +27,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
   using namespace ORO_Execution;
+  using namespace ORO_OS;
   
 
   nAxesGeneratorPos::nAxesGeneratorPos(unsigned int num_axes,  std::string name)
