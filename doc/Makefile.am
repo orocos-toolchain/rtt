@@ -1,9 +1,8 @@
 SUBDIRS = .
 
 EXTRA_DIST = \
-	CODING_STYLE.txt demonstrateProps.cxx \
+	CODING_STYLE.txt \
 	orocos.xsl \
-        rtai-24.1.11.patch \
 	$(XMLDOCS) \
 	$(DOCBOOKS) \
 	$(DIAS) \
