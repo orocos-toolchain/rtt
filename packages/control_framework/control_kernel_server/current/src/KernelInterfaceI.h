@@ -93,7 +93,7 @@ virtual CORBA::Boolean requestShutdown (
     ));// TAO_IDL - Generated from
 // be/be_visitor_operation/operation_ih.cpp:43
 
-virtual ::Orocos::KernelInterface::NameList * getStateContextNames (
+virtual ::Orocos::KernelInterface::NameList * getStateMachineNames (
     
   )
   ACE_THROW_SPEC ((
@@ -101,7 +101,7 @@ virtual ::Orocos::KernelInterface::NameList * getStateContextNames (
   ));// TAO_IDL - Generated from
 // be/be_visitor_operation/operation_ih.cpp:43
 
-virtual void loadStateContexts (
+virtual void loadStateMachines (
     const char * code,
     const char * filename
   )
@@ -112,7 +112,7 @@ virtual void loadStateContexts (
   ));// TAO_IDL - Generated from
 // be/be_visitor_operation/operation_ih.cpp:43
 
-virtual CORBA::Boolean unloadStateContext (
+virtual CORBA::Boolean unloadStateMachine (
     const char * name
   )
   ACE_THROW_SPEC ((

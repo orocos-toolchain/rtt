@@ -111,7 +111,7 @@ namespace ExecutionClient
  {
      ParsedStateMachine* ps = executionext->getStateMachine(name);
      if (ps)
-       return 5;//ps->getLineNumber();
+       return ps->getLineNumber();
      return -1;
  }
 
@@ -160,8 +160,11 @@ namespace ExecutionClient
             case Processor::StateMachineStatus::active:
                 return "active";
                 break;
-            case Processor::StateMachineStatus::todelete:
-                return "deleted";
+            case Processor::StateMachineStatus::activating:
+                return "activating";
+                break;
+            case Processor::StateMachineStatus::deactivating:
+                return "deactivating";
                 break;
             case Processor::StateMachineStatus::error:
                 return "error";
