@@ -495,6 +495,90 @@ void StateTest::testStateSubStateVars()
      this->finishState( &gtc, "x");
 }
 
+void StateTest::testStateSubStateCommands()
+{
+    // test get/set access of substate variables and parameters
+    string prog = string("StateMachine Y {\n")
+        + " param double isnegative\n"
+        + " var   double t = 1.0\n"
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     if isnegative < 0. then select ISNEGATIVE\n"
+        + "     if t >= 0. then select ISPOSITIVE\n"
+        + "     select DEFAULT\n"
+        + " }\n"
+        + " }\n"
+        + " state ISNEGATIVE {\n"
+        + " transitions {\n"
+        + "      select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " state ISPOSITIVE {\n"
+        + " transitions {\n"
+        + "      select INIT\n"
+        + " }\n"
+        // 20 :
+        + " }\n"
+        + " state DEFAULT {\n"
+        + " transitions {\n"
+        + "      select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + " }\n"
+        + string("StateMachine X {\n")
+        + " SubMachine Y y1(isnegative = -1.0)\n"
+        + " initial state INIT {\n"
+        + " entry {\n"
+        + "     set y1.t = -1.0 \n"
+        + "     do y1.activate()\n"
+        + "     do y1.requestState(\"ISNEGATIVE\")\n"
+        + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + "     set y1.isnegative = +1.0 \n"
+        // 40 :
+        + "     try y1.requestState(\"ISNEGATIVE\") \n "
+        + "     catch \n{\n"
+        + "         do test.assert( y1.inState(\"INIT\") )\n" // do not leave INIT
+        + "     }\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n" // do not leave INIT
+        + "     do y1.requestState(\"FINI\")\n"      // request final state
+        + "     do test.assert( y1.inState(\"FINI\") )\n"
+        + " }\n"
+        + " exit {\n"
+        + "     do y1.requestState(\"INIT\")\n"      // request initial state
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + "     set y1.isnegative = +1.0 \n"
+        + "     set y1.t = -1.0 \n"
+        + "     do y1.start()\n"  // must reach FINI after a while.
+        + "     while ! y1.inState(\"FINI\") \n"
+        + "        do nothing\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " entry {\n"
+        + "     do y1.stop()\n"
+        + " }\n"
+        + " exit {\n"
+        + "     do y1.deactivate()\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x() \n" // instantiate a hierarchical SC
+        ;
+
+     this->doState( prog, &gtc );
+     this->finishState( &gtc, "x");
+}
+
 void StateTest::testStateUntil()
 {
 //     this->doState( prog, &gtc );

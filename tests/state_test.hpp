@@ -40,6 +40,7 @@ class StateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testStateChildren );
     CPPUNIT_TEST( testStateEmpty );
     CPPUNIT_TEST( testStateSubStateVars );
+    CPPUNIT_TEST( testStateSubStateCommands );
 //     CPPUNIT_TEST( testStateUntil );
 //     CPPUNIT_TEST( testStateUntilFail );
     CPPUNIT_TEST_SUITE_END();
@@ -76,6 +77,7 @@ public:
     void testStateChildren();
     void testStateEmpty();
     void testStateSubStateVars();
+    void testStateSubStateCommands();
     void testStateUntil();
     void testStateUntilFail();
 

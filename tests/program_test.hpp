@@ -41,6 +41,7 @@ class ProgramTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testProgramAnd );
     CPPUNIT_TEST( testProgramTry );
     CPPUNIT_TEST( testProgramUntil );
+    CPPUNIT_TEST( testProgramBreak );
     CPPUNIT_TEST( testProgramUntilFail );
     CPPUNIT_TEST( testTaskProgram );
     CPPUNIT_TEST_SUITE_END();
@@ -79,6 +80,7 @@ public:
     void testProgramFailure();
     void testProgramAnd();
     void testProgramTry();
+    void testProgramBreak();
     void testProgramUntil();
     void testProgramUntilFail();
 

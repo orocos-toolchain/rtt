@@ -228,6 +228,49 @@ void ProgramTest::testProgramCondition()
     this->finishProgram( &gtc, "x");
 }
 
+void ProgramTest::testProgramBreak()
+{
+    // see if  break statement works
+    string prog = string("program x { \n")
+        + "do test.reset()\n"
+        + "while (test.increase() != 100)\n"
+        + "   if test.i == 50 then {\n"
+        + "       break\n"
+        + "       do test.instantFail() \n" // do not reach.
+        + "   }\n"
+        + "if test.i != 50 then \n" // break on 50
+        + "    do test.instantFail() \n"
+        + "do test.reset()\n"
+        + "for (var int i = 0; i != 100  ; set i = test.increase() )\n"
+        + "   if test.i != 50 then \n"
+        + "       do nothing \n"
+        + "   else {\n"
+        + "       break \n"
+        + "       do test.instantFail() \n" // do not reach.
+        + "     }\n"
+        + "if test.i != 50 then \n" // break on 50
+        + "    do test.instantFail() \n"
+        + "do test.reset()\n"
+        + "while test.increase() != 100 {\n"
+        + "   while test.increase() != 100 \n"
+        + "     if test.i == 50 then {\n"
+        + "         break \n"
+        + "         do test.instantFail() \n" // do not reach.
+        + "     }\n"
+        + "   if test.i != 50 then \n" // break on 50
+        + "      do test.instantFail() \n"
+        + "   if test.i == 50 then \n"
+        + "      break \n"
+        + "   do test.instantFail() \n" // do not reach.
+        + "   }\n"
+        + "if test.i != 50 then \n" // break on 50
+        + "    do test.instantFail() \n"
+        + "return \n"
+        + "}";
+    this->doProgram( prog, &gtc );
+    this->finishProgram( &gtc, "x");
+}
+
 void ProgramTest::testProgramAnd()
 {
     // see if checking a remote condition works
