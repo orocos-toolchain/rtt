@@ -8,7 +8,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-device-drivers.html
 
-docpdf: pngimages orocos-device-drivers.pdf
+docpdf: epsimages orocos-device-drivers.pdf
 
 docps: epsimages orocos-device-drivers.ps
 

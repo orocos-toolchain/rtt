@@ -9,7 +9,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-kinematics.html
 
-docpdf: pngimages orocos-kinematics.pdf
+docpdf: epsimages orocos-kinematics.pdf
 
 docps: epsimages orocos-kinematics.ps
 
