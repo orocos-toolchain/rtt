@@ -59,14 +59,14 @@ all_packages:
 	cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=${ECOS_REP} &&\
 	ecosconfig template allpackages &&\
-	ecosconfig tree &&\
-	make
+	ecosconfig tree
+	$(MAKE) -C packages-@ECOS_TARGET@
 
 # This cleans out the object files but leaves
 # the headers and library
 clean_packages:
+	$(MAKE) -C packages-@ECOS_TARGET@ clean
 	cd packages-@ECOS_TARGET@ && \
-	make clean && \
 	rm install/lib/libtarget.a
 
 # This checks the configuration
@@ -106,8 +106,8 @@ configure_drivers:
 all_drivers:
 	cd drv-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
-	ecosconfig -v tree ;\
-	make
+	ecosconfig -v tree
+	$(MAKE) -C drv-@ECOS_TARGET@
 
 check_drivers:
 	cd drv-@ECOS_TARGET@ ;\
@@ -115,8 +115,7 @@ check_drivers:
 	ecosconfig -v check
 
 clean_drivers:
-	cd drv-@ECOS_TARGET@ ;\
-	make clean
+	$(MAKE) -C drv-@ECOS_TARGET@ clean
 
 #######################################################################
 # LVD Specific :
@@ -138,9 +137,8 @@ lvd_config:
 lvd:
 	cd lvd-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
-	ecosconfig -v tree ;\
-	make
+	ecosconfig -v tree
+	$(MAKE) lvd-@ECOS_TARGET@
 
 lvd_clean:
-	cd lvd-@ECOS_TARGET@ ;\
-	make clean
+	$(MAKE) -C lvd-@ECOS_TARGET@ clean
