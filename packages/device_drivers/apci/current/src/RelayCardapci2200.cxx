@@ -27,6 +27,7 @@
 #include <pkgconf/system.h>
 #include <pkgconf/device_drivers_apci.h>
 #include <device_drivers/RelayCardapci2200.hpp>
+#include <os/fosi.h>
 
 #if defined(OROINT_DEVICE_DRIVERS_APCI2200) && defined(OROPKG_OS_LXRT)
 #include "apci_lxrt.h"
