@@ -67,8 +67,8 @@ namespace ORO_CoreLib
                 delete timer;
                 timer = 0;
                 Logger::log() << Logger::Critical << "PeriodicTask with period "<<this->getPeriod()
-                              << "s failed to schedule in thread " << this->thread()->getName()
-                              << " which has period "<< this->thread()->getPeriod()<<"s."<< Logger::endl;
+                              << "s failed to schedule in thread " << _thread->getName()
+                              << " which has period "<< _thread->getPeriod()<<"s."<< Logger::endl;
             }
         }
 //         else
@@ -160,5 +160,7 @@ namespace ORO_CoreLib
     }
 
     TaskThreadInterface* PeriodicTask::thread() const { return _thread; }
+
+    EventProcessor* PeriodicTask::processor() const { return _thread; }
 
 }

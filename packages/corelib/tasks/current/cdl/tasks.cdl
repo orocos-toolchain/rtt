@@ -15,7 +15,7 @@ type of periodic task associated with it.
 
     compile PeriodicTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TimerThread.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
-    compile SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx
+    compile SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx    TaskNonPeriodic.cxx
     compile TaskTimerSequencer.cxx TaskTimerOneShot.cxx
 
     cdl_option ORONUM_CORELIB_TASKS_PRIOLIMIT {

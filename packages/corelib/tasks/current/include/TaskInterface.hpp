@@ -32,7 +32,7 @@
 
 namespace ORO_CoreLib
 {
-    class TaskThreadInterface;
+    class EventProcessor;
 
     /**
      * @brief Interface to start/stop and query a periodic Task.
@@ -73,7 +73,7 @@ namespace ORO_CoreLib
         /**
          * Get the periodicity of this task in Seconds
          *
-         * @return The execution period of this task
+         * @return The execution period of this task (zero if non periodic).
          */
         virtual Seconds getPeriod() const = 0;
 
@@ -81,7 +81,7 @@ namespace ORO_CoreLib
          * Returns a pointer to the thread which will
          * run this task. Will not be null.
          */
-        virtual TaskThreadInterface* thread() const = 0;
+        virtual EventProcessor* processor() const = 0;
     };
 
 }

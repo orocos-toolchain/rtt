@@ -39,6 +39,7 @@
 namespace ORO_CoreLib
 {
     class TaskTimerInterface;
+    class TaskThreadInterface;
     class TimerThread;
     /**
      * @brief A PeriodicTask is the general implementation of a Task
@@ -106,6 +107,8 @@ namespace ORO_CoreLib
         virtual Seconds getPeriod() const;
 
         virtual TaskThreadInterface* thread() const;
+
+        virtual EventProcessor* processor() const;
 
         virtual bool initialize();
         

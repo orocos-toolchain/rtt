@@ -56,13 +56,13 @@ namespace ORO_CoreLib
          * @param _event The Event which will trigger execution of this task,
          *        once this task is started.
          * @param _r The optional runner, if none, this->step() is called.
-         * @param thread The thread which will execute this task.
+         * @param thread The EventProcessor which will execute the asynchronous completion.
          */
-        TaskEventDriven( Event<void(void)>* _event, TaskThreadInterface* thread, RunnableInterface* _r = 0 );
+        TaskEventDriven( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r = 0 );
 
         virtual Seconds getPeriod() const { return 0; }
 
-        TaskThreadInterface* thread() const { return mthread; }
+        EventProcessor* processor() const { return mthread; }
 
         bool initialize() { return  true;}
         void step() {}
@@ -77,7 +77,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Run another (or none in case of null)
+         * Run another (or self in case of null)
          * task.
          */
         bool run(RunnableInterface* _r);
@@ -94,7 +94,7 @@ namespace ORO_CoreLib
         Event<void(void)>* event;
         RunnableInterface*          runner;
         bool running;
-        TaskThreadInterface* mthread;
+        EventProcessor* mthread;
 };
 
 }

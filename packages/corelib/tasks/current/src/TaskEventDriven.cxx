@@ -36,7 +36,7 @@
 namespace ORO_CoreLib
 {
 
-    TaskEventDriven::TaskEventDriven( Event<void(void)>* _event, TaskThreadInterface* thread, RunnableInterface* _r  )
+    TaskEventDriven::TaskEventDriven( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r  )
         : event(_event), runner(_r), running(false), mthread(thread)
     {}
 
