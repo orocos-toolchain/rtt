@@ -240,8 +240,9 @@ namespace ORO_OS
 
         //rtos_printf("Waiting for %d nsec\n",timeRemaining);
 
+        TIME_SPEC ts( ticks2timespec( timeRemaining ) );
         if ( timeRemaining > 0 )
-            rtos_nanosleep( hrt2ts( timeRemaining ), NULL );
+            rtos_nanosleep( &ts , NULL );
         else
             ;//rtos_printf( "%s did not get deadline !", taskNameGet() );
 

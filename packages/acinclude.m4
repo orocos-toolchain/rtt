@@ -230,7 +230,17 @@ m4_define([ACX_VERSION_POST],[
 
  SVN=$(which svn)
 
- if test x$SVN != x; then
+ AC_MSG_CHECKING(for subversion)
+ AC_ARG_ENABLE(subversion,
+     [  --enable-subversion    Add a sub-version number (default=no) ],
+     [ case "${enableval}" in
+       yes) subvsn=yes ;;
+       no)  subvsn=no ;;
+       *) AC_MSG_ERROR(bad value ${subvsn} for --enable-subversion) ;;
+     esac],[ subvsn=no ])
+
+ if test $subvsn = yes -a x$SVN != x; then
+
  echo "{ print $""1  }" > print-svn.awk
  SVN_VERSION=$(svn log http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 2>/dev/null \
 	| head -2 |tail -1 | awk -f print-svn.awk )
@@ -238,7 +248,14 @@ m4_define([ACX_VERSION_POST],[
  rm -f print-svn.awk
 
  if test x$SVN != x; then
+    if test $subvsn = yes; then
 	 BUILD=-$SVN_VERSION
+	 AC_MSG_RESULT( yes -$SVN_VERSION )
+    else
+	 AC_MSG_RESULT( yes )
+    fi;         
+ else
+	 AC_MSG_RESULT( no )
  fi;
 
  DATE=`date +"%Y%m%d_%k%M"`

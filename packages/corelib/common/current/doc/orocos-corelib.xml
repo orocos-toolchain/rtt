@@ -955,6 +955,7 @@ emergencyStop.fire(); // User not notified
       </para>
     </sect2>
   </sect1>
+  <sect1>
     <title>Properties</title>
     <sect2>
       <title>Introduction</title>
@@ -1215,8 +1216,8 @@ emergencyStop.fire(); // User not notified
   context.requestFinalState();
   context.deactivate();        // context.currentState() == 0
 	</programlisting>
-	</para>
-      </sect2>
+      </para>
+    </sect2>
     <sect2>
       <title>Practical use of the StateContext</title>
       <para>
@@ -1238,8 +1239,6 @@ emergencyStop.fire(); // User not notified
   </sect1>
   <sect1>
     <title>Reporting</title>
-    <sect2>
-      <title>Introduction</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
 	is another. The reporting classes are made in such a way that existing infrastructure can
@@ -1257,7 +1256,6 @@ emergencyStop.fire(); // User not notified
 	An example of an application which uses the CoreLib reporting infrastructure
 	is the Orocos Control Kernel framework.
       </para>
-    </sect2>
   </sect1>
 <!--   <sect1> -->
 <!--     <title>Fifos</title> -->
@@ -1302,4 +1300,5 @@ emergencyStop.fire(); // User not notified
 <!--     </note> -->
 <!--     </sect2> -->
 <!--   </sect1> -->
+
 </article>

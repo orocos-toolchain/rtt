@@ -32,7 +32,9 @@
  * in a realtime system. It currently contains the %Program %Parser and
  * The %Program %Processor.
  *
- * The packages are documented in the <a href="../../../orocos-program-parser.html">
+ * The packages are documented in the 
+ * <a href="../../../orocos-task-context.html">
+ * Online %Task %Infrastructure Manual</a>, the * <a href="../../../orocos-program-parser.html">
  * Online %Program %Parser Manual</a> and the <a href="../../../orocos-program-processor.html">
  * Online %Program %Processor Manual</a>.
  * 

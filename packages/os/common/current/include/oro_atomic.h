@@ -1,3 +1,9 @@
+
+#include "pkgconf/os.h"
+#ifdef OROBLD_OS_AGNOSTIC
+// provide own implementation, but avoid name clashes :
+
+
 #ifndef __ARCH_I386_ATOMIC__
 #define __ARCH_I386_ATOMIC__
 
@@ -195,6 +201,12 @@ __asm__ __volatile__(LOCK "orl %0,%1" \
 #define smp_mb__before_atomic_inc()	barrier()
 #define smp_mb__after_atomic_inc()	barrier()
 
+#undef LOCK
+#endif
+
+#else // OROBLD_OS_AGNOSTIC
+
+#include <asm/atomic.h>
 #undef LOCK
 
 #endif

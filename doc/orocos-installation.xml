@@ -258,10 +258,10 @@
 	<para>
 	  and follow the instructions. Watch for errors or warnings carefully !
 	</para>
-	<orderedlist>
-	  <listitem><para>Make sure you followed the closing instructions to source
-	      the <command>orocosenv.sh</command> script :
-	      <screen><command>
+	<para>
+	  After the script finishes, make sure you followed the closing instructions to source
+	  the <command>orocosenv.sh</command> script :
+	  <screen><command>
   source orocosenv.sh
   mkdir orocos-0.18.0/build 
   cd orocos-0.18.0/build
@@ -269,40 +269,40 @@
   make new_packages 
   make configure_packages
   make all</command> </screen>
-	      Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
-	      <command>make configure_packages</command>
-	      will pop up a graphical configuration
-	      tool which allows you to add or remove packages from your configuration.
-	      Before a package can be added to a configuration,
-	      the package must be present in the packages repository.
-	    </para>
-	      <note>
-		<para>
-		  The <command>../configure</command> script must be rerun after
-		  you installed missing libraries (like boost, xerces,...).
-		</para>
-	      </note>
-	    <para>
-	      For convenience, Orocos can also be used as a regular configure/make 
-	      system. It is thus allowed to :
-	      <screen> <command>
+	  Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
+	  <command>make configure_packages</command>
+	  will pop up a graphical configuration
+	  tool which allows you to add or remove packages from your configuration.
+	  Before a package can be added to a configuration,
+	  the package must be present in the packages repository.
+	</para>
+	<note>
+	  <para>
+	    The <command>../configure</command> script must be rerun after
+	    you installed missing libraries (like boost, xerces,...).
+	  </para>
+	</note>
+	<para>
+	  For convenience, Orocos can also be used as a regular configure/make 
+	  system. It is thus allowed to :
+	  <screen> <command>
   mkdir orocos-0.18.0/build 
   cd orocos-0.18.0/build
   ../configure --with-&lt;target&gt;
   make all
   make check
   make install</command> </screen>
-	      but this will use the default Orocos configuration. If you want to
-	      add/remove packages and configure options, you need to run
-	      <command>make configure_packages</command> and
-	      <command>make</command> again.
-	    </para>
-	    <para>
-	      Be warned, <command>make new_packages</command> will overwrite any
-	      existing configuration !
-	    </para>
-	  </listitem>
-	</orderedlist>
+	  but this will use the default Orocos configuration. If you want to
+	  add/remove packages and configure options, you need to run
+	  <command>make configure_packages</command> and
+	  <command>make</command> again.
+	</para>
+	<warning>
+	  <para>
+	    Be warned, <command>make new_packages</command> will overwrite any
+	    existing configuration !
+	  </para>
+	</warning>
 	<para>
 	  Each package will have been installed in a
 	  <filename>packages/package-name/version/</filename> directory,
@@ -362,63 +362,16 @@
 	</para>
       </sect3>
       <sect3>
-	<title>Device Drivers</title>
-	<para>
-	  Orocos provides device drivers for the Philips SJA1000
-	  CAN Controller, APCI1710 Encoder card, APCI2200 Digital
-	  IO card and Comedi Devices. These are not compiled 
-	  with the default installation. In the graphical
-	  configtool you can add device drivers with the menu
-	  "Build->Packages". They will be grouped in the
-	  device_drivers parent package.
-	</para>
-	<sect4>
-	  <title>Comedi and ComediLib</title>
-	  <para>
-	    Orocos has a ported small part of the ComediLib
-	    interface in its C++ device interface. To use these
-	    classes, the Orocos configure script must first
-	    detect a valid installation. This can be done
-	    by providing two flags :
-	    <screen>
-  ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
-	    </screen>
-	    If both are found, the Comedi support package will
-	    be generated, and you will be able to add the
-	    Orocos Comedi Device Driver to your configuration.
-	  </para>
-	  <para>
-	    If Comedi is installed in <filename>/usr/realtime</filename>
-	    or in your default include path, it will also be
-	    detected by the configure script.
-	  </para>
-	  <para>
-	    Orocos can use ComediLib from the GNU/Linux target
-	    (non realtime interface)
-	    and the LXRT target ( realtime interface).
-	  </para>
-	</sect4>
-	<sect4>
-	  <title>Philips SJA1000 CAN Controller</title>
-	  <para>
-	    Orocos has a preliminary CAN Controller implementation
-	    using the CANPie interface. To use it, the <filename>CANPie</filename>
-	    and <filename>CANOpen</filename> packages must be 
-	    added to your configuration. The device driver
-	    works with RTAI/LXRT.
-	  </para>
-	</sect4>
-      </sect3>
-      <sect3>
-	<title>Using the pre-defined make targets</title>
+	<title>Building</title>
 	<para>
 	  The <command>make all</command> command will have made a directory
 	  <filename>packages</filename> where the
 	  building takes place. The results of the build are in the
 	  <filename>packages/install</filename>
 	  directory. You will find the header files and a library called
-	  <filename>libtarget.a</filename> (literally). These files
-	  allow you to build external applications with &orocos;.
+	  <filename>libtarget.a</filename> (literally) and
+	  <filename>liborocos-&lt;target>.a</filename>. These files
+	  allow you to build applications with &orocos;.
 	</para>
 	<para>
 	  The <command>make configure_packages</command> will pop up a graphical frontend
@@ -429,10 +382,6 @@
 	    <para>Make a copy of the orocos.ecc file so that you always have
 	      a backup when it gets accidentally overwritten.</para>
 	  </tip>
-	</para>
-	<para>
-	  You will need to read the next section to have
-	  more fine grained control of the configuration process.
 	</para>
       </sect3>
       <sect3>
@@ -463,10 +412,19 @@
     <sect2>
       <title>Installing an Orocos Build</title>
       <para>
-	This step is hardly needed, since the build-directory is also
-	the installation directory. The ecostools allow to define a
-	separate installation directory, but this is documented in the
-	eCos docs. Kernel modules can be found in the install/modules
+	Orocos can optionally be installed on your system with <screen>
+  make install</screen>
+	The
+	default directory is <filename>/usr/local/orocos</filename>, but 
+	can be changed with the <option>--with-prefix</option> option :
+	<screen>
+  ../configure --with-prefix=/opt/other/</screen></para>
+      <para>
+	If you choose not to install Orocos, you can find the build's result
+	in the <filename>build/packages/install/[lib/include]</filename> directory.
+	The ecostools allow to define a
+	separate build directory, but this is documented in the
+	eCos manuals. Kernel modules can be found in the install/modules
 	directory and might need manual installation.
       </para>
       <para>You can find the resulting build products on the following places:</para>
@@ -480,18 +438,23 @@
 	    </row>
 	  </thead>
 	  <tbody>
+<!-- 	    <row> -->
+<!-- 	      <entry>Executable programs</entry> -->
+<!-- 	      <entry>install/bin or /usr/local/orocos/bin</entry> -->
+<!-- 	    </row> -->
 	    <row>
-	      <entry>Executable programs</entry>
-	      <entry>install/bin</entry>
-	    </row>
-	    <row>
-	      <entry>Orocos library</entry>
-	      <entry>install/lib</entry>
+	      <entry>
+		<para>
+		  Orocos library. Depending on the target :
+		  liborocos-&lt;target>.a and libtarget.a
+		</para>
+	      </entry>
+	      <entry>install/lib or /usr/local/orocos/lib</entry>
 	    </row>
 	    <row>
 	      <!-- one of (entrytbl entry) -->
-	      <entry>Orocos header files</entry>
-	      <entry>install/include</entry>
+	      <entry><para>Orocos header files. Inside the package subdirectories.</para></entry>
+	      <entry>install/include or /usr/local/orocos/include</entry>
 	    </row>
 	    <row>
 	      <!-- one of (entrytbl entry) -->
@@ -504,22 +467,26 @@
     </sect2>
   </sect1>
   <sect1 id="install-configure">
-      <title>Configuration</title>
-      <sect2>
-	<title>Configuring an Orocos Package</title>
-	<para>
-	  By default, &orocos; will be built to install in
-	  <filename class="directory">packages/install</filename>.
-	  You can modify this by passing a --prefix= option to ecosconfig or
-	  change it in the GUI.
-	</para>
+    <title>Configuration</title>
+    <sect2>
+      <title>Configuring an Orocos Package</title>
+      <para>
+	By default, the &orocos; library will be built  in
+	<filename class="directory">packages/install</filename>
+	and installed in <filename>/usr/local/orocos</filename>.
+      </para>
+      <para>
+	You can modify the former by passing a <option>--prefix=</option> option to ecosconfig or
+	change it in the GUI and modify the latter by passing the <option>--prefix=</option>
+	to <command>configure</command>.
+      </para>
 	<note>
 	  <para>
 	    ecosconfig and configtool both use a different namingscheme
-	    for installation and build directories. configtool uses the
+	    for build directories. configtool uses the
 	    &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
 	    subdirectories while ecosconfig uses the current dir to build and
-	    the install directory for installation. 
+	    the 'install' directory for installation. 
 	  </para>
 	</note>
 	<note>
@@ -538,9 +505,10 @@
 	    <command>configtool</command>.
 	  </para>	
 	</note>
-	<para>
-	  Just running <command>../configure</command> or <command>../configure
-	    --with-gnulinux</command> selects the os/gnulinux target.</para>
+      <para>
+	Just running <command>../configure</command> or <command>../configure
+	  --with-gnulinux</command> selects the os/gnulinux target.
+      </para>
 
 <!-- 	<para> -->
 <!-- 	  When running <command>../configure - -with-rtlinux</command> the configure -->
@@ -589,7 +557,7 @@
       </itemizedlist>
     </sect2>
     <sect2>
-      <title>Compiler flags</title>
+      <title>Orocos Build Compiler Flags</title>
       <para>
 	You must set the compiler flags in the configtool GUI, in
 	<menuchoice>
@@ -597,8 +565,56 @@
 	</menuchoice>
       </para>
     </sect2>
+    <sect2 id="install-config-devs">
+      <title>Configuring Device Drivers</title>
+      <para>
+	Orocos provides device drivers for the Philips SJA1000
+	CAN Controller, APCI1710 Encoder card, APCI2200 Digital
+	IO card and Comedi Devices. These are not compiled 
+	with the default installation. In the graphical
+	configtool you can add device drivers with the menu
+	"Build->Packages". They will be grouped in the
+	device_drivers parent package.
+      </para>
+      <sect3>
+	<title>Comedi and ComediLib</title>
+	<para>
+	  Orocos has a ported small part of the ComediLib
+	  interface in its C++ device interface. To use these
+	  classes, the Orocos configure script must first
+	  detect a valid installation. This can be done
+	  by providing two flags :
+	  <screen>
+	    ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
+	  </screen>
+	  If both are found, the Comedi support package will
+	  be generated, and you will be able to add the
+	  Orocos Comedi Device Driver to your configuration.
+	</para>
+	<para>
+	  If Comedi is installed in <filename>/usr/realtime</filename>
+	  or in your default include path, it will also be
+	  detected by the configure script.
+	</para>
+	<para>
+	  Orocos can use ComediLib from the GNU/Linux target
+	  (non realtime interface)
+	  and the LXRT target ( realtime interface).
+	</para>
+      </sect3>
+      <sect3>
+	<title>Philips SJA1000 CAN Controller</title>
+	<para>
+	  Orocos has a preliminary CAN Controller implementation
+	  using the CANPie interface. To use it, the <filename>CANPie</filename>
+	  and <filename>CANOpen</filename> packages must be 
+	  added to your configuration. The device driver
+	  works with RTAI/LXRT.
+	</para>
+      </sect3>
+    </sect2>
     <sect2 id="general_setup_rtai">
-      <title >Configuring for RTAI</title>
+      <title >Configuring RTAI</title>
       <para>
 	Read first the 'Getting Started' section from <ulink
 	  url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this 
@@ -613,9 +629,9 @@
 	Read The README.* files in the
 	<filename class="directory">rtai</filename> directory for detailed
 	instructions.  First, you need to patch your Linux kernel with the RTAI patch. A patch per
-	kernel version can be found in the rtai-core/arch/i386/patches directory. You should
+	kernel version can be found in the <filename>rtai-core/arch/i386/patches</filename> directory. You should
 	apply
-	the <filename>hal12-X.Y.Z.patch</filename> for RTAI  to a clean
+	the <filename>hal12-X.Y.Z.patch</filename> (or later) for RTAI  to a clean
 	Linux kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>
@@ -634,7 +650,7 @@
 	      <para>Floating Point support</para>
 	    </listitem>
 	    <listitem>
-	      <para>Fifos, Bits or Events and Mailboxes</para>
+	      <para>Semaphores, Fifos, Bits or Events and Mailboxes</para>
 	    </listitem>
 	    <listitem>
 	      <para>POSIX API</para>
@@ -649,7 +665,7 @@
 	  After configuring you can run 'make' and 'make install' in your RTAI directory
 	</para>
       <para>
-	  After installation, RTAI can be found in /usr/realtime. You'll have to 
+	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
 	  specify during the Orocos configure step the alternative if you chose so.
 	  Also, you need to set the path to your Linux source tree (on which the
 	  patch was applied ) in the <command>make configure_packages</command> step.
@@ -700,6 +716,36 @@
 	<para>For a more detailed description of what LXRT really is,
 	  you can read the LXRT HOWTO 
 	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Compiling Applications with LXRT</title>
+	<para>
+	  Application which use LXRT as a target need special flags when being
+	  compiled and linked. Especially :
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Compiling : <option>-I/usr/realtime/include</option>
+	      </para>
+	      <para>
+		This is the RTAI headers installation directory. This option is not needed
+		if you configured Orocos with the 'Agnostic headers' option.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Linking : <option>-L/usr/realtime/lib -llxrt</option> for dynamic (.so) linking OR add
+		<option> /usr/realtime/liblxrt.a </option> for static (.a) linking.
+	      </para>
+	      <para>
+		You might also add <filename>/usr/realtime/lib</filename>
+		to the <filename>/etc/ld.so.conf</filename> file and
+		rerun <command>ldconfig</command>. This option is not needed if you
+		configured RTAI with LXRT-static-inlining.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
 	</para>
       </sect3>
     </sect2>
@@ -754,8 +800,9 @@
       <para>
 	To quickly test an &orocos; application, you can download the kernel_samples
 	tar.gz package, untar it, make a link from within a subdirectory (e.g.
-	program_state/orocos or program_state/orocos-lxrt)
-	to the Orocos install directory ( build/packages/install ) and type make all (
+	<filename>program_state/orocos</filename> or <filename>program_state/orocos-lxrt</filename>)
+	to the Orocos install directory ( <filename>build/packages/install</filename>
+	or <filename>/usr/local/orocos</filename>) and type make all (
 	or make all-lxrt for lxrt). The kernel_samples/README file contains
 	complete instructions.
       </para>
@@ -784,8 +831,8 @@
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
 	    <programlisting> 
-CXXFLAGS=-O2 -Iorocos/install/include
-LDFLAGS=-Lorocos/install/lib -ltarget.a -lstdc++ -lpthreads
+CXXFLAGS=-O2 -I/usr/local/orocos/include
+LDFLAGS=-L/usr/local/orocos/lib -ltarget.a -lstdc++ -lpthreads
 all: myprogram.cpp
       gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram 
 	    </programlisting>
@@ -793,6 +840,13 @@ all: myprogram.cpp
 	    inside the packages directory at all. Applications can
 	    be developped fully out of the Orocos (build) directory.
 	  </para>
+	<para>
+	  <warning>
+	    <para>Make sure you have read <xref linkend="install-configure" />
+	      for your target if you application has compilation errors.
+	    </para>
+	  </warning>
+	</para>
 	</example>
 <!--         The short answer is: modify a program in the -->
 <!--         <filename class="directory">tests</filename> directory.  The even -->

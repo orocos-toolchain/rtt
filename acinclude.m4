@@ -399,12 +399,14 @@ AC_SUBST(AM_CPPFLAGS)
 m4_define([OROCOS_OUTPUT_INFO],[
 echo "
  Configuration:
-   Source code location:                ${srcdir}
+   Source code location:                ${ECOS_REP}
    Version:                             ${VERSION}
+   Target:                              ${ECOS_TARGET}
+
    Compiler:                            ${CXX}
-   C compiler flags:                    ${AM_CFLAGS}   || ${CFLAGS}
-   C++ compiler flags:                  ${AM_CXXFLAGS} || ${CXXFLAGS}
-   Preprocessor flags:                  ${AM_CPPFLAGS} || ${CPPFLAGS}
+   C compiler flags:                    ${AM_CFLAGS} ${CFLAGS}
+   C++ compiler flags:                  ${AM_CXXFLAGS} ${CXXFLAGS}
+   Preprocessor flags:                  ${AM_CPPFLAGS} ${CPPFLAGS}
    Includes:                            ${INCLUDES}
 "
 echo Orocos package \'$PACKAGE\'. Run \'make docs\' to generate the documentation.
@@ -502,8 +504,12 @@ OROCOS_OUTPUT_INFO
     AC_ARG_WITH(lxrt,
             [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use RTAI/LXRT, specify installation directory])],
             [
+		if test x"$withval" != x; then RTAI_DIR="$withval"; else RTAI_DIR="/usr/realtime"; fi
+
             AC_MSG_RESULT(LXRT)
 	    ECOS_TARGET=lxrt
+	    TARGET_LIBS="-L$RTAI_DIR/lib -llxrt"
+	    TARGET_FLAGS="-I$RTAI_DIR/include"
     ],
     [
     AC_ARG_WITH(ecos,
@@ -530,6 +536,8 @@ dnl Default to gnulinux
     ]
     )
 AC_SUBST(ECOS_TARGET)
+AC_SUBST(TARGET_LIBS)
+AC_SUBST(TARGET_FLAGS)
     ]
     ) # OROCOS_ARG_TARGETOS
 

@@ -9,7 +9,7 @@ db:
 	@if [ -f ecos.db.in ]; then cat ecos.db.in >> pkgadd.db; fi
 	@tar -czf support.epk pkgadd.db
 	@./ecosadmin.tcl add support.epk
-	@rm support.epk
+	@rm -f support.epk
 
 clean:
 	@echo "Cleaning up..."

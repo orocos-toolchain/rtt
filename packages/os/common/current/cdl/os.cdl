@@ -14,6 +14,20 @@ can only select one OS Package which is called the
     compile StartStopManager.cxx
     compile Mutex.cxx
 
+    cdl_option OROBLD_OS_AGNOSTIC {
+	display "Hide system includes from Orocos headers."
+	description "
+When enabled, Orocos OS headers will not expose non standard system file
+includes to the library user. In other words, every OS function call is
+wrapped and they are not inlined. This makes it easier to compile
+applications with Orocos headers, since no extra include paths must be
+added (like /usr/realtime). Also Built-in assembly instructions
+will be used instead of the system header files.
+"
+	flavor bool
+        default_value 1
+    }
+
     cdl_option OROBLD_OS_LINUX_KERNEL {
 	display "The source directory of the target Linux kernel"
 	description "

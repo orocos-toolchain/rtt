@@ -31,14 +31,6 @@
 	</affiliation>
       </author>
       
-      <author>
-	<firstname>Panagiotis</firstname>
-	<surname>Issaris</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
     </authorgroup>
     <copyright>
       <year>2002,2003,2004</year>
@@ -67,6 +59,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Added more concrete how-to-use-it info.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>16 Dec 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Update to current code status.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -83,9 +81,7 @@
 
   </articleinfo>
 
-  <sect1>
-    <title>Introduction</title>
-    <sect2>
+    <sect1>
       <title>The Orocos Device Interface (<acronym>DI</acronym>)</title>
       <para>
 	Designing portable software which should interact with
@@ -102,8 +98,8 @@
       <para>
 	We do not want to force people into using Comedi, and most of
 	us have home written device drivers.  To allow total
-	implementation independence, we are writing a C++ device
-	interface hierarchy (a part of the Orocos Object Hierarchy)
+	implementation independence, we are writing C++ device
+	interfaces 
 	which just defines which functionalities a generic device
 	driver should implement. It is up to the developers to wrap
 	their C device driver into a class which implements this
@@ -114,7 +110,7 @@
 	application writer to decide which driver will actually be
 	used.
       </para>
-      <para> <emphasis>STRUCTURE</emphasis> The FDI can be structured
+      <para> <emphasis>STRUCTURE</emphasis> The Device Interface can be structured
 	in two major parts : <emphasis>physical</emphasis> device
 	interfaces and <emphasis>logical</emphasis> device interfaces.
 	Physical device interfaces can be subdivided in four basic
@@ -172,8 +168,8 @@ of the physical interfaces they use underneath. You just want to know the
 <!-- 	  </mediaobject> -->
 <!-- 	</figure> -->
 <!--       </para> -->
-    </sect2>
-    <sect2>
+    </sect1>
+    <sect1>
       <title>The Device Interface Classes</title>
       <para>
 	The most common used interfaces for machine control
@@ -181,7 +177,7 @@ of the physical interfaces they use underneath. You just want to know the
 	All the Device Interface classes reside in the
 	<classname>ORO_DeviceInterface</classname> namespace.
       </para>
-      <sect3>
+      <sect2>
 	<title>Physical IO</title>
 	<para>
 	  There are several classes for representing
@@ -232,16 +228,17 @@ of the physical interfaces they use underneath. You just want to know the
 	  </tgroup>
 	  <!-- one of (graphic mediaobject tgroup) -->
 	</table>
-      </sect3>
-      <sect3>
+      </sect2>
+      <sect2>
 	<title>Logical Device Interfaces</title>
 	<para>
-	  The interfaces found in the logical
-	  subdirectory of this package are less used because
-	  most implementations of logical devices are
-	  already hardware independent. Therefore, they do not
-	  need an interface and the implementation can be
-	  provided immediately. The Device Interface packages
+	  From a logical point of view, the generic
+	  <classname>SensorInterface&ltT></classname> is an
+	  easy to use abstraction for reading any kind 
+	  of data of type T.
+	</para>
+	<para>
+	  The Device Interface packages
 	  does however not provide implementations and thus
 	  the logical devices are implemented in the Device
 	  Driver package and ORO_DeviceDriver namespace.
@@ -249,11 +246,11 @@ of the physical interfaces they use underneath. You just want to know the
 	  <classname>Axis</classname>,
 	  <classname>DigitalInput</classname>,
 	  <classname>DigitalOutput</classname> and
-	  <classname>Drive</classname>.
+	  <classname>AnalogDrive</classname>.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </sect2>
+    </sect1>
+    <sect1>
       <title>Porting Device Drivers to Device Interfaces</title>
       <para>
 	The methods in each interface are well documented
@@ -265,16 +262,16 @@ of the physical interfaces they use underneath. You just want to know the
 	use these implementations to provide higher level
 	functionalities.
       </para>
-    </sect2>
-    <sect2>
-      <title>Name Serving</title>
+    </sect1>
+    <sect1>
+      <title>Interface Name Serving</title>
       <para>
 	Name Serving is introduced in the Orocos CoreLib documentation.
       </para>
       <para>
-	The FDI provides name serving on interface level. This means
+	The Device Interface provides name serving on interface level. This means
 	that one can ask a certain interface by which objects it is
-	implemented and retrieve the desired instance. No casting
+	implemented and retrieve the desired instance. No type-casting
 	whatsoever is needed for this operation. For now, only the
 	physical device layer can be queried for entities, since
 	logical device drivers are typically instantiated where
@@ -297,15 +294,5 @@ delete card;
 	  </programlisting>
 	</example>
       </para>
-    </sect2>
-  </sect1>
-    <sect1>
-    <title>The Orocos Object Hierarchy</title>
-    <para>
-      It is our aim to gradually build a common class hierarchy in the
-      project describing the interfaces of data structures or devices.
-      This will allow our applications to share the same data format
-      and thus communicate efficiently.
-    </para>
-  </sect1>
+    </sect1>
 </article>

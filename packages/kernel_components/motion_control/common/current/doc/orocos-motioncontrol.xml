@@ -48,24 +48,14 @@
   <sect1>
     <title>Introduction</title>
     <para>
-      This section explains installation, and gives an overview of the
+      This document explains installation, and gives an overview of the
       features and interface of the &orocos; &motcontrol; Components.
     </para>
-    <sect2>
-      <title>Installation</title>
-      <para>
-        Install the Orocos Geometry and Kinematics package first, we
-	use it for all the kinematic calculations. A package is
-	provided on the Orocos web page.
-      </para>
-      <para>
-	&orocos; uses the eCos tools for configuration and building.
-	Therefore the configuration and building process is pretty
-	well standardised. We refer to the Orocos Base installation
-	instructions for the advised configuration and installation
-	procedure. 
-      </para>
-    </sect2>
+    <para>
+      Install the Orocos Geometry and Kinematics package first, 
+      it is used for the kinematic calculations. A package is
+      provided on the Orocos web page.
+    </para>
 <!--     <sect2><title>Prerequisites</title> -->
 <!--       <tip> -->
 <!-- 	<para> -->

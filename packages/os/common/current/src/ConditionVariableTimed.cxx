@@ -52,7 +52,7 @@ namespace ORO_OS
          */
         int retcode = 0;
 
-        TIME_SPEC ts( *hrt2ts( systemTimeGet() ) ) ;
+        TIME_SPEC ts( ticks2timespec( systemTimeGet() ) ) ;
 
         int temp = ( int ) time;
         ts.tv_sec += temp;

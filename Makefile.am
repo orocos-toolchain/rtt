@@ -30,19 +30,32 @@ EXTRA_DIST = \
 
 DISTCHECK_CONFIGURE_FLAGS = --disable-tests
 
+PATHHEADERS=$$(cd packages/install/include; find . -type f )
+
 docs:
 	$(MAKE) -C doc docs
 
 packages/ecos.db:
-	touch @abs_srcdir@/packages/ecos.db
+	touch $(abs_srcdir)/packages/ecos.db
 
 clean-local: clean_packages
 
-uninstall-local: clean_install
+uninstall-local:
+	@for i in ${PATHHEADERS}; do rm -fv $(prefix)/include/$$i; done
+	@rm -fv $(prefix)/lib/liborocos-$(ECOS_TARGET).a
+	@rm -fv $(prefix)/lib/libtarget.a
+
+install-exec-local:
+	install -m 755 -d $(prefix)/include
+	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done
+	install -m 755 -d $(prefix)/lib
+	libtool --mode=install install -p -m 644 packages/install/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib
+	-ln -s  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a
+	libtool --mode=finish $(prefix)/lib
 
 all-local: test_new_packages test_all_packages
 
-distclean-local:
+distclean-local: mrproper
 	@rm -f .new-pkg-stamp packages/.all-stamp packages/.configure-stamp
 
 test_new_packages: .new-pkg-stamp
@@ -57,11 +70,11 @@ new_packages:
 	mkdir -p packages
 	@echo "Setting up packages..."
 	@cd packages &&\
-	export ECOS_REPOSITORY=@ECOS_REP@;\
-	ecosconfig new @ECOS_TARGET@ minimal ;\
+	export ECOS_REPOSITORY=$(ECOS_REP);\
+	ecosconfig new $(ECOS_TARGET) minimal ;\
 	if test -f ecos.ecc; then \
 	ecosconfig add support ; \
-	for i in $$(find @ECOS_REP@/support -name "*.cdl" -a -not -name "support.cdl"); do \
+	for i in $$(find $(ECOS_REP)/support -name "*.cdl" -a -not -name "support.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl) >/dev/null ; done ;\
 	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
@@ -78,7 +91,7 @@ new_packages:
 # a graphical tool.
 configure_packages: test_new_packages
 	cd packages &&\
-	export ECOS_REPOSITORY=@ECOS_REP@ &&\
+	export ECOS_REPOSITORY=$(ECOS_REP) &&\
 	ln -sf ecos.ecc orocos.ecc &&\
 	configtool orocos.ecc
 
@@ -93,9 +106,12 @@ test_all_packages: .all-stamp
 all_packages: test_new_packages 
 	cd packages &&\
 	if test -f ecos.ecc; then \
-	export ECOS_REPOSITORY=@ECOS_REP@ &&\
+	export ECOS_REPOSITORY=$(ECOS_REP) &&\
 	ecosconfig tree && \
-	$(MAKE) -C . ;\
+	$(MAKE) -C . && \
+	mv -u install/lib/libtarget.a install/lib/liborocos-$(ECOS_TARGET).a 2>/dev/null ;\
+	cd install/lib ; ln -sf liborocos-$(ECOS_TARGET).a libtarget.a && cd ../.. ;\
+	touch install/lib/liborocos-$(ECOS_TARGET).a ;\
 	fi
 
 precompile_headers:
@@ -122,48 +138,47 @@ test_check_packages: .check-stamp
 # This checks the configuration
 check_packages:
 	cd packages ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	ecosconfig -v check
 
 # This removes the whole ! packages build directory
 mrproper:
-	rm -rf packages
+	@rm -rvf packages
 
 # This cleans the install directory, meaning
 # the install/include, install/lib, install/modules
 # and install/bin directories.
 clean_install:
 	@echo -e "\nThis command will erase the install directory !\n"
-	cd packages && \
-	rm -rf packages/install
+	@rm -rvf packages/install
 
 ########################################################################
 # KUL specific :
 ########################################################################
 new_drivers:
-	mkdir -p drv-@ECOS_TARGET@
-	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
-	ecosconfig -v new @ECOS_TARGET@ kuldrivers > new_drivers.log ; \
-	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
+	mkdir -p drv-$(ECOS_TARGET)
+	cd drv-$(ECOS_TARGET) ;\
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
+	ecosconfig -v new $(ECOS_TARGET) kuldrivers > new_drivers.log ; \
+	for i in $$(find $(ECOS_REP)/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl) > support.log; done
 
 configure_drivers:
-	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
+	cd drv-$(ECOS_TARGET) ;\
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	configtool ecos.ecc
 
 all_drivers:
-	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
+	cd drv-$(ECOS_TARGET) ;\
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	ecosconfig -v tree
-	$(MAKE) -C drv-@ECOS_TARGET@
+	$(MAKE) -C drv-$(ECOS_TARGET)
 
 check_drivers:
-	cd drv-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
+	cd drv-$(ECOS_TARGET) ;\
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	ecosconfig -v check
 
 clean_drivers:
-	$(MAKE) -C drv-@ECOS_TARGET@ clean
+	$(MAKE) -C drv-$(ECOS_TARGET) clean
 

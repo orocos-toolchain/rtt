@@ -27,7 +27,9 @@
 #ifndef __FOSI_H
 #define __FOSI_H
 
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600   // use all Posix features.
+#endif
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -45,13 +47,17 @@ extern "C" {
 #include "oro_atomic.h"
 #include "oro_bitops.h"
 
-  // include custom redirect-like include
-#include <pkgconf/os_lxrt.h>
+#include "pkgconf/os.h"
+#include "pkgconf/os_lxrt.h"
+#if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
+
+// include custom redirect-like include
 #if ORONUM_RTAI_VERSION == 3
 #include <rtai_config.h>
 #else
 #include "rtai_config.h"
 #endif
+
 
 #if ORONUM_RTAI_VERSION == 3
 #include <rtai_lxrt.h>
@@ -61,6 +67,7 @@ extern "C" {
 #include <rtai_declare.h>
 #include <rtai_usp_posix.h>
 #include <rtai_lxrt_user.h> 
+
     /**
      * About KEEP_STATIC_INLINE:
      *  What is below is questionable, sometimes it crashes, sometimes not. I disassembled the C and C++ object code,
@@ -71,46 +78,84 @@ extern "C" {
 //#include <rtai_fifos_lxrt_user.h> 
 #endif
 
-int lock_all(int stk, int heap);
+	// Finally, define the types we use :
+	typedef RT_TASK RTOS_TASK;
+	typedef SEM     RTOS_SEM;
+	typedef CND     RTOS_CND;
+
+#else // AGNOSTIC
+
+	// For PeriodicTask.cxx :
+	// we need to define the types without the headers,
+	// this is RTAI version dependent.
+#if ORONUM_RTAI_VERSION == 3
+    // v3.x :
+	typedef struct oro_lxrt_t {
+		int opaque;
+	} __LXRT_HANDLE_STRUCT;
+    typedef __LXRT_HANDLE_STRUCT RTOS_TASK;
+    typedef __LXRT_HANDLE_STRUCT RTOS_SEM;
+    typedef __LXRT_HANDLE_STRUCT RTOS_CND; 
+#else
+    // v24.1.x :
+    typedef void RTOS_TASK;
+    typedef void RTOS_SEM;
+    typedef void RTOS_CND; 
+#endif
+#endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
+
+	/**
+	 * Typdefs
+	 */
+	int lock_all(int stk, int heap);
 
 #define __LXRT_USERSPACE__
 
 
-  typedef pthread_t RTOS_TASK;
-  typedef pthread_mutex_t rt_mutex_t;
-
-// Time Related
-
-typedef RTIME NANO_TIME;
-typedef struct timespec TIME_SPEC;
- 
-
-// searching for better implementation
-// hrt is in nanoseconds
-#define hrt2ts(hrt) ((const TIME_SPEC *) ({ TIME_SPEC timevl; \
-            timevl.tv_sec = nano2count(hrt) / 1000000000LL;\
-            timevl.tv_nsec = nano2count(hrt) % 1000000000LL;\
-            &timevl; }))
+	typedef pthread_mutex_t rt_mutex_t;
+	
+	// Time Related
+	
+	typedef long long NANO_TIME;
+	typedef long long TICK_TIME;
+	typedef struct timespec TIME_SPEC;
+	
+#ifndef OROBLD_OS_AGNOSTIC
+	
+	// hrt is in ticks
+TIME_SPEC ticks2timespec(TICK_TIME hrt)
+{
+	TIME_SPEC timevl;
+	timevl.tv_sec = nano2count(hrt) / 1000000000LL;
+	timevl.tv_nsec = nano2count(hrt) % 1000000000LL;
+	return timevl;
+}
 
 // turn this on to have maximum detection of valid system calls.
-#define CHECK_SYSTEM_CALLS
-
-#ifdef CHECK_SYSTEM_CALLS
+#ifdef OROSEM_OS_LXRT_CHECK
 #define CHK_LXRT_CALL() do { if(rt_buddy() == 0) { \
         printf("LXRT NOT INITIALISED IN THIS THREAD pid=%d,\n\
     BUT TRIES TO INVOKE LXRT FUNCTION >>%s<< ANYWAY\n", getpid(), __FUNCTION__ );\
         assert( rt_buddy() != 0 ); }\
         } while(0)
+#define CHK_LXRT_PTR(ptr) do { if(ptr == 0) { \
+        printf("TRIED TO PASS NULL POINTER TO LXRT IN THREAD pid=%d,\n\
+    IN TRYING TO INVOKE LXRT FUNCTION >>%s<<\n", getpid(), __FUNCTION__ );\
+        assert( ptr != 0 ); }\
+        } while(0)
 #else
 #define CHK_LXRT_CALL()
+#define CHK_LXRT_PTR()
 #endif
-
     
-inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time(); }
+inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
-inline RTIME systemTimeGet(void) { return rt_get_time(); }
+inline TICK_TIME systemTimeGet(void) { return rt_get_time(); }
 
-inline RTIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
+inline TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
+
+	inline TICK_TIME nano2ticks(NANO_TIME t) { return nano2count(t); }
+	inline NANO_TIME ticks2nano(TICK_TIME t) { return count2nano(t); }
 
 inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) 
 {
@@ -203,6 +248,55 @@ int rtos_printf(const char *fmt, ...)
     return rtai_print_to_screen(printkbuf);
     //return printf(printkbuf);
 }
+
+#else  // OSBLD_OS_AGNOSTIC
+
+/**
+ * Only function prototypes.
+ */
+
+TIME_SPEC ticks2timespec(TICK_TIME hrt);
+
+NANO_TIME rtos_get_time_ns(void);
+
+TICK_TIME systemTimeGet(void);
+
+TICK_TIME ticksPerSec(void);
+
+TICK_TIME nano2ticks(NANO_TIME t);
+
+NANO_TIME ticks2nano(TICK_TIME t);
+
+int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) ;
+
+int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+
+int rtos_mutex_destroy(rt_mutex_t* m );
+
+int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+
+int rtos_mutex_rec_destroy(rt_mutex_t* m );
+
+int rtos_mutex_lock( rt_mutex_t* m);
+
+int rtos_mutex_trylock( rt_mutex_t* m);
+
+int rtos_mutex_unlock( rt_mutex_t* m);
+
+typedef pthread_cond_t rt_cond_t;
+int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr);
+
+int rtos_cond_destroy(rt_cond_t *cond);
+
+int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime);
+
+int rtos_cond_broadcast(rt_cond_t *cond);
+
+int rtos_printf(const char *fmt, ...);
+
+#endif // OSBLD_OS_AGNOSTIC
+
+
 
 // will become redundant ?
 inline void rtos_enable_fpu(pthread_attr_t *pa) { return; }

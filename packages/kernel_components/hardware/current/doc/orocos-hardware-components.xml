@@ -52,22 +52,12 @@
       This section explains installation, and gives an overview of the
       features and interface of the &orocos; &hardwcomp;.
     </para>
-    <sect2>
-      <title>Installation</title>
-      <para>
-	This package depends on the interfaces defined in the 
-	Orocos Device Interface package and implementations of the
-	Orocos Device Drivers package. They must be installed together
-	with the Orocos Control Kernel package and the Corelib.
-      </para>
-      <para>
-	&orocos; uses the eCos tools for configuration and building.
-	Therefore the configuration and building process is pretty
-	well standardised. We refer to the Orocos Base installation
-	instructions for the advised configuration and installation
-	procedure. 
-      </para>
-    </sect2>
+    <para>
+      This package depends on the interfaces defined in the 
+      Orocos Device Interface package and implementations of the
+      Orocos Device Drivers package. They must be installed together
+      with the Orocos Control Kernel package and the Corelib.
+    </para>
   </sect1>
   <sect1>
     <title>Generic Hardware Abstraction</title>

@@ -50,9 +50,9 @@ docps: epsimages $(PSDOCS)
 
 doctxt: $(TXTDOCS)
 
-pngimages: $(EPSIMGS)
+pngimages: $(PNGIMGS)
 
-epsimages: $(PNGIMGS)
+epsimages: $(EPSIMGS)
 	cp @ECOS_REP@/eps/*.eps .
 
 .sgml.html:

@@ -29,7 +29,7 @@
  * @mainpage Processor Online Documentation
  * @section intro Introduction
  * 
- * For a detailed overview of the Processor, take a look at the <a href="../../../orocos-processor.html">
+ * For a detailed overview of the Processor, take a look at the <a href="../../../orocos-program-processor.html">
  * online documentation</a> of this package.
  */
 

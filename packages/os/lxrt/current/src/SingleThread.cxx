@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#define OROBLD_OS_LXRT_INTERNAL
 #include <os/SingleThread.hpp>
 
 // extern package config headers.

@@ -122,27 +122,9 @@ namespace ORO_OS
 
         virtual void finalize();
 
-        bool makeHardRealtime() 
-        { 
-            if ( !running ) 
-                {
-                    goRealtime = true; 
-                    rt_sem_signal(sem);
-                    rt_sem_wait(confDone);
-                }
-            return goRealtime; 
-        }
-        bool makeSoftRealtime()
-        { 
-            if ( !running ) 
-                {
-                    goRealtime = false; 
-                    rt_sem_signal(sem);
-                    rt_sem_wait(confDone);
-                }
-            return !goRealtime; 
-        }
-        bool isHardRealtime()   { return rt_is_hard_real_time(rt_task); }
+        bool makeHardRealtime();
+        bool makeSoftRealtime();
+        bool isHardRealtime();
 
     protected:
         virtual void continuousStepping(bool yes_no);
@@ -170,7 +152,7 @@ namespace ORO_OS
         /**
          * Periodicity of the thread in ns.
          */
-        RTIME period;
+        TICK_TIME period;
 
         /**
          * When set to 1, the thread will run, when set to 0
@@ -191,7 +173,7 @@ namespace ORO_OS
         /**
          * The realtime task
          */
-        RT_TASK* rt_task;
+        RTOS_TASK* rt_task;
 
         /**
          * The userspace thread carying the rt_task.
@@ -206,8 +188,8 @@ namespace ORO_OS
 
         bool prepareForExit;
 
-        SEM* sem;
-        SEM* confDone;
+        RTOS_SEM* sem;
+        RTOS_SEM* confDone;
         /**
          * The possible Runnable to run in this Component
          */

@@ -31,12 +31,12 @@ namespace ORO_CoreLib
 
     HeartBeatGenerator::ticks HeartBeatGenerator::nsecs2ticks( const nsecs m )
     {
-        return nano2count( m );
+        return nano2ticks( m );
     }
 
     HeartBeatGenerator::nsecs HeartBeatGenerator::ticks2nsecs( const ticks t )
     {
-        return count2nano( t );
+        return ticks2nano( t );
     }
 
     HeartBeatGenerator* HeartBeatGenerator::Instance()

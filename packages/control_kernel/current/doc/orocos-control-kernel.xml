@@ -2962,6 +2962,22 @@ do states.SecondContext.deactivate()
 	  Consult the Program Parser and Task Infrastructure manuals
 	  for all details.
 	</para>
+	<para>
+	  With this Extension, the Control Kernel exports itself in a <classname>TaskContext</classname>,
+	  which can be used to integrate it with other Orocos tasks.
+	  The name of the task is the kernel name ("Default" by default).
+	  The listing below shows how you can connect the kernel's task to the
+	  <classname>TaskBrowser</classname>.
+	  <programlisting>
+  TaskContext* kern_task = my_kernel.getTaskContext();
+
+  TaskBrowser browser( kern_task );
+  browser.loop();
+	  </programlisting>
+	  The above code snippet will cause a text console to be opened
+	  which allows a user to interface the Control Kernel,
+	  its Components and its peer tasks.
+	</para>
       </sect3>
       <sect3>
 	<title>Elaborated Example</title>

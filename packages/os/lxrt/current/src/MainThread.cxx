@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#define OROBLD_OS_LXRT_INTERNAL
 #include "os/MainThread.hpp"
 //#include <linux/module.h>
 #include <sched.h>

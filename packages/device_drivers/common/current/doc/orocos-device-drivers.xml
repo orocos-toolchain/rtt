@@ -15,15 +15,6 @@
           <address><country>Belgium</country></address>
         </affiliation>
       </author>
-
-      <author>
-        <firstname>Panagiotis</firstname>
-        <surname>Issaris</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
     </authorgroup>
     <copyright>
       <year>2003,2004</year>
@@ -97,8 +88,7 @@
 	      reading/resetting the cards and some event
 	      handling.</para></listitem>
 	  <listitem>
-	    <para>An example of how an Axis class could implement
-	      homing</para></listitem>
+	    <para>An Axis implementation.</para></listitem>
 	  <listitem>
 	    <para>A CANOpen implementation using <ulink
 		url="http://www.microcontrol.net/CANpie/">
@@ -135,17 +125,17 @@
 	is properly abstracted.
       </para>
     </sect2>
-  </sect1>
-  <sect1>
-    <title>Installation Instructions</title>
-    <para>
-      We refer to the orocos-installation manual on how to install
-      this package.
-    </para>
-    <para>
-      Most device drivers are configurable in the configtool
-      menus so that they match the card configuration.
-    </para>
+    <sect2>
+    <title>Installation</title>
+      <para>
+	We refer to the orocos-installation manual on how to install
+	this package.
+      </para>
+      <para>
+	Most device drivers are configurable in the configtool
+	menus so that they match the card configuration.
+      </para>
+    </sect2>
   </sect1>
   <sect1>
     <title>Developers Documentation</title>
@@ -180,7 +170,7 @@
       <title>Logical Device Drivers</title>
       <para>
 	This contains implementation of logical devices such as DigitalInput,
-	DigitalOutput, AnalogInput, AnalogOutput, Axis, Drive,... they are
+	DigitalOutput, AnalogInput, AnalogOutput, Axis, AnalogDrive,... they are
 	access-wrappers around the more general IO Interfaces. They require
 	the corresponding Device Interface to communicate with.
       </para>

@@ -51,6 +51,7 @@ extern "C"
 #include <time.h>
 #include <unistd.h>
     typedef long long NANO_TIME;
+    typedef long long TICK_TIME;
 
     typedef struct timespec TIME_SPEC;
 
@@ -93,13 +94,13 @@ extern "C"
      * which is an anachronism in userspace.
      */
     inline
-    long long nano2count( long long nano )
+    long long nano2ticks( long long nano )
     {
         return nano;
     }
 
     inline
-    long long count2nano( long long count )
+    long long ticks2nano( long long count )
     {
         return count;
     }
@@ -223,20 +224,15 @@ extern "C"
 
 #endif
 
-    // high-resolution time to timespec
-#ifdef __GNUC__
-#define hrt2ts(hrt) ((const TIME_SPEC *) ({TIME_SPEC timevl; timevl.tv_nsec = hrt % (1000000000LL); timevl.tv_sec= hrt / (1000000000LL); &timevl; }))
-#else
-
-#warning "Memory leaking code... do not use with GNU compiler"
-inline const TIME_SPEC* hrt2ts(NANO_TIME hrt) 
-{ 
-    TIME_SPEC *timevl = (TIME_SPEC*)malloc(sizeof(TIME_SPEC)); 
-    timevl->tv_nsec = hrt % (1000000000LL); 
-    timevl->tv_sec= hrt / (1000000000LL); 
-    return timevl;
+// high-resolution time to timespec
+// hrt is in ticks
+inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+{
+	TIME_SPEC timevl;
+	timevl.tv_sec = hrt / 1000000000LL;
+	timevl.tv_nsec = hrt % 1000000000LL;
+	return timevl;
 }
-#endif
 
 #ifdef __cplusplus
 }

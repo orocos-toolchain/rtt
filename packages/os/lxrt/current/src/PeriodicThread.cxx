@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#define OROBLD_OS_LXRT_INTERNAL
 #include <os/PeriodicThread.hpp>
 
 // extern package config headers.
@@ -49,6 +50,8 @@ using boost::bind;
 using namespace ORO_CoreLib;
 
 #endif
+
+
 
 namespace ORO_OS
 {
@@ -175,6 +178,7 @@ namespace ORO_OS
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h->disconnect();
         delete h;
+        delete static_cast<Event<bool(void)>*>(stopEvent);
 #endif
         rtos_printf("%s destroyed\n", taskName );
     }
@@ -239,6 +243,31 @@ namespace ORO_OS
     {
         return running;
     }
+
+    bool PeriodicThread::makeHardRealtime() 
+    { 
+        if ( !running ) 
+            {
+                goRealtime = true; 
+                rt_sem_signal(sem);
+                rt_sem_wait(confDone);
+            }
+        return goRealtime; 
+    }
+
+    bool PeriodicThread::makeSoftRealtime()
+    { 
+        if ( !running ) 
+            {
+                goRealtime = false; 
+                rt_sem_signal(sem);
+                rt_sem_wait(confDone);
+            }
+        return !goRealtime; 
+    }
+
+    bool PeriodicThread::isHardRealtime()   { return rt_is_hard_real_time(rt_task); }
+
 
     void PeriodicThread::configure()
     {
