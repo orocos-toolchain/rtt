@@ -42,16 +42,6 @@ using namespace ORO_CoreLib;
 #endif
 
 
-TaskInterface* ControlKernelInterface::getTask() const
-{
-    return mytask;
-}
-
-void ControlKernelInterface::setTask( TaskInterface* task )
-{
-    mytask = task;
-}
-
 const std::string& ControlKernelInterface::getKernelName() const
 {
     return name.get();
@@ -82,17 +72,6 @@ KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* _base )
 {}
 
 KernelBaseFunction::~KernelBaseFunction() {}
-
-TaskInterface* KernelBaseFunction::getTask() const
-{
-    return cki->getTask();
-}
-    
-void KernelBaseFunction::setTask( TaskInterface* task )
-{
-    cki->setTask( task );
-}
-
 
 bool KernelBaseFunction::initialize() 
 { 

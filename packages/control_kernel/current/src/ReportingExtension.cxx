@@ -89,17 +89,6 @@ namespace ORO_ControlKernel
 
     ReportingExtension::~ReportingExtension() {}
 
-    TaskInterface* ReportingExtension::getTask() const
-    {
-        return base->getTask();
-    }
-    
-    void ReportingExtension::setTask( TaskInterface* task )
-    {
-        base->setTask( task );
-    }
-
-            
     /**
      * A class for streaming to two ostream objects.
      */

@@ -144,10 +144,6 @@ namespace ORO_ControlKernel
          */
         virtual void finalize();
 
-        virtual TaskInterface* getTask() const;
-
-        virtual void setTask( TaskInterface* task );
-
         /**
          * Used by the PropertyComponentInterface to register itself to
          * this Extension.

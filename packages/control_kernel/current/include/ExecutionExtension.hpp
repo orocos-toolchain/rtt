@@ -211,11 +211,6 @@ namespace ORO_ControlKernel
 
         bool continuousStateContext(const std::string& name);
 
-
-        virtual TaskInterface* getTask() const;
-
-        virtual void setTask( TaskInterface* task );
-
         virtual void step() ;
 
         virtual void finalize();
