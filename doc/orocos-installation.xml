@@ -18,8 +18,7 @@
     <title>
       The OROCOS Installation Guide 
     </title>
-    <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
-    <subtitlef><emphasis>&oversion;</emphasis></subtitle>
+    <subtitle><emphasis>Open Robot Control Software Version &oversion;</emphasis></subtitle>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>
