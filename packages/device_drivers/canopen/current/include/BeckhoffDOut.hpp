@@ -92,7 +92,7 @@ namespace Beckhoff
                                                 
         unsigned int nbOfOutputs() const
         {
-            return 32;
+            return totalBits;
         }
 
         

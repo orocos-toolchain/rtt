@@ -41,7 +41,7 @@ namespace CAN
           public CANListenerInterface
     {
         CANOpenBus* bus;
-        int nodeId;
+        unsigned int nodeId;
         CANMessage* rtr;
         unsigned int toggle;
         bool toggle_ok;

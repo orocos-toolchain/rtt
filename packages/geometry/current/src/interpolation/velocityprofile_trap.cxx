@@ -49,7 +49,9 @@ namespace ORO_Geometry {
 
 
 VelocityProfile_Trap::VelocityProfile_Trap(double _maxvel,double _maxacc):
-		  maxvel(_maxvel),maxacc(_maxacc) {}
+		  duration(0),t1(0),t2(0),
+          maxvel(_maxvel),maxacc(_maxacc),
+          startpos(0), endpos(0) {}
 		// constructs motion profile class with <maxvel> as parameter of the
 		// trajectory.
 
