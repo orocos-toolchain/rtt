@@ -80,21 +80,19 @@ namespace ORO_ControlKernel
      * can also use simulated hardware.
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base = Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+    class GenericEffector
+        : public Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                                            ,ExecutionExtension
 #endif
-                                                                           >::CommonBase > >
-    class GenericEffector
-        : public Base
+                                                                           >::Result >
     {
+        typedef Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                             ,ExecutionExtension
+#endif
+                                                             >::Result > Base;
     public:
-        typedef GenericOutput OutputDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::OutputType OutputType;
         /** 
          * @brief Create a Generic Effector component with a maximum number of channels.
          * 
@@ -115,7 +113,7 @@ namespace ORO_ControlKernel
             // We check if the required DataObjects are present
             // they are introduced by the Controller component.
             if (
-                std::count_if( a_out.begin(), a_out.end(), bind( &GenericEffector<Base>::lacksAOut, this, _1 ) ) ||
+                std::count_if( a_out.begin(), a_out.end(), bind( &GenericEffector::lacksAOut, this, _1 ) ) ||
                  ( usingChannels && ! Base::Output::dObj()->Get("ChannelValues", chan_DObj) ) )
                 return false;
             return true;
@@ -129,15 +127,17 @@ namespace ORO_ControlKernel
             /*
              * Acces Analog device drivers and Drives
              */
-            std::for_each( a_out.begin(), a_out.end(), bind( &GenericEffector<Base>::write_to_aout, this, _1 ) );
+            std::for_each( a_out.begin(), a_out.end(), bind( &GenericEffector::write_to_aout, this, _1 ) );
 
             // gather results.
-            chan_DObj->Get( chan_out );
+            if ( usingChannels ) {
+                chan_DObj->Get( chan_out );
 
-            // writeout.
-            for (unsigned int i=0; i < channels.size(); ++i)
-                if ( channels[i] )
-                    channels[i]->value( chan_out[i] );
+                // writeout.
+                for (unsigned int i=0; i < channels.size(); ++i)
+                    if ( channels[i] )
+                        channels[i]->value( chan_out[i] );
+            }
         }
 
         /** 
@@ -337,20 +337,20 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< GenericEffector<Base> >* ret =
+            TemplateDataSourceFactory< GenericEffector >* ret =
                 newDataSourceFactory( this );
             ret->add( "isOn", 
-                      data( &GenericEffector<Base>::isOn,
+                      data( &GenericEffector::isOn,
                             "Inspect the status of a Digital Output.",
                             "Name", "The Name of the Digital Output."
                             ) );
             ret->add( "value", 
-                      data( &GenericEffector<Base>::value,
+                      data( &GenericEffector::value,
                             "Inspect the value of an Analog Output.",
                             "Name", "The Name of the Analog Output."
                             ) );
             ret->add( "rawValue", 
-                      data( &GenericEffector<Base>::rawValue,
+                      data( &GenericEffector::rawValue,
                             "Inspect the raw value of an Analog Output.",
                             "Name", "The Name of the Analog Output."
                             ) );
@@ -361,17 +361,17 @@ namespace ORO_ControlKernel
 
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< GenericEffector<Base> >* ret =
+            TemplateCommandFactory< GenericEffector >* ret =
                 newCommandFactory( this );
             ret->add( "switchOn",
-                      command( &GenericEffector<Base>::switchOn,
-                               &GenericEffector<Base>::true_gen,
+                      command( &GenericEffector::switchOn,
+                               &GenericEffector::true_gen,
                                "Switch A Digital Output on",
                                "Name","The Name of the DigitalOutput."
                                ) ); 
             ret->add( "switchOff",
-                      command( &GenericEffector<Base>::switchOff,
-                               &GenericEffector<Base>::true_gen,
+                      command( &GenericEffector::switchOff,
+                               &GenericEffector::true_gen,
                                "Switch A Digital Output off",
                                "Name","The Name of the DigitalOutput."
                                ) ); 
@@ -413,7 +413,6 @@ namespace ORO_ControlKernel
         int usingChannels;
     };
 
-    extern template class GenericEffector<>;
 
 }
 #endif

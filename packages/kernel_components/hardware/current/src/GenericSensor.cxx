@@ -4,5 +4,4 @@
 
 namespace ORO_ControlKernel
 {
-    template class GenericSensor<>;
 }

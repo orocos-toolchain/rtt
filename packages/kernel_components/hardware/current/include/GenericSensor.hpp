@@ -119,18 +119,14 @@ namespace ORO_ControlKernel
      * can also use simulated hardware.
      * @ingroup kcomps kcomp_sensor
      */
-    template <class Base = Sensor< Writes<GenericInput>,
-                                   MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase> >
     class GenericSensor
-        : public Base
+        : public Sensor< Writes<GenericInput>,
+                                   MakeAspect<KernelBaseFunction, ExecutionExtension>::Result>
     {
+        typedef Sensor< Writes<GenericInput>,
+                        MakeAspect<KernelBaseFunction, ExecutionExtension>::Result> Base;
     public:
         typedef GenericInput InputDataObject;
-
-        /**
-         * Necessary typedefs.
-         */
-        typedef typename Base::InputType InputType;
             
         /**
          * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
@@ -171,7 +167,7 @@ namespace ORO_ControlKernel
             /*
              * Acces Analog device drivers
              */
-            std::for_each( a_in.begin(), a_in.end(), bind( &GenericSensor<Base>::write_a_in_to_do, this, _1 ) );
+            std::for_each( a_in.begin(), a_in.end(), bind( &GenericSensor::write_a_in_to_do, this, _1 ) );
 
             // gather results.
             for (unsigned int i=0; i < channels.size(); ++i)
@@ -360,20 +356,20 @@ namespace ORO_ControlKernel
 
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< GenericSensor<Base> >* ret =
+            TemplateDataSourceFactory< GenericSensor >* ret =
                 newDataSourceFactory( this );
             ret->add( "isOn", 
-                      data( &GenericSensor<Base>::isOn,
+                      data( &GenericSensor::isOn,
                             "Inspect the status of a Digital Input.",
                             "Name", "The Name of the Digital Input."
                             ) );
             ret->add( "value", 
-                      data( &GenericSensor<Base>::value,
+                      data( &GenericSensor::value,
                             "Inspect the value of an Analog Input.",
                             "Name", "The Name of the Analog Input."
                             ) );
             ret->add( "rawValue", 
-                      data( &GenericSensor<Base>::rawValue,
+                      data( &GenericSensor::rawValue,
                             "Inspect the raw value of an Analog Input.",
                             "Name", "The Name of the Analog Input."
                             ) );
@@ -408,8 +404,6 @@ namespace ORO_ControlKernel
                         DataObjectInterface<double>* > > AInMap;
         AInMap a_in;
     };
-
-    extern template class GenericSensor<>;
 
 }
 

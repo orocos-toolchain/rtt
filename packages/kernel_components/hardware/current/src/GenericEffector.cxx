@@ -4,5 +4,5 @@
 
 namespace ORO_ControlKernel
 {
-    template class GenericEffector<>;
+
 }
