@@ -45,15 +45,16 @@ namespace ORO_ControlKernel
     using std::pair;
 
     /**
-     * We can read integers, doubles and booleans.
+     * @brief An AxisEffector can read integers, doubles and booleans
+     * and Channel Values.
      */
     struct AxisOutput
         : public ServedTypes<unsigned int, int, double, bool, std::vector<double> >
     {};
 
     /**
-     * An Effector using the ORO_DeviceDriver Axis implementation
-     * for machine or robot axes.
+     * @brief An Effector using the ORO_DeviceDriver Axis implementation
+     * for accessing machine or robot axes.
      *
      * @see ControlKernel
      */
@@ -69,6 +70,12 @@ namespace ORO_ControlKernel
          */
         typedef typename Base::OutputType OutputType;
             
+        /**
+         * @brief Create an Axis effector for Motion Control.
+         *
+         * @param max_chan The number of channels available in the
+         *        output DataObject.
+         */
         AxisEffector(int max_chan = 1) 
             :  Base("AxisEffector"),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
@@ -114,8 +121,10 @@ namespace ORO_ControlKernel
          *
          * A DigitalOutput is created with name "<name>.Drive" representing
          * the Drive enable.
+         *
          * A DigitalOutput is created with name "<name>.Break" representing
          * the Drive mechanical break.
+         *
          * A Drive Output is created with name "<name>.Velocity" representing
          * the Drive velocity.
          */
@@ -140,6 +149,7 @@ namespace ORO_ControlKernel
          *
          * A DigitalOutput is created with name "<name>.Drive" representing
          * the Drive enable.
+         *
          * A Channel is added representing the Drive velocity on channel <virt_channel>.
          */
         bool addAxisChannel(int virt_channel, const std::string& name, Axis* ax )
@@ -156,6 +166,9 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /**
+         * @brief Remove a previously added Axis.
+         */
         bool removeAxis( const std::string& name )
         {
             if ( axes.count(name) != 1 || kernel()->isRunning() )
@@ -173,6 +186,9 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /**
+         * @brief Enable an Axis.
+         */
         void enableAxis( const std::string& name )
         {
             if ( axes.count(name) != 1 )
@@ -180,6 +196,9 @@ namespace ORO_ControlKernel
             axes[name]->enable();
         }
 
+        /**
+         * @brief Disable an Axis.
+         */
         void disableAxis( const std::string& name )
         {
             if ( axes.count(name) != 1 )

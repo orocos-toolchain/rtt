@@ -57,7 +57,8 @@ namespace ORO_ControlKernel
     using namespace boost;
 
     /**
-     * We can read integers, doubles and booleans.
+     * @brief A GenericSensor can produce integers, doubles, booleans
+     * and Channel Measurements.
      */
     struct GenericInput
         : public ServedTypes<unsigned int, int, double, bool, std::vector<double> >
@@ -69,7 +70,7 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * An Sensor using the ORO_DeviceInterface devices
+     * @brief A Generic Sensor using the ORO_DeviceInterface devices
      * for accessing hardware devices. Off course, you
      * can also use simulated hardware.
      */
@@ -86,7 +87,7 @@ namespace ORO_ControlKernel
         typedef typename Base::InputType InputType;
             
         /**
-         * Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
+         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
         GenericSensor( int max_chan = 32) 
@@ -126,7 +127,9 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Add an AnalogInput device. A DataObject is created which contains
+         * @brief Add an AnalogInput device.
+         *
+         * A DataObject is created which contains
          * the converted value of the input. The raw value of the channel can be read
          * through the DataObject DO_name + "_raw".
          *
@@ -157,7 +160,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Remove a previously added Analog Input.
+         * @brief Remove a previously added Analog Input.
          */
         bool removeAnalogInput( const std::string& name )
         {
@@ -178,7 +181,9 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Add an analog Channel. A std::vector<double> DataObject
+         * @brief Add an analog Channel.
+         *
+         * A std::vector<double> DataObject
          * ( "ChannelMeasurements") is used which contains
          * the converted value of the input. 
          *

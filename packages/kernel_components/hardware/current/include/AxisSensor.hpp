@@ -45,7 +45,7 @@ namespace ORO_ControlKernel
     using boost::bind;
 
     /**
-     * We can write doubles.
+     * @brief An AxisSensor can write doubles and produce Channel Measurements.
      */
     struct AxisInput
         : public ServedTypes<double, std::vector<double> >
@@ -57,9 +57,9 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * An Axis Reading Sensor for Motion Control.
-     * @todo :
-     * Better channel<->sensor assignment
+     * @brief An Axis Reading Sensor for a Motion Control Kernel
+     *
+     * @todo : Better channel<->sensor assignment
      * Break will move from Drive to Axis.       
      */
     template <class Base>
@@ -156,6 +156,9 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /**
+         * @brief Remove a previously added Axis.
+         */
         bool removeAxis( const std::string& name )
         {
             if ( axes.count(name) != 1 || kernel()->isRunning() )
@@ -174,17 +177,27 @@ namespace ORO_ControlKernel
             axes.erase(name);
             return true;
         }
-
+        
+        /**
+         * @brief Inspect if an axis is enabled.
+         */
         bool isEnabled( const std::string& name )
         {
             return drive[name]->enableGet()->isOn();
         }
 
+        /**
+         * @brief Inspect the position of an Axis.
+         */
         double position( const std::string& name )
         {
             return sensor[name]->readSensor();
         }
 
+        /**
+         * @brief Inspect the status of a Digital Input or
+         * Digital Output.
+         */
         bool status( const std::string& name )
         {
             if ( d_in.count(name) == 1 )
