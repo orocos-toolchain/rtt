@@ -59,7 +59,7 @@ namespace ORO_ControlKernel
     nAxesSensorCartesianPos(unsigned int num_axes,
 			    std::vector<ORO_DeviceInterface::AxisInterface*> axes,
 			    ORO_KinDyn::KinematicsComponent* kin,
-			    const Frame& offset,
+			    const ORO_Geometry::Frame& offset,
 			    std::string name);
     virtual ~nAxesSensorCartesianPos();
   
