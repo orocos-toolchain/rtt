@@ -1,3 +1,16 @@
+OROCOS v0.14.2 Release Notes
+   http://www.orocos.org
+----------------------------
+
+The Orocos bugfix release 0.14.2 covers two main issues on the 0.14
+branch :
+
+* All library code has changed to the LGPL License.
+* Fix the MainThread.cxx LXRT compile issues
+* All application code (like kernel_samples) states that it is
+  covered by the GPL.
+* 0.14.1 was not made public and only had the LGPL change.
+
 OROCOS v0.14.0  Release Notes
    http://www.orocos.org
 ----------------------------
