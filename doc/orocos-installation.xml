@@ -8,6 +8,7 @@
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY oversion "0.20.0">
 ]
 >
 
@@ -17,8 +18,8 @@
     <title>
       The OROCOS Installation Guide 
     </title>
-    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
-    </subtitle>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
+    <subtitlef><emphasis>&oversion;</emphasis></subtitle>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>
@@ -26,7 +27,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004</year>
+      <year>2002,2003,2004,2005</year>
       <holder>Peter Soetens</holder>
     </copyright>
 
@@ -57,6 +58,12 @@
 	<date>1 Dec 2004</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>easier make system documented, reordered the sections</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>28 Feb 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>added upgrade section</revremark>
       </revision>
     </revhistory>
 
@@ -97,7 +104,7 @@
 	<para>
 	  RTAI with LXRT is the best supported realtime platform at this moment. RTLinux can
 	  only partially use all &orocos; features, because it lacks a decent
-	  kernel space memory manager. Furthermore, since no one is using the 
+	  kernel space memory manager. Furthermore, since no Orocos user is using the 
 	  FSMLabs RTLinux port, it is no longer updated.
 	</para>
       </sect3>
@@ -205,7 +212,7 @@
 	  in tools/bin after the archive is unpacked. In that case, you'll have to point
 	  your path to :
 	  <screen>
-  export PATH=$PATH:(...)/orocos-0.18.0/tools/bin
+  export PATH=$PATH:(...)/orocos-&oversion;/tools/bin
 	  </screen>
 	  In order to use them.  The
 	  <command>orocos-install.tcl</command> script
@@ -263,8 +270,8 @@
 	  the <command>orocosenv.sh</command> script :
 	  <screen><command>
   source orocosenv.sh
-  mkdir orocos-0.18.0/build 
-  cd orocos-0.18.0/build
+  mkdir orocos-&oversion;/build 
+  cd orocos-&oversion;/build
   ../configure --with-&lt;target&gt;
   make new_packages 
   make configure_packages
@@ -286,8 +293,8 @@
 	  For convenience, Orocos can also be used as a regular configure/make 
 	  system. It is thus allowed to :
 	  <screen> <command>
-  mkdir orocos-0.18.0/build 
-  cd orocos-0.18.0/build
+  mkdir orocos-&oversion;/build 
+  cd orocos-&oversion;/build
   ../configure --with-&lt;target&gt;
   make all
   make check
@@ -337,16 +344,16 @@
 	<para> If you choose to download the tools and packages manually, proceed as follows :
 	</para>
 	<orderedlist>
-	  <listitem><para>Download orocos-0.18.0.i386linux package from the Orocos webpage</para></listitem>
+	  <listitem><para>Download orocos-&oversion;.i386linux package from the Orocos webpage</para></listitem>
 	  <listitem><para>Extract it using :
 	      <screen><command>
-  tar -xvzf orocos-0.18.0.i386linux.tar.bz2
+  tar -xvzf orocos-&oversion;.i386linux.tar.bz2
 		</command></screen>
 	    </para></listitem>
 	  <listitem><para>Setup the base environment : 
 	      <screen>
 		<command>
-  cd orocos-0.18.0
+  cd orocos-&oversion;
   EXPORT PATH=$PATH:$(pwd)/tools/bin
   EXPORT ECOS_REPOSITORY=$(pwd)/packages
   mkdir build
@@ -761,10 +768,7 @@
     <sect2>
       <title>Configuring for RTLinux</title>
       <para>
-	The latest free release of RTLinux was 3.2. RTLinux has no
-	memory management, and this puts a limit on our use of STL
-	(Standard Template Library) vectors in realtime. (In fact, we
-	need much more.) RTLinux is no longer supported
+	The latest free release of RTLinux was 3.2. RTLinux is no longer supported
 	since no users of Orocos are using it.
       </para>
 <!--       <para> -->
@@ -790,10 +794,33 @@
 <!-- 	</para> -->
 <!--       </sect3>  -->
     </sect2>
+    <sect2>
+      <title>Upgrading Your Configuration</title>
+      <para>
+	In between Orocos versions, configuration options may be added
+	or removed to reflect feature additions or removal. In that
+	case, your current <filename>orocos.ecc</filename> file will
+	not be properly parsed by the tools. To solve this, you need
+	to run <screen>  make upgrade_packages</screen> such that your
+	old configuration is imported in the new one. After an
+	upgrade, your selected template, added packages and so on will
+	remain as before.
+      </para>
+      <note>
+	<para>You can manually save your configuration using
+	  <command>ecosconfig export /tmp/savefile.ecc</command> in
+	  your old build tree, followed by <command>make
+	    new_packages</command> and <command>ecosconfig import
+	    /tmp/savefile.ecc</command> in your new build tree.
+	  ( manually invoking ecosconfig requires setting ECOS_REPOSITORY, 
+	   <xref linkend="technical-install" /> ).
+	</para>
+      </note>
+    </sect2>
   </sect1>
 
   <sect1 id="started">
-    <title>Getting started with the code</title>
+    <title>Getting Started with the Code</title>
     <para>
       This Section provides a short overview of how to proceed next using the
       &orocos; Packages.
@@ -814,7 +841,7 @@
       </para>
     </sect2>
     <sect2>
-      <title> What about main() ?</title>
+      <title>What about main() ?</title>
       <para>
 	The first question asked by many users is : How do I write a
 	test program to see how it works? 
@@ -832,7 +859,7 @@
 	  function.
 	</para>
 	<example>
-	  <title>A Makefile for an Orocos application</title>
+	  <title>A Makefile for an Orocos Application</title>
 	  <para>
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
@@ -873,7 +900,7 @@ all: myprogram.cpp
 <!--         for starting and stopping the framework in kernel space. -->
       </sect2>
     <sect2>
-      <title>Some important header files</title>
+      <title>Some Important Header Files</title>
       <para>
 	People new to the eCos build system might be unfamiliar with locating
 	the headers they need. Especially if you want to develop your own package
@@ -948,7 +975,7 @@ all: myprogram.cpp
       </para>
     </sect2>
   </sect1>
-  <sect1>
+  <sect1 id="technical-install">
     <title>Installation Technical Details</title>
     <para>
       This section groups some technical installation instructions
@@ -968,7 +995,7 @@ all: myprogram.cpp
 	  <orderedlist>
 	    <listitem>
 	      <para>Set the environment variable :
-		<screen>export ECOS_REPOSITORY=/path/to/orocos-0.18.0/packages/</screen>
+		<screen>export ECOS_REPOSITORY=/path/to/orocos-&oversion;/packages/</screen>
 		All The ecos tools need this variable to be able to work
 		on the packages. The make targets did this automatically,
 		but if you want to invoke the tools yourself, you need to
@@ -989,7 +1016,7 @@ all: myprogram.cpp
 	    <listitem>
 	      <para>
 		Go to the eCos build directory. In Orocos this is :
-		<screen><filename>orocos-0.18.0/build/packages
+		<screen><filename>orocos-&oversion;/build/packages
 		  </filename></screen> But technically, it can be any directory
 		where you create an orocos.ecc configuration file.
 	      </para>
@@ -1003,7 +1030,7 @@ all: myprogram.cpp
 		template name. A template selects a number of packages
 		which belong together. You are allowed to put your own
 		template in
-		<filename>orocos-0.18.0/packages/templates</filename>.
+		<filename>orocos-&oversion;/packages/templates</filename>.
 		All this information (with default options)
 		is written in the <filename>orocos.ecc</filename> file
 		<warning>
