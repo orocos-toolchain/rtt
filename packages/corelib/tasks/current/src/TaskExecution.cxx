@@ -31,6 +31,8 @@ namespace ORO_CoreLib
 
     TaskExecution::~TaskExecution()
     {
+        // make sure the thread does not run when we start deleting clocks...
+        this->stop();
 #if OROSEM_CORELIB_TASKS_DYNAMIC_REG
         // cleanup events.
         for (std::list<EventItem>::iterator itl= clocks.begin(); itl != clocks.end(); ++itl)

@@ -48,6 +48,7 @@ namespace ORO_CoreLib
     {
         if ( cp != 0 )
             {
+                cp->stop();
                 delete cp;
                 cp = 0;
                 return true;
