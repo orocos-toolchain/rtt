@@ -70,6 +70,7 @@
 #define  channel  0
 
 #if   CP_FIFO_TYPE == 1
+#error
 #define  CpFifoSetup(CH, A, B)               CpFifoSetup(A)
 #else
 #define  CpFifoSetup(CH, A, B)               CpFifoSetup(A, B)

@@ -54,7 +54,7 @@
  unsigned int cp_trns_int;
 
 
-#define LVD_DEBUG
+//#define LVD_DEBUG
 
 #ifdef LVD_DEBUG
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
@@ -344,7 +344,7 @@ _U08 Cp_PREFIX CpCoreDeInitDriver(_U08 ubChannelV)
 {
    BYTE_t cr;
 
-  DEBUG("CpCoreDeInitDriver\n");
+  rt_printk("CpCoreDeInitDriver\n");
 #if   CP_SMALL_CODE == 0
    //---	test the channel number ------------------------------------
    if( (ubChannelV + 1) > CP_CHANNEL_MAX) return (CpErr_CHANNEL);
@@ -356,11 +356,24 @@ _U08 Cp_PREFIX CpCoreDeInitDriver(_U08 ubChannelV)
    rt_free_global_irq(CAN_IRQ_LINE);
    //rt_free_linux_irq(CAN_IRQ_LINE, 0);
 #endif
+
+	cr = read_reg_bcan(PCAN_IER);
+    if ((cr & PCAN_IER_TIE ) != PCAN_IER_TIE )
+        rt_printk("Warning : Transmit interrupts were disabled !\n");
+    if ((cr & PCAN_IER_RIE ) != PCAN_IER_RIE)
+        rt_printk("Warning : Receive interrupts were disabled !\n");
+
    /* Command: reset */
    cr = PCAN_MODR_RM;
    do { write_reg_bcan(PCAN_MODR,cr); } while ( (read_reg_bcan(PCAN_MODR) & cr) != cr);
 
    CpVar_CAN_Status[ubChannelV] = CP_MODE_STOP;
+
+	cr = read_reg_bcan(PCAN_IER);
+    if ((cr & PCAN_IER_TIE ) != PCAN_IER_TIE )
+        rt_printk("Warning : Transmit interrupts were disabled !\n");
+    if ((cr & PCAN_IER_RIE ) != PCAN_IER_RIE)
+        rt_printk("Warning : Receive interrupts were disabled !\n");
 
    return (CpErr_OK);
 }
@@ -374,7 +387,7 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 {
 	BYTE_t cr;
 	BYTE_t b;
-	DEBUG("CpCoreInitDriver\n");
+	rt_printk("CpCoreInitDriver\n");
 
 #if   CP_SMALL_CODE == 0
    //---	test the channel number ------------------------------------
@@ -411,8 +424,8 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 
 	/* Set bus timing parameters */
     // WAS : BTR_1MB
-	write_reg_bcan(PCAN_BTR0,BTR_500KB & 0xFF);
-	write_reg_bcan(PCAN_BTR1,BTR_500KB >> 8);
+	write_reg_bcan(PCAN_BTR0,BTR_1MB & 0xFF);
+	write_reg_bcan(PCAN_BTR1,BTR_1MB >> 8);
 
 	/* Set output control register */
 	b = (BYTE_t) OCR_PUSHPULL;
@@ -456,16 +469,21 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 //----------------------------------------------------------------------------//
 void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(void)
 {
+    //rt_printk("*");
   /**
    * This interrupt routing only supports one channel,
    * being channel zero of the CAN Controller.
    */
 	BYTE_t  Ir;
 	BYTE_t  cr;
-	_U08 error;
+	//_U08 error;
 
 	DEBUG("CpCoreIntHandler\n");
 	Ir = read_reg_bcan(PCAN_IR);
+
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
+	rt_enable_irq(CAN_IRQ_LINE);
+#endif
 
 	if ( (Ir & PCAN_IR_RI) == PCAN_IR_RI) 
 	{
@@ -475,17 +493,21 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 		rt_sem_signal( &cp_rx_sem );
         ++cp_recv_int;
 	}
-	else if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
+	if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
         {
             DEBUG("Transmit Interrupt\n");
+            //rt_printk("Transmit Interrupt\n");
             /* Transmit any messages still in fifo */
             //CpCoreMsgTransmit(0);
 			rt_sem_signal( &cp_tx_sem );
+/*             if ( CpCoreMsgTransmit(0) == CpErr_FIFO_EMPTY) */
+/*                 rt_printk("Fifo empty error in interrupt!\n"); */
             ++cp_trns_int;
         }
-    else if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
+    if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
 		{
 			DEBUG("Emergency Interrupt\n");
+			rt_printk("Emergency Interrupt\n");
 			if ((read_reg_bcan(PCAN_SR) & PCAN_SR_ES) == PCAN_SR_ES)
 			{
                 ++cp_emcy_int;
@@ -504,27 +526,24 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 			}
             
 		}
-    else if ((Ir & PCAN_IR_BEI) == PCAN_IR_BEI) {
+    if ((Ir & PCAN_IR_BEI) == PCAN_IR_BEI) {
         // Bus-error interrupt
-        DEBUG("Bus-error interrupt\n");
+        rt_printk("Bus-error interrupt\n");
     }
-    else if ((Ir & PCAN_IR_ALI) == PCAN_IR_ALI) {
-        DEBUG("Arbitration lost interrupt\n");
+    if ((Ir & PCAN_IR_ALI) == PCAN_IR_ALI) {
+        rt_printk("Arbitration lost interrupt\n");
         
     }
-    else if ((Ir & PCAN_IR_EPI) == PCAN_IR_EPI) {
-        DEBUG("Error-passive interrupt\n");
+    if ((Ir & PCAN_IR_EPI) == PCAN_IR_EPI) {
+        rt_printk("Error-passive interrupt\n");
     }
-    else if ((Ir & PCAN_IR_WUI) == PCAN_IR_WUI) {
-        DEBUG("Wake-up interrupt\n");
+    if ((Ir & PCAN_IR_WUI) == PCAN_IR_WUI) {
+        rt_printk("Wake-up interrupt\n");
     }
-    else if ((Ir & PCAN_IR_DOI) == PCAN_IR_DOI) {
-        DEBUG("Data-overrun interrupt\n");
+    if ((Ir & PCAN_IR_DOI) == PCAN_IR_DOI) {
+        rt_printk("Data-overrun interrupt\n");
     }
 
-#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
-	rt_enable_irq(CAN_IRQ_LINE);
-#endif
 }
 
 
@@ -804,7 +823,10 @@ _U08 Cp_PREFIX CpCoreMsgTransmit(_U08 ubChannelV)
    //
    ubErrCodeT = CpFifoPop(ubChannelV,CP_FIFO_TRM,&canMsgT);
    if (ubErrCodeT) {
+       // This happens in the interrupt handler if no 
+       // messages arrived yet in the fifo
        DEBUG("Fifo CpFifoPop error !\n");
+       //rt_printk("Fifo CpFifoPop error !\n");
        return (ubErrCodeT);
    }
 

@@ -67,6 +67,7 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #else
 #if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 #include <rtai.h>
+#include <rtai_malloc.h>
 #include <rtai_sem.h>
 #define free(x) rt_free(x)
 #define malloc(x) rt_malloc(x)
@@ -248,7 +249,9 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    else
    {
       //--- test if FIFO is full --------------------------
-      if(CpVar_FifoStatus[channel] & TRM_FIFO_FULL) return (CpErr_FIFO_FULL);
+      if(CpVar_FifoStatus[channel] & TRM_FIFO_FULL) { 
+          return (CpErr_FIFO_FULL);
+      }
 	  rt_sem_wait(&cp_tx_fifo_sem);
 	  sem_to_signal = &cp_tx_fifo_sem;
 

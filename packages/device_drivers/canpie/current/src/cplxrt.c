@@ -69,6 +69,7 @@ void cp_tx_function(int channel)
 		{
 			rt_sem_wait( &cp_tx_sem );
 			CpCoreMsgTransmit(channel);
+            //rt_printk(".");
 		}
 }
 		
@@ -81,6 +82,7 @@ void cp_rx_function(int channel)
 		{
 			rt_sem_wait( &cp_rx_sem );
 			CpCoreMsgReceive(channel);
+            //rt_printk("-");
 		}
 }
 		
@@ -99,6 +101,8 @@ int init_module(void)
   rt_sem_init( &cp_tx_sem, 0);
   rt_task_init(&cp_rx_task, cp_rx_function, CHANNEL, STACK_SIZE, 0, 0, 0);
   rt_sem_init( &cp_rx_sem, 0);
+  rt_task_resume( &cp_tx_task );
+  rt_task_resume( &cp_rx_task );
   printk("CANPie Loaded\n");
   return(0);
 }

@@ -63,6 +63,7 @@ namespace ORO_DeviceDriver
     void Axis::drive( double vel )
     {
         // All sensors may limit the drive
+#if 0
         for (SensList::iterator it = sens.begin();
              it != sens.end();
              ++it)
@@ -74,6 +75,7 @@ namespace ORO_DeviceDriver
                         break;
                     }
             }
+#endif
         act->driveSet( vel );
     }
 
@@ -113,7 +115,7 @@ namespace ORO_DeviceDriver
             }
     }
 
-    const SensorInterface<double>* Axis::sensorGet(const std::string& name) const
+    SensorInterface<double>* Axis::sensorGet(const std::string& name) const
     {
         if (sens.count(name) == 0)
             return 0;

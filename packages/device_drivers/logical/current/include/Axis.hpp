@@ -135,7 +135,7 @@ namespace ORO_DeviceDriver
         /**
          * @brief Retrieve a sensor from the Axis.
          */
-        const SensorInterface<double>* sensorGet(const std::string& name) const;
+        SensorInterface<double>* sensorGet(const std::string& name) const;
 
         std::vector<std::string> sensorList() const;
 

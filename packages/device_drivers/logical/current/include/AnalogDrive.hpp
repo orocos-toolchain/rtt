@@ -132,13 +132,13 @@ namespace ORO_DeviceDriver
         int driveSet( double v )
         {
             mySpeed = v;
-
+#if 0
             // limit v;
             if ( mySpeed < lowvel )
                 mySpeed = lowvel;
             else if ( mySpeed > highvel)
                 mySpeed = highvel;
-
+#endif
             analogDevice->value( (mySpeed+offset)/scale );
 
             return 0;
