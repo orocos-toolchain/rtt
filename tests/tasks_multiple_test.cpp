@@ -46,15 +46,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
         np_tasks.reserve(nr_of_np); 
         p_tasks.reserve(nr_of_p);
         for (unsigned int i=0; i< nr_of_np/2; ++i) 
-            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->periodGet() ) );
+            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->getPeriod() ) );
         for (unsigned int i=0; i< nr_of_np/2; ++i) 
-            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->periodGet()*8) );
+            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->getPeriod()*8) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->periodGet()) );
+            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->periodGet()*2) );
+            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()*2) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->periodGet()*7) );
+            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()*7) );
         
         nr_of_p = p_tasks.size();
         nr_of_np = np_tasks.size();

@@ -4,7 +4,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <corelib/Time.hpp>
-#include <corelib/HeartBeatGenerator.hpp>
+#include <corelib/TimeService.hpp>
 #include <string>
 
 class TimeTest : public CppUnit::TestFixture
@@ -15,9 +15,9 @@ class TimeTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testTimeProgress );
     CPPUNIT_TEST_SUITE_END();
 
-    ORO_CoreLib::HeartBeatGenerator* hbg;
+    ORO_CoreLib::TimeService* hbg;
     double small_S, normal_S, long_S;
-    ORO_CoreLib::HeartBeatGenerator::ticks small_t, normal_t, long_t;
+    ORO_CoreLib::TimeService::ticks small_t, normal_t, long_t;
     ORO_CoreLib::nsecs small_ns, normal_ns, long_ns;
 public:
     void setUp();

@@ -118,11 +118,11 @@ void
 TasksTest::setUp()
 {
     PriorityThread<15>::Instance()->start();
-    t_task_np = new TaskNonPreemptible( ZeroTimeThread::Instance()->periodGet() );
-    t_task_p = new TaskPreemptible( ZeroLatencyThread::Instance()->periodGet() );
-    t_task_nrt = new TaskNonRealTime( NonRealTimeThread::Instance()->periodGet() );
-    t_task_prio = new PriorityTask<15>( PriorityThread<15>::Instance()->periodGet() );
-    t_task_sim = new TaskSimulation( SimulationThread::Instance()->periodGet() );
+    t_task_np = new TaskNonPreemptible( ZeroTimeThread::Instance()->getPeriod() );
+    t_task_p = new TaskPreemptible( ZeroLatencyThread::Instance()->getPeriod() );
+    t_task_nrt = new TaskNonRealTime( NonRealTimeThread::Instance()->getPeriod() );
+    t_task_prio = new PriorityTask<15>( PriorityThread<15>::Instance()->getPeriod() );
+    t_task_sim = new TaskSimulation( SimulationThread::Instance()->getPeriod() );
 
     t_run_int_np =   new TestRunnableInterface(true);
     t_run_int_p =    new TestRunnableInterface(true);
@@ -160,37 +160,37 @@ TasksTest::tearDown()
 void TasksTest::testTimer()
 {
     // Add 5 tasks.
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_np ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_p ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_nrt ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_prio ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_sim ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_np ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_p ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_prio ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_sim ) );
 
     // Remove last :
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_sim ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_sim ) );
     tti->tick();
 
     // Remove First:
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_np ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_np ) );
     tti->tick();
 
     // Remove middle :
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_nrt ) );
     tti->tick();
 
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_np ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_nrt ) );
-    CPPUNIT_ASSERT( tti->taskAdd( t_task_sim ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_np ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->addTask( t_task_sim ) );
 
     //Remove 2 in middle :
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_prio ) );
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_prio ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_nrt ) );
     tti->tick();
 
     //Remove all :
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_np ) );
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_p ) );
-    CPPUNIT_ASSERT( tti->taskRemove( t_task_sim ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_np ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_p ) );
+    CPPUNIT_ASSERT( tti->removeTask( t_task_sim ) );
     tti->tick();
 
 }

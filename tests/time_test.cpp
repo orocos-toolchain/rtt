@@ -17,7 +17,7 @@ using namespace boost;
 void 
 TimeTest::setUp()
 {
-    hbg = HeartBeatGenerator::Instance();
+    hbg = TimeService::Instance();
     long_ns = 9007199254740992LL;       // == 2^53
     //long_ns = 4503599627370496LL;       // == 2^52
     //long_ns = 123456789123456789LL; // 1.234...e17 ns == approx 4 years, but double can not represent this.
@@ -64,19 +64,19 @@ void
 TimeTest::testTicksConversion()
 {
     // Test ticks conversion invariance :
-    CPPUNIT_ASSERT_EQUAL( long_ns  , HeartBeatGenerator::ticks2nsecs( HeartBeatGenerator::nsecs2ticks( long_ns )) );
-    CPPUNIT_ASSERT_EQUAL( normal_ns, HeartBeatGenerator::ticks2nsecs( HeartBeatGenerator::nsecs2ticks( normal_ns )) );
-    CPPUNIT_ASSERT_EQUAL( small_ns , HeartBeatGenerator::ticks2nsecs( HeartBeatGenerator::nsecs2ticks( small_ns )) );
-    CPPUNIT_ASSERT_EQUAL( long_t  , HeartBeatGenerator::nsecs2ticks( HeartBeatGenerator::ticks2nsecs( long_t )) );
-    CPPUNIT_ASSERT_EQUAL( normal_t, HeartBeatGenerator::nsecs2ticks( HeartBeatGenerator::ticks2nsecs( normal_t )) );
-    CPPUNIT_ASSERT_EQUAL( small_t , HeartBeatGenerator::nsecs2ticks( HeartBeatGenerator::ticks2nsecs( small_t )));
+    CPPUNIT_ASSERT_EQUAL( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )) );
+    CPPUNIT_ASSERT_EQUAL( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )) );
+    CPPUNIT_ASSERT_EQUAL( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )) );
+    CPPUNIT_ASSERT_EQUAL( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )) );
+    CPPUNIT_ASSERT_EQUAL( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )) );
+    CPPUNIT_ASSERT_EQUAL( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )));
 }
 
 void 
 TimeTest::testTimeProgress()
 {
     // A time measurement takes time :
-    HeartBeatGenerator::ticks t = hbg->ticksGet();
+    TimeService::ticks t = hbg->ticksGet();
     Seconds s;
     CPPUNIT_ASSERT( t !=  hbg->ticksGet() );
     CPPUNIT_ASSERT( 0 !=  hbg->ticksSince(t) );
@@ -84,7 +84,7 @@ TimeTest::testTimeProgress()
 
     // With Re-init of t :
     t = 0;
-    CPPUNIT_ASSERT_EQUAL( HeartBeatGenerator::ticks(0) , hbg->ticksGet( t ) );
+    CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) , hbg->ticksGet( t ) );
     t = 0;
     CPPUNIT_ASSERT_EQUAL( Seconds(0.0) , hbg->secondsGet( t ) );
 
@@ -92,7 +92,7 @@ TimeTest::testTimeProgress()
     hbg->enableSystemClock( false );
     t = hbg->ticksGet();
     CPPUNIT_ASSERT_EQUAL( t ,  hbg->ticksGet() );
-    CPPUNIT_ASSERT_EQUAL( HeartBeatGenerator::ticks(0) ,  hbg->ticksSince(t) );
+    CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) ,  hbg->ticksSince(t) );
     CPPUNIT_ASSERT_EQUAL( Seconds(0.0) ,  hbg->secondsSince(t) );
 
     Seconds change_S  = 0.123456789;
@@ -100,13 +100,13 @@ TimeTest::testTimeProgress()
 
     hbg->secondsChange( change_S );
     CPPUNIT_ASSERT( t !=  hbg->ticksGet() ); // ticks must have changed
-    CPPUNIT_ASSERT_EQUAL( change_ns,  HeartBeatGenerator::ticks2nsecs( hbg->ticksSince(t) ) );
+    CPPUNIT_ASSERT_EQUAL( change_ns,  TimeService::ticks2nsecs( hbg->ticksSince(t) ) );
     CPPUNIT_ASSERT_EQUAL( change_S,  hbg->secondsSince(t) );
 
     // Restart Time Progress
     hbg->enableSystemClock( true );
     CPPUNIT_ASSERT( t !=  hbg->ticksGet() );
-    CPPUNIT_ASSERT( HeartBeatGenerator::ticks(0) !=  hbg->ticksSince(t) );
+    CPPUNIT_ASSERT( TimeService::ticks(0) !=  hbg->ticksSince(t) );
     CPPUNIT_ASSERT( Seconds(0.0) !=  hbg->secondsSince(t) );
     
 }
