@@ -38,6 +38,7 @@
 #include <os/MutexLock.hpp>
 #include "RunnableInterface.hpp"
 #include "NameServerRegistrator.hpp"
+#include "HeartBeatGenerator.hpp"
 
 namespace ORO_CoreLib
 {

@@ -41,7 +41,7 @@ namespace ORO_CoreLib
      */
     typedef struct
     {
-        Event<void()>* dataReady;
+        Event<void(int)>* dataReady;
         bool inUse;
     } fifo_info_t;
 

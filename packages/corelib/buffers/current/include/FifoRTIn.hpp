@@ -28,13 +28,9 @@
 #ifndef FIFORTIN_HPP
 #define FIFORTIN_HPP
 
-#include "ObservableReadInterface.hpp"
 #include "FifoRTCommon.hpp"
 
-#include "EventInterfaces.hpp"
 #include "Event.hpp"
-#include "EventListenerInterface.hpp"
-#include "EventCompleterInterface.hpp"
 
 namespace ORO_CoreLib
 {
@@ -47,8 +43,7 @@ namespace ORO_CoreLib
      * @see ObservableReadInterface for more information on registering
      *      a listener.
      */
-    class FifoRTIn :
-        public ObservableReadInterface
+    class FifoRTIn
     {
 
         public:
@@ -86,14 +81,13 @@ namespace ORO_CoreLib
              */
             unsigned int fifoNr() const;
 
-            void addHandler( EventListenerInterface *eli,
-                              EventCompleterInterface *eci );
-            void removeHandler( EventListenerInterface *eli, EventCompleterInterface* eci );
-
-            void complete(EventListenerInterface* eli);
-
             //static int getFreeFifoNr();
 
+        /**
+         * This event is fired if data comes in the fifo.
+         * The event's argument is the fifo number.
+         */
+        Event<void(int)>* getEvent() const;
         protected:
             // forbidden
             FifoRTIn();

@@ -52,6 +52,10 @@ namespace ORO_CoreLib
     using std::cerr;
     using std::endl;
     
+#ifdef XERCES_CPP_NAMESPACE
+    using namespace XERCES_CPP_NAMESPACE;
+#endif
+
     class SAX2XMLRPCHandler : public DefaultHandler
     {
 

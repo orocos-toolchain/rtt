@@ -30,6 +30,7 @@
 
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Property.hpp>
+#include <corelib/HeartBeatGenerator.hpp>
 #include "ReportExporterInterface.hpp"
 #include "ReportCollectorInterface.hpp"
 #include <corelib/marshalling/XMLMarshaller.hpp>

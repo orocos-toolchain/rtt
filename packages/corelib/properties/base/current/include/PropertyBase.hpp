@@ -30,9 +30,6 @@
 
 #include <string>
 
-//#include "PropertyIntrospection.hpp"
-//#include "PropertyMutatingIntrospection.hpp"
-
 #pragma interface
 
 namespace ORO_CoreLib
@@ -114,8 +111,6 @@ namespace ORO_CoreLib
              * interface identifying this Property's proper type.
              */
             virtual void identify( PropertyIntrospection* pi) const = 0;
-
-        //virtual void mutate( PropertyMutatingIntrospection * pmi) = 0;
 
         /**
          * Update the value of this Property with the value of an \a other Property.

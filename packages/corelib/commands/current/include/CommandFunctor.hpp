@@ -30,6 +30,7 @@
 #define ORO_COMMANDFUNCTOR_HPP
 
 #include "CommandInterface.hpp"
+#include <boost/function.hpp>
 
 namespace ORO_CoreLib
 {

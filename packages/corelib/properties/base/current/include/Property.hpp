@@ -73,8 +73,6 @@ namespace ORO_CoreLib
      * @}
      */
 
-    class PropertyMutatingIntrospection;
-
 	/**
 	 * @brief A property represents data of any type.
      *
@@ -188,12 +186,6 @@ namespace ORO_CoreLib
             {
                 pi->introspect( *this );
             }
-
-//         virtual void mutate( PropertyMutatingIntrospection * pmi)
-//         {
-//             //std::cout << __PRETTY_FUNCTION__ << std::endl;
-//             pmi->introspect( *this );
-//         }
 
         virtual bool update( const PropertyBase* other) 
         {

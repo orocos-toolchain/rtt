@@ -44,7 +44,7 @@ namespace ORO_CoreLib
 			
             virtual bool deserialize(PropertyBag &v) 
 			{
-				string token;
+				std::string token;
 		    	_is >> token;
 #if 0
                 for (

@@ -31,6 +31,7 @@
 
 #include <os/MutexLock.hpp>
 #include <os/oro_atomic.h>
+#include <string>
 
 namespace ORO_CoreLib
 {

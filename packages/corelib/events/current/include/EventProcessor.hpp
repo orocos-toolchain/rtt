@@ -53,6 +53,8 @@ namespace ORO_CoreLib
 
         };
 
+        using boost::tuples::get;
+
         template<int, class SignalType, class ContainerType>
         struct EventCatcherImpl;
 
@@ -104,7 +106,7 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            typename ContainerType::Data<typename Function::arg1_type> _a1;
+            typename ContainerType::template Data<typename Function::arg1_type> _a1;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -188,7 +190,7 @@ namespace ORO_CoreLib
 
             typedef boost::tuple<typename Function::arg1_type,
                                  typename Function::arg2_type> Args;
-            typename ContainerType::Data< Args > args;
+            typename ContainerType::template Data< Args > args;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -221,7 +223,7 @@ namespace ORO_CoreLib
             typedef boost::tuple<typename Function::arg1_type,
                                  typename Function::arg2_type,
                                  typename Function::arg3_type> Args;
-            typename ContainerType::Data< Args > args;
+            typename ContainerType::template Data< Args > args;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -260,7 +262,7 @@ namespace ORO_CoreLib
                                  typename Function::arg2_type,
                                  typename Function::arg3_type,
                                  typename Function::arg4_type> Args;
-            typename ContainerType::Data< Args > args;
+            typename ContainerType::template Data< Args > args;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -302,7 +304,7 @@ namespace ORO_CoreLib
                                  typename Function::arg3_type,
                                  typename Function::arg4_type,
                                  typename Function::arg5_type> Args;
-            typename ContainerType::Data< Args > args;
+            typename ContainerType::template Data< Args > args;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -341,7 +343,7 @@ namespace ORO_CoreLib
                                  typename Function::arg4_type,
                                  typename Function::arg6_type,
                                  typename Function::arg5_type> Args;
-            typename ContainerType::Data< Args > args;
+            typename ContainerType::template Data< Args > args;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )

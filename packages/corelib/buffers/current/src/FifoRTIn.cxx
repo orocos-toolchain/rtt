@@ -50,7 +50,7 @@ namespace ORO_CoreLib
         if ( !rt_fifos[ fifo ].inUse )
         {
             rtosf_create( fifo, bytes );
-            rt_fifos[ fifo ].dataReady = new Event( Event::SYNASYN );
+            rt_fifos[ fifo ].dataReady = new Event< void(int)>("FifoRTIn");
             rt_fifos[ fifo ].inUse = true;
             rtosf_set_handler( fifo, fifoHandler );
         }
@@ -74,6 +74,11 @@ namespace ORO_CoreLib
             //            rt_fifos[fifo].dataReady = NULL;
         }
     }
+
+    Event<void(int)>* FifoRTIn::getEvent() const {
+        return rt_fifos[ fifo ].dataReady;
+    }
+
 
     int FifoRTIn::read( char* buf, size_t length )
     {
@@ -112,7 +117,7 @@ namespace ORO_CoreLib
     {
         if ( char( rw ) == 'w' )  // 'w' means data is available
         {
-            rt_fifos[ fifo ].dataReady->fire();
+            rt_fifos[ fifo ].dataReady->fire(fifo);
         }
 
         return 0;
@@ -121,21 +126,6 @@ namespace ORO_CoreLib
     unsigned int FifoRTIn::fifoNr() const
     {
         return fifo;
-    }
-
-    void FifoRTIn::addHandler( EventListenerInterface *eli, EventCompleterInterface *eci )
-    {
-        rt_fifos[ fifo ].dataReady->addHandler( eli, eci );
-    }
-
-    void FifoRTIn::removeHandler( EventListenerInterface *eli, EventCompleterInterface* eci )
-    {
-        rt_fifos[ fifo ].dataReady->removeHandler( eli, eci );
-    }
-
-    void FifoRTIn::complete(EventListenerInterface* eli)
-    {
-        rt_fifos[ fifo ].dataReady->complete( eli );
     }
 
 }

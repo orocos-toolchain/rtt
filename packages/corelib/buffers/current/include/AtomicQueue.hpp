@@ -30,6 +30,7 @@
 #define ORO_CORELIB_ATOMIC_QUEUE_HPP
 
 #include <os/CAS.hpp>
+#include <utility>
 
 namespace ORO_CoreLib 
 {
