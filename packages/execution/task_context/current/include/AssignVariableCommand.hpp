@@ -79,7 +79,7 @@ namespace ORO_Execution
   class AssignIndexCommand
     : public CommandInterface
   {
-      typedef bool (*Pred)(Index);
+      typedef bool (*Pred)(const T&, Index);
 
       typedef typename DataSource<Index>::shared_ptr IndexSource;
       IndexSource i;
@@ -97,7 +97,7 @@ namespace ORO_Execution
       bool execute()
       {
           Index ind = i->get();
-          if ( p(ind) ) {
+          if ( p(lhs->get(), ind) ) {
               lhs->set()[ ind ] = rhs->get();
               return true;
           }

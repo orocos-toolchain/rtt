@@ -83,7 +83,7 @@ namespace ORO_Execution
   class TaskIndexVariable
     : public TaskAttribute<T>
   {
-    typedef bool (*Pred)(Index);
+    typedef bool (*Pred)(const T&, Index);
 
     Pred p;
   protected:

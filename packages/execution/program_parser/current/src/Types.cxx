@@ -73,7 +73,7 @@ namespace ORO_Execution
   class TemplateIndexTypeInfo
     : public TypeInfo
   {
-    typedef bool (*Pred)(IndexType);
+    typedef bool (*Pred)(const T&, IndexType);
 
       Pred _p;
   public:
@@ -122,13 +122,26 @@ namespace ORO_Execution
   }
 
   // check the validity of an index
-  bool D6IndexChecker( int i )
+  bool Double6DIndexChecker( const Double6D& d, int i )
   {
     return i > -1 && i < 6;
   }
 
   // check the validity of an index
-  bool D3IndexChecker( int i )
+  bool WrenchIndexChecker( const Wrench& w, int i )
+  {
+    return i > -1 && i < 6;
+  }
+
+  // check the validity of an index
+  bool TwistIndexChecker( const Twist& d, int i )
+  {
+    return i > -1 && i < 6;
+  }
+
+
+  // check the validity of an index
+  bool VectorIndexChecker( const Vector& v, int i )
   {
     return i > -1 && i < 3;
   }
@@ -139,15 +152,15 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
     data["frame"] = new TemplateTypeInfo<Frame>();
     data["rotation"] = new TemplateTypeInfo<Rotation>();
-    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double>( &D6IndexChecker );
-    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double>( &D6IndexChecker );
-    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double>( &D3IndexChecker );
+    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double>( &WrenchIndexChecker );
+    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double>( &TwistIndexChecker );
+    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double>( &VectorIndexChecker );
 #endif
     data["int"] = new TemplateTypeInfo<int>();
     data["char"] = new TemplateTypeInfo<char>();
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
-    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double>( &D6IndexChecker );
+    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double>( &Double6DIndexChecker );
   }
 }
