@@ -104,28 +104,35 @@ given in the general &orocos; overview document.
 	  set</emphasis> of operating system
 	primitives that it needs: mutexes, condition variables and tasks.
 	This is in accordance with the general developers requirements of the
-	project: a minimalistic approach is much easier to scale, to maintain,
-	and to port.
+      project: a minimalistic approach is much easier to scale, to maintain,
+      and to port. The OS abstraction is refered to as the <emphasis> 
+	OS Interfaces (OSI) </emphasis> and sometimes in older documentation
+      as <emphasis>Framework OS Interfaces (FOSI)</emphasis>. Both denote
+      the same thing.
 	The abstraction also allows &orocos; users to build their software 
 	on all supported systems with only
 	a recompilation step. But the Core goes further than restricting
 	the abstracted OS primitives: it also imposes a hard realtime
 	<emphasis>architecture</emphasis>. This architecture is explained and
 	motivated in a later Section.
+      <emphasis>
 	The goal of this fixed architecture is to keep 
 	applications deterministic, by avoiding the classical pitfalls of
 	letting application programmers freely choose the priorities of their
 	tasks, and their communication primitives. Practice has indeed showed
 	that most programmers do not succeed in strictly decoupling the
 	functional and algorithmic parts of their code from the OS-specific
-	primitives used to execute them.
+	primitives used to execute them.</emphasis>
       </para>
       <para>
 	Of course, the realtime performance depends not only on
 	  the underlying operating system 
 	  <emphasis>but also on the hardware.</emphasis> The &orocos; CoreLib
 	Package also provides an abstraction of the hardware, again in order
-	to facilitate maintenance and porting.
+	to facilitate maintenance and porting. This abstraction is referred to
+      as <emphasis>Device Interfaces (DI)</emphasis> or in older documentation
+      as the <emphasis>Framework Device Interfaces (FDI)</emphasis>. Both
+      denote the same thing.
       </para>
       <para>
 	The abstractions cause (almost) no execution overhead, because the wrapping
@@ -153,8 +160,44 @@ given in the general &orocos; overview document.
 	    will ever be pre-empted. 
 	    The low priority thread is used for all tasks which may be 
 	    interrupted but still have hard deadlines. It can always be preempted by the 
-	    high priority thread. 
+	    high priority thread. There is also a non realtime thread which gives no
+	deadline guarantees.
 	  </para>
+      <para>
+	If you want to execute functionality in one of these threads, you need to 
+	create a Task of a certain type, depending on the thread type. The table
+	below summarises which Task type there is per thread.
+	<table>
+	  <title>Thread and Task summary</title>
+	  <!-- one of (graphic mediaobject tgroup) -->
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>Thread</entry>
+		<entry>Task</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>ZeroTimeThread</entry>
+		<entry>TaskNonPreemptable</entry>
+		<!-- one of (entrytbl entry) -->
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>ZeroLatencyThread</entry>
+		<entry>TaskPreemptable</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>NonRealTimeThread</entry>
+		<entry>TaskNonRealTime</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </para>
 	  <para>
 	    The high priority thread is the <classname>ZeroTimeThread</classname>. It will
 	    execute all <classname>TaskNonPreemptable</classname> Components synchronically.
@@ -243,56 +286,59 @@ given in the general &orocos; overview document.
 	<example><title>Using events</title>
 	  <programlisting>
 	    <![CDATA[
-	    class Cat : public EventListenerInterface 
-        {
+	    class SafetyStopRobot : public EventListenerInterface 
+            {
     	    public:
 	        virtual void handleEvent(CallbackInterface *cb) {
 	            // Handler code
-    	        std::cout << "Miau!" << std::endl;
+    	        std::cout << " Putting the robot in a safe state fast !" << std::endl;
     	        // optional
 	            cb->complete();
-    	    }
+    	        }
 	    };
 
-	    Class Pawn : public EventCompleterInterface 
-        {
-	        public:
+	    Class NotifyUser : public EventCompleterInterface 
+            {
+	    public:
 	        virtual void completeEvent() {
         	    //Completer code
-        	    std::cout << "Scratch!"<<std::endl;
+        	    std::cout << "The program stopped the robot !"<<std::endl;
 	        }
 	    };
 
 	    ...
-	    Cat minou;
-	    Pawn sharpy;
-	    Event fullmoon(Event::SYNSYN);
+	    SafetyStopRobot synchronousSafetyHandler;
+	    NotifyUser      asynchronousNotifier;
+	    Event emergencyStop(Event::SYNASYN);
 
-	    std::cout << "Register minou to the fullmoon event\n";
-	    fullmoon.addHandler(&minou, &sharpy);
+	    std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
+	    emergencyStop.addHandler( &synchronousSafetyHandler, &asynchronousNotifier);
 
 	    std::cout << "Fire the event\n";
-	    fullmoon.fire();
+	    emergencyStop.fire();
 
-	    fullmoon.removeHandler(&minou,&sharpy); // automatically removes the completer too
-	    fullmoon.addHandler(&minou, EventCompleterInterface::none );    // No completer will be called
+	    emergencyStop.removeHandler( &synchronousSafetyHandler, &asynchronousNotifier );      // Remove both handlers
+	    emergencyStop.addHandler(&synchronousSafetyHandler, EventCompleterInterface::none );  // No completer will be called
 
-	    std::cout << "Just making noise"<<std::endl;
-	    fullmoon.fire();
+	    std::cout << "Doing a quiet safety stop..."<<std::endl;
+	    emergencyStop.fire(); // User not notified
 
 	    ...
 	    ]]>
 	  </programlisting>
 
 	  <screen>
-	    Register minou to the fullmoon event
-	    Fire the event
-	    Miau!
-	    Scratch!
-	    Just making noise
-	    Miau!
+	  Register apropriate handlers to the Emergency Stop Event
+	  Fire the event
+	   Putting the robot in a safe state fast !
+	  The program stopped the robot !
+	  Doing a quiet safety stop...
+	   Putting the robot in a safe state fast !
 	  </screen>
-
+	<para>
+	  Off course, the <emphasis>Putting the robot in a safe state fast !</emphasis>
+	  sentence should be replaced with the actual call to stop the robot.
+	</para>
 	</example>
       </para>
       <para>	
@@ -324,13 +370,19 @@ given in the general &orocos; overview document.
 	the Asynchronous part, which will be executed by the <classname>CompletionProcessor</classname>.
       </para>
 
-      <tip><para>You must choose the type of <classname>Event</classname> upon construction. This can no longer
-	  be changed once the <classname>Event</classname> is created (for obvious reasons). You must specify
-	  the type as the first constructor argument with one of the four following:
-	  Event::SYNSYN,Event::ASYNSYN,Event::SYNASYN,Event::ASYNASYN; with the first
-	  [SYN|ASYN] denoting the handling and the second the completion policy</para></tip>
-      <sect1>
-	<title>Other Kinds of Events</title>
+    <tip>
+      <para>
+	You must choose the type of <classname>Event</classname> upon construction. This can no longer
+	be changed once the <classname>Event</classname> is created. If it could,
+	the consumer of the event would not know what would be synchronously and 
+	asynchronously executed, leading to undeterministic behaviour. You must specify
+	the type as the first constructor argument with one of the four following:
+	Event::SYNSYN,Event::ASYNSYN,Event::SYNASYN,Event::ASYNASYN; with the first
+	[SYN|ASYN] denoting the handling and the second the completion policy.
+      </para>
+    </tip>
+    <sect1>
+	<title>Available Event Policies</title>
 	<para>
 	  Our subscription based Event is just an example of the many possibilities of Events in
 	  general. We provide four other Event primitives which you will need in your Event based
@@ -508,8 +560,6 @@ given in the general &orocos; overview document.
 	    ...
 	    ]]>
 	  </programlisting>
-	  Please take a look at the Doxygen API documentation for a precise description of
-	  all the function calls.
 	</para>
       </sect2>
     </chapter>
@@ -525,12 +575,11 @@ given in the general &orocos; overview document.
 	for its contents and change the values as they see fit. Java for
 	example presents a Property API. 
       </para><para>
-	However, having Properties in a realtime system is a very hard task. Currently
-	RTLinux does not support it. RTAI, LXRT and GNU/Linux have been tested succesfully
+      RTAI, LXRT and GNU/Linux have been tested succesfully
 	with properties. An example of how to build a PropertyBag can be found in the
 	<filename>doc/examples/properties/simple_hibernate.cpp</filename> file. 
-    The Doxygen Property API should
-	provide enough information for succesfully using them in your Software Component.
+      The Doxygen Property API should
+      provide enough information for succesfully using them in your Software Component.
 	<note>
 	  <para>
 	    Reading and writing a properties value can be done in realtime. Every other 
@@ -671,34 +720,39 @@ given in the general &orocos; overview document.
 	to a userspace map building application.
       </para>
     </chapter>
-    <chapter>
-      <title>Fifos</title>
-      <para>
-	Fifos are used to send data from one address space to another. For example
-	from realtime to userspace or vice versa. We have four kind of fifos :
-	<itemizedlist>
-	  <listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
-	  <listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
-	  <listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
-	  <listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
-	</itemizedlist>
-        Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
-	They will act as if they get their data from real fifos. The API documentation should
-	be clear about how to use them.
-      </para>
-      <para>
-	Fifos are very important means of communication between userspace and kernelspace.
-	Components requireing data communition will indicate this with a <classname> WriteInterface
-	</classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface 
-	</classname> in their constructors argument list.
-	All fifos implement one of these interfaces.
-      </para>
-      <note>
+  <chapter>
+    <title>Fifos</title>
+    <warning>
+      The fifos implementation is slightly outdated and unmaintained in the latest releases.
+      You might expect problems when trying to use them. In the past they were used to 
+      communicate from kernel space to userspace programs, but since the Orocos Framework is now 
+      completely situated in userspace, this communication has become obsolete.
+    </warning>
+    <para>
+      Fifos are used to send data from one address space to another. For example
+      from realtime to userspace or vice versa. We have four kind of fifos :
+      <itemizedlist>
+	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
+	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
+	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
+	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
+      </itemizedlist>
+      Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
+      They will act as if they get their data from real fifos. The API documentation should
+      be clear about how to use them.
+    </para>
+    <para>
+      Components requireing data communition will indicate this with a <classname> WriteInterface
+      </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface 
+      </classname> in their constructors argument list.
+      All fifos implement one of these interfaces.
+    </para>
+    <note>
       <para>
 	For examining which data would be sent through a fifo, one can always temporarily
 	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data
 	to the screen instead of delivering it.
       </para>
-      </note>
-    </chapter>
+    </note>
+  </chapter>
 </book>
