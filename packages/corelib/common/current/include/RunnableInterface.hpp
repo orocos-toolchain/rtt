@@ -6,6 +6,7 @@
 namespace ORO_CoreLib
 {
     /**
+     * This is the same class as in ORO_OS.
      * For convenience.
      */
     typedef ORO_OS::RunnableInterface RunnableInterface;

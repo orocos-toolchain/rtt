@@ -61,13 +61,11 @@ namespace ORO_CoreLib
      * In case two objects are registered with the same name, the first one is kept and the
      * second one rejected.<br>
      * 
-     * the template parameters :<br><il>
-     *  <li>ValueType : the type of objects you want to have nameserved( usually a pointer type ).
-     *  <li>NameType : the type of the name you want to used (string by default, but you could use ints)
-     *  <li>Rep : the container you wish to use for actually storing the name value pairs
+     *  @param ValueType  The type of objects you want to have nameserved( usually a pointer type ).
+     *  @param NameType The type of the name you want to used (string by default, but you could use ints)
+     *  @param Rep The container you wish to use for actually storing the name value pairs
      *   it has to support the [] operator with a NameType
      *   and it needs iterators and begin() and end().
-     *  </il>
      */
     template <class ValueType, class NameType = std::string, class Rep = std::map<NameType, ValueType> >
     class NameServer

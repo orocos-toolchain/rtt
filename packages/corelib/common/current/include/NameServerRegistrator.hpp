@@ -26,7 +26,7 @@ namespace ORO_CoreLib
 {
 
     /**
-     * Utility class to register a given object with a nameserver
+     * @brief Utility class to register a given object with a nameserver.
      *
      * usage: you inherit from it, and call it's constructor in your object's constructor
      *  -> your object will be registered with the namesever you specify, and will unregister on destruction

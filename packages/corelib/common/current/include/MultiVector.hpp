@@ -31,8 +31,9 @@ namespace ORO_CoreLib
 {
 
     /**
+     * @brief A static allocated Vector
      * The MultiVector is an n (defaults to 6) dimensional vector
-     * of any type T. mostly used for holding primitive types.
+     * of any type T, mostly used for holding primitive types.
      * Most common casting and operators are defined on this class.
      *
      * @param S

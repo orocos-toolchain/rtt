@@ -4,6 +4,8 @@
 namespace ORO_CoreLib
 {
     /**
+     * @brief Generic callback interface.
+     *
      * A CallbackInterface allows you to signal an instance
      * that something has to be completed. This can be an Event,
      * or any other mechanism.
@@ -11,7 +13,7 @@ namespace ORO_CoreLib
     struct CallbackInterface
     {
         /**
-         * Trigger a completion.
+         * Execute callback functionality.
          * @note This method is not const, so can not be called on 
          *       a const pointer to CallbackInterface.
          */

@@ -4,6 +4,8 @@
 namespace ORO_CoreLib
 {
     /**
+     * @brief Generic run-time class configuration interface.
+     *
      * An Interface for configuring an object through
      * an external object, iterating over the methods
      * of this interface.
