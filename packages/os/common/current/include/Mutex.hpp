@@ -68,8 +68,6 @@ namespace ORO_OS
                 rtos_mutex_destroy( &m );
             }
 
-        //        protected:
-
             void lock ()
             {
                 rtos_mutex_lock( &m );
@@ -87,10 +85,12 @@ namespace ORO_OS
              */
             bool trylock()
             {
-                if ( rtos_mutex_trylock( &m ) == 0 )
+                int res;
+                if ( (res = rtos_mutex_trylock( &m )) == 0 )
                     return true;
-                else
-                    return false;
+                if ( res == EINVAL )
+                    exit(1);
+                return false;
             }
 
     private:

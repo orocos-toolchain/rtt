@@ -42,12 +42,8 @@ namespace ORO_OS
              */
             MutexLock( Mutex &mutex )
             {
-                //                pthread_mutex_lock(&mutex);
                 _mutex = &mutex;
-
-                _mutex->lock ()
-
-                ;
+                _mutex->lock ();
             }
 
             /**
@@ -56,7 +52,6 @@ namespace ORO_OS
             ~MutexLock()
             {
                 _mutex->unlock();
-                //                pthread_mutex_unlock(_mutex);
             }
 
         protected:
@@ -65,9 +60,7 @@ namespace ORO_OS
             MutexLock()
             {}
 
-    }
-
-    ;
+    };
 
     /**
      * A MutexTryLock tries to lock an Mutex object on construction
@@ -85,11 +78,8 @@ namespace ORO_OS
              * @param mutex The Mutex which should be attempted to be locked
              */
             MutexTryLock( Mutex &mutex )
-                    : successful( false )
+                    : _mutex( &mutex), successful( _mutex->trylock() )
             {
-                //if( pthread_mutex_trylock(&mutex) == 0) succesfull = true;
-                _mutex = &mutex;
-                successful = _mutex->trylock();
             }
 
             /**
@@ -109,8 +99,6 @@ namespace ORO_OS
             {
                 if ( successful )
                     _mutex->unlock();
-
-                //                    pthread_mutex_unlock(_mutex);
             }
 
         protected:
@@ -119,7 +107,7 @@ namespace ORO_OS
              */
             Mutex *_mutex;
 
-            MutexTryLock()
+        MutexTryLock()
         {}
 
         private:
