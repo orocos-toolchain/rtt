@@ -1106,11 +1106,15 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 	<example>
 	  <title>Accessing a DataObject</title>
 	  <programlisting>
-	    <![CDATA[ // A DataObject may also contain a class,
-	    instead of the simple // double in this example
-	    DataObject<double> my_Do; my_Do.Set( 3.14 ); double
-	    contents; my_Do.Get( contents );   // contents == 3.14
-	    contents  = my_Do.Get(); // equivalent ]]>
+	    <![CDATA[
+// A DataObject may also contain a class, instead of the simple
+// double in this example
+DataObject<double> my_Do; 
+my_Do.Set( 3.14 ); 
+double  contents; 
+my_Do.Get( contents );   // contents == 3.14
+contents  = my_Do.Get(); // equivalent
+]]>
 	  </programlisting>
 	</example>
       </para>
@@ -1232,6 +1236,7 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
   class MyGenerator 
       : public _DefaultGenerator 
   { 
+      MyGenerator : _DefaultGenerator("MyGeneratorName") {}
       void pull() 
       { 
           // ... 
@@ -1946,19 +1951,19 @@ Output, MySecondExtension > My1DPropRepKernel;
 <properties>
 
 <sequence name="PropertyFiles" type="ComponentEntry">
-    <simple name="Generator"  type="string">
+    <simple name="MyGenerator"  type="string">
     <description>The Generator Component Property File.</description>
     <value>generator.cpf</value></simple>
-    <simple name="Estimator"  type="string">
+    <simple name="MyEstimator"  type="string">
     <description>The Estimator Component Property File.</description>
     <value>estimator.cpf</value></simple>
-    <simple name="Controller" type="string">
+    <simple name="MyController" type="string">
     <description>The Controller Component Property File.</description>
     <value>controller.cpf</value></simple>
-    <simple name="Sensor"     type="string">
+    <simple name="MySensor"     type="string">
     <description>The Sensor Component Property File.</description>
     <value>sensor.cpf</value></simple>
-    <simple name="Effector"   type="string">
+    <simple name="MyEffector"   type="string">
     <description>The Effector Component Property File.</description>
     <value>effector.cpf</value></simple>
 </sequence>
@@ -2115,11 +2120,11 @@ Output, MySecondExtension > My1DPropRepKernel;
         <value>1</value>
     </simple>
     <struct name="Exporters" type="type_less">
-        <simple name="Component" type="string"><value>Sensor</value></simple>
-        <simple name="Component" type="string"><value>Effector</value></simple>
-        <simple name="Component" type="string"><value>Controller</value></simple>
-        <simple name="Component" type="string"><value>Estimator</value></simple>
-        <simple name="Component" type="string"><value>Generator</value></simple>
+        <simple name="Component" type="string"><value>MySensor</value></simple>
+        <simple name="Component" type="string"><value>MyEffector</value></simple>
+        <simple name="Component" type="string"><value>MyController</value></simple>
+        <simple name="Component" type="string"><value>MyEstimator</value></simple>
+        <simple name="Component" type="string"><value>MyGenerator</value></simple>
 
 	<simple name="DataObject" type="string"><value>Models</value></simple>
 	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
