@@ -25,6 +25,9 @@ docps: epsimages orocos-installation.ps orocos-overview.ps
 
 doctxt: orocos-installation.txt orocos-overview.txt
 
+pngimages: 
+epsimages:
+
 .xml.html:
 	$(XMLPROCESSOR) /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/html/docbook.xsl $< > $@
 
