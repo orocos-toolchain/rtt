@@ -57,10 +57,6 @@ namespace ORO_Execution
         for ( m_it= stateMap.begin(); m_it != stateMap.end(); ++m_it )
             for ( v_it = m_it->second.begin(); v_it!= m_it->second.end() ; ++v_it )
                 delete get<0>(*v_it);
-        // Clean up all conditions in the TransitionAnyMap
-        TransitionAnyMap::iterator ma_it;
-        for ( ma_it= stateAnyMap.begin(); ma_it != stateAnyMap.end(); ++ma_it )
-                delete ma_it->second;
 
         // cleanup all created states.
         std::vector<StateDescription*>::iterator s_it;

@@ -89,8 +89,6 @@ namespace ORO_CoreLib
             TransList::iterator it1, it2;
             it1 = stateMap[ current ].begin();
             it2 = stateMap[ current ].end();
-            //boost::tie(it1,it2) = stateMap.equal_range( current );
-
             for ( ; it1 != it2; ++it1 )
                     if ( get<0>(*it1)->evaluate() )
                         if ( get<1>(*it1) == current )
@@ -104,23 +102,6 @@ namespace ORO_CoreLib
                                 enterState( get<1>(*it1) );
                                 return current;
                             }
-
-            TransitionAnyMap::iterator it3 = stateAnyMap.begin();
-
-            for ( ; it3 != stateAnyMap.end(); ++it3 )
-                if ( it3->second->evaluate() )
-                    if ( it3->first == current )
-                        {
-                            current->handle();
-                            return current;
-                        }
-                    else 
-                        {
-                            leaveState(current);
-                            enterState( it3->first);
-                            return current;
-                        }
-
             // handle the current state if nothing found :
             current->handle();
                     
@@ -132,18 +113,10 @@ namespace ORO_CoreLib
             TransList::iterator it1, it2;
             it1 = stateMap[ current ].begin();
             it2 = stateMap[ current ].end();
-            //boost::tie(it1,it2) = stateMap.equal_range( current );
-
 
             for ( ; it1 != it2; ++it1 )
                 if ( get<0>(*it1)->evaluate() )
                     return get<1>(*it1);
-
-            TransitionAnyMap::iterator it3 = stateAnyMap.begin();
-
-            for ( ; it3 != stateAnyMap.end(); ++it3 )
-                if ( it3->second->evaluate() )
-                    return it3->first;
 
             return current;
         }
@@ -161,7 +134,7 @@ namespace ORO_CoreLib
             TransList::iterator it1, it2;
             it1 = stateMap[ current ].begin();
             it2 = stateMap[ current ].end();
-            //boost::tie(it1,it2) = stateMap.equal_range( current );
+
             for ( ; it1 != it2; ++it1 )
                 if ( get<1>(*it1) == s_n
                      && get<0>(*it1)->evaluate() )
@@ -171,31 +144,14 @@ namespace ORO_CoreLib
                         return true;
                     }
 
-            // between any state and a specific state
-            TransitionAnyMap::iterator itA = stateAnyMap.find( s_n );
-
-            if ( itA != stateAnyMap.end()
-                 && ( *itA ).second->evaluate() )
-                {
-                    leaveState( current );
-                    enterState( s_n );
-                    return true;
-                }
-
             return false;
         }
 
         void StateContext::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority )
         {
-            //stateMap.insert(std::make_pair( from, boost::make_tuple( cnd, to, priority ) ));
             TransList::iterator it;
             for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it);
             stateMap[from].insert(it, boost::make_tuple( cnd, to, priority ) );
-        }
-
-        void StateContext::transitionSet( StateInterface* target, ConditionInterface* cnd )
-        {
-            stateAnyMap[ target ] = cnd;
         }
 
         StateInterface* StateContext::currentState()

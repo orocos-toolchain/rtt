@@ -41,7 +41,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2002-2004</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -81,6 +81,12 @@ given in the general &orocos; overview document.
 	<date>2 Apr 2004</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>StateContext updates</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.13</revnumber>
+	<date>18 May 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Change in the StateContext interface</revremark>
       </revision>
     </revhistory>
 
@@ -578,6 +584,8 @@ emergencyStop.fire(); // User not notified
   class ConditionInterface
   {
   virtual bool evaluate() = 0;
+
+  virtual void reset() {}
   };
   ]]>
 	  </programlisting>
@@ -588,7 +596,8 @@ emergencyStop.fire(); // User not notified
 	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
 	  each state transition a Condition object which it will <function>evaluate()</function>
 	  to determine if the transition is allowed. All condition objects are reset() when the
-	  state is entered.
+	  state is entered. The Condition implementations can optionally provide a reset() method.
+	  All Conditions are reset() just before the new state is entered (onEntry).
 	</para>
       </sect1>
       <sect1>
@@ -619,8 +628,9 @@ emergencyStop.fire(); // User not notified
 
 	    context.transitionSet(&startState, &aState, &cOnce);
 	    context.transitionSet(&aState, &bState, &cTrue);
+	    context.transitionSet(&aState, &errState, &cTrue);
 	    context.transitionSet(&bState, &aState, &cTrue);
-	    context.transitionSet(&errState, &cTrue);
+	    context.transitionSet(&bState, &errState, &cTrue);
 
 	    ]]>
 	  </programlisting>
@@ -657,7 +667,7 @@ emergencyStop.fire(); // User not notified
 	low priority.
       </para>
       <para>
-	Writing States and StateContexts is cumbersome. The Orocos Framework has
+	Writing States and StateContexts in this way is cumbersome. The Orocos Framework has
 	therefore developped a Program and State
 	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
 	<ulink url="orocos-program-processor.html">Processor</ulink>

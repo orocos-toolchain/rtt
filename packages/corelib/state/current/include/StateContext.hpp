@@ -38,17 +38,14 @@
 namespace ORO_CoreLib
 {
     /**
-     * A StateContext keeps track of the current StateInterface and all
-     * transitions from this StateInterface to another. One can request
+     * @brief A StateContext keeps track of the current StateInterface and all
+     * transitions from this StateInterface to another.
+     *
+     * One can request
      * a transition from one StateInterface to another which will fail
      * or succeed depending on a previously set condition. 
      *
      * By default, any state transition fails.
-     *
-     * @note It should be noted that a state transition
-     *       from and to the current state is not disallowed in the 
-     *       "from Any to X-State" case. The user should check herself with
-     *       currentState() when it should not occur.
      *
      * @note A more efficient implementation might be needed
      *       for the case this->requestState( this->nextState() );
@@ -69,15 +66,9 @@ namespace ORO_CoreLib
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int).
          */
-        //typedef std::multimap< StateInterface*, boost::tuple<ConditionInterface*, StateInterface*, int>,
-        //                       mysort< boost::tuple<ConditionInterface*, StateInterface*, int> > >
-
         typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > TransList;
-        typedef std::map< StateInterface*, std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > >
+        typedef std::map< StateInterface*, TransList >
         TransitionMap;
-        typedef std::map< StateInterface*, ConditionInterface*>
-        TransitionAnyMap;
-
     public:
 
         /**
@@ -192,19 +183,6 @@ namespace ORO_CoreLib
         void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0 );
 
         /**
-         * Express a possible transition from any state (including <target> )
-         * to a specified one  under a certain condition.
-         *
-         * @param target
-         *        The state which can be entered
-         * @param cnd
-         *        The Condition under which the transition may succeed
-         * @post  All transitions to <target> will succeed under
-         *        condition <cnd>
-         */
-        void transitionSet( StateInterface* target, ConditionInterface* cnd );
-
-        /**
          * Retrieve the current state of the context
          */
         StateInterface* currentState();
@@ -236,11 +214,6 @@ namespace ORO_CoreLib
          */
         TransitionMap stateMap;
 
-        /**
-         * A map keeping track of all conditional transitions
-         * to a specific state
-         */
-        TransitionAnyMap stateAnyMap;
     };
 }
 
