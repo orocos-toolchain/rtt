@@ -218,13 +218,13 @@ namespace ORO_ControlKernel {
         return true;
     }
 
-  //bool AxisSensor::isEnabled( const std::string& name ) const
-  //  {
-  //      AxisMap::const_iterator it = axes.find(name);
-  //      if ( it != axes.end() )
-  //          return it->second->isEnabled();
-  //      return false;
-  //  }
+    bool AxisSensor::isEnabled( const std::string& name ) const
+    {
+        AxisMap::const_iterator it = axes.find(name);
+        if ( it != axes.end() )
+            return ! it->second->isLocked(); // not locked == enabled
+        return false;
+    }
 
     double AxisSensor::position( const std::string& name ) const
     {
@@ -272,11 +272,11 @@ namespace ORO_ControlKernel {
                         "Inspect the status of a Sensor of an Axis.",
                         "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
                         ) );
-        //ret->add( "isEnabled", 
-        //          data( &AxisSensor::isEnabled,
-        //                "Inspect the status of an Axis.",
-        //                "Name", "The Name of the Axis."
-        //                ) );
+        ret->add( "isEnabled", 
+                  data( &AxisSensor::isEnabled,
+                        "Inspect the status of an Axis.",
+                        "Name", "The Name of the Axis."
+                        ) );
         return ret;
     }
 #endif
