@@ -17,14 +17,15 @@
 ***************************************************************************/
 
 
-#ifndef EVENT_HPP
-#define EVENT_HPP
+#ifndef ORO_CORELIB_EVENT_HPP
+#define ORO_CORELIB_EVENT_HPP
 
 #include "os/fosi.h"
 #include <boost/signal.hpp>
 #include <boost/call_traits.hpp>
 #include "NameServerRegistrator.hpp"
 
+#include "Logger.hpp"
 #include "CompletionProcessor.hpp"
 #include "TaskInterface.hpp"
 #include "TaskExecution.hpp"
@@ -130,6 +131,7 @@ namespace ORO_CoreLib
             : signal_type(combiner, group_compare),
               NameServerRegistrator<EventType*>(nameserver, name, this)
         {
+            Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;
         }
 
 
@@ -137,6 +139,7 @@ namespace ORO_CoreLib
                        const GroupCompare& group_compare = GroupCompare()) :
             signal_type(combiner, group_compare)
         {
+            Logger::log() << Logger::Debug << "Nameless Event Created." << Logger::endl;
         }
 
         /**

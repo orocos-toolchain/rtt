@@ -31,7 +31,7 @@
  * The kernel_components package provides implementations of components
  * of this package.
  *
- * This package is documented in <a href="../../../orocos-control-kernel.html">
+ * This package is documented in <a href="../../orocos-control-kernel.html">
  * The Orocos ControlKernel Manual</a>.
  */
 namespace ORO_ControlKernel 

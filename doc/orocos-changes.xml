@@ -13,19 +13,20 @@
 <article>
   <articleinfo>
     <title>
-      Orocos 0.18.1 Release Series
+      Orocos 0.18.2 Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between Orocos 0.18.0 and
-    Orocos 0.18.1. If your application does not work, look here for
+    This document provides a quick overview of what changed between Orocos 0.18.1 and
+    Orocos 0.18.2. If your application does not work, look here for
     possible causes and solutions. Also feature additions and improvements
     are documented.
   </para>
   <para>See also <ulink url="orocos-changes-0.18.0.html">what changed from 0.16.0 to 0.18.0</ulink>.</para>
+  <para>See also <ulink url="orocos-changes-0.18.1.html">what changed from 0.18.0 to 0.18.1</ulink>.</para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
@@ -41,12 +42,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The build system has yet more improved automake support. The
-	  traditional <command>make install</command>
-	  and <command>make uninstall</command> targets work as
-	  expected with default values. The default install path
-	  is <filename>/usr/local/orocos</filename>, which
-	  can be changed using <command>configure --prefix=</command>
+	  Some last make and make install glitches wrt libtarget.a have been ironed out.
 	</para>
       </listitem>
     </itemizedlist>
@@ -58,18 +54,9 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Orocos now builds by default with the <option>OROSEM_OS_ANGOSTIC</option>
-	    flag which is defined in the configtool's OS package. This option
-	    causes that no OS system calls are inlined, and thus that all 
-	    installed header files are OS-independent, and that the library contains
-	    all target-specific function calls.
-	  </para>
-	  <para>
-	    Upon installation, a <filename>liborocos-&lt;target>.a</filename>
-	    is created in the lib directory, such that you do not need to specify
-	    the literal <option>-ltarget</option> link flag but, for example
-	    <option>-lorocos-lxrt</option>. The two libraries can only coexist
-	    in OS_AGNOSTIC mode or when Orocos is installed in separate directories.
+	    Exception detection can be disabled by the <option>--nocatch</option>
+	    flag. If an uncaught exception is detected, a useful
+	    <emphasis>what next ?</emphasis> message is displayed.
 	  </para>
       </listitem>
     </itemizedlist>
@@ -80,7 +67,8 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Various manuals have been reviewed.
+	  A Logging section has been added to the CoreLib Manual. Small updates
+	  in the ControlKernel Manual.
 	</para>
       </listitem>
     </itemizedlist>
@@ -90,16 +78,10 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The Property system's <function>update()</function>
-	  and <function>copy()</function> methods are executed in bounded time.
-	  A bug did dynamic_casts in previous versions.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Event system's <emphasis>asynchronous</emphasis> <function>fire( args )</function>
-	  methods are executed in bounded time. A bug did a memory
-	  allocation in previous versions.
+	  A Logging framework has been implemented in the <classname>ORO_CoreLib::Logger</classname>
+	  class. This feature should enable tracing and debugging your application much better.
+	  See the CoreLib Manual and API for details. Every Orocos user will be able to
+	  track application progress in an automatically generated <filename>orocos.log</filename> file.
 	</para>
       </listitem>
     </itemizedlist>
@@ -109,7 +91,16 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  None.
+	  The Reporting extension has been extended with a start() and a 
+	  stop() script method which can trigger reporting from your program
+	  scripts. ( <command>do Reporter.start()</command> or
+	  <command>do Reporter.stop()</command> )
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Property extension is more robust against missing configuration
+	  files.
 	</para>
       </listitem>
     </itemizedlist>
@@ -119,17 +110,8 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Orocos State Descriptions and Program Scripts can be fully
-	  controlled on the script level. The <function>reset()</function>,
-	  <function>step()</function> and <function>pause()</function>
-	  commands were missing in 0.18.0.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Loading and unloading of programs and states is cleaner,
-	  and does no longer cause errors if a program or state is
-	  unloaded and loaded again.
+	  The Processor Commands for StateContexts contained a bug which
+	  might lead to memory allocation. Fixed.
 	</para>
       </listitem>
     </itemizedlist>
@@ -139,9 +121,8 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Various bugs were fixed in the KernelClient 0.2 and a README
-	  file is provided for quick instructions. A package 
-	  with version number 0.3 has been made.
+	  KernelClient version 0.4 has been released to take advantage
+	  of the new logging infrastructure (locally and remotely).
 	</para>
       </listitem>
     </itemizedlist>
@@ -156,7 +137,7 @@
     </para>
     <para>
       These pages are maintained by <ulink
-	url="http://www.orocos.org/about.html">the Orocos
+	url="http://www.orocos.org/about.php">the Orocos
 	team</ulink>.
     </para>
     <para>
@@ -172,7 +153,8 @@
 	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
 	orocos-dev@mail.mech.kuleuven.ac.be </ulink>. All of
       our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
-	archives</ulink>.
+	archives</ulink> ( <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
+	archive</ulink> ) .
       </para>
     <para>
       Copyright (C) Peter Soetens

@@ -28,6 +28,8 @@
 #pragma implementation
 #include "corelib/RealTimeTask.hpp"
 #include "os/MutexLock.hpp"
+#include "corelib/Logger.hpp"
+#include "corelib/TaskExecution.hpp"
 
 #include <cmath>
 
@@ -79,6 +81,8 @@ namespace ORO_CoreLib
 
         if ( !inError )
             running = taskAdd();
+        else
+            Logger::log() << Logger::Warning << "RealTimeTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
 
         return running;
     }
@@ -120,7 +124,7 @@ namespace ORO_CoreLib
 
     void RealTimeTask::doStep()
     {
-        if ( isRunning() )
+        if ( running )
         {
             if (runner != 0)
                 runner->step();

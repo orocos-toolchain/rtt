@@ -30,6 +30,8 @@
 #include <pkgconf/system.h>
 #include "control_kernel/ReportingExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
+#include <corelib/Logger.hpp>
+#include <execution/TemplateFactories.hpp>
 
 namespace ORO_ControlKernel
 {
@@ -84,6 +86,7 @@ namespace ORO_ControlKernel
           toFile("WriteToFile","", false),
 #endif
           reportServer("ReportServer","The name of the report server", "Default"),
+          autostart("AutoStart","Start reporting automatically.", true),
           serverOwner(false), count( 0 ),
           base(_base)
     {
@@ -143,20 +146,28 @@ namespace ORO_ControlKernel
 #ifdef OROINT_OS_STDIOSTREAM
         if ( toFile && toStdOut )
             {
+                Logger::log() <<Logger::Info << "ReportingExtension : ";
+                Logger::log() <<Logger::Info << "Reporting to File and std output."<< Logger::endl;
                 fileStream = new ofstream( repFile.get().c_str() );
                 splitStream = new SplitStream( fileStream, &std::cout);
             } else
                 if ( toFile )
                     {
+                        Logger::log() <<Logger::Info << "ReportingExtension : ";
+                        Logger::log() <<Logger::Info << "Reporting to File."<< Logger::endl;
                         fileStream = new ofstream( repFile.get().c_str() );
                         splitStream = new SplitStream(fileStream);
                     } else
 #endif
                         if (toStdOut)
                             {
+                                Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                Logger::log() <<Logger::Info << "Reporting to std output."<< Logger::endl;
                                 splitStream = new SplitStream( &std::cout );
                             } else
                                 {
+                                    Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                    Logger::log() <<Logger::Info << "Not Reporting."<< Logger::endl;
                                     // do nothing.
                                     return true;
                                 }
@@ -210,7 +221,8 @@ namespace ORO_ControlKernel
                         reporter->exporterAdd( ic->second->getExporter() );
                     }
                 else 
-                    cerr << " ReportingExtension : "<< *it << " not found !"<<endl;
+                    Logger::log() <<Logger::Error << "ReportingExtension : "
+                                  << *it << " not found !"<< Logger::endl;
             }
 
         // iterate over all xml-listed dataobjects :
@@ -273,20 +285,20 @@ namespace ORO_ControlKernel
                                     do_server->getReports()->value().add( new_item->clone() );
                                 } //else std::cerr << " found thus no need to add "<<endl;
                             } else {
-                                std::cerr <<std::endl<< " ReportingExtension : Looking up '"<< *it <<"' : ";
-                                cerr << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<""<<endl;
+                                Logger::log() <<Logger::Error << "ReportingExtension : "
+                                              << " Looking up '"<< *it <<"' : "
+                                              << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<"."<< Logger::endl;
                             }
 
                             do_server->cleanupReports( tmp_bag );
                         }
                 }
                 else {
-                    std::cerr <<std::endl<< " ReportingExtension : Looking up '"<< *it <<"' : ";
-                    std::cerr <<" not found !"<<endl ;
-                    std::cerr <<" Tried " + base->getKernelName()+"::" + std::string( *it, 0, pos ) <<endl;
+                    Logger::log() << Logger::Error << "ReportingExtension : Looking up '"<< *it <<"' : not found !" << Logger::nl
+                                  <<"Tried " + base->getKernelName()+"::" + std::string( *it, 0, pos ) << Logger::endl;
                 }
             }
-        if (serverOwner)
+        if (serverOwner && autostart.get() )
             reporterTask->start();
         return true;
     }
@@ -343,6 +355,36 @@ namespace ORO_ControlKernel
         delete nh_config;
 
         active_dos.clear();
+    }
+
+    using namespace ORO_Execution;
+
+    MethodFactoryInterface* ReportingExtension::createMethodFactory()
+    {
+        // Add the methods, methods make sure that they are 
+        // executed in the context of the (non realtime) caller.
+        TemplateMethodFactory< ReportingExtension  >* ret =
+            newMethodFactory( this );
+        ret->add( "start",
+                  method
+                  ( &ReportingExtension::startReporting ,
+                    "Start reporting.") );
+        ret->add( "stop",
+                  method
+                  ( &ReportingExtension::stopReporting ,
+                    "Stop reporting.") );
+        return ret;
+    }
+
+    bool ReportingExtension::startReporting()
+    {
+        return reporterTask->start();
+    }
+
+    bool ReportingExtension::stopReporting()
+    {
+        reporterTask->stop();
+        return true;
     }
 
     /**
@@ -413,6 +455,17 @@ namespace ORO_ControlKernel
 #ifdef OROINT_OS_STDIOSTREAM
         composeProperty(bag, toFile);
 #endif
+        composeProperty(bag, autostart);
+
+        Logger::log() << Logger::Info << "ReportingExtension Properties : "<<Logger::nl
+                      << period.getName()<< " : " << period.get() << Logger::nl
+                      << interval.getName()<< " : " << interval.get() << Logger::nl
+                      << repFile.getName()<< " : " << repFile.get() << Logger::nl
+                      << reportServer.getName()<< " : " << reportServer.get() << Logger::nl
+                      << toStdOut.getName()<< " : " << toStdOut.get() << Logger::nl
+                      << writeHeader.getName()<< " : " << writeHeader.get() << Logger::nl
+                      << toFile.getName()<< " : " << toFile.get() << Logger::nl
+                      << autostart.getName()<< " : " << autostart.get() << Logger::endl;
                 
         // a bit harsh, yeah...
         exporters.clear();
@@ -429,15 +482,17 @@ namespace ORO_ControlKernel
                     {
                         Property<std::string>* compName = dynamic_cast<Property<std::string>* >( *it );
                         if ( !compName )
-                            std::cout << "[Reporting] Warning : Expected property \""<<
-                                (*it)->getName() <<"\" to be of type string."<<endl;
+                            Logger::log() << Logger::Error << "ReportingExtension : "
+                                          << "Expected property \""
+                                          << (*it)->getName() <<"\" to be of type string."<< Logger::endl;
                         else if ( compName->getName() == "Component" )
                             rep_comps.push_back( compName->value() );
                         else if ( compName->getName() == "DataObject" )
                             rep_dos.push_back( compName->value() );
                         else
-                            std::cout << "[Reporting] Warning : Expected \"Component\" Or \"DataObject\", got "<<
-                                compName->getName() << endl;
+                            Logger::log() << Logger::Error << "ReportingExtension : "
+                                          << "Expected \"Component\" Or \"DataObject\", got "
+                                          << compName->getName() << Logger::endl;
                         ++it;
                     }
             }

@@ -28,6 +28,7 @@
 #include <xercesc/framework/LocalFileInputSource.hpp>
 #include <corelib/marshalling/CPFDemarshaller.hpp>
 #include <control_kernel/PropertyExtension.hpp>
+#include "corelib/Logger.hpp"
 
 using namespace std;
 using namespace ORO_CoreLib;
@@ -37,7 +38,7 @@ bool ComponentConfigurator::configure(const std::string& filename, PropertyCompo
 {
     bool result = false;
     XMLCh* name = 0;
-    cout << "Configuring " <<target->getName()<< endl;
+    Logger::log() <<Logger::Info << "Configuring " <<target->getName()<< Logger::endl;
     try
     {
         name =  XMLString::transcode( filename.c_str() );
@@ -49,22 +50,21 @@ bool ComponentConfigurator::configure(const std::string& filename, PropertyCompo
         if ( demarshaller.deserialize( target->getLocalStore().value() ) )
         {
             // instruct component to update.
-            if (!target->updateProperties( target->getLocalStore().value() ) )
-                cerr << "Component "<<target->getName() << " dit not successfully update its properties !"<<endl;
-            else
-                result = true;
+            result = target->updateProperties( target->getLocalStore().value() );
             // cleanup
             flattenPropertyBag( target->getLocalStore().value() );
             deleteProperties( target->getLocalStore().value() );
         }
         else
             {
-                cerr << "Some error occured while parsing "<< filename.c_str() <<endl;
+                Logger::log() << Logger::Error
+                              << "Some error occured while parsing "<< filename.c_str() <<Logger::endl;
             }
     } catch (...)
     {
         delete[] name;
-        cerr << "Could not find "<< filename << endl;
+        Logger::log() << Logger::Error
+                      << "Could not find "<< filename << endl;
     }
     return result;
 }

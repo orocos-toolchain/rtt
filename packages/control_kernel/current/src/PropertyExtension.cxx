@@ -28,6 +28,7 @@
 #include "control_kernel/PropertyExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>
+#include <corelib/Logger.hpp>
 
 namespace ORO_ControlKernel
 {
@@ -82,6 +83,10 @@ namespace ORO_ControlKernel
     {
         composeProperty(bag, save_props);
         composeProperty(bag, configureOnLoad);
+
+        Logger::log() << Logger::Info << "PropertyExtension Properties : "<<Logger::nl
+                      << save_props.getName()<< " : " << save_props.get() << Logger::nl
+                      << configureOnLoad.getName()<< " : " << configureOnLoad.get() << Logger::endl;
             
         // build new list of present component config files
         for( CompNames::iterator it = componentFileNames.begin();
@@ -104,7 +109,7 @@ namespace ORO_ControlKernel
             }
         else
             {
-                cout <<"sequence \"PropertyFiles\" not found !"<< endl;
+                Logger::log() << Logger::Error << "PropertyExtension : sequence \"PropertyFiles\" not found !"<< Logger::endl;
                 return false;
             }
         return true;
@@ -115,17 +120,37 @@ namespace ORO_ControlKernel
         if (configureOnLoad)
             return true; // All is done.
 
-        cout << "PropertyExtension::initialize on start." << endl;
+        Logger::log() << Logger::Info << "PropertyExtension : initialize on start."<< Logger::endl;
         // read xml file for each component, if we know it.
-        for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+//         for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+//             {
+//                 CompMap::iterator tg = myMap.find( (*it)->getName() );
+//                 if ( tg == myMap.end() )
+//                     {
+//                         Logger::log() << Logger::Warning << "PropertyExtension : ";
+//                         Logger::log() << "Component "<<(*it)->getName() << " not found !"<< Logger::endl;
+//                         continue;
+//                     }
+//                 if ( configureComponent( (*it)->value(), tg->second ) ==  false)
+//                     return false;
+//             }
+        for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
             {
-                CompMap::iterator tg = myMap.find( (*it)->getName() );
-                if ( tg == myMap.end() )
-                    {
-                        cout << "Component "<<(*it)->getName() << " not found !"<<endl;
-                        continue;
-                    }
-                configureComponent( (*it)->value(), tg->second );
+                for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+                    if ( (*it)->getName() == tg->second->getName() )
+                        if ( configureComponent( (*it)->value(), tg->second ) ==  false)
+                            return false;
+
+                Logger::log() << Logger::Info << "PropertyExtension : ";
+                Logger::log() << "No Property file for Component "<<tg->second->getName() << " found !"<< Logger::endl;
+                PropertyBag emptyBag;
+                if ( tg->second->updateProperties( emptyBag ) == false ) {
+                    Logger::log() << Logger::Error << "PropertyExtension : "
+                                  << "Component " << tg->second->getName() 
+                                  << " does not accept empty properties." 
+                                  << "Fix your property config file first."<< Logger::endl;
+                    return false;
+                }
             }
         return true;
     }
@@ -135,9 +160,10 @@ namespace ORO_ControlKernel
         ComponentConfigurator cc;
         if ( !cc.configure( filename, target) )
             {
-                cout << "Component "<< target->getName()
-                     << " does not accept its properties."<< endl 
-                     << "Fix your config file first."<< endl;
+                Logger::log() << Logger::Error << "PropertyExtension : ";
+                Logger::log() << "Component "<<target->getName() 
+                              << " does not accept properties from file '"+filename+"'." 
+                              << "Fix your property config file first."<< Logger::endl;
                 return false;
             }
         return true;
@@ -152,7 +178,7 @@ namespace ORO_ControlKernel
     {
         if ( save_props )
             {
-                std::cout << "Need to save props !"<<std::endl;
+                Logger::log() << Logger::Debug << "Need to save props !"<<Logger::endl;
                 /*
                 // iterate over components
                 std::map<std::string, PropertyComponentInterface*>::iterator comp_it = myMap.begin();
@@ -178,7 +204,15 @@ namespace ORO_ControlKernel
                     if ( (*it)->getName() == comp->getLocalStore().getName() )
                         return configureComponent( (*it)->value(), comp );
                 // reached when not found
-                //cerr << "Warning : No property file for "<<comp->getLocalStore().getName()<<endl;
+                Logger::log() << Logger::Info << "PropertyExtension : "
+                              << "No property file found for "<<comp->getLocalStore().getName()<< Logger::endl;
+                PropertyBag emptyBag;
+                if ( comp->updateProperties( emptyBag ) == false )
+                    Logger::log() << Logger::Error << "PropertyExtension : "
+                                  << "Component " << comp->getName() 
+                                  << " does not accept empty properties." 
+                                  << "Fix your property config file first."<< Logger::endl;
+
             }
         return true;
     }

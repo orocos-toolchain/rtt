@@ -45,4 +45,37 @@ namespace ORO_OS
         mt = 0;
     }
 
+    void StartStopManager::startFunction( start_fun t )
+    {
+        startv.push_back(t);
+    }
+
+    void StartStopManager::stopFunction( stop_fun t )
+    {
+        stopv.push_back(t);
+    }
+
+    int StartStopManager::start()
+    {
+        // save some memory trick
+        //startv.resize( startv.size() );
+        //stopv.resize( stopv.size() );
+        std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
+        return res;
+    }
+
+    void StartStopManager::stop()
+    {
+        std::for_each(stopv.rbegin(), stopv.rend(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
+    }
+
+    StartStopManager::StartStopManager() : res(0) {}
+
+    StartStopManager::~StartStopManager()
+    {
+        startv.clear();
+        stopv.clear();
+    }
+
+
 }

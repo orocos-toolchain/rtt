@@ -30,10 +30,34 @@
 #include "corelib/SimulationThread.hpp"
 #include "corelib/HeartBeatGenerator.hpp"
 #include "corelib/TaskSimulation.hpp"
+#include "corelib/Logger.hpp"
 
 #include "pkgconf/corelib_tasks.h"
 
-// NO AUTO START !
+// NO AUTO START ! Only create/release
+#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#include <os/StartStopManager.hpp>
+namespace ORO_CoreLib
+{
+    namespace
+    {
+        int startSIMThread()
+        {
+            SimulationThread::Instance();
+            return true;
+        }
+
+        void stopSIMThread()
+        {
+            SimulationThread::Release();
+        }
+
+        ORO_OS::InitFunction SIMInit( &startSIMThread );
+        ORO_OS::CleanupFunction SIMCleanup( &stopSIMThread );
+    }
+}
+#endif
+
 
 namespace ORO_CoreLib
 {
@@ -71,6 +95,8 @@ namespace ORO_CoreLib
           beat( HeartBeatGenerator::Instance() )
     {
         this->continuousStepping( true );
+        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"ms periodicity";
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_SIM_PRIORITY << Logger::nl;
     }
 
     SimulationThread::~SimulationThread()
@@ -89,6 +115,9 @@ namespace ORO_CoreLib
 
     bool SimulationThread::initialize()
     {
+        Logger::log() << Logger::Info << "SimulationThread takes over system time."<<Logger::nl;
+        Logger::log() << Logger::Info << "System time will increase significantly faster."<<Logger::endl;
+        
         // we will update the clock in step()
         beat->enableSystemClock( false );
         return true;
@@ -96,6 +125,7 @@ namespace ORO_CoreLib
 
     void SimulationThread::finalize()
     {
+        Logger::log() << Logger::Info << "SimulationThread releases system time."<<Logger::endl;
         // release systemclock again.
         beat->enableSystemClock( true );
     }

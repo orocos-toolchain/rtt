@@ -84,6 +84,10 @@ namespace ORO_Execution
      * @brief This class implements a controllable program processor.
      * It executes Realtime Programs and State Machines and can 
      * accept and execute external commands when running.
+     *
+     * @todo Make a more efficient implementation instead of iterating
+     * over the programs and state lists. Also provide object based
+     * control methods instead of string based.
      */
     class Processor
          : public ORO_CoreLib::RunnableInterface

@@ -46,24 +46,34 @@ namespace
 
 #endif
 
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+#endif
+
 #include "os/PeriodicThread.hpp"
 
 
 
 namespace ORO_OS
 {
+#ifdef OROPKG_CORELIB_REPORTING
+    using ORO_CoreLib::Logger;
+#endif
 
     void *ComponentThread( void *t )
     {
-        rtos_printf( "Periodic Thread created\n" );
         PeriodicThread* comp = ( PeriodicThread* ) t;
+
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" created."<<Logger::endl;
+#endif
 
         while ( 1 )
         {
             while ( !comp->isRunning() && !comp->timeToQuit )
                 comp->periodWait(); //POSIX
             if (comp->timeToQuit)
-                return 0;
+                break;
 
             if ( comp->runner != 0 )
                 comp->runner->step();
@@ -74,6 +84,9 @@ namespace ORO_OS
                 comp->periodWaitRemaining();
         }
         
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< comp->taskName <<" exiting."<<Logger::endl;
+#endif
         return 0;
     }
 
@@ -94,8 +107,6 @@ namespace ORO_OS
         if ( isRunning() )
             stop();
 
-        rtos_printf( "Terminating %s\n", taskName );
-
         terminate();
 
         // should wait until step is completed and exit then... ( FSM )
@@ -111,10 +122,19 @@ namespace ORO_OS
         if ( isRunning() )
             return false;
 
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" started."<<Logger::endl;
+#endif
+
         if ( runner )
             running = runner->initialize();
         else
             running = initialize();
+
+#ifdef OROPKG_CORELIB_REPORTING
+        if ( running == false )
+            Logger::log() << Logger::Critical << "Periodic Thread "<< taskName <<" failed to initialize()."<<Logger::endl;
+#endif
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         if ( running )
@@ -127,6 +147,10 @@ namespace ORO_OS
     {
         if ( !isRunning() )
             return false;
+
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" stopping."<<Logger::endl;
+#endif
 
         running = false;
 

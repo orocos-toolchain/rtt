@@ -32,7 +32,7 @@
  * 
  * This is the CoreLib specific API reference.
  * This library is documented in the 
- * <a href="../../../orocos-corelib.html>
+ * <a href="../../orocos-corelib.html>
  * Orocos CoreLib Online Manual</a>.
  */
  

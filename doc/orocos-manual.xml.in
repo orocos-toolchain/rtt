@@ -51,6 +51,13 @@
       </para>
     </legalnotice>
   </bookinfo>
+<!---
+  When generating a .html file from this document, the path to the .png
+  files of the xi:included documents is absolute,
+  and thus won't work on the website. I can't find how to solve
+  it, thus update the links with a query-replace-regexp in emacs when the doc is
+  on the server.
+-->
 
   <chapter>
     <title>Orocos Overview</title>
@@ -124,7 +131,7 @@
   </chapter>
 
   <chapter>
-    <title>Control Kernel</title>
+    <title>The Control Kernel Application</title>
     <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="@ECOS_REP@/control_kernel/current/doc/orocos-control-kernel.xml#xpointer(/article/sect1[*])"  

@@ -143,10 +143,13 @@ namespace ORO_CoreLib
                 /**
                  * Serializing a propery<bag> : pad the line below with spaces.
                  */
-                if ( int(header[line-1].length() - header[line].length()) > 0 )
+                if ( int(header[line-1].length()) - int(header[line].length()) > 0 )
                 {
+                    // add separator
                     header[line] += std::string(" | ");
-                    header[line] += std::string( header[line-1].length() - header[line].length() ,' ');
+                    // pad further if necessary.
+                    if ( int(header[line-1].length()) - int(header[line].length()) > 0 )
+                        header[line] += std::string( header[line-1].length() - header[line].length() ,' ');
                 }
 
                 /**

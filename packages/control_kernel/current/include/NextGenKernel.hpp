@@ -33,6 +33,7 @@
 #include "PortInterfaces.hpp"
 #include "BaseComponents.hpp"
 #include "ComponentStateInterface.hpp"
+#include "corelib/Logger.hpp"
 
 #include <algorithm>
 #include <boost/smart_ptr.hpp>
@@ -843,8 +844,10 @@ namespace ORO_ControlKernel
          */
         template< class _Sensor>
         bool loadSensor(_Sensor* c) {
-            if ( this->isRunning() )
+            if ( this->isRunning() ) {
+                Logger::log() << Logger::Error << "Tried to load Sensor " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
 
             this->addSensor( c );
 
@@ -854,19 +857,25 @@ namespace ORO_ControlKernel
             if ( ! c->enableAspect(this) )
                 {
                     c->_Sensor::Input::erasePort();
+                    Logger::log() << Logger::Error << "Trying to load Sensor " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
                     this->sensors.registerObject( c, c->ComponentBaseInterface::getName() );
+                    Logger::log() << Logger::Info << "Trying to load Sensor " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     return true;
                 }
         }
 
         template< class _Estimator>
         bool loadEstimator(_Estimator* c) {
-            if ( this->isRunning() )
+            if ( this->isRunning() ) {
+                Logger::log() << Logger::Error << "Tried to load Estimator " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
             this->addEstimator(c);
 
             c->_Estimator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
@@ -875,10 +884,14 @@ namespace ORO_ControlKernel
                 {
                     c->_Estimator::Model::erasePort();
                     c->_Estimator::Input::erasePort();
+                    Logger::log() << Logger::Error << "Trying to load Estimator " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
+                    Logger::log() << Logger::Info << "Trying to load Estimator " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     this->estimators.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
@@ -886,8 +899,10 @@ namespace ORO_ControlKernel
 
         template<class _Generator >
         bool loadGenerator(_Generator* c) {
-            if ( this->isRunning() )
+            if ( this->isRunning() ) {
+                Logger::log() << Logger::Error << "Tried to load Generator " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
             this->addGenerator(c);
 
             c->_Generator::Command::createPort( this->getKernelName() + "::Commands", com_prefix);
@@ -900,10 +915,14 @@ namespace ORO_ControlKernel
                     c->_Generator::SetPoint::erasePort();
                     c->_Generator::Model::erasePort();
                     c->_Generator::Input::erasePort();
+                    Logger::log() << Logger::Error << "Trying to load Generator " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
+                    Logger::log() << Logger::Info << "Trying to load Generator " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     this->generators.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
@@ -911,8 +930,10 @@ namespace ORO_ControlKernel
 
         template< class _Controller >
         bool loadController( _Controller* c) {
-            if ( this->isRunning() )
+            if ( this->isRunning() ) {
+                Logger::log() << Logger::Error << "Tried to load Controller " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
             this->addController(c);
 
             c->_Controller::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix );
@@ -925,10 +946,14 @@ namespace ORO_ControlKernel
                     c->_Controller::SetPoint::erasePort();
                     c->_Controller::Model::erasePort();
                     c->_Controller::Input::erasePort();
+                    Logger::log() << Logger::Error << "Trying to load Controller " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
+                    Logger::log() << Logger::Info << "Trying to load Controller " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     this->controllers.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
@@ -936,18 +961,24 @@ namespace ORO_ControlKernel
 
         template< class _Effector >
         bool loadEffector(_Effector* c) {
-            if ( this->isRunning() )
+            if ( this->isRunning() ) {
+                Logger::log() << Logger::Error << "Tried to load Effector " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
             this->addEffector(c);
 
             c->_Effector::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
             if ( ! c->enableAspect(this) )
                 {
                     c->_Effector::Output::erasePort();
+                    Logger::log() << Logger::Error << "Trying to load Effector " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
+                    Logger::log() << Logger::Info << "Trying to load Effector " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     this->effectors.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
@@ -961,10 +992,14 @@ namespace ORO_ControlKernel
 
             if ( ! c->enableAspect(this) )
                 {
+                    Logger::log() << Logger::Error << "Trying to load Support " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
+                    Logger::log() << Logger::Info << "Trying to load Support " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
                     this->supports.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }

@@ -33,7 +33,7 @@
  * Tasks, Buffers, State Machines, Timing Infrastructure
  * and common utility classes.
  *
- * The corelib is documented in <a href="../../../orocos-corelib.html">
+ * The corelib is documented in <a href="../../orocos-corelib.html">
  * The Orocos CoreLib Online Manual</a>
  */
 namespace ORO_CoreLib {}

@@ -25,12 +25,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef NAMESERVER_HPP
-#define NAMESERVER_HPP
+#ifndef ORO_NAMESERVER_HPP
+#define ORO_NAMESERVER_HPP
 
 #include <iterator>
 #include <string>
 #include <map>
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB_REPORTING
+#include "Logger.hpp"
+#endif
 
 namespace ORO_CoreLib
 {
@@ -199,6 +203,9 @@ namespace ORO_CoreLib
         {
             if ( isNameRegistered( name ) )
                 return;
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Debug << "NameServer : Adding " << name << Logger::endl;
+#endif
             objects.insert(std::make_pair(name,obj));
         }
 
@@ -226,8 +233,12 @@ namespace ORO_CoreLib
                                 break;
                         }
 
-                    if ( i != objects.end() )
+                    if ( i != objects.end() ) {
                         objects.erase( i );
+#ifdef OROPKG_CORELIB_REPORTING
+                        Logger::log() << Logger::Debug << "NameServer : Removing " << (*i).first << Logger::endl;
+#endif
+                    }
                 }
         }
 
@@ -241,8 +252,12 @@ namespace ORO_CoreLib
         {
             iterator i( objects.find( name ) );
 
-            if ( i != objects.end() )
+            if ( i != objects.end() ) {
                 objects.erase( i );
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Debug << "NameServer : Removing " << name << Logger::endl;
+#endif
+                    }
         }
 
         /**

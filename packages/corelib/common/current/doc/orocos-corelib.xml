@@ -98,6 +98,12 @@ of the &orocos; framework.
 	<authorinitials>ps</authorinitials>
 	<revremark>New Event Implementation and Simulation Thread. Reordering and cleanup of Sections.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.18.1</revnumber>
+	<date>5 Jan 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Logging Framework.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -1237,7 +1243,94 @@ emergencyStop.fire(); // User not notified
       </para>
     </sect2>
   </sect1>
-  <sect1>
+  <sect1 id="core-logging">
+    <title>Logging</title>
+    <para>
+      Orocos applications can have pretty complex startup and initialisation code.
+      A logging framework helps to track what your program is doing. <emphasis>Logging can
+      only be done in the non-realtime parts of your application, thus not in
+	the Realtime Periodic Tasks !</emphasis> <xref linkend="core-reporting"/> is meant for that.  
+    </para>
+    <para>
+      There are currently 7 loglevels :
+      <table>
+	<title>Logger Log Levels</title>
+	<tgroup cols="3">
+	  <tbody>
+	    <row>
+	      <entry>0</entry>
+	      <entry>Logger::Never</entry>
+	      <entry>Never log anything</entry>
+	    </row>
+	    <row>
+	      <entry>1</entry>
+	      <entry>Logger::Fatal</entry>
+	      <entry>Only log Fatal errors. System will abort immediately.</entry>
+	    </row>
+	    <row>
+	      <entry>2</entry>
+	      <entry>Logger::Critical</entry>
+	      <entry>Only log Critical or worse errors. System may abort shortly after.</entry>
+	    </row>
+	    <row>
+	      <entry>3</entry>
+	      <entry>Logger::Error</entry>
+	      <entry>Only log Errors or worse errors. System will come to a safe stop.</entry>
+	    </row>
+	    <row>
+	      <entry>4</entry>
+	      <entry>Logger::Warning</entry>
+	      <entry>Only log Warnings or worse errors. System will try to resume anyway.</entry>
+	    </row>
+	    <row>
+	      <entry>5</entry>
+	      <entry>Logger::Info</entry>
+	      <entry>Only log Info or worse errors. Informative messages.</entry>
+	    </row>
+	    <row>
+	      <entry>6</entry>
+	      <entry>Logger::Debug</entry>
+	      <entry>Only log Debug or worse errors. Debug messages.</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
+    <para>
+      You can change the amount of log info printed on your console by setting the environment variable
+      <envar>ORO_LOGLEVEL</envar> to one of the above numbers :
+      <screen>
+  export ORO_LOGLEVEL=5</screen>
+      The default is level 4, thus only warnings and errors are printed.
+    </para>
+    <para>
+      The fixed log level for the <filename>orocos.log</filename> file is <parameter>Logger::Info</parameter>.
+      This file is always created if the logging infrastructure is used. You can inspect this file
+      if you want to know the most usefull information of what is happening inside Orocos.
+    </para>
+    <para>
+      For using the <classname>Logger</classname> class in your own application, consult
+      the API documentation.
+    </para>
+    <example>
+      <title>Using the Logger class</title>
+      <programlisting>
+  #include &lt;corelib/Logger.hpp>
+
+  Logger::log() << Logger::Error << "An error Occured : " << 333 << "." << Logger::endl;
+  Logger::log() << Logger::Debug << debugstring << data << Logger::endl;
+  Logger::log() << " more debug info." << data << Logger::endl; </programlisting>
+      <para>As you can see, the Logger can be used like the standard C++ input streams.
+	You may change the Log message's level using the <classname>Logger::...</classname>
+	enums. The above message could result in :
+      </para>
+      <screen>
+  0.123 [ERROR] An error Occured : 333
+  0.124 [Debug] &lt;contents of debugstring and data >
+  0.125 [Debug]  more debug info. &lt;...data...> </screen>
+    </example>
+  </sect1>
+  <sect1 id="core-reporting">
     <title>Reporting</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status

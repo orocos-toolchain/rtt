@@ -32,7 +32,7 @@
  * classes and functions in a realtime system. Examples are Threads,
  * Mutexes and standard libraries. 
  *
- * The os package is documented in <a href="../../../orocos-os.html">
+ * The os package is documented in <a href="../../orocos-os.html">
  * The Orocos OS Online Manual</a>
  */
 namespace ORO_OS {}

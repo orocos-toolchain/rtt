@@ -163,7 +163,6 @@ namespace ORO_ControlKernel
 
 	    virtual bool componentLoaded()
 	    {
-            std::cout << "Loading PID_Controller" << std::endl;
             T = kernel()->getPeriod();          // sample period
             // discrete time parameters
             for ( int i = 0; i < num_chans; i++)

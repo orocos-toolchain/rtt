@@ -33,7 +33,7 @@
  *
  * Only header files are found in this package, and NameServer functionality.
  *
- * The device interfaces are documented in <a href="../../../orocos-device-interface.html">
+ * The device interfaces are documented in <a href="../../orocos-device-interface.html">
  * The Orocos Device Interface Online Manual</a>
  */
 namespace ORO_DeviceInterface {}

@@ -87,8 +87,7 @@ namespace ORO_CoreLib
          */    
         static NonRealTimeThread* cp;
 
-        virtual ~NonRealTimeThread()
-        {}
+        virtual ~NonRealTimeThread();
 
         virtual void step();
 

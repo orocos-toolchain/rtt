@@ -37,7 +37,7 @@
  * @see CAN
  * @see Beckhoff
  *
- * The device drivers are documented in <a href="../../../orocos-device-drivers.html">
+ * The device drivers are documented in <a href="../../orocos-device-drivers.html">
  * The Orocos Device Drivers Online Manual</a>
  */
 namespace ORO_DeviceDriver {}

@@ -66,8 +66,11 @@ namespace ORO_Execution
             {}
 
             StateContextTree* state;
-            boost::function<void(void)> action; // set action to zero to 'pause'
-            //void (StateInfo::action*)(void);
+            //boost::function<void(void)> action; // does do alloc
+            typedef void (Processor::StateInfo::*ActionPtr)(void); // ptr to member
+            ActionPtr action;
+            //Fooptr fooptr = &X::foo;        // no alloc
+            //i = (x2.*fooptr)(2);            // no alloc
 
             // (de)activate may be called directly
             void activate() {
@@ -86,7 +89,7 @@ namespace ORO_Execution
             void start() {
                 sstate = StateContextStatus::running;
                 // keep repeating the run action
-                action = bind (&StateInfo::run, this);
+                action = &StateInfo::run;
                 //action = &StateInfo::run;
                 this->run(); // execute the first time from here.
             }
@@ -99,12 +102,12 @@ namespace ORO_Execution
             void stop() {
                 action = 0;
                 state->requestFinalState();
-                    sstate = StateContextStatus::stopped;
+                sstate = StateContextStatus::stopped;
             }
             void reset() {
                 action = 0;
                 state->requestInitialState();
-                    sstate = StateContextStatus::active;
+                sstate = StateContextStatus::active;
             }
 
             void singleStep() {
@@ -308,7 +311,7 @@ namespace ORO_Execution
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::active || it->sstate == StateContextStatus::paused) {
-            it->action = bind( &StateInfo::start, &(*it) );
+            it->action = &StateInfo::start;
             return true;
         }
         return false;
@@ -319,7 +322,7 @@ namespace ORO_Execution
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::paused) {
-            it->action = bind( &StateInfo::singleStep, &(*it) );
+            it->action = &StateInfo::singleStep;
             return true;
         }
         return false;
@@ -397,7 +400,7 @@ namespace ORO_Execution
                                       || it->sstate == StateContextStatus::paused
                                       || it->sstate == StateContextStatus::active))
             {
-                it->action = bind( &StateInfo::pause, &(*it) );
+                it->action = &StateInfo::pause;
                 return true;
             }
         return false;
@@ -411,7 +414,7 @@ namespace ORO_Execution
                                      || it->sstate == StateContextStatus::active
                                      || it->sstate == StateContextStatus::running) )
             {
-                it->action = bind( &StateInfo::stop, &(*it) );
+                it->action = &StateInfo::stop;
                 return true;
             }
         return false;
@@ -424,7 +427,7 @@ namespace ORO_Execution
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() && it->sstate == StateContextStatus::stopped )
             {
-                it->action = bind( &StateInfo::reset, &(*it) );
+                it->action = &StateInfo::reset;
                 return true;
             }
         return false;
@@ -527,7 +530,7 @@ namespace ORO_Execution
     void _executeState( Processor::StateInfo& s)
     {
         if ( s.action )
-            s.action();
+            (s.*(s.action))();
     }
 
     void _stopState( Processor::StateInfo& s)

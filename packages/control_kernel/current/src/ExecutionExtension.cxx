@@ -39,6 +39,7 @@
 #include <execution/ParsedStateContext.hpp>
 
 #include <corelib/PropertyComposition.hpp>
+#include <corelib/Logger.hpp>
 
 #include "execution/TemplateDataSourceFactory.hpp"
 #include <execution/TemplateCommandFactory.hpp>
@@ -74,9 +75,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     {
         initKernelCommands();
         if ( !proc.activateStateContext("Default") )
-            cerr << "Warning : Processor could not activate \"Default\" StateContext."<<endl;
+            Logger::log() << Logger::Info << "ExecutionExtension : "
+                          << "Processor could not activate \"Default\" StateContext."<< Logger::endl;
         else if ( !proc.startStateContext("Default") )
-            cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
+            Logger::log() << Logger::Info << "ExecutionExtension : "
+                          << "Processor could not start \"Default\" StateContext."<< Logger::endl;
         proc.setTask( this->kernel()->getTask() );
         proc.initialize();
         return true;
@@ -125,14 +128,22 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         }
         catch( const file_parse_exception& exc )
         {
+            Logger::log() << Logger::Error << "ExecutionExtension : "
+                          << "loadProgram  : "<< exc.what()<< Logger::endl;
           // no reason to catch this other than clarity
           throw;
         }
         if ( pg_list.empty() )
         {
-          throw program_load_exception( "Warning : No Programs defined in inputfile." );
+            Logger::log() << Logger::Warning << "ExecutionExtension : "
+                          << "loadProgram no programs loaded from "<< filename << Logger::endl;
+            return true;
+            // since functions can be present, this is not so exceptional.
+            //throw program_load_exception( "Warning : No Programs defined in inputfile." );
         }
         for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, &proc, _1) );
+        Logger::log() << Logger::Info << "ExecutionExtension : "
+                      << "loadProgram loaded "<< pg_list.end() - pg_list.begin()<<" program(s) from " << filename << Logger::endl;
         return true;
     }
 
@@ -163,12 +174,16 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         }
         catch( const file_parse_exception& exc )
         {
+            Logger::log() << Logger::Error << "ExecutionExtension : "
+                          << "loadStateContext  : "<< exc.what()<< Logger::endl;
           // no reason to catch this other than clarity
           throw;
         }
         if ( contexts.empty() )
         {
-          throw program_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
+            Logger::log() << Logger::Info << "ExecutionExtension : "
+                          << "loadStateContext no StateContexts instantiated loaded from "<< filename << Logger::endl;
+            throw program_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
         }
 
         // this can throw a program_load_exception
@@ -177,6 +192,9 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
             getProcessor()->loadStateContext( *it );
             recursiveRegister( parsed_states, *it );
         }
+
+        Logger::log() << Logger::Info << "ExecutionExtension : "
+                      << "loadStateContext loaded "<< contexts.end() - contexts.begin()<<" StateContext(s) from " << filename << Logger::endl;
     }
 
     ParsedStateContext* ExecutionExtension::getStateContext(const std::string& name) {
@@ -377,6 +395,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         // The interval for executing the program, relative to the
         // kernel period. This property is optional.
         composeProperty(bag, interval);
+        Logger::log() << Logger::Info << "ExecutionExtension Properties : " << Logger::nl
+                      << interval.getName()<<" : "<< interval.get()<< Logger::endl;
         // check for validity.
         return interval > 0;
     }

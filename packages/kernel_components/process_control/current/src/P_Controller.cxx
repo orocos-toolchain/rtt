@@ -83,7 +83,6 @@ void P_Controller::calculate()
 
 bool P_Controller::updateProperties(const PropertyBag& bag)
 {
-  std::cerr << "P_Controller::updateProperties()" << std::endl;
   return composeProperty(bag, _controller_gain);
 }
 

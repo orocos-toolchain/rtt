@@ -28,6 +28,7 @@
 #include "corelib/ZeroTimeThread.hpp"
 #include "corelib/TaskNonPreemptible.hpp"
 #include "corelib/Time.hpp"
+#include "corelib/Logger.hpp"
 
 #include <pkgconf/corelib_tasks.h>
 
@@ -89,12 +90,13 @@ namespace ORO_CoreLib
                         ORONUM_CORELIB_TASKS_ZTT_PERIOD )
     {
         makeHardRealtime();
-        //rt_std::cout << "ZeroTimeThread Created with 1ms periodicity\n";
+        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_ZTT_NAME <<" created with "<< ORONUM_CORELIB_TASKS_ZTT_PERIOD <<"s periodicity";
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_ZTT_PRIORITY << Logger::endl;
     }
 
     ZeroTimeThread::~ZeroTimeThread()
     {
-        //rt_std::cout << "ZTT DESTRUCTOR\n";
+        Logger::log() << Logger::Debug << ORODAT_CORELIB_TASKS_ZTT_NAME <<" destructor." << Logger::endl;
     }
 
     bool ZeroTimeThread::taskAdd( TaskNonPreemptible* t, const nsecs n )

@@ -46,12 +46,13 @@ uninstall-local:
 	@rm -fv $(prefix)/lib/libtarget.a
 
 install-exec-local:
-	-{install -m 755 -d $(prefix)/include &&\
-	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done &&\
-	install -m 755 -d $(prefix)/lib &&\
-	libtool --mode=install install -p -m 644 packages/install/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib &&\
-	-ln -s  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a &&\
-	libtool --mode=finish $(prefix)/lib; }
+	install -m 755 -d $(prefix)/include
+	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done
+	install -m 755 -d $(prefix)/lib
+	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a
+	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a
+	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a
+	libtool --mode=finish $(prefix)/lib
 
 all-local: test_new_packages test_all_packages
 
@@ -107,11 +108,9 @@ all_packages: test_new_packages
 	cd packages &&\
 	( test -f ecos.ecc || exit -1) &&\
 	export ECOS_REPOSITORY=$(ECOS_REP) &&\
-	( ecosconfig tree || exit -1) &&\
-	( $(MAKE) -C . || exit -1) &&\
-	mv -u install/lib/libtarget.a install/lib/liborocos-$(ECOS_TARGET).a 2>/dev/null ;\
-	cd install/lib ; ln -sf liborocos-$(ECOS_TARGET).a libtarget.a ; cd ../.. ;\
-	touch install/lib/liborocos-$(ECOS_TARGET).a 
+	{ ecosconfig tree || exit -1; } &&\
+	{ $(MAKE) -C . || exit -1; } &&\
+	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a && cd ../..
 
 precompile_headers:
 	$(MAKE) headers -C packages

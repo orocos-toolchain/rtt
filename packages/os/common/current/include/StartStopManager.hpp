@@ -62,52 +62,32 @@ namespace ORO_OS
         /**
          * @brief Register a start function.
          */
-        void startFunction( start_fun t )
-        {
-            startv.push_back(t);
-        }
+        void startFunction( start_fun t );
 
         /**
          * @brief Register a stop function
          */
-        void stopFunction( stop_fun t )
-        {
-            stopv.push_back(t);
-        }
+        void stopFunction( stop_fun t );
 
         /**
          * @brief Call all registered start functions.
          *
          * @return -1 if one or more failed.
          */
-        int start()
-        {
-            // save some memory trick
-            startv.resize( startv.size() );
-            stopv.resize( stopv.size() );
-            std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
-            return res;
-        }
+        int start();
 
         /**
          * @brief Call all registered stop functions.
          */
-        void stop()
-        {
-            std::for_each(stopv.begin(), stopv.end(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
-        }
+        void stop();
 
     private:
 
-        StartStopManager() : res(0) {}
+        StartStopManager();
 
-        ~StartStopManager()
-        {
-            startv.clear();
-            stopv.clear();
-        }
+        ~StartStopManager();
 
-         void res_collector( start_fun f )
+        void res_collector( start_fun f )
         {
             if ( f() != 0 )
                 res = -1;

@@ -31,6 +31,7 @@
 
 #include "TaskExecution.hpp"
 #include "Time.hpp"
+#include "Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
 
 namespace ORO_CoreLib
@@ -119,6 +120,8 @@ namespace ORO_CoreLib
                              "", 
                              _period )
         {
+            Logger::log() << Logger::Info <<"PriorityThread created with "<< _period <<"s periodicity";
+            Logger::log() << " and priority " << Priority <<" ( "<< ((Priority < ORONUM_CORELIB_TASKS_PRIOLIMIT) ? "Hard Realtime" : "Soft Realtime") <<" )"<< Logger::endl;
             if ( Priority < ORONUM_CORELIB_TASKS_PRIOLIMIT )
                 makeHardRealtime();
         }
@@ -127,7 +130,9 @@ namespace ORO_CoreLib
         /**
          * Destructor
          */
-        virtual ~PriorityThread() {}
+        virtual ~PriorityThread() {
+            Logger::log() << Logger::Debug << "PriorityThread destructor." << Logger::endl;
+        }
 
     private:
 

@@ -213,6 +213,10 @@ namespace ORO_ControlKernel
         typedef MarshallConfiguration<EmptyHeaderMarshaller<SplitStream>,
                                       TableMarshaller<SplitStream> > NoHeaderMarshallTableType;
 
+        virtual ORO_Execution::MethodFactoryInterface* createMethodFactory();
+
+        bool startReporting();
+        bool stopReporting() ;
 #ifdef OROINT_OS_STDIOSTREAM
         std::ofstream* fileStream;
 #endif
@@ -235,6 +239,7 @@ namespace ORO_ControlKernel
         Property<bool> toFile;
 #endif
         Property<std::string> reportServer;
+        Property<bool> autostart;
 
         TaskNonRealTime* reporterTask;
             

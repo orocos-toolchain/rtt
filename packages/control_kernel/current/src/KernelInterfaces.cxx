@@ -32,6 +32,7 @@
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateFactories.hpp"
 #endif
+#include <corelib/Logger.hpp>
 
 using namespace ORO_ControlKernel;
 using namespace ORO_CoreLib;
@@ -59,9 +60,7 @@ bool ControlKernelInterface::updateKernelProperties(const PropertyBag& bag)
 KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* _base )
     : detail::ExtensionInterface( _base, "Kernel"),
       running(false), 
-      //              priority("priority","The priority of the kernel."),
       frequency("frequency","The periodic execution frequency of this kernel",0),
-      //kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN),
       startupSensor("Sensor", "", "DefaultSensor"),
       startupEstimator("Estimator", "", "DefaultEstimator"),
       startupGenerator("Generator", "", "DefaultGenerator"),
@@ -89,8 +88,11 @@ bool KernelBaseFunction::initialize()
         if ( selectEstimator(startupEstimator) )
             if ( selectGenerator(startupGenerator) )
                 if ( selectController(startupController) )
-                    if (selectEffector(startupEffector) )
+                    if (selectEffector(startupEffector) ) {
+                        Logger::log() << Logger::Info << "Kernel "<< cki->getKernelName() << " started."<< Logger::endl;
                         return true;
+                    }
+    Logger::log() << Logger::Error << "KernelBaseFunction failed to select startup components."<< Logger::endl;
     KernelBaseFunction::finalize();
     return false;
 }
@@ -112,6 +114,7 @@ void KernelBaseFunction::finalize()
     selectController("DefaultController");
     selectEffector("DefaultEffector");
     // stop all other components in kernel implementation class.
+    Logger::log() << Logger::Info << "Kernel "<< cki->getKernelName() << " stopped."<< Logger::endl;
 }
 
 double KernelBaseFunction::getPeriod() const
@@ -127,7 +130,17 @@ bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
     composeProperty(bag, startupGenerator);
     composeProperty(bag, startupController);
     composeProperty(bag, startupEffector);
-    return composeProperty(bag, frequency);
+    bool flag=composeProperty(bag, frequency);
+
+    Logger::log() << Logger::Info << "KernelBaseFunction Properties : " << Logger::nl
+                  << frequency.getName()<<" : "<< frequency.get()<< Logger::nl
+                  << startupEffector.getName()<<" : "<< startupEffector.get()<< Logger::nl
+                  << startupEstimator.getName()<<" : "<< startupEstimator.get()<< Logger::nl
+                  << startupGenerator.getName()<<" : "<< startupGenerator.get()<< Logger::nl
+                  << startupController.getName()<<" : "<< startupController.get()<< Logger::nl
+                  << startupSensor.getName()<<" : "<< startupSensor.get()<< Logger::endl;
+
+    return flag;
 }
 
 Event<void(void)>* KernelBaseFunction::eventGet(const std::string& name)

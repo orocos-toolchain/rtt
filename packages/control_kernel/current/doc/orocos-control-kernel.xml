@@ -47,7 +47,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004</year>
+      <year>2002,2003,2004,2005</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -126,6 +126,18 @@
 	<date>30 September 2004</date>
 	<authorinitials>kg</authorinitials>
 	<revremark>Fix typos and code example errors</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>23 December 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Introduced the TaskBrowser</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18.2</revnumber>
+	<date>5 January 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateContext</revremark>
       </revision>
     </revhistory>
 
@@ -2706,6 +2718,11 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
         </description>
         <value>1</value>
     </simple>
+    <simple name="AutoStart" type="boolean">
+        <description>True if the reporting is automatically started.
+        </description>
+        <value>1</value>
+    </simple>
     <struct name="Exporters" type="type_less">
         <simple name="Component" type="string"><value>MySensor</value></simple>
         <simple name="Component" type="string"><value>MyEffector</value></simple>
@@ -2730,6 +2747,18 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	    Kernel is <link linkend="kernel-configuration">configured</link>.
 	  </para>
 	</example>
+      </sect3>
+      <sect3>
+	<title>Reporter Commands</title>
+	<para>
+	  When the kernel is started. The Reporter can be given two commands
+	  to control the reports it generates :
+	  <programlisting>
+  do Reporter.start()
+  do Reporter.stop()  </programlisting>
+	  You can use these in the command console or program scripts
+	  to start/stop the generation of reports.
+	</para>
       </sect3>
       <sect3>
 	<title>Reporting Data Flow Components : Using Hooks</title>
@@ -2920,45 +2949,52 @@ private:
 	</para>
       <programlisting>
 <![CDATA[
-	// adding the extension to the KernelBaseFunction: 
-typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
-typedef StandardControlKernel<ExecExtension> MyExecKernel;
+  // adding the extension to the KernelBaseFunction: 
+  typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
+  typedef StandardControlKernel<ExecExtension> MyExecKernel;
 ]]>
-MyExecKernel my_kernel;
-// ... load components, then :
-my_kernel.loadStateContext("state.osd");
-my_kernel.loadProgram("program.ops");
-      </programlisting>
+  MyExecKernel my_kernel;
+  // ... load components, then :
+  try {
+    my_kernel.loadStateContext("state.osd");
+    my_kernel.loadProgram("program.ops");
+  } catch ( file_parse_exception& fpe ) {
+    cerr << fpe.what() << endl;
+    // parse error.
+  } catch ( program_load_exception & ple ) {
+    cerr << ple.what() << endl;
+    // parsed fine, but failed to load
+  }      </programlisting>
 	<para>
-	  The Program name is given in the program.ops file
-	  The StateContext will enter the "Initial_State" when
-	  it is started. Both StateContext and Program will be idle
+	  The Program name is given in the program.ops file.
+	  Both Program and StateContext can cause parse errors or
+	  fail to be loaded in the kernel ( with duplicate names
+	  for example ). If no exceptions occured, 
+	  both StateContext and Program will be non active
 	  after load. To use the
-	  StateContext, it must be started :
+	  StateContext, it must be activated and started :
 	</para>
 	<programlisting>
-my_kernel.startStateContext("MyState");
-	</programlisting>
+  my_kernel.activateStateContext("MyState");   // Enter initial state 
+  my_kernel.startStateContext("MyState");      // Start transitions</programlisting>
 	<para>
 	  It is most common to start the program itself from within
 	  a state of the StateContext, so that it is sure that
 	  it is safe to start a program. To do this in the state
 	  the commands
 	<programlisting>
-do programs.MyProgram.start()
-//...
-do programs.MyProgram.stop()
-	</programlisting>
+  do programs.MyProgram.start()
+  //...
+  do programs.MyProgram.stop()	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateContexts from within a program or another 
 	  State Context :
 	<programlisting>
-do states.SecondContext.activate()
-do states.SecondContext.start()
-//...
-do states.SecondContext.stop()
-do states.SecondContext.deactivate()
-	</programlisting>
+  do states.SecondContext.activate()
+  do states.SecondContext.start()
+  //...
+  do states.SecondContext.stop()
+  do states.SecondContext.deactivate()	</programlisting>
 	  Consult the Program Parser and Task Infrastructure manuals
 	  for all details.
 	</para>
@@ -2972,8 +3008,7 @@ do states.SecondContext.deactivate()
   TaskContext* kern_task = my_kernel.getTaskContext();
 
   TaskBrowser browser( kern_task );
-  browser.loop();
-	  </programlisting>
+  browser.loop();	  </programlisting>
 	  The above code snippet will cause a text console to be opened
 	  which allows a user to interface the Control Kernel,
 	  its Components and its peer tasks.

@@ -39,27 +39,27 @@ namespace ORO_CoreLib
     class RealTimeTask;
 
     /**
-     * An TaskTimer is an object that will notify a listener every
-     * n'th time it is ticked() such that when n listeners are subscribed,
-     * each listener will be notified on a different tick call of one period.
-     * It will try to spread the notifying
-     * depending on its notifying period and trigger period.
-     * The former is the period between two consecutive listener
-     * notifications for each listener, the latter, the elapsed time
-     * between two tick() calls.
+     * An TaskTimer is an object that will step() a TaskInterface every
+     * n'th time it is tick()'ed such that when n tasks are present,
+     * each task will be stepped on a different tick call of one period.
+     * It will try to spread the stepping
+     * depending on the task's periods and trigger period.
+     * The former is the period between two consecutive step() calls,
+     *  the latter, the elapsed time between two tick() calls.
      *
-     * @todo The implementation is based on <std::list>. This allows safe
-     * add/remove of handlers during tick(). A more efficient implementation
-     * with std::list is possible and TODO.
+     * The implementation is based on <std::list>. This allows safe
+     * add/remove of handlers during tick().
+     *
+     * @todo More efficient implementation if average_period == trigger_period.
      */
     class TaskTimer
     {
     public:
         /**
-         * Creates an TaskTimer which will have notified all listeners after
+         * Creates an TaskTimer which will have step() all tasks after
          * <average_period> / <trigger_period> times it is ticked.
          *
-         * @param average_period The Average time between notifying each
+         * @param average_period The Average time between step()'ing each
          *        registered listener.
          * @param trigger_period The period between consecutive tick() calls.
          *        Defaults to average_period.
@@ -67,13 +67,12 @@ namespace ORO_CoreLib
         TaskTimer( Seconds average_period, Seconds trigger_period = 0 );
 
         /**
-         * Creates an TaskTimer which will have notified each listener
+         * Creates an TaskTimer which will have step()'ed each task
          * after tick() was called <divider> times.
-         * Every TaskTimer is of the SYNASYN EventType.
          *
          * @param divider The average number of times tick() is called before
-         *        each listener is notified. ( So N Listeners will all be 
-         *        notified after tick() was called <divider> times.
+         *        each task is step()'ed. ( So N Tasks will all be 
+         *        step()'ed after tick() was called <divider> times. )
          */
         TaskTimer( unsigned int divider );
 
@@ -84,12 +83,12 @@ namespace ORO_CoreLib
         void removeTask( RealTimeTask* task );
 
         /**
-         * Returns the periodicity with which the listeners are notified
+         * Returns the minimum periodicity ( in nano s ) with which the tasks are step()'ed.
          */
         nsecs periodGet();
 
         /**
-         * Sets the period with which this event will be ticked.
+         * Sets the period with which this timer will be ticked.
          */
         void triggerPeriodSet(nsecs ns);
         

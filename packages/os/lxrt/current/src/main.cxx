@@ -36,22 +36,40 @@
 #include <iostream>
 using namespace std;
 
+const char* catchflag = "--nocatch";
+
 int main(int argc, char** argv)
 {
     __os_init(argc, argv);
 
-    int res;
-    try {
+    int res = -1;
+    bool dotry = true;
+    // look for --nocatch flag :
+    for( int i=1; i < argc; ++i)
+        if ( strncmp(catchflag, argv[i], strlen(catchflag) ) == 0 )
+            dotry = false;
+        
+    if ( dotry ) {
+        try {
+            res = ORO_main(argc, argv);
+        }
+        catch( ... )
+            {
+                cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
+                cerr << " in the ORO_main() function."<<endl;
+                cerr << " You might have called a function which throws"<<endl;
+                cerr << " without a try {} catch {} block."<< endl << endl;
+                cerr << " You might need to recompile for gnulinux to debug."<< endl 
+                cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
+                cerr << "   valgrind --num-callers=16 "<<argv[0]<<" " << catchflag << endl;
+                cerr << "Which will show where the exception occured."<<endl;
+                cerr << " ( Change num-callers for more/less detail."<<endl;
+                cerr << "   Also, compiling orocos and your program with"<<endl;
+                cerr << "   -g adds more usefull information. )"<<endl<<endl;
+            }
+    } else {
         res = ORO_main(argc, argv);
     }
-    catch( ... )
-        {
-            cout <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
-            cout << " in the ORO_main() function."<<endl;
-            cout << " You might have called a function which throws"<<endl;
-            cout << " without a try {} catch {} block."<< endl << endl;
-            res = -1;
-        }
 
     __os_exit();
 

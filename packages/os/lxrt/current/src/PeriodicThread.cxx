@@ -37,6 +37,9 @@
 #ifdef OROPKG_CORELIB_EVENTS
 #include "corelib/Event.hpp"
 #endif
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+#endif
 
 #include <iostream>
 #include <sys/mman.h>
@@ -55,6 +58,10 @@ using namespace ORO_CoreLib;
 
 namespace ORO_OS
 {
+#ifdef OROPKG_CORELIB_REPORTING
+    using ORO_CoreLib::Logger;
+#endif
+
     void *ComponentThread(void* t) 
     {
         RTIME period, period_ns;
@@ -65,17 +72,23 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        rtos_printf("Periodic Thread created...\n");
 
         //lock_all(8*1024, 512*1024);// stack,heap
 
         PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
 
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
+#endif
+
         mytask_name = nam2num( task->taskNameGet() );
 
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
-            std::cout << "CANNOT INIT TASK " << mytask_name <<std::endl;
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log()<< Logger::Fatal << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<Logger::nl;
+            Logger::log()<< Logger::Fatal << "Exiting this thread." <<Logger::endl;
+#endif
             return 0;
         }
     
@@ -87,7 +100,6 @@ namespace ORO_OS
 
         period_ns = task->period;
         period = nano2count(period_ns);
-        std::cout <<"Period is "<<period_ns<<std::endl;
         rt_task_make_periodic_relative_ns(mytask, 0, period_ns);
     
         //we were made periodic.
@@ -129,7 +141,9 @@ namespace ORO_OS
         rt_sem_delete(task->sem);
         rt_task_delete(mytask);
 
-        rtos_printf("Breaked : Periodic Thread exit.\n");
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" exiting."<<Logger::endl;
+#endif
         return 0;
     }
 
@@ -159,8 +173,6 @@ namespace ORO_OS
         else
             num2nam(rt_get_name(0), taskName);
 
-        rtos_printf("Constructing %s\n", taskName );
-
         confDone = rt_sem_init( rt_get_name(0), 0 );
 
         periodSet(period);
@@ -180,12 +192,15 @@ namespace ORO_OS
         delete h;
         delete static_cast<Event<bool(void)>*>(stopEvent);
 #endif
-        rtos_printf("%s destroyed\n", taskName );
     }
 
     bool PeriodicThread::start() 
     {
         if ( isRunning() ) return false;
+
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" started."<<Logger::endl;
+#endif
 
         bool result;
         if ( runComp )
@@ -193,8 +208,12 @@ namespace ORO_OS
         else
             result = initialize();
 
-        if (result == false)
+        if (result == false) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Critical << "Periodic Thread "<< taskName <<" failed to initialize()."<<Logger::endl;
+#endif
             return false;
+        }
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         *h = static_cast<Event<bool(void)>*>(stopEvent)->connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
@@ -214,18 +233,27 @@ namespace ORO_OS
     {
         if ( !isRunning() ) return false;
 
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" stopping...";
+#endif
+
         running=false;
         int cnt = 0;
-
-        std::cout << "Stopping !" << std::endl;
 
         while ( stopped == false && cnt < 1000 )
             {
                 rt_sleep( nano2count(1000000) );
                 cnt++;
             } 
-
-        std::cout <<"Finalizing thread after "<<cnt<<" tries !"<<std::endl;
+#ifdef OROPKG_CORELIB_REPORTING
+        if ( cnt == 1000 ) {
+            Logger::log() << Logger::Debug << " failed."<<Logger::endl;
+            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked."<<Logger::endl;
+        }
+        else
+            Logger::log() << Logger::Debug << " done."<<Logger::endl;
+#endif
+        //std::cout <<"Finalizing thread after "<<cnt<<" tries !"<<std::endl;
         // from now on, the thread waits on sem.
 
         if ( runComp )
@@ -248,10 +276,20 @@ namespace ORO_OS
     { 
         if ( !running ) 
             {
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Debug << "Making "<< taskName <<" Hard Realtime...";
+#endif
                 goRealtime = true; 
                 rt_sem_signal(sem);
                 rt_sem_wait(confDone);
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Debug << " done."<<Logger::endl;
+#endif
             }
+#ifdef OROPKG_CORELIB_REPORTING
+        else
+            Logger::log() << Logger::Warning << "Failed to make "<< taskName <<" Hard Realtime since thread is still running."<<Logger::endl;
+#endif
         return goRealtime; 
     }
 
@@ -259,10 +297,20 @@ namespace ORO_OS
     { 
         if ( !running ) 
             {
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Debug << "Making "<< taskName <<" Soft Realtime...";
+#endif
                 goRealtime = false; 
                 rt_sem_signal(sem);
                 rt_sem_wait(confDone);
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Debug << " done."<<Logger::endl;
+#endif
             }
+#ifdef OROPKG_CORELIB_REPORTING
+        else
+            Logger::log() << Logger::Warning << "Failed to make "<< taskName <<" Soft Realtime since thread is still running."<<Logger::endl;
+#endif
         return !goRealtime; 
     }
 
@@ -274,7 +322,7 @@ namespace ORO_OS
         rt_set_period(rt_task, nano2count( period ));
         if ( goRealtime && !isHardRealtime() )
             {
-                std::cout <<"Going HRT!"<<std::endl;
+                //std::cout <<"Going HRT!"<<std::endl;
                 rt_make_hard_real_time();
                 rt_sem_signal( confDone );
             }
@@ -282,7 +330,7 @@ namespace ORO_OS
             {
                 rt_make_soft_real_time();
                 rt_sem_signal( confDone );
-                std::cout <<"Returning to SRT!"<<std::endl;
+                //std::cout <<"Returning to SRT!"<<std::endl;
             }
     }
         
@@ -361,10 +409,14 @@ namespace ORO_OS
 
         prepareForExit = true;
 
-        rtos_printf("Terminating %s\n", taskNameGet());
         rt_sem_signal(sem);
     
-        if ( pthread_join(thread,0) != 0 ) rtos_printf("Error : %s failed to join\n",taskName);
+        if ( pthread_join(thread,0) != 0 ) 
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Critical << "Failed to join "<< taskName <<"."<< Logger::endl;
+#else
+        ;
+#endif
     }
 
     bool PeriodicThread::setToStop()

@@ -32,7 +32,9 @@ core_test_SOURCES = test-runner.cpp \
 	event_test.cpp event_test.hpp \
 	tasks_test.cpp tasks_test.hpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp \
-	buffers_test.cpp buffers_test.hpp
+	buffers_test.cpp buffers_test.hpp \
+	logger_test.cpp logger_test.hpp
+
 #core_test_LDADD = $(LD_ADDS)
 #core_test_CXXFLAGS = $(CXX_FLAGS)
 

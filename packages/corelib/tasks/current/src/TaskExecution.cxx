@@ -29,6 +29,7 @@
 #include "corelib/RealTimeTask.hpp"
 #include "corelib/TaskTimer.hpp"
 #include "corelib/Time.hpp"
+#include "corelib/Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
 
 namespace ORO_CoreLib
@@ -100,6 +101,8 @@ namespace ORO_CoreLib
                     }
         }
 #if OROSEM_CORELIB_TASKS_DYNAMIC_REG
+        Logger::log() << Logger::Debug << "Added new TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
+        Logger::log() << Logger::Debug << " in thread " << this->taskNameGet() << Logger::endl;
         /**
          * Create the timer when not existing.
          */

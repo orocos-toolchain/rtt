@@ -29,6 +29,7 @@ EventTest::tearDown()
     delete t_event;
     delete t_event_string;
     delete event_proc;
+    SimulationThread::Release();
 }
 
 void EventTest::listener(void)

@@ -28,6 +28,7 @@
 #include "corelib/CompletionProcessor.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Time.hpp"
+#include "corelib/Logger.hpp"
 
 #include <pkgconf/corelib_events.h>
 
@@ -87,6 +88,8 @@ namespace ORO_CoreLib
                                    ORODAT_CORELIB_EVENTS_CP_NAME, 
                                    ORONUM_CORELIB_EVENTS_CP_PERIOD )
     {
+        Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with "<< ORONUM_CORELIB_EVENTS_CP_PERIOD <<"ms periodicity";
+        Logger::log() << " and priority " << ORONUM_CORELIB_EVENTS_CP_PRIORITY << Logger::endl;
     }
 
 }
