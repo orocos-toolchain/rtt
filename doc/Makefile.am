@@ -74,7 +74,7 @@ docxml: dochtml docpdf docps
 
 dochtml: pngimages $(HTMLDOCS)
 
-docpdf: tiffimages $(PDFDOCS)
+docpdf: epsimages $(PDFDOCS)
 
 docps: jpgimages $(PSDOCS)
 

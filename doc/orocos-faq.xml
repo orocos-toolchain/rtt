@@ -15,23 +15,18 @@
 Patching the stylesheet is fairly straightforward. Here's the diff from my 
 environment:
 
----------------
 
---- fo/qandaset.xsl     Mon Sep 29 21:50:25 2003
-+++ fo/qandaset.xsl.orig        Tue Sep 30 15:42:27 2003
+- - - fo/qandaset.xsl     Mon Sep 29 21:50:25 2003
++ + + fo/qandaset.xsl.orig        Tue Sep 30 15:42:27 2003
 @@ -200,9 +200,7 @@
    </xsl:variable>
 
    <fo:list-item xsl:use-attribute-sets="list.item.spacing">
--    <!-- FIXME: this (somehow) seems to create dupe entries, breaking FOP ->
--    <!-- <fo:list-item-label id="{$id}" end-indent="label-end()"> ->
 -    <fo:list-item-label end-indent="label-end()">
 +    <fo:list-item-label id="{$id}" end-indent="label-end()">
        <xsl:choose>
          <xsl:when test="$deflabel = 'none'">
            <fo:block/>
-
----------------
 
 Note that this isn't a smart fix. It just removes the ID, which arguably 
 should be made unique in the calling style by some other means (prepending 
@@ -43,7 +38,6 @@ sympathy such a patch will get.
 
 Regards.
 
--- 
 Alex Russell
 -->
 

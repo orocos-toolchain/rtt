@@ -25,6 +25,9 @@
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
+<!-- use this to select the extension for html output across all files. -->
+  <xsl:param name="graphic.default.extension" select="'png'"></xsl:param>
+
   <xsl:param name="hyphenate.verbatim" select="1"></xsl:param>
   <xsl:param name="monospace.font.family" select="'monospace'"></xsl:param>
 

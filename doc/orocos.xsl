@@ -24,6 +24,9 @@
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
+<!-- use this to select the extension for pdf / ps output across all files. -->
+  <xsl:param name="graphic.default.extension" select="'eps'"></xsl:param>
+
 <xsl:attribute-set name="monospace.verbatim.properties" 
                    use-attribute-sets="verbatim.properties monospace.properties">
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
