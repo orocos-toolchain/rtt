@@ -71,7 +71,7 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
 JR3WrenchSensor::~JR3WrenchSensor( )
 {
   this->stop();
-  rtos_printf("(WrenchSensorJR3)  task stoped\n");
+  rtos_printf("(WrenchSensorJR3)  task stopped\n");
 }
 
 
