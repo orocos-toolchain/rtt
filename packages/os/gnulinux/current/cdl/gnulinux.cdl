@@ -13,7 +13,10 @@ cdl_package OROPKG_OS_GNULINUX {
     implements OROINT_OS_KERNEL_MODULE
 
     cdl_component OROCLS_OS_EVENT_INTERRUPT {
-	display "Interrupt driven event implementation"
+	display "Interrupt driven event implementation (Dummy)"
+	description "
+This option causes an EventInterrupt class to be compiled,
+but it will do nothing and will not react on interrupts."
 	flavor bool
 	implements OROINT_OS_EVENT_INTERRUPT
 	compile EventInterrupt.cxx
