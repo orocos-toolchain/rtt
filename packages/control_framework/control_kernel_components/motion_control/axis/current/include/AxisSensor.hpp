@@ -103,14 +103,14 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_sensor
      */
     class AxisSensor
-        : public Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction
+        : public Sensor< Writes<AxisInput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                        , ExecutionExtension
 #endif
                                                        >::CommonBase >
     {
     public:
-        typedef Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction
+        typedef Sensor< Writes<AxisInput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                       , ExecutionExtension
 #endif

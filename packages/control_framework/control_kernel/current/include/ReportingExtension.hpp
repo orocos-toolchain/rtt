@@ -61,16 +61,16 @@ namespace ORO_ControlKernel
      * @brief The base class for reporting Components.
      *
      * @see ReportingExtension
-     * @see DefaultAspect
+     * @see DefaultFacet
      */
     class ReportingComponent
-        : public detail::ComponentAspectInterface<ReportingExtension>
+        : public detail::ComponentFacetInterface<ReportingExtension>
     {
         friend class ORO_ControlKernel::ReportingExtension;
         friend class ORO_ControlKernel::BackendReportingExtension;
 
     protected:
-        using detail::ComponentAspectInterface<ReportingExtension>::enableAspect;
+        using detail::ComponentFacetInterface<ReportingExtension>::enableFacet;
         /**
          * Initialize the components name.
          */
@@ -78,9 +78,9 @@ namespace ORO_ControlKernel
 
         virtual ~ReportingComponent();
 
-        virtual bool enableAspect(ReportingExtension* ext);
+        virtual bool enableFacet(ReportingExtension* ext);
 
-        virtual void disableAspect();
+        virtual void disableFacet();
 
         /**
          * A user defined method for adding its to be reported

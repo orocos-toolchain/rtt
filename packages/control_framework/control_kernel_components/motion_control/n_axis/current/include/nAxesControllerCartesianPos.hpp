@@ -68,7 +68,7 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
 					 ORO_ControlKernel::Expects<nAxesControllerCartesianPosSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerCartesianPosOutput_vel>,
-					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerCartesianPos_typedef;
 
   class nAxesControllerCartesianPos

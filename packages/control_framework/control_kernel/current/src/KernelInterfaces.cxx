@@ -28,7 +28,9 @@
 #pragma implementation
 #include "control_kernel/KernelInterfaces.hpp"
 #include "control_kernel/ComponentInterfaces.hpp"
+#include "control_kernel/ComponentStateInterface.hpp"
 #include "corelib/PropertyComposition.hpp"
+#include "corelib/CompletionProcessor.hpp"
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateFactories.hpp"
 #endif
@@ -44,7 +46,7 @@ using namespace ORO_CoreLib;
 ControlKernelInterface::~ControlKernelInterface() {}
 
 ControlKernelInterface::ControlKernelInterface(const std::string& kname)
-    : name("name","The name of the kernel.", kname)
+    : name("name","The name of the kernel.", kname), base_(0)
 {
 }
 
@@ -55,10 +57,12 @@ const std::string& ControlKernelInterface::getKernelName() const
 
 KernelBaseFunction* ControlKernelInterface::base() const
 {
-    for ( ExtensionList::const_iterator it = extensions.begin(); it != extensions.end(); ++it)
-        if ( dynamic_cast<KernelBaseFunction*>( *it ) )
-            return dynamic_cast<KernelBaseFunction*>( *it );
-    return 0;
+    return base_;
+}
+
+void ControlKernelInterface::base(KernelBaseFunction* b) 
+{
+    base_ = b;
 }
 
 void ControlKernelInterface::setKernelName( const std::string& _name)
@@ -71,39 +75,48 @@ bool ControlKernelInterface::updateKernelProperties(const PropertyBag& bag)
     return true;
 }
         
-KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* _base )
-    : detail::ExtensionInterface( _base, "Kernel"),
-      running(false), 
+KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* ckip )
+    : detail::ExtensionInterface( ckip, "Kernel"),
       frequency("frequency","The periodic execution frequency of this kernel",0),
       startupSensor("Sensor", "", "DefaultSensor"),
       startupEstimator("Estimator", "", "DefaultEstimator"),
       startupGenerator("Generator", "", "DefaultGenerator"),
       startupController("Controller", "", "DefaultController"),
-      startupEffector("Effector", "", "DefaultEffector"),
-      cki( _base )
-{}
+      startupEffector("Effector", "", "DefaultEffector")
+{
+    // inform the ControlKernelInterface that we are the KernelBaseFunction.
+    kernel()->base( this );
+    abortKernelEvent.connect( bind( &KernelBaseFunction::abortHandler, this ), CompletionProcessor::Instance() );
+}
 
 KernelBaseFunction::~KernelBaseFunction() {}
 
 TaskInterface* KernelBaseFunction::getTask() const
 {
-    return cki->getTask();
+    return kernel()->getTask();
 }
-    
+/*
 const std::string& KernelBaseFunction::getKernelName() const
 {
-    return cki->getKernelName();
-}
+    return kernel()->getKernelName();
+}*/
 
 bool KernelBaseFunction::initialize() 
 { 
-    running = true;
-    if ( selectSensor(startupSensor) )
-        if ( selectEstimator(startupEstimator) )
-            if ( selectGenerator(startupGenerator) )
-                if ( selectController(startupController) )
-                    if (selectEffector(startupEffector) ) {
-                        Logger::log() << Logger::Info << "Kernel "<< cki->getKernelName() << " started."<< Logger::endl;
+    // initial startup of all components
+    this->kernelStarted.fire();
+
+    // First, startup all the support components
+    NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
+    for( ; itl != this->supports.getValueEnd(); ++itl)
+        this->startupComponent( *itl );
+                
+    if ( selectComponent(startupSensor) )
+        if ( selectComponent(startupEstimator) )
+            if ( selectComponent(startupGenerator) )
+                if ( selectComponent(startupController) )
+                    if (selectComponent(startupEffector) ) {
+                        Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " started."<< Logger::endl;
                         return true;
                     }
     Logger::log() << Logger::Error << "KernelBaseFunction failed to select startup components."<< Logger::endl;
@@ -119,16 +132,19 @@ void KernelBaseFunction::step()
 
 void KernelBaseFunction::finalize() 
 { 
-    if (running == false )
-        return; // detect abort condition
-    running = false;
-    selectSensor("DefaultSensor");
-    selectEstimator("DefaultEstimator");
-    selectGenerator("DefaultGenerator");
-    selectController("DefaultController");
-    selectEffector("DefaultEffector");
-    // stop all other components in kernel implementation class.
-    Logger::log() << Logger::Info << "Kernel "<< cki->getKernelName() << " stopped."<< Logger::endl;
+    selectComponent("DefaultSensor");
+    selectComponent("DefaultEstimator");
+    selectComponent("DefaultGenerator");
+    selectComponent("DefaultController");
+    selectComponent("DefaultEffector");
+    
+    ComponentMap::iterator itl;
+    for( itl = components.begin(); itl != components.end(); ++itl)
+        itl->second->shutdown();
+
+    Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " stopped."<< Logger::endl;
+    
+    this->kernelStopped.fire();
 }
 
 double KernelBaseFunction::getPeriod() const
@@ -163,6 +179,8 @@ Event<void(void)>* KernelBaseFunction::eventGet(const std::string& name)
         return &kernelStarted;
     if ( name == std::string("kernelStopped") )
         return &kernelStopped;
+    if ( name == std::string("abortKernel") )
+        return &abortKernelEvent;
     return &nullEvent;
 }
 
@@ -171,7 +189,7 @@ bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
     this->preLoad( comp );
     if (  comp->componentLoaded() )
         {
-            components.insert( std::make_pair(comp->getName(), comp) );
+            //components.insert( std::make_pair(comp->getName(), comp) );
             this->postLoad( comp );
             return true;
         }
@@ -186,7 +204,7 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
     if (itl != components.end() ) {
         this->preUnload( comp );
         comp->componentUnloaded();
-        components.erase(itl);
+        //components.erase(itl);
         this->postUnload( comp );
     }
 }
@@ -206,70 +224,18 @@ MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
               method
               ( &KernelBaseFunction::stopKernel ,
                 "Stop the Kernel Task"  ) );
-    ret->add( "selectController", 
+    ret->add( "selectComponent", 
               method
-              ( &KernelBaseFunction::selectController ,
-                "Select a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "selectGenerator", 
+              ( &KernelBaseFunction::selectComponent ,
+                "Select a Component", "Name", "The name of the Component" ) );
+    ret->add( "startComponent", 
               method
-              ( &KernelBaseFunction::selectGenerator ,
-                "Select a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "selectEstimator", 
+              ( &KernelBaseFunction::startComponent ,
+                "Start a Component", "Name", "The name of the Component" ) );
+    ret->add( "stopComponent", 
               method
-              ( &KernelBaseFunction::selectEstimator ,
-                "Select a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "selectSensor", 
-              method
-              ( &KernelBaseFunction::selectSensor ,
-                "Select a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "selectEffector", 
-              method
-              ( &KernelBaseFunction::selectEffector ,
-                "Select a Effector Component", "Name", "The name of the Effector" ) );
-    ret->add( "startController", 
-              method
-              ( &KernelBaseFunction::startController ,
-                "Start a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "startGenerator", 
-              method
-              ( &KernelBaseFunction::startGenerator ,
-                "Start a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "startEstimator", 
-              method
-              ( &KernelBaseFunction::startEstimator ,
-                "Start a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "startSensor", 
-              method
-              ( &KernelBaseFunction::startSensor ,
-                "Start a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "startEffector", 
-              method
-              ( &KernelBaseFunction::startEffector ,
-                "Start a Effector Component", "Name", "The name of the Effector" ) );
-    ret->add( "stopEffector", 
-              method
-              ( &KernelBaseFunction::stopEffector ,
-                "Stop a Effector Component", "Name", "The name of the Effector" ) );
-    ret->add( "stopController", 
-              method
-              ( &KernelBaseFunction::stopController ,
-                "Stop a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "stopGenerator", 
-              method
-              ( &KernelBaseFunction::stopGenerator ,
-                "Stop a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "stopEstimator", 
-              method
-              ( &KernelBaseFunction::stopEstimator ,
-                "Stop a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "stopSensor", 
-              method
-              ( &KernelBaseFunction::stopSensor ,
-                "Stop a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "stopEffector", 
-              method
-              ( &KernelBaseFunction::stopEffector ,
-                "Stop a Effector Component", "Name", "The name of the Effector" ) );
+              ( &KernelBaseFunction::stopComponent ,
+                "Stop a Component", "Name", "The name of the Component" ) );
     return ret;
 }
 
@@ -278,21 +244,9 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
 {
     TemplateDataSourceFactory< KernelBaseFunction >* ret =
         newDataSourceFactory( this );
-    ret->add( "isSelectedGenerator", 
-              data( &KernelBaseFunction::isSelectedGenerator, "Check if this generator is selected.",
-                    "Name", "The name of the Generator") );
-    ret->add( "isSelectedController", 
-              data( &KernelBaseFunction::isSelectedController, "Check if this controller is selected.",
-                    "Name", "The name of the Controller") );
-    ret->add( "isSelectedEstimator", 
-              data( &KernelBaseFunction::isSelectedEstimator, "Check if this estimator is selected.",
-                    "Name", "The name of the Estimator") );
-    ret->add( "isSelectedEffector", 
-              data( &KernelBaseFunction::isSelectedEffector, "Check if this effector is selected.",
-                    "Name", "The name of the Effector") );
-    ret->add( "isSelectedSensor", 
-              data( &KernelBaseFunction::isSelectedSensor, "Check if this sensor is selected.",
-                    "Name", "The name of the Sensor") );
+    ret->add( "isSelected", 
+              data( &KernelBaseFunction::isSelected, "Check if this Component is selected.",
+                    "Name", "The name of the Component") );
     ret->add( "isStarted", 
               data( &KernelBaseFunction::isStarted, "Check if this Component is started.",
                     "Name", "The name of the Component") );
@@ -306,16 +260,16 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
 
         ComponentBaseInterface* KernelBaseFunction::switchComponent(ComponentBaseInterface* oldC, ComponentBaseInterface* newC ) const
         {
-            stopComponent(oldC);
-            if ( startComponent( newC ) )
+            shutdownComponent(oldC);
+            if ( startupComponent( newC ) )
                 return newC;
             else
-                if ( startComponent( oldC ) )
+                if ( startupComponent( oldC ) )
                     return oldC;
             return 0; // quite severe failure
         }
 
-        bool KernelBaseFunction::startComponent(ComponentBaseInterface* c ) const 
+        bool KernelBaseFunction::startupComponent(ComponentBaseInterface* c ) const 
         {
             if ( c->componentStartup() )
                 {
@@ -325,7 +279,7 @@ DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
             return false;
         }
         
-        void KernelBaseFunction::stopComponent(ComponentBaseInterface* c ) const 
+        void KernelBaseFunction::shutdownComponent(ComponentBaseInterface* c ) const 
         {
             c->componentShutdown();
             c->selected = false;

@@ -74,13 +74,13 @@ namespace ORO_ControlKernel
                             Expects<CartesianNSModel>,
                             Expects<CartesianNSSetPoint>,
                             Writes<CartesianNSDriveOutput>,
-                            MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
+                            MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
     {
         typedef Controller<Expects<CartesianNSSensorInput>,
                            Expects<CartesianNSModel>,
                            Expects<CartesianNSSetPoint>,
                            Writes<CartesianNSDriveOutput>,
-                           MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
+                           MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
     public:
             
         CartesianController(KinematicsInterface* k) 
@@ -91,10 +91,10 @@ namespace ORO_ControlKernel
         virtual bool componentStartup()
         {
             // Resolve the DataObjects :
-            if ( !Base::Input::dObj()->Get("JointPositions", jpos_DObj) ||
-                 !Base::Model::dObj()->Get("EndEffPosition", curFrame_DObj) ||
-                 !Base::SetPoint::dObj()->Get("EndEffectorFrame", desFrame_DObj) ||
-                 !Base::Output::dObj()->Get("JointVelocities", jvel_DObj) )
+            if ( !Input->dObj()->Get("JointPositions", jpos_DObj) ||
+                 !Model->dObj()->Get("EndEffPosition", curFrame_DObj) ||
+                 !SetPoint->dObj()->Get("EndEffectorFrame", desFrame_DObj) ||
+                 !Output->dObj()->Get("JointVelocities", jvel_DObj) )
                 return false;
             return true;
         }

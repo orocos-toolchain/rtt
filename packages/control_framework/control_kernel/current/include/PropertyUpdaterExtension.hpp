@@ -51,7 +51,7 @@ namespace ORO_ControlKernel
      * to export them to the user or update them with user defined values.
      */
     class PropertyUpdaterComponentInterface
-        :public detail::ComponentAspectInterface<PropertyUpdaterExtension>
+        :public detail::ComponentFacetInterface<PropertyUpdaterExtension>
     {
         friend class PropertyUpdaterExtension;
     public:
@@ -59,14 +59,14 @@ namespace ORO_ControlKernel
          * The Default constructor 
          */
         PropertyUpdaterComponentInterface( const std::string& _name )
-            : detail::ComponentAspectInterface<PropertyUpdaterExtension>(_name + std::string("::PropertyUpdater") ),
+            : detail::ComponentFacetInterface<PropertyUpdaterExtension>(_name + std::string("::PropertyUpdater") ),
               master(0), localStore(_name,"Component Runtime Properties")
         {
         }
 
-        virtual bool enableAspect( PropertyUpdaterExtension* ext);
+        virtual bool enableFacet( PropertyUpdaterExtension* ext);
 
-        virtual void disableAspect();
+        virtual void disableFacet();
 
         /**
          * Destructor.

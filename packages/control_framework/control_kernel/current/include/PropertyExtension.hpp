@@ -49,20 +49,20 @@ namespace ORO_ControlKernel
      * @see PropertyExtension
      */
     class PropertyComponentInterface
-        :public detail::ComponentAspectInterface<PropertyExtension>
+        :public detail::ComponentFacetInterface<PropertyExtension>
     {
         friend class PropertyExtension;
         friend class ComponentConfigurator;
     protected:
-        using detail::ComponentAspectInterface<PropertyExtension>::enableAspect;
+        using detail::ComponentFacetInterface<PropertyExtension>::enableFacet;
         /**
          * The Default constructor 
          */
         PropertyComponentInterface( const std::string& _name );
 
-        virtual bool enableAspect( PropertyExtension* ext);
+        virtual bool enableFacet( PropertyExtension* ext);
 
-        virtual void disableAspect();
+        virtual void disableFacet();
     public:
         /**
          * Destructor.

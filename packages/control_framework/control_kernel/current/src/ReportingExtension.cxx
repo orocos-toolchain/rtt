@@ -37,7 +37,7 @@ namespace ORO_ControlKernel
 {
 
     ReportingComponent::ReportingComponent(const std::string& _name) 
-        : detail::ComponentAspectInterface<ReportingExtension>( _name ),
+        : detail::ComponentFacetInterface<ReportingExtension>( _name ),
           exporter( _name ), reports("Data","The Reported Data of this Component"), reporter(0)
     {
         exporter.value().add( &reports );
@@ -48,7 +48,7 @@ namespace ORO_ControlKernel
         exporter.value().remove( &reports );
     }
 
-    bool ReportingComponent::enableAspect(ReportingExtension* ext)
+    bool ReportingComponent::enableFacet(ReportingExtension* ext)
     {
         if (ext == 0)
             return false;
@@ -56,7 +56,7 @@ namespace ORO_ControlKernel
         return reporter->addComponent(this);
     }
 
-    void ReportingComponent::disableAspect()
+    void ReportingComponent::disableFacet()
     {
         if (reporter != 0)
             {
@@ -77,6 +77,7 @@ namespace ORO_ControlKernel
 
     ReportingExtension::ReportingExtension( ControlKernelInterface* _base )
         : detail::ExtensionInterface(_base, "Reporter"),
+          reporter(0),
           period("ReportPeriod","in seconds", 0.1 ), 
           interval("SubSamplingInterval","", 1),
           repFile("ReportFile","", "report.txt"),
@@ -87,12 +88,21 @@ namespace ORO_ControlKernel
 #endif
           reportServer("ReportServer","The name of the report server", _base->getKernelName() ),
           autostart("AutoStart","Start reporting automatically.", true),
-          serverOwner(false), count( 0 ),
+          reporterTask(0), serverOwner(false), count( 0 ),
           base(_base)
     {
     }
 
-    ReportingExtension::~ReportingExtension() {}
+    ReportingExtension::~ReportingExtension() {
+        if (serverOwner) {
+            // only cleanup upon destruction, if this reportserver is still used, the application
+            // will crash.
+            PropertyReporter<NoHeaderMarshallTableType>::nameserver.unregisterName( reportServer );
+            PropertyReporter<MarshallTableType>::nameserver.unregisterName( reportServer );
+            delete reporterTask;
+            delete reporter;
+        }
+    }
 
 //     TaskInterface* ReportingExtension::getTask() const
 //     {
@@ -142,7 +152,6 @@ namespace ORO_ControlKernel
     bool ReportingExtension::initialize()
     {
         splitStream =0; config =0; nh_config = 0;
-        reporter = 0; reporterTask = 0;
 #ifdef OROINT_OS_STDIOSTREAM
         if ( toFile && toStdOut )
             {
@@ -178,10 +187,10 @@ namespace ORO_ControlKernel
             nh_config = new NoHeaderMarshallTableType( *splitStream );
 
         // check for existing servers
-        reporter = PropertyReporter<MarshallTableType>::nameserver.getObjectByName( reportServer );
+        reporter = PropertyReporter<MarshallTableType>::nameserver.getObject( reportServer );
         if ( !reporter )
             {
-                reporter = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObjectByName( reportServer );
+                reporter = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObject( reportServer );
                 if ( !reporter )
                     {
                         // no server found, create it.
@@ -327,8 +336,11 @@ namespace ORO_ControlKernel
         // stop reporter.
         if (reporter )
             {
-                if (serverOwner)
+                // only stop the reporting, cleanup reporting infrastructure
+                // in the destructor, since other kernels may be using it too.
+                if (serverOwner) {
                     reporterTask->stop();
+                }
                 for ( ExpList::iterator it = exporters.begin(); it != exporters.end(); ++it )
                     reporter->exporterRemove( *it );
                 for ( CompMap::iterator it = comp_map.begin(); it != comp_map.end(); ++it )
@@ -341,9 +353,6 @@ namespace ORO_ControlKernel
                         (*it)->cleanupReports( (*it)->getReports()->value() );
                         reporter->exporterRemove( (*it)->getExporter() );
                     }
-                delete reporterTask;
-                delete reporter;
-                reporter = 0;
             }
 #ifdef OROINT_OS_STDIOSTREAM
         if ( toFile )
@@ -394,7 +403,7 @@ namespace ORO_ControlKernel
      */
     bool ReportingExtension::report(const std::string& exporter)
     {
-        PropertyExporterInterface* exp = PropertyExporterInterface::nameserver.getObjectByName( exporter );
+        PropertyExporterInterface* exp = PropertyExporterInterface::nameserver.getObject( exporter );
         if (exp != 0)
             {
                 exporters.push_back(exp);
@@ -410,7 +419,7 @@ namespace ORO_ControlKernel
      */
     bool ReportingExtension::unReport( const std::string& exporter)
     {
-        PropertyExporterInterface* exp = PropertyExporterInterface::nameserver.getObjectByName( exporter );
+        PropertyExporterInterface* exp = PropertyExporterInterface::nameserver.getObject( exporter );
         if (exp != 0)
             {
                 ExpList::iterator it = find(exporters.begin(), exporters.end(), exp);

@@ -70,10 +70,10 @@ namespace ORO_ControlKernel
      */
     class CartesianSensor
         : public Sensor< Writes<CartesianNSSensorInput>,
-                         MakeAspect<ReportingExtension, KernelBaseFunction>::Result >
+                         MakeFacet<ReportingExtension, KernelBaseFunction>::Result >
     {
         typedef Sensor< Writes<CartesianNSSensorInput>,
-            MakeAspect<ReportingExtension, KernelBaseFunction>::Result > Base;
+            MakeFacet<ReportingExtension, KernelBaseFunction>::Result > Base;
     public:
             
         CartesianSensor(SimulatorInterface* _sim = 0) 
@@ -84,7 +84,7 @@ namespace ORO_ControlKernel
             
         virtual bool componentStartup()
         {
-            if ( !Base::Input::dObj()->Get("JointPositions", jpos_DObj ) )
+            if ( !Input->dObj()->Get("JointPositions", jpos_DObj ) )
                 return false;
             pull();
             push();

@@ -54,9 +54,9 @@ namespace ORO_ControlKernel
         : public Base
     {
         public:
-        typedef typename Base::Command Commands;
-        typedef typename Base::SetPoint SetPoints;
-        typedef typename Base::SetPointType SetPointType;
+        typedef typename Command Commands;
+        typedef typename SetPoint SetPoints;
+        typedef typename SetPointType SetPointType;
             TrajectoryGenerator() 
                 : filename("FileName","Traject File Name"), 
                   repeat("CyclicTrajectory","True if current trajectory needs to be cyclicly repeated", false),
@@ -77,7 +77,7 @@ namespace ORO_ControlKernel
                 if ( acceptCommands && !repeat && trajectDone() )
                 {
                     // Read new traject when done with old.
-                    typename Base::CommandType new_com;
+                    typename CommandType new_com;
                     Commands::dObj()->Get(new_com);
                     tr = new_com.trajectory;
                     time_stamp = TimeService::Instance()->getTicks();

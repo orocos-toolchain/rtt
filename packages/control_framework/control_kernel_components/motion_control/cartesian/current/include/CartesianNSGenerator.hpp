@@ -81,7 +81,7 @@ namespace ORO_ControlKernel
                                      Expects<CartesianNSModel>,
                                      Expects<CartesianNSCommand>,
                                      Writes<CartesianNSSetPoint>,
-                                     MakeAspect<PropertyExtension, KernelBaseFunction
+                                     MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                    , ExecutionExtension
 #endif
@@ -91,7 +91,7 @@ namespace ORO_ControlKernel
                           Expects<CartesianNSModel>,
                           Expects<CartesianNSCommand>,
                           Writes<CartesianNSSetPoint>,
-                          MakeAspect<PropertyExtension, KernelBaseFunction
+                          MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                      , ExecutionExtension
 #endif
@@ -127,12 +127,12 @@ namespace ORO_ControlKernel
             // put sane defaults in the setpoint dataobject.
             // If no commands are defined, trajectories can not be loaded.
             // then only moveTo is functional.
-            if ( Base::Command::dObj()->Get("Trajectory", traj_DObj) ) {
-                Base::Command::dObj()->Get("ToolFrame", tool_f_DObj);
-                Base::Command::dObj()->Get("TaskFrame", task_f_DObj);
+            if ( Command->dObj()->Get("Trajectory", traj_DObj) ) {
+                Command->dObj()->Get("ToolFrame", tool_f_DObj);
+                Command->dObj()->Get("TaskFrame", task_f_DObj);
             }
-            if ( !Base::Model::dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
-                 !Base::SetPoint::dObj()->Get("EndEffectorFrame", end_f_DObj) )
+            if ( !Model->dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
+                 !SetPoint->dObj()->Get("EndEffectorFrame", end_f_DObj) )
                 return false;
 
             // stay as is.

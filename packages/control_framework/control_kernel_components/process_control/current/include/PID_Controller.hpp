@@ -98,7 +98,7 @@ namespace ORO_ControlKernel
                             Expects<NoModel>,
                             Expects<PID_SetPoint>,
                             Writes<PID_Controller_Output>,
-                            MakeAspect<PropertyExtension, KernelBaseFunction
+                            MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                        , ExecutionExtension
 #endif
@@ -110,7 +110,7 @@ namespace ORO_ControlKernel
                            Expects<NoModel>,
                            Expects<PID_SetPoint>,
                            Writes<PID_Controller_Output>,
-                           MakeAspect<PropertyExtension, KernelBaseFunction
+                           MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       , ExecutionExtension
 #endif
@@ -170,7 +170,7 @@ namespace ORO_ControlKernel
                     recalculate(i, _K.get()[i]);
                 }
 
-            return Output::dObj()->Get("ChannelValues",outp_dObj);
+            return Output->dObj()->Get("ChannelValues",outp_dObj);
 	    }
 
         void changeMinU(int channel, double newMinU )
@@ -254,12 +254,12 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
 	    {
-            if ( ! SetPoint::dObj()->Get("ChannelValues",setp_dObj) ||
-                 ! Input::dObj()->Get("ChannelValues", inp_dObj) )
+            if ( ! SetPoint->dObj()->Get("ChannelValues",setp_dObj) ||
+                 ! Input->dObj()->Get("ChannelValues", inp_dObj) )
                 {
                     return false;
                 }
-            if ( ! SetPoint::dObj()->Get("FeedForward",setp_ff_dObj) )
+            if ( ! SetPoint->dObj()->Get("FeedForward",setp_ff_dObj) )
                 setp_ff_dObj = 0;
 
             // Set y_old to the current value...

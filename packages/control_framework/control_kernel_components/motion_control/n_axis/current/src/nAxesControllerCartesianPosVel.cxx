@@ -67,7 +67,7 @@ namespace ORO_ControlKernel
   bool nAxesControllerCartesianPosVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !nAxesControllerCartesianPosVel_typedef::Output::dObj()->Get("Twist", _velocity_out_DOI) ){
+    if ( !nAxesControllerCartesianPosVel_typedef::Output->dObj()->Get("Twist", _velocity_out_DOI) ){
       cerr << "nAxesControllerCartesianPosVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
@@ -89,9 +89,9 @@ namespace ORO_ControlKernel
     }
 
     // get interface to Input/Setpoint data types
-    if ( !nAxesControllerCartesianPosVel_typedef::Input::dObj(   )->Get("Frame", _position_meas_DOI) ||
-	 !nAxesControllerCartesianPosVel_typedef::SetPoint::dObj()->Get("Frame", _position_desi_DOI) ||
-	 !nAxesControllerCartesianPosVel_typedef::SetPoint::dObj()->Get("Twist", _velocity_desi_DOI) ){
+    if ( !nAxesControllerCartesianPosVel_typedef::Input->dObj(   )->Get("Frame", _position_meas_DOI) ||
+	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Frame", _position_desi_DOI) ||
+	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Twist", _velocity_desi_DOI) ){
       cerr << "nAxesControllerCartesianPosVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

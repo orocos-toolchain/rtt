@@ -80,13 +80,13 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class GenericEffector
-        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                                            ,ExecutionExtension
 #endif
                                                                            >::Result >
     {
-        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                              ,ExecutionExtension
 #endif
@@ -113,7 +113,7 @@ namespace ORO_ControlKernel
             // they are introduced by the Controller component.
             if (
                 std::count_if( a_out.begin(), a_out.end(), bind( &GenericEffector::lacksAOut, this, _1 ) ) ||
-                 ( usingChannels && ! Base::Output::dObj()->Get("ChannelValues", chan_DObj) ) )
+                 ( usingChannels && ! Output->dObj()->Get("ChannelValues", chan_DObj) ) )
                 return false;
             return true;
         }
@@ -391,7 +391,7 @@ namespace ORO_ControlKernel
         bool lacksAOut( pair<std::string,pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > dd )
         {
             // fill in the dataobject, if it fails, abort startup...
-            if ( !Base::Output::dObj()->Get(dd.first, dd.second.second) )
+            if ( !Output->dObj()->Get(dd.first, dd.second.second) )
                 return true; // signals it went wrong
             return false;
         }

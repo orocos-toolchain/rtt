@@ -93,7 +93,7 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorVel::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !nAxesGeneratorVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_DOI) ){
+    if ( !nAxesGeneratorVel_typedef::SetPoint->dObj()->Get("Velocity", _velocity_DOI) ){
       cerr << "nAxesGeneratorVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }

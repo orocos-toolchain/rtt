@@ -142,6 +142,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Merged-in Program Parser for ControlKernel.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.19.3</revnumber>
+	<date>29 March 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>load/unload/select functions renamed.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -1135,13 +1141,11 @@
 	  <classname>StandardControlKernel</classname> makes
 	  <classname>DefaultComponents</classname> which do not
 	  act on the Data Flow.
-	  The control kernel is equipped with
-	  <function>loadController()</function>,
-	  <function>unloadGenerator()</function>, &hellip; methods
+	  The control kernel is equipped with the
+	  <function>loadComponent()</function> and
+	  <function>unloadComponent()</function> methods
 	  which allow a clean insertion of a new Component
-	  (<emphasis>i.c.</emphasis> the Controller Component) and
-	  which guarantee a clean removal of a component
-	  (<emphasis>i.c.</emphasis> the Generator Component).
+	  and which guarantee a clean removal of a component.
 	  Defining your own Component functionality works as in the
 	  following example for the Generator Component:
 	</para>
@@ -1161,7 +1165,7 @@
 	  >
   { 
   public:
-      MyGenerator( const std::string& name = "MyGeneratorName")
+      MyGenerator( const std::string& name = "MyGeneratorName") // this name must be unique !
 	  : Generator< 
 	  Expects<MG_InputData>,
 	  Expects<NoModel>,
@@ -1205,7 +1209,7 @@
 	</para>
 	<para>
 	  The name ("MyGeneratorName") of the component must be unique within 
-	  the type (Generator) in one kernel. It will be used later on
+	  one kernel. It will be used later on
 	  to identify it from scripts or configuration files. The name of
 	  a Component should be as stable as possible, as many configuration
 	  files must be changed if the name changes.
@@ -1217,12 +1221,12 @@
 	  <classname>MyGenerator</classname> called my_gen and using
 	  the default name "MyGeneratorName".
 	  It can
-	  be used with the <function>loadGenerator()</function> method
+	  be used with the <function>loadComponent()</function> method
 	  call of the <classname>StandardControlKernel</classname>.
 	  The next line could then be:
 	</para>
 	<programlisting>
-  first_kernel.loadGenerator( &amp;my_gen );</programlisting>
+  first_kernel.loadComponent( &amp;my_gen );</programlisting>
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
 	  Components can be configured when they are loaded or when
@@ -1254,8 +1258,6 @@
 	<para>
 	  Which will stop its participation in the Data Flow processing.
 	  The above methods can be applied to all types of Components of the kernel.
-	  They are equivalent to the <function>start<emphasis>ComponentType</emphasis></function> and
-	  <function>stop<emphasis>ComponentType</emphasis></function> kernel methods.
 	</para>
       </sect3>
       <sect3>
@@ -1263,23 +1265,32 @@
 	<para>
 	  It can be usefull to switch one component in realtime with another,
 	  for example, when the Controller or Generator needs to be switched 
-	  due to a realtime configuration change. To allow a component to be
+	  due to a realtime configuration change. This is a separate method from
+	  startup/shutdown.To allow a component to be
 	  switched with another one, it must be <emphasis>'selected'</emphasis> :
 	</para>
 	<programlisting>
-  first_kernel.selectGenerator( &amp;my_gen );</programlisting>
+  first_kernel.selectComponent( &amp;my_gen );</programlisting>
 	<para>
-	  A selected component is started, but also stops the previously
-	  selected component of the same type ( here : Generator ). This has
-	  no effect on components which are started or stopped with the normal
-	  method calls. Thus a startGenerator(X) followed with selectGenerator(Y)
-	  will have both generators X and Y running in the kernel. If
-	  some time later a startGenerator(A) followed with selectGenerator(B) is
-	  called, components X, A and B will be running and Y will be stopped.
+	  When a selected component is started, the previously
+	  <emphasis>selected</emphasis> component of the same type is
+	  stopped ( here : Generator ). This has no effect on
+	  components which are started or stopped with the normal
+	  method calls. Thus, with X,Y,A,B being Generators, a
+	  startComponent(X) followed with selectComponent(Y) will have
+	  both generators X and Y running in the kernel. If some time
+	  later a startComponent(A) followed with selectComponent(B)
+	  is called, components X, A and B will be running and Y will
+	  be stopped.
 	</para>
-	<para>
-	  Selecting and startup/shutdown calls should not be mixed for the same component.
-	</para>
+	<important>
+	  <para>
+	    Select and startup/shutdown calls should not be mixed for the same component.
+	    To 'stop' a selected component, for example a selected Generator,
+	    use selectComponent("DefaultGenerator"), which will stop the previous selected
+	    generator and start a dummy one.
+	  </para>
+	</important>
       </sect3>
       <sect3>
 	<title>Defining the Data Flow with DataObjects</title>
@@ -1640,8 +1651,8 @@ public:
 	  There are some methods that allow easy working with named
 	  Components. Going further with the <type>MyKernel</type> example:
 	<programlisting>  // ... after start of the kernel task :
-  if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
-       first_kernel.selectGenerator( "GeneratorName" );  </programlisting>
+  if ( first_kernel.isLoaded( "GeneratorName") ) 
+       first_kernel.selectComponent( "GeneratorName" );  </programlisting>
 	  <emphasis>Loading</emphasis> is not realtime safe
 	  and must happen <emphasis>before</emphasis> the
 	  kernel started, <emphasis>selecting</emphasis> a
@@ -1849,7 +1860,7 @@ public:
   //...
 
   HMIConsoleOutput hmi_out;
-  kernel.loadSupport( &amp;hmi_out );
+  kernel.loadComponent( &amp;hmi_out );
 
   // When the kernel is started, hmi_out is automatically selected.  </programlisting>
 	  All Support components are used when the kernel is 
@@ -2051,7 +2062,8 @@ public:
 	  </para>
 	  <para>
 	    Each Extension is accompanied by a piece of code (called
-	    the <emphasis role="strong">Component Aspect</emphasis>),
+	    the <emphasis role="strong">Component Facet</emphasis>,
+	    which is another word for "Component Interface" ),
 	    which is present in all Components that wish to use
 	    the extension.
 	    It provides method calls (<link
@@ -2067,7 +2079,7 @@ public:
     <para>
       Each Control Kernel has a default Extension, the
       <classname>KernelBaseFunction</classname>, coupled with the
-      <classname>ComponentBaseInterface</classname> Aspect. It defines
+      <classname>ComponentBaseInterface</classname> Facet. It defines
       the basic Data Flow Component interaction features that each Control
       Kernel has. The most important one of these interaction features
       is calling the <function>update()</function> methods of the
@@ -2085,13 +2097,13 @@ public:
     </para>
 
     <sect2>
-      <title>Component Aspects</title>
+      <title>Component Facets</title>
       <para>
 	Adding an Extension to a Control Kernel does not (visibly)
 	change the existing Components. So a Component does not need
 	to anticipate any possible extension (nor does the Control
 	Kernel). <emphasis>The Component indicates that it wishes to use
-	an Extension by inheriting from the Aspect of that Extension.</emphasis>
+	an Extension by inheriting from the Facet of that Extension.</emphasis>
 	For example, if a Component wants to export some data when the
 	Control Kernel has the reporting extension, it will implement
 	the <function>exportReports()</function> hook. If the
@@ -2099,23 +2111,23 @@ public:
 	<function>exportReports()</function> method will never be
 	called. The Extension can know if a Component has implemented
 	the hook by providing a default implementation which gets
-	called if the component does not want to use it. Each Aspect
+	called if the component does not want to use it. Each Facet
 	is defined such that the Component has a passive role,
 	meaning that the hook is always called by the Extension, and
 	the Component does not need to call the Extension (which would
 	lead to locking the component into an Extension).
       </para>
-      <figure><title>Component Aspects versus Kernel Extensions</title>
+      <figure><title>Component Facets versus Kernel Extensions</title>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="ExtensionAspect" />
+	    <imagedata fileref="ExtensionFacet" />
 	  </imageobject>
 	</mediaobject>
       </figure>
       <sect3>
-	<title>Aspect Method Hooks</title>
+	<title>Facet Method Hooks</title>
 	<para>
-	  Almost every Aspect will provide a hook method that each
+	  Almost every Facet will provide a hook method that each
 	  Component can override (re-implement) to make use of the
 	  functionality. One hook might be used by different
 	  Extensions, as long as the semantical meaning remains the
@@ -2249,17 +2261,17 @@ public:
 	</mediaobject>
       </figure>
     </sect2>
-    <sect2 id="adding-aspects">
-      <title>How to add an Aspect?</title>
+    <sect2 id="adding-Facets">
+      <title>How to add an Facet?</title>
       <para>
 	If a Component wants to use a kernel Extension, it needs to inherit
-	from the Aspect. This is done by using a special construct, called
-	<classname>MakeAspect</classname>. It is, similar to adding an
+	from the Facet. This is done by using a special construct, called
+	<classname>MakeFacet</classname>. It is, similar to adding an
 	Extension to a kernel, given as an extra template parameter
 	to its base class (e.g. Generator).
       </para>
       <para>
-	If no Aspect is given, the default is used, ComponentBaseInterface.
+	If no Facet is given, the default is used, ComponentBaseInterface.
 	Thus the following is equivalent to the previous MyGenerator
 	definition (note the last parameter of Generator&lt;...&gt; ):
 	<programlisting><![CDATA[  class MyGenerator 
@@ -2268,15 +2280,15 @@ public:
 	  Expects<NoModel>,
 	  Expects<MG_CommandData>,
 	  Writes<MG_SetPointData>,
-	  MakeAspect<KernelBaseFunction>::Result
+	  MakeFacet<KernelBaseFunction>::Result
 	  >
   { 
       // ...
   };]]>	</programlisting>
-	The ComponentBaseInterface is the Aspect of the KernelBaseFunction.
+	The ComponentBaseInterface is the Facet of the KernelBaseFunction.
       </para>
       <para>
-	To add an additional Aspect to the Component, you must use MakeAspect
+	To add an additional Facet to the Component, you must use MakeFacet
 	and <emphasis>specify the Extensions you want to support</emphasis> :
 	<programlisting><![CDATA[  class MyGenerator 
       : public Generator< 
@@ -2284,20 +2296,20 @@ public:
 	  Expects<NoModel>,
 	  Expects<MG_CommandData>,
 	  Writes<MG_SetPointData>,
-	  MakeAspect<PropertyExtension, KernelBaseFunction>::Result
+	  MakeFacet<PropertyExtension, KernelBaseFunction>::Result
 	  >
   { 
     // ...
   };]]>	</programlisting>
-	MakeAspect is thus analogous to MakeExtension, but is aimed at
-	Components. The MakeAspect structure will ask every listed
-	Extension, which its Aspect is and compose them in a class hierarchy.
+	MakeFacet is thus analogous to MakeExtension, but is aimed at
+	Components. The MakeFacet structure will ask every listed
+	Extension, which its Facet is and compose them in a class hierarchy.
       </para>
       <para>
-	To see what the Aspect is (and which methods it defines)
+	To see what the Facet is (and which methods it defines)
 	of an Extension, you can look
 	the Extension up in the Doxygen Code documentation, which will
-	contain a link to the Aspect class. Also, mostly, the Aspect
+	contain a link to the Facet class. Also, mostly, the Facet
 	and Extension are defined in the same header file.
       </para>
     </sect2>
@@ -2366,10 +2378,10 @@ public:
 	  </para>
 	  <programlisting><![CDATA[class MyGenerator 
     : public Generator< ..data objects... ,
-	               MakeAspect<PropertyExtension,KernelBaseFunction>::Result >
+	               MakeFacet<PropertyExtension,KernelBaseFunction>::Result >
 { 
   typedef Generator< ..data objects...,
-	    MakeAspect< PropertyExtension, KernelBaseFunction >::Result > Base
+	    MakeFacet< PropertyExtension, KernelBaseFunction >::Result > Base
 public:
   // In constructor, gain defaults to zero:
   MyGenerator() :
@@ -2707,7 +2719,7 @@ private:
 	  </para>
 	  <programlisting><![CDATA[class MyGenerator 
     : public Generator< ...,
-	    MakeAspect<KernelBaseFunction,
+	    MakeFacet<KernelBaseFunction,
 	               ReportingExtension>::Result >
 {
   // For ease of writing :
@@ -2999,7 +3011,7 @@ private:
 	    Suppose the API of your component looks like this:
 	    <programlisting>class MyGenerator
     : public Generator&lt; ..data objects... ,
-	               MakeAspect&lt;KernelBaseFunction&gt;::Result &gt;
+	               MakeFacet&lt;KernelBaseFunction&gt;::Result &gt;
 { 
 public:
   void moveToHomePosition();
@@ -3025,7 +3037,7 @@ using namespace ORO_Execution;
 
 class MyGenerator
     : public Generator&lt; ..data objects... ,
-	               MakeAspect&lt;KernelBaseFunction,ExecutionExtension&gt;::Result &gt;
+	               MakeFacet&lt;KernelBaseFunction,ExecutionExtension&gt;::Result &gt;
 {
 public:
 // ...
@@ -3513,10 +3525,10 @@ CascadeControlKernel<>
 
 	<para>
 	  <note>
-	    <para>If you were using Extensions/Aspects such as 
+	    <para>If you were using Extensions/Facets such as 
 	      <function>exportReports()</function> or
 	      <function>updateProperties()</function>, you will need an extra
-	      template parameter <classname>MakeAspect</classname>.  See <xref
+	      template parameter <classname>MakeFacet</classname>.  See <xref
 		linkend="control-kernel-extensions" /> for
 	      more information.</para>
 	  </note>

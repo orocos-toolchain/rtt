@@ -13,6 +13,7 @@ an open controller."
     compile KernelInterfaces.cxx ComponentInterfaces.cxx
     compile ComponentConfigurator.cxx KernelConfig.cxx
     compile DataObjectReporting.cxx DataServer.cxx
+    compile StandardControlKernel.cxx
 
     cdl_option OROSEM_CONTROL_KERNEL_OLDKERNEL {
 	display "Enable backward old-style Kernel"

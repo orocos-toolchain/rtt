@@ -48,7 +48,7 @@ namespace ORO_ControlKernel
   typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<NoInput>,
 				       ORO_ControlKernel::Expects<NoModel>,
 				       ORO_ControlKernel::Expects<nAxesEffectorVelOutput_vel>,
-				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
+				       ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
 
   class nAxesEffectorVel
     : public nAxesEffectorVel_typedef

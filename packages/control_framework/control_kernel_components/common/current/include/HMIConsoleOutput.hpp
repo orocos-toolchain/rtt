@@ -63,14 +63,14 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_support
      */
     class HMIConsoleOutput
-        : public SupportComponent< MakeAspect<KernelBaseFunction
+        : public SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                               , ExecutionExtension
 #endif
                                               >::Result >,
           public ORO_CoreLib::TaskNonRealTime
     {
-        typedef SupportComponent< MakeAspect<KernelBaseFunction
+        typedef SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                              , ExecutionExtension
 #endif

@@ -69,7 +69,7 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
 					 ORO_ControlKernel::Expects<nAxesControllerPosSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerPosOutput_vel>,
-					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::ExecutionExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerPos_typedef;
 

@@ -31,13 +31,13 @@
 
 using namespace ORO_ControlKernel;
 
-bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
+bool ComponentBaseInterface::enableFacet(KernelBaseFunction* e)
 {
     kern = e;
     return kern->addComponent(this);
 }
 
-void ComponentBaseInterface::disableAspect()
+void ComponentBaseInterface::disableFacet()
 {
     if ( inKernel() )
         {

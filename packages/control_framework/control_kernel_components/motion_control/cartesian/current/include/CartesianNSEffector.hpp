@@ -69,10 +69,10 @@ namespace ORO_ControlKernel
      */
     class CartesianEffector
         : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
-                                     MakeAspect<KernelBaseFunction, ReportingExtension>::Result >
+                                     MakeFacet<KernelBaseFunction, ReportingExtension>::Result >
     {
         typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
-                          MakeAspect<KernelBaseFunction, ReportingExtension>::Result > Base;
+                          MakeFacet<KernelBaseFunction, ReportingExtension>::Result > Base;
     public:
             
         CartesianEffector(SimulatorInterface* _sim) 
@@ -81,7 +81,7 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
         {
-            if ( !Base::Output::dObj()->Get("JointVelocities",qdot_DObj) )
+            if ( !Output->dObj()->Get("JointVelocities",qdot_DObj) )
                 return false;
             return true;
         }

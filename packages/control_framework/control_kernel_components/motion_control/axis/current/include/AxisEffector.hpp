@@ -73,14 +73,14 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class AxisEffector
-        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<AxisOutput>, MakeAspect<KernelBaseFunction
+        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<AxisOutput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                            , ExecutionExtension
 #endif
                                                            >::CommonBase >
     {
     public:
-        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<AxisOutput>, MakeAspect<KernelBaseFunction
+        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<AxisOutput>, MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                           , ExecutionExtension
 #endif

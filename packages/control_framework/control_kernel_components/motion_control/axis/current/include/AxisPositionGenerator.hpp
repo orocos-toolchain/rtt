@@ -82,7 +82,7 @@ namespace ORO_ControlKernel
                                       Expects<NoModel>,
                                       Expects<NoCommand>,
                                       Writes<AxisPositionGeneratorSetPoint>,
-                                      MakeAspect<PropertyExtension,KernelBaseFunction
+                                      MakeFacet<PropertyExtension,KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                     ,ExecutionExtension
 #endif
@@ -92,7 +92,7 @@ namespace ORO_ControlKernel
                            Expects<NoModel>,
                            Expects<NoCommand>,
                            Writes<AxisPositionGeneratorSetPoint>,
-                           MakeAspect<PropertyExtension,KernelBaseFunction
+                           MakeFacet<PropertyExtension,KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       ,ExecutionExtension
 #endif
@@ -123,7 +123,7 @@ namespace ORO_ControlKernel
 
         bool componentLoaded()
         {
-            return SetPoint::dObj()->Get("ChannelValues", setp_dObj );
+            return SetPoint->dObj()->Get("ChannelValues", setp_dObj );
         }
 
         void componentShutdown()
@@ -133,7 +133,7 @@ namespace ORO_ControlKernel
         bool componentStartup()
         {
             // we need the inputs for the stand-still setpoint
-            if ( Base::Input::dObj()->Get("ChannelValues", inp_dObj ) )
+            if ( Input->dObj()->Get("ChannelValues", inp_dObj ) )
                 {
                     inputs = inp_dObj->Get();
                     setpoints = inputs;

@@ -66,7 +66,7 @@ namespace ORO_ControlKernel
      *
      */
     class ExecutionComponentInterface
-        : public detail::ComponentAspectInterface<ExecutionExtension>
+        : public detail::ComponentFacetInterface<ExecutionExtension>
     {
         friend class ExecutionExtension;
 
@@ -74,7 +74,7 @@ namespace ORO_ControlKernel
         std::string name;
         ExecutionExtension* master;
 
-        using detail::ComponentAspectInterface<ExecutionExtension>::enableAspect;
+        using detail::ComponentFacetInterface<ExecutionExtension>::enableFacet;
 
         CommandFactoryInterface* _commandfactory;
         MethodFactoryInterface* _methodfactory;
@@ -100,9 +100,9 @@ namespace ORO_ControlKernel
          */
         virtual MethodFactoryInterface* createMethodFactory();
 
-        bool enableAspect( ExecutionExtension* ext );
+        bool enableFacet( ExecutionExtension* ext );
 
-        void disableAspect();
+        void disableFacet();
 
         ~ExecutionComponentInterface();
     };

@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
   bool nAxesControllerCartesianPos::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output::dObj()->Get("Twist", _velocity_out_DOI) ){
+    if ( !Output->dObj()->Get("Twist", _velocity_out_DOI) ){
       cerr << "nAxesControllerCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
@@ -85,8 +85,8 @@ namespace ORO_ControlKernel
     }
 
     // get interface to Input/Setpoint data types
-    if ( !Input::dObj(   )->Get("Frame", _position_meas_DOI) ||
-	 !SetPoint::dObj()->Get("Frame", _position_desi_DOI) ){
+    if ( !Input->dObj(   )->Get("Frame", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Frame", _position_desi_DOI) ){
       cerr << "nAxesControllerCartesianPos::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

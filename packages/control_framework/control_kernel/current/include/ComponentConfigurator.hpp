@@ -43,6 +43,9 @@ namespace ORO_ControlKernel
             ComponentConfigurator()
             {}
 
+            virtual ~ComponentConfigurator()
+            {}
+
             /**
              * Read the XML cpf files and try to configure the given component.
              */

@@ -67,7 +67,7 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
 					 ORO_ControlKernel::Expects<nAxesControllerCartesianVelSetpoint_vel>,
 					 ORO_ControlKernel::Writes<nAxesControllerCartesianVelOutput_vel>,
-					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerCartesianVel_typedef;
 
   class nAxesControllerCartesianVel

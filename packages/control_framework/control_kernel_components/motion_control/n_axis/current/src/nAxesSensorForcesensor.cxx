@@ -101,8 +101,8 @@ namespace ORO_ControlKernel
   bool nAxesSensorForcesensor::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input::dObj()->Get("Frame", _position_out_DOI) ||
-	!Input::dObj()->Get("ForcesensorForce", _force_out_DOI)){
+    if (!Input->dObj()->Get("Frame", _position_out_DOI) ||
+	!Input->dObj()->Get("ForcesensorForce", _force_out_DOI)){
       cerr << "nAxesSensorForcesensor::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }

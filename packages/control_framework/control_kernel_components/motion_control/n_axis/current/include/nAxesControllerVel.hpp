@@ -67,7 +67,7 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
 					 ORO_ControlKernel::Expects<nAxesControllerVelSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerVelOutput_vel>,
-					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::KernelBaseFunction,
 								       ORO_ControlKernel::ExecutionExtension>::Result > nAxesControllerVel_typedef;
 

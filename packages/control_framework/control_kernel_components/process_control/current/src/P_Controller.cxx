@@ -48,13 +48,13 @@ P_Controller::~P_Controller(){};
 
 bool P_Controller::componentLoaded()
 {
-    return Output::dObj()->Get("ChannelValues",outp_dObj);
+    return Output->dObj()->Get("ChannelValues",outp_dObj);
 }
 
 bool P_Controller::componentStartup()
 {
-    if ( SetPoint::dObj()->Get("ChannelValues",setp_dObj) &&
-         Input::dObj()->Get("ChannelValues", inp_dObj) )
+    if ( SetPoint->dObj()->Get("ChannelValues",setp_dObj) &&
+         Input->dObj()->Get("ChannelValues", inp_dObj) )
         {
             this->update();
             return true;

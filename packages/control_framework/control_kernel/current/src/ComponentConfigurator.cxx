@@ -36,7 +36,7 @@ using namespace ORO_ControlKernel;
 bool ComponentConfigurator::configure(const std::string& filename, PropertyComponentInterface* target) const
 {
     bool result = false;
-    Logger::log() <<Logger::Info << "Configuring " <<target->getName()<< Logger::endl;
+    Logger::log() <<Logger::Info << "Configuring " <<target->getFacetName()<< Logger::endl;
     try
     {
         CPFDemarshaller demarshaller(filename);

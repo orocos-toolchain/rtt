@@ -30,7 +30,7 @@ namespace ORO_ControlKernel
 {
 
 
-        bool PropertyComponentInterface::enableAspect( PropertyExtension* ext)
+        bool PropertyComponentInterface::enableFacet( PropertyExtension* ext)
         {
             if (master == 0)
             {
@@ -41,7 +41,7 @@ namespace ORO_ControlKernel
             return false;
         }
 
-        void PropertyComponentInterface::disableAspect()
+        void PropertyComponentInterface::disableFacet()
         {
             if (master !=0)
             {

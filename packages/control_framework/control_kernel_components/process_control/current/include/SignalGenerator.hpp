@@ -75,14 +75,14 @@ namespace ORO_ControlKernel
      */
     class SignalGenerator
         : public Generator< Expects<NoCommand>, Expects<NoInput>, Expects<NoModel>, Writes<SignalSetPoint>, 
-                            MakeAspect<KernelBaseFunction
+                            MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                        , ExecutionExtension
 #endif
                                        >::Result >
     {
         typedef Generator< Expects<NoCommand>, Expects<NoInput>, Expects<NoModel>, Writes<SignalSetPoint>, 
-                           MakeAspect<KernelBaseFunction
+                           MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       , ExecutionExtension
 #endif
@@ -102,7 +102,7 @@ namespace ORO_ControlKernel
 
         virtual bool componentLoaded() 
         {
-            Base::SetPoint::dObj()->Get("ChannelValues", setp_DObj);
+            SetPoint->dObj()->Get("ChannelValues", setp_DObj);
             setp_DObj->Set(set_point);
             return true;
         }            

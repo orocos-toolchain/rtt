@@ -59,9 +59,9 @@ namespace ORO_ControlKernel
    *  @ingroup kcomps kcomp_controller 
    */
   class P_Controller
-    : public Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
+    : public Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
   {
-      typedef Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
+      typedef Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
   protected:
       typedef std::vector<double> ChannelType;
       DataObjectInterface<ChannelType>* inp_dObj;

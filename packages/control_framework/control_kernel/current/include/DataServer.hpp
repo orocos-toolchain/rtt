@@ -139,13 +139,6 @@ namespace ORO_ControlKernel
             repserver->removeClient( this );
         }
 
-        /**
-         * @brief Change the prefix of this server.
-         *
-         * @param _prefix The new prefix.
-         */
-//         virtual void changePrefix(const std::string& _prefix) { prefix = _prefix; }
-
         virtual void exportReports( PropertyBag& bag ) const
         {
             // Export all members of this server.
@@ -372,28 +365,6 @@ namespace ORO_ControlKernel
 
     template<typename First > class NameSubClass;
 
-#if 0
-    // Deprecated, old control kernel
-
-    /**
-     * Similar to CompositeExtension, it allows users
-     * to compose data objects so that multiple components,
-     * with different data objects, can be used in one kernel.
-     */
-    template< class OneDO, class OtherDO >
-    class CompositeDataObject
-    {
-    public:
-        typedef OneDO First;
-        typedef OtherDO Second;
-
-        /**
-         * The Result contains all types of both Typelist.
-         */
-        typedef typename Loki::TL::Append<typename First::Result, typename Second::Result>::Result Result;
-    };
-#endif
-
     /**
      * This class holds one nameserved element of a DataObject.
      * Evenmore, it offers the DataObject Interface for a nameserved
@@ -473,22 +444,6 @@ namespace ORO_ControlKernel
             load(t, index);
         }
             
-
-        /**
-         * Change the local name prefix.
-         */
-//         void changePrefix(const std::string& prefix)
-//         {
-//             ServerType::changePrefix(prefix);
-//             NameSubClass<Rest>::changePrefix(prefix);
-//         }
-
-//         virtual void setName( const std::string& name )
-//         {
-//             ServerType::setName(name);
-//             NameSubClass<Rest>::setName(name);
-//         }
-
         virtual void refreshReports( PropertyBag& bag ) const
         {
             // Delegate to the subclass's implementation.
@@ -610,7 +565,7 @@ namespace ORO_ControlKernel
         NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index)
             : DataObjectServer<First<nil_type> >(name, prefix)
         {}
-        void changePrefix(const std::string& prefix) { }
+
         bool has( const std::string& name, nil_type m = nil_type() ) const
         {
             return false;
@@ -759,11 +714,6 @@ namespace ORO_ControlKernel
             this->_NameContainer::tree::recursiveReload( std::make_pair( b, e ), 0 );
         }
 
-//         void changePrefix(const std::string& prefix)
-//         {
-//             _NameContainer::tree::changePrefix(prefix);
-//         }
-
         /**
          * @brief This allows the user to retrieve a DataObject<T> of type T.
          *
@@ -817,8 +767,6 @@ namespace ORO_ControlKernel
                 NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
-//             virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
-
         virtual void refreshReports( PropertyBag& bag ) const
         {
             // Delegate to the subclass's implementation.
@@ -863,7 +811,7 @@ namespace ORO_ControlKernel
             NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
                 ServerType(name, prefix)
             {}
-//             virtual void changePrefix(const std::string& prefix) { ServerType::changePrefix( prefix); }
+
         };            
 
         // Container case
@@ -905,8 +853,6 @@ namespace ORO_ControlKernel
         template< template<class> class _NameContainer, class F, class S>
         struct NameServedDataObject< _NameContainer< CompositeDataObject<F,S> > >
             : public NameFrontEnd< typename Loki::TL::NoDuplicates< typename _NameContainer< CompositeDataObject<F,S> >::WrappedNamesTypes >::Result > // All Types get an Accessor method.
-//               ,private NameServedDataObject< _NameContainer<F> >,
-//               private NameServedDataObject< _NameContainer<S> >
         {
             NameServedDataObject< _NameContainer<F> > first_server;
             NameServedDataObject< _NameContainer<S> > second_server;
@@ -918,34 +864,20 @@ namespace ORO_ControlKernel
             using FrontEnd::has;
             using FrontEnd::reg;
             using FrontEnd::deReg;
-//             using NameServedDataObject< _NameContainer<F> >::Get;
-//             using NameServedDataObject< _NameContainer<F> >::Set;
-
-//             using NameServedDataObject< _NameContainer<S> >::Get;
-//             using NameServedDataObject< _NameContainer<S> >::Set;
 
             NameServedDataObject(const std::string& name, const std::string& prefix ) //= name ) 
                 : FrontEnd(name, prefix, 0, 0),
                   first_server(name, prefix),
                   second_server(name, prefix)
-//                 : NameServedDataObject<_NameContainer<F> >(name, prefix),
-//                   NameServedDataObject<_NameContainer<S> >(name, prefix)
             {}
+
+            ~NameServedDataObject() {}
 
             void changePrefix(const std::string& prefix)
             {
-//                 NameServedDataObject< _NameContainer<F> >::changePrefix(prefix);
-//                 NameServedDataObject< _NameContainer<S> >::changePrefix(prefix);
                 first_server.changePrefix(prefix);
                 second_server.changePrefix(prefix);
             }
-
-
-//             virtual void setName( const std::string& name )
-//             {
-//                 first_server.setName(name);
-//                 second_server.setName(name);
-//             }
 
             virtual void refreshReports( PropertyBag& bag ) const
             {

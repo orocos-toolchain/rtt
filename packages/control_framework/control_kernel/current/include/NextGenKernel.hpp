@@ -40,42 +40,9 @@
 
 namespace ORO_ControlKernel
 {
-
     namespace detail
     {
-        using boost::shared_ptr;
-
-        namespace {
-            // helper class for dataobject creation
-            struct DOCreationInterface {
-                virtual ~DOCreationInterface() {}
-                virtual void create() = 0;
-                virtual void erase() = 0;
-            };
-            // Write Port Interface, DataObjectType container
-            template<class WPI, class DOT>
-            struct DOCreator : public DOCreationInterface {
-                std::string name;
-                // prefix
-                std::string pref;
-                WPI* wpi;
-                DOCreator(WPI* wp, std::string _n, std::string _p ) :  name(_n), pref(_p), wpi(wp) {}
-                virtual void create() {
-                    // Create the DataObject Server
-                    wpi->createDataObject( name, pref, DOT() );
-                }
-                virtual void erase() {
-                    wpi->eraseDataObject();
-                }
-                
-            };
-            struct NOPCreator : public DOCreationInterface {
-                virtual void create() {}
-                virtual void erase() {}
-            };
-        }
-
-
+    
     /**
      * @brief The BaseKernel is for internal use only.
      *
@@ -90,18 +57,14 @@ namespace ORO_ControlKernel
         :   public ControlKernelInterface,
             public _Extension
     {
-        typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
-                                                            shared_ptr<DOCreationInterface> > > ComponentStateMap;
-        using ControlKernelInterface::getKernelName;
-
     public:
         typedef _Extension Extension;
             
         /**
-         * @brief The Aspect, which serves as a common base class for all components,
+         * @brief The Facet, which serves as a common base class for all components,
          * is defined through the Extension.
          *
-         * The Kernel specifies the port type, the user the extension and aspect.
+         * The Kernel specifies the port type, the user the extension and Facet.
          */
         typedef ComponentBaseInterface CommonBase;
 
@@ -175,99 +138,46 @@ namespace ORO_ControlKernel
               outp_prefix( _outp_prefix )
         {
             // Load the default (empty) components.
-            loadController(&dummy_controller);
-            loadGenerator(&dummy_generator);
-            loadEstimator(&dummy_estimator);
-            loadEffector(&dummy_effector);
-            loadSensor(&dummy_sensor);
+            loadComponent(&dummy_controller);
+            loadComponent(&dummy_generator);
+            loadComponent(&dummy_estimator);
+            loadComponent(&dummy_effector);
+            loadComponent(&dummy_sensor);
             // Select the default components for execution.
-            this->running = true;  // quite ok workaround
-            selectController(&dummy_controller);
-            selectGenerator(&dummy_generator);
-            selectEstimator(&dummy_estimator);
-            selectEffector(&dummy_effector);
-            selectSensor(&dummy_sensor);
-            this->running = false;
-
+            selectComponent(&dummy_controller);
+            selectComponent(&dummy_generator);
+            selectComponent(&dummy_estimator);
+            selectComponent(&dummy_effector);
+            selectComponent(&dummy_sensor);
         }
 
         ~BaseKernel()
         {
         }
 
-        virtual bool isSelectedController( const std::string& name ) const
+        virtual bool isSelected( const std::string& name ) const
         {
-            return this->controllers.getObject( name ) == controller;
-        }
-
-        virtual bool isSelectedGenerator( const std::string& name ) const
-        {
-            return this->generators.getObject( name ) == generator;
-        }
-
-        virtual bool isSelectedEstimator( const std::string& name ) const
-        {
-            return this->estimators.getObject( name ) == estimator;
-        }
-
-        virtual bool isSelectedSensor( const std::string& name ) const
-        {
-            return this->sensors.getObject( name ) == sensor;
-        }
-
-        virtual bool isSelectedEffector( const std::string& name ) const
-        {
-            return this->effectors.getObject( name ) == effector;
+            KernelBaseFunction::ComponentMap::const_iterator it = this->components.find( name );
+            if ( it != this->components.end() ) {
+                ComponentBaseInterface* c = it->second->component();
+                return c == sensor || c == estimator || c == generator || c == controller || c == effector;
+            }
+            return false;
         }
 
         virtual bool initialize() 
         { 
-            // First, startup all the support components
-            NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
-            for( ; itl != this->supports.getValueEnd(); ++itl)
-                this->startComponent( *itl );
-
-            if ( !Extension::initialize() )
-                {
-                    for( itl = this->supports.getValueBegin(); itl != this->supports.getValueEnd(); ++itl)
-                        this->stopComponent( *itl );
-                    return false;
-                }
-                
-            // initial startup of all components
-            this->kernelStarted.fire();
-
-            return true;
+            return Extension::initialize();
         }
 
         virtual void step() 
         {
-            // Check if we are in running state ( !aborted )
-            if ( this->isRunning() )
-                Extension::step();
-            else
-                KernelBaseFunction::finalize(); // select default components
+            Extension::step();
         }
 
         virtual void finalize() 
         {
-            // This is safe as long as the task is stopped from a lower
-            // priority thread than this task is running in. If not,
-            // it is possible that step() is still executing (preempted)
-            // while the finalize() is called from within the HP stop().
-            // stop() (aka taskRemove) could block on step() if step()
-            // is strictly non blocking (what it should be), otherwise
-            // it will lead to deadlocks.
             Extension::finalize();
-            // Last, shutdown all the remaining components
-            ComponentStateMap::iterator itl;
-            for( itl = this->componentStates.begin(); itl != this->componentStates.end(); ++itl)
-                this->shutdown( itl->first );
-            NameServer<ComponentBaseInterface*>::value_iterator its = this->supports.getValueBegin();
-            for( its = this->supports.getValueBegin(); its != this->supports.getValueEnd(); ++its)
-                this->stopComponent( *its );
-
-            this->kernelStopped.fire();
         }
 
         /**
@@ -281,45 +191,17 @@ namespace ORO_ControlKernel
          * selected controller is again started.
          *
          */
-        virtual bool selectController( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->controllers.getObjectByName( name )) )
-                return selectController(c);
-            return false;
-        }
-
-        virtual bool selectSensor( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->sensors.getObjectByName( name )) )
-                return selectSensor(c);
-            return false;
-        }
-
-        virtual bool selectGenerator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->generators.getObjectByName( name )) )
-                return selectGenerator(c);
-            return false;
-        }
-
-        virtual bool selectEstimator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->estimators.getObjectByName( name )) )
-                return selectEstimator(c);
-            return false;
-        }
-
-        virtual bool selectEffector( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->effectors.getObjectByName( name )) )
-                return selectEffector(c);
+        virtual bool selectComponent( const std::string& name ) {
+            KernelBaseFunction::ComponentMap::iterator it = this->components.find( name );
+            if ( it != this->Extension::components.end() )
+                return it->second->select();
             return false;
         }
 
         /*
         virtual bool selectSupport( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = this->supports.getObjectByName( name )) )
+            if ( (c = this->supports.getObject( name )) )
                 return selectSupport(c);
             return false;
             }*/
@@ -330,43 +212,22 @@ namespace ORO_ControlKernel
         /**
          * @name Name Based Start methods
          * @{
-         * @brief Start a previously loaded Controller Component.
+         * @brief Start a previously loaded Component.
          *
-         * This will only succeed if isLoadedController(\a c).
+         * This will only succeed if isLoaded(\a c).
          *
          */
-        virtual bool startController( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->controllers.getObjectByName( name )) )
-                return startup(c);
+        virtual bool startComponent( const std::string& name ) {
+            KernelBaseFunction::ComponentMap::iterator it = this->components.find( name );
+            if ( it != this->Extension::components.end() )
+                return startup( it->second->component() );
             return false;
         }
 
-        virtual bool startSensor( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->sensors.getObjectByName( name )) )
-                return startup(c);
-            return false;
-        }
-
-        virtual bool startGenerator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->generators.getObjectByName( name )) )
-                return startup(c);
-            return false;
-        }
-
-        virtual bool startEstimator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->estimators.getObjectByName( name )) )
-                return startup(c);
-            return false;
-        }
-
-        virtual bool startEffector( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->effectors.getObjectByName( name )) )
-                return startup(c);
+        virtual bool startComponent( ComponentBaseInterface* c ) {
+            KernelBaseFunction::ComponentMap::iterator it = this->components.find( c->getName() );
+            if ( it != this->Extension::components.end() )
+                return startup( it->second->component() );
             return false;
         }
 
@@ -377,43 +238,22 @@ namespace ORO_ControlKernel
         /**
          * @name Name Based Stop methods
          * @{
-         * @brief Stop a previously loaded Controller Component.
+         * @brief Stop a previously loaded Component.
          *
-         * This will only succeed if isLoadedController(\a c).
+         * This will only succeed if isLoaded(\a c).
          *
          */
-        virtual bool stopController( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->controllers.getObjectByName( name )) )
-                return shutdown(c);
+        virtual bool stopComponent( const std::string& name ) {
+            KernelBaseFunction::ComponentMap::iterator it = this->components.find( name );
+            if ( it != this->Extension::components.end() )
+                return shutdown( it->second->component() );
             return false;
         }
 
-        virtual bool stopSensor( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->sensors.getObjectByName( name )) )
-                return shutdown(c);
-            return false;
-        }
-
-        virtual bool stopGenerator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->generators.getObjectByName( name )) )
-                return shutdown(c);
-            return false;
-        }
-
-        virtual bool stopEstimator( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->estimators.getObjectByName( name )) )
-                return shutdown(c);
-            return false;
-        }
-
-        virtual bool stopEffector( const std::string& name ) {
-            ComponentBaseInterface* c;
-            if ( (c = this->effectors.getObjectByName( name )) )
-                return shutdown(c);
+        virtual bool stopComponent( ComponentBaseInterface* c ) {
+            KernelBaseFunction::ComponentMap::iterator it = this->components.find( c->getName() );
+            if ( it != this->Extension::components.end() )
+                return shutdown( it->second->component() );
             return false;
         }
 
@@ -431,28 +271,9 @@ namespace ORO_ControlKernel
          * @return True if the Component is loaded in the kernel,
          *         False otherwise.
          */
-        bool isLoadedSensor( const std::string& name ) const {
-            return this->sensors.isNameRegistered(name);
-        }
-
-        bool isLoadedEstimator( const std::string& name ) const {
-            return this->estimators.isNameRegistered(name);
-        }
-
-        bool isLoadedGenerator( const std::string& name ) const {
-            return this->generators.isNameRegistered(name);
-        }
-
-        bool isLoadedController( const std::string& name ) const {
-            return this->controllers.isNameRegistered(name);
-        }
-
-        bool isLoadedEffector( const std::string& name ) const {
-            return this->effectors.isNameRegistered(name);
-        }
-
-        bool isLoadedSupport( const std::string& name ) const {
-            return this->supports.isNameRegistered( name );
+        bool isLoaded( const std::string& name ) const {
+            KernelBaseFunction::ComponentMap::const_iterator it = this->components.find( name );
+            return it != this->Extension::components.end();
         }
         /**
          * @}
@@ -465,30 +286,10 @@ namespace ORO_ControlKernel
          * @param c The component
          * @return True if it is loaded.
          */
-        bool isLoadedController( ComponentBaseInterface* c) const {
-            return this->controllers.isObjectRegistered(c);
+        bool isLoaded( ComponentBaseInterface* c) const {
+            KernelBaseFunction::ComponentMap::const_iterator it = this->components.find( c->getName() );
+            return it != this->Extension::components.end();
         }
-
-        bool isLoadedGenerator(ComponentBaseInterface* c) const{
-            return this->generators.isObjectRegistered(c);
-        }
-
-        bool isLoadedEstimator(ComponentBaseInterface* c) const {
-            return this->estimators.isObjectRegistered(c);
-        }
-
-        bool isLoadedSensor(ComponentBaseInterface* c) const {
-            return this->sensors.isObjectRegistered(c);
-        }
-
-        bool isLoadedEffector(ComponentBaseInterface* c) const {
-            return this->effectors.isObjectRegistered(c);
-        }
-
-        bool isLoadedSupport(ComponentBaseInterface* c) const {
-            return this->supports.isObjectRegistered( c );
-        }
-
         /**
          * @}
          */
@@ -503,12 +304,13 @@ namespace ORO_ControlKernel
          */
         ComponentBaseInterface* findComponent( const std::string& name ) const
         {
-            typename Extension::KernelBaseFunction::ComponentMap::const_iterator it = this->components.find( name );
-            if ( it != this->components.end() )
-                return it->second;
+            typename KernelBaseFunction::ComponentMap::const_iterator it = this->Extension::components.find( name );
+            if ( it != this->Extension::components.end() )
+                return it->second->component();
             return 0;
         }
 
+#if 0
         bool isLoaded( const std::string& name) const {
             ComponentBaseInterface* c = findComponent( name );
             if (c)
@@ -521,6 +323,7 @@ namespace ORO_ControlKernel
             return isLoadedSensor(c) || isLoadedEstimator(c)
                 || isLoadedGenerator(c) || isLoadedController(c) || isLoadedEffector(c);
         }
+#endif
 
         bool isStarted( const std::string& name ) const {
             ComponentBaseInterface* c = findComponent( name );
@@ -554,207 +357,82 @@ namespace ORO_ControlKernel
          * selected component is again started.
          *
          */
+        bool selectComponent(ComponentBaseInterface* c) { 
+            if ( ! isLoaded(c) )
+                return false;
+            
+            return this->selectComponent( c->getName() );
+        }
+
+        // we need these special cases for callback purposes.
         bool selectSensor(ComponentBaseInterface* c) { 
-            if ( ! isLoadedSensor(c) )
+            if ( ! isLoaded(c) )
                 return false;
 
             sensor = this->switchComponent( sensor, c );
             if (sensor == 0) {
                 // In case switching completely failed : 
-                this->startComponent( &dummy_sensor );
+                this->startupComponent( &dummy_sensor );
                 sensor = &dummy_sensor;
             }
             return sensor == c;
         }
 
         bool selectEstimator(ComponentBaseInterface* c) { 
-            if ( ! isLoadedEstimator(c) )
+            if ( ! isLoaded(c) )
                 return false;
 
             estimator = this->switchComponent( estimator, c );
             if (estimator == 0) {
                 // In case switching completely failed : 
-                this->startComponent( &dummy_estimator );
+                this->startupComponent( &dummy_estimator );
                 estimator = &dummy_estimator;
             }
             return estimator == c;
         }
 
         bool selectGenerator(ComponentBaseInterface* c) { 
-            if ( ! isLoadedGenerator(c) )
+            if ( ! isLoaded(c) )
                 return false;
 
             generator = this->switchComponent( generator, c );
             if (generator == 0) {
                 // In case switching completely failed : 
-                this->startComponent( &dummy_generator );
+                this->startupComponent( &dummy_generator );
                 generator = &dummy_generator;
             }
             return generator == c;
         }
 
         bool selectController(ComponentBaseInterface* c) { 
-            if ( ! isLoadedController(c) )
+            if ( ! isLoaded(c) )
                 return false;
 
             controller = this->switchComponent( controller, c );
             if (controller == 0) {
                 // In case switching completely failed : 
-                this->startComponent( &dummy_controller );
+                this->startupComponent( &dummy_controller );
                 controller = &dummy_controller;
             }
             return controller == c;
         }
 
         bool selectEffector(ComponentBaseInterface* c) { 
-            if ( ! isLoadedEffector(c) )
+            if ( ! isLoaded(c) )
                 return false;
 
             effector = this->switchComponent( effector, c );
             if (effector == 0) {
                 // In case switching completely failed : 
-                this->startComponent( &dummy_effector );
+                this->startupComponent( &dummy_effector );
                 effector = &dummy_effector;
             }
             return effector == c;
         }
 
-        /* Not usefull, ComponentStartup has DataObject semantics.
-        bool selectSupport(ComponentBaseInterface* c) { 
-            if ( ! isLoadedSupport(c) )
-                return false;
-
-            return this->startComponent( c );
-        }
-
-        bool deselectSupport( ComponentBaseInterface* c) { 
-            if ( ! isLoadedSupport(c) || !this->isRunning() )
-                return false;
-
-            this->stopComponent( c );
-            return true;
-        }
-        */
         /**
          * @}
          */
-
-
-
-        /**
-         * @name Component Registration Methods
-         * @brief Registering a Component allows it to change
-         * it's state (load, startup,...) in the kernel.
-         *
-         * After the \a add method, the "Generic Component Methods" can be used.
-         * After the \a remove method, the "Generic Component Methods" can no longer be used.
-         *
-         * @param c The Sensor to be removed.
-         * @return true if it could be removed.
-         * @{
-         */
-
-        template< class _Sensor>
-        bool addSensor(_Sensor* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new SensorC< ThisType, _Sensor>(this, c),
-                                                                new DOCreator< typename _Sensor::Input, InputPortType>(c, this->getKernelName() + "::Inputs",this->inp_prefix ) ) ) );
-            return true;
-        }
-
-        template< class _Sensor>
-        bool removeSensor(_Sensor* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        template< class _Estimator>
-        bool addEstimator(_Estimator* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new EstimatorC< ThisType, _Estimator>(this, c),
-                                                                new DOCreator< typename _Estimator::Model, ModelPortType>(c,  this->getKernelName() + "::Models",this->mod_prefix ) ) ) );
-            return true;
-        }
-
-        template< class _Estimator>
-        bool removeEstimator(_Estimator* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        template< class _Generator>
-        bool addGenerator(_Generator* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new GeneratorC< ThisType, _Generator>(this, c),
-                                                                new DOCreator< typename _Generator::SetPoint, SetPointPortType>(c,  this->getKernelName() + "::SetPoints",this->setp_prefix )) ));
-            return true;
-        }
-
-        template< class _Generator>
-        bool removeGenerator(_Generator* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        template< class _Controller>
-        bool addController(_Controller* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new ControllerC< ThisType, _Controller>(this, c),
-                                                                new DOCreator< typename _Controller::Output, OutputPortType>(c,  this->getKernelName() + "::Outputs",this->outp_prefix )) ) );
-            return true;
-        }
-
-        template< class _Controller>
-        bool removeController(_Controller* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        template< class _Effector>
-        bool addEffector(_Effector* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new EffectorC< ThisType, _Effector>(this, c), new NOPCreator() ) ) );
-            return true;
-        }
-
-        template< class _Effector>
-        bool removeEffector(_Effector* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        template< class _Support>
-        bool addSupport(_Support* c) {
-            if ( componentStates.count( c ) != 0)
-                return false;
-            componentStates.insert( std::make_pair(c, std::make_pair(new SupportC< ThisType, _Support>(this, c), new NOPCreator() ) ) );
-            return true;
-        }
-
-        template< class _Support>
-        bool removeSupport(_Support* c) {
-            if ( componentStates.count( c ) == 0)
-                return false;
-            componentStates.erase(c);
-            return true;
-        }
-
-        /** @}*/
 
         /**
          * @name Generic Component Methods
@@ -769,9 +447,9 @@ namespace ORO_ControlKernel
          *
          * @return true if the component is present and could be loaded.
          */
-        bool load( ComponentBaseInterface* c) {
-            return ( componentStates.count( c ) != 0) && componentStates[c].first->load();
-        }
+//         bool load( ComponentBaseInterface* c) {
+//             return ( components.count( c ) != 0) && components[c].first->load();
+//         }
 
         /**
          * @brief Unload a previously added Component.
@@ -780,7 +458,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be unloaded.
          */
         bool unload( ComponentBaseInterface* c) {
-            return ( componentStates.count( c ) != 0) && componentStates[c].first->unload();
+            return ( this->components.count( c->getName() ) != 0) && this->components[ c->getName() ]->unload();
         }
 
         /**
@@ -790,7 +468,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be reloaded.
          */
         bool reload( ComponentBaseInterface* c) {
-            return ( componentStates.count( c ) != 0) && componentStates[c].first->reload();
+            return ( this->components.count(  c->getName() ) != 0) && this->components[ c->getName() ]->reload();
         }
 
         /**
@@ -801,8 +479,8 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be shutdowned.
          */
         bool shutdown( ComponentBaseInterface* c) {
-            if (this->isLoaded(c) && this->isStarted(c) ) {
-                this->stopComponent(c);
+            if (this->isLoaded( c ) && this->isStarted( c ) ) {
+                this->shutdownComponent(c);
                 return true;
             }
             return false;
@@ -815,7 +493,7 @@ namespace ORO_ControlKernel
          * @return true if the component is present and could be started.
          */
         bool startup( ComponentBaseInterface* c) {
-            return this->isLoaded(c) && !this->isStarted(c) && this->startComponent( c );
+            return this->isLoaded(c) && !this->isStarted(c) && this->startupComponent( c );
         }
 
         /**
@@ -826,8 +504,8 @@ namespace ORO_ControlKernel
          */
         bool restart( ComponentBaseInterface* c) {
             if ( this->isStarted(c) ) {
-                this->stopComponent(c) ;
-                return this->startComponent(c);
+                this->shutdownComponent(c) ;
+                return this->startupComponent(c);
             }
             return false;
         }
@@ -844,169 +522,33 @@ namespace ORO_ControlKernel
          * to all the Kernel Extensions and available for selection
          * when the kernel is started.
          */
-        template< class _Sensor>
-        bool loadSensor(_Sensor* c) {
+        template< class _Component>
+        bool loadComponent(_Component* c) {
             if ( this->isRunning() ) {
-                Logger::log() << Logger::Error << "Tried to load Sensor " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
+                Logger::log() << Logger::Error << "Tried to load Component " << c->getName() <<" in running kernel !" << Logger::endl;
                 return false;
             }
 
-            this->addSensor( c );
-
-            // Create the frontend ( dObj() )
-            c->_Sensor::Input::createPort( this->getKernelName() + "::Inputs",this->inp_prefix );
-
-            if ( ! c->enableAspect(this) )
-                {
-                    c->_Sensor::Input::erasePort();
-                    Logger::log() << Logger::Error << "Trying to load Sensor " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
-                    return false;
-                }
-            else
-                {
-                    this->sensors.registerObject( c, c->ComponentBaseInterface::getName() );
-                    Logger::log() << Logger::Info << "Trying to load Sensor " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    return true;
-                }
-        }
-
-        template< class _Estimator>
-        bool loadEstimator(_Estimator* c) {
-            if ( this->isRunning() ) {
-                Logger::log() << Logger::Error << "Tried to load Estimator " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
+            if ( this->findComponent( c->getName() ) ){
+                Logger::log() << Logger::Error << "Tried to load Component " << c->getName() <<" twice in kernel !" << Logger::endl;
                 return false;
             }
-            this->addEstimator(c);
-
-            c->_Estimator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
-            c->_Estimator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
-            if ( ! c->enableAspect(this) )
+                
+            c->createPorts( this );
+            this->components.insert( std::make_pair( c->getName(), new ComponentC<ThisType, _Component>(this, c) ));
+            if ( ! c->enableFacets(this) )
                 {
-                    c->_Estimator::Model::erasePort();
-                    c->_Estimator::Input::erasePort();
-                    Logger::log() << Logger::Error << "Trying to load Estimator " << c->ComponentBaseInterface::getName();
+                    this->components.erase( c->getName() );
+                    c->erasePorts();
+                    //this->removeComponent( c );
+                    Logger::log() << Logger::Error << "Trying to load Component " << c->getName();
                     Logger::log() << Logger::Error << " : failed !" << Logger::endl;
                     return false;
                 }
             else
                 {
-                    Logger::log() << Logger::Info << "Trying to load Estimator " << c->ComponentBaseInterface::getName();
+                    Logger::log() << Logger::Info << "Trying to load Component " << c->getName();
                     Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    this->estimators.registerObject( c, c->ComponentBaseInterface::getName() );
-                    return true;
-                }
-        }
-
-        template<class _Generator >
-        bool loadGenerator(_Generator* c) {
-            if ( this->isRunning() ) {
-                Logger::log() << Logger::Error << "Tried to load Generator " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
-                return false;
-            }
-            this->addGenerator(c);
-
-            c->_Generator::Command::createPort( this->getKernelName() + "::Commands", com_prefix);
-            c->_Generator::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
-            c->_Generator::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
-            c->_Generator::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix  );
-            if ( ! c->enableAspect(this) )
-                {
-                    c->_Generator::Command::erasePort();
-                    c->_Generator::SetPoint::erasePort();
-                    c->_Generator::Model::erasePort();
-                    c->_Generator::Input::erasePort();
-                    Logger::log() << Logger::Error << "Trying to load Generator " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
-                    return false;
-                }
-            else
-                {
-                    Logger::log() << Logger::Info << "Trying to load Generator " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    this->generators.registerObject( c, c->ComponentBaseInterface::getName() );
-                    return true;
-                }
-        }
-
-        template< class _Controller >
-        bool loadController( _Controller* c) {
-            if ( this->isRunning() ) {
-                Logger::log() << Logger::Error << "Tried to load Controller " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
-                return false;
-            }
-            this->addController(c);
-
-            c->_Controller::SetPoint::createPort( this->getKernelName() + "::SetPoints",setp_prefix );
-            c->_Controller::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
-            c->_Controller::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
-            c->_Controller::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
-            if ( ! c->enableAspect(this) )
-                {
-                    c->_Controller::Output::erasePort();
-                    c->_Controller::SetPoint::erasePort();
-                    c->_Controller::Model::erasePort();
-                    c->_Controller::Input::erasePort();
-                    Logger::log() << Logger::Error << "Trying to load Controller " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
-                    return false;
-                }
-            else
-                {
-                    Logger::log() << Logger::Info << "Trying to load Controller " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    this->controllers.registerObject( c, c->ComponentBaseInterface::getName() );
-                    return true;
-                }
-        }
-
-        template< class _Effector >
-        bool loadEffector(_Effector* c) {
-            if ( this->isRunning() ) {
-                Logger::log() << Logger::Error << "Tried to load Effector " << c->ComponentBaseInterface::getName() <<" in running kernel !" << Logger::endl;
-                return false;
-            }
-            this->addEffector(c);
-
-            c->_Effector::Model::createPort( this->getKernelName() + "::Models",mod_prefix );
-            c->_Effector::Input::createPort( this->getKernelName() + "::Inputs",inp_prefix );
-            c->_Effector::Output::createPort( this->getKernelName() + "::Outputs", outp_prefix );
-            if ( ! c->enableAspect(this) )
-                {
-                    c->_Effector::Output::erasePort();
-                    c->_Effector::Model::erasePort();
-                    c->_Effector::Input::erasePort();
-                    Logger::log() << Logger::Error << "Trying to load Effector " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
-                    return false;
-                }
-            else
-                {
-                    Logger::log() << Logger::Info << "Trying to load Effector " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    this->effectors.registerObject( c, c->ComponentBaseInterface::getName() );
-                    return true;
-                }
-        }
-
-        template< class _Support >
-        bool loadSupport(_Support* c) {
-            if ( this->isRunning() )
-                return false;
-            this->addSupport(c);
-
-            if ( ! c->enableAspect(this) )
-                {
-                    Logger::log() << Logger::Error << "Trying to load Support " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Error << " : failed !" << Logger::endl;
-                    return false;
-                }
-            else
-                {
-                    Logger::log() << Logger::Info << "Trying to load Support " << c->ComponentBaseInterface::getName();
-                    Logger::log() << Logger::Info << " : success !" << Logger::endl;
-                    this->supports.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -1019,7 +561,7 @@ namespace ORO_ControlKernel
          * @{
          * @brief Reload a Component in the Control Kernel.
          *
-         * When a Component is reloaded, all its aspects are disabled,
+         * When a Component is reloaded, all its Facets are disabled,
          * the DataObject(s) it writes recreated and then again enabled.
          * This is not equivalent to unloadSensor/loadSensor but is meant
          * to allow adding/removing DataObject instances during 
@@ -1039,104 +581,20 @@ namespace ORO_ControlKernel
          *
          * @param c The Component
          */
-        template< class _Sensor>
-        bool reloadSensor(_Sensor* c) {
-            if ( this->isRunning() || !this->sensors.isObjectRegistered( c ) )
+        template< class _Component>
+        bool reloadComponent(_Component* c) {
+            if ( this->isRunning() || !this->isLoaded( c ) )
                 return false;
 
-            c->disableAspect();
-            //c->_Sensor::Input::reloadDataObject( InputPortType() );
-            if ( ! c->enableAspect(this) )
+            c->disableFacets(this);
+            if ( ! c->enableFacets(this) )
                 {
-                    this->sensors.unregisterObject( c );
-                    c->_Sensor::Input::erasePort();
+                    this->components.erase( c->getName() );
+                    c->erasePorts();
                     return false;
                 }
             return true;
         }
-
-        template< class _Estimator>
-        bool reloadEstimator(_Estimator* c) {
-            if ( this->isRunning() || !this->estimators.isObjectRegistered( c ) )
-                return false;
-
-            c->disableAspect();
-            //c->_Estimator::Model::reloadDataObject( ModelPortType() );
-            if ( ! c->enableAspect(this) )
-                {
-                    this->estimators.unregisterObject( c );
-                    c->_Estimator::Input::erasePort();
-                    c->_Estimator::Model::erasePort();
-                    return false;
-                }
-            return true;
-        }
-
-        template< class _Generator>
-        bool reloadGenerator(_Generator* c) {
-            if ( this->isRunning() || !this->generators.isObjectRegistered( c ) )
-                return false;
-
-            c->disableAspect();
-            //c->_Generator::SetPoint::reloadDataObject( SetPointPortType() );
-            if ( ! c->enableAspect(this) )
-                {
-                    this->generators.unregisterObject( c );
-                    c->_Generator::Input::erasePort();
-                    c->_Generator::Model::erasePort();
-                    c->_Generator::Command::erasePort();
-                    c->_Generator::SetPoint::erasePort();
-                    return false;
-                }
-            return true;
-        }
-
-        template< class _Controller>
-        bool reloadController(_Controller* c) {
-            if ( this->isRunning() || !this->controllers.isObjectRegistered( c ) )
-                return false;
-
-            c->disableAspect();
-            //c->_Controller::Output::reloadDataObject( OutputPortType() );
-            if ( ! c->enableAspect(this) )
-                {
-                    this->controllers.unregisterObject( c );
-                    c->_Controller::Input::erasePort();
-                    c->_Controller::Model::erasePort();
-                    c->_Controller::Output::erasePort();
-                    return false;
-                }
-            return true;
-        }
-
-        template< class _Effector>
-        bool reloadEffector(_Effector* c) {
-            if ( this->isRunning() || !this->effectors.isObjectRegistered( c ) )
-                return false;
-
-            c->disableAspect();
-            if ( ! c->enableAspect(this) )
-                {
-                    this->effectors.unregisterObject( c );
-                    return false;
-                }
-            return true;
-        }
-
-        template< class _Support>
-        bool reloadSupport(_Support* c) {
-            if ( this->isRunning() || !this->supports.isObjectRegistered( c ) )
-                return false;
-
-            c->disableAspect();
-            if ( ! c->enableAspect(this) )
-                {
-                    this->supports.unregisterObject( c );
-                    return false;
-                }
-            return true;
-        }
-
         /** @} */
 
         /**
@@ -1148,90 +606,17 @@ namespace ORO_ControlKernel
          * all Extensions and disconnected from the DataObjects.
          * @param c The Component
          */
-        template< class _Sensor>
-        bool unloadSensor(_Sensor* c) {
+        template< class _Component>
+        bool unloadComponent(_Component* c) {
             if ( this->isRunning() )
                 return false;
-            if ( this->sensors.isObjectRegistered( c ) )
+            
+            KernelBaseFunction::ComponentMap::iterator it = this->Extension::components.find( c->getName() );
+            if (it != this->Extension::components.end() )
                 {
-                    this->sensors.unregisterObject( c );
-                    c->disableAspect();
-                    c->_Sensor::Input::erasePort();
-                    return true;
-                }
-            return false;
-        }
-
-        template< class _Estimator>
-        bool unloadEstimator(_Estimator* c) {
-            if ( this->isRunning() )
-                return false;
-            if ( this->estimators.isObjectRegistered(c) )
-                {
-                    this->estimators.unregisterObject( c );
-                    c->_Estimator::Model::erasePort();
-                    c->_Estimator::Input::erasePort();
-                    return true;
-                }
-            return false;
-        }
-
-        template< class _Generator >
-        bool unloadGenerator(_Generator* c) {
-            if ( this->isRunning() )
-                return false;
-            if (  this->generators.isObjectRegistered( c ) )
-                {
-                    this->generators.unregisterObject( c );
-                    c->disableAspect();
-                    c->_Generator::Command::erasePort();
-                    c->_Generator::SetPoint::erasePort();
-                    c->_Generator::Model::erasePort();
-                    c->_Generator::Input::erasePort();
-                    return true;
-                }
-            return false;
-        }
-
-        template< class _Controller >
-        bool unloadController(_Controller* c) {
-            if ( this->isRunning() )
-                return false;
-            if ( this->controllers.isObjectRegistered( c ) )
-                {
-                    this->controllers.unregisterObject( c );
-                    c->disableAspect();
-                    c->_Controller::Output::erasePort();
-                    c->_Controller::SetPoint::erasePort();
-                    c->_Controller::Model::erasePort();
-                    c->_Controller::Input::erasePort();
-                    return true;
-                }
-            return false;
-        }
-
-        template< class _Effector >
-        bool unloadEffector(_Effector* c) {
-            if ( this->isRunning() )
-                return false;
-            if ( this->effectors.isObjectRegistered( c ) )
-                {
-                    this->effectors.unregisterObject( c ); 
-                    c->disableAspect();
-                    c->_Effector::Output::erasePort();
-                    return true;
-                }
-            return false;
-        }
-
-        template<class _Support>
-        bool unloadSupport(_Support* c) {
-            if ( this->isRunning() )
-                return false;
-            if ( this->supports.isObjectRegistered( c ) )
-                {
-                    this->supports.unregisterObject( c );
-                    c->disableAspect();
+                    this->Extension::components.erase( it );
+                    c->disableFacets(this);
+                    c->erasePorts();
                     return true;
                 }
             return false;
@@ -1239,9 +624,14 @@ namespace ORO_ControlKernel
         /**
          * @}
          */
+        const std::string& getInputPrefix() const { return inp_prefix; }
+        const std::string& getOutputPrefix() const { return outp_prefix; }
+        const std::string& getModelPrefix() const { return mod_prefix; }
+        const std::string& getSetPointPrefix() const { return setp_prefix; }
+        const std::string& getCommandPrefix() const { return com_prefix; }
     protected:
         virtual void preLoad(ComponentBaseInterface* comp) {
-            componentStates[comp].second->create();
+            this->components[ comp->getName() ]->create();
         }
 
         //virtual void postLoad(ComponentBaseInterface* comp) {}
@@ -1251,7 +641,7 @@ namespace ORO_ControlKernel
         virtual void postUnload(ComponentBaseInterface* comp) {
             // erase semantics are wrong and delete to much
             // if multiple comps write the same DO
-            //componentStates[comp].second->erase();
+            //components[ comp->getName() ]->erase();
         }
 
         /**
@@ -1275,12 +665,6 @@ namespace ORO_ControlKernel
         ComponentBaseInterface   *effector;
         ComponentBaseInterface     *sensor;
         /* @} */
-
-        /**
-         * Every loaded component is placed
-         * in this map.
-         */
-        ComponentStateMap componentStates;
 
         std::string inp_prefix;
         std::string mod_prefix;

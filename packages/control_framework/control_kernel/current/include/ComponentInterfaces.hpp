@@ -40,55 +40,55 @@ namespace ORO_ControlKernel
     {
 
         /**
-         * @brief An Aspect is a base class of a component, implementing a
+         * @brief An Facet is a base class of a component, implementing a
          * functionality like reporting, configuration,...
          *
-         * A template class for Aspects, which can be used, optionally, by Extensions of the
-         * ControlKernel. This interface instructs the Aspect to register itself with a certain
-         * Extension. You must use this as a base class for every Aspect you want to provide
+         * A template class for Facets, which can be used, optionally, by Extensions of the
+         * ControlKernel. This interface instructs the Facet to register itself with a certain
+         * Extension. You must use this as a base class for every Facet you want to provide
          * to a component.
          *
          * The base class of most Extensions is the ExtensionInterface.
          */
         template< class _Extension >
-        class ComponentAspectInterface
+        class ComponentFacetInterface
         {
         public:
 
             /**
-             * The Extension (of the kernel) that this Aspect provides support for.
+             * The Extension (of the kernel) that this Facet provides support for.
              */
             typedef _Extension Extension;
         
             /**
-             * @brief Initialize the ComponentAspect with the name of the Aspect.
+             * @brief Initialize the ComponentFacet with the name of the Facet.
              * Once set, a name can no longer be changed.
              */
-            ComponentAspectInterface(const std::string& comp_name )
-                : aspectName("Name", "The Name of this Aspect", comp_name) {}
+            ComponentFacetInterface(const std::string& comp_name )
+                : FacetName("Name", "The Name of this Facet", comp_name) {}
 
-            virtual ~ComponentAspectInterface() {}
+            virtual ~ComponentFacetInterface() {}
         
             /**
-             * @brief Instructs the component to enable an aspect so that this aspect can
+             * @brief Instructs the component to enable an Facet so that this Facet can
              * deliver a service to the Extension <ext> of the ControlKernel.
              *
              * This will be called when the component is loaded into the kernel.
              */
-            virtual bool enableAspect( Extension* ext ) = 0;
+            virtual bool enableFacet( Extension* ext ) = 0;
 
             /**
-             * @brief Disable this aspect and no longer use the Extension of the kernel.
+             * @brief Disable this Facet and no longer use the Extension of the kernel.
              */
-            virtual void disableAspect() = 0;
+            virtual void disableFacet() = 0;
 
             /**
-             * @brief Return the name of this Aspect.
+             * @brief Return the name of this Facet.
              */
-            virtual const std::string& getName() { return aspectName.get(); }
+            virtual const std::string& getFacetName() { return FacetName.get(); }
 
         protected:
-            const Property<std::string> aspectName;
+            const Property<std::string> FacetName;
         };
     }
 
@@ -97,25 +97,25 @@ namespace ORO_ControlKernel
     /**
      * @brief The Base class of each ControlKernel Component
      *
-     * The most fundamental aspect of a Component is that it belongs
+     * The most fundamental Facet of a Component is that it belongs
      * to a ControlKernel and can be notified of the kernel's status.
-     * This aspect introduces the ability to detect if the component
+     * This Facet introduces the ability to detect if the component
      * is placed in a ControlKernel and to return a pointer to this kernel.
-     * It is the aspect of the KernelBaseFunction.
+     * It is the Facet of the KernelBaseFunction.
      * 
      */
     class ComponentBaseInterface 
         :public DataFlowInterface,
-         public detail::ComponentAspectInterface< KernelBaseFunction >
+         public detail::ComponentFacetInterface< KernelBaseFunction >
     {
         friend class KernelBaseFunction;
-        using detail::ComponentAspectInterface< KernelBaseFunction >::enableAspect;
+        using detail::ComponentFacetInterface< KernelBaseFunction >::enableFacet;
     public:
         /**
          * Constructor.
          */
         ComponentBaseInterface(const std::string& name)
-            : detail::ComponentAspectInterface< KernelBaseFunction >( name ),
+            : detail::ComponentFacetInterface< KernelBaseFunction >( name ),
               selected(false), kern(0) {}
 
         virtual ~ComponentBaseInterface() {}
@@ -135,7 +135,14 @@ namespace ORO_ControlKernel
          */
         KernelBaseFunction* kernel() { return kern; }
 
-        virtual bool enableAspect(KernelBaseFunction* e);
+        virtual bool enableFacet(KernelBaseFunction* e);
+
+        /**
+         * Get the Name of this Component.
+         */
+        const std::string& getName() {
+            return detail::ComponentFacetInterface< KernelBaseFunction >::getFacetName();
+        }
 
         /**
          * @brief This method is a hook which is called when the component
@@ -178,7 +185,7 @@ namespace ORO_ControlKernel
          */
         virtual void initDataObject() {}
 
-        virtual void disableAspect();
+        virtual void disableFacet();
 
         /**
          * @brief Query if this component is selected in the kernel.
@@ -199,10 +206,10 @@ namespace ORO_ControlKernel
     /**
      * @brief The DefaultBase is defined for
      * ControlKernels that do not know of 
-     * Component Aspects. It will be used as default
+     * Component Facets. It will be used as default
      * template parameter for the components.
      *
-     * A Component Aspect is the base class that a Component
+     * A Component Facet is the base class that a Component
      * must have to be able to be queried by the respective Kernel Extension.
      * As a consequence, Extensions themselves define the component base class they 
      * require. That class is passed through by the kernel to the Component.

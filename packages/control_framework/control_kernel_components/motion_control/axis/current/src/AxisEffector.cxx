@@ -51,7 +51,7 @@ namespace ORO_ControlKernel {
         std::count_if( drive.begin(), drive.end(), bind( &AxisEffector::lacksDrive, this, _1 ) );
         if (
             //std::count_if( drive.begin(), drive.end(), bind( &AxisEffector::lacksDrive, this, _1 ) ) != 0 ||
-            ( usingChannels && ! Base::Output::dObj()->Get("ChannelValues", chan_DObj) ) )
+            ( usingChannels && ! Output->dObj()->Get("ChannelValues", chan_DObj) ) )
             return false;
         return true;
     }
@@ -213,7 +213,7 @@ namespace ORO_ControlKernel {
     bool AxisEffector::lacksDrive( pair<std::string,pair<Axis*, DataObjectInterface<double>* > > dd )
     {
         // fill in the dataobject, if it fails, abort startup...
-        if ( !Base::Output::dObj()->Get(dd.first, dd.second.second) )
+        if ( !Output->dObj()->Get(dd.first, dd.second.second) )
             return true; // signals it went wrong
         return false;
     }

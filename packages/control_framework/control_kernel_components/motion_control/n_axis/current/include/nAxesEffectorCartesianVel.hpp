@@ -50,7 +50,7 @@ namespace ORO_ControlKernel
   typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<NoInput>,
 				       ORO_ControlKernel::Expects<NoModel>,
 				       ORO_ControlKernel::Expects<nAxesEffectorCartesianVelOutput_vel>,
-				       ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
+				       ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
 
   class nAxesEffectorCartesianVel
     : public nAxesEffectorCartesianVel_typedef

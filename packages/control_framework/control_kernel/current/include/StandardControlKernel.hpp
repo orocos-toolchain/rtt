@@ -45,7 +45,7 @@ namespace ORO_ControlKernel
      */
     template <class _Extension = KernelBaseFunction >
     class StandardControlKernel
-        : public detail::BaseKernel< detail::DataObjectLockedC,
+        : public detail::BaseKernel< detail::DataObjectLockFreeC,
                                         detail::DataObjectC,
                                         detail::DataObjectC,
                                         detail::DataObjectC,
@@ -61,7 +61,7 @@ namespace ORO_ControlKernel
          * 
          */
         StandardControlKernel(const std::string& name)
-            : detail::BaseKernel< detail::DataObjectLockedC,
+            : detail::BaseKernel< detail::DataObjectLockFreeC,
                                      detail::DataObjectC,
                                      detail::DataObjectC,
                                      detail::DataObjectC,
@@ -79,7 +79,7 @@ namespace ORO_ControlKernel
          * to the name of another kernel, to be able to access its data objects.
          */
         StandardControlKernel(const std::string& name, const std::string& prefix)
-            : detail::BaseKernel< detail::DataObjectLockedC,
+            : detail::BaseKernel< detail::DataObjectLockFreeC,
                                   detail::DataObjectC,
                                   detail::DataObjectC,
                                   detail::DataObjectC,
@@ -88,6 +88,14 @@ namespace ORO_ControlKernel
                                                 prefix + "::SetPoints", prefix + "::Outputs")
         {
         }
+
+        /**
+         * Define loadComponent with your kernel and component type
+         * in a separate implementation file, allowing to compile
+         * smaller units of software.
+         */
+        template< class ComponentT >
+        bool preloadComponent( ComponentT* c);
 
     protected:
 
@@ -109,11 +117,6 @@ namespace ORO_ControlKernel
             std::for_each(this->generators.getValueBegin(), this->generators.getValueEnd(), Updater<ComponentBaseInterface>() );
             std::for_each(this->controllers.getValueBegin(), this->controllers.getValueEnd(), Updater<ComponentBaseInterface>() );
             std::for_each(this->effectors.getValueBegin(), this->effectors.getValueEnd(), Updater<ComponentBaseInterface>() );
-            //this->sensor->update();
-//             this->estimator->update();
-//             this->generator->update();
-//             this->controller->update();
-//             this->effector->update();
         }
     };
 

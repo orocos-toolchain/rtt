@@ -120,14 +120,14 @@ namespace ORO_ControlKernel
      */
     class GenericSensor
         : public Sensor< Writes<GenericInput>,
-                                   MakeAspect<KernelBaseFunction
+                                   MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                               , ExecutionExtension
 #endif
                                               >::Result>
     {
         typedef Sensor< Writes<GenericInput>,
-                        MakeAspect<KernelBaseFunction
+                        MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                    , ExecutionExtension
 #endif
@@ -151,16 +151,16 @@ namespace ORO_ControlKernel
 
         bool componentLoaded()
         {
-            if ( !Base::Input::dObj()->Get("ChannelValues",chan_DObj) )
+            if ( !Input->dObj()->Get("ChannelValues",chan_DObj) )
                 return false;
             // kind-of resize of the vector in the dataobject:
             chan_DObj->Set(chan_meas); 
 
             // Get the inserted Analog Inputs
             for (AInMap::iterator itl = a_in.begin(); itl != a_in.end(); ++itl) {
-                if ( !Base::Input::dObj()->Get(itl->first+"_raw", get<1>(itl->second) ) )
+                if ( !Input->dObj()->Get(itl->first+"_raw", get<1>(itl->second) ) )
                     std::cout << "Raw Analog Input not found in load !"<<std::endl;
-                if ( !Base::Input::dObj()->Get(itl->first,get<2>( itl->second) ) )
+                if ( !Input->dObj()->Get(itl->first,get<2>( itl->second) ) )
                     std::cout << "Analog Input not found in load !"<<std::endl;
             }
 
@@ -205,8 +205,8 @@ namespace ORO_ControlKernel
                 return false;
 
             // Before Reload, Add All DataObjects :
-            this->Base::Input::dObj()->addDouble( DO_name );
-            this->Base::Input::dObj()->addUint( DO_name+"_raw" );
+            this->Input->dObj()->addDouble( DO_name );
+            this->Input->dObj()->addUint( DO_name+"_raw" );
 
             a_in[DO_name] =
                 tuple<AnalogInput<unsigned int>*,

@@ -74,11 +74,11 @@ namespace ORO_ControlKernel
     class CartesianEstimator
         : public Estimator<Expects<CartesianNSSensorInput>,
                            Writes<CartesianNSModel>,
-                           MakeAspect<PropertyExtension, KernelBaseFunction>::Result >
+                           MakeFacet<PropertyExtension, KernelBaseFunction>::Result >
     {
         typedef Estimator<Expects<CartesianNSSensorInput>,
             Writes<CartesianNSModel>,
-            MakeAspect<PropertyExtension, KernelBaseFunction>::Result > Base;
+            MakeFacet<PropertyExtension, KernelBaseFunction>::Result > Base;
     public:
             
         CartesianEstimator() 
@@ -99,8 +99,8 @@ namespace ORO_ControlKernel
         virtual bool componentStartup()
         {
             // Get the JointPositions DataObject and the 
-            if ( !Base::Input::dObj()->Get( "JointPositions", jpos_DObj ) ||
-                 !Base::Model::dObj()->Get( "EndEffPosition", endframe_DObj ) )
+            if ( !Input->dObj()->Get( "JointPositions", jpos_DObj ) ||
+                 !Model->dObj()->Get( "EndEffPosition", endframe_DObj ) )
                 return false;
             pull();
             if ( !kineComp->positionForward( q6, mp_base_frame) )
@@ -124,7 +124,7 @@ namespace ORO_ControlKernel
         {
             if ( !kineComp->positionForward( q6, mp_base_frame) )
                 {
-                    Event<void(void)>* es = Event<void(void)>::nameserver.getObjectByName("SingularityDetected");
+                    Event<void(void)>* es = Event<void(void)>::nameserver.getObject("SingularityDetected");
                     if ( es != 0 )
                         es->fire();
                 }

@@ -402,13 +402,13 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     }
 
     ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )
-        : detail::ComponentAspectInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
+        : detail::ComponentFacetInterface<ExecutionExtension>( _name + std::string( "::Execution" ) ),
           name( _name ), master( 0 ),
           _commandfactory( 0 ), _methodfactory(0), _datasourcefactory( 0 )
     {
     }
 
-    bool ExecutionComponentInterface::enableAspect( ExecutionExtension* ext )
+    bool ExecutionComponentInterface::enableFacet( ExecutionExtension* ext )
     {
         master = ext;
         _commandfactory = this->createCommandFactory();
@@ -423,7 +423,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         return true;
     }
 
-    void ExecutionComponentInterface::disableAspect()
+    void ExecutionComponentInterface::disableFacet()
     {
         if (master == 0 )
             return;

@@ -39,7 +39,7 @@ namespace ORO_ControlKernel
     using namespace ORO_CoreLib;
 
     PropertyComponentInterface::PropertyComponentInterface( const std::string& _name )
-        : detail::ComponentAspectInterface<PropertyExtension>(_name + std::string("::Property") ),
+        : detail::ComponentFacetInterface<PropertyExtension>(_name + std::string("::Property") ),
           master(0), localStore(_name,"Component Properties")
     {
     }
@@ -48,7 +48,7 @@ namespace ORO_ControlKernel
     {
     }
 
-    bool PropertyComponentInterface::enableAspect( PropertyExtension* ext)
+    bool PropertyComponentInterface::enableFacet( PropertyExtension* ext)
     {
         if (master == 0)
             {
@@ -58,7 +58,7 @@ namespace ORO_ControlKernel
         return false;
     }
 
-    void PropertyComponentInterface::disableAspect()
+    void PropertyComponentInterface::disableFacet()
     {
         if (master !=0)
             {
@@ -301,7 +301,7 @@ namespace ORO_ControlKernel
         if ( !cc.configure( filename, target) )
             {
                 Logger::log() << Logger::Error << "PropertyExtension : ";
-                Logger::log() << "Component "<<target->getName() 
+                Logger::log() << "Component "<<target->getFacetName() 
                               << " does not accept properties from file '"+filename+"'." << Logger::nl
                               << "Fix your Component property config file first."<< Logger::endl;
                 return false;

@@ -50,7 +50,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorPosInput_pos>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorPos_typedef;
+				     ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorPos_typedef;
 
   class nAxesSensorPos
     : public nAxesSensorPos_typedef

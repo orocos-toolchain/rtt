@@ -53,7 +53,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorCartesianPosForceInput_pos_force>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
+				     ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								   ORO_ControlKernel::KernelBaseFunction,
 								   ORO_ControlKernel::ExecutionExtension>::Result > nAxesSensorCartesianPosForce_typedef;
   

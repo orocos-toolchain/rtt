@@ -108,7 +108,7 @@ namespace ORO_ControlKernel
                             Expects<SignalTrackerModel>,
                             Expects<SignalTrackerCommand>,
                             Writes<SignalTrackerSetPoint>,
-                            MakeAspect<PropertyExtension, KernelBaseFunction
+                            MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                        , ExecutionExtension
 #endif
@@ -118,7 +118,7 @@ namespace ORO_ControlKernel
                            Expects<SignalTrackerModel>,
                            Expects<SignalTrackerCommand>,
                            Writes<SignalTrackerSetPoint>,
-                           MakeAspect<PropertyExtension, KernelBaseFunction
+                           MakeFacet< KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       , ExecutionExtension
 #endif
@@ -137,7 +137,7 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
         {
-            if ( ! Base::SetPoint::dObj()->Get("ChannelValues", setp_DObj) || int(setp_DObj->Get().size()) != max_chans )
+            if ( ! SetPoint->dObj()->Get("ChannelValues", setp_DObj) || int(setp_DObj->Get().size()) != max_chans )
                 return false;
 
             return true;
@@ -180,17 +180,17 @@ namespace ORO_ControlKernel
          */
         bool trackCommand( int sp_chan, int com_chan )
         {
-            return track( Base::Command::dObj(), "ChannelValues", sp_chan, com_chan );
+            return track( Command->dObj(), "ChannelValues", sp_chan, com_chan );
         }
 
         bool trackInput( int sp_chan, int inp_chan)
         {
-            return track( Base::Input::dObj(), "ChannelValues", sp_chan, inp_chan );
+            return track( Input->dObj(), "ChannelValues", sp_chan, inp_chan );
         }
 
         bool trackModel( int sp_chan, int mod_chan)
         {
-            return track( Base::Model::dObj(), "ChannelValues", sp_chan, mod_chan );
+            return track( Model->dObj(), "ChannelValues", sp_chan, mod_chan );
         }
 
         bool isTracking(const std::string& do_name ) const

@@ -66,13 +66,13 @@ namespace ORO_ControlKernel
      * @deprecated by HMIReadline
      */
     class HMIConsoleInput
-        : public SupportComponent< MakeAspect<KernelBaseFunction
+        : public SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                               , ExecutionExtension
 #endif
                                               >::Result >
     {
-        typedef SupportComponent< MakeAspect<KernelBaseFunction
+        typedef SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                              , ExecutionExtension
 #endif
@@ -331,6 +331,17 @@ namespace ORO_ControlKernel
                 newDataSourceFactory( this );
             ret->add( "startPushed", 
                       data( &HMIConsoleInput::startPushed, "Is the start button pushed ? " ) );
+            return ret;
+        }
+
+        MethodFactoryInterface* createMethodFactory()
+        {
+            TemplateMethodFactory< HMIConsoleInput >* ret =
+                newMethodFactory( this );
+            ret->add( "startButton", 
+                      method( &HMIConsoleInput::startButton, "Push the start button." ) );
+            ret->add( "stopButton", 
+                      method( &HMIConsoleInput::stopButton, "Push the stop button." ) );
             return ret;
         }
 #endif

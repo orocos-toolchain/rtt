@@ -131,7 +131,7 @@ namespace ORO_ControlKernel
                                       Expects<CPTModel>,
                                       Expects<CPTCommand>,
                                       Writes<CPTSetPoint>,
-                                      MakeAspect<PropertyExtension,KernelBaseFunction
+                                      MakeFacet<PropertyExtension,KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                     , ExecutionExtension
 #endif
@@ -141,7 +141,7 @@ namespace ORO_ControlKernel
                            Expects<CPTModel>,
                            Expects<CPTCommand>,
                            Writes<CPTSetPoint>,
-                           MakeAspect<PropertyExtension,KernelBaseFunction
+                           MakeFacet<PropertyExtension,KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       , ExecutionExtension
 #endif
@@ -171,8 +171,8 @@ namespace ORO_ControlKernel
         {
             // startup the component, acquire all the data objects,
             // put sane defaults in the setpoint dataobject.
-            if ( !Base::Model::dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
-                 !Base::SetPoint::dObj()->Get("EndEffectorFrame", end_f_DObj) )
+            if ( !Model->dObj()->Get("EndEffPosition", mp_base_f_DObj) ||
+                 !SetPoint->dObj()->Get("EndEffectorFrame", end_f_DObj) )
                 return false;
 
             // stay as is.
@@ -310,7 +310,7 @@ namespace ORO_ControlKernel
          */
         bool trackTaskFrameCommand( const std::string& do_name )
         {
-            return trackTaskFrame( Base::Command::dObj(), do_name );
+            return trackTaskFrame( Command->dObj(), do_name );
         }
 
         /** 
@@ -322,7 +322,7 @@ namespace ORO_ControlKernel
          */
         bool trackTaskFrameInput( const std::string& do_name )
         {
-            return trackTaskFrame( Base::Input::dObj(), do_name );
+            return trackTaskFrame( Input->dObj(), do_name );
         }
 
         /** 
@@ -334,7 +334,7 @@ namespace ORO_ControlKernel
          */
         bool trackTaskFrameModel( const std::string& do_name )
         {
-            return trackTaskFrame( Base::Model::dObj(), do_name );
+            return trackTaskFrame( Model->dObj(), do_name );
         }
 
         /** 
@@ -347,7 +347,7 @@ namespace ORO_ControlKernel
          */
         bool trackPositionCommand(const std::string& do_name, const std::string& do_time)
         {
-            return trackPosition( Base::Command::dObj(), do_name, do_time );
+            return trackPosition( Command->dObj(), do_name, do_time );
         }
 
         /** 
@@ -360,7 +360,7 @@ namespace ORO_ControlKernel
          */
         bool trackPositionModel(const std::string& do_name, const std::string& do_time)
         {
-            return trackPosition( Base::Model::dObj(), do_name, do_time );
+            return trackPosition( Model->dObj(), do_name, do_time );
         }
 
         /** 
@@ -373,7 +373,7 @@ namespace ORO_ControlKernel
          */
         bool trackPositionInput(const std::string& do_name, const std::string& do_time)
         {
-            return trackPosition( Base::Input::dObj(), do_name, do_time );
+            return trackPosition( Input->dObj(), do_name, do_time );
         }
 
         /** 

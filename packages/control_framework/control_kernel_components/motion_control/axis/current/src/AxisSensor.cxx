@@ -44,7 +44,7 @@ namespace ORO_ControlKernel {
 
     bool AxisSensor::componentLoaded()
     {
-        if ( !Base::Input::dObj()->Get("ChannelValues",chan_DObj) )
+        if ( !Input->dObj()->Get("ChannelValues",chan_DObj) )
             return false;
         // kind-of resize of the vector in the dataobject:
         chan_DObj->Set(chan_meas); 
@@ -55,7 +55,7 @@ namespace ORO_ControlKernel {
                 if ( axis_to_remove == ax->first )
                     continue; // detect removal of axis...
                 DataObjectInterface<double>* d;
-                if ( this->Base::Input::dObj()->Get( ax->first+".Velocity", d) == false )
+                if ( this->Input->dObj()->Get( ax->first+".Velocity", d) == false )
                     std::cout << "AxisSensor::componentLoaded : Velocity of "+ax->first+" not found !"<<std::endl;
 
                 drive[ ax->first ] = std::make_pair( ax->second->getDrive(), d );
@@ -64,7 +64,7 @@ namespace ORO_ControlKernel {
                 for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
                     {
                         std::string sname( ax->first+"."+*it );
-                        if ( this->Base::Input::dObj()->Get( sname, d ) == false )
+                        if ( this->Input->dObj()->Get( sname, d ) == false )
                             std::cout << "AxisSensor::componentLoaded : "+*it+" of "+ax->first+" not found !"<<std::endl;
                         sensor[ sname ] = std::make_pair( ax->second->getSensor( *it ),d);
                     }
@@ -128,15 +128,15 @@ namespace ORO_ControlKernel {
         //    d_in[ name + ".Home" ] = ax->homeswitchGet();
 
         // Before Reload, Add All DataObjects :
-        assert( this->Base::Input::dObj() );
-        this->Base::Input::dObj()->addDouble(name+".Velocity");
+        assert( this->Input->dObj() );
+        this->Input->dObj()->addDouble(name+".Velocity");
 
         // Repeat for each additional sensor...
         std::vector<std::string> res( ax->sensorList() );
         for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
             {
                 std::string sname( name+"."+*it );
-                this->Base::Input::dObj()->addDouble( sname );
+                this->Input->dObj()->addDouble( sname );
             }
 
         if ( this->inKernel() )
@@ -196,14 +196,14 @@ namespace ORO_ControlKernel {
         d_in.erase( name + ".Home" );
 
         // remove drive 
-        this->Base::Input::dObj()->removeDouble(name+".Velocity");
+        this->Input->dObj()->removeDouble(name+".Velocity");
 
         // Repeat for each additional sensor...
         std::vector<std::string> res( axes[name]->sensorList() );
         for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
             {
                 std::string sname( name+"."+*it );
-                this->Base::Input::dObj()->removeDouble( sname );
+                this->Input->dObj()->removeDouble( sname );
             }
 
         // a bit of a hack, see componentLoaded :

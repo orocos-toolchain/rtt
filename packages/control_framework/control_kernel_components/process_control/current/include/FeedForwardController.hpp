@@ -75,7 +75,7 @@ namespace ORO_ControlKernel
 
         virtual bool componentLoaded()
         {
-            if (!Base::Output::dObj()->Get("ChannelValues", outp_DObj))
+            if (!Output->dObj()->Get("ChannelValues", outp_DObj))
                 return false;
             outp_DObj->Set( set_point ); // this is a sort-of vector resize for the output
             return true;
@@ -83,7 +83,7 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
         {
-            if (!Base::SetPoint::dObj()->Get("ChannelValues", setp_DObj))
+            if (!SetPoint->dObj()->Get("ChannelValues", setp_DObj))
                 return false;
             return true;
         }            

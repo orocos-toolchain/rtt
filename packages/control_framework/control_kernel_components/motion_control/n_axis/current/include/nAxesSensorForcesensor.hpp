@@ -54,7 +54,7 @@ namespace ORO_ControlKernel
   // -- COMPONENT --
   // ---------------
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorForcesensorInput_pos_force>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::ExecutionExtension,
+				     ORO_ControlKernel::MakeFacet<ORO_ControlKernel::ExecutionExtension,
 								   ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorForcesensor_typedef;
   
 

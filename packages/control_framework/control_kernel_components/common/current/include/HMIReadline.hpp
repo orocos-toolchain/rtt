@@ -33,8 +33,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include <execution/TemplateCommandFactory.hpp>
-#include <execution/TemplateDataSourceFactory.hpp>
+#include <execution/TemplateFactories.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
 #include <execution/Parser.hpp>
 #include <execution/parse_exception.hpp>
@@ -71,13 +70,13 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_support
      */
     class HMIReadline
-        : public  SupportComponent< MakeAspect<KernelBaseFunction
+        : public  SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                , ExecutionExtension
 #endif
                                                >::CommonBase >
     {
-        typedef SupportComponent< MakeAspect<KernelBaseFunction
+        typedef SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                              , ExecutionExtension
 #endif
@@ -392,7 +391,7 @@ namespace ORO_ControlKernel
             cout << "    TAB completion and HISTORY is available for Component commands" <<coloroff<<endl<<endl;
 #else
             cout << endl<<
-"  The HMIConsoleInput Component was compiled without the ExecutionExtension \n\
+"  The HMIReadline Component was compiled without the ExecutionExtension \n\
    or without the Program Parser. You can only 'quit' the application."<<endl<<endl;
 #endif
             while (1)
@@ -648,6 +647,17 @@ namespace ORO_ControlKernel
                 newDataSourceFactory( this );
             ret->add( "startPushed", 
                       data( &HMIReadline::startPushed, "Is the start button pushed ? " ) );
+            return ret;
+        }
+
+        MethodFactoryInterface* createMethodFactory()
+        {
+            TemplateMethodFactory< HMIReadline >* ret =
+                newMethodFactory( this );
+            ret->add( "startButton", 
+                      ORO_Execution::method( &HMIReadline::startButton, "Push the start button." ) );
+            ret->add( "stopButton", 
+                      ORO_Execution::method( &HMIReadline::stopButton, "Push the stop button." ) );
             return ret;
         }
 #endif

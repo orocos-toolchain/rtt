@@ -135,8 +135,8 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorPos::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !SetPoint::dObj()->Get("Position", _position_DOI) ||
-	 !SetPoint::dObj()->Get("Velocity", _velocity_DOI) ){
+    if ( !SetPoint->dObj()->Get("Position", _position_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity", _velocity_DOI) ){
       cerr << "nAxesGeneratorPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
@@ -165,7 +165,7 @@ namespace ORO_ControlKernel
     _is_moving = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !Input::dObj()->Get("Position", _position_meas_DOI) ){
+    if ( !Input->dObj()->Get("Position", _position_meas_DOI) ){
       cerr << "nAxesGeneratorPos::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

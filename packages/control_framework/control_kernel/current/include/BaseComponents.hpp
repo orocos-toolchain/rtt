@@ -49,19 +49,46 @@ namespace ORO_ControlKernel
      * but it gets the same functionality as any other control component.
      * @ingroup kcomps kcomp_support
      */
-    template < class _Aspect = DefaultBase >
+    template < class _Facet = DefaultBase >
     class SupportComponent
-        :  public _Aspect
+        :  public _Facet
     {
     public:
-        typedef _Aspect Aspect;
+        typedef _Facet Facet;
 
         /**
          * A Support Component.
          */
         SupportComponent(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name )
         {}
+
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->supports.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->supports.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->supports.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createPorts(KernelT*  ) {
+        }
+
+        void erasePorts() {
+        }
+
+        template< class KernelT >
+        bool select(KernelT* ) {
+            return true;
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* ) {
+        }
 
     };
 
@@ -74,42 +101,74 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_controller
      */
-    template <class _InputType, class _ModelType, class _SetPointType, class _OutputType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _SetPointType, class _OutputType, class _Facet = DefaultBase >
     class Controller
-        : public _SetPointType::ReadPort,
-          public _ModelType::ReadPort,
-          public _InputType::ReadPort,
-          public _OutputType::WritePort,
-          public _Aspect
+        : public _Facet
     {
     public:
         typedef typename _SetPointType::DataType SetPointType;
         typedef typename _InputType::DataType InputType;
         typedef typename _ModelType::DataType ModelType;
         typedef typename _OutputType::DataType OutputType;
-        typedef _Aspect Aspect;
+        typedef _Facet Facet;
 
-        typedef typename _OutputType::WritePort Output;
-        typedef typename _SetPointType::ReadPort SetPoint;
-        typedef typename _InputType::ReadPort Input;
-        typedef typename _ModelType::ReadPort Model;
+        typedef typename _SetPointType::ReadPort SetPointPort;
+        typedef typename _InputType::ReadPort InputPort;
+        typedef typename _ModelType::ReadPort ModelPort;
+        typedef typename _OutputType::WritePort OutputPort;
 
         Controller(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name ),
+              SetPoint( new SetPointPort() ),
+              Input( new InputPort() ),
+              Model( new ModelPort() ),
+              Output( new OutputPort() )
         {}
-            
-        /**
-         * Method Overloading is not done across scopes.
-         * These lines introduce the methods anyway in this class.
-         */
-        using Input::readFrom;
-        using Model::readFrom;
-        using SetPoint::readFrom;
-        using Input::disconnect;
-        using Model::disconnect;
-        using SetPoint::disconnect;
-        using Output::disconnect;
-            
+        
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->controllers.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->controllers.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->controllers.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            Output->createDataObject( k->getKernelName()+"::Outputs", k->getOutputPrefix(),typename KernelT::OutputPortType()  );
+        }
+
+        OutputPort* writePort() {
+            return Output;
+        }
+
+        template< class KernelT >
+        void createPorts(KernelT* k ) {
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
+            SetPoint->createPort( k->getKernelName()+"::SetPoints", k->getSetPointPrefix() );
+            Output->createPort( k->getKernelName()+"::Outputs", k->getOutputPrefix() );
+        }
+
+        void erasePorts() {
+            Input->erasePort();
+            Model->erasePort();
+            SetPoint->erasePort();
+            Output->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* k) {
+            return k->selectController( this );
+        }
+
+        SetPointPort* SetPoint;
+        InputPort*  Input;
+        ModelPort*  Model;
+        OutputPort* Output;
     };
 
     /**
@@ -121,42 +180,75 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_generator
      */
-    template <class _InputType, class _ModelType, class _CommandType, class _SetPointType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _CommandType, class _SetPointType, class _Facet = DefaultBase >
     class Generator
-        : public _CommandType::ReadPort,
-          public _InputType::ReadPort,
-          public _ModelType::ReadPort,
-          public _SetPointType::WritePort,
-          public _Aspect
+        : public _Facet
     {
     public:
         typedef typename _CommandType::DataType CommandType;
         typedef typename _SetPointType::DataType SetPointType;
         typedef typename _InputType::DataType InputType;
         typedef typename _ModelType::DataType ModelType;
-        typedef _Aspect Aspect;
+        typedef _Facet Facet;
 
-        typedef typename _CommandType::ReadPort   Command;
-        typedef typename _InputType::ReadPort     Input;
-        typedef typename _ModelType::ReadPort     Model ;
-        typedef typename _SetPointType::WritePort SetPoint;
-            
+        typedef typename _CommandType::ReadPort CommandPort;
+        typedef typename _InputType::ReadPort InputPort;
+        typedef typename _ModelType::ReadPort ModelPort;
+        typedef typename _SetPointType::WritePort SetPointPort;
+
         Generator(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name ),
+              Command( new CommandPort() ),
+              Input( new InputPort() ),
+              Model( new ModelPort() ),
+              SetPoint( new SetPointPort() )
         {}
-            
-        /**
-         * Method Overloading is not done across scopes.
-         * These lines introduce the methods anyway in this class.
-         */
-        using Input::readFrom;
-        using Model::readFrom;
-        using Command::readFrom;
-        using Input::disconnect;
-        using Model::disconnect;
-        using Command::disconnect;
-        using SetPoint::disconnect;
 
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->generators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->generators.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->generators.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            SetPoint->createDataObject( k->getKernelName()+"::SetPoints", k->getSetPointPrefix(), typename KernelT::SetPointPortType() );
+        }
+
+
+        SetPointPort* writePort() {
+            return SetPoint;
+        }
+
+        template< class KernelT >
+        void createPorts(KernelT* k ) {
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
+            SetPoint->createPort( k->getKernelName()+"::SetPoints", k->getSetPointPrefix() );
+            Command->createPort( k->getKernelName()+"::Commands", k->getCommandPrefix() );
+        }
+
+        void erasePorts() {
+            Command->erasePort();
+            Input->erasePort();
+            Model->erasePort();
+            SetPoint->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* k) {
+            return k->selectGenerator( this );
+        }
+
+        CommandPort* Command;
+        InputPort*  Input;
+        ModelPort*  Model;
+        SetPointPort* SetPoint;
     };
 
     /**
@@ -168,28 +260,62 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_estimator
      */
-    template <class _InputType, class _ModelType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _Facet = DefaultBase >
     class Estimator
-        : public _InputType::ReadPort,
-          public _ModelType::WritePort,
-          public _Aspect
+        : public _Facet
     {
     public:
         typedef typename _InputType::DataType InputType;
         typedef typename _ModelType::DataType ModelType;
-        typedef _Aspect Aspect;
-
-        typedef typename _InputType::ReadPort Input;
-        typedef typename _ModelType::WritePort Model;
+        typedef _Facet Facet;
             
+        typedef typename _InputType::ReadPort InputPort;
+        typedef typename _ModelType::WritePort ModelPort;
+
         Estimator(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name ),
+              Input( new InputPort() ),
+              Model( new ModelPort() )
         {}
-            
 
-        using Input::disconnect;
-        using Model::disconnect;
-            
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->estimators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->estimators.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->estimators.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            Model->createDataObject( k->getKernelName()+"::Models", k->getModelPrefix(), typename KernelT::ModelPortType() );
+        }
+
+        ModelPort* writePort() {
+            return Model;
+        }
+
+        template< class KernelT >
+        void createPorts( KernelT* k ) {
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
+        }
+
+        void erasePorts() {
+            Input->erasePort();
+            Model->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* k) {
+            return k->selectEstimator( this );
+        }
+
+        InputPort*  Input;
+        ModelPort*  Model;
     };
 
 
@@ -202,31 +328,71 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_effector
      */
-    template <class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _OutputType, class _Facet = DefaultBase >
     class Effector
-      : public _InputType::ReadPort,
-	public _ModelType::ReadPort,
-	public _OutputType::ReadPort,
-	public _Aspect
+        : public _Facet
     {
     public:
         typedef typename _InputType::DataType InputType;
         typedef typename _ModelType::DataType ModelType;
         typedef typename _OutputType::DataType OutputType;
-        typedef _Aspect Aspect;
+        typedef _Facet Facet;
 
-        typedef typename _InputType::ReadPort Input;
-        typedef typename _ModelType::ReadPort Model;
-        typedef typename _OutputType::ReadPort Output;
+        typedef typename _InputType::ReadPort InputPort;
+        typedef typename _ModelType::ReadPort ModelPort;
+        typedef typename _OutputType::ReadPort OutputPort;
 
         Effector(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name ),
+              Input( new InputPort() ),
+              Model( new ModelPort() ),
+              Output( new OutputPort() )
         {}
 
-        using Input::disconnect;
-        using Model::disconnect;
-        using Output::disconnect;
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->effectors.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->effectors.unregisterObject( this ), false) );
+        }
 
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->effectors.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            //NOP
+        }
+
+        OutputPort* writePort() {
+            // ok, this is a bit weird, the Effector has no
+            // write ports but we must implement this method (generic programming stuff)
+            // so I return zero and check for zero when calling writePort().
+            return 0;
+        }
+
+        template< class KernelT >
+        void createPorts(KernelT* k ) {
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
+            Output->createPort( k->getKernelName()+"::Outputs", k->getOutputPrefix() );
+        }
+
+        void erasePorts() {
+            Input->erasePort();
+            Model->erasePort();
+            Output->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* k) {
+            return k->selectEffector( this );
+        }
+
+        InputPort*  Input;
+        ModelPort*  Model;
+        OutputPort* Output;
     };
 
     /**
@@ -238,21 +404,58 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_sensor
      */
-    template <class _InputType, class _Aspect = DefaultBase >
+    template <class _InputType, class _Facet = DefaultBase >
     class Sensor
-        : public _InputType::WritePort,
-          public _Aspect
+        : public _Facet
     {
     public:
         typedef typename _InputType::DataType  InputType;
-        typedef _Aspect Aspect;
+        typedef _Facet Facet;
             
-        typedef typename _InputType::WritePort Input;
-            
+        typedef typename _InputType::WritePort InputPort;
+
         Sensor(const std::string& name ) 
-            : Aspect( name )
+            : Facet( name ),
+              Input ( new InputPort() )
         {}
-            
+
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->sensors.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->sensors.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->sensors.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            Input->createDataObject( k->getKernelName()+"::Inputs", k->getInputPrefix(),typename KernelT::InputPortType() );
+        }
+
+        template< class KernelT >
+        void createPorts( KernelT* k ) {
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+        }
+
+        void erasePorts() {
+            Input->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* k) {
+            return k->selectSensor( this );
+        }
+
+        InputPort* writePort() {
+            return Input;
+        }
+
+        // The InputPort.
+        InputPort* Input;
+        
     };
                 
 }
