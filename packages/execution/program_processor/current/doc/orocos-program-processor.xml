@@ -49,9 +49,15 @@
   </revision>
   <revision>
     <revnumber>0.12</revnumber>
-    <date>19 Jan 2003</date>
+    <date>19 Jan 2004</date>
     <authorinitials>ps</authorinitials>
     <revremark>Programs are Boost::Graphs now.</revremark>
+  </revision>
+  <revision>
+    <revnumber>0.13</revnumber>
+    <date>2 Feb 2004</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>States workings updated</revremark>
   </revision>
   </revhistory>
 
@@ -85,9 +91,9 @@ features and interface of the &orocos; &interf; package.
 	&orocos; is meant for building realtime systems. You will find
 	all necessary components in other &orocos; packages to build
 	them, but they would only act as a noninteractive whole. The
-	Interfacing allows a user to configure a system and execute
+	Execution package allows a user to configure a system and execute
 	user-defined programs on that system. A
-	<classname>SystemContext</classname> will hold the
+	<classname>StateContext</classname> will hold the
 	user-programmable state machine (representing the system
 	logic). A <classname>ProgramGraph</classname> will hold the
 	user-defined data to be executed. A
@@ -101,8 +107,8 @@ features and interface of the &orocos; &interf; package.
       <para>
 	The Program Processor is not what the user will use directly.
 	The user will mainly use the Program Parser. The Parser
-	generates ProgramGraphs which can then be executed in
-	realtime.
+	generates ProgramGraphs and StateGraphs which can then be
+	executed in realtime.
       </para>
     </sect1>
 
@@ -161,26 +167,39 @@ features and interface of the &orocos; &interf; package.
       </sect2>
 
       <sect2>
-	<title>System Context</title>
+	<title>State Context and State</title>
 	<para>
-	  The <classname>System Context</classname> is the gateway to
+	  The <classname>StateContext</classname> is the gateway to
 	  the configuration of the state machine representing the
-	  system logic. A user can define possible system states,
-	  state rules and state transitions which will be translated
-	  by the parser into a valid system configuration. Each
-	  <classname>SystemState</classname> can be configured with a
-	  set of rules. A <classname>Rule</classname> is an if-then
-	  clause (Condition-Command), when the condition is violated,
-	  the corresponding command will be executed. A difference has
-	  been made between strong rules and weak rules.  When a
-	  strong rule is violated, the only concern is to execute its
-	  command as soon as possible and abort the rest of the rules.
-	  Weak rules on the other hand, are checked sequentially, have
-	  their commands executed (if any) and don't cause a state
-	  change.
+	  system logic. Every machine has physical and logical
+	  configurations in which a specific action must be taken
+	  (on entry, during or on exit) and transitions are defined
+	  by boundary conditions. Every such state is defined by
+	  the <classname>StateInterface</classname> in the CoreLib
+	  API. A state itself is defined by three methods : 
+	  onEntry(), handle() and onExit(). They are called by
+	  the Processor when this state is entered, handled or 
+	  left. There is always exactly one handle called 
+	  in each execution step, also when a state transition
+	  takes place. In that case, first the onExit() method
+	  of the old state is called, then the onEntry() method
+	  of the new state and as last in that step, the handle()
+	  method.
 	</para>
       </sect2>
-
+      <sect2>
+	<title>State Transitions</title>
+	<para>
+	  State Transitions are the edges of the state diagram. They
+	  define a condition on which a new state is entered. The
+	  processor expects an instance of
+	  <classname>ConditionInterface</classname> which encapsulates
+	  the logic (see also in CoreLib and below). When multiple
+	  conditions are true, an arbitrary one will be choosen to
+	  make the transition to the next state. A multiple of
+	  conditions can lead to the same state.
+	</para>
+      </sect2>
       <sect2>
 	<title>A Program</title>
 	<para>

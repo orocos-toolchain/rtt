@@ -43,10 +43,16 @@
 	<revremark>Initial version</revremark>
       </revision>
       <revision>
-	<revnumber>0.11</revnumber>
+	<revnumber>0.11.0</revnumber>
 	<date>31 Oct 2003</date>
 	<authorinitials>PS</authorinitials>
 	<revremark>Updated to reflect new release</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.12.0</revnumber>
+	<date>2 Feb 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Support for functions and State Graph parsing</revremark>
       </revision>
     </revhistory>
 
@@ -68,9 +74,11 @@
     <title>Introduction</title>
     <para>
       The &orocos; Parser allows users of the &orocos; system to write
-      programs controlling the system in a user-friendly language.  It
-      is implemented using the Boost.Spirit parser library, and should
-      be fairly easy to work with.
+      programs and state machines controlling the system in a
+      user-friendly script language.  The advantage of scripting is
+      that it is easily extendible and does not need recompilation of
+      the main program. It is implemented using the Boost.Spirit
+      parser library, and should be fairly easy to work with.
     </para>
     <para>
       There are three ways that people need to use the &orocos; Parser
@@ -81,7 +89,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    <link linkend="program-syntax">Writing &orocos; Programs.</link>
+	    <link linkend="program-syntax">Writing &orocos; Programs and State Configurations.</link>
 	  </para>
 	</listitem>
 	<listitem>
@@ -204,9 +212,9 @@
 	<para>
 	  Expressions are a general concept used throughout the Parser
 	  system.  Expressions represent values that can be calculated
-	  at runtime.  They can be used as arguments to functions,
-	  conditions and whatmore.  Expressions implicitly are of a
-	  certain type, and the Parser system does strong
+	  at runtime (like a+b).  They can be used as arguments to
+	  functions, conditions and whatmore.  Expressions implicitly
+	  are of a certain type, and the Parser system does strong
 	  type-checking.  Expressions can be constructed in various
 	  ways, that are described below...
 	</para>
@@ -358,17 +366,30 @@ frame( vect, rot )
       </sect3>
     </sect2>
     <sect2 id="program-syntax-specifics">
-      <title>Specifics</title>
+      <title>Program Syntax</title>
       <para>
 	An &orocos; program looks like this:
 	<programlisting>
+function func_name {
+  // an arbitrary number of statements
+}
+
+function func_nameN {
+  // ...
+}
+
 program {
   // an arbitrary number of statements
 }
 	</programlisting>
 	The statements are executed in order, starting at the first.
 	One statement is executed per tick.  There are currently three
-	kinds of statements, they are explained below.
+	kinds of statements, they are explained below. Statements
+	can be grouped in functions. A function can only call a function
+	which is earlier defined, and no parameters can be passed. Thus
+	recursive function calling is not allowed. Since most statements
+	use global Component commands, argument passing is not really
+	important.
       </para>
       <sect3>
 	<title>Command Call Statements</title>
@@ -405,6 +426,8 @@ do comp.action( args ) until {
 	  A termination clause always looks like
 	  <programlisting>
 if condition then goto label
+// or
+if condition then call func_name
 	  </programlisting>
 	  condition can be any kind of expression, that is of type
 	  boolean.  One special condition is provided, the keyword
@@ -420,6 +443,8 @@ if condition then goto label
 	  before a certain statement, where labelname is a valid
 	  identifier.  From then on, you can use labelname as a label
 	  which will refer to the specified position in the program.
+	  the call statement calls a function and is explained 
+	  in the next section
 	</para>
 	<para>
 	  If a termination list is left out, then an implicit one is
@@ -434,15 +459,25 @@ do comp.action( args ) until { if done then goto next }
 	</para>
       </sect3>
       <sect3>
+	<title>Calling functions</title>
+	<para>
+	  A function can be called by writing :
+	  <programlisting>
+call func_name
+	  </programlisting>
+	  A function may also be called in a termination 
+	  clause. If the function returns, the next statement
+	  of the calling function or program is executed.
+	</para>
+      </sect3>
+      <sect3>
 	<title>Variable Set Statements</title>
 	<para>
 	  A variable set statement is a statement that sets a variable
 	  to a certain value.  It looks like this:
 	  <programlisting>
 set variablename = expression
-set variablename to expression
 	  </programlisting>
-	  ( the two syntaxes ( with "to" or "=" ) are equivalent ).
 	  Variablename is the name of the variable you want to assign
 	  to.  It should already have been defined.  Expression is an
 	  expression of the same type as the type of the variable.
@@ -481,8 +516,161 @@ begin: set ret = ret * i
 	</para>
       </sect3>
     </sect2>
+    <sect2>
+      <title>State Description Syntax</title>
+      <para>
+	  A state descriptions looks like this :
+      </para>
+      <example>
+	<title>State Description Format</title>
+	<programlisting>
+Initial State myInit
+
+state myInit {
+	  entry {
+	  // statements and event configuration
+	  }
+	  handle {
+	  // statements
+	  }
+	  exit {
+	  // statements and event configuration
+	  }
+	  transitions {
+	  // (conditional) select statments
+	  }
+}
+
+state Waiting {
+	  // see above...
+}
+
+// ...
+	</programlisting>
+	<para>
+	  You can list zero or more states, but must provide the
+	  <function>Initial State</function> statement when 2 or more
+	  states are listed. Within a state any statement group is
+	  optional, so a state can be empty.
+	</para>
+      </example>
+      <sect3>
+	<title>The <function>state</function> Statement</title>
+	<para>
+	  A state program can have an unlimited number of states.
+	  The <function>Initial State</function> statement is
+	  mandatory with 2 or more states and brings
+	  the state machine in the given state when the kernel is
+	  initialised. A state contains optionally 4 functions :
+	  onEntry, handle, onExit and transitions.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The <function>onEntry</function>and
+	  <function>onExit</function> Statements</title>
+	<para>When a state is entered for the first time, the onEntry
+	  function is called. When it is left, the onExit function is
+	  called. They both contain unconditional component commands
+	  and event configuration statements. The component
+	  commands are the same as in programs. There are two
+	  event configuration statements : <function>connect</function>
+	  and <function>disconnect</function>. They have
+	  the following syntax :
+	  <programlisting>
+// On top of the file :
+Event Handle handle_name
+
+// in onEntry or onExit :
+connect handle_name( "EventName", Component.command( args ) )
+
+disconnect handle_name
+	  </programlisting>
+	  The event name must correspond to the identifier of a
+	  nameserved Event. The command is any valid component
+	  command with its arguments. The arguments will be evaluated
+	  when the command is called. From that moment on, whenever
+	  the event "EventName" is raised, the command will be 
+	  executed synchronically. The disconnect statement cancels
+	  a previously connected handle and may be called any time
+	  on any handle. Each handle must be declared on beforehand
+	  on top of the state script, before any state is defined.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The <function>handle</function> and
+	  <function>transitions</function> Statement</title>
+	<para>
+	  The handle function is called after
+	  the onEntry function or when no transition can be
+	  found to another state in the next execution step.
+	  The handle function contains only component commands.
+	  To leave a state, the transitions function defines
+	  <function>select</function> statements. These can
+	  be guarded by if...then clauses :
+	  <programlisting>
+// In state XYZ :
+transitions {
+    // conditionally select the START state
+    if HMI.startPushed then
+	select START
+    // Fall through state
+    select WAIT
+}
+	  </programlisting>
+	  The transitions are checked unordered.
+	  A transition is allowed to select the current state, but
+	  the onExit and onEntry functions will not be called in that
+	  case.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>State Change Semantics</title>
+      <para>
+	At the start of every execution cycle
+	of the Program Processor, the transition
+	table of the current state is evaluated.
+	If a transition succeeds, the onExit
+	function is called of the current state,
+	then the onEntry function of the next
+	state and then the handle function 
+	of the latter. If no transition evaluated
+	to true, the handle function of the current
+	state is called.
+      </para>
+      <para>
+	After the handle function is called, the
+	Processor will execute the program further
+	if it is in the Execution state. The
+	state graph is executed in the Load and
+	Execution state of the Program Processor.
+      </para>
+    </sect2>
   </sect1>
-  
+  <sect1>
+    <title>Kernel and Processor Commands</title>
+    <para>
+      Anything can act as a component towards
+      the Parser. When the parser is used
+      in the Orocos Control Kernel framework,
+      the Kernel and the Processor expose themselves
+      as a component. We refer to the control kernel
+      documentation for a detailled list of commands,
+      but here are a few examples :
+      <programlisting>
+do kernel.selectGenerator( "CartesianGenerator" )
+do kernel.selectController( "CartesianController" )
+// ...
+do kernel.startProgram
+do kernel.stopProgram
+      </programlisting>
+      The selectX commands are instructing the kernel
+      itself while the start/stopProgram commands
+      instruct the processor to enter or leave
+      the Execution state.
+      They can be called from within Programs and States.
+    </para>
+  </sect1>
   <sect1 id="exporting-component-api">
     <title>Exporting a Component's API</title>
     <sect2 id="exporting-component-api-data-and-commands">

@@ -3,10 +3,10 @@
  * Orocos State Description Script
  */
 
-EventHandle handle1
-EventHandle handle2
+Event Handle handle1
+Event Handle handle2
 
-InitialState INIT
+Initial State INIT
 
 state INIT {
 	
