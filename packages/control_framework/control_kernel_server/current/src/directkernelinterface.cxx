@@ -263,8 +263,105 @@ namespace ExecutionClient
     return fact->getNames();
   }
 
+    void printResult(const std::string& code, DataSourceBase* ds) {
+        std::string prompt( code + "   = " );
+        // this method can print some primitive DataSource<>'s.
+        DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
+        if (dsb) {
+            Logger::log() << Logger::Info <<prompt<< (dsb->get() ? "true" : "false") <<Logger::endl;
+            return;
+        }
+        DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
+        if (dsi) {
+            Logger::log() << Logger::Info <<prompt<< dsi->get() <<Logger::endl;
+            return;
+        }
+        DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
+        if (dss) {
+            Logger::log() << Logger::Info <<prompt<< dss->get() <<Logger::endl;
+            return;
+        }
+        DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
+        if (dsd) {
+            Logger::log() << Logger::Info <<prompt<< dsd->get() <<Logger::endl;
+            return;
+        }
+        DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
+        if (dsc) {
+            Logger::log() << Logger::Info <<prompt<< dsc->get() <<Logger::endl;
+            return;
+        }
+        if (ds)
+            ds->evaluate();
+	
+    }
+
   int DirectKernelInterface::startExecutingCommand( const std::string& code )
   {
+        Parser _parser;
+        std::pair< CommandInterface*, ConditionInterface*> parseresult;
+        try {
+            // Check if it was a method or datasource :
+            DataSourceBase::shared_ptr ds = _parser.parseExpression( code, task );
+            // methods and DS'es are processed immediately.
+            if ( ds.get() != 0 )
+                printResult( code, ds.get() );
+            return 0; // done here
+        } catch ( syntactic_parse_exception& pe ) { // missing brace etc
+            // syntactic errors must be reported immediately
+            Logger::log() << Logger::Error << "Invalid Expression."<<Logger::nl
+                          << pe.what() <<Logger::endl;
+            return 0;
+        } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
+            // way to fatal,  must be reported immediately
+            Logger::log() << Logger::Error << "Invalid Expression."<<Logger::nl
+                          << pe.what() <<Logger::endl;
+            return 0;
+        } catch ( parse_exception &pe ) // Got not a clue exception, so try other parser
+            {
+                // ignore it, try to parse it as a command :
+                //cerr << "Ignoring : "<< pe.what() << endl;
+                try {
+                    parseresult = _parser.parseCommand( code, task );
+                    // parseresult contains : command + implcond 
+                    // We wrap the command ourselves because this is actually a dispatch,
+                    // but the commandparser assumed it was not, since there is no 'Task-switch' involved.
+                    // If a command's or method's condition is ConditionTrue, we might delete it before it
+                    // is executed by the Processor ( see checkCommandFinished() ). 
+                    TryCommand* tcom = new TryCommand( parseresult.first );
+                    // compose impl term cond with executed() filter and do not invert the result :
+                    ConditionInterface* implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), parseresult.second );
+                    parseresult = make_pair( tcom, implcond );
+                } catch ( parse_exception& pe ) {
+                    Logger::log() << Logger::Error  << "Parse Error : Illegal command."<<Logger::nl
+                                  << pe.what() << Logger::endl;
+                    return 0;
+                }
+            }
+        catch (...) {
+            Logger::log() << Logger::Error << "Illegal Command."<<Logger::endl;
+            return 0;
+        }
+                
+        if ( parseresult.first == 0 ) { // this should not be reached
+            Logger::log() << Logger::Error << "Uncaught Illegal Command."<<Logger::endl;
+            return 0;
+        }
+        // It is for sure a real command, dispatch to target processor :
+        int id = task->getProcessor()->process( parseresult.first );
+        // returns null if Processor not running or not accepting.
+        if ( id == 0 ) {
+            Logger::log() << Logger::Error << "Command not accepted by"<<task->getName()<<"'s Processor !" <<Logger::endl;
+            delete parseresult.first;
+            delete parseresult.second;
+        } else {
+            commandlist[ id ] = parseresult;
+            checkCommandFinished( id );
+            return id;
+        }
+
+#if 0
+        // OLD CODE
     Parser parser;
     std::pair<CommandInterface*, ConditionInterface*> parseresult;
     try {
@@ -275,15 +372,6 @@ namespace ExecutionClient
     {
       throw;
     }
-    // parseresult contains : command + implcond OR method/ds + ConditionTrue.
-    // We wrap the command ourselves because this is actually a dispatch,
-    // but the commandparser assumed it was not, since there is no 'TaskContext-switch' involved.
-    // If a command's or method's condition is ConditionTrue, we might delete it before it
-    // is executed by the Processor ( see checkCommandFinished() ). 
-    TryCommand* tcom = new TryCommand( parseresult.first );
-    // compose impl term cond with executed() filter and do not invert the result :
-    ConditionInterface* implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), parseresult.second );
-    parseresult = make_pair( tcom, implcond );
     // Now it's safe to execute and evaluate :
     int id = executionext->getTaskContext()->queueCommand( parseresult.first );
     if ( id == 0)
@@ -301,6 +389,7 @@ namespace ExecutionClient
         checkCommandFinished( id );
         return id;
     }
+#endif
     return 0;
   }
 
