@@ -98,7 +98,7 @@ fill in your own directory."
 	    display "Global linker flags"
 	    flavor  data
 	    no_define
-	    default_value { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib ". CYGBLD_RTAIDIR. "/lib -llxrt" }
+	    default_value { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib -L". CYGBLD_RTAIDIR. "/lib -llxrt" }
 	    description   "
           This option controls the global linker flags. Individual
           packages may define options which override these global flags."

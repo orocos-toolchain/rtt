@@ -41,7 +41,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2002,2003,2004</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -60,6 +60,12 @@
 	<date>18 Oct 2003</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Initial document copied from core documentation.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.2</revnumber>
+	<date>21 Jan 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added more concrete how-to-use-it info.</revremark>
       </revision>
     </revhistory>
 
@@ -102,7 +108,7 @@
 	driver should implement. It is up to the developers to wrap
 	their C device driver into a class which implements this
 	interface. You can find an example of this in the devices
-	package.  The core only contains the interface header files.
+	package.  This package only contains the interface header files.
 	Other packages should always point to these interface files
 	and never to the real drivers actually used.  It is up to the
 	application writer to decide which driver will actually be
@@ -165,6 +171,99 @@ of the physical interfaces they use underneath. You just want to know the
 	    </imageobject>
 	  </mediaobject>
 	</figure>
+      </para>
+    </sect1>
+    <sect1>
+      <title>The Device Interface Classes</title>
+      <para>
+	The most common used interfaces for machine control
+	are already implemented and tested on multiple setups.
+	All the Device Interface classes reside in the
+	<classname>ORO_DeviceInterface</classname> namespace.
+      </para>
+      <sect2>
+	<title>Physical IO</title>
+	<para>
+	  There are several classes for representing
+	  different kinds of IO. Currently there are:
+	</para>
+	<table>
+	  <title>Physical IO Classes</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>Interface</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>AnalogInInterface</entry>
+		<entry>Reading analog input channels</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>AnalogOutInterface</entry>
+		<entry>Writing analog output channels</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>DigitalInInterface</entry>
+		<entry>Reading digital bits</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>DigitalOutInterface</entry>
+		<entry>Writing digital bits</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>CounterInterface</entry>
+		<entry>Not implemented yet</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>EncoderInterface</entry>
+		<entry>A position/turn encoder</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	  <!-- one of (graphic mediaobject tgroup) -->
+	</table>
+      </sect2>
+      <sect2>
+	<title>Logical Device Interfaces</title>
+	<para>
+	  The interfaces found in the logical
+	  subdirectory of this package are less used because
+	  most implementations of logical devices are
+	  already hardware independent. Therefore, they do not
+	  need an interface and the implementation can be
+	  provided immediately. The Device Interface packages
+	  does however not provide implementations and thus
+	  the logical devices are implemented in the Device
+	  Driver package and ORO_DeviceDriver namespace.
+	  Examples are
+	  <classname>Axis</classname>,
+	  <classname>DigitalInput</classname>,
+	  <classname>DigitalOutput</classname> and
+	  <classname>Drive</classname>.
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Porting Device Drivers to Device Interfaces</title>
+      <para>
+	The methods in each interface are well documented
+	and porting existing drivers (which mostly have a C API)
+	to these should be quite straightforward. It is the
+	intention that the developper writes a class that
+	inherits from one or more interfaces and implements
+	the corresponding methods. Logical Devices can then
+	use these implementations to provide higher level
+	functionalities.
       </para>
     </sect1>
     <sect1>

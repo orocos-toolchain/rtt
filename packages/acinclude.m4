@@ -19,7 +19,7 @@ AC_CHECK_HEADERS([boost/call_traits.hpp],
 PACKAGES="support/boost/current/boost.cdl $PACKAGES"
 ],
 [
-AC_MSG_ERROR([
+AC_MSG_WARN([
 
 Could not find Boost headers. Please install Boost.
 
@@ -39,7 +39,7 @@ AC_CHECK_HEADERS([boost/graph/adjacency_list.hpp],
 PACKAGES="support/boost_graph/current/boost_graph.cdl $PACKAGES"
 ],
 [
-AC_MSG_ERROR([
+AC_MSG_WARN([
 
 Could not find the Boost Graph Library headers.
 Please install Boost and Boost Graph.

@@ -8,7 +8,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-program-processor.html
 
-docpdf: pngimages orocos-program-processor.pdf
+docpdf: epsimages orocos-program-processor.pdf
 
 docps: epsimages orocos-program-processor.ps
 

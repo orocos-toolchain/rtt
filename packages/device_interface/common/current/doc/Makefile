@@ -8,7 +8,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-device-interface.html
 
-docpdf: pngimages orocos-device-interface.pdf
+docpdf: epsimages orocos-device-interface.pdf
 
 docps: epsimages orocos-device-interface.ps
 

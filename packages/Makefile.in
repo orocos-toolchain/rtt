@@ -26,12 +26,12 @@ doc-dist:
 	@mkdir  orocos-docs
 	@echo "Copying..."
 	@mv  $$(find . -name "*.tgz") orocos-docs
-	@if [ -d doc ] ; then echo "Tarring API docs..." ;\
-	tar -cjf orocos-docs/orocos-api.tar.bz2 doc; fi
-	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz *.bz2; )
+	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz; )
 	@echo "Done !"
 
 doxy-dist:
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
 	@doxygen >/dev/null || exit 1
+	@if [ -d doc ] ; then echo "Tarring API docs..." ;\
+	tar -cjf orocos-docs/orocos-api.tar.bz2 doc; fi
 

@@ -1,3 +1,11 @@
 cdl_package OROPKG_DEVICE_INTERFACE {
     display "C++ Hardware Device Interfaces"
+    description "
+This package groups together all the hardware
+abstraction interfaces. If you want to introduce
+your hardware drivers into the Orocos framework,
+they must be ported to these abstract C++ interfaces.
+
+See the Device Drivers package for examples.
+"
 }
