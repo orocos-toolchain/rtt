@@ -97,6 +97,7 @@ namespace ORO_CoreLib
             for (itl = clocks.begin(); itl != clocks.end(); ++itl)
                 if ( itl->timer && itl->timer->periodGet() == n )
                     {
+                        Logger::log() << Logger::Debug << "Found TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
                         return itl->timer->addTask( t );
                     }
         }
@@ -113,6 +114,7 @@ namespace ORO_CoreLib
 
         return true;
 #else
+        Logger::log() << Logger::Critical << "Did not find a TaskTimer with period "<< Seconds(n)/NSECS_IN_SECS <<"s";
         return false;
 #endif
     }
