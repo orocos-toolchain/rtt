@@ -33,7 +33,7 @@ DISTCHECK_CONFIGURE_FLAGS = --disable-tests
 PATHHEADERS=$$(cd packages/install/include; find . -type f )
 PATHEXISTS =$$( if test -d packages/install/include; echo yes; fi )
 
-.PHONY: docs myinstall myuninstall new_packages configure_packages all_packages clean_packages init_packages inst-headers check-headers
+.PHONY: docs myinstall myuninstall new_packages configure_packages all_packages dist_packages clean_packages init_packages inst-headers check-headers
 
 docs:
 	$(MAKE) -C doc docs
@@ -86,11 +86,12 @@ new_packages:
 	@echo "Setting up packages..."
 	@cd packages &&\
 	export ECOS_REPOSITORY=$(ECOS_REP);\
-	ecosconfig new $(ECOS_TARGET) minimal ;\
+	ecosconfig new $(ECOS_TARGET) minimal 2>&1 > /dev/null ;\
 	if test -f ecos.ecc; then \
-	ecosconfig add support ; \
+	echo "Setting up support..." ; \
+	ecosconfig add support 2>&1 > /dev/null ; \
 	for i in $$(find $(ECOS_REP)/support -name "*.cdl" -a -not -name "support.cdl"); do \
-	ecosconfig add support_$$(basename $$i .cdl) >/dev/null ; done ;\
+	ecosconfig add support_$$(basename $$i .cdl) 2>/dev/null ; done ;\
 	{ ecosconfig template dist-packages || ecosconfig template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
 	ecosconfig check ;\
@@ -114,13 +115,21 @@ test_all_packages: .all-stamp
 
 #Only executed if new_packages did not create this stamp.
 .all-stamp:
-	$(MAKE) -C . all_packages
+	$(MAKE) -C . packages
 
-# This makes the ecos makefiles in the packages
-# build directory and makes the library
-# it will exit if no ecos.ecc file is found.
 all_packages: packages
 
+# make all dist-packages
+# it will exit if no ecos.ecc file is found.
+dist_packages: 
+	if test -f packages/ecos.ecc; then \
+	cd packages; \
+	export ECOS_REPOSITORY=$(ECOS_REP) ;\
+	ecosconfig template dist-packages;\
+	ecosconfig check ; fi
+	$(MAKE) -C . packages
+
+# make all packages from current template
 packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
@@ -143,7 +152,7 @@ precompile_headers:
 	g++-3.4 -O2 -c -x c++ all.h -o all.h.gch -I. 
 	echo "#error all.h.gch is not used. You must use CC=gcc-3.4" > all.h
 
-# Only build the coreservices
+# Reset the template to build the coreservices
 core_packages: test_new_packages
 	if test -f packages/ecos.ecc; then \
 	cd packages; \
