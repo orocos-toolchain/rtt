@@ -60,7 +60,7 @@ namespace ORO_ControlKernel
         HMIConsoleInput( ExecutionExtension* _ee = 0)
             : Base("console_input"), start(false),
               startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent"),
-              ee(_ee), condition(0), command(0), tester(0) {}
+              ee(_ee), condition(0), command(0), tester(0), dataobject(0) {}
 
         /**
          * @brief Call this method from ORO_main() to 
@@ -130,7 +130,7 @@ namespace ORO_ControlKernel
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput::printSource, this, _1) );
                 }
             if ( tester || dataobject )
-                return
+                return;
                     
             delete command;
             delete condition;
@@ -139,12 +139,12 @@ namespace ORO_ControlKernel
             comcon = _parser.parseCommand(comm, ee);
             command = comcon.first;
             condition = comcon.second;
-            if ( command == 0 || condition == 0 ) {
-                cout << "Illegal command."<<endl;
+            if ( command == 0 ) {
+                cout << "Parse Error : Illegal command."<<endl;
                 return;
             }
             if ( ee->getProcessor()->process( command ) == false ) {
-                cout << "Command not accepted ! " << endl;
+                cout << "Command not accepted by Processor ! " << endl;
                 delete command;
                 delete condition;
                 command = 0;
@@ -160,7 +160,7 @@ namespace ORO_ControlKernel
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
             cout << "  CartesianGenerator.moveTo( frame( vector( .75, .5, .8), rotation( 90., 0., 90. ) ), 15.0 ) [then press enter] "<<endl;
-            cout << "  console_output.displayDouble( CartesianGenerator.currentPosition ) [enter]" <<endl;
+            cout << "  console_output.displayDouble( CartesianGenerator.currentTime ) [enter]" <<endl;
             cout << endl<<"  The available objects are :"<<endl;
             std::vector<std::string> objlist = ee->commandFactory().getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
