@@ -41,17 +41,19 @@
 namespace ORO_DeviceDriver
 {
 
-JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, unsigned int type, ORO_CoreLib::Event<void(void)>& maximumload)
+JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::string type, ORO_CoreLib::Event<void(void)>& maximumload)
 
-    : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
+  : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
 {
-  &_maximumload_event = *maximumload;
+  //&_maximumload_event = &maximumload;
 
-  switch (type){
-    case 0: { _type = Undefined;  break; }
-    case 1: { _type = _200N20;    break; }
-    case 2: { _type = _100N5;     break; }
-  }
+  if (type == "200N20")
+    _type = _200N20;
+  else if (type == "100N5")
+    _type = _100N5;
+  else
+    // wrong type
+    assert(0);
 
   chooseFilter( this->periodGet() );
   _readBuffer  = &_buffer1;
@@ -133,9 +135,6 @@ ORO_Geometry::Wrench JR3WrenchSensor::maxMeasurement() const
 {
     switch(_type)
     {
-        case Undefined:
-            rtos_printf("JR3WrenchSensor::maxMeasuremnet() from undefined filter !\n");
-            return ORO_Geometry::Wrench(ORO_Geometry::Vector(0,0,0), ORO_Geometry::Vector(0,0,0));
         case _200N20:
             return ORO_Geometry::Wrench(ORO_Geometry::Vector(200,200,400), ORO_Geometry::Vector(20,20,20));
         case _100N5:
@@ -151,9 +150,6 @@ ORO_Geometry::Wrench JR3WrenchSensor::minMeasurement() const
 {
     switch(_type)
     {
-        case Undefined:
-            rtos_printf("JR3WrenchSensor::minMeasuremnet() from undefined filter !\n");
-            return ORO_Geometry::Wrench(ORO_Geometry::Vector(0,0,0), ORO_Geometry::Vector(0,0,0));
         case _200N20:
             return ORO_Geometry::Wrench(ORO_Geometry::Vector(-200,-200,-400), ORO_Geometry::Vector(-20,-20,-20));
         case _100N5:
@@ -178,9 +174,6 @@ void JR3WrenchSensor::refresh()
 
     switch (_filterToReadFrom)
     {
-        case Undefined:
-            rtos_printf("JR3WrenchSensor::read() from undefined filter !\n");
-            break;
         case Filter1:
             JR3DSP_getDataFromFilter1(&_writeArray, _dsp);
             break;
@@ -219,9 +212,6 @@ void JR3WrenchSensor::refresh()
     
     switch (_type)
     {
-        case Undefined:
-            break;
-
         case _200N20:
 	  if (    ((*_writeBuffer)(0) > 200 ) || ((*_writeBuffer)(0) < -200) ||
 		  ((*_writeBuffer)(1) > 200 ) || ((*_writeBuffer)(1) < -200) ||

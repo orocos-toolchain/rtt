@@ -40,7 +40,7 @@
 namespace ORO_DeviceDriver
 {
 
-enum JR3Sensors {Undefined, _200N20, _100N5};
+enum JR3Sensors {_200N20, _100N5};
 
 
 
@@ -50,7 +50,7 @@ class JR3WrenchSensor : public ORO_CoreLib::TaskNonPreemptible,
 {
 public:
     // Constructor
-    JR3WrenchSensor(unsigned int DSP, float samplePeriod, unsigned int type, ORO_CoreLib::Event<void(void)>& maximumload);
+    JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::string type, ORO_CoreLib::Event<void(void)>& maximumload);
 
     virtual ~JR3WrenchSensor();
 
@@ -106,7 +106,7 @@ private:
     void refresh();
     void switchBuffers();
 
-    enum JR3Filters {Undefined, Filter1, Filter2, Filter3, Filter4, Filter5, Filter6};
+    enum JR3Filters {Filter1, Filter2, Filter3, Filter4, Filter5, Filter6};
 
     JR3Sensors                 _type;
     JR3Filters                 _filterToReadFrom;
