@@ -34,7 +34,6 @@ namespace ORO_CoreLib
      * A conditional that evaluates true between being reset and until
      * a certain time has passed..
      */
-
     class ConditionDuration
                 : public ConditionInterface
     {

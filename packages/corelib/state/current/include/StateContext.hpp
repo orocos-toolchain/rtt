@@ -24,6 +24,8 @@
 #include "ConditionInterface.hpp"
 
 #include <map>
+#include <vector>
+#include <boost/tuple/tuple.hpp>
 
 namespace ORO_CoreLib
 {
@@ -42,10 +44,28 @@ namespace ORO_CoreLib
      *
      * @note A more efficient implementation might be needed
      *       for the case this->requestState( this->nextState() );
+     *
      */
     class StateContext
     {
-        typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, StateInterface*> >
+        // Sorts a tupple on the third argument.
+        template<class T>
+        struct mysort
+        {
+            bool operator()( const  T& lhs, const T& rhs)
+            {
+                return get<2>(lhs) > get<2>(rhs);
+            }
+        };
+        /**
+         * The key is the current state, the value is the transition condition to
+         * another state with a certain priority (int).
+         */
+        //typedef std::multimap< StateInterface*, boost::tuple<ConditionInterface*, StateInterface*, int>,
+        //                       mysort< boost::tuple<ConditionInterface*, StateInterface*, int> > >
+
+        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > TransList;
+        typedef std::map< StateInterface*, std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > >
         TransitionMap;
         typedef std::map< StateInterface*, ConditionInterface*>
         TransitionAnyMap;
@@ -57,6 +77,7 @@ namespace ORO_CoreLib
          */
         StateContext();
 
+        virtual ~StateContext() {}
         /**
          * Create a StateContext instance with a given initial and final state.
          *
@@ -153,10 +174,14 @@ namespace ORO_CoreLib
          *        The state which should be entered
          * @param cnd
          *        The Condition under which the transition may succeed
+         * @param priority
+         *        The priority of this transition low number (like -1000) is low priority
+         *        high number is high priority (like + 1000). Transitions of equal
+         *        priority are traversed in an unspecified way.
          * @post  All transitions from <from> to <to> will succeed under
          *        condition <cnd>
          */
-        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd );
+        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0 );
 
         /**
          * Express a possible transition from any state (including <target> )
@@ -196,6 +221,7 @@ namespace ORO_CoreLib
          */
         StateInterface* current;
 
+    protected:
         /**
          * A map keeping track of all conditional transitions
          * between two states

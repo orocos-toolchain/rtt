@@ -3,6 +3,8 @@
 
 namespace ORO_CoreLib
 {
+    using boost::tuples::get;
+
         StateContext::StateContext()
             : initstate(0), finistate(0), current( 0 )
         {}
@@ -58,12 +60,14 @@ namespace ORO_CoreLib
 
         StateInterface* StateContext::requestNextState()
         {
-            TransitionMap::iterator it1, it2;
-            boost::tie(it1,it2) = stateMap.equal_range( current );
+            TransList::iterator it1, it2;
+            it1 = stateMap[ current ].begin();
+            it2 = stateMap[ current ].end();
+            //boost::tie(it1,it2) = stateMap.equal_range( current );
 
             for ( ; it1 != it2; ++it1 )
-                    if ( it1->second.first->evaluate() )
-                        if ( it1->second.second == current )
+                    if ( get<0>(*it1)->evaluate() )
+                        if ( get<1>(*it1) == current )
                             {
                                 current->handle();
                                 return current;
@@ -71,7 +75,7 @@ namespace ORO_CoreLib
                         else 
                             {
                                 leaveState(current);
-                                enterState(it1->second.second);
+                                enterState( get<1>(*it1) );
                                 return current;
                             }
 
@@ -99,13 +103,15 @@ namespace ORO_CoreLib
 
         StateInterface* StateContext::nextState()
         {
-            TransitionMap::iterator it1, it2;
-            boost::tie(it1,it2) = stateMap.equal_range( current );
+            TransList::iterator it1, it2;
+            it1 = stateMap[ current ].begin();
+            it2 = stateMap[ current ].end();
+            //boost::tie(it1,it2) = stateMap.equal_range( current );
 
 
             for ( ; it1 != it2; ++it1 )
-                if ( it1->second.first->evaluate() )
-                    return it1->second.second;
+                if ( get<0>(*it1)->evaluate() )
+                    return get<1>(*it1);
 
             TransitionAnyMap::iterator it3 = stateAnyMap.begin();
 
@@ -126,11 +132,13 @@ namespace ORO_CoreLib
                 }
 
             // between 2 specific states
-            TransitionMap::iterator it1, it2;
-            boost::tie(it1,it2) = stateMap.equal_range( current );
+            TransList::iterator it1, it2;
+            it1 = stateMap[ current ].begin();
+            it2 = stateMap[ current ].end();
+            //boost::tie(it1,it2) = stateMap.equal_range( current );
             for ( ; it1 != it2; ++it1 )
-                if ( it1->second.second == s_n
-                     && it1->second.first->evaluate() )
+                if ( get<1>(*it1) == s_n
+                     && get<0>(*it1)->evaluate() )
                     {
                         leaveState( current );
                         enterState( s_n );
@@ -151,9 +159,12 @@ namespace ORO_CoreLib
             return false;
         }
 
-        void StateContext::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd )
+        void StateContext::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority )
         {
-            stateMap.insert(std::make_pair( from, std::make_pair( cnd, to ) ));
+            //stateMap.insert(std::make_pair( from, boost::make_tuple( cnd, to, priority ) ));
+            TransList::iterator it;
+            for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it);
+            stateMap[from].insert(it, boost::make_tuple( cnd, to, priority ) );
         }
 
         void StateContext::transitionSet( StateInterface* target, ConditionInterface* cnd )
@@ -174,6 +185,11 @@ namespace ORO_CoreLib
 
         void StateContext::enterState( StateInterface* s )
         {
+            // Before a state is entered, all transitions are reset !
+            TransList::iterator it;
+            for ( it= stateMap[s].begin(); it != stateMap[s].end(); ++it)
+                get<0>(*it)->reset();
+
             s->onEntry();
             current = s;
 
