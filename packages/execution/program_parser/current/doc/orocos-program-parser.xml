@@ -781,8 +781,8 @@
 	  A function can be called by writing :
 	</para>
 	  <programlisting>
-  do foo(arg)
-  call foo(arg) // equivalent to 'do foo(arg)'</programlisting>
+  do foo(arg)   // see 'exported' functions
+  call foo(arg) // local functions</programlisting>
 	<para>
 	  The arguments are passed by value and no return value
 	  is possible. If one of the commands of the functions
@@ -1107,18 +1107,18 @@
 	</para>
 	<example>
 	  <title>StateMachine Definition Format</title>
-	  <programlisting>StateMachine MyStateMachine
+	  <programlisting>StateMachine <emphasis>MyStateMachine</emphasis>
 {
-    initial state myInit 
+    initial state <emphasis>myInit</emphasis>
     {
         entry {
-	    // entry method: statements and event configuration
+	    // entry program
 	}
 	handle {
-	    // handle method: statements
+	    // handle program
 	}
 	exit {
-	    // exit method: statements and event configuration
+	    // exit program
 	}
 <!-- 	preconditions { -->
 <!-- 	    // ordered select statements -->
@@ -1128,7 +1128,7 @@
 	}
     }
 
-    final state myExit {
+    final state <emphasis>myExit</emphasis> {
 	entry {
 	    // put everything in a safe state.
 	}
@@ -1136,10 +1136,12 @@
 	}
 	exit {
         }
-	// no transitions in the final state...
+	transitions {
+	    // ...
+	}
     }
 
-    state Waiting {
+    state <emphasis>Waiting</emphasis> {
         // ...
     }
 
@@ -1796,8 +1798,8 @@ StateMachine ParentStateMachine
        */
       state startup_state {
   	entry {
-  	    do Kernel.selectSensor("HWSensor")
-  	    do Kernel.selectGenerator("MoveToGenerator")
+  	    do Kernel.selectComponent("HWSensor")
+  	    do Kernel.selectComponent("MoveToGenerator")
   	    }
   	transitions {
   	    select stop_state
@@ -1810,8 +1812,8 @@ StateMachine ParentStateMachine
        */
       final state fini_state {
   	entry {
-  	    do Kernel.selectSensor("Default")
-  	    do Kernel.selectGenerator("Default")
+  	    do Kernel.selectComponent("Default")
+  	    do Kernel.selectComponent("Default")
   	    }
       }
   
@@ -1822,8 +1824,8 @@ StateMachine ParentStateMachine
       state stop_state {
   	entry {
   	    // The Default Effector and Controller do nothing
-  	    do Kernel.selectController("Default")
-  	    do Kernel.selectEffector("Default")
+  	    do Kernel.selectComponent("Default")
+  	    do Kernel.selectComponent("Default")
   	transitions {
   	    if HMI.start_pushed() &amp;&amp; error == 0 then
   		 select run_state
@@ -1840,8 +1842,8 @@ StateMachine ParentStateMachine
   	    // make sure we are not moving
   	    do MoveToGenerator.safeStop()
   	    // Select components controlling the machine
-  	    do Kernel.selectController("PID")
-  	    do Kernel.selectEffector("HWEffector")
+  	    do Kernel.selectComponent("PID")
+  	    do Kernel.selectComponent("HWEffector")
   	    }
   
   	transitions {
@@ -1904,12 +1906,12 @@ StateMachine ParentStateMachine
    * without a program.
    */
   export function ResetAxes() {
-  	do Kernel.selectGenerator("HomingGenerator")
+  	do Kernel.selectComponent("HomingGenerator")
   	do HomingGenerator.homeAll()
   }
   
   export function ResetAxis(int nr) {
-  	do Kernel.selectGenerator("HomingGenerator")
+  	do Kernel.selectComponent("HomingGenerator")
   	do HomingGenerator.homeAxis( nr )
   }
   
@@ -1918,7 +1920,7 @@ StateMachine ParentStateMachine
    * trajectory.
    */
   function runTrajectory() {
-  	do Generator.startTrajectory
+  	do Generator.startTrajectory()
   	// this function returns when the
   	// trajectory is done.
   }
@@ -1942,7 +1944,7 @@ StateMachine ParentStateMachine
   	    do HMI.display("Cycle nr: %d.\n", cycle )
   	    do ResetAxes()
   	    do HMIRequestTrajectory()
-  	    call runTrajectory()
+  	    do runTrajectory()
   
   	    do HeartBeat.sleep( 5.0 ) // wait 5s
   	}
