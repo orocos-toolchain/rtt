@@ -38,6 +38,8 @@
 #include <iostream>
 #include <stdio.h> // how do you do getchar with cin ??
 
+#pragma interface
+
 namespace ORO_ControlKernel
 {
     using std::cout;
@@ -53,7 +55,7 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base>
+    template< class Base = SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
     class HMIConsoleInput
         : public Base
     {
@@ -164,6 +166,11 @@ namespace ORO_ControlKernel
         void printHelp()
         {
             using boost::lambda::_1;
+            if (ee == 0){
+                cout << "  The HMIConsoleInput object hasn't got a reference to the Execution"<<endl;
+                cout <<"   Engine on construction. No Commands are available."<<endl;
+                return;
+            }
             cout << endl;
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
@@ -240,6 +247,9 @@ namespace ORO_ControlKernel
 
     };
 
+    extern template class HMIConsoleInput<>;
+
+#if 0
     /**
      * @brief This component allows console input to be passed
      * to the program or state scripts. It can be referenced
@@ -248,7 +258,8 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    class HMIConsoleInputImpl
+    template<>
+    class HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
         : public SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase >
     {
         bool start;
@@ -262,7 +273,7 @@ namespace ORO_ControlKernel
         typedef SupportComponent< MakeExtension<KernelBaseFunction,
                                                 ExecutionExtension>::Result::CommonBase > Base;
     public :
-        HMIConsoleInputImpl( ExecutionExtension* _ee = 0);
+        HMIConsoleInput( ExecutionExtension* _ee = 0);
 
         /**
          * @brief Call this method from ORO_main() to 
@@ -287,7 +298,7 @@ namespace ORO_ControlKernel
         // The only data we export is the user's start input.
         DataSourceFactoryInterface* createDataSourceFactory();
     };
-
+#endif
 }
 
 #endif

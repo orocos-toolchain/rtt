@@ -8,4 +8,6 @@ planning and interpolation, axis-level control,..."
     include_dir kernel_components
 
     #include_files KinematicEstimator.hpp  TrajectoryGenerator.hpp  Simulator.hpp
+
+    compile sensor/AxisSensor.cxx effector/AxisEffector.cxx
 }

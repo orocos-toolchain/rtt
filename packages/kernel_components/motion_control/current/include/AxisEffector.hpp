@@ -39,6 +39,10 @@
 
 #include <map>
 #include <control_kernel/DataServer.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -67,7 +71,7 @@ namespace ORO_ControlKernel
      * @see ControlKernel
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base>
+    template <class Base = Effector< Expects<AxisOutput>, MakeExtension<KernelBaseFunction, ExecutionExtension>::CommonBase >
     class AxisEffector
         : public Base
     {
@@ -321,6 +325,7 @@ namespace ORO_ControlKernel
         int usingChannels;
     };
 
+    extern template class AxisEffector<>;
 }
 #endif
 

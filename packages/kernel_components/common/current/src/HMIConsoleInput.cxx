@@ -1,15 +1,22 @@
+
+#pragma implementation
 #include "kernel_components/HMIConsoleInput.hpp"
 
 namespace ORO_ControlKernel
 {
+    //    template class HMIConsoleInput< SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >;
+    template class HMIConsoleInput<>;
 
-    HMIConsoleInputImpl::HMIConsoleInputImpl( ExecutionExtension* _ee )
-        : HMIConsoleInputImpl::Base("console_input"), start(false),
+
+
+#if 0
+    HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::HMIConsoleInput( ExecutionExtension* _ee )
+        : HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::Base("console_input"), start(false),
           startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent"),
           ee(_ee), condition(0), command(0), tester(0), dataobject(0)
     {}
 
-    void HMIConsoleInputImpl::loop()
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::loop()
     {
         cout << endl<<
             "  This simple console reader can only accept start and stop \n\
@@ -43,7 +50,7 @@ namespace ORO_ControlKernel
             }
     }
 
-    void HMIConsoleInputImpl::evalCommand(std::string& comm )
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::evalCommand(std::string& comm )
     {
         if ( ee == 0 )
             return;
@@ -64,13 +71,13 @@ namespace ORO_ControlKernel
         if ( tester ) // only commandobject name was typed
             {
                 std::vector<std::string> methods = tester->getMethodList();
-                std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInputImpl::printMethod, this, _1) );
+                std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::printMethod, this, _1) );
             }
                     
         if ( dataobject ) // only dataobject name was typed
             {
                 std::vector<std::string> methods = dataobject->dataNames();
-                std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInputImpl::printSource, this, _1) );
+                std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::printSource, this, _1) );
             }
         if ( tester || dataobject )
             return;
@@ -96,9 +103,14 @@ namespace ORO_ControlKernel
         }
     }
 
-    void HMIConsoleInputImpl::printHelp()
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::printHelp()
     {
         using boost::lambda::_1;
+        if (ee == 0){
+            cout << "  The HMIConsoleInput object hasn't got a reference to the Execution"<<endl;
+            cout <<"   Engine on construction. No Commands are available."<<endl;
+            return;
+        }
         cout << endl;
         cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
         cout << "  name, followed by the parameters. An example could be :"<<endl;
@@ -115,7 +127,7 @@ namespace ORO_ControlKernel
             
     }
         
-    void HMIConsoleInputImpl::printMethod( const std::string m )
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::printMethod( const std::string m )
     {
         using boost::lambda::_1;
         std::vector<ArgumentDescription> args;
@@ -131,7 +143,7 @@ namespace ORO_ControlKernel
         cout <<endl;
     }
                 
-    void HMIConsoleInputImpl::printSource( const std::string m )
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::printSource( const std::string m )
     {
         using boost::lambda::_1;
         std::vector<ArgumentDescription> args;
@@ -147,29 +159,29 @@ namespace ORO_ControlKernel
         cout <<endl;
     }
                 
-    void HMIConsoleInputImpl::startButton()
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::startButton()
     {
         start = true;
         startEvent.fire();
     }
 
-    void HMIConsoleInputImpl::stopButton()
+    void HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::stopButton()
     {
         start = false;
     }
 
-    bool HMIConsoleInputImpl::startPushed() const
+    bool HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::startPushed() const
     {
         return start;
     }
 
-    DataSourceFactoryInterface* HMIConsoleInputImpl::createDataSourceFactory()
+    DataSourceFactoryInterface* HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::createDataSourceFactory()
     {
-        TemplateDataSourceFactory< HMIConsoleInputImpl >* ret =
+        TemplateDataSourceFactory< HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > > >* ret =
             newDataSourceFactory( this );
         ret->add( "startPushed", 
-                  data( &HMIConsoleInputImpl::startPushed, "Is the start button pushed ? " ) );
+                  data( &HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >::startPushed, "Is the start button pushed ? " ) );
         return ret;
     }
-
+#endif
 }

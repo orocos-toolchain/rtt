@@ -1,8 +1,15 @@
+
+#pragma implementation
 #include "kernel_components/HMIConsoleOutput.hpp"
+
+
 
 namespace ORO_ControlKernel
 {
 
+    template class HMIConsoleOutput<>;
+
+#if 0
     HMIConsoleOutputImpl::HMIConsoleOutputImpl()
         : HMIConsoleOutputImpl::Base("console_output"), coloron("\033[1;34m"), coloroff("\033[0m")
     {}
@@ -70,4 +77,6 @@ namespace ORO_ControlKernel
                            ) );
         return ret;
     }
+
+#endif
 }

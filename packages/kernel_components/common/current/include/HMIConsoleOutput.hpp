@@ -34,6 +34,7 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #include <iostream>
 
+#pragma interface
 namespace ORO_ControlKernel
 {
     using namespace ORO_Execution;
@@ -47,7 +48,7 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base>
+    template< class Base = SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
     class HMIConsoleOutput
         : public Base
     {
@@ -130,6 +131,9 @@ namespace ORO_ControlKernel
         }
     };
 
+    extern template class HMIConsoleOutput<>;
+
+#if 0
     /**
      * @brief This component can be used to display messages on the
      * standard output. 

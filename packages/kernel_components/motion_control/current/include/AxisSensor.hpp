@@ -42,6 +42,10 @@
 #include <string>
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
+
+#pragma interface
 
 namespace ORO_ControlKernel
 {
@@ -61,7 +65,7 @@ namespace ORO_ControlKernel
     {
         AxisInput()
         {
-            this->insert( make_pair(1,"ChannelMeasurements") );
+            this->insert( std::make_pair(1,"ChannelMeasurements") );
         }
     };
 
@@ -75,7 +79,7 @@ namespace ORO_ControlKernel
      * @todo : Better channel<->sensor assignment
      * @ingroup kcomps kcomp_sensor
      */
-    template <class Base>
+    template <class Base = Sensor< Writes<AxisInput>, MakeExtension<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class AxisSensor
         : public Base
     {
@@ -291,13 +295,13 @@ namespace ORO_ControlKernel
         /**
          * Write Analog input to DataObject.
          */
-        void drive_to_do( std::pair<std::string,pair<AnalogDrive*,
+        void drive_to_do( std::pair<std::string,std::pair<AnalogDrive*,
                           DataObjectInterface<double>* > > dd )
         {
             dd.second.second->Set( dd.second.first->driveGet() );
         }
             
-        void sensor_to_do( std::pair<std::string,pair< const SensorInterface<double>*,
+        void sensor_to_do( std::pair<std::string,std::pair< const SensorInterface<double>*,
                            DataObjectInterface<double>* > > dd )
         {
             dd.second.second->Set( dd.second.first->readSensor() );
@@ -305,7 +309,7 @@ namespace ORO_ControlKernel
             
         Property<int> max_channels;
 
-        std::vector< pair< const SensorInterface<double>*, Axis* > > channels;
+        std::vector< std::pair< const SensorInterface<double>*, Axis* > > channels;
         ChannelType chan_meas;
         DataObjectInterface< ChannelType >* chan_DObj;
 
@@ -313,16 +317,18 @@ namespace ORO_ControlKernel
         std::map<std::string, DigitalOutput* > d_out;
 
         typedef
-        std::map<std::string, pair<AnalogDrive*, DataObjectInterface<double>* > > DriveMap;
+        std::map<std::string, std::pair<AnalogDrive*, DataObjectInterface<double>* > > DriveMap;
         DriveMap drive;
         typedef
-        std::map<std::string, pair< const SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
+        std::map<std::string, std::pair< const SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
         SensorMap sensor;
         typedef
         std::map<std::string, Axis* > AxisMap;
         AxisMap axes;
         
     };
+
+    extern template class AxisSensor<>;
 
 }
 

@@ -40,6 +40,8 @@
 #include <map>
 #include <control_kernel/DataServer.hpp>
 
+#pragma interface
+
 /**
  * @file GenericEffector.hpp
  * This file contains a for most applications
@@ -73,7 +75,7 @@ namespace ORO_ControlKernel
      * can also use simulated hardware.
      * @ingroup kcomps kcomp_effector
      */
-    template <class Base>
+    template <class Base = GenericEffector< Expects<GenericOutput>, MakeExtension<KernelBaseFunction,ExecutionExtension>::Result::CommonBase > >
     class GenericEffector
         : public Base
     {
@@ -346,7 +348,6 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-        template< class T >
         bool true_gen() const { return true; }
 
         CommandFactoryInterface* createCommandFactory()
@@ -402,6 +403,8 @@ namespace ORO_ControlKernel
 
         int usingChannels;
     };
+
+    extern template class GenericEffector<>;
 
 }
 #endif

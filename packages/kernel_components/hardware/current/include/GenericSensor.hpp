@@ -46,6 +46,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
 
+#pragma interface
+
 /**
  * @file GenericSensor.hpp
  * This file contains a for most applications
@@ -83,7 +85,8 @@ namespace ORO_ControlKernel
      * can also use simulated hardware.
      * @ingroup kcomps kcomp_sensor
      */
-    template <class Base>
+    template <class Base = Sensor< Writes<GenericInput>,
+                                   MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase> >
     class GenericSensor
         : public Base
     {
@@ -367,6 +370,8 @@ namespace ORO_ControlKernel
                         DataObjectInterface<double>* > > AInMap;
         AInMap a_in;
     };
+
+    extern template class GenericSensor<>;
 
 }
 
