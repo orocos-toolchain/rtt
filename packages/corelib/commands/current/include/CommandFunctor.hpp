@@ -26,8 +26,8 @@
  ***************************************************************************/ 
  
  
-#ifndef ORO_COMMANDFunction_HPP
-#define ORO_COMMANDFunction_HPP
+#ifndef ORO_COMMANDFUNCTOR_HPP
+#define ORO_COMMANDFUNCTOR_HPP
 
 #include "CommandInterface.hpp"
 
@@ -38,21 +38,22 @@ namespace ORO_CoreLib
      *
      * See the boost::bind documentation (www.boost.org) for more examples.
      *
-     * @verbatim
      * Usage :
+     * @verbatim
      * void myFun(void);
      * bool myFun( ClassA* a );
      * ClassA* _class;
      *
+     * // Watch the 'newCommandFunctor' _function_ :
      * CommandInterface* c,d;
-     * c = new CommandFunction( boost::bind( &myFun ) );
+     * c = newCommandFunctor( boost::bind( &myFun ) );
      * c->execute(); // calls myFun();
-     * d = new CommandFunction( boost::bind(&myFun2, _class) );
+     * d = newCommandFunctor( boost::bind(&myFun2, _class) );
      * d->execute(); // calls myFun2( _class );
      * @endverbatim
      */
     template< class F >
-    class CommandFunction
+    class CommandFunctor
         : public CommandInterface
     {
         F f;
@@ -62,17 +63,29 @@ namespace ORO_CoreLib
         /**
          * Create a command calling a function.
          */
-        CommandFunction(Function& func) : f(func) {}
+        CommandFunctor(Function& func) : f(func) {}
 
-        virtual ~CommandFunction() {}
+        virtual ~CommandFunctor() {}
 
         virtual void execute() { f(); }
 
         virtual CommandInterface* clone() const
         {
-            return new CommandFunction(f);
+            return new CommandFunctor<F>(f);
         }
     };
+
+    /**
+     * @brief Helper function to create a new CommandFunctor.
+     * @param f The function to wrap in a CommandFunctor.
+     * @return a new CommandInterface object which will call the
+     * function \a f when execute()'ed.
+     */
+    template<class F>
+    CommandInterface* newCommandFunctor( F& f )
+    {
+        return new CommandFunctor<F>(f);
+    }
 }
 
 #endif
