@@ -334,6 +334,17 @@ namespace ORO_ControlKernel
             //std::cout << "Properties imported! : " << _K << _Ti << _Td << _N << _Tt << _minu << _maxu << std::endl;
             return true;
         }
+
+        virtual void exportProperties( PropertyBag& bag ) {
+            bag.add ( &_K );
+            bag.add ( &_Kff );
+            bag.add ( &_Ti );
+            bag.add ( &_Td );
+            bag.add ( &_N );
+            bag.add ( &_Tt );
+            bag.add ( &_minu );
+            bag.add ( &_maxu );
+        }
       
     protected:
 
