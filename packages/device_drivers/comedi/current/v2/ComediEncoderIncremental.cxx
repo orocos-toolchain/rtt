@@ -16,6 +16,7 @@
 //  
 
 #include "ComediEncoderIncremental.hpp"
+#include <os/fosi.h>
 
 namespace ORO_DeviceDriver
 {
