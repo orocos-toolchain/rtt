@@ -50,9 +50,7 @@ class JR3WrenchSensor : public ORO_CoreLib::TaskNonPreemptible,
 {
 public:
     // Constructor
-    JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type, ORO_CoreLib::Event<void(void)> maximumload);
-
-    JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type);
+    JR3WrenchSensor(unsigned int DSP, float samplePeriod, unsigned int type, ORO_CoreLib::Event<void(void)>& maximumload);
 
     virtual ~JR3WrenchSensor();
 
@@ -123,8 +121,6 @@ private:
     mutable ORO_OS::Mutex      _readLock;
     
     ORO_CoreLib::Event<void(void)> _maximumload_event;
-
-    bool _has_events;
   
     // The offsets currently in use
     ForceArray       _currentOffset;

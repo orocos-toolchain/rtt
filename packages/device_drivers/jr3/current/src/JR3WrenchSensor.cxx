@@ -41,17 +41,25 @@
 namespace ORO_DeviceDriver
 {
 
-JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type, ORO_CoreLib::Event<void(void)> maximumload)
+JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, unsigned int type, ORO_CoreLib::Event<void(void)>& maximumload)
 
-    : TaskNonPreemptible( samplePeriod ), _type(type), _filterToReadFrom(Filter6), _dsp(DSP)
+    : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
 {
-    chooseFilter( this->periodGet() );
-    _readBuffer  = &_buffer1;
-    _writeBuffer = &_buffer2;
+  &_maximumload_event = *maximumload;
 
-    JR3DSP_setUnits_N_dNm_mmX10(_dsp);
+  switch (type){
+    case 0: { _type = Undefined;  break; }
+    case 1: { _type = _200N20;    break; }
+    case 2: { _type = _100N5;     break; }
+  }
+
+  chooseFilter( this->periodGet() );
+  _readBuffer  = &_buffer1;
+  _writeBuffer = &_buffer2;
+
+  JR3DSP_setUnits_N_dNm_mmX10(_dsp);
 }
-
+  
 
 JR3WrenchSensor::~JR3WrenchSensor( )
 {
