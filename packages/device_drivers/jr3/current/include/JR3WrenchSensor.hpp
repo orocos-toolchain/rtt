@@ -106,7 +106,7 @@ protected:
     
 private:
     // Copy constructor not implemented
-    JR3WrenchSensor(JR3WrenchSensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6) {};
+    JR3WrenchSensor(const JR3WrenchSensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6) {};
     void refresh();
     void switchBuffers();
 
