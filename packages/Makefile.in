@@ -21,7 +21,7 @@ orocos-dist: doc-dist
 doc-dist:
 	@echo "Making doc tarballs..."
 	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) dist; done
-	@find . -name "*.eps" | xargs rm
+	@find . -name "*.eps" -o -name "*.pdf" -o -name "*.ps" | xargs rm
 	@rm -rf orocos-docs
 	@mkdir  orocos-docs
 	@echo "Copying..."
@@ -29,9 +29,13 @@ doc-dist:
 	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz; )
 	@echo "Done !"
 
+html-dist:
+	@echo "Making html docs..."
+	@for i in $$(find . -name Makefile); do make dochtml -C $$(dirname $$i); done
+
 doxy-dist:
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
 	@doxygen >/dev/null || exit 1
 	@if [ -d doc ] ; then echo "Tarring API docs..." ;\
-	tar -cjf orocos-docs/orocos-api.tar.bz2 doc; fi
+	tar -cjf orocos-api.tar.bz2 doc; fi
 
