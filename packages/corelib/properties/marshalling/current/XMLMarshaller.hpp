@@ -62,6 +62,13 @@ namespace ORO_CoreLib
 						<< v.get() << "</int>\n";
 				}
 
+				virtual void serialize(const Property<unsigned int> &v) 
+				{ 
+					*s << "<uint id=\""<< v.getName() 
+						<<"\" description=\"" << v.getDescription() <<"\">"
+						<< v.get() << "</uint>\n";
+				}
+
 				virtual void serialize(const Property<double> &v) 
 				{
 					*s << "<double id=\""<< v.getName() 
@@ -116,6 +123,11 @@ namespace ORO_CoreLib
 				}
 
 				virtual void introspect(const Property<int> &v) 
+				{ 
+					serialize(v);
+				}
+
+				virtual void introspect(const Property<unsigned int> &v) 
 				{ 
 					serialize(v);
 				}

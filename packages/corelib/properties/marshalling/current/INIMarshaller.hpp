@@ -51,6 +51,11 @@ namespace ORO_CoreLib
                 _os << v.getName() << " = " << v.get() << "\n";
 			}
 			
+			virtual void serialize(const Property<unsigned int> &v) 
+			{ 
+                _os << v.getName() << " = " << v.get() << "\n";
+			}
+			
 			virtual void serialize(const Property<double> &v) 
 			{
                 _os << v.getName() << " = " << v.get() << "\n";
@@ -100,6 +105,11 @@ namespace ORO_CoreLib
 			}
 
 			virtual void introspect(const Property<int> &v) 
+			{ 
+                serialize(v);
+			}
+			
+			virtual void introspect(const Property<unsigned int> &v) 
 			{ 
                 serialize(v);
 			}

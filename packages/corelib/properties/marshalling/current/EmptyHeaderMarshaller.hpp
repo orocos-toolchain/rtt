@@ -40,6 +40,10 @@ namespace ORO_CoreLib
         { 
         }
 			
+        virtual void serialize(const Property<unsigned int> &v) 
+        { 
+        }
+			
         virtual void serialize(const Property<double> &v) 
         {
         }

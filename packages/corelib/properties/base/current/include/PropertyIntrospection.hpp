@@ -65,6 +65,12 @@ namespace ORO_CoreLib
 			virtual void introspect(const Property<int> &v) = 0;
 			
 			/**
+			 * introspect a property of type unsigned int.
+			 * @param v The property to be introspectd.
+			 */
+			virtual void introspect(const Property<unsigned int> &v) = 0;
+			
+			/**
 			 * introspect a property of type double.
 			 * @param v The property to be introspectd.
 			 */

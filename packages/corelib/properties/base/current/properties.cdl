@@ -11,7 +11,7 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile PropertyBag.cxx  PropertySequence.cxx
+    compile PropertyBag.cxx  PropertySequence.cxx VectorComposition.cxx
 
     cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
 	display "Cast-free property operations"

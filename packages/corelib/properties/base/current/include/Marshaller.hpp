@@ -59,6 +59,12 @@ namespace ORO_CoreLib
 			virtual void serialize(const Property<int> &v) = 0;
 			
 			/**
+			 * Serialize a property of type unsigned int.
+			 * @param v The property to be serialized.
+			 */
+			virtual void serialize(const Property<unsigned int> &v) = 0;
+			
+			/**
 			 * Serialize a property of type double.
 			 * @param v The property to be serialized.
 			 */

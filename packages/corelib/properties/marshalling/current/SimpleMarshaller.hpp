@@ -66,6 +66,7 @@ namespace ORO_CoreLib
 		static const char TYPECODE_BOOL = 'B';
 		static const char TYPECODE_CHAR = 'C';
 		static const char TYPECODE_INT  = 'I';
+		static const char TYPECODE_UINT  = 'U';
 		static const char TYPECODE_DOUBLE = 'D';
 		static const char TYPECODE_STRING = 'S';
 
@@ -106,6 +107,19 @@ namespace ORO_CoreLib
 				buffer << v.get();
 				buffer >> s;	
                 _os << TYPECODE_INT;
+				_os.put(v.getName().size());
+				_os	<< v.getName() << ":";
+				_os.put(s.size());
+				_os << s << ";";
+			}
+			
+			virtual void serialize(const Property<unsigned int> &v) 
+			{ 
+				std::stringstream buffer;
+                std::string s;
+				buffer << v.get();
+				buffer >> s;	
+                _os << TYPECODE_UINT;
 				_os.put(v.getName().size());
 				_os	<< v.getName() << ":";
 				_os.put(s.size());
@@ -161,6 +175,11 @@ namespace ORO_CoreLib
 			}
 
 			virtual void introspect(const Property<int> &v) 
+			{ 
+                serialize(v);
+			}
+			
+			virtual void introspect(const Property<unsigned int> &v) 
 			{ 
                 serialize(v);
 			}

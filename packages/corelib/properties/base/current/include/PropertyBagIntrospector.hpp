@@ -60,6 +60,11 @@ namespace ORO_CoreLib
             mystack.top()->add( v.clone() );
         }
         
+        virtual void introspect(const Property<unsigned int> &v)
+        {
+            mystack.top()->add( v.clone() );
+        }
+         
         virtual void introspect(const Property<double> &v)
         {
             mystack.top()->add( v.clone() );
