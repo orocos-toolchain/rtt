@@ -379,6 +379,104 @@ namespace ORO_Execution
         return fun( comp, a, b, c );
       }
   };
+
+  template<typename ComponentT, typename ResultT, typename FunctorT,
+           typename FirstArgumentT, typename SecondArgumentT,
+           typename ThirdArgumentT, typename FourthArgumentT>
+  class TemplateFactoryFunctorPart4
+    : public TemplateFactoryPart<ComponentT, ResultT>
+  {
+    typedef FunctorT fun_t;
+    typedef typename remove_cr<FirstArgumentT>::type
+      first_argument_type;
+    typedef typename remove_cr<SecondArgumentT>::type
+      second_argument_type;
+    typedef typename remove_cr<ThirdArgumentT>::type
+      third_argument_type;
+    typedef typename remove_cr<FourthArgumentT>::type
+      fourth_argument_type;
+
+    fun_t fun;
+    const char* arg1name;
+    const char* arg1desc;
+    const char* arg2name;
+    const char* arg2desc;
+    const char* arg3name;
+    const char* arg3desc;
+    const char* arg4name;
+    const char* arg4desc;
+  public:
+    TemplateFactoryFunctorPart4( fun_t f, const char* desc, const char* a1n,
+                                 const char* a1d, const char* a2n,
+                                 const char* a2d, const char* a3n,
+                                 const char* a3d, const char* a4n,
+                                 const char* a4d )
+      : TemplateFactoryPart<ComponentT,ResultT>( desc ), fun( f ),
+        arg1name( a1n ), arg1desc( a1d ),
+        arg2name( a2n ), arg2desc( a2d ),
+        arg3name( a3n ), arg3desc( a3d ),
+        arg4name( a4n ), arg4desc( a4d )
+      {
+      }
+
+    PropertyBag getArgumentSpec() const
+      {
+        PropertyBag ret;
+        ret.add( new Property<first_argument_type>( arg1name, arg1desc ) );
+        ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
+        ret.add( new Property<third_argument_type>( arg3name, arg3desc ) );
+        ret.add( new Property<fourth_argument_type>( arg4name, arg4desc ) );
+        return ret;
+      }
+
+     std::vector< ArgumentDescription > getArgumentList( ) const
+      {
+          std::vector< ArgumentDescription > mlist;
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
+          mlist.push_back( ArgumentDescription( arg3name, arg3desc ) );
+          mlist.push_back( ArgumentDescription( arg4name, arg4desc ) );
+          return mlist;
+      }
+
+    ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
+      {
+        PropertyBag::PropertyContainerType props = bag.getProperties();
+        if ( props.size() != 4 )
+          throw wrong_number_of_args_exception( 4, props.size() );
+        Property<first_argument_type>* arg1 =
+          dynamic_cast<Property<first_argument_type>*>( props[0] );
+        if ( !arg1 ) throw wrong_types_of_args_exception( 1 );
+        Property<second_argument_type>* arg2 =
+          dynamic_cast<Property<second_argument_type>*>( props[1] );
+        if ( !arg2 ) throw wrong_types_of_args_exception( 2 );
+        Property<third_argument_type>* arg3 =
+          dynamic_cast<Property<third_argument_type>*>( props[2] );
+        if ( !arg3 ) throw wrong_types_of_args_exception( 3 );
+        Property<fourth_argument_type>* arg4 =
+          dynamic_cast<Property<fourth_argument_type>*>( props[3] );
+        if ( !arg4 ) throw wrong_types_of_args_exception( 4 );
+        return fun( comp, arg1->get(), arg2->get(), arg3->get(), arg4->get() );
+      }
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
+      {
+        if ( args.size() != 3 )
+          throw wrong_number_of_args_exception( 3, args.size() );
+        DataSource<first_argument_type>* a =
+          dynamic_cast<DataSource<first_argument_type>*>( args[0] );
+        if ( !a ) throw wrong_types_of_args_exception( 1 );
+        DataSource<second_argument_type>* b =
+          dynamic_cast<DataSource<second_argument_type>*>( args[1] );
+        if ( !b ) throw wrong_types_of_args_exception( 2 );
+        DataSource<third_argument_type>* c =
+          dynamic_cast<DataSource<third_argument_type>*>( args[2] );
+        if ( !c ) throw wrong_types_of_args_exception( 3 );
+        DataSource<fourth_argument_type>* d =
+          dynamic_cast<DataSource<fourth_argument_type>*>( props[3] );
+        if ( !arg4 ) throw wrong_types_of_args_exception( 4 );
+        return fun( comp, a, b, c, d );
+      }
+  };
     /**
      * @}
      */
@@ -425,6 +523,18 @@ namespace ORO_Execution
   {
     return new TemplateFactoryFunctorPart3<ComponentT, ResultT, FunctorT,
       Arg1T, Arg2T, Arg3T>( fun, desc, an, ad, bn, bd, cn, cd);
+  }
+
+  template<typename ComponentT, typename ResultT,
+           typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T
+           typename FunctorT>
+  TemplateFactoryFunctorPart4<ComponentT, ResultT, FunctorT, Arg1T, Arg2T,
+                              Arg3T, Arg4T>*
+  fun_fact( FunctorT fun, const char* desc, const char* an, const char* ad,
+            const char* bn, const char* bd, const char* cn, const char* cd, const char* dn, const char* dd )
+  {
+    return new TemplateFactoryFunctorPart4<ComponentT, ResultT, FunctorT,
+      Arg1T, Arg2T, Arg3T, Arg4T>( fun, desc, an, ad, bn, bd, cn, cd, dn, dd);
   }
   /**
    * @}

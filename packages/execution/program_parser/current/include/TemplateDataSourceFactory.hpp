@@ -147,6 +147,82 @@ namespace ORO_Execution
       }
   };
 
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
+  class FunctorDataSource3
+    : public DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type >
+  {
+    FunctorT gen;
+    typedef typename boost::remove_const<typename boost::remove_reference<
+      typename FunctorT::result_type>::type>::type value_t;
+    typename DataSource<Arg1T>::shared_ptr arg1;
+    typename DataSource<Arg2T>::shared_ptr arg2;
+    typename DataSource<Arg3T>::shared_ptr arg3;
+  public:
+    FunctorDataSource3( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3 )
+        : gen( g ), arg1( a1 ), arg2(a2), arg3(a3)
+      {
+      };
+
+    value_t get() const
+      {
+        Arg1T a_1 = arg1->get();
+        Arg2T a_2 = arg2->get();
+        Arg3T a_3 = arg3->get();
+        return gen( a_1, a_2, a_3 );
+      }
+
+    virtual DataSource<value_t>* clone() const
+      {
+        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1.get(), arg2.get(), arg3.get() );
+      }
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
+      }
+  };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+  class FunctorDataSource4
+    : public DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type >
+  {
+    FunctorT gen;
+    typedef typename boost::remove_const<typename boost::remove_reference<
+      typename FunctorT::result_type>::type>::type value_t;
+    typename DataSource<Arg1T>::shared_ptr arg1;
+    typename DataSource<Arg2T>::shared_ptr arg2;
+    typename DataSource<Arg3T>::shared_ptr arg3;
+    typename DataSource<Arg4T>::shared_ptr arg4;
+  public:
+    FunctorDataSource4( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
+                        DataSource<Arg3T>* a3, DataSource<Arg4T>* a4 )
+        : gen( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4)
+      {
+      };
+
+    value_t get() const
+      {
+        Arg1T a_1 = arg1->get();
+        Arg2T a_2 = arg2->get();
+        Arg3T a_3 = arg3->get();
+        Arg4T a_4 = arg4->get();
+        return gen( a_1, a_2, a_3, a_4 );
+      }
+
+    virtual DataSource<value_t>* clone() const
+      {
+        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1.get(), arg2.get(),
+                                                                             arg3.get(), arg4.get() );
+      }
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
+      }
+  };
+
   /**
    * @}
    */
@@ -253,6 +329,54 @@ namespace ORO_Execution
         return newFunctorDataSource( boost::bind( fun, c, _1, _2 ), a, a2 );
       };
   };
+
+    template<typename ComponentT, typename ResultT,
+             typename Arg1T, typename Arg2T,
+             typename Arg3T,
+           typename FunctorT>
+  class FunctorDataSourceGenerator3
+  {
+    FunctorT fun;
+  public:
+    FunctorDataSourceGenerator3( FunctorT f )
+      : fun( f )
+      {
+      };
+    DataSource<ResultT>* operator()( ComponentT* c, Arg1T a, Arg2T a2, Arg3T a3 ) const
+      {
+        return newFunctorDataSource( boost::bind( fun, c, a, a2, a3) );
+      };
+    DataSource<ResultT>* operator()(
+      ComponentT* c, DataSource<Arg1T>* a, DataSource<Arg2T>* a2
+      , DataSource<Arg3T>* a3 ) const
+      {
+        return newFunctorDataSource( boost::bind( fun, c, _1, _2, _3 ), a, a2, a3);
+      };
+  };
+
+    template<typename ComponentT, typename ResultT,
+             typename Arg1T, typename Arg2T,
+             typename Arg3T, typename Arg4T,
+           typename FunctorT>
+  class FunctorDataSourceGenerator4
+  {
+    FunctorT fun;
+  public:
+    FunctorDataSourceGenerator4( FunctorT f )
+      : fun( f )
+      {
+      };
+    DataSource<ResultT>* operator()( ComponentT* c, Arg1T a, Arg2T a2, Arg3T a3, Arg4T a4 ) const
+      {
+        return newFunctorDataSource( boost::bind( fun, c, a, a2, a3, a4 ) );
+      };
+    DataSource<ResultT>* operator()(
+      ComponentT* c, DataSource<Arg1T>* a, DataSource<Arg2T>* a2
+      , DataSource<Arg3T>* a3, DataSource<Arg4T>* a4 ) const
+      {
+        return newFunctorDataSource( boost::bind( fun, c, _1, _2, _3, _4 ), a, a2, a3, a4 );
+      };
+  };
   /**
    * @}
    */
@@ -285,6 +409,23 @@ namespace ORO_Execution
   {
     return FunctorDataSourceGenerator2<
       ComponentT, ResultT, Arg1T, Arg2T, FunctorT>( fun );
+  };
+
+    template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T,
+           typename FunctorT>
+  FunctorDataSourceGenerator3<ComponentT, ResultT, Arg1T, Arg2T, Arg3T, FunctorT>
+  fun_datasource_gen( FunctorT fun )
+  {
+    return FunctorDataSourceGenerator3<
+      ComponentT, ResultT, Arg1T, Arg2T, Arg3T, FunctorT>( fun );
+  };
+    template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T,
+           typename FunctorT>
+  FunctorDataSourceGenerator4<ComponentT, ResultT, Arg1T, Arg2T, Arg3T, Arg4T, FunctorT>
+  fun_datasource_gen( FunctorT fun )
+  {
+    return FunctorDataSourceGenerator4<
+      ComponentT, ResultT, Arg1T, Arg2T, Arg3T, Arg4T, FunctorT>( fun );
   };
   /**
    * @}
@@ -386,6 +527,7 @@ namespace ORO_Execution
    * each argument of the data.
    *
    * TODO: more overloads to support a larger number of arguments.
+   * We support zero to four arguments.
    * @{
    */
   template<typename ComponentT, typename ResultT>
@@ -433,9 +575,47 @@ namespace ORO_Execution
       DataSourceBase*, Arg1T, Arg2T>(
         fun_datasource_gen<ComponentT, ResultT,
         typename remove_cr<Arg1T>::type,
-        typename remove_cr<Arg1T>::type>
+        typename remove_cr<Arg2T>::type>
         (
           boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
+  TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
+                      DataSourceBase*>*
+  data( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) const, const char* desc,
+        const char* a1n, const char* a1d,
+        const char* a2n, const char* a2d,
+        const char* a3n, const char* a3d)
+  {
+    return fun_fact<typename boost::remove_const<ComponentT>::type,
+      DataSourceBase*, Arg1T, Arg2T, Arg3T>(
+        fun_datasource_gen<ComponentT, ResultT,
+        typename remove_cr<Arg1T>::type,
+        typename remove_cr<Arg2T>::type,
+        typename remove_cr<Arg3T>::type>
+        (
+          boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d);
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+  TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
+                      DataSourceBase*>*
+  data( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) const, const char* desc,
+        const char* a1n, const char* a1d,
+        const char* a2n, const char* a2d,
+        const char* a3n, const char* a3d,
+        const char* a4n, const char* a4d)
+  {
+    return fun_fact<typename boost::remove_const<ComponentT>::type,
+      DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
+        fun_datasource_gen<ComponentT, ResultT,
+        typename remove_cr<Arg1T>::type,
+        typename remove_cr<Arg2T>::type,
+        typename remove_cr<Arg3T>::type,
+        typename remove_cr<Arg4T>::type>
+        (
+          boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d, a4n, a4d );
   };
 
   /**
