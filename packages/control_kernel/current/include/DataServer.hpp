@@ -75,7 +75,7 @@ namespace ORO_ControlKernel
          * Get a member variable of a DataObject.
          * @return true if it could be get, false otherwise.
          */
-        bool Get(const std::string& name, MemberType& m)
+        bool Get(const std::string& name, MemberType& m) const
         {
             DataObjectType_ptr res;
             if ( (res = ns.getObject(prefix + name) ) )

@@ -160,7 +160,7 @@ namespace ORO_ControlKernel
              *
              * @return true on success, false otherwise
              */
-            virtual bool componentStartUp() { return true; }
+            virtual bool componentStartup() { return true; }
 
             /**
              * This method is a hook which is called when the kernel

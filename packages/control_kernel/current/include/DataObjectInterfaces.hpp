@@ -339,7 +339,7 @@ namespace ORO_ControlKernel
      *          NA : Not allowed !
      * @endverbatim
      * Further, multiple reads may occur before, during and after
-     * a read operation simultaneously. The buffer needs readers+2
+     * a write operation simultaneously. The buffer needs readers+3
      * elements to be guaranteed non blocking.
      */
     template<class _DataType>
@@ -357,7 +357,8 @@ namespace ORO_ControlKernel
          * @brief The size of the buffer.
          *
          * The size of the buffer is for now statically determined, 
-         * which allows for 8 readers and 1 writer. This is to be
+         * which allows for 7 readers and 1 writer (a total of 8 threads !)
+         * This is to be
          * improved. Heaping is an option, but the hardest problem
          * remains setting the size of the buffer.
          */

@@ -136,11 +136,11 @@ namespace ORO_ControlKernel
                             // and shuts them down again if one failed.
                             // sx = true : ok ; sx = false : failure
                             bool s1 = false, s2 = false, s3 = false, s4 = false ,s5 = false;
-                            if ( (s1 = sensor->componentStartUp()) )
-                                if ( (s2 = estimator->componentStartUp()) )
-                                    if ( (s3 = generator->componentStartUp()) )
-                                        if ( (s4 = controller->componentStartUp()) )
-                                            s5 = effector->componentStartUp();
+                            if ( (s1 = sensor->componentStartup()) )
+                                if ( (s2 = estimator->componentStartup()) )
+                                    if ( (s3 = generator->componentStartup()) )
+                                        if ( (s4 = controller->componentStartup()) )
+                                            s5 = effector->componentStartup();
 
                             startup = !(s1 && s2 && s3 && s4 && s5); // startup=false if all starts were successful
 
@@ -324,7 +324,7 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 {
                     controller->componentShutdown();
-                    c->componentStartUp();
+                    c->componentStartup();
                 }
 
             controller=c;
@@ -436,7 +436,7 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 {
                     generator->componentShutdown();
-                    c->componentStartUp();
+                    c->componentStartup();
                 }
 
             generator=c;
@@ -542,7 +542,7 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 {
                     estimator->componentShutdown();
-                    c->componentStartUp();
+                    c->componentStartup();
                 }
             estimator=c;
             return true;
@@ -644,7 +644,7 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 {
                     sensor->componentShutdown();
-                    c->componentStartUp();
+                    c->componentStartup();
                 }
 
             sensor=c;
@@ -747,7 +747,7 @@ namespace ORO_ControlKernel
             if ( this->isRunning() )
                 {
                     effector->componentShutdown();
-                    c->componentStartUp();
+                    c->componentStartup();
                 }
 
             effector=c;
