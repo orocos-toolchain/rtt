@@ -73,25 +73,48 @@ namespace ORO_Execution {
             // the created commands are copied, they also get the new this pointer.
             // This requires template specialisations on the TemplateFactory level.
             TemplateCommandFactory< DataSource<StateMachineCommands*> >* fact = newCommandFactory( static_cast< DataSource<StateMachineCommands*>* >(_this.get()) );
-            fact->add("activate",command_ds(&StateMachineCommands::activate, &StateMachineCommands::isActive, "Activate this StateMachine to initial state"));
-            fact->add("deactivate",command_ds(&StateMachineCommands::deactivate, &StateMachineCommands::isActive, "Deactivate this StateMachine from final state", true));
-            fact->add("start",command_ds(&StateMachineCommands::start, &StateMachineCommands::isRunning, "Start this StateMachine from initial state"));
-            fact->add("pause",command_ds(&StateMachineCommands::pause, &StateMachineCommands::isPaused, "Pause this StateMachine"));
-            fact->add("step",command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused, "Step this StateMachine"));
-            fact->add("reset",command_ds(&StateMachineCommands::reset, &StateMachineCommands::inInitial, "Reset this StateMachine to the initial state"));
-            fact->add("stop",command_ds(&StateMachineCommands::stop, &StateMachineCommands::inFinal, "Stop this StateMachine to the final state"));
+            fact->add("activate",
+                      command_ds(&StateMachineCommands::activate, &StateMachineCommands::isStrictlyActive,
+                                 "Activate this StateMachine to initial state and enter request Mode."));
+            fact->add("deactivate",
+                      command_ds(&StateMachineCommands::deactivate, &StateMachineCommands::isActive,
+                                 "Deactivate this StateMachine", true));
+            fact->add("start",
+                      command_ds(&StateMachineCommands::start, &StateMachineCommands::isRunning,
+                                 "Start this StateMachine, enter run Mode."));
+            fact->add("pause",
+                      command_ds(&StateMachineCommands::pause, &StateMachineCommands::isPaused,
+                                 "Pause this StateMachine, enter paused Mode."));
+            fact->add("step",
+                      command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused,
+                                 "Step this StateMachine. When paused, step a single instruction or transition evaluation. \n"
+                                 "When in requestMode, evaluate transitions and go to a next state, or if none, run handle."));
+            fact->add("reset",
+                      command_ds(&StateMachineCommands::reset, &StateMachineCommands::inInitial,
+                                 "Reset this StateMachine to the initial state"));
+            fact->add("stop",
+                      command_ds(&StateMachineCommands::stop, &StateMachineCommands::inFinal,
+                                 "Stop this StateMachine to the final state and enter request Mode."));
+            fact->add("requestMode",
+                      command_ds(&StateMachineCommands::waitForRequest, &StateMachineCommands::isStrictlyActive,
+                                 "Enter state request mode (see requestState() and step() ). Command is done if ready for requestState() or step() command."));
+            fact->add("requestState",
+                      command_ds(&StateMachineCommands::requestState, &StateMachineCommands::inRequest,
+                                 "Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.",
+                                 "State", "The state to make the transition to."));
             return fact;
         }
 
         DataSourceFactoryInterface* createDataSourceFactory() {
             TemplateDataSourceFactory< DataSource<StateMachineCommands*> >* f = newDataSourceFactory(static_cast< DataSource<StateMachineCommands*>* >(_this.get()));
-            f->add("inState", data_ds(&StateMachineCommands::inState, "Is the StateMachine in a given state ?", "State Name", "State Name") );
+            f->add("inState", data_ds(&StateMachineCommands::inState, "Is the StateMachine in a given state ?", "State", "State Name") );
             f->add("getState", data_ds(&StateMachineCommands::getState, "The name of the current state. An empty string if not active.") );
-            f->add("isActive", data_ds(&StateMachineCommands::isActive, "Is this StateMachine activated ?") );
+            f->add("isActive", data_ds(&StateMachineCommands::isActive, "Is this StateMachine activated (possibly in transition) ?") );
             f->add("isRunning", data_ds(&StateMachineCommands::isRunning, "Is this StateMachine running ?") );
             f->add("isPaused", data_ds(&StateMachineCommands::isPaused, "Is this StateMachine paused ?") );
             f->add("inInitial", data_ds(&StateMachineCommands::inInitial, "Is this StateMachine in the initial state ?") );
             f->add("inFinal", data_ds(&StateMachineCommands::inFinal, "Is this StateMachine in the final state ?") );
+            f->add("inRequest", data_ds(&StateMachineCommands::inRequest, "Is this StateMachine ready and waiting for requests ?") );
             return f;
         }
 
@@ -105,20 +128,40 @@ namespace ORO_Execution {
             return tmp;
         }
 
+        bool waitForRequest() {
+            return _sc->getTaskContext()->getProcessor()->requestModeStateMachine( _sc->getName() );
+        }
+
+        bool inRequest() const {
+            // inRequest means ready for the next requestState command.
+            return this->isStrictlyActive() && ! this->isRunning() && ! this->isPaused();
+        }
+
+        bool requestState(const std::string& state) {
+            return _sc->getTaskContext()->getProcessor()->requestStateStateMachine( _sc->getName(), state );
+        }
+
         bool inState(const std::string& state) const {
-            if ( !this->isActive() )
+            if ( !_sc->isActive() )
                 return false;
             return _sc->currentState()->getName() == state;
         }
 
-        std::string getState() const {
-            if ( !this->isActive() )
-                return "";
+        std::string emptyString;
+        const std::string& getState() const {
+            if ( !_sc->isActive() )
+                return emptyString;
             return _sc->currentState()->getName();
         }
 
-        bool isActive() const {
+        // Strictly active, means active and not in a transition.
+        bool isStrictlyActive() const {
             return _sc->isActive() && !_sc->inTransition();
+        }
+
+        // just the fact of being activated, possibly in transition.
+        bool isActive() const {
+            return _sc->isActive();
         }
 
         bool inInitial() const {
@@ -130,6 +173,7 @@ namespace ORO_Execution {
         }
 
         bool isRunning() const {
+            // are we in run Mode ?
             return _sc->getTaskContext()->getProcessor()->getStateMachineStatus( _sc->getName() ) == Processor::StateMachineStatus::running;
         }
 

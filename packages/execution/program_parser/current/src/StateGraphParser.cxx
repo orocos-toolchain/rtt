@@ -110,7 +110,6 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( varline );
         BOOST_SPIRIT_DEBUG_RULE( state );
         BOOST_SPIRIT_DEBUG_RULE( vardec );
-        BOOST_SPIRIT_DEBUG_RULE( eventhandledecl );
         BOOST_SPIRIT_DEBUG_RULE( subMachinedecl );
         BOOST_SPIRIT_DEBUG_RULE( statecontent );
         BOOST_SPIRIT_DEBUG_RULE( statecontentline );
@@ -119,7 +118,6 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( handle );
         BOOST_SPIRIT_DEBUG_RULE( transitions );
         BOOST_SPIRIT_DEBUG_RULE( exit );
-        BOOST_SPIRIT_DEBUG_RULE( eeline );
         BOOST_SPIRIT_DEBUG_RULE( transline );
         BOOST_SPIRIT_DEBUG_RULE( selectcommand );
         BOOST_SPIRIT_DEBUG_RULE( brancher );

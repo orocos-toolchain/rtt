@@ -140,6 +140,8 @@ namespace ORO_Execution
       void seenwhilestatement();
       void endwhilestatement();
 
+      void seenbreakstatement();
+
       void seenforstatement();
       void seenforinit();
       void seenforincr();
@@ -155,8 +157,8 @@ namespace ORO_Execution
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           dostatement, trystatement, statement, line, content, program, valuechange_parsers,
-          production, valuechange, returnstatement, function, arguments, funcstatement,
-          continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement,
+          production, valuechange, returnstatement, function, functions, arguments, funcstatement,
+          continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement, breakstatement,
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
           condition, catchpart, funcargs, functionarg ;
 
@@ -183,6 +185,8 @@ namespace ORO_Execution
        * @throw file_parse_exception The parser found an error.
        */
       std::vector<ProgramGraph*> parse( iter_t& begin, iter_t end );
+
+      std::vector<FunctionGraph*> parseFunction( iter_t& begin, iter_t end );
 
       void initBodyParser(const std::string& name, TaskContext* stck, int offset);
       rule_t& bodyParser();

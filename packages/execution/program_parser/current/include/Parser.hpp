@@ -37,9 +37,11 @@
 #include "parse_exception.hpp"
 #include "DataSource.hpp"
 #include "ParsedStateMachine.hpp"
+#include "ProgramGraph.hpp"
 
 namespace ORO_Execution
 {
+    class FunctionGraph;
     class ProgramGraph;
     class TaskContext;
     class ParsedStateMachine;
@@ -66,6 +68,20 @@ namespace ORO_Execution
   class Parser
   {
   public:
+    /**
+     * @brief Reads out the stream, parses it, and returns a new @ref
+     * FunctionGraph.
+     * @throw parse_exception Throws exceptions of type parse_exception.
+     */
+      std::vector<FunctionGraph*> parseFunction( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+
+    /**
+     * @brief Open a file read-only, parses it, and returns a new @ref
+     * FunctionGraph.
+     * @throw parse_exception Throws exceptions of type parse_exception.
+     */
+      std::vector<FunctionGraph*> parseFunction( const std::string& filename, TaskContext* );
+
     /**
      * @brief Reads out the stream, parses it, and returns a new @ref
      * ProgramGraph..

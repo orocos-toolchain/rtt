@@ -58,12 +58,13 @@ namespace ORO_Execution
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
-        assertion<std::string> expect_ifblock("Expected a statement (block) after if .. then.");
-        assertion<std::string> expect_elseblock("Expected a statement (block) after else.");
+        assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
+        assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
         assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
         assertion<std::string> expect_expression("Expected an expression.");
         assertion<std::string> expect_command("Expected a command after 'do'.");
         assertion<std::string> expect_and_command("Expected a command after 'and'.");
+        assertion<std::string> expect_nl("Expected a newline after statement.");
     }
 
 
@@ -83,6 +84,12 @@ namespace ORO_Execution
         ln_offset(0)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
+    BOOST_SPIRIT_DEBUG_RULE( openbrace );
+    BOOST_SPIRIT_DEBUG_RULE( closebrace );
+    BOOST_SPIRIT_DEBUG_RULE( opencurly );
+    BOOST_SPIRIT_DEBUG_RULE( closecurly );
+    BOOST_SPIRIT_DEBUG_RULE( semicolon );
+    BOOST_SPIRIT_DEBUG_RULE( condition );
     BOOST_SPIRIT_DEBUG_RULE( terminationclause );
     BOOST_SPIRIT_DEBUG_RULE( jumpdestination );
     BOOST_SPIRIT_DEBUG_RULE( terminationpart );
@@ -96,6 +103,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( production );
     BOOST_SPIRIT_DEBUG_RULE( valuechange );
     BOOST_SPIRIT_DEBUG_RULE( function );
+    BOOST_SPIRIT_DEBUG_RULE( functions );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
     BOOST_SPIRIT_DEBUG_RULE( returnstatement );
     BOOST_SPIRIT_DEBUG_RULE( funcstatement );
@@ -103,6 +111,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( callpart );
     BOOST_SPIRIT_DEBUG_RULE( returnpart );
     BOOST_SPIRIT_DEBUG_RULE( ifstatement );
+    BOOST_SPIRIT_DEBUG_RULE( whilestatement );
+    BOOST_SPIRIT_DEBUG_RULE( forstatement );
+    BOOST_SPIRIT_DEBUG_RULE( breakstatement );
     BOOST_SPIRIT_DEBUG_RULE( ifblock );
     BOOST_SPIRIT_DEBUG_RULE( funcargs );
 
@@ -119,7 +130,9 @@ namespace ORO_Execution
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = (*function >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] ;
+    production = (functions >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] ;
+
+    functions = *function;
 
     // a function is very similar to a program, but it also has a name
     function = (
@@ -159,7 +172,7 @@ namespace ORO_Execution
     // */\n" will reach us as simply "\n"..
     line = !( statement ) >> newline;
 
-    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement;
+    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -187,7 +200,7 @@ namespace ORO_Execution
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
     catchpart = *newline >> (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
-                 >> ifblock )[bind(&ProgramGraphParser::seencatchpart, this)];
+                 >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
 
     // a function statement : "call functionname"
     funcstatement = (
@@ -199,6 +212,10 @@ namespace ORO_Execution
     // a return statement : "return"
     returnstatement =
         str_p( "return" )[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
+
+    // break from a while or for loop,...
+    breakstatement =
+        str_p( "break" )[ bind (&ProgramGraphParser::seenbreakstatement, this) ];
 
     // the termination clause part of a (call) statement.  A
     // call statement looks like "do xxx until {
@@ -217,7 +234,7 @@ namespace ORO_Execution
                      >> condition >> semicolon
                      >> !valuechange_parsers[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
                      ) [bind(&ProgramGraphParser::seenforstatement, this)]
-                                  >> ifblock[ bind(&ProgramGraphParser::endforstatement, this) ];
+                                  >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endforstatement, this) ]);
 
     ifstatement = (str_p("if")
                    >> condition
@@ -233,7 +250,7 @@ namespace ORO_Execution
         (str_p("while")
          >> condition )
         [bind(&ProgramGraphParser::seenwhilestatement, this)]
-         >> ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ];
+         >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ] );
 
     // a termination clause: "if xxx then call yyy" where xxx is
     // a condition, and yyy is an identifier.
@@ -424,10 +441,11 @@ namespace ORO_Execution
           if (rootc->commandFactory.hasCommand("this", mfunc->getName() ))
               throw parse_exception_semantic_error("exported function " + mfunc->getName() + " is already defined in "+ rootc->getName()+".");;
           FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() ); // execute in the processor which has the command.
-          cfi->addFunction( mfunc->getName() , mfunc);
+          std::map<const DataSourceBase*, DataSourceBase*> dummy;
+          cfi->addFunction( mfunc->getName() , mfunc->copy(dummy) );
           rootc->commandFactory.registerObject("this", cfi );
           // remove from mfuncs :
-          mfuncs.erase( mfunc->getName() );
+          // mfuncs.erase( mfunc->getName() );
       } else {
           // store for 'call func'
           // all went fine, so cleanup.
@@ -477,6 +495,15 @@ namespace ORO_Execution
               program_graph->returnFunction( new ConditionTrue, mfunc);
               program_graph->proceedToNext(  mpositer.get_position().line - ln_offset );
           }
+  }
+
+  void ProgramGraphParser::seenbreakstatement()
+  {
+      if ( program_graph->inLoop() ) {
+          program_graph->breakLoop();
+          program_graph->proceedToNext( mpositer.get_position().line - ln_offset );
+      } else
+          throw parse_exception_syntactic_error("Illegal use of 'break'. Can only be used within for and while loops.");
   }
 
   void ProgramGraphParser::seenreturnlabel()
@@ -710,9 +737,6 @@ namespace ORO_Execution
                                    mpositer.get_position().file, mpositer.get_position().line,
                                    mpositer.get_position().column );
       }
-      // this program_graph is empty...( seenprogramend() )
-      delete program_graph;
-      program_graph = 0;
       program_text = std::string( begin_copy, begin ); // begin is by reference.
       // set the program text in each program :
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
@@ -745,6 +769,61 @@ namespace ORO_Execution
           delete *it;
       program_list.clear();
       throw file_parse_exception(
+                e.copy(), mpositer.get_position().file,
+                mpositer.get_position().line, mpositer.get_position().column );
+    }
+  }
+
+  std::vector<FunctionGraph*> ProgramGraphParser::parseFunction( iter_t& begin, iter_t end )
+  {
+      // end is not used !
+    iter_t begin_copy = begin;
+    skip_parser_t skip_parser = SKIP_PARSER;
+    iter_pol_t iter_policy( skip_parser );
+    scanner_pol_t policies( iter_policy );
+    scanner_t scanner( begin, end, policies );
+
+    std::vector<FunctionGraph*> function_list;
+
+    // we need this, because if we encounter a function def,
+    // a program_graph must be present.
+    program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() )); 
+    
+    try {
+      if ( ! functions.parse( scanner ) )
+      {
+          // This gets shown if we didn't even get the chance to throw an exception :
+        cleanup();
+        throw file_parse_exception(new parse_exception_syntactic_error( " no valid input found." ),
+                                   mpositer.get_position().file, mpositer.get_position().line,
+                                   mpositer.get_position().column );
+      }
+      program_text = std::string( begin_copy, begin ); // begin is by reference.
+      // set the program text in each function :
+      for (funcmap::iterator it= mfuncs.begin();it!=mfuncs.end();++it) {
+          std::map<const DataSourceBase*, DataSourceBase*> dummy;
+          function_list.push_back( it->second->copy(dummy) ); // make a copy, mfuncs gets deleted in cleanup() !
+          function_list.back()->setText( program_text );      // set text.
+      }
+      
+      this->cleanup();
+      return function_list;
+    }
+    // Catch Boost::Spirit exceptions
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            cleanup();
+            throw file_parse_exception(
+                new parse_exception_syntactic_error( e.descriptor ),
+                mpositer.get_position().file, mpositer.get_position().line,
+                mpositer.get_position().column );
+
+        }
+    // Catch our Orocos exceptions
+    catch( const parse_exception& e )
+    {
+        cleanup();
+        throw file_parse_exception(
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
     }

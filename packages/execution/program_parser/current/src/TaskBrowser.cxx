@@ -647,36 +647,58 @@ namespace ORO_Execution
         }
     }
 
+    std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
+    {
+        os << "{";
+        for(unsigned int  i = 0; i < v.size(); ++i) {
+            os << v[i];
+            if (i + 1 != v.size() )
+                os << ", ";
+        }
+        os << "}";
+        return os;
+    }
+
     void TaskBrowser::printResult( DataSourceBase* ds) {
         std::string prompt("   = ");
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
         if (dsb) {
             cout <<prompt<< (dsb->get() ? "true" : "false") <<endl;
-	    return;
-	}
+            return;
+        }
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
         if (dsi) {
             cout <<prompt<< dsi->get() <<endl;
-	    return;
-	}
+            return;
+        }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
             cout <<prompt<< dss->get() <<endl;
-	    return;
-	}
+            return;
+        }
+        DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
+        if (dscs) {
+            cout <<prompt<< dscs->get() <<endl;
+            return;
+        }
+        DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
+        if (dsv) {
+            cout <<prompt<< dsv->get() <<endl;
+            return;
+        }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
         if (dsd) {
             cout <<prompt<< dsd->get() <<endl;
- 	    return;
-	}
-       DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
-       if (dsc) {
+            return;
+        }
+        DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
+        if (dsc) {
             cout <<prompt<< dsc->get() <<endl;
-	    return;
-	}
-       if (ds)
-	 ds->evaluate();
+            return;
+        }
+        if (ds)
+            ds->evaluate();
 	
     }
 

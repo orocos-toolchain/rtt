@@ -44,6 +44,31 @@ using namespace boost;
 namespace ORO_Execution
 {
 
+  std::vector<FunctionGraph*> Parser::parseFunction( const std::string& file, TaskContext* c)
+  {
+      std::ifstream inputfile(file.c_str());
+      return this->parseFunction( inputfile, c, file );
+  }
+
+  std::vector<FunctionGraph*> Parser::parseFunction( std::istream& s, TaskContext* c, const std::string& filename)
+  {
+    our_buffer_t function;
+
+    s.unsetf( std::ios_base::skipws );
+
+    std::istream_iterator<char> streambegin( s );
+    std::istream_iterator<char> streamend;
+    std::copy( streambegin, streamend, std::back_inserter( function ) );
+
+    our_pos_iter_t parsebegin( function.begin(), function.end(), filename );
+    our_pos_iter_t parseend; // not used.
+
+    // The internal parser.
+    ProgramGraphParser gram( parsebegin, c );
+    std::vector<FunctionGraph*> ret = gram.parseFunction( parsebegin, parseend );
+    return ret;
+  }
+
   std::vector<ProgramGraph*> Parser::parseProgram( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
@@ -66,8 +91,7 @@ namespace ORO_Execution
     // The internal parser.
     ProgramGraphParser gram( parsebegin, c );
     std::vector<ProgramGraph*> ret = gram.parse( parsebegin, parseend );
-//     if ( !ret.empty() )
-//       std::cerr << "Program Parsed Successfully !" << std::endl;
+
     return ret;
   }
 

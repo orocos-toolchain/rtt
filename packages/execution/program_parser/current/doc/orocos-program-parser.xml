@@ -954,21 +954,55 @@
       <para>
 	A StateMachine can have any number of states.  It needs to
 	have exactly one "initial state", which is the state that will
-	be entered when the StateMachine is first started and one
-	"final state".  The final state is the state that is entered
-	when the processor is asked to stop the StateMachine.
+	be entered when the StateMachine is first activated.
+	There is also exactly one final state, which is entered
+	when the StateMachine is stopped.
 	<emphasis>This means that the transition from any state to the
 	  final state must always be meaningful.</emphasis>
       </para>
-	<sect3>
-	<title>Precise State Change Semantics</title>
+      <para>
+	A State Machine can run in a number of modes. The two
+	most important ones are the automatic mode and the request mode.
+      </para>
+      <sect3 id="state-automatic">
+	<title>Automatic State Change Semantics</title>
 	<para>
-	  At the start of every execution cycle of the Program
-	  Processor, the transition table of the current state is
-	  evaluated.  If a transition succeeds, the exit function is
-	  called of the current state and then the entry function of
-	  the next state. If no transition evaluated to true, the
-	  handle function of the current state is called.
+	  In order to enter automatic mode, the State Machine must be
+	  started with the start() command (see later on).
+	</para>
+	<para>
+	  In automatic mode, the transition table (to other states) of
+	  the current state is evaluated.  If a transition succeeds,
+	  the exit program of the current state is called and then
+	  the entry program of the next state is called. If no transition
+	  evaluated to true, the handle program of the current state
+	  is called. This goes on until the automatic mode is left,
+	  using the pause or stop command.
+	</para>
+      </sect3>
+      <sect3 id="state-request">
+	<title>On Request State Change Semantics</title>
+	<para>
+	  In order to enter the on request mode, the State Machine
+	  must be active, but not running (see later on).
+	</para>
+	<para>
+	  In request mode, nothing happens automatically. The
+	  StateMachine waits for external commands. An external program
+	  can request a transition to a particular state, from the
+	  current state. When the request arrives, the StateMachine
+	  checks the transition table and evaluates if this transition
+	  is allowed. If so, the exit program of the current state
+	  is called and the entry program of the requested state is
+	  called. If a transition to the current state was requested,
+	  the handle program of the current state is executed.
+	</para>
+	<para>
+	  In request mode, it is also possible to request a single
+	  transition to the 'best' next state. This mechanism is
+	  similar to automatic mode, but only one transition is made
+	  ( or if none, handle is executed ) and then, the state
+	  machine waits again. The step command triggers this behaviour.
 	</para>
       </sect3>
     </sect2>
@@ -1021,7 +1055,7 @@
 
      // activate a state context :
      tc.getProcessor()->activateStateMachine("statename");
-     // start a state context :
+     // start a state context (automatic mode) :
      tc.getProcessor()->startStateMachine("statename");
   }</programlisting>
       <para>
@@ -1032,7 +1066,8 @@
 	the boost::bind function. Next we start the task's Processor.
 	StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
-	enter a fixed initial state. When they are started, state
+	enter a fixed initial state. When they are started, 
+	they enter automatic mode and state
 	transitions to other states can take place. StateMachines
 	can also be manipulated from within other scripts.
       </para>
@@ -1052,8 +1087,7 @@
 	</para>
 	<example>
 	  <title>StateMachine Definition Format</title>
-	  <programlisting>
-StateMachine MyStateMachine
+	  <programlisting>StateMachine MyStateMachine
 {
     initial state myInit 
     {
@@ -1066,9 +1100,9 @@ StateMachine MyStateMachine
 	exit {
 	    // exit method: statements and event configuration
 	}
-	preconditions {
-	    // ordered select statements
-        }
+<!-- 	preconditions { -->
+<!-- 	    // ordered select statements -->
+<!--         } -->
 	transitions {
 	    // Ordered (conditional) select statements
 	}
@@ -1090,8 +1124,7 @@ StateMachine MyStateMachine
     }
 
     // ... repeat
-}
-	  </programlisting>
+}  </programlisting>
 	  <para>
 	    A StateMachine definition: a StateMachine can have any
 	    number of states.  It needs to have exactly one "initial
@@ -1170,7 +1203,8 @@ transitions {
 	    The transitions are checked in the same order as listed.
 	    A transition is allowed to select the current state, but
 	    the onExit and onEntry functions will not be called in that
-	    case.
+	    case. Even more, a transition to the current state is always
+	    considered valid and this can not be overridden.
 	  </para>
 	</sect3>
 <!-- 	<sect3> -->
@@ -1413,8 +1447,7 @@ Rootmachine SomeStateMachine mymachine </programlisting>
 	      of the parameters afterwards.  The syntax is: "set
 	      someSubMachine.someParam = someExpression".  Here's an
 	      elaborate example:</para>
-	      <programlisting>
-StateMachine ChildStateMachine
+	      <programlisting>StateMachine ChildStateMachine
 {
     param int someValue
     const double pi = 3.1415926535897
@@ -1430,7 +1463,7 @@ StateMachine ChildStateMachine
 
 StateMachine ParentStateMachine
 {
-    SubMachine ChildStateMachine child1 ( someValue = 0 )
+    SubMachine ChildStateMachine child1( someValue = 0 )
     SubMachine ChildStateMachine child2( someValue = 0 )
 
     var int counter = 0
@@ -1464,13 +1497,12 @@ StateMachine ParentStateMachine
             do child1.stop()
         }
     }
-}
-	      </programlisting>
+}  </programlisting>
 	  <para>
-	    One more thing you can do with a SubMachine is checking
-	    if it is in a certain state.  The syntax looks like:
-	    <programlisting>someSubMachine.inState( "someStateName" )</programlisting>
-	    It should be straightforward to use...
+	    You can also query if a child State Machine is in a
+	    certain state.  The syntax looks like:
+	    <programlisting>someSubMachine.inState( "someStateName" )
+	    </programlisting>
 	  </para>
 	</sect4>
       </sect3>
@@ -1485,34 +1517,232 @@ StateMachine ParentStateMachine
 	"machine" with subcontexts "axisx" and "axisy"
 	in task "ATask", you can write
       </para>
-      <programlisting>
-  do ATask.states.machine.activate()
+      <programlisting>  do ATask.states.machine.activate()
   do ATask.states.machine.axisx.activate()
+  // now in request mode...
+
   do ATask.states.machine.axisx.start()
   do ATask.states.machine.start()
+  // now in automatic mode...
+
   do ATask.states.machine.stop()
+  // again in request mode, in final state
+
   do ATask.states.machine.reset()
   do ATask.states.machine.deactivate()
+  // deactivated.
   // etc. </programlisting>
       <para>
 	The first line activates a root StateMachine, thus it
-	enters the initial state, the next line
+	enters the initial state and is put in request mode , the next line
 	actives its child, the next starts its child, then we
-	start the parent, stop it again, reset it
-	back to its initial state and finally deactivate it.
+	start the parent, which bring both in automatic mode.
+	Then the parent is stopped again, reset
+	back to its initial state and finally deactivated.
       </para>
       <para>
 	Thus both RootMachines and SubMachines can be controlled.
 	Some basic properties of the states can be
 	inspected likewise :</para>
-      <programlisting>
-  var bool res =  ATask.states.machine.isActive()
-  set res = ATask.states.machine.axisy.isRunning()
-  var string current = ATask.states.machine.getState()
-  set res = ATask.states.machine.inState( current ) // assert( res==true )</programlisting>
+      <programlisting>  var bool res =  ATask.states.machine.isActive()      // Active ?
+  set res = ATask.states.machine.axisy.isRunning()     // Running ?
+  set res =  ATask.states.machine.inRequest()          // Waiting for requests ? 
+  var string current = ATask.states.machine.getState() // Get current state
+  set res = ATask.states.machine.inState( current )    // inState ?</programlisting>
       <para>
-	which open doors to monitor state machines from other scripts
-	or an operator console.</para>
+	which makes it possible to monitor state machines from other
+	scripts or an operator console.</para>
+      <sect3 id="request-commands">
+	<title>On Request Mode Commands</title>
+	<para>
+	  Consider the following StateMachine :
+	</para>
+	<programlisting>  StateMachine X {
+     // ...
+     initial state y {
+        entry {
+	   // ...
+        }
+        transitions {
+	   // guard this transition.
+           if task.checkSomeCondition() then
+              select z
+           if task.checkOtherCondition() then
+              select exit
+        }
+     }
+     state z {
+       // ...
+        transitions {
+	   // always good to go to state :
+	   select ok_1
+        }
+     }
+     state ok_1 {
+       // ...
+     }
+     final state exit {
+       // ...
+     }
+  }
+
+  RootMachine X x</programlisting>
+	<para>
+	  A program interacting with this StateMachine can look like
+	  this :
+	</para>
+	<programlisting>
+   program interact {
+       // First activate x :
+       do states.x.activate()  // activate and wait.
+
+       // Request a state transition :
+       try states.x.requestState("z") catch {
+           // failed !
+       }
+
+       // ok we are in "z" now, try to make a valid transition :
+       do states.x.step()
+
+       // enter pause mode :
+       do states.x.pause()
+       // Different ! Executes a single program statement :
+       do states.x.step()
+
+       // unpause, by re-entering request Mode :
+       do states.x.requestMode()
+
+       // we are in ok_1 now, again waiting...
+       do states.x.stop()      // go to the final state
+
+       // we are in "exit" now
+       do states.reset()
+
+       // back in state "y", handle current state :
+       do this.states.x.requestState( this.states.x.getState() )
+       // etc.
+    } </programlisting>
+         <para>
+	   The requestState command will fail if the transition is not 
+	   possible ( for example, the state machine is not in
+	   state y, or task.checkSomeCondition() was not true ),
+	   otherwise, the state machine will make the transition
+	   and the command succeeds and completes when the z state
+	   is fully entered (it's init program completed).
+	 </para>
+	 <para>
+	   The next command, step(), lets the state machine decide which
+	   state to enter, and since a transition to state "ok_1" is unconditionally,
+	   the "ok_1" state is entered. The stop() command brings
+	   the State Machine to the final state ("exit"), while the
+	   reset command sends it to the initial state ("y"). These
+	   transitions do not need to be specified explicitly, they
+	   are always available.
+	 </para>
+	 <para>
+	   The last command, is a bit cumbersome request to execute
+	   the handle program of the current state.
+	 </para>
+	 <para>
+	   At any time, the State Machine can be paused using
+	   pause(). The step() command changes to execute a single
+	   program statement or transition evaluation, instead of
+	   a full state transition.
+	 </para>
+	 <para>
+	   All these methods can of course also be called from parent
+	   to child State Machine, or across tasks.
+	</para>
+      </sect3>
+      <sect3 id="automatic-commands">
+	<title>Automatic Mode Commands</title>
+	<para>
+	  Consider the following StateMachine, as in the previous
+	  section :
+	</para>
+	<programlisting>  StateMachine X {
+     // ...
+     initial state y {
+        entry {
+	   // ...
+        }
+        transitions {
+	   // guard this transition.
+           if task.checkSomeCondition() then
+              select z
+           if task.checkOtherCondition() then
+              select exit
+        }
+     }
+     state z {
+       // ...
+        transitions {
+	   // always good to go to state :
+	   select ok_1
+        }
+     }
+     state ok_1 {
+       // ...
+     }
+     final state exit {
+       // ...
+     }
+  }
+
+  RootMachine X x</programlisting>
+	<para>
+	  A program interacting with this StateMachine can look like
+	  this :
+	</para>
+	<programlisting>
+   program interact {
+       // First activate x :
+       do states.x.activate()  // activate and wait.
+
+       // Enter automatic mode :
+       do states.x.start()
+
+       // pause program execution :
+       do states.x.pause()
+
+       // execute a single statement :
+       do states.x.step()
+
+       // resume automatic mode again :
+       do states.x.start()
+
+       // stop, enter final state, in request mode again.
+       do states.x.stop()
+
+       // etc...
+    } </programlisting>
+         <para>
+	   After the State Machine is activated, it is started,
+	   which lets the State Machine enter automatic mode. If
+	   task.checkSomeCondition() evaluates to true, the State 
+	   Machine will make the transition to state "z" without
+	   user intervention, if task.checkOtherCondition() evaluates
+	   to true, the "exit" state will be entered.
+	 </para>
+	 <para>
+	   When running, the State Machine can be paused at any time
+	   using pause(), and a single program statement ( a single
+	   line ) or single transition evaluation can be executed with
+	   calling step().  Automatic mode can be resumed by calling
+	   start() again.
+	 </para>
+	 <para>
+	   To enter the request mode when the State Machine is in
+	   automatic mode, one can call the requestMode() command,
+	   which will finish the program or transition the State
+	   Machine is making and will complete if the State Machine
+	   is ready for requests.
+	 </para>
+	 <para>
+	   All these methods can of course also be called from parent
+	   to child State Machine, or across tasks.
+	</para>
+      </sect3>
     </sect2>
   </sect1>
   <sect1>
@@ -1643,9 +1873,9 @@ StateMachine ParentStateMachine
   export function HMILoadTrajectory() {
   	// request a 'push' of the next
   	// trajectory :
-  	do HMI.requestTrajectory
+  	do HMI.requestTrajectory()
   	// when the HMI is done :
-  	do Generator.loadTrajectory
+  	do Generator.loadTrajectory()
   }
   
   /**
