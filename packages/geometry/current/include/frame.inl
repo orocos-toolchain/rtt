@@ -147,3 +147,85 @@ IMETHOD Twist FrameDifference(const Frame& goal,const Frame& current) {
              (goal.M*current.M.Inverse()).GetRot()
         );
 }
+
+
+
+/**
+ * axis_a_b is a rotation vector, its norm is a rotation angle
+ * axis_a_b rotates the a frame towards the b frame.
+ * This routine returns the rotation matrix R_a_b
+ */
+IMETHOD Rotation Rot(const Vector& axis_a_b) {
+    // The formula is 
+    // V.(V.tr) + st*[V x] + ct*(I-V.(V.tr))
+    // can be found by multiplying it with an arbitrary vector p
+    // and noting that this vector is rotated.
+ Vector rotvec = axis_a_b;
+ double angle = rotvec.Normalize(1E-10);
+    double ct = ::cos(angle);
+    double st = ::sin(angle);
+    double vt = 1-ct;
+    return Rotation(
+        ct            +  vt*rotvec(0)*rotvec(0), 
+        -rotvec(2)*st +  vt*rotvec(0)*rotvec(1), 
+        rotvec(1)*st  +  vt*rotvec(0)*rotvec(2),
+        rotvec(2)*st  +  vt*rotvec(1)*rotvec(0),
+        ct            +  vt*rotvec(1)*rotvec(1),
+        -rotvec(0)*st +  vt*rotvec(1)*rotvec(2),
+        -rotvec(1)*st +  vt*rotvec(2)*rotvec(0),
+        rotvec(0)*st  +  vt*rotvec(2)*rotvec(1),
+        ct            +  vt*rotvec(2)*rotvec(2)
+        );
+    }
+
+IMETHOD Vector diff(const Vector& V_a_p1,const Vector& V_a_p2,double dt=1) {
+ return (V_a_p2 - V_a_p1)/dt;
+}
+
+IMETHOD Vector diff(const Rotation& R_a_b1,const Rotation& R_a_b2,double dt=1) {
+ Rotation R_b1_b2(R_a_b1.Inverse()*R_a_b2);
+ return R_a_b1 * R_b1_b2.GetRot() / dt;
+}
+
+IMETHOD Twist diff(const Frame& F_a_b1,const Frame& F_a_b2,double dt=1) {
+ return Twist(
+   diff(F_a_b1.p,F_a_b2.p,dt),
+   diff(F_a_b1.M,F_a_b2.M,dt)
+   );
+}
+
+IMETHOD Twist diff(const Twist& T_a_p1,const Twist& T_a_p2,double dt=1) {
+ return Twist(diff(T_a_p1.vel,T_a_p2.vel,dt),diff(T_a_p1.rot,T_a_p2.rot,dt));
+}
+
+IMETHOD Wrench diff(const Wrench& W_a_p1,const Wrench& W_a_p2,double dt=1) {
+ return Wrench(
+   diff(W_a_p1.force, W_a_p2.force,dt),
+   diff(W_a_p1.torque,W_a_p2.torque,dt)
+   );
+}
+
+IMETHOD Vector addDelta(const Vector& V_a_p,const Vector&V_a_delta,double dt=1) {
+ return V_a_p+V_a_delta*dt;
+}
+
+IMETHOD Rotation addDelta(const Rotation& R_a_b,const Vector&V_a_delta,double dt=1)
+{
+ return R_a_b*Rot(R_a_b.Inverse(V_a_delta)*dt);
+}
+
+IMETHOD Frame addDelta(const Frame& F_a_b,const Twist& T_a_delta,double dt=1) {
+ return Frame(
+   addDelta(F_a_b.M,T_a_delta.rot,dt),
+   addDelta(F_a_b.p,T_a_delta.vel,dt)
+     );
+}
+
+IMETHOD Twist addDelta(const Twist& T_a_p,const Twist&T_a_delta,double dt=1) {
+ return Twist(addDelta(T_a_p.vel,T_a_delta.vel,dt),addDelta(T_a_p.rot,T_a_delta.rot,dt));
+}
+
+IMETHOD Wrench addDelta(const Wrench& W_a_p,const Wrench&W_a_delta,double dt=1) {
+ return
+ Wrench(addDelta(W_a_p.force,W_a_delta.force,dt),addDelta(W_a_p.torque,W_a_delta.torque,dt));
+}
