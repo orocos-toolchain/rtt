@@ -27,7 +27,7 @@ namespace ORO_Geometry {
 #endif
 
 /**
- * Orientation specifies the rotational part of a geometric trajectory
+ * RotationalInterpolation specifies the rotational part of a geometric trajectory
  *    The different derived objects specify different methods for interpolating
  *    rotations.
  * * SetStartEnd should be called before 
@@ -35,7 +35,7 @@ namespace ORO_Geometry {
  * * The start and end position do NOT belong to the persistent state !  The owner of this
  *   object is responsible for setting these each time
  */
-class Orientation
+class RotationalInterpolation
 	{
 	public:
 		/**
@@ -79,15 +79,15 @@ class Orientation
 		 * Reads one of the derived objects from the stream and returns a pointer
 		 * (factory method)
 		 */
-		static Orientation* Read(istream& is);
+		static RotationalInterpolation* Read(istream& is);
 #endif
 
 		/**
 		 * virtual constructor,  construction by copying ..
 		 */
-		virtual Orientation* Clone() const = 0;
+		virtual RotationalInterpolation* Clone() const = 0;
 		
-		virtual ~Orientation() {}
+		virtual ~RotationalInterpolation() {}
 	};
 
 

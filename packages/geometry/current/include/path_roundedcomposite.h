@@ -38,7 +38,7 @@ class Path_RoundedComposite : public Path
 
 		double radius;
 		double eqradius;
-		Orientation* orient;
+		RotationalInterpolation* orient;
 		// cached from underlying path objects for generating the rounding :
 		Frame F_base_start;
 		Frame F_base_via;
@@ -53,7 +53,7 @@ class Path_RoundedComposite : public Path
 		 * @param eqradius : equivalent radius to compare rotations/velocities
 		 * @param orient   : method of rotational_interpolation interpolation
 		 */
-		Path_RoundedComposite(double radius,double _eqradius,Orientation* _orient, bool _aggregate=true);
+		Path_RoundedComposite(double radius,double _eqradius,RotationalInterpolation* _orient, bool _aggregate=true);
 
 
 

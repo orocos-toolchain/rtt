@@ -25,7 +25,7 @@
 namespace ORO_Geometry {
 #endif
 
-Path_RoundedComposite::Path_RoundedComposite(double _radius,double _eqradius,Orientation* _orient, bool _aggregate) :
+Path_RoundedComposite::Path_RoundedComposite(double _radius,double _eqradius,RotationalInterpolation* _orient, bool _aggregate) :
 	comp( new Path_Composite()), radius(_radius),eqradius(_eqradius), orient(_orient), aggregate(_aggregate)
 {
 		nrofpoints = 0;

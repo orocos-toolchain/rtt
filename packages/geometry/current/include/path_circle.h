@@ -31,7 +31,7 @@ class Path_Circle : public Path
 	{
 
 		// Orientatie gedeelte
-		Orientation* orient; 
+		RotationalInterpolation* orient; 
 
 		// Circular gedeelte
 		double radius;
@@ -58,7 +58,7 @@ class Path_Circle : public Path
 			const Vector& V_base_p,
 			const Rotation& R_base_end,
 			double alpha,
-			Orientation* otraj,
+			RotationalInterpolation* otraj,
 			double eqradius,
 			bool _aggregate=true);
 		

@@ -28,7 +28,7 @@ Path_Circle::Path_Circle(const Frame& F_base_start,
 			const Vector& V_base_p,
 			const Rotation& R_base_end,
 			double alpha,
-			Orientation* _orient,
+			RotationalInterpolation* _orient,
 			double _eqradius, 
             bool _aggregate) :
 				orient(_orient) ,

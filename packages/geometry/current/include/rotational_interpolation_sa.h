@@ -26,14 +26,14 @@ namespace ORO_Geometry {
 #endif
 
 
-class Orientation_SingleAxis: public Orientation
+class RotationalInterpolation_SingleAxis: public RotationalInterpolation
 	{
 		Rotation R_base_start;
 		Rotation R_base_end;
 		Vector rot_start_end; 
 		double angle;
 	public:
-		Orientation_SingleAxis();
+		RotationalInterpolation_SingleAxis();
 		virtual void SetStartEnd(Rotation start,Rotation end);
 		virtual double Angle();
 		virtual Rotation Pos(double th) const;
@@ -42,8 +42,8 @@ class Orientation_SingleAxis: public Orientation
 #if HAVE_IOSTREAM
 		virtual void Write(ostream& os) const;
 #endif
-		virtual Orientation* Clone() const;
-		virtual ~Orientation_SingleAxis();
+		virtual RotationalInterpolation* Clone() const;
+		virtual ~RotationalInterpolation_SingleAxis();
 	};
 
 

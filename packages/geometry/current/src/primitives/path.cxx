@@ -55,7 +55,7 @@ Path* Path::Read(istream& is) {
 		Frame endpos;
 		is >> startpos;
 		is >> endpos;
-		auto_ptr<Orientation> orient( Orientation::Read(is) );
+		auto_ptr<RotationalInterpolation> orient( RotationalInterpolation::Read(is) );
 		double eqradius;
 		is >> eqradius;
 		EatEnd(is,']');
@@ -76,7 +76,7 @@ Path* Path::Read(istream& is) {
 		is >> R_base_end;
 		is >> alpha;
 		alpha *= deg2rad;
-		auto_ptr<Orientation> orient( Orientation::Read(is) );
+		auto_ptr<RotationalInterpolation> orient( RotationalInterpolation::Read(is) );
 		is >> eqradius;
 		EatEnd(is,']');
 		IOTracePop();
@@ -96,7 +96,7 @@ Path* Path::Read(istream& is) {
 		is >> radius;
 		double eqradius;
 		is >> eqradius;
-		auto_ptr<Orientation> orient( Orientation::Read(is) );
+		auto_ptr<RotationalInterpolation> orient( RotationalInterpolation::Read(is) );
 		auto_ptr<Path_RoundedComposite> tr( 
 			new Path_RoundedComposite(radius,eqradius,orient.release()) 
 		);

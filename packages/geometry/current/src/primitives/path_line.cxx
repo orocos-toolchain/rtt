@@ -22,7 +22,7 @@ namespace ORO_Geometry {
 
 Path_Line::Path_Line(const Frame& startpos,
 		   const Frame& endpos,
-		   Orientation* _orient,
+		   RotationalInterpolation* _orient,
 		   double _eqradius,
            bool _aggregate ):
 			   orient(_orient),

@@ -30,7 +30,7 @@ namespace ORO_Geometry {
 class Path_Line : public Path
 	{
 		// Orientatie gedeelte
-		Orientation* orient; 
+		RotationalInterpolation* orient; 
 
 		// Lineair gedeelte
 		Vector V_base_start;
@@ -58,7 +58,7 @@ class Path_Line : public Path
 		 */
 		Path_Line(const Frame& F_base_start,
 			const Frame& F_base_end,
-			Orientation* orient,
+			RotationalInterpolation* orient,
 			double eqradius,
 			bool _aggregate=true);
 		double LengthToS(double length);

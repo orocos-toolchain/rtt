@@ -14,7 +14,7 @@
  ****************************************************************************/
 
 
-#include "geometry/rotational_interpolation_singleaxis.h"
+#include "geometry/rotational_interpolation_sa.h"
 #include "geometry/trajectory.h"
  
 #ifdef USE_NAMESPACE
@@ -22,44 +22,44 @@ namespace ORO_Geometry {
 #endif
 
 
-Orientation_SingleAxis::Orientation_SingleAxis()
+RotationalInterpolation_SingleAxis::RotationalInterpolation_SingleAxis()
 	{};
 
-void Orientation_SingleAxis::SetStartEnd(Rotation start,Rotation end) {
+void RotationalInterpolation_SingleAxis::SetStartEnd(Rotation start,Rotation end) {
 	R_base_start = start;
 	R_base_end   = end;	
 	Rotation R_start_end = R_base_start.Inverse()*R_base_end;
 	angle = R_start_end.GetRotAngle(rot_start_end);
 }
 
-Rotation Orientation_SingleAxis::Pos(double theta) const {
+Rotation RotationalInterpolation_SingleAxis::Pos(double theta) const {
 	return R_base_start* Rotation::Rot2(rot_start_end,theta);	
 }
 
-Vector Orientation_SingleAxis::Vel(double theta,double thetad) const {
+Vector RotationalInterpolation_SingleAxis::Vel(double theta,double thetad) const {
 	return R_base_start * ( rot_start_end*thetad );
 }
 
-Vector Orientation_SingleAxis::Acc(double theta,double thetad,double thetadd) const {
+Vector RotationalInterpolation_SingleAxis::Acc(double theta,double thetad,double thetadd) const {
 	return R_base_start * ( rot_start_end* thetadd);
 }
 
-double Orientation_SingleAxis::Angle() {
+double RotationalInterpolation_SingleAxis::Angle() {
 	return angle;
 }
 
 #ifdef OROINT_OS_STDIOSTREAM
-void Orientation_SingleAxis::Write(ostream& os) const {
+void RotationalInterpolation_SingleAxis::Write(ostream& os) const {
 	os << "SingleAxis[] " << endl;
 }
 #endif
 
-Orientation_SingleAxis::~Orientation_SingleAxis() {
+RotationalInterpolation_SingleAxis::~RotationalInterpolation_SingleAxis() {
 }
 
 
-Orientation* Orientation_SingleAxis::Clone() const {
-	return new Orientation_SingleAxis();
+RotationalInterpolation* RotationalInterpolation_SingleAxis::Clone() const {
+	return new RotationalInterpolation_SingleAxis();
 }
 
 #ifdef USE_NAMESPACE

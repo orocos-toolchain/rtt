@@ -16,7 +16,7 @@
 #include "geometry/error.h"
 #include "geometry/error_stack.h"
 #include "geometry/rotational_interpolation.h"
-#include "geometry/rotational_interpolation_singleaxis.h"
+#include "geometry/rotational_interpolation_sa.h"
 
 #include <memory>
 
@@ -27,9 +27,9 @@ namespace ORO_Geometry {
 using namespace std;
 
 #ifdef OROINT_OS_STDIOSTREAM
-Orientation* Orientation::Read(istream& is) {
+RotationalInterpolation* RotationalInterpolation::Read(istream& is) {
 	// auto_ptr because exception can be thrown !
-	IOTrace("Orientation::Read");
+	IOTrace("RotationalInterpolation::Read");
 	char storage[64];
 	EatWord(is,"[",storage,sizeof(storage));
 	Eat(is,'[');
@@ -38,7 +38,7 @@ Orientation* Orientation::Read(istream& is) {
 		EatEnd(is,']');
 		IOTracePop();
 		IOTracePop();
-		return new Orientation_SingleAxis();
+		return new RotationalInterpolation_SingleAxis();
 	} else if (strcmp(storage,"THREEAXIS")==0) {
 		IOTrace("THREEAXIS");
 #ifdef HAVE_EXCEPTIONS

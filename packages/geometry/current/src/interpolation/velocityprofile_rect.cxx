@@ -57,7 +57,7 @@ void VelocityProfile_Rectangular::
     if ( diff != 0 )
         {
             v    = diff/duration;
-            if (v > maxvel) 
+            if (v > maxvel || duration==0 ) // safety. 
                 v=maxvel;
             p    = pos1;               // start pos    
             d    = diff/v;
