@@ -81,17 +81,24 @@ namespace ORO_ControlKernel
 
     // commands
     virtual CommandFactoryInterface* createCommandFactory();
-    bool drive(const std::vector<double>& velocity,double duration=0);
+    bool drive(const std::vector<double>& velocity,std::vector<double>& duration);
     bool driveFinished() const;
+    bool driveAxis(const int axis, const double velocity, double duration=0);
+    bool driveAxisFinished(const int axis) const;
 
   private:
     unsigned int                                                          _num_axes;
-    double                                                                _duration;
-    std::vector<double>                                                   _velocity_local;
+    std::vector<double>                                                   _duration;
+    std::vector<double>                                                   _velocity_local,_velocity_desired;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_velocity_DOI;
-    ORO_CoreLib::TimeService::ticks                                       _time_begin;
-    ORO_CoreLib::TimeService::Seconds                                     _time_passed;
-    bool                                                                  _is_moving;
+    ORO_CoreLib::TimeService::ticks                                       _get_time;
+    std::vector<ORO_CoreLib::TimeService::ticks>                          _time_begin;
+    std::vector<ORO_CoreLib::TimeService::Seconds>                        _time_passed;
+    std::vector<bool>                                                     _is_moving, _new_values, _is_accel;
+    std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _vel_profile;
+    bool                                                                  _properties_read;
+    ORO_ControlKernel::Property< std::vector<double> >                    _max_acc, _max_jerk;
+
   }; // class
 
 } // namespace
