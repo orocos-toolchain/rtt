@@ -118,7 +118,7 @@
 	<para>
 	  Components must be loaded into a control kernel to be useful.
 	  The Control Kernel is fully explained in the 
-	  <ulink href="orocos-control-kernel.html">orocos-control-kernel.html</ulink> 
+	  <ulink url="orocos-control-kernel.html">orocos-control-kernel.html</ulink> 
 	  document.
 	</para>
       </sect2>
