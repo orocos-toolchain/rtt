@@ -1,0 +1,88 @@
+
+// Experiment with syntax file for ps
+
+
+/**
+ *  Defined in the machine state context
+ */
+Token MachineToken
+{
+	const int Axes = 2
+}
+
+/**
+ * Defined in the Axis state context
+ */
+Token AxisToken
+{
+	var int axis_nr = -1
+}
+
+/** 
+ * AxisToken vars are readonly ?
+ */
+Token HomeToken : AxisToken
+{
+	// This is a 'global var' within this state context
+	var double sollV
+}
+
+
+state InitHome( HomeToken mytoken ) 
+{
+	transitions {
+		if ( mytoken.axis_nr == -1 )
+			select ErrorState
+		select startHoming
+	}
+}
+
+state ErrorState
+{
+	entry {
+		console_output.display("Error in Homing Axis ");
+		console_output.displayInt(axis_nr);
+	}
+}
+
+state FiniHome
+{
+}
+
+
+// in AxisHoming.osd
+Context AxisHoming
+{
+	Initial_State home_init
+	Final_State   home_exit
+
+	Token HomeToken
+	{	
+		var int axis_nr;
+	}	
+}
+
+// in Machine.osd
+Context Machine
+{
+	Initial_State machine_init
+	Final_State   machine_exit
+
+	AxisHoming::HomeToken  axis1 : axis_nr(1) ;
+	AxisHoming::HomeToken  axis2 : axis_nr(2) ;
+}
+
+// Start homing of 1 axis.
+state HomeAxis {
+	handle
+	{
+		//splitTo("HomeAxis", axis1 );
+		startContext( AxisHoming, axis1 ); // is a no-op if already started.
+		//engine.startStateContext("HomeAxis");
+	}
+	transitions
+	{
+		if joinFrom( axis1 ) then
+			select nextState
+	}
+}
