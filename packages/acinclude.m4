@@ -104,7 +104,7 @@ m4_define([DETECT_COMEDIPKG],
 [
 AC_MSG_CHECKING(for comedi dir)
 AC_ARG_WITH(comedi, [ --with-comedi Specify location of linux/comedi.h ],
-	[ if test x"$enableval" != x; then COMEDI_DIR="$enableval"; fi ])
+	[ if test x"$withval" != x; then COMEDI_DIR="$withval"; fi ])
 if test x"$COMEDI_DIR" = x; then
    COMEDI_DIR="/usr/realtime/include"
 fi
@@ -125,7 +125,7 @@ m4_define([DETECT_COMEDILIBPKG],
 [
 AC_MSG_CHECKING(for comedilib dir)
 AC_ARG_WITH(comedilib, [ --with-comedilib Specify location of comedilib.h ],
-	[ if test x"$enableval" != x; then COMEDILIB_DIR="$enableval"; fi ])
+	[ if test x"$withval" != x; then COMEDILIB_DIR="$withval"; fi ])
 if test x"$COMEDILIB_DIR" = x; then
    COMEDILIB_DIR="/usr/realtime/include"
 fi
@@ -165,9 +165,9 @@ m4_define([DETECT_RTAI],
 [
 AC_MSG_CHECKING(for RTAI/LXRT Installation)
 AC_ARG_WITH(rtai, [ --with-rtai Specify location of RTAI/LXRT ],
-	[ if test x"$enableval" != x; then RTAI_DIR="$enableval"; fi ])
+	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
 AC_ARG_WITH(lxrt, [ --with-lxrt Equivalent to --with-rtai ],
-	[ if test x"$enableval" != x; then RTAI_DIR="$enableval"; fi ])
+	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
 
 if test x"$RTAI_DIR" = x; then
    RTAI_DIR="/usr/realtime"
