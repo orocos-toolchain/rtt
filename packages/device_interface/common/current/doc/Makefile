@@ -53,4 +53,4 @@ epsimages: fdi.eps
 	imagemagick $< $@
 
 clean-local:
-	rm orocos-os.html
+	rm -f orocos-device-interface.html

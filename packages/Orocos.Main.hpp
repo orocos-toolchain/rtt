@@ -30,7 +30,8 @@
  *
  * @section recom Recommendation
  * It is easiest to browse the classes by namespace, to not
- * loose the overview. Click for example on the <tt>Namespace List</tt>
+ * loose the overview. Click for example on the
+ * <a href="namespaces.html"><tt>Namespace List</tt></a>
  * link, select a namespace and then you get all the classes
  * defined within this namespace. At the bottom of that page,
  * you'll find a more elaborate description of the namespace.

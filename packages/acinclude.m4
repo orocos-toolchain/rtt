@@ -1,9 +1,3 @@
-dnl
-dnl WARNING: Do not alter this file. It is overwritten automatically. 
-dnl If you need to make changes to this file, apply the changes to the
-dnl orocos-core.m4 file in the orocos-core package instead.
-dnl
-
 dnl Autoconf macros use the AC_ prefix, Automake macros use
 dnl the AM_ prefix. Our extensions use the ACX_ prefix when
 dnl they are general enough to be used outside of the project.
@@ -25,7 +19,10 @@ Could not find Boost headers. Please install Boost.
 
 You can find Boost at http://www.boost.org/
 or if you are a Debian GNU/Linux user, just do:
+
 apt-get install libboost-dev
+
+and rerun the bootstrap.sh script
 ])
 ])
 AC_LANG_C
@@ -46,7 +43,10 @@ Please install Boost and Boost Graph.
 
 You can find Boost at http://www.boost.org/
 or if you are a Debian GNU/Linux user, just do:
+
 apt-get install libboost-graph-dev
+
+and rerun the bootstrap.sh script
 ])
 ])
 AC_LANG_C
@@ -64,7 +64,15 @@ AC_CHECK_HEADERS([ xercesc/sax2/SAX2XMLReader.hpp ],
 PACKAGES="support/xercesc/current/xercesc.cdl $PACKAGES"
 ],
 [
-  AC_MSG_WARN([No xerces installation found. XML parsing will be unavailable.])
+  AC_MSG_WARN([
+No Xerces-C 2.1 installation found.
+XML parsing will be unavailable.
+
+To install Xerces-C, Debian users can do :
+apt-get install libxerces21-dev 
+
+and rerun the bootstrap.sh script
+])
   AC_LANG_C
 ])
 ])

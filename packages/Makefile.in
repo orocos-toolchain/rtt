@@ -8,7 +8,7 @@ db:
 	@if [ -f ecos.db.in ]; then cat ecos.db.in >> pkgadd.db; fi
 	@tar -czf support.epk pkgadd.db
 	@./ecosadmin.tcl add support.epk
-	@rm support.epk
+#@rm support.epk
 
 clean:
 	@echo "Cleaning up..."
@@ -34,8 +34,10 @@ html-dist:
 	@for i in $$(find . -name Makefile); do make dochtml -C $$(dirname $$i); done
 
 doxy-dist:
+	@echo "Running Configure..."
+	@./configure >/dev/null || (echo "./configure failed!" ; exit 1)
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
-	@doxygen >/dev/null || exit 1
+	@doxygen >/dev/null || (echo "doxygen failed !" ; exit 1)
 	@if [ -d doc ] ; then echo "Tarring API docs..." ;\
 	tar -cjf orocos-api.tar.bz2 doc; fi
 
