@@ -38,8 +38,10 @@
 namespace ORO_OS
 {
     /**
-     * This manager starts and stops all globally registered start/stop
-     * functions. This is guaranteed to work, because it uses the Singleton
+     * @brief This manager starts and stops all globally registered start/stop
+     * functions, without a particular order.
+     *
+     * This is guaranteed to work, because it uses the Singleton
      * pattern with a global pointer. This pointer is initialised to zero
      * at program startup, before the global constructors are called. The 
      * first time a global constructor calls this manager, it will be properly
@@ -58,7 +60,7 @@ namespace ORO_OS
         typedef boost::function<void (void)> stop_fun;
 
         /**
-         * Register a start function.
+         * @brief Register a start function.
          */
         void startFunction( start_fun t )
         {
@@ -66,12 +68,38 @@ namespace ORO_OS
         }
 
         /**
-         * Register a stop function
+         * @brief Register a stop function
          */
         void stopFunction( stop_fun t )
         {
             stopv.push_back(t);
         }
+
+        /**
+         * @brief Call all registered start functions.
+         *
+         * @return -1 if one or more failed.
+         */
+        int start()
+        {
+            // save some memory trick
+            startv.resize( startv.size() );
+            stopv.resize( stopv.size() );
+            std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
+            return res;
+        }
+
+        /**
+         * @brief Call all registered stop functions.
+         */
+        void stop()
+        {
+            std::for_each(stopv.begin(), stopv.end(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
+        }
+
+    private:
+
+        StartStopManager() : res(0) {}
 
         ~StartStopManager()
         {
@@ -89,24 +117,6 @@ namespace ORO_OS
         {
             f();
         }
-
-        int start()
-        {
-            // save some memory trick
-            startv.resize( startv.size() );
-            stopv.resize( stopv.size() );
-            std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
-            return res;
-        }
-
-        void stop()
-        {
-            std::for_each(stopv.begin(), stopv.end(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
-        }
-
-    private:
-
-        StartStopManager() : res(0) {}
 
         int res;
             
