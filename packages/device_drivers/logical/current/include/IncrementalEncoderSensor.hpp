@@ -65,6 +65,10 @@ namespace ORO_DeviceDriver
             : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false), calPos(_calPos)
         {}
 
+        ~IncrementalEncoderSensor(){
+	  delete enc;
+        }
+
         virtual int readSensor( double& p ) const
         {
             p = readSensor();
