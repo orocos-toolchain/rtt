@@ -780,8 +780,18 @@ Final_State fini_state
 
 /**
  * This state is entered when the StateContext is loaded.
+ * The kernel is not running yet...
  */
 state init_state {
+    transitions {
+	select startup_state
+    }
+}
+
+/**
+ * Kernel is running, select the components.
+ */
+state startup_state {
     entry {
 	do kernel.selectSensor("HWSensor")
 	do kernel.selectGenerator("MoveToGenerator")
