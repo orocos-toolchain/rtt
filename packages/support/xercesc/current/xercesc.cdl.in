@@ -1,5 +1,8 @@
 cdl_package OROPKG_SUPPORT_XERCESC {
-    display "Generated Xerces package"
+    display "Xerces Library"
+
+    parent OROPKG_SUPPORT
+
     description " 
 The presence of this package indicates that the configure
 script detected a valid Xerces installation, which can now

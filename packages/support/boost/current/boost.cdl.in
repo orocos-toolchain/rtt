@@ -1,7 +1,21 @@
 cdl_package OROPKG_SUPPORT_BOOST {
-    display "Generated Boost package"
+    display "Boost Library"
+    parent OROPKG_SUPPORT
+
     description " 
 The presence of this package indicates that the configure
 script detected a valid Boost installation, which can now
 be used by other packages."
+
+    cdl_option OROPKG_SUPPORT_BOOST_GRAPH {
+	display "Boost Graph Library"
+	active_if @ORO_BOOST_GRAPH_DETECT@
+	calculated @ORO_BOOST_GRAPH_DETECT@
+    }
+
+    cdl_option OROPKG_SUPPORT_BOOST_SIGNALS {
+	display "Boost Signals Library"
+	active_if @ORO_BOOST_SIGNALS_DETECT@
+	calculated @ORO_BOOST_SIGNALS_DETECT@
+    }
 }

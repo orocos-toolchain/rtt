@@ -1,7 +1,15 @@
 cdl_package OROPKG_SUPPORT_COMEDILIB {
-    display "Generated ComediLib package"
+    display "ComediLib Library"
+    parent OROPKG_SUPPORT
+
     description " 
 The presence of this package indicates that the configure
 script detected a valid ComediLib installation, which can now
 be used by other packages."
+    cdl_option OROBLD_SUPPORT_COMEDI_DIR {
+	flavor data
+
+	display "ComediLib installation directory"
+	default_value {"@COMEDILIB_DIR@"}
+    }
 }

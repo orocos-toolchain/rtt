@@ -1,5 +1,7 @@
 cdl_package OROPKG_SUPPORT_BOOST_GRAPH {
-    display "Generated Boost Graph Library package"
+    display "Boost Graph Library"
+    parent OROPKG_SUPPORT
+
     description " 
 The presence of this package indicates that the configure
 script detected a valid Boost Graph Library installation,
