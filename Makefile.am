@@ -56,7 +56,6 @@ configure_packages:
 all_packages:
 	cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=@ECOS_REP@ &&\
-	ecosconfig template allpackages &&\
 	ecosconfig tree
 	$(MAKE) -C packages-@ECOS_TARGET@
 
