@@ -25,6 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef GLOBALMEMBERFACTORY
+#error "This is an internal header file"
+#endif
 
 #include <string>
 #include <vector>

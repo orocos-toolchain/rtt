@@ -88,7 +88,7 @@ namespace ORO_Execution
             MapDataSourceFactory( const map_t& map );
             ~MapDataSourceFactory();
 
-            std::vector<std::string> dataNames() const;
+            std::vector<std::string> getNames() const;
             bool hasData( const std::string& s ) const;
             std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
             PropertyBag getArgumentSpec( const std::string& method ) const;
@@ -108,7 +108,7 @@ namespace ORO_Execution
         {
         }
 
-        std::vector<std::string> MapDataSourceFactory::dataNames() const
+        std::vector<std::string> MapDataSourceFactory::getNames() const
         {
             return mystd::keys( mmap );
         }
@@ -213,8 +213,8 @@ namespace ORO_Execution
             // use to refer to the subcontext.
             SubContextDataSourceFactory( ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name );
 
-            std::vector<std::string> dataNames() const;
-            bool hasData( const std::string& s ) const;
+            std::vector<std::string> getNames() const;
+            bool hasMember( const std::string& s ) const;
             std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
             PropertyBag getArgumentSpec( const std::string& method ) const;
             DataSourceBase* create( const std::string& name, const PropertyBag& args ) const;
@@ -235,19 +235,19 @@ namespace ORO_Execution
             ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name )
             : MapDataSourceFactory( psc->getReadOnlyValues() ), mpsc( psc ), mpscds( pscds ), mscn( name )
         {
-          assert( !MapDataSourceFactory::hasData( "inState" ) );
+          assert( !MapDataSourceFactory::hasMember( "inState" ) );
         }
 
-        std::vector<std::string> SubContextDataSourceFactory::dataNames() const
+        std::vector<std::string> SubContextDataSourceFactory::getNames() const
         {
-            std::vector<std::string> ret = MapDataSourceFactory::dataNames();
+            std::vector<std::string> ret = MapDataSourceFactory::getNames();
             ret.push_back( "inState" );
             return ret;
         }
 
-        bool SubContextDataSourceFactory::hasData( const std::string& s ) const
+        bool SubContextDataSourceFactory::hasMember( const std::string& s ) const
         {
-            return s == "inState" || MapDataSourceFactory::hasData( s );
+            return s == "inState" || MapDataSourceFactory::hasMember( s );
         }
 
         std::vector<ArgumentDescription> SubContextDataSourceFactory::getArgumentList( const std::string& method ) const
@@ -306,7 +306,7 @@ namespace ORO_Execution
 
         std::string SubContextDataSourceFactory::getDescription( const std::string& source ) const
         {
-            if ( !hasData( source ) )
+            if ( !hasMember( source ) )
                 throw name_not_found_exception();
             else if ( source == "inState" )
                 return "Return whether this statecontext is in the given state ?";
@@ -969,7 +969,7 @@ namespace ORO_Execution
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
-        if ( context.globalfactory->dataFactory().factory( curinstcontextname ) != 0 )
+        if ( context.globalfactory->dataFactory().getObjectFactory( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );

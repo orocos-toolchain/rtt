@@ -153,7 +153,9 @@ namespace ORO_Execution
 
     // a call statement: "do xxx <and y> <and...> until { terminationclauses }"
     callstatement = (
-      str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this ) ]
+                     (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ] )
+                     |
+                     (str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")] )
       >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
       >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
       ) [ bind( &ProgramGraphParser::seencallstatement, this ) ];
@@ -354,11 +356,20 @@ namespace ORO_Execution
       program_graph->proceedToNext(mpositer.get_position().line);
   }
 
-  void ProgramGraphParser::startofnewstatement()
+  void ProgramGraphParser::startofnewstatement(const std::string& type)
   {
       // Set the line number.
       //int ln = mpositer.get_position().line;
       //mcurrentnode->setLineNumber( ln );
+
+      // a 'do' fails on the first rejected command,
+      // a 'try' tries all commands.
+      if ( type == "do")
+          true_and = true;
+      else if (type == "try")
+          true_and = false;
+      else
+          assert(false);
   }
 
 
@@ -519,29 +530,56 @@ namespace ORO_Execution
   }
 
     namespace {
-        struct CommandComposite : public CommandInterface
+        struct CommandDoComposite : public CommandInterface
         {
             CommandInterface* _f;
             CommandInterface* _s;
-            CommandComposite( CommandInterface* f, CommandInterface* s)
+            CommandDoComposite( CommandInterface* f, CommandInterface* s)
                 : _f(f), _s(s) {}
-            virtual ~CommandComposite() {
+            virtual ~CommandDoComposite() {
                 delete _f;
                 delete _s;
             }
             virtual void execute() {
                 _f->execute();
                 _s->execute();
+                // return _f->execute() && _s->execute();
             }
             virtual void reset() {
                 _f->reset();
                 _s->reset();
             }
             virtual CommandInterface* clone() const {
-                return new CommandComposite( _f->clone(), _s->clone() );
+                return new CommandDoComposite( _f->clone(), _s->clone() );
             }
             virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
+                return new CommandDoComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
+            }
+        };
+        struct CommandTryComposite : public CommandInterface
+        {
+            CommandInterface* _f;
+            CommandInterface* _s;
+            CommandTryComposite( CommandInterface* f, CommandInterface* s)
+                : _f(f), _s(s) {}
+            virtual ~CommandTryComposite() {
+                delete _f;
+                delete _s;
+            }
+            virtual void execute() {
+                _f->execute();
+                _s->execute();
+                // return true;
+            }
+            virtual void reset() {
+                _f->reset();
+                _s->reset();
+            }
+            virtual CommandInterface* clone() const {
+                return new CommandTryComposite( _f->clone(), _s->clone() );
+            }
+            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+                return new CommandTryComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
             }
         };
     }
@@ -552,7 +590,13 @@ namespace ORO_Execution
       // retrieve a clone of the previous 'do' or 'and' command:
     CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() )->clone();
     // set composite command : (oldcmnd can be zero)
-    CommandComposite* compcmnd = new CommandComposite( oldcmnd, commandparser.getCommand() );
+    CommandInterface* compcmnd;
+    if (true_and)
+        compcmnd = new CommandDoComposite( oldcmnd,
+                                           commandparser.getCommand() );
+    else
+        compcmnd = new CommandTryComposite( oldcmnd,
+                                            commandparser.getCommand() );
     program_graph->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( commandparser.getImplTermCondition() );

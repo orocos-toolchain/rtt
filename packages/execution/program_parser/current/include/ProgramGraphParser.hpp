@@ -59,6 +59,10 @@ namespace ORO_Execution
 
       our_pos_iter_t& mpositer;
 
+      // helper variable to detect if we are in 'try' or 'do'
+      // which influences the 'and' behaviour
+      bool true_and;
+
       // The current function we are parsing.
       FunctionGraph* mfunc;
 
@@ -87,7 +91,7 @@ namespace ORO_Execution
 
       void seencontinue( );
 
-      void startofnewstatement();
+      void startofnewstatement( const std::string& type);
       void seencommandcall();
       void seenandcall();
       void seencommands();

@@ -34,6 +34,9 @@
 #include "GlobalDataSourceFactory.hpp"
 #include "DataSourceFactoryInterface.hpp"
 
+#include "GlobalMethodFactory.hpp"
+#include "MethodFactoryInterface.hpp"
+
 
 namespace ORO_Execution
 {
@@ -42,13 +45,15 @@ namespace ORO_Execution
      * @brief This factory is used by the Parser ( and sub-Parsers )
      * to retrieve existing commands and data structures.
      *
-     * It merely stores the GlobalCommandFactory and GlobalDataSourceFactory
+     * It merely stores the GlobalCommandFactory,
+     * GlobalDataSourceFactory, GlobalMethodFactory
      * for a given application.
      */
     class GlobalFactory
     {
         GlobalCommandFactory commandFact;
         GlobalDataSourceFactory dataFact;
+        GlobalMethodFactory methodFact;
 
     public:
         const GlobalCommandFactory& commandFactory() const
@@ -69,6 +74,16 @@ namespace ORO_Execution
         const GlobalDataSourceFactory& dataFactory() const
         {
             return dataFact;
+        }
+
+        GlobalMethodFactory& methodFactory()
+        {
+            return methodFact;
+        }
+
+        const GlobalMethodFactory& methodFactory() const
+        {
+            return methodFact;
         }
 
     };

@@ -43,7 +43,7 @@
 
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
-#include "TryCommand.hpp"
+//#include "TryCommand.hpp"
 
 namespace ORO_Execution
 {
@@ -111,8 +111,9 @@ namespace ORO_Execution
        */
     std::pair<CommandInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
       {
-          EvalCommand* ec = new EvalCommand(ds_bool);
-          EvalCommandResult* ecr = new EvalCommandResult( ec );
-          return std::make_pair( ec ,ecr );
+          //EvalCommand* ec = new EvalCommand(ds_bool);
+          //EvalCommandResult* ecr = new EvalCommandResult( ec );
+          //return std::make_pair( ec ,ecr );
+          return std::pair<CommandInterface*,ConditionInterface*>(0,0);
       }
 }
