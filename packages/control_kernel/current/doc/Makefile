@@ -1,36 +1,42 @@
 
 dist: dochtml docpdf docps
 	tar -czf orocos-control-kernel-doc.tgz \
-	orocos-control-kernel.html kernel_component_interaction.png control-pattern.png \
-	component_life_cycle.png ExtensionTimeLine.png component_data_production.png \
-	control-pattern.png standard-control-kernel.png reporting-ext.png execution-ext.png \
-	ExtensionAspect.png \
-	cascnames.png property-ext.png \
-	orocos-control-kernel.pdf \
-	orocos-control-kernel.ps
+	$(HTMLDOCS) \
+	$(PDFDOCS) \
+	$(PSDOCS) \
+	$(PNGIMGS)
+
+XMLDOCS=orocos-control-kernel.xml
+
+DIAS=kernel_component_interaction.dia component_life_cycle.dia ExtensionTimeLine.dia component_data_production.dia control-pattern.dia standard-control-kernel.dia reporting-ext.dia execution-ext.dia cascnames.dia property-ext.dia ExtensionAspect.dia KernelInterfacing.dia
+
+HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) 
+PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))
+PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS)) 
+TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
+
+EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
+PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
 
 docxml: dochtml docpdf
 
-dochtml: pngimages orocos-control-kernel.html
+dochtml: pngimages $(HTMLDOCS)
 
-docpdf: epsimages orocos-control-kernel.pdf
+docpdf: epsimages $(PDFDOCS)
 
-docps: epsimages orocos-control-kernel.ps
+docps: epsimages $(PSDOCS)
 
-doctxt: orocos-control-kernel.txt
+doctxt: $(TXTDOCS)
 
-epsimages: kernel_component_interaction.eps component_life_cycle.eps ExtensionTimeLine.eps component_data_production.eps control-pattern.eps standard-control-kernel.eps reporting-ext.eps execution-ext.eps cascnames.eps property-ext.eps ExtensionAspect.eps
+epsimages: $(EPSIMGS)
 
-pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTimeLine.png component_data_production.png control-pattern.png standard-control-kernel.png reporting-ext.png execution-ext.png cascnames.png property-ext.png ExtensionAspect.png
-
-#orocos-control-kernel.html: 
+pngimages: $(PNGIMGS)
 
 %.html:%.xml
 	xsltproc -o $@ /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $<
 
 %.fo:%.xml
 	xsltproc -o $@ orocos.xsl $<
-	cp $@ $@.bak
 
 %.ps:%.fo
 	fop $< $@
@@ -58,4 +64,5 @@ pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTi
 	imagemagick $< $@
 
 clean-local:
-	rm orocos-control-kernel.html
+	rm -f $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PNGIMGS) $(EPSIMGS) $(TXTDOCS)
+

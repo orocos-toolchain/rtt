@@ -2836,6 +2836,28 @@ private:
 	  </imageobject>
 	</mediaobject>
       </figure>
+      <para>
+	The next figure shows how the kernel can be interfaced
+	in a thread-safe way using the Execution Extension.
+	Any part of the application can communicate with the
+	Control Kernel Components using this mechanism. The
+	example uses the not-realtime HMI Visualisation client.
+      </para>
+      <figure>
+	<title>
+	  Interfacing the Control Kernel
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="KernelInterfacing.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="KernelInterfacing.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
       <sect3>
 	<title>Using the ExecutionExtension</title>
 	<para>
@@ -2852,14 +2874,14 @@ typedef StandardControlKernel<ExecExtension> MyExecKernel;
 ]]>
 MyExecKernel my_kernel;
 // ... load components, then :
-my_kernel.loadStateContext("state.osd", "MyState");
+my_kernel.loadStateContext("state.osd");
 my_kernel.loadProgram("program.ops");
       </programlisting>
 	<para>
-	  The Program name is given in the program.ops file, in the
-	  future, the same will hold for the StateContext.
-	  The StateContext will immediately enter the "Initial_State",
-	  but both StateContext and Program will be idle. To use the
+	  The Program name is given in the program.ops file
+	  The StateContext will enter the "Initial_State" when
+	  it is started. Both StateContext and Program will be idle
+	  after load. To use the
 	  StateContext, it must be started :
 	</para>
 	<programlisting>
@@ -2892,102 +2914,106 @@ do Execution.stopStateContext("SecondContext")
 	  example. It also goes into great detail about syntax
 	  and possibilities. The Example is for completeness repeated here.
 	</para>
-	<note>
-	  <para>
-	    The syntax of the State Description might slightly change in the
-	    future to accomodate for defining multiple state contexts in one file.
-	    The changes will be limited to the top lines defining the events and
-	    the initial and final state.
-	  </para>
-	</note>
 	<example>
 	  <title>"state.osd" : StateContext with name "MyState"</title>
 	  <programlisting>
-Event_Handle home_switch1
-Event_Handle home_switch2
+StateContext MachineContext
+{
+    Event_Handle home_switch1
+    Event_Handle home_switch2
 
-Initial_State init_state
-Final_State fini_state
+    /**
+     * This state is entered when the StateContext is loaded.
+     * The kernel is not running yet...
+     */
+    initial state init_state {
+	transitions {
+	    select startup_state
+	}
+    }
 
-/**
- * This state is entered when the StateContext is loaded.
- */
-state init_state {
-    entry {
-	do Kernel.selectSensor("HWSensor")
-	do Kernel.selectGenerator("MoveToGenerator")
-	}
-    transitions {
-	select stop_state
-	}
+    /**
+     * Kernel is running, select the components.
+     */
+    state startup_state {
+	entry {
+	    do Kernel.selectSensor("HWSensor")
+	    do Kernel.selectGenerator("MoveToGenerator")
+	    }
+	transitions {
+	    select stop_state
+	    }
+    }
+
+    /**
+     * This state is only reached when the State Context
+     * is stopped.
+     */
+    final state fini_state {
+	entry {
+	    do Kernel.selectSensor("Default")
+	    do Kernel.selectGenerator("Default")
+	    }
+    }
+
+    /**
+     * This state is the 'turn off' state of the
+     * machine.
+     */
+    state stop_state {
+	entry {
+	    // The Default Effector and Controller do nothing
+	    do Kernel.selectController("Default")
+	    do Kernel.selectEffector("Default")
+	transitions {
+	    if HMI.start_pushed() then
+		 select run_state
+	    }
+    }
+
+    /**
+     * This state puts the machine under 'control'
+     * effectively accepting commands and driving
+     * the machine.
+     */
+    state run_state {
+	entry {
+	    // make sure we are not moving
+	    do MoveToGenerator.safeStop()
+	    // Select components controlling the machine
+	    do Kernel.selectController("PID")
+	    do Kernel.selectEffector("HWEffector")
+	    }
+
+	transitions {
+	    if HMI.stop_pushed() then
+		 select stop_state
+	    if HMI.start_program() then
+		 select exec_state
+	    }
+    }
+
+    /**
+     * This state starts a previously loaded
+     * program.
+     */
+    state exec_state {
+	entry {
+	    do Execution.startProgram("MyProgram")
+	    }
+
+	exit {
+	    do Execution.stopProgram("MyProgram")
+	    }
+
+	transitions {
+	    if HMI.stop_program() then
+		 select run_state
+	    }
+    }
 }
 
-/**
- * This state is only reached when the State Context
- * is stopped.
- */
-state fini_state {
-    entry {
-	do Kernel.selectSensor("Default")
-	do Kernel.selectGenerator("Default")
-	}
-}
-
-/**
- * This state is the 'turn off' state of the
- * machine.
- */
-state stop_state {
-    entry {
-	// The Default Effector and Controller do nothing
-	do Kernel.selectController("Default")
-	do Kernel.selectEffector("Default")
-    transitions {
-	if HMI.start_pushed() then
-	     select run_state
-	}
-}
-
-/**
- * This state puts the machine under 'control'
- * effectively accepting commands and driving
- * the machine.
- */
-state run_state {
-    entry {
-	// make sure we are not moving
-	do MoveToGenerator.safeStop()
-	// Select components controlling the machine
-	do Kernel.selectController("PID")
-	do Kernel.selectEffector("HWEffector")
-	}
-
-    transitions {
-	if HMI.stop_pushed() then
-	     select stop_state
-	if HMI.start_program() then
-	     select exec_state
-	}
-}
-
-/**
- * This state starts a previously loaded
- * program.
- */
-state exec_state {
-    entry {
-	do Execution.startProgram("MyProgram")
-	}
-
-    exit {
-	do Execution.stopProgram("MyProgram")
-	}
-	
-    transitions {
-	if HMI.stop_program() then
-	     select run_state
-	}
-}
+RootContext MainContext mainContext
 	  </programlisting>
 	</example>
 	<example>
@@ -3004,9 +3030,9 @@ state exec_state {
 function HMILoadTrajectory {
 	// request a 'push' of the next
 	// trajectory :
-	do HMI.requestTrajectory()
+	do HMI.requestTrajectory
 	// when the HMI is done :
-	do Generator.loadTrajectory()
+	do Generator.loadTrajectory
 }
 
 /**
@@ -3024,7 +3050,7 @@ function ResetAxes {
  * trajectory.
  */
 function runTrajectory {
-	do Generator.startTrajectory()
+	do Generator.startTrajectory
 	// this function returns when the
 	// trajectory is done.
 }
@@ -3034,7 +3060,7 @@ function ExitProgram {
 	stop
 }
 
-program {
+program DemoRun {
 	do HMI.display("Program Started\n")
 	var int cycle = 0
 
@@ -3044,10 +3070,7 @@ program {
 	   if HMI.trajectoryPresent then continue
 	}
 
-	// HMI.cycle is a boolean which the user (or other logic)
-	// can set to true or false
-	while ( HMI.cycle ) {
-	    set cycle = cycle + 1
+	while HMI.cycle {
 	    do HMI.display("Cycle nr: %d.\n", cycle )
 	    call ResetAxes
 	    call HMIRequestTrajectory
@@ -3073,7 +3096,7 @@ program {
 <properties>
     <simple name="Interval"  type="short">
 	<description>The relative interval of executing a program step.</description>
-	<value>1</value>
+	<value>5</value>
     </simple>
 </properties>
 ]]>
