@@ -32,6 +32,8 @@ namespace ORO_CoreLib
     class ConfigurationInterface
     {
         public:
+        virtual ~ConfigurationInterface() {}
+
         /**
          * Initialize and startup a configuration of
          * an object.

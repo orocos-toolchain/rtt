@@ -39,6 +39,7 @@ namespace ORO_CoreLib
         class OperationAcceptor
         {
             public:
+            virtual ~OperationAcceptor() {}
                 /**
                  * Existing operations, need to be overloaded in
                  * the subclass to implement the specific operation. 

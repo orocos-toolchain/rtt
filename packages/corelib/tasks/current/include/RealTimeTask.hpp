@@ -75,7 +75,7 @@ namespace ORO_CoreLib
         /**
          * Stops and terminates a RealTimeTask
          */
-        virtual  ~RealTimeTask();
+        virtual ~RealTimeTask();
            
         /**
          * Run exclusively this RunnableInterface.

@@ -40,6 +40,8 @@ namespace ORO_CoreLib
     class Marshaller
     {
         public:
+        virtual ~Marshaller() {}
+
 			/**
 			 * Serialize a property of type bool.
 			 * @param v The property to be serialized.
@@ -109,6 +111,7 @@ namespace ORO_CoreLib
 	class Demarshaller
 	{
 		public:
+        virtual ~Demarshaller() {}
 			/**
 			 * Deserialize data to a property bag.
 			 * @param v The property bag which will contain the results

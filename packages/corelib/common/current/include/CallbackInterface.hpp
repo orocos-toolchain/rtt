@@ -31,6 +31,8 @@ namespace ORO_CoreLib
      */
     struct CallbackInterface
     {
+        virtual ~CallbackInterface() {}
+
         /**
          * Execute callback functionality.
          * @note This method is not const, so can not be called on 

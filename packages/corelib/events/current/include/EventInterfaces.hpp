@@ -119,6 +119,8 @@ namespace ORO_CoreLib
     class EventSingleCompleterInterface
     {
     public:
+        virtual ~EventSingleCompleterInterface() {}
+
         /**
          * Set the unique EventCompleterInterface instance which will be
          * notified when this Event completes.
@@ -157,6 +159,8 @@ namespace ORO_CoreLib
     class EventMultiListenerInterface
     {
     public:
+        virtual ~EventMultiListenerInterface() {}
+
         /**
          * Add a listener for this Event.
          *
@@ -195,6 +199,8 @@ namespace ORO_CoreLib
     class EventMultiCompleterInterface
     {
     public:
+        virtual ~EventMultiCompleterInterface() {}
+
         /**
          * Add a completer for this Event.
          *
@@ -233,6 +239,7 @@ namespace ORO_CoreLib
      */
     struct EventBoundToListenerInterface
     {
+        virtual ~EventBoundToListenerInterface() {}
         /**
          * Call the Completer associated with a Listener.
          *
@@ -249,6 +256,8 @@ namespace ORO_CoreLib
     class HandlerRegistrationInterface
     {
     public:
+        virtual ~HandlerRegistrationInterface() {}
+
         /**
          * Add an event handler (listener,completer) pair to this Event.
          *

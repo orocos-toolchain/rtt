@@ -76,6 +76,12 @@ given in the general &orocos; overview document.
 	<authorinitials>ps</authorinitials>
 	<revremark>Stripped Devices and OS parts</revremark>
       </revision>
+      <revision>
+	<revnumber>0.12</revnumber>
+	<date>2 Apr 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>StateContext updates</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -237,41 +243,41 @@ using namespace ORO_CoreLib;
 
 ORO_main( int argc, const char** argv)
 {
-	  // Define your tasks
+  // Define your tasks
 
-	  // ...
+  // ...
 
-	  // An extra thread for low priority tasks
-	  // 9 : The priority.
-	  // 0.01 : The period.
-	  // You have to manually start the thread.
-	  PriorityThread<9>::Instance()->periodSet( 0.01 );
-	  PriorityThread<9>::Instance()->start();
-	  // Optional :
-	  PriorityThread<9>::Instance()->makeHardRealtime();
+  // An extra thread for low priority tasks
+  // 9 : The priority.
+  // 0.01 : The period.
+  // You have to manually start the thread.
+  PriorityThread<9>::Instance()->periodSet( 0.01 );
+  PriorityThread<9>::Instance()->start();
+  // Optional :
+  PriorityThread<9>::Instance()->makeHardRealtime();
 
-	  // These tasks are run in the Orocos Thread Model
-	  TaskNonPreemptible fast_task(0.001, &vel_loop);
-	  TaskPreemptible slow_task(0.01, &pos_loop);
-	  TaskNonRealTime nrt_task( 0.1, &display_server );
+  // These tasks are run in the Orocos Thread Model
+  TaskNonPreemptible fast_task(0.001, &vel_loop);
+  TaskPreemptible slow_task(0.01, &pos_loop);
+  TaskNonRealTime nrt_task( 0.1, &display_server );
 
-	  // This task is run in the extra thread above
-	  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
+  // This task is run in the extra thread above
+  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
 
-	  // All is transparant from here on.
-	  fast_task->start();
-	  slow_task->start();
-	  own_task->start();
-	  nrt_task->start();
+  // All is transparant from here on.
+  fast_task->start();
+  slow_task->start();
+  own_task->start();
+  nrt_task->start();
 
-	  // ...
+  // ...
 
-	  fast_task->stop();
-	  slow_task->stop();
-	  own_task->stop();
-	  nrt_task->stop();
+  fast_task->stop();
+  slow_task->stop();
+  own_task->stop();
+  nrt_task->stop();
 
-	  return 0;
+  return 0;
 }
 ]]>
 	</programlisting>
@@ -553,14 +559,14 @@ emergencyStop.fire(); // User not notified
 	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
 	of the new state is called and right after that its <function>handle()</function> is
 	called. Each time the current state is again requested, the <function>handle()</function>
-	is called again.
+	is called again (instead of onExit() and onEntry()).
       </para>
       <para>
 	So the <classname>StateInterface</classname> determines what has to be done, but 
 	the decision to change state is made in the <classname>StateContext</classname>. The 
 	StateContext keeps track of the current state and all valid state transitions.
 	One has to 'program' the StateContext so that it knows which transitions can be made
-	under which conditions
+	under which conditions. 
       </para>
     </sect1>
      <sect1>
@@ -568,12 +574,12 @@ emergencyStop.fire(); // User not notified
 	<para>
 	  The ConditionInterface is very basic :
 	  <programlisting>
-	    <![CDATA[
-	    class ConditionInterface
-	    {
-	    virtual bool evaluate() = 0;
-	    };
-	    ]]>
+  <![CDATA[
+  class ConditionInterface
+  {
+  virtual bool evaluate() = 0;
+  };
+  ]]>
 	  </programlisting>
 
 	  Conditions are classes that evaluate an expression and return the result. This expression
@@ -590,24 +596,25 @@ emergencyStop.fire(); // User not notified
 	  Now how does it all work together ? First, a StateContext object is created and
 	  all its possible States. 
 	  <programlisting>
-	    <![CDATA[
-	    StateInit startState;
-	    StateA aState;
-	    StateB bState;
-	    StateError errState;
+  <![CDATA[
+  StateInit startState;
+  StateFini endState;
+  StateA aState;
+  StateB bState;
+  StateError errState;
 
-	    ConditionTrue cTrue;
-	    ConditionOnce cOnce;
+  ConditionTrue cTrue;
+  ConditionOnce cOnce;
 
-	    StateContext context;
+  StateContext context;
 
-	    ]]>
+  ]]>
 	  </programlisting>
 	  Next, we will tell the <varname>context</varname> object which is the initial state which
 	  state transitions are allowed :
 	  <programlisting>
 	    <![CDATA[
-	    context.initState(&startState);
+	    context.initState(&startState, &endState);
 
 	    context.transitionSet(&startState, &aState, &cOnce);
 	    context.transitionSet(&aState, &bState, &cTrue);
@@ -620,22 +627,41 @@ emergencyStop.fire(); // User not notified
 	  always switch from aState to bState and back. All states are allowed to go to the 
 	  errorstate, but in this example, it will be impossible to leave the errorstate:
 	  <programlisting>
-	    <![CDATA[
-	    ...
-	    // we are in the startState
-	    context.requestState(&bState); // will return false !
-	    context.requestState(&aState); // ok, returns true.
-	    context.requestState(&bState); // ok, returns true.
-	    context.requestState(&errState); // returns true, but we are trapped in it.
+  <![CDATA[
+  ...
+  // we are in the startState
+  context.requestState(&bState); // will return false !
+  context.requestState(&aState); // ok, returns true.
+  context.requestState(&bState); // ok, returns true.
+  context.requestState(&errState); // returns true, but we are trapped in it.
 
-	    // we are now in the errState
-	    ...
-	    ]]>
+  // we are now in the errState, recover
+  context.requestFinalState();   // succeeds always !
+  context.requestInitialState(); // ok from Final or Initial state
+ 
+  // start over
+  ...
+   ]]>
 	  </programlisting>
 	</para>
       </sect1>
-    </chapter>
-    <chapter>
+    <sect1>
+      <title>Practical use of the StateContext</title>
+      <para>
+	The StateContext has a method <function>requestNextState()</function> which
+	tries to make the first valid transition from the current state to the
+	another state it encounters.
+      </para>
+      <para>
+	Writing States and StateContexts is cumbersome. The Orocos Framework has
+	therefore developped a Program and State
+	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
+	<ulink url="orocos-program-processor.html">Processor</ulink>
+	which are documented seperately.
+      </para>
+    </sect1>
+  </chapter>
+  <chapter>
     <title>Properties</title>
     <sect1>
       <title>Introduction</title>
@@ -663,15 +689,15 @@ emergencyStop.fire(); // User not notified
 	  <para>
 	    <example><title>Using properties</title> 
 	      <programlisting>
-		<![CDATA[
-		...
-		// a property, respresening a double of value 1.0:
+<![CDATA[
+  ...
+  // a property, respresening a double of value 1.0:
 
-		Property<double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
-		myProp = 10.9; // realtime
-		double a = myProp.get(); // realtime
-		...
-		]]>
+  Property<double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
+  myProp = 10.9; // realtime
+  double a = myProp.get(); // realtime
+  ...
+]]>
 	      </programlisting>
 	    </example>
 	  </para>
@@ -754,13 +780,14 @@ emergencyStop.fire(); // User not notified
 	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>
-	NameServer&lt; ClassA* &gt; nameserver; // A NameServer collecting pointers to ClassA objects
-	ClassA my_a;
-	nameserver.registerObject( &amp;my_a, "ATeam" );
-	// ...
-	ClassA* an_a = nameserver.getObject( "ATeam" );
-	if (an_a != 0 )
-	    cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;
+  // A NameServer collecting pointers to ClassA objects
+  NameServer&lt; ClassA* &gt; nameserver;
+  ClassA my_a;
+  nameserver.registerObject( &amp;my_a, "ATeam" );
+  // ...
+  ClassA* an_a = nameserver.getObject( "ATeam" );
+  if (an_a != 0 )
+      cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;
       </programlisting>
       <para>
 	A typical use of nameserving is that the nameserver is nested inside the class
@@ -770,12 +797,12 @@ emergencyStop.fire(); // User not notified
 	in that case, it would be used as follows :
       </para>
       <programlisting>
-	ClassA my_a( "The ATeam" ); // give name in constructor
-	// ...
-	// notice the scope ClassA:: the nameserver is nested in :
-	ClassA* an_a = ClassA::nameserver.getObject( "The ATeam" );
-	if (an_a != 0 )
-	    cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;
+  ClassA my_a( "The ATeam" ); // give name in constructor
+  // ...
+  // notice the scope ClassA:: the nameserver is nested in :
+  ClassA* an_a = ClassA::nameserver.getObject( "The ATeam" );
+  if (an_a != 0 )
+    cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;
       </programlisting>
       <para>
 	The above technique is used in many classes inside &orocos;. Events, Devices, 

@@ -37,6 +37,7 @@ namespace ORO_CoreLib
     class TaskInterface
     {
     public:
+        virtual ~TaskInterface() {}
 
         /**
          * Start the task.
