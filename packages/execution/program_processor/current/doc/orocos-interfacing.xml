@@ -4,13 +4,13 @@
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY interf  "<acronym>Interfacing</acronym>">
+<!ENTITY interf  "<acronym>Program Processor</acronym>">
 ]
 >
 
 <book>
   <bookinfo>
-  <title>Orocos Interfacing</title>
+  <title>Orocos Program Processor Package</title>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -47,11 +47,11 @@
     </copyright>
 
   <abstract>
-<para>
-This document explains the design and implementation of the
-Interfacing component.
-</para>
-  </abstract>
+      <para>
+	This document explains the design and implementation of the
+	Program Execution component.
+      </para>
+    </abstract>
 
   <revhistory>
   <revision>
@@ -60,21 +60,27 @@ Interfacing component.
     <authorinitials>ps</authorinitials>
     <revremark>Updated for release</revremark>
   </revision>
+  <revision>
+    <revnumber>0.11</revnumber>
+    <date>31 Okt 2003</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Adapted documentation to comply with 0.11 release</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
-  <para>
-Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
-any later version published by the Free Software Foundation, with no
-Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
-Texts. A copy of this license can be found at
-<ulink
- url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
-  </para>
-  </legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
 
- </bookinfo>
+  </bookinfo>
 
 
   
@@ -87,7 +93,7 @@ features and interface of the &orocos; &interf; module.
 
 
     <sect1>
-      <title>What is Orocos Interfacing ?</title>
+      <title>What is Orocos Execution : Program Processor ?</title>
       <para>
 	&orocos; is meant for building realtime systems. You will find all necessary
 	components in other &orocos; packages to build them, but they would only
@@ -111,131 +117,106 @@ features and interface of the &orocos; &interf; module.
     <sect1>
       <title>Installation</title>
       <para>
-	&orocos; uses the GNU Autotools for configuration and building. 
-	Therefore the configuration and building 
-	process is pretty well standardised. We refer to the Orocos Core installation
-	instructions for the advised configuration and installation procedure. Just
-	read 'interfacing' where it says 'core'. After configuration you can do :
-      </para>
-      
-      <screen>
-make
-make install
-make modules_install
-      </screen>
-      <tip>
-	<para>Make sure that you configured interfacing with the same parameters
-	as the core, or the compiler will not find the core header files and libraries.</para>
-      </tip>
-
-      <para>
-	You can use the <command>make check</command> command to start 
-	building testprograms and executing them. The <command>make docs</command> 
-	or <command>doxygen</command> command builds API documentation. 
+	&orocos; uses the eCos tools for configuration and building.
+	Therefore the configuration and building process is pretty
+	well standardised. We refer to the Orocos Base installation
+	instructions for the advised configuration and installation
+	procedure. 
       </para>
       <para>
-      Further information can be found in the &orocos; core documentation.
+      Further information can be found in the &orocos; installation documentation.
       </para>
-   <para>
-	By running <command>./configure --help</command> you can see the possible flags you can pass to
-	the configure script.
-   </para>
-      <para>
-	If you got  &interf; from <application>CVS</application>, run 
-	<command>./autogen.sh</command> first.
-      </para>
-    </sect1>
-    <sect1><title>A last piece of advice</title>
-    <para>
-          <tip>
-          We highly advise you to read first the Orocos Core documentation before going on.
-	  Its nomenclature will be used extensively.
-	  </tip>
-    </para>
     </sect1>
 </chapter>
 
-<chapter><title>Short Introduction</title>
+  <chapter><title>Short Introduction</title>
     <sect1>
       <title>Main Components</title>
       <para>
-	This section gives an overview of the services used for interfacing
+	This section gives an overview of the services used for &interf;.
       </para>
       <para>
-
-      We refer to the source code documentation or the <application>doxygen</application> generated files for the most recent
-      documentation about which functions exist and do what. 
+	We refer to the source code documentation or the <application>doxygen</application> generated files for the most recent
+	documentation about which functions exist and do what. 
       </para>
       <sect2>
-      <title>Processor</title>
-      <para>
-        The <classname>Processor</classname> is the core component of &interf;. 
-	It represents an execution engine which is capable of loading a system configuration and
-	loading and executing programs on that configured system.  Thus the Processor is always 
-        associated with 3 variables, namely the state of the system, the data to be 
-        executed and its own state. The Processor is at all times in one of the 
-        following <classname>ProcessorStates</classname>: initialisation state, 
-        system configuration state, load program state and execution state 
-        (for more information on these states and their transitions see figure 
-        included in documentation).
-      </para>
+	<title>Processor</title>
+	<para>
+	  The <classname>Processor</classname> is the core component of &interf;. 
+	  It represents an execution engine which is capable of loading a system configuration and
+	  loading and executing programs on that configured system.  Thus the Processor is always 
+	  associated with 3 variables, namely the state of the system, the data to be 
+	  executed and its own state. The Processor is at all times in one of the 
+	  following <classname>ProcessorStates</classname>: initialisation state, 
+	  system configuration state, load program state and execution state.
+	</para>
+	<figure><title>States of the Program Processor</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="PPstates.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject>
+	      <imagedata fileref="PPstates.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
       </sect2>
 
       <sect2>
-      <title>System Context</title>
-      <para>
-        The <classname>System Context</classname> is the gateway to the configuration of
-        the state machine representing the system logic. A user can define possible system 
-        states, state rules and state transitions which will be translated by the parser
-        into a valid system configuration.  
-        Each <classname>SystemState</classname> can be configured with a set of rules. 
-        A <classname>Rule</classname> is an if-then clause (Condition-Command), 
-        when the condition is violated, the corresponding command will be executed.  
-        A difference has been made between strong rules and weak rules.  When a strong rule 
-        is violated, the only concern is to execute its command as soon as possible and abort
-        the rest of the rules. Weak rules on the other hand, are checked sequentially.
-      </para>
-      </sect2>
-
-      <sect2>
-      <title>Program</title>
-      <para>
-	The <classname>Program</classname> is a tree composed of program nodes.  A Program
-        keeps track of the root node and the node to be executed next. As such a program 
-	can be executed in steps, and reset to the beginning. The leaf nodes of a program
-        are special program nodes that contain a command which will halt the processor 
-        that is executing the program.
+	<title>System Context</title>
+	<para>
+	  The <classname>System Context</classname> is the gateway to the configuration of
+	  the state machine representing the system logic. A user can define possible system 
+	  states, state rules and state transitions which will be translated by the parser
+	  into a valid system configuration.  
+	  Each <classname>SystemState</classname> can be configured with a set of rules. 
+	  A <classname>Rule</classname> is an if-then clause (Condition-Command), 
+	  when the condition is violated, the corresponding command will be executed.  
+	  A difference has been made between strong rules and weak rules.  When a strong rule 
+	  is violated, the only concern is to execute its command as soon as possible and abort
+	  the rest of the rules. Weak rules on the other hand, are checked sequentially.
 	</para>
       </sect2>
 
       <sect2>
-      <title>Program Node</title>
-      <para>
-	The <classname>Program Node</classname> contains a <classname>Command</classname> and
-        a list of <classname>Termination Clauses</classname>, these clauses are 
-        condition-program node couples that represent conditional branches in the program tree. 
-	When a program node is executed, it executes its associated commands and 
-        runs through the list with termination clauses, checking until a <classname>
-	Condition</classname> is found 
-        valid and returning the program node associated with that condition as the 
-        program node to be executed next. If no condition is fulfilled, the program node
-        will return itself as the program node to be executed next.
-	Also a line number can 
-        be associated with each program node, as a reference to the input file formatted 
-        by the user.
+	<title>Program</title>
+	<para>
+	  The <classname>Program</classname> is a tree composed of program nodes.  A Program
+	  keeps track of the root node and the node to be executed next. As such a program 
+	  can be executed in steps, and reset to the beginning. The leaf nodes of a program
+	  are special program nodes that contain a command which will halt the processor 
+	  that is executing the program.
+	</para>
+      </sect2>
+
+      <sect2>
+	<title>Program Node</title>
+	<para>
+	  The <classname>Program Node</classname> contains a <classname>Command</classname> and
+	  a list of <classname>Termination Clauses</classname>, these clauses are 
+	  condition-program node couples that represent conditional branches in the program tree. 
+	  When a program node is executed, it executes its associated commands and 
+	  runs through the list with termination clauses, checking until a <classname>
+	    Condition</classname> is found 
+	  valid and returning the program node associated with that condition as the 
+	  program node to be executed next. If no condition is fulfilled, the program node
+	  will return itself as the program node to be executed next.
+	  Also a line number can 
+	  be associated with each program node, as a reference to the input file formatted 
+	  by the user.
 	</para>
       </sect2>
 
       <sect2>
 	<title>Command</title>
 	<para>
-	The <classname>Command</classname> is the abstraction of a user directive
-	that has to be executed. A Command can be execute()'ed and reset()'ted.
-	For each action exists one Command, but a Command can be composed of
-	other Commands. The package provides a lot of examples. 
+	  The <classname>Command</classname> is the abstraction of a user directive
+	  that has to be executed. A Command can be execute()'ed and reset()'ted.
+	  For each action exists one Command, but a Command can be composed of
+	  other Commands. The package provides a lot of examples. 
 	</para>
       </sect2>
-</sect1>
-</chapter>
+    </sect1>
+  </chapter>
 
 </book>
