@@ -29,7 +29,6 @@
 #define DEVICEDRIVERS_AXIS_HPP
 
 #include <device_interface/AxisInterface.hpp>
-
 #include <string>
 #include <map>
 #include <vector>
@@ -54,7 +53,7 @@ namespace ORO_DeviceDriver
      * The EndLimit switches limit the drive() command. Each Sensor
      * added must impose a software limit on drive().
      */
-    class Axis
+    class Axis : public AxisInterface
     {
     public:
 
