@@ -1,0 +1,68 @@
+OROCOS v0.12.0  Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of the Open RObot COntrol Software v0.12.0.
+
+Orocos aims at building a community for designing realtime
+open robot controllers using Free Software. This is a brief features
+list of this release :
+
+* The orocos-install.tcl scripts works more smoothly
+* The Control Kernel documentation has been improved
+* There are now 4 demonstration compile/run-ready sample kernels
+* Runtime machine state descriptions added to the Program Parser and Processor
+* The Program Parser and Processor have had much testing and documentation
+* The usual bugfixes...
+
+
+OROCOS v0.10.0  Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of the Open RObot COntrol Software v0.10.0.
+
+Orocos aims at building a community for designing realtime
+open robot controllers using Free Software. This is a brief features
+list of this release :
+
+* eCos Package management system
+* Graphical configuration tool (screenshots on the download page)
+* Per package online manuals
+* Various control kernel implementations (single, cascading, ...)
+* Various 6D Path planning algorithms with VelocityProfiles
+* State-full and State-less kinematic components
+* Cartesian motion control components
+* Synchronous/Asynchronous Event handling library
+* Realtime Script Program processing
+* Extendible Orocos Script Program parsing
+* Runtime XML configuration of control kernels
+* Runtime XML configuration of kernel components
+* Extendible Reporting of control variables
+* Complete cross-linked API documentation
+* Explain by example online manuals.
+* CANOpen support with CANPie integration
+* Comedi integration
+* Hardware Device interface abstractions
+* Easy to use C++ Task-based multithreading
+* Example applications for control kernels
+* RTAI 24.1.x and 3.0 LXRT support
+* Non-realtime GNU/Linux support
+
+This release is tagged as STABLE. It has been tested on several
+machines in our lab, such as a 6DOF Kuka Robot and XY positioning
+machine.
+
+This 0.10.0 release is a major step after the 0.9.0 release,
+which appeared a year ago. We switched to the eCos packaging
+and configuration system to allow easy application-specific tweaking
+and much of the code has been refactored. Thanks to the RTAI
+community, Orocos delivers userspace realtime machine control
+for Linux.
+
+To download Orocos on your system, to go http://www.orocos.org,
+section Downloads.
+
+ *******************************************************************
+* See the http://www.orocos.org webpage all information             *
+ *******************************************************************
