@@ -38,7 +38,6 @@ namespace ORO_ControlKernel
       _position_local(num_axes),
       _velocity_local(num_axes),
       _properties_read(false),
-      _new_values(false),
       _maximum_velocity("max_vel", "Maximum Velocity in Trajectory"),
       _maximum_acceleration("max_acc", "Maximum Acceleration in Trajectory")
   {}
@@ -57,8 +56,6 @@ namespace ORO_ControlKernel
   {
     // initialize
     if (!_is_initialized){
-      _new_values = false;
-      _is_moving = false;
       _is_initialized = true;
       _position_meas_DOI->Get(_position_desired);
     }
@@ -163,6 +160,8 @@ namespace ORO_ControlKernel
 
     // initialize
     _is_initialized = false;
+    _new_values = false;
+    _is_moving = false;
 
     // get interface to Cammand / Model / Input data types
     if ( !nAxesGeneratorPos_typedef::Input::dObj()->Get("Position", _position_meas_DOI) ){
