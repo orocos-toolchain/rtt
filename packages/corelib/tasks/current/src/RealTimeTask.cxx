@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  RealTimeTask.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  PeriodicTask.cxx 
 
-                        RealTimeTask.cxx -  description
+                        PeriodicTask.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #pragma implementation
-#include "corelib/RealTimeTask.hpp"
+#include "corelib/PeriodicTask.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
 #include "corelib/TaskExecution.hpp"
@@ -36,7 +36,7 @@
 namespace ORO_CoreLib
 {
     
-    RealTimeTask::RealTimeTask(Seconds period, RunnableInterface* r )
+    PeriodicTask::PeriodicTask(Seconds period, RunnableInterface* r )
        : runner(r), running(false), inError(false)
     {
         if (runner)
@@ -44,21 +44,21 @@ namespace ORO_CoreLib
         per_ns = nsecs( rint( period * secs_to_nsecs(1) ) );
     }
 
-    RealTimeTask::RealTimeTask(secs s, nsecs ns, RunnableInterface* r )
+    PeriodicTask::PeriodicTask(secs s, nsecs ns, RunnableInterface* r )
        : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns)
     {
         if (runner)
             runner->setTask(this);
     }
 
-    RealTimeTask::~RealTimeTask()
+    PeriodicTask::~PeriodicTask()
     {
         stop();
         if (runner)
             runner->setTask(0);
     }
      
-    bool RealTimeTask::run( RunnableInterface* r )
+    bool PeriodicTask::run( RunnableInterface* r )
     {
         if ( isRunning() )
             return false;
@@ -70,7 +70,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    bool RealTimeTask::start()
+    bool PeriodicTask::start()
     {
         if ( isRunning() ) return false;
 
@@ -82,12 +82,12 @@ namespace ORO_CoreLib
         if ( !inError )
             running = taskAdd();
         else
-            Logger::log() << Logger::Warning << "RealTimeTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
+            Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->periodGet()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
 
         return running;
     }
 
-    bool RealTimeTask::stop()
+    bool PeriodicTask::stop()
     {
         if ( !isRunning() ) return false;
 
@@ -96,7 +96,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    void RealTimeTask::doStop()
+    void PeriodicTask::doStop()
     {
         ORO_OS::MutexTryLock locker(stop_lock);
         if ( !locker.isSuccessful() )
@@ -112,17 +112,17 @@ namespace ORO_CoreLib
             finalize();
     }
 
-    bool RealTimeTask::isRunning() const
+    bool PeriodicTask::isRunning() const
     {
         return running;
     }
 
-    Seconds RealTimeTask::periodGet() const
+    Seconds PeriodicTask::periodGet() const
     {
         return Seconds(per_ns) / (1000.0*1000.0*1000.0);
     }
 
-    void RealTimeTask::doStep()
+    void PeriodicTask::doStep()
     {
         if ( running )
         {

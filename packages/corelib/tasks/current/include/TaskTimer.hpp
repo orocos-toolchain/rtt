@@ -36,7 +36,7 @@
 
 namespace ORO_CoreLib
 {
-    class RealTimeTask;
+    class PeriodicTask;
 
     /**
      * An TaskTimer is an object that will step() a TaskInterface every
@@ -78,9 +78,9 @@ namespace ORO_CoreLib
 
         void tick();
 
-        bool addTask( RealTimeTask* task );
+        bool addTask( PeriodicTask* task );
 
-        void removeTask( RealTimeTask* task );
+        void removeTask( PeriodicTask* task );
 
         /**
          * Returns the minimum periodicity ( in nano s ) with which the tasks are step()'ed.
@@ -100,14 +100,14 @@ namespace ORO_CoreLib
             // The default constructor is called when the 
             // list is resized().
             ListItem() : task(0), priority(~0), turn(0) {}
-            RealTimeTask* task;
+            PeriodicTask* task;
             unsigned int priority;
             unsigned int turn;
         };
 
-        struct CMP : public std::binary_function<ListItem, RealTimeTask*, bool>
+        struct CMP : public std::binary_function<ListItem, PeriodicTask*, bool>
         { 
-            bool operator()(const ListItem& p, const RealTimeTask* task) const
+            bool operator()(const ListItem& p, const PeriodicTask* task) const
             {
                 return p.task == task;
             }

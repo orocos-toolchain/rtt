@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include "corelib/TaskExecution.hpp"
-#include "corelib/RealTimeTask.hpp"
+#include "corelib/PeriodicTask.hpp"
 #include "corelib/TaskTimer.hpp"
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
@@ -88,7 +88,7 @@ namespace ORO_CoreLib
         //            clocks.erase(itl);
     }
 
-    bool TaskExecution::taskAdd( RealTimeTask* t, const nsecs n )
+    bool TaskExecution::taskAdd( PeriodicTask* t, const nsecs n )
     {
         { 
             // scoped mutexlock with the for loop
@@ -119,7 +119,7 @@ namespace ORO_CoreLib
 #endif
     }
 
-    void TaskExecution::taskRemove( RealTimeTask* t )
+    void TaskExecution::taskRemove( PeriodicTask* t )
     {
         // this is doing it the hard way.
         std::list<TimerItem>::iterator itl;

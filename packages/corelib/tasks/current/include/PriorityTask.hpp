@@ -1,4 +1,4 @@
-/***************************************************************************
+Rea/***************************************************************************
   tag: Peter Soetens  Thu Apr 22 20:40:54 CEST 2004  PriorityTask.hpp 
 
                         PriorityTask.hpp -  description
@@ -30,12 +30,12 @@
 #define PRIORITYTASK_HPP
 
 #include "PriorityThread.hpp"
-#include "RealTimeTask.hpp"
+#include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief A PriorityTask is a RealTimeTask with a static \a Priority.
+     * @brief A PriorityTask is a PeriodicTask with a static \a Priority.
      *
      * It can be used to define a task running at an arbitrary
      * priority.
@@ -44,7 +44,7 @@ namespace ORO_CoreLib
      */
     template< int Priority >
     class PriorityTask
-        : public RealTimeTask
+        : public PeriodicTask
     {
     public:
         /**
@@ -52,7 +52,7 @@ namespace ORO_CoreLib
          * Seconds
          */
         PriorityTask(Seconds period, RunnableInterface* r=0 )
-            :RealTimeTask(period, r)
+            :PeriodicTask(period, r)
         {
             pt = PriorityThread<Priority>::Instance();
         }
@@ -62,7 +62,7 @@ namespace ORO_CoreLib
          * <s> seconds and <ns> nanoseconds
          */
         PriorityTask(secs s, nsecs ns, RunnableInterface* r=0 )
-            :RealTimeTask(s, ns, r)
+            :PeriodicTask(s, ns, r)
         {
             pt = PriorityThread<Priority>::Instance();
         }

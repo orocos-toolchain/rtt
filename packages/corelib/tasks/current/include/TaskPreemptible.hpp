@@ -29,12 +29,12 @@
 #define TASKPREEMPTIBLE_HPP
 
 #include "ZeroLatencyThread.hpp"
-#include "RealTimeTask.hpp"
+#include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief A TaskPreemptible is a RealTimeTask which may be preempted by
+     * @brief A TaskPreemptible is a PeriodicTask which may be preempted by
      * a TaskNonPreemptible.
      *
      * Typical TaskPreemptible instances are
@@ -43,7 +43,7 @@ namespace ORO_CoreLib
      * They will run in the ZeroLatencyThread.
      */
     class TaskPreemptible
-        : public RealTimeTask
+        : public PeriodicTask
     {
     public:
         /**

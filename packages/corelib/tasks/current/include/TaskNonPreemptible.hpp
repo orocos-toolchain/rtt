@@ -29,13 +29,13 @@
 #define TASKNONPREEMPTIBLE_HPP
 
 #include "ZeroTimeThread.hpp"
-#include "RealTimeTask.hpp"
+#include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief A TaskNonPreemptible is a RealTimeTask which will never be preempted by
-     * another RealTimeTask.
+     * @brief A TaskNonPreemptible is a PeriodicTask which will never be preempted by
+     * another PeriodicTask.
      *
      * Typical TaskNonPreemptible instances are
      * fast calculations with fast device input and output communication.
@@ -43,7 +43,7 @@ namespace ORO_CoreLib
      * They will be run in the ZeroTimeThread.
      */
     class TaskNonPreemptible
-        : public RealTimeTask
+        : public PeriodicTask
     {
     public:
         /**

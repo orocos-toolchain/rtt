@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/TaskTimer.hpp"
-#include "corelib/RealTimeTask.hpp"
+#include "corelib/PeriodicTask.hpp"
 #include <os/MutexLock.hpp>
 #include <cmath>
 #include <algorithm>
@@ -95,7 +95,7 @@ namespace ORO_CoreLib
         in_tick = false;
     }
 
-    bool TaskTimer::addTask( RealTimeTask* task )
+    bool TaskTimer::addTask( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
@@ -116,7 +116,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    void TaskTimer::removeTask( RealTimeTask* task )
+    void TaskTimer::removeTask( PeriodicTask* task )
     {
         ORO_OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;

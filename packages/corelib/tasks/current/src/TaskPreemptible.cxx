@@ -30,13 +30,13 @@ namespace ORO_CoreLib
 {
     
     TaskPreemptible::TaskPreemptible(Seconds period, RunnableInterface* r )
-        :RealTimeTask(period, r)
+        :PeriodicTask(period, r)
     {
         zlt = ZeroLatencyThread::Instance();
     }
 
     TaskPreemptible::TaskPreemptible(secs sec, nsecs nsec, RunnableInterface* r )
-        :RealTimeTask(sec, nsec, r)
+        :PeriodicTask(sec, nsec, r)
     {
         zlt = ZeroLatencyThread::Instance();
     }

@@ -30,12 +30,12 @@
 #define TASKSIMULATION_HPP
 
 #include "SimulationThread.hpp"
-#include "RealTimeTask.hpp"
+#include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief A TaskSimulation is a RealTimeTask which is used
+     * @brief A TaskSimulation is a PeriodicTask which is used
      * for simulation.
      *
      * They all run in one thread, which updates the 
@@ -45,7 +45,7 @@ namespace ORO_CoreLib
      * They will run in the SimulationThread.
      */
     class TaskSimulation
-        : public RealTimeTask
+        : public PeriodicTask
     {
     public:
         /**

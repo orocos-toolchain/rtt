@@ -43,7 +43,7 @@ namespace ORO_CoreLib
     using ORO_OS::MutexLock;
 
     class TaskTimer;
-    class RealTimeTask;
+    class PeriodicTask;
 
     /**
      * @brief A Thread executing a task is a
@@ -59,7 +59,7 @@ namespace ORO_CoreLib
     };
 
     /**
-     * @brief This Periodic Thread is meant for executing a RealTimeTask
+     * @brief This Periodic Thread is meant for executing a PeriodicTask
      * object periodically.
      *
      * @see PeriodicThread
@@ -117,19 +117,19 @@ namespace ORO_CoreLib
         virtual void step();
 
         /**
-         * Add a RealTimeTask which is handled each n nanoseconds
+         * Add a PeriodicTask which is handled each n nanoseconds
          * 
          * @param t The task to handle each n nanoseconds
          * @param n handle every n nanoseconds
          */
-        bool taskAdd( RealTimeTask* t, const nsecs n );
+        bool taskAdd( PeriodicTask* t, const nsecs n );
 
         /**
-         * Remove a RealTimeTask from handleing
+         * Remove a PeriodicTask from handleing
          *
          * @post <t> is no longer handled by this thread
          */
-        void taskRemove( RealTimeTask* t );
+        void taskRemove( PeriodicTask* t );
         
         /**
          * Internal method for keeping track of TaskTimer

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  RealTimeTask.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PeriodicTask.hpp 
 
-                        RealTimeTask.hpp -  description
+                        PeriodicTask.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -40,16 +40,16 @@ namespace ORO_CoreLib
 {
     class TaskTimer;
     /**
-     * @brief A RealTimeTask is the general implementation of a Task
+     * @brief A PeriodicTask is the general implementation of a Task
      * which has realtime, periodic constraints.
      *
      * It will execute a RunnableInterface, or the equivalent methods in
      * it's own interface when none is given.
      * When initialize() returns false, it will finalize() it in the
-     * CompletionProcessor. If the RealTimeTask is normally stop()'ed, finalize()
+     * CompletionProcessor. If the PeriodicTask is normally stop()'ed, finalize()
      * is called in the calling thread of stop().
      */
-    class RealTimeTask
+    class PeriodicTask
         : public TaskInterface
     {
 	protected:
@@ -61,29 +61,29 @@ namespace ORO_CoreLib
          * a RunnableInterface.
          *
          * @param period
-         *        The periodicity of the RealTimeTask
+         *        The periodicity of the PeriodicTask
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        RealTimeTask(Seconds period, RunnableInterface* r=0 );
+        PeriodicTask(Seconds period, RunnableInterface* r=0 );
 
         /**
          * @brief Create a RealTime Task with a given period which runs
          * a RunnableInterface.
          *
          * @param sec
-         *        The periodicity of the RealTimeTask, seconds partition
+         *        The periodicity of the PeriodicTask, seconds partition
          * @param nsec
-         *        The periodicity of the RealTimeTask, nanoseconds partition
+         *        The periodicity of the PeriodicTask, nanoseconds partition
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        RealTimeTask(secs sec, nsecs nsec, RunnableInterface* r=0 );
+        PeriodicTask(secs sec, nsecs nsec, RunnableInterface* r=0 );
 
         /**
-         * Stops and terminates a RealTimeTask
+         * Stops and terminates a PeriodicTask
          */
-        virtual ~RealTimeTask();
+        virtual ~PeriodicTask();
            
         /**
          * Run exclusively this RunnableInterface.

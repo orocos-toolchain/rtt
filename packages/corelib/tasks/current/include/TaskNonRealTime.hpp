@@ -29,20 +29,20 @@
 #define TASKNONREALTIME_HPP
 
 #include "NonRealTimeThread.hpp"
-#include "RealTimeTask.hpp"
+#include "PeriodicTask.hpp"
 
 namespace ORO_CoreLib
 {
     /**
-     * @brief A TaskNonRealTime is a RealTimeTask which will never preempt
-     * another RealTimeTask.
+     * @brief A TaskNonRealTime is a PeriodicTask which will never preempt
+     * another PeriodicTask.
      *
      * Typical TaskNonRealTime instances are
      * not realtime user communications, GUI updates and so on. 
      * They will run in the NonRealTimeThread.
      */
     class TaskNonRealTime
-        : public RealTimeTask
+        : public PeriodicTask
     {
     public:
         /**
