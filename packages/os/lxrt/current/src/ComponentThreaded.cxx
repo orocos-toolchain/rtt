@@ -164,7 +164,7 @@ namespace ORO_OS
         if ( !name.empty() )
             taskNameSet(name.c_str());
         else
-            taskNameSet( num2nam(rt_get_name(0)) );
+            num2nam(rt_get_name(0), taskName);
 
         rtos_printf("Constructing %s\n", taskName );
 
