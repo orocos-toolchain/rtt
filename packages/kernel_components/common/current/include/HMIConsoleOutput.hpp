@@ -38,9 +38,11 @@ namespace ORO_ControlKernel
     class HMIConsoleOutput
         : public Base
     {
+        std::string coloron;
+        std::string coloroff;
     public :
         HMIConsoleOutput()
-            : Base("console_output")
+            : Base("console_output"), coloron("\033[1;34m"), coloroff("\033[0m")
               {}
 
         /**
@@ -48,7 +50,7 @@ namespace ORO_ControlKernel
          */
         void display(const std::string & what)
         {
-            std::cout << "HMIConsoleOutput : "<< what <<std::endl;
+            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
         template< class T >

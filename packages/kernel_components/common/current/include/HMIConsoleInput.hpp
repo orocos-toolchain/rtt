@@ -16,6 +16,8 @@
  *                                                                         *
  ***************************************************************************/
  
+#ifndef HMICONSOLEINPUT_HPP
+#define HMICONSOLEINPUT_HPP
  
 
 #include <execution/TemplateCommandFactory.hpp>
@@ -66,14 +68,18 @@ namespace ORO_ControlKernel
         void loop()
         {
             char c;
-            cout << endl<< "This simple console reader can only accept"<<endl;
-            cout << "start and stop commands to start or stop the running program"<<endl;
+            cout << endl<<
+"This simple console reader can only accept start and stop \n\
+commands to start or stop the running program and  allows \n\
+to manually type in a Component command (press c). \n\
+If the ReportingExtension is used, you can track the changes \n\
+in another terminal window."<<endl<<endl;
             while (1)
                 {
                     cout << "Press s to start or p to stop the current program-script " << endl;
                     if ( ee !=0 ) {
                         cout << " Or press c to enter a command. (Status of previous command : ";
-                        cout << (condition == 0 || condition->evaluate() == true ? "done )" : "busy )" );
+                        cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
                     }
                     cout << endl <<" (press q to quit) :" ;
                     c = getchar();
@@ -101,18 +107,16 @@ namespace ORO_ControlKernel
         {
             if ( ee == 0 )
                 return;
-            if ( condition != 0 && condition->evaluate() == false )
-                {
-                    cout << "Previous command not done yet !"<<endl;
-                    return;
-                }
+//             if ( condition != 0 && condition->evaluate() == false )
+//                 {
+//                     cout << "Previous command not done yet !"<<endl;
+//                     return;
+//                 }
             if ( ee->isProgramRunning("Default") )
                 {
                     cout << "A Program is running, not accepting commands  !"<<endl;
                     return;
                 }
-            delete command;
-            delete condition;
             std::string comm;
             cout << "Enter your command ( type help for instructions ):";
             getline(cin,comm);
@@ -130,6 +134,8 @@ namespace ORO_ControlKernel
                     return;
                 }
                     
+            delete command;
+            delete condition;
             ORO_Execution::Parser _parser;
             std::pair< CommandInterface*, ConditionInterface*> comcon;
             comcon = _parser.parseCommand(comm, ee);
@@ -154,7 +160,7 @@ namespace ORO_ControlKernel
             using boost::lambda::_1;
             cout << "A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "name, followed by the parameters. An example could be :"<<endl;
-            cout << "cart_generator.moveTo( 0.75, 0.5, 0.8, 90, 0, 90 ) [then press enter] "<<endl;
+            cout << "cart_generator.moveTo( vector(0.75, 0.5, 0.8), rotation( 90, 0, 90 ), 15.0 ) [then press enter] "<<endl;
             cout << "The available objects are :"<<endl;
             std::vector<std::string> objlist = ee->commandFactory().getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
@@ -202,3 +208,5 @@ namespace ORO_ControlKernel
 
     };
 }
+
+#endif
