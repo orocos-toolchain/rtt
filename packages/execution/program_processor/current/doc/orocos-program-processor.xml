@@ -65,6 +65,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>New Program and StateContext implementation</revremark>
   </revision>
+  <revision>
+    <revnumber>0.16</revnumber>
+    <date>06 July 2004</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Added CommandFunctor docs</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
@@ -134,13 +140,7 @@ features and interface of the &orocos; &interf; package.
 
   <chapter>
     <title>Processing Programs and StateContexts</title>
-    <sect1>
-      <title>Main Components</title>
-      <para>
-	This section gives an overview of the services used for
-	&interf;.
-      </para>
-      <sect2>
+      <sect1>
 	<title>Processor</title>
 	<para>
 	  The <classname>Processor</classname> is the core component
@@ -159,8 +159,8 @@ features and interface of the &orocos; &interf; package.
 	  and State Contexts. The available commands are presented
 	  in the figures in the next sections.
 	</para>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>State Context and State</title>
 	<para>
 	  The <classname>StateContext</classname> is a collection
@@ -198,8 +198,8 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>State Transitions</title>
 	<para>
 	  State Transitions are the edges of the state diagram. They
@@ -211,8 +211,8 @@ features and interface of the &orocos; &interf; package.
 	  order they are checked. A multiple of
 	  conditions can lead to the same state.
 	</para>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>A Program</title>
 	<para>
 	  A Program is defined by the ProgramInterface. A Program
@@ -244,9 +244,9 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      </sect2>
+      </sect1>
 
-      <sect2>
+      <sect1>
 	<title>The Command Node</title>
 	<para>
 	  The <classname>CommandNode</classname> contains a
@@ -262,8 +262,8 @@ features and interface of the &orocos; &interf; package.
 	  Also a line number can be associated with each command node,
 	  as a reference to the input file formatted by the user.
 	</para>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>The Command class</title>
 	<para>
 	  The <classname>Command</classname> is the abstraction of a
@@ -273,8 +273,8 @@ features and interface of the &orocos; &interf; package.
 	  The basic interface, CommandInterface, is provided by the
 	  Orocos CoreLib.
 	</para>
-      </sect2>
-      <sect2>
+      </sect1>
+      <sect1>
 	<title>The Condition class</title>
 	<para>
 	  The <classname>Condition</classname> is the abstraction of a
@@ -284,8 +284,142 @@ features and interface of the &orocos; &interf; package.
 	  Conditions. The basic interface, ConditionInterface, is
 	  provided by the Orocos CoreLib
 	</para>
-      </sect2>
+      </sect1>
+  </chapter>
+  <chapter>
+    <title>Using Commands</title>
+    <para>
+      Apart from the Program and State Context Commands, the application
+      can generate commands for the Processor to execute. This is usefull
+      if a function must be called at a later moment.
+    </para>
+    <sect1>
+      <title>Generic Functors</title>
+      <para>
+	Orocos uses the 'Generic Functor' paradigm to encapsulate Commands.
+	This means that an object (the functor) is created which holds a
+	pointer to the function to be executed. If this function needs
+	arguments, these are also stored in the functor. The object
+	can then be passed around until another object decides to execute
+	the functor. Execution of a functor leads to the original function
+	to be called, together with the arguments.
+      </para>
+	<figure><title>A Generic Functor</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="Functor.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="Functor.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+    </sect1>
+    <sect1>
+      <title>Creating a CommandFunctor</title>
+      <para>
+	The CommandFunctor is the object used to store the function
+	pointer in. It implements the CommandInterface such that
+	it can be execute()'ed by the Processor :
+	<programlisting>
+  #include &lt;corelib/CommandFunctor.hpp&gt;
+  void foo();
+
+  CommandInterface* command = newCommandFunctor( &amp;foo );
+
+  command->execute(); // calls foo()
+
+  delete command;
+	</programlisting>
+	notice that we use a factory-function <function>newCommandFunctor</function>
+	in order to avoid providing a template parameter.
+      </para>
+      <para>
+	It is possible to wrap more complex functions in a CommandFunctor,
+	if the boost::bind library is used :
+	<programlisting>
+  #include &lt;corelib/CommandFunctor.hpp&gt;
+  #include &lt;boost/bind.hpp&gt;
+  
+  void foo( int x, int y );
+
+  CommandInterface* command = newCommandFunctor( boost::bind( &amp;foo, 1, 2 ) );
+
+  command->execute(); // calls foo(1,2)
+
+  delete command;
+	</programlisting>
+	Argument 'binding' is a very powerfull feature of C++. It allows to 
+	provide the arguments of a function in advance and execute the function
+	lateron.
+      </para>
+      <para>
+	It is also possible to call the memberfunction of an object. In that
+	case, the first parameter of the function becomes the pointer to the
+	object, followed by the arguments of the function :
+	<programlisting>
+  #include &lt;corelib/CommandFunctor.hpp&gt;
+  #include &lt;boost/bind.hpp&gt;
+  
+  class X {
+  public:
+    void foo( int x, int y );
+  };
+
+  X x_object;
+  CommandInterface* command = newCommandFunctor( boost::bind( &amp;X::foo, x_object, 1, 2 ) );
+
+  command->execute(); // calls x_object.foo(1,2)
+
+  delete command;
+	</programlisting>
+	notice that the foo function is now prefixed by the class scope 'X::'.
+      </para>
+      <para>
+	The CommandFunctor allows us to bind a function to a CommandInterface.
+	Since the Program Processor can execute CommandInterface objects,
+	it is a powerfull way to delay calling of a function to a later moment.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Processing a Command</title>
+      <para>
+	Using the CommandFunctor from the previous section, we can pass
+	the command to the processor :
+	<programlisting>
+  CommandInterface* command = ...
+  Processor* proc = ...
+
+  bool result = proc->process( command );
+	</programlisting>
+	If result is true, the command was accepted, if false, the command
+	fifo is full and a new process attempt must be made. The Processor
+	can be easily extended to have better queueing semantics.
+      </para>
+      <para>
+	Another thread instructs the processor to execute all queued commands
+	(and programs) synchronically calling the
+	<programlisting>
+  proc->doStep();
+	</programlisting>
+	function. This must happend periodically to empty the command
+	queue and advance the program execution.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Common Usage Examples</title>
+      <para>
+	The CommandFunctor can be used when a separate thread of
+	execution wants to execute a function in the Processor thread.
+	In Orocos, this happens when an external commando must be
+	processed by the realtime control kernel. In one thread,
+	the CommandFunctor is created (which contains the function
+	to be called) and is passed to the Processor of the
+	ExecutionExtension, which is part of the control kernel.
+	The control kernel thread executes all queued
+	commands in the Processor after the control calculations
+	are done. In this way, safe data access can be guaranteed.
+      </para>
     </sect1>
   </chapter>
-
 </book>
