@@ -399,7 +399,7 @@ namespace ORO_Execution
             >> newline[ bind( &StateGraphParser::seenstatecontextend, this ) ];
 
         // Zero or more declarations and Zero or more states
-        statecontextcontent = ( *varline >> *( state | newline ) )[bind( &StateGraphParser::statecontextfinished, this)];
+        statecontextcontent = ( *varline >> *( state | newline ) );
 
         varline = !vardec >> newline;
 
@@ -728,10 +728,6 @@ namespace ORO_Execution
         curevent = Event<void(void)>::nameserver.getObject( ev_name );
     }
 
-    void StateGraphParser::statecontextfinished()
-    {
-    }
-
     void StateGraphParser::seensink()
     {
         assert( !cureventsink );
@@ -824,7 +820,7 @@ namespace ORO_Execution
         context.valueparser.clear();
     }
 
-    std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end )
+    std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end, std::ostream& errorstream )
     {
         skip_parser_t skip_parser = SKIP_PARSER;
         iter_pol_t iter_policy( skip_parser );
@@ -839,9 +835,9 @@ namespace ORO_Execution
         try {
             if ( ! production.parse( scanner ) )
             {
-                std::cerr << "Syntax error at line "
-                          << mpositer.get_position().line
-                          << std::endl;
+                errorstream << "Syntax error at line "
+                            << mpositer.get_position().line
+                            << std::endl;
                 // on error, we clear all remaining data, cause we can't
                 // guarantee consistency...
                 clear();
@@ -853,9 +849,9 @@ namespace ORO_Execution
         }
         catch( const parser_error<std::string, iter_t>& e )
         {
-            std::cerr << "Parse error at line "
-                      << mpositer.get_position().line
-                      << ": " << e.descriptor << std::endl;
+            errorstream << "Parse error at line "
+                        << mpositer.get_position().line
+                        << ": " << e.descriptor << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
@@ -863,9 +859,9 @@ namespace ORO_Execution
         }
         catch( const parser_error<GraphSyntaxErrors, iter_t>& e )
         {
-            std::cerr << "Parse error at line "
-                      << mpositer.get_position().line
-                      << ": " << "expected one of : entry, handle, exit, transitions" << std::endl;
+            errorstream << "Parse error at line "
+                        << mpositer.get_position().line
+                        << ": " << "expected one of : entry, handle, exit, transitions" << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
@@ -873,9 +869,9 @@ namespace ORO_Execution
         }
         catch( const parse_exception& e )
         {
-            std::cerr << "Parse error at line "
-                      << mpositer.get_position().line
-                      << ": " << e.what() << std::endl;
+            errorstream << "Parse error at line "
+                        << mpositer.get_position().line
+                        << ": " << e.what() << std::endl;
             // on error, we clear all remaining data, cause we can't
             // guarantee consistency...
             clear();
@@ -889,19 +885,34 @@ namespace ORO_Execution
 
     void StateGraphParser::clear() {
         delete curcondition;
+        curcondition = 0;
         cureventsink = 0;
         // we don't own curevent, so let's not delete it...
         curevent = 0;
         // we own curhand, but not through this pointer...
         curhand = 0;
-        delete curprogram;
         for ( handlemap::iterator i = curhandles.begin();
               i != curhandles.end(); ++i )
             delete i->second;
+        curhandles.clear();
         // we own curstate, but not through this pointer...
         curstate = 0;
+        delete curnonprecstate;
+        curnonprecstate = 0;
+        // we own curcontextbuilder, but not through this pointer...
+        curcontextbuilder = 0;
         delete curinstantiatedcontext;
+        curinstantiatedcontext = 0;
         delete curtemplatecontext;
+        curtemplatecontext = 0;
+        for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
+              i != preentrycommands.end(); ++ i )
+          delete *i;
+        preentrycommands.clear();
+        for ( contextbuilders_t::iterator i = contextbuilders.begin();
+              i != contextbuilders.end(); ++i )
+          delete i->second;
+        contextbuilders.clear();
     }
 
     void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
@@ -953,6 +964,10 @@ namespace ORO_Execution
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
             throw parse_exception( "SubContext \"" + curinstcontextname + "\" already defined." );
+        if ( context.globalfactory->dataFactory().factory( curinstcontextname ) != 0 )
+            throw parse_exception(
+                "Name clash: name of instantiated context \"" + curinstcontextname +
+                "\"  already used." );
         DataSource<StateContext*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
@@ -962,10 +977,6 @@ namespace ORO_Execution
         // we add a SubContextDataSourceFactory for this subcontext to
         // the global data source factory, so that we can support
         // subcontext introspection...
-        if ( context.globalfactory->dataFactory().factory( curinstcontextname ) != 0 )
-            throw parse_exception(
-                "Name clash: name of instantiated context \"" + curinstcontextname +
-                "\"  already used." );
         SubContextDataSourceFactory* scdsf =
             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
         context.globalfactory->dataFactory().registerObject( curinstcontextname, scdsf );

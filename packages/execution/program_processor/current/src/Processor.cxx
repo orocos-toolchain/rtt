@@ -328,5 +328,21 @@ namespace ORO_Execution
         return true;
     }
 
+    std::vector<std::string> Processor::getProgramList()
+    {
+        std::vector<std::string> ret;
+        for ( program_iter i = programs.begin(); i != programs.end(); ++i )
+            ret.push_back( i->name );
+        return ret;
+    }
+
+    std::vector<std::string> Processor::getStateContextList()
+    {
+        std::vector<std::string> ret;
+        for ( state_iter i = states.begin(); i != states.end(); ++i )
+            ret.push_back( i->name );
+        return ret;
+    }
+
 }
 

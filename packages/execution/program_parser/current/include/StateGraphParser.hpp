@@ -37,6 +37,7 @@
 
 #include <map>
 #include <string>
+#include <iosfwd>
 #include <boost/function.hpp>
 
 namespace ORO_Execution
@@ -185,7 +186,6 @@ namespace ORO_Execution
       void seenstatecontextname( iter_t begin, iter_t end );
       void seenrootcontextinstantiation();
       void seenstatecontextend();
-      void statecontextfinished();
       void seensubcontextinstantiation();
 
       void inpreconditions();
@@ -214,6 +214,8 @@ namespace ORO_Execution
     // statecontexts containing all the defined root contexts, given
     // by the name they have been instantiated by.  On all returned
     // contexts setName() will have been called with the correct name.
-    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end );
+    // If an error happens, then an empty vector will be returned, and
+    // an error message will be sent down errorstream.
+    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end, std::ostream& errorstream = std::cerr );
   };
 }

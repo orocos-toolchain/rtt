@@ -74,8 +74,8 @@ namespace ORO_Execution
     /**
      * Reads out the stream, parses it, and returns a new @ref StateContext ..
      */
-      std::vector<ParsedStateContext*> parseStateContext( std::istream& s, Processor*,
-                                                          GlobalFactory* );
+      std::vector<ParsedStateContext*> parseStateContext( std::istream& s, const std::string& filename, Processor*,
+                                                          GlobalFactory*, std::ostream& errorstream );
 
     /**
      * parses the string as a condition, and returns a new

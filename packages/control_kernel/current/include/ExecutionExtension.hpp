@@ -130,14 +130,23 @@ namespace ORO_ControlKernel
         bool loadProgram( std::istream& prog_stream );
 
         /**
-         * Set a StateGraph to be used the next time the kernel is started.
+         * Load the StateContexts from the given file ( using the given
+         * filename in error messages )
          *
          * @param state_stream A stream containing the definitions of
          *     the statecontexts script to be executed.  All root
          *     contexts will be loaded.
-         * @param name The name of the StateContext.
+         * @param filename The name of the StateContext.
+         * @return a bool indicating whether loading succeeded, and a
+         *         possible error message.
          */
-        bool loadStateContexts( std::istream& state_stream );
+        std::pair<bool, std::string> loadStateContexts(
+          std::istream& state_stream, const std::string& filename );
+
+        /**
+         * Delete the given StateContext...
+         */
+        bool deleteStateContext( const std::string& name );
 
         /**
          * Start a previously loaded Program.
@@ -231,6 +240,7 @@ namespace ORO_ControlKernel
 
         Property<int> interval;
     };
+
 }
 
 #endif

@@ -79,6 +79,9 @@ namespace ORO_Execution
 			virtual bool nextStep(const std::string& name);
 			virtual bool process(CommandInterface* c);
 
+      std::vector<std::string> getProgramList();
+      std::vector<std::string> getStateContextList();
+
         struct ProgramInfo
         {
             ProgramInfo(const std::string&_name, ProgramInterface* p)

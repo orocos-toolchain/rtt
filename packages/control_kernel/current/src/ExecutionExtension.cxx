@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:38 CEST 2004  ExecutionExtension.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:38 CEST 2004  ExecutionExtension.cxx
 
                         ExecutionExtension.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -68,14 +68,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     {
         return base->getTask();
     }
-    
+
     void ExecutionExtension::setTask( TaskInterface* task )
     {
         base->setTask( task );
     }
 
-    bool ExecutionExtension::initialize() 
-    { 
+    bool ExecutionExtension::initialize()
+    {
         initKernelCommands();
         if ( !proc.startStateContext("Default") )
             cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
@@ -108,17 +108,25 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         initKernelCommands();
         Parser    parser;
         program = parser.parseProgram( prog_stream, &proc, this );
-        if (program == 0) 
+        if (program == 0)
             return false;
         return proc.loadProgram( program );
     }
 
-    bool ExecutionExtension::loadStateContexts( std::istream& state_stream )
+    std::pair<bool,std::string> ExecutionExtension::loadStateContexts( std::istream& state_stream, const std::string& filename )
     {
         initKernelCommands();
         Parser    parser;
         typedef std::vector<ParsedStateContext*> contexts_t;
-        contexts_t contexts = parser.parseStateContext( state_stream, &proc, this );
+        std::ostringstream errorstream;
+        contexts_t contexts = parser.parseStateContext( state_stream, filename, &proc, this, errorstream );
+        std::string error = errorstream.str();
+        if ( contexts.empty() )
+        {
+            if ( error.empty() )
+                error = "No StateContexts instantiated in file \"" + filename + "\".";
+            return make_pair( false, error );
+        }
         contexts_t::iterator i;
         for ( i = contexts.begin(); i != contexts.end(); ++i )
         {
@@ -127,19 +135,28 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         }
         if ( i != contexts.end() )
         {
+            std::string error(
+                "Could not register StateContext \"" + ( *i )->getName() +
+                "\" with the processor.  Probably the name is already used." );
             // something went wrong while registering *i -> unregister
             // the previous contexts.
             for ( contexts_t::iterator j = contexts.begin(); j != i; ++j )
                 ( *j )->unregisterFromProcessor( getProcessor () );
-            return false;
+            return make_pair( false, error );
         }
-        return true;
+        return make_pair( true, std::string() );
     }
 
     bool ExecutionExtension::startStateContext(const std::string& name)
     {
         proc.resetStateContext(name);
         return proc.startStateContext(name);
+    }
+
+    bool ExecutionExtension::deleteStateContext( const std::string& name )
+    {
+        proc.stopStateContext( name );
+        return proc.deleteStateContext( name );
     }
 
     bool ExecutionExtension::stopStateContext(const std::string& name)
@@ -176,7 +193,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         ++count;
     }
 
-    void ExecutionExtension::finalize() 
+    void ExecutionExtension::finalize()
     {
         proc.stopStateContext("Default");
     }
@@ -205,61 +222,61 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
             }
     }
 
-    DataSourceFactoryInterface* ExecutionExtension::createDataSourceFactory() 
+    DataSourceFactoryInterface* ExecutionExtension::createDataSourceFactory()
     {
         // Add the data of the EE:
         TemplateDataSourceFactory< ExecutionExtension >* dat =
             newDataSourceFactory( this );
 
-        dat->add( "isProgramRunning", data( &ExecutionExtension::isProgramRunning, 
+        dat->add( "isProgramRunning", data( &ExecutionExtension::isProgramRunning,
                                             "Is a program running ?", "Name", "The Name of the Loaded Program" ) );
-        dat->add( "isStateContextRunning", data( &ExecutionExtension::isStateContextRunning, 
+        dat->add( "isStateContextRunning", data( &ExecutionExtension::isStateContextRunning,
                                             "Is a state context running ?", "Name", "The Name of the Loaded StateContext" ) );
         return dat;
-    } 
+    }
 
-    CommandFactoryInterface* ExecutionExtension::createCommandFactory() 
+    CommandFactoryInterface* ExecutionExtension::createCommandFactory()
     {
         // Add the commands of the EE:
         TemplateCommandFactory< ExecutionExtension  >* ret =
             newCommandFactory( this );
-        ret->add( "startProgram", 
+        ret->add( "startProgram",
                   command
                   ( &ExecutionExtension::startProgram ,
                     &ExecutionExtension::true_gen ,
                     "Start a program", "Name", "The Name of the Loaded Program" ) );
-        ret->add( "stopProgram", 
+        ret->add( "stopProgram",
                   command
                   ( &ExecutionExtension::stopProgram ,
                     //bind(&ExecutionExtension::foo, _1, mem_fn(&ExecutionExtension::isProgramRunning), std::logical_not<bool>() ),
                     &ExecutionExtension::true_gen ,
                     "Stop a program", "Name", "The Name of the Started Program" ) ); // true ==  invert the result.
-        ret->add( "resetProgram", 
+        ret->add( "resetProgram",
                   command
                   ( &ExecutionExtension::resetProgram ,
                     &ExecutionExtension::true_gen ,
                     "Reset a program", "Name", "The Name of the Stopped Program" ) );
-        ret->add( "startStateContext", 
+        ret->add( "startStateContext",
                   command
                   ( &ExecutionExtension::startStateContext ,
                     &ExecutionExtension::true_gen ,
                     "Start a program", "Name", "The Name of the Loaded StateContext" ) );
-        ret->add( "stopStateContext", 
+        ret->add( "stopStateContext",
                   command
                   ( &ExecutionExtension::stopStateContext ,
                     &ExecutionExtension::true_gen ,
                     "Stop a program", "Name", "The Name of the Started StateContext" ) );
-        ret->add( "resetStateContext", 
+        ret->add( "resetStateContext",
                   command
                   ( &ExecutionExtension::resetStateContext ,
                     &ExecutionExtension::true_gen ,
                     "Reset a stateContext", "Name", "The Name of the Stopped StateContext") );
-        ret->add( "steppedStateContext", 
+        ret->add( "steppedStateContext",
                   command
                   ( &ExecutionExtension::steppedStateContext ,
                     &ExecutionExtension::true_gen ,
                     "Set a stateContext in step-at-a-time mode", "Name", "The Name of the StateContext") );
-        ret->add( "continuousStateContext", 
+        ret->add( "continuousStateContext",
                   command
                   ( &ExecutionExtension::continuousStateContext ,
                     &ExecutionExtension::true_gen ,
