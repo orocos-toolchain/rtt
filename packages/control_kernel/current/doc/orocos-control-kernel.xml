@@ -239,7 +239,7 @@
 	  that an additional kernel is needed.
 	</para>
 	<para>
-	  Control Kernels can run in parallell or serial (e.g. cascaded). Parallell
+	  Control Kernels can run in parallel or serial (e.g. cascaded). Parallel
 	  kernels do not know of each other or are consistently commanded from a
 	  higher level. When two or more kernels are cascaded, The output of the
 	  higher level kernel is a command for the lower level kernel. Proper
