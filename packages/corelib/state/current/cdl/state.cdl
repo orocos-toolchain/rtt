@@ -7,7 +7,7 @@ States and how transitions between states
 can be defined. It is used by the Execution
 Package to form Machine States."
 
-    Parent OROPKG_CORELIB
+    parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
     include_dir corelib
