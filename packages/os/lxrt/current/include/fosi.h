@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+  // include custom redirect-like include
+#include "rtai_config.h"
 #define KEEP_STATIC_INLINE
 #include <rtai_declare.h>
 #include <rtai_usp_posix.h>

@@ -65,6 +65,7 @@ more information on the available types."
 	    display "RTAI directory"
 	    flavor data
 	    no_define
+	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
 	    default_value { "/usr/local/home/psoetens/src/rtai/stable" }
 	    description "
 This option allows you to specify your RTAI installation
