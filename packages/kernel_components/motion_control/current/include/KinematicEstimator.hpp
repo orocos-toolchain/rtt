@@ -2,16 +2,26 @@
 #define KINEMATIC_ESTIMATOR_HPP
 
 #include "KinematicsInterface.hpp"
-#include <lrl/frames.h>
+#include <geometry/frames.h>
 #include <corelib/PropertyComposition.hpp>
-#include "KinematicsFactory.hpp"
+#include "kindyn/KinematicsFactory.hpp"
 
-namespace ControlKernel
+namespace ORO_ControlKernel
 {
+    using ORO_CoreLib::Double6D;
+    using ORO_Geometry::Twist;
+    using ORO_Geometry::Frame;
+    using ORO_KinDyn::KinematicsComponent;
+    using ORO_KinDyn::KinematicsInterface;
+
     /**
-     * This Estimator converts joint positions and velocities to
-     * Cartesian positions and velocities for a certain kind of robot.
-     * 
+     * @brief This Estimator converts joint positions and velocities to
+     * Cartesian positions and velocities for a certain kind of robot. (EXP)
+     *
+     * It reads joint positions from the inputs and puts a Frame in the
+     * model. EXPERIMENTAL
+     *
+     * @param BaseComponent The DefaultEstimator class of your kernel.
      */
     template< class BaseComponent>
     class KinematicEstimator
