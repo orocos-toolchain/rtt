@@ -188,6 +188,14 @@ virtual char * getStateStatus (
   ));// TAO_IDL - Generated from
 // be/be_visitor_operation/operation_ih.cpp:43
 
+virtual CORBA::Long getStateLine (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ));// TAO_IDL - Generated from
+// be/be_visitor_operation/operation_ih.cpp:43
+
 virtual char * getState (
     const char * name
   )

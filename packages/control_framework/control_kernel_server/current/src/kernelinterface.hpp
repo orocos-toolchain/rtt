@@ -94,9 +94,12 @@ namespace ExecutionClient
 
     virtual std::string getProgramText(const std::string& name ) = 0;
     virtual std::string getStateText(const std::string& name ) = 0;
+
     virtual std::string getProgramStatus(const std::string& name ) = 0;
     virtual int getProgramLine(const std::string& name ) = 0;
+
     virtual std::string getStateStatus(const std::string& name ) = 0;
+    virtual int getStateLine(const std::string& name ) = 0;
     virtual std::string getState(const std::string& name ) = 0;
 
     // return the list of names of all controller components

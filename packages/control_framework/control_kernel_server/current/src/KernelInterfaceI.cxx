@@ -249,6 +249,21 @@ CORBA::Long Orocos_KernelInterface_i::getProgramLine (
     return _dki->getProgramLine( std::string(name));
 }
 
+
+// TAO_IDL - Generated from
+// be/be_visitor_operation/operation_is.cpp:57
+
+CORBA::Long Orocos_KernelInterface_i::getStateLine (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+  // Add your implementation here
+  return -1;//_dki->getStateLine( std::string(name));
+}
+
 // TAO_IDL - Generated from
 // be/be_visitor_operation/operation_is.cpp:57
 

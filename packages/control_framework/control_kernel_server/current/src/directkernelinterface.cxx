@@ -107,6 +107,15 @@ namespace ExecutionClient
      return std::string("Error, could not find ")+name;
  }
 
+ int DirectKernelInterface::getStateLine(const std::string& name )
+ {
+     ParsedStateContext* ps = executionext->getStateContext(name);
+     if (ps)
+       return -1;//ps->getLineNumber();
+     return -1;
+ }
+
+
     std::string DirectKernelInterface::getProgramStatus(const std::string& name )
     {
         switch ( executionext->getProcessor()->getProgramStatus( name ))

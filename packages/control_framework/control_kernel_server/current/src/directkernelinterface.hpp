@@ -97,6 +97,7 @@ namespace ExecutionClient
     std::string getProgramStatus(const std::string& name );
     int getProgramLine(const std::string& name );
     std::string getStateStatus(const std::string& name );
+    int getStateLine(const std::string& name );
     std::string getState(const std::string& name );
 
     std::vector<std::string> getControllers();

@@ -45,6 +45,7 @@ module Orocos
     string getProgramStatus(in string name );
     long getProgramLine(in string name );
     string getStateStatus(in string name );
+    long getStateLine(in string name );
     string getState(in string name );
 
     // return the list of names of all controller components
