@@ -22,9 +22,13 @@
 	<firstname>Dominique</firstname>
 	<surname>Devriese</surname>
       </author>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
     </authorgroup>
     <copyright>
-      <year>2003</year>
+      <year>2003,2004</year>
       <holder>Herman Bruyninckx</holder>
     </copyright>
     
@@ -53,6 +57,12 @@
 	<date>2 Feb 2004</date>
 	<authorinitials>PS</authorinitials>
 	<revremark>Support for functions and State Graph parsing</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.13.0</revnumber>
+	<date>31 March 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>State Graph : Added Final_State</revremark>
       </revision>
     </revhistory>
 
@@ -518,14 +528,25 @@ begin: set ret = ret * i
       </sect3>
     </sect2>
     <sect2>
-      <title>State Description Syntax</title>
+      <title>State Context Description Syntax</title>
       <para>
-	  A state descriptions looks like this :
+	A StateContext is a collection of states. Each state
+	defines what to do on exit, when it is handles and on exit.
+	It also defines all transitions to a next state.
+	A StateContext must be loaded in the Processor (
+	see <ulink url="orocos-program-processor.html">
+	The Online Processor Manual</ulink> ). The Orocos
+	Control Kernel uses the ExecutionExtension to manage
+	parsing and loading State Contexts.
+      </para>
+      <para>
+	A state context descriptions looks like this :
       </para>
       <example>
-	<title>State Description Format</title>
+	<title>State Context Description Format</title>
 	<programlisting>
-Initial State myInit
+Initial_State myInit
+Final_state myExit
 
 state myInit {
 	  entry {
@@ -542,6 +563,10 @@ state myInit {
 	  }
 }
 
+state myExit {
+	  // put everything in a safe state.
+}
+
 state Waiting {
 	  // see above...
 }
@@ -549,20 +574,24 @@ state Waiting {
 // ... repeat
 	</programlisting>
 	<para>
-	  You can list zero or more states, but must provide the
-	  <function>Initial State</function> statement when 2 or more
-	  states are listed. Within a state any statement group is
+	  One must provide the
+	  <function>Initial_State</function> and <function>Final_state</function>
+	  statements. Within a state any statement group is
 	  optional, so a state can be empty.
 	</para>
       </example>
       <sect3>
 	<title>The <function>state</function> Statement</title>
 	<para>
-	  A state program can have an unlimited number of states.
-	  The <function>Initial State</function> statement is
-	  mandatory with 2 or more states and brings
-	  the state machine in the given state when the kernel is
-	  initialised. A state contains optionally 4 functions :
+	  A state context can have an unlimited number of states.
+	  The <function>Initial_State</function> statement is
+	  mandatory and brings
+	  the state machine in the given state when it is loaded 
+	  in the Processor. The <function>Final_State</function>
+	  is entered when the Processor is told to stop a state.
+	  So a transition from any state to the Final_State must
+	  be meaningfull.
+	  A state contains optionally 4 functions :
 	  entry, handle, exit and transitions.
 	</para>
       </sect3>
@@ -579,7 +608,7 @@ state Waiting {
 	  the following syntax :
 	  <programlisting>
 // On top of the file :
-Event Handle handle_name
+Event_Handle handle_name
 
 // in entry or exit :
 connect handle_name( "EventName", Component.command( args ) )
@@ -657,20 +686,23 @@ transitions {
       the Parser. When the parser is used
       in the Orocos Control Kernel framework,
       the Kernel and the Processor expose themselves
-      as a component. We refer to the control kernel
+      as the 'engine' component. We refer to the control kernel
       documentation for a detailled list of commands,
       but here are a few examples :
       <programlisting>
 do kernel.selectGenerator( "CartesianGenerator" )
 do kernel.selectController( "CartesianController" )
 // ...
-do engine.startProgram
-do engine.stopProgram
+do engine.startProgram( "name" )
+do engine.stopProgram( "name" )
+// ..
+do engine.startStateContext( "name" )
+do engine.stopStateContext( "name" )
       </programlisting>
       The selectX commands are instructing the kernel
       itself while the start/stopProgram commands
-      instruct the processor to enter or leave
-      the Execution state.
+      instruct the processor to start or stop a loaded
+      program.
       They can be called from within Programs and States.
     </para>
   </sect1>
@@ -684,16 +716,16 @@ do engine.stopProgram
       tries to exploit all available functions.
     </para>
     <example>
-      <title>State Example</title>
+      <title>State Context Example</title>
       <programlisting>
-Event Handle home_switch1
-Event Handle home_switch2
+Event_Handle home_switch1
+Event_Handle home_switch2
 
-Initial State init_state
+Initial_State init_state
+Final_State fini_state
 
 /**
- * This state is only reached on startup
- * of the kernel.
+ * This state is entered when the StateContext is loaded.
  */
 state init_state {
     entry {
@@ -702,6 +734,17 @@ state init_state {
 	}
     transitions {
 	select stop_state
+	}
+}
+
+/**
+ * This state is only reached when the State Context
+ * is stopped.
+ */
+state fini_state {
+    entry {
+	do kernel.selectSensor("Default")
+	do kernel.selectGenerator("Default")
 	}
 }
 
@@ -748,11 +791,11 @@ state run_state {
  */
 state exec_state {
     entry {
-	do engine.startProgram()
+	do engine.startProgram("MyProgram")
 	}
 
     exit {
-	do engine.stopProgram()
+	do engine.stopProgram("MyProgram")
 	}
 	
     transitions {
@@ -1002,10 +1045,11 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
       </para>
       <para>
 	The command function requires two member pointers instead of
-	one.  The first one is a void function that does the actual
+	one.  The first one is a function that does the actual
 	work that the command will invoke, and the second is a bool
-	function having the same signature as the first one, except
-	for its return type.  This last function will be called to see
+	function having the same arguments as the first one or no
+	arguments at all.
+	This last function will be called to see
 	whether the associated command is finished.  The rest of the
 	arguments to the command function remain the same.  It
 	also requires a constant C string describing the function, and
@@ -1140,7 +1184,7 @@ add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
 	</para>
 	<para>
 	  You should make the parser aware of the new syntax in the
-	  file orocos-tree/parser/src/ExpressionParser.cpp.  There, in
+	  file execution/program-parser/src/ExpressionParser.cxx.  There, in
 	  the ExpressionParser constructor, the syntax of an
 	  expression is defined.  There, you should add the new
 	  syntax.  I'm afraid I can't explain you other than either
