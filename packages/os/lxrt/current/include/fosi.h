@@ -49,7 +49,7 @@ extern "C" {
 #include "rtai_config.h"
 #endif
 
-#if RTAI_VERSION_MAJOR == 3
+#if ORONUM_RTAI_VERSION == 3
 #include <rtai_lxrt.h>
 #include <rtai_posix.h>
 #else
