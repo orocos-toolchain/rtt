@@ -63,7 +63,7 @@ namespace ORO_Execution
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(const std::string& _name, int linenr = 1 )
+        StateDescription(const std::string& _name, int linenr )
             : mentry(0), mexit(0), mhandle(0),
               inited(false), name(_name), entrypoint(linenr)
         {
@@ -73,6 +73,7 @@ namespace ORO_Execution
 
         const std::string& getName() const { return name; }
 
+        void setEntryPoint(int line) { entrypoint = line; }
         int getEntryPoint() const { return entrypoint; }
 
         /**

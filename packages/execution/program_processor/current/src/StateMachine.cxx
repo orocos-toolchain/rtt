@@ -93,14 +93,18 @@ namespace ORO_Execution
             return current; // can not accept request, still in transition
         }
 
-        while ( reqstep != stateMap[ current ].end() ) {
+        // check for wrapping
+        if ( reqstep == stateMap.find( current )->second.end() )
+            reqstep = stateMap.find( current )->second.begin();
+
+        while ( reqstep != stateMap.find( current )->second.end() ) {
             if ( get<0>(*reqstep)->evaluate() )
                 if ( get<1>(*reqstep) == current )
                 {
                     // execute the default action (handle current)
                     handleState( current );
                     // reset the reqstep iterator
-                    reqstep = stateMap[ current ].begin();
+                    reqstep = stateMap.find( current )->second.end();
                     break;
                 }
                 else
@@ -115,10 +119,6 @@ namespace ORO_Execution
                 break; // only do one evaluation.
             }
         }
-
-        // check for wrapping
-        if ( reqstep == stateMap[ current ].end() )
-            reqstep = stateMap[ current ].begin();
 
         // execute as much as possible of exit, entry, handle()
         this->executePending( stepping );
@@ -266,7 +266,7 @@ namespace ORO_Execution
                 // move on
                 current = next;
                 if ( current )
-                    reqstep = stateMap[ current ].begin();
+                    reqstep = stateMap.find( current )->second.end();
                 else {
                     return true; // done if current == 0 !
                 }
@@ -329,7 +329,7 @@ namespace ORO_Execution
             if ( initc )
                 initc->execute();
             enterState( current );
-            reqstep = stateMap[ current ].begin();
+            reqstep = stateMap.find( current )->second.end();
             next = current;
             this->executePending();
             return true;

@@ -69,7 +69,7 @@ namespace ORO_Execution {
             fact->add("deactivate",command_ds(&StateMachineCommands::deactivate, &StateMachineCommands::isActive, "Deactivate this StateMachine from final state", true));
             fact->add("start",command_ds(&StateMachineCommands::start, &StateMachineCommands::isRunning, "Start this StateMachine from initial state"));
             fact->add("pause",command_ds(&StateMachineCommands::pause, &StateMachineCommands::isPaused, "Pause this StateMachine"));
-            fact->add("step",command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused, "Pause this StateMachine"));
+            fact->add("step",command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused, "Step this StateMachine"));
             fact->add("reset",command_ds(&StateMachineCommands::reset, &StateMachineCommands::isActive, "Reset this StateMachine to initial state"));
             fact->add("stop",command_ds(&StateMachineCommands::stop, &StateMachineCommands::isRunning, "Stop this StateMachine to final state", true));
             return fact;

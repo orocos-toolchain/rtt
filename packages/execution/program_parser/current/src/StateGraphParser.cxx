@@ -329,10 +329,11 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error("state " + def + " redefined.");
             else
                 curstate = existingstate;
+            curstate->setEntryPoint( mpositer.get_position().line - ln_offset );
         }
         else
         {
-            curstate = new StateDescription(def, mpositer.get_position().line ); // create an empty state
+            curstate = new StateDescription(def, mpositer.get_position().line - ln_offset ); // create an empty state
             curtemplatecontext->addState( def, curstate );
         }
 
@@ -429,7 +430,7 @@ namespace ORO_Execution
         }
         else
         {
-            next_state = new StateDescription(state_id); // create an empty state
+            next_state = new StateDescription(state_id, 1); // create an empty state
             curtemplatecontext->addState( state_id, next_state );
         }
         assert( next_state );
