@@ -36,30 +36,31 @@ namespace ORO_CoreLib
      */
     class WriteInterface
     {
+    protected:
         typedef unsigned int size_t;
 
-        public:
-            /**
-             * Write <length> bytes from <buf>.
-             *
-             * @param <buf> the buffer containing the bytes to be written 
-             * @param <length> the number of bytes to be written
-             *
-             * @return -1 on failure,
-             *         the number of bytes written on success
-             */
-            virtual int write( const char* buf, size_t length ) = 0;
+    public:
+        /**
+         * Write <length> bytes from <buf>.
+         *
+         * @param <buf> the buffer containing the bytes to be written 
+         * @param <length> the number of bytes to be written
+         *
+         * @return -1 on failure,
+         *         the number of bytes written on success
+         */
+        virtual int write( const char* buf, size_t length ) = 0;
 
-            /**
-             * Write a byte.
-             *
-             * @param c The byte to be written.
-             * @return -1 on failure, zero on success
-             */
-            virtual int put( char c ) = 0;
+        /**
+         * Write a byte.
+         *
+         * @param c The byte to be written.
+         * @return -1 on failure, zero on success
+         */
+        virtual int put( char c ) = 0;
 
-            virtual ~WriteInterface()
-            {}
+        virtual ~WriteInterface()
+        {}
     };
 }
 

@@ -397,7 +397,9 @@ namespace ORO_CoreLib
         struct DataBuf {
             DataBuf()
                 : data(), counter(), next()
-            {}
+            {
+                atomic_set(&counter, 0);
+            }
             _DataType data; mutable atomic_t counter; DataBuf* next;
         };
 

@@ -24,7 +24,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/FifoUSIn.hpp"
+#include "corelib/FifoUSOut.hpp"
 #include "os/rtconversions.hpp"
 #include <string>
 #include <stdarg.h>
@@ -37,7 +37,7 @@ namespace ORO_CoreLib
         :fifoNr(fNr)
     {
         std::string thefifo ("/dev/rtf");
-        thefifo += inttostring(fNr);
+        thefifo += int_to_string(fNr);
 
         fifo = fopen( thefifo.c_str() , "w" );
 

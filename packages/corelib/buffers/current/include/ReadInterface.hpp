@@ -37,31 +37,32 @@ namespace ORO_CoreLib
      */
     class ReadInterface
     {
+    protected:
         typedef unsigned int size_t;
-        public:
-            /**
-             * Read <length> bytes into <buf>.
-             *
-             * @param <buf> the buffer where the bytes needs to be written.
-             *              This must garantee to have at least a capacity of
-             *              <length> bytes.
-             * @param <length> the number of bytes to be read
-             *
-             * @return -1 on failure,
-             *         the number of bytes read on success
-             */
-            virtual int read( char* buf, size_t length ) = 0;
+    public:
+        /**
+         * Read <length> bytes into <buf>.
+         *
+         * @param <buf> the buffer where the bytes needs to be written.
+         *              This must garantee to have at least a capacity of
+         *              <length> bytes.
+         * @param <length> the number of bytes to be read
+         *
+         * @return -1 on failure,
+         *         the number of bytes read on success
+         */
+        virtual int read( char* buf, size_t length ) = 0;
 
-            /**
-             * Read one byte.
-             *
-             * @param c the result of the read.
-             * @return -1 if reading failed, zero otherwise.
-             */
-            virtual int get( char& c ) = 0;
+        /**
+         * Read one byte.
+         *
+         * @param c the result of the read.
+         * @return -1 if reading failed, zero otherwise.
+         */
+        virtual int get( char& c ) = 0;
             
-            virtual ~ReadInterface()
-            {}
+        virtual ~ReadInterface()
+        {}
 
     };
 }

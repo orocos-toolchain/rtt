@@ -40,6 +40,7 @@ namespace ORO_CoreLib
         public ReadInterface,
         public WriteInterface
     {
+    protected:
         typedef unsigned int size_t;
     public:
         virtual ~BufferInterface()
