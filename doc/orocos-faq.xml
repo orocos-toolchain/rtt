@@ -27,6 +27,14 @@
 	  Initial version.
         </revremark>
       </revision>
+      <revision>
+        <revnumber>0.2</revnumber>
+        <date>1 March 2005</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Updated broken links and RTAI version info.
+        </revremark>
+      </revision>
     </revhistory>
     <abstract>
       <para>
@@ -103,7 +111,7 @@
 	</question>
 	<answer>
 	  <para>
-	    On the <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">
+	    On the <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">
 	      Orocos-dev mailinglist</ulink> (medium traffic).
 	  </para>
 	</answer>
@@ -114,7 +122,7 @@
 	</question>
 	<answer>
 	  <para>
-	    On the <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+	    On the <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">
 	      Orocos mailinglist</ulink> ( low traffic ).
 	  </para>
 	</answer>
@@ -146,9 +154,9 @@
 	</question>
 	<answer>
 	  <para>
-	    Orocos works with RTAI 3.0r4 ( you need to apply a <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> 
-	    ) and RTAI 3.1 (no patch).
+	    Orocos works with RTAI 3.0r5 ( you need to apply a <ulink
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> if you use 3.0r(1-4)
+	    ), RTAI 3.1 and RTAI-3.2-test1 (no patch).
 	  </para>
 	</answer>
       </qandaentry>
@@ -235,8 +243,8 @@
 	    For compiling Orocos, you need a very fast machine with minimum 256MB RAM,
 	    and 512MB RAM to be comfortable.
 	  </para>
-	</answer>
-	<answer>
+<!-- 	</answer> -->
+<!-- 	<answer> -->
 	  <para>
 	    For running an Orocos application, you need an Intel Pentium Processor with minimum 32MB RAM,
 	    but much depends on the application itself. Orocos has not been tested
@@ -268,8 +276,8 @@
 	    The solution is not to use global objects, but use global pointers and
 	    create the objects in ORO_main() with new.
 	  </para>
-	</answer>
-	<answer>
+<!-- 	</answer> -->
+<!-- 	<answer> -->
 	  <para>You did not put your program in the ORO_main()
 	    function. ( see <ulink
 	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
@@ -286,7 +294,7 @@
 	<answer>
 	  <para>
 	    Well, that is not a question really, but anyway...
-	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
+	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/latest/orocos-corelib.html#core-priority-inversions"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
 	  </para>
 <!-- 	</answer> -->
 <!-- 	<answer> -->
@@ -364,8 +372,8 @@
     <title>About Orocos</title>
     <para>
       Please send general, non technical, Orocos questions to <ulink
-	url="mailto:orocos@mail.mech.kuleuven.ac.be">
-	orocos@mail.mech.kuleuven.ac.be </ulink>. 
+	url="mailto:orocos@lists.mech.kuleuven.ac.be">
+	orocos@lists.mech.kuleuven.ac.be </ulink>. 
     </para>
     <para>
       These pages are maintained by <ulink
@@ -377,15 +385,15 @@
       web pages and the <ulink
 	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
       that fails, the  <ulink
-	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
-	orocos-dev@mail.mech.kuleuven.ac.be </ulink> mailing list might help.
+	url="mailto: orocos-dev at lists.mech.kuleuven.ac.be">
+	orocos-dev at lists.mech.kuleuven.ac.be </ulink> mailing list might help.
       Please
       send comments on these web pages and the development of Orocos to
       our developer mailing list at  <ulink
-	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
-	orocos-dev@mail.mech.kuleuven.ac.be </ulink>. All of
-      our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
-	archives</ulink> ( <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
+	url="mailto:orocos-dev at lists.mech.kuleuven.ac.be">
+	orocos-dev at lists.mech.kuleuven.ac.be </ulink>. All of
+      our lists have <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
+	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .
       </para>
     <para>

@@ -94,6 +94,7 @@ epsimages: $(EPSIMGS)
 
 .xml.fo:
 	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
+	cp $@ $@.bak
 
 .fo.ps:
 	$(FOP) -fo $< -ps $@

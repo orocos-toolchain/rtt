@@ -320,8 +320,8 @@
     <title>About Orocos</title>
     <para>
       Please send general, non technical, Orocos questions to <ulink
-	url="mailto:orocos@mail.mech.kuleuven.ac.be">
-	orocos@mail.mech.kuleuven.ac.be </ulink>. 
+	url="mailto:orocos at mail.mech.kuleuven.ac.be">
+	orocos at mail.mech.kuleuven.ac.be </ulink>. 
     </para>
     <para>
       These pages are maintained by <ulink
@@ -333,13 +333,13 @@
       web pages and the <ulink
 	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
       that fails, the  <ulink
-	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
-	orocos-dev@mail.mech.kuleuven.ac.be </ulink> mailing list might help.
+	url="mailto:orocos-dev at mail.mech.kuleuven.ac.be">
+	orocos-dev at mail.mech.kuleuven.ac.be </ulink> mailing list might help.
       Please
       send comments on these web pages and the development of Orocos to
       our developer mailing list at  <ulink
-	url="mailto:orocos-dev@mail.mech.kuleuven.ac.be">
-	orocos-dev@mail.mech.kuleuven.ac.be </ulink>. All of
+	url="mailto:orocos-dev at mail.mech.kuleuven.ac.be">
+	orocos-dev at mail.mech.kuleuven.ac.be </ulink>. All of
       our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
 	archives</ulink> ( <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .

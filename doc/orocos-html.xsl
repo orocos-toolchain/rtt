@@ -21,12 +21,13 @@
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
-<!-- <xsl:attribute-set name="monospace.verbatim.properties"  -->
-<!--                    use-attribute-sets="verbatim.properties monospace.properties"> -->
-<!--   <xsl:attribute name="wrap-option">wrap</xsl:attribute> -->
-<!--   <xsl:attribute name="hyphenation-character">&#x21BA;</xsl:attribute> -->
-<!-- </xsl:attribute-set> -->
   <xsl:param name="hyphenate.verbatim" select="1"></xsl:param>
-  <xsl:param name="monospace.font.family" select="'monospace'"/>
+  <xsl:param name="monospace.font.family" select="'monospace'"></xsl:param>
+
+<xsl:attribute-set name="monospace.verbatim.properties"
+                   use-attribute-sets="verbatim.properties monospace.properties">
+  <xsl:attribute name="wrap-option">wrap</xsl:attribute>
+  <xsl:attribute name="hyphenation-character">&#x21BA;</xsl:attribute>
+</xsl:attribute-set>
 
 </xsl:stylesheet>
