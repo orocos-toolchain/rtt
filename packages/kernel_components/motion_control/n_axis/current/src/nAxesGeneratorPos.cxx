@@ -254,7 +254,6 @@ namespace ORO_ControlKernel
 
   void nAxesGeneratorPos::reset()
   {
-    cerr << "reset generator" << endl;
     _is_initialized = false;
   }
 

@@ -51,8 +51,6 @@ namespace ORO_ControlKernel
   {
     // initialize
     if (!_is_initialized){
-      _new_values = false;
-      _is_moving = false;
       _is_initialized = true;
       _position_meas_DOI->Get(_position_desired);
     }
@@ -162,9 +160,11 @@ namespace ORO_ControlKernel
 
     // initialize
     _is_initialized = false;
+    _new_values = false;
+    _is_moving = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !nAxesGeneratorCartesianPos_typedef::Input::dObj()->Get("Position", _position_meas_DOI) ){
+    if ( !nAxesGeneratorCartesianPos_typedef::Input::dObj()->Get("Frame", _position_meas_DOI) ){
       cerr << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
@@ -239,8 +239,10 @@ namespace ORO_ControlKernel
       return true;
     }
     // new values already set
-    else
+    else{
+      cerr << "(nAxesGeneratorCartesianPos)  cannot set new moveto setpoint: already have setpoint" << endl;
       return false;
+    }
   }
 
 
@@ -254,6 +256,8 @@ namespace ORO_ControlKernel
   void nAxesGeneratorCartesianPos::reset()
   {
     _is_initialized = false;
+    _new_values = false;
+    _is_moving = false;
   }
   
 

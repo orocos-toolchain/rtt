@@ -33,6 +33,7 @@ namespace ORO_ControlKernel
     : nAxesControllerPos_typedef(name),
       _num_axes(num_axes), 
       _position_meas_local(num_axes),
+      _position_meas_old(num_axes),
       _position_desi_local(num_axes),
       _velocity_local(num_axes),
       _offset_measurement(num_axes),
@@ -58,10 +59,10 @@ namespace ORO_ControlKernel
     for(unsigned int i=0; i<_num_axes; i++)
       _velocity_local[i] = _controller_gain.value()[i] * (_position_desi_local[i] - _position_meas_local[i]);
 
-    if (_is_measuring){
+    if (_is_initialized && _is_measuring){
       bool is_moving = false;
       for (unsigned int i=0; i<_num_axes; i++)
-	if (abs(_velocity_local[i]) > _treshold_moving) is_moving = true;
+	if (abs(_position_meas_local[i] - _position_meas_old[i]) > _treshold_moving) is_moving = true;
       if ( !is_moving ){
 	for (unsigned int i=0; i<_num_axes; i++)
 	  _offset_measurement[i] = _velocity_local[i];
@@ -74,6 +75,11 @@ namespace ORO_ControlKernel
   
   void nAxesControllerPos::push()      
   {
+    // remember old position
+    for(unsigned int i=0; i<_num_axes; i++)
+      _position_meas_old[i] = _position_meas_local[i];
+    _is_initialized = true;
+
     _velocity_DOI->Set(_velocity_local);
   }
 
@@ -108,6 +114,9 @@ namespace ORO_ControlKernel
       cerr << "nAxesControllerPos::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
+
+    _is_initialized = false;
+    
     return true;
   }
   
@@ -158,8 +167,6 @@ namespace ORO_ControlKernel
 
   bool nAxesControllerPos::startMeasuring(double treshold_moving)
   {
-    cerr << "start measuring" << endl;
-
     // don't do anything if still measuring
     if (_is_measuring)
       return false;
@@ -183,8 +190,6 @@ namespace ORO_ControlKernel
 
   double nAxesControllerPos::getMeasurement(int i) const
   {
-    cerr << "get measurement " << i << " = " << _offset_measurement[i] << endl;
-
     if (i<0 || i>((int)_num_axes)-1)
       return 0.0;
     else
