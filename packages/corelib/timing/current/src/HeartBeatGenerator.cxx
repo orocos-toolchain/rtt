@@ -121,20 +121,20 @@ namespace ORO_CoreLib
     HeartBeatGenerator::Seconds
     HeartBeatGenerator::secondsGet( HeartBeatGenerator::ticks &relativeTime ) const
     {
-        return Seconds( ticks2nsecs( ticksGet( relativeTime ) ) / 1000000000.0 ) ;
+        return nsecs_to_Seconds( ticks2nsecs( ticksGet( relativeTime ) ) ) ;
     }
 
     HeartBeatGenerator::Seconds
     HeartBeatGenerator::secondsSince( HeartBeatGenerator::ticks relativeTime ) const
     {
-        return Seconds( ticks2nsecs( ticksSince( relativeTime ) ) / 1000000000.0 ) ;
+        return nsecs_to_Seconds( ticks2nsecs( ticksSince( relativeTime ) ) ) ;
     }
 
     HeartBeatGenerator::Seconds
     HeartBeatGenerator::secondsChange( HeartBeatGenerator::Seconds delta )
     {
-        offset += nsecs2ticks( nsecs(delta * 1000000000.0) );
-        return Seconds( ticks2nsecs( ticksSince( 0 ) ) / 1000000000.0 ) ;
+        offset += nsecs2ticks( Seconds_to_nsecs( delta ) );
+        return nsecs_to_Seconds( ticks2nsecs( ticksSince( 0 ) ) ) ;
     }
 
 
