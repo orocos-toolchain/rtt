@@ -72,7 +72,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
     {
         int runs = 0;
 
-        while ( runs++ != 100 ) {
+        // we lower the 'load' if the period is too short.
+        // this is a bit arbitrary.
+        int correction = 0.001 / ( ZeroTimeThread::Instance()->getPeriod() );
+        if ( correction == 0)
+            correction = 1;
+        if ( correction > 20 )
+            correction = 20;
+
+        while ( runs++ != 100/correction ) {
             if ( np_tasks[runningNp]->isRunning() )
                 np_tasks[runningNp]->stop();
             if ( !np_tasks[runningNp - 1]->isRunning() )
@@ -85,7 +93,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
 
             if ( ++runningP == nr_of_p) runningP = 1;
             if ( ++runningNp == nr_of_np) runningNp = 1;
-            if ( runs % 20 == 0 )
+            if ( runs % (20/correction) == 0 )
                 sleep(1);
         }
 
