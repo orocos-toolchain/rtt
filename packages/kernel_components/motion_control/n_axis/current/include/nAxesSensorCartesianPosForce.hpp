@@ -71,7 +71,7 @@ namespace ORO_ControlKernel
     virtual bool componentLoaded();
     virtual bool componentStartup();
     virtual bool updateProperties(const ORO_ControlKernel::PropertyBag& bag);
-    virtual void exportProperties(ORO_CoreLib::PropertyBag&);
+    virtual void exportProperties(ORO_CoreLib::PropertyBag& bag);
 
     virtual void pull();
     virtual void calculate();

@@ -77,19 +77,16 @@ namespace ORO_ControlKernel
 
   void nAxesSensorCartesianPosForce::calculate()
   {
-    // substract offset
-    _force -= _offset;
-
     // forwarard kinematics
     ORO_CoreLib::Double6D temp;
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
     _kinematics->positionForward(temp, _world_MP );
 
-    // mass compensation for force sensor
+    // mass compensation and offset for force sensor
     _world_FS = _world_MP * _MP_FS;
     _gravity.torque = ((_world_FS.M * _center_gravity) + _world_FS.p) * _gravity.force;
-    _force = (_world_FS * _force) - _gravity;
+    _force = (_world_FS * _force) - _gravity - _offset;
   }
 
 
@@ -141,9 +138,9 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _mass) ||
-	!composeProperty(bag, _center_gravity ) ||
-	!composeProperty(bag, _offset) ){
-      cerr << "nAxesSensorCartesianPosForce::updateProperties() failed" << endl;
+	!composeProperty(bag, _center_gravity) ||
+        !composeProperty(bag, _offset)){
+	cerr << "nAxesSensorCartesianPosForce::updateProperties() failed" << endl;
       return false;
     }
 
@@ -153,7 +150,7 @@ namespace ORO_ControlKernel
     return true;
   }
 
-  void nAxesSensorCartesianPosForce::exportProperties(ORO_CoreLib::PropertyBag&)
+  void nAxesSensorCartesianPosForce::exportProperties(ORO_CoreLib::PropertyBag& bag)
   {};
 
 
