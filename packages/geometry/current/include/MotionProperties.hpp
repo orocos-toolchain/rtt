@@ -29,6 +29,7 @@
 #define MOTIONPROPERTIES_HPP
 
 #include "frames.h"
+#include <corelib/Property.hpp>
 #include <corelib/MultiVector.hpp>
 
 /**
