@@ -34,6 +34,7 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <execution/Parser.hpp>
+#include <execution/parse_exception.hpp>
 #include <boost/lambda/lambda.hpp>
 
 #include <iostream>
@@ -376,10 +377,17 @@ namespace ORO_ControlKernel
             delete condition;
             ORO_Execution::Parser _parser;
             std::pair< CommandInterface*, ConditionInterface*> comcon;
-            comcon = _parser.parseCommand(comm, ee);
+            try {
+                comcon = _parser.parseCommand(comm, ee);
+            } catch ( parse_exception& pe ) {
+                cout << "Parse Error : Illegal command."<<endl;
+                cout << pe.what() <<endl;
+                return;
+            }
+                
             command = comcon.first;
             condition = comcon.second;
-            if ( command == 0 ) {
+            if ( command == 0 ) { // this should not be reached
                 cout << "Parse Error : Illegal command."<<endl;
                 return;
             }
