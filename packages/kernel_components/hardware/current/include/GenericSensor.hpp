@@ -275,7 +275,7 @@ namespace ORO_ControlKernel
          */
         bool isOn(const std::string& name) const
         {
-            DInMap::iterator it = d_in.find(name);
+            DInMap::const_iterator it = d_in.find(name);
             if ( it == d_in.end() )
                 return false;
             return it->second->isOn();
