@@ -117,6 +117,16 @@ namespace ORO_DeviceDriver
             return enableDevice;
         }
 
+
+        /**
+         * set the offset of the drive
+	 */
+        void setOffset(double newoffset)
+        {
+	  offset = newoffset;
+	}
+	
+
         /**
          * Limit the velocity of the drive.
          */
