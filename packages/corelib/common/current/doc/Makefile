@@ -15,9 +15,9 @@ docps: epsimages orocos-corelib.ps
 
 doctxt: orocos-corelib.txt
 
-pngimages: events.png execution-collaboration.png execution-sequence.png  io-overview.png tasks_threads-conceptual.png
+pngimages: execution-collaboration.png execution-sequence.png  io-overview.png tasks_threads-conceptual.png
 
-epsimages: events.eps execution-collaboration.eps execution-sequence.eps  io-overview.eps tasks_threads-conceptual.eps
+epsimages: execution-collaboration.eps execution-sequence.eps  io-overview.eps tasks_threads-conceptual.eps
 
 
 #orocos-control-kernel.html: 
