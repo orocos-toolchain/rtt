@@ -387,11 +387,12 @@ echo "
    Preprocessor flags:                  ${AM_CPPFLAGS} || ${CPPFLAGS}
    Includes:                            ${INCLUDES}
 "
-echo Use \'make\' to build the Orocos package \'$PACKAGE\' now. Using \'make check\' you can test the
 echo Orocos package \'$PACKAGE\'. Run \'make docs\' to generate the documentation.
-if test "x$DOXYGEN" = "xdoxygen"; then
-echo Run \'doxygen\' to build only the API documentation.
-fi
+echo Type \'make new_packages\' to create a package build directory
+echo Type \'make configure_packages\' to configure the packages
+echo Type \'make all_packages\' to build the configured system
+echo
+echo Read the Orocos Installation Manual for detailed instructions.
 ])
 
 
