@@ -66,12 +66,12 @@ namespace ORO_Execution {
             // This requires template specialisations on the TemplateFactory level.
             TemplateCommandFactory< DataSource<StateContextCommands*> >* fact = newCommandFactory( static_cast< DataSource<StateContextCommands*>* >(_this.get()) );
             fact->add("activate",command_ds(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext to initial state"));
-            fact->add("deactivate",command_ds(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext from final state", false));
+            fact->add("deactivate",command_ds(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext from final state", true));
             fact->add("start",command_ds(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext from initial state"));
             fact->add("pause",command_ds(&StateContextCommands::pause, &StateContextCommands::isPaused, "Pause this StateContext"));
             fact->add("step",command_ds(&StateContextCommands::step, &StateContextCommands::isPaused, "Pause this StateContext"));
             fact->add("reset",command_ds(&StateContextCommands::reset, &StateContextCommands::isActive, "Reset this StateContext to initial state"));
-            fact->add("stop",command_ds(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext to final state", false));
+            fact->add("stop",command_ds(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext to final state", true));
             return fact;
         }
 
@@ -265,6 +265,7 @@ namespace ORO_Execution {
 //           ret->visiblereadonlyvalues[i->first] = i->second->copy( replacements );
 //         }
 
+        // init the StateContext itself :
         ret->finistate = statemapping[finistate];
         ret->initstate = statemapping[initstate];
         ret->current = statemapping[current];
