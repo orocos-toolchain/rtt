@@ -127,10 +127,10 @@ of the physical interfaces they use underneath. You just want to know the
       <para> 
 	<figure><title>Device Interface Overview</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="fdi.png" format="PNG"/>
 	    </imageobject>
-	    <imageobject>
+	    <imageobject role="fo">
 	      <imagedata fileref="fdi.eps" format="EPS"/>
 	    </imageobject>
 	  </mediaobject>
@@ -157,10 +157,10 @@ of the physical interfaces they use underneath. You just want to know the
       <para>
 	<figure><title>(insert example-picture here)</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="example.png" format="PNG"/>
 	    </imageobject>
-	    <imageobject>
+	    <imageobject role="fo">
 	      <imagedata fileref="example.png" format="EPS"/>
 	    </imageobject>
 	  </mediaobject>
@@ -188,13 +188,13 @@ of the physical interfaces they use underneath. You just want to know the
 	<example id="example_name_service"><title>Using the name service</title>
 	    
 	  <programlisting>
-	    <![CDATA[
-	    unsigned int pos;
-	    new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
-	    AnalogOutInterface* card = AnalogOutInterface::nameserver.getObject("CardName");
-	    card->read(pos, 0);    // Read some data
-	    delete card;
-	    ]]>
+<![CDATA[
+unsigned int pos;
+new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
+AnalogOutInterface* card = AnalogOutInterface::nameserver.getObject("CardName");
+card->read(pos, 0);    // Read some data
+delete card;
+]]>
 	  </programlisting>
 	</example>
       </para>

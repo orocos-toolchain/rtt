@@ -12,9 +12,9 @@
 
 
 <article>
-  <artheader>
+  <articleinfo>
     <title>
-      The Orocos Program Parser
+      The Orocos Program Parser Manual
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <authorgroup>
@@ -62,7 +62,7 @@
       </para>
     </legalnotice>
 
-  </artheader>
+  </articleinfo>
 
   <sect1 id="intro">
     <title>Introduction</title>

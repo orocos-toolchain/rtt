@@ -770,10 +770,10 @@
 	  component. 
 	  <figure><title>Component Life Cycle</title>
 	    <mediaobject>
-	      <imageobject>
+	      <imageobject role="html">
 		<imagedata fileref="component_life_cycle.png" format="PNG"/>
 	      </imageobject>
-	      <imageobject>
+	      <imageobject role="fo">
 		<imagedata fileref="component_life_cycle.eps" format="EPS"/>
 	      </imageobject>
 	    </mediaobject>
@@ -782,10 +782,10 @@
 	      How control kernel methods change a components state is shown below.
 	      <figure><title>Control Kernel - Component Interaction</title>
 		<mediaobject>
-		  <imageobject>
+		  <imageobject role="html">
 		    <imagedata fileref="kernel_component_interaction.png" format="PNG"/>
 		  </imageobject>
-		  <imageobject>
+		  <imageobject role="fo">
 		    <imagedata fileref="kernel_component_interaction.eps" format="EPS"/>
 		  </imageobject>
 		</mediaobject>
@@ -1132,10 +1132,10 @@
       </para>
       <figure><title>Ordering Extensions</title>
 	<mediaobject>
-	  <imageobject>
+	  <imageobject role="html">
 	    <imagedata fileref="ExtensionTimeLine.png" format="PNG"/>
 	  </imageobject>
-	  <imageobject>
+	  <imageobject role="fo">
 	    <imagedata fileref="ExtensionTimeLine.eps" format="EPS"/>
 	  </imageobject>
 	</mediaobject>

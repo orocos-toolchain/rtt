@@ -42,8 +42,8 @@
     </authorgroup>
     <copyright>
       <year>2002</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
@@ -88,14 +88,15 @@
     </sect1>
     <sect1><title>Prerequisites</title>
       <tip>
-	We highly advise you to read first the Orocos CoreLib and Geometry
+	<para>	We highly advise you to read first the Orocos CoreLib and Geometry
 	documentation before going on.
+	</para>
       </tip>
       <tip>
-	This document only covers some generic use cases. If you want detailed
+	<para>This document only covers some generic use cases. If you want detailed
 	information about a class or function, read the Doxygen generated reference
 	of this package. You will find a lot of complementary
-	information in there not presented here.
+	information in there not presented here.</para>
       </tip>
     </sect1>
   </chapter>

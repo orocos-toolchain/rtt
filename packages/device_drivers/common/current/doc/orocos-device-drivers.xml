@@ -37,8 +37,8 @@
     </authorgroup>
     <copyright>
       <year>2003</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
@@ -61,7 +61,6 @@
     </legalnotice>
   </bookinfo>
 
-  <title>Orocos Device Drivers</title>
   <chapter>
     <title>Introduction</title>
     <para>
@@ -86,21 +85,27 @@
       <title>What's in this package</title>
       <para>
         <itemizedlist>
-	  <listitem>This package contains a primitive wrapper to the kernel comedi functionality
-	    and comedilib (userspace).</listitem>
-	  <listitem>A home made driver for the APCI1710, APCI2200 and APCI1032 PCI cards 
-	    and a C++ classes for reading/resetting the cards and some event handling.</listitem>
-	  <listitem>An example of how an Axis class could implement homing</listitem>
-	  <listitem>An example of how a Schunk 6D Force Sensor can be accessed (serial and 
-	    via comedi)</listitem>
-	  <listitem>Classes for reading SSI encoders and incremental encoders.</listitem>
-	  <listitem>A sample implementation for wrapping the whole Comedi Library to C++</listitem>
+	  <listitem>
+	    <para>This package contains a primitive wrapper to the kernel comedi functionality
+	    and comedilib (userspace).</para></listitem>
+	  <listitem>
+	    <para>A home made driver for the APCI1710, APCI2200 and APCI1032 PCI cards 
+	    and a C++ classes for reading/resetting the cards and some event handling.</para></listitem>
+	  <listitem>
+	    <para>An example of how an Axis class could implement homing</para></listitem>
+	  <listitem>
+	    <para>An example of how a Schunk 6D Force Sensor can be accessed (serial and 
+	    via comedi)</para></listitem>
+	  <listitem>
+	    <para>Classes for reading SSI encoders and incremental encoders.</para></listitem>
+	  <listitem>
+	    <para>A sample implementation for wrapping the whole Comedi Library to C++</para></listitem>
         </itemizedlist>
-      </para>
       The aim of this package is to show how a driver can implement one or more interfaces of the
       FDI (see orocos-core). Other packages will exclusively refer to the
       FDI, and the decision of which driver to actually use, can be deferred
       until run time.
+      </para>
     </sect1>
   </chapter>
   <chapter>

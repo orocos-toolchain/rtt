@@ -25,7 +25,7 @@ epsimages: events.eps execution-collaboration.eps execution-sequence.eps  io-ove
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc --param preferred.mediaobject.role '"fop"' /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
 
 %.ps:%.fo
 	fop -fo $< -ps $@

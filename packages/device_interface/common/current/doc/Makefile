@@ -1,8 +1,8 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-device-interface-doc.tgz \
 	orocos-device-interface.html orocos-device-interface.pdf \
-	fdi.png
+	fdi.png orocos-device-interface.ps
 
 docxml: dochtml docpdf
 

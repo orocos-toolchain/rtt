@@ -1,7 +1,8 @@
 
-dist: dochtml docpdf
+dist: dochtml docpdf docps
 	tar -czf orocos-device-drivers-doc.tgz \
-	orocos-device-drivers.html orocos-device-drivers.pdf
+	orocos-device-drivers.html orocos-device-drivers.pdf \
+	orocos-device-drivers.ps
 
 docxml: dochtml docpdf
 

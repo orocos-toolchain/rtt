@@ -138,10 +138,10 @@
       rest of &orocos;
       <figure><title>OS Interface overview</title>
 	<mediaobject>
-	  <imageobject>
+	  <imageobject role="html">
 	    <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
 	  </imageobject>
-	  <imageobject>
+	  <imageobject role="fo">
 	    <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
 	  </imageobject>
 	</mediaobject>
@@ -368,10 +368,10 @@
 	  <figure><title>(insert picture of loading+calling a kernel
 	      module) </title>
 	    <mediaobject>
-	      <imageobject>
+	      <imageobject role="html">
 		<imagedata fileref="loading_calling.png" format="PNG"/>
 	      </imageobject>
-	      <imageobject>
+	      <imageobject role="fo">
 		<imagedata fileref="loading_calling.eps" format="EPS"/>
 	      </imageobject>
 	      <!--

@@ -10,7 +10,7 @@
 
 <book>
   <bookinfo>
-  <title>Orocos Program Processor Package</title>
+  <title>The Orocos Program Processor Manual</title>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -41,9 +41,9 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <year>2002, 2003</year>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
   <abstract>
@@ -152,10 +152,10 @@ features and interface of the &orocos; &interf; module.
 	</para>
 	<figure><title>States of the Program Processor</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="PPstates.png" format="PNG"/>
 	    </imageobject>
-	    <imageobject>
+	    <imageobject role="fo">
 	      <imagedata fileref="PPstates.eps" format="EPS"/>
 	    </imageobject>
 	  </mediaobject>

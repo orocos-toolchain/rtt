@@ -230,10 +230,10 @@ given in the general &orocos; overview document.
 	  <para>
 	    <figure><title>Execution sequence diagram</title>
 	      <mediaobject>
-		<imageobject>
+		<imageobject role="html">
 		  <imagedata fileref="execution-sequence.png" format="PNG"/>
 		</imageobject>
-		<imageobject>
+		<imageobject role="fo">
 		  <imagedata fileref="execution-sequence.eps" format="EPS"/>
 		</imageobject>
 		<!--
