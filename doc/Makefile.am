@@ -1,12 +1,35 @@
 SUBDIRS = .
 
 
-EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia \
-	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
-	orocos-overview.html orocos-installation.html  \
-	orocos-overview.ps orocos-installation.ps  \
-	orocos-overview.pdf orocos-installation.pdf  orocos.xsl\
-        rtai-24.1.11.patch
+EXTRA_DIST = \
+	CODING_STYLE.txt demonstrateProps.cxx \
+	orocos.xsl \
+        rtai-24.1.11.patch \
+	$(XMLDOCS) \
+	$(DIAS) \
+	$(HTMLDOCS) \
+	$(PDFDOCS)
+# we do not distribute the ps files, they are to large,
+# but i make them for the website
+
+XMLDOCS=orocos-overview.xml   orocos-installation.xml
+	applications-doc.xml  deep-shallow-api.xml      \
+	geometry-doc.xml       motion-api.xml \
+	components-doc.xml    interpolation-api.xml     \
+	decoupling.xml        general-dynamics-doc.xml  \
+	kindyn-doc.xml       robot-api.xml 
+
+DIAS=orocos-core.dia properties.dia \
+	simple-overview.dia  heartbeat-tree.dia
+
+HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS))
+PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))
+PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))
+TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
+
+EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
+PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
+
 
 if HAVE_XMLPROCESSOR
 DOC = docxml
@@ -19,17 +42,17 @@ docs: $(DOC)
 
 docxml: dochtml docpdf docps
 
-dochtml: orocos-installation.html orocos-overview.html
+dochtml: $(HTMLDOCS)
 
-docpdf: pngimages orocos-installation.pdf orocos-overview.pdf
+docpdf: pngimages $(PDFDOCS)
 
-docps: epsimages orocos-installation.ps orocos-overview.ps
+docps: epsimages $(PSDOCS)
 
-doctxt: orocos-installation.txt orocos-overview.txt
+doctxt: $(TXTDOCS)
 
-pngimages: 
+pngimages: $(EPSIMGS)
 
-epsimages:
+epsimages: $(PNGIMGS)
 
 .xml.html:
 	$(XMLPROCESSOR)  /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
@@ -65,5 +88,4 @@ epsimages:
 	$(IMAGEMAGICK) $< $@
 
 clean-local:
-	$(RM) orocos-installation.html orocos-overview.html
-	$(RM) -rf api
+	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS)

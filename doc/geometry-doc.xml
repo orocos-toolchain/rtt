@@ -1,0 +1,1535 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+    Geometry: primitives, database and engine
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx@mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="geometry-doc.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document presents the class hierarchy design for the 
+<emphasis role="strong">primitive geometric objects</emphasis> that
+are needed in robotics, machine tool control, computer animation and
+games: points, frames,
+lines, &hellip; It also describes how to represent a <emphasis
+role="strong">geometric database</emphasis>, <emphasis>i.e.</emphasis>
+the interconnection information between a set of geometric primitives.
+The geometric database of an application is constantly updated and
+queried on-line, and all this functionality is called a
+<emphasis role="strong">geometric engine</emphasis>.
+ </para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>July 13, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Started this document by extracting the section on geometric classes
+from the documentation on kinematics and dynamics.  Added more
+extensive discussion about generic (conceptual and concrete) APIs and
+representations.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>August 11, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Removed the RigidBody class, because it is not a purely geometric
+thing. Small additions and corrections to all other sections.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.03</revnumber>
+    <date>November 1, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Added polyhedron, mesh, geometric database and engine.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.04</revnumber>
+    <date>November 18, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Added physical methods. Added motion, position and orientation methods
+for frames.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.05</revnumber>
+    <date>January 4, 2004</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Overall overhaul of the text. More concrete class descriptions.
+Clarified relationships between geometric class, symbolic class, and
+physical property. Added Displacement.
+    </revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+<section id="overview">
+<title> Introduction </title>
+<para>
+This document describes the classes for the 
+<emphasis role="strong">
+ <link linkend="geometric-classes">basic geometric primitives</link>
+</emphasis>
+that are relevant to robotics, machine tools and computer animation:
+<link linkend="point">points</link>, 
+<link linkend="vector">vectors</link>, 
+<link linkend="line">lines</link>,
+<link linkend="plane">planes</link>, 
+<link linkend="polyhedron">polyhedrons</link>, 
+<link linkend="mesh">meshes</link>, 
+<link linkend="screw">screws</link>, 
+<link linkend="orientation">orientations</link>, 
+and
+<link linkend="frame">frames</link>.
+In general, all these primitives exist in
+<emphasis role="strong">linear</emphasis> (&ldquo;1D&rdquo;),
+<emphasis role="strong">planar</emphasis> (&ldquo;2D&rdquo;), and
+<emphasis role="strong">spatial</emphasis> (&ldquo;3D&rdquo;)
+versions.
+</para>
+<note>
+<para>
+The goal of this document is to describe the design of a set of
+<emphasis>small libraries</emphasis>, which can be combined together to
+model not only the most complex systems, but from which application
+developers can also choose only the subset that offers them the most
+efficient solution for their particular goals.
+</para>
+<para>
+The design keeps in mind that the same library
+<emphasis role="strong">interfaces</emphasis> can be used for
+&ldquo;all&rdquo; possible robot and machine tool devices. Hence, much
+attention is paid to find the most appropriate 
+<ulink url="decoupling.html">decoupling</ulink> between the
+required functionalities, and the best trade-off between generality
+and complexity of the interfaces.
+</para>
+</note>
+<para>
+Many <emphasis>implementations</emphasis> for all geometric primitives
+exist already.  But almost invariably, the implementations only cover
+<emphasis>mathematical (<emphasis>i.e.</emphasis> coordinate)
+representations</emphasis>, and much less explicitly
+<link linkend="symbolic-class">symbolic</link> or 
+<link linkend="physical-properties">physical</link> properties. Adding
+the latter types of information incurs some storage overhead, but it
+is mandatory in <emphasis>complex</emphasis> systems: these need more
+functionality than just fast calculation of always the same hard-coded
+algorithms, and they must integrate software components from different
+sources so they must be able to check on line their compatibility and
+the correctness of service calls.
+</para>
+<para>
+In real-world applications, geometric objects do often not exist
+just on their own, but form
+<emphasis role="strong">interconnected sets</emphasis>, such as
+robots; the real world is also <emphasis
+role="strong">dynamic</emphasis>, in the sense that objects come and
+go, they move with respect to each other, and the user is interested
+in new relationships between geometric objects, in different
+representations, or in new substructures of the database.  So, the
+representation of these time-varying interconnections requires a
+<emphasis role="strong">
+ <link linkend="geometric-database">geometric database</link>
+</emphasis> instead of a simple static data structure. The database
+keeps track of where every geometric feature
+(<emphasis>i.e.</emphasis> (a part of) a geometric primitive) in the
+world is located, how motions of one object influence the relative
+locations of all other geometric features, and which
+<link linkend="geometric-classes">geometric</link>,
+<link linkend="symbolic-class">symbolic</link> and/or
+<link linkend="physical-properties">physical</link> properties are
+linked to each other. So, different applications can use a different
+number of objects to represent the same robot or machine tool: one
+application can prefer to use more symbolic information, while another
+application needs multiple shapes to visualize the same geometric
+primitive.
+</para>
+<para>
+The geometric database must faithfully represent the
+<emphasis>dynamic</emphasis> nature of the world, so it needs a
+<emphasis>programming interface</emphasis>.
+The database and its programming interface are called a
+<emphasis role="strong">geometric engine</emphasis>.
+</para>
+<para>
+This text describes the basic geometric classes in more
+detail. These descriptions are not complete, for example, the
+following methods are not described explicitly:
+<itemizedlist>
+
+<listitem>
+<para>
+Constructors and destructors.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<function>Set_&hellip;()</function> and
+<function>Get_&hellip;()</function> methods, to write or read all the
+data stored in one object of a particular class.
+</para>
+</listitem>
+
+<listitem>
+<para>
+&ldquo;Factory&rdquo; methods to construct complex geometric
+objects by interconnection, or by &ldquo;derivation&rdquo;
+(<emphasis>e.g.</emphasis>
+<function>perpendicularLineToPlane()</function>, etc.).
+</para>
+</listitem>
+
+<listitem>
+<para>
+&ldquo;Analysis&rdquo; methods to investigate existing geometric
+constructions; <emphasis>e.g.</emphasis>
+<function>isPartOf()</function> returns a Boolean value indicating
+whether a given geometric object is a part of another object.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<note>
+<para>
+Developers of geometric libraries or framework can decide to implement
+only parts of all the presented classes; they also have many choices
+for the implementation of the geometric engine; for example, not all
+<link linkend="symbolic-port">Ports</link> are needed in all
+applications.
+</para>
+</note>
+
+</section>
+
+
+<section id="symbolic-class">
+<title>Symbolic class</title>
+<para>
+All geometric classes have some symbolic properties in common. These
+are assembled in a <emphasis>symbolic class</emphasis> with the
+following <emphasis>data structures</emphasis>:
+<variablelist>
+ <varlistentry>
+ <term>
+  <anchor id="symbolic-name">
+  <parameter>name</parameter>:
+ </term>
+  <listitem>
+  <para>
+A symbolic description (<emphasis>e.g.</emphasis> a string) that
+serves as a unique identifier of an object instantiation of the class.
+Such a <parameter>name</parameter> is certainly needed in distributed
+software systems; in a centralized system, the software components can
+get direct access to the binary objects, but there is also a need to
+describe objects by their symbolic name, <emphasis>e.g.</emphasis> in
+a graphical user interface, or a scripting program.
+  </para>
+  <para>
+Giving unique names is very difficult, especially in dynamic systems
+where one doesn't know in advance how many objects will exist.
+Therefore, the symbolic names are often only to be interpreted in a
+specific context, or <emphasis role="strong">name space</emphasis>.
+For example, a kinematic structure of a robot contains a line for each
+joint, and the name of that line should only be unique in the context
+of that robot.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="symbolic-dimension">
+  <parameter>dimension</parameter>:
+ </term>
+  <listitem>
+  <para>
+<parameter>1D</parameter>, <parameter>2D</parameter>, or
+<parameter>3D</parameter>. It indicates whether the object lives on a
+line, in a plane or in the space.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="symbolic-port">
+  <anchor id="geometric-port">
+  <parameter>geometricPorts</parameter>:
+ </term>
+  <listitem>
+  <para>
+This is a <emphasis>list</emphasis> of 
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Ports</ulink>:
+each geometric object can be
+<emphasis role="strong">connected</emphasis> to various other
+geometric objects, and a <parameter>geometricPort</parameter> is the
+place that allows for this interconnection between geometric objects.
+For example, a <link linkend="point">point</link>
+can be defined as the intersection of two
+<link linkend="line">lines</link> (and hence is interconnected with
+both lines), or belong to a
+plane, a frame or a surface.
+(<ulink url="general-dynamics-doc.html">Another document</ulink>
+has a more detailed description of complex interconnected systems.)
+Therefore, most of the objects described in this document have
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Ports</ulink>
+of various types.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="symbolic-coordinates">
+  <parameter>coordinatePorts</parameter>:
+ </term>
+  <listitem>
+  <para>
+Another list of
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Ports</ulink>,
+each with a different mathematical representation of the object. So, this
+list doesn't directly give numerical values, but objects that contain
+the symbolic information about one particular mathematical
+representation: the <emphasis role="strong">type</emphasis> of the
+coordinates; the
+<emphasis role="strong">reference <link linkend="frame">frame</link></emphasis>
+with respect to which the coordinates are expressed (this is nothing
+else than the Port connection to the geometric object that encodes the
+frame!), and the
+<emphasis role="strong">physical units</emphasis> of the coordinates.
+  </para>
+  <para>
+(IDEA: The Object connected to the Port has a type that encodes the physical
+units and the type of the coordinates? And the Connector contains the
+numerical values?)
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="symbolic-visualisation">
+  <parameter>visualisationPorts</parameter>:
+ </term>
+  <listitem>
+  <para>
+very often, the geometric objects are visualised in one way or
+another. This list of 
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Ports</ulink>
+gives access to the various visualisation objects of this
+geometric object.
+  </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+The Ports are the mechanism <emphasis>to interconnect</emphasis>
+objects in a
+<link linkend="geometric-database">geometric database</link>.
+However, a Port is more than just a pointer to a database table: it is
+part of the
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Object-Port-Connector</ulink>
+software pattern, that brings some added value over bare pointers.
+</para>
+<para>
+Each Port has a specific <emphasis>type</emphasis>, such that it can
+be made impossible to connect Ports of different types.  A symbolic
+object also has <function>Set_&hellip;()</function> and
+<function>Get_&hellip;()</function> <emphasis>methods</emphasis> for
+each of the above-mentioned <emphasis>data structures</emphasis>.
+<anchor id="symbolic-iterate-ports">
+A <parameter>Ports</parameter> class has methods to get to
+its components; <emphasis>e.g.</emphasis> the
+<parameter>iteratePorts</parameter> method call returns the object
+is connected with through one of its ports.
+</para>
+<note>
+<para>
+This text collects all of the above-mentioned data structures in 
+<emphasis>one single</emphasis> symbolic class, to be used as an
+aggregate component of a
+<link linkend="geometric-classes">geometric class</link>. This is to
+some extent an arbitrary decision!
+</para>
+</note>
+<para>
+However, the decision to use all of the above-mentioned data
+structures looks reasonable for a
+<link linkend="geometric-database">geometric database</link>, because
+of the involved level of complexity.
+While in the case of a static, efficient and specific-purpose library
+(<emphasis>e.g.</emphasis> to support the kinematics of one particular
+robot), all of the symbolic information can be eliminated without many
+problems.
+</para>
+
+</section>
+
+
+<section id="physical-properties">
+<title>Physical properties</title>
+<para>
+Most geometric objects have a set of operations that one can perform
+on them, and that have <emphasis>physical</emphasis> meaning,
+<emphasis>i.e.</emphasis> the result is independent of the data
+structures and the coordinates used to represent the object. For
+example, generating the normal direction to a given plane is a
+physically uniquely defined operation, but that normal direction can
+have many mathematical coordinate representations. Other examples of
+physical operations are: finding the common perpendicular of two
+lines; inverting the direction of a velocity; generating the
+&ldquo;exponential&rdquo; curve generated by a given velocity; etc. 
+</para>
+<para>
+Typically, every physical method can be implemented with various
+mathematical representations. Developers must take care not to mix the
+variability of the representations with the non-variability of a
+physical method. Ideally, the mathematical representation should be
+&quot;hidden&quot; in the method call of a physical property.
+<note>
+<para>
+So, when developing a <emphasis>general</emphasis> geometric software
+library, one is confronted with the practical problem that the
+geometric object can store its state in one particular mathematical
+representation, while the implementations of its physical methods
+internally use another representation. This flexibility is only useful
+in general-purpose, &ldquo;component-based&rdquo; systems
+(<emphasis>e.g.</emphasis> as defined in the context of CORBA
+components), but not for small-scale, &ldquo;real-time&rdquo;
+applications. The design of the library interfaces in this document is
+such that the application builders can select what level of generality
+they want to implement; the most important factor in this flexibility
+is that the mathematical coordinate representations and algorithms of
+the physical properties can be used independently from any symbolic
+&ldquo;meta&rdquo; properties.
+</para>
+</note>
+</para>
+<para>
+Many (but not all) physical methods apply to similar geometric
+objects in different dimensions (1D, 2D and 3D). For example, the
+<emphasis>inversion</emphasis> of the velocity of an object. It is
+advisable to use the same names for the same physical properties in
+all different spaces.
+</para>
+<para>
+In contrast to their symbolic properties, geometric objects do not
+have many physical properties in common; hence, they are described
+below in the sections of each individual geometric class.
+</para>
+
+</section>
+
+
+<section id="geometric-classes">
+<title>Geometric classes</title>
+<para>
+This Section describes the <emphasis>basic</emphasis> geometric
+classes, without discussion of &ldquo;advanced&rdquo; concepts, such
+as for example spline surfaces. Each geometric class has its own set
+of <link linkend="physical-properties">physical properties</link>
+(encoded as <emphasis role="strong">method calls</emphasis> in the
+geometric class), coordinate representation
+<emphasis role="strong">data structures</emphasis>, and possibly
+aggregates a
+<link linkend="symbolic-class">symbolic class</link> (encoded
+as a <emphasis role="strong">data structure</emphasis>).
+</para>
+
+<section id="point">
+<title>Point</title>
+<para>
+A &ldquo;Point&rdquo; represents a &ldquo;position&rdquo;, 
+<emphasis>i.e.</emphasis> an element in the space in which the robot
+or machine tool works.  Most of its properties are covered by the
+generic <link linkend="symbolic-class">symbolic properties</link>: 
+<parameter>name</parameter>.
+<parameter>dimension</parameter>, and the various lists of
+<parameter>Ports</parameter>.  The numeric coordinate representation
+consists of three floating point numbers, in a given reference
+<link linkend="frame">frame</link> (which is encoded by a 
+<link linkend="symbolic-port">geometricPort</link>).
+</para>
+
+</section>
+
+
+<section id="vector">
+<title>Vector</title>
+<para>
+A Vector has many different meanings, hence, it has an extra
+<link linkend="symbolic-class">symbolic property</link>:
+<variablelist>
+ <varlistentry>
+ <term>
+  <anchor id="vector-type">
+  <parameter>type</parameter>:
+ </term>
+  <listitem>
+  <para>
+  <parameter>freeVector</parameter>,
+  <parameter>lineVector</parameter>,
+  <parameter>unitVector</parameter>,
+  <parameter>pointVector</parameter>,
+  <parameter>segmentVector</parameter>.
+  </para>
+  <para>
+ A <parameter>freeVector</parameter> and a
+ <parameter>unitVector</parameter> don't need extra symbolic
+information; a <parameter>lineVector</parameter> and
+<parameter>pointVector</parameter> need a
+<link linkend="geometric-port">geometricPort</link> to connect it to
+a geometric object with the corresponding type
+(<emphasis>i.e.</emphasis> 
+<link linkend="line">line</link> and
+<link linkend="point">point</link>, respectively). A 
+<parameter>segmentVector</parameter> is the vector that links two 
+<link linkend="point">Points</link>, so it needs to be connected
+to at least one, and in general, to both of these Points.
+  </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+The numeric coordinate representation for all
+<parameter>Vector</parameter>s consists of three floating point
+numbers in a given reference <link linkend="frame">frame</link>.
+</para>
+<para>
+A Vector has the following
+<link linkend="physical-properties">physical properties</link>:
+<variablelist>
+ <varlistentry>
+ <term>
+<parameter>addition</parameter>, <parameter>inversion</parameter>,
+<parameter>scaling</parameter>.
+ </term>
+  <listitem>
+   <para>
+The exact result of these operations can depend on the
+<parameter>type</parameter> of the <parameter>Vector</parameter>
+(<emphasis>e.g.</emphasis> <parameter>inversion</parameter> and
+<parameter>addition</parameter> are meaningless for a
+<parameter>lineVector</parameter>).
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="frame">
+<title>Frame</title>
+<para>
+A Frame is the combination of a <link linkend="point">Point</link> and
+an ordered list of 1, 2 or 3 (depending on the dimension of the space)
+(unit) <link linkend="vector">Vector</link>s.
+The geometric importance of a Frame is two-fold: (i) it is the vehicle
+in which <emphasis role="strong">numeric coordinates</emphasis> are
+defined; and (ii) it marks positions and orientations in space.
+</para>
+<para>
+<variablelist>
+
+<title>Symbolic properties</title>
+ <varlistentry>
+ <term>
+  <anchor id="frame-type">
+  <parameter>type</parameter>:
+ </term>
+  <listitem>
+  <para>
+  <parameter>rightHanded</parameter>, <parameter>leftHanded</parameter>,
+  <parameter>orthogonal</parameter>,
+  <parameter>&hellip;</parameter>,
+plus the <link linkend="geometric-port">geometricPorts</link> to the 
+<link linkend="point">Point</link> and the unit
+<link linkend="vector">Vector</link>s that make up the frame.
+  </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term>
+  <anchor id="frame-move">
+  <parameter>displacement</parameter>
+  </term>
+  <listitem>
+   <para>
+The displacement of a frame is again a frame. 
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="frame-rotation">
+  <parameter>rotation</parameter>,
+  <parameter>position</parameter>
+  </term>
+  <listitem>
+   <para>
+These operations extract the rotation and position parts of the frame.
+   </para>
+   <para>
+(Is this a <emphasis>physical</emphasis> operation?)
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Numeric properties:</title>
+ <varlistentry>
+ <term>
+  <anchor id="htmatrix">
+  <parameter>homogeneousTransformationMatrix</parameter>,
+  (<parameter>HTMatrix</parameter>) 
+ </term>
+  <listitem>
+   <para>
+This is the data structure that encodes the position and orientation
+of a Frame with respect to another &ldquo;world Frame&rdquo;.
+   </para>
+   <para>
+   4-by-4 matrix (in 3D), with the 
+<link linkend="rotation-matrix">rotationMatrix</link> of direction cosines 
+   as top-left sub-matrix, the position coordinate vector of the 
+<link linkend="point">Point</link>
+   as top-right 3-by-1 matrix, and (0 0 0 1) as fourth row.
+   </para>
+   <para>
+   In 2D, a 3-by-3 matrix, similar to the 3D case, but without the
+   third row and column.
+   </para>
+   <para>
+	In 1D, a <link linkend="point">Point</link> and a direction
+   <link linkend="vector">Vector</link>.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="frame-move-method">
+  <parameter>move</parameter>
+ </term>
+  <listitem>
+   <para>
+This is the method call that displaces a Frame from its current
+configuration to another configuration, with respect to the
+&ldquo;world Frame&rdquo;. The argument of the method
+call is a <link linkend="displacement">Displacement</link>.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="line">
+<title>Line</title>
+<para>
+A <parameter>Line</parameter> can geometrically be defined in various
+ways: the &ldquo;join&rdquo; of two points, the
+&ldquo;intersection&rdquo; of two planes( only in 3D), the combination
+of a <link linkend="point">Point</link> and a
+<link linkend="vector">Vector</link>, etc. It also comes in different
+&ldquo;flavours&rdquo;:
+<variablelist>
+ <varlistentry>
+ <term>
+  <anchor id="line-type">
+  <parameter>type</parameter>:
+ </term>
+  <listitem>
+  <para>
+<parameter>directedLine</parameter>, 
+<parameter>unboundedLine</parameter>,
+<parameter>lineSegment</parameter>,
+etc.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="line-coordinate-type">
+  <parameter>coordinateType</parameter>:
+ </term>
+  <listitem>
+  <para>
+  the type of the line coordinates:
+  <parameter>PluckerAxisCoordinates</parameter> (the
+<parameter>Line</parameter> is the &ldquo;meet&rdquo; of two 
+<link linkend="plane">planes</link>),
+  <parameter>PluckerRayCoordinates</parameter> (the
+<parameter>Line</parameter> is the &ldquo;join&rdquo; of two 
+<link linkend="point">points</link>),
+  <parameter>pointVectorCoordinates</parameter> (the
+<parameter>Line</parameter> is represented by one
+<link linkend="point">point</link> on the <parameter>Line</parameter>
+and one <link linkend="vector">line vector</link>), 
+  <parameter>vectorVectorCoordinates</parameter> (the
+<parameter>Line</parameter> is represented by one
+the <emphasis>moment vector</emphasis> of a
+<link linkend="point">point</link> on the <parameter>Line</parameter>,
+and one <link linkend="vector">line vector</link>),
+etc.
+  </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+The <link linkend="physical-properties">physical properties</link> of
+a Line are:
+<variablelist>
+ <varlistentry>
+ <term>
+<parameter>inversion</parameter>
+ </term>
+  <listitem>
+   <para>
+ of a <parameter>directedLine</parameter>.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+<para>
+The numeric coordinate representations
+for <parameter>Line</parameter>s are a number of floating point
+values, expressed in a given reference
+<link linkend="frame">frame</link>, but with an interpretation that
+depends on the type of the <parameter>Line</parameter> coordinates:
+<itemizedlist>
+
+<listitem>
+<para>
+  <parameter>PluckerAxisCoordinates</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>PluckerRayCoordinates</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>pointVectorCoordinates</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>vectorVectorCoordinates</parameter>: &hellip;
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+<section id="plane">
+<title>Plane</title>
+<para>
+A Plane has the following
+<link linkend="symbolic-class">symbolic properties</link>:
+<variablelist>
+ <varlistentry>
+ <term>
+  <anchor id="plane-coordinate-type">
+  <parameter>coordinateType</parameter>:
+ </term>
+  <listitem>
+  <para>
+  the type of the plane coordinates:
+  <parameter>vectorVectorPlane</parameter>, 
+  <parameter>abcdParameterPlane</parameter>, 
+  <parameter>lineLinePlane</parameter>, 
+  <parameter>pointNormalPlane</parameter>, etc.
+  </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+The corresponding numeric coordinate representations are:
+<itemizedlist>
+
+<listitem>
+<para>
+  <parameter>vectorVectorPlane</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>abcdParameterPlane</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>lineLinePlane</parameter>: &hellip;
+</para>
+</listitem>
+
+<listitem>
+<para>
+  <parameter>pointNormalPlane</parameter>: &hellip;
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+<section id="polyhedron">
+<title>Polyhedron</title>
+<para>
+This is a planar geometric primitive, consisting of an ordered list of
+<emphasis>vertices</emphasis>. Since the vertices all lie in the same
+plane, an obvious representation consists of a plane, with 2D coordinates
+of the vertices in that plane.
+</para>
+
+</section>
+
+
+<section id="mesh">
+<title>Mesh</title>
+<para>
+This is a non-planar geometric primitive, consisting of a connected
+set of <emphasis>vertices</emphasis>. Since the vertices form a
+surface the interconnection graph is <emphasis>planar</emphasis>.
+(TODO Is this true? Is this useful information?)
+</para>
+
+</section>
+
+
+<section id="screw">
+<title>Screw</title>
+<para>
+A screw is the geometric object that combines 
+<emphasis role="strong">two parallel vectors</emphasis>,
+(the first one is bound to a line, the second one is a free vector), with a 
+<emphasis role="strong">scalar number</emphasis> (the
+&ldquo;pitch&rdquo;) which is the ratio of the two vectors.
+Screws are the geometric primitives behind rigid body velocity and
+force.
+<variablelist>
+<title>Symbolic properties</title>
+ <varlistentry>
+ <term>
+  <anchor id="screw-coordinate-type">
+  <parameter>coordinateType</parameter>:
+ </term>
+  <listitem>
+  <para>
+  the type of the screw
+  <link linkend="screw-coordinates">coordinates</link>:
+  <parameter>PluckerAxisCoordinates</parameter>,
+  <parameter>PluckerRayCoordinates</parameter>,
+  <parameter>pointVectorCoordinates</parameter>, 
+  <parameter>vectorVectorCoordinates</parameter>, etc.
+  </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="pitch-units">
+  <parameter>pitchPhysicalUnits</parameter>
+  </term>
+  <listitem>
+   <para>
+A pitch has the physical units of <emphasis>distance</emphasis>.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term><parameter>inversion</parameter></term>
+  <listitem>
+   <para>
+   reversing the direction of both vectors.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="screw-product">
+  <parameter>product</parameter>
+  </term>
+  <listitem>
+   <para>
+  The (&ldquo;vector&rdquo;, &ldquo;screw&rdquo;) product of two
+  screws is again a screw.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Numeric coordinate represenations:</title>
+ <varlistentry>
+ <term>
+  <anchor id="pitch-coordinate">
+  <parameter>pitch</parameter>
+  </term>
+  <listitem>
+   <para>
+numeric value of the pitch (which can have the value
+&ldquo;infinity&rdquo;!).
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="screw-coordinates">
+  <parameter>coordinates</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Very similar to the six-dimensional coordinates of a
+<link linkend="line">Line</link>, but in this case of a Screw,
+<emphasis>five</emphasis> of the six numbers are independent
+coordinates. (A <link linkend="line">Line</link> only has four
+independent coordinates.)
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="orientation">
+<title>Orientation</title>
+<para>
+An orientation is an (choice of) <emphasis>sign</emphasis>
+attached to some geometric objects.
+</para>
+<para>
+<variablelist>
+<title>Symbolic properties</title>
+ <varlistentry>
+ <term>
+  <anchor id="orientation-type">
+  <parameter>type</parameter>:
+  </term>
+  <listitem>
+  <para>
+   In 1D, orientation is <parameter>left</parameter> or
+   <parameter>right</parameter>; in 2D,
+   orientation is <parameter>clockwise</parameter> or
+   <parameter>counter-clockwise</parameter>; in 3D, orientation is
+   <parameter>positive</parameter> or <parameter>negative</parameter>
+	(or, <parameter>right-handed</parameter> or
+   <parameter>left-handed</parameter>).
+  </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term><parameter>inversion</parameter></term>
+  <listitem>
+   <para>
+	Reversing the <link linkend="orientation-type">type</link> of the
+   orientation.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="orientation-product">
+  <parameter>product</parameter>
+  </term>
+  <listitem>
+   <para>
+The product of two orientations with opposite type is
+&ldquo;negative&rdquo;, the product of orientations of the same type
+is &ldquo;positive&rdquo;.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="rotation">
+<title>Rotation</title>
+<para>
+Consider the same rigid body in two different configurations, in which
+(at least) one (&ldquo;fixed&rdquo;) point connected to the body
+remains in the same position in space. Then, one can prove that there
+exists a <link linkend="line">Line</link> through that point such that
+the first body can be rotated about the line and moved to coincide
+with the second body. In 1D, this Rotation is trivial: the rigid body
+is a subset of the 1D line, and it is &ldquo;mirrored&rdquo; on the
+line about the point, or it remains in the same place.
+In 2D (<emphasis>i.e.</emphasis> a plane), the rotation line is
+perpendicular to the plane, and goes through the fixed point of the
+body. In 3D, the line can have any direction in space. Note also that,
+in 2D and 3D, there are in general always two of these rotations
+(&ldquo;clockwise&rdquo; and &ldquo;counter-clockwise&rdquo;, about
+the same line), whose rotation angles add up (in absolute value) to
+360 degrees.
+</para>
+<para>
+Note that the fixed point must not necessarily be physically located
+on the rigid body itself: it can be a point outside of the body, that
+moves rigidly together with the body.
+</para>
+<para>
+A Rotation can be given two meanings:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Active</emphasis>:
+the <emphasis role="strong">motion</emphasis> of a rigid body
+from a first configuration to a second configuration. (With the
+constraint that at least one point remains &ldquo;motionless&rdquo;!)
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Passive</emphasis>:
+the position of a <emphasis>reference frame</emphasis> on
+the rigid body with respect to a
+<emphasis>fixed world reference frame</emphasis> at the origin of the
+world.
+</para>
+</listitem>
+
+</itemizedlist>
+Only the passive interpretation
+<emphasis role="strong">requires</emphasis> the choice of one
+reference frame on the object, and another reference frame in the
+world; and the given orientation depends on this choice. 
+So, passive Rotation is not a 
+<link linkend="physical-properties">physical property</link> but a
+property of the choice of coordinates.  The active interpretation,
+however, <emphasis>is</emphasis> physically well defined,
+independently of any arbitrary choices.
+</para>
+<para>
+So, the following properties are required to define a Rotation:
+</para>
+<variablelist>
+<title>Symbolic property</title>
+ <varlistentry>
+ <term><parameter>active</parameter>, <parameter>passive</parameter></term>
+  <listitem>
+   <para>
+Only in the case of a <parameter>passive</parameter> Orientation, the
+generic <link linkend="symbolic-class">symbolic information</link>
+about the <link linkend="geometric-port">geometric Port</link> to
+the reference <link linkend="frame">frame</link> is relevant.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term><parameter>inversion</parameter></term>
+  <listitem>
+   <para>
+The inversion of a given Rotation is another Rotation. The rotation
+line is the same, and the rotation angle is the inverse of the
+original angle. Or, equivalently, the direction fo the rotation line
+is reversed.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="orientation-composition">
+  <parameter>composition</parameter>
+  </term>
+  <listitem>
+   <para>
+The composition of two Rotations is another Rotation.
+<note>
+<para>
+The composition of Rotation is a
+<emphasis role="strong">multiplicative</emphasis> operation, and 
+<emphasis role="strong">not additive</emphasis>,
+<emphasis>i.e.</emphasis> no coordinate representation exists in which
+any composition corresponds to the addition of the rotation
+coordinates of the two Rotations involved in the composition; while
+there do exist coordinate representations in which the composition
+corresponds to the multiplication of the coordinates. Note that the
+opposite is not true: not in every coordinate representation,
+composition corresponds to multiplication!
+</para>
+</note>
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+<para>
+Many different
+<emphasis role="strong">coordinate respresentations</emphasis> exist
+for Rotations. For each of them, the composition operation is called
+<parameter>multiplication</parameter>, in accordance with the physical
+properties of Rotations. All coordinate representations depend on the
+<emphasis>choice</emphasis> of a reference frame on the object and in
+the fixed world. Usually, right-handed and orthogonal reference frames
+are used, but this is not necessary; of course, the numerical values
+of the coordinates depend on this choice, so the frame objects should
+contain this information among their symbolic properties.
+<variablelist>
+ <varlistentry>
+ <term>
+   <anchor id="rotation-matrix">
+   <parameter>rotationMatrix</parameter></term>
+  <listitem>
+   <para>
+A 3-by-3 matrix in 3D, and a 2-by-2 matrix in 2D, whose columns are
+the coordinates of the <link linkend="vector">unitVector</link>s along
+the directions of a <link linkend="frame">Frame</link>, expressed in
+the &ldquo;world frame&rdquo;.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+   <anchor id="euler-angles">
+   <parameter>EulerAngles</parameter>
+ </term>
+  <listitem>
+   <para>
+EulerAngles are only relevant in 3D. There, they represent a total
+rotation as a sequence of three rotations about
+<emphasis role="strong">&ldquo;moving axes&rdquo;</emphasis>.
+That is, a rotation about one axis, say &ldquo;X&rdquo;, is executed;
+this rotation moves the &ldquo;Y&rdquo; and &ldquo;X&rdquo; axes of
+the  &ldquo;world frame&rdquo;, so the next rotation is performed
+about one of these new &ldquo;Y&rdquo; or &ldquo;Z&rdquo; axes.
+Hence, there are <emphasis role="strong">twelve</emphasis> possible
+sets of Euler angles: XYX, XYZ, XZX, XZY, YZX, YZX, YXY, YXZ, ZYX,
+ZXY, ZXZ, ZYZ.
+   </para>
+   <para>
+In the case that the first or second rotations move the subsequent
+rotation axis close to one of the previous rotation axes, the total
+rotation is represented by components about two almost parallel axes,
+and this is
+<emphasis role="strong">numerically badly conditioned</emphasis>. The
+conditioning is even absolutely bad (<emphasis>i.e.</emphasis> a 
+<emphasis role="strong">singularity</emphasis> occurs) if two axes
+coincide.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term><parameter>RollPitchYaw</parameter></term>
+  <listitem>
+   <para>
+Rotations about <emphasis role="strong">fixed</emphasis> axes, in the
+sequence &ldquo;X&rdquo;, &ldquo;Y&rdquo; and &ldquo;Z&rdquo;.
+   </para>
+   <para>
+In principle, there are also twelve possible rotations about fixed
+axes, but only <parameter>RollPitchYaw</parameter> is commonly used.
+It is very well conditioned numerically as long as the rotation angles
+are &ldquo;small&rdquo;, <emphasis>i.e.</emphasis> much less than 90
+degrees, because in that case two subsequent rotation directions line
+up.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="equivalent-angle-axis">
+  <parameter>angleAxis</parameter>
+  </term>
+  <listitem>
+   <para>
+The rotation is represented by representing the axis of the rotation
+(<emphasis>i.e.</emphasis> a directed
+<link linkend="line">Line</link>) and the angle (one scalar).
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="quaternion">
+  <parameter>quaternion</parameter>
+  </term>
+  <listitem>
+   <para>
+A four-parameter representation, which is the smallest one that
+doesn't have representation singularities. Its
+&ldquo;disadvantage&rdquo; is that it is <emphasis>double
+covering</emphasis>: each rotation has two different coordinates.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="rotation-matrix-multiplication">
+  <parameter>multiplication</parameter>
+  </term>
+  <listitem>
+   <para>
+Composition of rotations corresponds to multiplication of two rotation
+matrices. For Euler angles, composition is a bit more involved, and
+multiplication or addition of the numerical values has no meaning. 
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="displacement">
+<title>Displacement</title>
+<para>
+Consider the same rigid body in two different configurations, but, in
+contrast to the <link linkend="rotation">Rotation</link> case, no
+point connected to the body
+must remain in the same position in space. One can prove that there
+exists a <link linkend="line">Line</link>
+such that the body can be moved from its first configuration to its
+second configuration, by a <emphasis role="strong">rotation
+about that line, and a translation along that line</emphasis>.
+Hence, this displacement can be <emphasis>represented</emphasis> by a
+<link linkend="screw">Screw</link>.
+</para>
+<para>
+A Displacement can be given the same active and a passive meanings
+as for a <link linkend="rotation">Rotation</link>.
+So, the following properties are required to define a Displacement:
+</para>
+<variablelist>
+<title>Symbolic property</title>
+ <varlistentry>
+ <term><parameter>active</parameter>, <parameter>passive</parameter></term>
+  <listitem>
+   <para>
+Only in the case of a <parameter>passive</parameter> Displacement, the
+generic <link linkend="symbolic-class">symbolic information</link>
+about the <link linkend="geometric-port">geometric Port</link> to
+the reference <link linkend="frame">frame</link> is relevant.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term><parameter>inversion</parameter></term>
+  <listitem>
+   <para>
+The inversion of a given Displacement is another Displacement. The
+screw axis is the same, the rotation angle about the line and
+displacement along the line are the inverse of the original values.
+Or, equivalently, the Screw is reversed.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="displacement-composition">
+  <parameter>composition</parameter>
+  </term>
+  <listitem>
+   <para>
+The composition of two Displacements is another Displacement, and
+again it is a
+<emphasis role="strong">multiplicative</emphasis> operation, and 
+<emphasis role="strong">not additive</emphasis>.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+<para>
+Many different
+<emphasis role="strong">coordinate respresentations</emphasis> exist
+for Displacements: one combines the different representations of a
+<link linkend="rotation">Rotation</link> with that of a 
+<link linkend="point">Point</link>. The 
+<link linkend="htmatrix">Homogeneous Transformation Matrix</link>
+representation has a unique place, because it faithfully represents
+the multiplicative property of Displacement composition,
+<emphasis>and</emphasis> the representation has no numerical
+singularities.
+</para>
+
+</section>
+
+</section> <!-- geometric-primitives -->
+
+
+<section id="geometric-database">
+<title>Geometric database and engine</title>
+<para>
+Complex and dynamic applications need more than just the
+symbolical and numerical information contained in the geometric
+classes of the previous sections:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Topology.</emphasis> The topological
+information of the geometric objects involved in an application
+describes how the objects are
+<emphasis role="strong">interconnected</emphasis>. This
+interconnection information is, in general, a
+<emphasis>graph</emphasis>, but most real-world constructions have
+more specific structures: serial, parallel, tree-like, etc.
+</para>
+<para>
+Every interconnection information implies a set of 
+<emphasis role="strong">constraints</emphasis> between the coordinates
+of the objects involved in the interconnection. A constraint can
+sometimes be a source of more complex calculations (because one has to
+take into account the influence of the constraints when moving an
+object), but sometimes it also allows for more efficient calculations
+(<emphasis>e.g.</emphasis> most robot structures have efficient
+routines to calculate their forward and/or inverse kinematics).
+</para>
+<para>
+The topological structure of one single robot or animated figure is
+sometimes called a <emphasis role="strong">skeleton</emphasis> or
+<emphasis role="strong">armature</emphasis>. The
+&ldquo;connection&rdquo; of all objects to the
+&ldquo;(fixed) world&rdquo; is called the
+<emphasis role="strong">scene (graph)</emphasis>.
+In graphical user interfaces, properties of the objects in the
+scene can be browsed or changed via a graph-like interface, in which
+each node contains the information of one geometric primitive in the
+scene.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Relative feature relationships.</emphasis>
+The topogical structure is used to keep track of the coordinates of
+all geometric primitives, whenever one or more objects are moved in the
+scene. Users of an application are typically interested in knowing
+the relative position and/or motion of two or more system
+<emphasis>features</emphasis>, <emphasis>i.e.</emphasis> particular
+parts of the geometric primitives that are relevant to the currently
+executed task.
+</para>
+<para>
+The geometric database should also allow
+<emphasis role="strong">scripting</emphasis> and
+<emphasis role="strong">programming</emphasis>,
+<emphasis>i.e.</emphasis> user-defined functions that calculate
+on-line the feature relationships that users are interested in. For
+example, a function to find the closest points on two object surfaces;
+or a function to calculate the distance between points on the
+end-effector of two different robots.
+</para>
+<para>
+The combination of the <emphasis>geometric data</emphasis>
+(topological and numerical), the
+<emphasis>scripting functions</emphasis> defined on tha data, and the
+corresponding (graphical) user interface, is 
+called a <emphasis role="strong">geometric engine</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Non-geometric properties.</emphasis>
+The geometric database is important to calculate the kinematic
+information in the system, but often an application also needs 
+other information:
+ <itemizedlist>
+ <listitem>
+ <para>
+ <emphasis role="strong">Visualisation</emphasis>: What is
+the shape of each object? Its texture? Its color? All this
+&ldquo;flesh&rdquo; around the skeleton is to be stored independently.
+Applying the &ldquo;flesh&rdquo; is sometimes called
+<emphasis role="strong">rigging</emphasis>.
+ </para>
+ </listitem>
+ <listitem>
+ <para>
+ <emphasis role="strong">Input/Output</emphasis>: What process
+provides the data to move an object or a skeleton? What process
+collects the latest information on the object (for on-line or off-line
+&ldquo;reporting&rdquo; and &ldquo;monitoring&rdquo;)?
+ </para>
+ </listitem>
+ </itemizedlist>
+</para>
+</listitem>
+
+</itemizedlist>
+The connections between all the different kinds of object information
+described above can be implemented with the
+<ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Object-Port-Connector</ulink>
+software pattern, in order to provide maximal decoupling.  This
+pattern leads naturally to a <emphasis role="strong">graph</emphasis>
+data structure for the geometric database: 
+<itemizedlist>
+
+<listitem>
+<para>
+Each geometric primitive is a <emphasis role="strong">node</emphasis>
+in the graph.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The graph's <emphasis role="strong">edges</emphasis> represent topological connectivity.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Each node has its own physical and numerical
+<emphasis role="strong">properties</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The overall graph has (a hierarchy of)
+<emphasis role="strong">sub-graphs</emphasis> that represent 
+<ulink url="kindyn-doc.html#KINEMATIC-CHAIN-INTERFACE">kinematic chains</ulink>,
+constraints or feature relationships.
+</para>
+</listitem>
+                                                                                
+</itemizedlist>
+</para>
+
+</section> 
+
+
+<section id="implementation-issues">
+<title>Implementation issues</title>
+<para>
+There are a couple of important decisions that must be taken by the
+library implementors:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Namespaces</emphasis>: most of the data
+structures and method calls are valid in 1D, 2D and 3D spaces. Hence,
+the introduction of corresponding namespaces can make the programming
+easier, because the (most often) redundant space dimension information
+need not be included in the method and data structure names.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Alternative representations</emphasis>: most
+physical properties can be mathematically represented in more than one
+way. Hence, in principle one should provide all method calls in
+different forms, where each form uses another representation. For
+example, the
+<link linkend="frame-move-method"><function>move</function></link>
+method to displace a <link linkend="frame">Frame</link> could take an
+<link linkend="htmatrix">homogeneousTransformationMatrix</link> as
+argument, or a <link linkend="vector">Vector</link> together with a
+set of <link linkend="euler-angles">EulerAngles</link> or a
+<link linkend="quaternion">quaternion</link>.
+</para>
+<para>
+This problem of alternative argument lists could be solved by
+<emphasis role="strong">overloading</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Alternative algorithms</emphasis>: many
+method calls can be implemented in more than one way, and the user can
+often want to be able to explicitly choose which algorithm is used.
+</para>
+<para>
+This problem of alternative argument lists could be solved by the
+<emphasis role="strong">strategy software pattern</emphasis>: the same
+method call is <emphasis role="strong">configured</emphasis> to use a
+particular algorithm at run-time.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+</article>
+

@@ -1,0 +1,485 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article class="techreport">
+
+<articleinfo>
+  <title>
+    Robot Application Programming Interface
+  </title>
+
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx@mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+ </author>
+
+ <copyright>
+  <year>2003</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="robot-api.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+ <revhistory>
+     <revision>
+        <revnumber>0.01</revnumber>
+        <date>13 May 2003</date>
+        <authorinitials>hb</authorinitials>
+        <revremark>First draft.</revremark>
+     </revision>
+ </revhistory>
+
+</articleinfo>
+
+<section id="introduction">
+<title>
+Motivation and overview
+</title>
+
+<para>
+This document describes and motivates what is needed in the programming
+interface for a generic robot.
+</para>
+
+</section>
+
+
+<section id="motion-interfaces">
+<title>
+ Motion interfaces
+</title>
+<para>
+Another document describes the interfaces
+for the &ldquo;internal&rdquo; relationships within one kinematic
+chain: the relationship between end-effector motion or force and joint
+motion and force. This Section describes the &ldquo;external&rdquo;
+<emphasis role="strong">motion</emphasis> interfaces of a
+kinematic chain: the functionalities of specifying the motion
+of (one of) the end-effector frames of the chain from
+&ldquo;<emphasis>A</emphasis>&rdquo; to
+&ldquo;<emphasis>B</emphasis>&rdquo;.
+</para>
+
+
+<section id="motion-trajectory-objects">
+<title>
+ Motion trajectory objects
+</title>
+
+<para>
+A first set of motion functionalities is concerned with the
+<emphasis role="strong">modelling of the trajectory</emphasis> that
+a chain's end-effector frame must travel. That is, the motion from
+&ldquo;<emphasis>A</emphasis>&rdquo; to
+&ldquo;<emphasis>B</emphasis>&rdquo; must be
+<emphasis role="strong">interpolated</emphasis> in motion segments of
+a smaller granularity. The simplest result of such an interpolation is
+an object that stores an ordered list of <emphasis>motion
+setpoints</emphasis>, i.e., <emphasis>poses</emphasis> to
+reach, together with the <emphasis>time</emphasis> when the
+end-effector has to be a that pose. The variety of algorithms comes
+from multiple sources:
+<itemizedlist>
+
+<listitem>
+<para>
+The motion setpoints contain not only position information, but also
+higher derivatives.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The setpoints are specified as 1D trajectories, or as
+higher-dimensional trajectories.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The trajectories are in joint space or in Cartesian space.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The setpoints have constant or non-constant spacing, both in time as
+in position.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<para>
+Here follows a (far from exhaustive) list of method calls. As in other
+Sections, the interfaces must be independent of dimensions and
+representations, because this information is encoded in the objects
+that are passed as arguments to the method calls.
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="trapezoidal-velocity">
+  <parameter>TrapezoidalVelocity</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="trapezoidal-acceleration">
+  <parameter>TrapezoidalAcceleration</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="trapezoidal-jerk">
+  <parameter>TrapezoidalJerk</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="spline-trajectory">
+  <parameter>SplineTrajectory</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="key-frame-trajectory">
+  <parameter>KeyFrameTrajectory</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="motion-property-tools">
+<title>
+ Trajectory property tools
+</title>
+<para>
+The following methods provide operations on 
+<link linkend="motion-trajectory-objects">trajectory objects</link>:
+</para>
+<para>
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="add-key-frame">
+  <parameter>AddKeyFrame</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="set-key-frame">
+  <parameter>SetKeyFrame</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="get-key-frame">
+  <parameter>GetKeyFrame</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="remove-key-frame">
+  <parameter>RemoveKeyFrame</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="add-key-frame-offset">
+  <parameter>AddKeyFrameOffset</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="set-key-frame-offset">
+  <parameter>SetKeyFrameOffset</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="get-key-frame-offset">
+  <parameter>GetKeyFrameOffset</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="remove-key-frame-offset">
+  <parameter>RemoveKeyFrameOffset</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="set-motion-setpoint">
+  <parameter>SetMotionSetpoint</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="get-motion-setpoint">
+  <parameter>GetMotionSetpoint</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="add-motion-generator">
+  <parameter>AttachMotionGenerator</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Attach one of the  available
+<link linkend="motion-generators">motion generators</link>.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="remove-motion-generator">
+  <parameter>DetachMotionGenerator</parameter>: 
+ </term>
+  <listitem>
+   <para>
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+<section id="motion-generators">
+<title>
+ Motion generators
+</title>
+<para>
+Users can manually construct a 
+<link linkend="motion-trajectory-objects">motion trajectory object</link>.
+This library contains the software to automatically
+<emphasis role="strong">generate</emphasis> such trajectory objects.
+</para>
+
+</section>
+
+
+<section id="motion-actions">
+<title>
+ Motion actions
+</title>
+<para>
+This library contains the methods that allow to control the
+<emphasis role="strong">execution</emphasis> of a specified
+<link linkend="motion-trajectory-objects">trajectory</link>,
+on a specified kinematic chain.
+Again, the interfaces are independent of the chosen device, the
+physical and mathematical representations, etc.
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="move-to">
+  <parameter>MoveTo</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Start a motion to a known end-point.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="move">
+  <parameter>Move</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Start a motion with specified instantaneous velocity/force, but with
+a continuously varying motion setpoint. The latter is typically generated
+on line by a sensor-processing component.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="freeze-motion">
+  <parameter>FreezeMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Immediately pauze the ongoing motion, in a safe and controlled way,
+and with the possibility to restart again.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="stop-motion">
+  <parameter>StopMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Immediately stop the ongoing motion, in a safe and controlled way,
+ without the need to restart again.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="abort-motion">
+  <parameter>AbortMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Immediately stop the ongoing motion, as quickly as possible.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="scale-motion-speed">
+  <parameter>ScaleMotionSpeed</parameter>: 
+ </term>
+  <listitem>
+   <para>
+ Continue the ongoing motion, but with a larger or smaller velocity
+than specified in the trajectory object.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="configuration-interface">
+<title>
+Configuration interface
+</title>
+                                                                                
+<para>
+Each Component offers its plug-ins configuration interfaces
+</para>
+                                                                                
+</section>
+
+
+<section id="functional-interface">
+<title>
+Functional interface
+</title>
+                                                                                
+<para>
+Reporting: per Component, each plug-in offers its possibilities
+</para>
+                                                                                
+<para>
+
+</para>
+                                                                                
+</section>
+
+
+</article>
+

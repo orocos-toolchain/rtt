@@ -1,0 +1,444 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo> 
+  <title>
+Generic <emphasis>Application Programming Interface</emphasis> design
+issues
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003&ndash;2004</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="deep-shallow-api.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>June 29, 2003</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>Initial draft.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>July 7, 2003</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>Added some remarks about &ldquo;multiple
+dispatching&rdquo;.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.03</revnumber>
+    <date>July 13, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Added introduction, a discussion about class and component APIs, and
+concrete API suggestions.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.04</revnumber>
+    <date>March 21, 2004</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>Extended the Class vs. Component discussion.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.05</revnumber>
+    <date>April 17, 2004</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Reworked all sections. Added section on data, execution and
+configuration flow API. Added section on interface semantics and
+application families. Outsourced the details of the discussion about
+classes versus components to its own document. Removed the section on
+push/pull.
+    </revremark> 
+  </revision>
+ </revhistory>
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document discusses various issues that influence the design of a
+programming interface (API), and provides guidelines for how APIs are
+chosen in the Orocos project. 
+ </para>
+ </abstract>
+
+
+
+</articleinfo> 
+
+<para>
+Robotics and machine tools are typical
+<emphasis role="strong">integration</emphasis> application areas:
+their controllers are the result of a combination of servo
+routines, kinematic routines, motion generation, hardware interfacing
+and event handling, command language interpretation, etc.
+The application programming interface (API) of such controllers
+inevitably becomes quite extensive, <emphasis>and</emphasis> the
+design and implementation of the whole system is necessarily a group
+effort, too big for one single programmer. 
+</para>
+<para>
+Hence, the designers and programmers need some guidelines on how to
+design APIs. This documents discusses a number of relevant issues to
+keep in mind when choosing an API.
+</para>
+
+
+
+<section id="deep-shallow">
+<title> Deep vs. Shallow </title>
+<para>
+This is a first distinction between two approaches to provide an API:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Deep API.</emphasis>
+Each specific robot or machine tool is a specialization of a generic
+class, let's say &ldquo;<function>robot</function>&rdquo;. From this
+generic class, one derives more concrete machine classes by
+<emphasis role="strong">inheritance</emphasis>. Every
+inheritance step adds one or more specific properties, such as: the
+number of driven axes; the kind of motion generation used; etc.
+</para>
+<para>
+This leads quickly to a very deep inheritance tree. And, in addition,
+this tree is very difficult to keep generally maintainable. For
+example, what would be the consequences on the API and on the
+inheritance tree of changing from a three axes machine to a five axes
+machine, if the level at which the number of axes has
+&ldquo;entered&rdquo; the inheritance hierarchy is somewhere &ldquo;in
+the middle&rdquo;? 
+</para>
+</listitem>
+<listitem>
+<para>
+<emphasis role="strong">Shallow API.</emphasis>
+Each of the domains that are integrated into a robot controller gets
+its own class hierarchy, fully <emphasis>decoupled</emphasis> from the
+other domains. (<ulink url="decoupling.html">This document</ulink>
+gives more details about the meaning and importance of
+&ldquo;decoupling&rdquo;.)
+This approach has two consequences: the API for each domain is not
+very deep (i.e., &ldquo;shallow&rdquo;), and the API for a specific
+machine tool or robot is built by
+<emphasis role="strong">composition/aggregation</emphasis> 
+of the APIs of the integrated domains.
+</para>
+</listitem>
+
+</itemizedlist>
+<note>
+<title>Orocos API choice</title>
+<para> 
+The complexity and variance of robotics and machine tool software
+systems is such that deep APIs are not a good idea. And hence, most of
+the Orocos library/component APIs will be shallow.
+</para>
+</note>
+</para>
+
+</section>
+
+
+<section id="data-execution-configuration">
+<title>Data flow&mdash;Execution flow&mdash;Configuration flow</title>
+<para>
+In a component-based software system, the components exchange
+information in various ways and for various purposes. In the API
+design process, it is useful to distinguish between three
+fundamentally different information exchange goals, which we call
+<emphasis role="strong">data flow</emphasis>,
+<emphasis role="strong">execution flow</emphasis>, and
+<emphasis role="strong">configuration flow</emphasis>:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Data flow</emphasis>
+is the task-specific information that components
+exchange between each other in a continuous (&ldquo;streaming&rdquo;)
+way, and which the components
+<emphasis role="strong">process</emphasis> with the
+functionality they have selected to run as the result of previous
+configuration flow and execution flow messages.
+</para>
+<para>
+Data flow methods are
+<emphasis role="strong">traditional method calls</emphasis> on
+objects: the method performs an &ldquo;operation&rdquo; on its inputs
+and generates the result as an output. So, the Data flow API should
+contain <emphasis>only</emphasis> methods that fit in this category;
+all other types of functionality belongs to the Execution or
+Configuration flow categories below.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Execution flow</emphasis>.
+In many configurations of a component-based software system,
+components can
+<emphasis role="strong">change their functionality in
+realtime</emphasis>, triggered by
+execution flow data. Typically, the execution flow consists of events
+that trigger a <emphasis role="strong">state machine</emphasis> in a
+component, and each state corresponds to a different functionality
+(&ldquo;input-output&rdquo; behaviour) of the component.
+</para>
+<para>
+Execution flow generates &ldquo;state changes&rdquo;, and hence is
+built on <emphasis role="strong">events</emphasis>. Note that the
+exact semantics of an execution flow action cannot be defined in the
+internals of one single object: the result depends on the
+<emphasis>distributed reaction</emphasis> of many components.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Configuration flow</emphasis>.
+From time to time, a (set of) components must be (re)configured, to
+make them load binary code that provides new, or updates existing,
+functionalities and behaviours.
+The data that is communicated within the system in order to achieve
+this (re)configuration is given the generic name of configuration
+flow. Configuration is typically not realtime, but requires some
+execution flow messages to bring the components to a
+&ldquo;configuration state&rdquo;, where functionality can be unloaded
+and loaded in a safe way.
+</para>
+<para>
+Configuration flow methods typically 
+<emphasis role="strong">apply to a whole application</emphasis>,
+<emphasis>i.e.</emphasis> a set of cooperating components.
+</para>
+</listitem>
+</itemizedlist>
+The APIs for each of the three above-mentioned functionalities are very
+different, and these 
+<emphasis role="strong">APIs should not be mixed</emphasis>. This is
+in accordance with the ideas behind 
+<link linkend="deep-shallow">small and shallow interfaces</link>:
+an application that provides data flow, execution flow as well as
+configuration flow functionality should <emphasis>compose</emphasis>
+its End User API from the separate data, execution and configuration
+flow APIs.
+</para>
+<para>
+Note that <link linkend="data-execution-configuration">Execution
+flow and Configuration flow</link> methods are natural for
+<ulink url="components-doc.html">components</ulink>, but exceptional
+for class libraries. In addition, the different types of components
+each have their own specific API methods. (See the above-mentioned
+document for more details.)
+</para>
+
+</section>
+
+
+<section id="multiple-dispatching">
+<title>Multiple dispatching</title>
+<para>
+Multiple dispatching is a programming technique that fits very well
+with (but is not a necessary nor sufficient condition for) shallow
+APIs: its benefit is that it offers <emphasis>polymorphism</emphasis>
+not only on the member function call, but also on the call's
+<emphasis>arguments</emphasis>, but it comes with runtime overhead.
+(<ulink url="http://jamesthornton.com/eckel/TIPatterns/html/Chapter12.html">This</ulink>
+is one of the links with some more information.) For example,
+multiple dispatching allows a generic motion call like
+<programlisting>
+ Move ( MyDevice, MyMotionGenerator, MyReferencePoint, MyController);
+</programlisting>
+where all of the arguments are specific implementation versions of the
+general concepts of a device, a motion generator, a reference point
+for which the motion is specified, and a controller with which to
+execute the motion. Note that for all these arguments, also the
+dimension of the motion (1D, 2D, 3D) need not be specified explicitly,
+but can be checked at compile time.
+</para>
+<para>
+Of course, there <emphasis>is</emphasis> overhead connected to
+multiple dispatching, caused by the
+<emphasis>run-time object inspection</emphasis> required 
+to find out the actual type of the arguments and to select the
+corresponding implementation. Hence, this technique is 
+<emphasis role="strong">not very well suited</emphasis> for:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis>Real-time algorithms</emphasis>, because of the
+type-checking overhead.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis>Frequent calls on distributed objects</emphasis>, because
+the &ldquo;inspection&rdquo; must travel back on forth over the
+network for each argument of the method call, <emphasis>and</emphasis>
+repeating the check for each of a series of identical calls is a waste
+of time.
+</para>
+</listitem>
+
+</itemizedlist>
+<note>
+<title>Orocos API choice</title>
+<para>
+Because of the run-time overhead, and the lack of support in many
+programming languages, multiple dispatching will remain an exception
+for most of the Orocos class libraries and components. It can be used
+for non-realtime commands that users give to an
+<emphasis>application</emphasis>.
+</para>
+<para>
+One of the concrete consequences is that the same conceptual
+functionality for 1D, 2D and 3D objects will be provided in separate
+libraries, with extremely similar but nevertheless not completely
+identical APIs.
+</para>
+</note>
+</para>
+
+</section>
+
+
+<section id="interface-implementation">
+<title>Interface semantics&mdash;Application families</title>
+
+<para>
+&orocos; has the ambitious goal to provide reusable software
+components for <emphasis>all</emphasis> possible feedback control
+applications. Reusability is facilitated a lot by consistency and
+minimalism of the component APIs. One big step to achieve consistency
+and minimalism is
+<ulink url="decoupling.html">semantic decoupling</ulink>: applications
+are put in <emphasis>families</emphasis>, such that: (i) all members in a 
+family have the 
+<emphasis role="strong">same interface semantics</emphasis>, and (ii)
+members within a family are distinguished by the specific values of a
+number of <emphasis role="strong">family properties</emphasis> (for
+example, the geometrical and physical parameters of their mechanical
+components). The 
+<ulink url="kindyn-doc.html#SERIAL321">Serial321</ulink>
+robots are an example of such an application family: they only differ
+in their link lengths, their artificially defined zero positions, and
+their base and end-effector frame positions.
+</para>
+<para>
+&ldquo;Same interface semantics&rdquo; means that each member of
+a family has exactly the same set of methods in its API, with the same
+<emphasis>method name</emphasis>, the same
+<emphasis>structure</emphasis> of arguments in the method prototype,
+and the same <emphasis>argument names</emphasis>. In addition, the
+<emphasis>effect</emphasis> of the method is the same for all members
+in the family.
+</para>
+<para>
+The concepts of <emphasis>interface semantics</emphasis> and
+<emphasis>application family</emphasis> are straightforward to
+generalize to one more level of abstraction: application families are
+collected in &ldquo;meta-families&rdquo; in which each member-family
+has <emphasis>formally</emphasis> the same API as all other
+member-families, but (some of) the <emphasis>types</emphasis> of the
+arguments in the method calls are different. These argument type
+differences come from differences in:
+<itemizedlist>
+
+<listitem>
+<para>
+the <emphasis role="strong">dimension of the device space.</emphasis>
+For example, all <emphasis>Serial</emphasis> robots form a
+meta-family of devices with the same API, but different argument
+types, <emphasis>i.c.</emphasis> the number of joints in their
+kinematic chain.
+</para>
+</listitem>
+
+<listitem>
+<para>
+the <emphasis role="strong">dimension of the task space.</emphasis>
+For example, all <emphasis>constrained motion applications</emphasis> 
+form a meta-family, where the different dimensions of the constrained
+and free subspaces of the task space are reflected in some of the
+method call arguments.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<para>
+Non-realtime components can use
+<link linkend="multiple-dispatching">multiple dispatching</link>
+to provide exactly the same API for a whole meta-family.
+Realtime components must use alternative solutions:
+<orderedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Virtual interfaces</emphasis>, with
+application-specific implementation through interface inheritance.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">
+ <ulink url="components-doc.html#SESSION-STATE">Session state</ulink>
+</emphasis>: the arguments are
+of the &ldquo;union&rdquo; type (in the sense of the C programming
+language), and the session state indicates which interpretation of the
+union is currently selected. (The session state is set via a method in
+the <link linkend="data-execution-configuration">Execution flow</link>
+API.)
+</para>
+</listitem>
+
+</orderedlist>
+<note>
+<title>Orocos API choice</title>
+<para> 
+A multiple dispatching API is appropriate for
+<emphasis>non-realtime components with low communication costs</emphasis>.
+</para>
+<para> 
+The virtual interface API is the method of choice for
+<emphasis>class libraries</emphasis>.
+</para>
+<para>
+The session state-based API is only available to
+<emphasis>components that have a session state</emphasis>.
+</para>
+</note>
+</para>
+
+</section>
+
+
+</article>
+

@@ -1,0 +1,674 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+    Decoupling in complex software systems
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx@mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="decoupling.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document describes the role of the concept
+&ldquo;decoupling&rdquo; in the design process of a complex software
+system such as robot control.
+ </para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>June 28, 2003</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>First stand-alone version. Started from section in
+kinematics and dynamics document.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>July 1, 2003</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>Explained &ldquo;semantic decoupling&rdquo; in more
+detail.</revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.03</revnumber>
+    <date>July 1, 2003</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>Reworked the material on symbolic, physical and
+mathematical properties.</revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+<section id="overview">
+<title> Overview and motivation</title>
+<para>
+The software design of the &orocos; project is driven by the desire
+<emphasis role="strong">to decouple</emphasis> the complex 
+robot control software problem into
+libraries of the &ldquo;right size&rdquo;, that can be developed by
+independent programmers. That means that the
+functionalities in the various libraries can be implemented without
+having to know anything about the implementation in the other
+libraries. Of course, the libraries can (and should) know each other's
+<emphasis role="strong">programming interfaces</emphasis>.
+It is immediately clear that the trade-off to be optimized is that of
+&ldquo;implementation efficiency&rdquo; versus &ldquo;programming
+complexity&rdquo;: knowing the
+implementation details of a set of related functionality gives
+opportunities for optimization, but quickly leads to a network of
+implementation interdependencies that is too complex for one single
+programmer to understand and to maintain, let alone to extend.
+</para>
+<para>
+So, finding this right-sized decoupling in a complex software system
+should be a major aim of its designers, since it is key to the
+software's flexibility and maintainability.  In addition, an
+appropriate decoupling also improves user-friendliness: when building
+their application, users have to know and understand only those
+modules that they need for their task, instead of having
+&ldquo;to cut away&rdquo; the functionality that they don't need. Or
+to fill their programs with
+<emphasis>&ldquo;feature not implemented&rdquo;</emphasis> messages.
+</para>
+<para>
+The text distinguishes between the following complementary forms of
+decoupling:
+<itemizedlist>
+
+<listitem>
+<para>
+<link linkend="semantic-decoupling">Semantic decoupling</link>:
+to separate the different
+<emphasis>meanings and physical properties</emphasis> of the encoded
+concepts in groups that &ldquo;belong together&rdquo; in all
+applications.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<link linkend="inter-connection-decoupling">Inter-connection
+decoupling</link>:
+to separate the properties of individual
+<emphasis>objects</emphasis> from the properties of
+the <emphasis>systems</emphasis> that can be built by inter-connecting
+these individual objects.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<link linkend="library-decoupling">Library structure decoupling</link>:
+to choose the appropriate granularity for the code libraries.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<link linkend="object-component-decoupling">Object-component
+decoupling</link>:
+to separate the <emphasis>implementation</emphasis> of software
+functionality (which is done in &ldquo;objects&rdquo;) from the
+<emphasis>usage</emphasis> of this functionality in a distributed and
+dynamically reconfigurable software system (which is provided by
+&ldquo;components&rdquo;).
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+<section id="semantic-decoupling">
+<title>Semantic decoupling (Symbolic, Physical and Mathematical
+properties)</title>
+
+<para>
+Designers of a complex software system should try hard to group the
+functionality of the system in
+<emphasis>semantically consistent</emphasis> modules:
+<itemizedlist>
+
+<listitem>
+<para>
+All the method calls in a module belong together
+&ldquo;in a natural way&rdquo;.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The interfaces of semantically appropriately decoupled modules are
+very easy to understand (or document) for someone familiar with the
+field.
+</para>
+</listitem>
+
+<listitem>
+<para>
+In principle, one single person suffices to completely design,
+implement and document the class.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Breaking the module into smaller modules would lead to inefficiencies
+and &ldquo;exposure&rdquo; of the module's internals: implementations
+in one module would need to know about the implementation of methods
+in the other module.
+</para>
+</listitem>
+
+</itemizedlist>
+This might sound as plain common sense, but in practice, most
+designers group functionalities together according to their
+<emphasis>application</emphasis> needs, and not according to their
+semantics.
+</para>
+<para>
+In the context of robotics and machine tools, many areas are already
+sufficiently mature such that semantically consistent modules are
+straightforward to recognize. Kinematics is one such area; 
+<ulink url="http://www.orocos.org/documentation/kindyn-doc.html">one</ulink>
+of the other design documents describes the &ldquo;internal&rdquo; and
+&ldquo;external&rdquo; kinematic interfaces, i.e., on the one hand the
+interfaces that deal with the joint space properties of mechanical
+structures (Jacobian matrices, singularities, redundancy resolution,
+efficient kinematics calculations, etc.), and on the other hand the
+interfaces that deal with Cartesian motion planning and modelling.
+Objects that <emphasis>naturally</emphasis> show up in the context of
+the &ldquo;internal&rdquo; kinematics and dynamics are: robots,
+frames, velocities, forces, motor torques, singularities.
+</para>
+<para>
+But the above-mentioned semantic decoupling can (should!) even be
+brought a step further. In the end, control computers do operations on
+the <emphasis>numbers</emphasis> that <emphasis>represent</emphasis>
+these objects, so most existing implementations provide only
+mathematical representations (&ldquo;coordinates&rdquo;) of all
+objects. But these mathematical representations are an incomplete
+representation of the properties of the kinematic objects: designers
+of a complex software system should recognize the
+<emphasis><link linkend="symbolic-term">symbolic</link></emphasis>,
+<emphasis><link linkend="physical-term">physical</link></emphasis> and
+<emphasis><link linkend="mathematical-term">mathematical</link></emphasis> 
+properties of their object classes:
+<itemizedlist>
+
+<listitem>
+<para>
+<anchor id="symbolic-term">
+<emphasis role="strong">Symbolic</emphasis> properties encode
+<emphasis role="strong">relationships</emphasis> or
+<emphasis role="strong">connections</emphasis> between objects from
+different classes. For example:
+<itemizedlist>
+
+<listitem>
+<para>
+Two robot links are connected by means of joints
+of a certain <emphasis>type</emphasis>: revolute, prismatic, Cardan, planar
+contact, etc. Both the fact that the links are connection, and the
+type of the connection, are examples of symbolic information.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The six numbers that represent a robot's
+end-effector velocity are expressed with respect to the robot's base
+frame, and in a particular set of physical units. Again, these are
+examples of connection and type information.
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <emphasis>point</emphasis> in space often represents a location on a rigid
+body, and hence is constrained to move together with that body. This
+topological constraint is symbolic information.
+</para>
+</listitem>
+
+<listitem>
+<para>
+A <emphasis>line</emphasis> can be defined in several ways: the
+connection between two points, the intersection between planes, the
+normal on a plane, etc.  Again, this information constrains the
+interpretation of the line's coordinates, and is
+symbolic information.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+</listitem>
+
+<listitem>
+<para>
+<anchor id="physical-term">
+<emphasis role="strong">Physical</emphasis> properties
+encode the <emphasis role="strong">real-world properties</emphasis>
+of an object, in a
+<emphasis role="strong">coordinate-independent</emphasis> way.
+So, physical class libraries provide the
+<emphasis role="strong">names of the method calls</emphasis>
+that correspond to the operations with physical sense.
+Experience has shown that the mixing up of coordinate properties
+(e.g., &ldquo;addition is possible&rdquo;) with physical properties
+(&ldquo;addition is devoid of any physical meaning&rdquo;) often leads
+to inconsistent software modules, and/or to incompatibilites when
+integrating two or more of these software modules.
+For example:
+<itemizedlist>
+
+<listitem>
+<para>
+It is physically meaningful to add two
+instantaneous six-dimensional forces on a rigid body, but not to take
+their &ldquo;Euclidean vector in-product&rdquo;.
+</para>
+</listitem>
+
+<listitem>
+<para>
+It is physically
+meaningful to define <emphasis>the</emphasis> relative velocity of two
+bodies, but not to add two such relative velocities if both are
+encoded with different numeric velocity representations.
+</para>
+</listitem>
+
+<listitem>
+<para>
+It is physically meaningless <emphasis>to add</emphasis> two points or
+two lines together, even though nothing prevents this action on the
+numeric coordinate representations of the two points or lines. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+It is meaningful to discuss some properties of the instantaneous
+center-of-mass of a mechanical system, without having to rely on
+coordinates.
+</para>
+</listitem>
+
+</itemizedlist>
+The same real-world system will often be described by
+<emphasis role="strong">more than one physical model</emphasis>,
+depending on the level of detail or computational efficiency one wants
+to achieve. For example, very often simple
+&ldquo;lumped-parameter&rdquo; kinematics models of robots suffice,
+but sometimes one needs &ldquo;infinite-dimensional&rdquo; models,
+e.g., to represent flexibilities of robot links.
+The information about what physical model is used is of 
+<emphasis><link linkend="symbolic-term">symbolic</link></emphasis>
+nature.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<anchor id="mathematical-term">
+<emphasis role="strong">Mathematical</emphasis> properties do not show
+up as separate <emphasis>method calls</emphasis>, but as the 
+<emphasis role="strong">numeric arguments</emphasis> of the physical
+and symbolic method calls.
+(Of course, there are exceptions, e.g., mathematical algorithms
+(linear algebra, solutions of differential equations, etc.) do have
+method class names that are of a pure mathematical nature.)
+</para>
+<para>
+The same physical or symbolic property is often described by more than
+one <emphasis role="strong">mathematical representation</emphasis>.
+For example:
+<itemizedlist>
+
+<listitem>
+<para>
+Reference frames are represented by Denavit-Hartenberg numbers, or by
+a homogeneous transformation matrix.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The <emphasis>order</emphasis> of the coordinates  in a
+coordinate vector is often very arbitrary. For example, each of the
+two three-dimensional vectors in the six-dimensional instantaneous
+velocity vector (&ldquo;screw&rdquo;) can be placed first or last in a
+six-dimensional coordinate vector. This choice influences the
+compatibility between software modules that have to interact at the
+rigid body velocity level.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+</listitem>
+
+</itemizedlist>
+<emphasis>All</emphasis> classes in a software system should use 
+standardized mathematical representations at all times, because such
+consistency facilitates integration and maintenance efforts.
+The choice of physical units is very important; Orocos adopts the 
+<emphasis role="strong">SI units</emphasis> as standard (and should
+provide conversion routines to other unit systems).
+</para>
+
+</section>
+
+
+<section id="inter-connection-decoupling">
+<title>Inter-connection decoupling (the
+<emphasis><link linkend="OPC-pattern">Object-Port-Connector</link></emphasis>
+software pattern)</title>
+<para>
+The above-mentioned example of kinematics and dynamics is just one of
+the many engineering areas in which most of the interesting properties
+of systems arise from
+<emphasis>connecting</emphasis> simpler systems together. For example,
+a robot consists of motors, links, joints and grippers, and none of
+these components is very useful in itself. The properties of
+the individual components are limited, and can easily be encoded in
+small-scale library modules. The inter-connection possibilities and
+applications, however, are much broader and more difficult to
+exhaustively describe and encode in advance. Hence, it is advantageous
+to decouple the encoding of the elementary building blocks from the
+encoding of their interactions. This document presents the
+<anchor id="OPC-pattern">
+<emphasis role="strong">Object-Port-Connector software
+pattern</emphasis> to achieve this decoupling
+(<xref linkend="fig-opc-pattern">):
+
+<figure id="fig-opc-pattern" float="1" pgwide="1">
+<title>
+ Object-Port-Connector pattern.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/opc-pattern.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../opc-pattern.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Objects</emphasis> are the &ldquo;building
+blocks&rdquo; with which <emphasis>systems</emphasis> can be built.
+For example: a rigid body; a revolute joint; a 
+linear spring; a torsional damper; etc. Each of these physical Objects
+is encoded in (a set of) software class(es), representing 
+all symbolic, physical and mathematical properties of the
+Object.
+</para>
+<para>
+In addition, a <emphasis>composite Object</emphasis>, such as a robot, can
+also act as an elementary Object in a particular context. For example,
+for some applications, it suffices to see a robot as nothing more than
+an ideal &ldquo;rigid body motion device&rdquo; that executes 3D
+motion commands. So, Objects can be composed hierarchically, in the
+sense that one Object can internally consist of the inter-connection
+of other Objects. In practice, composite Objects are only useful if
+their interface remains &ldquo;small&rdquo;, i.e., of the order of
+complexity of the interface of elementary Objects.
+</para>
+</listitem>
+<listitem>
+<para>
+<emphasis role="strong">Ports.</emphasis>
+Each Object has several &ldquo;Ports&rdquo; where it can
+<emphasis>interact</emphasis> with other Objects. In
+kinematics and dynamics, such Ports are often represented by
+<emphasis>reference frames</emphasis> on a rigid body, but various
+other <emphasis>types</emphasis> of Ports are possible for each
+Object.  Each Port has a well-defined set of (symbolic, physical,
+mathematical) <emphasis>parameters</emphasis> that are influenced by
+the interaction with other Objects. These parameters, of course, can
+only be related to properties of the Object to which the Port is
+connected.
+</para>
+</listitem>
+<listitem>
+<para>
+<emphasis role="strong">Connector.</emphasis>
+Objects can physically interact with each other in various ways. For
+example, two rigid bodies can interact through a revolute joint,
+or through an <emphasis>edge-edge</emphasis> contact. Different
+connections impose different <emphasis>constraints</emphasis> on the
+properties of both connected Objects.  The
+<emphasis>connector</emphasis> encodes all the information of the
+constraints that the interaction imposes on the connected Objects;
+typically, this results in a set of
+<emphasis>algebraic constraints</emphasis> on the physical values that
+are accessible at the Port objects the Connector is attached to.
+</para>
+<para>
+When the software system is in use, it is easy to find
+out the current <emphasis>values</emphasis> of all physical interaction
+parameters in the inter-connected system: the Connector is the
+<emphasis>unique</emphasis> place where this information must be asked.
+For example, the relative velocity of two connected links is to be
+found in the revolute joint Connector that links them. The same
+Connector knows what force is transmitted through the joint.
+</para>
+<para>
+Although the Connector is the right place <emphasis>to ask</emphasis>
+for actual values, it doesn't necessarily have store these values itself.
+It does know at which Ports it can find this information,
+<emphasis>and</emphasis> it knows whether it must ask the Ports to
+update this information with the most recent status of the constraint
+encoded in the Connector.
+</para>
+</listitem>
+
+</itemizedlist>
+This Object-Port-Connector pattern has several positive consequences:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Smaller interfaces,</emphasis>
+because the whole set of properties and functionalities is decoupled in
+entities with a much smaller scope: the Object properties, the Port
+parameters, and the Connector constraints. In addition, the fact that
+the concept (and the corresponding software infrastructure!) is
+available to inter-connect elementary functionality into more complex
+systems allows to make this flexibility visible at the class interface
+level: it's not necessary anymore to define a top-level object
+&ldquo;robot&rdquo; with an API that covers all possible kinematic
+structures or dynamic interactions, or all possible control laws or
+motion planning algorithms. Instead, each particular application has
+its own particular API that is the <emphasis>composition</emphasis> of
+the APIs of (only) its building blocks.
+</para>
+<para>
+So, in summary, smaller interfaces lead to smaller code libraries,
+more focused documentation, easier code maintenance, and easier
+incremental development.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Consistency through construction.</emphasis>
+Each Connector can only connect Ports of particular types, and those
+types prescribe the physical properties of the inter-connection. This
+&ldquo;strong typing&rdquo; makes it difficult to construct
+inconsistent systems.
+</para>
+<para>
+The potential of consistency-by-construction is only realized
+<emphasis>if</emphasis> the software objects that represent an
+inter-connected system are indeed <emphasis>constructed</emphasis>
+connection by connection, while checked for consistency at the moment
+the connection is made.  The software engineering world has, since
+long, discovered the usefulness of this approach, and developed the
+<emphasis role="strong">Factory</emphasis> software pattern to realize
+it: objects are constructed before they are used, according to the
+Factory's particular &ldquo;inter-connection&rdquo; schema that
+guarantees consistent initialization.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Multi-domain flexibility.</emphasis>
+Since the information about any individual physical interaction
+between two Objects is managed by a Connector object, it is easy to
+add Connectors for interaction between objects of different
+<emphasis>physical domains</emphasis>. For example, a motor transforms
+electrical energy into mechanical energy; a damper transforms
+mechanical energy into thermal energy. Etcetera.
+</para>
+<para>
+In addition, the same principle can be used to connect different
+<emphasis>graphical visualisations</emphasis> to a mechanical system
+(or any dynamical system, for that matter).
+For example, one Connector links a robot link with a 3D CAD model,
+while another Connector links the same link to an iconic programming
+or monitoring interface.
+</para>
+</listitem>
+
+</itemizedlist>
+The drawback of the Object-Port-Connector pattern is that the
+<emphasis>modelling</emphasis> and <emphasis>initialisation</emphasis>
+efforts for small-scale systems can be somewhat more involved than in
+most existing special-purpose implementations. But this sytematic
+approach will avoid many problems when the systems under study become
+more complex. 
+</para>
+<para>
+The Object-Port-Connector pattern is also useful to link the symbolic,
+physical and mathematical classes of the same object.  The former two
+have Ports that connect to (possibly multiple) mathematical objects.
+</para>
+
+</section>
+
+
+<section id="library-decoupling">
+<title>Library structure decoupling</title>
+<para>
+In the process of choosing the most appropriate directory structure
+for the software code, one should keep in mind that, in general,
+independence between software libraries is maximized if:
+<itemizedlist>
+
+<listitem>
+<para>
+The dependency graph is a <emphasis role="strong">tree</emphasis>, or
+a set of non-connected trees: libraries only use functionality from
+libraries that are higher up in the tree, or that are in a
+disconnected tree.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Each library can be understood, developed and maintained by a
+<emphasis role="strong"> very small set</emphasis> of people.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The implementation of classes in one library doesn't have 
+<emphasis role="strong">to know anything</emphasis> about how the
+functionality in other libraries is <emphasis>implemented</emphasis>.
+(It has to know the interfaces, of course.)
+</para>
+</listitem>
+
+</itemizedlist>
+Hence, it is also easier to &ldquo;spin-off&rdquo; libraries in
+stand-alone software projects, as soon as they appeal to a wider
+public than that of the project where the library was originally
+developed.
+</para>
+
+</section>
+
+
+<section id="object-component-decoupling">
+<title>Object-component decoupling</title>
+
+<para>
+Object-oriented design is the key approach towards encoding the
+functionality of a software system into manageable pieces. Hence,
+object-orientation is basically a concern for
+&ldquo;programming-in-the-small&rdquo; software
+<emphasis>developers</emphasis>, who write code that offers
+functionality, as much as possible independently of the application in
+which the code is going to be applied.
+</para>
+<para>
+Component-based design, on the other hand, is a key approach to
+support the &ldquo;programming-in-the-large&rdquo; 
+<emphasis>application builders</emphasis>: they integrate
+functionalities of various objects into one particular application,
+and add <emphasis>middleware</emphasis> infrastructure such as:
+service identity management, access functionality, persistent state
+functionality, configuration interfaces, service request interfaces,
+etc. 
+</para>
+<para>
+It is worthwhile to decouple the object code from the component
+code, because the latter invariably and inherently involves
+<emphasis role="strong">application-specific coupling</emphasis>
+between software functionalities. 
+</para>
+<para>
+The <ulink url="http://www.omg.org">Object Management Group</ulink>'s
+<ulink url="http://www.corba.org">Common Object Request Broker
+Architecture (CORBA)</ulink> is a major development in the area of
+(vendor, language and platform) neutral programming interfaces for both
+Objects and Components.
+</para>
+
+</section>
+
+
+</article>
+

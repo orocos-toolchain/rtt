@@ -1,0 +1,300 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo> 
+  <title>
+Components
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2004</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="components-doc.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>16 April, 2004</date>
+    <authorinitials>HB</authorinitials>
+    <revremark>Initial version.</revremark> 
+  </revision>
+ </revhistory>
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document discusses the meaning of the term
+&ldquo;component&rdquo; in the Orocos project.
+ </para>
+ </abstract>
+
+</articleinfo> 
+
+
+<section id="component-based-control">
+<title>Component-based feedback control</title>
+
+<para>
+&orocos; is a software framework for feedback control applications,
+and has the ambition to profit optimally from its competitive
+advantages: 
+<itemizedlist>
+
+<listitem>
+<para>
+Its <emphasis role="strong">Free Software</emphasis> property offers
+unparallelled opportunities for code and design reuse. This means that
+&orocos; components will be as small-grained as possible. The lower
+limit of this granularity is imposed by the principle of
+<ulink url="decoupling.html">decoupling</ulink>: functionality is
+taken together in a component as long as one part of the
+implementation <emphasis>has</emphasis> to be aware of the internal
+workings and structure of the other parts, at least if one cares about
+efficiency of the code. 
+</para>
+<para>
+This decoupling property makes it initially a bit more hard to design
+and implement controllers, but the long-term pay-off is expected to be
+large: much better reuse, components with small interfaces that are
+easy to understand, better maintainability, opportunities for
+optimization of an application, etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Its has <emphasis role="strong">no legacy</emphasis> customers to care
+for. That means that it can start from scratch with the new software
+engineering that underlies &orocos;. We call it the 
+<emphasis>Software Pattern for feedback control</emphasis>. One of its
+major advantages is the strict separation of 
+<ulink url="deep-shallow-api.html#DATA-EXECUTION-CONFIGURATION">data
+flow, execution flow and configuration flow</ulink>, which gives
+cleaner interfaces, smaller class libraries, more opportunities to
+synchronize realtime execution of control functionality, etc.
+This approach is quite different from most existing industrial control
+applications, where the PLC
+(<emphasis>Programmable Logic Controller</emphasis>) devices take a
+central role, although they lead in practice to a very high level of
+coupling between different software modules: they are used for such
+diverse things as making decisions, running execution logic state
+machines of functionality that partially runs elsewhere, interfacing
+hardware, running control loops, etc.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<para>
+&ldquo;Component-based&rdquo; programming means
+</para>
+
+</section>
+
+<section id="class-component">
+<title>Class vs. Component </title>
+
+<para>
+This Section gives a brief overview of the differences
+between <emphasis>class-based</emphasis> and
+<emphasis>component-based</emphasis> programming:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Class-based.</emphasis>
+The &ldquo;lowest level&rdquo; of functionality in every software
+system is implemented in (object-oriented) libraries. These libraries
+typically have a large number of classes (and corresponding method
+calls with argument lists), to cover all the different types of
+functionality in the system. For example, the kinematics and dynamics
+for a set of kinematic families, or various motion generation
+algorithms, in both 2D and 3D, etc. Each particular functionality is
+implemented in a class method call with a <emphasis>unique
+name</emphasis> and a <emphasis>precise list of arguments</emphasis>.
+</para>
+<para>
+Typically, class-based programming has a
+<emphasis role="strong">fine-grained</emphasis> API: one
+combination of &ldquo;method&rdquo; and &ldquo;argument list&rdquo;
+for one particular functionality of an object from the class, and
+<emphasis>all information</emphasis> necessary to execute the desired
+functionality comes from two sources: (i) it is passed as arguments to
+the method, and (ii) it is derived from the
+<emphasis role="strong">functional state</emphasis> of the object.
+Part of this state is <emphasis>visible</emphasis> to the caller,
+part is <emphasis>hidden</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Component-based</emphasis> programming is much
+more <emphasis role="strong">coarse-grained</emphasis>: each component
+provides multiple &ldquo;services&rdquo; to multiple
+&ldquo;clients&rdquo;, and at each particular moment, the result of
+the requested service is not only determined by the
+information in the service request call and the functional state of the
+classes in the component, but (possibly to a very large extent) also
+by the <emphasis role="strong">session state</emphasis> of the
+provided service. That is, the state information that the servicing
+component stores not about itself, but about its 
+<emphasis role="strong">interaction with the client</emphasis>.
+</para>
+<para>
+Component-based programming is also more coarse-grained, because
+&ldquo;client&rdquo; and &ldquo;server&rdquo; have a lower number
+of interactions (<emphasis>i.e.</emphasis> service request calls)
+than interacting objects, and data is exchanged in larger data
+structures. The reason is that components are often distributed over a
+network, and hence each interaction induces a communication overhead
+cost.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+
+<section id="corba-ccm">
+<title>CORBA Component Model (CCM)</title>
+
+<para>
+The
+<ulink url="http://www.omg.org/technology/documents/formal/components.htm">CORBA
+3.0</ulink>
+specification of the <emphasis>CORBA Component Model</emphasis> (CCM)
+standardizes four categories of components, featuring different usage
+of functional and external state:
+<itemizedlist>
+
+<listitem>
+<para>
+A <emphasis role="strong">Service component</emphasis> is nothing more
+than a wrapper around class-based functionality. The component keeps
+<emphasis role="strong">no state</emphasis> of itself
+(&ldquo;functional state&rdquo;) or of its client interactions
+<anchor id="session-state">
+(&ldquo;<emphasis role="strong">session state</emphasis>&rdquo;), and
+it has <emphasis role="strong">no identity</emphasis> with which it
+can be identified by clients. So, a service component is useful for 
+<ulink url="deep-shallow-api.html#DATA-EXECUTION-CONFIGURATION">data flow</ulink> service
+requests, that have no duration beyond the lifetime of a single client
+interaction. All the data needed in the service is contained in the
+method call of the service.
+</para>
+<para>
+In Orocos, a possible Service component could be: a
+<ulink url="motion-api.html">motion generator</ulink> that one can ask
+to calculate a path from point <emphasis>A</emphasis> to point
+<emphasis>B</emphasis>, whose coordinates are given as arguments in
+the service request.
+</para>
+</listitem>
+
+<listitem>
+<para>
+A <emphasis role="strong">Session component</emphasis>
+is useful for things like &ldquo;iterators&rdquo;, which require the
+storage of the session state of the client, for the 
+<emphasis>lifetime of one interaction</emphasis> with that client. The
+component does not need persistent storage for the
+<emphasis>whole lifetime</emphasis> of the client.
+(&ldquo;Persistent&rdquo; means: recoverable also after shutdown and
+reboot of the system.) The component also doesn't need to export to
+the client <emphasis>identity information</emphasis>
+(<emphasis>i.e.</emphasis> session state) about the service
+it provides: knowing the state of the client interaction is enough,
+and it doesn't have to reserve one particular, identifiable thread of
+execution to the client.
+</para>
+<para>
+In summary, a Session component has a
+<emphasis role="strong">non-persistent session state</emphasis>, and a
+<emphasis role="strong">non-persistent identity</emphasis>.
+</para>
+<para>
+In Orocos, a possible Session component could be: a &ldquo;Dynamics
+Server&rdquo; that one can ask to calculate the dynamic equations
+during a whole task of a robot.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Entity component.</emphasis>
+An Entity component is useful for managing all the information about a
+client, <emphasis role="strong">during the whole lifetime</emphasis>
+of the client, <emphasis>i.e.</emphasis> it has to keep this
+information also between successive shutdowns and reboots of the
+system. So, it has a
+<emphasis role="strong">persistent state</emphasis> and a
+<emphasis role="strong">persistent identity</emphasis>, which are both
+visible to its clients.
+</para>
+<para>
+In Orocos, a possible Entity component could be: a &ldquo;Robot
+Server&rdquo; that manages the data of one particular robot system
+over its whole lifetime: kinematic parameters; control gains; current
+configuration; loaded and available task programs; total amount of
+operational hours; failure and repair logs; etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Process component.</emphasis>
+The Process component is intended to model objects that represent
+<emphasis>business processes</emphasis> (e.g., applying for a loan,
+creating an order, etc.) rather than entities (e.g., customers,
+accounts, etc.). A Process component has a
+<emphasis role="strong">persistent state</emphasis> (which is not
+visible to the client), and a
+<emphasis role="strong">persistent identity</emphasis> (which
+<emphasis>can</emphasis> be made visible to the client).
+</para>
+<para>
+The major difference between Process and Entity components is that the
+Process component does not expose its persistent identity to the
+client (except through user-defined operations).
+</para>
+<para>
+In Orocos, a possible Process component could be: the manager of a
+production cell, that delivers certain services to the clients,
+without providing them with the exact information about which robots
+or machine tools are used in the process, and how exactly they are
+delivering the service.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+</article>
+

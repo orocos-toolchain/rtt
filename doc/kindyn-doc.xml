@@ -1,0 +1,2387 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+    Kinematics and dynamics of kinematic chains
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003&ndash;2004</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="kindyn-doc.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document presents 
+<ulink url="deep-shallow-api.html#STATELESS-STATEFUL">the class
+hierarchies</ulink> and their respective APIs, for
+the joint-space&ndash;Cartesian-space kinematics
+and dynamics of robots (manipulator arms, mobile robots, walking
+robots, etc.), machine tools, and computer animation characters: the
+representations of the various families of kinematic chains; the
+representation of joint position and motion; the position, velocity,
+acceleration, force and impedance transformations between joint space
+and Cartesian end-point space; singularities and configurations of the
+kinematic structure; etc.
+</para>
+<para>
+The <emphasis>(Cartesian) motion</emphasis> classes (i.e., the modelling
+and specification of the motion of rigid bodies and &ldquo;Tool Centre
+Points&rdquo;) are described in
+<ulink url="motion-api.html">another document</ulink>.
+ </para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>May 7, 2003</date>
+    <authorinitials>HB</authorinitials>
+  </revision>
+  <revision>
+   <revnumber>0.02</revnumber>
+   <date>May 23, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Moved motion API to separate document.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.03</revnumber>
+   <date>June 29, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Moved section about &ldquo;decoupling&rdquo; to a separate document.
+More details on the classes for geometric primitives, and rigid body
+motion primitives.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.04</revnumber>
+   <date>July 7, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>Changed title. Added figures for Object-Port-Connector,
+kinematic chains, frame sets. Added more extensive discussion about
+generic (conceptual and concrete) APIs, and about the concrete
+joint-space kinematics API.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.05</revnumber>
+   <date>July 13, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Moved section about general dynamics to a
+<ulink url="general-dynamics-doc.html">separate document</ulink>.
+Moved the discussion on symbolic, physical and mathematical properties
+to the 
+<ulink url="decoupling.html">decoupling document</ulink>.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.06</revnumber>
+   <date>July 22, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Extensions to all sections, iterating on all interfaces, and on the
+requirements and choices for API definitions.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.07</revnumber>
+   <date>August 20, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Filled in conventions and choices for the 
+<link linkend="serial321">Serial321</link> family.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.08</revnumber>
+   <date>November 1, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Added <link linkend="hyperredundant-serial">HyperredundantSerial</link>
+family. Removed ActuatedJoint.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.09</revnumber>
+   <date>December 5, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Extended the discussion on implicit/explicit arguments in method
+calls.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.10</revnumber>
+   <date>March 21, 2004</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Added sections on redundancy and constraints, and on numeric
+algorithms.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.11</revnumber>
+   <date>April 19, 2004</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Reworked all sections.
+   </revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+<section id="introduction">
+<title> Introduction </title>
+<para>
+Kinematics and dynamics deal with the <emphasis>motion</emphasis>
+analysis and generation for
+<emphasis>kinematic chains</emphasis> of interconnected (rigid) bodies.
+What motions can the chain generate for one or more reference frames
+on its links? What forces can the chain withstand? And how are these
+motions and forces related to the motions and the forces of the motors
+that drive the chain?
+</para>
+<para>
+Typical <emphasis role="strong">users</emphasis> of kinematic devices
+are interested in the motion of one or more
+<emphasis>reference points</emphasis> or
+<emphasis>reference frames</emphasis> on the device's
+&ldquo;end-effector&rdquo; (so-called &ldquo;Tool Centre Points&rdquo;),
+and want <emphasis>to analyse</emphasis> and
+<emphasis>to program</emphasis> their motions in (1D, 2D or 3D) space,
+without having to know exactly how these motions are generated by the
+motors.
+</para>
+<para>
+Typical <emphasis role="strong">designers</emphasis> of mechanical
+<emphasis role="strong">devices</emphasis> are interested in providing
+the best solution to generate the motions that their target user
+public wants to achieve. So, they are concerned about the physical
+joint-space structure of the devices.
+</para>
+<para>
+Typical <emphasis role="strong">developers</emphasis> of kinematics
+and dynamics <emphasis role="strong">software</emphasis> are
+interested in modelling the kinematic and dynamic properties of the
+mechanical structures, to an <emphasis>appropriate</emphasis> level of
+detail that supports <emphasis role="strong">both</emphasis> users and
+designers.
+Developers are interested in maximum efficiency of their code; they do
+not want to introduce &ldquo;overhead code&rdquo; for functionality
+the users and designers are not interested in, but, at the same time,
+they want to make their code ready for as many future applications as
+possible.
+</para>
+
+<para>
+This text is part of a larger series of design documents, driven by
+the desire to decouple the full robot kinematics and dynamics software
+problem into independent class libraries and components of the
+&ldquo;right size&rdquo;.  So, the reader is advised to read the
+documents on <ulink url="deep-shallow-api.html">APIs</ulink>,
+<ulink url="decoupling.html">decoupling</ulink>;
+especially the discussions on the
+<emphasis role="strong">
+ <ulink url="decoupling.html#INTER-CONNECTION-DECOUPLING">Object-Port-Connector</ulink>
+</emphasis>
+software pattern, on the importance of
+<emphasis role="strong">semantic decoupling</emphasis>, on the
+differences between
+<emphasis role="strong">symbolic, physical and mathematical</emphasis>
+properties, and on the 
+<ulink url="components-doc.html#CLASS-COMPONENT">differences</ulink>
+between class and component APIs.
+</para>
+<para>
+The <emphasis>Object-Port-Connector</emphasis>
+software pattern fits very well to kinematic chains:
+the rigid bodies are the <emphasis>Objects</emphasis>; the rigid
+bodies have one or more reference frames that carry
+<emphasis>Ports</emphasis>; at these Ports, joints are connected,
+acting as <emphasis>Connectors</emphasis> between the rigid bodies in
+the chain. If the chain explicitly models motors and transmissions,
+the Software Pattern applies to their interconnection too; for
+example, an (ideal) transmission is a Connector between a motor Object
+and a joint Object.
+</para>
+
+</section>
+
+
+
+<section id="joint-space">
+<title> Joints </title>
+<para>
+This Section describes representations, properties and methods for the 
+joints in a kinematic chain. Later Sections discuss the related
+kinematic concepts of <link linkend="motor-space">motors</link> and
+<link linkend="motor-space">transmissions</link>.
+</para>
+
+
+<section id="joint-classes-symbolic">
+<title>Symbolic properties</title>
+
+<para>
+The items in this section complement the numerical data in the 
+<link linkend="joint-mathematical">mathematical classes</link>.
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-dimension">
+  <parameter>NumberOfJoints</parameter>:
+ </term>
+  <listitem>
+  <para>
+  number of joints in a
+  <link linkend="joint-mathematical">joint vector</link>.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-type">
+  <parameter>JointProperty</parameter>:
+ </term>
+  <listitem>
+  <para>
+  the symbolic interpretation of the
+  <link linkend="joint-mathematical">joint vector</link>. For example, an
+<emphasis>actual</emphasis> value, or a <emphasis>desired</emphasis> value,
+or an <emphasis>error</emphasis>, etc.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-units">
+  <parameter>PhysicalUnits</parameter>:
+ </term>
+  <listitem>
+  <para>
+  vector with the physical units for each element in a 
+  <link linkend="joint-mathematical">joint vector</link>.
+  </para>
+  <para>
+The default physical units are as follows: angular joint quantities
+use <parameter>radians</parameter> or
+<parameter>Newton meters</parameter>, linear joint quantities use
+<parameter>meters</parameter> or <parameter>Newtons</parameter>; time
+is expressed in seconds. But the 
+  <parameter>PhysicalUnits</parameter> vector is also used to
+represent the physical units of stiffnesses, inertias, etc., so it
+then contains other appropriate units.
+  </para>
+
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="joint-mathematical">
+<title>Mathematical representations</title>
+<para>
+<anchor id="joint-vector-coordinates">
+These classes contain
+<emphasis>numeric coordinate representations</emphasis>.
+(The <link linkend="joint-physical-methods">following section</link>
+discusses the <emphasis>method calls</emphasis> that work with these
+coordinates.)
+The coordinates are typically floating point &ldquo;vectors&rdquo;,
+consistent with the
+<link linkend="joint-vector-dimension">number of joints</link> and 
+with the <link linkend="joint-vector-units">physical units</link>.
+The word <emphasis>vector</emphasis> is used in the meaning it
+has in the STL (Standard Template Library) standard: an ordered set of
+data of the same type. The <emphasis>order</emphasis> is important
+(hence we do not use lists, or STL &ldquo;sets&rdquo; or &ldquo;bags&rdquo;),
+because in many cases vectors offer a very efficient encoding of the
+<emphasis>connectivity</emphasis> of the chain.
+</para>
+<para>
+<variablelist>
+<title>Kinematics</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-positions">
+  <parameter>JointPosition</parameter>:
+ </term>
+ <listitem>
+  <para>
+  Actual, desired, measured, estimated, maximum, minimum,
+  deformation, error, &hellip; positions of joints. 
+</para>
+<para>
+<emphasis role="strong">Strict type-checking</emphasis> requires the
+introduction of separate &ldquo;child&rdquo; classes for each of these
+different types of <parameter>JointPosition</parameter>s. Alternatively,
+the interpretation of a <parameter>JointPosition</parameter> could be given
+in a <link linkend="joint-classes-symbolic">symbolic property</link>.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-velocities">
+  <parameter>JointVelocity</parameter>:
+ </term>
+ <listitem>
+  <para>
+   idem, for velocities.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-accelerations">
+  <parameter>JointAcceleration</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for accelerations.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-forces">
+  <parameter>JointForce</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for forces.
+  </para>
+ </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Joint space dynamics</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-stiffness">
+  <parameter>JointStiffness</parameter>: 
+ </term>
+ <listitem>
+  <para>
+A vector of floating point numbers, representing the (instantaneous)
+stiffness value of the joint-tranmission-motor combination.
+  </para>
+  <para>
+In general, the <parameter>JointStiffness</parameter> vector is
+accompanied by a symbolic <parameter>PhysicalUnits</parameter> property
+vector.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-compliances">
+  <parameter>JointCompliance</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for (instantaneous) compliance, <emphasis>i.e.</emphasis> inverse
+stiffness.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-damping">
+  <parameter>JointDamping</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for (instantaneous) damping value.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-inverse-damping">
+  <parameter>JointInverseDamping</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for (instantaneous) inverse damping value.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-inertis">
+  <parameter>JointInertia</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for (instantaneous) inertia value.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-mobility">
+  <parameter>JointMobility</parameter>, 
+  <parameter>JointInverseInertia</parameter>: 
+ </term>
+ <listitem>
+  <para>
+  idem, for (instantaneous) mobility (= inverse inertia) value.
+  </para>
+ </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Kinematic chain dynamics</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="chain-inertia-matrix">
+  <parameter>ChainInertiaMatrix</parameter>:
+ </term>
+ <listitem>
+  <para>
+  This is a square matrix, with a dimension equal to the number of
+(actuated) joints in the kinematic chain. The matrix represents the
+inertia of the total chain, as felt by each joint; i.e., element
+<parameter>i,j</parameter> of the matrix is the force needed at joint
+<parameter>i</parameter> to give joint <parameter>j</parameter> a unit
+acceleration. (The exact meaning of a &rdquo;unit acceleration&rdquo;
+depends on the physical units used for motion and inertia!)
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="chain-damping-matrix">
+  <parameter>ChainDampingMatrix</parameter>:
+ </term>
+ <listitem>
+  <para>
+  Idem, for damping.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="chain-stiffness-matrix">
+  <parameter>ChainStiffnessMatrix</parameter>:
+ </term>
+ <listitem>
+  <para>
+Idem, for stiffness.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="chain-jacobian-matrix">
+  <parameter>JacobianMatrix</parameter>:
+ </term>
+ <listitem>
+  <para>
+The 6 &times; N matrix that maps the N-dimensional coordinate vector
+of joint velocities into one 6-dimensional end-effector
+<link linkend="rigid-body-twist">twist</link>. Hence, the physical
+interpration of each <emphasis>column</emphasis> of the Jacobian matrix is
+as follows: the i-th column is the end-effector twist generated by applying
+a unit joint velocity to the i-th joint and zero velocities to all other
+joints.
+  </para>
+ </listitem>
+ </varlistentry>
+
+</variablelist>
+
+
+<variablelist>
+<title>Control classes</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-vector-control-gains">
+  <parameter>JointControlGain</parameter>:
+ </term>
+ <listitem>
+  <para>
+<emphasis>vector</emphasis> with scalar control gains,
+<emphasis>i.e.</emphasis> for a SISO system that has one 
+control loop for each joint, independently of the other joints.
+  </para>
+ </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="chain-control-gains">
+  <parameter>ChainControlGain</parameter>:
+ </term>
+ <listitem>
+  <para>
+<emphasis>matrix</emphasis> of control gains, <emphasis>i.e.</emphasis> for
+a MIMO system, in which the gains introduce coupling between the different
+joints in the chain.
+  </para>
+ </listitem>
+ </varlistentry>
+
+</variablelist>
+
+</section>
+
+
+<section id="joint-physical-methods">
+<title>Physical methods</title>
+
+<para>
+All the above-described entities are often mistaken for
+&ldquo;vectors&rdquo;. However, they are not really members of a linear
+vector space, but just an <emphasis>ordered collection</emphasis> of 1D
+scalars. In addition, all the scalars in a coordinate vector need not have
+the same physical units.
+</para>
+<para>
+So, it is erroneous to provide method calls that would perform
+<emphasis>geometric</emphasis> vector space operations. For
+example, it is meaningless to take the &ldquo;vector in-product&rdquo; of
+two <parameter>JointForce</parameter>, or look for the
+&ldquo;vector&rdquo; that is &ldquo;orthogonal&rdquo; to a joint velocity
+vector. The list of physically meaningful joint space method calls is
+rather short:
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term>
+  <parameter>Add</parameter>:
+ </term>
+  <listitem>
+   <para>
+   two joint vectors (or joint-space matrices) of the same type can be added.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <parameter>Set</parameter>:
+ </term>
+  <listitem>
+   <para>
+the values of a joint vector (or a joint-space matrix) can be set to a
+specific value. 
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <parameter>Get</parameter>:
+ </term>
+  <listitem>
+   <para>
+read the values of a joint vector (or a joint-space matrix). 
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <parameter>Scale</parameter>:
+ </term>
+  <listitem>
+   <para>
+every joint vector (or joint-space matrix) can be scaled by a
+physically dimenionless scalar. Transformation with physically
+non-dimensionless scalars has only physical meaning when the transformation
+is done via the above-mentioned joint space or kinematic chain dynamics.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+</para>
+
+</section>
+
+</section>
+
+
+<section id="motor-space">
+<title>
+Motors and transmissions
+</title>
+<para>
+The (actuated) joints of a robotic device are connected to motors,
+often via a <emphasis role="strong">transmission</emphasis> that can
+have non-ideal dynamical properties.  Hence, the discussion for the
+<link linkend="joint-space">joints</link> can be completely
+repeated for the <emphasis role="strong">motor</emphasis> and
+<emphasis role="strong">transmission</emphasis> classes.
+</para>
+<para>
+In addition, extra <parameter>JointToMotorTransmission</parameter> and
+<parameter>MotorToJointTransmission</parameter> classes are needed, to
+describe the transmission properties of the transmission between each
+set of motor and joint axis. These are often constant floating
+point numbers, but the <parameter>Set&hellip;</parameter> and
+<parameter>Get&hellip;</parameter> methods could need more involved
+calculations. For example, when the mapping between motors and
+joints is not one-to-one, or when the transmission is non-ideal.
+</para>
+
+</section>
+
+
+<section id="points-rigid-bodies-frames">
+<title>Points, rigid bodies and frames</title>
+<para>
+This section describes the properties of the static and
+dynamic relationships between &ldquo;motion&rdquo; and force, for
+point masses as well as for rigid bodies. 
+This text uses the term &ldquo;motion&rdquo; as a common shorthand for 
+<emphasis role="strong">displacement</emphasis> and
+its two derivatives <emphasis role="strong">velocity</emphasis> 
+and <emphasis role="strong">acceleration</emphasis>.
+When needed, it's straightforward to incorporate
+<emphasis role="strong">small displacements</emphasis> (which have the
+same properties as velocities, but other physical units) or
+higher derivatives such as <emphasis>jerk</emphasis>.
+</para>
+<para>
+The properties of the motion of
+<emphasis role="strong">reference frames</emphasis> are completely the
+same as the motion properties of rigid bodies; therefore, they are
+treated in the same Section. A rigid body has some extra properties,
+in the form of its <emphasis role="strong">dynamics</emphasis>.
+</para>
+<para>
+This Section also regularly gives multiple names to the same software
+classes; the reason is that all these names are used for the
+same properties in different application contexts.
+</para>
+
+<section id="point-mass">
+<title>Point mass</title>
+<para>
+<variablelist>
+<title>Numeric coordinate representation:</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="point-mass-mass">
+  <parameter>mass</parameter>:
+ </term>
+  <listitem>
+   <para>
+ floating point number.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="point-position">
+  <parameter>PointPosition</parameter>, 
+  <anchor id="point-velocity">
+  <parameter>PointVelocity</parameter>,  
+  <anchor id="point-acceleration">
+  <parameter>PointAcceleration</parameter>,
+  <anchor id="point-force">
+  <parameter>PointForce</parameter>.
+ </term>
+  <listitem>
+   <para>
+These are all point vectors, connected to the moving point mass.
+The point vector <emphasis>are</emphasis> real physical
+vectors (<emphasis>i.e.</emphasis> members of a vector space), in contrast
+to the joint-space coordinate &ldquo;vector;&rdquo;.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Physical properties:</title>
+ <varlistentry>
+ <term>
+  <anchor id="point-mass-add-velocity">
+  <parameter>add</parameter>,
+  <parameter>set</parameter>,
+  <parameter>get</parameter>,
+  <parameter>scale</parameter>:
+ </term>
+  <listitem>
+   <para>
+   straightforward.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+
+<variablelist>
+<title>Symbolic properties:</title>
+ <varlistentry>
+ <term>
+  <anchor id="point-mass-dimension">
+  <parameter>dimension</parameter>:
+ </term>
+  <listitem>
+   <para>
+  1D, 2D, 3D.
+   </para>
+  </listitem>
+ </varlistentry>
+ <varlistentry>
+ <term>
+  <anchor id="point-mass-units">
+  <parameter>PointPhysicalUnits</parameter>:
+ </term>
+  <listitem>
+   <para>
+  gram, kilogram, meters/seconds, Newton, etc., depending on the type
+of point vector. Note that all components in a point vector do have the
+same physical units.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="rigid-body-frame">
+<title>Rigid body&mdash;Reference frame</title>
+<para>
+Most of the properties in this Section are common to rigid bodies and
+reference frames; therefore, terminology of both contexts appears. A
+rigid body has some extra properties, in the form of its
+<emphasis>dynamics</emphasis>.
+<variablelist>
+<title>Numeric coordinate representations:</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-mass">
+  <parameter>RigidBodyMass</parameter>:
+ </term>
+  <listitem>
+   <para>
+   the total mass of a rigid body.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-pose">
+  <parameter>RigidBodyPose, RigidBodyPosition, BodyPose, Pose</parameter>:
+ </term>
+  <listitem>
+   <para>
+   the rigid body's position and orientation, with respect to a
+&ldquo;world&rdquo; frame. This pose is defined by choosing a
+<link linkend="rigid-body-reference-frame">RigidBodyReferenceFrame</link>
+on the rigid body, and taking that frame's position and orientation. The
+choice of this frame is arbitrary, and each of the following coordinate
+entities has only meaning with respect to one well-defined frame.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-mass-matrix">
+  <parameter>MassMatrix</parameter>, <parameter>InertiaMatrix</parameter>:
+ </term>
+  <listitem>
+   <para>
+the rigid body's inertia matrix, expressed in a known
+<link linkend="rigid-body-reference-frame">RigidBodyReferenceFrame</link>
+fixed to the rigid body. 
+   </para>
+   <para>
+The dimensions of the matrix are
+<parameter>N</parameter>-by-<parameter>N</parameter>, where
+<parameter>N</parameter> is the 
+<link linkend="rigid-body-dimension">dimension</link> of the space the rigid
+body lives in; that is, 1, 2 or 3.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-twist">
+  <parameter> Twist, RigidBodyVelocity, FrameVelocity</parameter>:
+ </term>
+  <listitem>
+   <para>
+These represent the instantaneous velocity of a rigid body. In
+geometrical terms, they are 
+<ulink url="geometry-doc.html">screws</ulink>
+with a physical interpretation of velocity. A correct interpretation
+of a
+<parameter>Twist</parameter> needs <emphasis>two</emphasis> 
+<link linkend="rigid-body-reference-frame">RigidBodyReferenceFrames</link>:
+the first frame is the &ldquo;moving frame&rdquo;, whose instantaneous
+velocity is represented, and the second frame is the
+&ldquo;fixed frame&rdquo; in which the coordinates of the motion
+are expressed. 
+</para>
+   <para>
+The two most popular representations are either six-dimensional
+coordinate vectors, or four-by-four matrices. There are two
+complementary <link linkend="rigid-body-coordinate-type">types</link>
+of rigid body velocity, which
+defer in their choice of
+<link linkend="point-velocity">PointVelocity</link> vector:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Euler</emphasis>: the PointVelocity is 
+the velocity of the point that instantaneous coincides with the
+<emphasis>origin</emphasis> of the &ldquo;fixed frame&rdquo;.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Lagrange</emphasis>: the PointVelocity is 
+the velocity of the point that instantaneous coincides with the
+<emphasis>origin</emphasis> of the &ldquo;moving frame&rdquo;.
+</para>
+</listitem>
+
+</itemizedlist>
+Both interpretations coincide if both frames coincide.
+   </para>
+<para>
+In summary, a <parameter>Twist</parameter> object is the union
+of a coordinate vector (or matrix), two reference frames, a physical
+units vector, and a
+<link linkend="rigid-body-coordinate-type">coordinate type</link>
+indication.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-wrench">
+  <parameter> Wrench, RigidBodyForce</parameter>:
+ </term>
+  <listitem>
+   <para>
+Similar discussion as for a
+<link linkend="rigid-body-twist">Twist</link>,
+this time with the physical interpretation of a force acting on a
+rigid body.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-acceleration">
+  <parameter>AccelerationTwist, RigidBodyAcceleration, FrameAcceleration</parameter>:
+ </term>
+  <listitem>
+   <para>
+Similar discussion as for a
+<link linkend="rigid-body-twist">Twist</link>,
+with a physical interpretation of an acceleration of a rigid body.
+   </para>
+   <para>
+The Euler and Lagrange definitions for the acceleration of a rigid
+body result in <emphasis>different</emphasis> accelerations: the Euler
+acceleration is the result of the taking the difference of two
+subsequent velocities at the <emphasis>same</emphasis> point (the
+origin of the &ldquo;fixed frame&rdquo;), while the
+Lagrange acceleration is the difference between the velocities at two
+<emphasis>different</emphasis> points, (the points where the origin of
+the &ldquo;moving frame&rdquo; happens to be at subsequent instants in
+time).
+</para>
+<para>
+Hence, in contrast to the velocity case, the Euler and Lagrange
+accelerations are different (in general), even if the
+&ldquo;fixed&rdquo; and &ldquo;moving&rdquo; reference frames
+coincide.
+   </para>
+   <para>
+Note also that the <parameter>RigidBodyAcceleration</parameter> in
+itself is not sufficient to find the acceleration of every possible
+point that moves together with the body: for this purpose, one also
+need to know the <parameter>RigidBodyVelocity</parameter>.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Symbolic properties:</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-reference-frame">
+  <parameter>RigidBodyReferenceFrame</parameter>:
+ </term>
+  <listitem>
+   <para>
+  a reference frame on the rigid body, with respect to which the
+coordinate representations of the rigid body's physical properties are
+to be interpreted.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-dimension">
+  <parameter>dimension</parameter>:
+ </term>
+  <listitem>
+   <para>
+  1D, 2D, 3D.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-coordinate-type">
+  <parameter>CoordinateType</parameter>:
+ </term>
+  <listitem>
+   <para>
+  Matrix, VectorAngularLinear, VectorLinearAngular,
+VectorXYZFixedLinear, VectorLinearXYZFixed,
+VectorXYZMovingLinear, VectorLinearXYZMoving,
+VectorXYXFixedLinear, VectorLinearXYXFixed,
+VectorXYXMovingLinear, VectorLinearXYXMoving,
+&hellip;
+   </para>
+   <para>
+Rigid body pose and motion properties contain, respectively, 1, 3 or 6
+independent parameters, depending on whether the rigid body is 1D, 2D
+or 3D. In the 1D case, the properties of a
+<link linkend="point-mass">Point</link> and a
+<link linkend="rigid-body-frame">RigidBody</link> (and 
+<parameter>Frame</parameter>) coincide, and their
+coordinate is a scalar, with a symbolic physical unit indication
+attached to it. The 2D and 3D cases for rigid bodies can have a
+variety of coordinate types:
+<itemizedlist>
+
+<listitem>
+<para>
+Matrix: the angular motion component is expressed with a 2-by-2 (2D)
+or a 3-by-3 (3D) matrix; the linear component is a 2-by-1 (2D) or a
+3-by-1 vector.
+</para>
+</listitem>
+
+<listitem>
+<para>
+VectorLinearAngular: the total motion is a 3-by-1 (2D) or a 6-by-1
+(3D) vector, of which the first 2 (2D) or 3 (3D) numbers represent the
+linear component, and the last 1 (2D) or 3 (3D) numbers represent the
+angular component.
+</para>
+</listitem>
+
+<listitem>
+<para>
+VectorAngularLinear: as above, but with angular and linear components
+interchanged.
+</para>
+</listitem>
+
+<listitem>
+<para>
+VectorLinearXYZFixed: the first components of the numeric
+representation are the linear components; the last components
+represent the angular motion, expressed with
+<emphasis>Euler angles</emphasis> defined by subsequent rotations
+about the <parameter>X</parameter>, <parameter>Y</parameter> and
+<parameter>Z</parameter> axes of a <emphasis>fixed</emphasis>
+reference frame. (This convention is also often called 
+<emphasis role="strong">Roll, Pitch, Yaw</emphasis>.)
+</para>
+<para>
+There are twelve combinations of rotations about frame axes that are
+physically meaningful, because subsequent rotations about twice the
+same axis are not independent, and hence insufficient to represent the
+three angular degrees of freedom.
+</para>
+<para>
+Note that each of these possibilities has a
+<emphasis role="strong">representational singularity</emphasis>
+somwhere in its domain. A representational singularity gives problems
+in inverting a mapping, and is only due to the
+<emphasis>choice</emphasis> of representation, and not to a physical
+singularity problem.
+</para>
+</listitem>
+
+<listitem>
+<para>
+VectorXYZFixedLinear: same as above, but the order of linear
+and angular components is interchanged.
+</para>
+</listitem>
+
+<listitem>
+<para>
+VectorLinearXYZMoving, &hellip;: same as above, but the rotations are
+about the axes of subsequent <emphasis>moving</emphasis> reference
+frames.
+</para>
+<para>
+Again, there are twelve possible alternatives.
+</para>
+</listitem>
+
+</itemizedlist>
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="rigid-body-mass-units">
+  <parameter>RigidBodyMassUnits</parameter>,
+  <anchor id="rigid-body-motion-units">
+  <parameter>RigidBodyMotionUnits</parameter>,
+  <anchor id="rigid-body-force-units">
+  <parameter>RigidBodyForceUnits</parameter>,
+  <anchor id="rigid-body-impedance-units">
+  <parameter>RigidBodyImpedanceUnits</parameter>:
+ </term>
+  <listitem>
+   <para>
+  gram, kilogram, meters/seconds, Newton, etc., depending on the type
+of coordinate vectors or coordinate matrices.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+<section id="impedance">
+<title> Impedance </title>
+<para>
+&ldquo;Impedance&rdquo; is the collective name of all (physical or
+virtual) 
+<emphasis role="strong">relationships between, on the one hand, the
+forces that two rigid bodies impose on each other, and, on the other
+hand, their relative motion.</emphasis>. 
+That is, a relationship of the following kind:
+force = inertia &times; acceleration +
+damping &times; velocity + stiffness &times; displacement.
+</para>
+<para>
+<variablelist>
+<title>Symbolic properties</title>
+ <varlistentry>
+ <term>
+  <anchor id="impedance-dimension">
+  <parameter>dimension</parameter>:
+ </term>
+  <listitem>
+  <para>
+  1D, 2D, 3D.
+  </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="impedance-units">
+  <parameter>units</parameter>:
+ </term>
+  <listitem>
+  <para>
+  physical units of each impedance element.
+  </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Physical properties</title>
+ <varlistentry>
+ <term><parameter></parameter></term>
+  <listitem>
+   <para>
+   add, scale
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+<variablelist>
+
+<title>Numeric coordinate representation:</title>
+ <varlistentry>
+ <term>
+  <anchor id="impedance-coordinates">
+  <parameter>Damping</parameter>,
+  <parameter>InverseDamping</parameter>,
+  <parameter>Stiffness</parameter>,
+  <parameter>Compliance</parameter>.
+  <parameter>Inertia</parameter>,
+  <parameter>InverseInertia</parameter>,
+  <parameter>Mobility</parameter> (which is a synonym for
+<parameter>InverseInertia</parameter>):
+ </term>
+  <listitem>
+   <para>
+   floating point numbers, representing the impedance elements,
+   with a number of values that is consistent with the 
+   dimension and the
+   <link linkend="impedance-units">physical units</link>.
+   </para>
+  </listitem>
+ </varlistentry>
+</variablelist>
+</para>
+
+</section>
+
+</section>
+
+
+<section id="kinematic-chain-interface">
+<title>
+ Kinematic chains
+</title>
+<para>
+This Section describes programming interfaces that are common to all
+kinematic chains (such as robots and machine tools). The interfaces
+represent the
+<emphasis role="strong">transformation relationships</emphasis>
+between the properties of the chain's joints and the properties of the
+chain's &ldquo;externally visible&rdquo; Ports. These Ports are most
+often the &ldquo;Tool Centre Point&rdquo; or
+&ldquo;End-Effector&rdquo;
+reference frames of the kinematic chain, i.e., those parts of the
+chain that the designers destined to be used to interact with the
+environment, with tools, or with other kinematic chains. 
+A kinematic chain can have more than one of these reference
+frames.
+</para>
+<para>
+The motion properties of the Ports as &ldquo;rigid bodies&rdquo; or
+&ldquo;reference frames&rdquo; are called the
+<emphasis role="strong">Cartesian</emphasis> properties of the
+kinematic chain the Ports belong to; those related to the joint forces
+and motions are <emphasis role="strong">joint space</emphasis>
+properties. The interface described in this Section works with
+any <link linkend="architectures">kinematic family</link>. They
+are independent of the dimensions of both the Cartesian work space and
+the joint configuration space; and of the choices of mathematical
+representations or physical units. 
+</para>
+<para>
+<ulink url="motion-api.html">Another document</ulink>
+describes the <emphasis>Cartesian</emphasis> interface of a kinematic
+chain, <emphasis>i.e.</emphasis> the motion properties of the
+above-mentioned externally visible Ports, (mostly) irrespective of the
+structure of the chain that drives the Ports. The Cartesian motion
+interface is the same as the motion properties of one single rigid
+body. 
+</para>
+
+
+<section id="kinematic-chain-connectivity">
+<title>Kinematic chain connectivity</title>
+
+<para>
+An object of the <parameter>KinematicChain</parameter> type contains
+as sub-classes many of the classes described in the previous sections:
+rigid bodies, reference frames, joints, motors, transmissions,
+impedances, etc. The specific contents of a
+<parameter>KinematicChain</parameter> object 
+<emphasis role="strong">depends on the application context</emphasis>;
+in other words, it is not useful to define <emphasis>the</emphasis>
+content of the  <parameter>KinematicChain</parameter> class.
+There will be such a class for every application, and hence, each of
+these <parameter>KinematicChain</parameter> classes should carry a
+&ldquo;namespace&rdquo; indication of that particular application.
+<xref linkend="architectures"> gives examples of such particular
+kinematic chains.
+</para>
+<para>
+One important information that an object of the
+<parameter>KinematicChain</parameter> class must contain (and which is
+not further discussed in this document, but in 
+<ulink url="general-dynamics-doc.html">another document</ulink>)
+is the <emphasis role="strong">connectivity</emphasis> within the chain;
+i.e., how are the links in the chain constrained with respect to each
+other, through kinematic and/or dynamic constraints. 
+This document makes use of the
+<ulink url="decoupling.html">Object-Port-Connector</ulink>
+pattern, to encode this <emphasis>connectivity</emphasis> information of
+<emphasis>general</emphasis> kinematic chains. (For families with
+efficient kinematic <link
+linkend="architectures">architectures</link>, the connectivity
+information is trivially encoded in the sequence of joint values in
+the joint coordinate vectors.)
+For example, in the case of an ideal revolute joint that constrains
+the relative motion of two connected rigid bodies, the
+&ldquo;Port&rdquo; on each of the connected bodies contains the
+symbolic information about the fact that this constraint is a revolute
+joint, the physical units of the relative motion parameters, and the
+numerical coordinates of the joint axis with respect to the 
+rigid body of the link. The connector
+contains the numerical information about the instantaneous relative
+motion, i.e., position, velocity, torque, etc.
+
+<figure id="fig-opc-link-joint" float="1" pgwide="0">
+<title>
+ The Object-Port-Connector pattern applied to a simple kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/opc-link-joint.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../opc-link-joint.eps" format="EPS">
+</imageobject>
+<caption>
+ <para>
+The rounded rectangles are Objects, the circles are Ports, and the ovals
+are Connectors.
+ </para>
+</caption>
+</mediaobject>
+</figure>
+</para>
+<para>
+In the most general serial architecture, the joints can be anywhere on
+each rigid body link, and of any type.
+<xref linkend="fig-opc-link-joint">
+depicts a serial kinematic chain with two
+<emphasis>Connectors</emphasis> (&ldquo;joints&rdquo;)
+and three <emphasis>Objects</emphasis> (&ldquo;links&rdquo;).
+The rounded rectangles represent the &ldquo;Objects&rdquo; in the 
+<ulink url="decoupling.html">Object-Port-Connector</ulink>
+pattern; in the case of kinematic chains, the Objects are rigid body
+links. The small circles in the Objects are the &ldquo;Ports&rdquo;,
+i.e., the the link's attachement points for a kinematic joint. And the
+large ovals are the &ldquo;Connectors&rdquo;, i.e., the kinematic
+joints.
+</para>
+
+</section>
+
+
+<section id="chain-symbolic-properties">
+<title>Symbolic properties</title>
+<para>
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="get-configuration">
+  <parameter>GetConfiguration</parameter>:
+ </term>
+  <listitem>
+   <para>
+Most of the <link linkend="architectures">kinematic families</link> have
+architecture-specific <emphasis>configurations</emphasis>, and
+corresponding symbolic configuration names.
+This method call returns the name of the current configuration.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="is-singular">
+  <parameter>IsSingular (SingularityThreshold)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+A chain is singular in a configuration where it looses one or more of
+its degrees of freedom. This method call returns &ldquo;yes&rdquo; or
+&ldquo;no&rdquo;, depending on whether the floating point
+scalar that indicates the &ldquo;closeness&rdquo; to such a
+singularity is smaller or larger than the given threshold.
+It can be proven that there is, in general, no unique
+distance function with which to determine this scalar unambiguously.
+So, this method call can take an extra argument that indicates which
+metric to use. In the case of a component interface, this metric is set by
+means of the component's
+<ulink url="deeo-shallow-api.html#DATA-EXECUTION-CONFIGURATION">configuration
+flow</ulink>.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="is-reachable">
+  <parameter>IsReachable</parameter>: 
+ </term>
+  <listitem>
+   <para>
+the input of this method call is a desired Cartesian or joint space
+position, and the method calls return whether or not this position can
+be reached with the chain.
+   </para>
+   <para>
+It is straightforward to extend the &ldquo;reachability&rdquo; to
+velocities, accelerations and forces.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+<section id="joint2cartesian">
+<title>Transformations between joint-space and Cartesian-space </title>
+
+<para>
+This Section documents the method calls for kinematic chains, that
+transform motion properties from joint space to Cartesian space, and vice
+versa.
+The following paragraphs give the API without
+discrimination of the chain topology.
+</para>
+<variablelist>
+<title>Kinematics transformations</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="forward-pose">
+  <parameter>JointToCartesianPosition (JointPosition, Pose)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative name: <parameter>JointToPose()</parameter>.)
+   </para>
+   <para>
+Input: <parameter>JointPosition</parameter>,
+position of all joints.
+   </para>
+   <para>
+Output: <parameter>Pose</parameter>, position and
+orientation of the Cartesian frame.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="inverse-pose">
+  <parameter>CartesianToJointPosition (Pose, JointPosition)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative name: <parameter>PoseToJoint()</parameter>.)
+   </para>
+   <para>
+Input: <parameter>Pose</parameter>,
+position and orientation of the Cartesian frame.
+   </para>
+   <para>
+Output: <parameter>JointPosition</parameter>,
+position of all joints.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="forward-twist">
+  <parameter>JointToCartesianVelocity (JointPosition, JointVelocity, Pose,
+Twist)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative name: <parameter>JointToTwist()</parameter>.)
+   </para>
+   <para>
+Input: position and velocity of all joints.
+   </para>
+   <para>
+Output: position and orientation of the Cartesian
+frame(<parameter>Pose</parameter>), and its instantaneous Cartesian
+velocity (<parameter>Twist</parameter>).
+   </para>
+  </listitem>
+ 
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="inverse-twist">
+  <parameter>CartesianToJointVelocity(JointPosition, Twist, JointVelocity)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative name: <parameter>TwistToJoint()</parameter>. 
+   </para>
+   <para>
+Input: position the all joints, and the chain's instantaneous Cartesian
+velocity.
+   </para>
+   <para>
+Output: velocity of all joints.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="jacobian">
+  <parameter>JointToCartesianJacobian (JointPosition, JacobianMatrix)</parameter>:
+ </term>
+  <listitem>
+   <para>
+(Alternative names: <parameter>JacobianMatrix()</parameter>,
+<parameter>Jacobian()</parameter>.)
+   </para>
+   <para>
+Input: position of all joints. (Alternatively, the
+Cartesian pose of the end-point.)
+   </para>
+   <para>
+Output: the <link linkend="chain-jacobian-matrix">Jacobian matrix</link>.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="forward-acceleration-twist">
+  <parameter>JointToCartesianAcceleration(JointPosition, JointVelocity,
+JointAcceleration, Pose, Twist, AccelerationTwist)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Input: position, velocity and acceleration of all joints.
+   </para>
+   <para>
+Output: position and orientation of the Cartesian frame, and its
+instantaneous Cartesian velocity and acceleration.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="inverse-acceleration-twist">
+  <parameter>CartesianToJointAcceleration(JointPosition, JointVelocity,
+AccelerationTwist, JointAcceleration)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Input:
+position and velocity of the joint, and the 
+instantaneous Cartesian acceleration twist.
+   </para>
+   <para>
+Output: the acceleration of all joints.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Dynamics transformations</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="joint-force-to-joint-acceleration">
+  <parameter>JointForceToJointAcceleration (JointPosition, JointVelocity,
+JointForce, JointAcceleration)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Input: position and velocity of all joints, and
+the forces applied at those joints.
+   </para>
+   <para>
+Output: the acceleration of all joints.
+   </para>
+   <para>
+(This transformation (as well as all the following transformations) requires
+the knowledge of the joint space
+<link linkend="chain-inertia-matrix">inertia matrix</link>.)
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="forward-dynamics">
+  <parameter>JointForceToCartesianAcceleration (JointPosition, JointVelocity,
+JointForce, AccelerationTwist)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative names:
+<parameter>JointForceToAccelerationTwist</parameter>,
+<parameter>ForwardDynamics()</parameter>.)
+   </para>
+   <para>
+Input: position and velocity of all joints, and
+the forces applied at those joints.
+   </para>
+   <para>
+Output: the acceleration of the Cartesian end-effector frame.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="inverse-dynamics">
+  <parameter>CartesianAccelerationToJointForce (JointPosition, JointVelocity,
+ AccelerationTwist, JointForce)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+(Alternative names: <parameter>TwistAccelerationToJointForce()</parameter>,
+<parameter>InverseDynamics()</parameter>.)
+   </para>
+   <para>
+Input:
+position and velocity of all joints, and
+the desired acceleration of the Cartesian reference frame.
+   </para>
+   <para>
+Output: 
+the forces to be applied at the joints in order to realize the desired
+acceleration.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+<variablelist>
+<title>Cartesian properties</title>
+
+ <varlistentry>
+ <term>
+  <anchor id="cartesian-dynamics">
+  <parameter>CartesianInertia</parameter>, 
+  <parameter>CartesianDamping</parameter>, 
+  <parameter>CartesianStiffness</parameter>, 
+  <parameter>CartesianCompliance</parameter>, 
+  <parameter>CartesianInverseInertia</parameter>, 
+  <parameter>CartesianInverseDamping</parameter>: 
+ </term>
+  <listitem>
+   <para>
+every kinematic chain is <emphasis>instantaneously</emphasis>
+equivalent to a single rigid body, in the sense that its dynamic
+properties cannot be distinguished from these of rigid body, as seen from
+any of the chain's end-effector Ports.
+So, the above-mentioned method calls give the dynamic properties
+(inertia, etc.) that are instantaneously felt at a Cartesian
+Port; this Port is given as an argument, if the chain has more than one
+end-effector.
+</para>
+<para>
+These properties are in general (highly non-linear) functions of
+the joint positions of the chain.
+</para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+
+</section>
+
+
+<section id="redundancy-constraints">
+<title>Redundancy and constraints</title>
+
+<para>
+For most <emphasis>serial</emphasis> devices, the &ldquo;inverse&rdquo;
+transformations (<emphasis>i.e.</emphasis> from Cartesian space to joint
+space) are not uniquely defined: if the chain has less than six
+actuated joints, it cannot generate any arbitrary
+<parameter>Twist</parameter>; if the chain has more than six actuated
+joints, it can generate the same <parameter>Twist</parameter> with a
+multitude of joint velocities. In addition, the chain can have physical
+constraints, or a set of non-actuated joints, that make the transformation
+impossible.
+</para>
+<para>
+For devices with a <emphasis>parallel</emphasis> chain topology, the
+&ldquo;inverse&rdquo; transformations are simple, and the difficulties lie
+with the &ldquo;forward&rdquo; transformations. For devices with a
+<emphasis>hybrid</emphasis> topology, the situation is more complicated in
+both directions. However, the same conceptual problems and solutions apply
+to all chain topologies.
+</para>
+<para>
+So, the general reasons for the non-uniqueness in the transformations
+between joint space and Cartesian space are:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Redundancy</emphasis>: multiple solutions can
+exist (<emphasis>i.e.</emphasis> the various
+<emphasis>configurations</emphasis> of the kinematic chain), but even
+in one single configuration, the same Cartesian position (or velocity,
+acceleration) can be produced by more than one joint position.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Constraints</emphasis>: the specified
+Cartesian position (velocity, acceleration) cannot be
+reached, because the kinematic chain has physical constraints: joint
+limits, out of reach, contacts with objects in the environment, etc.
+</para>
+</listitem>
+
+</itemizedlist>
+Algorithms for both situations often rely on
+<emphasis>optimization criteria</emphasis> to find a solution. In the
+case of redundancy, each joint receives a certain &ldquo;weight&rdquo;
+and the solution algorithm selects the solution with the minimal
+overall &ldquo;cost&rdquo;. In the case of constraints, the violation
+of a given constraint also is given a specified cost, and, again, the
+solution with the minimum cost is selected.
+</para>
+<para>
+The method calls to determine what optimization criteria to use belong to
+the
+<ulink url="deep-shallow-api.html#DATA-EXECUTION-CONFIGURATION">configuration
+flow</ulink>
+of a motion application.
+</para>
+
+</section>
+
+
+<section id="closed-form-numeric-algorithms">
+<title>Closed-form and numeric algorithms</title>
+
+<para>
+Some <link linkend="architectures">kinematic families</link> have
+<emphasis>closed-form</emphasis> (&ldquo;analytical&rdquo;) algorithms
+to calculate the Cartesian to joint space transformations, but for
+others only <emphasis>iterative, numeric</emphasis> algorithms are
+available. In the latter case, solving the kinematics is in fact the
+same problem as the generation of the (local) 
+<ulink url="motion-api.html">motion</ulink> of the kinematic chain:
+the chains starts in an initial position that is &ldquo;close&rdquo;
+to the desired one, and each iteration step of the numeric algorithm
+brings the chain a bit closer to the desired position.
+</para>
+<para>
+The iterative algorithms require extra specification in their method
+calls. Or, alternatively, they require a richer
+configuration API than the families with closed-form kinematics:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Initial position</emphasis>. This inevitably
+is an initial <emphasis>joint space</emphasis> position, because an
+initial Cartesian position is useless, since that's exactly the
+problem one has to solve.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Iteration method</emphasis>. Various iteration
+methods exist.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Iteration termination condition</emphasis>.
+Can be <emphasis>accuracy</emphasis> (stop when the differences
+between subsequent iterations fall below a specified threshold), 
+<emphasis>time</emphasis> (stop after a specified time interval has
+passed), or <emphasis>iteration steps</emphasis> (stop after a
+specified number of iterations).
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+</section>
+
+
+<section id="architectures">
+<title>
+ Kinematic families
+</title>
+<para>
+An &ldquo;kinematic family&rdquo; (or, &ldquo;architecture&rdquo;)
+is a class that represents the common properties of a set of
+<emphasis>&ldquo;kinematic chains&rdquo;</emphasis> (robots and
+machine tools). Each member of the set has the same geometric
+structure, and this structure is such that it allows for
+<emphasis>ad hoc</emphasis> efficient and parameterized
+implementations of the kinematic and dynamic class interfaces
+discussed in the previous Sections.
+So, the <emphasis>interfaces</emphasis> described in the previous
+Sections are the same for all families, but the
+<emphasis>implementations</emphasis> differ from family to family.
+</para>
+<para>
+(The general kinematic chains, that lack such special geometric
+structure, are treated in more detail in
+<ulink url="general-dynamics-doc.html">another document</ulink>.)
+</para>
+<para>
+For example, most industrial robots have six revolute joints, of which
+three have axes that are intersecting in one point (forming a
+&ldquo;wrist&rdquo;), and two others have parallel axes. A second very
+popular type of industrial robots with a serial topology are the
+<emphasis>SCARA</emphasis> robots, that have three subsequent parallel
+axes.  And most machine tools have orthogonal translational axes.
+</para>
+<para>
+The software entities in every kinematic family are of the following
+three complementary types:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Connectivity information:</emphasis> 
+the parameterized representation of how the different rigid bodies,
+joints and reference frames of the architecture are inter-connected.
+In fact, this connectivity information <emphasis>defines</emphasis>
+the family.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Device data:</emphasis> this is the object that
+contains numeric values for the above-mentioned parameters, and as
+such represents one specific member of the family. For example, the
+geometric and dynamic parameters of the KUKA KR 500, including joint
+limits, encoder resolutions, motor inertias, etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Interface implementations:</emphasis> the
+implementations of the interfaces of the previous Sections,
+optimized for each particular architecture.
+</para>
+</listitem>
+
+</itemizedlist>
+The former two are encoded in family-specific internal data
+structures. Of course, it would be useful to come up with some
+standardized way of storing and processing this information.
+</para>
+
+<para>
+The following subsections describe the particular properties of some
+of the most popular <emphasis>kinematic families</emphasis>. Different
+kinematic chains are assembled in the same family, because there
+exists a systematic, parameterized and efficient
+(<emphasis>ad hoc</emphasis>) method to represent all the kinematic
+chains of the family.
+</para>
+
+
+<section id="kinematicserial">
+<title>KinematicSerial</title>
+
+<para>
+This family has already been fully described by
+<xref linkend="fig-opc-link-joint"> and the accompanying discussion.
+The <parameter>KinematicSerial</parameter> family has very efficient
+<emphasis>numerical</emphasis> kinematics routines (i.e., with a
+computational complexity that is linear in the
+number of joints), because it contains no loops; some serial
+architectures (see below) have even more efficient, analytic
+(&ldquo;closed-form&rdquo;) algorithms.
+</para>
+
+</section>
+
+
+<section id="kinematictree">
+<title>KinematicTree</title>
+
+<para>
+An inter-connection of
+<link linkend="kinematicserial">KinematicSerial</link> structure, in
+such a way that all joint axes are topologically inter-connected in a
+<emphasis>tree</emphasis>. (See <xref linkend="fig-tree-opc">.)
+Efficient numerical algorithms (linear in the number of joints) are
+known for these architectures, but no analytical solutions. The
+increase in complexity with respect to
+the serial case is twofold: (i) more complicated
+<emphasis>bookkeeping</emphasis> (the index of joints in a joint
+coordinate vector doesn't indicate where the joint is located in the
+chain); and (ii) the <emphasis>dynamics</emphasis> involve couplings
+between the different branches of the chain.
+
+<figure id="fig-tree-opc" float="1" pgwide="0">
+<title>
+ A KinematicTree kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/tree-opc.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/tree-opc.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+
+</section>
+
+
+<section id="kinematicgraph">
+<title>KinematicGraph</title>
+
+<para>
+The most general kinematic structure: any sort of joints, at any
+relative positions and orientations, and with any topological
+inter-connections, including &ldquo;loops&rdquo;.
+(See <xref linkend="fig-graph-opc">.)
+These architectures require <emphasis>iterative</emphasis> numerical
+solution algorithms, which are in general much less efficient than the
+linear-time algorithms for serial and tree-structured chains. The need
+for iteration arises from the existence of <emphasis>loops</emphasis>
+in the kinematic chain.
+
+<figure id="fig-graph-opc" float="1" pgwide="0">
+<title>
+ A KinematicGraph kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/graph-opc.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../graph-opc.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+
+</section>
+
+
+<section id="serial321">
+<title>Serial321</title>
+
+<para>
+This is a <link linkend="kinematicserial">KinematicSerial</link>
+architecture with six <emphasis>revolute</emphasis> joints: a
+&ldquo;wrist&rdquo; with <emphasis>three</emphasis> revolute joints
+with intersecting axes; an &ldquo;arm&rdquo; with
+<emphasis>two</emphasis> parallel axes; and a &ldquo;shoulder&rdquo;
+with <emphasis>one</emphasis> revolute joint whose axis is orthogonal
+to the axes of the &ldquo;arm&rdquo; set.
+<xref linkend="fig-serial321"> depicts a Serial321 kinematic chain, with
+an appropriate choice of reference frames that allows for intuitive
+and efficient numeric kinematics equations.
+
+<figure id="fig-serial321" float="1" pgwide="0">
+<title>
+ A Serial321 kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/serial321.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/serial321.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+<para>
+This is the architecture of most 6D industrial robots. And this is no
+coincidence: this particular structure allows the 
+<emphasis>most efficient</emphasis> implementations, it has its
+<emphasis>singularities</emphasis> at easily recognizable joint
+positions, and it has eight easily recognizable
+<emphasis>configurations</emphasis> (i.e., different sets of joint
+angles that reach the same end-effector pose).
+</para>
+<para>
+In order to specify an unambiguous API for this kinematic family, the
+following (arbitrary!) conventions have to be documented:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Zero position.</emphasis>
+<xref linkend="fig-serial321"> depicts the arm in its
+&ldquo;zero position&rdquo;, i.e., the position where all joint angles
+are zero.
+</para>
+<para>
+Most real robots with the Serial321 architecture will have their
+position sensor zero readings at a different position, such that an
+adaptation from real joint angles to modelled joint angles must be
+provided.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Frame placement.</emphasis>
+The positions of the frames on the arm are as in
+<xref linkend="fig-serial321">. There is a frame attached to each
+<emphasis>link</emphasis>, at the place where the joint towards the
+<emphasis>next</emphasis> link is attached. In addition, there is a
+frame attached to the fixed base, and to the end-effector (i.e., the
+last link).
+In the zero position, all these frames are parallel, with their Z axes
+pointing vertically upwards, and their Y axes pointing
+&ldquo;forward&rdquo;. That means that the joint axes lie either along
+the X axes or the Z axes of the frames.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Base frames.</emphasis>
+The &ldquo;base frames&rdquo; are the frame attached at the first
+joint, and the frame attached to the fixed world. Both can be
+arbitrarily placed. The convention is to translate them over a given
+distance with respect to the frame of link 1 (i.e., the frame
+indicated with the subscripts &ldquo;2&rdquo; in
+<xref linkend="fig-serial321">. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">End-effector frame.</emphasis>
+A similar reasoning holds for the frame attached to the end-effector:
+it is translated over a distance l<subscript>6</subscript> with
+respect to the last link frame.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Joint angle references.</emphasis>
+The positive direction of all joint angles is shown on
+<xref linkend="fig-serial321">. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Configuration definitions.</emphasis>
+The Serial321 family has <emphasis>eight</emphasis> different
+configurations, four of which are shown in
+<xref linkend="fig-serial321-configs">: two are caused by the
+difference between <emphasis role="strong">forward</emphasis> (wrist
+centre point lies in the positive Y half-plane of the base frame), or
+<emphasis role="strong">backward</emphasis>; the two other are caused by
+<emphasis role="strong">elbow-up</emphasis> or
+<emphasis role="strong">elbow-down</emphasis> (i.e., joint 3 is
+positive, respectively negative). The wrist causes two configurations
+too: <emphasis role="strong">flip</emphasis> or
+<emphasis role="strong">no-flip</emphasis> (i.e., joint 5 is positive,
+respectively negative). (Note that the total number of configurations
+is the <emphasis>product</emphasis> of the binary configuration
+options mentioned above, i.e., eight is 2&times;2&times;2.)
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<para>
+<figure id="fig-serial321-configs" float="1" pgwide="0">
+<title>
+ Four configurations of the Serial321 kinematic chain. (The two
+configurations due to the wrist are not shown, because the difference
+between both would be hardly visible on this scale of image.)
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/serial321-configs.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/serial321-configs.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+<para>
+There a various variations in this architecture, with basically
+the same geometry, but with the following differences:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Shoulder offset.</emphasis>
+The part of the arm from link 3 on is offset a bit along the
+X<superscript>2</superscript> axis of <xref linkend="fig-serial321">. 
+</para>
+</listitem>
+                                                                                
+<listitem>
+<para>
+<emphasis role="strong">Base-joint offset.</emphasis>
+The part of the arm from link 2 on is offset a bit along the
+Y<superscript>1</superscript> axis of <xref linkend="fig-serial321">. 
+</para>
+</listitem>
+                                                                                
+<listitem>
+<para>
+<emphasis role="strong">Forearm eccentricity.</emphasis>
+The part of the arm from link 4 on is offset a bit along the
+Y<superscript>3</superscript> axis of <xref linkend="fig-serial321">. 
+</para>
+</listitem>
+                                                                                
+</itemizedlist>
+</para>
+<para>
+With all the family-specific definitions and conventions presented
+above, one can specify the full kinematics and dynamics API for this
+family: &hellip;
+</para>
+
+</section>
+
+
+<section id="scara">
+<title>Scara</title>
+
+<para>
+This architecture has <emphasis>three</emphasis> revolute axes, with
+parallel, vertical joint directions; and a fourth, prismatic joint,
+whose axis coincides with the last revolute joint axis. 
+</para>
+<para>
+This is the architecture of most 3D industrial
+&ldquo;pick-and-place&rdquo; robots. 
+</para>
+
+</section>
+
+
+<section id="serial6joints">
+<title>Serial6Joints</title>
+
+<para>
+A serial architecture with six revolute joints, placed in arbitrary
+relative positions and orientations.
+</para>
+<para>
+This architecture doesn't have any closed-form efficiencies, but
+its members do all share common numeric algorithms.
+</para>
+
+</section>
+
+
+<section id="serial7Rshoulder">
+<title>Serial7RShoulder </title>
+
+<para>
+This architecture is like the
+<link linkend="serial321">Serial321</link> architecture, but it has an
+extra (&ldquo;redundant&rdquo;) revolute joint, at the
+&ldquo;elbow&rdquo; of the Serial321 arm
+(<xref linkend="fig-serial7Rshoulder">).
+
+<figure id="fig-serial7Rshoulder" float="1" pgwide="0">
+<title>
+ A Serial7RShoulder kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/serial7Rshoulder.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../serial7Rshoulder.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+
+</section>
+
+
+<section id="hyperredundant-serial">
+<title>HyperredundantSerial </title>
+
+<para>
+This architecture is serial, and has a very large number of joints;
+e.g., <emphasis>snake</emphasis> or
+<emphasis>elephant-trunk</emphasis> devices.
+Because of their very high degree of redundancy, the need very
+different redundancy resolution algorithms than lower-dimensional
+redundant structures such as the 
+<link linkend="serial7Rshoulder">Serial7RShoulder</link>.
+</para>
+
+</section>
+
+
+<section id="parallel321">
+<title>Parallel321</title>
+
+<para>
+This is a parallel structure, with six
+<emphasis>spherical-prismatic-spherical</emphasis>
+legs, in which the prismatic joints are actuated and the spherical
+joints are passive, and in which, on the top platform of the device,
+three of the spherical joints are concentric, as well as two other
+spherical joints.
+(<xref linkend="fig-parallel321">).
+
+<figure id="fig-parallel321" float="1" pgwide="0">
+<title>
+ A Parallel321 kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/parallel321.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../parallel321.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+<para>
+The algorithms of this architecture are very similar to those of the 
+<link linkend="serial321">Serial321</link> architecture, and hence
+simple and efficient. However, no hardware implementation of this
+architecture exists yet.
+</para>
+
+</section>
+
+
+<section id="parallel6prismatic">
+<title>Parallel6Prismatic</title>
+
+<para>
+A parallel platform, such as the 
+<link linkend="parallel321">Parallel321</link>, but without the
+geometric constraints on the attachment points of the
+&ldquo;legs&rdquo;, i.e., the spherical joints
+(<xref linkend="fig-parallel6prismatic">).
+
+<figure id="fig-parallel6prismatic" float="1" pgwide="0">
+<title>
+ A Parallel6Prismatic kinematic chain.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/parallel6prismatic.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/parallel6prismatic.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+<para>
+This architecture doesn't have any closed-form efficiencies, but
+its members do all share a common numeric algorithm.
+</para>
+
+</section>
+
+
+<section id="parallel-delta">
+<title>ParallelDelta</title>
+
+<para>
+A 3 DOF parallel platform.
+</para>
+
+</section>
+
+
+<section id="parallel-hexa">
+<title>ParallelHexa</title>
+
+<para>
+A 6 DOF parallel platform.
+</para>
+
+</section>
+
+
+<section id="humanoid">
+<title>Humanoid</title>
+
+<para>
+Humanoid robots are in fact nothing more than a couple of serial
+kinematic chains connected together in order to form a 
+<link linkend="kinematictree">tree-structured chain</link>.
+The precise number of type of the joints can differ between models,
+and if needed one can add a class for each type of
+&ldquo;biological&rdquo; species that one wants to model:
+<emphasis role="strong">Dinosaur</emphasis>,
+<emphasis role="strong">Horse</emphasis>,
+<emphasis role="strong">Dragon</emphasis>, &hellip;
+</para>
+<para>
+<figure id="fig-humanoid-topology" float="1" pgwide="0">
+<title>
+ The typical topology for a humanoid robot.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/humanoid-topology.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/humanoid-topology.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+</section>
+
+<section id="legged-walker">
+<title>LeggedWalker</title>
+
+<para>
+Legged robots have similar topology as humanoid robots, but the number
+of &ldquo;legs&rdquo; and &ldquo;arms&rdquo; can differ.
+</para>
+
+</section>
+
+
+<section id="unicycle">
+<title>Unicycle</title>
+
+<para>
+The simplest mobile robot architecture, that corresponds conceptually
+to one actuated wheel.
+</para>
+
+</section>
+
+
+<section id="twocycle">
+<title>TwoCycle</title>
+
+<para>
+This mobile robot architecture has the structure of a car, with two
+driven wheels on the same axle, and a driven steering wheel on another
+axle. The abstract model of this architecture is like a bicycle: it
+has only one wheel in the back and one in the front.
+
+<figure id="fig-twocycle" float="1" pgwide="0">
+<title>
+ A car-like robot, ideally modelled as a TwoCycle kinematic chain. 
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/twocycle.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../twocycle.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+
+</para>
+
+</section>
+
+
+</section>
+
+
+</article>
+

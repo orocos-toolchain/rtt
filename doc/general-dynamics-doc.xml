@@ -1,0 +1,595 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+    Modelling of Complex Dynamic Systems
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx@mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="general-dynamics-doc.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document describes the software design for complex
+dynamic systems, where the complexity comes from the interconnection
+of multiple simple dynamic components. In the context of &orocos;,
+complex kinematic chains are the focus point, but the presented design
+covers also other physical domains with lumped-parameter systems:
+electrical, hydraulic, pneumatic networks, etc.
+</para>
+<para>
+The design covers the following aspects: the modelling of the
+(physical) properties of elementary system building blocks; the
+modelling of their interactions; the generation of the mathematical
+equations that represent the system's dynamic behaviour; and the
+calculation of the time-variations of all relevant system variables.
+</para>
+<para>
+In addition to the modelling of the energy-exchange and
+&ldquo;signal&rdquo; properties of a complex dynamic system, the
+design also covers graphical representations and
+&ldquo;factory-based&rdquo; construction and maintenance.
+</para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>July 13, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Removed the corresponding section from the 
+<ulink url="kindyn-doc.html">kinematics and dynamics</ulink> document,
+and started this document. First draft of the description of the
+properties of complex systems.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>August 12, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Heavily reworked. More structure about modelling and simulation.
+Introduced the Software Patterns and Factory sections. 
+    </revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+
+<section id="introduction">
+<title>Introduction</title>
+<para>
+There is a huge difference between designing and using software for a
+simple, small-scale and a complex, large-scale
+application.  In simple applications,
+the developers can build software components that they can
+oversee completely, have full access to, and in which they can make
+direct method calls on all the objects that live in the system.
+However, in the case of a complex system, the developers do not have a
+full overview of the whole system, they can not know or access all of
+the code, and users interconnect components in multiple ways
+(including &ldquo;component-based&rdquo; access over a network, i.e.,
+without linked objects).
+</para>
+<para>
+Therefore, complex systems need 
+<emphasis role="strong">more extensive infrastructural support</emphasis>
+than simple systems, in order
+(i) to guarantee that components are interconnected correctly by
+construction,
+(ii) to allow bookkeeping during the execution of algorithms working
+on the complex system, and
+(iii) to simplify the construction of complex systems by end users.
+This document describes such infrastructural support, basing its
+discussions on
+<link linkend="dynamic-systems-sofware-patterns">Software Patterns</link>
+wherever possible, because these represent proven solutions to common
+design problems.
+</para>
+
+
+<section id="dynamic-systems-modelling-simulation">
+<title>Modelling and Simulation</title>
+
+<para>
+<emphasis role="strong">Modelling</emphasis> of a system consists of
+making a mathematical abstraction of the system; the model must
+represent the system's phenomena that the developers are interested
+in, at an &ldquo;appropriate&rdquo; level of detail. The major aspects
+of modelling are: 
+<orderedlist>
+
+<listitem>
+<para>
+the dynamic properties of each member of the set of
+<emphasis role="strong">elementary objects</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+the <emphasis role="strong">connectivity</emphasis> between these
+elementary objects.
+</para>
+<para>
+Each connection between two objects introduces a
+<emphasis role="strong">constraint</emphasis> on the dynamic
+properties of both objects.
+</para>
+</listitem>
+
+</orderedlist>
+</para>
+<para>
+The literature on <emphasis>Bond Graphs</emphasis>, and the
+documentation on the
+<ulink url="http://www.modelica.org">Modelica</ulink> project, contain
+a lot of relevant information about these two modelling aspect.
+Modelica publishes domain-independent software specifications, as well
+as domain-dependent libraries. (But there is no source code or design
+documentation available on the web site.) 
+</para>
+<para>
+<emphasis role="strong">Simulation</emphasis> of a system consists of
+using the system's model, specifying boundary conditions and initial
+values, and calculating the (time-varying) values of the system
+variables one is interested in. The same model can be used for many
+different simulation purposes, depending on the system variables the
+user is interested in, and on the boundary and initial values.
+The major aspects of simulation are: 
+<orderedlist continuation="continues">
+
+<listitem>
+<para>
+the <emphasis role="strong">generation</emphasis> of a correct and
+efficient set of
+<emphasis role="strong">mathematical equations</emphasis> that
+faithfully represent the modelled system.
+</para>
+<para>
+All (&ldquo;lumped-parameter&rdquo;) physical systems are represented
+by a set of 
+<emphasis role="strong">ordinary differential equations</emphasis>,
+accompanied by a set of 
+<emphasis role="strong">linear algebraic constraints</emphasis>.
+Knowing the
+<emphasis>interconnection structure</emphasis> of the elementary
+objects in the system, helps tremendously in generating a
+set of equations that is as computationally efficient as possible.
+</para>
+</listitem>
+
+<listitem>
+<para>
+the numerical <emphasis role="strong">integration</emphasis> of these
+equations (i.e., calculating the time variation of all relevant
+variables).
+</para>
+<para>
+The engineering literature has spent a lot of efforts on finding
+general-purpose approaches to efficiently solve such a given set of
+mathematical equations, without knowing where they come from. For
+example, look up the concepts of Kron's <emphasis>tearing</emphasis>,
+or Paynter's <emphasis>reticulation</emphasis>.
+</para>
+</listitem>
+
+</orderedlist>
+</para>
+<para>
+In many small-scale projects, developers often combine the modelling
+and simulation steps (or the above-mentioned sub-aspects of both
+steps), because they only have one simulation goal, and they can fully
+comprehend the whole system and the whole application in their minds.
+However, for complex systems, this is not the case anymore, so, a more
+structured approach is needed, with four separate tasks: elementary
+object properties; interconnection of elementary objects; generation of
+the set of equations of an interconnected system; and solving this set
+of equations. An absolutely necessary first step is to fully
+<ulink url="decoupling.htnl">decouple</ulink> modelling and
+simulation, as outlined above. This documents
+<emphasis role="strong">only discusses the modelling.</emphasis>
+The properties of the elementary building blocks for complex robotics
+systems are discussed in
+<ulink url="kindyn-doc.html">another document</ulink>; this document
+focuses on the
+<emphasis role="strong">interconnection aspects</emphasis>.
+</para>
+
+</section>
+
+
+<section id="dynamic-systems-physical-control">
+<title>Physical systems and control systems</title>
+
+<para>
+Complex dynamic systems combine both real-world,
+&ldquo;physical&rdquo; objects, and virtual &ldquo;control&rdquo; (or
+&ldquo;signal processing&rdquo;) objects.
+</para>
+<para>
+The elementary objects in physical systems have properties (or
+<emphasis role="strong">constitutive relationships</emphasis>)cribed
+by laws of physics: Newton's laws, Kirchoff's laws, etc.
+Hence, the interconnections between physical objects carry real
+<emphasis role="strong">energy</emphasis>.
+</para>
+<para>
+In control systems, on the other hand, the outputs of an elementary
+controller block can be <emphasis>any</emphasis> function of its
+inputs. Hence, their constitutive relationships are algorithms.
+For example, the
+Fast Fourier Transform of a set of physical signals can form an
+elementary control block in its own. So, the interconnections in
+a control system consist of (energy-less) information
+<emphasis role="strong">signals</emphasis>.
+</para>
+<para>
+Physical systems and control systems differ only in the
+<emphasis>origin</emphasis> of their constitutive relationships, but
+the resulting mathematical representation is a similar set of DAEs in
+both cases. Both systems also have similar software needs and
+properties for the <emphasis>interconnection</emphasis> of their
+elementary building blocks.
+</para>
+
+</section>
+
+
+<section id="mechanical">
+<title>The mechanical domain</title>
+<para>
+Before discussing the software design of 
+<link linkend="dynamic-systems-general">general dynamic systems</link>,
+this Section briefly explains the modelling needs in the
+so-called mechanical domain, i.e., robots, machine tools, etc.
+</para>
+<para>
+Mechanical devices of any complexity can be constructed (in a
+<emphasis>lumped-parameter</emphasis> model, at least) by
+inter-connecting impedances (springs, dampers, and inertias, i.e.,
+&ldquo;rigid bodies&rdquo;), joints and motors.
+Rigid bodies and springs can <emphasis>store</emphasis> energy
+(kinetic and potential energy, respectively); motors are
+<emphasis>sources</emphasis> of energy; dampers (e.g., friction)
+<emphasis>dissipate</emphasis> energy; and transmissions and
+joints with which all these mechanical components are
+<emphasis>connected</emphasis> are ideal
+<emphasis>transformers</emphasis> of mechanical energy.  In fact,
+dissipators and sources are also transformers, but from one domain to
+the other; e.g., a damper transforms mechanical energy into thermal
+energy, and a motor is a source of mechanical energy, derived from
+electrical energy. These inter-domain transformers are often called
+<emphasis>gyrators</emphasis>.
+</para>
+<para>
+<emphasis role="strong">Velocity</emphasis> and
+<emphasis role="strong">force</emphasis> are the basic 
+properties that define mechanical energy: the product of velocity and
+force is <emphasis>power</emphasis>, i.e., the rate of exchange of
+mechanical energy.  Velocity has two natural complementary properties: 
+<emphasis>position</emphasis> (<emphasis>integral</emphasis>
+of velocity), and <emphasis>acceleration</emphasis>
+(<emphasis>derivative</emphasis> of velocity).
+</para>
+<para>
+Changes in <emphasis role="strong">stored</emphasis> energy are
+mathematically represented by the
+<emphasis role="strong">ordinary differential equations</emphasis>
+(ODEs) of Newton's Law (relationship between force and acceleration),
+and Hooke's Law (relationship between force and position). The
+relationship between force and velocity corresponds to
+<emphasis role="strong">dissipation</emphasis> of energy
+(&ldquo;damping&rdquo;, such as friction).
+</para>
+<para>
+The joint interconnections between impedances introduce
+<emphasis role="strong">algebraic constraints</emphasis>: a joint puts
+constraints on the relative force and velocity of the mechanical
+objects it connects.  The <emphasis>causality</emphasis> (i.e.,
+whether the force or the velocity is the <emphasis>input</emphasis> of
+the constraint equation, or the output) of joint constraints is not
+defined by default.  Also dampers and motors are represented by
+algebraic constraints, but then in the form of
+<emphasis>input/output conditions</emphasis>.
+</para>
+<para>
+The set of all ODEs and algebraic constraints together is called a set
+of
+<emphasis role="strong">Differential-Algebraic Equations</emphasis>
+(DAE).
+</para>
+<para>
+The algebraic constraints are often the result of a
+&ldquo;low-resolution&rdquo; modelling: ideal
+(&ldquo;kinematic&rdquo;) constraints such as a
+<emphasis>revolute joint</emphasis> or a
+<emphasis>point&ndash;plane</emphasis> contact are in the physical
+reality approximations of more complex (and typically much faster!)
+dynamics , i.c., flexibilities in the joint and the contact. Ideal
+sources (i.c., motors) or sinks (i.c., dampers) of energy have their
+own dynamics, when modelled in more detail. And, in order to be
+complete, the modelling should be extended to include thermodynamics!
+However, more complete dynamic models typically have a much larger
+number of parameters and differential equations (but less algebraic
+constraints!). So, exchanging algebraic constraints for more
+parameters and differential equations seems to be a small or even
+negative gain, but, in practice, all DAE solvers introduce
+&ldquo;elasticities&rdquo; behind the screens anyway, in their
+iterative numerical algorithms.
+</para>
+<para>
+The physical and mathematical properties of the above-mentioned
+mechanical domain components (impedances, joints, motors), as well as
+their interconnections in the form of special families of
+<emphasis>kinematic chains</emphasis> are described in
+<ulink url="kindyn-doc.html">another document</ulink>.
+</para>
+
+</section>
+
+
+<section id="dynamic-systems-general">
+<title>General dynamic systems</title>
+
+<para>
+The discussion for mechanical systems can be completely repeated for
+other dynamic systems, such as electrical or pneumatic networks.
+This fact is the basis of general mathematical approaches such as
+system theory or Bond Graphs.
+</para>
+<para>
+In Bond Graph terminology, a complex dynamic system consists of
+energy storing/transforming/dissipating elements, connected by
+energy-conserving &ldquo;bonds&rdquo;. The bonds contain two
+complementary &ldquo;signals&rdquo;,
+<emphasis role="strong">effort</emphasis> and
+<emphasis role="strong">flow</emphasis>, whose product is energy.
+Current and velocity are examples of flows in, respectively, the
+electrical and mechanical domains; voltage and force are the
+corresponding efforts.
+</para>
+<para>
+Complex systems consist of the interconnection of simple elements.
+The same system can be modelled by different interconnection
+structures. For example, the Bond Graph interconnection structure of
+an electrical network looks quite different from the &ldquo;iconic
+diagram&rdquo; structure (i.e., using icons for resistors, sources and
+coils). Of course, the various structures can be transformed into each
+other.
+</para>
+<para>
+Each form is most appropriate for different aspects of the whole
+problem; e.g., iconic diagrams are more &ldquo;user-friendly&rdquo;
+than an equivalent Bond Graph structure, which is more appropriate to
+derive the system's DAEs. Moreover, one particular system
+can often be represented by different structures, even of the same
+type; for example, the Norton and Thevenin equivalents of the same
+electric network are both iconic diagrams, using the same elements but
+(at first sight) another interconnection structure. Of course, the
+physical information in the alternatives is exactly the same.
+</para>
+<para>
+In summary, any dynamic system can be modelled and simulated with the
+four
+<link linkend="dynamic-systems-modelling-simulation">above-mentioned</link>
+components: elementary objects with their constitutive relationships;
+interconnection structures; sets of DAEs; and numeric algorithms to
+solve these DAEs. The different domains only differ in the terminology
+and some details of the constitutive relationships; all other aspects
+are shared by all domains.
+</para>
+
+</section>
+
+</section>
+
+
+<section id="dynamic-systems-constitutive-relationships">
+<title>Constitutive relationships</title>
+
+<para>
+This Section lists the constitutive relationships of the elementary
+objects from the various domains, with an emphasis on the mechanical
+and electrical domains, because these are most relevant for &orocos;.
+(See, for example,
+<ulink url="http://www.modelica.org">Modelica</ulink> for more
+detailed descriptions.)
+</para>
+
+
+<section id="dynamic-systems-mechanical-objects">
+<title>Mechanical objects</title>
+<para>
+Mechanical impedances: spring, rigid body.
+</para>
+<para>
+Constraints: revolute joint, prismatic joint, helical joint,
+vertex-plane, edge-plane, edge-edge, plane-plane.
+</para>
+<para>
+Sources: rotational motor, torque source, force source.
+</para>
+<para>
+Sinks: damper.
+</para>
+
+</section>
+
+
+<section id="dynamic-systems-electrical">
+<title>Electrical objects</title>
+<para>
+Electrical impedances: coil, condensator.
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="dynamic-systems-interconnections">
+<title>Interconnections of elementary objects</title>
+
+<para>
+The
+<ulink url="decoupling.html#OPC-PATTERN">Object-Port-Connector</ulink>
+concept models interconnections of elementary dynamic elements:
+<itemizedlist>
+
+<listitem>
+<para>
+The elementary <emphasis role="strong">Objects</emphasis> encode the
+dynamics, in the form of the so-called <emphasis>constitutive
+relationships</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Each <emphasis role="strong">Port</emphasis> on the Object
+&ldquo;exports&rdquo; a couple of effort and flow
+variables, i.e., it indicates a place where the Object can exchange
+energy with other Objects.
+</para>
+</listitem>
+
+<listitem>
+<para>
+A <emphasis role="strong">Connector</emphasis> makes an
+inter-connection between two Ports, i.e., it links compatible effort
+and flow variables of both Ports. This link gives rise to one or more
+<emphasis role="strong">algebraic constraints</emphasis> between the Port
+variables at both connected Objects.
+</para>
+</listitem>
+
+</itemizedlist>
+<xref linkend="fig-graph-opc"> shows an example of a
+&ldquo;complex&rdquo; system constructed by interconnecting the Ports
+on Objects, by means of Connectors. The arrows on the edges between
+Ports and Connectors indicate the (arbitrarily chosen) direction of
+positive energy (or signal) flow.
+</para>
+<para>
+<figure id="fig-graph-opc" float="1" pgwide="0">
+<title>
+An interconnection structure with Objects (rounded rectangles), Ports
+(small circles), and Connectors (ovals).
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/graph-opc.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../graph-opc.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+
+<section id="dynamic-systems-opc-hierarchy">
+<title>Hierarchical models</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="dynamic-systems-opc-visualisation">
+<title>Visualisation connections</title>
+<para>
+</para>
+
+</section>
+
+</section>
+
+
+<section id="dynamic-systems-sofware-patterns">
+<title>Software patterns</title>
+
+<section id="dynamic-systems-patterns-ops">
+<title>Object-Port-Connector</title>
+<para>
+<ulink url="decoupling.html#OPC-PATTERN">Object-Port-Connector</ulink>
+type checking, determination of dependencies, causality determination,
+model reduction, connecting secondary properties, 
+</para>
+
+</section>
+
+
+<section id="dynamic-systems-patterns-factory">
+<title>Factory</title>
+<para>
+
+</para>
+</section>
+                                                                                
+                                                                                
+<section id="dynamic-systems-patterns-ccm">
+<title>CORBA Component Model (CCM)</title>
+<para>
+CORBA component model: what is needed to make a piece of software
+&ldquo;stand-alone&rdquo; in a larger complex, distributed system.
+<emphasis>Middleware</emphasis> standard, that covers all the
+recurring properties: name serving, network transparancy, state,
+transactions, recovery, object browsing, &hellip;
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="dynamic-systems-api">
+<title>API</title>
+
+<para>
+The modelling and simulation of complex, possibly multi-domain
+dynamic systems needs a <emphasis>factory</emphasis> to support the
+error-free construction of the systems by interconnecting simpler
+systems.
+</para>
+<para>
+NewChain, NewJoint, NewMotor, NewImpedance,
+NewPort, NewConnector, ConnectPorts, DisconnectPorts, etc.
+Lots of things still missing&hellip;
+</para>
+
+</section>
+
+</article>
+

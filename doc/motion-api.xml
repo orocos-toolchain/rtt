@@ -1,0 +1,893 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+   Motion API
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+  <author>
+    <firstname>Johan</firstname>
+    <surname>Rutgeerts</surname>
+    <affiliation>
+      <address>
+        Johan.Rutgeerts(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+  <author>
+    <firstname>Wim</firstname>
+    <surname>Meeussen</surname>
+    <affiliation>
+      <address>
+        Wim.Meeussen(at)mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003&ndash;2004</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="motion-api.xml">XML file</ulink>.  </holder>
+ </copyright>
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document describes the
+<ulink url="deep-shallow-api.html">application programming interface</ulink>
+(&ldquo;API&rdquo;) for the
+<emphasis role="strong">motion specification</emphasis> of
+one single rigid body, and of &ldquo;motion devices&rdquo; driven by
+<ulink url="kindyn-doc.html">kinematic chains</ulink>,
+<emphasis>i.e.</emphasis> robots and machine tools.
+The motion API contains the instructions that program a
+motion controller to move the rigid body or the device's tool from point
+&ldquo;<emphasis>A</emphasis>&rdquo; to point
+&ldquo;<emphasis>B</emphasis>&rdquo;.
+In addition, the API includes specifications for motions that are
+generated on-line via sensor inputs; for example, force- or
+distance-controlled &ldquo;compliant motion&rdquo;, visual servoing,
+potential-field based motion, etc.
+ </para>
+ <para>
+<ulink url="interpolation-api.html">Another document</ulink> discusses
+the basic algorithms and the corresponding API for motion
+<emphasis>interpolation</emphasis>.
+(A forthcoming document will discuss how the specified motions can be
+<emphasis>controlled</emphasis>.)
+ </para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+   <revnumber>0.01</revnumber>
+   <date>May 24, 2003</date>
+   <authorinitials>HB, JR, WM</authorinitials>
+  </revision>
+  <revision>
+   <revnumber>0.02</revnumber>
+   <date>July 22, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.03</revnumber>
+   <date>August 10, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Heavily reworked. Put more structure and content in the motion
+planning and motion interpolation sections.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.04</revnumber>
+   <date>August 21, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Added more details for trapezoidal acceleration interpolator, and for
+the interpolator API.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.05</revnumber>
+   <date>August 26, 2003</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Started to incorporate figures and code for some interpolators.
+   </revremark> 
+  </revision>
+  <revision>
+   <revnumber>0.06</revnumber>
+   <date>April 19, 2004</date>
+   <authorinitials>HB</authorinitials>
+   <revremark>
+Exported the material in interpolation to a
+<ulink url="interpolation-api.html">separate document</ulink>.
+Added 
+<link linkend="synchronized-path"><parameter>SynchronizedPath</parameter></link>,
+<link linkend="motion-task"><parameter>MotionTask</parameter></link>.
+Extended the data, execution and configuration flow discussion.
+   </revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+<section id="overview">
+<title>What is &ldquo;motion&rdquo;?</title>
+<para>
+Robots and machine tools are basically <emphasis>motion
+devices</emphasis>: they have
+several motors with which their wheels, sliders and/or joints can be
+moved, and the goal of these motor motions is to position one or more
+of the device's &ldquo;<emphasis role="strong">tools</emphasis>&rdquo;
+(or &ldquo;<emphasis role="strong">end effectors</emphasis>&rdquo;) 
+in a prescribed way in the environment. This text is about a
+programming interface to instruct the device to
+perform a desired motion, or a set of subsequent motions, for one or
+more of its tools.  These tools can be
+attached in various places on the device's body, and need not
+necessarily <emphasis>act</emphasis> on the environment: they can also
+be sensors, or interface apparatus (speaker, screen, animated face,
+&hellip;) to interact with people.
+</para>
+<para>
+In the simplest case, the specification of a desired motion need not take
+into account on which machine the motion will be executed. But, in
+general, the following aspects of the device do 
+<emphasis role="strong">influence the execution</emphasis> of the
+motion specification:
+<itemizedlist>
+
+<listitem>
+<para>
+the <ulink url="kindyn-doc.html">kinematics</ulink> of the device. For
+example, the programmer wants to avoid to come close to the kinematic
+singularities; or he wants to optimize the energy consumption or 
+another <emphasis role="strong">optimization criterion</emphasis>.
+</para>
+</listitem>
+
+<listitem>
+<para>
+the <ulink url="orocos-control-kernel.html">controller</ulink> of the
+device.  For example, for a device that runs under
+<emphasis>impedance control</emphasis>, the
+executed motion depends not only on the desired motion
+geometry, but also on the the virtual impedance that the robot
+controller tries to mimic.
+</para>
+</listitem>
+
+<listitem>
+<para>
+the <emphasis role="strong">sensors</emphasis> with which the device
+can inspect its environment allow the device to adapt its actions to
+what it &ldquo;sees&rdquo;, i.e., it calculates its next motion
+setpoint taking into account the acquired sensor information.
+</para>
+</listitem>
+
+</itemizedlist>
+This text talks about the &ldquo;simple&rdquo;
+<emphasis role="strong">motion specification interface</emphasis>,
+<emphasis>i.e.</emphasis> without taking into account the
+device-specific aspects that influence the
+<emphasis>execution</emphasis> of the specified motion.
+</para>
+<para>
+The following Sections explain the two major complementary categories
+of motion specification: the motion is specified in
+<link linkend="joint-cartesian">joint space or in Cartesian
+space</link>, or the motion setpoints come 
+<link linkend="planning-interpolation">from a planner or from an
+interpolator</link>.
+
+</para>
+
+
+<section id="joint-cartesian">
+<title>Joint space vs. Cartesian space</title>
+<para>
+Motion specification must take into account the following two
+complementary sets of physical properties:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Joint space properties.</emphasis>
+These are the properties of the relationships between end-effector
+motion or force on the one hand, and the corresponding joint motion
+and force on the other hand. That is, the <emphasis
+role="strong">internal</emphasis> motion properties of the kinematic
+chain, irrespective of what task the device must perform. 
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Cartesian space properties.</emphasis>
+These are the properties of the
+&ldquo;<emphasis role="strong">external</emphasis>&rdquo; motion task
+that the device is asked to perform, <emphasis>i.e.</emphasis> the
+properties of the motion of (one of) the tools or end-effectors from
+&ldquo;<emphasis>point A</emphasis>&rdquo; to 
+&ldquo;<emphasis>point B</emphasis>&rdquo;, without reference to the
+kinematic structure of the device that will perform the motion.
+</para>
+</listitem>
+
+</itemizedlist>
+The execution of a given specified motion is, in general, influenced
+by the following two important factors:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Constraints.</emphasis>
+The specified motion for a tool on the machine could be
+<emphasis role="strong">impossible</emphasis> to
+generate by the device, because of: mechanical
+joint limits; limits on the forces that can be generated by the
+motors; singularities of the chain; collisions between links of the
+kinematic chain and itself or other objects in the environment; etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Redundancy.</emphasis>
+The specified motion could be generated by the kinematic chain in
+<emphasis role="strong">multiple ways</emphasis>.
+</para>
+</listitem>
+
+</itemizedlist>
+Constraints and redundancy occur in both joint space and Cartesian
+space, and are often mathematically tackled by optimizing
+<emphasis>cost functions</emphasis>; for example, move with minimal
+kinetic energy; minimize deviation from nominal position by attaching
+virtual springs between the links and their nominal positions; etc.
+Of course, these cost functions look differently in both spaces. And,
+in addition multiple cost functions could be applied at the same time.
+</para>
+<para>
+The joint space motion properties are discussed in more detail in
+<ulink url="kindyn-doc.html">another document</ulink>, while
+this text discusses Cartesian motion specification.
+</para>
+
+</section>
+
+
+<section id="planning-interpolation">
+<title>Planning vs. Interpolation</title>
+
+<para>
+Motion specification (in both joint space and Cartesian space) has two
+complementary faces:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Planning</emphasis>
+(&ldquo;path planning&rdquo;, &ldquo;trajectory generation&rdquo;,
+&hellip;) determines a sequence of desired Cartesian
+<emphasis role="strong">via-points</emphasis> 
+(or <emphasis role="strong">key frames</emphasis>) for
+the tool whose motion is planned. A via-point is a combination of
+position, velocity and/or acceleration of a
+<emphasis>reference frame</emphasis> attached to the tool.
+</para>
+<para>
+Planning is typically performed
+<emphasis role="strong">off-line</emphasis> and in
+<emphasis role="strong">non-realtime</emphasis>
+(<emphasis>i.e.</emphasis> it is not strictly
+synchronized with the servo controllers on the device's motors), and 
+via-points are &ldquo;far apart&rdquo;. How far is
+&ldquo;far&rdquo; depends on the application. In 
+<emphasis role="strong">sensor-driven</emphasis> motions, the
+generation of the next via-point is done on-line, based on the
+information coming from the sensors.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Interpolation</emphasis> takes the
+&ldquo;coarse-grained&rdquo; via-points
+coming from the planning, and generates a sequence of 
+&ldquo;fine-grained&rdquo; intermediate motion setpoints, that are
+given to the motor controllers in a <emphasis>synchronous</emphasis>
+way, <emphasis>i.e.</emphasis> one new setpoint at each control
+instant. So, interpolation is an
+<emphasis role="strong">on-line</emphasis> and 
+<emphasis role="strong">realtime</emphasis> process.
+</para>
+</listitem>
+
+</itemizedlist>
+By definition, planning takes place in Cartesian space, but
+interpolation is often performed in joint space: the 3D or 6D
+via-points coming from the planning are transformed in desired joint
+positions (and, possibly, also velocities and accelerations), via the
+kinematic chain's
+<ulink url="kindyn-doc.html">inverse kinematics</ulink>, and then the
+interpolation takes place in each of the 1D spaces corresponding to
+the joints separately.
+Users can be interested in synchronizing the timing of all individual
+joints' 1D interpolations; <emphasis>e.g.</emphasis> all joints must
+start, stop, accelerate or decelerate at the same instant in time.
+</para>
+<para>
+This document does not discuss 
+<emphasis>planning algorithms</emphasis> (it assumes that the via-points or key
+frames are generated &ldquo;somewhere&rdquo;, and are available to be
+used in the method calls described in this document), or
+<ulink url="interpolation-api.html">interpolation</ulink>. The
+document <emphasis>does</emphasis> specify the contents of the
+<link linkend="motion-classes"><parameter>ViaPoint</parameter></link>
+software class used to contain the motion data and process it. 
+</para>
+
+</section>
+
+
+</section> <!-- motion -->
+
+
+<section id="motion-classes">
+<title>Motion classes</title>
+<para>
+The simplest motion specification allows the programmer to specify
+motions for which the target positions
+(&ldquo;<link linkend="via-point">via-points</link>;
+&ldquo;key frames&rdquo;) are known at the time of programming. A
+&ldquo;<link linkend="path">path</link>&rdquo; is a sequence of
+via-points that the tool has to move through.
+</para>
+<para>
+Path and via-point programming is sufficient for most Cartesian motion
+applications, including those where the motion target is defined
+on-line, <emphasis>e.g.</emphasis> on the basis of sensors, or of
+interactive human input by means of some form of a
+&ldquo;joystick&rdquo;.
+</para>
+<para>
+This section also presents specification primitives for sequences of
+paths, as well as synchronized paths for more than one end-effector.
+</para>
+
+
+<section id="via-point">
+<title><parameter>ViaPoint</parameter></title>
+<para>
+A via-point contains all or part of the following information:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Geometry</emphasis>: the position and
+orientation of the via-point. This information is mathematically
+represented by a point or a reference frame.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Constraints</emphasis>: the
+velocity and/or acceleration information the moving tool should have
+when reaching the via-point. Or, alternatively, the time instant at
+which the via-point must be reached. Or, in more advanced
+applications, indications about the desired &ldquo;distance&rdquo; to
+an objects seen by the sensors. &ldquo;Distance&rdquo; can also mean
+&ldquo;force&rdquo;, in case the motion is physically constrained by
+contact with the environment.
+</para>
+<para>
+In some tasks, the timing is less important than the geometry, such
+that the velocity and acceleration at the via-point can be considered
+to be &ldquo;timeless&rdquo;, <emphasis>i.e.</emphasis> they determine
+the &ldquo;tangential&rdquo; information at the via-point (the desired
+tangent direction and the desired curvature, respectively).
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Events</emphasis>: the application programmer
+can be interested in being able to fire events when a given via-point
+is reached, in order to enable other tasks
+<emphasis role="strong">to synchronize</emphasis> with the ongoing
+motion. Some examples are: opening or closing of a gripper when a
+certain via-point is reached; taking a measurement; starting the
+motion of another machine; signaling to the motion
+<emphasis>controller</emphasis> that the ongoing motion towards
+the via-point has reached its final destination, such that it can, for
+example, adapt its control action.
+</para>
+</listitem>
+
+</itemizedlist>
+The information in a via-point is allowed to be
+<emphasis role="strong">partial</emphasis>, in the sense that it does
+not specify all the available degrees of freedom for the
+&ldquo;end-effector&rdquo; that executes the motion. This
+&ldquo;redundancy&rdquo; creates opportunities to optimize the specified
+motion in ways that are not foreseen or not relevant at the time of
+specification. This optimization is the job of the
+<ulink url="interpolation-api.html">interpolator</ulink>.
+</para>
+
+</section>
+
+
+<section id="path">
+<title><parameter>Path</parameter></title>
+<para>
+A <parameter>Path</parameter> is an ordered list of 
+<link linkend="via-point">via-points</link>, which (optionally) also
+contains extra information:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Blending policy</emphasis>: the path
+can contain advice to the 
+<ulink url="interpolation-api.html">interpolator</ulink> about how the
+via-points should be approached: the motion can go through the via-point
+<emphasis>exactly</emphasis> (<emphasis>i.e.</emphasis> guaranteeing the
+timing or contact information at the via-points), or to take this
+information only as a guideline from which can be deviated, in order to
+&ldquo;smooth&rdquo; the path.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Events</emphasis>: in addition to the events
+of each <parameter>ViaPoint</parameter> in a
+<parameter>Path</parameter>, the <parameter>Path</parameter> itself
+can have its own events.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+<section id="synchronized-path">
+<title><parameter>SynchronizedPath</parameter></title>
+<para>
+A <parameter>SynchronizedPath</parameter> is an ordered list of 
+<link linkend="path"><parameter>Path</parameter>s</link>.
+The goal is to be able to specify a synchronized motion for more than one
+end-effector on the device. For example, the two hands and the head of a
+humanoid robot are required to move synchronously with the object that the
+robot is carrying.
+</para>
+<para>
+Extra information connected to a
+<parameter>SynchronizedPath</parameter> is:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Synchronization policy</emphasis>: 
+a specification of how the motion through the
+<parameter>ViaPoints</parameter> in the various
+<parameter>Path</parameter>s must be synchronized.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Events</emphasis>, for example to signal a
+violation of the synchronization requirements.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+<section id="motion-task">
+<title><parameter>MotionTask</parameter></title>
+<para>
+A <parameter>MotionTask</parameter> is an ordered list of 
+<link linkend="path"><parameter>Path</parameter>s</link>
+and/or
+<link linkend="synchronized-path"><parameter>SynchronizedPath</parameter>s</link>.
+It contains the information for a whole sequence of motions of a
+device.
+</para>
+<para>
+Extra information connected to a
+<parameter>MotionPath</parameter> is:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Blending policy</emphasis>, that is, advice to the
+interpolator about how to connect two motion segments together.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Events</emphasis>, for example to signal the
+transition between paths in the task.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="motion-api">
+<title>Motion API</title>
+
+<para>
+This Section explains the motion API designed for &orocos;.
+The general trade-offs in an API design are explained in 
+<ulink url="deep-shallow-api.html">this document</ulink>; in summary: (i)
+it is worthwhile to separate the API of the data flow, the execution flow,
+and the configuration flow, and (ii) APIs differ between
+<emphasis>classes</emphasis> and <emphasis>components</emphasis>.
+</para>
+
+
+<section id="motion-api-data-flow">
+<title>Data flow</title>
+<para>
+The data flow for motion consists of just one method call, with overloading
+of the arguments for the different types of motion specifications:
+<link linkend="via-point"><parameter>ViaPoint</parameter></link>,
+<link linkend="path"><parameter>Path</parameter></link>, 
+<link linkend="synchronized-path"><parameter>SynchronisedPath</parameter></link>
+or 
+<link linkend="motion-task"><parameter>MotionTask</parameter></link>. 
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="move-to">
+  <parameter>Move</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Start a motion according to the given motion specification, via-point, path,
+synchronised path or motion task.
+   </para>
+   <para>
+This method assumes the selected motion specification in its argument
+is syntactically and semantically appropriate. Indeed, there is no time for
+checking, since <parameter>Move</parameter> should also be usable in
+realtime. 
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="motion-api-execution-flow">
+<title>Execution flow</title>
+<para>
+The execution flow of a motion contains the methods that influence the
+ongoing motion immediately, without reconfiguration of the components
+involved in the motion. The logic state machine that implements the
+execution flow is responsible that these execution flow commands are only
+used in the appropriate moment and context; this check cannot be done
+<emphasis>inside</emphasis> of the execution flow methods, because they
+lack the context information.
+</para>
+<para>
+Here is a list of possible execution flow methods:
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="freeze-motion">
+  <parameter>FreezeMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Pause the ongoing motion, in a safe and controlled way (this
+means using an <emphasis>interpolator</emphasis> for &ldquo;braking&rdquo;
+the motion), and with the possibility to restart again.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="stop-motion">
+  <parameter>StopMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Stop the ongoing motion, in a safe and controlled way (this
+means using an <emphasis>interpolator</emphasis> for &ldquo;braking&rdquo;
+the motion), without the need to restart again.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="abort-motion">
+  <parameter>AbortMotion</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Stop the ongoing motion, as quickly as possible. This is
+only to be done in real emergencies, as it doesn't involve an
+<emphasis>interpolator</emphasis> to smooth the braking motion.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="scale-motion-speed">
+  <parameter>SetMotionSpeed</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Set the desired speed for the (ongoing) motion. The argument can be a
+<emphasis>percentage</emphasis> of a nominally configured speed.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="select-tcp">
+  <parameter>SelectTCP</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Define which Tool Centre Point on the device is to be used as the reference
+for the motion specifications.
+   </para>
+   <para>
+For devices with multiple TCPs, the argument of this method is a
+<emphasis>list</emphasis> of TCPs.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="select-interpolator">
+  <parameter>SelectInterpolator</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Define which 
+<ulink url="interpolation-api.html">motion interpolation</ulink>
+algorithm to use to transform motion specifications into setpoints for the
+device's motors.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+
+</section>
+
+
+<section id="motion-api-configuration-flow">
+<title>Configuration flow</title>
+<para>
+The configuration flow of motion consists of: (i) the non-realtime classes
+that prepare motion objects to be used in data and execution flow (in other
+words, the <emphasis role="strong">class factory</emphasis> methods), and
+(ii) the configuration of a
+<link linkend="motion-application">motion application</link>.
+</para>
+
+<section id="motion-class-factory">
+<title>Class factory</title>
+<para>
+In the first place, these are the <emphasis>constructors</emphasis> and
+<emphasis>destructors</emphasis> of a
+<link linkend="via-point"><parameter>ViaPoint</parameter></link>,
+a <link linkend="path"><parameter>Path</parameter></link>, 
+a <link linkend="synchronized-path"><parameter>SynchronisedPath</parameter></link>
+or 
+a <link linkend="motion-task"><parameter>MotionTask</parameter></link>. 
+Secondly, one can construct composite motion primitives from more
+elementary ones. This is done via <parameter>Add</parameter> methods; for
+example:
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="add-via-point">
+  <parameter>Path.Add(ViaPoint)</parameter>: 
+ </term>
+  <listitem>
+   <para>
+Adds the <parameter>ViaPoint</parameter> to the end of the
+<parameter>Path</parameter>.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+Similar operations exist for <emphasis role="strong">removing</emphasis>
+motion primitives; <emphasis>e.g.</emphasis>
+<parameter>Path.Remove(ViaPoint);</parameter>.
+And <emphasis>iterators</emphasis> are useful for
+<emphasis role="strong">traversing</emphasis> a list of
+composite motion primitives (<parameter>Path</parameter>,
+<parameter>SynchronisedPath</parameter> and
+<parameter>MotionTask</parameter>),
+<emphasis>e.g.</emphasis> <parameter>MotionTask.GetNext(Path);</parameter>. 
+</para>
+
+</section>
+
+
+<section id="motion-application">
+<title>Motion application</title>
+<para>
+A generic motion application is a component that has a much larger
+interface than just the above-mentioned data flow or execution flow
+specification, and the class factory configuration. Indeed, the
+<emphasis>executed</emphasis> motion also depends on the actual contents of
+the Generator and the Controller components in the 
+<ulink url="orocos-control-kernel.html">Control Kernel</ulink> that
+implements the application. Hence, the configuration for a motion
+application also provide methods for configuring Generator and Controller:
+<variablelist>
+
+ <varlistentry>
+ <term>
+  <anchor id="configure-interpolator">
+  <parameter>ConfigureInterpolator</parameter>:
+ </term>
+  <listitem>
+   <para>
+this method takes care of
+the non-realtime configuration of the Generator component (which contains
+an <ulink url="interpolation-api.html">interpolator</ulink> in this case).
+This configuration can consist of many things: setting property parameters,
+loading code, etc.
+   </para>
+  </listitem>
+ </varlistentry>
+
+ <varlistentry>
+ <term>
+  <anchor id="configure-controller">
+  <parameter>ConfigureController</parameter>:
+ </term>
+  <listitem>
+   <para>
+this method takes care of the non-realtime configuration of the Controller
+component: setting property parameters, loading code, etc.
+   </para>
+  </listitem>
+ </varlistentry>
+
+</variablelist>
+</para>
+<para>
+In addition, a motion application can service multiple clients and
+encompass multiple devices. So, configuration of devices and client
+connections also belong to the interface.
+Basically, this is a minimal API of the application:
+<anchor id="motion-command-simple">
+<programlisting>
+ Device.Tool.Move(Path);
+</programlisting>
+The method call prototype above shows the different
+&ldquo;sources of information&rdquo; needed to execute a motion:
+<itemizedlist>
+
+<listitem>
+<para>
+The <parameter>Device</parameter> provides the information about: the
+dimension of the space in which the device moves; the kinematics chain
+with which to execute the motion; the possible cost functions for
+redundancy or constraint; etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The <parameter>Tool</parameter> provides the information about the
+spatial object or reference frame for which the motion is specified.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<parameter>Path</parameter> (as well as the 
+<link linkend="motion-classes">other motion primitives</link>): the
+geometry, timing and events of the motion; the mathematical representation
+of position, velocity, acceleration, etc.; how sensor-based input is to be
+used in the motion generation; what kinematic optimizations are possible;
+what controller-dependent optimizations are possible; etc.
+</para>
+</listitem>
+
+</itemizedlist>
+The API may be shortened to:
+<programlisting>
+ Tool.Move(Path);
+</programlisting>
+or
+<programlisting>
+ Device.Move(Path);
+</programlisting>
+<anchor id="motion-command-simple-short">
+because the <parameter>Device</parameter> object is implicit in the
+<parameter>Tool</parameter>, and vice versa if the
+<parameter>Device</parameter> has only one single
+<parameter>Tool</parameter>.
+</para>
+<para>
+The motion API above satisfies the requirement for a
+<emphasis>small</emphasis> API, but not that of a
+<emphasis>complete</emphasis> API, or of a
+<emphasis>decoupled</emphasis> API: in the method calls above, the
+<parameter>Motion</parameter> object
+contains the information about all the factors than can influence a
+particular motion, so, a finer &ldquo;granularity&rdquo; in the
+argument list could result in something like this:
+<programlisting>
+ Device.Move(Tools, Paths, KinematicChains, Sensors, Controllers);
+</programlisting>
+<anchor id="motion-command-extended">
+Note the use of the <emphasis>plural</emphasis> in all arguments: 
+complex devices can consist of several sub-devices, tools, etc., and
+it should be possible to specify a coordinated motion for all of them
+together.
+</para>
+
+</section>
+
+</section>
+
+</section>
+
+
+</article>
+

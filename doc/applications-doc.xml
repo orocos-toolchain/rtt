@@ -1,0 +1,1266 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN"
+	"docbook/dtd/4.1/docbook.dtd" [
+<!ENTITY orocos "<acronym>Orocos</acronym>">
+]>
+
+<article>
+
+<articleinfo>
+  <title>
+    Orocos Applications
+  </title>
+  <author>
+    <firstname>Herman</firstname>
+    <surname>Bruyninckx</surname>
+    <affiliation>
+      <address>
+        Herman.Bruyninckx@mech.kuleuven.ac.be
+      </address>
+    </affiliation>
+  </author>
+ <copyright>
+  <year>2003</year>
+  <holder>Herman Bruyninckx &mdash;
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License
+(<ulink
+ url="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</ulink>), 
+where the <emphasis>source code</emphasis> of the document is the 
+<ulink url="applications-doc.xml">XML file</ulink>.
+</holder>
+ </copyright>
+
+
+ <abstract>
+ <para>
+ <emphasis role="strong">Abstract</emphasis>
+ </para>
+ <para>
+This document describes what an <emphasis>Application</emphasis> is 
+and how building an application must be
+prepared to fit in the generic realtime feedback control Kernel.
+Some general applications are discussed in more detail.
+</para>
+<para>
+The subsequent steps in the implementation of an application are: (i) to
+describe the &ldquo;family&rdquo; of applications that the current
+implementation can or should cover; (ii) to determine the architecture
+of the application; (iii) to fill in the Data Object interfaces; (iv)
+to decide what functions are needed in all Components, and what
+real-time behaviour they require; (v) to determine the
+<emphasis>control flow</emphasis> of the application; and (vi) to implement the Component
+functions.
+</para>
+ </abstract>
+
+ <revhistory>
+  <revision>
+    <revnumber>0.01</revnumber>
+    <date>August 13, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Initial release: gives overview of Kernel design and programming
+interface; lists most common motion control applications, without much
+detail; explains the complementary roles of the Kernel Builders, the
+Application Builders, and the Component Builders.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.02</revnumber>
+    <date>August 16, 2003</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Added more details for a set of most common applications.
+    </revremark> 
+  </revision>
+  <revision>
+    <revnumber>0.03</revnumber>
+    <date>January 20, 2004</date>
+    <authorinitials>HB</authorinitials>
+	 <revremark>
+Introduced &ldquo;families&rdquo;, and &ldquo;Kernel
+applications&rdquo;. More details on (a)synchronous data exchange.
+    </revremark> 
+  </revision>
+ </revhistory>
+
+</articleinfo>
+
+
+<section id="applications-introduction">
+<title>Introduction</title>
+<para>
+An <emphasis role="strong">application</emphasis> is a piece of
+software that <emphasis role="strong">(advanced) end-users</emphasis>
+can work with: the software runs on the end-users' particular
+hardware; it offers a programming language and (graphical) user
+interface targeted to the end-users' goals; it provides configuration
+options that are relevant in the end-users' context; etc.
+</para>
+<para>
+The &orocos; project is not in the first place about providing a
+particular set of applications, but rather on providing the
+<emphasis>infrastructure</emphasis> to build applications.
+In this respect, &orocos; is designed to be a &ldquo;plug-in&rdquo;
+framework, in which different applications are developed as plug-ins
+into the same <emphasis>Kernel</emphasis> framework. 
+However, &orocos; does have already a couple of applications, which
+serve as examples from which to start other applications. Over time,
+the applications database will hopefully grow, by contributions from
+users.
+</para>
+<para>At the lowest (&ldquo;real-time&rdquo;)
+control level, the current state of &orocos; is as follows:
+<itemizedlist>
+
+<listitem>
+<para>
+&orocos; provides a generic <emphasis role="strong">Kernel</emphasis>
+that can be used for all real-time or non real-time 
+<emphasis role="strong">feedback control</emphasis>
+applications. The Kernel code is the responsibility of the
+<emphasis role="strong">Kernel Builders</emphasis>: they take care
+of the interfaces to the underlying operating system and hardware;
+they provide a programming interface that is more familiar to control
+application builders than the powerful but hence often dangerous
+(real-time) operating system primitives; they take care about how to
+best implement
+&ldquo;boring stuff&rdquo; like efficiency, distributability, mutual
+exclusion, and, possibly, CORBA support; and they provide a set of
+example applications.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The Kernel offers a plug-in interface for the
+<emphasis role="strong">Application Builders</emphasis>. The
+Application Builders' first
+responsibilty is to design an application by providing
+<emphasis role="strong">concrete specifications</emphasis> (interfaces
+and functionality) for all
+plug-ins, targeted to the application's goals. So, they specify what
+the application will functionally be able to do, what data it will
+accept and generate, and how end users can interact with this data and
+functionality.
+</para>
+<para>
+The second responsibilty of the Application Builders is 
+<emphasis role="strong">to integrate</emphasis> the whole
+application; i.e., the Component Builders (see below) provide
+implementations of the above-mentioned specifications, and the
+Application Builders must make sure that the whole set of
+implementations really works together as specified. In this part of
+the job, topics appear such as distribution over a network, and
+filling in the
+<anchor id="hot-spots">
+<emphasis role="strong">hot spots</emphasis>. These hot
+spots are those parts of an application instantiation that do, in
+general, not port between instantiations of the same application
+(i.e., from one serial robot manipulator to another serial robot
+manipulator); they consist mainly of device drivers for the particular
+hardware of each instantiation, wrappers to the operating
+system used in the instantiation, kinematics of robots, etc.
+</para>
+<para>
+The first result of the Application Builders' work is independent of
+the concrete system (the &ldquo;instantiation&rdquo; of the
+application): the application is fully specified, but still without
+implementation code.
+The second result of the Application Builders' work is fully
+integrated and implemented code; this part is
+<emphasis>very</emphasis> dependent on the concrete system.
+Because of this fundamental difference in dependencies, it is a good
+idea to keep both responsibilities of the Application Builders
+<ulink url="decoupling.html">decoupled</ulink>, even in tightly
+integrated systems.
+</para>
+</listitem>
+
+<listitem>
+<para>
+An application must have code in each of its Kernel plug-ins,
+<emphasis role="strong">implementing</emphasis> the functionality of
+that application, as specified by the Application Builders. The
+concrete implementation of the application functionality is the
+responsibility of the
+<emphasis role="strong">Component Builders</emphasis>, who are
+experts in the specific component functionality they are implementing.
+They have to know only a minimum about what is going on in the rest of
+the application or in the Kernel, and certainly not about how all
+those other things are implemented.
+</para>
+<para>
+Especially in research environments, it is useful to allow the
+possibility to replace one particular component implementation with
+another one. The Kernel was designed with this functionality of
+dynamic re-configuration of plug-in implementations in mind.
+</para>
+</listitem>
+
+</itemizedlist>
+Of course, in many real cases, the same people play the roles of
+Kernel Builder, Application Builder and Component Builder, at
+different times and with different levels of involvement. 
+</para>
+
+</section>
+
+
+<section id="applications-kernel">
+<title>The Kernel</title>
+<para>
+This Section describes the structure and the programming interface of
+the Kernel, but only at a level of detail that is appropriate for
+Application and Component Builders. More details of the Kernel design,
+properties and implementation are described in
+<ulink url="kernel-doc.html">another document</ulink>; this document
+focuses on how <emphasis>to use</emphasis> the Kernel infrastructure.
+</para>
+<para>
+<xref linkend="fig-control-pattern"> depicts the 
+<emphasis role="strong">structure</emphasis> of the
+Kernel: the rectangles are &ldquo;Components&rdquo;, the ovals are
+&ldquo;Data Objects&rdquo;, and the arrows indicate read and write
+accesses. Basically, specifying an application means specifying the
+contents of the Data Objects, as well as the function blocks
+in the Components.
+</para>
+<para>
+<figure id="fig-control-pattern" float="1" pgwide="0">
+<title>
+ Structure of the generic feedback control Kernel.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/control-pattern.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/control-pattern.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+<para>
+<figure id="fig-port-data-object" float="1" pgwide="0">
+<title>
+Data Objects (ovals) are responsible for the deterministic
+distribution of information between Components. 
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/port-data-object.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/port-data-object.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+<section id="applications-kernel-exchange">
+<title>Interaction between Components</title>
+
+<para>
+In the context of this document, the important thing is to know how
+the various Components can <emphasis role="strong">interact</emphasis>
+<anchor id="interaction">
+with each other.
+Components are designed and implemented independently of each other,
+except for the following complementary forms of interaction:
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Data flow via Data Objects.</emphasis>
+<xref linkend="fig-port-data-object"> shows the data exchange
+concept offered by the Kernel. Each Component has a number of 
+<anchor id="ports">
+<emphasis role="strong">Ports</emphasis> through which it communicates
+data. Multiple Ports of the same Component can be connected to the
+same Data Object. And one Data Object can be connected to multiple
+Components.
+</para>
+<para>
+The Kernel offers support for efficient and deterministic data
+exchange, which takes place through standardized
+<parameter>Set_&hellip;</parameter> and
+<parameter>Get_&hellip;</parameter> methods on all Data Objects.
+The Component Builders do not have to worry about low-level
+responsibilities such as locking and transparant network distribution.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Control flow via Events</emphasis>.
+The Kernel offers support
+for the &ldquo;firing&rdquo; and &ldquo;handling&rdquo; of events.
+Components use events to notify other Components that a certain fact
+has happened, without it having to know these other Components
+explicitly, and without having to synchronize with them explicitly.
+</para>
+<para>
+Some events are standardized by the Kernel, such as those used for
+(re)configuration; the application-dependent events are specified by
+the Application Builders.
+</para>
+</listitem>
+
+</itemizedlist>
+Applications should not use any other means of interaction. The
+temptation may be high for an Application Builder to provide
+&ldquo;shortcut&rdquo; interactions, but everything that bypasses
+the structures offered by the Kernel leads to
+non-deterministic and non-maintainable implementations. (If Application
+Builders do have very good arguments to introduce other interaction
+primitives, they should contact the Kernel Builders and discuss the
+addition of these new primitives to the Kernel!)
+</para>
+
+</section>
+
+
+<section id="applications-kernel-inter-exchange">
+<title>Interaction within one single Component</title>
+
+<para>
+Data exchange takes place between functions in Components: function
+``<emphasis>A</emphasis>'' in Component ``<emphasis>X</emphasis>''
+needs to have data from function ``<emphasis>B</emphasis>'' in
+Component ``<emphasis>Y</emphasis>''. As in this simple example,
+these functions are often in <emphasis>different</emphasis>
+Components, and the Data Objects' support in the Kernel then takes
+care of the mutual exclusion needed in asynchronous data exchange. But
+it is also possible that different functions in the
+<emphasis>same</emphasis> Component want to exchange data. If both
+functions have the same
+<link linkend="rt-modes">real-time mode</link>, the fact that they run
+in the same Component is sufficient to guarantee mutual exclusion when
+accessing the common data. But if the functions have a different 
+real-time mode, they most probably run in different threads, so
+mutual exclusion synchronization is necessary. The fundamental
+difference between both situations is that in the latter, each access
+to the shared data should be made through the safe
+<parameter>Set_&hellip;</parameter> and
+<parameter>Get_&hellip;</parameter> methods supported by the Kernel.
+</para>
+<para>
+Alternatively, the Kernel implementation of these 
+<parameter>Set_&hellip;</parameter> and
+<parameter>Get_&hellip;</parameter> methods could take into account
+from which Components they are called and avoid the locking or network
+transparancy when it is not needed. Of course, this approach requires
+software support during the building of the application; this support
+is a long-term goal of &orocos;.
+</para>
+<para>
+This document uses the name 
+&ldquo;<emphasis role="strong">function blocks</emphasis>&rdquo;
+for (the largest) sets of Component functions that, as a group, require 
+asynchronous data exchange, and this data exchange is localized at the
+start and end of the function block. That means that a function block
+can be implemented by a Component Builder without having to worry
+about the context the code is used in. The name
+&ldquo;function block&rdquo; is, not by coincidence, the same as used
+in <emphasis>Programmable Logic Controllers</emphasis> (PLCs).
+</para>
+<para>
+<xref linkend="fig-port-component"> depicts a situation in which two
+different &ldquo;function blocks&rdquo; in the same Component access a
+shared data object through a <parameter>Port</parameter> that is only
+connected inside the Component. For the Kernel, this
+&ldquo;special&rdquo; situation is not special at all: it doesn't
+require any added functionality from the Kernel, because the
+&ldquo;asynchronously safe&rdquo;
+<parameter>Set_&hellip;</parameter> and
+<parameter>Get_&hellip;</parameter> methods have to exist in the
+Kernel anyway. So, both function blocks can be combined into one
+single larger function block.
+</para>
+
+<para>
+<figure id="fig-port-component" float="1" pgwide="0">
+<title>
+Asynchronous data access through Ports within one single Component.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/port-component.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/port-component.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+</section>
+
+
+<section id="applications-kernel-use">
+<title>Applying the Kernel structure</title>
+<para>
+The Kernel structure of <xref linkend="fig-control-pattern"> is a
+<emphasis role="strong">conceptual model</emphasis>. In
+concrete applications, this model can be used in various ways:
+<itemizedlist>
+
+<listitem>
+<para>
+Some Components are left empty. This means that the corresponding Data
+Objects are &ldquo;short-circuited&rdquo;. The
+<emphasis>Estimator</emphasis> is one of these Components that are
+needed only in advanced applications, and hence will be left
+empty in most systems.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Some Components are taken together in one single Component,
+<emphasis>i.e.</emphasis> the data exchange between these Components
+takes place in the same thread, and no external Components require
+access to any of these data objects.  This is reasonable for
+small-scale, centralized control systems, because it makes their
+<link linkend="interaction">interaction</link> a lot
+simpler and efficient. The most typical case is where the Generator,
+Sensor, Estimator and Servo can be brought together in one single
+function block.</para>
+</listitem>
+
+<listitem>
+<para>
+Every feedback control application needs some sort of deterministic
+and periodic task execution. Traditionally, control system programmers
+directly use RTOS primitives such as periodic threads with static
+scheduling priorities. However, the Kernel decouples the
+<emphasis>specification</emphasis> of a 
+<emphasis role="strong">real-time behaviour</emphasis> from its
+<emphasis>implementation</emphasis> on a real-time operating system.
+So, Application Builders configure each of the Component functions to
+have one of the following real-time modes offered by the Kernel:
+<anchor id="rt-modes">
+ <itemizedlist>
+
+ <listitem>
+ <para>
+ <anchor id="behaviour-non-interruptable">
+ <emphasis role="strong">Non-Interruptable.</emphasis>
+Functions with this real-time mode have the highest priority in the
+Kernel, and run with hardware interrupts disabled. Hence, functions
+should only use this real-time mode in very few, extremely
+time-critical cases.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+ <anchor id="behaviour-non-pre-emptible">
+ <emphasis role="strong">Non-Pre-Emptible</emphasis>
+These functions run with the same highest priority, but after the
+<emphasis>Non-Interruptable</emphasis> functions, and with the
+hardware interrupts enabled.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+ <anchor id="behaviour-pre-emptible">
+ <emphasis role="strong">Pre-Emptible</emphasis> functions run with
+the second highest priority: the execution of these functions can be
+pre-empted by the <emphasis>Non-Interruptable</emphasis> and
+<emphasis>Non-Pre-Emptible</emphasis> functions.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+ <anchor id="behaviour-soft-real-time">
+ <emphasis role="strong">Soft-Real-Time</emphasis> functions run at
+lower priorities.
+ </para>
+ </listitem>
+
+ </itemizedlist>
+In most implementations of the Kernel, the above-mentioned real-time
+modes map quite straigthforwardly to real-time threads in the RTOS:
+ <itemizedlist>
+
+ <listitem>
+ <para>
+The <emphasis>Non-Interruptable</emphasis> and
+<emphasis>Non-Pre-Emptible</emphasis> functions run in a thread that
+gets the highest scheduling priority of all application threads.  This
+thread is called &ldquo;zero-time thread&rdquo; in the reference
+Orocos implementation, because it executes those functions that have
+to finish in zero time, i.e., without any possible interruption from
+elsewhere.
+ </para>
+ <para>
+Within this zero-time thread, the
+<emphasis>Non-Interruptable</emphasis> functions run with interrupts
+disabled.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+The <emphasis>Pre-Emptible</emphasis> functions run in a
+lower-priority thread,
+called the &ldquo;zero-latency thread&rdquo;, because it should
+execute those functions that have to finish before a given deadline,
+i.e., with the minimum possible latency on that deadline. 
+ </para>
+ </listitem>
+
+ </itemizedlist>
+<para>
+Note that the Application Builders assign real-time modes to
+<emphasis>functions</emphasis>, and that they do not come in direct
+contact with <emphasis>threads</emphasis>. The reason is that
+particular implementations of the Kernel can opt to provide the
+desired real-time behaviour by other means than by
+using threads. For example, timers or tasklets; without using
+a real-time operating system at all, executing everything in one loop,
+with the highest-priority functions first; or executing the
+above-mentioned real-time modes in, respectively, Interrupt Service
+Routines, Deferred Service Routines and Asynchronous Service Routines.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The above-mentioned decoupling between the specification of the
+real-time <emphasis>behaviour</emphasis> on the one hand, and the
+<emphasis>sample frequencies</emphasis> on the other hand, in
+combination with the fact that both pieces of information are
+<emphasis role="strong">configured at run-time</emphasis>, force
+Application and Component Builders
+<emphasis role="strong">not to use direct knowledge</emphasis> of the
+sample frequency and the real-time behaviour in their code. (With the
+exception of <emphasis>Non-Interruptable</emphasis> functions, because
+these can typically only use a very limited subset of the Kernel API.)
+The Builders should use a configuration
+<emphasis role="strong">property</emphasis> instead.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Multiple instances of the generic Kernel structure are combined in
+more complex 
+<anchor id="multi-level">
+<emphasis role="strong">architectures</emphasis>. The
+most common architecture at the real-time control level is
+<emphasis role="strong">hierarchical</emphasis>, as depicted in
+<xref linkend="fig-two-level-control-pattern"> and
+<xref linkend="fig-two-level-control-pattern-component">.
+</para>
+<para>
+<anchor id="real-time-interaction">
+The arrows running from right to left between both levels of these
+architectures denote &ldquo;asynchronous&rdquo; data access between
+priority levels. The difference between
+<xref linkend="fig-two-level-control-pattern"> and
+<xref linkend="fig-two-level-control-pattern-component"> is that
+the former architecture applies to applications in which both levels
+require <emphasis role="strong">real-time interaction</emphasis>: a
+Component in the highest level needs information from one particular
+Component in the lowest level. In the latter case, an
+<emphasis>image</emphasis> of the whole low level is passed to the
+high level via the Reporter Component of the lowest level, which is by
+default a non-real-time Component.  This approach is more suitable for
+networked distribution; the former is appropriate for implementation
+of the controller on one single computing node.
+</para>
+<para>
+The advantage of the real-time architecture is tighter
+synchronization between lower and higher level; the disadvantage is
+that the lowest level cannot run in its most efficient implementation,
+because the data access from the higher level is typically
+<link linkend="applications-kernel-inter-exchange">asynchronously</link>.
+However, if the frequency of the inner loop is an integer multiple of
+the frequency of the outer loops that require asynchronous data
+access, the implementation <emphasis>can</emphasis> be done without
+locking; it is even possible to run both levels in the same thread.
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+<para>
+<figure id="fig-two-level-control-pattern" float="1" pgwide="0">
+<title>
+Application of the control Kernel concept in a two-level hierarchical
+architecture, with <emphasis>real-time</emphasis> data exchange
+between both levels.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/two-level-control-pattern.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/two-level-control-pattern.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+<para>
+<figure id="fig-two-level-control-pattern-component" float="1" pgwide="0">
+<title>
+Application of the control Kernel concept in a two-level hierarchical
+architecture, with <emphasis>non-real-time</emphasis> data exchange.
+</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="../pictures/two-level-control-pattern-component.png" format="PNG">
+</imageobject>
+<imageobject>
+<imagedata fileref="../pictures/two-level-control-pattern-component.eps" format="EPS">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+</section>
+
+
+<section id="kernel-application">
+<title>Kernel applications: generic control systems</title>
+<para>
+Talking about &ldquo;Kernel applications&rdquo; seems to be a
+contradiction, since previous sections suggested to consider the Kernel as an
+&ldquo;empty&rdquo; placeholder that accepts application-dependent
+functionality. However, there is already a lot of useful things that
+one can implement in the Kernel, and that is completely independent of
+any particular application: PID servos for SISO and MIMO systems; gain
+scheduling; digital signal processing algorithms; one-dimensional
+setpoint interpolation, and synchronized N-dimensional setpoint
+interpolation; etc.
+Roughly speaking, the difference with real Applications is that at
+this Kernel level, the signals have no physical dimensions, and have
+just generic names such as &ldquo;X&rdquo;.
+</para>
+
+</section>
+
+</section>
+
+
+<section id="applications-kernel-applications">
+<title>Applications</title>
+
+<para>
+This Section gives an overview of the Application Builders' task in
+specifying an application; the following Sections give concrete
+application examples.
+</para>
+
+<section id="applications-tasks">
+<title>Tasks of the Application Builders</title>
+<para>
+Application Builders do not <emphasis>implement</emphasis> an
+application, but <emphasis>specify</emphasis> and
+<emphasis>integrate</emphasis> it. (Compare this job to that of
+computer motherboard manufacturers.) That means the Application
+Builders take decisions for all of the following:
+<orderedlist>
+
+<listitem>
+<para>
+The <emphasis role="strong">architecture</emphasis> of the
+application, <emphasis>i.e.</emphasis> deciding about the data flow in
+the system. 
+</para>
+<para>
+If the architecture is 
+<link linkend="multi-level">multi-level</link>, the Application
+Builders have (i) to decide which higher levels need real-time access
+to data objects from lower levels (because this influences the data
+flow in the application), and
+(ii) to choose distinct names for the same Components in
+the various instantations of the Kernel structure
+(<emphasis>i.e.</emphasis> the <emphasis>Generator</emphasis> name
+should be used only once; so,
+<xref linkend="fig-two-level-control-pattern"> gives a misleading
+picture).
+</para>
+</listitem>
+
+<listitem>
+<para>
+The <emphasis role="strong">objects</emphasis> to be stored in
+the Data Objects of the Kernel, or, in other words, the
+<link linkend="ports">Ports</link> of all Components.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The <emphasis role="strong">events</emphasis> that Components generate
+and/or react to.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The <emphasis role="strong">functions</emphasis> (and 
+function blocks) that must run in each Component.
+</para>
+</listitem>
+
+<listitem>
+<para>
+The execution <emphasis role="strong">behaviour</emphasis> of all
+Component functions. The Application Builders decide
+(i) how many threads to use (<emphasis>if</emphasis> threads are
+used&hellip;),
+(ii) at what frequencies they run; and
+(iii) which Component functions are run with what
+<link linkend="rt-modes">real-time mode</link>.
+</para>
+<para>
+The Kernel takes care of the concrete details of real-time
+execution and scheduling, while the application concentrates on the
+functionality.
+The &ldquo;price&rdquo; to pay for this convenience is that the
+Application Builders must strictly follow the structure imposed 
+by the Kernel. This structure consists of only using the
+predefined Components, and their standard interfaces. These interfaces
+basically consist of <parameter>Set_&hellip;</parameter> and
+ <parameter>Get_&hellip;</parameter> methods on the Data Objects.
+</para>
+</listitem>
+
+</orderedlist>
+So, after having taken all these decisions, all that is left to do is
+to fill in concrete implementations of all functions. This is the
+Component Builders' job, which is not within the scope of this
+document.
+</para>
+
+</section>
+
+
+<section id="applications-families">
+<title>Application families</title>
+<para>
+The &orocos; project is all about providing <emphasis>generic
+infrastructure</emphasis>, so re-use of developments at any level
+should be aimed at. Hence, also the Application and Component Builders
+must try to keep their work as general as possible, without
+compromising on efficiency and intuitivity for their users. One of the
+most practical (and easy) steps is to avoid all use of &ldquo;magic
+numbers&rdquo; in the application code; these are numbers that have
+only meaning for the particular application that the Builders are
+working at. Instead, the Builders should try to come up with a
+<emphasis role="strong">family</emphasis> of Applications and/or
+Components (kinematics, servo algorithms, generators, estimators,
+&hellip;). A family is determined by a set of algorithms that can be
+given a
+common <emphasis role="strong">property file</emphasis>, and the whole
+family is uniquely defined by varying the property parameters. In
+other words, a family can be given executable code that can be
+reconfigured for any member of the family without recompilation, just
+by setting the properties.
+</para>
+<para>
+The borders of where we take stuff together to put it into a family
+are defined by the &ldquo;simplicity&rdquo; of the property file. Of
+course, this is not a deterministic statement, so discussion will
+remain about what exactly constitutes a family.  Anyway, hierarchies
+of families exist: a family deeper in the hierarchy has more efficient
+implementations, but less members.
+</para>
+
+</section>
+
+</section>
+
+
+<section id="applications-actuated-axis">
+<title>ActuatedAxis</title>
+
+<para>
+A very common application in the domain of motion control is that
+of one single actuated axis. <emphasis>i.e.</emphasis> a revolute or
+prismatic joint with a transmission and a motor. The joint axis has
+mechanical limits, software and hardware end switches at one end or at
+both ends, position or velocity sensors (encoders, resolvers,
+potentiometers, laser distance sensors, &hellip;), force, current or
+pressure sensors, etc.
+</para>
+<para>
+Actuated axes come in different types: position control, velocity
+control, force control, pressure control, current control.
+</para>
+
+<section id="actuated-axis-architecture">
+<title>Architecture</title>
+<para>
+The typical architecture for an ActuatedAxis is a
+<link linkend="multi-level">multi-level hierarchy</link>, with
+so-called <emphasis>cascaded control loops</emphasis>: the inner loop
+performs current control, the loop around that does force or velocity
+control, and the outer loop provides position control. (In many
+systems, the two inner loops are done in the hardware of the motor
+drive units.) It is appropriate to choose sample times for the
+outer loops that are integer multiples of the inner loop, such that
+very efficient (because lock-less) &ldquo;asynchronous&rdquo; data
+exchange can be provided.
+</para>
+<para>
+The <link linkend="fig-two-level-control-pattern">Components</link>
+in the Application are as follows.  The (data flow) Command is a
+desired 1D position, velocity, force, current or pressure, and the
+Generator performs simple interpolation between the incoming Commands
+and the real-time Setpoints. The Controller is most often some
+variation of the PID algorithm. The Estimator is usually empty, or
+provides quite straightforward transformations, such as positions into
+velocities (mind the discretization effects!), or pressures or
+currents into forces.
+</para>
+
+</section>
+
+<section id="actuated-axis-commands">
+<title>Commands</title>
+<para>
+<para>
+The previous section described the architecture with which to perform
+<emphasis>steady state</emphasis> data flow (<emphasis>i.e.</emphasis>
+the Command is a setpoint for the Generator), but the ActuatedAxis
+application also has <emphasis>control flow</emphasis> properties. The
+corresponding Commands are documented below; the exact syntax of the
+Commands depends on the application.
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Component configuration</emphasis>: an
+ActuatedAxis application can provide several algorithms for the
+Generator, Servo, and Estimator, and provides Commands to the user to
+make this selection. 
+</para>
+<para>
+The implementation of the application must make sure that such a
+configuration Command is executed in a safe way,
+<emphasis>i.e.</emphasis> the Components are brought in a state in
+which they can be (re)configured. The reconfiguration could have
+<emphasis role="strong">hot-plug semantics</emphasis>: the outer loop
+is reconfigured while the inner loops keep on running their control
+loops in hard real time, using the last data Command they received
+from the outer loop.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Power configuration.</emphasis>
+The ActuatedAxis must first power its drives before it can execute
+motion commands. Similarly, it has to power-off the drives at the end
+of the motion tasks.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Homing.</emphasis>
+Many ActuatedAxis applications do not use absolute position sensors,
+such that the system must first move to find its &ldquo;zero
+position&rdquo;. The exact sequence of motions and events that are
+needed for the homing depends on the hardware setup of the
+application. But they all have a similar sequence of actions:
+ <orderedlist>
+
+ <listitem>
+ <para>
+Power-on the system, after the human has made sure that it is in an
+appropriate position for homing.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+Move &ldquo;fastly&rdquo; towards an end switch. The reaching of the
+switch triggers an event, for which the handler has been registered
+before the start of this motion.
+ </para>
+ </listitem>
+
+ <listitem>
+ <para>
+Reverse the motion direction and move &ldquo;slowly&rdquo; towards
+the end switch. The reaching of the switch triggers an event, for
+which (another) handler has been registered before the start of this
+motion. This second motion aims at a higher accuracy of setting the
+zero position.
+ </para>
+ </listitem>
+
+
+ </orderedlist>
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+
+</section>
+
+
+<section id="actuated-axis-data-flow">
+<title>Data flow</title>
+<para>
+commands, generator setpoints, control state (position, velocity,
+force, &hellip;), configuration state (What functionality runs in
+which Component? What functionality is available in each Component?)
+</para>
+
+</section>
+
+<section id="actuated-axis-events">
+<title>Events</title>
+<para>
+<itemizedlist>
+
+<listitem>
+<para>
+<emphasis role="strong">Motion events.</emphasis>
+<emphasis>MotionStateEndReached</emphasis>: the Generator triggers
+this event, to signal the other components that it is now generating
+setpoints for this particular motion state. The other Components can
+adapt their functionality accordingly; <emphasis>e.g.</emphasis> the
+servo can increase the integral action of a PID, or the estimator can
+switch to a velocity estimator that works best for slow velocities.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Hardware events.</emphasis>
+<emphasis>PowerOn</emphasis>, <emphasis>PowerOff</emphasis>,
+<emphasis>EndSwitchReached</emphasis>, 
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Component configuration events.</emphasis>
+<emphasis>GeneratorReachedStateX</emphasis>,
+<emphasis>TriggerGeneratorStateTransitionA</emphasis> (and similar
+events for the other Components and other &ldquo;A's&rdquo;).
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Application configuration events.</emphasis>
+Application has reached state X; trigger Application state transition;
+etc.
+</para>
+</listitem>
+
+<listitem>
+<para>
+<emphasis role="strong">Error events.</emphasis>
+<emphasis>PowerFailure</emphasis>;
+<emphasis>MinimalPositionExceeded</emphasis>,
+<emphasis>MaximalPositionExceeded</emphasis>, and similar events for
+velocity, current, force, power, etc.;
+</para>
+</listitem>
+
+</itemizedlist>
+</para>
+</section>
+
+
+<section id="actuated-axis-functions">
+<title>Component functionalities</title>
+<para>
+PID; gain scheduling; motion profiles; Kalman Filters for velocity or
+position; etc.
+</para>
+
+</section>
+
+
+<section id="actuated-axis-behaviour">
+<title>Behaviour</title>
+<para>
+The innermost loop that runs in software uses the 
+<link linkend="behaviour-non-pre-emptible">Non-Pre-Emptible</link>
+real-time mode.
+(<link linkend="behaviour-non-interruptable">Non-Interruptable</link>
+isn't necessary in most cases.) The outer loops are
+<link linkend="behaviour-pre-emptible">Pre-Emptible</link>,
+<emphasis>or</emphasis> they are synchronously executed by the
+innermost loop, at integer multiples of its sample times.
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="applications-xyz">
+<title>XYZ</title>
+<para>
+An XYZ device is a set of one, two or three ActuatedAxis devices, with
+the following more specific features: the axes are 
+<emphasis role="strong">prismatic</emphasis> and
+<emphasis role="strong">orthogonal</emphasis>, and the application
+adds <emphasis role="strong">precise synchronization</emphasis>
+between the different ActuatedAxis devices.
+The data objects in the XYZ control level are
+<emphasis role="strong">Cartesian</emphasis>: they indicate positions
+in the real world, independently of the coordinates of the axes.
+</para>
+
+<section id="xyz-architecture">
+<title>Architecture</title>
+<para>
+The architecture follows from the application description above: XYZ
+is a control loop around a set of ActuatedAxis controllers. Because of
+the precise synchronization needs, both layers have
+<link linkend="real-time-interaction">real-time interaction</link>.
+</para>
+
+</section>
+
+
+<section id="xyz-commands">
+<title>Commands</title>
+<para>
+The <emphasis>steady state</emphasis> Command is a desired position or
+velocity (in 1D, 2D or 3D).
+The <emphasis>Component configuration</emphasis>,
+<emphasis>Power configuration</emphasis> and
+<emphasis>Homing</emphasis> are similar (not identical!) to those
+of the <link linkend="actuated-axis-commands">ActuatedAxis</link>,
+but the latter adds <emphasis>synchronization</emphasis> between the
+homing tasks of all axes.
+</para>
+
+</section>
+
+
+<section id="xyz-data-flow">
+<title>Data flow</title>
+<para>
+Similar to the highest level of the
+<link linkend="actuated-axis-commands">ActuatedAxis</link>, but the
+objects (position, velocity, force, &hellip;) are now Cartesian.
+</para>
+
+</section>
+
+<section id="xyz-events">
+<title>Events</title>
+<para>
+Again similar to those of the highest level of the
+<link linkend="actuated-axis-commands">ActuatedAxis</link>, but the
+axis synchronization for the homing needs its own extra 
+<emphasis role="strong">Home</emphasis> Command, whose handler
+collects the homing events of the individual axes, and whose completer
+waits until all axes are homed before declaring the XYZ device homed
+by firing the <emphasis role="strong">XYZHomed</emphasis> event.
+</para>
+</section>
+
+
+<section id="xyz-functions">
+<title>Functions</title>
+<para>
+The Generator performs interpolation in the Cartesian space; 
+algorithms are typically not much more complex than the 
+<link linkend="actuated-axis-commands">ActuatedAxis</link> algorithms,
+because the Cartesian task can only 
+<emphasis role="strong">translate</emphasis> the end-point of the XYZ
+device. Advanced Generators take the
+<emphasis role="strong">dynamics</emphasis> of the device into
+account; in this case, the Generator must have knowledge of the device
+kinematics and hence it must have access to some data objects of the
+underlying ActuatedAxis controller.
+</para>
+<para>
+The Servo also operates on Cartesian objects. Often, it will
+execute independent servo algorithms on each of the
+<emphasis>coordinates</emphasis> of the Cartesian motion objects.
+</para>
+<para>
+The Effector transforms the result into 1D instantaneous
+and independent setpoint Commands for the ActuatedAxis controllers; it
+needs to know the exact <emphasis role="strong">kinematics</emphasis>
+of the XYZ device; these kinematics remain hidden in the Effector
+as a &ldquo;hot spot&rdquo;.
+</para>
+<para>
+If not empty, the Estimator is not much more complex than the
+ActuatedAxis Estimator, because of the &ldquo;orthogonal&rdquo; nature
+of the XYZ application.
+</para>
+
+</section>
+
+
+<section id="xyz-behaviour">
+<title>Behaviour</title>
+<para>
+The XYZ level should run with the same real-time behaviour as the
+top-most level of the ActuatedAxis application it works with.
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="applications-pointing-device">
+<title>PointingDevice</title>
+<para>
+Very similar structure as
+<link linkend="applications-xyz">XYZ</link>, but now running on top of
+rotational ActuatedAxis applications.
+</para>
+<para>
+This means that some functionalities become a bit more complex,
+because orientational motions have a more involved mathematics than
+pure translations. Conceptually, however, everything remains the same
+with respect to the XYZ application.
+</para>
+
+</section>
+
+
+<section id="applications-serial-manipulator">
+<title>SerialManipulator</title>
+<para>
+The serial connection of a number of
+<link linkend="applications-actuated-axis">ActuatedAxis</link>
+objects, with revolute joint axes for robots, or prismatic and
+revolute axes for 4D or 5D machine tools. So, it has more complex
+Commands, Data objects, Component functionalities and Events than
+the <link linkend="applications-actuated-axis">ActuatedAxis</link> and
+<link linkend="applications-xyz">XYZ</link> applications, but 
+the same Architecture and Behaviour.
+</para>
+
+<section id="serial-manipulator-data-flow">
+<title>Data flow</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="serial-manipulator-functions">
+<title>Component functionalities</title>
+<para>
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="applications-pkm">
+<title>PKM (Parallel Kinematics Machine)</title>
+<para>
+Same Commands, Behaviour, Architecture, Data objects and Events as the
+<link linkend="applications-serial-manipulator">SerialManipulator</link>,
+but other Component functionalities, depending on the kinematics.
+</para>
+
+<section id="pkm-architecture">
+<title>Architecture</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="pkm-data-flow">
+<title>Data flow</title>
+<para>
+</para>
+
+</section>
+
+<section id="pkm-events">
+<title>Events</title>
+<para>
+</para>
+</section>
+
+
+<section id="pkm-functions">
+<title>Component functionalities</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="pkm-behaviour">
+<title>Behaviour</title>
+<para>
+</para>
+
+</section>
+
+
+</section>
+
+
+<section id="applications-mobile-manipulator">
+<title>MobileManipulator</title>
+
+<section id="mobile-manipulator-architecture">
+<title>Architecture</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="mobile-manipulator-data-flow">
+<title>Data flow</title>
+<para>
+</para>
+
+</section>
+
+<section id="mobile-manipulator-events">
+<title>Events</title>
+<para>
+</para>
+</section>
+
+
+<section id="mobile-manipulator-functions">
+<title>Component functionalities</title>
+<para>
+</para>
+
+</section>
+
+
+<section id="mobile-manipulator-behaviour">
+<title>Behaviour</title>
+<para>
+</para>
+
+</section>
+
+
+</section>
+
+
+</article>
+
