@@ -114,7 +114,7 @@ namespace ORO_ControlKernel
          * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
-        AxisSensor( int max_chan = 1);
+        AxisSensor( int max_chan = 1 , const std::string& name = "AxisSensor" );
 
         virtual bool componentLoaded();
 

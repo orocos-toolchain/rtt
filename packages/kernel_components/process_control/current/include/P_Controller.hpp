@@ -78,7 +78,7 @@ namespace ORO_ControlKernel
       Property< ChannelType > _controller_gain;
 
   public:
-      P_Controller(unsigned int _num_axes);
+      P_Controller(unsigned int _num_axes, const std::string& name = "P_Controller");
       virtual ~P_Controller();
 
       // Redefining virtual members

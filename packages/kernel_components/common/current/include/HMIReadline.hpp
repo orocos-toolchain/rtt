@@ -262,8 +262,8 @@ namespace ORO_ControlKernel
         }
 
     public :
-        HMIReadline( ExecutionExtension* _ee = 0)
-            : Base("cin"), start(false),
+        HMIReadline( ExecutionExtension* _ee = 0, const std::string& name = "cin")
+            : Base( name ), start(false),
               startEvent(Event::SYNASYN,"HMIReadline::StartEvent"),
               condition(0), command(0), command_fact(0), datasource_fact(0),
               prompt(" (type 'quit' for exit) :"),

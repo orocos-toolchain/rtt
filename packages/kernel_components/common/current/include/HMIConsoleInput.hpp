@@ -68,8 +68,8 @@ namespace ORO_ControlKernel
         const CommandFactoryInterface* tester;
         const DataSourceFactoryInterface* dataobject;
     public :
-        HMIConsoleInput( ExecutionExtension* _ee = 0)
-            : Base("cin"), start(false),
+        HMIConsoleInput( ExecutionExtension* _ee = 0,  const std::string& name = "cin")
+            : Base( name ), start(false),
               startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent"),
               ee(_ee), condition(0), command(0), tester(0), dataobject(0) {}
 

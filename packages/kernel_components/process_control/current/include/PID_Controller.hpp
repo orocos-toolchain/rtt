@@ -76,8 +76,8 @@ namespace ORO_ControlKernel
                            MakeAspect<PropertyExtension, KernelBaseFunction, ExecutionExtension>::Result > Base;
       
     public:
-        PID_Controller(int _num_chans = 1) 
-            : Base ("PID_Controller"),
+        PID_Controller(int _num_chans = 1, const std::string& name = "PID_Controller" ) 
+            : Base ( name ),
               num_chans( _num_chans ),
               _K("K", "Proportional gain", std::vector<double>( num_chans, 0) )
             , _Ti("Ti", "Integrative time cte", std::vector<double>( num_chans, 0))

@@ -109,8 +109,8 @@ namespace ORO_ControlKernel
         /**
          * @brief Create a generator for interpolating N axes.
          */
-        AxisPositionGenerator( int _num_axes ) 
-            : Base("AxisPositionGenerator"),
+        AxisPositionGenerator( int _num_axes, const std::string& name = "AxisPositionGenerator"  ) 
+            : Base( name ),
               maxVel("MaxVel",""),
               maxAcc("MaxAcc",""),
               num_axes(_num_axes),

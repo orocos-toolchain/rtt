@@ -91,8 +91,8 @@ namespace ORO_ControlKernel
         /**
          * @brief Create a signalgenerator with a fixed number of channels.
          */
-        SignalGenerator(int num_channels =  1) 
-            : Base("SignalGenerator"),
+        SignalGenerator(int num_channels =  1, const std::string& name = "SignalGenerator") 
+            : Base( name ),
               max_chans("Channels", "The number of channels", num_channels)
         {
             channel.resize(max_chans);

@@ -86,7 +86,7 @@ namespace ORO_ControlKernel
          * @param max_chan The number of channels available in the
          *        output DataObject.
          */
-        AxisEffector(int max_chan = 1);
+        AxisEffector(int max_chan = 1, const std::string& name = "AxisEffector" );
 
         virtual bool componentStartup();
 

@@ -4,8 +4,8 @@
 
 namespace ORO_ControlKernel {
 
-    AxisSensor::AxisSensor( int max_chan ) 
-        :  Base("AxisSensor"),
+    AxisSensor::AxisSensor( int max_chan , const std::string& name ) 
+        :  Base(name),
            max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
            axis_to_remove("")
     {

@@ -125,8 +125,8 @@ namespace ORO_ControlKernel
         /**
          * Constructor.
          */
-        SignalTracker(int num_channels =  1) 
-            : Base("SignalTracker"),
+        SignalTracker(int num_channels =  1, const std::string& name = "SignalTracker") 
+            : Base( name ),
               max_chans("Channels", "The number of channels", num_channels)
         {
             channel.resize(max_chans);

@@ -7,8 +7,8 @@ namespace ORO_ControlKernel {
 /*****************************************
  * Implementation of controller class P_Controller
  *****************************************/
-P_Controller::P_Controller(unsigned int num_axes) 
-  : Base("P_Controller"),
+P_Controller::P_Controller(unsigned int num_axes , const std::string& name) 
+  : Base( name ),
     _num_axes(num_axes),
     _controller_gain("K", "Proportional Gain")
 {

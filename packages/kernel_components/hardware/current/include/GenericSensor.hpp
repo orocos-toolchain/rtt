@@ -132,8 +132,8 @@ namespace ORO_ControlKernel
          * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelValues" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
-        GenericSensor( int max_chan = 32) 
-            :  Base("GenericSensor"),
+        GenericSensor( int max_chan = 32, const std::string& name="GenericSensor") 
+            :  Base( name ),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan)
         {
 //             channels.resize(max_chan, AnalogInput<unsigned int>*(0) );
@@ -301,6 +301,8 @@ namespace ORO_ControlKernel
         /**
          * @name Generic Sensor Commands
          * Runtime commands to inspect the sensor values.
+         * This is done outside the Data Flow, thus also
+         * possible when the GenericSensor is not selected.
          * @{
          */
         /** 

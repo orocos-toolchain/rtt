@@ -69,8 +69,8 @@ namespace ORO_ControlKernel
         //TaskNonRealtime printer;
         Mutex msg_lock;
     public :
-        HMIConsoleOutput()
-            : Base("cout"), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m")
+        HMIConsoleOutput( const std::string& name = "cout")
+            : Base( name ), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m")
               {
                   this->start();
               }

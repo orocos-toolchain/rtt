@@ -67,8 +67,8 @@ namespace ORO_ControlKernel
         /**
          * Forward a fixed number of channels from Setpoints to Outputs.
          */
-        FeedForwardController(int num_channels =  1) 
-            : Base("FeedForwardController"),
+        FeedForwardController(int num_channels =  1, const std::string& name = "FeedForwardController") 
+            : Base( name ),
               max_chans("Channels", "The number of channels", num_channels)
         {
             set_point.resize(max_chans, 0.0);

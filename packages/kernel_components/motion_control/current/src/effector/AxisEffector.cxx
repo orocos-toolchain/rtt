@@ -6,8 +6,8 @@ namespace ORO_ControlKernel {
 
     using ORO_DeviceDriver::AnalogDrive;
 
-    AxisEffector::AxisEffector(int max_chan ) 
-        :  Base("AxisEffector"),
+    AxisEffector::AxisEffector(int max_chan, const std::string& name  ) 
+        :  Base( name ),
            max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
            usingChannels(0)
     {

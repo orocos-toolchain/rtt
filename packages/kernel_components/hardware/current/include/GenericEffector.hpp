@@ -99,8 +99,8 @@ namespace ORO_ControlKernel
          * @param max_chan The maximum number of channels
          * 
          */
-        GenericEffector(int max_chan = 1) 
-            :  Base("GenericEffector"),
+        GenericEffector(int max_chan = 1, const std::string& name = "GenericEffector") 
+            :  Base( name ),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
                usingChannels(0)
         {
@@ -254,7 +254,9 @@ namespace ORO_ControlKernel
         /**
          * @name Generic Effector Commands
          * Runtime Commands to inspect and set the state of the 
-         * Digital Outputs
+         * Outputs. This is done outside of the Data Flow,
+         * thus these methods can be called when the GenericEffector
+         * is not selected.
          * @{
          */
         /** 
