@@ -300,6 +300,7 @@ namespace ORO_ControlKernel
             }
         if (serverOwner && autostart.get() )
             reporterTask->start();
+        Logger::log() <<Logger::Debug << "ReportingExtension successfully initialized()."<< Logger::endl;
         return true;
     }
 
