@@ -26,9 +26,12 @@
  ***************************************************************************/
 
 #include "corelib/VectorComposition.hpp"
+#include <iostream>
 
 namespace ORO_CoreLib
 {
+    using std::cerr;
+    using std::endl;
 
   // A decomposeProperty method for decomposing a Property< vector<double> >
   // into a PropertyBag with Property<double>'s.
@@ -85,7 +88,16 @@ namespace ORO_CoreLib
 
         // cerr << "Getting dimension ... ";
         Property<int>* dim;
-        dim = dynamic_cast< Property<int>* >(v_bag->get().find("dim"));
+        v_base = v_bag->get().find("dim");
+        if ( v_base == 0 ) {
+            cerr << "In Property<PropertyBag of type std::vector<double> : could not find property \"dim\"."<<endl;
+            return false;
+        }
+        dim = dynamic_cast< Property<int>* >(v_base);
+        if ( dim == 0) {
+            cerr << "In Property<PropertyBag of type std::vector<double> : Expected \"dim\" to be of type short."<<endl;
+            return false;
+        }
         int dimension = dim->get();
         // cerr << dimension << endl;
 
