@@ -62,7 +62,10 @@ namespace ORO_Execution {
 
   void GlobalCommandFactory::unregisterObject( const std::string& objectname )
   {
-    mdata.erase( objectname );
+      if ( mdata.count( objectname ) ) {
+          delete mdata[objectname];
+          mdata.erase( objectname );
+      }
   }
 
     std::vector<std::string> GlobalCommandFactory::getObjectList() const

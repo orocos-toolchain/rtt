@@ -36,7 +36,7 @@
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ParsedValue.hpp"
 #include "execution/ConditionComposite.hpp"
-#include "TryCommand.hpp"
+#include "execution/TryCommand.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -65,12 +65,10 @@ namespace ORO_Execution
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer,
-                                          Processor* proc,
-                                          GlobalFactory* e )
-      : context( proc, e ), mpositer( positer ),
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
+      : context( t ), mpositer( positer ),
         mfunc(0), mcallfunc(0), 
-        implcond(0), mcondition(0), try_cond(0),
+        implcond(0), mcondition(0), try_cond(0), dc(0),
         conditionparser( context ),
         commandparser( context ),
         valuechangeparser( context ),
@@ -99,7 +97,6 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( returnpart );
     BOOST_SPIRIT_DEBUG_RULE( ifstatement );
     BOOST_SPIRIT_DEBUG_RULE( ifblock );
-    BOOST_SPIRIT_DEBUG_RULE( elseblock );
 
     newline = ch_p( '\n' );
     openbrace = expect_open( ch_p('(') );
@@ -249,9 +246,10 @@ namespace ORO_Execution
       }
       implcond_v.clear();
 
-      context.valueparser.setValue(
+      context->valueRepository.setValue(
       "done", new ParsedAliasValue<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
+      dc = 0;
   }
 
   void ProgramGraphParser::seendostatement()
@@ -274,7 +272,7 @@ namespace ORO_Execution
       implcond = 0;
 
     // the done condition is no longer valid..
-    context.valueparser.removeValue( "done" );
+    context->valueRepository.removeValue( "done" );
   }
 
     void ProgramGraphParser::startofprogram()
@@ -319,6 +317,11 @@ namespace ORO_Execution
   {
        mcondition = conditionparser.getParseResult();
        assert( mcondition );
+       // do we need to wrap the condition in a dispatch condition ?
+       // if so, mcondition is only evaluated if the command is dispatched.
+       if ( dc )
+          mcondition = new ConditionBinaryComposite< std::logical_and<bool> >( dc, mcondition );
+
        // leaves the condition in the parser, if we want to use
        // getParseResultAsCommand();
        // mcondition is only used with seen*label statements,
@@ -483,7 +486,7 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endforstatement() {
-        // the last statement is an increment of the 'counter'
+        // the last statement is a _conditional_ increment of the 'counter'
         if ( for_incr_command )
             {
                 program_graph->setCommand( for_incr_command );
@@ -543,6 +546,7 @@ namespace ORO_Execution
           (*it)->setText( program_text );
       return program_list;
     }
+    // Catch Boost::Spirit exceptions
     catch( const parser_error<std::string, iter_t>& e )
         {
             delete program_graph;
@@ -558,6 +562,7 @@ namespace ORO_Execution
                 mpositer.get_position().column );
 
         }
+    // Catch our Orocos exceptions
     catch( const parse_exception& e )
     {
       delete program_graph;
@@ -589,9 +594,12 @@ namespace ORO_Execution
           program_graph->setCommand( trycommand );
       }
 
-    if ( !implcond )
-      implcond = new ConditionTrue;
     implcond_v.push_back(implcond); // store
+
+    // check if we must store the dispatchCondition
+    if ( commandparser.dispatchCondition() != 0 )
+        dc = commandparser.dispatchCondition()->clone();
+
     commandparser.reset();
   }
 
@@ -643,6 +651,17 @@ namespace ORO_Execution
     program_graph->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( commandparser.getImplTermCondition() );
+
+    // check if we must store the dispatchCondition
+    // They are composed into one big condition, guarding all
+    // the other condition branches. Only if all dc's say the
+    // command is accepted, the branch opens for evaluation.
+    if ( commandparser.dispatchCondition() != 0 ) {
+        if ( dc )
+            dc = new ConditionBinaryComposite< std::logical_and<bool> >( dc, commandparser.dispatchCondition()->clone() );
+        else
+            dc = commandparser.dispatchCondition()->clone();
+    }
 
     commandparser.reset();
   }

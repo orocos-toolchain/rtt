@@ -32,7 +32,7 @@
 
 #include <corelib/PropertyBag.hpp>
 #include "CommonParser.hpp"
-#include "ParseContext.hpp"
+#include "TaskContext.hpp"
 
 #pragma interface
 
@@ -60,7 +60,6 @@ namespace ORO_Execution
 
     rule_t arguments, argument;
 
-    ParseContext& context;
     ExpressionParser& expressionparser;
 
     void seen_arg();
@@ -68,15 +67,22 @@ namespace ORO_Execution
 
     std::string mobject;
     std::string mmethod;
+      TaskContext* _peer;
   public:
     /**
      * Construct a new ArgumentsParser.  The object and method
      * parameters are for use in its error messages, and will
      * otherwise not be used..
      */
-    ArgumentsParser( ExpressionParser& p, ParseContext& c,
-                     const std::string& object, const std::string& method );
-    ~ArgumentsParser();
+      ArgumentsParser( ExpressionParser& p, TaskContext* peer,
+                       const std::string& object, const std::string& method );
+
+      ~ArgumentsParser();
+
+      TaskContext* peer()
+      {
+          return _peer;
+      }
 
     rule_t& parser()
       {

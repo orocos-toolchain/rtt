@@ -56,35 +56,18 @@ namespace ORO_Execution
         GlobalMethodFactory methodFact;
 
     public:
-        const GlobalCommandFactory& commandFactory() const
-        {
-            return commandFact;
-        }
 
-        GlobalCommandFactory& commandFactory()
-        {
-            return commandFact;
-        }
+        const GlobalCommandFactory& commandFactory() const;
 
-        GlobalDataSourceFactory& dataFactory()
-        {
-            return dataFact;
-        }
+        GlobalCommandFactory& commandFactory();
 
-        const GlobalDataSourceFactory& dataFactory() const
-        {
-            return dataFact;
-        }
+        GlobalDataSourceFactory& dataFactory();
 
-        GlobalMethodFactory& methodFactory()
-        {
-            return methodFact;
-        }
+        const GlobalDataSourceFactory& dataFactory() const;
 
-        const GlobalMethodFactory& methodFactory() const
-        {
-            return methodFact;
-        }
+        GlobalMethodFactory& methodFactory();
+
+        const GlobalMethodFactory& methodFactory() const;
 
     };
 

@@ -24,11 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
 #include "execution/Processor.hpp"
 #include "execution/ProgramInterface.hpp"
 #include "execution/StateContextTree.hpp"
 #include <corelib/CommandInterface.hpp>
-
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -118,8 +118,8 @@ namespace ORO_Execution
         };
 
 
-    Processor::Processor()
-        :command(0)
+    Processor::Processor(int queue_size)
+        :accept(false), a_queue( queue_size )
     {
         programs = new list<ProgramInfo>();
         states   = new list<StateInfo>();
@@ -525,7 +525,19 @@ namespace ORO_Execution
             }
     }
 
-	void Processor::doStep()
+    bool Processor::initialize()
+    {
+        a_queue.clear();
+        accept = true;
+        return true;
+    }
+
+    void Processor::finalize()
+    {
+        accept = false;
+    }
+
+	void Processor::step()
     {
         {
             MutexLock lock( statemonitor );
@@ -533,16 +545,6 @@ namespace ORO_Execution
             for_each(states->begin(), states->end(), _executeState );
         }
 
-        // Execute any additional (deferred/external) command.
-        if ( command )
-            {
-                command->execute();
-                command = 0;
-                // should we allow the system context to check validity ??
-                // external commands can gravely interfere with the
-                // system...
-                // for_each(states->begin(), states->end(), executeState);
-            }
         {
             MutexLock lock( progmonitor );
             //Execute all normal programs->
@@ -550,6 +552,14 @@ namespace ORO_Execution
 
             //Execute all programs in Stepping mode.
             for_each(programs->begin(), programs->end(), _stepProgram );
+        }
+
+        // Execute any additional (deferred/external) command.
+        {
+            // execute one command from the AtomicQueue.
+            CommandInterface* com;
+            if ( a_queue.dequeue( com ) )
+                com->execute();
         }
     }
 
@@ -563,13 +573,9 @@ namespace ORO_Execution
         return it != programs->end();
     }
 
-
-    bool Processor::process( CommandInterface* c)
+    bool Processor::process( CommandInterface* c )
     {
-        if (command != 0)
-            return false;
-        command = c;
-        return true;
+        return accept && a_queue.enqueue( c );
     }
 
     std::vector<std::string> Processor::getProgramList()
@@ -595,17 +601,6 @@ namespace ORO_Execution
         for ( state_iter i = states->begin(); i != states->end(); ++i )
             ret.push_back( i->name );
         return ret;
-    }
-
-    bool Processor::isCommandProcessed( CommandInterface* c )
-    {
-        return command != c;
-    }
-
-    void Processor::abandonCommand( CommandInterface* c )
-    {
-        if ( command == c )
-            command = 0;
     }
 }
 

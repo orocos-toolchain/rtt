@@ -30,6 +30,7 @@
 
 #include "parser-types.hpp"
 #include "ValueParser.hpp"
+#include "GlobalFactory.hpp"
 
 namespace ORO_Execution
 {
@@ -40,15 +41,8 @@ namespace ORO_Execution
      */
     struct ParseContext
     {
-        ParseContext( Processor* proc,
-                      GlobalFactory* gf )
-            : processor( proc ), globalfactory( gf )
-        {
-        }
-
         ValueParser valueparser;
-        Processor* processor;
-        GlobalFactory* globalfactory;
+        GlobalFactory globalfactory;
   };
 }
 

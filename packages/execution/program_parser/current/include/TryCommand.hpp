@@ -19,35 +19,50 @@ namespace ORO_Execution
         // we must use a DataSource for correct
         // copy sementics ...
         VariableDataSource<bool>::shared_ptr _result;
+        VariableDataSource<bool>::shared_ptr _executed;
         CommandInterface* c;
     public:
-        TryCommand( CommandInterface* command, VariableDataSource<bool>::shared_ptr storage=0)
-            :_result( storage == 0 ? new VariableDataSource<bool>(false) : storage ), c(command) {}
+        /**
+         * Try a command.
+         */
+        TryCommand( CommandInterface* command,
+                    VariableDataSource<bool>::shared_ptr storage=0,
+                    VariableDataSource<bool>::shared_ptr execstat=0 )
+            :_result( storage == 0 ? new VariableDataSource<bool>(true) : storage ),
+             _executed( execstat == 0 ? new VariableDataSource<bool>(false) : execstat ),
+             c(command) {}
 
         ~TryCommand() {
             delete c;
         }
         bool execute() {
             _result->set( c->execute() );
+            _executed->set(true);
             return true;
         }
         void reset() {
             c->reset();
-            _result->set(false);
+            _result->set(true);
+            _executed->set(false);
         }
 
         VariableDataSource<bool>::shared_ptr result() {
             return _result;
         }
 
+        VariableDataSource<bool>::shared_ptr executed() {
+            return _executed;
+        }
+
         CommandInterface* clone() const {
             return new TryCommand( c->clone(),
-                                   _result );
+                                   _result, _executed );
         }
 
         CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new TryCommand( c->copy( alreadyCloned ),
-                                   _result->copy(alreadyCloned) );
+                                   _result->copy(alreadyCloned),
+                                   _executed->copy(alreadyCloned) );
         }
     };
 
@@ -60,25 +75,26 @@ namespace ORO_Execution
         public ConditionInterface
     {
         DataSource<bool>::shared_ptr c;
+        bool _invert;
     public:
-        TryCommandResult( DataSource<bool>::shared_ptr ec )
-            :c(ec) {}
+        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert = true )
+            :c(ec), _invert(invert) {}
 
         ~TryCommandResult() {
             // do not delete !
         }
 
         bool evaluate() {
-            // true means reject
-            return !c->get();
+            // by default true means reject
+            return  _invert != c->get();
         }
 
         ConditionInterface* clone() const {
-            return new TryCommandResult( c ); // do not clone c !
+            return new TryCommandResult( c, _invert ); // do not clone c !
         }
 
         ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new TryCommandResult( c->copy(alreadyCloned) );
+            return new TryCommandResult( c->copy(alreadyCloned), _invert );
         }
     };
 

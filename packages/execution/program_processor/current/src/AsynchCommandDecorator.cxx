@@ -47,7 +47,7 @@ namespace ORO_Execution
 
      CommandInterface* AsynchCommandDecorator::clone() const
      {
-         return new AsynchCommandDecorator(*this);
+         return new AsynchCommandDecorator( command->clone() );
      }
 
     const CommandInterface* AsynchCommandDecorator::getCommand() const
@@ -72,6 +72,6 @@ namespace ORO_Execution
 
     CommandInterface* AsynchCommandDecorator::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
     {
-      return new AsynchCommandDecorator( getCommand()->copy( alreadyCloned ) );
+      return new AsynchCommandDecorator( command->copy( alreadyCloned ) );
     }
 }

@@ -28,11 +28,15 @@
 #ifndef PROCESSOR_HPP
 #define PROCESSOR_HPP
 
+#include "corelib/RunnableInterface.hpp"
 #include "execution/ProcessorInterface.hpp"
 #include "execution/StateContextTree.hpp"
 #include <os/Mutex.hpp>
+#include <corelib/AtomicQueue.hpp>
 
 #include <list>
+
+#include <pkgconf/execution_program_processor.h>
 
 namespace ORO_Execution
 {
@@ -42,12 +46,12 @@ namespace ORO_Execution
     public:
         program_load_exception( const std::string& error )
             : merror( error )
-            {
-            }
+        {
+        }
         const std::string what() const
-            {
-                return merror;
-            }
+        {
+            return merror;
+        }
     };
 
     class program_unload_exception
@@ -56,22 +60,24 @@ namespace ORO_Execution
     public:
         program_unload_exception( const std::string& error )
             : merror( error )
-            {
-            }
+        {
+        }
         const std::string what() const
-            {
-                return merror;
-            }
+        {
+            return merror;
+        }
     };
 
     /**
-     * @brief This class represents a controllable execution engine.
-     * (see interfaces)
+     * @brief This class implements a controllable program processor.
+     * It executes Realtime Programs and State Machines and can 
+     * accept and execute external commands when running.
      */
     class Processor
-        : public ProcessorInterface
+        : public ProcessorInterface,
+          public ORO_CoreLib::RunnableInterface
     {
-        public:
+    public:
         /**
          * The status of a Program.
          */
@@ -85,51 +91,58 @@ namespace ORO_Execution
             enum status { unloaded, inactive, active, running, stopped, paused, todelete, error };
         };
 
-            /**
-             * Constructs a new Processor
-             *
-             * @post the processor is created and set in init/idle mode
-             */
-            Processor();
+        /**
+         * Constructs a new Processor
+         * @param queue_size The size of the command queue.
+         *
+         */
+        Processor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 
-            virtual ~Processor();
+        virtual ~Processor();
 
-			virtual bool pauseProgram(const std::string& name);
+        virtual bool pauseProgram(const std::string& name);
 
-			virtual bool loadStateContext( StateContextTree* sc );
-            virtual bool unloadStateContext( const std::string& name );
-            virtual bool activateStateContext(const std::string& name);
-            virtual bool deactivateStateContext(const std::string& name);
-            virtual bool startStateContext(const std::string& name);
-            virtual bool pauseStateContext(const std::string& name);
-            virtual bool stopStateContext(const std::string& name);
-            virtual bool resetStateContext(const std::string& name);
-            virtual bool deleteStateContext(const std::string& name);
+        virtual bool loadStateContext( StateContextTree* sc );
+        virtual bool unloadStateContext( const std::string& name );
+        virtual bool activateStateContext(const std::string& name);
+        virtual bool deactivateStateContext(const std::string& name);
+        virtual bool startStateContext(const std::string& name);
+        virtual bool pauseStateContext(const std::string& name);
+        virtual bool stopStateContext(const std::string& name);
+        virtual bool resetStateContext(const std::string& name);
+        virtual bool deleteStateContext(const std::string& name);
         virtual bool steppedStateContext(const std::string& name);
         virtual bool continuousStateContext(const std::string& name);
 
         virtual ProgramStatus::status getProgramStatus(const std::string& name) const;
         virtual StateContextStatus::status getStateContextStatus(const std::string& name) const;
 
-			virtual bool loadProgram( ProgramInterface* pi ) ;
-			virtual bool startProgram(const std::string& name);
-			virtual bool stopProgram(const std::string& name);
-			virtual bool stepProgram(const std::string& name);
-			virtual bool deleteProgram(const std::string& name);
+        virtual bool loadProgram( ProgramInterface* pi ) ;
+        virtual bool startProgram(const std::string& name);
+        virtual bool stopProgram(const std::string& name);
+        virtual bool stepProgram(const std::string& name);
+        virtual bool deleteProgram(const std::string& name);
 
         virtual bool isProgramRunning( const std::string& name) const;
         virtual bool isStateContextRunning( const std::string& name) const;
         virtual bool isStateContextStepped(const std::string& name) const;
 
-			virtual void doStep();
-			virtual bool process(CommandInterface* c);
-      virtual bool isCommandProcessed( CommandInterface* c );
-      virtual void abandonCommand( CommandInterface* c );
+        virtual bool initialize();
+        virtual void step();
+        virtual void finalize();
 
-      std::vector<std::string> getProgramList();
-      std::vector<std::string> getStateContextList();
+        virtual bool process(CommandInterface* c);
+
+        std::vector<std::string> getProgramList();
+        std::vector<std::string> getStateContextList();
 
         ProgramInterface* getProgram(const std::string& name) const;
+
+        /**
+         * Should the Processor accept or reject commands in \a process().
+         * @param true_false true to accept, false to reject.
+         */
+        void acceptCommands( bool true_false) { accept=true_false; }
 
         class ProgramInfo;
         class StateInfo;
@@ -146,7 +159,8 @@ namespace ORO_Execution
         std::list<ProgramInfo>* programs;
         std::list<StateInfo>*   states;
 
-        CommandInterface *command;
+        bool accept;
+        ORO_CoreLib::AtomicQueue<CommandInterface*> a_queue;
 
         /**
          * Guard state list

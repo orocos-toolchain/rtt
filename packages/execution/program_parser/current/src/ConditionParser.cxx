@@ -43,7 +43,7 @@
 
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
-#include "TryCommand.hpp"
+#include "execution/TryCommand.hpp"
 
 namespace ORO_Execution
 {
@@ -51,7 +51,7 @@ namespace ORO_Execution
   using ORO_CoreLib::ConditionDuration;
   using ORO_CoreLib::PropertyBag;
 
-  ConditionParser::ConditionParser( ParseContext& c )
+  ConditionParser::ConditionParser( TaskContext* c )
     : ds_bool( 0 ), context( c ), expressionparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( condition );

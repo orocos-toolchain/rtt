@@ -79,7 +79,10 @@ namespace ORO_Execution
 
     void unregisterObject( const std::string& name )
       {
-        mdata.erase( name );
+          if ( mdata.count( name ) ) {
+              delete mdata[ name ];
+              mdata.erase( name );
+          }
       };
 
     /**

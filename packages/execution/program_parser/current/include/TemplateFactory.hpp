@@ -29,13 +29,14 @@
 #define TEMPLATEFACTORY_HPP
 
 #include <boost/lexical_cast.hpp>
-#include <boost/type_traits.hpp>
 
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <functional>
 #include <string>
+
+#include "mystd.hpp"
 
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Property.hpp>
@@ -52,46 +53,7 @@ namespace ORO_Execution
 {
 
 #ifndef NO_DOXYGEN
-  namespace
-  {
-    // combines remove_reference and remove_const
-    template<typename T>
-    struct remove_cr
-    {
-      typedef typename boost::remove_const<
-        typename boost::remove_reference<T>::type>::type type;
-    };
-  }
-
-  // My STL seems to be lacking std::select1st..  Seems like it's an
-  // SGI extension, so I guess I can't blaim them..
-  namespace mystl
-  {
-    template<typename PairT>
-    class select1st
-      : public std::unary_function<PairT, typename PairT::first_type>
-    {
-      typedef typename PairT::first_type ResultT;
-    public:
-      const ResultT& operator()( const PairT& p )
-        {
-          return p.first;
-        };
-    };
-
-    template<typename PairT>
-    class select2nd
-      : public std::unary_function<PairT, typename PairT::second_type>
-    {
-      typedef typename PairT::second_type ResultT;
-    public:
-      const ResultT& operator()( const PairT& p )
-        {
-          return p.second;
-        };
-    };
-  };
-
+    
   using ORO_CoreLib::Property;
   using ORO_CoreLib::PropertyBase;
   using ORO_CoreLib::PropertyBag;
@@ -570,7 +532,7 @@ namespace ORO_Execution
         std::vector<std::string> ret;
         std::transform( data.begin(), data.end(),
                         std::back_inserter( ret ),
-                        mystl::select1st<typename map_t::value_type>() );
+                        mystd::select1st<typename map_t::value_type>() );
         return ret;
       }
 

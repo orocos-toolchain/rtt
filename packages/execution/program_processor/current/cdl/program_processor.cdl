@@ -21,4 +21,13 @@ which encapsulates the command to be executed."
     compile Processor.cxx
     compile AsynchCommandDecorator.cxx
     compile StateDescription.cxx
+
+    cdl_option ORONUM_EXECUTION_PROC_QUEUE_SIZE {
+	display "Processor Queue Size"
+	description "
+The size of the command queue of the Program Processor."
+	flavor data
+	default_value 16
+    }
+
 }

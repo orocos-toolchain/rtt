@@ -74,13 +74,13 @@ namespace ORO_Execution
     rule_t constantdefinition, aliasdefinition, variabledefinition,
       variableassignment, paramdefinition;
 
-    ParseContext& context;
+    TaskContext* context;
     ExpressionParser expressionparser;
     CommonParser commonparser;
 
     DataSourceBase::shared_ptr index_ds;
   public:
-    ValueChangeParser( ParseContext& pc );
+    ValueChangeParser( TaskContext* pc );
 
     /**
      * This CommandInterface holds the command assigning a value to
