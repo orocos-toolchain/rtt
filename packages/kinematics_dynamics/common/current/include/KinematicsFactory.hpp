@@ -70,7 +70,6 @@ namespace ORO_KinDyn
 	}
 	else{
 	  std::cout << "No robot kinematics available for the chosen robot" << std::endl;
-	  assert(0);
 	  return NULL;
 	}
 	  
