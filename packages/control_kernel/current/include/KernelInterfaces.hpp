@@ -148,15 +148,16 @@ namespace ORO_ControlKernel
 
             /**
              * This method is a hook which is called when the kernel
-             * is started.
+             * is started and the component must initialise the data
+             * objects with meaningfull data.
              */
-            virtual void kernelStarted() {}
+            virtual void componentStartUp() {}
 
             /**
              * This method is a hook which is called when the kernel
-             * is stopped.
+             * is stopped and the component must return to a safe state.
              */
-            virtual void kernelStopped() {}
+            virtual void componentShutdown() {}
             
             virtual void disableAspect();
         private:
@@ -208,7 +209,9 @@ namespace ORO_ControlKernel
 
         KernelBaseExtension( KernelBaseExtension* _base=0 )
             : running(false), 
-        frequency("frequency","The periodic execution frequency of this kernel",0) {}
+              frequency("frequency","The periodic execution frequency of this kernel",0),
+              kernelStarted(Event::SYNASYN), kernelStopped(Event::SYNASYN), nullEvent(Event::SYNASYN)
+        {}
 
         virtual ~KernelBaseExtension() {}
 
@@ -274,8 +277,16 @@ namespace ORO_ControlKernel
         {
             running = false;
         }
-            
-        protected:
+    
+        EventRegistrationInterface* eventGet(const std::string& name)
+        {
+            if ( name == string("kernelStarted") )
+                return &kernelStarted;
+            if ( name == string("kernelStopped") )
+                return &kernelStopped;
+            return &nullEvent;
+        }
+    protected:
         /**
          * Used by the ComponentBaseInterface to register itself to
          * this Extension.
@@ -310,6 +321,10 @@ namespace ORO_ControlKernel
         Property<double> frequency;
 
         std::vector<ComponentBaseInterface*> components;
+
+        Event kernelStarted;
+        Event kernelStopped;
+        Event nullEvent;
     };
         
     /**

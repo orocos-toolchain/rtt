@@ -326,7 +326,7 @@ namespace ORO_ControlKernel
          */
         DefaultControlKernel()
             : _Extension(this), controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
-              effector(&dummy_effector), sensor(&dummy_sensor)
+              effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
         {
             setController(controller);
             setGenerator(generator);
@@ -337,7 +337,7 @@ namespace ORO_ControlKernel
         DefaultControlKernel(const std::string& name)
             :NameServerRegistrator< DefaultControlKernel<_CommandType, _SetPointType,_InputType, _ModelType, _OutputType, _Extension>* >(nameserver,name,this),
              controller(&dummy_controller), generator(&dummy_generator), estimator(&dummy_estimator),
-             effector(&dummy_effector), sensor(&dummy_sensor)
+             effector(&dummy_effector), sensor(&dummy_sensor), startup(false)
         {
             setController(controller);
             setGenerator(generator);
@@ -352,11 +352,10 @@ namespace ORO_ControlKernel
                 return false;
                 
             // initial startup of all components
-            sensor->kernelStarted();
-            estimator->kernelStarted();
-            generator->kernelStarted();
-            controller->kernelStarted();
-            effector->kernelStarted();
+            kernelStarted.fire();
+            
+            startup = true;
+
             return true;
         }
 
@@ -364,6 +363,16 @@ namespace ORO_ControlKernel
         {
             if ( isRunning() )
                 {
+                    if (startup)
+                        {
+                            startup = false;
+                            sensor->componentStartUp();
+                            estimator->componentStartUp();
+                            generator->componentStartUp();
+                            controller->componentStartUp();
+                            effector->componentStartUp();
+                        }
+                            
                     // one step is one control cycle
                     // The figure is a unidirectional graph
                     sensor->update();
@@ -374,17 +383,41 @@ namespace ORO_ControlKernel
 
                     // Call the extension (eg : reporting, execution engine, command interpreter... )
                     Extension::step();
-                }  
+                }
+            else
+                {
+                    // safe stop in abort().
+                    if (!startup)
+                        {
+                            startup = true;
+                            sensor->componentShutdown();
+                            estimator->componentShutdown();
+                            generator->componentShutdown();
+                            controller->componentShutdown();
+                            effector->componentShutdown();
+                        }
+                }
         }
 
         virtual void finalize() 
-        { 
-            // termination of all components
-            sensor->kernelStopped();
-            estimator->kernelStopped();
-            generator->kernelStopped();
-            controller->kernelStopped();
-            effector->kernelStopped();
+        {
+            // This is safe as long as the task is stopped from a lower
+            // priority thread than this task is running in. If not,
+            // it is possible that step() is still executing (preempted)
+            // while the finalize() is called from within the HP stop().
+            // stop() (aka taskRemove) could block on step() if step()
+            // is strictly non blocking (what it should be), otherwise
+            // it will lead to deadlocks.
+            if (!startup)
+                {
+                    startup = true;
+                    sensor->componentShutdown();
+                    estimator->componentShutdown();
+                    generator->componentShutdown();
+                    controller->componentShutdown();
+                    effector->componentShutdown();
+                }
+            kernelStopped.fire();
             Extension::finalize();
         }
             
@@ -515,7 +548,7 @@ namespace ORO_ControlKernel
         ModelData    models;
         OutputData   outputs;
 
-        bool abortState;
+        bool startup;
 
     };
 
