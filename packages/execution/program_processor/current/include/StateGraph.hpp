@@ -10,6 +10,7 @@
 
 #include <utility>                   // for std::pair
 #include <algorithm>                 // for std::for_each
+#include <vector>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp> // the type of our graph
 
@@ -217,6 +218,7 @@ namespace ORO_Execution
          */
         CommandNode previous;
 
+        std::vector<StateDescription*> state_list;
 	};
 
 

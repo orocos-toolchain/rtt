@@ -25,10 +25,27 @@ namespace ORO_Execution
 
 	StateGraph::~StateGraph()
 	{
+        // Clean up all conditions in the TransitionMap
+        TransList::iterator v_it;
+        TransitionMap::iterator m_it;
+        for ( m_it= stateMap.begin(); m_it != stateMap.end(); ++m_it )
+            for ( v_it = m_it->second.begin(); v_it!= m_it->second.end() ; ++v_it )
+                delete get<0>(*v_it);
+        // Clean up all conditions in the TransitionAnyMap
+        TransitionAnyMap::iterator ma_it;
+        for ( ma_it= stateAnyMap.begin(); ma_it != stateAnyMap.end(); ++ma_it )
+                delete ma_it->second;
+
+        // cleanup all created states.
+        std::vector<StateDescription*>::iterator s_it;
+        for ( s_it = state_list.begin(); s_it != state_list.end(); ++s_it )
+            delete *s_it;
 	}
 
 	void StateGraph::process( Vertex n )
 	{
+        // The process function is called by the StateDescription.
+        // It is meant to handle one action (eg onEntry, handle, onExit).
         // This function processes a whole graph in once.
         // It returns when no out_edges are found on a
         // node.
@@ -150,7 +167,8 @@ namespace ORO_Execution
 
     StateDescription* StateGraph::newState()
     {
-        return new StateDescription( add_vertex( graph ), add_vertex( graph ), add_vertex( graph ), this );
+        state_list.push_back(new StateDescription( add_vertex( graph ), add_vertex( graph ), add_vertex( graph ), this ) );
+        return state_list.back();
     }
     
     void StateGraph::startState(StateDescription* sd)

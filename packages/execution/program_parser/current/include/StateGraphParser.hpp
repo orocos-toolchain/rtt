@@ -42,6 +42,12 @@ namespace ORO_Execution
       std::string minit;
       std::string mfini;
 
+      /**
+       * used to sort conditions as they are generated and
+       * inserted in the StateContext.
+       */
+      int rank;
+
       // A map of all States
       typedef std::map<std::string, StateDescription*> statemap;
       statemap mstates;

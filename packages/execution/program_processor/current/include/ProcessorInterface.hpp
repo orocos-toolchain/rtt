@@ -98,12 +98,12 @@ namespace ORO_Execution
         /**
          * Return true if the Program has successfully started.
          */
-        virtual bool isProgramRunning( const std::string& name) const;
+        virtual bool isProgramRunning( const std::string& name) const = 0;
 
         /**
          * Return true if the StateContext has successfully started.
          */
-        virtual bool isStateContextRunning( const std::string& name) const;
+        virtual bool isStateContextRunning( const std::string& name) const = 0;
 
         /**
          * In stepping mode, do the next step.

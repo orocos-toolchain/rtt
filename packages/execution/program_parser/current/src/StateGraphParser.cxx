@@ -35,6 +35,7 @@ namespace ORO_Execution
     assertion<std::string> expect_comma("Expected a comma separator.");
     assertion<std::string> expect_ident("Expected a valid identifier.");
     assertion<std::string> expect_open("Open brace expected.");
+    assertion<std::string> expect_semicolon("Semi colon expected after statement.");
     
 
     StateGraphParser::StateGraphParser( iter_t& positer,
@@ -243,9 +244,10 @@ namespace ORO_Execution
             next_state = mstates[state_id] = state_graph->newState(); // create an empty state
         
         if (mcondition == 0)
-            mcondition == new ConditionTrue;
+            mcondition = new ConditionTrue;
 
-        state_graph->transitionSet( mstate, next_state, mcondition );
+        // this transition has a lower priority than the previous one
+        state_graph->transitionSet( mstate, next_state, mcondition, rank-- );
         mcondition = 0;
     }
 
@@ -362,6 +364,9 @@ namespace ORO_Execution
 
     state_graph = new StateGraph();
     context.valueparser.clear();
+
+    // reset the condition-transition priority.
+    rank = 0;
 
     try {
       if ( ! production.parse( scanner ) )

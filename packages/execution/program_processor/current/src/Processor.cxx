@@ -17,17 +17,24 @@ namespace ORO_Execution
     {
     }
 
-	bool Processor::loadProgram(const std::string& name, ProgramInterface* pi)
-    {
-        if ( states.empty() )
-            return false;
-        programs.push_back( Processor::ProgramInfo(name, pi) );
-        return true;
-    }
-
     bool program_lookup( const Processor::ProgramInfo& pi, const std::string& name)
     {
         return (pi.name == name);
+    }
+
+    bool state_lookup( const Processor::StateInfo& si, const std::string& name)
+    {
+        return (si.name == name);
+    }
+
+	bool Processor::loadProgram(const std::string& name, ProgramInterface* pi)
+    {
+        program_iter it =
+            find_if(programs.begin(), programs.end(), bind(program_lookup, _1, name) );
+        if ( it != programs.end() )
+            return false;
+        programs.push_back( Processor::ProgramInfo(name, pi) );
+        return true;
     }
 
 	bool Processor::resetProgram(const std::string& name)
@@ -92,13 +99,12 @@ namespace ORO_Execution
     }
 
 
-    bool state_lookup( const Processor::StateInfo& si, const std::string& name)
-    {
-        return (si.name == name);
-    }
-
 	bool Processor::loadStateContext(const std::string& name, StateContext* sc)
     {
+        state_iter it =
+            find_if(states.begin(), states.end(), bind(state_lookup, _1, name) );
+        if ( it != states.end() )
+            return false;
         states.push_back(Processor::StateInfo(name, sc));
         return true;
     }
@@ -202,9 +208,6 @@ namespace ORO_Execution
 
 	void Processor::doStep()
     {
-        if (states.empty() || programs.empty())
-            return;
-
         // Evaluate all states.
         for_each(states.begin(), states.end(), executeState);
 
