@@ -185,6 +185,11 @@ namespace ORO_ControlKernel
          */
         bool isSelected() { return selected; }
 
+        /**
+         * @brief Query if this component is started and running.
+         */
+        bool isRunning() { return selected; }
+
     protected:
         bool selected;
     private:

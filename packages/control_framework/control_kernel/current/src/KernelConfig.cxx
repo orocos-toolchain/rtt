@@ -27,7 +27,6 @@
 #include <control_kernel/KernelConfig.hpp>
 
 #include <corelib/marshalling/CPFDemarshaller.hpp>
-#include <xercesc/framework/LocalFileInputSource.hpp>
 #include <corelib/marshalling/StreamProcessor.hpp>
 #include <corelib/Logger.hpp>
 
@@ -41,31 +40,27 @@ namespace ORO_ControlKernel
         : filename( _filename ),
           baseBag(0), extensionBag(0), selectBag(0), kernel(&_k)
     {
-        XMLPlatformUtils::Initialize();
     }
 
     KernelConfig::~KernelConfig() 
     {
-        XMLPlatformUtils::Terminate();
     }
 
     bool KernelConfig::configure()
     {
         // read/parse file
-        XMLCh* fname = 0;
         try {
-            fname = XMLString::transcode( filename.c_str() );
-            LocalFileInputSource fis( fname );
-            delete[] fname;
-            CPFDemarshaller<LocalFileInputSource> parser(fis);
+            {
+                CPFDemarshaller parser(filename);
 
-            //cout <<"Parsing... ";
-            if ( !parser.deserialize( config ) )
-                {
-                    Logger::log() << Logger::Error << "KernelConfig : "
-                                  << "Error parsing "<< filename << Logger::endl;
-                    return false;
-                }
+                //cout <<"Parsing... ";
+                if ( !parser.deserialize( config ) )
+                    {
+                        Logger::log() << Logger::Error << "KernelConfig : "
+                                      << "Error parsing "<< filename << Logger::endl;
+                        return false;
+                    }
+            }
             PropertyBase* base = config.find("KernelProperties");
             if (base)
                 baseBag = dynamic_cast<Property<PropertyBag>*>(base);
@@ -136,11 +131,7 @@ namespace ORO_ControlKernel
                         {
                             try 
                                 {
-                                    // Parse The properties of the Extension.
-                                    fname = XMLString::transcode( extFileName->get().c_str() );
-                                    LocalFileInputSource extfis( fname );
-                                    delete[] fname;
-                                    parser.setStream(extfis);
+                                    CPFDemarshaller parser(extFileName->get());
                                     // We Got the filename of the Extension.
                                     Logger::log() <<Logger::Info << "KernelConfig: Parsing "
                                                   << extFileName->get() <<"."<<Logger::endl;
@@ -166,7 +157,6 @@ namespace ORO_ControlKernel
                                     deleteProperties  ( extensionConfig );
                                 } catch (...)
                                     {
-                                        delete[] fname;
                                         Logger::log() <<Logger::Error << "KernelConfig: File "<< extFileName->get() <<" not found !"<<Logger::endl;
                                         return false;
                                     }
@@ -197,7 +187,6 @@ namespace ORO_ControlKernel
             }
         } catch (...)
             {
-                delete[] fname;
                 Logger::log() <<Logger::Error
                               <<"KernelConfig: file "<<filename<<" not found !"<<endl;
                 return false;

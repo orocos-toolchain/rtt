@@ -17,4 +17,5 @@ tables (for logging)."
     include_files CPFMarshaller.hpp    MarshallerAdaptors.hpp  Orocos1Marshaller.hpp    SimpleMarshaller.hpp    TableMarshaller.hpp        XMLMarshaller.hpp    XMLRPCMarshaller.hpp
     include_files StreamProcessor.hpp EmptyHeaderMarshaller.hpp
 
+    compile CPFDemarshaller.cxx
 }

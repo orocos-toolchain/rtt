@@ -30,11 +30,23 @@
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Logger.hpp>
 #include <corelib/marshalling/CPFMarshaller.hpp>
+#include <corelib/marshalling/CPFDemarshaller.hpp>
+#include <execution/TemplateFactories.hpp>
 
 namespace ORO_ControlKernel
 {
     using namespace std;
     using namespace ORO_CoreLib;
+
+    PropertyComponentInterface::PropertyComponentInterface( const std::string& _name )
+        : detail::ComponentAspectInterface<PropertyExtension>(_name + std::string("::Property") ),
+          master(0), localStore(_name,"Component Properties")
+    {
+    }
+
+    PropertyComponentInterface::~PropertyComponentInterface()
+    {
+    }
 
     bool PropertyComponentInterface::enableAspect( PropertyExtension* ext)
     {
@@ -85,6 +97,33 @@ namespace ORO_ControlKernel
 //         base->setTask( task );
 //     }
 
+    using namespace ORO_Execution;
+
+    MethodFactoryInterface* PropertyExtension::createMethodFactory()
+    {
+        // Add the methods, methods make sure that they are 
+        // executed in the context of the (non realtime) caller.
+        TemplateMethodFactory< PropertyExtension  >* ret =
+            newMethodFactory( this );
+        ret->add( "readProperties",
+                  method
+                  ( &PropertyExtension::readProperties ,
+                    "Read Component Properties from disk.", "CompName", "Component to update." ) );
+        ret->add( "writeProperties",
+                  method
+                  ( &PropertyExtension::writeProperties ,
+                    "Write Component Properties to disk.", "CompName", "Component to update.") );
+        ret->add( "readAllProperties",
+                  method
+                  ( &PropertyExtension::readAllProperties ,
+                    "Read Component Properties from disk." ) );
+        ret->add( "writeAllProperties",
+                  method
+                  ( &PropertyExtension::writeAllProperties ,
+                    "Write Component Properties to disk.") );
+        return ret;
+    }
+
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
         composeProperty(bag, save_props);
@@ -126,6 +165,113 @@ namespace ORO_ControlKernel
             }
         return true;
     }
+
+    bool PropertyExtension::readAllProperties()
+    {
+        bool fail = true;
+        for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
+            {
+                fail = fail && this->readProperties( tg->second->getLocalStore().getName() ) ; // keep track of configuration
+            }
+        return fail;
+    }
+    bool PropertyExtension::readProperties( const std::string& compname )
+    {
+        if ( myMap.find( compname ) == myMap.end() || ( kernel()->base() && kernel()->base()->isStarted( compname ) ) )
+            return false;
+        PropertyComponentInterface* comp = myMap[compname];
+        for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+            if ( (*it)->getName() == compname )
+                return this->configureComponent( (*it)->value(), comp );
+
+        // reached when not found
+        Logger::log() << Logger::Info << "PropertyExtension : "
+                      << "No property file found for "<<compname<< Logger::endl;
+        if ( !ignoreMissingFiles.get() )
+            {
+                PropertyBag emptyBag;
+                if ( comp->updateProperties( emptyBag ) == false ) {
+                    Logger::log() << Logger::Error << "PropertyExtension : "
+                                  << "Component " << compname 
+                                  << " does not accept empty properties : not Loading." << Logger::nl 
+                                  << "Fix your PropertyExtension config file first, or set property 'IgnoreMissingFiles' to 1."<< Logger::endl;
+                    return false;
+                }
+            }
+        return true;
+    }
+
+    bool PropertyExtension::writeAllProperties()
+    {
+        bool fail = true;
+        for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
+            {
+                fail = fail && this->writeProperties( tg->second->getLocalStore().getName() ) ; // keep track of configuration
+            }
+        return fail;
+    }
+
+    bool PropertyExtension::writeProperties( const std::string& compname )
+    {
+        if ( myMap.find( compname ) == myMap.end() || ( kernel()->base() && kernel()->base()->isStarted( compname ) ) );
+            return false;
+
+        PropertyComponentInterface* comp = myMap[ compname ];
+        PropertyBag allProps;
+
+        // Determine desired filename :
+        std::string filename;
+        for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
+            if ( (*it)->getName() == compname ) {
+                filename = (*it)->value();
+                break;
+            }
+        if ( filename.length() == 0 )
+            filename = saveFilePrefix.get() + compname +"." + saveFileExtension.get();
+
+        // Update exising file ?
+        {
+            // first check if the target file exists.
+            std::ifstream ifile( filename.c_str() );
+            // if target file does not exist, skip this step.
+            if ( ifile ) {
+                ifile.close();
+                Logger::log() << Logger::Info << "PropertyExtension: Updating "<< filename << Logger::endl;
+                // The demarshaller itself will open the file.
+                CPFDemarshaller demarshaller( filename );
+                if ( demarshaller.deserialize( allProps ) == false ) {
+                    // Parse error, abort writing of this file.
+                    return false;
+                }
+            }
+            else
+                Logger::log() << Logger::Info << "PropertyExtension: Creating "<< filename << Logger::endl;
+        }
+
+        // Write results
+        PropertyBag compProps;
+        // collect component properties
+        comp->exportProperties( compProps );
+        // merge with target file contents.
+        copyProperties( allProps, compProps );
+        // serialize and cleanup
+        std::ofstream file( filename.c_str() );
+        if ( file )
+            {
+                CPFMarshaller<std::ostream> marshaller( file );
+                marshaller.serialize( allProps );
+                Logger::log() << Logger::Info << "PropertyExtension: Wrote "<< filename <<Logger::endl;
+            }
+        else {
+            Logger::log() << Logger::Error << "PropertyExtension: Failed to Write "<< filename <<Logger::endl;
+            flattenPropertyBag( allProps );
+            deleteProperties( allProps );
+            return false;
+        }
+        flattenPropertyBag( allProps );
+        deleteProperties( allProps );
+        return true;
+    }
         
     bool PropertyExtension::initialize()
     {
@@ -146,34 +292,7 @@ namespace ORO_ControlKernel
 //                 if ( configureComponent( (*it)->value(), tg->second ) ==  false)
 //                     return false;
 //             }
-        for ( CompMap::iterator tg = myMap.begin(); tg!= myMap.end(); ++tg)
-            {
-                bool didconf=false; // keep track of configuration
-                for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
-                    if ( (*it)->getName() == tg->second->getName() )
-                        if ( this->configureComponent( (*it)->value(), tg->second ) ==  false) {
-                            return false;
-                        }
-                        else {
-                            didconf = true;
-                            break;
-                        }
-                // If not tg not configured and not ignore unlisted components :
-                if ( ! didconf && !ignoreMissingFiles.get() ) {
-                    Logger::log() << Logger::Info << "PropertyExtension : ";
-                    Logger::log() << "No Property file for Component "<<tg->second->getName() << " listed !"<< Logger::endl;
-                    PropertyBag emptyBag;
-                    if ( tg->second->updateProperties( emptyBag ) == false ) {
-                        Logger::log() << Logger::Error << "PropertyExtension : "
-                                      << "Component " << tg->second->getName() 
-                                      << " does not accept empty properties." << Logger::nl
-                                      << "Fix your PropertyExtension config file first, or set property ignoreMissingFiles to 1."<< Logger::endl;
-                        return false;
-                    }
-                    didconf=false; // reset
-                }
-            }
-        return true;
+        return this->readAllProperties( );
     }
 
     bool PropertyExtension::configureComponent(const std::string& filename, PropertyComponentInterface* target)
@@ -199,22 +318,8 @@ namespace ORO_ControlKernel
     {
         if ( save_props )
             {
-                Logger::log() << Logger::Debug << "Saving Component Properties to files..."<<Logger::endl;
-                // iterate over components
-                CompMap::iterator comp_it = myMap.begin();
-                while ( comp_it != myMap.end() )
-                {
-                    PropertyBag allProps;
-                    // collect properties
-                    comp_it->second->exportProperties( allProps );
-                    // serialize and cleanup
-                    std::ofstream file((saveFilePrefix.get() + comp_it->first+"." + saveFileExtension.get()).c_str());
-                    CPFMarshaller<std::ostream> marshaller( file );
-                    marshaller.serialize( allProps );
-                    allProps.clear();
-                    Logger::log() << Logger::Info << "Wrote "<<saveFilePrefix.get() + comp_it->first +"."+ saveFileExtension.get()<<Logger::endl;
-                    ++comp_it;
-                }
+                Logger::log() << Logger::Debug << "PropertyExtension: Saving Component Properties to files..."<<Logger::endl;
+                this->writeAllProperties( );
             }
     }
         
@@ -223,25 +328,13 @@ namespace ORO_ControlKernel
         if ( myMap.count(comp->getLocalStore().getName() ) != 0  )
             return false;
         myMap[ comp->getLocalStore().getName() ] = comp;
+
         if ( configureOnLoad )
             {
-                for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
-                    if ( (*it)->getName() == comp->getLocalStore().getName() )
-                        return configureComponent( (*it)->value(), comp );
-                // reached when not found
-                Logger::log() << Logger::Info << "PropertyExtension : "
-                              << "No property file found for "<<comp->getLocalStore().getName()<< Logger::endl;
-                if ( !ignoreMissingFiles.get() )
-                    {
-                        PropertyBag emptyBag;
-                        if ( comp->updateProperties( emptyBag ) == false ) {
-                            Logger::log() << Logger::Error << "PropertyExtension : "
-                                          << "Component " << comp->getName() 
-                                          << " does not accept empty properties : not Loading." << Logger::nl 
-                                          << "Fix your PropertyExtension config file first, or set property 'IgnoreMissingFiles' to 1."<< Logger::endl;
-                            return false;
-                        }
-                    }
+                if ( this->readProperties( comp->getLocalStore().getName() ) == false ) {
+                    myMap.erase( comp->getLocalStore().getName() );
+                    return false;
+                }
 
             }
         return true;

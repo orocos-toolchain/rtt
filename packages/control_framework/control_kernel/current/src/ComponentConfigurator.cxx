@@ -25,7 +25,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "control_kernel/ComponentConfigurator.hpp"
-#include <xercesc/framework/LocalFileInputSource.hpp>
 #include <corelib/marshalling/CPFDemarshaller.hpp>
 #include <control_kernel/PropertyExtension.hpp>
 #include "corelib/Logger.hpp"
@@ -37,14 +36,10 @@ using namespace ORO_ControlKernel;
 bool ComponentConfigurator::configure(const std::string& filename, PropertyComponentInterface* target) const
 {
     bool result = false;
-    XMLCh* name = 0;
     Logger::log() <<Logger::Info << "Configuring " <<target->getName()<< Logger::endl;
     try
     {
-        name =  XMLString::transcode( filename.c_str() );
-        LocalFileInputSource fis( name );
-        delete[] name;
-        CPFDemarshaller<InputSource> demarshaller(fis);
+        CPFDemarshaller demarshaller(filename);
 
         // store results in Components own bag if component exists.
         if ( demarshaller.deserialize( target->getLocalStore().value() ) )
@@ -62,7 +57,6 @@ bool ComponentConfigurator::configure(const std::string& filename, PropertyCompo
             }
     } catch (...)
     {
-        delete[] name;
         Logger::log() << Logger::Error
                       << "Could not find "<< filename << endl;
     }

@@ -951,13 +951,8 @@
 	The Application Builder of this simple Control
 	Kernel then writes the following code to define the kernel :
       </para>
-      <programlisting>
-<![CDATA[
-
-  #include <control_kernel/StandardControlKernel.hpp>
-  typedef StandardControlKernel<> MyKernel;
-]]>
-      </programlisting>
+      <programlisting><![CDATA[  #include <control_kernel/StandardControlKernel.hpp>
+  typedef StandardControlKernel<> MyKernel;]]> </programlisting>
       <para>
 	This defines the type <type>MyKernel</type> as being a
 	<classname>StandardControlKernel&lt;&gt;</classname>.
@@ -1150,9 +1145,7 @@
 	  Defining your own Component functionality works as in the
 	  following example for the Generator Component:
 	</para>
-	<programlisting>
-<![CDATA[
-  #include <control_kernel/BaseComponents.hpp>
+	<programlisting><![CDATA[  #include <control_kernel/BaseComponents.hpp>
 
   using namespace ORO_ControlKernel;
 
@@ -1189,9 +1182,7 @@
       } 
 
       // ...
-  };
-]]>
-	</programlisting>
+  };]]>	</programlisting>
 	<para>
 	  This defines a class <classname>MyGenerator</classname>,
 	  which is derived from the <type>ORO_ControlKernel::Generator</type> class,
@@ -1219,8 +1210,8 @@
 	  a Component should be as stable as possible, as many configuration
 	  files must be changed if the name changes.
 	</para>
-	<screen>
-  MyGenerator  my_gen;</screen>
+	<programlisting>
+  MyGenerator  my_gen;</programlisting>
 	<para>
 	  The above line has created one instance of
 	  <classname>MyGenerator</classname> called my_gen and using
@@ -1230,8 +1221,8 @@
 	  call of the <classname>StandardControlKernel</classname>.
 	  The next line could then be:
 	</para>
-	<screen>
-  first_kernel.loadGenerator( &amp;my_gen );</screen>
+	<programlisting>
+  first_kernel.loadGenerator( &amp;my_gen );</programlisting>
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
 	  Components can be configured when they are loaded or when
@@ -1247,8 +1238,8 @@
 	  (thus let it generate SetPoints),
 	  it must be started :
 	</para>
-	<screen>
-  first_kernel.startup( &amp;my_gen );</screen>
+	<programlisting>
+  first_kernel.startup( &amp;my_gen );</programlisting>
 	<para>
 	  Starting is enabling a Data Flow Component to operate on the
 	  Data Objects, ie, the <classname>DataFlowInterface</classname> of the Component is called. This
@@ -1275,7 +1266,8 @@
 	  due to a realtime configuration change. To allow a component to be
 	  switched with another one, it must be <emphasis>'selected'</emphasis> :
 	</para>
-	<programlisting>  first_kernel.selectGenerator( &amp;my_gen );</programlisting>
+	<programlisting>
+  first_kernel.selectGenerator( &amp;my_gen );</programlisting>
 	<para>
 	  A selected component is started, but also stops the previously
 	  selected component of the same type ( here : Generator ). This has
@@ -1311,20 +1303,16 @@
 	    (&ldquo;Velocity&rdquo;) in the SetPoint DataObject is done
 	    as follows:
 	  </para>
-	  <programlisting>
-<![CDATA[
-struct MG_SetPointData
-: public ServedTypes<Frame, double>
-{
-  MG_SetPointData()
+	  <programlisting><![CDATA[  struct MG_SetPointData
+     : public ServedTypes<Frame, double>
   {
-    this->insert( make_pair(0, "EndPosition"));
-    this->insert( make_pair(0, "BasePosition"));
-    this->insert( make_pair(1, "Velocity"));
-  }
-};
-]]>
-	  </programlisting>
+    MG_SetPointData()
+    {
+      this->insert( make_pair(0, "EndPosition"));
+      this->insert( make_pair(0, "BasePosition"));
+      this->insert( make_pair(1, "Velocity"));
+    }
+  };]]>  </programlisting>
 	  <para>
 	    The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
 	    listed in the ServedTypes list. So "EndPosition" and
@@ -1362,14 +1350,10 @@ struct MG_SetPointData
 	    This example shows how a Data Flow Component
 	    indicates which kind of data it expects.
 	  </para>
-	  <programlisting>
-<![CDATA[
-struct MG_InputData
-: public ServedTypes<Frame, double>
-{
-};
-]]>
-	  </programlisting>
+	  <programlisting><![CDATA[  struct MG_InputData
+    : public ServedTypes<Frame, double>
+  {
+  };]]>  </programlisting>
 	  <para>
 	    In this case, one or more Frames and one or more doubles
 	    are expected.
@@ -1403,9 +1387,7 @@ struct MG_InputData
 	    must be accessed like a normal DataObject to
 	    <function>Get()</function> or <function>Set()</function> the Data.
 	  </para>
-	<programlisting>
-	  <![CDATA[
-class MyGenerator 
+	<programlisting>  <![CDATA[class MyGenerator 
       : public Generator< 
 	  Expects<MG_InputData>,
 	  Expects<NoModel>,
@@ -1479,9 +1461,7 @@ public:
       velocity_dobj->Set( velocity );	    
   }
 
-};
-]]>
-	  </programlisting>
+};]]>  </programlisting>
 	</example>
 	<para>
 	</para>
@@ -1659,12 +1639,9 @@ public:
 	<para>
 	  There are some methods that allow easy working with named
 	  Components. Going further with the <type>MyKernel</type> example:
-	<programlisting>
-
-  // ... after start of the kernel task :
+	<programlisting>  // ... after start of the kernel task :
   if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
-       first_kernel.selectGenerator( "GeneratorName" );
-	  </programlisting>
+       first_kernel.selectGenerator( "GeneratorName" );  </programlisting>
 	  <emphasis>Loading</emphasis> is not realtime safe
 	  and must happen <emphasis>before</emphasis> the
 	  kernel started, <emphasis>selecting</emphasis> a
@@ -1868,15 +1845,13 @@ public:
 	  Support Components must be loaded in the kernel as regular
 	  components and are started when the kernel is started. For
 	  example :
-	  <programlisting>
-#include &lt;kernel_components/HMIConsoleOutput.hpp&gt;
-//...
+	  <programlisting>  #include &lt;kernel_components/HMIConsoleOutput.hpp&gt;
+  //...
 
-HMIConsoleOutput hmi_out;
-kernel.loadSupport( &amp;hmi_out );
+  HMIConsoleOutput hmi_out;
+  kernel.loadSupport( &amp;hmi_out );
 
-// When the kernel is started, hmi_out is automatically selected.
-	  </programlisting>
+  // When the kernel is started, hmi_out is automatically selected.  </programlisting>
 	  All Support components are used when the kernel is 
 	  started, thus no <function>selectSupport()</function>
 	  function exists. In the example above, the HMIConsoleOutput
@@ -1919,9 +1894,7 @@ kernel.loadSupport( &amp;hmi_out );
 	  All Kernel implementations support this configuration scheme.
       </para>
       <para>A control kernel configuration file might look like this:</para>
-      <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <properties>
 <struct name="KernelProperties" type="type_less">
   <description>The Basic characteristics of this kernel.</description>
@@ -1966,9 +1939,7 @@ kernel.loadSupport( &amp;hmi_out );
   <description>The property file of the property manager</description>
   <value>property.cpf</value></simple>
 </struct>
-</properties>
-]]>
-      </programlisting>
+</properties>]]> </programlisting>
 	<para>
 	  It has three major parts: KernelProperties, StartupComponents and Extensions. The
 	  first and second struct contain options which apply to any kernel.
@@ -2025,11 +1996,9 @@ kernel.loadSupport( &amp;hmi_out );
 	  To get the execution period of the kernel, (for example
 	  in a PID controller or in an interpolator generator, the following
 	  construct can be used :
-	  <programlisting>
-// ... in a component method :
-if ( this->inKernel() )
-    this->_period = this->kernel()->getPeriod();
-	  </programlisting>
+	  <programlisting>  // ... in a component method :
+  if ( this->inKernel() )
+      this->_period = this->kernel()->getPeriod(); </programlisting>
 	</para>
       </sect3>
     </sect2>
@@ -2242,16 +2211,12 @@ if ( this->inKernel() )
 	It happens by adding the extra template parameter on creation.
 	To revisit the <type>MyKernel</type> example:
       </para>
-      <programlisting>
-<![CDATA[
-	// equivalent typedef as before: 
-typedef StandardControlKernel<KernelBaseFunction> MyKernel;
+      <programlisting><![CDATA[  // equivalent typedef as before: 
+  typedef StandardControlKernel<KernelBaseFunction> MyKernel;
 
-	// adding a new extension to the KernelBaseFunction: 
-typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
-typedef StandardControlKernel< MyExtension > MyPropertyKernel;
-]]>
-      </programlisting>
+    // adding a new extension to the KernelBaseFunction: 
+  typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+  typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]> </programlisting>
       <para>
 	As can be seen, Extensions are composed using the
 	<classname>MakeExtension</classname> class, specifying
@@ -2263,15 +2228,11 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	<classname>PropertyExtension</classname>, as it should be.
 	Adding the reporting extension is then analogous:
       </para>
-      <programlisting>
-<![CDATA[
-	// A control kernel with two additional Extensions:
-typedef MakeExtension< PropertyExtension,
-	               KernelBaseFunction,
-	               ReportingExtension >::Result MySecondExtension;
-typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
-]]>
-      </programlisting>
+      <programlisting><![CDATA[  // A control kernel with two additional Extensions:
+  typedef MakeExtension< PropertyExtension,
+	                 KernelBaseFunction,
+	                 ReportingExtension >::Result MySecondExtension;
+  typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;]]> </programlisting>
       <para>
 	The order in which the Extensions are composed is important.
 	If one Extension fails on startup, the other will not be
@@ -2301,9 +2262,7 @@ typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
 	If no Aspect is given, the default is used, ComponentBaseInterface.
 	Thus the following is equivalent to the previous MyGenerator
 	definition (note the last parameter of Generator&lt;...&gt; ):
-	<programlisting>
-<![CDATA[
-class MyGenerator 
+	<programlisting><![CDATA[  class MyGenerator 
       : public Generator< 
 	  Expects<MG_InputData>,
 	  Expects<NoModel>,
@@ -2311,19 +2270,15 @@ class MyGenerator
 	  Writes<MG_SetPointData>,
 	  MakeAspect<KernelBaseFunction>::Result
 	  >
-{ 
-    // ...
-};
-]]>
-	</programlisting>
+  { 
+      // ...
+  };]]>	</programlisting>
 	The ComponentBaseInterface is the Aspect of the KernelBaseFunction.
       </para>
       <para>
 	To add an additional Aspect to the Component, you must use MakeAspect
 	and <emphasis>specify the Extensions you want to support</emphasis> :
-	<programlisting>
-<![CDATA[
-class MyGenerator 
+	<programlisting><![CDATA[  class MyGenerator 
       : public Generator< 
 	  Expects<MG_InputData>,
 	  Expects<NoModel>,
@@ -2331,11 +2286,9 @@ class MyGenerator
 	  Writes<MG_SetPointData>,
 	  MakeAspect<PropertyExtension, KernelBaseFunction>::Result
 	  >
-{ 
+  { 
     // ...
-};
-]]>
-	</programlisting>
+  };]]>	</programlisting>
 	MakeAspect is thus analogous to MakeExtension, but is aimed at
 	Components. The MakeAspect structure will ask every listed
 	Extension, which its Aspect is and compose them in a class hierarchy.
@@ -2353,14 +2306,18 @@ class MyGenerator
       <title>The Property Extension</title>
       <para>
 	By default, only the Control Kernel has a limited set of
-	properties, Components have none. The <type>PropertyExtension</type> adds
-	properties also to the Components. The
+	properties, Components have none. The
+	<type>PropertyExtension</type> allows to configure Components
+	properties through the kernel. The
 	<filename>properties.cpf</filename> file lists the CPF
-	(Component Property Format) file
-	for each component type. All the Components which loaded in the Control
-	Kernel will get the properties updated on starting the Control
-	Kernel. The Property Extension can be configured to configure the
-	components at 'component-load' time (default) or at 'kernel-start' time.
+	(Component Property Format) file for each component type.
+	Components may all share the same file.
+	All
+	the Components which loaded in the Control Kernel will get their
+	properties updated on starting the Control Kernel. The
+	Property Extension can be configured to configure the
+	components at 'component-load' time (default) or at
+	'kernel-start' time.
       </para>
 
       <figure id="fig-property-extension">
@@ -2379,12 +2336,8 @@ class MyGenerator
 	  The PropertyExtension can be added to a
 	  <classname>StandardControlKernel</classname> using the
 	  MakeExtension structure :
-	  <programlisting>
-<![CDATA[
-typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
-typedef StandardControlKernel< MyExtension > MyPropertyKernel;
-]]>
-	  </programlisting>
+	  <programlisting><![CDATA[  typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+  typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]></programlisting>
 	  It is best to put this Extension in front of other
 	  extensions, so that on component load time, the
 	  component's properties are set first before the other Extensions
@@ -2393,75 +2346,11 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	</para>
       </sect3>
       <sect3>
-	<title>Configuring the Property Extension</title>
-	<para>
-	  The <type>PropertyExtension</type> can be configured through the CPF
-	  file given in the Control Kernel configuration file.
-	  An example looks like this:
-	</para>
-	<example>
-	  <title>Example properties.cpf file</title>
-	  <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "cpf.dtd">
-<properties>
-
-<sequence name="PropertyFiles" type="ComponentEntry">
-    <simple name="MyGenerator"  type="string">
-    <description>The Generator Component Property File.</description>
-    <value>generator.cpf</value></simple>
-    <simple name="MyOtherGenerator"  type="string">
-    <description>The OtherGenerator Component Property File.</description>
-    <value>other_generator.cpf</value></simple>
-
-    <simple name="MyEstimator"  type="string">
-    <description>The Estimator Component Property File.</description>
-    <value>estimator.cpf</value></simple>
-    <simple name="MyController" type="string">
-    <description>The Controller Component Property File.</description>
-    <value>controller.cpf</value></simple>
-    <simple name="MySensor"     type="string">
-    <description>The Sensor Component Property File.</description>
-    <value>sensor.cpf</value></simple>
-    <simple name="MyEffector"   type="string">
-    <description>The Effector Component Property File.</description>
-    <value>effector.cpf</value></simple>
-</sequence>
-
-    <simple name="ConfigureOnLoad" type="boolean">
-	<description>
-	    Set to True (1) if components must be configured on load.
-	    Set to False (0) if components must be configured when the kernel is started.
-	</description>
-        <value>
-	    1
-	</value>
-    </simple>
-    <simple name="IgnoreMissingFiles"   type="boolean">
-        <description>Ignore missing files in PropertyFiles sequence</description><value>0</value>
-    </simple>
-    <simple name="SaveProperties"   type="boolean">
-        <description>Save Component Properties on kernel.stop()</description><value>0</value>
-    </simple>
-    <simple name="SaveFilePrefix"   type="string">
-        <description>The suffix of the filename to store the components state into</description><value>saved_</value>
-    </simple>
-    <simple name="SaveFileExtension"   type="string">
-        <description>The extension of the filename to store the components state into</description><value>cpf</value>
-    </simple>
-
-</properties>
-]]>
-	  </programlisting>
-	</example>
-      </sect3>
-      <sect3>
 	<title>Hooks</title>
-	<para>The Property Extension has two hooks : the
+	<para>The Property Extension provides two hooks to the Components : the
 	  <function>updateProperties(const PropertyBag&amp;
 	    bag)</function> method and the <function>exportProperties(PropertyBag&amp;
-	    bag)</function> method. In the former, the user must extract properties
+	    bag)</function> method. In the former, the component must read properties
 	  from the bag and assign his own proper property with the
 	  value found, in the latter, the inverse happens and the 
 	  component adds its properties to the bag.
@@ -2473,11 +2362,9 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	  <para>
 	    A simple component with only one property. If
 	    composeProperty can not find the gain property back, it
-	    will return false, and the control kernel will not start.
+	    will return false, and the component will not be loaded.
 	  </para>
-	  <programlisting>
-<![CDATA[
-class MyGenerator 
+	  <programlisting><![CDATA[class MyGenerator 
     : public Generator< ..data objects... ,
 	               MakeAspect<PropertyExtension,KernelBaseFunction>::Result >
 { 
@@ -2496,7 +2383,7 @@ public:
   {
       return composeProperty(bag, gain ) &&
 	     composeProperty(bag, max_track_error);
-      // returns true if successful.
+      // returns true if both properties were found in the bag.
   }
 
   virtual void exportProperties( PropertyBag& bag )
@@ -2511,13 +2398,9 @@ private:
   Property<double> max_track_error;
 
   // ...
-};
-]]>
-	  </programlisting>
+};]]>  </programlisting>
 	  <para>The CPF file looks like this:</para>
-	  <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
+	  <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <properties>
     <simple name="Gain"    type="double">
@@ -2528,9 +2411,131 @@ private:
     <description>The maximum tracking error of the controller.</description>
     <value>0.2</value>
     </simple>
-</properties>
-]]>
-	  </programlisting>
+</properties>]]>  </programlisting>
+	</example>
+	<para>
+	  See the Corelib Manual for more details about Properties.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Property Commands</title>
+	<para>
+	  When a specific Component "ComponentName" is not running,
+	  the Property Extension can be given four commands
+	  to control updating or writing Component properties to
+	  or from disk :
+	  <programlisting>  do Property.readProperties( "ComponentName" )
+  do Property.writeProperties( "ComponentName" )  
+
+  do Property.writeAllProperties()  
+  do Property.readAllProperties() </programlisting>
+          The filenames used are the ones listed in the properties.cpf file,
+	  if the component was not listed, the component's name is used as
+	  filename.
+	</para>
+	<para>
+	  The methods return in error if the operation could not complete.
+	  Reasons for failing are :
+	  <itemizedlist>
+	    <listitem><para>"ComponentName" is not known.</para></listitem>
+	    <listitem><para>"ComponentName" is running.</para></listitem>
+	    <listitem><para>"ComponentName" rejected the given properties.</para></listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+          <command>writeAllProperties()</command> tries to write
+	  all available Component's properties. Issue
+	  a <command>Kernel.stop()</command> if you want to be sure that
+	  all components are not running. <command>readAllProperties()</command>
+	  works likewise for reading properties from file.
+	  You can use these in the command console or program scripts
+	  to refresh/write out a Component's properties.
+	</para>
+	<warning>
+	  <para>
+	    Since reading and writing a disk (and parsing properties)
+	    is a not realtime operation, you must not call these
+	    commands from a hard realtime task. 
+	  </para>
+	</warning>
+      </sect3>
+
+      <sect3>
+	<title>Configuring the Property Extension</title>
+	<para>
+	  The <type>PropertyExtension</type> can be configured through the CPF
+	  file given in the Control Kernel configuration file.
+	  An example looks like this:
+	</para>
+	<example>
+	  <title>Example properties.cpf file</title>
+	  <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<properties>
+
+<sequence name="PropertyFiles" type="ComponentEntry">
+    <simple name="MyGenerator"  type="string">
+    <description>The Generator Component Property File.</description>
+    <value>components.cpf</value></simple>
+    <simple name="MyOtherGenerator"  type="string">
+    <description>The OtherGenerator Component Property File.</description>
+    <value>special_generator.cpf</value></simple>
+
+    <simple name="MyEstimator"  type="string">
+    <description>The Estimator Component Property File.</description>
+    <value>components.cpf</value></simple>
+    <simple name="MyController" type="string">
+    <description>The Controller Component Property File.</description>
+    <value>components.cpf</value></simple>
+    <simple name="MySensor"     type="string">
+    <description>The Sensor Component Property File.</description>
+    <value>components.cpf</value></simple>
+    <simple name="MyEffector"   type="string">
+    <description>The Effector Component Property File.</description>
+    <value>components.cpf</value></simple>
+</sequence>
+
+    <simple name="ConfigureOnLoad" type="boolean">
+	<description>
+	    Set to True (1) if components must be configured on load.
+	    Set to False (0) if components must be configured when the kernel is started.
+	</description>
+        <value>
+	    1
+	</value>
+    </simple>
+    <simple name="IgnoreMissingFiles"   type="boolean">
+        <description>Ignore missing files in PropertyFiles sequence</description><value>0</value>
+    </simple>
+    <simple name="SaveProperties"   type="boolean">
+        <description>Save Component Properties to file on kernel.stop()</description><value>0</value>
+    </simple>
+    <simple name="SaveFilePrefix"   type="string">
+        <description>The prefix of the filename to store the components state into.
+	May be a path or a file prefix.</description><value>cpf-files/</value>
+    </simple>
+    <simple name="SaveFileExtension"   type="string">
+        <description>The extension of the filename to store the components state into</description><value>cpf</value>
+    </simple>
+
+</properties>]]>  </programlisting>
+	<para>
+	  The PropertyFiles section lists all components which
+	  properties should be configured. You can specify a single
+	  big file or different files for each component. The
+	  ConfigureOnLoad option controls if the components are given
+	  their properties on load time or on start time. If a
+	  component supports properties, but it was not listed in the
+	  PropertyFiles section, it will be configured with an empty
+	  PropertyBag, to force the calling of the component's
+	  updateProperties(). If you do not want this behaviour, set
+	  IgnoreMissingFiles to 1. The components properties can be
+	  saved to file on kernel.stop() using SaveProperties. The
+	  file will be updated with the values of the properties which
+	  the components export using exportProperties(), and any
+	  properties not yet present in the file will be added. Also,
+	  if the file does not exist, it will be created.
+	</para>
 	</example>
       </sect3>
     </sect2>
@@ -2572,12 +2577,8 @@ private:
 	  The ReportingExtension can be added to a
 	  <classname>StandardControlKernel</classname> analogous
 	  to the PropertyExtension :
-	  <programlisting>
-<![CDATA[
-typedef MakeExtension< KernelBaseFunction, ReportingExtension >::Result MyExtension; 
-typedef StandardControlKernel< MyExtension > MyPropertyKernel;
-]]>
-	  </programlisting>
+	  <programlisting><![CDATA[  typedef MakeExtension< KernelBaseFunction, ReportingExtension >::Result MyExtension; 
+  typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]>  </programlisting>
 	  This Extension is mostly put after the KernelBaseFunction,
 	  so that it reports the latest data. Otherwise, the data of 
 	  the previous control cycle would be reported.
@@ -2592,9 +2593,7 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	</para>
 	<example>
 	  <title>Example reporting.cpf file</title>
-	  <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
+	  <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <!-- Properties of the ReportingExtension -->
 <properties>
@@ -2650,9 +2649,7 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	<simple name="DataObject" type="string"><value>Models</value></simple>
 	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
     </struct>
-</properties>
-]]>
-	  </programlisting>
+</properties>]]>  </programlisting>
 	  <para>
 	    Most options are self explanatory. The Exporters list has two types
 	    of entries : <emphasis>Component</emphasis> and <emphasis>DataObject</emphasis>.
@@ -2670,8 +2667,7 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	<para>
 	  When the kernel is started. The Reporter can be given two commands
 	  to control the reports it generates :
-	  <programlisting>
-  do Reporter.start()
+	  <programlisting>  do Reporter.start()
   do Reporter.stop()  </programlisting>
 	  You can use these in the command console or program scripts
 	  to start/stop the generation of reports.
@@ -2709,9 +2705,7 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	  <para>
 	    A simple component with only one value to report.
 	  </para>
-	  <programlisting>
-<![CDATA[
-class MyGenerator 
+	  <programlisting><![CDATA[class MyGenerator 
     : public Generator< ...,
 	    MakeAspect<KernelBaseFunction,
 	               ReportingExtension>::Result >
@@ -2740,9 +2734,7 @@ private:
   Property< ORO_Geometry::Frame > end_pos;
 
   // ...
-};
-]]>
-	  </programlisting>
+};]]>  </programlisting>
 	</example>
       </sect3>
       <sect3>
@@ -2778,15 +2770,13 @@ private:
 	    buffer. Each generated report is always made with
 	    a time stamp.
 	  </para>
-	  <screen>
-<![CDATA[
+	  <screen><![CDATA[
  | CartKernel::Models                                                 |
  | TimeStamp | Data                                                   |
  |           | EndEffPosition <MotCon::Frame>                         |
  |           | Position <MotCon::Vector> | EulerZYX <MotCon::EulerZYX>|
  |           | X | Y | Z |               | X | Y | Z |                |
-]]>
-	  </screen>
+]]>  </screen>
 	</example>
       </sect3>
     </sect2>
@@ -2854,9 +2844,7 @@ private:
 	  A StateMachine file and Program file
 	  can be loaded as such :
 	</para>
-      <programlisting>
-<![CDATA[
-  // adding the extension to the KernelBaseFunction: 
+      <programlisting><![CDATA[  // adding the extension to the KernelBaseFunction: 
   typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
   typedef StandardControlKernel<ExecExtension> MyExecKernel;
 
@@ -2881,23 +2869,20 @@ private:
 	  after load. To use the
 	  StateMachine, it must be activated and started :
 	</para>
-	<programlisting>
-  my_kernel.activateStateMachine("MyState");   // Enter initial state 
+	<programlisting>  my_kernel.activateStateMachine("MyState");   // Enter initial state 
   my_kernel.startStateMachine("MyState");      // Start transitions</programlisting>
 	<para>
 	  It is most common to start the program itself from within
 	  a state of the StateMachine, so that it is sure that
 	  it is safe to start a program. To do this in the state
 	  the commands
-	<programlisting>
-  do programs.MyProgram.start()
+	<programlisting>  do programs.MyProgram.start()
   //...
   do programs.MyProgram.stop()	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateMachines from within a program or another 
 	  State Context :
-	<programlisting>
-  do states.SecondContext.activate()
+	<programlisting>  do states.SecondContext.activate()
   do states.SecondContext.start()
   //...
   do states.SecondContext.stop()
@@ -2911,8 +2896,7 @@ private:
 	  The name of the task is the kernel name ("Default" by default).
 	  The listing below shows how you can connect the kernel's task to the
 	  <classname>TaskBrowser</classname>.
-	  <programlisting>
-  TaskContext* kern_task = my_kernel.getTaskContext();
+	  <programlisting>  TaskContext* kern_task = my_kernel.getTaskContext();
 
   TaskBrowser browser( kern_task );
   browser.loop();	  </programlisting>
@@ -3013,9 +2997,10 @@ private:
 	  </para>
 	  <para>
 	    Suppose the API of your component looks like this:
-	    <programlisting>
-class Robot
-{
+	    <programlisting>class MyGenerator
+    : public Generator&lt; ..data objects... ,
+	               MakeAspect&lt;KernelBaseFunction&gt;::Result &gt;
+{ 
 public:
   void moveToHomePosition();
   // A Completion condition must be const :
@@ -3033,13 +3018,14 @@ public:
 };	</programlisting>
 	    Then the code needed to export this API to the &orocos;
 	    scripting framework would look like this:
-	<programlisting>
-#include &lt;execution/Factories.hpp&gt;
+	<programlisting>#include &lt;execution/Factories.hpp&gt;
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
 
-class Robot
+class MyGenerator
+    : public Generator&lt; ..data objects... ,
+	               MakeAspect&lt;KernelBaseFunction,ExecutionExtension&gt;::Result &gt;
 {
 public:
 // ...
@@ -3092,10 +3078,8 @@ CommandFactoryInterface* createCommandFactory()
 	  </para>
 	  <para>
 	    The first statement 
-	    <programlisting>
-TemplateDataSourceFactory&lt;Robot&gt;* ret =
-  newDataSourceFactory( this );
-	    </programlisting>
+	    <programlisting>  TemplateDataSourceFactory&lt;Robot&gt;* ret =
+    newDataSourceFactory( this ); </programlisting>
 	    constructs a new TemplateDataSourceFactory, this should be
 	    straightforward.  After this factory is constructed, we add
 	    data to it using the add() method.  This method requires a
@@ -3153,8 +3137,7 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	    documentation for a detailed list of commands
 	    which a Kernel adds to its interface,
 	    but here are a few examples :</para>
-	  <programlisting>
-  do Kernel.selectGenerator( "CartesianGenerator" )
+	  <programlisting>  do Kernel.selectGenerator( "CartesianGenerator" )
   do Kernel.selectController( "CartesianController" ) </programlisting>
 	</sect4>
       </sect3>
@@ -3167,8 +3150,7 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	</para>
 	<example>
 	  <title>"state.osd" : StateMachine with name "MyState"</title>
-	  <programlisting>
-StateMachine MachineContext
+	  <programlisting>StateMachine MachineContext
 {
     /**
      * This state is entered when the StateMachine is loaded.
@@ -3261,13 +3243,11 @@ StateMachine MachineContext
     }
 }
 
-RootContext MainContext mainContext
-	  </programlisting>
+RootContext MainContext mainContext  </programlisting>
 	</example>
 	<example>
 	  <title>"program.ops" : Program with name "MyProgram"</title>
-	  <programlisting>
-/**
+	  <programlisting>/**
  * This program is executed in the exec_state.
  */
 
@@ -3328,17 +3308,14 @@ program DemoRun {
 	}
 
 	call ExitProgram
-}
-	  </programlisting>
+}  </programlisting>
 	</example>
       </sect3>
       <sect3>
 	<title>Configuring the ExecutionExtension</title>
 	<para>
 	  The ExecutionExtension has the following xml options:
-	  <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
+	  <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <!-- Properties of the ExecutionExtension -->
 <properties>
@@ -3346,9 +3323,7 @@ program DemoRun {
 	<description>The relative interval of executing a program step.</description>
 	<value>5</value>
     </simple>
-</properties>
-]]>
-	  </programlisting>
+</properties>]]>  </programlisting>
 	  For example, if Interval is 5, every fifth cycle, the
 	  extension will run one statement of the program and recheck
 	  the State transitions.
@@ -3447,9 +3422,7 @@ program DemoRun {
 	    may write to a specific DataObject, while all
 	    the others may read from it.
 	  </para>
-	    <programlisting>
-<![CDATA[
-// The highest priority kernel is standard
+	    <programlisting><![CDATA[// The highest priority kernel is standard
 LockFreeControlKernel<> 
     innerKernel("InnerLoop", "my_cascade" );
 
@@ -3468,9 +3441,7 @@ CascadeControlKernel<>
 
 // Configure the kernels using KernelConfig
 
-// Start kernels in seperate tasks and threads
-]]>
-	  </programlisting>
+// Start kernels in seperate tasks and threads]]>  </programlisting>
 	  <para>
 	    The CascadeControlKernel knows it has to put the Outputs of
 	    the Kernel in the namespace of the Commands of all the
@@ -3504,24 +3475,21 @@ CascadeControlKernel<>
       </para>
       <example>
 	<title>An Old-Style StandardControlKernel</title>
-	<programlisting>
-  StandardControlKernel&lt;CommandType, SetPointType,
+	<programlisting>  StandardControlKernel&lt;CommandType, SetPointType,
 	                   InputType, ModelType, OutputType, Extension&gt; kernel;
  
   template&lt; class Base &gt;
   XGenerator : public Base
   {
      // access Inputs::dObj() with Get() and Set(),...
-  };
-	</programlisting>
+  };</programlisting>
       </example>
       <para>
 	This must be changed to :
       </para>
       <example>
 	<title>A Converted Old-Style StandardControlKernel</title>
-	<programlisting>
-  StandardControlKernel&lt;Extension&gt; kernel;
+	<programlisting>  StandardControlKernel&lt;Extension&gt; kernel;
 
   struct NSInputType
     : public ServedTypes&lt;InputType&gt;
@@ -3541,8 +3509,7 @@ CascadeControlKernel<>
   {
     // Use the nameserving technique to get a pointer to the
     // "Input" DataObject.
-  };
-	</programlisting>
+  };</programlisting>
 
 	<para>
 	  <note>
@@ -3566,8 +3533,7 @@ CascadeControlKernel<>
       </para>
       <example>
 	<title>A Converted Old-Style NSControlKernel</title>
-	<programlisting>
-  // Change the kernel definition :
+	<programlisting>  // Change the kernel definition :
   StandardControlKernel&lt;Extension&gt; kernel;
 
   // Remove the template, inherit from Generator directly :
@@ -3579,8 +3545,7 @@ CascadeControlKernel<>
   {
     // Use the nameserving technique to get a pointer to the
     // DataObjects, no change here
-  };
-	</programlisting>
+  };</programlisting>
       </example>
       <para>
 	If you used the <classname>CompositeDataObject</classname>
@@ -3600,14 +3565,12 @@ CascadeControlKernel<>
 	which is of one certain, immutable, type. Any type can be
 	encapsulated by a Property. A Property of a double is
 	written as: 
-<screen>
-Property&lt;double&gt; d_prop;
-</screen>
+<programlisting>
+  Property&lt;double&gt; d_prop;</programlisting>
 	A Property of an arbitrary type A is
 	equally written as 
-<screen>
-Property&lt; A &gt; a_prop;
-</screen> 
+<programlisting>
+  Property&lt; A &gt; a_prop;</programlisting> 
 	This however does not enable the
 	marshallers or demarshallers (converters) to know how to convert a
 	property to a text file and vice versa. For each unknown

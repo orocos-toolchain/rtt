@@ -41,10 +41,24 @@ using namespace ORO_CoreLib;
         using namespace ORO_Execution;
 #endif
 
+ControlKernelInterface::~ControlKernelInterface() {}
+
+ControlKernelInterface::ControlKernelInterface(const std::string& kname)
+    : name("name","The name of the kernel.", kname)
+{
+}
 
 const std::string& ControlKernelInterface::getKernelName() const
 {
     return name.get();
+}
+
+KernelBaseFunction* ControlKernelInterface::base() const
+{
+    for ( ExtensionList::const_iterator it = extensions.begin(); it != extensions.end(); ++it)
+        if ( dynamic_cast<KernelBaseFunction*>( *it ) )
+            return dynamic_cast<KernelBaseFunction*>( *it );
+    return 0;
 }
 
 void ControlKernelInterface::setKernelName( const std::string& _name)

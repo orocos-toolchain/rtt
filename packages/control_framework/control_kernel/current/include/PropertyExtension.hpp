@@ -58,11 +58,7 @@ namespace ORO_ControlKernel
         /**
          * The Default constructor 
          */
-        PropertyComponentInterface( const std::string& _name )
-            : detail::ComponentAspectInterface<PropertyExtension>(_name + std::string("::Property") ),
-              master(0), localStore(_name,"Component Properties")
-        {
-        }
+        PropertyComponentInterface( const std::string& _name );
 
         virtual bool enableAspect( PropertyExtension* ext);
 
@@ -71,9 +67,7 @@ namespace ORO_ControlKernel
         /**
          * Destructor.
          */
-        virtual ~PropertyComponentInterface()
-        {
-        }
+        virtual ~PropertyComponentInterface();
 
         /**
          * Update the Component's properties with a bag.
@@ -94,7 +88,7 @@ namespace ORO_ControlKernel
         /**
          * The Kernel we belong to.
          */
-PropertyExtension* master;
+        PropertyExtension* master;
 
         /**
          * This bag is used by the PropertyExtension to store
@@ -130,10 +124,6 @@ PropertyExtension* master;
 
         virtual bool updateProperties(const PropertyBag& bag);
         
-//         virtual TaskInterface* getTask() const;
-
-//         virtual void setTask( TaskInterface* task );
-
         /**
          * Used by the PropertyComponentInterface to register itself to
          * this Extension.
@@ -149,6 +139,13 @@ PropertyExtension* master;
         bool configureComponent(const std::string& filename, PropertyComponentInterface* target);
 
     protected:
+        virtual ORO_Execution::MethodFactoryInterface* createMethodFactory();
+
+        bool readAllProperties();
+        bool readProperties( const std::string& compname );
+        bool writeAllProperties();
+        bool writeProperties( const std::string& compname );
+
         /**
          * Read the XML cpf files and try to configure all the components.
          */

@@ -52,6 +52,8 @@ namespace ORO_ControlKernel
         struct ExtensionInterface;
     }
 
+    class KernelBaseFunction;
+
     /**
      * @brief This is the base class of any kernel.
      * It holds a pointer to all extensions present.
@@ -61,9 +63,11 @@ namespace ORO_ControlKernel
     {
         friend class detail::ExtensionInterface;
 
-        virtual ~ControlKernelInterface() {}
+        typedef std::vector<detail::ExtensionInterface*> ExtensionList;
 
-        ControlKernelInterface(const std::string& kname) : name("name","The name of the kernel.", kname) {}
+        virtual ~ControlKernelInterface();
+
+        ControlKernelInterface(const std::string& kname);
 
         /**
          * @brief This is the hook for user kernel properties.
@@ -76,14 +80,20 @@ namespace ORO_ControlKernel
         /**
          * @brief Get a vector of all ExtensionInterfaces of this Kernel.
          */
-        const std::vector<detail::ExtensionInterface*>& getExtensions() const
+        const ExtensionList& getExtensions() const
         {
             return extensions;
         }
 
         const std::string& getKernelName() const;
 
+        /**
+         * Returns a pointer to the base interface of this kernel.
+         * May return zero if not found.
+         */
+        KernelBaseFunction* base() const;
     protected:
+       
         /**
          * Method for ExtensionInterface to register itself.
          */
@@ -93,7 +103,7 @@ namespace ORO_ControlKernel
 
         void setKernelName( const std::string& _name);
 
-        std::vector<detail::ExtensionInterface*> extensions;
+        ExtensionList extensions;
 
         Property<std::string> name;
     };
