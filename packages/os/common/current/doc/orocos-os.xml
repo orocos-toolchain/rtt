@@ -302,10 +302,12 @@
 		classes</entry>
 	      <entry align="center" valign="middle">
 		Mutex.hpp, MutexLock.hpp, ComponentThreaded.hpp,
-		EvenInterrupt.hpp
+		EvenInterrupt.hpp, main.h
 	      </entry>
 	      <entry align="left" valign="middle">
-		The standard provided C++ OS primitives.</entry></row>
+		The standard provided C++ OS primitives. main.h
+		is required to be included in your main program file.
+	      </entry></row>
 	  </tbody>
 	</tgroup>
       </table> 
@@ -320,21 +322,31 @@
 	<para>
 	  All tasks in the realtime system have to be performed by
 	  some thread.  The OS abstraction expects an
-	  <function>ORO_main()</function> function (which the user has
+	  <function>int ORO_main(int argc, const char* argv)</function> 
+	  function (which the user has
 	  written) and will call that after all system initialisation
-	  has been done. This can include thread creation or setting
+	  has been done, meaning thread creation or setting
 	  up the realtime primitives. Inside ORO_main() the user may
 	  expect that the system is properly set up and can be used.
 	  The resulting libtarget.a library will contain the real
 	  main() function which will call the ORO_main() function.
 	</para>
 	<note>
+	  <para>
+	    Do not forget to include <filename>&lt;os/main.h&gt;</filename>
+	    in the main program file, or the linker will not
+	    find the ORO_main function.
+	  </para>
+	</note>
+	<note>
 	  Using global objects which use the OS functions before 
 	  ORO_main() entered (because they are constructed before
 	  main() ), can come into conflict with an uninitialised system.
 	  It is therefor advised not to use static global objects which
 	  use the OS primitives. Events in the CoreLib 
-	  are an example of such objects.
+	  are an example of objects which should not be constructed 
+	  as global static. Dynamic (i.e. created with new ) 
+	  global events are ok.
 	</note>
       </sect2> 
       <sect2>
