@@ -2,8 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <tao/corba.h>
-#include <control_kernel/KernelInterfaceI.h>
-#include <control_kernel/ernelinterface.hpp>
+#include "KernelInterfaceI.h"
+#include "kernelinterface.hpp"
 #include <control_kernel/kernelserver.hpp>
 #include <boost/bind.hpp>
 

@@ -9,14 +9,14 @@ A CORBA server which allows your kernel to be used with the KernelClient GUI.
     include_dir control_kernel
 
     make_object {
-	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
+	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
 	tao_idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl -o src
 	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx -o src/$(OBJECT_PREFIX)_kernelserver.o
     }
 
     make_object {
-	src/KernelInterfaceI.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
+	src/KernelInterfaceI.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceI.cxx
 	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceI.cxx -o src/$(OBJECT_PREFIX)_KernelInterfaceI.o
     }
