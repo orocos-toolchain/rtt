@@ -3,7 +3,13 @@
 using namespace ORO_ControlKernel;
 using namespace ORO_CoreLib;
 
-NameServer<ExtensionInterface*> ExtensionInterface::nameserver;
+namespace ORO_ControlKernel
+{
+    namespace detail
+    {
+        NameServer<ExtensionInterface*> ExtensionInterface::nameserver;
+    }
+}
 
 bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
 {

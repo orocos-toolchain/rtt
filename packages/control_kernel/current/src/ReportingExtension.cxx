@@ -5,7 +5,7 @@ namespace ORO_ControlKernel
 {
 
     ReportingComponent::ReportingComponent(const std::string& _name) 
-        : ComponentAspectInterface<ReportingExtension>( _name ),
+        : detail::ComponentAspectInterface<ReportingExtension>( _name ),
     exporter( _name ), reports("Data","The Reported Data of this Component"), reporter(0)
     {
         exporter.value().add( &reports );

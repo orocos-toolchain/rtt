@@ -7,6 +7,9 @@ using namespace ORO_ControlKernel;
 
 /*******************************************************************************/
 /**
+ * This file is for developer testing only and ordering my thoughts. It
+ * will probably not compile for you.
+ *
  * Compile using : g++ -I install/include -L install/lib -ltarget -lpthread 
  */
 
@@ -71,19 +74,21 @@ using namespace ORO_ControlKernel;
     };
 
 
+/**
+ * Test kernel, for simplicity, only one type is defined in the template,
+ * and no extension is given.
+ * Correct use of the above formalism.
+ */
 template <class InputType>
 class InputKernel
-    :public BaseKernel< ... >
+    :public BaseKernel< NameServedDataObject< DataObjectContainer<InputType> >
 {
-    typedef NameServedDataObject< DataObjectContainer<InputType> Inputs;
+    typedef BaseKernel::Inputs Inputs;
 };
 
-template <class ImplementationKernel>
-class PublicKernel
-{
-    typedef ImplementationKernel::Inputs Inputs;
-};    
-
+/**
+ * Proposal for rewriting the DefaultControlKernel :
+ */
 template <class I, class M, class C, class S, class O, class Ext=DefaultExt>
 class DefaultControlKernel
     : public BaseKernel<DataObject<I>, DataObject<M>, DataObjectLocked<C>, DataObject<S>, DataObject<0>, Ext>
@@ -95,6 +100,9 @@ class DefaultControlKernel
     //...
 };
 
+/**
+ * Proposal for a high priority kernel :
+ */
 template <class I, class M, class C, class S, class O, class Ext=DefaultExt>
 class HighPriorityControlKernel
     : public BaseKernel<DataObjectPriorityGet<I>, DataObject<M>, DataObjectPriorityGet<C>, DataObject<S>, DataObjectPrioritySet<0>, Ext>
@@ -125,7 +133,9 @@ int main()
     MouseVelocities mv;
     PosXY ps;
 
-    Inputs::?<MouseVelocities>::type mvDO;
+    // special construct to retrieve the type
+    // of the dataobject.
+    Inputs::DataObject<MouseVelocities>::type mvDO;
 
     dObj.Get("MouseVels", mvDO);
     mv = dObj->Get();
