@@ -35,11 +35,11 @@
  */
 
 #include "pkgconf/os.h"
+#include "os/oro_bitops.h"
 #ifdef OROBLD_OS_AGNOSTIC
 // do not rely on system headers :
 // i386 :
 
-#define LOCK_PREFIX "lock ; "
 struct __xchg_dummy { unsigned long a[100]; };
 #define __xg(x) ((struct __xchg_dummy *)(x))
 
@@ -73,8 +73,8 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 #define cmpxchg(ptr,o,n)\
 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
 					(unsigned long)(n),sizeof(*(ptr))))
-    
-#undef LOCK_PREFIX
+
+
 
 #else
 
