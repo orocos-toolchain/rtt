@@ -580,10 +580,10 @@
 	  to do some mathematical operations on all that data, and to
 	  send the results to the effectors of the system. This cycle
 	  is done many times a second and generates a constant flow of
-	  data through the system. The components in the Control
+	  data through the system. The Data Flow Components in the Control
 	  Kernel are responsible for sustaining this flow: they
 	  convert one kind of data into another kind and make it
-	  available to other components, in a timely and deterministic
+	  available to other Data Flow Components, in a timely and deterministic
 	  way. In any feedback system, data goes through a set of
 	  stages before it leaves the system again. Each such stage
 	  gives an intermediate meaning to the data. This is another
@@ -599,10 +599,19 @@
 	  The Control Kernel uses DataObjects to store the
 	  intermediate data flow. Particular values of the data inside
 	  DataObjects might trigger a state change in one of the
-	  Components reading them. However, triggering specific
+	  Data Flow Components reading them. However, triggering specific
 	  actions inside a component should happen through the <link
 	    linkend="execution-flow">Execution Flow</link>, and not
 	  the Data Flow. 
+	</para>
+	<para>
+	  To avoid ambiguity in the Data Flow, only one Component is
+	  allowed to write specific data <emphasis>at a time</emphasis>.
+	  Selection is the mechanism in Orocos to enable a Data Flow
+	  Component to operate in the Data Flow, the previous selected Component
+	  will be automatically de-selected. Selection has only influence
+	  on the Data Flow. Other facilities such as reporting, commands
+	  etc remain available for not selected Components.
 	</para>
       </sect3>
       <sect3 id="execution-flow">
@@ -1292,19 +1301,25 @@ first_kernel.loadGenerator( &amp;my_gen );
 	</screen>
 	<para>
 	  which would cause my_gen to be loaded into the Kernel.
-	  To actually use this Generator instead of the current one,
-	  it must be selected:
+	  To introduce this Generator in the Data Flow instead of the current one,
+	  it must be selected :
 	</para>
 	<screen>
 first_kernel.selectGenerator( &amp;my_gen );
 	</screen>
 	<note>
-	  <para>One can only select a component after the kernel is started !</para>
+	  <para>
+	    One can only select a component after the kernel is started !
+	    Selection is enabling a Data Flow Component to operate on the
+	    Data Objects. Only one Component per type can do this. This
+	    does not mean that a not selected component is not accessible.
+	    It can still accept commands, report variables etc.
+	  </para>
 	</note>
 	<para>
 	  Only one Data Flow Component per type can be selected at a time and only a
-	  previously loaded Component can be selected in a running kernel. This is because
-	  all loaded components are configured just before the Control
+	  previously loaded Component can be selected in a running kernel.
+	  All loaded components are configured just before the Control
 	  Kernel is running. Any component not loaded at that time
 	  will not be configured by that Control Kernel and is thus
 	  not usable when the Control Kernel is running. The above
