@@ -1672,6 +1672,107 @@ void push()
 	</para>
       </sect2>
     </sect1>
+    <sect1 id="kernel-configuration">
+      <title>Control Kernel Configuration</title>
+      <para>
+	This section explains how to configure a Control Kernel and how to
+	access this information from within your program.
+      </para>
+      <sect2>
+	<title>The KernelConfigurator</title>
+	<para>
+	  Control kernels (and components)  can be configured at
+	  runtime with an XML file in the CPF (Component Property File
+	  <citation>CCM</citation>) format, defined by the OMG group.
+	  This group defines the standards to be used within <ulink
+	    url="http://www.corba.org">CORBA</ulink>, but they are
+	  usable outside CORBA too. The
+	  <classname>KernelConfig</classname> is a class which can
+	  read a given XML file and configure a control kernel with
+	  that information. KernelConfig parses the file and passes
+	  the result (a PropertyBag) to the
+	  <function>updateProperties(const PropertyBag &amp;
+	    bag)</function> method of the
+	  <classname>KernelBaseFunction</classname> base class of the
+	  kernel. If you want to add your own configuration options to
+	  a Kernel subclass (which is quite common), you can define an
+	  updateKernelProperties(const PropertyBag &amp; bag) method
+	  in this subclass. KernelConfig will pass the PropertyBag to
+	  this function too.
+      </para>
+      <para>
+	  All Kernel implementations support this configuration scheme.
+      </para>
+      <para>A control kernel configuration file might look like this:</para>
+      <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+<struct name="KernelProperties" type="type_less">
+  <description>The Basic characteristics of this kernel.</description>
+  <simple name="frequency" type="double">
+  <description>The periodic execution frequency in Hz</description>
+  <value>1000</value></simple>
+  <simple name="priority"  type="string">
+  <description>The priority of the kernel.</description>
+  <value>NonPreemptible</value></simple>
+</struct>
+
+<struct name="Extensions" type="type_less">
+  <simple name="Reporter" type="string">
+  <description>The property file of the reporter</description>
+  <value>reporter.cpf</value></simple>
+
+  <simple name="Execution" type="string">
+  <description>The property file of the Execution Engine</description>
+  <value>execution.cpf</value></simple>
+
+  <simple name="Property" type="string">
+  <description>The property file of the property manager</description>
+  <value>property.cpf</value></simple>
+</struct>
+</properties>
+]]>
+      </programlisting>
+	<para>
+	  It has two major parts: KernelProperties and Extensions. The
+	  first contains general options which apply to any kernel.
+	  The second specifies the property file for each (possible)
+	  extension. If the file is not found, an error is raised by
+	  the KernelConfigurator. The XML format is further explained
+	  in the Property Extension section. It is allowed to define
+	  your own properties in this file and update them in the
+	  <function>updateKernelProperties</function> method of a
+	  derived class of the Control Kernel.
+	</para>
+	<tip>
+	  <para> Example CPF files can often be found in the
+	    <filename class="directory">doc</filename> directory of the packages.
+	  </para>
+	</tip>
+      </sect2>
+      <sect2>
+	<title>Accessing the Configuration parameters</title>
+	<para>
+	  Each Component inherits from the <classname>ComponentBaseInterface</classname>
+	  which provides, among others, the <function>bool inKernel() const</function>
+	  function and the <function>KernelBaseFunction* kernel() const</function>
+	  funtion. The former returns true if the component is loaded in
+	  a kernel, the latter returns a pointer to the base class of
+	  that kernel.
+	</para>
+	<para>
+	  To get the execution period of the kernel, (for example
+	  in a PID controller or in an interpolator generator, the following
+	  construct can be used :
+	  <programlisting>
+// ... in a component method :
+if ( this->inKernel() )
+    this->_period = this->kernel()->getPeriod();
+	  </programlisting>
+	</para>
+      </sect2>
+    </sect1>
   </chapter>
   <chapter id="control-kernel-extensions">
     <title>Extensions to the Standard Control Kernel</title>
@@ -3020,98 +3121,9 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
       </sect2>
     </sect1>
   </chapter>
-  <chapter id="kernel-configuration">
-    <title>Control Kernel Configuration</title>
-    <para>
-      This section explains how to configure a Control Kernel.
-    </para>
-      <sect1>
-	<title>The KernelConfigurator</title>
-	<para>Control kernels (and components)  can be configured at
-	runtime with an XML file in the CPF (Component Property File
-	<citation>CCM</citation>) format, defined by the OMG group.
-	This group defines the standards to be used within <ulink
-	  url="http://www.corba.org">CORBA</ulink>, but they are
-	usable outside CORBA too. The
-	<classname>KernelConfig</classname> is a class which can
-	read a given XML file and configure a control kernel with that
-	information. KernelConfig parses the file and passes
-	the result (a PropertyBag) to the
-	<function>updateProperties(const PropertyBag &amp; bag)</function> method of the
-	<classname>KernelBaseFunction</classname>. If you want to
-	add your own configuration options to a
-	Kernel subclass (which is quite common), you can
-	define an updateKernelProperties(const PropertyBag &amp; bag)
-	method in this subclass. KernelConfig
-	will pass the PropertyBag to this function too.
-      </para>
-      <para>
-	All Kernel implementations support this configuration scheme.
-      </para>
-      <para>A control kernel configuration file might look like this:</para>
-      <programlisting>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
-<properties>
-<struct name="KernelProperties" type="type_less">
-  <description>The Basic characteristics of this kernel.</description>
-  <simple name="frequency" type="double">
-  <description>The periodic execution frequency in Hz</description>
-  <value>1000</value></simple>
-  <simple name="priority"  type="string">
-  <description>The priority of the kernel.</description>
-  <value>NonPreemptible</value></simple>
-</struct>
 
-<struct name="Extensions" type="type_less">
-  <simple name="Reporter" type="string">
-  <description>The property file of the reporter</description>
-  <value>reporter.cpf</value></simple>
-
-  <simple name="Execution" type="string">
-  <description>The property file of the Execution Engine</description>
-  <value>execution.cpf</value></simple>
-
-  <simple name="Property" type="string">
-  <description>The property file of the property manager</description>
-  <value>property.cpf</value></simple>
-</struct>
-</properties>
-]]>
-      </programlisting>
-      <para>
-	It has two major parts: KernelProperties and Extensions. The
-	first contains general options which apply to any kernel. The
-	second specifies the property file for each (possible)
-	extension. If the file is not found, an error is raised by the
-	KernelConfigurator. The XML format is further explained in the
-	Property Extension section. It is allowed to define your own
-	properties in this file and update them in the
-	<function>updateKernelProperties</function> method of a derived
-	class of the Control Kernel.
-      </para>
-    </sect1>
-    <sect1>
-      <title>Configuring the Control Kernel with XML files</title>
-      <para>
-	Runtime configuration of the Control Kernel and its Components
-	can happen with XML files, so that you don't have to recompile
-	your program each time you want to change an option. The CPF
-	format is defined in the <filename>cpf.dtd</filename> file and
-	is equal to the CORBA&nbsp;3 standard's property file format.
-	The <classname>StandardControlKernel</classname> and each
-	extension have an own CPF file, which defines the values some
-	(or all) properties should take. There may be more properties
-	than listed in the CPF file and vice versa. The parser will do
-	its best effort to configure each Component with the given
-	data. 
-      </para>
-      <tip>
-	<para> Example CPF files can often be found in the
-	  <filename class="directory">doc</filename> directory of the packages.
-	</para>
-	</tip>
-    </sect1>
+  <appendix>
+    <title>Left-Overs</title>
     <sect1 id="prop-intro">
       <title>Properties</title>
       <para>
@@ -3145,13 +3157,14 @@ Property&lt; A &gt; a_prop;
 	    MotionProperties.hpp</filename> file.</para>
       </example>      
     </sect1>
-  </chapter>
-  <chapter>
-    <title>Appendix</title>
+  </appendix>
+  <appendix>
+    <title>Legal Notices</title>
     <para>Orocos ControlKernel contains files from the Loki Library, which requires
       the following notice :
     </para>
     <para>
+      <programlisting>
 ////////////////////////////////////////////////////////////////////////////////
 // The Loki Library
 // Copyright (c) 2001 by Andrei Alexandrescu
@@ -3166,8 +3179,9 @@ Property&lt; A &gt; a_prop;
 //     suitability of this software for any purpose. It is provided "as is"
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
+      </programlisting>
     </para>
-  </chapter>
+  </appendix>
 <bibliography><title>Bibliography</title>
   <biblioentry xreflabel="corba3">
     <abbrev>CCM</abbrev>
