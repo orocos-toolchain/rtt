@@ -1627,24 +1627,18 @@ public:
 	</figure>
       </sect3>
       <sect3>
-	<title>Components and NameServing</title>
+	<title>Component Names</title>
 	<para>
 	  Each Component must be given a <emphasis
-	    role="strong">name</emphasis> upon construction. The name
+	    role="strong">unique name</emphasis> upon construction (usually
+	    given in the constructor). The name
 	  of a Component is stored in a NameServer for each Control
-	  Kernel, and for each Component in that Kernel. Each Control
-	  Kernel thus causes NameServers to be created for each of its
-	  Component types, because this prevents name clashing. If a
-	  Component is created twice with the same name in the same kernel,
-	  only the first one will show up in the NameServer. Name
-	  serving is described in more detail in the CoreLib
-	  documentation.
+	  Kernel. If a Component is created twice with the same name,
+	  it will fail to load in the same kernel.
 	</para>
 	<warning>
 	  <para>
-	    It is strongly advised to use within one kernel
-	    unique names for components of the same type ( Generator, Sensor,...).
-	    Components of different type may have the same name.
+	    All Component names must be unique within a kernel.
 	  </para>
 	</warning>
 	<para>
