@@ -34,39 +34,87 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
+#include <corelib/TaskNonRealTime.hpp>
+
+#include <os/MutexLock.hpp>
+#include <sstream>
 #include <iostream>
 
 #pragma interface
 namespace ORO_ControlKernel
 {
     using namespace ORO_Execution;
+    using ORO_OS::Mutex;
+    using ORO_OS::MutexLock;
+    using ORO_OS::MutexTryLock;
 
     /**
      * @brief This component can be used to display messages on the
      * standard output.
      *
-     * It should not be used in hard realtime
-     * programs, but is nice for testing program and state scripts.
+     * It is known as the 'cout' component in scripts.
+     *
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base = SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class HMIConsoleOutput
-        : public Base
+        : public SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result >,
+          public ORO_CoreLib::TaskNonRealTime
     {
+        typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result > Base;
         std::string coloron;
         std::string coloroff;
+        std::ostringstream messages;
+        std::ostringstream backup;
+        //TaskNonRealtime printer;
+        Mutex msg_lock;
     public :
         HMIConsoleOutput()
-            : Base("console_output"), coloron("\033[1;34m"), coloroff("\033[0m")
-              {}
+            : Base("cout"), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m")
+              {
+                  this->start();
+              }
+
+        void step()
+        {
+            MutexLock lock1( msg_lock );
+            if ( ! messages.str().empty() ) {
+                std::cout << coloron << "HMIConsoleOutput : "<< coloroff << std::endl << messages.str() << std::endl;
+                messages.rdbuf()->str("");
+            }
+        }
 
         /**
          * @brief Display a message on standard output.
          */
         void display(const std::string & what)
         {
-            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+            this->enqueue( what );
+        }
+
+        /**
+         * Put a message in the queue. 
+         * The message must be convertible to a stream using
+         * operator<<().
+         */
+        template<class T>
+        void enqueue( const T& what )
+        {
+            MutexTryLock try_lock( msg_lock );
+            if ( try_lock.isSuccessful() ) {
+                // we got the lock, copy everything...
+//                 while( !backup.empty() ) {
+//                     messages.push( backup.front() );
+//                     backup.pop();
+//                 }
+//                 messages.push( what );
+                messages << backup.str();
+                messages << what << std::endl;
+                backup.rdbuf()->str("");
+            }
+            else  // no lock, backup.
+                backup << what << std::endl;
         }
 
         /**
@@ -74,7 +122,8 @@ namespace ORO_ControlKernel
          */
         void displayBool(bool what)
         {
-            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+            this->enqueue( what );
+            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
         /**
@@ -82,7 +131,8 @@ namespace ORO_ControlKernel
          */
         void displayInt( int what)
         {
-            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+            this->enqueue( what );
+            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
         /**
@@ -90,7 +140,8 @@ namespace ORO_ControlKernel
          */
         void displayDouble( double what )
         {
-            std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+            this->enqueue( what );
+            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
 
@@ -103,37 +154,35 @@ namespace ORO_ControlKernel
         // Commands are display commands.
         CommandFactoryInterface* createCommandFactory()
         {
-            TemplateCommandFactory< HMIConsoleOutput<Base> >* ret =
+            TemplateCommandFactory< HMIConsoleOutput >* ret =
                 newCommandFactory( this );
             ret->add( "display", 
-                      command( &HMIConsoleOutput<Base>::display,
-                               &HMIConsoleOutput<Base>::true_gen,
+                      command( &HMIConsoleOutput::display,
+                               &HMIConsoleOutput::true_gen,
                                "Display a message on the console",
                                "message","The message to be displayed"
                                ) );
             ret->add( "displayBool", 
-                      command( &HMIConsoleOutput<Base>::displayBool,
-                               &HMIConsoleOutput<Base>::true_gen,
+                      command( &HMIConsoleOutput::displayBool,
+                               &HMIConsoleOutput::true_gen,
                                "Display a boolean on the console",
                                "boolean","The Boolean to be displayed"
                                ) );
             ret->add( "displayInt", 
-                      command( &HMIConsoleOutput<Base>::displayInt,
-                               &HMIConsoleOutput<Base>::true_gen,
+                      command( &HMIConsoleOutput::displayInt,
+                               &HMIConsoleOutput::true_gen,
                                "Display a integer on the console",
                                "integer","The Integer to be displayed"
                                ) );
             ret->add( "displayDouble", 
-                      command( &HMIConsoleOutput<Base>::displayDouble,
-                               &HMIConsoleOutput<Base>::true_gen,
+                      command( &HMIConsoleOutput::displayDouble,
+                               &HMIConsoleOutput::true_gen,
                                "Display a double on the console",
                                "double","The Double to be displayed"
                                ) );
             return ret;
         }
     };
-
-    extern template class HMIConsoleOutput<>;
 
 }
 

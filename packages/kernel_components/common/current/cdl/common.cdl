@@ -10,4 +10,5 @@ independent Components."
     include_dir kernel_components
 
     compile HMIConsoleOutput.cxx HMIConsoleInput.cxx
+    compile HMIReadline.cxx
 }

@@ -51,15 +51,15 @@ namespace ORO_ControlKernel
     /**
      * @brief This component allows console input to be passed
      * to the program or state scripts. It can be referenced
-     * as the 'console_output' component in these scripts.
+     * as the 'cin' component in these scripts.
      *
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base = SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class HMIConsoleInput
-        : public Base
+        : public SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result >
     {
+        typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result > Base;
         bool start;
         Event startEvent;
         ExecutionExtension* ee;
@@ -69,7 +69,7 @@ namespace ORO_ControlKernel
         const DataSourceFactoryInterface* dataobject;
     public :
         HMIConsoleInput( ExecutionExtension* _ee = 0)
-            : Base("console_input"), start(false),
+            : Base("cin"), start(false),
               startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent"),
               ee(_ee), condition(0), command(0), tester(0), dataobject(0) {}
 
@@ -239,67 +239,15 @@ namespace ORO_ControlKernel
         // The only data we export is the user's start input.
         DataSourceFactoryInterface* createDataSourceFactory()
         {
-            TemplateDataSourceFactory< HMIConsoleInput<Base> >* ret =
+            TemplateDataSourceFactory< HMIConsoleInput >* ret =
                 newDataSourceFactory( this );
             ret->add( "startPushed", 
-                      data( &HMIConsoleInput<Base>::startPushed, "Is the start button pushed ? " ) );
+                      data( &HMIConsoleInput::startPushed, "Is the start button pushed ? " ) );
             return ret;
         }
 
     };
 
-    extern template class HMIConsoleInput<>;
-
-#if 0
-    /**
-     * @brief This component allows console input to be passed
-     * to the program or state scripts. It can be referenced
-     * as the 'console_output' component in these scripts.
-     *
-     * HMI == Human-Machine Interface
-     * @ingroup kcomps kcomp_support
-     */
-    template<>
-    class HMIConsoleInput<SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
-        : public SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase >
-    {
-        bool start;
-        Event startEvent;
-        ExecutionExtension* ee;
-        ConditionInterface* condition;
-        CommandInterface*   command;
-        const CommandFactoryInterface* tester;
-        const DataSourceFactoryInterface* dataobject;
-
-        typedef SupportComponent< MakeExtension<KernelBaseFunction,
-                                                ExecutionExtension>::Result::CommonBase > Base;
-    public :
-        HMIConsoleInput( ExecutionExtension* _ee = 0);
-
-        /**
-         * @brief Call this method from ORO_main() to 
-         * process keyboard input.
-         */
-        void loop();
-
-        void evalCommand(std::string& comm );
-
-        void printHelp();
-        
-        void printMethod( const std::string m );
-                
-        void printSource( const std::string m );
-
-        void startButton();
-
-        void stopButton();
-
-        bool startPushed() const;
-
-        // The only data we export is the user's start input.
-        DataSourceFactoryInterface* createDataSourceFactory();
-    };
-#endif
 }
 
 #endif
