@@ -64,6 +64,7 @@ VelocityProfile* VelocityProfile::Read(istream& is) {
 		throw Error_MotionIO_Unexpected_MotProf();
 #endif
 	}
+    return 0;
 }
 #endif
 
