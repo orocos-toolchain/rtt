@@ -165,9 +165,7 @@ namespace ORO_DeviceDriver
     while(!prepareForExit)
       {
 	// Wait until kernel Module posts semaphore
-	 rtos_printf("Before Sem wait\n");
-     rt_sem_wait(udp_message_arrived);
-     rtos_printf("After Sem wait\n");
+	rt_sem_wait(udp_message_arrived);
 
 	// Check if we really got a message or if the
 	// udp_message_arrived was posted by the destructor
