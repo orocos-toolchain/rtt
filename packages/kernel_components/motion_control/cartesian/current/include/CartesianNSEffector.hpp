@@ -69,10 +69,10 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class CartesianEffector
-        : public Effector< Expects<CartesianNSDriveOutput>,
+        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
                                      MakeAspect<KernelBaseFunction, ReportingExtension>::Result >
     {
-        typedef Effector< Expects<CartesianNSDriveOutput>,
+        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
                           MakeAspect<KernelBaseFunction, ReportingExtension>::Result > Base;
     public:
             

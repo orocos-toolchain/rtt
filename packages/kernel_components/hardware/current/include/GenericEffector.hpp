@@ -80,13 +80,13 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class GenericEffector
-        : public Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeAspect<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                                            ,ExecutionExtension
 #endif
                                                                            >::Result >
     {
-        typedef Effector< Expects<GenericOutput>, MakeAspect<KernelBaseFunction
+        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<GenericOutput>, MakeAspect<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                              ,ExecutionExtension
 #endif

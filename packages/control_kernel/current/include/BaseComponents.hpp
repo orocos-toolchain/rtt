@@ -202,21 +202,31 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_effector
      */
-    template <class _OutputType, class _Aspect = DefaultBase >
+    template <class _InputType, class _ModelType, class _OutputType, class _Aspect = DefaultBase >
     class Effector
-        : public _OutputType::ReadPort,
-          public _Aspect
+      : public _InputType::ReadPort,
+	public _ModelType::ReadPort,
+	public _OutputType::ReadPort,
+	public _Aspect
     {
     public:
+        typedef typename _InputType::DataType InputType;
+        typedef typename _ModelType::DataType ModelType;
         typedef typename _OutputType::DataType OutputType;
         typedef _Aspect Aspect;
 
+        typedef typename _InputType::ReadPort Input;
+        typedef typename _ModelType::ReadPort Model;
         typedef typename _OutputType::ReadPort Output;
 
         Effector(const std::string& name ) 
             : Aspect( name )
         {}
-            
+
+        using Input::disconnect;
+        using Model::disconnect;
+        using Output::disconnect;
+
     };
 
     /**

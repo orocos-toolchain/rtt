@@ -128,7 +128,9 @@ namespace ORO_ControlKernel
                           Writes<NoSetPoint>, CommonBase> DefaultGenerator;
         typedef Estimator<Expects<NoInput>,
                           Writes<NoModel>, CommonBase> DefaultEstimator;
-        typedef Effector<Expects<NoOutput>, CommonBase> DefaultEffector;
+        typedef Effector<Expects<NoInput>,
+			 Expects<NoModel>,
+			 Expects<NoOutput>, CommonBase> DefaultEffector;
         typedef Sensor<Writes<NoInput>, CommonBase> DefaultSensor;
         typedef SupportComponent< CommonBase > DefaultSupport;
         /**
