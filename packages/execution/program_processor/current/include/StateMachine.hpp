@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  StateContext.hpp
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  StateMachineTree.hpp 
 
-                        StateContext.hpp -  description
+                        StateMachineTree.hpp -  description
                            -------------------
-    begin                : Thu October 10 2002
-    copyright            : (C) 2002 Peter Soetens
+    begin                : Tue December 21 2004
+    copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
-
+ 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,71 +24,92 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-
-#ifndef STATECONTEXT_HPP
-#define STATECONTEXT_HPP
+ 
+ 
+#ifndef HIERARCHICAL_STATE_MACHINE_HPP
+#define HIERARCHICAL_STATE_MACHINE_HPP
 
 #include "StateInterface.hpp"
-#include "ConditionInterface.hpp"
-#include "CommandInterface.hpp"
+#include "corelib/ConditionInterface.hpp"
+#include "corelib/CommandInterface.hpp"
 
 #include <map>
 #include <vector>
 #include <string>
 #include <boost/tuple/tuple.hpp>
 
-namespace ORO_CoreLib
+namespace ORO_Execution
 {
+    using ORO_CoreLib::ConditionInterface;
+    using ORO_CoreLib::CommandInterface;
+
     /**
-     * @brief A StateContext keeps track of the current StateInterface and all
-     * transitions from this StateInterface to another.
+     * @brief A hierarchical StateMachine which is
+     * loaded in the Program Processor.
      *
-     * One can request
-     * a transition from one StateInterface to another which will fail
-     * or succeed depending on a previously set condition.
-     *
-     * By default, any state transition fails.
+     * A StateMachine can have children and one parent.
      */
-    class StateContext
+    class StateMachine
     {
         /**
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int).
          */
-        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int> > TransList;
+        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int> > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
+
+        std::vector<StateMachine*> _children;
+        StateMachine* _parent;
+    protected:
+        std::string _name;
     public:
 
-        /**
-         * Create a StateContext instance with an empty initial state.
-         */
-        StateContext();
+//         /**
+//          * All possible 'modes' of the StateMachine.
+//          */
+//         enum Status { inactive = 0, /** In no state at all */
+//                       activating, /** starting up */
+//                       deactivating, /** shutting down */
+//                       active,   /** In the initial state */
+//                       running,  /** Running, may request new state */
+//                       stopped,  /** In the final state */
+//                       paused,   /** Waiting wherever it is */
+//         } status;
 
-        virtual ~StateContext();
+        typedef std::vector<StateMachine*> ChildList;
 
-        /**
-         * Create a StateContext instance with a given initial and final state.
-         *
-         * @param s_init
-         *        The first state which must be entered.
-         * @param s_fini
-         *        The final state
-         * @post The StateContext is in state <s_init>
-         */
-        StateContext( StateInterface* s_init, StateInterface* s_fini );
+        virtual ~StateMachine() {}
 
         /**
-         * Is this StateContext active ?
+         * Create a new StateMachine with an optional parent.
+         * Set \a parent to zero for the top state machine. The initial Status of
+         * a StateMachine is always inactive.
          */
-        bool isActive() const;
+        StateMachine(StateMachine* parent, const std::string& name="Default");
+
         /**
-         * Start this StateContext. The Initial state will be entered.
+         * Get the active status of this StateMachine.
+         */
+        inline bool isActive() const { return current != 0; }
+
+        /**
+         * Get the error status of this StateMachine.
+         */
+        inline bool inError() const { return error; }
+
+        /**
+         * Get the status of this StateMachine.
+         */
+        //        Status getStatus() { return status; }
+
+        /**
+         * Start this StateMachine. The Initial state will be entered.
          *
          */
         bool activate();
 
         /**
-         * Stop this StateContext. The current state (which should be 
+         * Stop this StateMachine. The current state (which should be 
          * the Final state) is left.
          *
          */
@@ -99,13 +120,23 @@ namespace ORO_CoreLib
          * If none is found, the current state is taken.
          * Next, handle the resulting state.
          *
-         * This call is equivalent to
-         * this->requestState( this->nextState() ), but more
-         * efficient.
+         * @note This call is @em not equivalent to
+         * this->requestState( this->nextState() ), since multiple
+         * invocations of this->nextState() may result in different results, hence,
+         * this->requestState( this->nextState() ) may return false.
+         * Use this method instead to automatically go to the next state.
          *
+         * @param stepping provide true if the transition evaluations should 
+         * be executed one at a time.
          * @return The current state.
          */
-        StateInterface* requestNextState();
+        StateInterface* requestNextState(bool stepping = false);
+
+        /**
+         * Go stepwise through evaluations to find out next state.
+         * @see requestNextState()
+         */
+        StateInterface* requestNextStateStep();
 
         /**
          * Request going to the Final State. This will always
@@ -128,6 +159,10 @@ namespace ORO_CoreLib
         /**
          * Search from the current state a candidate next state.
          * If none is found, the current state is returned.
+         * @note The mere calling of this method, may influence
+         * future possible results. Multiple invocations of nextState()
+         * may return different results, so use with care.
+         * @see requestNextState()
          */
         StateInterface* nextState();
 
@@ -146,6 +181,22 @@ namespace ORO_CoreLib
         bool requestState( StateInterface * s_n );
 
         /**
+         * Execute any pending State (exit, entry, handle) programs.
+         * You must executePending, before calling requestState() or
+         * requestNextState(). You should only call requestState() or requestNextState()
+         * if executePending returns true.
+         *
+         * Due to the pending requests, the currentState() may have changed,
+         * and this->getStatus() may have changed.
+         * 
+         * @param stepping provide true if the pending programs should 
+         * be executed one step at a time.
+         * @return true if nothing was pending, false if there was
+         * some program executing.
+         */
+        bool executePending( bool stepping = false );
+
+        /**
          * Express a possible transition from one state to another under
          * a certain condition.
          *
@@ -159,18 +210,20 @@ namespace ORO_CoreLib
          *        The priority of this transition; low number (like -1000) is low priority
          *        high number is high priority (like + 1000). Transitions of equal
          *        priority are traversed in an unspecified way.
+         * @param line
+         *        The line number where this transition was introduced.
          * @post  All transitions from <from> to <to> will succeed under
          *        condition <cnd>
          */
-        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0 );
+        void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority=0, int line=-1);
 
         /**
-         * Set the initial state of this StateContext.
+         * Set the initial state of this StateMachine.
          */
         void setInitialState( StateInterface* s );
 
         /**
-         * Set the final state of this StateContext.
+         * Set the final state of this StateMachine.
          */
         void setFinalState( StateInterface* s );
 
@@ -195,7 +248,7 @@ namespace ORO_CoreLib
 
         /**
          * This was added for extra (non-user visible) initialisation
-         * before the statecontext is activated.
+         * before the StateMachine is activated.
          */
         void setInitCommand( CommandInterface* c)
         {
@@ -206,10 +259,53 @@ namespace ORO_CoreLib
         {
             return initc;
         }
+
+        /**
+         * Get the parent, returns zero if no parent.
+         */
+        virtual StateMachine* getParent() 
+        {
+            return _parent;
+        }
+
+        virtual void setParent(StateMachine* parent)
+        {
+            _parent = parent;
+        }
+
+        /**
+         * Get a list of all child state machines.
+         */
+        virtual const ChildList& getChildren()
+        {
+            return _children;
+        }
+
+        virtual void addChild( StateMachine* child ) {
+            _children.push_back( child );
+        }
+
+        /**
+         * This method must be overloaded to get a useful
+         * hierarchy.
+         */
+        virtual const std::string& getName() const {
+            return _name;
+        }
+
+        /**
+         * Returns the current program line in execution,
+         * @return -1 if not available.
+         */
+        int getLineNumber() const;
     protected:
         void leaveState( StateInterface* s );
 
         void enterState( StateInterface* s );
+
+        void handleState( StateInterface* s );
+
+        bool inTransition();
 
         /**
          * The Initial State.
@@ -222,21 +318,33 @@ namespace ORO_CoreLib
         StateInterface* finistate;
 
         /**
-         * The current state the Context is in.
+         * The current state the Machine is in.
          * current == 0 means that the context is currently inactive...
          */
         StateInterface* current;
 
+        /**
+         * The next state the Machine will go to.
+         */
+        StateInterface* next;
+
         CommandInterface* initc;
 
-    protected:
+        ProgramInterface* currentProg;
+        ProgramInterface* currentExit;
+        ProgramInterface* currentHandle;
+        ProgramInterface* currentEntry;
+
         /**
          * A map keeping track of all conditional transitions
          * between two states
          */
         TransitionMap stateMap;
-    };
+
+        TransList::iterator reqstep;
+
+        bool error;
+    }; 
 }
 
 #endif
-

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jul 19 09:38:16 CEST 2004  StateContextBuilder.hpp
+  tag: Peter Soetens  Mon Jul 19 09:38:16 CEST 2004  StateMachineBuilder.hpp
 
-                        StateContextBuilder.hpp -  description
+                        StateMachineBuilder.hpp -  description
                            -------------------
     begin                : Mon July 19 2004
     copyright            : (C) 2004 Peter Soetens
@@ -30,7 +30,7 @@
 
 namespace ORO_Execution {
 
-    class ParsedStateContext;
+    class ParsedStateMachine;
     class DataSourceBase;
 
     struct wrong_context_params_exception {
@@ -43,19 +43,19 @@ namespace ORO_Execution {
         }
     };
 
-    class StateContextBuilder
+    class StateMachineBuilder
     {
     public:
-        StateContextBuilder(
-            ParsedStateContext* templatecontext );
+        StateMachineBuilder(
+            ParsedStateMachine* templatecontext );
 
-        ~StateContextBuilder();
+        ~StateMachineBuilder();
 
         /**
          * Throws wrong_context_params_exception if params is wrong...
          */
-        ParsedStateContext* build();
+        ParsedStateMachine* build();
     private:
-        ParsedStateContext* templatecontext;
+        ParsedStateMachine* templatecontext;
     };
 }

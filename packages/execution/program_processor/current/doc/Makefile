@@ -51,7 +51,7 @@ pngimages: ProgramStates.png ContextStates.png Functor.png Commands.png StateTra
 	dia -t png --nosplash $<
 
 %.png:%.eps
-	imagemagick $< $@
+	convert $< $@
 
 clean-local:
 	rm orocos-program-processor.html

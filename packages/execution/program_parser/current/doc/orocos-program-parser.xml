@@ -837,11 +837,11 @@
       <sect2>
 	<title>Introduction</title>
 	<para>
-	  A StateContext is a kind of state machine used in the &orocos;
+	  A StateMachine is a kind of state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
 	  defines what to do on entry of the state, when it is handled
 	  and on exit.  It also defines all transitions to a next
-	  state.  A StateContext must be loaded in the Processor ( see
+	  state.  A StateMachine must be loaded in the Processor ( see
 	  <ulink url="orocos-program-processor.html"> The Online
 	  Processor Manual</ulink> ). The Orocos Control Kernel uses
 	  the ExecutionExtension to manage parsing and loading State
@@ -849,17 +849,17 @@
 	</para>
       </sect2>
       <sect2>
-	<title>StateContext Workings</title>
+	<title>StateMachine Workings</title>
 	<para>
-	  A StateContext is composed of a set of states.  A running
-	  StateContext is always in exactly one of its states.  One
+	  A StateMachine is composed of a set of states.  A running
+	  StateMachine is always in exactly one of its states.  One
 	  time per period, it checks whether it can transition from
 	  that state to another state, and if so makes that
 	  transition.
 	</para>
 	<para>
 	  Every state also has a set of preconditions that need to
-	  hold at its entry.  If these don't hold, the StateContext
+	  hold at its entry.  If these don't hold, the StateMachine
 	  will enter into an error state.
 	</para>
 	<para>
@@ -873,18 +873,18 @@
 	  is left and another state is entered ).
 	</para>
 	<para>
-	  There can be more than one StateContext.  If there are more
-	  than one, then every StateContext keeps working as if it was
-	  the only StateContext available.  They separately keep track
+	  There can be more than one StateMachine.  If there are more
+	  than one, then every StateMachine keeps working as if it was
+	  the only StateMachine available.  They separately keep track
 	  of their own current state, etc. 
 	</para>
 	<para>
-	  A StateContext can have any number of states.  It needs to
+	  A StateMachine can have any number of states.  It needs to
 	  have exactly one "initial state" ( which is the state that
-	  will be entered when the StateContext is first started ) and
+	  will be entered when the StateMachine is first started ) and
 	  one "final state".  The final state is the state that is
 	  entered when the processor is asked to stop the
-	  StateContext.  This means that the transition from any state
+	  StateMachine.  This means that the transition from any state
 	  to the final state must always be meaningful.
 	</para>
 	<sect3>
@@ -928,9 +928,9 @@
   ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
   Parser        parser;
 
-  std::vector&lt;ParsedStateContext*&gt; sc_list;
+  std::vector&lt;ParsedStateMachine*&gt; sc_list;
   try {
-      sc_list = parser.parseStateContext( "state-machine.osd", &amp;tc );
+      sc_list = parser.parseStateMachine( "state-machine.osd", &amp;tc );
   }
   catch( const file_parse_exception&amp; exc )
   {
@@ -942,46 +942,46 @@
   } else {
      // Load all listed programs in the TaskContext's Processor:
      std::for_each( sc_list.begin(), sc_list.end(),
-         boost::bind( &amp;Processor::loadStateContext, tc.getProcessor(), _1));
+         boost::bind( &amp;Processor::loadStateMachine, tc.getProcessor(), _1));
 
      // start the task :
      ptask->start();
 
      // activate a state context :
-     tc.getProcessor()->activateStateContext("statename");
+     tc.getProcessor()->activateStateMachine("statename");
      // start a state context :
-     tc.getProcessor()->startStateContext("statename");
+     tc.getProcessor()->startStateMachine("statename");
   }</programlisting>
       <para>
-	The parser returns a vector of <classname>ParsedStateContext</classname>'s.
+	The parser returns a vector of <classname>ParsedStateMachine</classname>'s.
 	It will throw a <classname>file_parse_exception</classname>
 	if a parse error occured.
-	If the returned vector is not empty, we load all the StateContexts in the Processor using
+	If the returned vector is not empty, we load all the StateMachines in the Processor using
 	the boost::bind function. Next we start the task's Processor
-	and finally. StateContexts have a more complex lifetime than
+	and finally. StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, state
-	transitions to other states can take place. StateContexts
+	transitions to other states can take place. StateMachines
 	can also be manipulated from within other scripts.
       </para>
     </sect2>
       <sect2>
-	<title>Defining StateContexts</title>
+	<title>Defining StateMachines</title>
   	<para>
-	  You can think of StateContexts somewhat like C++ classes.  You
-	  first need to define a type of StateContext, and you can then
-	  instantiate it any number of times afterwards.  A StateContext
+	  You can think of StateMachines somewhat like C++ classes.  You
+	  first need to define a type of StateMachine, and you can then
+	  instantiate it any number of times afterwards.  A StateMachine
 	  ( the type ) can have parameters, so every instantiation can
 	  work differently based on the parameters it got in its
 	  instantiation.
 	</para>
 	<para>
-	  A StateContext definition looks like this :
+	  A StateMachine definition looks like this :
 	</para>
 	<example>
 	  <title>State Context Definition Format</title>
 	  <programlisting>
-StateContext MyStateContext
+StateMachine MyStateMachine
 {
     initial state myInit 
     {
@@ -1021,10 +1021,10 @@ StateContext MyStateContext
 }
 	  </programlisting>
 	  <para>
-	    A StateContext definition: a StateContext can have any
+	    A StateMachine definition: a StateMachine can have any
 	    number of states.  It needs to have exactly one "initial
 	    state" ( which is the state that will be entered when the
-	    StateContext is first started ).  Within a state, any
+	    StateMachine is first started ).  Within a state, any
 	    method is optional, and a state can even be defined empty.
 	  </para>
 	</example>
@@ -1050,7 +1050,7 @@ StateContext MyStateContext
 	    and <function>disconnect</function>. They have the
 	    following syntax :
 	    <programlisting>
-StateContext SomeStateContext
+StateMachine SomeStateMachine
 {
     Event_Handle handle_name
 
@@ -1140,20 +1140,20 @@ preconditions {
 	  the template for its instantiations, and you have to
 	  instantiate it to actually be able to do anything with it.
 	  There is also a mechanism for passing parameter values to
-	  the StateContexts on instantiation.
+	  the StateMachines on instantiation.
 	</para>
 	<para>
 	  Note that you always need to write the instantiation after
-	  the definition of the StateContext you're instantiating.
+	  the definition of the StateMachine you're instantiating.
 	</para>
 	<sect3>
 	  <title>Root Contexts</title>
 	  <para>
 	    A Root Context is a normal instantiation of a
-	    StateContext, one that does not depend on a parent
-	    StateContext ( see below ).  They are defined as follows:
+	    StateMachine, one that does not depend on a parent
+	    StateMachine ( see below ).  They are defined as follows:
 	    <programlisting>
-StateContext SomeStateContext
+StateMachine SomeStateMachine
 {
     initial state initState
     {
@@ -1165,32 +1165,32 @@ StateContext SomeStateContext
     }
 }
 
-RootContext SomeStateContext someSCinstance
+RootContext SomeStateMachine someSCinstance
 	    </programlisting>
-	    This makes an instantiation of the StateContext type
-	    SomeStateContext by the name of 'someSCinstance'.
+	    This makes an instantiation of the StateMachine type
+	    SomeStateMachine by the name of 'someSCinstance'.
 	  </para>
 	</sect3>
 	<sect3>
 	  <title>Parameters and public variables</title>
 	  <sect4>
-	    <title>StateContext public variables</title>
+	    <title>StateMachine public variables</title>
 	    <para>
-	      You can define variables at the StateContext level.
-	      These variables are then accessible to the StateContext
+	      You can define variables at the StateMachine level.
+	      These variables are then accessible to the StateMachine
 	      methods (entry, handle, exit), the preconditions, the
 	      transitions and ( in the case of a SubContext, see below
 	      ) the parent Context.
 	    </para>
 	    <para>
-	      You can define a StateContext public variable as follows:
+	      You can define a StateMachine public variable as follows:
 	      <programlisting>
-StateContext SomeStateContext
+StateMachine SomeStateMachine
 {
     // a public constant
     const double pi = 3.1415926535897
     var int counter = 0
-    alias string errorText = "Error in SomeStateContext: " +
+    alias string errorText = "Error in SomeStateMachine: " +
 		someComponent.errorStatement()
 
     initial state initState
@@ -1215,17 +1215,17 @@ StateContext SomeStateContext
 }
 	      </programlisting>
 	      This example creates some handy public variables in the
-	      StateContext SomeStateContext, and uses them throughout
+	      StateMachine SomeStateMachine, and uses them throughout
 	      the state context.
 	    </para>
 	  </sect4>
 	  <sect4>
-	    <title>StateContext parameters</title>
+	    <title>StateMachine parameters</title>
 	    <para>
-	      A StateContext can have parameters that need to be set
+	      A StateMachine can have parameters that need to be set
 	      on its instantiation.  Here's an example:</para>
 	      <programlisting>
-  StateContext AxisController
+  StateMachine AxisController
   {
       // a parameter specifying which axis this Controller controls
       param int axisNumber
@@ -1246,14 +1246,14 @@ StateContext SomeStateContext
   RootContext AxisController axiscontroller5( axisNumber = 5 )
   RootContext AxisController axiscontroller6( axisNumber = 6 )</programlisting>
 	    <para>
-	      This example creates an AxisController StateContext with
+	      This example creates an AxisController StateMachine with
 	      one integer parameter called axisNumber.  When the
-	      StateContext is instantiated, values for all of the
+	      StateMachine is instantiated, values for all of the
 	      parameters need to be given in the form "oneParamName=
 	      'some value', anotherParamName = 0,
 	      yetAnotherParamName=some_other_expression + 5".  Values
 	      need to be provided for all the parameters of the
-	      StateContext. As you see, a StateContext can of course
+	      StateMachine. As you see, a StateMachine can of course
 	      be instantiated multiple times with different parameter
 	      values.
 	    </para>
@@ -1262,19 +1262,19 @@ StateContext SomeStateContext
 	<sect3>
 	  <title>SubContexts</title>
 	  <para>
-	    A SubContext is a StateContext that is instantiated within
-	    another StateContext ( which we'll call the parent
-	    StateContext ).  The parent StateContext is owner of its
+	    A SubContext is a StateMachine that is instantiated within
+	    another StateMachine ( which we'll call the parent
+	    StateMachine ).  The parent StateMachine is owner of its
 	    child, and can decide when it needs to be started and
-	    stopped, by calling the processor's startStateContext and
-	    stopStateContext methods.
+	    stopped, by calling the processor's startStateMachine and
+	    stopStateMachine methods.
 	  </para>
 	  <sect4>
 	    <title>Instantiating SubContexts</title>
 	    <para>
 	      An instantiation of a SubContext is written as follows:
 	      <programlisting>
-  StateContext ChildStateContext
+  StateMachine ChildStateMachine
   {
       initial state initState
       {
@@ -1286,10 +1286,10 @@ StateContext SomeStateContext
       }
   }
   
-  StateContext ParentStateContext
+  StateMachine ParentStateMachine
   {
-      SubContext ChildStateContext childcontext1
-      SubContext ChildStateContext childcontext2
+      SubContext ChildStateMachine childcontext1
+      SubContext ChildStateMachine childcontext2
       initial state initState
       {
   	entry
@@ -1314,8 +1314,8 @@ StateContext SomeStateContext
           }
       }
   } </programlisting>
-	      Here you see a ParentStateContext which has two
-	      ChildStateContexts.  One of them is started in the
+	      Here you see a ParentStateMachine which has two
+	      ChildStateMachines.  One of them is started in the
 	      initial state's entry method and stopped in its exit
 	      method.  The other one is started in the initial state's
 	      entry method and stopped in the final state's entry
@@ -1326,25 +1326,25 @@ StateContext SomeStateContext
 	    <title>SubContext manipulating</title>
 	    <para>
 	      In addition to starting and stopping a SubContext, a
-	      parent StateContext can also inspect its public
+	      parent StateMachine can also inspect its public
 	      variables, change its parameters, and check what state
 	      it is in...
 	    </para>
 	    <para>
-	      Inspecting StateContext public variables is simply done
+	      Inspecting StateMachine public variables is simply done
 	      using the syntax "someSubContextInstName.someValue",
 	      just as you would do if someSubContextInstName were an
 	      &orocos; kernel component.  Like this, you can inspect
 	      all of a subcontext's public variables.
 	    </para>
 	    <para>
-	      Setting a StateContext parameter must be done at its
+	      Setting a StateMachine parameter must be done at its
 	      instantiation.  However, you can still change the values
 	      of the parameters afterwards.  The syntax is: "set
 	      someSubContext.someParam = someExpression".  Here's an
 	      elaborate example:</para>
 	      <programlisting>
-StateContext ChildStateContext
+StateMachine ChildStateMachine
 {
     param int someValue
     const double pi = 3.1415926535897
@@ -1358,10 +1358,10 @@ StateContext ChildStateContext
     }
 }
 
-StateContext ParentStateContext
+StateMachine ParentStateMachine
 {
-    SubContext ChildStateContext childcontext1 ( someValue = 0 )
-    SubContext ChildStateContext childcontext2( someValue = 0 )
+    SubContext ChildStateMachine childcontext1 ( someValue = 0 )
+    SubContext ChildStateMachine childcontext2( someValue = 0 )
 
     var int counter = 0
     initial state initState
@@ -1424,7 +1424,7 @@ StateContext ParentStateContext
   do ATask.states.machine.deactivate()
   // etc. </programlisting>
       <para>
-	The first line activates a root StateContext, thus it
+	The first line activates a root StateMachine, thus it
 	enters the initial state, the next line
 	actives its child, the next starts its child, then we
 	start the parent, stop it again and finally send it
@@ -1456,7 +1456,7 @@ StateContext ParentStateContext
     <example>
       <title>State Context Example (state.osd)</title>
       <programlisting>
-  StateContext MachineContext
+  StateMachine MachineContext
   {
       Event_Handle home_switch1
       Event_Handle home_switch2
@@ -1464,7 +1464,7 @@ StateContext ParentStateContext
       var bool error = false
 
       /**
-       * This state is entered when the StateContext is loaded.
+       * This state is entered when the StateMachine is loaded.
        * The kernel is not running yet...
        */
       initial state init_state {

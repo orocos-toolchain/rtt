@@ -79,15 +79,15 @@ namespace ExecutionClient
     virtual std::vector<std::string> getProgramNames() = 0;
 
     // state contexts
-    virtual std::vector<std::string> getStateContextNames() = 0;
+    virtual std::vector<std::string> getStateMachineNames() = 0;
     // The filename is not needed, but it will be used to construct
     // error messages.  This function will throw a
     // file_parse_exception ( defined in
     // <execution/parse_exception.hpp> ) if parsing fails, or a
     // statecontext_load_exception ( defined in ExecutionExtension.hpp
     // ) if loading fails.
-    virtual void loadStateContexts( const std::string& code, const std::string& filename ) = 0;
-    virtual bool unloadStateContext( const std::string& name ) = 0;
+    virtual void loadStateMachines( const std::string& code, const std::string& filename ) = 0;
+    virtual bool unloadStateMachine( const std::string& name ) = 0;
 
     virtual void loadPrograms( const std::string& code, const std::string& filename ) = 0;
     virtual bool unloadProgram( const std::string& name ) = 0;

@@ -855,7 +855,7 @@
 	<title>State Contexts</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
-	  with the <classname>StateContext</classname> class.
+	  with the <classname>StateMachine</classname> class.
 	  They are like programs in that they can call a
 	  peer task's members, but the calls are grouped
 	  in a state and only executed when the state machine
@@ -870,17 +870,17 @@
 
   TaskContext* a_task = ...
   Parser parser;
-  std::ifstream input("StateContextBar.osd");
+  std::ifstream input("StateMachineBar.osd");
 
-  std::vector&lt;ParsedStateContext*&gt; result =
-      parser.parseStateContext( input, a_task );
+  std::vector&lt;ParsedStateMachine*&gt; result =
+      parser.parseStateMachine( input, a_task );
 
   // load a state context
-  a_task->getProcessor()->loadStateContext( result[0] );
+  a_task->getProcessor()->loadStateMachine( result[0] );
   // enter the initial state
-  a_task->getProcessor()->activateStateContext( result[0]->getName() );
+  a_task->getProcessor()->activateStateMachine( result[0]->getName() );
   // start state-transition evaluation
-  a_task->getProcessor()->startStateContext( result[0]->getName() );</programlisting></para>
+  a_task->getProcessor()->startStateMachine( result[0]->getName() );</programlisting></para>
 	<para>
 	  When the State Context is loaded in the Task Context, it can
 	  also be controlled from your scripts or TaskBrowser. Assuming
@@ -1131,15 +1131,15 @@ this
  In Task axis_y. Enter a command. (Status of previous command : none )
  (type 'quit' for exit) :<command>this</command>
       Got :this
-  Command     : activate - Activate this StateContext
+  Command     : activate - Activate this StateMachine
 
-  Command     : deactivate - Deactivate this StateContext
+  Command     : deactivate - Deactivate this StateMachine
 
-  Command     : start - Start this StateContext
+  Command     : start - Start this StateMachine
 
-  Command     : stop - Stop this StateContext
+  Command     : stop - Stop this StateMachine
 
-  DataSource : inState - Is the StateContext in a given state ?
+  DataSource : inState - Is the StateMachine in a given state ?
   Argument 1 : State Name - State Name
     </screen>
     <para>
@@ -1239,10 +1239,10 @@ T1.      T3.      back     help     peers    quit     switch   test.
 	<para>
 	  A (sub-)State Context can pause itself and an extra function
 	  in the task's interface can provide the key to progress to
-	  another state. First the StateContext is loaded in an .osd file  :
+	  another state. First the StateMachine is loaded in an .osd file  :
 	</para>
 	<programlisting>
-  StateContext X {
+  StateMachine X {
      // ...
      state y {
         entry {
@@ -1284,7 +1284,7 @@ T1.      T3.      back     help     peers    quit     switch   test.
 	  State Context.
 	</para>
 <!-- 	<programlisting> -->
-<!--   StateContext X { -->
+<!--   StateMachine X { -->
 <!--      // ... -->
 <!--      state y { -->
 <!--         transitions { -->

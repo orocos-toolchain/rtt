@@ -5,7 +5,7 @@ FOP_STYLESHEET=orocos.xsl
 dist: dochtml docpdf docps
 	tar -czf orocos-corelib-doc.tgz \
 	execution-collaboration.png execution-sequence.png \
-	io-overview.png tasks_threads-conceptual.png \
+	tasks_threads-conceptual.png \
 	orocos-corelib.html orocos-corelib.pdf orocos-corelib.ps
 
 docxml: dochtml docpdf
@@ -18,9 +18,9 @@ docps: epsimages orocos-corelib.ps
 
 doctxt: orocos-corelib.txt
 
-pngimages: execution-collaboration.png execution-sequence.png  io-overview.png tasks_threads-conceptual.png
+pngimages: execution-collaboration.png execution-sequence.png tasks_threads-conceptual.png
 
-epsimages: execution-collaboration.eps execution-sequence.eps  io-overview.eps tasks_threads-conceptual.eps
+epsimages: execution-collaboration.eps execution-sequence.eps tasks_threads-conceptual.eps
 
 
 #orocos-control-kernel.html: 

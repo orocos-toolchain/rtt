@@ -50,7 +50,7 @@ pngimages:
 	dia -t png --nosplash $<
 
 %.png:%.eps
-	imagemagick $< $@
+	convert $< $@
 
 clean-local:
 	rm orocos-control-kernel.html

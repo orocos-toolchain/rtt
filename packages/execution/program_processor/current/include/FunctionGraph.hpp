@@ -97,11 +97,6 @@ namespace ORO_Execution
         std::string _text;
 
         /**
-         * Is true if this program is in Error.
-         */
-        bool error;
-
-        /**
          * Ordered arguments (are also in the repository).
          */
         std::vector<TaskAttributeBase*> args;
@@ -130,10 +125,6 @@ namespace ORO_Execution
         virtual bool executeUntil();
 
         virtual void reset();
-
-        virtual bool isFinished() const;
-        
-        virtual bool inError() const;
 
         /**
          * Clone this FunctionGraph.  This will produce a completely

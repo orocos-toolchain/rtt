@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
-#include <execution/ParsedStateContext.hpp>
+#include <execution/ParsedStateMachine.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <corelib/CommandFunctor.hpp>
 #include <execution/TemplateFactories.hpp>
@@ -55,6 +55,7 @@ void
 StateTest::tearDown()
 {
     // if a test failed, we must still stop :
+    SimulationThread::Instance()->stop();
     gtask.stop();
     gtc.methodFactory.unregisterObject( "test" );
     gtc.commandFactory.unregisterObject( "test" );
@@ -138,7 +139,7 @@ CommandFactoryInterface* StateTest::createCommandFactory()
 void StateTest::testParseState()
 {
     // a state which should never fail
-    string prog = string("StateContext X {\n")
+    string prog = string("StateMachine X {\n")
         + " param int isten\n"
         + " param bool istrue\n"
         + " param bool isfalse\n"
@@ -162,12 +163,13 @@ void StateTest::testParseState()
         + "     do test.instantDone()\n"
         + "     set d_dummy = 1.234\n"
         + "     set i_dummy = -2\n"
+        + "     do test.instantDone()\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.instantNotDone()\n"
+        + "     do test.instantDone()\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.instantNotDone()\n"
+        + "     do test.instantDone()\n"
         + "     set d_dummy = 0.0\n"
         + "     set i_dummy = 0\n"
         + " }\n"
@@ -212,10 +214,10 @@ void StateTest::testParseState()
         + "     set i_dummy = -1\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.instantNotDone()\n"
+        + "     do test.instantDone()\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.instantNotDone()\n"
+        + "     do test.instantDone()\n"
         + " }\n"
         + " transitions {\n"
         + "     if false then select ERROR\n"
@@ -236,7 +238,7 @@ void StateTest::testStateFailure()
     // test _command_ (through methods though) failure detection on several places.
     // it is an incomplete test, even more that parsing should fail on the second
     // run since the type 'X' is defined twice.
-    string prog = string("StateContext X {\n")
+    string prog = string("StateMachine X {\n")
         + " initial state INIT {\n"
         + " entry {\n"
         + "     do test.increase()\n"                // set i to i+1
@@ -277,7 +279,7 @@ void StateTest::testStateFailure()
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        CPPUNIT_ASSERT( gprocessor.getStateContextStatus("x") == Processor::StateContextStatus::error );
+        CPPUNIT_ASSERT( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
         
         this->finishState( &gtc, "x");
     }
@@ -285,7 +287,7 @@ void StateTest::testStateFailure()
 void StateTest::testStateChildren()
 {
     // instantiate two children and check init of vars and params
-    string prog = string("StateContext Y {\n")
+    string prog = string("StateMachine Y {\n")
         + " param double isnegative\n"
         + " var   double t = 1.0\n"
         + " initial state INIT {\n"
@@ -316,7 +318,7 @@ void StateTest::testStateChildren()
         + " }\n"
         + " }\n"
         + " }\n"
-        + string("StateContext Z {\n")
+        + string("StateMachine Z {\n")
         + " param double neg\n"
         + " initial state INIT {\n"
         + " transitions {\n"
@@ -332,7 +334,7 @@ void StateTest::testStateChildren()
         + " }\n"
         + " }\n"
         + " }\n"
-        + string("StateContext X {\n")
+        + string("StateMachine X {\n")
         + " param double isnegative\n"
         + " var double d_dummy = -2.0\n"
         + " var int    i_dummy = -1\n"
@@ -426,7 +428,7 @@ void StateTest::testStateUntilFail()
 {
 //     this->doState( prog, &gtc, false );
 
-//     CPPUNIT_ASSERT( gprocessor.getStateContextStatus("x") == Processor::StateContextStatus::error );
+//     CPPUNIT_ASSERT( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
 
 //     this->finishState( &gtc, "x");
 }
@@ -434,9 +436,9 @@ void StateTest::testStateUntilFail()
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     stringstream progs(prog);
-    std::vector<ParsedStateContext*> pg_list;
+    std::vector<ParsedStateMachine*> pg_list;
     try {
-        pg_list = parser.parseStateContext( progs, tc );
+        pg_list = parser.parseStateMachine( progs, tc );
     }
     catch( const file_parse_exception& exc )
         {
@@ -454,7 +456,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             CPPUNIT_ASSERT( false );
         }
     try {
-        tc->getProcessor()->loadStateContext( *pg_list.begin() );
+        tc->getProcessor()->loadStateMachine( *pg_list.begin() );
     } 
     catch( const program_load_exception& e)
         {
@@ -465,12 +467,12 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( gtask.start() );
-    CommandInterface* ca = newCommandFunctor(boost::bind(&Processor::activateStateContext, tc->getProcessor(),(*pg_list.begin())->getName() ));
-    CommandInterface* cs = newCommandFunctor(boost::bind(&Processor::startStateContext,tc->getProcessor(),(*pg_list.begin())->getName() ) );
+    CommandInterface* ca = newCommandFunctor(boost::bind(&Processor::activateStateMachine, tc->getProcessor(),(*pg_list.begin())->getName() ));
+    CommandInterface* cs = newCommandFunctor(boost::bind(&Processor::startStateMachine,tc->getProcessor(),(*pg_list.begin())->getName() ) );
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( ca->execute()  );
-    CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+(*pg_list.begin())->getName()+"' did not have effect.", (*pg_list.begin())->isActive() == true );
+    CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+(*pg_list.begin())->getName()+"' did not have effect.", (*pg_list.begin())->isActive() );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( gprocessor.process( cs ) != 0 );
@@ -478,19 +480,18 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     sleep(1);
     delete ca;
     delete cs;
-    SimulationThread::Instance()->stop();
 //     cerr << "After run :"<<endl;
 //     tc->getPeer("states")->getPeer("x")->debug(true);
 // //     tc->getPeer("__states")->getPeer("X")->debug(false);
 //     if( tc->getPeer("__states")->getPeer("Y"))
 //         tc->getPeer("__states")->getPeer("Y")->debug(false);
-//     cerr << "               x.y1 running : "<< (gprocessor.getStateContextStatus("x.y1") == Processor::StateContextStatus::running) << endl;
-//     cerr << "               x running : "<< (gprocessor.getStateContextStatus("x") == Processor::StateContextStatus::running) << endl;
+//     cerr << "               x.y1 running : "<< (gprocessor.getStateMachineStatus("x.y1") == Processor::StateMachineStatus::running) << endl;
+//     cerr << "               x running : "<< (gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::running) << endl;
     stringstream errormsg;
-    errormsg << " on line " /*<< gprocessor.getState("x")->getLineNumber()*/ <<"."<<endl;
+    errormsg << " on line " <<  (*pg_list.begin())->getLineNumber() <<"."<<endl;
     if (test ) {
-        CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() == true );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getStateContextStatus("x") != Processor::StateContextStatus::error );
+        CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), (*pg_list.begin())->inError() == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_ERROR" + errormsg.str(), (*pg_list.begin())->inState("PRE_ERROR") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_VARFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_VARFAIL") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_PARAMFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_PARAMFAIL") == false );
@@ -501,17 +502,22 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:EXITFAIL" + errormsg.str(), (*pg_list.begin())->inState("EXITFAIL") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:HANDLEFAIL" + errormsg.str(), (*pg_list.begin())->inState("HANDLEFAIL") == false );
     }
+    tc->getProcessor()->stopStateMachine( (*pg_list.begin())->getName() );
+    sleep(1);
     // after gtask.stop() it must be stopped.
     CPPUNIT_ASSERT( gtask.stop() );
-    CPPUNIT_ASSERT_MESSAGE( "StateContext stalled " + errormsg.str(), gprocessor.getStateContextStatus("x") == Processor::StateContextStatus::stopped );
+    SimulationThread::Instance()->stop();
+    errormsg << " on line " << (*pg_list.begin())->getLineNumber() <<", status is "<< int(gprocessor.getStateMachineStatus("x")) <<endl;
+    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::stopped );
 }
 
 void StateTest::finishState(TaskContext* tc, std::string prog_name)
 {
     // you can call deactivate even when the proc is not running.
-    CPPUNIT_ASSERT( tc->getProcessor()->deactivateStateContext( prog_name ) );
+    // but deactivation may be 'in progress if exit state has commands in it.
+    CPPUNIT_ASSERT( tc->getProcessor()->deactivateStateMachine( prog_name ) );
     try {
-        tc->getProcessor()->deleteStateContext( prog_name );
+        tc->getProcessor()->deleteStateMachine( prog_name );
     }
     catch( const program_unload_exception& e)
         {

@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Jul 20 15:13:58 CEST 2004  StateContextBuilder.cxx
+  tag: Peter Soetens  Tue Jul 20 15:13:58 CEST 2004  StateMachineBuilder.cxx
 
-                        StateContextBuilder.cxx -  description
+                        StateMachineBuilder.cxx -  description
                            -------------------
     begin                : Tue July 20 2004
     copyright            : (C) 2004 Peter Soetens
@@ -26,24 +26,24 @@
  ***************************************************************************/
 
 
-#include "execution/StateContextBuilder.hpp"
-#include "execution/ParsedStateContext.hpp"
+#include "execution/StateMachineBuilder.hpp"
+#include "execution/ParsedStateMachine.hpp"
 #include <assert.h>
 
 namespace ORO_Execution {
-  StateContextBuilder::StateContextBuilder(
-    ParsedStateContext* tc )
+  StateMachineBuilder::StateMachineBuilder(
+    ParsedStateMachine* tc )
     : templatecontext( tc )
   {
   }
 
-  StateContextBuilder::~StateContextBuilder()
+  StateMachineBuilder::~StateMachineBuilder()
   {
       // template is owned by __states TC.
       //delete templatecontext;
   }
 
-  ParsedStateContext* StateContextBuilder::build()
+  ParsedStateMachine* StateMachineBuilder::build()
   {
     std::map<const DataSourceBase*, DataSourceBase*> dsmap;
     return templatecontext->copy( dsmap );

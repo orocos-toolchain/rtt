@@ -78,7 +78,7 @@ state HomeAxis {
 	{
 		//splitTo("HomeAxis", axis1 );
 		startContext( AxisHoming, axis1 ); // is a no-op if already started.
-		//engine.startStateContext("HomeAxis");
+		//engine.startStateMachine("HomeAxis");
 	}
 	transitions
 	{

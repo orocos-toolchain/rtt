@@ -29,7 +29,7 @@
 #include "execution/TryCommand.hpp"
 #include "execution/ConditionComposite.hpp"
 
-#include "execution/ParsedStateContext.hpp"
+#include "execution/ParsedStateMachine.hpp"
 #include "execution/ProgramInterface.hpp"
 
 #include <sstream>
@@ -77,10 +77,10 @@ namespace ExecutionClient
     return proc->getProgramList();
   }
 
-  std::vector<std::string> DirectKernelInterface::getStateContextNames()
+  std::vector<std::string> DirectKernelInterface::getStateMachineNames()
   {
     Processor* proc = executionext->getProcessor();
-    return proc->getStateContextList();
+    return proc->getStateMachineList();
   }
 
  std::string DirectKernelInterface::getProgramText(const std::string& name )
@@ -101,7 +101,7 @@ namespace ExecutionClient
 
  std::string DirectKernelInterface::getStateText(const std::string& name )
  {
-     ParsedStateContext* ps = executionext->getStateContext(name);
+     ParsedStateMachine* ps = executionext->getStateMachine(name);
      if (ps)
          return ps->getText();
      return std::string("Error, could not find ")+name;
@@ -109,7 +109,7 @@ namespace ExecutionClient
 
  int DirectKernelInterface::getStateLine(const std::string& name )
  {
-     ParsedStateContext* ps = executionext->getStateContext(name);
+     ParsedStateMachine* ps = executionext->getStateMachine(name);
      if (ps)
        return 5;//ps->getLineNumber();
      return -1;
@@ -140,30 +140,30 @@ namespace ExecutionClient
     }
     std::string DirectKernelInterface::getStateStatus(const std::string& name )
     {
-        switch ( executionext->getProcessor()->getStateContextStatus( name ))
+        switch ( executionext->getProcessor()->getStateMachineStatus( name ))
             {
-            case Processor::StateContextStatus::unloaded:
+            case Processor::StateMachineStatus::unloaded:
                 return "unloaded";
                 break;
-            case Processor::StateContextStatus::inactive:
+            case Processor::StateMachineStatus::inactive:
                 return "inactive";
                 break;
-            case Processor::StateContextStatus::stopped:
+            case Processor::StateMachineStatus::stopped:
                 return "stopped";
                 break;
-            case Processor::StateContextStatus::running:
+            case Processor::StateMachineStatus::running:
                 return "running";
                 break;
-            case Processor::StateContextStatus::paused:
+            case Processor::StateMachineStatus::paused:
                 return "paused";
                 break;
-            case Processor::StateContextStatus::active:
+            case Processor::StateMachineStatus::active:
                 return "active";
                 break;
-            case Processor::StateContextStatus::todelete:
+            case Processor::StateMachineStatus::todelete:
                 return "deleted";
                 break;
-            case Processor::StateContextStatus::error:
+            case Processor::StateMachineStatus::error:
                 return "error";
                 break;
             }
@@ -172,18 +172,18 @@ namespace ExecutionClient
 
     std::string DirectKernelInterface::getState(const std::string& name )
     {
-     ParsedStateContext* ps = executionext->getStateContext(name);
+     ParsedStateMachine* ps = executionext->getStateMachine(name);
      if (ps && ps->isActive() )
          return ps->currentState()->getName();
      return std::string("na");
     }
 
 
-  void DirectKernelInterface::loadStateContexts(
+  void DirectKernelInterface::loadStateMachines(
     const std::string& code, const std::string& filename )
   {
     try {
-        executionext->loadStateContext( filename, code );
+        executionext->loadStateMachine( filename, code );
     }
     catch ( program_load_exception& e) {
         throw load_exception( e.what() );
@@ -192,7 +192,7 @@ namespace ExecutionClient
         throw load_exception( e.what() );
     }
     catch ( ... ) {
-        Logger::log() << Logger::Error << "Unknown exeption in DirectKernelInterface::loadStateContexts"<<Logger::endl;
+        Logger::log() << Logger::Error << "Unknown exeption in DirectKernelInterface::loadStateMachines"<<Logger::endl;
     }
   }
 
@@ -209,10 +209,10 @@ namespace ExecutionClient
     }
   }
 
-  bool ExecutionClient::DirectKernelInterface::unloadStateContext( const std::string& name )
+  bool ExecutionClient::DirectKernelInterface::unloadStateMachine( const std::string& name )
   {
       try {
-          return executionext->getProcessor()->deleteStateContext( name );
+          return executionext->getProcessor()->deleteStateMachine( name );
       }
       catch ( program_unload_exception& e) {
           throw load_exception( e.what() );

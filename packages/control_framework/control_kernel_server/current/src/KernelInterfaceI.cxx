@@ -88,7 +88,7 @@ CORBA::Boolean Orocos_KernelInterface_i::requestShutdown (
 // TAO_IDL - Generated from
 // be/be_visitor_operation/operation_is.cpp:57
 
-::Orocos::KernelInterface::NameList * Orocos_KernelInterface_i::getStateContextNames (
+::Orocos::KernelInterface::NameList * Orocos_KernelInterface_i::getStateMachineNames (
     
   )
   ACE_THROW_SPEC ((
@@ -96,13 +96,13 @@ CORBA::Boolean Orocos_KernelInterface_i::requestShutdown (
   ))
 {
   // Add your implementation here
-    return vector_to_NL( _dki->getStateContextNames() );
+    return vector_to_NL( _dki->getStateMachineNames() );
 }
 
 // TAO_IDL - Generated from
 // be/be_visitor_operation/operation_is.cpp:57
 
-void Orocos_KernelInterface_i::loadStateContexts (
+void Orocos_KernelInterface_i::loadStateMachines (
     const char * code,
     const char * filename
   )
@@ -114,7 +114,7 @@ void Orocos_KernelInterface_i::loadStateContexts (
 {
   // Add your implementation here
     try {
-        _dki->loadStateContexts( std::string( code ), std::string( filename ) );
+        _dki->loadStateMachines( std::string( code ), std::string( filename ) );
     } catch (ExecutionClient::load_exception& e) {
         throw Orocos::LoadException( e.what().c_str() );
     }
@@ -123,7 +123,7 @@ void Orocos_KernelInterface_i::loadStateContexts (
 // TAO_IDL - Generated from
 // be/be_visitor_operation/operation_is.cpp:57
 
-CORBA::Boolean Orocos_KernelInterface_i::unloadStateContext (
+CORBA::Boolean Orocos_KernelInterface_i::unloadStateMachine (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -134,7 +134,7 @@ CORBA::Boolean Orocos_KernelInterface_i::unloadStateContext (
   // Add your implementation here
 
     try {
-        return _dki->unloadStateContext( std::string(name) );
+        return _dki->unloadStateMachine( std::string(name) );
     } catch (ExecutionClient::load_exception& e) {
         throw Orocos::LoadException( e.what().c_str() );
     }

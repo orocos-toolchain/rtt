@@ -31,7 +31,7 @@
 namespace ORO_Execution {
   StateDescription* StateDescription::postponeState()
   {
-    StateDescription* ret = new StateDescription( getName() );
+    StateDescription* ret = new StateDescription( getName(), entrypoint );
     ret->setEntryProgram( mentry );
     ret->setHandleProgram( mhandle );
     ret->setExitProgram( mexit );
@@ -69,32 +69,4 @@ namespace ORO_Execution {
     return ret;
   }
 
-  void StateDescription::onEntry() {
-    // if this state has an entry  program, let's run it...
-    if ( mentry )
-    {
-      mentry->executeAll();
-      mentry->reset();
-    }
-  }
-
-  void StateDescription::handle()
-  {
-    // if this state has a handle program, let's run it...
-    if ( mhandle )
-    {
-      mhandle->executeAll();
-      mhandle->reset();
-    }
-  }
-
-  void StateDescription::onExit()
-  {
-    // if this state has an exit program, let's run it...
-    if ( mexit )
-    {
-      mexit->executeAll();
-      mexit->reset();
-    }
-  }
 }

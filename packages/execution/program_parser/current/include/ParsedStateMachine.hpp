@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Jul 20 17:33:09 CEST 2004  ParsedStateContext.hpp
+  tag: Peter Soetens  Tue Jul 20 17:33:09 CEST 2004  ParsedStateMachine.hpp
 
-                        ParsedStateContext.hpp -  description
+                        ParsedStateMachine.hpp -  description
                            -------------------
     begin                : Tue July 20 2004
     copyright            : (C) 2004 Peter Soetens
@@ -29,21 +29,19 @@
 #ifndef CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 #define CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 
-#include "execution/StateContextTree.hpp"
+#include "execution/StateMachine.hpp"
 #include "execution/DataSource.hpp"
 
 namespace ORO_Execution {
-    // using ORO_CoreLib::StateContext;
-    using ORO_CoreLib::StateInterface;
 
     class StateDescription;
-    class StateContextCommands;
+    class StateMachineCommands;
     class Processor;
     class TaskAttributeBase;
     class TaskContext;
 
-    class ParsedStateContext
-        : public StateContextTree
+    class ParsedStateMachine
+        : public StateMachine
     {
         typedef std::map<std::string, StateDescription*> StateNameMap;
         // We need to keep the pointers to subcontexts in a
@@ -52,35 +50,35 @@ namespace ORO_Execution {
         // the subcontexts, adding the datasources containing their
         // pointers to the replacement map, so that the new commands
         // refer to the correct subcontexts...  We store this as a
-        // DataSource refering to a StateContext, even though we know
-        // that it will only contain ParsedStateContext's.  This is
+        // DataSource refering to a StateMachine, even though we know
+        // that it will only contain ParsedStateMachine's.  This is
         // because it will be used to call functions that accept
-        // arguments of type StateContext, and the DataSource's
+        // arguments of type StateMachine, and the DataSource's
         // unfortunately don't know about inheritance or casting...
-        typedef std::map<std::string, DataSource<StateContextTree*>::shared_ptr> SubContextNameMap;
+        typedef std::map<std::string, DataSource<StateMachine*>::shared_ptr> SubContextNameMap;
 
         typedef std::map<std::string, DataSourceBase::shared_ptr> VisibleReadOnlyValuesMap;
         typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
 
     public:
-        ParsedStateContext();
-        virtual ~ParsedStateContext();
+        ParsedStateMachine();
+        virtual ~ParsedStateMachine();
 
         /**
-         * @brief Create a ParsedStateContext which is parsed from \a text.
+         * @brief Create a ParsedStateMachine which is parsed from \a text.
          */
-        ParsedStateContext(const std::string& text);
+        ParsedStateMachine(const std::string& text);
 
         std::vector<std::string> getSubContextList() const;
-        ParsedStateContext* getSubContext( const std::string& name ) const;
+        ParsedStateMachine* getSubContext( const std::string& name ) const;
         /**
          * Add a new SubContext to this context.  This function
          * returns the DataSource by which the program can refer to
-         * the given StateContext...
+         * the given StateMachine...
          */
-        DataSource<StateContextTree*>* addSubContext( const std::string& name, ParsedStateContext* sc );
+        DataSource<StateMachine*>* addSubContext( const std::string& name, ParsedStateMachine* sc );
 
-        ParsedStateContext* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const;
+        ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const;
 
         const std::map<std::string, StateDescription*>& getStates() const {
             return states;
@@ -105,7 +103,7 @@ namespace ORO_Execution {
 
         /**
          * Return a DataSource which contains the scoped name
-         * of this StateContext.
+         * of this StateMachine.
          */
         DataSource<std::string>* getNameDS() const;
 
@@ -143,7 +141,7 @@ namespace ORO_Execution {
         std::string _text;
 
         TaskContext* context;
-        StateContextCommands* sc_coms;
+        StateMachineCommands* sc_coms;
     };
 }
 

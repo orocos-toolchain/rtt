@@ -44,8 +44,8 @@ namespace ORO_Execution
 {
     using ORO_CoreLib::Event;
 
-    class StateContextBuilder;
-    class ParsedStateContext;
+    class StateMachineBuilder;
+    class ParsedStateMachine;
     class StateDescription;
 
     namespace detail {
@@ -66,24 +66,26 @@ namespace ORO_Execution
   {
       // Our task we are loaded in :
       TaskContext* context;
-      // The TC of the current StateContext
+      // The TC of the current StateMachine
       TaskContext* curcontext ;
       our_pos_iter_t& mpositer;
+      // offset relative to StateMachine text.
+      int ln_offset;
 
-      typedef std::map<std::string, ParsedStateContext*> contextnamemap_t;
+      typedef std::map<std::string, ParsedStateMachine*> contextnamemap_t;
       typedef std::map<std::string, TaskAttributeBase*> contextparams_t;
       typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
-      typedef std::map<std::string, StateContextBuilder*> contextbuilders_t;
+      typedef std::map<std::string, StateMachineBuilder*> contextbuilders_t;
       typedef std::map<std::string, detail::EventHandle*> handlemap;
 
       contextnamemap_t rootcontexts;
       contextbuilders_t contextbuilders;
-      ParsedStateContext* curtemplatecontext;
+      ParsedStateMachine* curtemplatecontext;
       std::vector<CommandInterface*> varinitcommands;
       std::vector<CommandInterface*> paraminitcommands;
-      ParsedStateContext* curinstantiatedcontext;
-      StateContextBuilder* curcontextbuilder;
+      ParsedStateMachine* curinstantiatedcontext;
+      StateMachineBuilder* curcontextbuilder;
       std::string curinstcontextname;
       contextparamvalues_t curinstcontextparams;
       std::string curcontextinstargumentname;
@@ -103,7 +105,7 @@ namespace ORO_Execution
 
       /**
        * used to sort conditions as they are generated and
-       * inserted in the StateContext.
+       * inserted in the StateMachine.
        */
       int rank;
 
@@ -188,6 +190,7 @@ namespace ORO_Execution
       void seenvaluechange();
 
       void seenstatecontextname( iter_t begin, iter_t end );
+      void storeOffset();
       void saveText( iter_t begin, iter_t end );
       void seenrootcontextinstantiation();
       void seenstatecontextend();
@@ -218,6 +221,6 @@ namespace ORO_Execution
     // returned contexts setName() will have been called with the
     // correct name.
     // will throw an file_parse_exception on error
-    std::vector<ParsedStateContext*> parse( iter_t& begin, iter_t end );
+    std::vector<ParsedStateMachine*> parse( iter_t& begin, iter_t end );
   };
 }

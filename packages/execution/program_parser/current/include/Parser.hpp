@@ -36,18 +36,13 @@
 #include <vector>
 #include "parse_exception.hpp"
 #include "DataSource.hpp"
-#include "ParsedStateContext.hpp"
-
-namespace ORO_CoreLib
-{
-    class StateContext;
-}
+#include "ParsedStateMachine.hpp"
 
 namespace ORO_Execution
 {
     class ProgramGraph;
     class TaskContext;
-    class ParsedStateContext;
+    class ParsedStateMachine;
 }
 
 namespace ORO_CoreLib
@@ -59,7 +54,6 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
-  using ORO_CoreLib::StateContext;
   using ORO_CoreLib::PropertyBase;
   using ORO_CoreLib::CommandInterface;
   using ORO_CoreLib::ConditionInterface;
@@ -88,17 +82,17 @@ namespace ORO_Execution
 
     /**
      * @brief Reads out the stream, parses it, and returns a new @ref
-     * ParsedStateContext ..
+     * ParsedStateMachine ..
      * @throw file_parse_exception Throws exceptions of type file_parse_exception.
      */
-      std::vector<ParsedStateContext*> parseStateContext(std::istream& s, TaskContext*, const std::string& filename = "filename" );
+      std::vector<ParsedStateMachine*> parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "filename" );
 
     /**
      * @brief Opens a file read-only, parses it, and returns a new @ref
-     * ParsedStateContext ..
+     * ParsedStateMachine ..
      * @throw file_parse_exception Throws exceptions of type file_parse_exception.
      */
-      std::vector<ParsedStateContext*> parseStateContext(const std::string& filename, TaskContext* );
+      std::vector<ParsedStateMachine*> parseStateMachine(const std::string& filename, TaskContext* );
 
     /**
      * @brief Parses the string as a condition, and returns a new

@@ -64,7 +64,7 @@
     <revnumber>0.14</revnumber>
     <date>31 March 2004</date>
     <authorinitials>ps</authorinitials>
-    <revremark>New Program and StateContext implementation</revremark>
+    <revremark>New Program and StateMachine implementation</revremark>
   </revision>
   <revision>
     <revnumber>0.16</revnumber>
@@ -76,7 +76,7 @@
     <revnumber>0.17</revnumber>
     <date>13 August 2004</date>
     <authorinitials>ps</authorinitials>
-    <revremark>Change in StateContext start/stop semantics</revremark>
+    <revremark>Change in StateMachine start/stop semantics</revremark>
   </revision>
   <revision>
     <revnumber>0.18</revnumber>
@@ -111,7 +111,7 @@
       Execution package allows a user to configure a system, execute
       user-defined programs on that system and interactively
       accept commands. A
-      <classname>StateContext</classname> will hold the
+      <classname>StateMachine</classname> will hold the
       user-programmable state machine (representing the system
       logic). A <classname>ProgramGraph</classname> will hold the
       user-defined program to be executed. A
@@ -132,7 +132,7 @@
   </sect1>
   
   <sect1>
-    <title>Executing Programs and StateContexts</title>
+    <title>Executing Programs and StateMachines</title>
     <sect2>
       <title>Processor</title>
       <para>
@@ -269,7 +269,7 @@
     <sect2>
       <title>State Context and State</title>
       <para>
-	The <classname>StateContext</classname> is a collection of
+	The <classname>StateMachine</classname> is a collection of
 	states, linked to each other and is defined in the <ulink
 	  url="orocos-corelib.html">Orocos CoreLib</ulink> . It
 	represents a state machine of the realtime system's logic and
@@ -283,7 +283,7 @@
 	handle() and onExit(). They are called by the Processor when
 	this state is entered, handled or left. There is always
 	exactly one handle() called in each periodic execution step
-	for each StateContext, also when a state transition takes
+	for each StateMachine, also when a state transition takes
 	place. In that case, first the onExit() method of the old
 	state is called, then the onEntry() method of the new state
 	and as last in that step, the handle() method of the new
@@ -294,7 +294,7 @@
 	are used to define when a state should not be entered, and
 	an alternative must be provided.
       </para>
-	<figure><title>Executing a StateContext</title>
+	<figure><title>Executing a StateMachine</title>
 	  <mediaobject>
 	    <imageobject role="html">
 	      <imagedata fileref="StateTransitions.png" format="PNG"/>
@@ -310,7 +310,7 @@
 	convert Orocos State Descriptions to a State Context
 	wich can be loaded in the Processor.
       </para>
-	<figure><title>Using a StateContext</title>
+	<figure><title>Using a StateMachine</title>
 	  <mediaobject>
 	    <imageobject role="html">
 	      <imagedata fileref="ContextStates.png" format="PNG"/>
@@ -330,10 +330,10 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>StateContext and Program Implementation Details</title>
+    <title>StateMachine and Program Implementation Details</title>
     <para>
       This section gives a short description of the inside
-      of Programs and StateContexts, and can be skipped by most users.
+      of Programs and StateMachines, and can be skipped by most users.
     </para>
     <sect2 id="progproc-condition">
       <title>( State ) Transitions : Condition Edge</title>

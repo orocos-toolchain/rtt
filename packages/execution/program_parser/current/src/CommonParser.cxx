@@ -79,7 +79,7 @@ namespace ORO_Execution {
             "inState",
             "SubContext",
             "RootContext",
-            "StateContext",
+            "StateMachine",
             "EventHandle",
             "initial",
             "final",

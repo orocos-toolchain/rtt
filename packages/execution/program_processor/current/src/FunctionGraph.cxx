@@ -46,7 +46,7 @@ namespace ORO_Execution
     using ORO_CoreLib::ConditionTrue;
 
     FunctionGraph::FunctionGraph(const std::string& _name)
-        : myName(_name), error(false)
+        : myName(_name)
     {
         // the start vertex of our function graph
         start = add_vertex( program );
@@ -56,7 +56,7 @@ namespace ORO_Execution
     }
 
     FunctionGraph::FunctionGraph( const FunctionGraph& orig )
-        :  program( orig.getGraph() ), myName( orig.getName() ), error(false)
+        :  program( orig.getGraph() ), myName( orig.getName() )
     {
         // The nodes are copied, which causes a clone of their contents.
         graph_traits<Graph>::vertex_iterator v1,v2, it;
@@ -106,6 +106,10 @@ namespace ORO_Execution
 
         while ( current != exit && count++ <= maxsteps && result )
             result = executeStep();
+        if (result)
+            finished = true;
+        else
+            error    = true;
         return result;
     }
 
@@ -136,8 +140,7 @@ namespace ORO_Execution
             if ( !cmap[current].execute() ) {
                 error = true;
                 return false;
-            } else
-                error = false; // it is possible to get out of error without resetting.
+            }
         
             // Branch selecting Logic :
             for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
@@ -152,6 +155,8 @@ namespace ORO_Execution
                 }
         } while ( previous != current ); // keep going if we found a new node
 
+        // check finished state
+        finished = (current == exit);
         return true; // we need to wait.
     }
 
@@ -177,8 +182,7 @@ namespace ORO_Execution
         if ( !cmap[current].execute() ) {
             error = true;
             return false;
-        } else
-            error = false; // it is possible to get out of error without resetting.
+        }
 
         // Branch selecting Logic :
         for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
@@ -190,7 +194,9 @@ namespace ORO_Execution
                 // it will be executed in the next step.
                 return true;
             }
-        }
+        } 
+        // check finished state
+        finished = (current == exit);
         return true; // no new branch found yet !
     }
 
@@ -199,16 +205,7 @@ namespace ORO_Execution
         current = start;
         previous = exit;
         error   = false;
-    }
-
-    bool FunctionGraph::isFinished() const 
-    {
-        return current == exit;
-    }
-
-    bool FunctionGraph::inError() const 
-    {
-        return error;
+        finished= false;
     }
 
     const std::string& FunctionGraph::getName() const

@@ -42,7 +42,7 @@
 #pragma interface
 
 namespace ORO_Execution {
-    class ParsedStateContext;
+    class ParsedStateMachine;
 }
 
 namespace ORO_ControlKernel
@@ -54,7 +54,7 @@ namespace ORO_ControlKernel
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
     using ORO_Execution::TaskContext;
-    using ORO_Execution::ParsedStateContext;
+    using ORO_Execution::ParsedStateMachine;
     using ORO_Execution::ProgramInterface;
     class ExecutionExtension;
 
@@ -144,23 +144,23 @@ namespace ORO_ControlKernel
         bool loadProgram( const std::string&  filename, const std::string& file = "" );
 
         /**
-         * Load the StateContexts from the given file.
+         * Load the StateMachines from the given file.
          *
-         * @param filename The name of the StateContext.
+         * @param filename The name of the StateMachine.
          * @throw file_parse_exception ( defined in
          * <execution/parse_exception.hpp> ) if parsing fails
          * @throw program_load_exception ( defined in
          * this header ) if loading fails...
          */
-        void loadStateContext( const std::string& filename, const std::string& file = "" );
+        void loadStateMachine( const std::string& filename, const std::string& file = "" );
 
-        ParsedStateContext* getStateContext(const std::string& name);
+        ParsedStateMachine* getStateMachine(const std::string& name);
         ProgramInterface* getProgram(const std::string& name);
 
         /**
-         * Delete the given StateContext...
+         * Delete the given StateMachine...
          */
-        bool deleteStateContext( const std::string& name );
+        bool deleteStateMachine( const std::string& name );
 
         /**
          * Start a previously loaded Program.
@@ -193,46 +193,46 @@ namespace ORO_ControlKernel
         bool stepProgram(const std::string& name);
 
         /**
-         * Activate a previously loaded StateContext.
-         * @param name The name of the StateContext.
+         * Activate a previously loaded StateMachine.
+         * @param name The name of the StateMachine.
          */
-        bool activateStateContext(const std::string& name);
+        bool activateStateMachine(const std::string& name);
 
         /**
-         * Deactivate a stopped StateContext.
-         * @param name The name of the StateContext.
+         * Deactivate a stopped StateMachine.
+         * @param name The name of the StateMachine.
          */
-        bool deactivateStateContext(const std::string& name);
+        bool deactivateStateMachine(const std::string& name);
 
         /**
-         * Start a previously activated StateContext.
-         * @param name The name of the StateContext.
+         * Start a previously activated StateMachine.
+         * @param name The name of the StateMachine.
          */
-        bool startStateContext(const std::string& name);
+        bool startStateMachine(const std::string& name);
 
         /**
-         * Pause a previously activated StateContext.
-         * @param name The name of the StateContext.
+         * Pause a previously activated StateMachine.
+         * @param name The name of the StateMachine.
          */
-        bool pauseStateContext(const std::string& name);
+        bool pauseStateMachine(const std::string& name);
 
         /**
          * Returns true if the program was successfully started.
-         * @param name The name of the StateContext.
+         * @param name The name of the StateMachine.
          */
-        bool isStateContextRunning(const std::string& name) const;
+        bool isStateMachineRunning(const std::string& name) const;
 
         /**
-         * Stops the execution of a StateContext and enters the Final_State.
-         * @param name The name of the StateContext.
+         * Stops the execution of a StateMachine and enters the Final_State.
+         * @param name The name of the StateMachine.
          */
-        bool stopStateContext(const std::string& name);
+        bool stopStateMachine(const std::string& name);
 
         /**
-         * Resets the execution of a StateContext and enters the Initial_State.
-         * @param name The name of the StateContext.
+         * Resets the execution of a StateMachine and enters the Initial_State.
+         * @param name The name of the StateMachine.
          */
-        bool resetStateContext(const std::string& name);
+        bool resetStateMachine(const std::string& name);
 
         /**
          * The Processor is needed during program construction,
@@ -245,9 +245,9 @@ namespace ORO_ControlKernel
             return &proc;
         }
 
-        bool steppedStateContext(const std::string& name);
+        bool steppedStateMachine(const std::string& name);
 
-        bool continuousStateContext(const std::string& name);
+        bool continuousStateMachine(const std::string& name);
 
         virtual bool updateProperties( const PropertyBag& bag );
 
@@ -280,7 +280,7 @@ namespace ORO_ControlKernel
 
         Property<int> interval;
 
-        std::map<std::string,ParsedStateContext*> parsed_states;
+        std::map<std::string,ParsedStateMachine*> parsed_states;
 
         TaskContext tc;
     };

@@ -49,6 +49,9 @@ html-dist:
 doc-dist-clean:
 	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.eps" | xargs rm
 
+html-dist-clean:
+	@find . -name "*.png" -o -name "*.html" | xargs rm
+
 doxy-dist: configure
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
 	@rm -rf doc/api

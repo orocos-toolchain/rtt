@@ -27,7 +27,7 @@
 
 #include "execution/Processor.hpp"
 #include "execution/ProgramInterface.hpp"
-#include "execution/StateContextTree.hpp"
+#include "execution/StateMachine.hpp"
 #include <corelib/CommandInterface.hpp>
 #include <corelib/AtomicQueue.hpp>
 
@@ -56,16 +56,16 @@ namespace ORO_Execution
 
         struct Processor::StateInfo
         {
-            Processor::StateContextStatus::status sstate; // 'global' state of this StateContext
-            StateInfo(const std::string& _name, StateContextTree* s)
-                : sstate( StateContextStatus::inactive ),
+            Processor::StateMachineStatus::status sstate; // 'global' state of this StateMachine
+            StateInfo(const std::string& _name, StateMachine* s)
+                : sstate( StateMachineStatus::inactive ),
                   state(s),
                   action(0),
                   stepping(true),
                   name(_name)
             {}
 
-            StateContextTree* state;
+            StateMachine* state;
             //boost::function<void(void)> action; // does do alloc
             typedef void (Processor::StateInfo::*ActionPtr)(void); // ptr to member
             ActionPtr action;
@@ -75,19 +75,23 @@ namespace ORO_Execution
             // (de)activate may be called directly
             void activate() {
                 state->activate();
-                action = 0;
-                sstate = StateContextStatus::active;
+                action = &StateInfo::goactive;
+                sstate = StateMachineStatus::activating;
+                // already run once
+                this->goactive();
             }
             void deactivate() {
                 state->deactivate();
-                action = 0;
-                sstate = StateContextStatus::inactive;
+                action = &StateInfo::goinactive;
+                sstate = StateMachineStatus::deactivating;
+                // already run once
+                this->goinactive();
             }
 
             // start, stop , pause and reset work with the
             // action functor.
             void start() {
-                sstate = StateContextStatus::running;
+                sstate = StateMachineStatus::running;
                 // keep repeating the run action
                 action = &StateInfo::run;
                 //action = &StateInfo::run;
@@ -96,35 +100,77 @@ namespace ORO_Execution
 
             void pause() {
                 action = 0;
-                sstate = StateContextStatus::paused;
+                sstate = StateMachineStatus::paused;
             }
 
             void stop() {
-                action = 0;
-                state->requestFinalState();
-                sstate = StateContextStatus::stopped;
+                if ( state->executePending() ) {
+                    action = 0;
+                    state->requestFinalState();
+                    sstate = StateMachineStatus::stopped;
+                } else {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
             }
             void reset() {
-                action = 0;
-                state->requestInitialState();
-                sstate = StateContextStatus::active;
+                if ( state->executePending() ) {
+                    action = 0;
+                    state->requestInitialState();
+                    sstate = StateMachineStatus::active;
+                } else {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
             }
 
             void singleStep() {
-                state->requestNextState(); // one state at a time
+                if ( state->executePending(true) )    // if all steps done,
+                    state->requestNextState(true); // one state at a time
+                else {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                }
                 action = 0; // unset self.
             }
 
             bool stepping;
             std::string name;
         protected:
+            void goactive() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+                sstate = StateMachineStatus::active;
+                action = 0;
+            }
+            void goinactive() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+                sstate = StateMachineStatus::inactive;
+                action = 0;
+            }
             void run() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+
                 if (stepping)
                     state->requestNextState(); // one state at a time
                 else {
-                    ORO_CoreLib::StateInterface* cur_s = state->currentState();
-                    while ( cur_s != state->requestNextState() ) // go until no transition found.
+                    StateInterface* cur_s = state->currentState();
+                    while ( cur_s != state->requestNextState() )  { // go until no transition found.
                         cur_s = state->currentState();
+                    }
                 }
             }
             //StateInfo( const StateInfo& ) {}
@@ -169,12 +215,12 @@ namespace ORO_Execution
         return it->pstate;
      }
 
-     Processor::StateContextStatus::status Processor::getStateContextStatus(const std::string& name) const
+     Processor::StateMachineStatus::status Processor::getStateMachineStatus(const std::string& name) const
      {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it == states->end() )
-            return StateContextStatus::unloaded;
+            return StateMachineStatus::unloaded;
         return it->sstate;
      }
 
@@ -260,22 +306,22 @@ namespace ORO_Execution
         return false;
     }
 
-	bool Processor::loadStateContext( StateContextTree* sc )
+	bool Processor::loadStateMachine( StateMachine* sc )
     {
         // test if parent ...
         if ( sc->getParent() != 0 ) {
             std::string error(
-                "Could not register StateContext \"" + sc->getName() +
-                "\" with the processor. It is not a root StateContext." );
+                "Could not register StateMachine \"" + sc->getName() +
+                "\" with the processor. It is not a root StateMachine." );
             throw program_load_exception( error );
         }
 
-        this->recursiveCheckLoadStateContext( sc ); // throws load_exception
-        this->recursiveLoadStateContext( sc );
+        this->recursiveCheckLoadStateMachine( sc ); // throws load_exception
+        this->recursiveLoadStateMachine( sc );
         return true;
     }
     
-    void Processor::recursiveCheckLoadStateContext( StateContextTree* sc )
+    void Processor::recursiveCheckLoadStateMachine( StateMachine* sc )
     {
         // test if already present..., this cannot detect corrupt
         // trees with double names...
@@ -283,53 +329,53 @@ namespace ORO_Execution
             find_if(states->begin(), states->end(), bind(state_lookup, _1, sc->getName() ) );
         if ( it != states->end() ) {
             std::string error(
-                "Could not register StateContext \"" + sc->getName() +
-                "\" with the processor. A StateContext with that name is already present." );
+                "Could not register StateMachine \"" + sc->getName() +
+                "\" with the processor. A StateMachine with that name is already present." );
             throw program_load_exception( error );
 
-            std::vector<StateContextTree*>::const_iterator it2;
+            std::vector<StateMachine*>::const_iterator it2;
             for (it2 = sc->getChildren().begin(); it2 != sc->getChildren().end(); ++it2)
                 {
-                    this->recursiveCheckLoadStateContext( *it2 );
+                    this->recursiveCheckLoadStateMachine( *it2 );
                 }
         }
     }
 
-    void Processor::recursiveLoadStateContext( StateContextTree* sc )
+    void Processor::recursiveLoadStateMachine( StateMachine* sc )
     {
-        std::vector<StateContextTree*>::const_iterator it;
+        std::vector<StateMachine*>::const_iterator it;
         for (it = sc->getChildren().begin(); it != sc->getChildren().end(); ++it)
             {
-                this->recursiveLoadStateContext( *it );
+                this->recursiveLoadStateMachine( *it );
             }
         
         MutexLock lock( statemonitor );
         states->push_back(Processor::StateInfo(sc->getName(), sc));
     }
 
-	bool Processor::startStateContext(const std::string& name)
+	bool Processor::startStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::active || it->sstate == StateContextStatus::paused) {
+        if ( it != states->end() && it->sstate == StateMachineStatus::active || it->sstate == StateMachineStatus::paused) {
             it->action = &StateInfo::start;
             return true;
         }
         return false;
     }
 
-	bool Processor::stepStateContext(const std::string& name)
+	bool Processor::stepStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::paused) {
+        if ( it != states->end() && it->sstate == StateMachineStatus::paused) {
             it->action = &StateInfo::singleStep;
             return true;
         }
         return false;
     }
 
-	bool Processor::steppedStateContext(const std::string& name)
+	bool Processor::steppedStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
@@ -340,7 +386,7 @@ namespace ORO_Execution
         return it != states->end();
     }
 
-	bool Processor::continuousStateContext(const std::string& name)
+	bool Processor::continuousStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
@@ -351,16 +397,16 @@ namespace ORO_Execution
         return it != states->end();
     }
 
-	bool Processor::isStateContextRunning(const std::string& name) const
+	bool Processor::isStateMachineRunning(const std::string& name) const
     {
         cstate_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
         if ( it != states->end() )
-            return it->sstate == StateContextStatus::running;
+            return it->sstate == StateMachineStatus::running;
         return false;
     }
 
-	bool Processor::isStateContextStepped(const std::string& name) const
+	bool Processor::isStateMachineStepped(const std::string& name) const
     {
         cstate_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
@@ -369,11 +415,11 @@ namespace ORO_Execution
         return false;
     }
 
-    bool Processor::activateStateContext( const std::string& name )
+    bool Processor::activateStateMachine( const std::string& name )
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::inactive )
+        if ( it != states->end() && it->sstate == StateMachineStatus::inactive )
             {
                 it->activate();
                 return true;
@@ -381,11 +427,11 @@ namespace ORO_Execution
         return false;
     }
 
-    bool Processor::deactivateStateContext( const std::string& name )
+    bool Processor::deactivateStateMachine( const std::string& name )
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::stopped )
+        if ( it != states->end() )
             {
                 it->deactivate();
                 return true;
@@ -393,13 +439,13 @@ namespace ORO_Execution
         return false;
     }
 
-    bool Processor::pauseStateContext(const std::string& name)
+    bool Processor::pauseStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && ( it->sstate == StateContextStatus::running
-                                      || it->sstate == StateContextStatus::paused
-                                      || it->sstate == StateContextStatus::active))
+        if ( it != states->end() && ( it->sstate == StateMachineStatus::running
+                                      || it->sstate == StateMachineStatus::paused
+                                      || it->sstate == StateMachineStatus::active))
             {
                 it->action = &StateInfo::pause;
                 return true;
@@ -407,13 +453,13 @@ namespace ORO_Execution
         return false;
     }
 
-	bool Processor::stopStateContext(const std::string& name)
+	bool Processor::stopStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && ( it->sstate == StateContextStatus::paused
-                                     || it->sstate == StateContextStatus::active
-                                     || it->sstate == StateContextStatus::running) )
+        if ( it != states->end() && ( it->sstate == StateMachineStatus::paused
+                                     || it->sstate == StateMachineStatus::active
+                                     || it->sstate == StateMachineStatus::running) )
             {
                 it->action = &StateInfo::stop;
                 return true;
@@ -421,12 +467,12 @@ namespace ORO_Execution
         return false;
     }
 
-	bool Processor::resetStateContext(const std::string& name)
+	bool Processor::resetStateMachine(const std::string& name)
     {
         // We can only reset when stopped.
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateContextStatus::stopped )
+        if ( it != states->end() && it->sstate == StateMachineStatus::stopped )
             {
                 it->action = &StateInfo::reset;
                 return true;
@@ -434,9 +480,9 @@ namespace ORO_Execution
         return false;
     }
 
-    bool Processor::unloadStateContext( const std::string& name )
+    bool Processor::unloadStateMachine( const std::string& name )
     {
-        // this does the same as deleteStateContext, except for deleting
+        // this does the same as deleteStateMachine, except for deleting
         // the unloaded context..
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
@@ -445,29 +491,29 @@ namespace ORO_Execution
             // test if parent ...
             if ( it->state->getParent() != 0 ) {
                 std::string error(
-                                  "Could not unload StateContext \"" + it->state->getName() +
-                                  "\" with the processor. It is not a root StateContext." );
+                                  "Could not unload StateMachine \"" + it->state->getName() +
+                                  "\" with the processor. It is not a root StateMachine." );
                 throw program_unload_exception( error );
             }
-            recursiveCheckUnloadStateContext( *it );
-            recursiveUnloadStateContext( it->state );
+            recursiveCheckUnloadStateMachine( *it );
+            recursiveUnloadStateMachine( it->state );
             return true;
         }
         return false;
     }
 
-    void Processor::recursiveCheckUnloadStateContext(const StateInfo& si)
+    void Processor::recursiveCheckUnloadStateMachine(const StateInfo& si)
     {
         // check this state
-        if ( si.sstate != StateContextStatus::inactive ) {
+        if ( si.sstate != StateMachineStatus::inactive ) {
             std::string error(
-                              "Could not unload StateContext \"" + si.state->getName() +
+                              "Could not unload StateMachine \"" + si.state->getName() +
                               "\" with the processor. It is still active." );
             throw program_unload_exception( error );
         }
 
         // check children
-        std::vector<StateContextTree*>::const_iterator it2;
+        std::vector<StateMachine*>::const_iterator it2;
         for (it2 = si.state->getChildren().begin();
              it2 != si.state->getChildren().end();
              ++it2)
@@ -478,21 +524,21 @@ namespace ORO_Execution
                             bind(state_lookup, _1, (*it2)->getName() ) );
                 if ( it == states->end() ) {
                     std::string error(
-                              "Could not unload StateContext \"" + si.state->getName() +
+                              "Could not unload StateMachine \"" + si.state->getName() +
                               "\" with the processor. It contains not loaded children." );
                     throw program_unload_exception( error );
                 }
                 // all is ok, check child :
-                this->recursiveCheckUnloadStateContext( *it );
+                this->recursiveCheckUnloadStateMachine( *it );
             }
     }
 
-    void Processor::recursiveUnloadStateContext(StateContextTree* sc) {
-        std::vector<StateContextTree*>::const_iterator it;
+    void Processor::recursiveUnloadStateMachine(StateMachine* sc) {
+        std::vector<StateMachine*>::const_iterator it;
         // erase children
         for (it = sc->getChildren().begin(); it != sc->getChildren().end(); ++it)
             {
-                this->recursiveUnloadStateContext( *it );
+                this->recursiveUnloadStateMachine( *it );
             }
         
         // erase this sc :
@@ -506,7 +552,7 @@ namespace ORO_Execution
         states->erase(it2);
     }
 
-	bool Processor::deleteStateContext(const std::string& name)
+	bool Processor::deleteStateMachine(const std::string& name)
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
@@ -514,14 +560,14 @@ namespace ORO_Execution
             {
                 if ( it->state->getParent() != 0 ) {
                     std::string error(
-                                      "Could not unload StateContext \"" + it->state->getName() +
-                                      "\" with the processor. It is not a root StateContext." );
+                                      "Could not unload StateMachine \"" + it->state->getName() +
+                                      "\" with the processor. It is not a root StateMachine." );
                     throw program_unload_exception( error );
                 }
-                StateContextTree* todelete = it->state;
+                StateMachine* todelete = it->state;
                 // same pre-conditions for delete as for unload :
-                recursiveCheckUnloadStateContext( *it );
-                recursiveUnloadStateContext( it->state ); // this invalidates it !
+                recursiveCheckUnloadStateMachine( *it );
+                recursiveUnloadStateMachine( it->state ); // this invalidates it !
                 delete todelete;
                 return true;
             }
@@ -536,9 +582,9 @@ namespace ORO_Execution
 
     void _stopState( Processor::StateInfo& s)
     {
-        if ( s.sstate == Processor::StateContextStatus::paused
-            || s.sstate == Processor::StateContextStatus::active
-            || s.sstate == Processor::StateContextStatus::running )
+        if ( s.sstate == Processor::StateMachineStatus::paused
+            || s.sstate == Processor::StateMachineStatus::active
+            || s.sstate == Processor::StateMachineStatus::running )
             s.stop();
     }
 
@@ -699,7 +745,7 @@ namespace ORO_Execution
         return 0;
     }
 
-    std::vector<std::string> Processor::getStateContextList()
+    std::vector<std::string> Processor::getStateMachineList()
     {
         std::vector<std::string> ret;
         for ( state_iter i = states->begin(); i != states->end(); ++i )

@@ -137,7 +137,7 @@
 	<revnumber>0.18.2</revnumber>
 	<date>5 January 2005</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateContext</revremark>
+	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateMachine</revremark>
       </revision>
       <revision>
 	<revnumber>0.20.0</revnumber>
@@ -2898,8 +2898,8 @@ private:
 	<title>Using the ExecutionExtension</title>
 	<para>
 	  The ExecutionExtension provides a more user friendly 
-	  interface for managing Programs and StateContexts.
-	  A StateContext file and Program file
+	  interface for managing Programs and StateMachines.
+	  A StateMachine file and Program file
 	  can be loaded as such :
 	</para>
       <programlisting>
@@ -2911,7 +2911,7 @@ private:
   MyExecKernel my_kernel;
   // ... load components, then :
   try {
-    my_kernel.loadStateContext("state.osd");
+    my_kernel.loadStateMachine("state.osd");
     my_kernel.loadProgram("program.ops");
   } catch ( file_parse_exception& fpe ) {
     cerr << fpe.what() << endl;
@@ -2922,19 +2922,19 @@ private:
   }   ]]>   </programlisting>
 	<para>
 	  The Program name is given in the program.ops file.
-	  Both Program and StateContext can cause parse errors or
+	  Both Program and StateMachine can cause parse errors or
 	  fail to be loaded in the kernel ( with duplicate names
 	  for example ). If no exceptions occured, 
-	  both StateContext and Program will be non active
+	  both StateMachine and Program will be non active
 	  after load. To use the
-	  StateContext, it must be activated and started :
+	  StateMachine, it must be activated and started :
 	</para>
 	<programlisting>
-  my_kernel.activateStateContext("MyState");   // Enter initial state 
-  my_kernel.startStateContext("MyState");      // Start transitions</programlisting>
+  my_kernel.activateStateMachine("MyState");   // Enter initial state 
+  my_kernel.startStateMachine("MyState");      // Start transitions</programlisting>
 	<para>
 	  It is most common to start the program itself from within
-	  a state of the StateContext, so that it is sure that
+	  a state of the StateMachine, so that it is sure that
 	  it is safe to start a program. To do this in the state
 	  the commands
 	<programlisting>
@@ -2942,7 +2942,7 @@ private:
   //...
   do programs.MyProgram.stop()	</programlisting>
 	  are available. Likewise, it is possible to start and stop
-	  other StateContexts from within a program or another 
+	  other StateMachines from within a program or another 
 	  State Context :
 	<programlisting>
   do states.SecondContext.activate()
@@ -2972,20 +2972,20 @@ private:
       <sect3>
 	<title>Elaborated Example</title>
 	<para>
-	  The Orocos Program Parser presents a StateContext and Program
+	  The Orocos Program Parser presents a StateMachine and Program
 	  example. It also goes into great detail about syntax
 	  and possibilities. The Example is for completeness repeated here.
 	</para>
 	<example>
-	  <title>"state.osd" : StateContext with name "MyState"</title>
+	  <title>"state.osd" : StateMachine with name "MyState"</title>
 	  <programlisting>
-StateContext MachineContext
+StateMachine MachineContext
 {
     Event_Handle home_switch1
     Event_Handle home_switch2
 
     /**
-     * This state is entered when the StateContext is loaded.
+     * This state is entered when the StateMachine is loaded.
      * The kernel is not running yet...
      */
     initial state init_state {

@@ -70,13 +70,13 @@ namespace ORO_Execution
     return ret;
   }
 
-  std::vector<ParsedStateContext*> Parser::parseStateContext( const std::string& file, TaskContext* c)
+  std::vector<ParsedStateMachine*> Parser::parseStateMachine( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
-      return this->parseStateContext( inputfile, c, file );
+      return this->parseStateMachine( inputfile, c, file );
   }
 
-  std::vector<ParsedStateContext*> Parser::parseStateContext( std::istream& s, TaskContext* c, const std::string& filename)
+  std::vector<ParsedStateMachine*> Parser::parseStateMachine( std::istream& s, TaskContext* c, const std::string& filename)
   {
       // This code is copied from parseProgram()
 
@@ -93,7 +93,7 @@ namespace ORO_Execution
 
     // The internal parser.
     StateGraphParser gram( parsebegin, c );
-    std::vector<ParsedStateContext*> ret;
+    std::vector<ParsedStateMachine*> ret;
     try {
       ret = gram.parse( parsebegin, parseend );
     }

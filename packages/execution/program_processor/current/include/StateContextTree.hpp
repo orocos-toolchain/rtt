@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  StateContextTree.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  StateMachineTree.hpp 
 
-                        StateContextTree.hpp -  description
+                        StateMachineTree.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
@@ -29,43 +29,43 @@
 #ifndef HIERARCHICAL_STATE_CONTEXT_HPP
 #define HIERARCHICAL_STATE_CONTEXT_HPP
 
-#include <corelib/StateContext.hpp>
+#include <corelib/StateMachine.hpp>
 #include <vector>
 #include <string>
 
 namespace ORO_Execution
 {
     /**
-     * @brief A hierarchical StateContext which is
+     * @brief A hierarchical StateMachine which is
      * loaded in the Program Processor.
      *
-     * A StateContextTree can have children and one parent.
+     * A StateMachineTree can have children and one parent.
      */
-    class StateContextTree
-        :public ORO_CoreLib::StateContext
+    class StateMachineTree
+        :public ORO_CoreLib::StateMachine
     {
-        std::vector<StateContextTree*> _children;
-        StateContextTree* _parent;
+        std::vector<StateMachineTree*> _children;
+        StateMachineTree* _parent;
     protected:
         std::string _name;
     public:
-        typedef std::vector<StateContextTree*> ChildList;
+        typedef std::vector<StateMachineTree*> ChildList;
 
-        virtual ~StateContextTree() {}
+        virtual ~StateMachineTree() {}
 
-        StateContextTree(StateContextTree* parent, const std::string& name="Default")
+        StateMachineTree(StateMachineTree* parent, const std::string& name="Default")
             : _parent (parent) , _name(name)
         {}
 
         /**
          * Get the parent, returns zero if no parent.
          */
-        virtual StateContextTree* getParent() 
+        virtual StateMachineTree* getParent() 
         {
             return _parent;
         }
 
-        virtual void setParent(StateContextTree* parent)
+        virtual void setParent(StateMachineTree* parent)
         {
             _parent = parent;
         }
@@ -78,7 +78,7 @@ namespace ORO_Execution
             return _children;
         }
 
-        virtual void addChild( StateContextTree* child ) {
+        virtual void addChild( StateMachineTree* child ) {
             _children.push_back( child );
         }
 

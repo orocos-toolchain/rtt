@@ -1,8 +1,8 @@
 // in AxisHoming.osd
-StateContext AxisHoming
+StateMachine AxisHoming
 {
 	// All 'global' variables
-	// A StateContext must be initialised
+	// A StateMachine must be initialised
 	// with these variables.
 	// See MachineState.osd for usage
 	var int axis_nr;

@@ -38,7 +38,7 @@ namespace ORO_CoreLib {
 namespace ORO_Execution
 {
     using ORO_CoreLib::CommandInterface;
-    class StateContextTree;
+    class StateMachineTree;
     class ProgramInterface;
 
     /**
@@ -55,27 +55,27 @@ namespace ORO_Execution
         /**
          * Load a state context
          */
-        virtual bool loadStateContext(StateContextTree* sc) = 0; 
+        virtual bool loadStateMachine(StateMachineTree* sc) = 0; 
 			
         /**
          * Reset to the initial state
          */
-        virtual bool resetStateContext(const std::string& name) = 0;
+        virtual bool resetStateMachine(const std::string& name) = 0;
 
         /**
          * Start evaluating a state context.
          */
-        virtual bool startStateContext(const std::string& name) = 0;
+        virtual bool startStateMachine(const std::string& name) = 0;
 
         /**
          * Stop evaluating a state context and go to the final state.
          */
-        virtual bool stopStateContext(const std::string& name) = 0;
+        virtual bool stopStateMachine(const std::string& name) = 0;
             
         /**
          * Discard a state context.
          */
-        virtual bool deleteStateContext(const std::string& name) = 0;
+        virtual bool deleteStateMachine(const std::string& name) = 0;
             
         /**
          * Load a program to be executed.
@@ -108,26 +108,26 @@ namespace ORO_Execution
         virtual bool isProgramRunning( const std::string& name) const = 0;
 
         /**
-         * Return true if the StateContext has successfully started.
+         * Return true if the StateMachine has successfully started.
          */
-        virtual bool isStateContextRunning( const std::string& name) const = 0;
+        virtual bool isStateMachineRunning( const std::string& name) const = 0;
 
         /**
-         * Check if a StateContext is in Stepped mode.
+         * Check if a StateMachine is in Stepped mode.
          * @return true if it is so, false if it is continuous.
          */
-        virtual bool isStateContextStepped(const std::string& name) const = 0;
+        virtual bool isStateMachineStepped(const std::string& name) const = 0;
 
         /**
-         * Put a StateContext in the state-at-a-time mode.
+         * Put a StateMachine in the state-at-a-time mode.
          */
-        virtual bool steppedStateContext(const std::string& name) = 0;
+        virtual bool steppedStateMachine(const std::string& name) = 0;
 
         /**
-         * Put a StateContext in the traverse-as-many-states-as-possible mode
+         * Put a StateMachine in the traverse-as-many-states-as-possible mode
          * (until no transition succeeds).
          */
-        virtual bool continuousStateContext(const std::string& name) = 0;
+        virtual bool continuousStateMachine(const std::string& name) = 0;
 
         /**
          * In stepping mode, execute one command of a program.

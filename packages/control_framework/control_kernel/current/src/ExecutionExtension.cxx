@@ -36,7 +36,7 @@
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
 #include <execution/parse_exception.hpp>
-#include <execution/ParsedStateContext.hpp>
+#include <execution/ParsedStateMachine.hpp>
 
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
@@ -74,12 +74,12 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     bool ExecutionExtension::initialize()
     {
         initKernelCommands();
-        if ( !proc.activateStateContext("Default") )
+        if ( !proc.activateStateMachine("Default") )
             Logger::log() << Logger::Info << "ExecutionExtension : "
-                          << "Processor could not activate \"Default\" StateContext."<< Logger::endl;
-        else if ( !proc.startStateContext("Default") )
+                          << "Processor could not activate \"Default\" StateMachine."<< Logger::endl;
+        else if ( !proc.startStateMachine("Default") )
             Logger::log() << Logger::Info << "ExecutionExtension : "
-                          << "Processor could not start \"Default\" StateContext."<< Logger::endl;
+                          << "Processor could not start \"Default\" StateMachine."<< Logger::endl;
         proc.setTask( this->kernel()->getTask() );
         proc.initialize();
         return true;
@@ -148,19 +148,19 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     }
 
     namespace {
-        void recursiveRegister( std::map<std::string, ParsedStateContext*>& m, ParsedStateContext* parent ) {
-            std::vector<StateContextTree*>::const_iterator chit;
+        void recursiveRegister( std::map<std::string, ParsedStateMachine*>& m, ParsedStateMachine* parent ) {
+            std::vector<StateMachine*>::const_iterator chit;
             m[parent->getName()] = parent;
             for( chit = parent->getChildren().begin(); chit != parent->getChildren().end(); ++chit)
-                recursiveRegister(m, dynamic_cast<ParsedStateContext*>(*chit) );
+                recursiveRegister(m, dynamic_cast<ParsedStateMachine*>(*chit) );
         }
     }
 
-    void ExecutionExtension::loadStateContext( const std::string& filename, const std::string& file )
+    void ExecutionExtension::loadStateMachine( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
         Parser    parser;
-        std::vector<ParsedStateContext*> contexts;
+        std::vector<ParsedStateMachine*> contexts;
         std::ifstream file_stream;
         std::stringstream text_stream( file );
         std::istream *prog_stream;
@@ -170,34 +170,34 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         } else
             prog_stream = &text_stream;
         try {
-          contexts = parser.parseStateContext( *prog_stream, &tc, filename );
+          contexts = parser.parseStateMachine( *prog_stream, &tc, filename );
         }
         catch( const file_parse_exception& exc )
         {
             Logger::log() << Logger::Error << "ExecutionExtension : "
-                          << "loadStateContext  : "<< exc.what()<< Logger::endl;
+                          << "loadStateMachine  : "<< exc.what()<< Logger::endl;
           // no reason to catch this other than clarity
           throw;
         }
         if ( contexts.empty() )
         {
             Logger::log() << Logger::Info << "ExecutionExtension : "
-                          << "loadStateContext no StateContexts instantiated loaded from "<< filename << Logger::endl;
-            throw program_load_exception( "No StateContexts instantiated in file \"" + filename + "\"." );
+                          << "loadStateMachine no StateMachines instantiated loaded from "<< filename << Logger::endl;
+            throw program_load_exception( "No StateMachines instantiated in file \"" + filename + "\"." );
         }
 
         // this can throw a program_load_exception
-        std::vector<ParsedStateContext*>::iterator it;
+        std::vector<ParsedStateMachine*>::iterator it;
         for( it= contexts.begin(); it !=contexts.end(); ++it) {
-            getProcessor()->loadStateContext( *it );
+            getProcessor()->loadStateMachine( *it );
             recursiveRegister( parsed_states, *it );
         }
 
         Logger::log() << Logger::Info << "ExecutionExtension : "
-                      << "loadStateContext loaded "<< contexts.end() - contexts.begin()<<" StateContext(s) from " << filename << Logger::endl;
+                      << "loadStateMachine loaded "<< contexts.end() - contexts.begin()<<" StateMachine(s) from " << filename << Logger::endl;
     }
 
-    ParsedStateContext* ExecutionExtension::getStateContext(const std::string& name) {
+    ParsedStateMachine* ExecutionExtension::getStateMachine(const std::string& name) {
         if ( parsed_states.count(name) == 0 )
             return 0;
         return parsed_states[ name ];
@@ -207,55 +207,55 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         return getProcessor()->getProgram(name);
     }
 
-    bool ExecutionExtension::activateStateContext(const std::string& name)
+    bool ExecutionExtension::activateStateMachine(const std::string& name)
     {
-        return proc.activateStateContext(name);
+        return proc.activateStateMachine(name);
     }
 
-    bool ExecutionExtension::deactivateStateContext(const std::string& name)
+    bool ExecutionExtension::deactivateStateMachine(const std::string& name)
     {
-        return proc.deactivateStateContext(name);
+        return proc.deactivateStateMachine(name);
     }
 
-    bool ExecutionExtension::startStateContext(const std::string& name)
+    bool ExecutionExtension::startStateMachine(const std::string& name)
     {
-        return proc.startStateContext(name);
+        return proc.startStateMachine(name);
     }
 
-    bool ExecutionExtension::pauseStateContext(const std::string& name)
+    bool ExecutionExtension::pauseStateMachine(const std::string& name)
     {
-        return proc.pauseStateContext(name);
+        return proc.pauseStateMachine(name);
     }
 
-    bool ExecutionExtension::deleteStateContext( const std::string& name )
+    bool ExecutionExtension::deleteStateMachine( const std::string& name )
     {
         parsed_states.erase( name );
-        return proc.deleteStateContext( name );
+        return proc.deleteStateMachine( name );
     }
 
-    bool ExecutionExtension::stopStateContext(const std::string& name)
+    bool ExecutionExtension::stopStateMachine(const std::string& name)
     {
-        return proc.stopStateContext(name);
+        return proc.stopStateMachine(name);
     }
 
-    bool ExecutionExtension::steppedStateContext(const std::string& name)
+    bool ExecutionExtension::steppedStateMachine(const std::string& name)
     {
-        return proc.steppedStateContext(name);
+        return proc.steppedStateMachine(name);
     }
 
-    bool ExecutionExtension::continuousStateContext(const std::string& name)
+    bool ExecutionExtension::continuousStateMachine(const std::string& name)
     {
-        return proc.continuousStateContext(name);
+        return proc.continuousStateMachine(name);
     }
 
-    bool ExecutionExtension::isStateContextRunning(const std::string& name) const
+    bool ExecutionExtension::isStateMachineRunning(const std::string& name) const
     {
-        return proc.isStateContextRunning(name);
+        return proc.isStateMachineRunning(name);
     }
 
-    bool ExecutionExtension::resetStateContext(const std::string& name)
+    bool ExecutionExtension::resetStateMachine(const std::string& name)
     {
-        return proc.resetStateContext(name);
+        return proc.resetStateMachine(name);
     }
 
     void ExecutionExtension::step() {
@@ -269,8 +269,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     void ExecutionExtension::finalize()
     {
-        proc.stopStateContext("Default");
-        proc.deactivateStateContext("Default");
+        proc.stopStateMachine("Default");
+        proc.deactivateStateMachine("Default");
         proc.setTask(0);
         proc.finalize();
     }
@@ -316,8 +316,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
         dat->add( "isProgramRunning", data( &ExecutionExtension::isProgramRunning,
                                             "Is a program running ?", "Name", "The Name of the Loaded Program" ) );
-        dat->add( "isStateContextRunning", data( &ExecutionExtension::isStateContextRunning,
-                                            "Is a state context running ?", "Name", "The Name of the Loaded StateContext" ) );
+        dat->add( "isStateMachineRunning", data( &ExecutionExtension::isStateMachineRunning,
+                                            "Is a state context running ?", "Name", "The Name of the Loaded StateMachine" ) );
         return dat;
     }
 
@@ -347,46 +347,46 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                   ( &ExecutionExtension::pauseProgram ,
                     &ExecutionExtension::true_gen ,
                     "Pause a program", "Name", "The Name of the Started Program" ) );
-        ret->add( "activateStateContext",
+        ret->add( "activateStateMachine",
                   command
-                  ( &ExecutionExtension::activateStateContext ,
+                  ( &ExecutionExtension::activateStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Activate a StateContext", "Name", "The Name of the Loaded StateContext" ) );
-        ret->add( "deactivateStateContext",
+                    "Activate a StateMachine", "Name", "The Name of the Loaded StateMachine" ) );
+        ret->add( "deactivateStateMachine",
                   command
-                  ( &ExecutionExtension::deactivateStateContext ,
+                  ( &ExecutionExtension::deactivateStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Deactivate a StateContext", "Name", "The Name of the Stopped StateContext" ) );
-        ret->add( "startStateContext",
+                    "Deactivate a StateMachine", "Name", "The Name of the Stopped StateMachine" ) );
+        ret->add( "startStateMachine",
                   command
-                  ( &ExecutionExtension::startStateContext ,
+                  ( &ExecutionExtension::startStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Start a StateContext", "Name", "The Name of the Activated/Paused StateContext" ) );
-        ret->add( "pauseStateContext",
+                    "Start a StateMachine", "Name", "The Name of the Activated/Paused StateMachine" ) );
+        ret->add( "pauseStateMachine",
                   command
-                  ( &ExecutionExtension::pauseStateContext ,
+                  ( &ExecutionExtension::pauseStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Pause a StateContext", "Name", "The Name of a Started StateContext" ) );
-        ret->add( "stopStateContext",
+                    "Pause a StateMachine", "Name", "The Name of a Started StateMachine" ) );
+        ret->add( "stopStateMachine",
                   command
-                  ( &ExecutionExtension::stopStateContext ,
+                  ( &ExecutionExtension::stopStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Stop a StateContext", "Name", "The Name of the Started/Paused StateContext" ) );
-        ret->add( "resetStateContext",
+                    "Stop a StateMachine", "Name", "The Name of the Started/Paused StateMachine" ) );
+        ret->add( "resetStateMachine",
                   command
-                  ( &ExecutionExtension::resetStateContext ,
+                  ( &ExecutionExtension::resetStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Reset a stateContext", "Name", "The Name of the Stopped StateContext") );
-        ret->add( "steppedStateContext",
+                    "Reset a stateContext", "Name", "The Name of the Stopped StateMachine") );
+        ret->add( "steppedStateMachine",
                   command
-                  ( &ExecutionExtension::steppedStateContext ,
+                  ( &ExecutionExtension::steppedStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Set a stateContext in step-at-a-time mode", "Name", "The Name of the StateContext") );
-        ret->add( "continuousStateContext",
+                    "Set a stateContext in step-at-a-time mode", "Name", "The Name of the StateMachine") );
+        ret->add( "continuousStateMachine",
                   command
-                  ( &ExecutionExtension::continuousStateContext ,
+                  ( &ExecutionExtension::continuousStateMachine ,
                     &ExecutionExtension::true_gen ,
-                    "Set a stateContext in continuous mode", "Name", "The Name of the StateContext") );
+                    "Set a stateContext in continuous mode", "Name", "The Name of the StateMachine") );
         return ret;
     }
 

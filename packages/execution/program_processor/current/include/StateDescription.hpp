@@ -28,7 +28,7 @@
 #ifndef STATE_DESCRIPTION_HPP
 #define STATE_DESCRIPTION_HPP
 
-#include "corelib/StateInterface.hpp"
+#include "execution/StateInterface.hpp"
 #include "execution/FunctionGraph.hpp"
 
 namespace ORO_Execution
@@ -40,8 +40,6 @@ namespace ORO_Execution
     using std::bind2nd;
     using boost::get;
     using boost::put;
-
-    using ORO_CoreLib::StateInterface;
 
     /**
      * @brief This class represents a state with all actions stored
@@ -59,34 +57,23 @@ namespace ORO_Execution
         FunctionGraph* mhandle;
         bool inited;
         std::string name;
+        int entrypoint;
     public:
         /**
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(const std::string& _name )
+        StateDescription(const std::string& _name, int linenr = 1 )
             : mentry(0), mexit(0), mhandle(0),
-               inited(false), name(_name)
+              inited(false), name(_name), entrypoint(linenr)
         {
         }
 
         virtual ~StateDescription();
 
-//         StateDescription( const StateDescription& orig )
-//             : mentry( orig.entryNode() ),
-//               mexit( orig.exitNode() ),
-//               mhandle( orig.handleNode() ),
-//               inited( orig.isDefined() )
-//         {
-//         }
-
         const std::string& getName() const { return name; }
 
-        virtual void onEntry();
-
-        virtual void handle();
-
-        virtual void onExit();
+        int getEntryPoint() const { return entrypoint; }
 
         /**
          * This function returns a new state that contains all the
@@ -100,15 +87,15 @@ namespace ORO_Execution
          */
         StateDescription* postponeState();
 
-        FunctionGraph* getEntryProgram() {
+        ProgramInterface* getEntryProgram() const {
             return mentry;
         }
 
-        FunctionGraph* getHandleProgram() {
+        ProgramInterface* getHandleProgram() const {
             return mhandle;
         }
 
-        FunctionGraph* getExitProgram() {
+        ProgramInterface* getExitProgram() const {
             return mexit;
         }
 

@@ -246,7 +246,7 @@ Operating System Interfaces#</dia:string>
         <dia:point val="32.175,31.1"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="30.9,30.3775;33.4725,31.645"/>
+        <dia:rectangle val="30.9,30.4;33.45,31.6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -637,7 +637,7 @@ loaded#</dia:string>
         <dia:point val="32.175,32.3"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="31.075,31.5775;33.2975,32.845"/>
+        <dia:rectangle val="31.075,31.6;33.275,32.8"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -667,7 +667,7 @@ loaded#</dia:string>
         <dia:point val="32.225,33.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="30.2,32.8775;34.2725,34.145"/>
+        <dia:rectangle val="30.2,32.9;34.25,34.1"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -697,7 +697,7 @@ loaded#</dia:string>
         <dia:point val="37.775,31.65"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="35.8,30.9275;39.7725,33.195"/>
+        <dia:rectangle val="35.8,30.95;39.75,33.15"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -748,7 +748,7 @@ Operations#</dia:string>
         <dia:point val="42.875,31.7"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="41.45,30.9775;44.3225,33.245"/>
+        <dia:rectangle val="41.45,31;44.3,33.2"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">

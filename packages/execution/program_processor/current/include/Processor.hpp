@@ -46,7 +46,7 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
-    class StateContextTree;
+    class StateMachine;
     class ProgramInterface;
     class FunctionGraph;
 
@@ -100,10 +100,10 @@ namespace ORO_Execution
             enum status { unloaded, stopped, running, stepmode, error };
         };
         /**
-         * The status of a StateContext.
+         * The status of a StateMachine.
          */
-        struct StateContextStatus {
-            enum status { unloaded, inactive, active, running, stopped, paused, todelete, error };
+        struct StateMachineStatus {
+            enum status { unloaded, inactive, activating, active, running, stopped, deactivating, paused, error };
         };
 
         /**
@@ -117,21 +117,21 @@ namespace ORO_Execution
 
         bool pauseProgram(const std::string& name);
 
-        bool loadStateContext( StateContextTree* sc );
-        bool unloadStateContext( const std::string& name );
-        bool activateStateContext(const std::string& name);
-        bool deactivateStateContext(const std::string& name);
-        bool startStateContext(const std::string& name);
-        bool pauseStateContext(const std::string& name);
-        bool stopStateContext(const std::string& name);
-        bool stepStateContext(const std::string& name);
-        bool resetStateContext(const std::string& name);
-        bool deleteStateContext(const std::string& name);
-        bool steppedStateContext(const std::string& name);
-        bool continuousStateContext(const std::string& name);
+        bool loadStateMachine( StateMachine* sc );
+        bool unloadStateMachine( const std::string& name );
+        bool activateStateMachine(const std::string& name);
+        bool deactivateStateMachine(const std::string& name);
+        bool startStateMachine(const std::string& name);
+        bool pauseStateMachine(const std::string& name);
+        bool stopStateMachine(const std::string& name);
+        bool stepStateMachine(const std::string& name);
+        bool resetStateMachine(const std::string& name);
+        bool deleteStateMachine(const std::string& name);
+        bool steppedStateMachine(const std::string& name);
+        bool continuousStateMachine(const std::string& name);
 
         ProgramStatus::status getProgramStatus(const std::string& name) const;
-        StateContextStatus::status getStateContextStatus(const std::string& name) const;
+        StateMachineStatus::status getStateMachineStatus(const std::string& name) const;
 
         bool loadProgram( ProgramInterface* pi ) ;
         bool startProgram(const std::string& name);
@@ -140,8 +140,8 @@ namespace ORO_Execution
         bool deleteProgram(const std::string& name);
 
         bool isProgramRunning( const std::string& name) const;
-        bool isStateContextRunning( const std::string& name) const;
-        bool isStateContextStepped(const std::string& name) const;
+        bool isStateMachineRunning( const std::string& name) const;
+        bool isStateMachineStepped(const std::string& name) const;
 
         virtual bool initialize();
         virtual void step();
@@ -159,7 +159,7 @@ namespace ORO_Execution
         bool isFunctionFinished( ProgramInterface* f );
 
         std::vector<std::string> getProgramList();
-        std::vector<std::string> getStateContextList();
+        std::vector<std::string> getStateMachineList();
 
         ProgramInterface* getProgram(const std::string& name) const;
 
@@ -172,10 +172,10 @@ namespace ORO_Execution
         class ProgramInfo;
         class StateInfo;
     private:
-        void recursiveLoadStateContext( StateContextTree* sc );
-        void recursiveCheckLoadStateContext( StateContextTree* sc );
-        void recursiveUnloadStateContext( StateContextTree* sc );
-        void recursiveCheckUnloadStateContext(const StateInfo& si );
+        void recursiveLoadStateMachine( StateMachine* sc );
+        void recursiveCheckLoadStateMachine( StateMachine* sc );
+        void recursiveUnloadStateMachine( StateMachine* sc );
+        void recursiveCheckUnloadStateMachine(const StateInfo& si );
 
         typedef std::list<ProgramInfo>::iterator program_iter;
         typedef std::list<StateInfo>::iterator state_iter;

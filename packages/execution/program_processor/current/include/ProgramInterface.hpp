@@ -39,7 +39,11 @@ namespace ORO_Execution
 	 */
 	class ProgramInterface
 	{
+    protected:
+        bool error;
+        bool finished;
     public:
+        ProgramInterface() : error(false), finished(false) {}
         virtual ~ProgramInterface()
         {}
 
@@ -58,7 +62,7 @@ namespace ORO_Execution
         /**
          * Execute as much steps until the program needs to
          * wait on a condition to become true. This is the
-         * 'golden middle way' between \a execute() and \a executeAll().
+         * 'golden middle way' betweenf \a executeStep() and \a executeAll().
          * @return false if a program error occured.
          */
         virtual bool executeUntil()= 0;
@@ -71,12 +75,12 @@ namespace ORO_Execution
         /**
          * Returns true if the program has finished executing.
          */
-        virtual bool isFinished() const = 0;
+        inline bool isFinished() const { return finished; }
 	
         /**
          * Returns true if the program is in error.
          */
-        virtual bool inError() const = 0;
+        inline bool inError() const { return error; }
 	
         /**
          * Return the current 'line number' of the program.

@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef STATEINTERFACE_HPP
-#define STATEINTERFACE_HPP
+#ifndef EXECUTION_STATEINTERFACE_HPP
+#define EXECUTION_STATEINTERFACE_HPP
 
 #ifdef __GNU__
 #pragma interface
 #endif
 
 #include <string>
+#include "ProgramInterface.hpp"
 
-namespace ORO_CoreLib
+namespace ORO_Execution
 {
     /**
-     * @brief An object which implements StateInterface can be used to handle
-     * state specific actions. 
+     * A State contains an entry, handle and exit program.
      *
      * OnEntry() and onExit() will be called when
      * the state is entered of left. handle() will be called each time
@@ -47,15 +47,23 @@ namespace ORO_CoreLib
      * Thus when we are in state A and want to switch to state B, the
      * following happens : 
      * @verbatim
-     * call A->onExit();
-     * call B->onEntry();
-     * call B->handle();
+     * in A :
+     * if ( transition to B allowed )
+     *   call A->onExit();
+     *   call B->onEntry();
+     *   call B->handle();
+     *   return true;
+     * else 
+     *   return false;
      * @endverbatim
      *
      * If another request for state B is done, the next call is:
      * @verbatim
      * call B->handle();
      * @endverbatim
+     * Error recovery can be handled inside these functions, if even that fails,
+     * the functions return false and the state machine containing this state is considered
+     * in error.
      */
     class StateInterface
     {
@@ -63,28 +71,31 @@ namespace ORO_CoreLib
 
         virtual ~StateInterface()
         {}
-        /**
-         * @brief This method contains the functionality which must be executed
-         * on state entry.
-         */
-        virtual void onEntry() = 0;
-
-        /**
-         * @brief This method contains the functionality which must be executed
-         * each time the state is requested.
-         */
-        virtual void handle() = 0;
-
-        /**
-         * @brief This method contains the functionality which must be executed
-         * each time the state is left.
-         */
-        virtual void onExit() = 0;
 
         /**
          * @brief Get the name of this state.
          */
         virtual const std::string& getName() const = 0;
+
+        /**
+         * Get the entry program of this State.
+         */
+        virtual ProgramInterface* getEntryProgram() const = 0;
+
+        /**
+         * Get the exit program of this State.
+         */
+        virtual ProgramInterface* getHandleProgram() const = 0;
+
+        /**
+         * Get the exit program of this State.
+         */
+        virtual ProgramInterface* getExitProgram() const = 0;
+
+        /**
+         * Get the beginning definition of this State.
+         */
+        virtual int getEntryPoint() const = 0;
     };
 }
 

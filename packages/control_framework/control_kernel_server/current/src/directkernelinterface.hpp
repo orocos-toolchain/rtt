@@ -84,9 +84,9 @@ namespace ExecutionClient
     std::vector<std::string> getProgramNames();
 
     // state contexts
-    std::vector<std::string> getStateContextNames();
-    void loadStateContexts( const std::string& code, const std::string& filename );
-    bool unloadStateContext( const std::string& name );
+    std::vector<std::string> getStateMachineNames();
+    void loadStateMachines( const std::string& code, const std::string& filename );
+    bool unloadStateMachine( const std::string& name );
 
     void loadPrograms( const std::string& code, const std::string& filename );
     bool unloadProgram( const std::string& name );

@@ -12,7 +12,6 @@ which encapsulates the command to be executed."
     requires OROPKG_EXECUTION
     requires OROPKG_SUPPORT_BOOST_GRAPH
     requires OROPKG_SUPPORT_BOOST
-    requires OROPKG_CORELIB_STATE
     requires OROPKG_EXECUTION_TASK_CONTEXT
 
     compile VertexNode.cxx EdgeCondition.cxx
@@ -22,6 +21,7 @@ which encapsulates the command to be executed."
     compile Processor.cxx
     compile AsynchCommandDecorator.cxx
     compile StateDescription.cxx
+    compile StateMachine.cxx
 
     cdl_option ORONUM_EXECUTION_PROC_QUEUE_SIZE {
 	display "Processor Queue Size"
