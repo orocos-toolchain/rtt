@@ -43,6 +43,8 @@ namespace ORO_Execution
   using ORO_Geometry::Frame;
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
+  using ORO_Geometry::Wrench;
+  using ORO_Geometry::Twist;
 #endif
   // Cappellini Consonni Extension
   using ORO_CoreLib::Double6D;
@@ -120,26 +122,34 @@ namespace ORO_Execution
   {
   };
 
-    // check the validity of an index
-    bool D6IndexChecker( int i )
-    {
-        return i > -1 && i < 6;
-    }
+  // check the validity of an index
+  bool D6IndexChecker( int i )
+  {
+    return i > -1 && i < 6;
+  }
+
+  // check the validity of an index
+  bool D3IndexChecker( int i )
+  {
+    return i > -1 && i < 3;
+  }
+
 
   TypeInfoRepository::TypeInfoRepository()
   {
 #ifdef OROPKG_GEOMETRY
     data["frame"] = new TemplateTypeInfo<Frame>();
-    data["vector"] = new TemplateTypeInfo<Vector>();
     data["rotation"] = new TemplateTypeInfo<Rotation>();
+    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double, bool (*)(int)>( &D6IndexChecker );
+    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double, bool (*)(int)>( &D6IndexChecker );
+    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double, bool (*)(int)>( &D3IndexChecker );
 #endif
     data["int"] = new TemplateTypeInfo<int>();
     data["char"] = new TemplateTypeInfo<char>();
     data["string"] = new TemplateTypeInfo<std::string>();
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
-    // Cappellini Consonni Extension
-    // check the bounds of the index
     data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, bool (*)(int)>( &D6IndexChecker );
+
   };
 }

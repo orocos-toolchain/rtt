@@ -52,6 +52,7 @@ namespace mystl
       };
   };
 
+  // ternary
   template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   struct pointer_to_ternary_function
   {
@@ -77,6 +78,8 @@ namespace mystl
     return pointer_to_ternary_function<ResultT, Arg1T, Arg2T, Arg3T>( fun );
   }
 
+
+  // sixary
   template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T,
            typename Arg4T, typename Arg5T, typename Arg6T >
   struct pointer_to_sixary_function
@@ -106,6 +109,7 @@ namespace mystl
   {
     return pointer_to_sixary_function<ResultT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( fun );
   }
+
 
   // combines boost::remove_reference and boost::remove_const
   template<typename T>
@@ -186,10 +190,14 @@ namespace ORO_Execution
   using ORO_Geometry::Frame;
   using ORO_Geometry::Vector;
   using ORO_Geometry::Rotation;
+  using ORO_Geometry::Wrench;
+  using ORO_Geometry::Twist;
 #endif
   // Cappellini Consonni Extension
   using ORO_CoreLib::Double6D;
 
+
+  // Unary
   template<typename function>
   class UnaryOperator
     : public UnaryOp
@@ -223,6 +231,8 @@ namespace ORO_Execution
     return new UnaryOperator<function>( op, f );
   }
 
+
+  // Binary
   template<typename function>
   class BinaryOperator
     : public BinaryOp
@@ -257,6 +267,8 @@ namespace ORO_Execution
     return new BinaryOperator<function>( op, f );
   }
 
+
+  // Ternary
   template<typename function>
   class TernaryOperator
     : public TernaryOp
@@ -294,6 +306,9 @@ namespace ORO_Execution
     return new TernaryOperator<function>( op, f );
   }
 
+
+
+  // sixary
   template<typename function>
   class SixaryOperator
     : public SixaryOp
@@ -353,13 +368,49 @@ namespace ORO_Execution
     return Frame( r, v );
   }
 
+  Wrench wrenchft( const Vector& force, const Vector& torque )
+  {
+    return Wrench( force, torque );
+  }
+
+  Twist twistvw( const Vector& trans, const Vector& rot )
+  {
+    return Twist( trans, rot );
+  }
+
   Vector vectorxyz( double a, double b, double c )
   {
     return Vector( a, b, c );
   }
+
+  
+  double wrench_index( Wrench& w, int index)
+  {
+    if (index > 5 || index <0)
+      return 0.0;
+    else
+      return w[index];
+  }
+
+  double twist_index( Twist& t, int index)
+  {
+    if (index > 5 || index <0)
+      return 0.0;
+    else
+      return t[index];
+  }
+
+
+  double vector_index( Vector& v, int index )
+  {
+    if (index > 2 || index <0)
+      return 0.0;
+    else
+      return v[index];
+  }
+
 #endif
 
-  // Cappellini Consonni Extension
   Double6D double6Dd( double d )
   {
     Double6D d6d;
@@ -380,8 +431,7 @@ namespace ORO_Execution
     return d6d;
   }
 
-    // maybe std supplies this too in a more generic way.
-  double double6D_index( Double6D d6,  int index )
+  double double6D_index( Double6D& d6,  int index )
   {
       if ( index > 5 || index < 0 )
           return 0.0;
@@ -445,21 +495,34 @@ namespace ORO_Execution
     //          adding any myself..
     add( newUnaryOperator( "-", std::negate<Vector>() ) );
     add( newBinaryOperator( "*", std::multiplies<Vector>() ) );
+    add( newBinaryOperator( "*", std::multiplies<Frame>() ) );
+    add( newBinaryOperator( "*", std::multiplies<Rotation>() ) );
     add( newBinaryOperator( "+", std::plus<Vector>() ) );
     add( newBinaryOperator( "-", std::minus<Vector>() ) );
+    add( newBinaryOperator( "+", std::plus<Wrench>() ) );
+    add( newBinaryOperator( "-", std::minus<Wrench>() ) );
+    add( newBinaryOperator( "+", std::plus<Twist>() ) );
+    add( newBinaryOperator( "-", std::minus<Twist>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Vector,int, Vector>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Vector,Vector, int>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Vector,double, Vector>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Vector,Vector, double>() ) );
+    add (newBinaryOperator( "*", mystl::multiplies<Wrench, Frame, Wrench>() ) );
+    add (newBinaryOperator( "*", mystl::multiplies<Twist, Frame, Twist>() ) );
+    add (newBinaryOperator( "*", mystl::multiplies<Vector, Frame, Vector>() ) );
+
+    add( newBinaryOperator( "[]", std::ptr_fun( &vector_index ) ) );
+    add( newBinaryOperator( "[]", std::ptr_fun( &wrench_index ) ) );
+    add( newBinaryOperator( "[]", std::ptr_fun( &twist_index ) ) );
 
     // constructors:
     add( newTernaryOperator( "vectorxyz", mystl::ptr_fun( &vectorxyz ) ) );
     add( newTernaryOperator( "rotationeuler",
                              mystl::ptr_fun( Rotation::EulerZYZ ) ) );
     add( newBinaryOperator( "framevr", std::ptr_fun( &framevr ) ) );
+    add( newBinaryOperator( "wrenchft", std::ptr_fun( &wrenchft ) ) );
+    add( newBinaryOperator( "twistvw", std::ptr_fun( &twistvw ) ) );
 #endif
-
-    // Cappellini Consonni Extension
     add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
     add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
 

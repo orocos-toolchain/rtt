@@ -268,6 +268,8 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( andexp );
     BOOST_SPIRIT_DEBUG_RULE( ifthenelseexp );
     BOOST_SPIRIT_DEBUG_RULE( frameexp );
+    BOOST_SPIRIT_DEBUG_RULE( wrenchexp );
+    BOOST_SPIRIT_DEBUG_RULE( twistexp );
     BOOST_SPIRIT_DEBUG_RULE( vectorexp );
     // Cappellini Consonni Extension
     BOOST_SPIRIT_DEBUG_RULE( double6Dexp );
@@ -276,6 +278,8 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
     BOOST_SPIRIT_DEBUG_RULE( constructorexp );
     BOOST_SPIRIT_DEBUG_RULE( framector );
+    BOOST_SPIRIT_DEBUG_RULE( wrenchctor );
+    BOOST_SPIRIT_DEBUG_RULE( twistctor );
     BOOST_SPIRIT_DEBUG_RULE( vectorctor );
     // Cappellini Consonni Extension
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
@@ -383,6 +387,8 @@ namespace ORO_Execution
 
     constructorexp =
         framector
+      | wrenchctor
+      | twistctor
       | vectorctor
       | double6Dctor
       | double6Dctor6
@@ -395,6 +401,22 @@ namespace ORO_Execution
       >> comma
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "framevr" ) ];
+
+    wrenchctor = (
+         str_p( "wrench" )
+      >> open_brace
+      >> expression
+      >> comma
+      >> expression
+      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "wrenchft" ) ];
+
+    twistctor = (
+         str_p( "twist" )
+      >> open_brace
+      >> expression
+      >> comma
+      >> expression
+      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "twistvw" ) ];
 
     vectorctor = (
          str_p( "vector" )
