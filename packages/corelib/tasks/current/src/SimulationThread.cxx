@@ -42,14 +42,11 @@ namespace ORO_CoreLib
                         ORONUM_CORELIB_TASKS_SIM_PERIOD),
           beat( HeartBeatGenerator::Instance() )
     {
-        // we will update the clock in step()
-        beat->enableSystemClock( false );
         this->continuousStepping( true );
     }
 
     SimulationThread::~SimulationThread()
     {
-        beat->enableSystemClock( true );
     }
 
     bool SimulationThread::taskAdd( TaskSimulation* t, const nsecs n )
@@ -60,6 +57,19 @@ namespace ORO_CoreLib
     void SimulationThread::taskRemove( TaskSimulation* t )
     {
         TaskExecution::taskRemove( t );
+    }
+
+    bool SimulationThread::initialize()
+    {
+        // we will update the clock in step()
+        beat->enableSystemClock( false );
+        return true;
+    }
+
+    void SimulationThread::finalize()
+    {
+        // release systemclock again.
+        beat->enableSystemClock( true );
     }
 
     void SimulationThread::step()

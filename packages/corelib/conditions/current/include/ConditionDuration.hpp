@@ -32,72 +32,51 @@
 #include "ConditionInterface.hpp"
 #include "HeartBeatGenerator.hpp"
 
-#include <boost/lexical_cast.hpp>
-#include <cassert>
-
 namespace ORO_CoreLib
 {
 
     /**
-     * A conditional that evaluates true between being reset and until
-     * a certain time has passed..
+     * A conditional that evaluates true after a certain time has passed.
+     * The behaviour can be inverted upon construction.
      */
     class ConditionDuration
-                : public ConditionInterface
+        : public ConditionInterface
     {
-            typedef HeartBeatGenerator::nsecs nsecs;
-            typedef HeartBeatGenerator::ticks ticks;
+        typedef HeartBeatGenerator::nsecs nsecs;
+        typedef HeartBeatGenerator::ticks ticks;
+        
+    public:
+        /**
+         * Create a condition that changes after t nano seconds
+         * @param t the period of time starting from \a reset()
+         * @param invert If \a false (default) then the condition will
+         * raise to true after \a t. If \a true then the condition will
+         * fall to false after \a t.
+         */
+        ConditionDuration( nsecs t, bool invert = false );
 
-        public:
-            /**
-             * Create a condition that expires after t nano seconds
-             * @param t the period of time starting from the first evaluation
-             *          for which this Condition evaluates true
-             */
-            ConditionDuration( nsecs t, bool invert = false )
-                    : time( t ), hb( HeartBeatGenerator::Instance() ),
-                      mark( 0 ), _invert(_invert)
-            {}
+        virtual ~ConditionDuration();
 
-            virtual ~ConditionDuration()
-            {}
+        virtual bool evaluate();
 
-            /**
-             * This method returns true if the time given at the
-             * construction of the object has expired.
-             * @return true if time has expired
-             */
-            virtual bool evaluate()
-            {
-                assert( mark );
+        virtual void reset();
 
-                return _invert != ( time < HeartBeatGenerator::ticks2nsecs( hb->ticksGet( mark ) ) );
-            };
+        ConditionInterface* clone() const;
 
-            virtual void reset()
-            {
-                mark = hb->ticksGet();
-            };
+    private:
 
-            ConditionInterface* clone() const
-            {
-                return new ConditionDuration( time );
-            }
-
-        private:
-
-            /**
-             * The expiration time, expressed in ticks
-             */
-            nsecs time;
-            /**
-             * A local reference to the HeartBeat Generator
-             */
-            HeartBeatGenerator *hb;
-            /**
-             * The time the evaluation is called the first time
-             */
-            ticks mark;
+        /**
+         * The expiration time, expressed in ticks
+         */
+        nsecs time;
+        /**
+         * A local reference to the HeartBeat Generator
+         */
+        HeartBeatGenerator *hb;
+        /**
+         * The time the evaluation is called the first time
+         */
+        ticks mark;
 
         /**
          * Invert the time comparison to 'smaller then'

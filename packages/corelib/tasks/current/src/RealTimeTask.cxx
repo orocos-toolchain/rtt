@@ -24,6 +24,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
+#pragma implementation
 #include "corelib/RealTimeTask.hpp"
 #include "os/MutexLock.hpp"
 
@@ -106,12 +108,12 @@ namespace ORO_CoreLib
             finalize();
     }
 
-    bool RealTimeTask::isRunning()
+    bool RealTimeTask::isRunning() const
     {
         return running;
     }
 
-    Seconds RealTimeTask::periodGet()
+    Seconds RealTimeTask::periodGet() const
     {
         return Seconds(per_ns) / (1000.0*1000.0*1000.0);
     }

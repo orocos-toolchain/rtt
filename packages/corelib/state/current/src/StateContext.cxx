@@ -42,7 +42,6 @@ namespace ORO_CoreLib
     StateContext::StateContext( StateInterface* s_init, StateInterface* s_fini )
         : initstate(s_init), finistate(s_fini), current( 0 ), initc(0)
     {
-        enterState( s_init );
     }
 
     bool StateContext::requestInitialState()

@@ -39,7 +39,7 @@ namespace ORO_CoreLib
             typedef typename Function::result_type Result;
 
             const Function f;
-            //Result r;
+
             EventCatcherImpl(const Function& f_, SignalType& sig )
                 : f(f_), work(false)
             {
@@ -78,9 +78,9 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
             Function f;
-            //Result r;
+
             EventCatcherImpl( const Function& f_, SignalType& sig )
                 : f(f_), work(false)
             {
@@ -90,7 +90,7 @@ namespace ORO_CoreLib
 
             Result handler( typename Function::arg1_type& a1 ) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1);
+                _a1 = a1; // save
                 work = true;
                 return Result();
             }
@@ -98,7 +98,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1 );
                 work = false;
             }
             ORO_OS::Mutex lock;
@@ -112,7 +112,8 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
+            typename Function::arg2_type _a2;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -124,7 +125,8 @@ namespace ORO_CoreLib
 
             Result handler( typename Function::arg1_type& a1, typename Function::arg2_type& a2 ) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1, a2);
+                //f_nullary = bind(f, a1, a2);
+                _a1 = a1; _a2 = a2;
                 work = true;
                 return Result();
             }
@@ -132,7 +134,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1, _a2 );
                 work = false;
             }
             ORO_OS::Mutex lock;
@@ -146,7 +148,9 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
+            typename Function::arg2_type _a2;
+            typename Function::arg3_type _a3;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -160,7 +164,7 @@ namespace ORO_CoreLib
                             typename Function::arg2_type& a2,
                             typename Function::arg3_type& a3 ) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1, a2, a3);
+                _a1 = a1; _a2 = a2; _a3 = a3;
                 work = true;
                 return Result();
             }
@@ -168,7 +172,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1, _a2, _a3 );
                 work = false;
             }
             ORO_OS::Mutex lock;
@@ -182,7 +186,10 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
+            typename Function::arg2_type _a2;
+            typename Function::arg3_type _a3;
+            typename Function::arg4_type _a4;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -197,7 +204,7 @@ namespace ORO_CoreLib
                             typename Function::arg3_type& a3,
                             typename Function::arg4_type& a4 ) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1, a2, a3, a4);
+                _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4;
                 work = true;
                 return Result();
             }
@@ -205,7 +212,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1, _a2, _a3, _a4 );
                 work = false;
             }
             ORO_OS::Mutex lock;
@@ -219,7 +226,11 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
+            typename Function::arg2_type _a2;
+            typename Function::arg3_type _a3;
+            typename Function::arg4_type _a4;
+            typename Function::arg5_type _a5;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -235,7 +246,7 @@ namespace ORO_CoreLib
                             typename Function::arg4_type& a4,
                             typename Function::arg5_type& a5) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1, a2, a3, a4, a5);
+                _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4; _a5 = a5;
                 work = true;
                 return Result();
             }
@@ -243,7 +254,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1, _a2, _a3, _a4, _a5 );
                 work = false;
             }
             ORO_OS::Mutex lock;
@@ -257,7 +268,12 @@ namespace ORO_CoreLib
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
-            function< Result(void) > f_nullary;
+            typename Function::arg1_type _a1;
+            typename Function::arg2_type _a2;
+            typename Function::arg3_type _a3;
+            typename Function::arg4_type _a4;
+            typename Function::arg5_type _a5;
+            typename Function::arg6_type _a6;
             Function f;
 
             EventCatcherImpl( const Function& f_, SignalType& sig )
@@ -274,7 +290,7 @@ namespace ORO_CoreLib
                             typename Function::arg5_type& a5,
                             typename Function::arg6_type& a6) {
                 ORO_OS::MutexLock locker( lock );
-                f_nullary = bind(f, a1, a2, a3, a4, a5, a6);
+                _a1 = a1; _a2 = a2; _a3 = a3; _a4 = a4; _a5 = a5; _a6 = a6;
                 work = true;
                 return Result();
             }
@@ -282,7 +298,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 ORO_OS::MutexLock locker( lock );
                 if (work)
-                    f_nullary();
+                    f( _a1, _a2, _a3, _a4, _a5, _a6 );
                 work = false;
             }
             ORO_OS::Mutex lock;

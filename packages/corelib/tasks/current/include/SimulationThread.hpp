@@ -53,7 +53,9 @@ namespace ORO_CoreLib
         void taskRemove( TaskSimulation* t );
 
     protected:
+        bool initialize();
         void step();
+        void finalize();
 
         /**
          * Constructor

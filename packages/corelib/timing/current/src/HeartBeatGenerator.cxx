@@ -76,14 +76,28 @@ namespace ORO_CoreLib
 
     void HeartBeatGenerator::enableSystemClock( bool yes_no )
     {
+        // guarantee monotonous time increase :
+        if ( yes_no == use_clock )
+            return;
+        // we switched from one time domain to the other
         use_clock=yes_no;
+        if ( use_clock == true )
+            {
+                // if offset is X, then start counting from X.
+                offset = offset - systemTimeGet();
+            }
+        else
+            {
+                // start counting from _now_ + old offset
+                offset = offset + systemTimeGet(); 
+            }
     }
 
 
     HeartBeatGenerator::ticks
     HeartBeatGenerator::ticksGet() const
     {
-        return use_clock ? systemTimeGet() : 0 + offset;
+        return use_clock ? systemTimeGet() + offset : 0 + offset;
     }
 
     HeartBeatGenerator::ticks

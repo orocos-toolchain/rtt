@@ -15,7 +15,7 @@ type of periodic task associated with it.
 
     compile RealTimeTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TaskExecution.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
-    compile TaskTimer.cxx SimulationThread.cxx TaskSimulation.cxx
+    compile TaskTimer.cxx SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx
 
     cdl_option OROSEM_CORELIB_TASKS_DYNAMIC_REG {
 	display "Enable automatic event registration"

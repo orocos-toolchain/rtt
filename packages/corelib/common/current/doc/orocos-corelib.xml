@@ -48,12 +48,10 @@
     <abstract>
       <para>
 	This document explains the design and implementation of the
-	<emphasis>Core</emphasis> component of &orocos;, the <emphasis>Open
-RObot COntrol Software</emphasis> project. The Core provides
+	<emphasis>Core Library</emphasis> of &orocos;, the <emphasis>Open
+RObot COntrol Software</emphasis> project. The CoreLib provides
 infrastructural support for the functional and application components
-of the &orocos; framework. An overview of that &orocos; framework
-(including installation) is
-given in the general &orocos; overview document.
+of the &orocos; framework.
       </para>
     </abstract>
 
@@ -94,6 +92,12 @@ given in the general &orocos; overview document.
 	<authorinitials>ps</authorinitials>
 	<revremark>Clarified some parts based on feedback</revremark>
       </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>10 Dec 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>New Event Implementation and Simulation Thread. Reordering and cleanup of Sections.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -117,22 +121,12 @@ given in the general &orocos; overview document.
       available in the &orocos; CoreLib Package.
     </para>
     <para>
-	The Core makes an abstraction of the operating system on which it runs.
-	It provides C++ interfaces to only the <emphasis>minimal
-	  set</emphasis> of operating system
-	primitives that it needs: mutexes, condition variables and tasks.
-	This is in accordance with the general developers requirements of the
-      project: a minimalistic approach is much easier to scale, to maintain,
-      and to port. The OS abstraction is refered to as the <emphasis> 
-	OS Interfaces (OSI) </emphasis> and sometimes in older documentation
-      as <emphasis>Framework OS Interfaces (FOSI)</emphasis>. Both denote
-      the same thing.
-	The abstraction also allows &orocos; users to build their software 
-	on all supported systems with only
-	a recompilation step. But the Core goes further than restricting
-	the abstracted OS primitives: it also imposes a hard realtime
-	<emphasis>architecture</emphasis>. This architecture is explained and
-	motivated in a later Section.
+      The Orocos OS package allows &orocos; users to build their software 
+      on all supported systems with only a recompilation step.  
+      This library, the CoreLib, provides fully thread-safe C++ implementations for (periodic) tasks, 
+      synchronous/asynchronous Events, time measurement, simulations and 
+      provides interfaces which are common for all realtime services.
+      The CoreLib imposes a hard realtime <emphasis>architecture</emphasis>. 
       <emphasis>
 	The goal of this fixed architecture is to keep 
 	applications deterministic, by avoiding the classical pitfalls of
@@ -141,61 +135,67 @@ given in the general &orocos; overview document.
 	that most programmers do not succeed in strictly decoupling the
 	functional and algorithmic parts of their code from the OS-specific
 	primitives used to execute them.</emphasis>
-      </para>
-      <para>
-	Of course, the realtime performance depends not only on
-	  the underlying operating system 
-	  <emphasis>but also on the hardware.</emphasis> The &orocos; CoreLib
-	Package also provides an abstraction of the hardware, again in order
-	to facilitate maintenance and porting. This abstraction is referred to
-      as <emphasis>Device Interfaces (DI)</emphasis> or in older documentation
-      as the <emphasis>Framework Device Interfaces (FDI)</emphasis>. Both
-      denote the same thing.
-      </para>
-      <para>
-	The abstractions cause (almost) no execution overhead, because the wrapping
-	is solved at compile or configuration time, i.e., before the hard
-	realtime tasks are running.
-      </para>
+    </para>
+    <para>
+      Of course, the realtime performance depends not only on
+      the underlying operating system 
+      <emphasis>but also on the hardware.</emphasis> Hardware devices are abstracted
+      in the Orocos Device Interface package.
+    </para>
+    <para>
+      The following sections will first introduce the reader to creating
+      (periodic) Tasks in the system. Furtheron, they are extended
+      with Events. The following sections explain usefull classes which
+      are used throughout the framework such as the HeartBeatGenerator,
+      Properties, StateContexts, Commands, Conditions and the object
+      NameServer.
+    </para>
   </sect1>
   <sect1>
     <title>The Orocos Thread Philosophy</title>
+    <para>
+      Threads are the major cause of headaches in multithreaded
+      systems programmers heads. Synchronisation, data protection,
+      priority tweaking and resource locking must all be done very
+      carefully and mostly lead to suboptimal solutions. Even more,
+      the predictability of the system highly decreases with the
+      introduction of more threads or interactions between threads.
+      This section gives an introduction to defining periodic tasks
+      which run together with other periodic tasks of the
+      same priority in the same periodic thread. Non 
+      periodic tasks can run in these threads or are implemented
+      using a non periodic thread.
+    </para>
     <sect2>
-      <title>Introduction : Task versus Thread</title>
+      <title>Periodic Tasks Run in Periodic Threads</title>
       <para>
-	Threads are the major cause of headaches in multithreaded
-	systems programmers heads. Synchronisation, data protection,
-	priority tweaking and resource locking must all be done very
-	carefully and mostly lead to suboptimal solutions. Even more,
-	the predictability of the system highly decreases with the
-	introduction of more threads or interactions between threads.
-      </para>
-      <para>
-	A high priority thread and a low priority thread are enough
-	for basic control applications. The high priority thread is
-	used for all tasks that need to be executed atomically. No
+	For most basic control applications, a high priority periodic thread
+	and a low priority periodic thread are enough. The high priority thread is
+	used for all periodic tasks that need to be executed atomically. No
 	action in this thread will ever be pre-empted. The low
-	priority realtime thread is used for all tasks which may be
+	priority realtime thread is used for all periodic tasks which may be
 	interrupted but still have hard deadlines. It can always be
 	preempted by the high priority thread. There is also a non
-	realtime thread which gives no deadline guarantees. When more
-	realtime threads are introduced, only the highest priority
-	thread can do non-preemptive execution, and all the others
-	have only deadline guarantees. When the second group gets
-	larger, it gets harder for the OS to guarantee these
-	deadlines, and soon, the lower priority realtime threads are
-	failing. Technically, this only happens if the CPU is
-	underspecified for the task, but in reality, the scheduler
-	failes earlier because of non optimal scheduling. Hence users
-	should only add additional realtime threads where application
-	complexity demands it.
+	realtime periodic thread which gives no deadline guarantees. 
+	Orocos provides implementations for these three threads 
+	( which only differ in periodicity and priority ) and allows
+	to extend to more for your specific needs.
       </para>
     </sect2>
     <sect2>
-      <title>Adding Additional Threads</title>
+      <title>Creating a Periodic Thread</title>
       <para>
-	For users needing to solve more complex control problems, the
-	PriorityThread and PriorityTask are provided with which you
+	Orocos provides, by default, two hard realtime periodic threads and
+	a non realtime periodic thread. The <classname>ZeroTimeThread</classname>
+	has the highest priority, the <classname>ZeroLatencyThread</classname>
+	has a lower priority and the <classname>NonRealTimeThread</classname>
+	has an even lower priority is not realtime at all (but still periodic).
+	If they are needed, Orocos will create and start/stop them automatically,
+	thus the user does not need to know or take care of them.
+      </para>
+      <para>
+	For users needing to solve multi-threaded control problems, the
+	PriorityThread is provided with which you
 	can create an arbitrary number of threads with no more than
 	one thread per priority level. It needs a bit more setup than
 	the standard Orocos threads, since you still have to set the
@@ -204,14 +204,64 @@ given in the general &orocos; overview document.
 	ZeroLatencyThread and NonRealTimeThread. It must be done by the
 	user. Furthermore, The PriorityThread is the general case of the
 	above three cases, since its priority can match their priorities
-	as given in the configuration tool.
+	as given in the configuration tool.</para>
+      <para>
+	<example>
+	<title>Example Periodic Thread Creation</title>
+	<para>
+	    This example shows how to create the PriorityThread.
+	</para>
+	<programlisting><![CDATA[
+#include "corelib/PriorityTask.hpp"
+
+using namespace ORO_CoreLib;
+
+class KineLoop : public RunnableInterface
+{
+    bool initialize() { // ...
+    }
+    void step() {
+    }
+    void finalize() {
+    }
+    // ...
+};
+
+ORO_main( int argc, char** argv)
+{
+  // Define your tasks (see later)
+  KineLoop kine_loop;
+
+  // An extra thread for low priority tasks
+  // 9 : The priority.
+  // 0.01 : The period.
+  // You have to manually start the thread.
+  PriorityThread<9>::Instance()->periodSet( 0.01 );
+  PriorityThread<9>::Instance()->start();
+  // Optional :
+  PriorityThread<9>::Instance()->makeHardRealtime();
+
+  // This task is run in the extra thread above,
+  // kine_loop inherits from RunnableInterface :
+  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
+
+  own_task->start();
+
+  // ...
+
+  own_task->stop();
+
+  return 0;
+}
+]]>
+	</programlisting>
+      </example>
       </para>
     </sect2>
     <sect2>
-      <title>Creating Tasks</title>
-      <para></para>
+      <title>Creating a Periodic Task</title>
       <para>
-	If you want to execute functionality in one of these threads, you need to 
+	If you want to execute functionality in one of the Orocos threads, you need to 
 	create a Task of a certain type, depending on the thread type. The table
 	below summarises which Task type there is per thread.
 	<table>
@@ -246,14 +296,132 @@ given in the general &orocos; overview document.
 		<entry>PriorityThread&lt; N &gt;</entry>
 		<entry>PriorityTask&lt; N &gt;</entry>
 	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>SimulationThread</entry>
+		<entry>SimulationTask</entry>
+	      </row>
 	    </tbody>
 	  </tgroup>
-	</table>
+	</table></para>
+      <para>
+	There are two ways to run functionality in a periodic task. By :
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Implementing the <classname>RunnableInterface</classname>  in another class
+	      ( functions initialize, step and finalize ). The RunnableInterface object (i.e. run_impl) can
+	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
+	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
+	      <programlisting>
+  #include &lt;corelib/RunnableInterface.hpp>
+  #include &lt;corelib/TaskNonPreemptible.hpp>
+
+  class MyPeriodicTask
+	: public ORO_CoreLib::RunnableInterface
+  {
+  public:
+    // ...
+    bool initialize() {
+       // your init stuff
+       double myperiod = this->getTask()->periodGet();
+       // ...
+       return true; // if all went well
+    }
+
+    void step() {
+       // periodic actions
+    }
+
+    void finalize() {
+       // cleanup
+    }
+  };
+
+  // ...
+  MyPeriodicTask run_impl;
+
+  TaskNonPreemptible task( 0.01 ); // 100Hz
+  task.run( &amp;run_impl );
+  task.start();
+
+  // etc...  </programlisting>
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Inheriting from a Task class and overriding the initialize, step
+	      and finalize methods.
+	      <programlisting>
+  class MyOtherPeriodicTask
+      : public TaskNonPreemptible
+  {
+  public :
+    MyOtherPeriodicTask()
+      : TaskNonPreemptible( 0.01 ) // 100Hz
+    {
+    }
+
+    bool initialize() {
+       // your init stuff
+       double myperiod = this->periodGet();
+       // ...
+       return true; // if all went well
+    }
+
+    void step() {
+       // periodic actions
+    }
+
+    void finalize() {
+       // cleanup
+    }
+	// ...
+  };
+
+  // When started, will call your step
+  MyOtherPeriodicTask task;
+  task.start();  </programlisting>
+	    </para>
+	  </listitem>
+	</itemizedlist>
+	The Task will detect if it must run an external RunnableInterface. If none
+	was given, it will call its own virtual methods.
       </para>
+    </sect2>
+    <sect2>
+      <title>Periodic Task Ordering</title>
+      <para>
+	Periodic Tasks are executed <emphasis>in the order as they are started</emphasis>.
+	The periodic thread responsible
+	for the Task will execute all tasks one after the other, respecting
+	the periodicity of the periodic task. This means that a Task with a lower periodicity
+	of the thread (e.g. 10 times lower) will only be called a fraction of the
+	time (thus every 10th period), still respecting the ordering.
+      </para>
+      <para>
+	<figure><title>Execution sequence diagram</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="execution-sequence.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="execution-sequence.eps" format="EPS"/>
+	    </imageobject>
+	    <!--
+	    <caption><para>
+	  </para></caption>
+	    -->
+	  </mediaobject>
+	</figure>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Example Periodic Task Creation</title>
       <example>
-	<title>Example Task Creation</title>
+	<title>Example Periodic Task Creation</title>
 	<para>
-	  This example shows how a task can be created. When it
+	  This example shows how all kinds of tasks can be created. When a task
 	  is started it will add itself to the correct thread.
 	</para>
 	<programlisting><![CDATA[
@@ -264,23 +432,16 @@ given in the general &orocos; overview document.
 
 using namespace ORO_CoreLib;
 
-ORO_main( int argc, const char** argv)
+ORO_main( int argc, char** argv)
 {
   // Define your tasks
 
   // ...
 
-  // An extra thread for low priority tasks
-  // 9 : The priority.
-  // 0.01 : The period.
-  // You have to manually start the thread.
-  PriorityThread<9>::Instance()->periodSet( 0.01 );
-  PriorityThread<9>::Instance()->start();
-  // Optional :
-  PriorityThread<9>::Instance()->makeHardRealtime();
-
   // These tasks are run in the Orocos Thread Model
-  TaskNonPreemptible fast_task(0.001, &vel_loop);
+  TaskNonPreemptible fast_task1(0.001, &vel_loop);
+  TaskNonPreemptible fast_task2(0.001, &vel_loop);
+
   TaskPreemptible slow_task(0.01, &pos_loop);
   TaskNonRealTime nrt_task( 0.1, &display_server );
 
@@ -288,14 +449,16 @@ ORO_main( int argc, const char** argv)
   PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
 
   // All is transparant from here on.
-  fast_task->start();
+  fast_task1->start();
+  fast_task2->start(); // is always run directly after fast_task1 !
   slow_task->start();
   own_task->start();
   nrt_task->start();
 
   // ...
 
-  fast_task->stop();
+  fast_task1->stop();
+  fast_task2->stop();
   slow_task->stop();
   own_task->stop();
   nrt_task->stop();
@@ -304,12 +467,10 @@ ORO_main( int argc, const char** argv)
 }
 ]]>
 	</programlisting>
-	<para>
-	  The tasks in the example are all empty since no class is
-	  derived from the Task and no RunnableInterface is given
-	  (see next section)
-	</para>
       </example>
+    </sect2>
+    <sect2>
+      <title>Periodic Threads Overview</title>
       <para>
 	The high priority thread is the
 	<classname>ZeroTimeThread</classname>. It will execute all
@@ -346,60 +507,117 @@ ORO_main( int argc, const char** argv)
 	thread. Tasks being executed in the NonRealTimeThread are
 	called <classname>TaskNonRealTime</classname>.
       </para>
-    </sect2>
-    <sect2>
-      <title>Putting Functionality in a Task</title>
       <para>
-	There are two ways to run functionality in a task. By :
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Implementing the <classname>RunnableInterface</classname>  in another class
-	      ( functions initialize, step and finalize ). The RunnableInterface object (i.e. run_impl) can
-	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
-	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Inheriting from a Task class and overriding the initialize, step
-	      and finalize methods.
-	    </para>
-	  </listitem>
-	</itemizedlist>
-	The Task will detect if it must run an external RunnableInterface. If none
-	was given, it will call its own virtual methods.
-      </para>
-    </sect2>
-    <sect2>
-      <title>Task Ordering</title>
-      <para>
-	Tasks are executed <emphasis>in the order as they are started</emphasis>.
-	The Thread responsible
-	for the Task will execute all tasks one after the other, respecting
-	the periodicity of the task. This means that a Task with a lower periodicity
-	of the thread (e.g. 10 times lower) will only be called a fraction of the
-	time (thus every 10th period), still respecting the ordering.
+	The last standard thread type Orocos provides is the 
+	<classname>SimulationThread</classname> which runs
+	<classname>SimulationTask</classname>s. It is special in
+	that it executes all its tasks as fast as possible
+	( thus without periodic sleeps ) and adjusting the
+	system's clock between each <emphasis>step()</emphasis>.
+	The latter allows correct timing measurement in the
+	tasks running in a SimulationThread. The SimulationThread
+	runs by default not-realtime, but this can be changed by
+	calling the <function>SimulationThread::Instance()->makeHardRealtime()</function>
+	function.
       </para>
       <para>
-	<figure><title>Execution sequence diagram</title>
-	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="execution-sequence.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="execution-sequence.eps" format="EPS"/>
-	    </imageobject>
-	    <!--
-	    <caption><para>
-	  </para></caption>
-	    -->
-	  </mediaobject>
-	</figure>
+	The SimulationThread is started likewise the PriorityThread
+	above (but without the template parameter). Its priority and
+	periodicity can be changed with the configuration tool, or
+	before its started.
+      </para>
+	<programlisting><![CDATA[
+#include "corelib/SimulationTask.hpp"
+
+using namespace ORO_CoreLib;
+
+ORO_main( int argc, char** argv)
+{
+  // Define your tasks
+
+  // ...
+
+  // Manually start the simulation thread
+  // 0.001 : The (virtual) period :  no task can run 'faster' than this.
+  SimulationThread::Instance()->periodSet( 0.001 );
+  SimulationThread::Instance()->start();
+
+  // Optional, might hang your program :
+  SimulationThread::Instance()->makeHardRealtime();
+
+  // fast_sim_task will measure 0.001s elapses between each step(),
+  // slow_sim_task will measure 0.01s elapses in time between each step()
+  SimulationTask fast_sim_task(0.001, &vel_loop);
+  SimulationTask slow_sim_task(0.01, &pos_loop);
+
+  // All is transparant from here on.
+  fast_sim_task->start();
+  slow_sim_task->start();
+
+  // ...
+
+  fast_sim_task->stop();
+  slow_sim_task->stop();
+
+  return 0;
+}
+]]>
+	</programlisting>
+      <warning>
+	<para>
+	  If other threads are running in the same program executable,
+	  they will also 'notice' the fast system time changes if the SimulationThread
+	  is started. It is thus advisable not to mix SimulationThreads with
+	  other threads. Also, any thread with lower priority than the 
+	  SimulationThread will never run.
+	</para>
+      </warning>
+    </sect2>
+    <sect2>
+      <title>Non Periodic Tasks</title>
+      <para>
+	Non periodic tasks can only run in non periodic threads, or
+	case, after all periodic tasks of a certain periodic thread. The
+	latter to avoid excessive jitter in periodic task execution.
+      </para>
+      <para>
+	If you want to create a task which reads file-IO, or displays
+	information or does any other possibly blocking operation, 
+	the <classname>ORO_OS::SingleThread</classname> implementation can be
+	used. When it is <function>start()</function>'ed, its step() method will be called
+	exactly once and then it will stop, after which it can be started again.
+	The user needs to implement a RunnableInterface which can be used
+	by the thread for executing the user functions.
+	This thread is also introduced in the Orocos Operating System
+	Abstraction Manual. 
+      </para>
+      <para>
+	An alternative way to use non periodic tasks is to use
+	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
+	which can be bound to an <classname>Event</classname> (see <xref linkend="corelib-events" /> )
+	and each time the Event is fired up, the step() method will be invoked
+	asynchronously in a given thread.
+	This will happen from the moment the task's start method is called
+	until the stop method is called. The following example shows
+	how such a task can be run asynchronously.
+	<programlisting>
+  #include &lt;corelib/TaskEventDriven.hpp>
+
+  //...
+  Event&lt;void(void)> task_event;
+  TaskEventDriven task( &amp;task_event, ZeroTimeThread::Instance(), &amp;run_obj);
+
+  task_event.fire(); // nothing happens
+
+  task.start();      // initialize()s task
+  task_event.fire(); // task's step() will be executed once in ZeroTimeThread
+
+  task.stop();       // finalize()s task
+	</programlisting>
       </para>
     </sect2>
   </sect1>
-  <sect1>
+  <sect1 id="corelib-events">
     <title>Events</title>
     <para>
       An Event is an object to which one can connect callback functions. When
@@ -562,11 +780,11 @@ emergencyStop.fire(); // User not notified
 	<programlisting>
   event.connect(&amp;syn_func, &amp; asyn_func, ZeroTimeThread::Instance() );
   event.connect(&amp;syn_func, &amp; asyn_func, NonRealTimeThread::Instance() );
-  event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); // Default
+  event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); <emphasis>// Default</emphasis>
   event.connect(&amp;syn_func, &amp; asyn_func, PriorityThread&lt;N&gt;::Instance() );
 	</programlisting>
-	If you would write above listings in a real program, on <method>
-	  event.fire()</method>, the syn_func will be called directly
+	If you would write above listings in a real program, on <function>
+	  event.fire()</function>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
 	preempting itself.
       </para>
@@ -577,8 +795,11 @@ emergencyStop.fire(); // User not notified
   event.connect( &amp; asyn_func, ZeroLatencyThread::Instance() );
 	</programlisting>
 	to distinguish from a synchronous callback connection. In this case
-	there is no default, so if you wish to use the Completion Processor,
+	there is no default, so if you wish to use the CompletionProcessor,
 	you must specify it explicitly.
+	<programlisting>
+  event.connect( &amp; asyn_func, CompletionProcessor::Instance() );
+	</programlisting>
       </para>
       <para>
 	For convenience, the Orocos Task threads can also be choosen in another way
@@ -691,7 +912,12 @@ emergencyStop.fire(); // User not notified
 	callbacks that have to be completed when no other work has to
 	be done. The only constraint it has is that all functions it
 	executes should require finite time to complete (it cannot
-	detect timeouts).
+	detect timeouts). You can get its thread pointer like this :
+	<programlisting>
+  #include &lt;corelib/CompletionProcessor.hpp>
+
+  CompletionProcessor::Instance()-> ... 
+	</programlisting>
       </para>
     </sect2>
   </sect1>
@@ -707,130 +933,28 @@ emergencyStop.fire(); // User not notified
 	cores, for doing, for example compliant motion with two robots. This functionality
 	is not yet implemented though.
       </para>
-    </sect2>
-  </sect1>
-  <sect1>
-      <title>States and the StateContext</title>
-    <sect2>
-      <title>Introduction</title>
       <para>
-	Any complex software component will sooner or later need a way to change state, depending
-	on how it is used by the other components. The <classname>StateInterface</classname> 
-	describes how state changes are handled. When the current state is left, its
-	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
-	of the new state is called and right after that its <function>handle()</function> is
-	called. Each time the current state is again requested, the <function>handle()</function>
-	is called again (instead of onExit() and onEntry()).
-      </para>
-      <para>
-	So the <classname>StateInterface</classname> determines what has to be done, but 
-	the decision to change state is made in the <classname>StateContext</classname>. The 
-	StateContext keeps track of the current state and all valid state transitions.
-	One has to 'program' the StateContext so that it knows which transitions can be made
-	under which conditions. 
+	When the SimulationThread is used and started, it will change the HeartBeatGenerator's
+	clock with each period, also other threads in the system will notice this change, but
+	time is guaranteed to increase monotonously.
       </para>
     </sect2>
-     <sect2>
-	<title>The ConditionInterface</title>
-	<para>
-	  The ConditionInterface is very basic :
-	  <programlisting>
-  <![CDATA[
-  class ConditionInterface
-  {
-  virtual bool evaluate() = 0;
-
-  virtual void reset() {}
-  };
-  ]]>
-	  </programlisting>
-
-	  Conditions are classes that evaluate an expression and return the result. This expression
-	  must be defined by the user. Some examples are in the source tree, like <classname>
-	    ConditionOnce</classname> (returns only true when it is the first time evaluated), 
-	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
-	  each state transition a Condition object which it will <function>evaluate()</function>
-	  to determine if the transition is allowed. All condition objects are reset() when the
-	  state is entered. The Condition implementations can optionally provide a reset() method.
-	  All Conditions are reset() just before the new state is entered (onEntry).
-	</para>
-      </sect2>
-      <sect2>
-	<title>Programming and Requesting State Transitions</title>
-	<para>
-	  Now how does it all work together ? First, a StateContext object is created and
-	  all its possible States. 
-	  <programlisting>
-  <![CDATA[
-  StateInit startState;
-  StateFini endState;
-  StateA aState;
-  StateB bState;
-  StateError errState;
-
-  ConditionTrue cTrue;
-  ConditionOnce cOnce;
-
-  StateContext context;
-
-  ]]>
-	  </programlisting>
-	  Next, we will tell the <varname>context</varname> object which is the initial state which
-	  state transitions are allowed :
-	  <programlisting>
-	    <![CDATA[
-	    context.initState(&startState, &endState);
-
-	    context.transitionSet(&startState, &aState, &cOnce);
-	    context.transitionSet(&aState, &bState, &cTrue);
-	    context.transitionSet(&aState, &errState, &cTrue);
-	    context.transitionSet(&bState, &aState, &cTrue);
-	    context.transitionSet(&bState, &errState, &cTrue);
-
-	    ]]>
-	  </programlisting>
-	  As you can see, you can only go once from the startState to the aState, then you can
-	  always switch from aState to bState and back. All states are allowed to go to the 
-	  errorstate, but in this example, it will be impossible to leave the errorstate:
-	  <programlisting>
-  <![CDATA[
-  ...
-  // we are in the startState
-  context.requestState(&bState); // will return false !
-  context.requestState(&aState); // ok, returns true.
-  context.requestState(&bState); // ok, returns true.
-  context.requestState(&errState); // returns true, but we are trapped in it.
-
-  // we are now in the errState, recover
-  context.requestFinalState();   // succeeds always !
-  context.requestInitialState(); // ok from Final or Initial state
- 
-  // start over
-  ...
-   ]]>
-	  </programlisting>
-	</para>
-      </sect2>
     <sect2>
-      <title>Practical use of the StateContext</title>
+      <title>Usage</title>
       <para>
-	The StateContext has a method <function>requestNextState()</function> which
-	tries to make the first valid transition from the current state to the
-	another state it encounters. To make this workable, transitions can be
-	given an optional parameter which denotes the priority. It defaults to
-	zero. A high number denotes a high priority, a low number denotes a 
-	low priority.
-      </para>
-      <para>
-	Writing States and StateContexts in this way is cumbersome. The Orocos Framework has
-	therefore developped a Program and State
-	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
-	<ulink url="orocos-program-processor.html">Processor</ulink>
-	which are documented seperately.
+	Also take a look at the interface documentation.
+	<programlisting>
+  #include &lt;corelib/HeartBeatGenerator.hpp>
+  #include &lt;corelib/Time.hpp>
+
+  HeartBeatGenerator::ticks timestamp = HeartBeatGenerator::Instance()->ticksGet();
+  //...
+
+  Seconds elapsed = HeartBeatGenerator::Instance()->secondsSince( timestamp );
+	</programlisting>
       </para>
     </sect2>
   </sect1>
-  <sect1>
     <title>Properties</title>
     <sect2>
       <title>Introduction</title>
@@ -985,66 +1109,197 @@ emergencyStop.fire(); // User not notified
     </sect2>
   </sect1>
   <sect1>
+      <title>States and the StateContext</title>
+    <sect2>
+      <title>Introduction</title>
+      <para>
+	Any complex software component will sooner or later need a way to change state, depending
+	on how it is used by the other components. The <classname>StateInterface</classname> 
+	describes how state changes are handled. When the current state is left, its
+	<function>onExit()</function> method is called. Next, the <function>onEntry()</function>
+	of the new state is called and right after that its <function>handle()</function> is
+	called. Each time the current state is again requested, the <function>handle()</function>
+	is called again (instead of onExit() and onEntry()).
+      </para>
+      <para>
+	So the <classname>StateInterface</classname> determines what has to be done, but 
+	the decision to change state is made in the <classname>StateContext</classname>. The 
+	StateContext keeps track of the current state and all valid state transitions.
+	One has to 'program' the StateContext so that it knows which transitions can be made
+	under which conditions. 
+      </para>
+    </sect2>
+     <sect2>
+	<title>The ConditionInterface</title>
+	<para>
+	  The ConditionInterface is very basic :
+	  <programlisting>
+  <![CDATA[
+  class ConditionInterface
+  {
+  virtual bool evaluate() = 0;
+
+  virtual void reset() {}
+  };
+  ]]>
+	  </programlisting>
+
+	  Conditions are classes that evaluate an expression and return the result. This expression
+	  must be defined by the user. Some examples are in the source tree, like <classname>
+	    ConditionOnce</classname> (returns only true when it is the first time evaluated), 
+	  <classname>CondionTrue</classname> (always returns true), etc. The StateContext must have for
+	  each state transition a Condition object which it will <function>evaluate()</function>
+	  to determine if the transition is allowed. All condition objects are reset() when the
+	  state is entered. The Condition implementations can optionally provide a reset() method.
+	  All Conditions are reset() just before the new state is entered (onEntry).
+	</para>
+      </sect2>
+      <sect2>
+	<title>Programming and Requesting State Transitions</title>
+	<para>
+	  Now how does it all work together? First, a StateContext object is created and
+	  all its possible States. 
+	  <programlisting>
+  <![CDATA[
+  StateInit startState;
+  StateFini endState;
+  StateA aState;
+  StateB bState;
+  StateError errState;
+
+  ConditionTrue cTrue;
+  ConditionOnce cOnce;
+
+  StateContext context;
+
+  ]]>
+	  </programlisting>
+	  Next, we will tell the <varname>context</varname> object which is the initial state which
+	  state transitions are allowed :
+	  <programlisting>
+	    <![CDATA[
+	    context.initState(&startState, &endState);
+
+	    context.transitionSet(&startState, &aState, &cOnce);
+	    context.transitionSet(&aState, &bState, &cTrue);
+	    context.transitionSet(&aState, &errState, &cTrue);
+	    context.transitionSet(&bState, &aState, &cTrue);
+	    context.transitionSet(&bState, &errState, &cTrue);
+
+	    ]]>
+	  </programlisting>
+	As you can see, you can only go once from the startState to the aState, then you can
+	always switch from aState to bState and back. All states are allowed to go to the 
+	errorstate, but in this example, it will be impossible to leave the errorstate.</para>
+      <para>
+	The StateContext needs activation before it may be used :
+	  <programlisting>
+  <![CDATA[
+  ...
+  context.activate();            // brings us in the startState
+  context.requestState(&bState); // will return false !
+  context.requestState(&aState); // ok, returns true.
+  context.requestState(&bState); // ok, returns true.
+  context.requestState(&errState); // returns true, but we are trapped in it.
+
+  // we are now in the errState, recover
+  context.requestFinalState();   // succeeds always !
+  context.requestInitialState(); // ok from Final or Initial state
+ 
+  // start over
+  ...
+   ]]> </programlisting>
+	When the StateContext is in the Final State, it can be deactivated, upon which the
+	Final State is left.
+	<programlisting>
+  context.requestFinalState();
+  context.deactivate();        // context.currentState() == 0
+	</programlisting>
+	</para>
+      </sect2>
+    <sect2>
+      <title>Practical use of the StateContext</title>
+      <para>
+	The StateContext has a method <function>requestNextState()</function> which
+	tries to make the first valid transition from the current state to the
+	another state it encounters. To make this workable, transitions can be
+	given an optional parameter which denotes the priority. It defaults to
+	zero. A high number denotes a high priority, a low number denotes a 
+	low priority.
+      </para>
+      <para>
+	Writing States and StateContexts in this way is cumbersome. The Orocos Framework has
+	therefore developped a Program and State
+	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State
+	<ulink url="orocos-program-processor.html">Processor</ulink> which allow
+	to define states and transitions in a scripting language.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Reporting</title>
     <sect2>
       <title>Introduction</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
-	is is another. Reporting is made in such a way that existing components can
-	be extended with a Reporting Stub, which creates reports of the internal state
-	of variables and waits for client requests to update or export the data. 
+	is another. The reporting classes are made in such a way that existing infrastructure can
+	be extended with a Reporting Stub (<classname>ReportExporter</classname> ),
+	which creates reports of the internal state
+	of variables and waits for client requests to update and export the data.
 	A client can then ask each existing Stub to create and
 	deliver a report. A timestamp is used to tag all data. When the client
 	has collected all reports, it may transform it to another format, for example,
-	in a log file or a display on screen. We call these clients often ReportWriters
-	since they write out the gathered reports in one or another format.
-	An example of an application is a realtime robot component
-	which delivers every 10ms its position, velocity and sensor data 
-	to a userspace map building application.
+	in a log file or a display on screen. We call these clients <classname>ReportWriter</classname>s
+	since they write out the gathered reports in one or another format ( this is called 
+	  <emphasis>marshalling</emphasis> ).
+      </para>
+      <para>
+	An example of an application which uses the CoreLib reporting infrastructure
+	is the Orocos Control Kernel framework.
       </para>
     </sect2>
   </sect1>
-  <sect1>
-    <title>Fifos</title>
-    <sect2>
-      <title>A warning</title>
-      <warning>
-	<para>
-	  The fifos implementation is slightly outdated and unmaintained in the latest releases.
-	  You might expect problems when trying to use them. In the past they were used to 
-	  communicate from kernel space to userspace programs, but since the Orocos Framework is now 
-	  completely situated in userspace, this communication has become obsolete.
-	</para>
-      </warning>
-    </sect2>
-    <sect2>
-      <title>Using fifos</title>
-      <para>
-	Fifos are used to send data from one address space to another. For example
-	from realtime to userspace or vice versa. We have four kind of fifos :
-      <itemizedlist>
-	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
-	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
-	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
-	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
-      </itemizedlist>
-      Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
-      They will act as if they get their data from real fifos. The API documentation should
-      be clear about how to use them.
-    </para>
-    <para>
-      Components requireing data communition will indicate this with a <classname> WriteInterface
-      </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface 
-      </classname> in their constructors argument list.
-      All fifos implement one of these interfaces.
-    </para>
-    <note>
-      <para>
-	For examining which data would be sent through a fifo, one can always temporarily
-	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data
-	to the screen instead of delivering it.
-      </para>
-    </note>
-    </sect2>
-  </sect1>
+<!--   <sect1> -->
+<!--     <title>Fifos</title> -->
+<!--     <sect2> -->
+<!--       <title>A warning</title> -->
+<!--       <warning> -->
+<!-- 	<para> -->
+<!-- 	  The fifos implementation is slightly outdated and unmaintained in the latest releases. -->
+<!-- 	  You might expect problems when trying to use them. In the past they were used to  -->
+<!-- 	  communicate from kernel space to userspace programs, but since the Orocos Framework is now  -->
+<!-- 	  completely situated in userspace, this communication has become obsolete. -->
+<!-- 	</para> -->
+<!--       </warning> -->
+<!--     </sect2> -->
+<!--     <sect2> -->
+<!--       <title>Using fifos</title> -->
+<!--       <para> -->
+<!-- 	Fifos are used to send data from one address space to another. For example -->
+<!-- 	from realtime to userspace or vice versa. We have four kind of fifos : -->
+<!--       <itemizedlist> -->
+<!-- 	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem> -->
+<!-- 	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem> -->
+<!-- 	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem> -->
+<!-- 	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem> -->
+<!--       </itemizedlist> -->
+<!--       Furthermore, one can still use the FifoRTIn/Out in userspace simulations. -->
+<!--       They will act as if they get their data from real fifos. The API documentation should -->
+<!--       be clear about how to use them. -->
+<!--     </para> -->
+<!--     <para> -->
+<!--       Components requireing data communition will indicate this with a <classname> WriteInterface -->
+<!--       </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface  -->
+<!--       </classname> in their constructors argument list. -->
+<!--       All fifos implement one of these interfaces. -->
+<!--     </para> -->
+<!--     <note> -->
+<!--       <para> -->
+<!-- 	For examining which data would be sent through a fifo, one can always temporarily -->
+<!-- 	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data -->
+<!-- 	to the screen instead of delivering it. -->
+<!--       </para> -->
+<!--     </note> -->
+<!--     </sect2> -->
+<!--   </sect1> -->
 </article>

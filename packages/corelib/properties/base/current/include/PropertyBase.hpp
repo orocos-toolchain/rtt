@@ -28,31 +28,25 @@
 #ifndef PI_PROPERTYBASE
 #define PI_PROPERTYBASE
 
-#include <pkgconf/corelib_properties.h>
 #include <string>
 
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-#include "OperationAcceptor.hpp"
-#endif
-#include "PropertyIntrospection.hpp"
-#include "PropertyMutatingIntrospection.hpp"
+//#include "PropertyIntrospection.hpp"
+//#include "PropertyMutatingIntrospection.hpp"
 
 #pragma interface
 
 namespace ORO_CoreLib
 {
-	class Marshaller;
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-    using namespace detail;
-#endif
+    namespace detail {
+        class PropertyOperation;
+    }
+    class PropertyIntrospection;
+
 	/**
-	 * Virtual base class for all property classes.
+	 * Base class for all properties.
 	 *
 	 */
     class PropertyBase
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-        : public OperationAcceptor
-#endif
     {
         public:
 			
@@ -121,21 +115,25 @@ namespace ORO_CoreLib
              */
             virtual void identify( PropertyIntrospection* pi) const = 0;
 
-            virtual void mutate( PropertyMutatingIntrospection * pmi) = 0;
+        //virtual void mutate( PropertyMutatingIntrospection * pmi) = 0;
 
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-            /**
-             * Updates the value of the Property with the value of
-             * another Property.
-             */
-            virtual bool update(const PropertyBase* other) = 0;
+        /**
+         * Update the value of this Property with the value of an \a other Property.
+         * @return false if the Properties are of different type.
+         */
+        virtual bool update( const PropertyBase* other ) = 0;
 
-            /**
-             * Copies the value, name and description of another
-             * Property into this property.
-             */
-            virtual bool copy(const PropertyBase* other) = 0;
-#endif
+        /**
+         * Make a deep copy of this Property with the value of an \a other Property.
+         * @return false if the Properties are of different type.
+         */
+        virtual bool copy( const PropertyBase* other ) = 0;
+
+        /**
+         * Helper function for update and copy. Implements the Visitor pattern
+         * without blowing up the PropertyBase interface.
+         */
+        virtual bool accept( detail::PropertyOperation* op ) const = 0;
 
             /**
              * Deliver an identical clone of this PropertyBase. The

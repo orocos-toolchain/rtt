@@ -55,9 +55,9 @@ namespace ORO_CoreLib
                  * @group comply 
                  * @{
                  */
-                //virtual bool comply( PropertyOperation* op ) const;
-                virtual bool comply( FillOperation* op ) const;
-                virtual bool comply( DeepCopyOperation* op ) const;
+            virtual bool comply( PropertyOperation* op ) const = 0;
+            //virtual bool comply( FillOperation* op ) const;
+            //virtual bool comply( DeepCopyOperation* op ) const;
                 /**
                  * @}
                  */

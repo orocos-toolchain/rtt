@@ -31,19 +31,19 @@
 #include "TaskInterface.hpp"
 #include "RunnableInterface.hpp"
 #include "Event.hpp"
-#include <boost/bind.hpp>
+
+#pragma interface
 
 namespace ORO_CoreLib
 {
 
     /**
-     * @brief An Event-driven task implementation.
+     * @brief An Event-driven TaskInterface implementation.
      *
      * This class represents a Task which can be attached
-     * to an event and execute its functionality each time
-     * the event is fired. By default, only the listener
-     * action triggers step(), but one can configure it to
-     * do otherwise.
+     * to an Event<void(void)> and execute its functionality each time
+     * the event is fired. The TaskEventDriven is run asynchronously 
+     * in a given thread.
      */
     class TaskEventDriven
         :public TaskInterface
@@ -56,84 +56,45 @@ namespace ORO_CoreLib
          * @param _event The Event which will trigger execution of this task,
          *        once this task is started.
          * @param _r The optional runner, if none, this->step() is called.
+         * @param thread The thread which will execute this task.
          */
-        TaskEventDriven( Event<void(void)>* _event, RunnableInterface* _r = 0 )
-            : event(_event), runner(_r), running(false)
-        {}
+        TaskEventDriven( Event<void(void)>* _event, TaskThreadInterface* thread, RunnableInterface* _r = 0 );
 
-        virtual Seconds periodGet() { return 0; }
+        virtual Seconds periodGet() const { return 0; }
+
+        TaskThreadInterface* thread() const { return mthread; }
 
         bool initialize() { return  true;}
         void step() {}
         void finalize() {}
 
-        bool start()
-        {
-            if ( !running && event )
-                if ( runner ? runner->initialize() : this->initialize() )
-                    {
-                        h = event->connect( boost::bind(&TaskEventDriven::handler, this) );
-                        return true;
-                    }
-            return false;
-        }
+        bool start();
 
-        bool stop()
-        {
-            if ( running && event )
-                {
-                    h.disconnect();
-                    if (runner)
-                        runner->finalize() ;
-                    else 
-                        this->finalize();
-                    return true;
-                }
-            else 
-                return false;
-        }
+        bool stop();
 
-        bool isRunning() { return running; }
+        bool isRunning() const {
+            return running;
+        }
 
         /**
          * Run another (or none in case of null)
          * task.
          */
-        bool run(RunnableInterface* _r)
-        {
-            if ( running )
-                return false;
-            runner = _r;
-            return true;
-        }
+        bool run(RunnableInterface* _r);
 
         /**
          * Set the Event which will trigger the execution
          * of this task, once started.
          */
-        bool setEvent( Event<void(void)>* _event)
-        {
-            if ( running )
-                return false;
-            
-            event = _event;
-            return true;
-        }
-
+        bool setEvent( Event<void(void)>* _event);
     protected:
 
-        void handler()
-        {
-                if (runner)
-                    runner->step() ;
-                else 
-                    this->step();
-        }
-
+        void handler();
     private:
         Event<void(void)>* event;
         RunnableInterface*          runner;
         bool running;
+        TaskThreadInterface* mthread;
 };
 
 }

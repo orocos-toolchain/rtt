@@ -13,12 +13,13 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
 
     compile PropertyBag.cxx  PropertySequence.cxx VectorComposition.cxx
     compile Property.cxx PropertyBase.cxx PropertyBagIntrospector.cxx
-    compile OperationAcceptor.cxx
+    compile PropertyOperation.cxx
 
     cdl_option OROCLS_CORELIB_PROPERTIES_OPERATIONS {
 	display "Property updating"
-	description "Properties can be updated. Do not disable this option."
+	description "This option has no longer any effect. Property Operations are always enabled."
 	active_if 1
 	default_value 1
     }
+
 }

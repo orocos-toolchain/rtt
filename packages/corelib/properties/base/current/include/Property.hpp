@@ -32,9 +32,7 @@
 #include "Marshaller.hpp"
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
 #include "PropertyOperation.hpp"
-#endif
 #include "PropertyDecomposition.hpp"
 
 #ifdef HAVE_STRING
@@ -47,9 +45,7 @@
 
 namespace ORO_CoreLib
 {
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-    using namespace detail;
-#endif
+
     /**
      * @brief Helper functions for Property operations.
      *
@@ -189,41 +185,29 @@ namespace ORO_CoreLib
                 pi->introspect( *this );
             }
 
-        virtual void mutate( PropertyMutatingIntrospection * pmi)
+//         virtual void mutate( PropertyMutatingIntrospection * pmi)
+//         {
+//             //std::cout << __PRETTY_FUNCTION__ << std::endl;
+//             pmi->introspect( *this );
+//         }
+
+        virtual bool update( const PropertyBase* other) 
         {
-            std::cout << __PRETTY_FUNCTION__ << std::endl;
-            pmi->introspect( *this );
+            detail::FillOperation<T> fillop(this);
+            return fillop.command( other );
         }
 
-#ifdef OROCLS_CORELIB_PROPERTIES_OPERATIONS
-            virtual bool update( const PropertyBase* b)
-            {
-                // could do it like :
-                //    FillOperation fil_op(this, &b);
-                //    return fil_op.result();
-                FillOperation fil_op;
-                //std::cout <<"*******************command"<<std::endl;
-                return fil_op.command(*this, b);
-            }
+        virtual bool copy( const PropertyBase* other )
+        {
+            detail::DeepCopyOperation<T> copop(this);
+            return copop.command( other );
+        }
 
-            virtual bool copy( const PropertyBase* b)
-            {
-                DeepCopyOperation cop_op;
-                return cop_op.command(*this, b);
-            }
-
-
-            virtual bool comply(FillOperation* op) const
+            virtual bool accept( detail::PropertyOperation* op ) const
             {
                 return op->comply( this );
             }
 
-            virtual bool comply(DeepCopyOperation* op) const
-            {
-                return op->comply( this );
-            }
-
-#endif
             /**
              * Update the value, leave the rest.
              */

@@ -41,7 +41,7 @@ namespace ORO_CoreLib
 
         virtual void taskRemove(); 
 
-        virtual TaskThreadInterface* thread() { return simt; }
+        virtual TaskThreadInterface* thread() const { return simt; }
 
         /**
          * The SimulationThread used for scheduling this task

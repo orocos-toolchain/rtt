@@ -9,5 +9,6 @@ dynamic conditional execution of logic programs."
     requires OROPKG_CORELIB
 
     compile ConditionInterface.cxx
+    compile ConditionDuration.cxx
 }
 

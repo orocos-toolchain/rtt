@@ -38,7 +38,7 @@ namespace ORO_CoreLib
             //std::cout <<"******************PropOp called"<<std::endl;
             return false; 
             }*/
-
+        /*
         bool OperationAcceptor::comply( DeepCopyOperation* op ) const
         { 
             op->deny(); 
@@ -50,5 +50,6 @@ namespace ORO_CoreLib
             op->deny(); 
             return false; 
         }
+        */
     }
 }

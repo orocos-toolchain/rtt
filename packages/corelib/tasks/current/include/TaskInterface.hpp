@@ -68,20 +68,20 @@ namespace ORO_CoreLib
          *
          * @return true if it is running, false otherwise
          */
-        virtual bool isRunning() = 0;
+        virtual bool isRunning() const = 0;
 
         /**
          * Get the periodicity of this task in Seconds
          *
          * @return The execution period of this task
          */
-        virtual Seconds periodGet() = 0;
+        virtual Seconds periodGet() const = 0;
 
         /**
          * Returns a pointer to the thread which will
          * run this task. Will not be null.
          */
-        virtual TaskThreadInterface* thread() = 0;
+        virtual TaskThreadInterface* thread() const = 0;
     };
 
 }

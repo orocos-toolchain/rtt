@@ -67,7 +67,7 @@ namespace ORO_CoreLib
 
         virtual void taskRemove(); 
 
-        virtual TaskThreadInterface* thread() { return cproc; }
+        virtual TaskThreadInterface* thread() const { return cproc; }
 
         /**
          * The NonRealTimeThread used for scheduling this task

@@ -34,6 +34,8 @@
 #include "TaskInterface.hpp"
 #include <os/Mutex.hpp>
 
+#pragma interface
+
 namespace ORO_CoreLib
 {
     class TaskTimer;
@@ -96,9 +98,9 @@ namespace ORO_CoreLib
 
         virtual bool stop();
 
-        virtual bool isRunning();
+        virtual bool isRunning() const;
 
-        virtual Seconds periodGet();
+        virtual Seconds periodGet() const;
 
     protected:
         /**
@@ -117,7 +119,7 @@ namespace ORO_CoreLib
         
         virtual void finalize() {}
 
-        virtual TaskInterface* taskGet( ) { return this; };
+        //virtual TaskInterface* taskGet( ) const { return this; }; // deprecated
 
         /**
          * Calls the runners or own step function

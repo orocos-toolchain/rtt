@@ -68,7 +68,7 @@ namespace ORO_CoreLib
 
         virtual void taskRemove(); 
 
-        virtual TaskThreadInterface* thread() { return ztt; }
+        virtual TaskThreadInterface* thread() const { return ztt; }
 
         /**
          * The ZeroTimeThread used for scheduling this task
