@@ -765,7 +765,7 @@ do engine.stopStateContext( "name" )
     <para>
       This sections shows the listings of an Orocos State
       Description and an Orocos Program Script. They are
-      fictuous examples (but with valid syntax) which may
+      fictitious examples (but with valid syntax) which may
       differ from actual available components. The example
       tries to exploit all available functions.
     </para>
@@ -1101,17 +1101,17 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
 	function data().
       </para>
       <para>
-	The data function requires a pointer to a <emphasis>const</emphasis>
-	member function
-	having a number of arguments, and returning the appropriate
-	data.  The function's signature will automatically define the
-	signature in the exported API.  After the member function
-	pointer follows a C string containing a description of the
-	function, followed by a name and description for each of the
-	arguments.  An extra feature is that instead of a pointer to a
-	member function, you can also pass a pointer to a member
-	variable to the data function.  This will then simply be read
-	out, instead of called.
+	The data function requires a pointer to a
+	<emphasis>const</emphasis> member function having a number of
+	arguments, and returning the appropriate data.  The function's
+	signature will automatically define the signature in the
+	exported API.  After the member function pointer follows a C
+	string containing a description of the function, followed by a
+	name and description for each of the arguments.  An extra
+	feature is that instead of a pointer to a member function, you
+	can also pass a pointer to a member variable to the data
+	function.  This will then simply be read out, instead of
+	called.
       </para>
       <para>
 	The command factory is created in a similar way.  The first
@@ -1122,17 +1122,15 @@ TemplateDataSourceFactory&lt;Robot&gt;* ret =
       </para>
       <para>
 	The command function requires two member pointers instead of
-	one.  The first one is a function that does the actual
-	work that the command will invoke, and the second is a bool
-	<emphasis>const </emphasis>function having the
-	same arguments as the first one, the first argument or no
-	arguments at all.
-	This last function will be called to see
-	whether the associated command is finished.  The rest of the
-	arguments to the command function remain the same.  It
-	also requires a constant C string describing the function, and
-	two constant C strings giving a description and name for every
-	argument.
+	one.  The first one is a function that does the actual work
+	that the command will invoke, and the second is a bool
+	<emphasis>const </emphasis>function having the same arguments
+	as the first one, the first argument or no arguments at all.
+	This last function will be called to see whether the
+	associated command is finished.  The rest of the arguments to
+	the command function remain the same.  It also requires a
+	constant C string describing the function, and two constant C
+	strings giving a description and name for every argument.
       </para>
       <para>
 	If a component has only commands, or only data, the unneeded
@@ -1204,9 +1202,10 @@ data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
 	  </programlisting>
 	  Adding your own type comes down to just adding a similar
 	  line there.  There are however some restrictions on what
-	  types can be used, but if you have properly designed your
-	  class as a normal C++ value-based class, then there should
-	  be no problem.
+	  types can be used (like having a proper, publically
+	  accessible copy constructor, e.g. ), but if you have
+	  properly designed your class as a normal C++ value-based
+	  class, then there should be no problem.
 	</para>
       </sect3>
       <sect3 id="overloading-operators">
@@ -1226,13 +1225,14 @@ add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
 add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
 	  </programlisting>
 	  Adding your own should not be terribly hard.  The hardest
-	  part is that as the second argument to newUnaryOperator or
-	  newTernaryOperator, you need to specify a STL Adaptable
-	  Functor, and even though the STL provides many predefined
-	  one's, it does not provide all possible combinations, and
-	  you might end up having to write your own..  The STL does
-	  not at all provide any "ternary operators", so if you need
-	  one of those, you'll definitely have to write it yourself.
+	  part is that as the second argument to newUnaryOperator,
+	  newBinaryOperator or newTernaryOperator, you need to specify
+	  a STL Adaptable Functor, and even though the STL provides
+	  many predefined one's, it does not provide all possible
+	  combinations, and you might end up having to write your
+	  own..  The STL does not at all provide any "ternary
+	  operators", so if you need one of those, you'll definitely
+	  have to write it yourself.
 	</para>
 	<para>
 	  Note that this section is only about adding overloads for
