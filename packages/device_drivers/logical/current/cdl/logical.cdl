@@ -5,9 +5,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_LOGICAL {
 
     include_dir device_drivers
 
-    compile Axis.cxx
-    compile DigitalInput.cxx                   DigitalOutput.cxx
-    compile Drive.cxx
-    #compile SwitchEndLimit.cxx DistanceSensor.cxx
+    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx Drive.cxx DistanceSensor.cxx
+    #compile SwitchEndLimit.cxx
 
 }
