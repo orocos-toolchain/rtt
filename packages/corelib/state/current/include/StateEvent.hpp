@@ -28,14 +28,15 @@
 #ifndef STATEEVENT_HPP
 #define STATEEVENT_HPP
 
-#include "StateEventInterfaces.hpp"
+#include "StateEventInterface.hpp"
 
 
 namespace ORO_CoreLib
 {
 
     /**
-     * A State which fires events on each state transition.
+     * @brief A State which fires events on each state transition.
+     *
      * The functionality must be provided in the EventListenerInterface
      * and EventCompleterInterface instances registered to the
      * Events.

@@ -59,7 +59,7 @@ namespace ORO_CoreLib
         {
             bool operator()( const  T& lhs, const T& rhs)
             {
-                return get<2>(lhs) > get<2>(rhs);
+                return boost::tuples::get<2>(lhs) > boost::tuples::get<2>(rhs);
             }
         };
         /**
