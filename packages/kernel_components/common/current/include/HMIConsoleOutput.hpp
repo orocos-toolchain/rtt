@@ -84,6 +84,18 @@ namespace ORO_ControlKernel
             }
         }
 
+        void enableColor(bool yesno = true)
+        {
+            if (yesno == true) {
+                coloron = "\033[1;34m";
+                coloroff = "\033[0m";
+            } else {
+                coloron.clear();
+                coloroff.clear();
+            }
+        }
+                
+
         /**
          * @brief Display a message on standard output.
          */
