@@ -87,7 +87,7 @@ namespace ORO_ControlKernel
   private:
     ORO_Geometry::Frame                                                   _traject_end, _traject_begin;
     ORO_Geometry::Frame                                                   _position_desired, _position_out_local;
-    ORO_Geometry::Twist                                                   _velocity_out_local, _twist_begin_end;
+    ORO_Geometry::Twist                                                   _velocity_out_local, _velocity_begin_end, _velocity_delta;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >         *_position_meas_DOI, *_position_out_DOI;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_out_DOI;
 
