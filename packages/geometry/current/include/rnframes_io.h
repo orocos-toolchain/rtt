@@ -46,10 +46,10 @@
 #ifndef RNFRAMES_IO
 #define RNFRAMES_IO
 
-#include <utilities/utility_io.h>
-#include <frames/frames_io.h>
-#include <algebra/rall1d_io.h>
-#include <rframes/rnframes.h>
+#include "utility_io.h"
+#include "frames_io.h"
+#include "rall1d_io.h"
+#include "rnframes.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

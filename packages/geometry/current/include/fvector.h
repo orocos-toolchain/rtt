@@ -52,7 +52,7 @@
 
 #ifndef FVECTOR_H
 #define FVECTOR_H
-#include <utilities/utility.h>
+#include "utility.h"
 #include <math.h>
 
 #ifdef USE_NAMESPACE
@@ -88,7 +88,7 @@ public:
 
     FVector(typename TI<T>::Arg arg1) {vect[0]=arg1;}
     
-    FVector(typename TI<T>::Arg arg1,TI<T>::Arg arg2) {vect[0]=arg1;vect[1]=arg2;}
+    FVector(typename TI<T>::Arg arg1,typename TI<T>::Arg arg2) {vect[0]=arg1;vect[1]=arg2;}
     
     FVector(typename TI<T>::Arg arg1,typename TI<T>::Arg arg2,typename TI<T>::Arg arg3) {vect[0]=arg1;vect[1]=arg2;vect[2]=arg3;}
 

@@ -47,14 +47,8 @@
 #ifndef FVECTORVSIZE2_IO_H
 #define FVECTORVSIZE2_IO_H
 
-#include <algebra/fvectorvs2.h>
-
-#ifdef WANT_STD_IOSTREAM
-    #include <iostream>
-    using namespace std;
-#else
-    #include <iostream.h>
-#endif
+#include "fvectorvs2.h"
+#include "utility_io.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

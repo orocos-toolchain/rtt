@@ -50,7 +50,7 @@
 
 #include "utility.h"
 #include "utility_io.h"
-#include <newmat/newmat.h>
+#include "newmat/newmat.h"
 #include <string>
 #include <vector>
 

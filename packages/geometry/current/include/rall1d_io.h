@@ -46,8 +46,8 @@
 #ifndef Rall_IO_H
 #define Rall_IO_H
 
-#include <utilities/utility_io.h>
-#include <algebra/rall1d.h>
+#include "utility_io.h"
+#include "rall1d.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

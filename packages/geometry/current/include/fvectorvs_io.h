@@ -47,8 +47,8 @@
 #ifndef FVectorVSIZE_IO_H
 #define FVectorVSIZE_IO_H
 
-#include <utilities/utility_io.h>
-#include <algebra/fvectorvs.h>
+#include "utility_io.h"
+#include "fvectorvs.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

@@ -51,7 +51,7 @@
 
 #ifndef FVectorVSIZEVS_H
 #define FVectorVSIZEVS_H
-#include <utilities/utility.h>
+#include "utility.h"
 #include <math.h>
 
 #ifdef USE_NAMESPACE
@@ -246,7 +246,7 @@ INLINE FVectorVSIZE<T,N> LinComb(typename TI<T>::Arg alfa,const FVectorVSIZE<T,N
 
 template <class T,int N>
 INLINE void LinCombR(typename TI<T>::Arg alfa,const FVectorVSIZE<T,N>& a,
-                     typename TI<T>::Arg,const FVectorVSIZE<T,N>& b,FVectorVSIZE<T,N>& result ) {
+                     typename TI<T>::Arg beta,const FVectorVSIZE<T,N>& b,FVectorVSIZE<T,N>& result ) {
             int i;
             i=VSIZE;while (i--) LinCombR(alfa,a[i],beta,b[i],result[i]);
 }

@@ -50,7 +50,7 @@
 
 #ifndef FVector2_H
 #define FVector2_H
-#include <utilities/utility.h>
+#include "utility.h"
 #include <math.h>
 
 #ifdef USE_NAMESPACE

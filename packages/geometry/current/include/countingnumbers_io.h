@@ -45,8 +45,8 @@
 #ifndef COUNTINGNUMBERS_IO_H
 #define COUNTINGNUMBERS_IO_H
 
-#include <utilities/utility_io.h>
-#include <algebra/countingnumbers.h>
+#include "utility_io.h"
+#include "countingnumbers.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

@@ -48,8 +48,8 @@
 
 
 
-#include <utilities/utility_io.h>
-#include <algebra/rall2d.h>
+#include "utility_io.h"
+#include "rall2d.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {

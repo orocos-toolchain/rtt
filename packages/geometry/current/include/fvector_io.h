@@ -47,8 +47,8 @@
 #ifndef FVECTOR_IO_H
 #define FVECTOR_IO_H
 
-#include <utilities/utility_io.h>
-#include <algebra/fvector.h>
+#include "utility_io.h"
+#include "fvector.h"
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
