@@ -38,4 +38,8 @@
  *
  * You will most likely also need to read the online manuals.
  *
+ * @section comps Control Kernel Components
+ * The <a href="modules.html"><tt>Modules</tt></a> page contains
+ * a summary of all available components for the Orocos Control
+ * Kernel framework.
  */

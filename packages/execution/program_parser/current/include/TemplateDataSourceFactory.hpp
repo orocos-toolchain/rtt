@@ -36,6 +36,7 @@
  */
 namespace ORO_Execution
 {
+#ifndef NO_DOXYGEN
     /**
      * @internal These classes are generic DataSources that take a
      * functor, and a number of DataSources corresponding with the
@@ -278,7 +279,10 @@ namespace ORO_Execution
     return new TemplateDataSourceFactory<ComponentT>( t );
   };
 
+
   /**
+   * @defgroup data_factories DataSource Part Factories
+   *
    * The data function is the function you should use to specify a
    * certain property to be added to your TemplateDataSourceFactory..
    * Several overloads are provided, for supporting various numbers of
@@ -332,6 +336,8 @@ namespace ORO_Execution
   /**
    * @}
    */
+#endif // #ifndef NO_DOXYGEN
+
 }
 
 #endif

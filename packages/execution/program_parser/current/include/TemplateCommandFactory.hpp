@@ -44,6 +44,8 @@ namespace ORO_Execution
   using boost::mem_fn;
   using boost::bind;
 
+#ifndef NO_DOXYGEN
+
   /**
    * A command that simply calls the functor it was passed every
    * time..  Very useful for e.g. components that want a command to
@@ -710,6 +712,7 @@ namespace ORO_Execution
     return FunctorConditionGenerator<FunctorT>( fun, _invert );
   };
 
+
   /**
    * @defgroup commandFactories
    *
@@ -896,6 +899,8 @@ namespace ORO_Execution
   /**
    * @}
    */
+
+#endif // #ifndef NO_DOXYGEN
 
   /**
    * TemplateCommandFactory is a template class, written to facilitate

@@ -42,6 +42,8 @@
 
 namespace ORO_Execution
 {
+
+#ifndef NO_DOXYGEN
   namespace
   {
     // combines remove_reference and remove_const
@@ -419,9 +421,10 @@ namespace ORO_Execution
   /**
    * @}
    */
+#endif // #ifndef NO_DOXYGEN
 
     /**
-     * This factory is a template for creating parts, on a per
+     * @brief This factory is a template for creating parts, on a per
      * component basis. The parts themselves are created by
      * the TemplateFactoryFunctorPart functions.
      */

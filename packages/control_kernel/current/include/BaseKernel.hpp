@@ -56,7 +56,7 @@ namespace ORO_ControlKernel
     {
     public:
         /**
-         * @defgroup data_obj The Data Object Types
+         * The Data Object Types
          * @{
          */
         typedef typename _CommandPort::DataObjectType CommandData;
@@ -78,7 +78,7 @@ namespace ORO_ControlKernel
         typedef typename Extension::CommonBase CommonBase;
 
         /**
-         * @defgroup data_types The Data Types for each DataObject
+         * The Data Types for each DataObject
          * Determine here the different DataObject kinds of this kernel.
          * @{
          */
@@ -92,7 +92,7 @@ namespace ORO_ControlKernel
          */
 
         /**
-         * @defgroup def_comp Default Component Definitions
+         * Default Component Definitions
          * @{
          */
         typedef Controller<_SetPointPort, _InputPort, _ModelPort, _OutputPort, CommonBase> DefaultController;
