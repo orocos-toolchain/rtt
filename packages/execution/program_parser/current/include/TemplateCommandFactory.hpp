@@ -958,7 +958,7 @@ namespace ORO_Execution
       {
       };
 
-    std::vector<std::string> getMethodList() const
+    std::vector<std::string> getCommandList() const
       {
         return _TF::getNames();
       };

@@ -43,6 +43,7 @@
 
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
+#include "TryCommand.hpp"
 
 namespace ORO_Execution
 {
@@ -51,7 +52,7 @@ namespace ORO_Execution
   using ORO_CoreLib::PropertyBag;
 
   ConditionParser::ConditionParser( ParseContext& c )
-    : ret( 0 ), context( c ), expressionparser( c )
+    : ds_bool( 0 ), context( c ), expressionparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( condition );
 
@@ -66,7 +67,7 @@ namespace ORO_Execution
 
   void ConditionParser::reset()
   {
-    ret = 0;
+      ds_bool = 0;
   };
 
   ConditionParser::~ConditionParser()
@@ -75,7 +76,7 @@ namespace ORO_Execution
     // should have called reset to prevent this and the fact that it
     // didn't probably indicates that a parse_exception was thrown
     // somewhere..
-    delete ret;
+    delete ds_bool;
   };
 
   void ConditionParser::seenexpression()
@@ -85,12 +86,10 @@ namespace ORO_Execution
       expressionparser.getResult();
     expressionparser.dropResult();
 
-    DataSource<bool>* booldata =
+    ds_bool =
       dynamic_cast<DataSource<bool>*>( mcurdata.get() );
-    if ( booldata )
+    if ( ds_bool )
     {
-      // wrap the datasource in a ConditionBoolDataSource..
-      ret = new ConditionBoolDataSource( booldata );
       mcurdata = 0;
     }
     else
@@ -100,4 +99,20 @@ namespace ORO_Execution
         "Attempt to use a non-boolean value as a condition." );
     };
   };
+
+    ConditionInterface* ConditionParser::getParseResult()
+      {
+          // wrap the datasource in a ConditionBoolDataSource..
+          return new ConditionBoolDataSource( ds_bool );
+      };
+
+      /**
+       * Retrieve the result as a command, condition pair.
+       */
+    std::pair<CommandInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
+      {
+          EvalCommand* ec = new EvalCommand(ds_bool);
+          EvalCommandResult* ecr = new EvalCommandResult( ec );
+          return std::make_pair( ec ,ecr );
+      }
 }

@@ -176,7 +176,7 @@ namespace ORO_ControlKernel
                     // fill with new ones.
                     find_method( pos+1 );
                 }
-                if ( ee->dataFactory().factory( comp ) ) {
+                if ( ee->dataFactory().getObjectFactory( comp ) ) {
                     // fill with new ones.
                     find_datasource( pos+1 );
                 }
@@ -239,7 +239,7 @@ namespace ORO_ControlKernel
                 _method.replace( _method.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->commandFactory().getObjectFactory( component)->getMethodList();
+            comps = ee->commandFactory().getObjectFactory( component)->getCommandList();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _method ) == 0  )
                     completes.push_back( component +"."+ *i );
@@ -258,7 +258,7 @@ namespace ORO_ControlKernel
                     _datasource.replace( _datasource.find(" "),1,"" );
 
                 // try if it is a command :
-                if ( ee->dataFactory().factory( component )->hasData( _datasource ) ) {
+                if ( ee->dataFactory().getObjectFactory( component )->hasData( _datasource ) ) {
                     datasource = _datasource;
                 }
             }
@@ -271,7 +271,7 @@ namespace ORO_ControlKernel
                 _datasource.replace( _datasource.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->dataFactory().factory(component)->dataNames();
+            comps = ee->dataFactory().getObjectFactory(component)->dataNames();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _datasource ) == 0  )
                     completes.push_back( component +"."+ *i );
@@ -358,10 +358,10 @@ namespace ORO_ControlKernel
             cout << "      Got :"<< comm <<endl;
 
             command_fact = ee->commandFactory().getObjectFactory( comm );
-            datasource_fact = ee->dataFactory().factory( comm );
+            datasource_fact = ee->dataFactory().getObjectFactory( comm );
             if ( command_fact ) // only commandobject name was typed
                 {
-                    std::vector<std::string> methods = command_fact->getMethodList();
+                    std::vector<std::string> methods = command_fact->getCommandList();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIReadline::printMethod, this, _1) );
                 }
                     

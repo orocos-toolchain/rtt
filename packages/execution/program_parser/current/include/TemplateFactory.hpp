@@ -526,7 +526,7 @@ namespace ORO_Execution
   }
 
   template<typename ComponentT, typename ResultT,
-           typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T
+           typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T,
            typename FunctorT>
   TemplateFactoryFunctorPart4<ComponentT, ResultT, FunctorT, Arg1T, Arg2T,
                               Arg3T, Arg4T>*

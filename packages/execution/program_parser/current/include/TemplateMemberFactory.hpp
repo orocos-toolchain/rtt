@@ -1,52 +1,29 @@
-/***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  TemplateDataSourceFactory.hpp
-
-                        TemplateDataSourceFactory.hpp -  description
-                           -------------------
-    begin                : Mon January 19 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
-
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
-#ifndef TEMPLATE_DATASOURCE_FACTORY_HPP
-#define TEMPLATE_DATASOURCE_FACTORY_HPP
 
 #include "DataSource.hpp"
-#include "DataSourceFactoryInterface.hpp"
+//#include "DataSourceFactoryInterface.hpp"
 #include "TemplateFactory.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 
+#ifndef MEMBER
+#error "Do not include this file directly. Use TemplateDataSourceFactory.hpp or TemplateMethodFactory.hpp"
+#endif
+
 /**
- * @file This file contains the TemplateDataSourceFactory template,
+ * @file This file contains the TemplateMemberFactory template,
  * which is a template designed to reduce the amount of boilerplate
- * code necessary to add a DataSourceFactory to an OROCOS component.
- * If you're not interested in the implementation details ( warning:
- * template code, may seem a bit messy ), then skip forward to the
- * documentation of the @ref newDataSourceFactory function.
+ * code necessary to add a DataSourceFactory and MethodFactory to an OROCOS component.
+ *
+ * This is an internal file, not to be used directly by users.
  */
 namespace ORO_Execution
 {
 #ifndef NO_DOXYGEN
+#ifndef FUNCTORDATASOURCES
+#define FUNCTORDATASOURCES
     /**
-     * @internal These classes are generic DataSources that take a
+     * These classes are generic DataSources that take a
      * functor, and a number of DataSources corresponding with the
      * arguments of the functor, and use it to get data from..
      * @{
@@ -431,19 +408,21 @@ namespace ORO_Execution
    * @}
    */
 
+#endif // FUNCTORDATASOURCES
+
   /**
-   * @internal This is the DataSource factory class that is generated
+   * This is the DataSource factory class that is generated
    * by the newDataSourceFactory function..  Use the helper function
    * newDataSourceFactory.
    */
   template<typename ComponentT>
-  class TemplateDataSourceFactory
-    : public DataSourceFactoryInterface,
+  class TEMPLATE_FACTORY_NAME
+    : public FACTORY_INTERFACE,
       private TemplateFactory<ComponentT, DataSourceBase*>
   {
     typedef TemplateFactory<ComponentT, DataSourceBase*> _TF;
   public:
-    TemplateDataSourceFactory( ComponentT* c )
+    TEMPLATE_FACTORY_NAME( ComponentT* c )
       : _TF( c )
       {
       };
@@ -503,10 +482,10 @@ namespace ORO_Execution
    * on its use.
    */
   template<typename ComponentT>
-  TemplateDataSourceFactory<ComponentT>*
-  newDataSourceFactory( ComponentT* t )
+  TEMPLATE_FACTORY_NAME<ComponentT>*
+  NEW_MEMBER_FACTORY( ComponentT* t )
   {
-    return new TemplateDataSourceFactory<ComponentT>( t );
+    return new TEMPLATE_FACTORY_NAME<ComponentT>( t );
   };
 
 
@@ -534,7 +513,7 @@ namespace ORO_Execution
   TemplateFactoryPart<
     typename boost::remove_const<ComponentT>::type,
     DataSourceBase*>*
-  data( ResultT (ComponentT::*var) , const char* desc )
+  MEMBER( ResultT (ComponentT::*var) , const char* desc )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,
       DataSourceBase*>( fun_datasource_gen<ComponentT, ResultT>(
@@ -544,7 +523,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)() const, const char* desc )
+  MEMBER( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,
       DataSourceBase*>( fun_datasource_gen<ComponentT, ResultT>(
@@ -554,7 +533,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d )
   {
     return fun_fact<typename boost::remove_const<ComponentT>::type,
@@ -567,7 +546,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) const, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d)
   {
@@ -583,7 +562,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) const, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d)
@@ -601,7 +580,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
   TemplateFactoryPart<typename boost::remove_const<ComponentT>::type,
                       DataSourceBase*>*
-  data( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) const, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d,
@@ -625,4 +604,3 @@ namespace ORO_Execution
 
 }
 
-#endif

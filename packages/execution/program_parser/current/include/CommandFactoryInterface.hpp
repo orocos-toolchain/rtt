@@ -65,10 +65,10 @@ namespace ORO_Execution
             virtual bool hasCommand(const std::string& com) const = 0;
 
             /**
-             * @brief Return a list of all available command methods.
+             * @brief Return a list of all available commands.
              * throws nothing.
              */
-            virtual std::vector<std::string> getMethodList() const = 0;
+            virtual std::vector<std::string> getCommandList() const = 0;
 
             /**
              * @brief Return the description of a given command.
@@ -78,7 +78,7 @@ namespace ORO_Execution
 
             /**
              * @brief Used to find out what types of arguments
-             * a method needs.
+             * a command needs.
              *
              * This method returns a PropertyBag
              * containing Property's of the types of the arguments..
@@ -97,12 +97,12 @@ namespace ORO_Execution
              * throws name_not_found_exception
              */
             virtual PropertyBag
-            getArgumentSpec( const std::string& method ) const = 0;
+            getArgumentSpec( const std::string& command ) const = 0;
 
         /**
-         * @brief Return the list of arguments of a certain method.
+         * @brief Return the list of arguments of a certain command.
          */
-        virtual std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const = 0;
+        virtual std::vector< ArgumentDescription > getArgumentList( const std::string& command ) const = 0;
 
             /**
              * @brief The companion to getArgumentSpec().  It takes a
@@ -118,7 +118,7 @@ namespace ORO_Execution
              * wrong_number_of_args_exception, and
              * wrong_types_of_args_exception
              */
-            virtual ComCon create( const std::string& method,
+            virtual ComCon create( const std::string& command,
                                    const PropertyBag& args ) const = 0;
 
             /**
@@ -138,7 +138,7 @@ namespace ORO_Execution
              * wrong_types_of_args_exception
              */
             virtual ComCon create(
-                const std::string& method,
+                const std::string& command,
                 const std::vector<DataSourceBase*>& args ) const = 0;
 
     };

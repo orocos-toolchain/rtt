@@ -61,7 +61,7 @@ namespace ORO_Execution
     const std::string& objectname,
     const std::string& source )
   {
-    const DataSourceFactoryInterface* o = factory( objectname );
+    const DataSourceFactoryInterface* o = getObjectFactory( objectname );
     if ( o ) return o->hasData( source );
     else return false;
   };
@@ -89,7 +89,7 @@ namespace ORO_Execution
      * @return the requested factory, or 0, indicating no factory
      * has been registered under that name..
      */
-    const DataSourceFactoryInterface* factory( const std::string& name ) const
+    const DataSourceFactoryInterface* getObjectFactory( const std::string& name ) const
       {
         map_t::const_iterator i = mdata.find( name );
         if ( i == mdata.end() ) return 0;

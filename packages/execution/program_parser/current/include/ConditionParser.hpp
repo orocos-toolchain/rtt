@@ -35,6 +35,7 @@
 
 #include <memory>
 #include <stack>
+#include <utility>
 
 #pragma interface
 
@@ -47,7 +48,7 @@ namespace ORO_Execution
    */
   class ConditionParser
   {
-    ConditionInterface* ret;
+      DataSource<bool>* ds_bool;
 
     void seendonecondition();
     void seenexpression();
@@ -72,10 +73,12 @@ namespace ORO_Execution
      * should subsequently call reset(), otherwise it will be deleted
      * in the ConditionParser destructor..
      */
-    ConditionInterface* getParseResult()
-      {
-        return ret;
-      };
+      ConditionInterface* getParseResult();
+
+      /**
+       * Retrieve the result as a command, condition pair.
+       */
+      std::pair<CommandInterface*,ConditionInterface*> getParseResultAsCommand();
 
     void reset();
   };

@@ -128,10 +128,10 @@ namespace ORO_ControlKernel
             cout << "      Got :"<< comm <<endl;
 
             tester = ee->commandFactory().getObjectFactory( comm );
-            dataobject = ee->dataFactory().factory( comm );
+            dataobject = ee->dataFactory().getObjectFactory( comm );
             if ( tester ) // only commandobject name was typed
                 {
-                    std::vector<std::string> methods = tester->getMethodList();
+                    std::vector<std::string> methods = tester->getCommandList();
                     std::for_each( methods.begin(), methods.end(), boost::bind(&HMIConsoleInput::printMethod, this, _1) );
                 }
                     

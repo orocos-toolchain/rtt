@@ -93,7 +93,7 @@ namespace ORO_Execution
       context.globalfactory->dataFactory();
     // get hold of the DataSourceFactory for the object being
     // called..
-    const DataSourceFactoryInterface* fact = gdsf.factory( mobject );
+    const DataSourceFactoryInterface* fact = gdsf.getObjectFactory( mobject );
     if ( !fact )
       throw parse_exception_no_such_component( mobject );
     if ( ! fact->hasData( mmethod ) )
@@ -124,7 +124,7 @@ namespace ORO_Execution
 
     const GlobalDataSourceFactory& gdsf =
       context.globalfactory->dataFactory();
-    const DataSourceFactoryInterface* fact = gdsf.factory( obj );
+    const DataSourceFactoryInterface* fact = gdsf.getObjectFactory( obj );
     // we already checked for the existence of this object and method
     // in seendataname()..
     assert( fact );
