@@ -28,15 +28,6 @@
 	  <address><country>Belgium</country></address>
 	</affiliation>
       </author>
-      
-      <author>
-	<firstname>Panagiotis</firstname>
-	<surname>Issaris</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
     </authorgroup>
     <copyright>
       <year>2003, 2004</year>
@@ -336,7 +327,7 @@
 	      <entry align="center" valign="middle">OS Abstraction
 		classes</entry>
 	      <entry align="center" valign="middle">
-		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp, SingleThread.hpp,
+		Mutex.hpp, MutexLock.hpp, Semaphore.hpp, PeriodicThread.hpp, SingleThread.hpp,
 		main.h
 	      </entry>
 	      <entry align="left" valign="middle">
@@ -468,16 +459,29 @@
       <sect3>
 	<title>Non Periodic Threads</title>
 	<para>
-	  For non-periodic threads, which block or do lenghty calculations in their step() method,
-	  the <classname>SingleThread</classname> class can be used.
-	  The corelib/task package does not use the SingleThread.
-	  Porting applications to Orocos might benifit this class
-	  in a first adaptation step. It only has a start()
-	  method, which will provoke one single call to step() (see
-	  above). It can be re-started each time the step
-	  function returns. The initialise() and finalise() functions
-	  are called as above.
+	  For non-periodic threads, which block or do lenghty
+	  calculations, the <classname>SingleThread</classname> class
+	  can be used.  The corelib/task package uses the SingleThread
+	  for the TaskNonPeriodic.  Porting applications to Orocos
+	  might benifit this class in a first adaptation step. It only
+	  has a start() method, which will invoke one single call to
+	  loop() ( in contrast to step() above). It can be
+	  re-started each time the loop() function returns. The
+	  initialise() and finalise() functions are called when the
+	  SingleThread is started and after loop() returns.
 	</para>
+	<para>
+	  The user is himself responsible for providing a mechanism
+	  to return from the loop() functions. The SingleThread itself
+	  can not force loop() to return and hence, does not have a
+	  stop() function. the <function>SingleThread::isRunning()</function>
+	  function can be used to check if loop() is being executed or not.
+	</para>
+	<note>
+	  <para>The TaskNonPeriodic in CoreLib provides a better 
+	  integrated implementation for SingleThread and should be
+	  favourably used.</para>
+	</note>
 	<para>
 	  Common uses are :
 	  <itemizedlist>
@@ -523,21 +527,18 @@
 	<example>
 	  <title>Locking a Mutex</title>
 	  <para>The first listing shows a complete lock over a function :</para>
-	  <programlisting>
-  Mutex m;
+	  <programlisting>  Mutex m;
   void foo() {
      int i;
      MutexLock lock(m);
      // m is locked.
      // ...
-  } // when leaving foo(), m is unlocked.
-	  </programlisting>
+  } // when leaving foo(), m is unlocked.  </programlisting>
 	  <para>
 	    Any scope is valid, so if the critical section is smaller than
 	    the size of the function, you can :
 	  </para>
-	  <programlisting>
-  Mutex m;
+	  <programlisting>  Mutex m;
   void bar() {
      int i;
      // non critical section
@@ -548,19 +549,35 @@
      } //  m is unlocked.
      // non critical section
      //...
-  }
-	  </programlisting>
+  }  </programlisting>
 	</example>
       </sect3>
       <sect3>
 	<title>Signals and Semaphores</title>
 	<para>
-	  Orocos does not yet provide a C++ semaphore abstraction. The
-	  <filename>os/fosi.h</filename> file provides os independent C
-	  functions for semaphores. The higher level Event
-	  implementation in CoreLib can be used for thread safe
-	  signalling and data exchange.
+	  Orocos provides a C++ semaphore abstraction in
+	  <filename>os/Semaphore.hpp</filename>. It is used mainly for 
+	  non periodic, blocking tasks or threads. The higher level
+	  Event implementation in CoreLib can be used for thread safe
+	  signalling and data exchange in periodic tasks.
 	</para>
+	  <programlisting>  Semaphore sem(0); // initial value is zero.
+  void foo() {
+     // Wait on sem, decrement value (blocking ):
+     sem.wait()
+     // awake : another thread did signal().
+
+     // Signal sem, increment value (non blocking):
+     sem.signal();
+
+     // try wait on sem (non blocking):
+     bool result = sem.trywait();
+     if (result == false ) {
+         // sem.value() was zero
+     } else {
+         // sem.value() was non-zero and is now decremented.
+     }
+  }  </programlisting>
       </sect3>
       <sect3>
 	<title>Compare And Swap ( CAS )</title>
