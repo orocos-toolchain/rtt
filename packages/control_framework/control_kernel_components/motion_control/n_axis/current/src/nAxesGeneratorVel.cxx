@@ -186,7 +186,7 @@ namespace ORO_ControlKernel
 
       // get duration of acceleration
       _duration_trajectory[axis] = _vel_profile[axis]->Duration();
-      
+
       return true;
     }
   }
