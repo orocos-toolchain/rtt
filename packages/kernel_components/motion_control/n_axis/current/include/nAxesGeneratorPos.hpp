@@ -87,7 +87,7 @@ namespace ORO_ControlKernel
     virtual void push();
 
     // commands
-    //virtual CommandFactoryInterface* createCommandFactory();
+    virtual CommandFactoryInterface* createCommandFactory();
     virtual MethodFactoryInterface*  createMethodFactory();
     bool moveTo(const std::vector<double>& position, double time=0);
     bool moveFinished() const;
@@ -95,14 +95,13 @@ namespace ORO_ControlKernel
 
   private:
     unsigned int                                                          _num_axes;
-
     
     std::vector<double>                                                   _position_desired, _traject_position, _position_meas_local,  _position_local, _velocity_local;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI, *_position_DOI, *_velocity_DOI;
 
     std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _motion_profile;
-    ORO_CoreLib::TimeService::ticks                                _time_begin;
-    ORO_CoreLib::TimeService::Seconds                              _time_passed;
+    ORO_CoreLib::TimeService::ticks                                       _time_begin;
+    ORO_CoreLib::TimeService::Seconds                                     _time_passed;
     mutable ORO_OS::Mutex                                                 _my_lock;
     double                                                                _max_duration, _traject_duration;
     
