@@ -17,7 +17,7 @@ class HardwareAxis : public AxisInterface
 {
 public:
     HardwareAxis( AnalogDrive* ADrive );
-    virtual ~HardwareAxis();
+    virtual ~HardwareAxis() {};
 
     bool   enable();
     bool   disable();
