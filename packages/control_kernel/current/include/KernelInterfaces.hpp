@@ -37,87 +37,87 @@ namespace ORO_ControlKernel
     namespace detail 
     {
 
-    /**
-     * This interface allows us to manage extensions for configuration.
-     */
-    struct ExtensionInterface
-        :public NameServerRegistrator<ExtensionInterface*,std::string>
-    {
-        typedef NameServer<ExtensionInterface*> NameServerType;
         /**
-         * Construct a not nameserved ExtensionInterface.
+         * This interface allows us to manage extensions for configuration.
          */
-        ExtensionInterface() {}
+        struct ExtensionInterface
+            :public NameServerRegistrator<ExtensionInterface*,std::string>
+        {
+            typedef NameServer<ExtensionInterface*> NameServerType;
+            /**
+             * Construct a not nameserved ExtensionInterface.
+             */
+            ExtensionInterface() {}
 
-        /**
-         * Construct an ExtensionInterface with name <name>, registred with
-         * ExtensionInterface::nameserver
-         *
-         */
-        ExtensionInterface(const std::string name) 
-            : NameServerRegistrator<ExtensionInterface*, std::string>(nameserver,name,this)
+            /**
+             * Construct an ExtensionInterface with name <name>, registred with
+             * ExtensionInterface::nameserver
+             *
+             */
+            ExtensionInterface(const std::string name) 
+                : NameServerRegistrator<ExtensionInterface*, std::string>(nameserver,name,this)
             {}
 
-        virtual ~ExtensionInterface() {}
+            virtual ~ExtensionInterface() {}
 
-        /**
-         * Returns the name of this extension.
-         */
-        const std::string& getName() { return extensionName; }
+            /**
+             * Returns the name of this extension.
+             */
+            const std::string& getName() { return extensionName; }
         
-        /**
-         * Update the properties with configuration data.
-         */
-        virtual bool updateProperties( const PropertyBag& bag ) = 0;
+            /**
+             * Update the properties with configuration data.
+             */
+            virtual bool updateProperties( const PropertyBag& bag ) = 0;
         
-        /**
-         * Nameserver for this interface.
-         */
-        static NameServer<ExtensionInterface*> nameserver;
-    protected:
-        /**
-         * Unique name of this extension.
-         */
-        std::string extensionName;
-    };
+            /**
+             * Nameserver for this interface.
+             */
+            static NameServer<ExtensionInterface*> nameserver;
+        protected:
+            /**
+             * Unique name of this extension.
+             */
+            std::string extensionName;
+        };
     
-    /**
-     * A template class for Aspects, which can be used, optionally, by Extensions of the
-     * kernel. This interface instructs the Aspect to register itself with a certain
-     * Extension. You must use this as a base class for every Aspect you want to provide
-     * to a component.
-     */
-    template< class _Extension >
-    struct ComponentAspectInterface
-    {
         /**
-         * The Extension (of the kernel) that this Aspect provides support for.
+         * A template class for Aspects, which can be used, optionally, by Extensions of the
+         * kernel. This interface instructs the Aspect to register itself with a certain
+         * Extension. You must use this as a base class for every Aspect you want to provide
+         * to a component.
          */
-        typedef _Extension Extension;
+        template< class _Extension >
+        struct ComponentAspectInterface
+        {
+            /**
+             * The Extension (of the kernel) that this Aspect provides support for.
+             */
+            typedef _Extension Extension;
         
-        /**
-         * Initialize the ComponentAspect with the name of the Aspect.
-         */
-        ComponentAspectInterface(const std::string& comp_name ) : aspectName(comp_name) {}
+            /**
+             * Initialize the ComponentAspect with the name of the Aspect.
+             */
+            ComponentAspectInterface(const std::string& comp_name ) : aspectName(comp_name) {}
 
-        virtual ~ComponentAspectInterface() {}
+            virtual ~ComponentAspectInterface() {}
         
-        /**
-         * Instructs the component to enable an aspect so that this aspect can
-         * deliver a service to the Extension <ext> of thekernel. 
-         * This will be called when the component is connected/added to the kernel.
-         */
-        virtual bool enableAspect( Extension* ext ) = 0;
+            /**
+             * Instructs the component to enable an aspect so that this aspect can
+             * deliver a service to the Extension <ext> of thekernel. 
+             * This will be called when the component is connected/added to the kernel.
+             */
+            virtual bool enableAspect( Extension* ext ) = 0;
 
-        /**
-         * Disable this aspect and no longer use the extension of the kernel.
-         */
-        virtual void disableAspect() = 0;
+            /**
+             * Disable this aspect and no longer use the extension of the kernel.
+             */
+            virtual void disableAspect() = 0;
 
-        virtual const std::string& getName() { return aspectName; }
+            virtual const std::string& getName() { return aspectName; }
 
-        const std::string aspectName;
-    };
+            const std::string aspectName;
+        };
 
     }
 
@@ -134,62 +134,62 @@ namespace ORO_ControlKernel
     class ComponentBaseInterface 
         :public ModuleControlInterface
     {
-        public:
-            /**
-             * Constructor.
-             */
-            ComponentBaseInterface(const std::string&) : kern(0) {}
+    public:
+        /**
+         * Constructor.
+         */
+        ComponentBaseInterface(const std::string&) : kern(0) {}
 
-            virtual ~ComponentBaseInterface() {}
+        virtual ~ComponentBaseInterface() {}
             
-            /**
-             * Inspect if this component is placed in a kernel.
-             * 
-             * @return true if it is so.
-             */
-            bool inKernel() { return kern != 0; }
+        /**
+         * Inspect if this component is placed in a kernel.
+         * 
+         * @return true if it is so.
+         */
+        bool inKernel() { return kern != 0; }
             
-            /**
-             * Return the kernel this component belongs to.
-             * 
-             * @return The kernel it belongs to, zero if none.
-             */
-            KernelBaseFunction* kernel() { return kern; }
+        /**
+         * Return the kernel this component belongs to.
+         * 
+         * @return The kernel it belongs to, zero if none.
+         */
+        KernelBaseFunction* kernel() { return kern; }
 
-            virtual bool enableAspect(KernelBaseFunction* e);
+        virtual bool enableAspect(KernelBaseFunction* e);
 
-            /**
-             * This method is a hook which is called when the component
-             * is loaded into the kernel.
-             *
-             * @return true on success, false otherwise
-             */
-            virtual bool componentLoaded() { return true;}
+        /**
+         * This method is a hook which is called when the component
+         * is loaded into the kernel.
+         *
+         * @return true on success, false otherwise
+         */
+        virtual bool componentLoaded() { return true;}
             
-            /**
-             * This method is a hook which is called when a component
-             * was unloaded from the kernel.
-             */
-            virtual void componentUnloaded() {}
+        /**
+         * This method is a hook which is called when a component
+         * was unloaded from the kernel.
+         */
+        virtual void componentUnloaded() {}
 
-            /**
-             * This method is a hook which is called when the kernel
-             * is started and the component must initialise the data
-             * objects with meaningfull data.
-             *
-             * @return true on success, false otherwise
-             */
-            virtual bool componentStartup() { return true; }
+        /**
+         * This method is a hook which is called when the kernel
+         * is started and the component must initialise the data
+         * objects with meaningfull data.
+         *
+         * @return true on success, false otherwise
+         */
+        virtual bool componentStartup() { return true; }
 
-            /**
-             * This method is a hook which is called when the kernel
-             * is stopped and the component must return to a safe state.
-             */
-            virtual void componentShutdown() {}
+        /**
+         * This method is a hook which is called when the kernel
+         * is stopped and the component must return to a safe state.
+         */
+        virtual void componentShutdown() {}
             
-            virtual void disableAspect();
-        private:
-            KernelBaseFunction* kern;
+        virtual void disableAspect();
+    private:
+        KernelBaseFunction* kern;
     };
 
     /**
@@ -210,7 +210,9 @@ namespace ORO_ControlKernel
      * to implement the RunnableInterface and define a
      * common Aspect (DefaultBase). 
      * This Extension is actually the base functionality
-     * of a kernel, which can handle aspects.
+     * of a kernel, updating the components, storing general properties,
+     * generating kernel events.
+     * 
      */
     struct KernelBaseFunction
         :public RunnableInterface
@@ -280,7 +282,7 @@ namespace ORO_ControlKernel
 
         virtual bool updateProperties(const PropertyBag& bag)
         {
-           return composeProperty(bag, frequency);
+            return composeProperty(bag, frequency);
         }
         
         /**
@@ -359,14 +361,14 @@ namespace ORO_ControlKernel
     namespace detail 
     {
 
-    /**
-     * A class for composing Aspects (if you want more than
-     * one Aspect in your component).
-     * 
-     */
-    template<class First, class Second>
-    struct CompositeAspect
-        : public First, public Second
+        /**
+         * A class for composing Aspects (if you want more than
+         * one Aspect in your component).
+         * 
+         */
+        template<class First, class Second>
+        struct CompositeAspect
+            : public First, public Second
         {
             CompositeAspect( const std::string& _name ) 
                 :First(_name), Second(_name) {}
@@ -415,36 +417,36 @@ namespace ORO_ControlKernel
     template<class First, class Second>
     struct CompositeExtension
         : public First, public Second
-        {
-            /**
-             * The Aspects of Both Extensions are composed 
-             * automatically in the same First,Second way.
-             */
-            typedef detail::CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
+    {
+        /**
+         * The Aspects of Both Extensions are composed 
+         * automatically in the same First,Second way.
+         */
+        typedef detail::CompositeAspect<typename First::CommonBase,typename Second::CommonBase> CommonBase;
             
-            CompositeExtension() {}
-            CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
+        CompositeExtension() {}
+        CompositeExtension( KernelBaseFunction* _base ) : First(_base), Second(_base) {}
 
-            virtual ~CompositeExtension() {}
+        virtual ~CompositeExtension() {}
 
-            virtual bool initialize() 
-            {
-                return (First::initialize() &&
+        virtual bool initialize() 
+        {
+            return (First::initialize() &&
                     Second::initialize() );
-            }
+        }
 
-            virtual void step() 
-            {
-                First::step();
-                Second::step();
-            }
+        virtual void step() 
+        {
+            First::step();
+            Second::step();
+        }
 
-            virtual void finalize() 
-            {
-                First::finalize();
-                Second::finalize();
-            }
-        };
+        virtual void finalize() 
+        {
+            First::finalize();
+            Second::finalize();
+        }
+    };
 
 }
 

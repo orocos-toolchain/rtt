@@ -165,26 +165,6 @@ namespace ORO_ControlKernel
          * Property. True if components properties must be saved afterwards.
          */
         Property<bool> save_props;
-        /**
-         * Property. Filename of the generator component's property file.
-         */
-        Property<std::string> generator;
-        /**
-         * Property. Filename of the estimator component's property file.
-         */
-        Property<std::string> estimator;
-        /**
-         * Property. Filename of the controller component's property file.
-         */
-        Property<std::string> controller;
-        /**
-         * Property. Filename of the sensor component's property file.
-         */
-        Property<std::string> sensor;
-        /**
-         * Property. Filename of the effector component's property file.
-         */
-        Property<std::string> effector;
 
         /**
          * The base kernel of this extension.

@@ -30,6 +30,35 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::NameServerRegistrator;
 
     /**
+     * A SupportComponent does not 'run' actually in the control loop,
+     * but it gets the same functionality as any other control component.
+     */
+    template < class _Aspect = DefaultBase >
+    class SupportComponent
+        :  public _Aspect,
+          public NameServerRegistrator< SupportComponent< _Aspect>* >
+    {
+    public:
+        typedef _Aspect Aspect;
+
+        /**
+         * A Default Support Component.
+         */
+        SupportComponent() : Aspect( "SupportComponent" ) {}
+        SupportComponent(const std::string& name ) 
+            : Aspect( name ), NameServerRegistrator< SupportComponent<_Aspect>* >(nameserver,name,this)
+        {}
+
+        /**
+         * The SupportComponent nameserver.
+         */
+        static NameServer< SupportComponent<_Aspect>* > nameserver;
+    };
+    
+    template < class A >
+    NameServer<SupportComponent<A>*> SupportComponent<A>::nameserver;
+
+     /**
      * A controller defined by the topological connections to Data Objects and
      * its ports to it.
      */
@@ -59,7 +88,7 @@ namespace ORO_ControlKernel
          */
         Controller() : Aspect( "Controller" ) {}
         Controller(const std::string& name ) 
-            : NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this), Aspect( name )  
+            : Aspect( name ), NameServerRegistrator< Controller<_SetPointType, _InputType, _ModelType, _OutputType, _Aspect>* >(nameserver,name,this)
         {}
             
 

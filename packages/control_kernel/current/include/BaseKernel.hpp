@@ -25,12 +25,22 @@
 #include <corelib/RunnableInterface.hpp>
 #include "BaseComponents.hpp"
 
+#include <pkgconf/system.h>
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateCommandFactory.hpp"
+#endif
+
+#include <algorithm>
+
 namespace ORO_ControlKernel
 {
 
     namespace detail
     {
-
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+        using namespace ORO_Execution;
+#endif
     /**
      * @brief The BaseKernel is for internal use only.
      *
@@ -90,6 +100,7 @@ namespace ORO_ControlKernel
         typedef Estimator<_InputPort, _ModelPort, CommonBase> DefaultEstimator;
         typedef Effector<_OutputPort, CommonBase> DefaultEffector;
         typedef Sensor<_InputPort, CommonBase> DefaultSensor;
+        typedef SupportComponent< CommonBase > DefaultSupport;
         /**
          * @}
          */
@@ -131,6 +142,80 @@ namespace ORO_ControlKernel
             selectSensor(sensor);
         }
 
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+        typedef BaseKernel<_CommandPort,_SetPointPort, _InputPort, _ModelPort,_OutputPort,Extension > ThisType;
+
+        bool isSelectedController( const std::string& name )
+        {
+            return ThisType::DefaultController::nameserver.getObject( name ) == controller;
+        }
+
+        bool isSelectedGenerator( const std::string& name )
+        {
+            return ThisType::DefaultGenerator::nameserver.getObject( name ) == generator;
+        }
+
+        bool isSelectedEstimator( const std::string& name )
+        {
+            return ThisType::DefaultEstimator::nameserver.getObject( name ) == estimator;
+        }
+
+        bool isSelectedSensor( const std::string& name )
+        {
+            return ThisType::DefaultSensor::nameserver.getObject( name ) == sensor;
+        }
+
+        bool isSelectedEffector( const std::string& name )
+        {
+            return ThisType::DefaultEffector::nameserver.getObject( name ) == effector;
+        }
+
+        virtual CommandFactoryInterface* createCommandFactory()
+        {
+            TemplateCommandFactory< ThisType  >* ret =
+                newCommandFactory( this );
+            ret->add( "selectController", 
+                      command<ThisType, bool,  const std::string&>( &ThisType::selectController ,
+                               &ThisType::isSelectedController,
+                               "Select a Controller Component", "Name", "The name of the Controller" ) );
+            ret->add( "selectGenerator", 
+                      command<ThisType, bool,  const std::string&>( &ThisType::selectGenerator ,
+                               &ThisType::isSelectedGenerator,
+                               "Select a Generator Component", "Name", "The name of the Generator" ) );
+            ret->add( "selectEstimator", 
+                      command<ThisType, bool,  const std::string&>( &ThisType::selectEstimator ,
+                               &ThisType::isSelectedEstimator,
+                               "Select a Estimator Component", "Name", "The name of the Estimator" ) );
+            ret->add( "selectSensor", 
+                      command<ThisType, bool,  const std::string&>( &ThisType::selectSensor ,
+                               &ThisType::isSelectedSensor,
+                               "Select a Sensor Component", "Name", "The name of the Sensor" ) );
+            ret->add( "selectEffector", 
+                      command<ThisType, bool,  const std::string&>( &ThisType::selectEffector ,
+                               &ThisType::isSelectedEffector,
+                               "Select a Effector Component", "Name", "The name of the Effector" ) );
+            return ret;
+        }
+
+//        virtual DataSourceFactory* createDataSourceFactory()
+//{
+//             TemplateDataSourceFactory< CartesianGenerator<Base> >* ret =
+//                 newDataSourceFactory( this );
+//             ret->add( "position", 
+//                       data( &CartesianGenerator<Base>::position, "The current position "
+//                             "of the robot." ) );
+//             ret->add( "time",
+//                       data( &CartesianGenerator<Base>::time, 
+//                             "The current time in the movement "
+//                             ) );
+//             ret->add( "trajectoryDone",
+//                       data( &CartesianGenerator<Base>::trajectoryDone,
+//                             "The state of the current trajectory "
+//                             ) ); 
+//             return ret;
+//        }
+#endif
+
         virtual bool initialize() 
         { 
             if ( !Extension::initialize() )
@@ -151,6 +236,9 @@ namespace ORO_ControlKernel
                 {
                     if (startup)
                         {
+                            // First, startup all the support components
+                            std::for_each(supports.begin(), supports.end(),
+                                    std::mem_fun( &DefaultSupport::componentStartup ));
                             // This startup sequence starts up all components
                             // and shuts them down again if one failed.
                             // sx = true : ok ; sx = false : failure
@@ -196,6 +284,9 @@ namespace ORO_ControlKernel
                             generator->componentShutdown();
                             controller->componentShutdown();
                             effector->componentShutdown();
+                            // Last, shutdown all the support components
+                            std::for_each(supports.begin(), supports.end(),
+                                    std::mem_fun( &DefaultSupport::componentShutdown ));
                         }
                 }
         }
@@ -289,7 +380,7 @@ namespace ORO_ControlKernel
         bool isLoadedController( const std::string& name ) {
             DefaultController* c;
             if ( (c = DefaultController::nameserver.getObjectByName( name )) )
-                return isLoaded(c);
+                return isLoadedController(c);
             return false;
         }
 
@@ -774,6 +865,79 @@ namespace ORO_ControlKernel
         }
 
         /**
+         * @brief Load a Support Component into the kernel.
+         *
+         * @param  name The name of the Support Component.
+         * @return True if the Support Component could be found and loaded,
+         *         False otherwise.
+         */
+        bool loadSupport( const std::string& name ) {
+            DefaultSupport* c;
+            if ( (c = DefaultSupport::nameserver.getObjectByName( name )) )
+                return loadSupport(c);
+            return false;
+        }
+
+        /**
+         * @brief UnLoad a Support Component from the kernel.
+         *
+         * @param  name The name of the Support Component.
+         * @return True if the Support Component could be found and unloaded,
+         *         False otherwise.
+         */
+        bool unloadSupport( const std::string& name ) {
+            DefaultSupport* c;
+            if ( (c = DefaultSupport::nameserver.getObjectByName( name )) )
+                return unloadSupport(c);
+            return false;
+        }
+
+        /**
+         * @brief Query if a Support Component is loaded in the kernel.
+         *
+         * @param  name The name of the Support Component to query.
+         * @return True if the Support Component is loaded in the kernel,
+         *         False otherwise.
+         */
+        bool isLoadedSupport( const std::string& name ) {
+            DefaultSupport* c;
+            if ( (c = DefaultSupport::nameserver.getObjectByName( name )) )
+                return isLoadedSupport(c);
+            return false;
+        }
+
+        bool loadSupport(DefaultSupport* c) {
+            if ( isRunning() )
+                return false;
+            if ( ! c->enableAspect(this) )
+                {
+                    return false;
+                }
+            else
+                {
+                    supports.push_back( c );
+                    return true;
+                }
+        }
+
+        bool unloadSupport(DefaultSupport* c) {
+            if ( isRunning() )
+                return false;
+            typename std::vector<DefaultSupport*>::iterator itl = std::find( supports.begin(), supports.end(), c);
+            if ( itl != supports.end() )
+                {
+                    supports.erase( c );
+                    c->disableAspect();
+                    return true;
+                }
+            return false;
+        }
+
+        bool isLoadedSupport(DefaultSupport* c) {
+            return ( std::find(supports.begin(), supports.end(), c) != supports.end() );
+        }
+
+        /**
          * @brief Returns the commands DataObject for this ControlKernel.
          */
         CommandData* getCommands() { return commands; }
@@ -872,6 +1036,7 @@ namespace ORO_ControlKernel
         std::vector<DefaultEffector*>   effectors;
         std::vector<DefaultEstimator*>  estimators;
         std::vector<DefaultSensor*>     sensors;
+        std::vector<DefaultSupport*>    supports;
 
         bool externalInputs;
         bool externalOutputs;

@@ -10,7 +10,7 @@ docxml: dochtml docpdf
 
 dochtml: pngimages orocos-control-kernel.html
 
-docpdf: pngimages orocos-control-kernel.pdf
+docpdf: epsimages orocos-control-kernel.pdf
 
 docps: epsimages orocos-control-kernel.ps
 

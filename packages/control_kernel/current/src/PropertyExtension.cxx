@@ -1,5 +1,6 @@
 #include "control_kernel/PropertyExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
+#include <corelib/PropertyBag.hpp>
 
 namespace ORO_ControlKernel
 {
@@ -25,10 +26,8 @@ namespace ORO_ControlKernel
 
     PropertyExtension::PropertyExtension(KernelBaseFunction* _base ) 
         : detail::ExtensionInterface("Property"),
-          // marshaller(out), demarshaller(in),
-          save_props("SaveProperties","",false), generator("Generator","filename"),
-          estimator("Estimator","filename"), controller("Controller","filename"), sensor("Sensor","filename"),
-          effector("Effector","filename"), base(_base)
+          save_props("SaveProperties","",false),
+          base(_base)
     {
     }
 
@@ -42,16 +41,24 @@ namespace ORO_ControlKernel
             
         // build new list of present component config files
         componentFileNames.clear();
-        if ( composeProperty(bag, generator ) )
-            componentFileNames.push_back( &generator );
-        if ( composeProperty(bag, estimator ) )
-            componentFileNames.push_back( &estimator );
-        if ( composeProperty(bag, controller ) )
-            componentFileNames.push_back( &controller );
-        if ( composeProperty(bag, sensor ) )
-            componentFileNames.push_back( &sensor );
-        if ( composeProperty(bag, effector ) )
-            componentFileNames.push_back( &effector );
+
+        PropertyBase* res = bag.find("PropertyFiles");
+        if ( res && dynamic_cast< Property< PropertyBag >*>( res ) )
+            {
+                PropertyBag& bag =
+                    dynamic_cast<Property<PropertyBag>* >( res )->value();
+
+                for( PropertyBag::iterator it = bag.getProperties().begin();
+                     it !=bag.getProperties().end();
+                     ++it)
+                    if ( dynamic_cast< Property<string>*>( *it ) )
+                        componentFileNames.push_back
+                            ( new Property<std::string>( *dynamic_cast< Property<string>*>(*it) ) );
+            }
+        else
+            {
+                return false;
+            }
         return true;
     }
         

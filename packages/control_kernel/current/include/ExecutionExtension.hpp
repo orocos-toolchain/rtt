@@ -93,12 +93,30 @@ namespace ORO_ControlKernel
         public GlobalFactory
     {
         ProgramGraph* program;
+        StateContext* context;
+
+    protected:
+        CommandFactoryInterface* commandfactory;
+        DataSourceFactory* dataSourceFactory;
+
     public:
         typedef ExecutionComponentInterface CommonBase;
 
         ExecutionExtension( KernelBaseFunction* _base=0 );
 
         virtual ~ExecutionExtension();
+
+        /**
+         * The factory for creating the commands this Kernel
+         * wants to export.
+         */
+        virtual CommandFactoryInterface* createCommandFactory();
+
+        /**
+         * The factory for creating the data this Kernel
+         * wants to export.
+         */
+        virtual DataSourceFactory* createDataSourceFactory();
 
         virtual bool initialize();
 
@@ -108,6 +126,19 @@ namespace ORO_ControlKernel
          * @param p A stream containing the program script to be executed.
          */
         bool loadProgram( std::istream& prog_stream );
+
+        /**
+         * Set a StateGraph to be used the next time the kernel is started.
+         *
+         * @param p A stream containing the state script to be executed.
+         */
+        bool loadStateContext( std::istream& state_stream );
+
+        void startProgram();
+
+        bool isProgramRunning();
+
+        void stopProgram();
 
         /**
          * The Processor is needed during program construction,
@@ -125,8 +156,12 @@ namespace ORO_ControlKernel
         virtual void finalize();
 
         virtual bool updateProperties( const PropertyBag& bag );
-
+        
+    protected:
+        void initKernelCommands();
     private:
+        bool running_progr;
+        
         Processor proc;
         int count;
         Property<int> interval;
