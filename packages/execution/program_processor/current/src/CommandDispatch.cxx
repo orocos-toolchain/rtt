@@ -4,7 +4,7 @@
 
 namespace ORO_Execution
 {
-        CommandDispatch::CommandDispatch(Processor* p, CommandInterface* c,  DataSource<bool>* result )
+        CommandDispatch::CommandDispatch(Processor* p, CommandInterface* c,  VariableDataSource<bool>* result )
             : _result(result), send(true), proc(p), com(c) {}
 
         CommandDispatch::~CommandDispatch() {
@@ -20,17 +20,22 @@ namespace ORO_Execution
                 }
                 else {
                     // send failed ! Target Processor probably not running, give up.
+                    send = false;
+                    // set _result to false, because com will not do this itself.
+                    _result->set(false);
                     return false;
                 }
             }
-            // return the accept/reject status.
+            // return the (remote)  accept/reject status.
+            // initially, it will be true (not yet executed), but may revert to false
+            // if the command function returns false.
             return _result->get();
         }
 
         void CommandDispatch::reset() {
             send = true;
             com->reset();
-            _result->reset();
+            // do not reset _result, we do not own it.
         }
 
         CommandInterface* CommandDispatch::clone() const {
