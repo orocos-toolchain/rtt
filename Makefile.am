@@ -26,7 +26,7 @@ new_packages:
 	mkdir -p packages-@ECOS_TARGET@
 	cd packages-@ECOS_TARGET@ ;\
 	export ECOS_REPOSITORY=${ECOS_REP} ;\
-	ecosconfig new @ECOS_TARGET@ minimal ;\
+	ecosconfig new @ECOS_TARGET@ corelib-os ;\
 	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl); done ;\
 	ecosconfig template allpackages

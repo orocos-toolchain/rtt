@@ -44,8 +44,7 @@ m4_define([ACX_VERSION],[
  define([acx_major_version],[$1])
  define([acx_minor_version],[$2])
  define([acx_micro_version],[$3])
- define([acx_build_nr],[$4])
- define([acx_version],[acx_major_version.acx_minor_version.acx_micro_version-acx_build_nr])
+ define([acx_version],[acx_major_version.acx_minor_version.acx_micro_version])
 ]) # ACX_VERSION
 
 
@@ -59,16 +58,17 @@ m4_define([ACX_VERSION_POST],[
  MAJOR_VERSION=acx_major_version
  MINOR_VERSION=acx_minor_version
  MICRO_VERSION=acx_micro_version
- BUILD=acx_build_nr
+ BUILD=$(svn info packages |grep Revision | sed -e's/Revision: //')
  DATE=`date +"%Y%m%d_%k%M"`
- VERSION=acx_version
- VERSION="$VERSION-$DATE"
+ VERSION=acx_version-$BUILD
  PACKAGE_VERSION=$VERSION
  AC_SUBST(MAJOR_VERSION)
  AC_SUBST(MINOR_VERSION)
  AC_SUBST(MICRO_VERSION)
  AC_SUBST(VERSION)
+ AC_SUBST(PACKAGE_VERSION)
  AC_SUBST(DATE)
+ AC_SUBST(BUILD)
 ]) # ACX_VERSION_POST
 
 
@@ -180,14 +180,14 @@ m4_define([AC_PROG_DIA],[
 AC_CHECK_PROG(DIA,dia,dia,no)
 dnl if test "x$DIA" = "xno"; then
 dnl DIA="@echo Not generating documentation figures"
-AC_MSG_WARN([
-Dia was not found on your system. Using Dia you can generate
-figures for the documentation for the Orocos project.
+# AC_MSG_WARN([
+# Dia was not found on your system. Using Dia you can generate
+# figures for the documentation for the Orocos project.
 
-You can download Dia from http://www.lysator.liu.se/~alla/dia/ 
-or if you are using Debian GNU/Linux just use: apt-get install dia
-to install Dia.
-])
+# You can download Dia from http://www.lysator.liu.se/~alla/dia/ 
+# or if you are using Debian GNU/Linux just use: apt-get install dia
+# to install Dia.
+# ])
 dnl fi
 dnl AC_MSG_CHECKING( Dia location)
 dnl DIA_LOCATION=`which dia`
@@ -205,15 +205,15 @@ dnl let DIA_VERSION_VALUE=${DIA_VERSION_MAJOR}*100+${DIA_VERSION_MINOR}
 dnl echo $DIA_VERSION_VALUE
 dnl if test $DIA_VERSION_VALUE -lt 90; then
 dnl  echo "$0: Dia $DIA_VERSION detected, need 0.90 or newer";
-AC_MSG_RESULT(not ok)
-AC_MSG_WARN([
-Dia found on your system is too old. Using Dia you can generate
-figures for the documentation for the Orocos project.
+# AC_MSG_RESULT(not ok)
+# AC_MSG_WARN([
+# Dia found on your system is too old. Using Dia you can generate
+# figures for the documentation for the Orocos project.
 
-You can download Dia from http://www.lysator.liu.se/~alla/dia/ 
-or if you are using Debian GNU/Linux just use: apt-get install dia
-to install Dia.
-])
+# You can download Dia from http://www.lysator.liu.se/~alla/dia/ 
+# or if you are using Debian GNU/Linux just use: apt-get install dia
+# to install Dia.
+# ])
 dnl DIA="@echo Not generating documentation figures"
 dnl else
 dnl AC_MSG_RESULT(ok)
@@ -227,15 +227,15 @@ m4_define([AC_PROG_FOP],[
 AC_CHECK_PROG(FOP,fop,fop,no)
 if test "x$FOP" = "xno"; then
 FOP="@echo Not generating PDF documentation"
-AC_MSG_WARN([
-FOP was not found on your system. Using FOP you can generate
-a PDF-file containing the Orocos project documentation.
+# AC_MSG_WARN([
+# FOP was not found on your system. Using FOP you can generate
+# a PDF-file containing the Orocos project documentation.
 
-FOP is a print formatter driven by XSL formatting objects.
+# FOP is a print formatter driven by XSL formatting objects.
 
-If you are using Debian GNU/Linux just use: apt-get install libfop-java
-to install FOP.
-])
+# If you are using Debian GNU/Linux just use: apt-get install libfop-java
+# to install FOP.
+# ])
 fi
 AC_SUBST(FOP)
 ])
@@ -290,11 +290,17 @@ dnl removed by ps
 
 dnl =================== Start of Autoconf Orocos extension macros ====================
 
-dnl OROCOS_INIT(name,major,minor,micro)
+dnl OROCOS_INIT(name,major,minor)
 m4_define([OROCOS_INIT],[
 # Define the version number of the package
 # Format: major,minor,micro,build
-ACX_VERSION($2,$3,$4,$5)
+
+# use packages version number as build number,
+# Since svn uses global version numbers this is actually cool !
+TMPBUILD = $(svn info packages |grep Revision | sed -e's/Revision: //')
+ define([svn_version],[$TMPBUILD])
+
+ACX_VERSION($2,$3,$4,svn_version)
 
 # Check if Autoconf version is recent enough
 AC_PREREQ(2.53)
@@ -458,7 +464,7 @@ OROCOS_OUTPUT_INFO
                     [AC_HELP_STRING([--with-rtlinux],[Use RTLinux])],
                     [
                     AC_MSG_RESULT(RTLinux)
-		    ECOS_TARGET=gnulinux
+		    ECOS_TARGET=rtlinux
     ],
     [
     AC_ARG_WITH(rtai,
