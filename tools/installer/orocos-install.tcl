@@ -105,8 +105,8 @@ namespace eval ecos_install {
 	# The official tcl script and db are on the www.orocos.org server.
 	#
         variable metadata_url { \
-			         "http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-install.db"\
-				 "http://www.orocos.org/orocos-install.db"\
+			         "http://people.mech.kuleuven.ac.be/~psoetens/orocos/packages/orocos-install.db"\
+				 "http://www.orocos.org/releases/orocos-install.db"\
 				 "http://localhost/orocos-install.db"\
 				}
 
