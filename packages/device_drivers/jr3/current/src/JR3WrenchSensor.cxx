@@ -45,7 +45,7 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
 
   : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
 {
-  //  &_maximumload_event = &maximumload;
+  _maximumload_event = &maximumload;
 
   if (type == "200N20")
     _type = _200N20;
@@ -225,7 +225,7 @@ void JR3WrenchSensor::refresh()
                   ((*_writeBuffer)(3) >  20 ) || ((*_writeBuffer)(3) <  -20) ||
                   ((*_writeBuffer)(4) >  20 ) || ((*_writeBuffer)(4) <  -20) ||
 		  ((*_writeBuffer)(5) >  20 ) || ((*_writeBuffer)(5) <  -20))
-	    _maximumload_event.fire();
+	    _maximumload_event->fire();
 	  break;
 
         case _100N5:
@@ -235,7 +235,7 @@ void JR3WrenchSensor::refresh()
                   ((*_writeBuffer)(3) >   5 ) || ((*_writeBuffer)(3) <   -5) ||
                   ((*_writeBuffer)(4) >   5 ) || ((*_writeBuffer)(4) <   -5) ||
                   ((*_writeBuffer)(5) >   5 ) || ((*_writeBuffer)(5) <   -5))
-	    _maximumload_event.fire();
+	    _maximumload_event->fire();
 	  break;
     }
 
