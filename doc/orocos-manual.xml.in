@@ -134,38 +134,4 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
-    <title>The Control Kernel Application</title>
-    <xi:include  href="orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-control-kernel.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-control-kernel.xml#xpointer(/article/appendix/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
-    <title>The Generic Hardware Components</title>
-    <xi:include  href="orocos-hardware-components.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-hardware-components.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
-    <title>The Motion Control Components</title>
-    <xi:include  href="orocos-motioncontrol.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-motioncontrol.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
-    <title>Kinematics</title>
-    <xi:include  href="orocos-kinematics.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-kinematics.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
 </book>

@@ -11,7 +11,7 @@ EXTRA_DIST = \
 # we do not distribute the ps files, they are to large,
 # but i make them for the website
 
-XMLDOCS=orocos-overview.xml   orocos-installation.xml orocos-manual.xml orocos-changes.xml orocos-faq.xml
+XMLDOCS=orocos-overview.xml orocos-installation.xml orocos-changes.xml orocos-faq.xml
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
 #need eps to include in pdf
@@ -25,8 +25,7 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	decoupling.sgml        general-dynamics-doc.sgml  \
 	kindyn-doc.sgml       robot-api.sgml 
 
-DIAS=orocos-core.dia properties.dia \
-	simple-overview.dia  heartbeat-tree.dia
+DIAS=
 
 HTMLDOCS= $(patsubst %.xml,%.html,$(XMLDOCS)) $(patsubst %.sgml,%.html,$(DOCBOOKS))
 PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))  #$(patsubst %.sgml,%.pdf,$(DOCBOOKS))
@@ -45,7 +44,7 @@ else
 DOC = dochtml
 endif
 
-.PHONY: docs docxml dochtml docpdf docps doctxt pngimages epsimages docchunks
+.PHONY: docs docxml dochtml docpdf docps doctxt pngimages epsimages docchunks manual control-manual
 
 docs: $(DOC)
 
@@ -54,6 +53,12 @@ manual: pngimages epsimages
 	-cp $(EXTRAEPS) .
 	rm -f  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
 	$(MAKE) orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+
+control-manual: pngimages epsimages
+	-cp $(EXTRAXMLDOCS) .
+	-cp $(EXTRAEPS) .
+	rm -f  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
+	$(MAKE) orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
 
 docxml: dochtml docpdf docps
 
