@@ -307,7 +307,7 @@
 	      <entry align="center" valign="middle">OS Abstraction
 		classes</entry>
 	      <entry align="center" valign="middle">
-		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp,
+		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp, SingleThread.hpp,
 		EvenInterrupt.hpp, main.h
 	      </entry>
 	      <entry align="left" valign="middle">
