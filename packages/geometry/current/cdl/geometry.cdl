@@ -21,6 +21,18 @@ Twist and Wrench"
 	    compile primitives/plane.cxx
 	}
 
+	cdl_option OROSEM_GEOMETRY_EULERPROPERTIES {
+	    display "Use Euler ZYX Angles for Properties"
+	    description "
+Enable this option to use Euler Angles when converting
+Rotation Matrices to Properties or vice versa. When
+disabled, The lesser readable, but more accurate
+Rotation Matrix (3x3) will be marshalled."
+            flavor bool
+            default_value 1
+            active_if OROPKG_GEOMETRY_3D_FRAMES
+        }
+
 	cdl_option OROPKG_GEOMETRY_3D_FRAMES_IO {
 	    display "3D IO conversions"
 	    description "

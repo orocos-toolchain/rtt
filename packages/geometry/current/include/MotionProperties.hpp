@@ -41,54 +41,6 @@ namespace ORO_CoreLib
     using ORO_Geometry::Rotation;
     using ORO_Geometry::Wrench;
 
-    /**
-     *
-     * MotionControl::Double6D
-     *
-     */
-    
-    /**
-     * A Decomposer for Decomposing a Double6D or Property<Double6D>
-     * into a typed Property<PropertyBag>.
-     */
-    class Double6DDecomposer
-    {
-        Property<PropertyBag> resultBag;
-        Property<double> D1;
-        Property<double> D2;
-        Property<double> D3;
-        Property<double> D4;
-        Property<double> D5;
-        Property<double> D6;
-        
-        public: 
-        
-        Double6DDecomposer( const Property<Double6D>& v );
-        Double6DDecomposer( const Double6D& v, const string& name );
-        
-        Property<PropertyBag>& result() { return resultBag; }
-    };
-        
-    /**
-     * An Composer for constructing a Double6D or Property<Double6D>
-     * from a typed PropertyBag.
-     */
-    class Double6DComposer
-    {
-        const PropertyBag& bag;
-        public:
-            Double6DComposer( const PropertyBag& _bag )
-                : bag(_bag)
-            {}
-
-            bool getResult( Property<Double6D>& res )
-            {
-                return getResult( res.value(), res.getName() );
-            }
-                
-            bool getResult( Double6D& res, const string& name );
-    };
-            
 
     /**
      * Additional functionality for handling a Property<Double6D>
@@ -101,51 +53,6 @@ namespace ORO_CoreLib
      */
     bool composeProperty(const PropertyBag& bag, Property<Double6D> &v);
 
-    /**
-     *
-     *    ORO_Geometry::Vector
-     *
-     */
-
-    /**
-     * A Decomposer for Decomposing a Vector or Property<Vector>
-     * into a typed Property<PropertyBag>.
-     */
-    class VectorDecomposer
-    {
-        Property<PropertyBag> resultBag;
-        Property<double> X;
-        Property<double> Y;
-        Property<double> Z;
-        
-        public: 
-        
-        VectorDecomposer( const Property<Vector>& v );
-        VectorDecomposer( const Vector& v, const string& name );
-        
-        Property<PropertyBag>& result() { return resultBag; }
-    };
-        
-    /**
-     * An Composer for constructing a Vector or Property<Vector>
-     * from a typed PropertyBag.
-     */
-    class VectorComposer
-    {
-        const PropertyBag& bag;
-        public:
-            VectorComposer( const PropertyBag& _bag )
-                : bag(_bag)
-            {}
-
-            bool getResult( Property<Vector>& res )
-            {
-                return getResult( res.value(), res.getName() );
-            }
-                
-            bool getResult( Vector& res, const string& name );
-    };
-            
 
     /**
      * Additional functionality for handling a Property<Vector>
@@ -158,57 +65,6 @@ namespace ORO_CoreLib
      */
     bool composeProperty(const PropertyBag& bag, Property<Vector> &v);
 
-    /**
-     *
-     *    ORO_Geometry::Rotation
-     *
-     */
-
-    /**
-     * A Decomposer for Converting a Rotation or Property<Rotation>
-     * into a typed Property<PropertyBag>.
-     */
-    class RotationDecomposer
-    {
-        Property<PropertyBag> resultBag;
-        Property<double> X_x;
-        Property<double> X_y;
-        Property<double> X_z;
-        Property<double> Y_x;
-        Property<double> Y_y;
-        Property<double> Y_z;
-        Property<double> Z_x;
-        Property<double> Z_y;
-        Property<double> Z_z;
-        
-        public: 
-        
-        RotationDecomposer( const Property<Rotation>& r );
-        RotationDecomposer( const Rotation& r, const string& name );
-        
-        Property<PropertyBag>& result() { return resultBag; }
-    };
-    
-    /**
-     * An Composer for constructing a Rotation or Property<Rotation>
-     * from a typed PropertyBag.
-     */
-    class RotationComposer
-    {
-        const PropertyBag& bag;
-        public:
-            RotationComposer( const PropertyBag& _bag )
-              :  bag(_bag)
-            {}
-
-            bool getResult( Property<Rotation>& res )
-            {
-                return getResult( res.value(), res.getName() );
-            }
-
-            bool getResult( Rotation& res, const string& name );
-    };
-            
         
     /**
      * Additional functionality for handling a Property<Rotation>
