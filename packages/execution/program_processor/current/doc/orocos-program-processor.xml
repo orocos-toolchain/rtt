@@ -149,12 +149,12 @@
       </para>
       <para>
 	The Processor is responsible for accepting command requests
-	from other (realtime) tasks. It uses an non-blocking atomic queue to 
+	from other (realtime) tasks. It uses a non-blocking atomic queue
 	to store incomming requests and fetch-and-execute them in its periodic loop,
 	which can be synchronised with tasks of the same priority. It offers
 	thus a thread-safe realtime means of message passing between threads,
 	without intervention of the Operating System.
-	However, before it will accept commands, it must attached
+	However, before it will accept commands, it must be attached
 	to a periodic task and be started. It implements the
 	<classname>ORO_CoreLib::RunnableInterface</classname> class,
 	which allows it to be run by periodic tasks :
