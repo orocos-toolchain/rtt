@@ -61,7 +61,7 @@ namespace ORO_OS
 
     void *ComponentThread( void *t )
     {
-        rtos_printf( "Component thread created\n" );
+        rtos_printf( "Periodic Thread created\n" );
         PeriodicThread* comp = ( PeriodicThread* ) t;
 
         while ( 1 )
