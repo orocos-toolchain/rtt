@@ -21,22 +21,18 @@
 #define CONTROLKERNEL_HPP
 
 /**
- * @file ControlKernel.hpp
- * @brief General Documentation
+ * @brief This is the main namespace of the control_kernel package. 
  *
- * This file contains some general documentation.
- */
-
-/**
- * @mainpage Orocos ControlKernel
- * @section  intro Introduction
- * For detailed documentation of Orocos ControlKernel, take a look at the
- * <a href="../../orocos-controlkernel.html">Online Documentation</a>.
- */
-
-/**
- * This is the main namespace of package ControlKernel. It groups all
- * classes that are meant for controlling a realtime (robot) system.
+ * It groups all classes that are meant for controlling 
+ * a realtime (robot) system. It defines Kernels and Components.
+ * The Kernel's main task is to provide a servoloop implementation,
+ * but it can be extended in a generic way with extra functionality.
+ *
+ * The kernel_components package provides implementations of components
+ * of this package.
+ *
+ * This package is documented in <a href="../../../orocos-control-kernel.html">
+ * The Orocos ControlKernel Manual</a>.
  */
 namespace ORO_ControlKernel {}
 

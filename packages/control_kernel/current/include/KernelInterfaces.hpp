@@ -353,6 +353,13 @@ namespace ORO_ControlKernel
 
             virtual ~CompositeAspect() {}
 
+            // this removes compiler warnings, about
+            // enableAspect being hidden, we want them
+            // to be hidden, but hey, at least we lost the
+            // warning...and this also works.
+            using First::enableAspect;
+            using Second::enableAspect;
+
             template< class Extension >
             bool enableAspect(Extension* ext) 
             {
