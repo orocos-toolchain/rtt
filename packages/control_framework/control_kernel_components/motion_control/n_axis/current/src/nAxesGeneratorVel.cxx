@@ -171,7 +171,7 @@ namespace ORO_ControlKernel
 					     "duration", "duration of movement") );
     my_commandFactory->add( "gotoVelocities", command( &nAxesGeneratorVel::gotoVelocities,
 					      &nAxesGeneratorVel::velocitiesFinished,
-					      "Set the velocity",
+					      "Set the velocities",
 					      "velocities", "joint velocities for all axes",
 					      "duration", "duration of movement") );
     my_commandFactory->add( "gotoVelocity", command( &nAxesGeneratorVel::gotoVelocity,
