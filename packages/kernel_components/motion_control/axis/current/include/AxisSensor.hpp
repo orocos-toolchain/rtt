@@ -176,7 +176,7 @@ namespace ORO_ControlKernel
         /**
          * @brief Inspect if an axis is enabled.
          */
-        bool isEnabled( const std::string& name ) const;
+        //bool isEnabled( const std::string& name ) const;
 
         /**
          * @brief Inspect the position of an Axis.

@@ -58,7 +58,7 @@ namespace ORO_ControlKernel {
                 if ( this->Base::Input::dObj()->Get( ax->first+".Velocity", d) == false )
                     std::cout << "AxisSensor::componentLoaded : Velocity of "+ax->first+" not found !"<<std::endl;
 
-                drive[ ax->first ] = std::make_pair( ax->second->driveGet(), d );
+                drive[ ax->first ] = std::make_pair( ax->second->getDrive(), d );
 
                 std::vector<std::string> res( ax->second->sensorList() );
                 for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
@@ -66,7 +66,7 @@ namespace ORO_ControlKernel {
                         std::string sname( ax->first+"."+*it );
                         if ( this->Base::Input::dObj()->Get( sname, d ) == false )
                             std::cout << "AxisSensor::componentLoaded : "+*it+" of "+ax->first+" not found !"<<std::endl;
-                        sensor[ sname ] = std::make_pair( ax->second->sensorGet( *it ),d);
+                        sensor[ sname ] = std::make_pair( ax->second->getSensor( *it ),d);
                     }
             }
 
@@ -121,11 +121,11 @@ namespace ORO_ControlKernel {
         // no channel tied == -1
         axes[name] = ax;
 
-        d_out[ name + ".Drive" ] = ax->driveGet()->enableGet();
-        if ( ax->brakeGet() )
-            d_out[ name + ".Brake" ] = ax->brakeGet();
-        if ( ax->homeswitchGet() )
-            d_in[ name + ".Home" ] = ax->homeswitchGet();
+        d_out[ name + ".Drive" ] = ax->getDrive()->enableGet();
+        if ( ax->getBrake() )
+            d_out[ name + ".Brake" ] = ax->getBrake();
+        //if ( ax->homeswitchGet() )
+        //    d_in[ name + ".Home" ] = ax->homeswitchGet();
 
         // Before Reload, Add All DataObjects :
         assert( this->Base::Input::dObj() );
@@ -150,13 +150,13 @@ namespace ORO_ControlKernel {
         if ( virtual_channel >= max_channels ||
              channels[virtual_channel].first != 0 ||
              axes.count(axis_name) != 1 ||
-             axes[axis_name]->sensorGet( sensor_name ) == 0 ||
+             axes[axis_name]->getSensor( sensor_name ) == 0 ||
              this->kernel()->isRunning() )
             return false;
 
         ++usingChannels;
         // The owner Axis is stored in the channel.
-        channels[virtual_channel] = std::make_pair( axes[axis_name]->sensorGet( sensor_name ), axes[axis_name] );
+        channels[virtual_channel] = std::make_pair( axes[axis_name]->getSensor( sensor_name ), axes[axis_name] );
         return true;
     }
 
@@ -218,13 +218,13 @@ namespace ORO_ControlKernel {
         return true;
     }
 
-    bool AxisSensor::isEnabled( const std::string& name ) const
-    {
-        AxisMap::const_iterator it = axes.find(name);
-        if ( it != axes.end() )
-            return it->second->isEnabled();
-        return false;
-    }
+  //bool AxisSensor::isEnabled( const std::string& name ) const
+  //  {
+  //      AxisMap::const_iterator it = axes.find(name);
+  //      if ( it != axes.end() )
+  //          return it->second->isEnabled();
+  //      return false;
+  //  }
 
     double AxisSensor::position( const std::string& name ) const
     {
@@ -272,11 +272,11 @@ namespace ORO_ControlKernel {
                         "Inspect the status of a Sensor of an Axis.",
                         "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
                         ) );
-        ret->add( "isEnabled", 
-                  data( &AxisSensor::isEnabled,
-                        "Inspect the status of an Axis.",
-                        "Name", "The Name of the Axis."
-                        ) );
+        //ret->add( "isEnabled", 
+        //          data( &AxisSensor::isEnabled,
+        //                "Inspect the status of an Axis.",
+        //                "Name", "The Name of the Axis."
+        //                ) );
         return ret;
     }
 #endif
