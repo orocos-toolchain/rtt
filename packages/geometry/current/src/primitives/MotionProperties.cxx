@@ -31,6 +31,13 @@
 namespace ORO_CoreLib
 {
 
+    template class Property<Frame>;
+    template class Property<Double6D>;
+    template class Property<Wrench>;
+    template class Property<Twist>;
+    template class Property<Rotation>;
+    template class Property<Vector>;
+
     /**
      *
      * MotionControl::Double6D

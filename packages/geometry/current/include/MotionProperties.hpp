@@ -136,6 +136,12 @@ namespace ORO_CoreLib
      */
     bool composeProperty(const PropertyBag& bag, Property<Frame> &f);
 
+    extern template class Property<Frame>;
+    extern template class Property<Double6D>;
+    extern template class Property<Wrench>;
+    extern template class Property<Twist>;
+    extern template class Property<Rotation>;
+    extern template class Property<Vector>;
 }
 
 #endif
