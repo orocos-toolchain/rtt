@@ -83,8 +83,8 @@ namespace ORO_ControlKernel {
 
         axes[name] = make_pair(ax, -1);
 
-        d_out[ name + ".Drive" ] = ax->driveGet()->enableGet();
-        d_out[ name + ".Brake" ] = ax->brakeGet();
+        d_out[ name + ".Drive" ] = ax->getDrive()->enableGet();
+        d_out[ name + ".Brake" ] = ax->getBrake();
         // we will fill in the dataobject pointer in componentStartup()
         DataObjectInterface<double>* tmp = 0;
         drive[name + ".Velocity" ] = make_pair( ax, tmp);
