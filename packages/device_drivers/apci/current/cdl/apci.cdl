@@ -23,7 +23,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
 	make  {
 	    <PREFIX>/modules/apci_lxrt.o : <PACKAGE>/src/apci_lxrt.c <PACKAGE>/src/apci_lxrt.h
 	    @mkdir -p $(PREFIX)/modules
-	    $(CC) -I/lib/modules/$$(uname -r)/build/include -I$(PREFIX)/include/ $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/apci_lxrt.c  -o $@
+	    $(CC) -I$(PREFIX)/include/ $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/apci_lxrt.c  -o $@
 	}
     }	
 

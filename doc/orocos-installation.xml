@@ -556,13 +556,18 @@
 	</listitem>
       </itemizedlist>
     </sect2>
-    <sect2>
+    <sect2 id="install-flags">
       <title>Orocos Build Compiler Flags</title>
       <para>
 	You must set the compiler flags in the configtool GUI, in
 	<menuchoice>
 	  <guilabel>Global Build Options</guilabel>
 	</menuchoice>
+      </para>
+      <para>
+	Furthermore, you <emphasis>MUST SET</emphasis> the Linux directory
+	path in the configtool if you want to compile <emphasis>Linux Kernel Modules</emphasis>.
+	Otherwise the build will fail.
       </para>
     </sect2>
     <sect2 id="install-config-devs">
@@ -664,12 +669,16 @@
 	  </itemizedlist>
 	  After configuring you can run 'make' and 'make install' in your RTAI directory
 	</para>
-      <para>
+	<para>
 	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
 	  specify during the Orocos configure step the alternative if you chose so.
-	  Also, you need to set the path to your Linux source tree (on which the
-	  patch was applied ) in the <command>make configure_packages</command> step.
-      </para>
+	</para>
+	<important>
+	  <para>
+	    You need to set the path to your Linux source tree (on which the
+	    patch was applied ) in the <command>make configure_packages</command> step.
+	  </para>	
+	</important>
       </sect3>
 <!--       <sect3> -->
 <!-- 	<title> Loading RTAI without LXRT (not recommended)</title> -->

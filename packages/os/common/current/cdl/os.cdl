@@ -29,9 +29,9 @@ will be used instead of the system header files.
     }
 
     cdl_option OROBLD_OS_LINUX_KERNEL {
-	display "The source directory of the target Linux kernel"
+	display "Target Linux kernel directory"
 	description "
-This path is needed  when kernel modules or the like needs
+This path is needed when KERNEL MODULES need
 to be build."
 	flavor data
 	parent CYGPKG_NONE
