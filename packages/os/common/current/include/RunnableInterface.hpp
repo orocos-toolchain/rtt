@@ -38,8 +38,8 @@ namespace ORO_OS
      * @brief A class for running a certain piece of code in a thread.
      *
      * It defines three methods for executing functionality. It is 
-     * complementary to the RunnableTaskInterface, which defines the
-     * control methods as starting and stopping.
+     * complementary to the \a TaskInterface, which defines the
+     * control methods as starting and stopping tasks in the CoreLib
      * 
      * In a start-run-stop cycle, before step() is called the first time,
      * initialize() will be called.
@@ -61,15 +61,13 @@ namespace ORO_OS
 
             /**
              * The method that will be called once each time before the periodical
-             * execution of step() is started. This method is executed in the
-             * context of the step.
+             * execution of step() is started.
              */
             virtual bool initialize() = 0;
 
             /**
              * The method that will be called once each time after the periodical
-             * execution of step() is stopped. This method is exectuted in the
-             * context of the step.
+             * execution of step() is stopped.
              */
             virtual void finalize() = 0;
     };

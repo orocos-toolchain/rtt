@@ -39,16 +39,16 @@
 
 #include <string>
 
+namespace ORO_CoreLib {
+    class Handle;
+}
+
 namespace ORO_OS
 {
-    class Finalizer;
-
     /**
+     * @brief A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
      *
-     *	An active component is a threaded component
-     *
-     *	The periodicity is the time between the starting
-     *	of two runs.
+     * It has a fixed priority, a name and a periodicity.
      */
     class PeriodicThread 
         : public PeriodicThreadInterface 
@@ -57,6 +57,15 @@ namespace ORO_OS
 
     public:
 
+        /**
+         * Create a Thread with a given priority and a name.
+         *
+         * @param priority The priority of the thread, with zero being the highest.
+         * @param name     The name of the Thread.
+         * @param period   The period in seconds (eg 0.001) of the thread.
+         * @param r        The optional RunnableInterface instance to run. If not present,
+         *                 the thread's own RunnableInterface functions are executed.
+         */
         PeriodicThread(int priority, const std::string& name, double period=0.01, RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
@@ -157,7 +166,6 @@ namespace ORO_OS
          */
         void periodWaitRemaining();
 
-        Finalizer *finalizer;
         /**
          * Periodicity of the thread in ns.
          */
@@ -203,6 +211,8 @@ namespace ORO_OS
          * The possible Runnable to run in this Component
          */
         RunnableInterface* runComp;
+
+        ORO_CoreLib::Handle* h;
     };
 
 }

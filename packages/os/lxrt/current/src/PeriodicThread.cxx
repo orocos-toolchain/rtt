@@ -24,33 +24,6 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-/***************************************************************************
-  tag: Peter Soetens  Mon Jun 10 14:43:12 CEST 2002  PeriodicThread.cpp 
-
-                        PeriodicThread.cpp -  description
-                           -------------------
-    begin                : Mon June 10 2002
-    copyright            : (C) 2002 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/ 
- 
 
 #include <os/PeriodicThread.hpp>
 
@@ -61,41 +34,29 @@
 #endif
 
 #ifdef OROPKG_CORELIB_EVENTS
-#include "corelib/EventCompleterInterface.hpp"
-#endif
-
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-#include "corelib/CompletionProcessor.hpp"
+#include "corelib/Event.hpp"
 #endif
 
 #include <iostream>
 #include <sys/mman.h>
 #include "corelib/Time.hpp"
 
-namespace ORO_OS 
-{
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        /**
-         * The Finalizer was invented because setToStop() wanted
-         * to have finalize() called after step() completed.
-         * This is only possible from another thread.
-         * So we use the Completion processor to stop the task
-         */
-        class Finalizer : public ORO_CoreLib::EventCompleterInterface
-        {
-            PeriodicThread* parent;
+/**
+ * We use the Completion processor to stop the task
+ */
+using boost::bind;
 
-        public:
-            Finalizer( PeriodicThread* ct ) : parent( ct )
-            {}
+namespace
+{
+    // our internal event to stop a thread.
+    ORO_CoreLib::Event<bool(void)> stopEvent;
+}
 
-            void completeEvent()
-            {
-                parent->stop();
-            }
-        };
 #endif
 
+namespace ORO_OS
+{
     void *ComponentThread(void* t) 
     {
         RTIME period, period_ns;
@@ -106,7 +67,7 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        rtos_printf("Component thread created...\n");
+        rtos_printf("Periodic Thread created...\n");
 
         //lock_all(8*1024, 512*1024);// stack,heap
 
@@ -117,7 +78,7 @@ namespace ORO_OS
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
             std::cout << "CANNOT INIT TASK " << mytask_name <<std::endl;
-            exit(1);
+            return;
         }
     
         task->rt_task = mytask;
@@ -169,7 +130,7 @@ namespace ORO_OS
         rt_sem_delete(task->sem);
         rt_task_delete(mytask);
 
-        rtos_printf("Breaked : Killing myself\n");
+        rtos_printf("Breaked : Periodic Thread exit.\n");
         return 0;
     }
 
@@ -187,14 +148,13 @@ namespace ORO_OS
             
 
     PeriodicThread::PeriodicThread(int _priority, const std::string& name, Seconds period, RunnableInterface* r) :
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        finalizer(new Finalizer(this) ), 
-#else   
-        finalizer(0),
-#endif
         running(false), stopped(true), goRealtime(false), priority(_priority), prepareForExit(false),
         runComp(r)
     {
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        h = new ORO_CoreLib::Handle();
+        *h = stopEvent.connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
+#endif
         if ( !name.empty() )
             taskNameSet(name.c_str());
         else
@@ -217,7 +177,8 @@ namespace ORO_OS
         rt_sem_delete(confDone);
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        delete finalizer;
+        h->disconnect();
+        delete h;
 #endif
         rtos_printf("%s destroyed\n", taskName );
     }
@@ -226,10 +187,14 @@ namespace ORO_OS
     {
         if ( isRunning() ) return false;
 
+        bool result;
         if ( runComp )
-            runComp->initialize();
+            result = runComp->initialize();
         else
-            initialize();
+            result = initialize();
+
+        if (result == false)
+            return false;
 
         running=true;
 
@@ -362,7 +327,7 @@ namespace ORO_OS
     bool PeriodicThread::setToStop()
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        ORO_CoreLib::CompletionProcessor::Instance()->queue( finalizer );
+        stopevent();
         return true;
 #else
         return false;

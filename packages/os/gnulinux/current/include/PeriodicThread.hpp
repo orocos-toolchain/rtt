@@ -32,16 +32,17 @@
 
 #include <string>
 
+namespace ORO_CoreLib {
+    class Handle;
+}
+
 namespace ORO_OS
 {
-    class Finalizer;
 
     /**
+     * @brief A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
      *
-     *        An active component is a threaded component
-     *
-     *        The periodicity is the time between the starting
-     *        of two runs.
+     * It has a fixed priority, a name and a periodicity.
      */
     class PeriodicThread : public PeriodicThreadInterface
     {
@@ -191,7 +192,7 @@ namespace ORO_OS
          */
         virtual bool setToStop();
 
-        Finalizer* finalizer;
+        ORO_CoreLib::Handle* h;
     };
 }
 

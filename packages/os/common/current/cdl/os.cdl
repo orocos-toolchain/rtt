@@ -30,7 +30,7 @@ to be build."
 This provides an <iostream> like implementation of
 streams, but suitable for hard realtime at the cost
 of generality (so it is less configurable as the 
-std C++ library"
+std C++ library). It resides in the rt_std namespace."
 	flavor bool
 	default_value 1
 	compile rtstreams.cxx

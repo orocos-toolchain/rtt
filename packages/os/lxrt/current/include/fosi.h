@@ -129,6 +129,21 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_destroy_rt(m);
     }
 
+    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    {
+        CHK_LXRT_CALL();
+        pthread_mutexattr_t ma_t;
+        pthread_mutexattr_init(&ma_t);
+		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
+        return pthread_mutex_init_rt(m, 0);
+    }
+
+    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_destroy_rt(m);
+    }
+
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();

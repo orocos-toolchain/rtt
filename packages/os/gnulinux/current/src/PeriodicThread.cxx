@@ -24,24 +24,6 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-/***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:42:36 CEST 2002  PeriodicThread.cpp 
-
-                       PeriodicThread.cpp -  description
-                          -------------------
-   begin                : Mon June 10 2002
-   copyright            : (C) 2002 Peter Soetens
-   email                : peter.soetens@mech.kuleuven.ac.be
-
-***************************************************************************
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
-***************************************************************************/
-
 
 // TODO: check if the RunnableInterface always gets initialized and finalized.
 
@@ -52,34 +34,20 @@
 #endif
 
 #ifdef OROPKG_CORELIB_EVENTS
-#include "corelib/EventCompleterInterface.hpp"
+#include <corelib/Event.hpp>
+
+using boost::bind;
+
+namespace
+{
+    // our internal event to stop a thread.
+    ORO_CoreLib::Event<bool(void)> stopEvent;
+}
+
 #endif
 
 #include "os/PeriodicThread.hpp"
 
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-#include "corelib/CompletionProcessor.hpp"
-
-namespace ORO_OS
-{
-
-        class Finalizer : public ORO_CoreLib::EventCompleterInterface
-        {
-            PeriodicThread* parent;
-        public:
-            Finalizer( PeriodicThread* ct ) : parent( ct )
-            {}
-
-            virtual void completeEvent();
-        };
-
-    void Finalizer::completeEvent(void)
-    {
-        parent->stop();
-    }
-}
-
-#endif
 
 
 namespace ORO_OS
@@ -110,12 +78,10 @@ namespace ORO_OS
 
     PeriodicThread::PeriodicThread(int , const std::string& name, double period, RunnableInterface* r )
             : runner( r ), periodMark( 0 ), running( false ), timeToQuit(false)
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-              , finalizer( new Finalizer(this) )
-#else
-              , finalizer( 0 )
-#endif
     {
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        h = new ORO_CoreLib::Handle();
+#endif
         taskNameSet( name.c_str() );
         periodSet( period );
         pthread_attr_init( threadAttributeGet() );
@@ -134,8 +100,9 @@ namespace ORO_OS
         // should wait until step is completed and exit then... ( FSM )
         //pthread_join(&thread); // join is not recommended
         pthread_attr_destroy( threadAttributeGet() );
-
-        delete finalizer;
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        delete h;
+#endif
     }
 
     bool PeriodicThread::start()
@@ -144,13 +111,15 @@ namespace ORO_OS
             return false;
 
         if ( runner )
-            runner->initialize();
+            running = runner->initialize();
         else
-            initialize();
+            running = initialize();
 
-        running = true;
-
-        return true;
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        if ( running )
+            *h = stopEvent.connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
+#endif
+        return running;
     }
 
     bool PeriodicThread::stop()
@@ -160,6 +129,14 @@ namespace ORO_OS
 
         running = false;
 
+        if ( runner )
+            runner->finalize();
+        else
+            finalize();
+
+#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
+        h->disconnect();
+#endif
         return true;
     }
 
@@ -168,7 +145,7 @@ namespace ORO_OS
         // finalize will be called in the thread of the
         // Completion processor
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        ORO_CoreLib::CompletionProcessor::Instance()->queue( finalizer );
+        stopEvent();
         return true;
 #else
         return false;

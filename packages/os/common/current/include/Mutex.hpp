@@ -30,18 +30,19 @@
 #define MUTEX_HPP
 
 #include <os/fosi.h>
+#include <pkgconf/os.h>
 
 namespace ORO_OS
 {
     /**
-     * @brief An object oriented wrapper around the posix mutex.
+     * @brief An object oriented wrapper around a non recursive mutex.
      *
      * A mutex can only be  unlock()'ed, by the thread which lock()'ed 
      * it. A trylock is a non blocking lock action which fails or succeeds.
      * @warning Mutex instances should only be created in soft realtime,
      *          since the initialisation of a mutex can not be done in hard realtime.
      *
-     * @see MutexLock, MutexTryLock
+     * @see MutexLock, MutexTryLock, MutexRecursive
      */
     class Mutex 
     {
@@ -50,8 +51,14 @@ namespace ORO_OS
         friend class MutexTryLock;
 
         friend class ConditionVariableTimed;
-        
-        public:
+    protected:
+        /**
+         * The empty constructor, used for derived classes.
+         */
+        Mutex(int) {}
+
+        rt_mutex_t m;
+    public:
             /**
              * Initialize a Mutex.
              */
@@ -96,8 +103,28 @@ namespace ORO_OS
                 return false;
             }
 
-    private:
-        rt_mutex_t m;
+    };
+
+    /**
+     * @brief An object oriented wrapper around a recursive mutex.
+     *
+     * A mutex can only be  unlock()'ed, by the thread which lock()'ed 
+     * it. A trylock is a non blocking lock action which fails or succeeds.
+     *
+     * @see MutexLock, MutexTryLock, Mutex
+     */
+    class MutexRecursive : public Mutex
+    {
+        public:
+        /**
+         * Initialize a recursive Mutex.
+         */
+        MutexRecursive()
+            : Mutex(0)
+        {
+            rtos_mutex_rec_init( &m, 0 );
+        }
+
     };
 
 }

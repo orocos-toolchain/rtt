@@ -33,10 +33,13 @@ extern "C"
 {
 #endif
 
+#define _XOPEN_SOURCE 600   // use all Posix features.
+
 #include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
     typedef pthread_t RTOS_TASK;
 
 	// Orocos Implementation (i386 specific)
@@ -44,6 +47,7 @@ extern "C"
 
     // Time Related
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
     typedef long long NANO_TIME;
 
@@ -54,8 +58,7 @@ extern "C"
 
         struct timeval tv;
 
-        struct timezone tz;
-        int res = gettimeofday( &tv, &tz );
+        int res = gettimeofday( &tv, 0 );
 
         if ( res == -1 )
             printf( "ERROR invoking gettimeofday in fosi.h\n" );
@@ -106,13 +109,23 @@ extern "C"
 
     static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
     {
-        pthread_mutexattr_t ma_t;
-        pthread_mutexattr_init(&ma_t);
-/* 	pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP); */
         return pthread_mutex_init(m, 0 );
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
+    {
+        return pthread_mutex_destroy(m);
+    }
+
+    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    {
+        pthread_mutexattr_t ma_t;
+        pthread_mutexattr_init(&ma_t);
+		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
+        return pthread_mutex_init(m, &ma_t );
+    }
+
+    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
     {
         return pthread_mutex_destroy(m);
     }

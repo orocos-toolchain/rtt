@@ -60,7 +60,7 @@ more information on the available types."
 	    display "RTAI version"
 	    flavor data
 	    #legal_values {"2" "3"}
-	    default_value {"2"}
+	    default_value {"3"}
 	    description "
         Select the RTAI version you are using.
 Legal values are 2 and 3."

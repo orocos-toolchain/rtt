@@ -101,7 +101,8 @@ inline int isdigit( int c )
     return values[ c ] & digit;
 }
 
-inline int isxdigit ( int c )
+#undef isxdigit
+inline int isxdigit( int c )
 {
     return values[ c ] & digit;
 } // FIXME
@@ -136,7 +137,7 @@ inline int isgraph ( int c )
     return true;
 } // FIXME
 
-char toupper( int c )
+int toupper( int c )
 {
     if ( isalpha( c ) && islower( c ) )
         return ( c + 'A' - 'a' );
@@ -144,7 +145,7 @@ char toupper( int c )
         return c;
 }
 
-char tolower( int c )
+int tolower( int c )
 {
     if ( isalpha( c ) && isupper( c ) )
         return ( c - ( 'A' - 'a' ) );

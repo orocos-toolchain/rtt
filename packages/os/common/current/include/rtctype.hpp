@@ -37,5 +37,5 @@ int isalnum ( int c );
 int isprint ( int c );
 int isgraph ( int c );
 
-char toupper( int c );
-char tolower( int c );
+int toupper( int c );
+int tolower( int c );

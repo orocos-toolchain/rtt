@@ -134,8 +134,7 @@
       abstraction of a thread.  Each OS implements in its <filename
 	class="directory">os/&lt;OS-name-here&gt;</filename> directory
       the specific system calls to get the desired effect. The
-      <classname>EventInterrupt</classname> class (to cover interrupt
-      handlers) and Mutex with MutexLock class are also commonly
+      Mutex and MutexRecursive with MutexLock class are also commonly
       used abstractions. 
     </para>
     <para>
@@ -368,27 +367,10 @@
 	will be called when the module is unloaded. Our policy is to
 	put these functions in a <filename>module.c</filename>
 	file, which will call then our real C++ functions, which
-	reside in another file.  The whole procedure goes like this :
+	reside in another file. 
 	</para>
 	<para>
-	  <figure><title>(insert picture of loading+calling a kernel
-	      module) </title>
-	    <mediaobject>
-	      <imageobject role="html">
-		<imagedata fileref="loading_calling.png" format="PNG"/>
-	      </imageobject>
-	      <imageobject role="fo">
-		<imagedata fileref="loading_calling.eps" format="EPS"/>
-	      </imageobject>
-	      <!--
-	      <caption><para>
-	    </para></caption>
-	      -->
-	    </mediaobject>
-	  </figure>
-	</para>
-	<para>
-	  Once can see that first, a special function is called to
+	  First, a special function is called to
 	  initialize all static variables your program might have.
 	  When this is done the real initialisation function is
 	  called. There we instantiate all objects we need, and
@@ -400,7 +382,7 @@
 	</para>
 	<note>
 	  Writing kernel applications is doing it the hard way and
-	  is not advised for beginners. Use LXRT instead.
+	  is not advised for beginners. Use RTAI/LXRT instead.
 	</note>
       </sect3>    
     </sect2>
@@ -482,6 +464,69 @@
 	<para>
 	  The user of this class must be aware that he must provide himself
 	  the locking primitives (like ORO_OS::Mutex) to provide thread safety.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Synchronisation Primitives</title>
+      <para>
+	Orocos OS only provides a few synchronisation primitives,
+	mainly for guarding critical sections.
+      </para>
+      <sect3>
+	<title>Mutexes</title>
+	<para>
+	  There are two kinds of Mutexes : <classname>Mutex</classname>
+	  and <classname>MutexRecursive</classname>. To lock a mutex, it
+	  has a method <methodname>lock()</methodname>, to unlock, the method is <methodname>unlock()</methodname> and to
+	  try to lock, it is <methodname>trylock()</methodname>.
+	  A lock() and trylock() on a recursive mutex from the same
+	  thread will always succeed, otherwise, it blocks.
+	</para>
+	<para>
+	  For ease of use, there is a <classname>MutexLock</classname> which
+	  gets a Mutex as argument in the contstructor. As long as the
+	  MutexLock object exists, the given Mutex is locked. This is
+	  called a scoped lock.
+	</para>
+	<example>
+	  <title>Locking a Mutex</title>
+	  <para>The first listing shows a complete lock over a function :</para>
+	  <programlisting>
+  Mutex m;
+  void foo() {
+     int i;
+     MutexLock lock(m);
+     // m is locked.
+     // ...
+  } // when leaving foo(), m is unlocked.
+	  </programlisting>
+	  <para>
+	    Any scope is valid, so if the critical section is smaller than
+	    the size of the function, you can :
+	  </para>
+	  <programlisting>
+  Mutex m;
+  void bar() {
+     int i;
+     // non critical section
+     {
+        MutexLock lock(m);
+        // m is locked.
+        // critical section
+     } //  m is unlocked.
+     // non critical section
+     //...
+  }
+	  </programlisting>
+	</example>
+      </sect3>
+      <sect3>
+	<title>Signals and Semaphores</title>
+	<para>
+	  Orocos does not provide a semaphore abstraction. The higher level
+	  Event implementation in CoreLib can be used for thread safe signalling and
+	  data exchange.
 	</para>
       </sect3>
     </sect2>
