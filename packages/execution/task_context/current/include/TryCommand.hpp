@@ -157,7 +157,7 @@ namespace ORO_Execution
         }
 
         bool execute() {
-            _cache->set() = _ds->get();
+            _cache->set( _ds->get() );
             return true;
         }
 

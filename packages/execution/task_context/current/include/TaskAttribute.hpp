@@ -102,12 +102,10 @@ namespace ORO_Execution
   };
 
   /**
-   * An alias is a name that is assigned to a certain compound
-   * expression, You could compare it to a 0-ary function,
-   * only less powerful.
-   * This class is the most basic TaskAttribute implementation, does
+   * This class is the most basic TaskAttribute implementation
+   * (only suitable for reading a DataSource), does
    * not allow any assignment, just stores a DataSource<T>, and
-   * returns it.  This also makes it useful as the return type of
+   * returns it.  This also makes it useful as an alias of
    * temporary expressions like literal values, and rhs
    * expressions.
    */
