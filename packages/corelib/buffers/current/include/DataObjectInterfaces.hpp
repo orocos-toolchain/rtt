@@ -25,14 +25,14 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef DATAOBJECTINTERFACES_HPP
-#define DATAOBJECTINTERFACES_HPP
+#ifndef CORELIB_DATAOBJECTINTERFACES_HPP
+#define CORELIB_DATAOBJECTINTERFACES_HPP
 
 
 #include <os/MutexLock.hpp>
 #include <os/oro_atomic.h>
 
-namespace ORO_ControlKernel
+namespace ORO_CoreLib
 {
 
     /**
@@ -360,8 +360,9 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @brief This DataObject is implemented with a circular
-     * buffer, such that reads and writes can happen concurrently.
+     * @brief This DataObject is a Lock-Free implementation,
+     * such that reads and writes can happen concurrently without priority
+     * inversions.
      * 
      * When there are more writes than reads, the last write will
      * be returned. The internal buffer can get full if too many
@@ -386,7 +387,7 @@ namespace ORO_ControlKernel
      * elements to be guaranteed non blocking.
      */
     template<class _DataType>
-    class DataObjectBuffer
+    class DataObjectLockFree
         : public DataObjectInterface< _DataType >
     {
         /**
@@ -421,12 +422,12 @@ namespace ORO_ControlKernel
         std::string name;
     public:
         /** 
-         * Construct a DataObjectBuffer by name.
+         * Construct a DataObjectLockFree by name.
          * 
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectBuffer(const std::string& _name, const std::string& _prefix  = std::string()) 
+        DataObjectLockFree(const std::string& _name, const std::string& _prefix  = std::string()) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)

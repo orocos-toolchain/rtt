@@ -914,7 +914,7 @@ emergencyStop.fire(); // User not notified
       <note>
 	<para>
 	  For brevity, we will not use boost::bind in the following
-	  examples and only use 'free' ( C ) functions as callbacks.
+	  examples and only use 'free' ( <emphasis>C</emphasis> ) functions as callbacks.
 	  Asynchronous callbacks are bound in the same way as synchronous
 	  callbacks ( <xref linkend="core-event-example"/> ).
 	</para>
@@ -983,6 +983,29 @@ emergencyStop.fire(); // User not notified
 	6 arguments in the current implementation, but more
 	can be easily added.</para>
       </note>
+    </sect2>
+    <sect2>
+      <title>Event Overrun Policy</title>
+      <para>
+	An Event can only be fire()'d by one thread at the same time.
+	The synchronous handlers will always be executed
+	as much times as the event is fire()'d. This is not the case
+	for asynchronous handlers. If an Event is fire()'d multiple
+	times before the completion thread executes, the asynchronous
+	handler will be called only once in the completion thread's execution
+	step.
+      </para>
+      <para>
+	The question that rises is with which arguments this handler
+	is called. The user can choose between the first (default) and
+	the last. The first is choosen as default because this causes the least
+	overhead in execution time. To choose which policy is used,
+	an optional parameter can be given during connect :
+      </para>
+      <programlisting>
+  event.connect( &amp; asyn_func, mytask, Event::OnlyLast );
+  event.connect( &amp; asyn_func, mytask, Event::OnlyFirst ); // default
+  event.connect( &amp; asyn_func, mytask ); // same as previous line</programlisting>
     </sect2>
     <sect2>
       <title>The Completion Processor</title>
@@ -1324,7 +1347,7 @@ emergencyStop.fire(); // User not notified
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
       <filename>corelib/buffers</filename> package. The user should be aware of
-      <xref linkend="core-priority-inversions">priority inversions</xref>
+      <xref linkend="core-priority-inversions"/>
       when using the 'locked' buffers (which use a Mutex).
     </para>
     <para>
