@@ -1,0 +1,11 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_PROCESS_CONTROL {
+    display "Signal and Process Control Components"
+    description "
+This package contains components for generating or
+processing signals. It is usefull for rapid testing
+hardware with one analog io card or generating/
+controlling processes.
+"
+    include_dir kernel_components
+}
+
