@@ -146,22 +146,22 @@ namespace ORO_ControlKernel
         /**
          * @brief Enable an Axis.
          */
-        void enableAxis( const std::string& name );
+        bool enableAxis( const std::string& name );
 
         /**
          * @brief Disable an Axis.
          */
-        void disableAxis( const std::string& name );
+        bool disableAxis( const std::string& name );
 
         /**
          * @brief Switch on a Digital Output.
          */
-        void switchOn( const std::string& name );
+        bool switchOn( const std::string& name );
                     
         /**
          * @brief Switch off a Digital Output.
          */
-        void switchOff( const std::string& name );
+        bool switchOff( const std::string& name );
            
         // @}
 

@@ -140,32 +140,34 @@ namespace ORO_ControlKernel {
         return true;
     }
 
-    void AxisEffector::enableAxis( const std::string& name )
+    bool AxisEffector::enableAxis( const std::string& name )
     {
         if ( axes.count(name) != 1 )
-            return;
-        axes[name].first->stop();
+            return false;
+        return axes[name].first->unlock();
     }
 
-    void AxisEffector::disableAxis( const std::string& name )
+    bool AxisEffector::disableAxis( const std::string& name )
     {
         if ( axes.count(name) != 1 )
-            return;
-        axes[name].first->lock();
+            return false;
+        return axes[name].first->lock();
     }
 
-    void AxisEffector::switchOn( const std::string& name )
+    bool AxisEffector::switchOn( const std::string& name )
     {
         if (d_out.count(name) != 1)
-            return;
+            return false;
         d_out[name]->switchOn();
+        return true;
     }
                     
-    void AxisEffector::switchOff( const std::string& name )
+    bool AxisEffector::switchOff( const std::string& name )
     {
         if (d_out.count(name) != 1)
-            return;
+            return false;
         d_out[name]->switchOff();
+        return true;
     }
            
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
