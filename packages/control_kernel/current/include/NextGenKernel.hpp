@@ -221,13 +221,13 @@ namespace ORO_ControlKernel
         virtual bool initialize() 
         { 
             // First, startup all the support components
-            NameServer<ComponentBaseInterface*>::value_iterator itl = supports.getValueBegin();
-            for( ; itl != supports.getValueEnd(); ++itl)
+            NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
+            for( ; itl != this->supports.getValueEnd(); ++itl)
                 this->startComponent( *itl );
 
             if ( !Extension::initialize() )
                 {
-                    for( itl = supports.getValueBegin(); itl != supports.getValueEnd(); ++itl)
+                    for( itl = this->supports.getValueBegin(); itl != this->supports.getValueEnd(); ++itl)
                         this->stopComponent( *itl );
                     return false;
                 }
@@ -258,8 +258,8 @@ namespace ORO_ControlKernel
             // it will lead to deadlocks.
             Extension::finalize();
             // Last, shutdown all the support components
-            NameServer<ComponentBaseInterface*>::value_iterator itl = supports.getValueBegin();
-            for( itl = supports.getValueBegin(); itl != supports.getValueEnd(); ++itl)
+            NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
+            for( itl = this->supports.getValueBegin(); itl != this->supports.getValueEnd(); ++itl)
                 this->stopComponent( *itl );
             this->kernelStopped.fire();
         }
@@ -313,7 +313,7 @@ namespace ORO_ControlKernel
         /*
         virtual bool selectSupport( const std::string& name ) {
             ComponentBaseInterface* c;
-            if ( (c = supports.getObjectByName( name )) )
+            if ( (c = this->supports.getObjectByName( name )) )
                 return selectSupport(c);
             return false;
             }*/
@@ -446,7 +446,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoadedSupport( const std::string& name ) const {
-            return supports.isNameRegistered( name );
+            return this->supports.isNameRegistered( name );
         }
         /**
          * @}
@@ -480,7 +480,7 @@ namespace ORO_ControlKernel
         }
 
         bool isLoadedSupport(ComponentBaseInterface* c) const {
-            return supports.isObjectRegistered( c );
+            return this->supports.isObjectRegistered( c );
         }
 
         /**
@@ -962,7 +962,7 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    supports.registerObject( c, c->ComponentBaseInterface::getName() );
+                    this->supports.registerObject( c, c->ComponentBaseInterface::getName() );
                     return true;
                 }
         }
@@ -1081,13 +1081,13 @@ namespace ORO_ControlKernel
 
         template< class _Support>
         bool reloadSupport(_Support* c) {
-            if ( this->isRunning() || !supports.isObjectRegistered( c ) )
+            if ( this->isRunning() || !this->supports.isObjectRegistered( c ) )
                 return false;
 
             c->disableAspect();
             if ( ! c->enableAspect(this) )
                 {
-                    supports.unregisterObject( c );
+                    this->supports.unregisterObject( c );
                     return false;
                 }
             return true;
@@ -1184,9 +1184,9 @@ namespace ORO_ControlKernel
         bool unloadSupport(_Support* c) {
             if ( this->isRunning() )
                 return false;
-            if ( supports.isObjectRegistered( c ) )
+            if ( this->supports.isObjectRegistered( c ) )
                 {
-                    supports.unregisterObject( c );
+                    this->supports.unregisterObject( c );
                     c->disableAspect();
                     return true;
                 }
