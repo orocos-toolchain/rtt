@@ -16,6 +16,8 @@ list of this release :
 * Generic DataObject "out of the box" Reporting
 * XML Parser memory leak fixes
 * More interactive Motion/Machine Control Examples
+* Improved thread abstraction
+* Updated documentation
 
 OROCOS v0.12.0  Release Notes
    http://www.orocos.org
