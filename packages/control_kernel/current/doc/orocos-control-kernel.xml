@@ -916,8 +916,8 @@
   class Output { double output; };
 
   #include <control_kernel/StandardControlKernel.hpp>
-  typedef StandardControlKernel< Input, Model, Command, 
-	                         SetPoint, Output> My1DKernel;
+  typedef StandardControlKernel< Command, SetPoint,
+	                         Input, Model, Output> My1DKernel;
 ]]>
       </programlisting>
       <para>
@@ -927,12 +927,12 @@
 	template parameters is as follows:
       </para>
       <programlisting>
-StandardControlKernel &lt;InputType, ModelType, CommandType, SetPointType, OutputType&gt;;
+StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, OutputType&gt;;
       </programlisting>
       <para>
-	Which you can remember by the acronym IMCSO ;-). If that
-	doesn't work, looking at the data flow (cfr the
-	uni-directional graph in the <ulink
+	Which you can remember by the acronym CSIMO ;-). If that
+	doesn't work, looking at the data flow from left to right
+	in the <ulink
 	  url="http://www.orocos.org/documents/motconframe.pdf">software 
 	  pattern for control</ulink>) might help to find the correct
 	order.  But do not worry, you only need to do this once for
@@ -1120,7 +1120,7 @@ StandardControlKernel &lt;InputType, ModelType, CommandType, SetPointType, Outpu
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and
 	<function>Get()</function> copy all contents of the
-	DataObject. The virtual interface, however, has multiple
+	DataObject. This interface has multiple
 	implementations, depending on the specific data access locking
 	needs:
 	<itemizedlist>
@@ -1430,36 +1430,37 @@ void push()
 	      </para>
 	    </listitem>
 
-	    <listitem>
-	      <para>
-		The example above, of the Generator that needs to know
-		the value of Outputs sent to the hardware, is a case
-		of <link linkend="communication-flows">coupling</link>
-		between Data Flow and Execution Flow: determining that
-		one needs to get the data of the
-		&ldquo;previous&rdquo; time stamp is part of the
-		Execution Flow (<emphasis>i.e.</emphasis> deciding in
-		what order actions have to be executed, in this case
-		in two subsequent execution cycles of the control
-		loop), and not the Data Flow. This does not mean that
-		the Generator cannot use the Outputs from the previous
-		time stamp, but it should get them from the Sensor
-		Components, that has a Port that provides this data.
-		In other words, the Control Kernel has this Sensor
-		Port connected to its own Reporter reports, which the
-		Application Builder should program to contain the
-		required information.
-	      </para>
-	      <para>
-		Recall that this structure is
-		<emphasis>conceptual</emphasis>: it represents the
-		system as a set of Components that copy data through
-		the DataObjects. But the
-		<emphasis>implementation</emphasis> of the concept can
-		be much more efficient, if manual or automatic support
-		eliminates all unnecessary copying operations.
-	      </para>
-	    </listitem>
+<!-- 	    <listitem> -->
+<!-- By ps : i don't understand this part -->
+<!-- 	      <para> -->
+<!-- 		The example above, of the Generator that needs to know -->
+<!-- 		the value of Outputs sent to the hardware, is a case -->
+<!-- 		of <link linkend="communication-flows">coupling</link> -->
+<!-- 		between Data Flow and Execution Flow: determining that -->
+<!-- 		one needs to get the data of the -->
+<!-- 		&ldquo;previous&rdquo; time stamp is part of the -->
+<!-- 		Execution Flow (<emphasis>i.e.</emphasis> deciding in -->
+<!-- 		what order actions have to be executed, in this case -->
+<!-- 		in two subsequent execution cycles of the control -->
+<!-- 		loop), and not the Data Flow. This does not mean that -->
+<!-- 		the Generator cannot use the Outputs from the previous -->
+<!-- 		time stamp, but it should get them from the Sensor -->
+<!-- 		Components, that has a Port that provides this data. -->
+<!-- 		In other words, the Control Kernel has this Sensor -->
+<!-- 		Port connected to its own Reporter reports, which the -->
+<!-- 		Application Builder should program to contain the -->
+<!-- 		required information. -->
+<!-- 	      </para> -->
+<!-- 	      <para> -->
+<!-- 		Recall that this structure is -->
+<!-- 		<emphasis>conceptual</emphasis>: it represents the -->
+<!-- 		system as a set of Components that copy data through -->
+<!-- 		the DataObjects. But the -->
+<!-- 		<emphasis>implementation</emphasis> of the concept can -->
+<!-- 		be much more efficient, if manual or automatic support -->
+<!-- 		eliminates all unnecessary copying operations. -->
+<!-- 	      </para> -->
+<!-- 	    </listitem> -->
 	  </itemizedlist>
 	</para>
 	<para>
@@ -1496,8 +1497,8 @@ void push()
 	  exception, because it defines what hardware it accesses
 	  instead of DataObjects. It must be looked after by the
 	  Application Builders that the Components match each other
-	  for writing and reading data. (These checks will be
-	  automated in a later phase of the &orocos; project.) The
+	  for writing and reading data, otherwise, a compile time
+	  error will occur. The
 	  figure below illustrates the responsabilities for each
 	  Component in the framework.
 	</para>
@@ -1519,7 +1520,7 @@ void push()
 	  Kernel, and for each Component in that Kernel. Each Control
 	  Kernel thus causes NameServers to be created for each of its
 	  Component types, because this prevents name clashing. If a
-	  Component with the same name is created for the same type,
+	  Component is created twice with the same name,
 	  only the first one will show up in the NameServer. Name
 	  serving is described in more detail in the CoreLib
 	  documentation.
@@ -1538,7 +1539,9 @@ void push()
   if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
        first_kernel.selectGenerator( "GeneratorName") );
 	  </programlisting>
-	  Loading is not a realtime safe, selecting a Component is.
+	  Loading is not realtime safe and should happen before the
+	  kernel is started, selecting a Component is safe at any
+	  time
 	</para>
       </sect2>
       <sect2 id="events-hooks-states">
@@ -1550,22 +1553,22 @@ void push()
 	  needs to startup its Components, so that their member
 	  variables can be initialised correctly. All these actions
 	  are standardised for every Component and Control Kernel.
-	  <!-- And for each such action, an Event is --> <!-- created
-	  and fired by the Control Kernel.  However, Events do, by -->
-	  <!-- definition, not provided --> <!-- <emphasis
-	  role="strong">ordered notification</emphasis>, --> <!--
-	  <emphasis>i.e.</emphasis> one cannot know in advance in
-	  which order --> <!-- the handlers of an event will be
-	  processed after the event is fired. --> <!-- So, &orocos;
-	  provides a feature that guarantees such an ordered --> <!--
-	  execution. --> In addition, the handling of the actions
+<!-- 	  And for each such action, an Event is created -->
+<!-- 	  and fired by the Control Kernel.  However, Events do, by -->
+<!-- 	  definition, not provided <emphasis -->
+<!-- 	  role="strong">ordered notification</emphasis>,  -->
+<!-- 	  <emphasis>i.e.</emphasis> one cannot know in advance in -->
+<!-- 	  which order the handlers of an event will be -->
+<!-- 	  processed after the event is fired. So, &orocos; -->
+<!-- 	  provides a feature that guarantees such an ordered  -->
+<!-- 	  execution. --> In addition, the handling of the actions
 	  takes place <link linkend="sync-async">synchronously</link>
 	  with (and in the process context of) the execution of the
 	  other activities in a Control Kernel. This feature is called
 	  a <emphasis role="strong">hook</emphasis> of a Component. It
 	  is defined as a <emphasis role="strong">virtual
 	    function</emphasis> of the Component, which must be made
-	  concrete by the Application Builders. (<xref
+	  concrete by the Component. (<xref
 	    linkend="control-kernel-extensions"/> goes into more
 	  details.)
 	</para>
@@ -1588,11 +1591,11 @@ void push()
 	  <classname>KernelBaseFunction</classname>,
 	  <emphasis>i.e.</emphasis> the base class of each Control
 	  Kernel. The <classname>ComponentBaseInterface</classname>
-	  defines the Hook methods that the Application Builders can
+	  defines the Hook methods which a Component can
 	  override, and the <classname>KernelBaseFunction</classname>
 	  interface allows them to access the Standard Control Kernel
 	  Events. See the Doxygen API documentation for the full
-	  documentation of these interfaces. The Events document
+	  documentation of these interfaces. The CoreLib manual
 	  explains how Events work and how a handler can be added.
 	</para>
 	<para>
@@ -1602,20 +1605,17 @@ void push()
 	    <tgroup cols="2">
 	      <tbody>
 		<row>
-		      <!-- one of (entrytbl entry) -->
 		  <entry>virtual bool componentLoaded() {}</entry>
 		  <entry>Called when the Component is loaded into the
-		    Kernel. Return false if a failure is detected.</entry>
+		    Kernel. It must return false if a failure is detected.</entry>
 		</row>
 		<row>
-		      <!-- one of (entrytbl entry) -->
 		  <entry>virtual void componentUnloaded() {}</entry>
 		  <entry>Called when the Component is unloaded from
 		    the Kernel. This method is not called when
 		    <function>componentLoaded()</function> returned false.</entry>
 		</row>
 		<row>
-		      <!-- one of (entrytbl entry) -->
 		  <entry>virtual bool componentStartup() {}</entry>
 		  <entry>
 		    Called when the Control Kernel is started and all
@@ -1623,11 +1623,10 @@ void push()
 		    write meaningful information to its data objects
 		    and is guaranteed to find meaningful information
 		    in its readable data objects. If a failure is
-		    detected, it returns false.
+		    detected, it must return false.
 		  </entry>
 		</row>
 		<row>
-		      <!-- one of (entrytbl entry) -->
 		  <entry>virtual void componentShutdown() {}</entry>
 		  <entry>
 		    Called when the Control Kernel is stopped and all
@@ -1638,7 +1637,6 @@ void push()
 		</row>
 	      </tbody>
 	    </tgroup>
-	    <!-- one of (graphic mediaobject tgroup) -->
 	  </table>
 	</para>
 	<para>The following image explains the life cycle of a typical
@@ -1653,7 +1651,7 @@ void push()
 	      </imageobject>
 	    </mediaobject>
 	  </figure>
-			The <emphasis role="strong">state</emphasis> of the Component
+	  The <emphasis role="strong">state</emphasis> of the Component
 	  depends on the Control Kernel state.  How Control Kernel methods
 	  change a Component's state is shown below.
 	      <figure><title>Control Kernel - Component Interaction</title>
@@ -1724,9 +1722,7 @@ void push()
 	      linkend="events-hooks-states">hooks</link>) to each
 	    Component, such that it can access the particular
 	    Extension. The Extension, in turn, can access the
-	    Component through its Aspect interface. This access takes
-	    place in the context of the Component, and the Component
-	    programmer need not have to be aware of it. No locking or
+	    Component through its Aspect interface. No locking or
 	    race problems will occur during this access, because of
 	    the synchronous execution.
 	  </para>
@@ -1751,7 +1747,7 @@ void push()
       inserted in a Control Kernel which does not provide it. The
       opposite can be true too, i.e. the Control Kernel provides an
       extension that the Component doesn't wish to use.
-      </para>
+    </para>
 
     <sect1>
       <title>Component Aspects</title>
@@ -1855,13 +1851,13 @@ void push()
       <programlisting>
 <![CDATA[
 	// equivalent typedef as before: 
-typedef StandardControlKernel< Input, Model, Command, 
-	                       SetPoint, Output, KernelBaseFunction> My1DKernel;
+typedef StandardControlKernel< Command, SetPoint,
+	                       Input, Model, Output, KernelBaseFunction> My1DKernel;
 
 	// adding a new extension to the KernelBaseFunction: 
 typedef CompositeExtension<KernelBaseFunction, PropertyExtension> MyExtension; 
-typedef StandardControlKernel< Input, Model, Command,
-	                       SetPoint, Output, MyExtension> My1DPropertyKernel;
+typedef StandardControlKernel< Command, SetPoint,
+	                       Input, Model, Output, MyExtension> My1DPropertyKernel;
 ]]>
       </programlisting>
       <para>
@@ -1912,11 +1908,11 @@ Output, MySecondExtension > My1DPropRepKernel;
 	By default, only the Control Kernel has a limited set of
 	properties, Components have none. The <type>PropertyExtension</type> adds
 	properties also to the Components. The
-	<filename>properties.cpf</filename> file lists the CPF file
-	for each component type. The Components present in the Control
+	<filename>properties.cpf</filename> file lists the CPF
+	(Component Property Fromat) file
+	for each component type. All the Components which loaded in the Control
 	Kernel will get the properties updated on starting the Control
-	Kernel. An option can be enabled to configure all Components,
-	even those not loaded in the Control Kernel.
+	Kernel.
       </para>
 
       <figure id="fig-property-extension">
@@ -1938,8 +1934,7 @@ Output, MySecondExtension > My1DPropRepKernel;
 	<title>Configuring the Property Extension</title>
 	<para>
 	  The <type>PropertyExtension</type> can be configured through the CPF
-	  file given in the Control Kernel configuration file. Not all configuration options
-	  are yet implemented.
+	  file given in the Control Kernel configuration file.
 	  An example looks like this:
 	</para>
 	<example>
@@ -1967,28 +1962,6 @@ Output, MySecondExtension > My1DPropRepKernel;
     <description>The Effector Component Property File.</description>
     <value>effector.cpf</value></simple>
 </sequence>
-
-<simple name="SaveProperties" type="boolean">
-    <description> 
-    True if properties of components need to be saved when stopping the kernel.
-    (todo)
-    </description>
-    <value>1</value>
-</simple>
-<simple name="SaveFilePrefix"   type="string">
-    <description>
-    The suffix of the filename to store the components state into
-    (todo)
-    </description>
-    <value>saved_</value>
-</simple>
-<simple name="SaveFileExtension"   type="string">
-    <description>
-    The extension of the filename to store the components state into
-    (todo)
-    </description>
-    <value>cpf</value>
-</simple>
 </properties>
 ]]>
 	  </programlisting>
@@ -2038,10 +2011,6 @@ Output, MySecondExtension > My1DPropRepKernel;
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <properties>
-    <simple name="Name" type="string">
-    <description>The unique name of this component</description>
-    <value>CartesianController</value>
-    </simple>
     <simple name="Gain"    type="double">
     <description>The gain of the controller </description>
     <value>2</value>
@@ -2073,7 +2042,7 @@ Output, MySecondExtension > My1DPropRepKernel;
       </para>
       <para>
 	What happens is that after each Control Kernel step, the
-	Extension tries to make a backup of the Component's data. If by
+	Reporting Extension tries to make a backup of the Component's data. If by
 	accident the data is accessed by the report writing task, the
 	copy operation is cancelled. A better buffering mechanism
 	(swinging buffers) might solve this in a better way.
@@ -2110,23 +2079,34 @@ Output, MySecondExtension > My1DPropRepKernel;
 <properties>
 
     <simple name="ReportPeriod" type="double">
-       <description>The period, in seconds, for making reports.</description>
+       <description>The period, in seconds, for writing
+	    reports to the file or screen.</description>
        <value>0.1</value>
+    </simple>
+    <simple name="SubSamplingInterval" type="short">
+            <description>The sub sampling interval for internally
+	       copying reports (making snapshots),
+	       relative to the kernel cycle.</description>
+            <value>1</value>
     </simple>
     <simple name="ReportFile" type="string">
         <description>The file to write the reports to.</description>
         <value>reports.txt</value>
     </simple>
     <simple name="ReportServer" type="string">
-        <description>The name of the report server to use.</description>
+        <description>The name of the report server to use.
+	    This allows multiple kernels
+	    to use a common server</description>
         <value>MyReporter</value>
     </simple>
     <simple name="WriteToStdOut" type="boolean">
-        <description>True if the report needs to be written to standard output.</description>
+        <description>True if the report needs to be written
+	    to standard output.</description>
         <value>1</value>
     </simple>
     <simple name="WriteToFile" type="boolean">
-        <description>True if the report needs to be written to a file.</description>
+        <description>True if the report needs to be written
+	    to a file.</description>
         <value>1</value>
     </simple>
     <simple name="WriteHeader" type="boolean">
@@ -2163,8 +2143,9 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  configuration, other types might be reported. 
 	</para>
 	<para>
-	  The Decomposition constraint of the PropertyExtension also
-	  applies here.
+	  The <link linkend="prop-intro">Decomposition</link> constraint
+	  of the <link linkend="property-extension">PropertyExtension</link>
+	  also applies here.
 	</para>
 	<example>
 	  <title>Reporting in CartesianComponents.hpp</title>
@@ -2191,7 +2172,13 @@ Output, MySecondExtension > My1DPropRepKernel;
 	</example>
       </sect2>
       <sect2>
-	<title>Reporting DataObjects (NS Kernels only)</title>
+	<title>Reporting DataObjects (NSControlKernel only)</title>
+	<note>
+	  <para>This is only available when using the more advanced
+	    <link linkend="multiple-dataobjects">NSControlKernel</link>, not
+	  the StandardControlKernel.
+	  </para>
+	</note>
 	<para>
 	  As shown in the example CPF file, also DataObjects can generate
 	  automatically reports. Because DataObjects need to be refered
@@ -2209,7 +2196,7 @@ Output, MySecondExtension > My1DPropRepKernel;
 	</para>
 	<para>
 	  It is also possible to log the dataobjects of other
-	  NS kernels, given that they have the same prefix.
+	  NSControlKernels, given that they have the same prefix.
 	</para>
       </sect2>
       <sect2>
@@ -2239,9 +2226,9 @@ Output, MySecondExtension > My1DPropRepKernel;
     </sect1>
 
     <sect1 id="scripting-extension">
-      <title>The Scripting Extension</title>
+      <title>The Execution Extension</title>
       <para>
-	The Scripting Extension allows the kernel to execute &orocos;
+	The Execution Extension allows the kernel to execute &orocos;
 	program scripts and &orocos; state descriptions
 	synchronous with the kernel loop. For convenience,
 	it contains a program parser which will read an std::istream 
@@ -2252,14 +2239,14 @@ Output, MySecondExtension > My1DPropRepKernel;
 	The &orocos; execution package contains two manuals which
 	explain the behaviour of the Program Processor and the Program
 	and State 
-	Parsers. The Processor is a state machine which
+	Parsers. The Processor can load a state machine which
 	keeps track of the user defined system states and transitions,
-	which define the states of the machine. On top of this it
-	executes a
-	program presented in a hierarchical tree of ProgramNodes (which
-	may contain loops). A ProgramNode contains about one script
+	which define the states of the machine (Orocos State Descriptions).
+	On top of this it executes a program (Orocos Program Script)
+	presented in a hierarchical tree of CommandNodes (which
+	may contain loops). A CommandNode contains about one script
 	command with its termination conditions. The Parser converts a
-	program script to a tree of ProgramNodes, which is called a
+	program script to a tree of CommandNodes, which is called a
 	Program. The scriptcommands are all functions of kernel
 	components or external objects which have registered
 	themselves to the parser framework.
@@ -2279,6 +2266,210 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </imageobject>
 	</mediaobject>
       </figure>
+      <sect2>
+	<title>Using the ExecutionExtension</title>
+	<para>
+	  The ExecutionExtension provides a more userfriendly 
+	  interface for managing Programs and StateContexts.
+	  A StateContext file and Program file
+	  can be loaded as such :
+	</para>
+	<screen>
+my_kernel.loadStateContext("state.osd", "MyState");
+my_kernel.loadProgram("program.ops", "MyProgram");
+	</screen>
+	<para>
+	  The StateContext will immediately enter the "Initial_State",
+	  but both StateContext and Program will be idle. To use the
+	  StateContext, it must be started :
+	</para>
+	<screen>
+my_kernel.startStateContext("MyState");
+	</screen>
+	<para>
+	  It is most common to start the program itself from within
+	  a state of the StateContext, so that it is sure that
+	  it is safe to start a program. To do this in the state
+	  the commands
+	<screen>
+do engine.startProgram("MyProgram")
+//...
+do engine.stopProgram("MyProgram")
+	</screen>
+	  are available. Likewise, it is possible to start and stop
+	  other StateContexts from within a program or another 
+	  State Context :
+	<screen>
+do engine.startStateContext("SecondContext")
+//...
+do engine.stopStateContext("SecondContext")
+	</screen>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Elaborated Example</title>
+	<para>
+	  The Orocos Program Parser presents a StateContext and Program
+	  example. It also goes into great detail about syntax
+	  and possibilities. The Example is for completeness repeated here.
+	</para>
+	<example>
+	  <title>Program and StateContext example</title>
+	  <programlisting>
+Event_Handle home_switch1
+Event_Handle home_switch2
+
+Initial_State init_state
+Final_State fini_state
+
+/**
+ * This state is entered when the StateContext is loaded.
+ */
+state init_state {
+    entry {
+	do kernel.selectSensor("HWSensor")
+	do kernel.selectGenerator("MoveToGenerator")
+	}
+    transitions {
+	select stop_state
+	}
+}
+
+/**
+ * This state is only reached when the State Context
+ * is stopped.
+ */
+state fini_state {
+    entry {
+	do kernel.selectSensor("Default")
+	do kernel.selectGenerator("Default")
+	}
+}
+
+/**
+ * This state is the 'turn off' state of the
+ * machine.
+ */
+state stop_state {
+    entry {
+	// The Default Effector and Controller do nothing
+	do kernel.selectController("Default")
+	do kernel.selectEffector("Default")
+    transitions {
+	if HMI.start_pushed() then
+	     select run_state
+	}
+}
+
+/**
+ * This state puts the machine under 'control'
+ * effectively accepting commands and driving
+ * the machine.
+ */
+state run_state {
+    entry {
+	// make sure we are not moving
+	do MoveToGenerator.safeStop()
+	// Select components controlling the machine
+	do kernel.selectController("PID")
+	do kernel.selectEffector("HWEffector")
+	}
+
+    transitions {
+	if HMI.stop_pushed() then
+	     select stop_state
+	if HMI.start_program() then
+	     select exec_state
+	}
+}
+
+/**
+ * This state starts a previously loaded
+ * program.
+ */
+state exec_state {
+    entry {
+	do engine.startProgram("MyProgram")
+	}
+
+    exit {
+	do engine.stopProgram("MyProgram")
+	}
+	
+    transitions {
+	if HMI.stop_program() then
+	     select run_state
+	}
+}
+	  </programlisting>
+	  <programlisting>
+/**
+ * This program is executed in the exec_state.
+ */
+
+/**
+ * Request the HMI to load the user selected
+ * trajectory into the kernel.
+ */
+function HMILoadTrajectory {
+	// request a 'push' of the next
+	// trajectory :
+	do HMI.requestTrajectory
+	// when the HMI is done :
+	do Generator.loadTrajectory
+}
+
+/**
+ * Do a Homing (reset) of the axes.
+ * This could also be done using a Homing state,
+ * without a program.
+ */
+function ResetAxes {
+	do kernel.selectGenerator("HomingGenerator")
+	do HomingGenerator.home()
+}
+
+/**
+ * Request the Generator to use the current
+ * trajectory.
+ */
+function runTrajectory {
+	do Generator.startTrajectory
+	// this function returns when the
+	// trajectory is done.
+}
+
+function ExitProgram {
+	HMI.display("Program Ended\n")
+	stop
+}
+
+program {
+	HMI.display("Program Started\n")
+	var int cycle = 0
+
+	// We actually wait here until a 
+	// Trajectory is present in the HMI.
+	do nothing until {
+	   if HMI.trajectoryPresent then goto next
+	}
+
+start:  cycle = cycle + 1
+	HMI.display("Cycle nr: %d.\n", cycle )
+	call ResetAxes
+	call HMIRequestTrajectory
+	call runTrajectory
+
+	do HeartBeat.sleep( 5.0 ) // wait 5s
+	do nothing until {
+	    if HMI.cycle then goto start
+	}
+
+	call ExitProgram
+}
+	  </programlisting>
+	</example>
+      </sect2>
       <sect2>
 	<title>Configuring the ExecutionExtension</title>
 	<para>
@@ -2304,7 +2495,7 @@ Output, MySecondExtension > My1DPropRepKernel;
     </sect1>
   </chapter>
   <chapter id="multiple-dataobjects">
-    <title>Multiple Ports per DataObject and nameserved DataObjects</title>
+    <title>Multiple Ports per DataObject and Nameserved DataObjects</title>
     <para>
       Components exchange data through standardized DataObjects in a
       Control Kernel. To this end, each Component has standardized
@@ -2313,9 +2504,10 @@ Output, MySecondExtension > My1DPropRepKernel;
       <function>Set()</function> and <function>Get()</function>
       methods to communicate data. This might suggest that a Component
       can only exchange data of one single type with each DataObject
-      it is connected to. This is not the case, because each Component
-      can have multiple Ports to the same DataObject. In addition,
-      each Port can be referenced indirectly, instead of by the
+      it is connected to. While this holds true for the StandardControlKernel,
+      a more advanced kernel can allow more variation in the
+      DataObjects. In addition,
+      each DataObject can be referenced indirectly, instead of by the
       &ldquo;hard-coded&rdquo; variable name. The feature that
       provides this flexibility is the
       <classname>NSControlKernel</classname> (&ldquo;Name Served
@@ -2324,13 +2516,12 @@ Output, MySecondExtension > My1DPropRepKernel;
       virtual Control Kernel concept.
       </para>
       <para>
-      The NSControlKernel allows the Application Builders to compose
+      The NSControlKernel allows a Component to compose
       their DataObjects out of different types. Each type (an
       <type>int</type>, <type>Frame</type>, <type>vector</type>, or
       whatever) can have several instances in the DataObject, each
-      with its own name. In addition, the Application Builders can
-      choose the option to still use the not-nameserved (unserved)
-      type as in the <classname>StandardControlKernel</classname>.
+      with its own name. These Components are however no longer
+      compatible with the StandardControlKernel.
       </para>
       <para>
       The nameserving overhead is only modest. The lookup (resolving)
@@ -2341,7 +2532,6 @@ Output, MySecondExtension > My1DPropRepKernel;
       another Kernel, which is fully in line with the &orocos; desire
       for <link linkend="formal-rules">strict formal structure</link>.
       </para>
-
     <sect1>
       <title>Constructing a Nameserved DataType</title>
       <para>
@@ -2364,7 +2554,7 @@ Output, MySecondExtension > My1DPropRepKernel;
 	<programlisting>
 <![CDATA[
 struct MyNamesModel 
-: public ServedTypes<Frame, double>, public UnServedType<>
+: public ServedTypes<Frame, double>
 {
   MyModel()
   {
@@ -2386,12 +2576,8 @@ struct MyNamesModel
 	zero to ten different types which you want to nameserve. Each
 	type may only occur once in that list. If you don't want to
 	nameserve any type, you should make an empty list, denoted by
-	ServedTypes&lt;&gt;. You can only have one
-	<type>UnServedType</type> (which is empty in the example
-	above), and this is the DataObject you get when you call the
-	<function>Get()</function> method of the <link
-	  linkend="standard-control-kernel">Standard Control
-	  Kernel</link>.
+	ServedTypes&lt;&gt;, which means that this Component does not
+	introduce new data in the Data Flow.
       </para>
       <para>
 	The <function>insert()</function> function adds a (number,
@@ -2414,11 +2600,11 @@ struct MyNamesModel
       <programlisting>
 <![CDATA[
 	#include <control_kernel/NSControlKernel.hpp>
-	typedef NSControlKernel< MyNamesInput, MyNamesModel, MyNamesCommand,
-	                         MyNamesSetPoint, MyNamesOutput > MyNamesKernel;
+	typedef NSControlKernel<  MyNamesCommand, MyNamesSetPoint,
+	                          MyNamesInput, MyNamesModel, MyNamesOutput > MyNamesKernel;
 	
 	// Now create one :
-	MyNamesKernel("my_prefix");
+	MyNamesKernel("KernelName","my_prefix");
 ]]>
       </programlisting>
       <para>
@@ -2427,7 +2613,8 @@ struct MyNamesModel
 	It has the same functions
 	and behaves in exactly the same way. The only difference is
 	that the Components and external classes can query DataObjects
-	by name.
+	by name. The name of the kernel must be unique and is used 
+	as prefix if the prefix is omitted.
       </para>
       <para>
 	The "my_prefix" parameter allows to share DataObjects
@@ -2439,7 +2626,7 @@ struct MyNamesModel
 	<link linkend="reporting-extension"> Reporting </link> non local
 	DataObjects. If you want to protect DataObjects from external
 	(or accidental) access, you can do so by providing an unique
-	prefix for that kernel. A kernel name has no influence on that.
+	prefix for that kernel.
       </para>
     </sect1>
     <sect1>
@@ -2450,31 +2637,18 @@ struct MyNamesModel
 	The example below shows what code you need to add to this
 	component to be able to use it in the NSControlKernel.
       </para>
-      <warning>
-	<para>
-	  Once a Component uses the functions of a NameServer,
-	  it can no longer be used in the <classname>StandardControlKernel</classname>.
-	  The NSControlKernel can accept all <classname>StandardControlKernel</classname>
-	  Components but not vice versa.
-	</para>
-      </warning>
 	<programlisting>
 <![CDATA[
-// ... 
-_DefaultGenerator::InputType inputReading;
-_DefaultGenerator::SetPointType localResult; 
+// ...
 
-// New Code:
 Frame delta_position;
 double tool_temp;
 
 // ... 
 void pull() 
 { 
-      inputReading = _DefaultGenerator::Inputs::dObj()->Get(); 
-      
-      // New Code:
       Frame end_f, old_f;
+	// The EndPosition and OldPosition variables in the Model DataObject.
       if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
            !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f) )
            { // Error, "EndPosition" or "OldPosition" not found ! }
@@ -2492,7 +2666,8 @@ void calculate()
 
 void push() 
 {
-     _DefaultGenerator::SetPoint::dObj()->Set( localResult ); 
+     // The EndPosition variable in the SetPoint DataObject.
+     _DefaultGenerator::SetPoint::dObj()->Set("EndPosition", localResult ); 
 }
 ]]>
 	</programlisting>
@@ -2526,17 +2701,15 @@ void push()
 	<programlisting>
 	  <![CDATA[
 // ... 
-_DefaultGenerator::InputType inputReading;
-_DefaultGenerator::SetPointType localResult; 
-
+Frame resultFrame;
 Frame delta_position;
 double tool_temp;
 
-// New Code:
 // Pointers to the DataObjects
-_DefaultGenerator::Model::DataObject<double>::type* tool_temp_dobj;
-_DefaultGenerator::Model::DataObject<Frame>::type* old_f_dobj;
-_DefaultGenerator::Model::DataObject<Frame>::type* end_f_dobj;
+DataObjectInterface<double>* tool_temp_dobj;
+DataObjectInterface<Frame>* old_f_dobj;
+DataObjectInterface<Frame>* end_f_dobj;
+DataObjectInterface<Frame>* setp_f_dobj;
 
 bool componentLoaded()
 {
@@ -2544,7 +2717,8 @@ bool componentLoaded()
     // Early Resolving :
     if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) ||
 	  !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f_dobj ) ||
-	  !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f_dobj ) )
+	  !_DefaultGenerator::Model::dObj()->Get("OldPosition", old_f_dobj ) ||
+	  !_DefaultGenerator::SetPoint::dObj()->Get("EndPosition", setp_f_dobj ))
     { 
 	  // Error, "Temperature", "EndPosition" or "OldPosition" not found !
 	  return false;
@@ -2554,9 +2728,6 @@ bool componentLoaded()
 // ... 
 void pull() 
 { 
-      // This is still the old way :
-      inputReading = _DefaultGenerator::Inputs::dObj()->Get(); 
-      
       Frame end_f, old_f;
 
       // Get the data from the previously resolved DataObjects :
@@ -2565,6 +2736,10 @@ void pull()
       delta_position = end_f - old_f;
       tool_temp = tool_temp_dobj->Get();
 } 
+// ...
+void push()
+{
+      setp_f_dobj->Set(resultFrame);
 ]]>
 	</programlisting>
       </example>
@@ -2572,10 +2747,7 @@ void pull()
 	This method requires a bit more typing work but is also safer
 	because the component can issue a failure at load time instead
 	of at runtime (in <function>pull()</function>). Hence, this
-	method is always advised within a component. DataObjects (like
-	the Command) can also be accessed from the outside, thus both
-	methods remain available to allow the shorter, more
-	transparant way.
+	method is always advised within a component.
       </para>
     </sect1>
   </chapter>
@@ -2612,20 +2784,13 @@ void pull()
       access by careful design of the DataObjects. (This design is
       sometimes refered to as the &ldquo;monitor software
       pattern&rdquo;.) &orocos; provides concurrent access primitives
-      for all relevant synchronization cases. In addition, &orocos;
-      also emphasizes that Application Builders pay close attention to
-      the <link linkend="communication-flow-coupling">decoupling of
-	data flow and execution flow</link>, and this is a very
-      important way in which efficient communication between different
-      control layers is achieved, without the need for
-      &ldquo;direct&rdquo; DataObject access.
+      for all relevant synchronization cases.
     </para>
     <para>
       This chapter explains what the important concepts are, how they
       must be implemented in applications, and what programming
       primitives are offered to help Application Builders.
     </para>
-
     <sect1>
       <title>Cascading Control Kernels</title>
       <sect2>
@@ -2747,7 +2912,7 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
       </sect2>
     </sect1>
     <sect1>
-      <title>Cascading NS Control Kernels</title>
+      <title>Cascading Name Serving Control Kernels</title>
       <para>Cascading NS Control kernels is in fact easier than its
 	non-nameserved counterpart. Only one type of Kernel is to be used
 	(so no inner Kernel) and sharing data is mainly based on names
@@ -2775,7 +2940,7 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	<para>
 	  This Kernel is usable for the most complex cascades imaginable.
 	  Each cascaded Kernel can have all Components and all DataObjects
-	  can be shared across these Kernels, if the Application Builder wants to. The
+	  can be shared across these Kernels. The
 	  only limitation is that only one Component may write to a certain
 	  nameserved DataObject, all the others may read it, independent
 	  of the priority level. This is logical since if more than one
@@ -2789,19 +2954,7 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 	  thread safe and non blocking by using the DataObjectBuffer
 	  implementation. In this Kernel however, you want the prefix
 	  to match the one of the other Kernel, so that they share 
-	  the same DataObjects. The NonServed type of each DataObject
-	  is not shared across Kernels though. If you want this behaviour,
-	  you need to use the classical set/get methods to assign DataObjects
-	  to other Kernels. 
-	  <warning>
-	    <para>
-	    This will cause one Kernel to become the owner
-	    and thus the other will no longer update the Component that writes
-	    to that DataObject. This can lead to unexpected behaviour so 
-	    assigning a different DataObject to a Kernel must be done with care
-	    since the Kernel will only read from it and not write to it.
-	    </para>
-	  </warning>
+	  the same DataObjects.
 	</para>
 	<para>
 	  The Outputs of one Kernel will be automatically introduced
@@ -2826,15 +2979,15 @@ mod2Kernel.setModels( mod1Kernel.getModels() );
 <![CDATA[
 // The highest priority kernel
 CascadeNSControlKernel<Casc1CommandT, Casc1SetPointT, Casc1InputT, Casc1ModelT, Casc1OutputT> 
-    casc1Kernel( "my_cascade" );
+    casc1Kernel("InnerLoop", "my_cascade" );
 
 // A cascade.
 CascadeNSControlKernel<Casc2CommandT, Casc2SetPointT, Casc2InputT, Casc2ModelT, Casc2OutputT>
-    casc2Kernel( "my_cascade" );
+    casc2Kernel("MiddleLoop", "my_cascade" );
 
 // same as above
 CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, Casc3OutputT> 
-    casc3Kernel( "my_cascade" );
+    casc3Kernel("OuterLoop", "my_cascade" );
 
 // ... repeat as much as you want
 
@@ -2848,13 +3001,13 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	    <para>
 	      As you can see, the types of all three Kernels are (can
 	      be) completely different. But what is not shown above
-	      is that they introduce the same ServedTypes. and the
+	      is that they introduce the same ServedTypes and the
 	      CascadeNSControlKernel knows it has to put the output of
-	      the one Kernel in the namespace of the Commands of the
+	      the one Kernel in the namespace of the Commands of all the
 	      other Kernels. "my_cascade" is the namespace prefix of the kernel,
 	      not the name. So all three will place their DataObjects
 	      in the "my_cascade" namespace.
-	      A more elaborated example can be found in
+	      An example can be found in
 	      the <filename>kernel_samples</filename> package.
 	    </para>
 	  </example>
@@ -2875,17 +3028,17 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	This group defines the standards to be used within <ulink
 	  url="http://www.corba.org">CORBA</ulink>, but they are
 	usable outside CORBA too. The
-	<classname>KernelConfigurator</classname> is a class which can
+	<classname>KernelConfig</classname> is a class which can
 	read a given XML file and configure a control kernel with that
-	information. The KernelConfigurator parses the file and passes
-	the result to the
-	<function>updateProperties()</function> method of the
+	information. KernelConfig parses the file and passes
+	the result (a PropertyBag) to the
+	<function>updateProperties(const PropertyBag& bag)</function> method of the
 	<classname>KernelBaseFunction</classname>. If you want to
 	add your own configuration options to a
-	Kernel subclass, you can
-	override this method, with your own which parses the extra
-	properties and then call the method of the base class with the
-	rest of the bag.
+	Kernel subclass (which is quite common), you can
+	define an updateKernelProperties(const PropertyBag& bag)
+	method in this subclass. KernelConfig
+	will pass the PropertyBag to this function too.
       </para>
       <para>
 	All Kernel implementations support this configuration scheme.
@@ -2897,9 +3050,6 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 <properties>
 <struct name="KernelProperties" type="type_less">
   <description>The Basic characteristics of this kernel.</description>
-  <simple name="name"      type="string">
-  <description>The Name of this kernel</description>
-  <value>KernelName</value></simple>
   <simple name="frequency" type="double">
   <description>The periodic execution frequency in Hz</description>
   <value>1000</value></simple>
@@ -2931,8 +3081,9 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	extension. If the file is not found, an error is raised by the
 	KernelConfigurator. The XML format is further explained in the
 	Property Extension section. It is allowed to define your own
-	properties in this file and update them in your own
-	<function>updateKernelProperties</function> method. 
+	properties in this file and update them in the
+	<function>updateKernelProperties</function> method of a derived
+	class of the Control Kernel.
       </para>
     </sect1>
     <sect1>
@@ -2973,7 +3124,7 @@ Property&lt;double&gt; d_prop;
 Property&lt; A &gt; a_prop;
 </screen> 
 	This however does not enable the
-	marshallers or demarshallers to know how to convert a
+	marshallers or demarshallers (converters) to know how to convert a
 	property to a text file and vice versa. For each unknown
 	type, the user has to write a composeProperty and
 	decomposeProperty method. How this must happen can be read
@@ -2990,7 +3141,28 @@ Property&lt; A &gt; a_prop;
       </example>      
     </sect1>
   </chapter>
-
+  <chapter>
+    <title>Appendix</title>
+    <para>Orocos ControlKernel contains files from the Loki Library, which requires
+      the following notice :
+    </para>
+    <para>
+////////////////////////////////////////////////////////////////////////////////
+// The Loki Library
+// Copyright (c) 2001 by Andrei Alexandrescu
+// This code accompanies the book:
+// Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design
+//     Patterns Applied". Copyright (c) 2001. Addison-Wesley.
+// Permission to use, copy, modify, distribute and sell this software for any
+//     purpose is hereby granted without fee, provided that the above copyright
+//     notice appear in all copies and that both that copyright notice and this
+//     permission notice appear in supporting documentation.
+// The author or Addison-Wesley Longman make no representations about the
+//     suitability of this software for any purpose. It is provided "as is"
+//     without express or implied warranty.
+////////////////////////////////////////////////////////////////////////////////
+    </para>
+  </chapter>
 <bibliography><title>Bibliography</title>
   <biblioentry xreflabel="corba3">
     <abbrev>CCM</abbrev>
