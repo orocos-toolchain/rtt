@@ -25,9 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "jr3dsp_lxrt.h"
 #include "jr3/JR3Sensor.hpp"
 
-#include "jr3dsp_lxrt.h"
 #include <os/rtstreams.hpp>
 
 
