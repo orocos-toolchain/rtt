@@ -12,6 +12,7 @@ EXTRA_DIST = \
 	packages/aclocal.m4 packages/acinclude.m4 \
 	packages/Makefile.in packages/Doxyfile.in \
 	doc/CODING_STYLE.txt \
+	packages/templates/minimal/current.ect \
 	packages/support/boost/current/boost.cdl.in \
 	packages/support/boost_graph/current/boost_graph.cdl.in \
 	packages/support/comedi/current/comedi.cdl.in \
@@ -33,9 +34,11 @@ new_packages:
 	mkdir -p packages-@ECOS_TARGET@
 	cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=${ECOS_REP};\
-	{ ecosconfig new @ECOS_TARGET@ corelib-os || ecosconfig new @ECOS_TARGET@ allpackages; };\
+	ecosconfig new @ECOS_TARGET@ minimal ;\
 	for i in $$(find ${ECOS_REP}/support -name "*.cdl"); do \
 	ecosconfig add support_$$(basename $$i .cdl); done ;\
+	{ ecosconfig template allpackages || ecosconfig template corelib-os; };\
+	echo -e "\n This is now your new configuration :\n" ;\
 	ecosconfig check
 
 
@@ -51,6 +54,7 @@ configure_packages:
 all_packages:
 	cd packages-@ECOS_TARGET@ &&\
 	export ECOS_REPOSITORY=${ECOS_REP} &&\
+	ecosconfig template allpackages &&\
 	ecosconfig tree &&\
 	make
 
