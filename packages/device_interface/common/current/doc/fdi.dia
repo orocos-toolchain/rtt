@@ -13,22 +13,22 @@
           <dia:string>#A4#</dia:string>
         </dia:attribute>
         <dia:attribute name="tmargin">
-          <dia:real val="2.8222"/>
+          <dia:real val="2.8222000598907471"/>
         </dia:attribute>
         <dia:attribute name="bmargin">
-          <dia:real val="2.8222"/>
+          <dia:real val="2.8222000598907471"/>
         </dia:attribute>
         <dia:attribute name="lmargin">
-          <dia:real val="2.8222"/>
+          <dia:real val="2.8222000598907471"/>
         </dia:attribute>
         <dia:attribute name="rmargin">
-          <dia:real val="2.8222"/>
+          <dia:real val="2.8222000598907471"/>
         </dia:attribute>
         <dia:attribute name="is_portrait">
           <dia:boolean val="true"/>
         </dia:attribute>
         <dia:attribute name="scaling">
-          <dia:real val="0.772609"/>
+          <dia:real val="0.77260875701904297"/>
         </dia:attribute>
         <dia:attribute name="fitto">
           <dia:boolean val="true"/>
@@ -257,7 +257,7 @@
         <dia:point val="35,0"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="27.925,-1.18625;42.1112,0.9225"/>
+        <dia:rectangle val="27.925,-1.15;42.075,0.85"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -287,7 +287,7 @@
         <dia:point val="20,10"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="18.425,9.2775;21.5975,12.545"/>
+        <dia:rectangle val="18.425,9.3;21.575,12.5"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -319,7 +319,7 @@ Servers#</dia:string>
         <dia:point val="28,14"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="25.525,13.2775;30.4975,15.545"/>
+        <dia:rectangle val="25.525,13.3;30.475,15.5"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -350,7 +350,7 @@ Device Driver#</dia:string>
         <dia:point val="34,6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="27.9,5.2775;40.1225,6.545"/>
+        <dia:rectangle val="27.9,5.3;40.1,6.5"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -410,7 +410,7 @@ Device Driver#</dia:string>
         <dia:point val="26,19.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="24.75,18.7775;27.2725,21.045"/>
+        <dia:rectangle val="24.75,18.8;27.25,21"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -441,7 +441,7 @@ Driver#</dia:string>
         <dia:point val="38,19.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="36.75,18.7775;39.2725,21.045"/>
+        <dia:rectangle val="36.75,18.8;39.25,21"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -478,7 +478,7 @@ Driver#</dia:string>
         <dia:point val="27.5,7.5"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="2.05001"/>
+        <dia:real val="2.0500099999999999"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="2"/>
@@ -727,10 +727,10 @@ Driver#</dia:string>
         <dia:point val="19,1"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="9.8"/>
+        <dia:real val="9.8000000000000007"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="3.6"/>
+        <dia:real val="3.6000000000000001"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -749,7 +749,7 @@ implementations.#</dia:string>
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="19.35,2.25"/>
@@ -795,7 +795,7 @@ implementations.#</dia:string>
         <dia:real val="10.65"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="6.3"/>
+        <dia:real val="6.2999999999999998"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -817,7 +817,7 @@ actively.#</dia:string>
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="47.35,11.75"/>
@@ -892,7 +892,7 @@ Device Driver#</dia:string>
         <dia:point val="47,4.5"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="10.55"/>
+        <dia:real val="10.550000000000001"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="4.5"/>
@@ -915,7 +915,7 @@ possible with (robot) hardware#</dia:string>
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="47.35,5.75"/>
@@ -959,7 +959,7 @@ possible with (robot) hardware#</dia:string>
         <dia:point val="47,17.5"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="9.95"/>
+        <dia:real val="9.9500000000000011"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="4.5"/>
@@ -982,7 +982,7 @@ enforces no policy.
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="47.35,18.75"/>
@@ -1029,7 +1029,7 @@ enforces no policy.
         <dia:real val="9.5"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="5.4"/>
+        <dia:real val="5.4000000000000004"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -1050,7 +1050,7 @@ end-effector,...#</dia:string>
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="47.35,-0.25"/>
@@ -1093,10 +1093,10 @@ end-effector,...#</dia:string>
         <dia:point val="18.5,18"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="3.45"/>
+        <dia:real val="3.4499999999999997"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
-        <dia:real val="2.7"/>
+        <dia:real val="2.7000000000000002"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -1114,7 +1114,7 @@ coupled#</dia:string>
             <dia:font family="arial" style="80" name="Helvetica-Bold"/>
           </dia:attribute>
           <dia:attribute name="height">
-            <dia:real val="0.9"/>
+            <dia:real val="0.90000000000000002"/>
           </dia:attribute>
           <dia:attribute name="pos">
             <dia:point val="18.85,19.25"/>
@@ -1198,7 +1198,7 @@ coupled#</dia:string>
         <dia:point val="30.5,19.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="29.25,18.7775;31.7725,21.045"/>
+        <dia:rectangle val="29.25,18.8;31.75,21"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
