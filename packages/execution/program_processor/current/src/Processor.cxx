@@ -404,15 +404,19 @@ namespace ORO_Execution
 
     void Processor::recursiveCheckUnloadStateContext(const StateInfo& si)
     {
+        // check this state
         if ( si.gstate != StateInfo::inactive ) {
             std::string error(
                               "Could not unload StateContext \"" + si.state->getName() +
                               "\" with the processor. It is still active." );
             throw program_unload_exception( error );
-            std::vector<StateContextTree*>::const_iterator it2;
-            for (it2 = si.state->getChildren().begin();
-                 it2 != si.state->getChildren().end();
-                 ++it2)
+        }
+
+        // check children
+        std::vector<StateContextTree*>::const_iterator it2;
+        for (it2 = si.state->getChildren().begin();
+             it2 != si.state->getChildren().end();
+             ++it2)
             {
                 state_iter it =
                     find_if(states->begin(),
@@ -427,7 +431,6 @@ namespace ORO_Execution
                 // all is ok, check child :
                 this->recursiveCheckUnloadStateContext( *it );
             }
-        }
     }
 
     void Processor::recursiveUnloadStateContext(StateContextTree* sc) {
