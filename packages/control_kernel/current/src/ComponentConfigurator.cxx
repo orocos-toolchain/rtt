@@ -10,7 +10,7 @@ using namespace ORO_ControlKernel;
 bool ComponentConfigurator::configure(const std::string& filename, PropertyComponentInterface* target) const
 {
     bool result = false;
-    XMLCh* name;
+    XMLCh* name = 0;
     cout << "Configuring " <<target->getName()<< endl;
     try
     {
