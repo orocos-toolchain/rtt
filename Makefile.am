@@ -137,7 +137,7 @@ packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	{ $(MAKE) -C . || exit -1; } &&\
-	ecosconfig export .upgrade.ecc &&\
+	ECOS_REPOSITORY=$(ECOS_REP) ecosconfig export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
 
 init_packages: test_new_packages
