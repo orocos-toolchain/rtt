@@ -6,6 +6,7 @@
 #include "ParseContext.hpp"
 #include "corelib/EventInterfaces.hpp"
 #include "StateGraph.hpp"
+#include "ValueChangeParser.hpp"
 
 #include <map>
 #include <string>
@@ -48,8 +49,8 @@ namespace ORO_Execution
       typedef std::map<std::string, detail::EventHandle*> handlemap;
       handlemap mhandles;
 
-      rule_t newline, syntaxerror,
-          line, valid_line, content, program, production,
+      rule_t newline, statevars,
+          line, content, program, production,
           state, entry, exit, handle, vardec,transitions,
           eecommand, selectcommand, docommand,
           brancher, selector, connectevent,
@@ -60,7 +61,7 @@ namespace ORO_Execution
       ConditionParser conditionparser;
       CommonParser commonparser;
       CommandParser commandparser;
-      ValueParser valueparser;
+      ValueChangeParser valuechangeparser;
 
       StateGraph* state_graph;
       detail::EventHandle* mhand;
@@ -94,6 +95,7 @@ namespace ORO_Execution
       void eventselected();
       void seensink();
       void finished();
+      void seenvaluechange();
       void syntaxerr();
   public:
     StateGraphParser( iter_t& positer, Processor* proc,

@@ -26,16 +26,21 @@
 namespace ORO_Execution
 {
 
-  struct ParseContext
-  {
-    ParseContext( Processor* proc,
-                  const GlobalFactory* se )
-      : processor( proc ), scriptableextension( se )
-      {
-      };
-    ValueParser valueparser;
-    Processor* processor;
-    const GlobalFactory* scriptableextension;
+    /**
+     * A Helper class to store parser relevant
+     * objects.
+     */
+    struct ParseContext
+    {
+        ParseContext( Processor* proc,
+                      const GlobalFactory* se )
+            : processor( proc ), scriptableextension( se )
+        {
+        }
+
+        ValueParser valueparser;
+        Processor* processor;
+        const GlobalFactory* scriptableextension;
   };
 }
 

@@ -29,6 +29,13 @@
 
 namespace ORO_Execution
 {
+    /**
+     * @brief A class for keeping track of parsed values/variables.
+     *
+     * It recognizes types and stores them in a map,
+     * so that they can be referenced to later on.
+     * If the 'context' has changed, it must be reset.
+     */
   class ValueParser
   {
     rule_t constant, const_double, const_int, const_bool, named_constant,

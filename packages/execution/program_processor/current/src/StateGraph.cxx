@@ -44,13 +44,16 @@ namespace ORO_Execution
         tie(ei, ei_end) = boost::out_edges( n, graph );
         while ( ei != ei_end )
             {
-                if ( emap[*ei].evaluate() )
+                if ( emap[*ei].evaluate() ) // on Success :
                     {
+                        // select the new node + init it + execute it
                         n = boost::target(*ei, graph);
                         cmap[n].startExecution();
                         cmap[n].execute();
+                        // reset all its edges for evaluation
                         for ( tie(ei, ei_end) = boost::out_edges( n, graph ); ei != ei_end; ++ei)
                             emap[*ei].reset();
+                        // set ei and ei_end again correctly
                         tie(ei, ei_end) = boost::out_edges( n, graph );
                     }
                 else

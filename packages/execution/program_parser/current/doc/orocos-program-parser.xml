@@ -340,7 +340,8 @@ alias reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
 	    <programlisting>
 vector( arg1, arg2, arg3 )
 	    </programlisting>
-	    where arg1, arg2 and arg3 are expressions of type double.
+	    where arg1, arg2 and arg3 are expressions which
+	    <emphasis>must be of type double</emphasis>.
 	    This returns an expression of type vector, with arg1 as
 	    the x component, arg2 as the y component, and arg3 as the
 	    z component.
@@ -353,13 +354,13 @@ vector( arg1, arg2, arg3 )
 // EulerZYZ convention:
 // First rotate around Z with alfa, then around the
 // new Y with beta, then around new Z with gamma.
-rotation( alfa, beta, gamma )
+var rotation rot = rotation( alfa, beta, gamma )
 
 // Vect is a vector expression, rot is a rotation
 // expression.  This returns a frame, constructed
 // using the vector x as the origin, and rotation
 // rot as the rotation..
-frame( vect, rot )
+var frame f = frame( vect, rot )
 	    </programlisting>
 	  </para>
 	</sect4>
@@ -415,9 +416,9 @@ do comp.action( args ) until {
 	  executing it the first time..  In that case, you can put the
 	  keyword "sync" before the command call.
 	  <programlisting>
-	    // continue moving to the right until you hit the wall..
-	    do sync robot.move( robot.position + vector( 1,0,0 ) )
-	      until { if robot.hitWall() then goto stop }
+// continue moving to the right until you hit the wall..
+do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
+      until { if robot.hitWall() then goto stop }
 	  </programlisting>
 	  The example above may be a bit stupid, but it only serves to
 	  show the use of the sync keyword..
@@ -537,7 +538,7 @@ state myInit {
 	  // statements and event configuration
 	  }
 	  transitions {
-	  // (conditional) select statments
+	  // (conditional) select statements
 	  }
 }
 
@@ -545,7 +546,7 @@ state Waiting {
 	  // see above...
 }
 
-// ...
+// ... repeat
 	</programlisting>
 	<para>
 	  You can list zero or more states, but must provide the
@@ -562,14 +563,14 @@ state Waiting {
 	  mandatory with 2 or more states and brings
 	  the state machine in the given state when the kernel is
 	  initialised. A state contains optionally 4 functions :
-	  onEntry, handle, onExit and transitions.
+	  entry, handle, exit and transitions.
 	</para>
       </sect3>
       <sect3>
-	<title>The <function>onEntry</function>and
-	  <function>onExit</function> Statements</title>
-	<para>When a state is entered for the first time, the onEntry
-	  function is called. When it is left, the onExit function is
+	<title>The <function>entry</function>and
+	  <function>exit</function> Statements</title>
+	<para>When a state is entered for the first time, the entry
+	  function is called. When it is left, the exit function is
 	  called. They both contain unconditional component commands
 	  and event configuration statements. The component
 	  commands are the same as in programs. There are two
@@ -580,7 +581,7 @@ state Waiting {
 // On top of the file :
 Event Handle handle_name
 
-// in onEntry or onExit :
+// in entry or exit :
 connect handle_name( "EventName", Component.command( args ) )
 
 disconnect handle_name
@@ -589,7 +590,8 @@ disconnect handle_name
 	  nameserved Event. The command is any valid component
 	  command with its arguments. The arguments will be evaluated
 	  when the command is called. From that moment on, whenever
-	  the event "EventName" is raised, the command will be 
+	  the event "EventName" is raised (this is done inside
+	  the component or kernel implementation), the command will be 
 	  executed synchronically. The disconnect statement cancels
 	  a previously connected handle and may be called any time
 	  on any handle. Each handle must be declared on beforehand
@@ -600,8 +602,8 @@ disconnect handle_name
 	<title>The <function>handle</function> and
 	  <function>transitions</function> Statement</title>
 	<para>
-	  The handle function is called after
-	  the onEntry function or when no transition can be
+	  The handle function is called directly after
+	  the entry function or when no transition can be
 	  found to another state in the next execution step.
 	  The handle function contains only component commands.
 	  To leave a state, the transitions function defines
@@ -630,9 +632,9 @@ transitions {
 	At the start of every execution cycle
 	of the Program Processor, the transition
 	table of the current state is evaluated.
-	If a transition succeeds, the onExit
+	If a transition succeeds, the exit
 	function is called of the current state,
-	then the onEntry function of the next
+	then the entry function of the next
 	state and then the handle function 
 	of the latter. If no transition evaluated
 	to true, the handle function of the current
@@ -643,7 +645,8 @@ transitions {
 	Processor will execute the program further
 	if it is in the Execution state. The
 	state graph is executed in the Load and
-	Execution state of the Program Processor.
+	Execution state of the Program Processor
+	( see The Orocos Program Processor Manual ).
       </para>
     </sect2>
   </sect1>
@@ -661,8 +664,8 @@ transitions {
 do kernel.selectGenerator( "CartesianGenerator" )
 do kernel.selectController( "CartesianController" )
 // ...
-do kernel.startProgram
-do kernel.stopProgram
+do engine.startProgram
+do engine.stopProgram
       </programlisting>
       The selectX commands are instructing the kernel
       itself while the start/stopProgram commands
@@ -670,6 +673,161 @@ do kernel.stopProgram
       the Execution state.
       They can be called from within Programs and States.
     </para>
+  </sect1>
+  <sect1>
+    <title>Program and State Example</title>
+    <para>
+      This sections shows the listings of an Orocos State
+      Description and an Orocos Program Script. They are
+      fictuous examples (but with valid syntax) which may
+      differ from actual available components. The example
+      tries to exploit all available functions.
+    </para>
+    <example>
+      <title>State Example</title>
+      <programlisting>
+Event Handle home_switch1
+Event Handle home_switch2
+
+Initial State init_state
+
+/**
+ * This state is only reached on startup
+ * of the kernel.
+ */
+state init_state {
+    entry {
+	do kernel.selectSensor("HWSensor")
+	do kernel.selectGenerator("MoveToGenerator")
+	}
+    transitions {
+	select stop_state
+	}
+}
+
+/**
+ * This state is the 'turn off' state of the
+ * machine.
+ */
+state stop_state {
+    entry {
+	// The Default Effector and Controller do nothing
+	do kernel.selectController("Default")
+	do kernel.selectEffector("Default")
+    transitions {
+	if HMI.start_pushed() then
+	     select run_state
+	}
+}
+
+/**
+ * This state puts the machine under 'control'
+ * effectively accepting commands and driving
+ * the machine.
+ */
+state run_state {
+    entry {
+	// make sure we are not moving
+	do MoveToGenerator.safeStop()
+	// Select components controlling the machine
+	do kernel.selectController("PID")
+	do kernel.selectEffector("HWEffector")
+	}
+
+    transitions {
+	if HMI.stop_pushed() then
+	     select stop_state
+	if HMI.start_program() then
+	     select exec_state
+	}
+}
+
+/**
+ * This state starts a previously loaded
+ * program.
+ */
+state exec_state {
+    entry {
+	do engine.startProgram()
+	}
+
+    exit {
+	do engine.stopProgram()
+	}
+	
+    transitions {
+	if HMI.stop_program() then
+	     select run_state
+	}
+}
+      </programlisting>
+      <programlisting>
+/**
+ * This program is executed in the exec_state.
+ */
+
+/**
+ * Request the HMI to load the user selected
+ * trajectory into the kernel.
+ */
+function HMILoadTrajectory {
+	// request a 'push' of the next
+	// trajectory :
+	do HMI.requestTrajectory
+	// when the HMI is done :
+	do Generator.loadTrajectory
+}
+
+/**
+ * Do a Homing (reset) of the axes.
+ * This could also be done using a Homing state,
+ * without a program.
+ */
+function ResetAxes {
+	do kernel.selectGenerator("HomingGenerator")
+	do HomingGenerator.home()
+}
+
+/**
+ * Request the Generator to use the current
+ * trajectory.
+ */
+function runTrajectory {
+	do Generator.startTrajectory
+	// this function returns when the
+	// trajectory is done.
+}
+
+function ExitProgram {
+	HMI.display("Program Ended\n")
+	stop
+}
+
+program {
+	HMI.display("Program Started\n")
+	var int cycle = 0
+
+	// We actually wait here until a 
+	// Trajectory is present in the HMI.
+	do nothing until {
+	   if HMI.trajectoryPresent then goto next
+	}
+
+start:  cycle = cycle + 1
+	HMI.display("Cycle nr: %d.\n", cycle )
+	call ResetAxes
+	call HMIRequestTrajectory
+	call runTrajectory
+
+	do HeartBeat.sleep( 5.0 ) // wait 5s
+	do nothing until {
+	    if HMI.cycle then goto start
+	}
+
+	call ExitProgram
+}
+      </programlisting>
+    </example>
   </sect1>
   <sect1 id="exporting-component-api">
     <title>Exporting a Component's API</title>

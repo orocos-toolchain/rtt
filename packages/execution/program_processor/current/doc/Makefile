@@ -15,6 +15,7 @@ docps: epsimages orocos-program-processor.ps
 doctxt: orocos-program-processor.txt
 
 epsimages: PPstates.eps
+
 pngimages: PPstates.png
 
 %.html:%.xml

@@ -42,7 +42,8 @@ namespace ORO_Execution
                                         const GlobalFactory* e )
         : context( proc, e ), mpositer( positer ),
           conditionparser( context ),
-          commandparser( context )
+          commandparser( context ),
+          valuechangeparser( context )
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( line );
@@ -65,9 +66,8 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( eeline );
     BOOST_SPIRIT_DEBUG_RULE( handleline );
     BOOST_SPIRIT_DEBUG_RULE( transline );
-    BOOST_SPIRIT_DEBUG_RULE( syntaxerror );
+    BOOST_SPIRIT_DEBUG_RULE( statevars );
     newline = ch_p( '\n' );
-    syntaxerror = *anychar_p;
 
     // Zero or more declarations and Zero or more states 
     production = ( *varline >> *state )[bind( &StateGraphParser::finished, this)];
@@ -100,11 +100,15 @@ namespace ORO_Execution
     // necessary, because comment's are skipped, but newline's
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
-    line = !( valid_line ) >> newline;
+    line = !( statevars | entry | handle | transitions | exit ) >> newline;
 
-    // We use this for 'substracting' a rule when it is seen.
-    // this does not work yet :-( see inentry()
-    valid_line = entry | handle | transitions | exit;
+    statevars = (
+        valuechangeparser.constantDefinitionParser()
+      | valuechangeparser.variableDefinitionParser()
+      | valuechangeparser.aliasDefinitionParser()
+      | valuechangeparser.variableAssignmentParser()
+        )[ bind( &StateGraphParser::seenvaluechange, this ) ];
+
 
     entry = str_p( "entry" )[ bind( &StateGraphParser::inentry, this)]
         >> expect_open(str_p("{"))>> *eeline >> expect_end(str_p("}"));
@@ -112,12 +116,12 @@ namespace ORO_Execution
     exit = str_p( "exit" )[ bind( &StateGraphParser::inexit, this)]
         >> expect_open(str_p("{")) >> *eeline >> expect_end(str_p("}"));
 
-    eeline = !eecommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
+    eeline = !( statevars | eecommand[bind( &StateGraphParser::seenstatement, this)]) >> newline;
     
     handle = str_p( "handle" )[ bind( &StateGraphParser::inhandle, this)]
         >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"));
 
-    handleline = !docommand[bind( &StateGraphParser::seenstatement, this)] >> newline;
+    handleline = !( statevars | docommand[bind( &StateGraphParser::seenstatement, this)]) >> newline;
 
     transitions = str_p( "transitions" )
         >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
@@ -148,7 +152,7 @@ namespace ORO_Execution
 
     eventbinding = expect_open(str_p("("))
         // We use the valueparser to get the const_string actually.
-        >> valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
+        >> context.valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
         >> expect_comma(str_p(","))
         >> commandparser.parser()[ bind( &StateGraphParser::seensink, this)]
         >> expect_end( str_p(")") );
@@ -192,7 +196,8 @@ namespace ORO_Execution
     void StateGraphParser::seenstateend()
     {
         assert ( mstate );
-        state_graph->endState();
+        state_graph->endState();     // inform graph this one is done
+        context.valueparser.clear(); // cleanup left over variables
         mstate = 0;
     }
  
@@ -278,7 +283,7 @@ namespace ORO_Execution
     
     void StateGraphParser::eventselected()
     {
-        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( valueparser.lastParsed()) ;
+        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
@@ -322,6 +327,22 @@ namespace ORO_Execution
         state_graph->connectToNext( state_graph->currentNode(),  new ConditionTrue );
     }
 
+    void StateGraphParser::seenvaluechange()
+    {
+        // some value changes generate a command, we need to add it to
+        // the program.
+        CommandInterface* ac = valuechangeparser.assignCommand();
+        // and not forget to reset()..
+        valuechangeparser.reset();
+        if ( ac )
+            {
+                state_graph->setCommand( ac );
+                // Since a valuechange does not add edges, we use this variant
+                // to create one.
+                state_graph->proceedToNext( new ConditionTrue );
+            }
+    }
+
   StateGraph* StateGraphParser::parse( iter_t& begin, iter_t end )
   {
     skip_parser_t skip_parser = SKIP_PARSER;
@@ -330,6 +351,7 @@ namespace ORO_Execution
     scanner_t scanner( begin, end, policies );
 
     state_graph = new StateGraph();
+    context.valueparser.clear();
 
     try {
       if ( ! production.parse( scanner ) )
