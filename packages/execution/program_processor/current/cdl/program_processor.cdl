@@ -5,6 +5,8 @@ cdl_package OROPKG_EXECUTION_PROGRAM_PROCESSOR {
     
     parent OROPKG_EXECUTION
 
+    requires OROPKG_SUPPORT_BOOST_GRAPH
+    requires OROPKG_SUPPORT_BOOST
     requires OROPKG_CORELIB_STATE
 
     compile VertexNode.cxx EdgeCondition.cxx ProgramGraph.cxx 

@@ -225,6 +225,7 @@ features and interface of the &orocos; &interf; package.
 	  The basic interface, CommandInterface, is provided by the
 	  Orocos CoreLib.
 	</para>
+      </sect2>
       <sect2>
 	<title>The Condition class</title>
 	<para>

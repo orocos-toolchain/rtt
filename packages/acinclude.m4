@@ -31,6 +31,27 @@ apt-get install libboost-dev
 AC_LANG_C
 ])
 
+m4_define([DETECT_BOOST_GRAPHPKG],[
+AC_LANG_CPLUSPLUS
+# Check for boost Graph
+AC_CHECK_HEADERS([boost/graph/adjacency_list.hpp],
+[
+PACKAGES="support/boost_graph/current/boost_graph.cdl $PACKAGES"
+],
+[
+AC_MSG_ERROR([
+
+Could not find the Boost Graph Library headers.
+Please install Boost and Boost Graph.
+
+You can find Boost at http://www.boost.org/
+or if you are a Debian GNU/Linux user, just do:
+apt-get install libboost-graph-dev
+])
+])
+AC_LANG_C
+])
+
 
 
 

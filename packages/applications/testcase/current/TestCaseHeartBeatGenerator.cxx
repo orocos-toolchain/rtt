@@ -29,7 +29,8 @@ namespace UnitTesting
     void TestCaseHeartBeatGenerator::step()
     {
         t[steps++] = hbg->ticksGet();
-        cout << hbg->secondsSince(mark)<<endl;
+        cout <<".";
+        //cout << hbg->secondsSince(mark)<<endl;
     }
 
     void TestCaseHeartBeatGenerator::finalize()

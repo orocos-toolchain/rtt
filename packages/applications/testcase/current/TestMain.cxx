@@ -43,7 +43,7 @@ using namespace std;
 #include <iostream>
 #include <os/main.h>
 
-int ORO_main(int argc, const char* argv)
+int ORO_main(int argc, const char** argv)
 {
     cout << "Starting Tests..."<<endl;
     quitEvent = new Event(Event::SYNASYN);

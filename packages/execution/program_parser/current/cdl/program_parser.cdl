@@ -11,4 +11,6 @@ cdl_package OROPKG_EXECUTION_PROGRAM_PARSER {
     compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactory.cxx 
 
     requires OROPKG_SUPPORT_BOOST
+    requires OROPKG_SUPPORT_BOOST_GRAPH 
+    requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
 }
