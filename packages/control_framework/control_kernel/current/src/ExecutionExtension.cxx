@@ -240,12 +240,12 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     bool ExecutionExtension::steppedStateMachine(const std::string& name)
     {
-        return proc.steppedStateMachine(name);
+        return proc.steppedModeStateMachine(name);
     }
 
     bool ExecutionExtension::continuousStateMachine(const std::string& name)
     {
-        return proc.continuousStateMachine(name);
+        return proc.continuousModeStateMachine(name);
     }
 
     bool ExecutionExtension::isStateMachineRunning(const std::string& name) const
