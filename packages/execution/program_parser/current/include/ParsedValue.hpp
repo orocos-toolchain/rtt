@@ -252,11 +252,11 @@ namespace ORO_Execution
       }
     ParsedConstantValue<T>* clone() const
       {
-        return new ParsedConstantValue<T>( data );
+        return new ParsedConstantValue<T>( this->data );
       }
     ParsedConstantValue<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
       {
-        return new ParsedConstantValue<T>( data->copy( replacements ) );
+        return new ParsedConstantValue<T>( this->data->copy( replacements ) );
       }
   };
 }

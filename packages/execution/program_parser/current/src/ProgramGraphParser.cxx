@@ -260,7 +260,6 @@ namespace ORO_Execution
 
     void ProgramGraphParser::startofprogram()
     {
-        program_graph = new ProgramGraph();
         program_graph->startProgram();
     }
 
@@ -438,7 +437,7 @@ namespace ORO_Execution
       program_graph->endProgram( context.processor );
       program_graph->reset();
       program_list.push_back(program_graph);
-      program_graph = 0;
+      program_graph = new ProgramGraph(); // will be deleted if no other progs follow
   }
 
   std::vector<ProgramGraph*> ProgramGraphParser::parse( iter_t& begin, iter_t end )
@@ -451,6 +450,10 @@ namespace ORO_Execution
     scanner_t scanner( begin, end, policies );
     program_list.clear();
 
+    // we need this, because if we encounter a function def,
+    // a program_graph must be present.
+    program_graph = new ProgramGraph();
+    
     try {
       if ( ! production.parse( scanner ) )
       {
@@ -464,6 +467,9 @@ namespace ORO_Execution
         program_list.clear();
         return std::vector<ProgramGraph*>();
       }
+      // this program_graph is empty...( seenprogramend() )
+      delete program_graph;
+      program_graph = 0;
       program_text = std::string( begin_copy, begin ); // begin is by reference.
       // set the program text in each program :
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
