@@ -27,7 +27,8 @@ namespace ORO_OS
 {
 
     /**
-     * A class for running a certain piece of code.
+     * @brief A class for running a certain piece of code in a thread.
+     *
      * It defines three methods for executing functionality. It is 
      * complementary to the RunnableTaskInterface, which defines the
      * control methods as starting and stopping.
@@ -40,7 +41,6 @@ namespace ORO_OS
 
     class RunnableInterface
     {
-
         public:
             virtual ~RunnableInterface()
             {}
