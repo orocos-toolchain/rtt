@@ -15,43 +15,13 @@
 namespace ORO_DeviceDriver
 {
 
-JR3Sensor::JR3Sensor(unsigned int DSP ) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6), _dsp(DSP)
+JR3Sensor::JR3Sensor(unsigned int DSP, float samplePeriod ) : TaskNonPreemptible( samplePeriod ), _filterToReadFrom(Filter6), _dsp(DSP)
 {
-    setSamplePeriod( this->periodGet() );
+    chooseFilter( this->periodGet() );
     _readBuffer  = &_buffer1;
     _writeBuffer = &_buffer2;
-/*
-  SixAxisArray temp;
-  temp.axis_1 = 0;
-  temp.axis_2 = 0;
-  temp.axis_3 = 0;
-  temp.axis_4 = 0;
-  temp.axis_5 = 0;
-  temp.axis_6 = 0;
 
-  JR3DSP_set_offsets_scaled(&temp);
-*/
-/*
-  ForceArray offsets;
-  offsets.Fx =   -0.1;
-  offsets.Fy =   41.0;
-  offsets.Fz = -115.1;
-  offsets.Tx =   28.4;
-  offsets.Ty =  -16.4;
-  offsets.Tz =    4.1;
-*/
-/*
-  ForceArray offsets;
-  offsets.Fx =   -3.6;
-  offsets.Fy =   37.6;
-  offsets.Fz = -114.3;
-  offsets.Tx =   25.2;
-  offsets.Ty =  -13.2;
-  offsets.Tz =    4.1;
 
-  JR3DSP_set_offsets(&offsets);
-  JR3DSP_transformCoordinateSystem(ANGLE_OFFSET, CENTER_GRIPPER_OFFSET);
-*/  
   JR3DSP_setUnits_N_dNm_mmX10(_dsp);
 }
 
@@ -67,6 +37,57 @@ unsigned int JR3Sensor::checkForError()
 {
   return JR3DSP_get_error_word(_dsp);
 }
+
+
+void JR3Sensor::checkSensorAndDSP()
+{
+  JR3DSP_check_sensor_and_DSP( _dsp );
+}
+
+
+void JR3Sensor::offsetSet(const ForceArray& newOffset)
+{
+    rtos_printf("OffsetSet\n");
+  // Copy
+//  std::cout << " old offset: " << _currentOffset << std::endl;
+//  std::cout << " new offset: " << newOffset << std::endl;
+  _currentOffset = newOffset;
+  // And adjust
+  _currentOffset.Fy = -_currentOffset.Fy;
+  _currentOffset.Ty = -_currentOffset.Ty;
+  // All the torques are in dNm (Nm*10), so scale:
+  _currentOffset.Tx *= 10.0;
+  _currentOffset.Ty *= 10.0;
+  _currentOffset.Tz *= 10.0;
+//  std::cout << " old offset: " << _currentOffset << std::endl;
+//  printf( "------------------------\n");
+//  printf( "offset change 1!!!!!!!!!\n");
+//  printf( "------------------------\n");
+                                                                                                                                          
+  JR3DSP_set_offsets(&_currentOffset, _dsp);
+}
+                                                                                                                                          
+void JR3Sensor::offsetAdd(const ForceArray& extraOffset)
+{
+    rtos_printf("OffsettAdd\n");
+//  std::cout << " old offset: " << _currentOffset << std::endl;
+//  std::cout << " xra offset: " << extraOffset << std::endl;
+  // First calculate the new offset (see above)
+  _currentOffset.Fx += extraOffset.Fx;
+  _currentOffset.Fy -= extraOffset.Fy;
+  _currentOffset.Fz += extraOffset.Fz;
+  _currentOffset.Tx += extraOffset.Tx*10.0;
+  _currentOffset.Ty -= extraOffset.Ty*10.0;
+  _currentOffset.Tz += extraOffset.Tz*10.0;
+//  std::cout << " old offset: " << _currentOffset << std::endl;
+  // Then set it
+//  printf( "------------------------\n");
+//  printf( "offset change 2!!!!!!!!!\n");
+//  printf( "------------------------\n");
+                                                                                                                                          
+  JR3DSP_set_offsets(&_currentOffset, _dsp);
+}
+
 
 
 int JR3Sensor::read(struct ForceArray& data)
@@ -148,22 +169,22 @@ void JR3Sensor::switchBuffers()
 }
 
 
-void JR3Sensor::setSamplePeriod(float period) 
+void JR3Sensor::chooseFilter(float period) 
 { 
     // Calculate the best filter to read from, based on the value 'T'
-    if      ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER1)) _filterToReadFrom = Filter1;
-    else if ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER2)) _filterToReadFrom = Filter2;
-    else if ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER3)) _filterToReadFrom = Filter3;
-    else if ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER4)) _filterToReadFrom = Filter4;
-    else if ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER5)) _filterToReadFrom = Filter5;
-    else if ( period > 1.0/(2*CUTOFF_FREQUENCY_FILTER6)) _filterToReadFrom = Filter6;
+    if      ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER1)) _filterToReadFrom = Filter1;
+    else if ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER2)) _filterToReadFrom = Filter2;
+    else if ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER3)) _filterToReadFrom = Filter3;
+    else if ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER4)) _filterToReadFrom = Filter4;
+    else if ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER5)) _filterToReadFrom = Filter5;
+    else if ( period < 1.0/(2*CUTOFF_FREQUENCY_FILTER6)) _filterToReadFrom = Filter6;
     else
     {
         rtos_printf("Sample to low to garantee no aliasing!\n");
         _filterToReadFrom = Filter6;
     }
     
-    rt_std::cout << "JR3Sensor setSamplePeriod:" << _filterToReadFrom << rt_std::endl;
+    rt_std::cout << "JR3Sensor chooseFilter: " << _filterToReadFrom << rt_std::endl;
 };
 
 }; //namespace ORO_DeviceDriver

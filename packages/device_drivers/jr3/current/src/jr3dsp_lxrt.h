@@ -2,9 +2,12 @@
 #ifndef JR3DSP_LXRT_H
 #define JR3DSP_LXRT_H
 
+#include <pkgconf/device_drivers_jr3.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 #undef DECLARE
 #define DECLARE static inline
@@ -18,7 +21,11 @@ extern "C" {
 #include <asm/types.h>
 #endif
 
-#include "jr3/jr3dsp.h"
+
+
+
+#ifdef OROINT_DEVICE_DRIVERS_JR3    
+#include "jr3dsp.h"
 
 #ifdef __KERNEL__
 extern void JR3DSP_check_sensor_and_DSP( unsigned int dsp );
@@ -32,7 +39,10 @@ extern void JR3DSP_getDataFromFilter3(struct ForceArray* data, unsigned int dsp)
 extern void JR3DSP_getDataFromFilter4(struct ForceArray* data, unsigned int dsp);
 extern void JR3DSP_getDataFromFilter5(struct ForceArray* data, unsigned int dsp);
 extern void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp);
+extern void JR3DSP_transformCoordinateSystem(float angle, float distance, unsigned int dsp);
 #endif
+
+#endif //OROINT_DEVICE_DRIVERS_JR3    
 
 
 // Every module that extends LXRT needs a unique MYIDX (1-15).
@@ -49,13 +59,16 @@ extern void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp)
 #define JR3DSP_GETDATAFROMFILTER4           68
 #define JR3DSP_GETDATAFROMFILTER5           69
 #define JR3DSP_GETDATAFROMFILTER6           70
+#define JR3DSP_TRANSFORMCOORDINATESYSTEM    71
+
+
+
 
 
 
 #ifndef __KERNEL__
 
 #include <stdarg.h>
-//#include <rtai_lxrt_common.h>
 #include <os/fosi.h>
 
 union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
@@ -67,12 +80,8 @@ union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg)
 #define DECLARE static inline 
 
 
-#if 0
 
-JR3DSP_SET_OFFSETS
-
-#endif
-
+#ifdef OROINT_DEVICE_DRIVERS_JR3    
 DECLARE void JR3DSP_check_sensor_and_DSP( unsigned int dsp )
 {
   struct { unsigned int dsp; } arg = { dsp };
@@ -159,6 +168,13 @@ DECLARE void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp
   memcpy(data, &pb_val, sizeof(struct ForceArray) );
 }
 
+DECLARE void JR3DSP_transformCoordinateSystem(float angle, float distance, unsigned int dsp)
+{
+  struct { float angle; float distance; } arg = { angle, distance };
+  rtai_lxrt(MYIDX, SIZARG, JR3DSP_TRANSFORMCOORDINATESYSTEM, &arg);
+};
+#endif //OROINT_DEVICE_DRIVERS_JR3    
+
 
 
 /***************************************************************************
@@ -166,7 +182,7 @@ DECLARE void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp
  **************************************************************************/
 
 
-#endif /* __KERNEL__ */
+#endif /* not defined __KERNEL__ */
 
 
 #ifdef __cplusplus

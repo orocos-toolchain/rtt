@@ -34,26 +34,32 @@ class JR3Sensor : public ORO_CoreLib::TaskNonPreemptible
     enum JR3Filters {Undefined, Filter1, Filter2, Filter3, Filter4, Filter5, Filter6};
     
 public:
-    // Constructors
-    JR3Sensor(unsigned int DSP );
-    JR3Sensor(JR3Sensor& copy);
+    // Constructor
+    JR3Sensor(unsigned int DSP, float samplePeriod );
     virtual ~JR3Sensor();
 
     // Read the current FT data
     virtual int read(struct ForceArray& data);
 
-    // Set the samplePeriod (in seconds). In this case, the sample period determines
-    // the filter from which the data will be retrieved.
-    virtual void setSamplePeriod(float period);
+    // Chooses the correct lowpass filter for the given sample period.
+    virtual void chooseFilter(float period);
 
     // Check for error (return 0 on OK, else the error byte/word)
     unsigned int checkForError();
+
+    // Prints out some checks in kernel log
+    void checkSensorAndDSP();
+
+    // Set/Add offset
+    void offsetSet( const ForceArray& offsets );
+    void offsetAdd( const ForceArray& offsets );
 
     
 protected:
     virtual void step() { refresh(); };
     
 private:
+    JR3Sensor(JR3Sensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6) {};
     void refresh();
     void switchBuffers();
 
@@ -62,11 +68,25 @@ private:
     unsigned int     _counter;
     ForceArray*      _readBuffer;
     ForceArray*      _writeBuffer;
+    ForceArray       _rotatedBuffer;
     ForceArray       _buffer1;
     ForceArray       _buffer2;
-    ORO_OS::Mutex _readLock;
+    ORO_OS::Mutex    _readLock;
+    
+    // The offsets currently in use
+    ForceArray       _currentOffset;
+    ForceArray       _rotatedOffset;
 };
 
+
+
+inline std::ostream& operator << (std::ostream& s, ForceArray ft)
+{
+  s << "[" << ft.Fx << "\t" << ft.Fy << "\t" << ft.Fz << "\t"
+           << ft.Tx << "\t" << ft.Ty << "\t" << ft.Tz << "]";
+  return s;
+}
+                                                                                                                                          
 }; // namespace ORO_DeviceDriver
 
 #endif   // JR3SENSOR_H

@@ -14,7 +14,6 @@
 
 #include <linux/module.h>
 
-#include <rtai/config.h>
 #include "jr3dsp_lxrt.h"
 #include <rtai.h>
 #include <rtai_lxrt.h>
@@ -29,7 +28,7 @@ MODULE_LICENSE("GPL");
  * to be called.
  */
 static struct rt_fun_entry rt_apci_fun[] = {
-#ifdef HAVE_JR3
+#ifdef OROINT_DEVICE_DRIVERS_JR3
     [  JR3DSP_CHECK_SENSOR_AND_DSP] = { 0, JR3DSP_check_sensor_and_DSP},
     [  JR3DSP_SET_OFFSETS         ] = { UR1(1,3), JR3DSP_set_offsets},
     [  JR3DSP_GET_ERROR_WORD      ] = { 0, JR3DSP_get_error_word},
@@ -40,8 +39,9 @@ static struct rt_fun_entry rt_apci_fun[] = {
     [  JR3DSP_GETDATAFROMFILTER3  ] = { UW1(1,3), JR3DSP_getDataFromFilter3},
     [  JR3DSP_GETDATAFROMFILTER4  ] = { UW1(1,3), JR3DSP_getDataFromFilter4},
     [  JR3DSP_GETDATAFROMFILTER5  ] = { UW1(1,3), JR3DSP_getDataFromFilter5},
-    [  JR3DSP_GETDATAFROMFILTER6  ] = { UW1(1,3), JR3DSP_getDataFromFilter6}
-#endif //HAVE_JR3
+    [  JR3DSP_GETDATAFROMFILTER6  ] = { UW1(1,3), JR3DSP_getDataFromFilter6},
+    [  JR3DSP_TRANSFORMCOORDINATESYSTEM ] = { 0, JR3DSP_transformCoordinateSystem}
+#endif //OROINT_DEVICE_DRIVERS_JR3
 };
 
 

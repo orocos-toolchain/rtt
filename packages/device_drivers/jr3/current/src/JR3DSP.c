@@ -427,27 +427,23 @@ void JR3DSP_getDataFromFilterAndRescale(struct ForceArray* data,
 // ------------------------------------
 // A rather specific tranformation: rotation and translation around the
 // z-axis; (deg, m)
-void JR3DSP_transformCoordinateSystem(double angle, double distance, unsigned int dsp)
+void JR3DSP_transformCoordinateSystem(float angle, float distance, unsigned int dsp)
 {
-  short force_units;
-  
   // rotate around the z-axis
   JR3DSP_write_word( TRANSFORMS+0, 6, dsp); 
-  // amount calculated using program alignforcesensor
   JR3DSP_write_word( TRANSFORMS+1, (int)(angle*32768.0/180.0), dsp );
   printk("Setting rotation to %d units for dsp %u\n", (int)(angle*32768.0/180.0), dsp );
-  // Remember the current units mode
-  force_units = JR3DSP_read_word(UNITS, dsp);
+  
   // Set distance units to mmX10
   JR3DSP_write_word(UNITS, 1, dsp);
   // translate along the z-axis
   JR3DSP_write_word( TRANSFORMS+2, 3, dsp); 
-  // amount calculated using program alignforcesensor
+  
   // Here, it is assumed that the translation is less than 3.2768 m
-  JR3DSP_write_word( TRANSFORMS+3, (int)(distance*-10000.0), dsp );
+  JR3DSP_write_word( TRANSFORMS+3, (int)(distance*(-10000.0)), dsp );
+  
   // The End
   JR3DSP_write_word( TRANSFORMS+4, 0, dsp);
-  
   JR3DSP_write_word(COMMAND_WORD0, 0x0500, dsp); // use transform #0
 }
 

@@ -86,5 +86,5 @@ void JR3DSP_getDataFromFilter6(struct ForceArray* data, unsigned int dsp);
 // ------------------------------------
 // A rather specific tranformation: rotation and translation around the
 // z-axix; (deg, m)
-void JR3DSP_transformCoordinateSystem(double angle, double distance, unsigned int dsp);
+void JR3DSP_transformCoordinateSystem(float angle, float distance, unsigned int dsp);
 #endif // JR3DSP_H
