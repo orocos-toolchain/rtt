@@ -302,15 +302,15 @@ AC_REVISION($revision)
 # Initialize Autoconf with package name and version
 AC_INIT($1,acx_version)
 
-dnl Initialize Automake
-AM_INIT_AUTOMAKE(1.6.0)
-
-ACX_VERSION_POST
-
 # Tell Autoconf to dump files into the config subdir
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([config.h.in])
 AM_CONFIG_HEADER([config.h])
+
+dnl Initialize Automake
+AM_INIT_AUTOMAKE(1.6.0)
+
+ACX_VERSION_POST
 
 dnl Default installation path
 AC_PREFIX_DEFAULT([/usr/local/orocos])
