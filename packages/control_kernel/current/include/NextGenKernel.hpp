@@ -91,6 +91,8 @@ namespace ORO_ControlKernel
     {
         typedef std::map<ComponentBaseInterface*, std::pair<shared_ptr<ComponentStateInterface>,
                                                             shared_ptr<DOCreationInterface> > > ComponentStateMap;
+        using ControlKernelInterface::getKernelName;
+
     public:
         typedef _Extension Extension;
             

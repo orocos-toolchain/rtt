@@ -68,15 +68,15 @@ namespace ORO_ControlKernel
             delete *it;
     }
 
-    TaskInterface* PropertyExtension::getTask() const
-    {
-        return base->getTask();
-    }
+//     TaskInterface* PropertyExtension::getTask() const
+//     {
+//         return base->getTask();
+//     }
     
-    void PropertyExtension::setTask( TaskInterface* task )
-    {
-        base->setTask( task );
-    }
+//     void PropertyExtension::setTask( TaskInterface* task )
+//     {
+//         base->setTask( task );
+//     }
 
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {

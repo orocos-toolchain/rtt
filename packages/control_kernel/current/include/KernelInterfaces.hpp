@@ -62,7 +62,7 @@ namespace ORO_ControlKernel
 
         virtual ~ControlKernelInterface() {}
 
-        ControlKernelInterface() :  mytask(0), name("name","The name of the kernel.", "Default") {}
+        ControlKernelInterface() : name("name","The name of the kernel.", "Default") {}
 
         /**
          * @brief This is the hook for user kernel properties.
@@ -79,10 +79,6 @@ namespace ORO_ControlKernel
         {
             return extensions;
         }
-
-        virtual TaskInterface* getTask() const;
-            
-        virtual void setTask( TaskInterface* task );
 
         const std::string& getKernelName() const;
 
@@ -142,6 +138,24 @@ namespace ORO_ControlKernel
 #endif
         protected:
             /**
+             * @brief This method is called when the kernel is started.
+             * @return true if startup may proceed, false otherwise.
+             */
+            virtual bool initialize() = 0;
+            
+            /**
+             * @brief This method is called on each periodic execution
+             * of the kernel, in the order of the Extensions.
+             */
+            virtual void step() = 0;
+
+            /**
+             * @brief This method is called after the last
+             * periodic step.
+             */
+            virtual void finalize() = 0;
+
+            /**
              * @brief Unique name of this extension.
              */
             std::string extensionName;
@@ -177,9 +191,15 @@ namespace ORO_ControlKernel
         virtual void step() ;
         virtual void finalize() ;
 
-        virtual TaskInterface* getTask() const;
+        /**
+         * Get the Task of the ControlKernelInterface.
+         */
+        TaskInterface* getTask() const;
 
-        virtual void setTask( TaskInterface* task );
+        /**
+         * Get the name of the ControlKernelInterface.
+         */
+        const std::string& getKernelName() const;
 
         /**
          * @brief Returns true if the kernel is running, false

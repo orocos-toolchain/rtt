@@ -89,15 +89,15 @@ namespace ORO_ControlKernel
 
     ReportingExtension::~ReportingExtension() {}
 
-    TaskInterface* ReportingExtension::getTask() const
-    {
-        return base->getTask();
-    }
+//     TaskInterface* ReportingExtension::getTask() const
+//     {
+//         return base->getTask();
+//     }
     
-    void ReportingExtension::setTask( TaskInterface* task )
-    {
-        base->setTask( task );
-    }
+//     void ReportingExtension::setTask( TaskInterface* task )
+//     {
+//         base->setTask( task );
+//     }
 
             
     /**

@@ -154,7 +154,7 @@ namespace ORO_ControlKernel
          * Set up a control kernel extension for reporting.
          *
          */
-        ReportingExtension( ControlKernelInterface* _base=0 );
+        ReportingExtension( ControlKernelInterface* _base );
 
         virtual ~ReportingExtension();
 
@@ -164,15 +164,9 @@ namespace ORO_ControlKernel
          */
         struct SplitStream;
 
-        virtual TaskInterface* getTask() const;
+//         virtual TaskInterface* getTask() const;
 
-        virtual void setTask( TaskInterface* task );
-
-        virtual bool initialize();
-
-        virtual void step();
-
-        virtual void finalize();
+//         virtual void setTask( TaskInterface* task );
 
         /**
          * Report an external PropertyExporterInterface.
@@ -204,6 +198,12 @@ namespace ORO_ControlKernel
         virtual bool updateProperties(const PropertyBag& bag);
             
     protected:
+        virtual bool initialize();
+
+        virtual void step();
+
+        virtual void finalize();
+
         typedef MarshallConfiguration<TableHeaderMarshaller<SplitStream>,
                                       TableMarshaller<SplitStream> > MarshallTableType;
         typedef MarshallConfiguration<EmptyHeaderMarshaller<SplitStream>,

@@ -136,19 +136,19 @@ namespace ORO_ControlKernel
 
         virtual ~CompositeExtension() {}
 
-        virtual bool initialize() 
+        bool initialize() 
         {
             return (First::initialize() &&
                     (Second::initialize() || (First::finalize(),false) ) );
         }
 
-        virtual void step() 
+        void step() 
         {
             First::step();
             Second::step();
         }
 
-        virtual void finalize() 
+        void finalize() 
         {
             First::finalize();
             Second::finalize();

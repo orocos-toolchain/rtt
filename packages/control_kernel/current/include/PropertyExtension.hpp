@@ -126,27 +126,15 @@ namespace ORO_ControlKernel
         /**
          * Create a PropertyExtension.
          */
-        PropertyExtension(ControlKernelInterface* _base = 0 );
+        PropertyExtension(ControlKernelInterface* _base );
 
         virtual ~PropertyExtension();
 
         virtual bool updateProperties(const PropertyBag& bag);
         
-        /**
-         * Read the XML cpf files and try to configure all the components.
-         */
-        virtual bool initialize();
+//         virtual TaskInterface* getTask() const;
 
-        virtual void step();
-
-        /**
-         * If needed, save the components properties.
-         */
-        virtual void finalize();
-
-        virtual TaskInterface* getTask() const;
-
-        virtual void setTask( TaskInterface* task );
+//         virtual void setTask( TaskInterface* task );
 
         /**
          * Used by the PropertyComponentInterface to register itself to
@@ -161,6 +149,20 @@ namespace ORO_ControlKernel
         void removeComponent(PropertyComponentInterface* comp);
 
         bool configureComponent(const std::string& filename, PropertyComponentInterface* target);
+
+    protected:
+        /**
+         * Read the XML cpf files and try to configure all the components.
+         */
+        virtual bool initialize();
+
+        virtual void step();
+
+        /**
+         * If needed, save the components properties.
+         */
+        virtual void finalize();
+
         private:
         /**
          * Mapping of Component name to component instances.

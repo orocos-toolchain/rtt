@@ -116,11 +116,9 @@ namespace ORO_ControlKernel
     public:
         typedef ExecutionComponentInterface CommonBase;
 
-        ExecutionExtension( ControlKernelInterface* _base=0 );
+        ExecutionExtension( ControlKernelInterface* _base );
 
         virtual ~ExecutionExtension();
-
-        virtual bool initialize();
 
         /**
          * Set a ProgramGraph to be used the next time the kernel is started.
@@ -212,13 +210,9 @@ namespace ORO_ControlKernel
         bool continuousStateContext(const std::string& name);
 
 
-        virtual TaskInterface* getTask() const;
+        TaskInterface* getTask() const;
 
-        virtual void setTask( TaskInterface* task );
-
-        virtual void step() ;
-
-        virtual void finalize();
+        //void setTask( TaskInterface* task );
 
         virtual bool updateProperties( const PropertyBag& bag );
 
@@ -227,6 +221,12 @@ namespace ORO_ControlKernel
         virtual DataSourceFactoryInterface* createDataSourceFactory();
 
     protected:
+        virtual bool initialize();
+
+        virtual void step() ;
+
+        virtual void finalize();
+
         void initKernelCommands();
         //bool foo( bool( ExecutionExtension::*cond)() const, bool (*adapter)(const bool&) ) const;
     private:
