@@ -1,7 +1,7 @@
 SUBDIRS = .
 
 
-EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia io-overview.dia \
+EXTRA_DIST = orocos-installation.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia \
 	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
 	orocos-overview.html orocos-installation.html  \
         rtai-24.1.11.patch

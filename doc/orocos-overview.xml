@@ -10,9 +10,8 @@
 ]
 >
 
-
 <article>
- <artheader>
+ <articleinfo>
  <title>
   The OROCOS Project 
  </title>
@@ -73,10 +72,8 @@ the <emphasis>Open RObot COntrol Software</emphasis> project.
       </para>
     </legalnotice>
 
-</artheader>
+</articleinfo>
 
-<chapter>
-<title>Introduction</title>
 <sect1 id="intro">
 <title>What is Orocos?</title>
 <para>
@@ -666,7 +663,6 @@ possible.
 	</para>
       </sect2>
     </sect1>
-  </chapter>
   <bibliography>
     <title>Bibliography</title>
 

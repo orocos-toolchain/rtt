@@ -136,12 +136,11 @@
 	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
 	Package Tree from the Subversion tree.
 	<screen width="60">
-	  EXPORT SVN_SSH='ssh -lanoncvs'
-	  svn svn+ssh://cvs.mech.kuleuven.ac.be:/repos/svn co orocos/orocos-trunk
-	  cd orocos/orocos-trunk
+	  svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
+	  cd orocos-trunk
 	</screen>
 	Make sure you have &ldquo;<application>svn</application>&rdquo;
-	installed; enter &ldquo;anon&rdquo; as password when asked for.
+	installed.
       </para>
       <para>
 	The next step requires that you use
@@ -158,7 +157,7 @@
 	  autoconf (GNU Autoconf) 2.54
 	</screen>
 	<note>
-	  You need these programs if you intend to modify the makefiles
+	  <para> You need these programs if you intend to modify the makefiles</para>
 	</note>
 	When you get something similar, proceed with calling the <command>
 	  ./autogen.sh </command> command in the packages directory
@@ -198,7 +197,9 @@
 	  url="http://people.mech.kuleuven.ac.be/psoetens/ecos/
 	  ecosconfig-2.0.tar.gz">ecosconfig-2.0.tar.gz</ulink>. 
 	</para>
-      <note>The graphical configtool program uses the libwxgtk2.4 library</note>
+      <note>
+	<para>The graphical configtool program uses the libwxgtk2.4 library</para>
+      </note>
       <para>
 	These tools both serve the same purpose : to control package
 	configuration and installation. Ecosconfig is command-line
@@ -212,16 +213,17 @@
 	  eCos Component Writer Guide</ulink>.
       </para>
       <note>
-	In the eCos operating system, a target is a hardware platform, in Orocos,
+	<para>	In the eCos operating system, a target is a hardware platform, in Orocos,
 	a target is RTAI, GNU/Linux, LXRT and so on, so you can skip all hardware
 	specific sections in the eCos manuals.
+	</para>
       </note>
       <para>
 	When these tools are present, proceed as follows :
       </para>
 	<orderedlist>
-	  <listitem><para>Download Orocos-Host.tar.gz from the Orocos webpage</para></listitem>
-	  <listitem><para>Extract it using : tar -xvzf orocos-0.10.0.tar.gz</para></listitem>
+	  <listitem><para>Download orocos base package from the Orocos webpage</para></listitem>
+	  <listitem><para>Extract it using : tar -xvzf orocos-base-0.10.0.tar.gz</para></listitem>
 	  <listitem><para>Setup the base environment : 
 	      <command>cd orocos-0.10.0; ./autogen.sh; </command></para></listitem>
 	  <listitem><para>Setup the packages environment :
@@ -256,9 +258,10 @@
       <para>
 	Each package will have been installed in a
 	packages/package-name/version/ directory, allowing multiple
-	versions to be installed next to each other. The CVS version
+	versions to be installed next to each other. The repository version
 	is always called 'current', and considered as the most recent
-	version.
+	version. If you downloaded the epk files, you will find a version number
+	in place.
       </para>
       <para>
 	The make build_packages command will have made a directory
@@ -270,6 +273,16 @@
 	&orocos;. Of course a package itself can also be an
 	application, resulting in an executable in the
 	packages-&lt;target&gt;/install/bin directory.
+      </para>
+      <para>
+	The make configure_packages will pop up a graphical frontend
+	to configuration. When you save and exit, a file
+	<filename>packages-&lt;target&gt;/ecos.ecc</filename> will
+	be generated which contains all your custom options.
+	<tip>
+	  <para>Make a copy of the ecos.ecc file so that you always have
+	  a backup when it gets accidentally overwritten.</para>
+	</tip>
       </para>
       <sect2>
 	<title>Using &orocos; concurrently for multiple targets</title>
@@ -349,11 +362,30 @@
 	  You can modify this by passing a --prefix= option to ecosconfig or
 	  change it in the GUI.
 	</para>
-	<note>ecosconfig and configtool both use a different namingscheme
+	<note>
+	  <para>
+	    ecosconfig and configtool both use a different namingscheme
 	  for installation and build directories. configtool uses the
 	  &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
 	  subdirectories while ecosconfig uses the current dir to build and
-	  the install directory for installation.
+	  the install directory for installation. 
+	  </para>
+	</note>
+	<note>
+	  <para>
+	    It is advised to only
+	    use the configtool GUI for generating the ecos.ecc file and
+	    using ecosconfig for creating a build tree.
+	  </para>
+	</note>
+	<note>
+	  <para>
+	    If you invoke the eCos manually (without the make command)
+	    you need to type the following command :
+	    <command>export ECOS_REPOSITORY=/path/to/orocos-trunk/packages</command>
+	    You can then run <command>ecosconfig help</command> or
+	    <command>configtool</command>.
+	  </para>	
 	</note>
 	<para>
 	  Just running <command>./configure</command> or <command>./configure
@@ -561,7 +593,7 @@ configure script will select the os/rtai target
   <chapter id="started">
       <title>Getting started with the code</title>
       <para>
-	This Section provides the semantics of the services available in the
+	This Chapter provides the semantics of the services available in the
 	&orocos; Packages.
       </para>
       <sect1>
@@ -624,6 +656,81 @@ configure script will select the os/rtai target
 <!--         <filename>src/moduleStartStop.c</filename> is another example we use -->
 <!--         for starting and stopping the framework in kernel space. -->
       </sect1>
+    <sect1>
+      <title>Some important header files</title>
+      <para>
+	People new to the eCos build system might be unfamiliar with locating
+	the headers they need. Especially if you want to develop your own package
+	or have more control on what is happening inside Orocos, these files will
+	be needed.
+	<table>
+	  <title>Important header files</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>Header</entry>
+		<entry>Summary</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>pkgconf/*.h</entry>
+		<entry>All these headers contain every configured item
+		  of the configuration tool, collected per package.
+		  If you need inside information
+		  on how an Orocos package is configured, these files contain all the
+		  defines, which were used when the libtarget.a was compiled.
+		  The macros are documented in the .cdl files and displayed by the
+		  configuration tool.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>pkgconf/system.h</entry>
+		<entry>
+		  This header contains the definition of each installed
+		  package. The syntax is always of the type OROPKG_* and
+		  quite straightforward. This file also contains the version
+		  numbers of each installed package.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>pkgconf/os.h</entry>
+		<entry>This file, which is created by the os package,
+		  contains all the interfaces the current OS implements.
+		  They are defined as OROINT_OS_* to denote the capability
+		  of the OS. They are documented in the os.cdl file.
+		  For example, OROINT_OS_STDVECTOR denotes that the standard
+		  C++ vector implementation is available for the selected OS.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>corelib/*.hpp</entry>
+		<entry>The corelib headers are documented by Doxygen and
+		  the corelib manual. All Orocos applications will at least
+		  use events, tasks and timing from the corelib.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>os/*.h, os/*.hpp</entry>
+		<entry>The os headers describe a limited set of
+		  OS primitives, like locking a mutex or creating
+		  a thread. Read the OS manual carefully before
+		  using these headers, they are mostly used internally
+		  in the corelib's implementation.
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	  <!-- one of (graphic mediaobject tgroup) -->
+	</table>
+      </para>
+    </sect1>
   </chapter>
 
   <chapter>
