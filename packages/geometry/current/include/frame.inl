@@ -141,13 +141,6 @@ IMETHOD bool Equal(const Frame& a,const Frame& b,double eps) {
                 Equal(a.M,b.M,eps)   );
 }
 
-IMETHOD Twist FrameDifference(const Frame& goal,const Frame& current) {
-    return Twist(
-             goal.p-current.p,
-             (goal.M*current.M.Inverse()).GetRot()
-        );
-}
-
 
 
 /**
