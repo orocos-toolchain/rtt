@@ -1964,7 +1964,7 @@ if ( this->inKernel() )
 		</row>
 		<row>
 		  <entry>
-		   DataSourceFactory* createDataSourceFactory()
+		   DataSourceFactoryInterface* createDataSourceFactory()
 		  </entry>
 		  <entry>
 		    This function is needed to export Component

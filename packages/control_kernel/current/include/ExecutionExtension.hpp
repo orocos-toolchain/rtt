@@ -29,7 +29,7 @@ namespace ORO_ControlKernel
 {
     using ORO_CoreLib::PropertyBag;
     using ORO_Execution::CommandFactoryInterface;
-    using ORO_Execution::DataSourceFactory;
+    using ORO_Execution::DataSourceFactoryInterface;
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
     using ORO_Execution::GlobalFactory;
@@ -50,7 +50,7 @@ namespace ORO_ControlKernel
         ExecutionExtension* master;
     protected:
         CommandFactoryInterface* commandfactory;
-        DataSourceFactory* dataSourceFactory;
+        DataSourceFactoryInterface* dataSourceFactory;
     public:
         ExecutionComponentInterface( const std::string& _name );
 
@@ -64,7 +64,7 @@ namespace ORO_ControlKernel
          * The factory for creating the data this Component
          * wants to export.
          */
-        virtual DataSourceFactory* createDataSourceFactory();
+        virtual DataSourceFactoryInterface* createDataSourceFactory();
 
         bool enableAspect( ExecutionExtension* ext );
 
@@ -93,7 +93,7 @@ namespace ORO_ControlKernel
 
     protected:
         CommandFactoryInterface* commandfactory;
-        DataSourceFactory* dataSourceFactory;
+        DataSourceFactoryInterface* dataSourceFactory;
 
     public:
         typedef ExecutionComponentInterface CommonBase;
@@ -112,7 +112,7 @@ namespace ORO_ControlKernel
          * The factory for creating the data this Kernel
          * wants to export.
          */
-        virtual DataSourceFactory* createDataSourceFactory();
+        virtual DataSourceFactoryInterface* createDataSourceFactory();
 
         virtual bool initialize();
 

@@ -31,7 +31,7 @@
 #include <pkgconf/system.h>
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
 #include "execution/CommandFactoryInterface.hpp"
-#include "execution/DataSourceFactory.hpp"
+#include "execution/DataSourceFactoryInterface.hpp"
 #endif
 
 namespace ORO_ControlKernel
@@ -387,7 +387,7 @@ namespace ORO_ControlKernel
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
         virtual ORO_Execution::CommandFactoryInterface* createCommandFactory();
 
-        virtual ORO_Execution::DataSourceFactory* createDataSourceFactory();
+        virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory();
 #endif
 
         /**

@@ -2,7 +2,8 @@
 
 #include <execution/CommandFactoryInterface.hpp>
 #include <execution/GlobalCommandFactory.hpp>
-#include <execution/DataSourceFactory.hpp>
+#include <execution/GlobalDataSourceFactory.hpp>
+#include <execution/DataSourceFactoryInterface.hpp>
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
 
@@ -132,7 +133,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return 0;
     }
 
-    DataSourceFactory* ExecutionExtension::createDataSourceFactory()
+    DataSourceFactoryInterface* ExecutionExtension::createDataSourceFactory()
     {
         // see initKernelCommands()
         return 0;
@@ -246,7 +247,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return 0;
     }
 
-    DataSourceFactory* ExecutionComponentInterface::createDataSourceFactory()
+    DataSourceFactoryInterface* ExecutionComponentInterface::createDataSourceFactory()
     {
         return 0;
     }

@@ -186,7 +186,7 @@ CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
     return ret;
 }
 
-DataSourceFactory* KernelBaseFunction::createDataSourceFactory()
+DataSourceFactoryInterface* KernelBaseFunction::createDataSourceFactory()
 {
     TemplateDataSourceFactory< KernelBaseFunction >* ret =
         newDataSourceFactory( this );
