@@ -47,13 +47,12 @@ namespace ORO_CoreLib
           timestamp(0),
           started(false), showtime(true)
     {
-      this->start();
+      this->startup();
     }
 
     Logger* Logger::Instance() {
         if (_instance == 0) {
             _instance =  new Logger();
-	    _instance->start();
         }
         return _instance;
     }
@@ -64,13 +63,13 @@ namespace ORO_CoreLib
 
     void Logger::Release() {
       if (_instance) {
-        _instance->cleanup();
+        _instance->shutdown();
         delete _instance;
         _instance = 0;
       }
     }
         
-    void Logger::start() {
+    void Logger::startup() {
         if (started)
             return;
 #ifndef OROBLD_DISABLE_LOGGING
@@ -107,7 +106,7 @@ namespace ORO_CoreLib
 #endif
     }
 
-    void Logger::cleanup() {
+    void Logger::shutdown() {
         if (!started)
             return;
         *this<<Logger::Info<<"Orocos Logging Deactivated." << Logger::endl;

@@ -111,12 +111,12 @@ namespace ORO_CoreLib
         /**
          * Print a 'welcome' string in Info  and reset log timestamp.
          */
-        void start();
+        void startup();
 
         /**
-         * Print a 'goodbye' string in Info and Flush all streams.
+         * Print a 'goodbye' string in Info, Flush all streams and stop Logging.
          */
-        void cleanup();
+        void shutdown();
 
         /**
          * This method gets all messages upto level Info
