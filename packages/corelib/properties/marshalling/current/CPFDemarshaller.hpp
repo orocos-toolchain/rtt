@@ -21,7 +21,9 @@
 namespace ORO_CoreLib
 {
     using  std::string;
+#ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
+#endif
 
     class SAX2CPFHandler : public DefaultHandler
     {
