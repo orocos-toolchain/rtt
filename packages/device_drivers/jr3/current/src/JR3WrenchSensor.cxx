@@ -246,7 +246,7 @@ void JR3WrenchSensor::refresh()
 void JR3WrenchSensor::switchBuffers()
 {
     ORO_OS::MutexTryLock locker( _readLock );
-    if ( locker.isSuccessful() )
+    if ( locker.isSuccessful() ){
         if ( _readBuffer == &_buffer1 )
         {
             _readBuffer = &_buffer2;
@@ -257,6 +257,7 @@ void JR3WrenchSensor::switchBuffers()
             _readBuffer = &_buffer1;
             _writeBuffer = &_buffer2;
         }
+    }
 }
 
 
