@@ -68,12 +68,12 @@ namespace ORO_Execution
     constantdefinition = (
          "const"
          // the type
-      >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+	 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
          // next the name for the constant
-      >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
-      >> expect_init( str_p( "=" )
+	 >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+	 >> expect_is( ch_p('=') )
          // and a value to assign to it..
-      >> expressionparser.parser() )[
+	 >> expect_init( expressionparser.parser() )[
            bind( &ValueChangeParser::seenconstantdefinition, this ) ] );
 
     aliasdefinition = (
@@ -89,8 +89,8 @@ namespace ORO_Execution
     variabledefinition = (
          "var"
          >> baredefinition
-         >> ( ch_p('=')
-         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] ));
+         >> expect_is( ch_p('=') )
+         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
 
     variableassignment = (
          "set"
