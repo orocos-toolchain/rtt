@@ -17,13 +17,6 @@
  ***************************************************************************/
  
  
-
-#include <corelib/Time.hpp>
-#include <corelib/PriorityThread.hpp>
-#include <corelib/RunnableInterface.hpp>
-#include <corelib/TaskSimulation.hpp>
-#include <corelib/SimulationThread.hpp>
-
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 

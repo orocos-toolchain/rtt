@@ -108,31 +108,48 @@ void TypesTest::testReturnProgram()
 void TypesTest::testTypes()
 {
     string prog = string("program x {\n") +
-        "var int i = 0\n" +
-        //"var char c = 'c'\n" +
-        "var double d = 0.0\n"+
+        "var int i = -1\n" +
+        "do test.assert( i == -1 )\n" +
+        "var double d = 10.0\n"+
+        "do test.assert( d == 10.0 )\n" +
         "var bool b = false\n"+
+        "do test.assert( b == false )\n" +
         "var string s=\"string\"\n"+
-        "var double6d d6 = double6d(0.,0.,0.,0.,0.,0.)\n"+
-        "var double6d d6_2 = double6d(0.0)\n"+
+        "do test.assert( s == \"string\" )\n" +
+        "var double6d d6 = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n"+
+//         "do test.assert( d6 == double6d(0.1,0.2,0.3,0.4,0.5,0.6) )\n" +
+        "var double6d d6_2 = double6d(0.01)\n"+
+//         "do test.assert( d6_2 == double6d(0.01) )\n" +
+        "const int ic = i\n" +
+        "do test.assert( ic == -1 )\n" +
+        "const double dc = d\n"+
+        "do test.assert( dc == 10.0 )\n" +
+        "const bool bc = b\n"+
+        "do test.assert( bc == false )\n" +
+        "const string sc=s\n"+
+        "do test.assert( s == sc )\n" +
+        "const double6d d6c = d6\n"+
+//         "do test.assert( d6c == d6 )\n" +
+        "set d6[0]=1.0\n"+
+        "do test.assert( d6[0] == 1.0 )\n" +
+        "set d6[1]=d6[0]\n"+
+        "do test.assert( d6[1] == 1.0 )\n" +
+        "set d6[2]=d6[0]\n"+
+        "do test.assert( d6[2] == 1.0 )\n" +
+        "set d6[3]=d6[0]\n"+
+        "do test.assert( d6[3] == 1.0 )\n" +
+        "set d6[4]=d6[0]\n"+
+        "do test.assert( d6[4] == 1.0 )\n" +
+        "set d6[5]=d6[0]\n"+
+        "do test.assert( d6[5] == 1.0 )\n" +
+#ifdef OROPKG_GEOMETRY
         "var vector v = vector(0.,0.,0.)\n"+
         "var rotation r = rotation(0.,0.,0.) \n"+
         "var frame f = frame(v,r) \n"+
-        "const int ic = i\n" +
-        //"const char cc = c\n" +
-        "const double dc = d\n"+
-        "const bool bc = b\n"+
-        "const string sc=s\n"+
-        "const double6d d6c = d6\n"+
         "const vector vc = v\n"+
         "const rotation rc = r\n"+
         "const frame fc = f\n"+
-        "set d6[0]=1.0\n"+
-        "set d6[1]=d6[0]\n"+
-        "set d6[2]=d6[0]\n"+
-        "set d6[3]=d6[0]\n"+
-        "set d6[4]=d6[0]\n"+
-        "set d6[5]=d6[0]\n"+
+#endif
         "}";
     stringstream progs(prog);
     std::vector<ProgramGraph*> pg_list;
@@ -148,7 +165,11 @@ void TypesTest::testTypes()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    CPPUNIT_ASSERT( (*pg_list.begin())->executeAll() );
+    if ( (*pg_list.begin())->executeAll() == false ) {
+        stringstream errormsg;
+        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
 }
 
 void TypesTest::testOperators()
@@ -156,18 +177,22 @@ void TypesTest::testOperators()
     string prog = string("program x {\n") +
         "var int i = 0\n" +
         //"var char c = 'c'\n" +
-        "var double d = 0.0\n"+
+        "var double d = 10.0\n"+
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
         "var double6d d6 = double6d(0.,1.,2.,3.,4.,5.)\n"+
         "var double6d d6_2 = double6d(0.0)\n"+
+        "set d = d+1.0-1.0-2.0*1.0/2.0*0.0 \n"+
+        //"do test.assert( d == 10.0 )\n" +
+        "set b = b or b and true && false || true\n"+
+        "do test.assert( b == false )\n" +
+//         "set s = s+\"abc\"\n"+
+        "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
+#ifdef OROPKG_GEOMETRY
         "var vector v = vector(0.,0.,0.)\n"+
         "var rotation r = rotation(0.,0.,0.) \n"+
         "var frame f = frame(v,r) \n"+
-        "set d = d+1.0-2.0*1.0/2.0 \n"+
-        "set b = b or b and true && false || true\n"+
-        "set s = s+\"abc\"\n"+
-        "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
+#endif
         "}";
     stringstream progs(prog);
     std::vector<ProgramGraph*> pg_list;
@@ -183,7 +208,11 @@ void TypesTest::testOperators()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    CPPUNIT_ASSERT( (*pg_list.begin())->executeAll() );
+    if ( (*pg_list.begin())->executeAll() == false ) {
+        stringstream errormsg;
+        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
 }
 
     

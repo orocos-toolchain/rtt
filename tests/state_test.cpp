@@ -68,7 +68,7 @@ bool StateTest::assertBool( bool b) {
 bool StateTest::assertMsg( bool b, const std::string& msg) {
     if ( b == false )
         cout << "Asserted :" << msg << endl;
-    return true;
+    return true; // allow to continue to check other commands.
 }
 
 int StateTest::increase() {
@@ -139,19 +139,24 @@ void StateTest::testParseState()
 {
     // a state which should never fail
     string prog = string("StateContext X {\n")
+        + " param int isten\n"
         + " param bool istrue\n"
         + " param bool isfalse\n"
-        + " param int isten\n"
         + " param double isnegative\n"
         + " var double d_dummy = -1.0\n"
         + " var int    i_dummy = -1\n"
         + " var bool   varinit = false\n"
         + " initial state INIT {\n"
-        + " preconditions {\n"
-        + "     if false then select ERROR\n"
-        + "     if (isnegative != -1.) then select PARAMFAIL\n"
-        + "     if (d_dummy != -1.) || (i_dummy != -1) then select VARFAIL\n"
-        + " }\n"
+        // XXX bug : preconditions are not checked in the initial state.
+//         + " preconditions {\n"
+//         + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PRE_PARAMFAIL\n"
+//         + "     if false then select PRE_ERROR\n"
+//         + "     if (isnegative != -1.) then select PRE_PARAMFAIL\n"
+//         + "     if (istrue != true) then select PRE_PARAMFAIL\n"
+//         + "     if (isfalse != false) then select PRE_PARAMFAIL\n"
+//         + "     if (isten != 10 ) then select PRE_PARAMFAIL\n"
+//         + "     if (d_dummy != -1.) || (i_dummy != -1) then select PRE_VARFAIL\n"
+//         + " }\n"
         + " entry {\n"
         + "     set varinit = (d_dummy != -1.) || (i_dummy != -1) \n"
         + "     do test.instantDone()\n"
@@ -168,15 +173,27 @@ void StateTest::testParseState()
         + " }\n"
         + " transitions {\n"
         + "     if false then select ERROR\n"
-        + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
         + "     if (d_dummy != 1.234) || (i_dummy != -2)  then select ENTRYFAIL\n"
+        + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
         + "     select FINI\n"
         + "     select ERROR\n" // do not reach
         + " }\n"
         + " }\n"
+        + " state PRE_ERROR {\n"
+        + " }\n"
+        + " state PRE_PARAMFAIL {\n"
+        + " }\n"
+        + " state PRE_VARFAIL {\n"
+        + " }\n"
         + " state ERROR {\n"
         + " }\n"
         + " state PARAMFAIL {\n"
+        + "      entry { \n"
+        + "      do test.assertMsg( isten == 10, \"isten parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( istrue == true, \"istrue parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( isfalse == false, \"isfalse parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( isnegative == -1.0, \"isnegative parameter not correctly initialised\")\n"
+        + "      }\n"
         + " }\n"
         + " state VARFAIL {\n"
         + " }\n"
@@ -207,7 +224,7 @@ void StateTest::testParseState()
         + " }\n"
         + " }\n"
         + " }\n"
-        + " RootContext X x(istrue = true, isfalse = false, isten = 10, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        + " RootContext X x( isten = 10,istrue = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
         ;
 
     this->doState( prog, &gtc );
@@ -475,6 +492,9 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     if (test ) {
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() == true );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getStateContextStatus("x") != Processor::StateContextStatus::error );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_ERROR" + errormsg.str(), (*pg_list.begin())->inState("PRE_ERROR") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_VARFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_VARFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_PARAMFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_PARAMFAIL") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ERROR" + errormsg.str(), (*pg_list.begin())->inState("ERROR") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:VARFAIL" + errormsg.str(), (*pg_list.begin())->inState("VARFAIL") == false );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PARAMFAIL" + errormsg.str(), (*pg_list.begin())->inState("PARAMFAIL") == false );

@@ -30,6 +30,7 @@ EXTRA_PROGRAMS = core-test parser-test event-prof tasks-prof mtasks-prof buffers
 
 core_test_SOURCES = test-runner.cpp \
 	time_test.cpp time_test.hpp \
+	property_test.cpp property_test.hpp \
 	event_test.cpp event_test.hpp \
 	tasks_test.cpp tasks_test.hpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp \

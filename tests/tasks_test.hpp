@@ -42,11 +42,14 @@ class TasksTest : public CppUnit::TestFixture
     // Start - Stop Test :
     CPPUNIT_TEST( testStartStop );
 
+    // Configuration Test :
+    //CPPUNIT_TEST( testThreadConfig );
+
     // Runnable Interface Test :
     CPPUNIT_TEST( testRunnableInterface );
     
-    // Allocation Test :
-    CPPUNIT_TEST( testAddAllocate );
+    // Allocation Test : [disabled, kills RTAI/LXRT]
+    //CPPUNIT_TEST( testAddAllocate );
 
     // Self Removal Test :
     CPPUNIT_TEST( testSelfRemove );
@@ -79,6 +82,7 @@ public:
     void testPause();
     void testStop();
 
+    void testThreadConfig();
     void testSelfRemove();
 
     void testTimer();

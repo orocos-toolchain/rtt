@@ -144,12 +144,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
 
     void TasksMultipleTest::tearDown()
     {
+        // stop to be sure that task does not access memory during destruction.
         for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 
             {
+                (*i)->stop();
                 delete *i;
             }
         for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i) 
             {
+                (*i)->stop();
                 delete *i;
             }
     }
