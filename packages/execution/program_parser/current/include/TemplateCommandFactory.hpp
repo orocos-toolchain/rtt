@@ -856,7 +856,7 @@ namespace ORO_Execution
 
   template<typename ComponentT>
   TemplateFactoryPart< DataSource<typename boost::remove_const<ComponentT>::type* >, ComCon>*
-  commandDS( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
+  command_ds( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
            const char* desc , bool _invert = false)
   {
     return fun_fact_ds< typename boost::remove_const<ComponentT>::type, ComCon>(

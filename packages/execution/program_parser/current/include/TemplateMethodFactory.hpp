@@ -4,6 +4,7 @@
 #include "MethodFactoryInterface.hpp"
 
 #define MEMBER method
+#define MEMBER_DS method_ds
 #define MEMBER_CONST
 #define FACTORY_INTERFACE MethodFactoryInterface
 #define TEMPLATE_FACTORY_NAME TemplateMethodFactory
@@ -13,6 +14,7 @@
 #undef TEMPLATE_FACTORY_NAME
 #undef FACTORY_INTERFACE
 #undef MEMBER_CONST
+#undef MEMBER_DS
 #undef MEMBER
 
 #endif

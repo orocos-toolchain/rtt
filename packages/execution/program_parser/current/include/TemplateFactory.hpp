@@ -474,6 +474,15 @@ namespace ORO_Execution
   }
 
   template<typename ComponentT, typename ResultT,
+           typename Arg1T, typename FunctorT>
+  TemplateFactoryPart< DataSource<ComponentT*>, ResultT>*
+  fun_fact_ds( FunctorT fun, const char* desc, const char* an, const char* ad )
+  {
+    return new TemplateFactoryFunctorPart1< DataSource<ComponentT*>, ResultT, FunctorT,
+      Arg1T>( fun, desc, an, ad );
+  }
+
+  template<typename ComponentT, typename ResultT,
            typename Arg1T, typename Arg2T, typename FunctorT>
   TemplateFactoryFunctorPart2<ComponentT, ResultT, FunctorT, Arg1T, Arg2T>*
   fun_fact( FunctorT fun, const char* desc, const char* an, const char* ad,

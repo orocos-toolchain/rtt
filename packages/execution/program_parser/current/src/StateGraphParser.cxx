@@ -77,254 +77,8 @@ namespace ORO_Execution
         assertion<std::string> expect_semicolon("Semi colon expected after statement.");
         assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
         assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
-
-        // a utility DataSourceFactory that implements the
-        // DataSourceFactoryInterface using a given map of strings to
-        // DataSources...
-        class MapDataSourceFactory
-            : public DataSourceFactoryInterface
-        {
-            typedef std::map<std::string, DataSourceBase::shared_ptr> map_t;
-            map_t mmap;
-        public:
-            MapDataSourceFactory( const map_t& map );
-            ~MapDataSourceFactory();
-
-            std::vector<std::string> getNames() const;
-            bool hasMember( const std::string& s ) const;
-            std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
-            PropertyBag getArgumentSpec( const std::string& method ) const;
-            DataSourceBase* create( const std::string& name, const PropertyBag& args ) const;
-            DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
-            // we don't know how to define this here -> relegating to
-            // the subclass..
-            virtual std::string getDescription( const std::string& source ) const = 0;
-        };
-
-        MapDataSourceFactory::MapDataSourceFactory( const map_t& map )
-            : mmap( map )
-        {
-        }
-
-        MapDataSourceFactory::~MapDataSourceFactory()
-        {
-        }
-
-        std::vector<std::string> MapDataSourceFactory::getNames() const
-        {
-            return mystd::keys( mmap );
-        }
-
-        bool MapDataSourceFactory::hasMember( const std::string& s ) const
-        {
-            return mmap.find( s ) != mmap.end();
-        }
-
-        std::vector<ArgumentDescription> MapDataSourceFactory::getArgumentList( const std::string& method ) const
-        {
-            // we don't support arguments here...
-            return std::vector<ArgumentDescription>();
-        }
-
-        PropertyBag MapDataSourceFactory::getArgumentSpec( const std::string& method ) const
-        {
-            return PropertyBag();
-        }
-
-        DataSourceBase* MapDataSourceFactory::create( const std::string& name, const PropertyBag& args ) const
-        {
-            if ( !args.empty() )
-                throw wrong_number_of_args_exception( 0, args.getProperties().size() );
-            map_t::const_iterator reti = mmap.find( name );
-            if ( reti == mmap.end() )
-                throw name_not_found_exception();
-            else
-                return reti->second.get();
-        }
-
-        DataSourceBase* MapDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase*>& args ) const
-        {
-            if ( !args.empty() )
-                throw wrong_number_of_args_exception( 0, args.size() );
-            map_t::const_iterator reti = mmap.find( name );
-            if ( reti == mmap.end() )
-                throw name_not_found_exception();
-            else
-                return reti->second.get();
-        }
-
-        class InStateDataSource
-            : public DataSource<bool>
-        {
-            DataSource<StateContextTree*>::shared_ptr msc;
-            DataSource<std::string>::shared_ptr mst;
-        public:
-            // Note that we assume that msc will always evaluate to a ParsedStateContext.
-            InStateDataSource( DataSource<StateContextTree*>* msc, DataSource<std::string>* mst );
-            ~InStateDataSource();
-
-            bool get() const;
-            void reset();
-            InStateDataSource* clone() const;
-            InStateDataSource* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
-        };
-
-        InStateDataSource::InStateDataSource( DataSource<StateContextTree*>* sc, DataSource<std::string>* st )
-            : msc( sc ), mst( st )
-        {
-        }
-
-        InStateDataSource::~InStateDataSource()
-        {
-        }
-
-        bool InStateDataSource::get() const
-        {
-            return static_cast<ParsedStateContext*>( msc->get() )->inState( mst->get() );
-        }
-
-        void InStateDataSource::reset()
-        {
-            msc->reset();
-            mst->reset();
-        }
-
-        InStateDataSource* InStateDataSource::clone() const
-        {
-            return new InStateDataSource( msc.get(), mst.get() );
-        }
-
-        InStateDataSource* InStateDataSource::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
-        {
-            return new InStateDataSource( msc->copy( alreadyCloned ), mst->copy( alreadyCloned ) );
-        }
-
-        // a DataSourceFactory that allows the user to refer to data
-        // in a subcontext.
-        class SubContextDataSourceFactory
-            : public DataSourceFactoryInterface
-        //: public MapDataSourceFactory
-        {
-            ParsedStateContext* mpsc;
-            DataSource<StateContextTree*>::shared_ptr mpscds;
-            std::string mscn;
-            static const char* instateparamname;
-            static const char* instateparamdesc;
-        public:
-            virtual ~SubContextDataSourceFactory();
-            // pscds is the DataSource that generated commands will
-            // use to refer to the subcontext.
-            SubContextDataSourceFactory( ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name );
-
-            std::vector<std::string> getNames() const;
-            bool hasMember( const std::string& s ) const;
-            std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
-            PropertyBag getArgumentSpec( const std::string& method ) const;
-            DataSourceBase* create( const std::string& name, const PropertyBag& args ) const;
-            DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
-            std::string getDescription( const std::string& source ) const;
-        };
-
-        const char* SubContextDataSourceFactory::instateparamname =
-            "state";
-        const char* SubContextDataSourceFactory::instateparamdesc =
-            "A string with the name of the state that this statecontext might be in.";
-
-        SubContextDataSourceFactory::~SubContextDataSourceFactory()
-        {
-        }
-
-        // The MapDSFactory is replaced by the TaskContext of the StateContext.
-        SubContextDataSourceFactory::SubContextDataSourceFactory(
-            ParsedStateContext* psc, DataSource<StateContextTree*>* pscds, const std::string& name )
-            : //MapDataSourceFactory( psc->getReadOnlyValues() ),
-            mpsc( psc ), mpscds( pscds ), mscn( name )
-        {
-            //assert( !MapDataSourceFactory::hasMember( "inState" ) );
-        }
-
-        std::vector<std::string> SubContextDataSourceFactory::getNames() const
-        {
-            std::vector<std::string> ret; // = MapDataSourceFactory::getNames();
-            ret.push_back( "inState" );
-            return ret;
-        }
-
-        bool SubContextDataSourceFactory::hasMember( const std::string& s ) const
-        {
-            return s == "inState" ;//|| MapDataSourceFactory::hasMember( s );
-        }
-
-        std::vector<ArgumentDescription> SubContextDataSourceFactory::getArgumentList( const std::string& method ) const
-        {
-            if ( method == "inState" )
-            {
-                std::vector<ArgumentDescription> ret;
-                ret.push_back(
-                    ArgumentDescription( instateparamname, instateparamdesc ) );
-                return ret;
-            }
-            else
-                return std::vector<ArgumentDescription>(); //MapDataSourceFactory::getArgumentList( method );
-        }
-
-        PropertyBag SubContextDataSourceFactory::getArgumentSpec( const std::string& method ) const
-        {
-            if ( !hasMember( method ) )
-                throw name_not_found_exception();
-            if ( method == "inState" )
-            {
-                PropertyBag ret;
-                ret.add( new Property<std::string>( instateparamname, instateparamdesc, "" ) );
-                return ret;
-            }
-            else return PropertyBag();//MapDataSourceFactory::getArgumentSpec( method );
-        }
-
-        DataSourceBase* SubContextDataSourceFactory::create( const std::string& name, const PropertyBag& args ) const
-        {
-            if ( !hasMember( name ) )
-                throw name_not_found_exception();
-            if ( name == "inState" )
-            {
-                PropertyBag::PropertyContainerType props = args.getProperties();
-                if ( props.size() != 1 )
-                    throw wrong_number_of_args_exception( 1, props.size() );
-                Property<std::string>* prop = dynamic_cast<Property<std::string>*>( props[0] );
-                if ( ! prop )
-                    throw wrong_types_of_args_exception( 1 );
-                DataSource<std::string>* arg = new VariableDataSource<std::string>( prop->get() );
-                return new InStateDataSource( mpscds.get(), arg );
-            }
-            else return 0; // MapDataSourceFactory::create( name, args );
-        }
-
-        DataSourceBase* SubContextDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase*>& args ) const
-        {
-            if ( !hasMember( name ) )
-                throw name_not_found_exception();
-            if ( name == "inState" )
-            {
-                if ( args.size() != 1 )
-                    throw wrong_number_of_args_exception( 1, args.size() );
-                DataSource<std::string>* arg = dynamic_cast<DataSource<std::string>*>( args[0] );
-                if ( ! arg )
-                    throw wrong_types_of_args_exception( 1 );
-                return new InStateDataSource( mpscds.get(), arg );
-            }
-            else return 0 ;//MapDataSourceFactory::create( name, args );
-        }
-
-        std::string SubContextDataSourceFactory::getDescription( const std::string& source ) const
-        {
-            if ( !hasMember( source ) )
-                throw name_not_found_exception();
-            else if ( source == "inState" )
-                return "Return whether this statecontext is in the given state ?";
-            else
-                return "na"; //"Member variable \"" + source + "\" of SubContext \"" + mscn + "\"";
-        }
     }
+
 
     StateGraphParser::StateGraphParser( iter_t& positer,
                                         TaskContext* tc )
@@ -1058,7 +812,8 @@ namespace ORO_Execution
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );
-        DataSource<StateContextTree*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
+        //DataSource<StateContextTree*>* dsc = 
+        curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         TaskAliasAttribute<std::string>* pv = new TaskAliasAttribute<std::string>( curinstantiatedcontext->getNameDS() );
@@ -1074,9 +829,9 @@ namespace ORO_Execution
         // we add a SubContextDataSourceFactory for this subcontext to
         // the global data source factory, so that we can support
         // subcontext introspection...
-        SubContextDataSourceFactory* scdsf =
-            new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
-        curtemplatecontext->getTaskContext()->dataFactory.registerObject( "this", scdsf );
+//         SubContextDataSourceFactory* scdsf =
+//             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
+//         curinstantiatedcontext->getTaskContext()->dataFactory.registerObject( "this", scdsf );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -1183,16 +938,16 @@ namespace ORO_Execution
     curtemplatecontext->addParameter( valuechangeparser.lastParsedDefinitionName(), valuechangeparser.lastDefinedValue()->clone() );
   }
 
-  ProgramGraph* StateGraphParser::emptyProgram( const std::string& name ) {
-    ProgramGraph* ret = new ProgramGraph();
-    ret->startProgram();
-    ret->setName( name );
-    ret->returnProgram( new ConditionTrue );
-    ret->proceedToNext( mpositer.get_position().line );
-    ret->endProgram();
-    ret->reset();
-    return ret;
-  }
+    ProgramGraph* StateGraphParser::emptyProgram( const std::string& name ) {
+        ProgramGraph* ret = new ProgramGraph();
+        ret->startProgram();
+        ret->setName( name );
+        ret->returnProgram( new ConditionTrue );
+        ret->proceedToNext( mpositer.get_position().line );
+        ret->endProgram();
+        ret->reset();
+        return ret;
+    }
 
   void StateGraphParser::seenscvcsubcontextname( iter_t begin, iter_t end )
   {
@@ -1202,7 +957,7 @@ namespace ORO_Execution
     curscvccontextname = std::string( begin, end );
   }
 
-  void StateGraphParser::seenscvcparamname( iter_t begin, iter_t end )
+    void StateGraphParser::seenscvcparamname( iter_t begin, iter_t end )
   {
     assert( !curscvccontextname.empty() );
     assert( curscvcparamname.empty() );

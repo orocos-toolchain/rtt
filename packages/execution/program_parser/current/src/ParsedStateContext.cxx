@@ -33,6 +33,7 @@
 #include "execution/mystd.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/TemplateCommandFactory.hpp"
+#include "execution/TemplateDataSourceFactory.hpp"
 
 namespace ORO_Execution {
 
@@ -55,6 +56,7 @@ namespace ORO_Execution {
             : _sc(sc), _this( new VariableDataSource<StateContextCommands*>(this) ) //, pcache( _sc->getTaskContext()->getProcessor() )
         {
             sc->getTaskContext()->commandFactory.registerObject("this", this->createCommandFactory() );
+            sc->getTaskContext()->dataFactory.registerObject("this", this->createDataSourceFactory() );
         }
 
         CommandFactoryInterface* createCommandFactory() {
@@ -63,11 +65,17 @@ namespace ORO_Execution {
             // the created commands are copied, they also get the new this pointer.
             // This requires template specialisations on the TemplateFactory level.
             TemplateCommandFactory< DataSource<StateContextCommands*> >* fact = newCommandFactory( static_cast< DataSource<StateContextCommands*>* >(_this.get()) );
-            fact->add("activate",commandDS(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext"));
-            fact->add("deactivate",commandDS(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext", false));
-            fact->add("start",commandDS(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext"));
-            fact->add("stop",commandDS(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext", false));
+            fact->add("activate",command_ds(&StateContextCommands::activate, &StateContextCommands::isActive, "Activate this StateContext"));
+            fact->add("deactivate",command_ds(&StateContextCommands::deactivate, &StateContextCommands::isActive, "Deactivate this StateContext", false));
+            fact->add("start",command_ds(&StateContextCommands::start, &StateContextCommands::isRunning, "Start this StateContext"));
+            fact->add("stop",command_ds(&StateContextCommands::stop, &StateContextCommands::isRunning, "Stop this StateContext", false));
             return fact;
+        }
+
+        DataSourceFactoryInterface* createDataSourceFactory() {
+            TemplateDataSourceFactory< DataSource<StateContextCommands*> >* f = newDataSourceFactory(static_cast< DataSource<StateContextCommands*>* >(_this.get()));
+            f->add("inState", data_ds(&StateContextCommands::inState, "Is the StateContext in a given state ?", "State Name", "State Name") );
+            return f;
         }
 
         StateContextCommands* copy(ParsedStateContext* newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const
@@ -80,6 +88,12 @@ namespace ORO_Execution {
             replacements[ _this.get() ] = tmp->_this.get(); // put DS in map 
             tmp->_this->set(tmp);                  // reset new DS to new this.
             return tmp;
+        }
+
+        bool inState(const std::string& state) const {
+            if ( !_sc->isActive() )
+                return false;
+            return _sc->currentState()->getName() == state;
         }
 
         bool isActive() const {

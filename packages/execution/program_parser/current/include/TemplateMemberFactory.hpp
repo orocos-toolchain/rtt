@@ -90,6 +90,73 @@ namespace ORO_Execution
       }
   };
 
+    // coded for inState("string")
+    template<typename ComponentT, typename FunctorT>
+    class FunctorDataSourceDS0
+      : public DataSource<
+      typename boost::remove_const<typename boost::remove_reference<
+      typename FunctorT::result_type>::type>::type >
+    {
+      typename DataSource<ComponentT*>::shared_ptr ds;
+      FunctorT gen;
+      typedef typename boost::remove_const<typename boost::remove_reference<
+        typename FunctorT::result_type>::type>::type value_t;
+    public:
+      FunctorDataSourceDS0(DataSource<ComponentT*>*c, FunctorT g )
+        : ds(c), gen( g )
+        {
+        };
+
+      value_t get() const
+        {
+            ComponentT* c = ds->get(); 
+            return gen( c );
+        }
+
+        virtual DataSource<value_t>* clone() const
+        {
+            return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
+        }
+      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        {
+          return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
+        }
+    };
+
+  template<typename ComponentT, typename FunctorT, typename Arg1T>
+  class FunctorDataSourceDS1
+      : public DataSource<
+      typename boost::remove_const<typename boost::remove_reference<
+      typename FunctorT::result_type>::type>::type >
+  {
+      typename DataSource<ComponentT*>::shared_ptr ds;
+      FunctorT gen;
+      typedef typename boost::remove_const<typename boost::remove_reference<
+          typename FunctorT::result_type>::type>::type value_t;
+      typename DataSource<Arg1T>::shared_ptr arg1;
+  public:
+    FunctorDataSourceDS1(DataSource<ComponentT*>* c, FunctorT g, DataSource<Arg1T>* a1 )
+      : ds(c), gen( g ), arg1( a1 )
+      {
+      };
+
+    value_t get() const
+      {
+        Arg1T a = arg1->get();
+        ComponentT* c = ds->get(); 
+        return gen( c, a );
+      }
+
+    virtual DataSource<value_t>* clone() const
+      {
+        return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
+      }
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
+      }
+  };
+
   template<typename FunctorT, typename Arg1T, typename Arg2T>
   class FunctorDataSource2
     : public DataSource<
@@ -229,6 +296,24 @@ namespace ORO_Execution
     return new FunctorDataSource1<FunctorT, Arg1T>( g, a );
   };
 
+  template<typename CompT, typename FunctorT>
+  DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type>*
+  newFunctorDataSource( DataSource<CompT*>* c, FunctorT g )
+  {
+    return new FunctorDataSourceDS0<CompT, FunctorT>(c, g );
+  };
+
+  template<typename CompT, typename FunctorT, typename Arg1T>
+  DataSource<
+    typename boost::remove_const<typename boost::remove_reference<
+    typename FunctorT::result_type>::type>::type>*
+  newFunctorDataSource( DataSource<CompT*>* c,  FunctorT g, DataSource<Arg1T>* a )
+  {
+    return new FunctorDataSourceDS1<CompT, FunctorT, Arg1T>(c, g, a );
+  };
+
   template<typename FunctorT, typename Arg1T, typename Arg2T>
   DataSource<
     typename boost::remove_const<typename boost::remove_reference<
@@ -284,6 +369,26 @@ namespace ORO_Execution
       {
         return newFunctorDataSource( boost::bind( fun, c, _1 ), a );
       };
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T,
+           typename FunctorT>
+  class FunctorDataSourceGeneratorDS1
+  {
+    FunctorT fun;
+  public:
+    FunctorDataSourceGeneratorDS1( FunctorT f )
+      : fun( f )
+      {
+      }
+    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c, Arg1T a ) const
+      {
+        return newFunctorDataSource( c, boost::bind( fun, _1, a ) );
+      }
+    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c, DataSource<Arg1T>* a ) const
+      {
+        return newFunctorDataSource( c, boost::bind( fun, _1, _2 ), a );
+      }
   };
 
     template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T,
@@ -379,6 +484,15 @@ namespace ORO_Execution
       ComponentT, ResultT, Arg1T, FunctorT>( fun );
   };
 
+  template<typename ComponentT, typename ResultT, typename Arg1T,
+           typename FunctorT>
+  FunctorDataSourceGeneratorDS1<ComponentT, ResultT, Arg1T, FunctorT>
+  fun_datasource_gen_ds( FunctorT fun )
+  {
+    return FunctorDataSourceGeneratorDS1<
+      ComponentT, ResultT, Arg1T, FunctorT>( fun );
+  };
+
     template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T,
            typename FunctorT>
   FunctorDataSourceGenerator2<ComponentT, ResultT, Arg1T, Arg2T, FunctorT>
@@ -417,7 +531,7 @@ namespace ORO_Execution
    */
   template<typename ComponentT>
   class TEMPLATE_FACTORY_NAME
-    : public FACTORY_INTERFACE,
+    : public MemberFactoryInterface,
       private TemplateFactory<ComponentT, DataSourceBase*>
   {
     typedef TemplateFactory<ComponentT, DataSourceBase*> _TF;
@@ -541,6 +655,19 @@ namespace ORO_Execution
         fun_datasource_gen<ComponentT, ResultT,
         typename remove_cr<Arg1T>::type>(
           boost::mem_fn( fun ) ), desc, a1n, a1d );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T>
+  TemplateFactoryPart< DataSource<typename boost::remove_const<ComponentT>::type*>,
+                      DataSourceBase*>*
+  MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
+        const char* a1n, const char* a1d )
+  {
+    return fun_fact_ds<typename boost::remove_const<ComponentT>::type, DataSourceBase*, typename remove_cr<Arg1T>::type>
+        (
+         fun_datasource_gen_ds< typename boost::remove_const<ComponentT>::type, ResultT, typename remove_cr<Arg1T>::type >( boost::mem_fn( fun ) ),
+         desc, a1n, a1d 
+         );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
