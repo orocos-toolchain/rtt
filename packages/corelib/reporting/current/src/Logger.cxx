@@ -74,7 +74,6 @@ namespace ORO_CoreLib
         if (started)
             return;
 #ifndef OROBLD_DISABLE_LOGGING
-        ORO_OS::MutexLock lock( startguard );
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
         *this<<Logger::Info; // default log to Info
 
@@ -104,17 +103,15 @@ namespace ORO_CoreLib
         *this<<xtramsg<<Logger::nl;
         *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
         *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(HeartBeatGenerator::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
-        *this<<"Logging is relative to this time." <<Logger::nl;
-        stdoutput->flush();
+        *this<<"Logging is relative to this time." <<Logger::endl;
 #endif
     }
 
     void Logger::cleanup() {
         if (!started)
             return;
-        ORO_OS::MutexLock lock( startguard );
-        *this<<Logger::Info<<"Orocos Logging Deactivated." << Logger::nl;
-        stdoutput->flush();
+        *this<<Logger::Info<<"Orocos Logging Deactivated." << Logger::endl;
+        this->logflush();
         started = false;
     }
 
@@ -243,26 +240,22 @@ namespace ORO_CoreLib
         if (!started)
             return;
         {
+            // just flush all buffers, do not produce a new logline
             ORO_OS::MutexLock lock( inpguard );
-            if ( input.str().empty() ){
-                // if nothing to log, just flush all ostreams.
-                outputstream << Logger::flush;
-                *stdoutput   << Logger::flush;
-                logfile      << Logger::flush;
-                return;
-            }
+            stdoutput->flush();
+            outputstream.flush();
+            logfile.flush();
         }
-        
-        this->logit(Logger::flush);
      }
 
   // private :
     void Logger::logit(std::ostream& (*pf)(std::ostream&)) {
+        // only on Logger::nl or Logger::endl, a time+log-line is written.
         ORO_OS::MutexLock lock( inpguard );
         std:: string res = showTime() +" "+ showLevel(inloglevel) +" ";
 
         // do not log if not wanted.
-        if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never && started == true) {
+        if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) {
             *stdoutput << res << input.str() << pf;
             input.str("");   // clear stingstream.
         }
