@@ -140,10 +140,16 @@
 	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateMachine</revremark>
       </revision>
       <revision>
-	<revnumber>0.20.0</revnumber>
+	<revnumber>0.19.1</revnumber>
 	<date>7 Febrary 2005</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Wrote down difference between starting and selecting a Component.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.19.2</revnumber>
+	<date>9 March 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Merged-in Program Parser for ControlKernel.</revremark>
       </revision>
     </revhistory>
 
@@ -2969,6 +2975,243 @@ private:
 	  its Components and its peer tasks.
 	</para>
       </sect3>
+      <sect3 id="exporting-component-api">
+	<title>The Parser and Orocos ControlKernel</title>
+	<para>
+	  This section explains how the Orocos ControlKernel
+	  Components can be set up to export their interface
+	  to the ControlKernel infrastructure. The
+	  &taskman; gives a more general introduction to
+	  this topic, while this section is ControlKernel specific.
+	</para>
+	<sect4 id="exporting-component-api-data-and-commands">
+	  <title>Data, Methods and Commands</title>
+	  <para>
+	    A Component's API can consist of three things: Data, Methods and
+	    Commands. Data should be accessible without any side effects
+	    ( it is const ), thus many readouts do not influence the data
+	    or other data, although the data may change because of other reasons.
+	    Methods can have side effects, but have always immediate result,
+	    thus they can still be used in expressions.
+	    Commands are specifically meant to generate side effects
+	    <emphasis>over time</emphasis>.  Suppose you're
+	    writing a robot task, then an example of a command would
+	    be: "robot.moveTo", telling the robot to move to the specified
+	    position, and an example of a data value would be
+	    "robot.isAtPosition", checking whether the robot has already
+	    reached the specified position.  "robot.position" could also
+	    be a data value. A method could be the setting of the controller
+	    parameters.
+	  </para>
+	  <para>
+	    An &orocos; program is not executed at the same time it is
+	    parsed.  It is first parsed, and compiled down to an object
+	    representation of it, allowing the program to be executed in a
+	    realtime environment. 
+	  </para>
+	  <para>
+	    Specifically, Commands are represented by child classes of 
+	    the C++ class CommandInterface, and Data is represented by
+	    child classes of the C++ class DataSource. A method
+	    can be both. There
+	    is a different DataSource type for every type used in the
+	    &orocos; Parser system.  This is accomplished by making
+	    DataSource a template class, parametrized by its result
+	    value.
+	  </para>
+	  <para>
+	    Command calls, methods and data calls are translated to
+	    CommandInterface and DataSource classes by respectively
+	    CommandFactory's, MethodFactory's and DataSourceFactory's.
+	    These are provided
+	    by the various tasks.  Every task can have one
+	    CommandFactory, one MethodFactory and one DataSourceFactory.
+	    Continue reading
+	    for more information on how to add one to your own components. 
+	  </para>
+	</sect4>
+	<sect4 id="exporting-api-the-extension">
+	  <title>The ExecutionExtension</title>
+	  <para>
+	    The part of the kernel that the parser talks to to get hold of
+	    the API's of the components is the ExecutionExtension.
+	    It is an &orocos; kernel extension that talks to the kernel
+	    components and keeps a list of their data and command
+	    factories.  If you are composing an &orocos; kernel, then you
+	    need to make the ExecutionExtension part of the kernel
+	    in the normal way.  Check the control kernel documentation for
+	    more details.
+	  </para>
+	</sect4>
+	<sect4 id="exporting-api-getting-to-it">
+	  <title>Getting to it</title>
+	  <para>
+	    In order for a component to export its API, it can
+	    implement three virtual methods:
+	  </para>
+	    <programlisting>  virtual CommandFactoryInterface* createCommandFactory();
+  virtual MethodFactoryInterface* createMethodFactory();
+  virtual DataSourceFactoryInterface* createDataSourceFactory();</programlisting>
+	  <para>
+	    These will each be called once during the startup of the
+	    kernel, and they should return a CommandFactory, a MethodFactory and a
+	    DataSourceFactory containing information on how to construct
+	    the Command's, Method's and DataSource's that the component supports.
+	  </para>
+	  <para>
+	    It is possible to write the DataSourceFactory and
+	    CommandFactory for your component yourself, but this would
+	    require a pretty large amount of work consisting mostly of
+	    boilerplate code.  Therefore, standard factories have been
+	    written to take care of most of the process.
+	  </para>
+	  <para>
+	    Suppose the API of your component looks like this:
+	    <programlisting>
+class Robot
+{
+public:
+  void moveToHomePosition();
+  // A Completion condition must be const :
+  bool isAtHomePosition() const;
+  
+  void moveTo( const Vector&amp; position );
+  bool isAtPosition( const Vector&amp; position ) const;
+  
+  // A DataSource must be const :
+  Vector position() const;
+  double movingSpeed() const;
+  
+  // A Method must not be const :
+  double calibrate( const Vector&amp; position );
+};	</programlisting>
+	    Then the code needed to export this API to the &orocos;
+	    scripting framework would look like this:
+	<programlisting>
+#include &lt;execution/Factories.hpp&gt;
+
+using namespace ORO_CoreLib;
+using namespace ORO_Execution;
+
+class Robot
+{
+public:
+// ...
+
+DataSourceFactoryInterface* createDataSourceFactory()
+{
+  TemplateDataSourceFactory&lt;Robot&gt;* ret =
+    newDataSourceFactory( this );
+  ret-&gt;add( &quot;position&quot;, 
+            data( &amp;Robot::position, &quot;The current position &quot;
+                                    &quot;of the robot.&quot; ) );
+  ret-&gt;add( &quot;movingSpeed&quot;,
+            data( &amp;Robot::movingSpeed, 
+                  &quot;The speed at which the robot is &quot;
+                  &quot;currently moving.&quot; ) );
+  return ret;
+}
+
+MethodFactoryInterface* createMethodFactory()
+{
+  TemplateMethodFactory&lt;Robot&gt;* ret =
+    newMethodFactory( this );
+  ret-&gt;add( &quot;calibrate&quot;,
+            method( &amp;Robot::calibrate,
+                  &quot;Calibrate the distance between the current &quot;
+                  &quot;position of the robot and pos.&quot;, &quot;pos&quot;,
+                  &quot;Calibration position&quot; ) ); 
+  return ret;
+}
+
+CommandFactoryInterface* createCommandFactory()
+{
+  TemplateCommandFactory&lt;Robot&gt;* ret =
+    newCommandFactory( this );
+  ret-&gt;add( &quot;moveToHomePosition&quot;, 
+            command( &amp;Robot::moveToHomePosition,
+                     &amp;Robot::isAtHomePosition,
+                     &quot;Move the robot to its home position&quot; ) );
+  ret-&gt;add( &quot;moveTo&quot;,
+            command( &amp;Robot::moveTo,
+                     &amp;Robot::isAtPosition,
+                     &quot;Move the Robot to a specified position.&quot;, &quot;pos&quot;,
+                     &quot;The position to move the robot to.&quot; ) );
+  return ret;
+}
+
+// ...
+};</programlisting>
+	    This probably deserves some explanation...
+	  </para>
+	  <para>
+	    The first statement 
+	    <programlisting>
+TemplateDataSourceFactory&lt;Robot&gt;* ret =
+  newDataSourceFactory( this );
+	    </programlisting>
+	    constructs a new TemplateDataSourceFactory, this should be
+	    straightforward.  After this factory is constructed, we add
+	    data to it using the add() method.  This method requires a
+	    name for the added data, and information on the data to be
+	    associated with that name.  The latter is generated using the
+	    function data().
+	  </para>
+	  <para>
+	    The data function requires a pointer to a
+	    <emphasis>const</emphasis> member function having a number of
+	    arguments, and returning the appropriate data.  The function's
+	    signature will automatically define the signature in the
+	    exported API.  After the member function pointer follows a C
+	    string containing a description of the function, followed by a
+	    name and description for each of the arguments.  An extra
+	    feature is that instead of a pointer to a member function, you
+	    can also pass a pointer to a member variable to the data
+	    function.  This will then simply be read out, instead of
+	    called.
+	  </para>
+	  <para>
+	    Methods work the same way like DataSources, except that
+	    they do not need to be const and the factories have
+	    different names.
+	  </para>
+	  <para>
+	    The command factory is created in a similar way.  The first
+	    statement is almost the same, and the next are also similar.
+	    The only difference with the DataSource factory creation is
+	    that in place of the data function, the command function is
+	    used, which requires some different arguments.
+	  </para>
+	  <para>
+	    The command function requires two member pointers instead of
+	    one.  The first one is a function that does the actual work
+	    that the command will invoke, and the second is a bool
+	    <emphasis>const </emphasis>function having the same arguments
+	    as the first one, the first argument or no arguments at all.
+	    This last function will be called to see whether the
+	    associated command is finished.  The rest of the arguments to
+	    the command function remain the same.  It also requires a
+	    constant C string describing the function, and two constant C
+	    strings giving a description and name for every argument.
+	  </para>
+	  <para>
+	    If a component has only commands, or only data, or only methods, the unneeded
+	    factory function can be left out and the parser will not query
+	    the component for the left out factory.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Using Scripts in the Orocos ControlKernel</title>
+	  <para>
+	    We refer to the Orocos Control Kernel
+	    documentation for a detailed list of commands
+	    which a Kernel adds to its interface,
+	    but here are a few examples :</para>
+	  <programlisting>
+  do Kernel.selectGenerator( "CartesianGenerator" )
+  do Kernel.selectController( "CartesianController" ) </programlisting>
+	</sect4>
+      </sect3>
       <sect3>
 	<title>Elaborated Example</title>
 	<para>
@@ -2981,9 +3224,6 @@ private:
 	  <programlisting>
 StateMachine MachineContext
 {
-    Event_Handle home_switch1
-    Event_Handle home_switch2
-
     /**
      * This state is entered when the StateMachine is loaded.
      * The kernel is not running yet...

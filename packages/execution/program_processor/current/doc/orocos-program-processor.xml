@@ -30,8 +30,8 @@
     <abstract>
       <para>
 	The Program Processor is the 'execution engine'
-	of Programs and State Contexts. It can execute
-	any number of Programs and State Contexts in parallel.
+	of Programs and State Machines. It can execute
+	any number of Programs and State Machines in parallel.
       </para>
     </abstract>
 
@@ -122,10 +122,13 @@
       logic). A <classname>ProgramGraph</classname> will hold the
       user-defined program to be executed. A
       <classname>Processor</classname> will then represent an
-      execution engine which loads the sytem configuration and
-      program definition and executes that program. Loading
+      execution engine which loads the state machine and
+      program definitions and executes them. Loading
       a program is however a non-realtime operation, since it performs dynamic
-      memory allocations. Execution of the programs will happen in real time.
+      memory allocations. Execution of the programs and state machines
+      will happen in real time. The StateMachine executes programs according
+      to an user defined logic, so if we write about program semantics, they
+      hold in plain programs and state machines.
     </para>
     <para>
       The Program Processor is not what the user will use directly.
@@ -138,21 +141,24 @@
   </sect1>
   
   <sect1>
-    <title>Executing Programs and StateMachines</title>
+    <title>Executing Commands, Programs and Hierarchical StateMachines</title>
     <sect2>
-      <title>Processor</title>
+      <title>The Processor</title>
       <para>
 	The <classname>Processor</classname> is the core class of
-	&interf;. It is capable of loading a system configuration and
-	loading and executing programs on that configured system. A
-	system configuration (or part of) is defined in a State
-	Context ( a State Context is a real-time state machine which
+	&interf;. It is capable of loading and processing a state machine and
+	loading and executing additional programs on that system. A
+	system's configuration (or part of) can be defined in a State
+	Machine ( a State Machine is a real-time state machine which
 	iterates over a collection of Orocos States ).  Multiple State
-	Contexts can be loaded and started/stopped in parallel. A
-	Program is a sequence of commands, connected to each other
+	Machines can be loaded and started/stopped in parallel. A
+	Program is a sequence of commands and methods, connected to each other
 	through condition evaluation. Also programs can be loaded and
 	run in parallel.
       </para>
+    </sect2>
+    <sect2>
+      <title>Running the Processor</title>
       <para>
 	The Processor is responsible for accepting command requests
 	from other (realtime) tasks. It uses a non-blocking atomic queue
@@ -191,13 +197,12 @@
      // still busy ! </programlisting>
       <para>
 	The commands this Processor accepts must be for tasks of the
-	same thread-priority, and each Processor can only be 
-	used in one thread. Orocos provides a mechanism to 
-	transparantly serialise tasks of equal priority in the same 
-	thread, this is explained in the Orocos CoreLib documentation.
-	Take a look at the Task
-	Infrastructure Manual for more elaborate examples of 
-	Command queueing. 
+	same priority, and each Processor can only be run in one
+	thread. Orocos provides a mechanism to transparantly serialise
+	tasks of equal priority in the same thread, this is explained
+	in the Orocos CoreLib documentation. Take a look at the Task
+	Infrastructure Manual for more elaborate examples of Command
+	queueing. 
       </para>
       <figure><title>Threads Sending Commands</title>
 	<mediaobject>
@@ -218,20 +223,20 @@
       <para>
 	In addition to command processing, the Processor provides
 	functions to manipulate Programs and
-	State Contexts. The available commands are presented in the
+	State Machines. The available commands are presented in the
 	figures in the next sections. 
       </para>
     </sect2>
     <sect2>
-      <title>A ProgramGraph</title>
+      <title>Programs</title>
       <para>
 	The <classname>ProgramGraph</classname> is a tree composed
 	of command nodes ( See : <classname>CommandInterface</classname> class ),
 	where each node contains one or more
-	statements. A Program keeps track of the start node
+	statements. A ProgramGraph keeps track of the start node
 	and the node to be executed next. As such a program is executed
 	one node at a time and the transition to the next node
-	is done on a given condition ( See :
+	is done on a given boolean condition ( See :
 	<classname>ConditionInterface</classname> class). The
 	ProgramGraph has a builder interface for constructing
 	nodes and conditions, which is used by other packages to construct valid
@@ -269,11 +274,11 @@
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a Program.
+	of a Program in the Processor.
       </para>
     </sect2>
     <sect2>
-      <title>State Context and State</title>
+      <title>State Machine and State</title>
       <para>
 	The <classname>StateMachine</classname> is a collection of
 	states, linked to each other and is defined in the <ulink
@@ -283,17 +288,16 @@
 	state transitions. Every 'device' has some states or
 	configurations in which a specific action must be taken (on
 	entry, during or on exit) and transitions between states are
-	defined by boundary conditions. Every such state is defined by
-	the <classname>StateInterface</classname> in the CoreLib API.
+	defined by boundary conditions (guards). Every such state is defined by
+	the <classname>StateInterface</classname>.
 	A state itself is defined by three methods : onEntry(),
 	handle() and onExit(). They are called by the Processor when
-	this state is entered, handled or left. There is always
-	exactly one handle() called in each periodic execution step
-	for each StateMachine, also when a state transition takes
-	place. In that case, first the onExit() method of the old
-	state is called, then the onEntry() method of the new state
-	and as last in that step, the handle() method of the new
-	state.
+	this state is entered, handled or left. When no state transition
+	took place, handle() is called in a periodic execution step
+	of the Processor. Otherwise, first the onExit() method of the current
+	state is called and then the onEntry() method of the new state
+	is called. The next periodic step will evaluate transition conditions,
+	and if none succeeds, handle() will be called, and so on.
       </para>
       <para>
 	As transitions define when a state will be left, preconditions
@@ -310,28 +314,28 @@
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      <para>To see how a State Context can be used in Orocos, we refer
+      <para>To see how a State Machine can be used in Orocos, we refer
 	to the <ulink url="orocos-program-parser.html">Orocos
 	  Program Parser</ulink> Manual. The Parser is able to
-	convert Orocos State Descriptions to a State Context
+	convert Orocos State Descriptions to a State Machine
 	wich can be loaded in the Processor.
       </para>
 	<figure><title>Using a StateMachine</title>
 	  <mediaobject>
 	    <imageobject role="html">
-	      <imagedata fileref="ContextStates.png" format="PNG"/>
+	      <imagedata fileref="MachineStates.png" format="PNG"/>
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="ContextStates.eps" format="EPS"/>
+	      <imagedata fileref="MachineStates.eps" format="EPS"/>
 	    </imageobject>
 	  </mediaobject>
 	</figure>
       <para>
-	Loading, unloading and deleting a State Context may throw
+	Loading, unloading and deleting a State Machine may throw
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a State Context.
+	of a State Machine in the Processor.
       </para>
     </sect2>
   </sect1>
@@ -348,11 +352,11 @@
 	of the state diagram. It contains
 	a condition on which a next state is entered. The 
 	<classname>ConditionInterface</classname> encapsulates
-	that logic (see also in CoreLib and below). Conditions
+	that logic. Conditions
 	can be ordered by priority, so that it is defined in which
 	order they are checked. A multiple of
 	conditions can lead to the same state.
-	</para>
+      </para>
       </sect2>
       <sect2 id="progproc-command">
 	<title>Statements : Command Node</title>
@@ -360,7 +364,7 @@
 	  The <classname>CommandNode</classname> contains a
 	  <classname>Command</classname> and is connected by edges of
 	  the type <classname>ConditionEdge</classname>, these edges
-	  are connect one node with another and allow the transition
+	  connect one node with another and allow the transition
 	  if the contained condition evaluates to true. When a program
 	  is executed, it executes the command and runs through the
 	  list of edges of that node. When a <classname>
@@ -392,14 +396,15 @@
 	  Conditions. The basic interface, ConditionInterface, is
 	  provided by the Orocos CoreLib
 	</para>
-      </sect2>
+    </sect2>
   </sect1>
   <sect1>
-    <title>Using Commands</title>
+    <title>Creating Commands</title>
     <para>
-      Apart from the Program and State Context Commands, the application
-      can generate commands for the Processor to execute. This is usefull
-      if a function must be called at a later moment.
+      Apart from the Program and State Machine Commands (which are
+      generated by the Parsers), the user can convert C/C++ functions in commands for
+      the Processor to execute. This is usefull if a function must be
+      called at a later moment.
     </para>
     <sect2>
       <title>Generic Functors</title>

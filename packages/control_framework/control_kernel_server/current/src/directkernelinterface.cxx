@@ -169,6 +169,9 @@ namespace ExecutionClient
             case Processor::StateMachineStatus::deactivating:
                 return "deactivating";
                 break;
+            case Processor::StateMachineStatus::resetting:
+                return "resetting";
+                break;
             case Processor::StateMachineStatus::error:
                 return "error";
                 break;

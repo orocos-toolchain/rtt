@@ -84,7 +84,12 @@
 	<revremark>Documented methods, 'and', 'try...catch'. Added exported
 	functions, function arguments and TaskContext integration.</revremark>
       </revision>
-	
+      <revision>
+	<revnumber>0.19.2</revnumber>
+	<date>9 March 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>New State Machine paradigm, removed control-kernel specific part.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -106,14 +111,14 @@
     <para>
       The &orocos; Parser allows users of the &orocos; system to write
       programs and state machines controlling the system in a
-      user-friendly script language.  The advantage of scripting is
+      user-friendly realtime script language.  The advantage of scripting is
       that it is easily extendible and does not need recompilation of
       the main program. It is implemented using the Boost.Spirit
       parser library, and should be fairly easy to work with.
     </para>
     <para>
       There are three ways that people need to use the &orocos; Parser
-      framework, and this documentation is split up accordingly.  The
+      framework, and the documentation is split up accordingly.  The
       following chapters each deal with one of these aspects, and can
       be read separately.  You are encouraged to skip ahead to the
       part that interests you.
@@ -126,10 +131,10 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    <link linkend="exporting-component-api">
-	      Exporting the API of an &orocos; Control Kernel Component to the
+	    <ulink url="orocos-task-context.html">
+	      Exporting the API of an &orocos; Task to the
 	      &orocos; Parser.
-	    </link> This is Control Kernel specific.
+	    </ulink> This is explained in the Task Infrastructure manual.
 	  </para>
 	</listitem>
 	<listitem>
@@ -138,13 +143,13 @@
 	      Extending the &orocos; parser to support extra types,
 	      overload existing operators, and/or add new operators.
 	    </link>
-	      If you want to push the parser to your limits.
+	    If you want to push the parser to <emphasis>your</emphasis> limits.
 	  </para>
 	</listitem>
       </itemizedlist>
       This documentation tackles only these three aspects.  If you
       want to do more advanced things with the &orocos; Parser system,
-      you'll have to dig into the source code.  It should be fairly
+      you'll have to dig into the source code. It should be fairly
       well documented.
     </para>
   </sect1>
@@ -198,7 +203,7 @@
 	  <simplelist columns="7">
 	    <member>alias</member>
 	    <member>and</member>
-	    <member>async</member>
+	    <member>sync</member>
 	    <member>bool</member>
 	    <member>char</member>
 	    <member>catch</member>
@@ -220,9 +225,9 @@
 	    <member>not</member>
 	    <member>nothing</member>
 	    <member>or</member>
+	    <member>return</member>
 	    <member>rotation</member>
 	    <member>set</member>
-	    <member>stop</member>
 	    <member>string</member>
 	    <member>then</member>
 	    <member>time</member>
@@ -255,39 +260,38 @@
 	<sect4>
 	  <title>Task Data Sources</title>
 	  <para>
-	    Tasks can export read-only data.  This data can be of any
-	    possible type, and the Parser system retains that type
-	    information.  Getting component data is done using an
-	    expression of the following form:</para>
+	    An Orocos <classname>TaskContext</classname> can export
+	    read-only data.  This data can be of any possible type,
+	    and the Parser system retains that type information.
+	    Getting task data is done using an expression of the
+	    following form:</para>
 	  <para>
-	    <programlisting>
-  task.dataname( argument1, argument2, ..., argumentN ) 	    </programlisting></para>
+	    <programlisting>  task.dataname( argument1, argument2, ..., argumentN )</programlisting></para>
 	  <para>
-	    where "task" is the name of the <classname>TaskContext</classname> whose data
+	    where "task" is the name of the peer <classname>TaskContext</classname> whose data
 	    you want to access, dataname is the name of the data
 	    member of the task you want to access.  "argument1"
 	    through "argumentN" are the arguments you want to pass to
 	    the data call, and can be any kind of expression.  If a
 	    data call needs no arguments, the parentheses can be left
 	    out, like this:</para>
-	    <programlisting>
-  // equivalent to task.dataname()
-  task.dataname	    </programlisting>
+	    <programlisting>  // equivalent to task.dataname()
+  task.dataname</programlisting>
 	</sect4>
 	<sect4>
 	  <title>Task Methods</title>
 	  <para>
 	    Methods are analogous to the data in the previous section.
-	    But they can be used in expressions and executed as a command.
+	    But they can both be used in expressions and executed as a command.
 	    For example, a method returning a boolean can be used
 	    in an 'if' clause and in a 'do' statement (see below).
 	  </para>
-	    <programlisting>
-  // executed as a method :
+	    <programlisting>  // executed as a method :
   bool result = task.methodname( argument1, argument2, ..., argumentN )
 
   // executed as a command :
-  do task.methodname( argument1, argument2, ..., argumentN )	    </programlisting>
+  do task.methodname( argument1, argument2, ..., argumentN )</programlisting>
+	  <para>The boolean return value is optional and can be of any type (including void).</para>
 	</sect4>
 	<sect4>
 	  <title>Literals</title>
@@ -323,7 +327,7 @@
 	    is like a constant, but its value can be changed at other
 	    places in the program.  An alias does not carry a value,
 	    it is defined with an expression, for which it acts as an
-	    alias or an abbreviation during the rest of the program.
+	    alias or an <emphasis>abbreviation</emphasis> during the rest of the program.
 	    All of them can always be used as expressions.  Here is
 	    some code showing how to use them.
 	  </para>
@@ -343,7 +347,7 @@
   
   // make the name "counterPlusOne" an alias for the
   // expression counter + 1.  After this, using
-  // counterPlusOne is completely equivalent to using
+  // counterPlusOne is completely equivalent to writing
   // counter + 1
   alias int counterPlusOne = counter + 1
   // you can assign an arbitrarily complex expression
@@ -460,7 +464,7 @@
      std::for_each( pg_list.begin(), pg_list.end(),
          boost::bind( &amp;Processor::loadProgram, tc.getProcessor(), _1));
 
-     // start the task :
+     // start the Processor :
      ptask->start();
 
      // start a program :
@@ -478,19 +482,34 @@
 	be started from within other scripts.
       </para>
     </sect2>
-    <sect2 id="program-syntax-specifics">
-      <title>Program Syntax</title>
+    <sect2 id="program-semantics">
+      <title>Program Semantics</title>
       <para>
 	An &orocos; program is a list of statements, quite similar
-	to a C program. Programs can call functions and functions
+	to a C program. Programs can call C/C++ functions and functions
 	can be loaded into the system, such that other programs
 	can call them.
       </para>
+      <para>
+	A program's statement is located in a node. Nodes are
+	connected to each other by arches containing boolean
+	conditions. A Processor which executes a program, executes  a
+	statement and then checks each arch's conditions. If a
+	condition evaluates to true, the program immediately executes
+	the next target node and so on. When no condition evaluates to
+	true, the program 'waits', meaning that it postpones execution
+	to the next periodic execution step of the Processor. This
+	happens typically when the statement was a Task Command. Task Methods
+	and expressions on the other hand typically do not impose a
+	wait, and thus are executed immediately after each other.
+      </para>
+    </sect2>
+    <sect2 id="program-syntax-specifics">
+      <title>Program Syntax</title>
       <sect3>
 	<title><symbol>program</symbol></title>
 	<para> A program is formed like this: </para>
-	<programlisting>
-  program progname {
+	<programlisting>  program progname {
     // an arbitrary number of statements
   }	</programlisting>
 	<para>
@@ -512,8 +531,7 @@
 	can be grouped in functions. A function can only call a function
 	which is earlier defined. Thus recursive function calling is not allowed.
 	</para>
-	<programlisting>
-  function func_name( int arg1, double arg2 ) {
+	<programlisting>  function func_name( int arg1, double arg2 ) {
     // an arbitrary number of statements
   }
   
@@ -527,8 +545,8 @@
 	  available command (see below), which will fail if one of its
 	  commands fails. Exporting functions is a powerfull means to
 	  build reusable code in the scripting framework, since an
-	  external task can not see if it is calling a function or
-	  calling a C++ command.
+	  external task can transparantly call a function or
+	  call a C++ command.
 	</para>
       </sect3>
       <sect3>
@@ -536,13 +554,12 @@
 	<para>
 	  A command call statement is a statement that calls a certain
 	  command, and defines some reactions. It looks like:
-	  <programlisting>
-  do comp.action( args ) until {
+	  <programlisting>  do comp.action( args ) until {
     if condition then continue
     if condition2 then call func()
     if condition3 then return
   }  	  </programlisting>
-  	  It calls the command "action", on the component "comp", with
+  	  It calls the command "action", on the task "comp", with
   	  the comma-separated list of expressions args as the
   	  arguments.  The Processor executes the command once, and
   	  then checks where to go next using the "completion clauses"
@@ -561,8 +578,7 @@
 	  checking the completion conditions, instead of only
 	  executing it the first time..  In that case, you can put the
 	  keyword "sync" before the command call.
-	  <programlisting>
-  // continue moving to the right until you hit the wall..
+	  <programlisting>  // continue moving to the right until you hit the wall..
   do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
       until { if robot.hitWall() then return }  </programlisting>
 	  The example above may be a bit stupid, but it only serves to
@@ -570,8 +586,7 @@
 	</para>
 	<para>
 	  A completion clause always looks like</para>
-	  <programlisting>
-  if condition then continue
+	  <programlisting>  if condition then continue
   // or
   if condition then call func_name
   // or
@@ -594,8 +609,7 @@
 	  generated.  This means that the two following statements are
 	  equivalent:
 	</para>
-	  <programlisting>
-  do comp.action( args )
+	  <programlisting>  do comp.action( args )
   // the implicitly generated completion list always looks like
   // "if done then continue"
   do comp.action( args ) until { if done then continue }
@@ -603,7 +617,7 @@
 	<sect4>
 	  <title>Accepting and Rejecting Commands</title>
 	  <para>
-	    A command can be accepted or rejected by a component.
+	    A command can be accepted or rejected by a task.
 	    When it returns false, this is seen as a reject and
 	    the program goes into an error state. The user
 	    can then stop the program or try to continue
@@ -620,8 +634,7 @@
 	  <emphasis>try...catch</emphasis> statement. It tries
 	  to execute the command, and if it is rejected,
 	  the optional catch clause is executed :</para>
-	    <programlisting>
-  // just try it :
+	    <programlisting>  // just try it :
   try comp.action( args )
   
   // When rejected, execute the catch clause :
@@ -687,7 +700,8 @@
 	<para>
 	  A method can thus transparantly be used like a
 	  command, which implicit completion condition
-	  is always true.
+	  is always true, which means, the next statement is
+	  executed immediately after the method returns.
 	</para>
 	<warning>
 	  <para>
@@ -793,13 +807,15 @@
 	</para>
       </sect3>
       <sect3>
-	<title>The 'nothing' Command</title>
+	<title>Waiting : The 'nothing' Command</title>
 	<para>
 	  A special command 'nothing' is provided, and I'm sure you
 	  can already guess what it does..  It is useful to implement
 	  statements, where the completion list is really the only
-	  useful thing to do.  Control structures can be implemented
-	  this way.
+	  useful thing to do. The nothing command's completion condition
+	  will pause execution exactly one execution step, it can thus
+	  also be inserted between methods to force execution to pause
+	  and resume in the next execution step.
 	</para>
       </sect3>
       <sect3>
@@ -834,34 +850,33 @@
   </sect1>
   <sect1>
     <title>Orocos State Descriptions : The Real-Time State Machine</title>
-      <sect2>
-	<title>Introduction</title>
-	<para>
-	  A StateMachine is a kind of state machine used in the &orocos;
+    <sect2>
+      <title>Introduction</title>
+      <para>
+	A <classname>StateMachine</classname> is the state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
-	  defines what to do on entry of the state, when it is handled
+	  defines a Program on entry of the state, when it is handled
 	  and on exit.  It also defines all transitions to a next
-	  state.  A StateMachine must be loaded in the Processor ( see
+	  state.  A StateMachine must be loaded in a Task's Processor ( see
 	  <ulink url="orocos-program-processor.html"> The Online
-	  Processor Manual</ulink> ). The Orocos Control Kernel uses
-	  the ExecutionExtension to manage parsing and loading State
-	  Contexts.
+	  Processor Manual</ulink> ).
 	</para>
       </sect2>
       <sect2>
 	<title>StateMachine Workings</title>
 	<para>
-	  A StateMachine is composed of a set of states.  A running
-	  StateMachine is always in exactly one of its states.  One
-	  time per period, it checks whether it can transition from
-	  that state to another state, and if so makes that
-	  transition.
-	</para>
-	<para>
-	  Every state also has a set of preconditions that need to
-	  hold at its entry.  If these don't hold, the StateMachine
-	  will enter into an error state.
-	</para>
+	A StateMachine is composed of a set of states.  A running
+	StateMachine is always in exactly one of its states.  One
+	time per period, it checks whether it can transition from
+	that state to another state, and if so makes that
+	transition. By default, only one transition can be made
+	in one Processor execution step.
+      </para>
+<!-- 	<para> -->
+<!-- 	  Every state also has a set of preconditions that need to -->
+<!-- 	  hold at its entry.  If these don't hold, the StateMachine -->
+<!-- 	  will enter into an error state. -->
+<!-- 	</para> -->
 	<para>
 	  Besides a list of the possible transitions, every state also
 	  keeps record of programs to be executed at certain
@@ -878,40 +893,39 @@
 	  the only StateMachine available.  They separately keep track
 	  of their own current state, etc. 
 	</para>
-	<para>
-	  A StateMachine can have any number of states.  It needs to
-	  have exactly one "initial state" ( which is the state that
-	  will be entered when the StateMachine is first started ) and
-	  one "final state".  The final state is the state that is
-	  entered when the processor is asked to stop the
-	  StateMachine.  This means that the transition from any state
-	  to the final state must always be meaningful.
-	</para>
+      <para>
+	A StateMachine can have any number of states.  It needs to
+	have exactly one "initial state", which is the state that will
+	be entered when the StateMachine is first started and one
+	"final state".  The final state is the state that is entered
+	when the processor is asked to stop the StateMachine.
+	<emphasis>This means that the transition from any state to the
+	  final state must always be meaningful.</emphasis>
+      </para>
 	<sect3>
-	  <title>Precise State Change Semantics</title>
-	  <para>
-	    At the start of every execution cycle of the Program
-	    Processor, the transition table of the current state is
-	    evaluated.  If a transition succeeds, the exit function is
-	    called of the current state, then the entry function of the
-	    next state and then the handle function of the latter. If no
-	    transition evaluated to true, the handle function of the
-	    current state is called.
-	  </para>
-	</sect3>
-      </sect2>
+	<title>Precise State Change Semantics</title>
+	<para>
+	  At the start of every execution cycle of the Program
+	  Processor, the transition table of the current state is
+	  evaluated.  If a transition succeeds, the exit function is
+	  called of the current state and then the entry function of
+	  the next state. If no transition evaluated to true, the
+	  handle function of the current state is called.
+	</para>
+      </sect3>
+    </sect2>
     <sect2>
-      <title>Parsing and Loading State Contexts</title>
+      <title>Parsing and Loading StateMachines</title>
       <para>
 	Analogous to the Program section, we first show how 
-	you can load a State Context in your Real-Time Task.
+	you can load a StateMachine in your Real-Time Task.
       </para>
       <para>
-	Assume that you have a State Context "statename"
+	Assume that you have a StateMachine "statename"
 	in a file <filename>state-machine.osd</filename>.
 	You've read the Orocos Task Infrastructure manual and constructed
 	a <classname>TaskContext</classname> which has some methods and is connected to its
-	Peer TaskContexts. Parsing the State Context is very analogous
+	Peer TaskContexts. Parsing the StateMachine is very analogous
 	to parsing Programs:
       </para>
       <programlisting>
@@ -944,7 +958,7 @@
      std::for_each( sc_list.begin(), sc_list.end(),
          boost::bind( &amp;Processor::loadStateMachine, tc.getProcessor(), _1));
 
-     // start the task :
+     // start the task's processor :
      ptask->start();
 
      // activate a state context :
@@ -957,8 +971,8 @@
 	It will throw a <classname>file_parse_exception</classname>
 	if a parse error occured.
 	If the returned vector is not empty, we load all the StateMachines in the Processor using
-	the boost::bind function. Next we start the task's Processor
-	and finally. StateMachines have a more complex lifetime than
+	the boost::bind function. Next we start the task's Processor.
+	StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, state
 	transitions to other states can take place. StateMachines
@@ -979,7 +993,7 @@
 	  A StateMachine definition looks like this :
 	</para>
 	<example>
-	  <title>State Context Definition Format</title>
+	  <title>StateMachine Definition Format</title>
 	  <programlisting>
 StateMachine MyStateMachine
 {
@@ -1032,7 +1046,7 @@ StateMachine MyStateMachine
 	  <title>The <function>state</function> Statement</title>
 	  <para>
 	    A state context can have an unlimited number of states.  A
-	    state contains optionally 5 functions : preconditions, entry, handle,
+	    state contains optionally 4 functions : entry, handle,
 	    exit and transitions.  Any one of them is optional, and a
 	    state can even conceivably be defined empty.
 	  </para>
@@ -1043,99 +1057,95 @@ StateMachine MyStateMachine
 	  <para>
 	    When a state is entered for the first time, the entry
 	    function is called. When it is left, the exit function is
-	  called. They both contain <emphasis>unconditional</emphasis> task commands
-	    and/or event configuration statements. The task commands
-	    are the same as in programs. There are two event
-	    configuration statements : <function>connect</function>
-	    and <function>disconnect</function>. They have the
-	    following syntax :
-	    <programlisting>
-StateMachine SomeStateMachine
-{
-    Event_Handle handle_name
+	  called. They both a Program to execute.</para>
+<!-- 	<para> There are two event -->
+<!-- 	    configuration statements : <function>connect</function> -->
+<!-- 	    and <function>disconnect</function>. They have the -->
+<!-- 	    following syntax : -->
+<!-- 	    <programlisting> -->
+<!-- StateMachine SomeStateMachine -->
+<!-- { -->
+<!--     Event_Handle handle_name -->
 
-    // ...
-    state someState
-    {
-        entry {
-	    connect handle_name( "EventName", task.command( args ) )
-	}
-        exit {
-	    disconnect handle_name
-        }
-    }
-}
-	    </programlisting>
-	    The event name must correspond to the identifier of a
-	    nameserved Event&lt;void(void)&gt;. The command is any valid component
-	    command with its arguments. The arguments will be
-	    evaluated when the command is called. From that moment on,
-	    whenever the event "EventName" is raised (this is done
-	    in another task), the
-	    command will be executed in the states context (and thus thread). The disconnect
-	    statement cancels a previously connected handle and may be
-	    called at any time on any handle. Each handle must be
-	    declared beforehand on top of the state script, before any
-	    state is defined.
-	  </para>
+<!--     // ... -->
+<!--     state someState -->
+<!--     { -->
+<!--         entry { -->
+<!-- 	    connect handle_name( "EventName", task.command( args ) ) -->
+<!-- 	} -->
+<!--         exit { -->
+<!-- 	    disconnect handle_name -->
+<!--         } -->
+<!--     } -->
+<!-- } -->
+<!-- 	    </programlisting> -->
+<!-- 	    The event name must correspond to the identifier of a -->
+<!-- 	    nameserved Event&lt;void(void)&gt;. The command is any valid task -->
+<!-- 	    command with its arguments. The arguments will be -->
+<!-- 	    evaluated when the command is called. From that moment on, -->
+<!-- 	    whenever the event "EventName" is raised (this is done -->
+<!-- 	    in another task), the -->
+<!-- 	    command will be executed in the states context (and thus thread). The disconnect -->
+<!-- 	    statement cancels a previously connected handle and may be -->
+<!-- 	    called at any time on any handle. Each handle must be -->
+<!-- 	    declared beforehand on top of the state script, before any -->
+<!-- 	    state is defined. -->
+<!-- 	  </para> -->
 	</sect3>
 	<sect3>
 	  <title>The <function>handle</function> and
 	    <function>transitions</function> Statement</title>
 	  <para>
-	    The handle function is called directly after the entry
-	    function or when no transition can be found to another state
-	    in the next execution step.  The handle function contains
-	    only task commands.  To leave a state, the transitions
+	    The handle function is called only when no transition can be found to another state
+	    in the next execution step.  The handle function also contains a program.
+	    To leave a state, the transitions
 	    function defines <function>select</function>
 	    statements. These can be guarded by if...then clauses :
-	    <programlisting>
-// In state XYZ :
+	    <programlisting>  // In state XYZ :
 transitions {
     // conditionally select the START state
     if HMI.startPushed then
 	select START
     // Fall through state
     select WAIT
-}
-	    </programlisting>
+} </programlisting>
 	    The transitions are checked in the same order as listed.
 	    A transition is allowed to select the current state, but
 	    the onExit and onEntry functions will not be called in that
 	    case.
 	  </para>
 	</sect3>
-	<sect3>
-	  <title>State Preconditions</title>
-	  <para>
-	    Often it's useful to specify some preconditions that need
-	    to hold before entering a state.  &orocos; states
-	    explicitly allow for this.  A state's preconditions will
-	    be checked before the state is entered.
-	  </para>
-	  <para>
-	    Preconditions are specified as follows:
-	    <programlisting>
-// In state XYZ
-preconditions {
-    // make sure the robot is not moving axis 1 when entering this state
-    if robot.movingAxis( 1 ) then
-        select ERROR_STATE
-}
-	    </programlisting>
-	    As you may have noticed, the syntax for preconditions is
-	    the same as for transitions.  It's simply a set of
-	    conditional select statements.  The only difference is
-	    that preconditions are checked once before entry of the
-	    state, whereas transitions are checked every time the
-	    state is handled.
-	  </para>
-	</sect3>
+<!-- 	<sect3> -->
+<!-- 	  <title>State Preconditions</title> -->
+<!-- 	  <para> -->
+<!-- 	    Often it's useful to specify some preconditions that need -->
+<!-- 	    to hold before entering a state.  &orocos; states -->
+<!-- 	    explicitly allow for this.  A state's preconditions will -->
+<!-- 	    be checked before the state is entered. -->
+<!-- 	  </para> -->
+<!-- 	  <para> -->
+<!-- 	    Preconditions are specified as follows: -->
+<!-- 	    <programlisting> -->
+<!-- // In state XYZ -->
+<!-- preconditions { -->
+<!--     // make sure the robot is not moving axis 1 when entering this state -->
+<!--     if robot.movingAxis( 1 ) then -->
+<!--         select ERROR_STATE -->
+<!-- } -->
+<!-- 	    </programlisting> -->
+<!-- 	    As you may have noticed, the syntax for preconditions is -->
+<!-- 	    the same as for transitions.  It's simply a set of -->
+<!-- 	    conditional select statements.  The only difference is -->
+<!-- 	    that preconditions are checked once before entry of the -->
+<!-- 	    state, whereas transitions are checked every time the -->
+<!-- 	    state is handled. -->
+<!-- 	  </para> -->
+<!-- 	</sect3> -->
       </sect2>
       <sect2>
-	<title>Instantiating Contexts: SubContexts and RootContexts</title>
+	<title>Instantiating Machines: SubMachines and RootMachines</title>
 	<para>
-	  As mentionned before: you can look at a SubContext
+	  As mentionned before: you can look at a SubMachine
 	  definition as the definition of a C++ class.  It is merely
 	  the template for its instantiations, and you have to
 	  instantiate it to actually be able to do anything with it.
@@ -1147,9 +1157,9 @@ preconditions {
 	  the definition of the StateMachine you're instantiating.
 	</para>
 	<sect3>
-	  <title>Root Contexts</title>
+	  <title>Root Machines</title>
 	  <para>
-	    A Root Context is a normal instantiation of a
+	    A Root Machine is a normal instantiation of a
 	    StateMachine, one that does not depend on a parent
 	    StateMachine ( see below ).  They are defined as follows:
 	    <programlisting>
@@ -1165,10 +1175,10 @@ StateMachine SomeStateMachine
     }
 }
 
-RootContext SomeStateMachine someSCinstance
+RootMachine SomeStateMachine someSMinstance
 	    </programlisting>
 	    This makes an instantiation of the StateMachine type
-	    SomeStateMachine by the name of 'someSCinstance'.
+	    SomeStateMachine by the name of 'someSMinstance'.
 	  </para>
 	</sect3>
 	<sect3>
@@ -1179,8 +1189,8 @@ RootContext SomeStateMachine someSCinstance
 	      You can define variables at the StateMachine level.
 	      These variables are then accessible to the StateMachine
 	      methods (entry, handle, exit), the preconditions, the
-	      transitions and ( in the case of a SubContext, see below
-	      ) the parent Context.
+	      transitions and ( in the case of a SubMachine, see below
+	      ) the parent Machine.
 	    </para>
 	    <para>
 	      You can define a StateMachine public variable as follows:
@@ -1190,8 +1200,6 @@ StateMachine SomeStateMachine
     // a public constant
     const double pi = 3.1415926535897
     var int counter = 0
-    alias string errorText = "Error in SomeStateMachine: " +
-		someComponent.errorStatement()
 
     initial state initState
     {
@@ -1199,8 +1207,6 @@ StateMachine SomeStateMachine
 	{
             // change the value of counter...
             set counter = counter + 1
-            // use the handy alias defined above...
-	    do someComponent.informUserOfError( errorText )
         }
         // ...
     }
@@ -1208,16 +1214,22 @@ StateMachine SomeStateMachine
     {
 	entry
         {
-            do someComponent.doSomethingWithThisCounter( counter )
+            do someTask.doSomethingWithThisCounter( counter )
         }
         // ...
     }
 }
-	      </programlisting>
-	      This example creates some handy public variables in the
-	      StateMachine SomeStateMachine, and uses them throughout
-	      the state context.
+
+Rootmachine SomeStateMachine mymachine </programlisting>
+	    This example creates some handy public variables in the
+	    StateMachine SomeStateMachine, and uses them throughout
+	    the state context. They can also be read and modified from 
+	    other tasks or programs :
 	    </para>
+	  <programlisting>  var int readcounter = 0
+  set readcounter = taskname.states.mymachine.counter
+
+  set taskname.states.mymachine.counter = taskname.states.mymachine.counter *  2</programlisting>
 	  </sect4>
 	  <sect4>
 	    <title>StateMachine parameters</title>
@@ -1233,18 +1245,18 @@ StateMachine SomeStateMachine
       {
           entry
           {
-              var double power = someComponent.getPowerForAxis( axisNumber )
+              var double power = someTask.getPowerForAxis( axisNumber )
   	    // do something with it...
           }
       }
   }
   
-  RootContext AxisController axiscontroller1( axisNumber = 1 )
-  RootContext AxisController axiscontroller2( axisNumber = 2 )
-  RootContext AxisController axiscontroller3( axisNumber = 3 )
-  RootContext AxisController axiscontroller4( axisNumber = 4 )
-  RootContext AxisController axiscontroller5( axisNumber = 5 )
-  RootContext AxisController axiscontroller6( axisNumber = 6 )</programlisting>
+  RootMachine AxisController axiscontroller1( axisNumber = 1 )
+  RootMachine AxisController axiscontroller2( axisNumber = 2 )
+  RootMachine AxisController axiscontroller3( axisNumber = 3 )
+  RootMachine AxisController axiscontroller4( axisNumber = 4 )
+  RootMachine AxisController axiscontroller5( axisNumber = 5 )
+  RootMachine AxisController axiscontroller6( axisNumber = 6 )</programlisting>
 	    <para>
 	      This example creates an AxisController StateMachine with
 	      one integer parameter called axisNumber.  When the
@@ -1260,9 +1272,9 @@ StateMachine SomeStateMachine
 	  </sect4>
 	</sect3>
 	<sect3>
-	  <title>SubContexts</title>
+	  <title>Building Hierarchies : SubMachines</title>
 	  <para>
-	    A SubContext is a StateMachine that is instantiated within
+	    A SubMachine is a StateMachine that is instantiated within
 	    another StateMachine ( which we'll call the parent
 	    StateMachine ).  The parent StateMachine is owner of its
 	    child, and can decide when it needs to be started and
@@ -1270,9 +1282,9 @@ StateMachine SomeStateMachine
 	    stopStateMachine methods.
 	  </para>
 	  <sect4>
-	    <title>Instantiating SubContexts</title>
+	    <title>Instantiating SubMachines</title>
 	    <para>
-	      An instantiation of a SubContext is written as follows:
+	      An instantiation of a SubMachine is written as follows:
 	      <programlisting>
   StateMachine ChildStateMachine
   {
@@ -1288,20 +1300,20 @@ StateMachine SomeStateMachine
   
   StateMachine ParentStateMachine
   {
-      SubContext ChildStateMachine childcontext1
-      SubContext ChildStateMachine childcontext2
+      SubMachine ChildStateMachine child1
+      SubMachine ChildStateMachine child2
       initial state initState
       {
   	entry
           {
 	      // enter initial state :
-  	    do childcontext1.activate()
-  	    do childcontext2.activate()
+  	    do child1.activate()
+  	    do child2.activate()
           }
           exit
           {
 	      // enter final state :
-              do childcontext2.stop()
+              do child2.stop()
           }
       }
   
@@ -1310,7 +1322,7 @@ StateMachine SomeStateMachine
           entry
           {
 	      // enter final state :
-              childcontext1.stop()
+              child1.stop()
           }
       }
   } </programlisting>
@@ -1323,25 +1335,25 @@ StateMachine SomeStateMachine
 	    </para>
 	  </sect4>
 	  <sect4>
-	    <title>SubContext manipulating</title>
+	    <title>SubMachine manipulating</title>
 	    <para>
-	      In addition to starting and stopping a SubContext, a
+	      In addition to starting and stopping a SubMachine, a
 	      parent StateMachine can also inspect its public
 	      variables, change its parameters, and check what state
 	      it is in...
 	    </para>
 	    <para>
 	      Inspecting StateMachine public variables is simply done
-	      using the syntax "someSubContextInstName.someValue",
-	      just as you would do if someSubContextInstName were an
-	      &orocos; kernel component.  Like this, you can inspect
+	      using the syntax "someSubMachineInstName.someValue",
+	      just as you would do if someSubMachineInstName were an
+	      &orocos; task.  Like this, you can inspect
 	      all of a subcontext's public variables.
 	    </para>
 	    <para>
 	      Setting a StateMachine parameter must be done at its
 	      instantiation.  However, you can still change the values
 	      of the parameters afterwards.  The syntax is: "set
-	      someSubContext.someParam = someExpression".  Here's an
+	      someSubMachine.someParam = someExpression".  Here's an
 	      elaborate example:</para>
 	      <programlisting>
 StateMachine ChildStateMachine
@@ -1360,30 +1372,30 @@ StateMachine ChildStateMachine
 
 StateMachine ParentStateMachine
 {
-    SubContext ChildStateMachine childcontext1 ( someValue = 0 )
-    SubContext ChildStateMachine childcontext2( someValue = 0 )
+    SubMachine ChildStateMachine child1 ( someValue = 0 )
+    SubMachine ChildStateMachine child2( someValue = 0 )
 
     var int counter = 0
     initial state initState
     {
 	entry
         {
-	    do childcontext1.start()
-	    do childcontext2.start()
+	    do child1.start()
+	    do child2.start()
             // set the subcontext's parameter
-            set childcontext1.someValue = 2
+            set child1.someValue = 2
         }
         handle
         {
             set counter = counter + 1
 	    // set the subcontext's parameters
-            set childcontext2.someValue = counter
+            set child2.someValue = counter
             // use the subcontext's public variables
-            do someComponent.doSomethingCool( childcontext1.someValue )
+            do someTask.doSomethingCool( child1.someValue )
         }
         exit
         {
-            do childcontext2.stop()
+            do child2.stop()
         }
     }
 
@@ -1391,22 +1403,22 @@ StateMachine ParentStateMachine
     {
         entry
         {
-            do childcontext1.stop()
+            do child1.stop()
         }
     }
 }
 	      </programlisting>
 	  <para>
-	    One more thing you can do with a subcontext is checking
+	    One more thing you can do with a SubMachine is checking
 	    if it is in a certain state.  The syntax looks like:
-	    <programlisting>someSubContext.inState( "someStateName" )</programlisting>
+	    <programlisting>someSubMachine.inState( "someStateName" )</programlisting>
 	    It should be straightforward to use...
 	  </para>
 	</sect4>
       </sect3>
     </sect2>
     <sect2>
-      <title>Starting and Stopping State Contexts from scripts</title>
+      <title>Starting and Stopping StateMachines from scripts</title>
       <para>
 	Once a state context is parsed and loaded into the Processor,
 	it can be manipulated from another script. This can be
@@ -1421,17 +1433,18 @@ StateMachine ParentStateMachine
   do ATask.states.machine.axisx.start()
   do ATask.states.machine.start()
   do ATask.states.machine.stop()
+  do ATask.states.machine.reset()
   do ATask.states.machine.deactivate()
   // etc. </programlisting>
       <para>
 	The first line activates a root StateMachine, thus it
 	enters the initial state, the next line
 	actives its child, the next starts its child, then we
-	start the parent, stop it again and finally send it
-	back to its final state.
+	start the parent, stop it again, reset it
+	back to its initial state and finally deactivate it.
       </para>
       <para>
-	Thus both RootContexts and SubContexts can be controlled.
+	Thus both RootMachines and SubMachines can be controlled.
 	Some basic properties of the states can be
 	inspected likewise :</para>
       <programlisting>
@@ -1450,17 +1463,14 @@ StateMachine ParentStateMachine
       This sections shows the listings of an Orocos State
       Description and an Orocos Program Script. They are
       fictitious examples (but with valid syntax) which may
-      differ from actual available components. The example
+      differ from actual available tasks. The example
       tries to exploit most common functions.
     </para>
     <example>
-      <title>State Context Example (state.osd)</title>
+      <title>StateMachine Example (state.osd)</title>
       <programlisting>
-  StateMachine MachineContext
+  StateMachine MachineMachine
   {
-      Event_Handle home_switch1
-      Event_Handle home_switch2
-  
       var bool error = false
 
       /**
@@ -1487,7 +1497,7 @@ StateMachine ParentStateMachine
       }
   
       /**
-       * This state is only reached when the State Context
+       * This state is only reached when the StateMachine
        * is stopped.
        */
       final state fini_state {
@@ -1558,7 +1568,7 @@ StateMachine ParentStateMachine
       }
   }
   
-  RootContext MainContext mainContext
+  RootMachine MainMachine mainMachine
       </programlisting>
     </example>
     <example>
@@ -1633,246 +1643,6 @@ StateMachine ParentStateMachine
   }  </programlisting>
     </example>
   </sect1>
-  <sect1 id="exporting-component-api">
-    <title>The Parser and Orocos ControlKernel</title>
-    <para>
-      This section explains how the Orocos ControlKernel
-      Components can be set up to export their interface
-      to the ControlKernel infrastructure. The
-      &taskman; gives a more general introduction to
-      this topic, while this section is ControlKernel specific.
-    </para>
-    <sect2 id="exporting-component-api-data-and-commands">
-      <title>Data, Methods and Commands</title>
-      <para>
-	A Component's API can consist of three things: Data, Methods and
-	Commands. Data should be accessible without any side effects
-	( it is const ), thus many readouts do not influence the data
-	or other data, although the data may change because of other reasons.
-	Methods can have side effects, but have always immediate result,
-	thus they can still be used in expressions.
-	Commands are specifically meant to generate side effects
-	<emphasis>over time</emphasis>.  Suppose you're
-	writing a robot task, then an example of a command would
-	be: "robot.moveTo", telling the robot to move to the specified
-	position, and an example of a data value would be
-	"robot.isAtPosition", checking whether the robot has already
-	reached the specified position.  "robot.position" could also
-	be a data value. A method could be the setting of the controller
-	parameters.
-      </para>
-      <para>
-	An &orocos; program is not executed at the same time it is
-	parsed.  It is first parsed, and compiled down to an object
-	representation of it, allowing the program to be executed in a
-	realtime environment. 
-      </para>
-      <para>
-	Specifically, Commands are represented by child classes of 
-	the C++ class CommandInterface, and Data is represented by
-	child classes of the C++ class DataSource. A method
-	can be both. There
-	is a different DataSource type for every type used in the
-	&orocos; Parser system.  This is accomplished by making
-	DataSource a template class, parametrized by its result
-	value.
-      </para>
-      <para>
-	Command calls, methods and data calls are translated to
-	CommandInterface and DataSource classes by respectively
-	CommandFactory's, MethodFactory's and DataSourceFactory's.
-	These are provided
-	by the various tasks.  Every task can have one
-	CommandFactory, one MethodFactory and one DataSourceFactory.
-	Continue reading
-	for more information on how to add one to your own components. 
-      </para>
-    </sect2>
-    <sect2 id="exporting-api-the-extension">
-      <title>The ExecutionExtension</title>
-      <para>
-	The part of the kernel that the parser talks to to get hold of
-	the API's of the components is the ExecutionExtension.
-	It is an &orocos; kernel extension that talks to the kernel
-	components and keeps a list of their data and command
-	factories.  If you are composing an &orocos; kernel, then you
-	need to make the ExecutionExtension part of the kernel
-	in the normal way.  Check the control kernel documentation for
-	more details.
-      </para>
-    </sect2>
-    <sect2 id="exporting-api-getting-to-it">
-      <title>Getting to it</title>
-      <para>
-	In order for a component to export its API, it can
-	implement three virtual methods: 
-	<programlisting>
-virtual CommandFactoryInterface* createCommandFactory();
-virtual MethodFactoryInterface* createMethodFactory();
-virtual DataSourceFactoryInterface* createDataSourceFactory();
-	</programlisting>
-	These will each be called once during the startup of the
-	kernel, and they should return a CommandFactory, a MethodFactory and a
-	DataSourceFactory containing information on how to construct
-	the Command's, Method's and DataSource's that the component supports.
-      </para>
-      <para>
-	It is possible to write the DataSourceFactory and
-	CommandFactory for your component yourself, but this would
-	require a pretty large amount of work consisting mostly of
-	boilerplate code.  Therefore, standard factories have been
-	written to take care of most of the process.
-      </para>
-      <para>
-	Suppose the API of your component looks like this:
-	<programlisting>
-class Robot
-{
-public:
-  void moveToHomePosition();
-  // A Completion condition must be const :
-  bool isAtHomePosition() const;
-  
-  void moveTo( const Vector&amp; position );
-  bool isAtPosition( const Vector&amp; position ) const;
-  
-  // A DataSource must be const :
-  Vector position() const;
-  double movingSpeed() const;
-  
-  // A Method must not be const :
-  double calibrate( const Vector&amp; position );
-};
-	</programlisting>
-	Then the code needed to export this API to the &orocos;
-	scripting framework would look like this:
-	<programlisting>
-#include &lt;execution/Factories.hpp&gt;
-
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
-
-class Robot
-{
-public:
-// ...
-
-DataSourceFactoryInterface* createDataSourceFactory()
-{
-  TemplateDataSourceFactory&lt;Robot&gt;* ret =
-    newDataSourceFactory( this );
-  ret-&gt;add( &quot;position&quot;, 
-            data( &amp;Robot::position, &quot;The current position &quot;
-                                    &quot;of the robot.&quot; ) );
-  ret-&gt;add( &quot;movingSpeed&quot;,
-            data( &amp;Robot::movingSpeed, 
-                  &quot;The speed at which the robot is &quot;
-                  &quot;currently moving.&quot; ) );
-  return ret;
-}
-
-MethodFactoryInterface* createMethodFactory()
-{
-  TemplateMethodFactory&lt;Robot&gt;* ret =
-    newMethodFactory( this );
-  ret-&gt;add( &quot;calibrate&quot;,
-            method( &amp;Robot::calibrate,
-                  &quot;Calibrate the distance between the current &quot;
-                  &quot;position of the robot and pos.&quot;, &quot;pos&quot;,
-                  &quot;Calibration position&quot; ) ); 
-  return ret;
-}
-
-CommandFactoryInterface* createCommandFactory()
-{
-  TemplateCommandFactory&lt;Robot&gt;* ret =
-    newCommandFactory( this );
-  ret-&gt;add( &quot;moveToHomePosition&quot;, 
-            command( &amp;Robot::moveToHomePosition,
-                     &amp;Robot::isAtHomePosition,
-                     &quot;Move the robot to its home position&quot; ) );
-  ret-&gt;add( &quot;moveTo&quot;,
-            command( &amp;Robot::moveTo,
-                     &amp;Robot::isAtPosition,
-                     &quot;Move the Robot to a specified position.&quot;, &quot;pos&quot;,
-                     &quot;The position to move the robot to.&quot; ) );
-  return ret;
-}
-
-// ...
-};
-	</programlisting>
-	This probably deserves some explanation...
-      </para>
-      <para>
-	The first statement 
-	<programlisting>
-TemplateDataSourceFactory&lt;Robot&gt;* ret =
-  newDataSourceFactory( this );
-	</programlisting>
-	constructs a new TemplateDataSourceFactory, this should be
-	straightforward.  After this factory is constructed, we add
-	data to it using the add() method.  This method requires a
-	name for the added data, and information on the data to be
-	associated with that name.  The latter is generated using the
-	function data().
-      </para>
-      <para>
-	The data function requires a pointer to a
-	<emphasis>const</emphasis> member function having a number of
-	arguments, and returning the appropriate data.  The function's
-	signature will automatically define the signature in the
-	exported API.  After the member function pointer follows a C
-	string containing a description of the function, followed by a
-	name and description for each of the arguments.  An extra
-	feature is that instead of a pointer to a member function, you
-	can also pass a pointer to a member variable to the data
-	function.  This will then simply be read out, instead of
-	called.
-      </para>
-      <para>
-	Methods work the same way like DataSources, except that
-	they do not need to be const and the factories have
-	different names.
-      </para>
-      <para>
-	The command factory is created in a similar way.  The first
-	statement is almost the same, and the next are also similar.
-	The only difference with the DataSource factory creation is
-	that in place of the data function, the command function is
-	used, which requires some different arguments.
-      </para>
-      <para>
-	The command function requires two member pointers instead of
-	one.  The first one is a function that does the actual work
-	that the command will invoke, and the second is a bool
-	<emphasis>const </emphasis>function having the same arguments
-	as the first one, the first argument or no arguments at all.
-	This last function will be called to see whether the
-	associated command is finished.  The rest of the arguments to
-	the command function remain the same.  It also requires a
-	constant C string describing the function, and two constant C
-	strings giving a description and name for every argument.
-      </para>
-      <para>
-	If a component has only commands, or only data, or only methods, the unneeded
-	factory function can be left out and the parser will not query
-	the component for the left out factory.
-      </para>
-    </sect2>
-    <sect2>
-      <title>Using Scripts in the Orocos ControlKernel</title>
-      <para>
-	We refer to the Orocos Control Kernel
-	documentation for a detailed list of commands
-	which a Kernel adds to its interface,
-	but here are a few examples :</para>
-      <programlisting>
-  do Kernel.selectGenerator( "CartesianGenerator" )
-  do Kernel.selectController( "CartesianController" ) </programlisting>
-    </sect2>
-  </sect1>
-      
   <sect1 id="extending-the-parser">
     <title>Extending the parser</title>
     <sect2 id="parser-limitations">

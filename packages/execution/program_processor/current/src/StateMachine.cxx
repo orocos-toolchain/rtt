@@ -87,8 +87,12 @@ namespace ORO_Execution
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
         TransList::const_iterator the_end = stateMap.find( current )->second.end();
-        if ( currentProg || reqstep == the_end ) {
-            return current; // can not accept request, still in transition OR no evaluations present.
+        if ( currentProg ) {
+            return current; // can not accept request, still in transition.
+        }
+        if ( reqstep == the_end ) { // if nothing to evaluate, just handle()
+            changeState( current, stepping );
+            return current;
         }
 
         // if we got here, at least one evaluation to check

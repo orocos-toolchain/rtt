@@ -46,23 +46,21 @@ namespace ORO_Execution
         struct Processor::ProgramInfo
         {
             Processor::ProgramStatus::status pstate;
-            ProgramInfo(const std::string&_name, ProgramInterface* p)
+            ProgramInfo( ProgramInterface* p)
                 : pstate(ProgramStatus::stopped), program(p),
-                  step(false), name(_name) {}
+                  step(false) {}
             ProgramInterface* program;
             bool step;
-            std::string name;
         };
 
         struct Processor::StateInfo
         {
             Processor::StateMachineStatus::status sstate; // 'global' state of this StateMachine
-            StateInfo(const std::string& _name, StateMachine* s)
+            StateInfo( StateMachine* s)
                 : sstate( StateMachineStatus::inactive ),
                   state(s),
                   action(0),
-                  stepping(true),
-                  name(_name)
+                  stepping(true)
             {}
 
             StateMachine* state;
@@ -75,26 +73,29 @@ namespace ORO_Execution
             // (de)activate may be called directly
             void activate() {
                 state->activate();
-                action = &StateInfo::goactive;
-                sstate = StateMachineStatus::activating;
-                // already run once
-                this->goactive();
+                if ( state->inTransition() ) {
+                    action = &StateInfo::goactive;
+                    sstate = StateMachineStatus::activating;
+                } else {
+                    action = 0;
+                    sstate = StateMachineStatus::active;
+                }
             }
             void deactivate() {
                 state->deactivate();
-                action = &StateInfo::goinactive;
-                sstate = StateMachineStatus::deactivating;
-                // already run once
-                this->goinactive();
+                if ( state->inTransition() ) {
+                    action = &StateInfo::goinactive;
+                    sstate = StateMachineStatus::deactivating;
+                } else {
+                    action = 0;
+                    sstate = StateMachineStatus::inactive;
+                }
             }
 
-            // start, stop , pause and reset work with the
-            // action functor.
             void start() {
                 sstate = StateMachineStatus::running;
                 // keep repeating the run action
                 action = &StateInfo::run;
-                //action = &StateInfo::run;
                 this->run(); // execute the first time from here.
             }
 
@@ -105,22 +106,27 @@ namespace ORO_Execution
 
             void stop() {
                 if ( state->executePending() || state->inError() ) {
-                    action = &StateInfo::gostop;
                     state->requestFinalState();
-                    sstate = StateMachineStatus::stopping;
-                    // try to 'atomically' stop :
-                    this->gostop();
+                    // test for atomicity :
+                    if ( state->inTransition() ) {
+                        action = &StateInfo::gostop;
+                        sstate = StateMachineStatus::stopping;
+                    } else {
+                        action = 0;
+                        sstate = StateMachineStatus::stopped;
+                    }
                 }
             }
             void reset() {
                 if ( state->executePending() ) {
-                    action = 0;
                     state->requestInitialState();
-                    sstate = StateMachineStatus::active;
-                } else {
-                    if ( state->inError() )
-                        sstate = StateMachineStatus::error;
-                    return;
+                    if ( state->inTransition() ) {
+                        action = &StateInfo::goactive;
+                        sstate = StateMachineStatus::resetting;
+                    } else {
+                        action = 0;
+                        sstate = StateMachineStatus::active;
+                    }
                 }
             }
 
@@ -135,7 +141,6 @@ namespace ORO_Execution
             }
 
             bool stepping;
-            std::string name;
         protected:
             // Go through the entry of the initial state:
             void goactive() {
@@ -190,12 +195,12 @@ namespace ORO_Execution
     Processor::Processor(int queue_size)
         :funcs( queue_size ),
          f_it( funcs.begin() ),
-        accept(false), a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
+         accept(false), a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
          f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(queue_size) ),
          coms_processed(0)
     {
-        programs = new list<ProgramInfo>();
-        states   = new list<StateInfo>();
+        programs = new ProgMap();
+        states   = new StateMap();
     }
 
     Processor::~Processor()
@@ -206,43 +211,33 @@ namespace ORO_Execution
         delete f_queue;
     }
 
-    bool program_lookup( const Processor::ProgramInfo& pi, const std::string& name)
-    {
-        return (pi.name == name);
-    }
-
-    bool state_lookup( const Processor::StateInfo& si, const std::string& name)
-    {
-        return (si.name == name);
-    }
-
      Processor::ProgramStatus::status Processor::getProgramStatus(const std::string& name) const
      {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name ) );
+            programs->find( name );
         if ( it == programs->end() )
             return ProgramStatus::unloaded;
-        return it->pstate;
+        return it->second.pstate;
      }
 
      Processor::StateMachineStatus::status Processor::getStateMachineStatus(const std::string& name) const
      {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
         if ( it == states->end() )
             return StateMachineStatus::unloaded;
-        return it->sstate;
+        return it->second.sstate;
      }
 
 
 	bool Processor::loadProgram(ProgramInterface* pi)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, pi->getName() ) );
+            programs->find( pi->getName() );
         if ( it != programs->end() )
             return false;
         MutexLock lock( progmonitor );
-        programs->push_back( Processor::ProgramInfo(pi->getName(), pi) );
+        programs->insert( make_pair( pi->getName(), Processor::ProgramInfo(pi) ) );
         pi->reset();
         return true;
     }
@@ -250,11 +245,12 @@ namespace ORO_Execution
 	bool Processor::startProgram(const std::string& name)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
+
         if ( it != programs->end() ) {
-            if ( it->program->isFinished() )
-                it->program->reset();       // if the program was finished, reset it.
-            it->pstate = ProgramStatus::running;
+            if ( it->second.program->isFinished() )
+                it->second.program->reset();       // if the program was finished, reset it.
+            it->second.pstate = ProgramStatus::running;
             // so it is possible to start a program from the error state
         }
         return it != programs->end();
@@ -263,20 +259,21 @@ namespace ORO_Execution
 	bool Processor::isProgramRunning(const std::string& name) const
     {
         cprogram_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
         if ( it != programs->end() )
-            return it->pstate == ProgramStatus::running;
+            return it->second.pstate == ProgramStatus::running;
         return false;
     }
 
 	bool Processor::pauseProgram(const std::string& name)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
+
         if ( it != programs->end() ) {
-            if ( it->program->isFinished() )
-                it->program->reset();       // if the program was finished, reset it.
-            it->pstate = ProgramStatus::stepmode;
+            if ( it->second.program->isFinished() )
+                it->second.program->reset();       // if the program was finished, reset it.
+            it->second.pstate = ProgramStatus::stepmode;
         }
         // it is possible to pause a program from the error state
         return it != programs->end();
@@ -285,10 +282,11 @@ namespace ORO_Execution
 	bool Processor::stopProgram(const std::string& name)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
+
         if ( it != programs->end() ) {
-            it->pstate = ProgramStatus::stopped;
-            it->program->reset();
+            it->second.pstate = ProgramStatus::stopped;
+            it->second.program->reset();
         }
         return it != programs->end();
     }
@@ -296,11 +294,12 @@ namespace ORO_Execution
 	bool Processor::deleteProgram(const std::string& name)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
-        if ( it != programs->end() && it->pstate == ProgramStatus::stopped )
+            programs->find( name );
+
+        if ( it != programs->end() && it->second.pstate == ProgramStatus::stopped )
             {
                 MutexLock lock( progmonitor );
-                delete it->program;
+                delete it->second.program;
                 programs->erase(it);
                 return true;
             }
@@ -310,7 +309,7 @@ namespace ORO_Execution
                                   "\" with the processor. It does not exist." );
                 throw program_unload_exception( error );
             }
-        if ( it->pstate != ProgramStatus::stopped ) {
+        if ( it->second.pstate != ProgramStatus::stopped ) {
                 std::string error(
                                   "Could not unload Program \"" + name +
                                   "\" with the processor. It is still running." );
@@ -339,7 +338,8 @@ namespace ORO_Execution
         // test if already present..., this cannot detect corrupt
         // trees with double names...
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, sc->getName() ) );
+            states->find( sc->getName() );
+
         if ( it != states->end() ) {
             std::string error(
                 "Could not register StateMachine \"" + sc->getName() +
@@ -363,15 +363,16 @@ namespace ORO_Execution
             }
         
         MutexLock lock( statemonitor );
-        states->push_back(Processor::StateInfo(sc->getName(), sc));
+        states->insert( make_pair( sc->getName(), Processor::StateInfo(sc)));
     }
 
 	bool Processor::startStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateMachineStatus::active || it->sstate == StateMachineStatus::paused) {
-            it->action = &StateInfo::start;
+            states->find( name );
+
+        if ( it != states->end() && it->second.sstate == StateMachineStatus::active || it->second.sstate == StateMachineStatus::paused) {
+            it->second.action = &StateInfo::start;
             return true;
         }
         return false;
@@ -380,9 +381,10 @@ namespace ORO_Execution
 	bool Processor::stepStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateMachineStatus::paused) {
-            it->action = &StateInfo::singleStep;
+            states->find( name );
+
+        if ( it != states->end() && it->second.sstate == StateMachineStatus::paused) {
+            it->second.action = &StateInfo::singleStep;
             return true;
         }
         return false;
@@ -391,10 +393,11 @@ namespace ORO_Execution
 	bool Processor::steppedStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
             {
-                it->stepping = true;
+                it->second.stepping = true;
             }
         return it != states->end();
     }
@@ -402,10 +405,11 @@ namespace ORO_Execution
 	bool Processor::continuousStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
             {
-                it->stepping = false;
+                it->second.stepping = false;
             }
         return it != states->end();
     }
@@ -413,28 +417,31 @@ namespace ORO_Execution
 	bool Processor::isStateMachineRunning(const std::string& name) const
     {
         cstate_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
-            return it->sstate == StateMachineStatus::running;
+            return it->second.sstate == StateMachineStatus::running;
         return false;
     }
 
 	bool Processor::isStateMachineStepped(const std::string& name) const
     {
         cstate_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
-            return it->stepping;
+            return it->second.stepping;
         return false;
     }
 
     bool Processor::activateStateMachine( const std::string& name )
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateMachineStatus::inactive )
+            states->find( name );
+
+        if ( it != states->end() && it->second.sstate == StateMachineStatus::inactive )
             {
-                it->activate();
+                it->second.activate();
                 return true;
             }
         return false;
@@ -443,10 +450,11 @@ namespace ORO_Execution
     bool Processor::deactivateStateMachine( const std::string& name )
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
             {
-                it->deactivate();
+                it->second.deactivate();
                 return true;
             }
         return false;
@@ -455,12 +463,13 @@ namespace ORO_Execution
     bool Processor::pauseStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && ( it->sstate == StateMachineStatus::running
-                                      || it->sstate == StateMachineStatus::paused
-                                      || it->sstate == StateMachineStatus::active))
+            states->find( name );
+
+        if ( it != states->end() && ( it->second.sstate == StateMachineStatus::running
+                                      || it->second.sstate == StateMachineStatus::paused
+                                      || it->second.sstate == StateMachineStatus::active))
             {
-                it->action = &StateInfo::pause;
+                it->second.action = &StateInfo::pause;
                 return true;
             }
         return false;
@@ -469,10 +478,11 @@ namespace ORO_Execution
 	bool Processor::stopStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && ( it->sstate != StateMachineStatus::inactive) )
+            states->find( name );
+
+        if ( it != states->end() && ( it->second.sstate != StateMachineStatus::inactive) )
             {
-                it->action = &StateInfo::stop;
+                it->second.action = &StateInfo::stop;
                 return true;
             }
         return false;
@@ -482,10 +492,11 @@ namespace ORO_Execution
     {
         // We can only reset when stopped.
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->sstate == StateMachineStatus::stopped )
+            states->find( name );
+
+        if ( it != states->end() && it->second.sstate == StateMachineStatus::stopped )
             {
-                it->action = &StateInfo::reset;
+                it->second.action = &StateInfo::reset;
                 return true;
             }
         return false;
@@ -496,18 +507,19 @@ namespace ORO_Execution
         // this does the same as deleteStateMachine, except for deleting
         // the unloaded context..
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
         {
             // test if parent ...
-            if ( it->state->getParent() != 0 ) {
+            if ( it->second.state->getParent() != 0 ) {
                 std::string error(
-                                  "Could not unload StateMachine \"" + it->state->getName() +
+                                  "Could not unload StateMachine \"" + it->second.state->getName() +
                                   "\" with the processor. It is not a root StateMachine." );
                 throw program_unload_exception( error );
             }
-            recursiveCheckUnloadStateMachine( *it );
-            recursiveUnloadStateMachine( it->state );
+            recursiveCheckUnloadStateMachine( it->second );
+            recursiveUnloadStateMachine( it->second.state );
             return true;
         }
         return false;
@@ -530,9 +542,7 @@ namespace ORO_Execution
              ++it2)
             {
                 state_iter it =
-                    find_if(states->begin(),
-                            states->end(),
-                            bind(state_lookup, _1, (*it2)->getName() ) );
+                    states->find( (*it2)->getName() );
                 if ( it == states->end() ) {
                     std::string error(
                               "Could not unload StateMachine \"" + si.state->getName() +
@@ -540,7 +550,7 @@ namespace ORO_Execution
                     throw program_unload_exception( error );
                 }
                 // all is ok, check child :
-                this->recursiveCheckUnloadStateMachine( *it );
+                this->recursiveCheckUnloadStateMachine( it->second );
             }
     }
 
@@ -554,9 +564,8 @@ namespace ORO_Execution
         
         // erase this sc :
         state_iter it2 =
-            find_if(states->begin(),
-                    states->end(),
-                    bind(state_lookup, _1, sc->getName() ) );
+            states->find( sc->getName() );
+
         assert( it2 != states->end() ); // we checked that this is possible
 
         MutexLock lock( statemonitor );
@@ -566,70 +575,89 @@ namespace ORO_Execution
 	bool Processor::deleteStateMachine(const std::string& name)
     {
         state_iter it =
-            find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
+            states->find( name );
+
         if ( it != states->end() )
             {
-                if ( it->state->getParent() != 0 ) {
+                if ( it->second.state->getParent() != 0 ) {
                     std::string error(
-                                      "Could not unload StateMachine \"" + it->state->getName() +
+                                      "Could not unload StateMachine \"" + it->second.state->getName() +
                                       "\" with the processor. It is not a root StateMachine." );
                     throw program_unload_exception( error );
                 }
-                StateMachine* todelete = it->state;
+                StateMachine* todelete = it->second.state;
                 // same pre-conditions for delete as for unload :
-                recursiveCheckUnloadStateMachine( *it );
-                recursiveUnloadStateMachine( it->state ); // this invalidates it !
+                recursiveCheckUnloadStateMachine( it->second );
+                recursiveUnloadStateMachine( it->second.state ); // this invalidates it !
                 delete todelete;
                 return true;
             }
         return false;
     }
 
-    void _executeState( Processor::StateInfo& s)
+    struct _executeState
+        : public std::unary_function<void, std::pair<std::string,Processor::StateInfo> >
     {
-        if ( s.action )
-            (s.*(s.action))();
-    }
-
-    void _stopState( Processor::StateInfo& s)
-    {
-        if ( s.sstate == Processor::StateMachineStatus::paused
-            || s.sstate == Processor::StateMachineStatus::active
-            || s.sstate == Processor::StateMachineStatus::running )
-            s.stop();
-    }
-
-    void _executeProgram( Processor::ProgramInfo& p)
-    {
-        if (p.pstate == Processor::ProgramStatus::running) {
-            if ( p.program->executeUntil() == false )
-                p.pstate = Processor::ProgramStatus::error;
-            if ( p.program->isFinished() ) {
-                p.pstate = Processor::ProgramStatus::stopped;
-            }
+        void operator()( std::pair<const std::string,Processor::StateInfo>& s ) {
+            if ( s.second.action )
+                (s.second.*(s.second.action))();
         }
-    }
+    };
 
-    void _stopProgram( Processor::ProgramInfo& p)
+    struct _stopState
+        : public std::unary_function<void, std::pair<std::string,Processor::StateInfo> >
     {
-        if (p.pstate == Processor::ProgramStatus::running) {
-            p.pstate = Processor::ProgramStatus::stopped;
-            p.program->reset();
+        void operator()( std::pair<const std::string,Processor::StateInfo>& s )
+        {
+            if ( s.second.sstate == Processor::StateMachineStatus::paused
+                 || s.second.sstate == Processor::StateMachineStatus::active
+                 || s.second.sstate == Processor::StateMachineStatus::running )
+                s.second.stop();
         }
-    }
+    };
 
-    void _stepProgram( Processor::ProgramInfo& p)
+    struct _executeProgram
+        : public std::unary_function<void, std::pair<std::string,Processor::ProgramInfo> >
     {
-        if (p.pstate == Processor::ProgramStatus::stepmode && p.step)
-            {
-                if ( p.program->executeStep() == false )
-                    p.pstate = Processor::ProgramStatus::error;
-                if ( p.program->isFinished() ) {
-                    p.pstate = Processor::ProgramStatus::stopped;
+        void operator()( std::pair<const std::string,Processor::ProgramInfo>& p )
+        {
+            if (p.second.pstate == Processor::ProgramStatus::running) {
+                if ( p.second.program->executeUntil() == false )
+                    p.second.pstate = Processor::ProgramStatus::error;
+                if ( p.second.program->isFinished() ) {
+                    p.second.pstate = Processor::ProgramStatus::stopped;
                 }
-                p.step = false;
             }
-    }
+        }
+    };
+
+    struct _stopProgram
+        : public std::unary_function<void, std::pair<std::string,Processor::ProgramInfo> >
+    {
+        void operator()( std::pair<const std::string,Processor::ProgramInfo>& p )
+        {
+            if (p.second.pstate != Processor::ProgramStatus::stopped) {
+                p.second.pstate = Processor::ProgramStatus::stopped;
+                p.second.program->reset();
+            }
+        }
+    };
+
+    struct _stepProgram
+        : public std::unary_function<void, std::pair<std::string,Processor::ProgramInfo>& >
+    {
+        void operator()( std::pair<const std::string,Processor::ProgramInfo>& p )
+        {
+            if (p.second.pstate == Processor::ProgramStatus::stepmode && p.second.step) {
+                if ( p.second.program->executeStep() == false )
+                    p.second.pstate = Processor::ProgramStatus::error;
+                if ( p.second.program->isFinished() ) {
+                    p.second.pstate = Processor::ProgramStatus::stopped;
+                }
+                p.second.step = false;
+            }
+        }
+    };
 
     bool Processor::initialize()
     {
@@ -644,11 +672,11 @@ namespace ORO_Execution
         // stop all programs and SCs.
         {
             MutexLock lock( progmonitor );
-            for_each(programs->begin(), programs->end(), _stopProgram);
+            for_each(programs->begin(), programs->end(), _stopProgram());
         }
         {
             MutexLock lock( statemonitor );
-            for_each(states->begin(), states->end(), _stopState );
+            for_each(states->begin(), states->end(), _stopState() );
         }
     }
 
@@ -657,16 +685,16 @@ namespace ORO_Execution
         {
             MutexLock lock( statemonitor );
             // Evaluate all states->
-            for_each(states->begin(), states->end(), _executeState );
+            for_each(states->begin(), states->end(), _executeState() );
         }
 
         {
             MutexLock lock( progmonitor );
             //Execute all normal programs->
-            for_each(programs->begin(), programs->end(), _executeProgram);
+            for_each(programs->begin(), programs->end(), _executeProgram() );
 
             //Execute all programs in Stepping mode.
-            for_each(programs->begin(), programs->end(), _stepProgram );
+            for_each(programs->begin(), programs->end(), _stepProgram() );
         }
 
         // Execute any FunctionGraph :
@@ -713,9 +741,10 @@ namespace ORO_Execution
     bool Processor::stepProgram(const std::string& name)
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
+
         if ( it != programs->end() )
-            it->step = true;
+            it->second.step = true;
         return it != programs->end();
     }
 
@@ -745,16 +774,17 @@ namespace ORO_Execution
     {
         std::vector<std::string> ret;
         for ( program_iter i = programs->begin(); i != programs->end(); ++i )
-            ret.push_back( i->name );
+            ret.push_back( i->first );
         return ret;
     }
 
     ProgramInterface* Processor::getProgram(const std::string& name) const
     {
         program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+            programs->find( name );
+
         if ( it != programs->end() )
-            return it->program;
+            return it->second.program;
         return 0;
     }
 
@@ -762,7 +792,7 @@ namespace ORO_Execution
     {
         std::vector<std::string> ret;
         for ( state_iter i = states->begin(); i != states->end(); ++i )
-            ret.push_back( i->name );
+            ret.push_back( i->first );
         return ret;
     }
 

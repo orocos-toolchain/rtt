@@ -103,7 +103,7 @@ namespace ORO_Execution
          * The status of a StateMachine.
          */
         struct StateMachineStatus {
-            enum status { unloaded, inactive, activating, active, running, stopping, stopped, deactivating, paused, error };
+            enum status { unloaded, inactive, activating, active, running, stopping, stopped, resetting, deactivating, paused, error };
         };
 
         /**
@@ -177,12 +177,15 @@ namespace ORO_Execution
         void recursiveUnloadStateMachine( StateMachine* sc );
         void recursiveCheckUnloadStateMachine(const StateInfo& si );
 
-        typedef std::list<ProgramInfo>::iterator program_iter;
-        typedef std::list<StateInfo>::iterator state_iter;
-        typedef std::list<ProgramInfo>::const_iterator cprogram_iter;
-        typedef std::list<StateInfo>::const_iterator cstate_iter;
-        std::list<ProgramInfo>* programs;
-        std::list<StateInfo>*   states;
+        typedef std::map<std::string,ProgramInfo> ProgMap;
+        ProgMap* programs;
+        typedef std::map<std::string,StateInfo> StateMap;
+        StateMap*   states;
+        typedef ProgMap::iterator program_iter;
+        typedef StateMap::iterator state_iter;
+        typedef ProgMap::const_iterator cprogram_iter;
+        typedef StateMap::const_iterator cstate_iter;
+
         std::vector<ProgramInterface*> funcs;
         std::vector<ProgramInterface*>::iterator f_it;
 
