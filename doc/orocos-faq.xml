@@ -10,6 +10,43 @@
 ]
 >
 
+<!--- NOTE I HAVE EDITED /usr/share/xml/docbook/stylesheet/nwalsh/fo/qandaset.xsl
+      TO WORK AROUND AN DUPLICATE "id" BUG IN FOP : (presented patch is inverted)
+Patching the stylesheet is fairly straightforward. Here's the diff from my 
+environment:
+
+---------------
+
+--- fo/qandaset.xsl     Mon Sep 29 21:50:25 2003
++++ fo/qandaset.xsl.orig        Tue Sep 30 15:42:27 2003
+@@ -200,9 +200,7 @@
+   </xsl:variable>
+
+   <fo:list-item xsl:use-attribute-sets="list.item.spacing">
+-    <!-- FIXME: this (somehow) seems to create dupe entries, breaking FOP ->
+-    <!-- <fo:list-item-label id="{$id}" end-indent="label-end()"> ->
+-    <fo:list-item-label end-indent="label-end()">
++    <fo:list-item-label id="{$id}" end-indent="label-end()">
+       <xsl:choose>
+         <xsl:when test="$deflabel = 'none'">
+           <fo:block/>
+
+---------------
+
+Note that this isn't a smart fix. It just removes the ID, which arguably 
+should be made unique in the calling style by some other means (prepending 
+some identifier, etc...).
+
+IIRC, the on-list resolution to date was along the lines of "well, your parser 
+should be able to handle that, it's broken", so I'm not sure how much 
+sympathy such a patch will get.
+
+Regards.
+
+-- 
+Alex Russell
+-->
+
 <article class="faq">
   <articleinfo>
     <title>
@@ -243,8 +280,8 @@
 	    For compiling Orocos, you need a very fast machine with minimum 256MB RAM,
 	    and 512MB RAM to be comfortable.
 	  </para>
-<!-- 	</answer> -->
-<!-- 	<answer> -->
+	</answer>
+	<answer>
 	  <para>
 	    For running an Orocos application, you need an Intel Pentium Processor with minimum 32MB RAM,
 	    but much depends on the application itself. Orocos has not been tested
@@ -276,8 +313,8 @@
 	    The solution is not to use global objects, but use global pointers and
 	    create the objects in ORO_main() with new.
 	  </para>
-<!-- 	</answer> -->
-<!-- 	<answer> -->
+	</answer>
+	<answer>
 	  <para>You did not put your program in the ORO_main()
 	    function. ( see <ulink
 	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
@@ -296,8 +333,8 @@
 	    Well, that is not a question really, but anyway...
 	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/latest/orocos-corelib.html#core-priority-inversions"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
 	  </para>
-<!-- 	</answer> -->
-<!-- 	<answer> -->
+	</answer>
+	<answer>
 	  <para>
 	    Are you calling Linux system calls from a hard-realtime
 	    thread ? See <ulink

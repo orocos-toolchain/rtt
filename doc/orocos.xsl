@@ -12,11 +12,15 @@
  -->
   <xsl:param name="draft.mode" select="'no'"/>
   <xsl:param name="paper.type" select="'A4'"/>
-  <xsl:param name="fop.extensions" select="'1'"/>
+  <xsl:param name="fop.extensions" select="1"/>
   <xsl:param name="chapter.autolabel" select="1"></xsl:param>
   <xsl:param name="appendix.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel.max.depth" select="3"></xsl:param>
+
+  <xsl:param name="admon.graphics" select="1"/>
+  <xsl:param name="admon.graphics.path" select="'images/'"/>
+  <xsl:param name="admon.graphics.extension" select="'.eps'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 

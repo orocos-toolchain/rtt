@@ -12,10 +12,14 @@ EXTRA_DIST = \
 # but i make them for the website
 
 XMLDOCS=orocos-overview.xml orocos-installation.xml orocos-changes.xml orocos-faq.xml
+XML_CATALOG_FILES="catalog.xml"
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
+CLEANXMLDOCS= $(notdir $(EXTRAXMLDOCS))
 #need eps to include in pdf
-EXTRAEPS= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*eps" )
+# EXTRAEPS= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*eps" )
+EXTRAEPS=$(shell ls $(ECOS_REP)/eps/*.eps)
+CLEANEPS=$(notdir $(EXTRAEPS))
 # no need to copy png's the html will link to them
 #EXTRAPNG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*png" )
 
@@ -36,6 +40,8 @@ WEBSITEDOCS= $(patsubst %.xml,%.website,$(XMLDOCS)) # $(patsubst %.sgml,%.websit
 
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
+JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
+TIFFIMGS= $(patsubst %.dia,%.tiff,$(DIAS))
 
 
 if HAVE_XMLPROCESSOR
@@ -48,25 +54,29 @@ endif
 
 docs: $(DOC)
 
-manual: pngimages epsimages
-	-cp $(EXTRAXMLDOCS) .
-	-cp $(EXTRAEPS) .
-	rm -f  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
+	-cp -a $(EXTRAXMLDOCS) .
+	-cp -a $(EXTRAEPS) .
+	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
 	$(MAKE) orocos-manual.html orocos-manual.ps orocos-manual.pdf 
+	$(RM) $(CLEANXMLDOCS)
+	$(RM) $(CLEANEPS)
 
-control-manual: pngimages epsimages
-	-cp $(EXTRAXMLDOCS) .
-	-cp $(EXTRAEPS) .
-	rm -f  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
+control-manual: $(CLEANEPS) $(CLEANXMLDOCS) pngimages epsimages
+	-cp -a $(EXTRAXMLDOCS) .
+	-cp -a $(EXTRAEPS) .
+	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
 	$(MAKE) orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
+	$(RM) $(CLEANXMLDOCS)
+	$(RM) $(CLEANEPS)
 
 docxml: dochtml docpdf docps
 
 dochtml: pngimages $(HTMLDOCS)
 
-docpdf: epsimages $(PDFDOCS)
+docpdf: tiffimages $(PDFDOCS)
 
-docps: epsimages $(PSDOCS)
+docps: jpgimages $(PSDOCS)
 
 doctxt: $(TXTDOCS)
 
@@ -78,6 +88,10 @@ pngimages: $(PNGIMGS)
 
 epsimages: $(EPSIMGS)
 
+jpgimages: $(JPGIMGS)
+
+tiffimages: $(TIFFIMGS)
+
 .sgml.html:
 	docbook2html -u $<
 
@@ -88,7 +102,8 @@ epsimages: $(EPSIMGS)
 	docbook2pdf $<
 
 .xml.html:
-	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos-html.xsl $< > $@
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
+	$(XMLPROCESSOR)  --xinclude $(srcdir)/orocos-html.xsl $< > $@
 
 .xml.chunks:
 	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-chunk.xsl $< 
@@ -98,20 +113,20 @@ epsimages: $(EPSIMGS)
 	$(XMLPROCESSOR) --xinclude  --stringparam base.dir ./$(subst orocos-,,$(basename $(notdir $<)))/  $(srcdir)/orocos-website.xsl $<  > $@
 
 .xml.fo:
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
 	$(XMLPROCESSOR) --xinclude $(srcdir)/orocos.xsl $< > $@
-	cp $@ $@.bak
 
 .fo.ps:
-	$(FOP) -fo $< -ps $@
+	$(FOP) -c $(DOC_DIR)/fopconfig.xml -fo $< -ps $@
 
-.ps.pdf:
-	ps2pdf $<
+# .ps.pdf:
+# 	ps2pdf $<
 
 # PDF files rendered from Postscript files by ghostscript look better
 # then those created directly by FOP.  So we're temporarly using
 # ghostscript.
-#.fo.pdf:
-#	$(FOP) $< $@
+.fo.pdf:
+	$(FOP) -d -c $(DOC_DIR)/fopconfig.xml $< $@
 
 
 .fo.txt:
@@ -121,15 +136,21 @@ epsimages: $(EPSIMGS)
 	$(DIA) -t eps --nosplash $<
 	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
 
+.eps.png:
+	convert $< $@
+
+.eps.jpg:
+	convert $< $@
+
+.eps.tiff:
+	convert $< $@
+
 .dia.png:
 	$(DIA) -t png --nosplash $<
 	if test $(srcdir) != .;then mv -f $(srcdir)/$@ .; fi
 
-.eps.png:
-	$(IMAGEMAGICK) $< $@
-
 clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS) $(PNGIMGS) *.chunks *.website
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
-	$(RM) $(notdir $(EXTRAXMLDOCS))
-	$(RM) $(notdir $(EXTRAEPS))
+	$(RM) $(CLEANXMLDOCS)
+	$(RM) $(CLEANEPS)

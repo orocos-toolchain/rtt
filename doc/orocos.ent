@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!ENTITY oversion    "0.19.2">
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY svn         "<acronym>SVN</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY procman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-processor.html'>Program Processor Manual</ulink>">
+<!ENTITY parseman    "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-program-parser.html'>Program Parser Manual</ulink>">
+<!ENTITY coreman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html'>CoreLib Manual</ulink>">
+<!ENTITY taskman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-task-context.html'>Task Infrastructure Manual</ulink>">

@@ -1,16 +1,11 @@
 <?xml version='1.0'?>
-
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY cvs         "<acronym>CVS</acronym>">
-<!ENTITY svn         "<acronym>SVN</acronym>">
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY rtai        "<acronym>RTAI</acronym>">
-<!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY % oro_ents SYSTEM "orocos.ent" >
+%oro_ents;
 ]
 >
-
 
 <book>
   <bookinfo>
@@ -64,6 +59,8 @@
   on the server.
 -->
 
+  <part>
+    <title>The Control Kernel Framework</title>
   <chapter>
     <title>The Control Kernel</title>
     <xi:include  href="orocos-control-kernel.xml#xpointer(/article/articleinfo/abstract)"  
@@ -73,7 +70,11 @@
     <xi:include  href="orocos-control-kernel.xml#xpointer(/article/appendix/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
+    <!-- one of (appendix chapter toc lot index glossary bibliography article preface refentry reference) -->
+  </part>
 
+  <part>
+    <title>The Control Kernel Components</title>
   <chapter>
     <title>The Generic Hardware Components</title>
     <xi:include  href="orocos-hardware-components.xml#xpointer(/article/articleinfo/abstract)"  
@@ -90,7 +91,7 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
+</part>  <chapter>
     <title>Kinematics</title>
     <xi:include  href="orocos-kinematics.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />

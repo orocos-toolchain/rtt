@@ -551,6 +551,10 @@
 	      format="PNG"/>
 	  </imageobject>
 	  <imageobject role="fo">
+	    <imagedata fileref="ApplicationStack.tiff"
+	      format="TIFF"/>
+	  </imageobject>
+	  <imageobject>
 	    <imagedata fileref="ApplicationStack.eps"
 	      format="EPS"/>
 	  </imageobject>
