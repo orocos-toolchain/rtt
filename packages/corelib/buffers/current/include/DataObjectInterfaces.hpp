@@ -493,7 +493,6 @@ namespace ORO_CoreLib
             // could become write_ptr ( then we would read corrupted data).
             do {
                 reading = read_ptr;            // copy buffer location
-                atomic_t* v = &(reading->counter);
                 atomic_inc(&reading->counter); // lock buffer, no more writes
                 if ( reading != read_ptr )     // if read_ptr changed, 
                     atomic_dec(&reading->counter); // better to start over.
