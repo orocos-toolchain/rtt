@@ -261,7 +261,7 @@ namespace ORO_ControlKernel
                       command( &AxisEffector<Base>::switchOff,
                                &AxisEffector<Base>::true_gen,
                                "Switch A Digital Output off",
-                               "Name","The Name of the DigitealOutput."
+                               "Name","The Name of the DigitalOutput."
                                ) ); 
             ret->add( "enableAxis",
                       command( &AxisEffector<Base>::enableAxis,

@@ -245,9 +245,10 @@ namespace ORO_ControlKernel
          */
         void switchOn( const std::string& name )
         {
-            if ( d_out.count(name) != 1 )
+            DOutMap::iterator it = d_out.find(name);
+            if ( it == d_out.end() )
                 return;
-            d_out[name]->switchOn();
+            it->second->switchOn();
         }
 
         /** 
@@ -259,8 +260,9 @@ namespace ORO_ControlKernel
          */
         bool isOn( const std::string& name ) const
         {
-            if ( d_out.count(name) == 1 )
-                return d_out[name]->isOn();
+            DOutMap::const_iterator it = d_out.find(name);
+            if ( it != d_out.end() )
+                return it->second->isOn();
             return false;
         }
 
@@ -271,9 +273,40 @@ namespace ORO_ControlKernel
          */
         void switchOff( const std::string& name )
         {
-            if ( d_out.count(name) != 1 )
+            DOutMap::const_iterator it = d_out.find(name);
+            if ( it == d_out.end() )
                 return;
-            d_out[name]->switchOff();
+            it->second->switchOff();
+        }
+
+        /** 
+         * @brief Return the value of an AnalogOutput
+         * 
+         * @param name The name of the AnalogOutput
+         * 
+         * @return The physical value.
+         */
+        double value(const std::string& name) const
+        {
+            AOutMap::const_iterator it = a_out.find(name);
+            if ( it == a_out.end() )
+                return 0;
+            return it->second->value();
+        }
+
+        /** 
+         * @brief Return the raw sensor value of an AnalogOutput
+         * 
+         * @param name The name of the AnalogOutput
+         * 
+         * @return The raw value.
+         */
+        unsigned int rawValue(const std::string& name) const
+        {
+            AOutMap::const_iterator it = a_out.find(name);
+            if ( it == a_out.end() )
+                return 0;
+            return it->second->rawValue();
         }
 
         /**
@@ -281,6 +314,53 @@ namespace ORO_ControlKernel
          */
         
     protected:
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
+        DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< GenericEffector<Base> >* ret =
+                newDataSourceFactory( this );
+            ret->add( "isOn", 
+                      data( &GenericEffector<Base>::isOn,
+                            "Inspect the status of a Digital Output.",
+                            "Name", "The Name of the Digital Output."
+                            ) );
+            ret->add( "value", 
+                      data( &GenericEffector<Base>::value,
+                            "Inspect the value of an Analog Output.",
+                            "Name", "The Name of the Analog Output."
+                            ) );
+            ret->add( "rawValue", 
+                      data( &GenericEffector<Base>::rawValue,
+                            "Inspect the raw value of an Analog Output.",
+                            "Name", "The Name of the Analog Output."
+                            ) );
+            return ret;
+        }
+
+        template< class T >
+        bool true_gen() const { return true; }
+
+        CommandFactoryInterface* createCommandFactory()
+        {
+            TemplateCommandFactory< GenericEffector<Base> >* ret =
+                newCommandFactory( this );
+            ret->add( "switchOn",
+                      command( &GenericEffector<Base>::switchOn,
+                               &GenericEffector<Base>::true_gen,
+                               "Switch A Digital Output on",
+                               "Name","The Name of the DigitalOutput."
+                               ) ); 
+            ret->add( "switchOff",
+                      command( &GenericEffector<Base>::switchOff,
+                               &GenericEffector<Base>::true_gen,
+                               "Switch A Digital Output off",
+                               "Name","The Name of the DigitalOutput."
+                               ) ); 
+            return ret;
+        }
+
+#endif
 
         /**
          * Write to Data to digital output.
@@ -307,8 +387,10 @@ namespace ORO_ControlKernel
         std::vector<double> chan_out;
         DataObjectInterface< std::vector<double> >* chan_DObj;
 
-        std::map<std::string, DigitalOutput* > d_out;
-        std::map<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > a_out;
+        typedef std::map<std::string, DigitalOutput* > DOutMap;
+        DOutMap d_out;
+        typedef std::map<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > AOutMap
+        AOutMap a_out;
 
         int usingChannels;
     };

@@ -50,8 +50,9 @@ namespace ORO_ControlKernel
 #endif
     
     /**
-     * This Estimator calculates an end frame from
+     * @brief This Estimator calculates an end frame from
      * joint positions.
+     * @ingroup kcomps kcomp_estimator
      */
     template <class Base>
     class CartesianEstimator

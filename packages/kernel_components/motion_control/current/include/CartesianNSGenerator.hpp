@@ -59,7 +59,8 @@ namespace ORO_ControlKernel
 
 
     /**
-     * An advanced Cartesian Trajectory Generator.
+     * @brief An advanced Cartesian Trajectory Generator.
+     * @ingroup kcomps kcomp_generator
      */
     template <class Base>
     class CartesianGenerator 

@@ -29,7 +29,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
 
     /**
-     * This Generator reads a Trajectory in the Task Frame and converts
+     * @brief This Generator reads a Trajectory in the Task Frame and converts
      * it to the robot frame. It can read a Trajectory from a file or
      * can use an existing Trajectory object.
      *
@@ -38,6 +38,8 @@ namespace ORO_ControlKernel
      * @warning This code is experimental an most likely does not compile.
      *
      * @todo TODO Finish this implementation.
+     * @deprecated
+     * @see CartesianGenerator
      */
     template< class Base>
     class TrajectoryGenerator

@@ -52,7 +52,8 @@ namespace ORO_ControlKernel
     
 
     /**
-     * A Cartesian Effector, can be used by the CartesianSensor for 'simulation' purposes.
+     * @brief A Cartesian Effector, can be used by the CartesianSensor for 'simulation' purposes.
+     * @ingroup kcomps kcomp_effector
      */
     template <class Base>
     class CartesianEffector

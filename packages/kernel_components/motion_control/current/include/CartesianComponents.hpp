@@ -40,6 +40,8 @@ namespace ORO_ControlKernel
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
 
+#ifndef NO_DOXYGEN
+
     /**
      * The CartesianGenerator generates these SetPoints.
      */
@@ -486,6 +488,8 @@ namespace ORO_ControlKernel
             InputType input;
             SimulatorInterface* sim;
     };
+
+#endif // #ifndef NO_DOXYGEN
 
 }
 #endif

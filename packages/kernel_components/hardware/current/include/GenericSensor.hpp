@@ -265,11 +265,12 @@ namespace ORO_ControlKernel
          * 
          * @return true if so.
          */
-        bool isOn(const std::string& name)
+        bool isOn(const std::string& name) const
         {
-            if ( d_in.count(name) == 0)
+            DInMap::iterator it = d_in.find(name);
+            if ( it == d_in.end() )
                 return false;
-            return d_in[name]->isOn();
+            return it->second.first->isOn();
         }
 
         /** 
@@ -279,11 +280,12 @@ namespace ORO_ControlKernel
          * 
          * @return The physical value.
          */
-        double value(const std::string& name)
+        double value(const std::string& name) const
         {
-            if ( a_in.count(name) == 0)
+            AInMap::const_iterator it = a_in.find(name);
+            if ( it == a_in.end() )
                 return 0;
-            return get<0>( a_in[name] )->value();
+            return get<0>( it->second )->value();
         }
 
         /** 
@@ -293,17 +295,42 @@ namespace ORO_ControlKernel
          * 
          * @return The raw value.
          */
-        unsigned int rawValue(const std::string& name)
+        unsigned int rawValue(const std::string& name) const
         {
-            if ( a_in.count(name) == 0)
+            AInMap::const_iterator it = a_in.find(name);
+            if ( it == a_in.end() )
                 return 0;
-            return get<0>( a_in[name] )->rawValue();
+            return get<0>( it->second )->rawValue();
         }
         /**
          * @}
          */
 
     protected:
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
+
+        DataSourceFactory* createDataSourceFactory()
+        {
+            TemplateDataSourceFactory< GenericSensor<Base> >* ret =
+                newDataSourceFactory( this );
+            ret->add( "isOn", 
+                      data( &GenericSensor<Base>::isOn,
+                            "Inspect the status of a Digital Input.",
+                            "Name", "The Name of the Digital Input."
+                            ) );
+            ret->add( "value", 
+                      data( &GenericSensor<Base>::value,
+                            "Inspect the value of an Analog Input.",
+                            "Name", "The Name of the Analog Input."
+                            ) );
+            ret->add( "rawValue", 
+                      data( &GenericSensor<Base>::rawValue,
+                            "Inspect the raw value of an Analog Input.",
+                            "Name", "The Name of the Analog Input."
+                            ) );
+            return ret;
+        }
+#endif
 
         /**
          * Write Analog input to DataObject.
@@ -323,11 +350,14 @@ namespace ORO_ControlKernel
         std::vector<double> chan_meas;
         DataObjectInterface< std::vector<double> >* chan_DObj;
 
-        std::map<std::string, DigitalInput* > d_in;
+        typedef std::map<std::string, DigitalInput* > DInMap;
+        DInMap d_in;
+        typedef 
         std::map<std::string,
                  tuple< AnalogInput<unsigned int>*,
                         DataObjectInterface<unsigned int>*,
-                        DataObjectInterface<double>* > > a_in;
+                        DataObjectInterface<double>* > > AInMap;
+        AInMap a_in;
     };
 
 }

@@ -78,6 +78,64 @@
 <!--     </sect1> -->
   </chapter>
   <chapter>
+    <title>Multi Axis Control Components</title>
+    <para>
+      This chapter discusses the components to control machines
+      consisting of multiple axes with drives, homing switches,
+      any kind of analog sensors and encoders.
+    </para>
+    <sect1>
+      <title>Axis Hardware Abstraction</title>
+      <para>
+	The Axis is abstracted as a logical device in the
+	device_interface Orocos package. When an axis object
+	is created, it must be given an <classname>AnalogDrive</classname>
+	which accepts the drive setpoints. The AnalogDrive is
+	connected to the physical hardware through an
+	<classname>AnalogOutput</classname> (for the signal)
+	and a <classname>DigitalOutput</classname> to enable
+	the drive. The Axis abstraction leaves the physical
+	unit which is controlled open, so it can be velocities,
+	torques etc.
+      </para>
+      <para>
+	Once created, the Axis object accepts optionally a
+	<classname>DigitalOutput</classname> representing the break
+	and a <classname>DigitalInput</classname> representing
+	a home switch.
+      </para>
+      <para>
+	An Axis can be given an unlimited amount of sensors
+	( <classname>SensorInterface</classname> ) together with an
+	endlimit device (possibly in software) which can disable drive signals 
+	in one or the other direction if the sensor detects
+	to large values. For example an <classname>EncoderPositionSensor</classname>
+	will be given an endlimit which disables (in software) the drive
+	in the positive direction if the position is to large.
+      </para>
+    </sect1>
+    <sect1>
+      <title>The AxisSensor Component</title>
+      <para>
+      </para>
+    </sect1>
+    <sect1>
+      <title>The AxisEffector Component</title>
+      <para>
+      </para>
+    </sect1>
+    <sect1>
+      <title>The AxisPositionGenerator Component</title>
+      <para>
+      </para>
+    </sect1>
+    <sect1>
+      <title>Choosing an Axis Estimator and Controller Component</title>
+      <para>
+      </para>
+    </sect1>
+  </chapter>
+  <chapter>
     <title>6DOF Motion Control Components</title>
     <para>
       This chapter explains the working of the Motion Control Kernel
@@ -108,7 +166,7 @@
 	      <entry>CartesianComponents.hpp</entry>
 	      <entry>StandardControlKernel</entry>
 	      <entry>6DOF MoveTo Generator.
-		Slightly outdated, does not use Execution
+		Deprecated. Does not use Execution
 		Extension, DataObject Reporting not possible.
 		Sensor And Effector
 		implement a simulation, but can be replaced by
@@ -398,6 +456,11 @@
     </sect1>
     <sect1>
       <title>Generator Component : CartesianVelocityTracker</title>
+      <warning>
+	<para>
+	  NOT IMPLEMENTED YET
+	</para>
+      </warning>
       <para>
 	The <classname>CartesianVelocityTracker</classname> is
 	designed to track (externally) generated velocity setpoints.
@@ -464,19 +527,39 @@
       </sect2>
     </sect1>
     <sect1>
-      <title>Controller Component</title>
+      <title>Controller Component : CartesianController</title>
+      <para>
+	The CartesianController takes a end effector frame as 
+	setpoint and converts it to desired joint positions.
+	It reads from the Sensor Component the actual joint
+	positions and does a proportional control on the
+	joint level. Desired joint velocities are written
+	to the Output DataObject.
+      </para>
     </sect1>
     <sect1>
-      <title>Estimator Component</title>
-
+      <title>Estimator Component : CartesianEstimator</title>
+      <para>
+	This component calculates the end effector position
+	in the robot base frame, given the joint positions.
+	It must be given a <classname>KinematicsInterface</classname> object
+	to do the forward kinematics.
+      </para>
     </sect1>
     <sect1>
-      <title>Sensor Component</title>
-
+      <title>Sensor Component : CartesianSensor</title>
+      <para>
+	The CartesianSensor is a dummy component. It
+	provides joint positions. A real implementation
+	must provide the same joint positions.
+      </para>
     </sect1>
     <sect1>
-      <title>Effector Component</title>
-
+      <title>Effector Component : CartesianEffector</title>
+      <para>
+	The CartesianEffector uses a simulator to integrate
+	the joint velocities into joint positions.
+      </para>
     </sect1>
   </chapter>
 </book>

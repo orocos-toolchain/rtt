@@ -49,7 +49,9 @@ namespace ORO_ControlKernel
 #endif
 
     /**
-     * A Cartesian Controller
+     * @brief A Cartesian Controller which converts a Frame setpoint
+     * to joint positions and does the control on joint level.
+     * @ingroup kcomps kcomp_controller
      */
     template <class Base>
     class CartesianController

@@ -51,7 +51,8 @@ namespace ORO_ControlKernel
 #endif
 
     /**
-     * A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
+     * @brief A Fake Cartesian Sensor measuring all data sent by the CartesianEffector.
+     * @ingroup kcomps kcomp_sensor
      */
     template <class Base>
     class CartesianSensor
