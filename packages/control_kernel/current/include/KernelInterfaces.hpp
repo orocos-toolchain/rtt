@@ -142,8 +142,10 @@ namespace ORO_ControlKernel
             /**
              * This method is a hook which is called when the component
              * is loaded into the kernel.
+             *
+             * @return true on success, false otherwise
              */
-            virtual void componentLoaded() {}
+            virtual bool componentLoaded() { return true;}
             
             /**
              * This method is a hook which is called when a component
@@ -155,8 +157,10 @@ namespace ORO_ControlKernel
              * This method is a hook which is called when the kernel
              * is started and the component must initialise the data
              * objects with meaningfull data.
+             *
+             * @return true on success, false otherwise
              */
-            virtual void componentStartUp() {}
+            virtual bool componentStartUp() { return true; }
 
             /**
              * This method is a hook which is called when the kernel
@@ -360,8 +364,11 @@ namespace ORO_ControlKernel
             template< class Extension >
             bool enableAspect(Extension* ext) 
             {
+                // Enable first aspect, if successful, enable second,
+                // if also successful, return true, otherwise, disable first
+                // aspect (~undo) and return false.
                 return (First::enableAspect(ext) &&
-                        Second::enableAspect(ext) );
+                        ( Second::enableAspect(ext) || (First::disableAspect(), false) ) );
             }
 
             void disableAspect() 

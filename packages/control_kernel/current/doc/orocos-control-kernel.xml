@@ -732,25 +732,27 @@
 	      <tbody>
 		<row>
 		      <!-- one of (entrytbl entry) -->
-		  <entry>virtual void componentLoaded() {}</entry>
+		  <entry>virtual bool componentLoaded() {}</entry>
 		  <entry>Called when the component is loaded into the
-		    kernel.</entry>
+		    kernel. Return false if a failure is detected.</entry>
 		</row>
 		<row>
 		      <!-- one of (entrytbl entry) -->
 		  <entry>virtual void componentUnloaded() {}</entry>
 		  <entry>Called when the component is unloaded from
-		    the kernel.</entry>
+		    the kernel. This method is not called when
+		    componentLoaded() returned false.</entry>
 		</row>
 		<row>
 		      <!-- one of (entrytbl entry) -->
-		  <entry>virtual void componentStartUp() {}</entry>
+		  <entry>virtual bool componentStartUp() {}</entry>
 		  <entry>
 		    Called when the control kernel is started and all
 		    components are initialised. The component must
 		    write meaningful information to its data objects
 		    and is guaranteed to find meaningfull information
-		    in its readable data objects.
+		    in its readable data objects. If a failure is
+		    detected, return false.
 		  </entry>
 		</row>
 		<row>
@@ -758,7 +760,9 @@
 		  <entry>virtual void componentShutdown() {}</entry>
 		  <entry>
 		    Called when the control kernel is stopped and all
-		    components should return to a safe off-state.
+		    components should return to a safe off-state. 
+		    This method is not called when componentStartUp()
+		    returned false.
 		  </entry>
 		</row>
 	      </tbody>
@@ -1001,7 +1005,7 @@
 	  // New Code :
 	  Inputs::DataObject<double>::type* tool_temp_dobj;
 	  
-	  void ComponentLoaded()
+	  void componentLoaded()
 	  {
 	      // called when the component is loaded into the kernel.
 	      if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) )

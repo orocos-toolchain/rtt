@@ -117,16 +117,39 @@ namespace ORO_ControlKernel
 
         virtual void step() 
         {
+            // Check if we are in running state ( !aborted )
             if ( isRunning() )
                 {
                     if (startup)
                         {
-                            startup = false;
-                            sensor->componentStartUp();
-                            estimator->componentStartUp();
-                            generator->componentStartUp();
-                            controller->componentStartUp();
-                            effector->componentStartUp();
+                            // This startup sequence starts up all components
+                            // and shuts them down again if one failed.
+                            // sx = true : ok ; sx = false : failure
+                            bool s1 = false, s2 = false, s3 = false, s4 = false ,s5 = false;
+                            if ( (s1 = sensor->componentStartUp()) )
+                                if ( (s2 = estimator->componentStartUp()) )
+                                    if ( (s3 = generator->componentStartUp()) )
+                                        if ( (s4 = controller->componentStartUp()) )
+                                            s5 = effector->componentStartUp();
+
+                            startup = !(s1 && s2 && s3 && s4 && s5); // startup=false if all starts were successful
+
+                            // On failure startup == true, shutdown started components
+                            if (startup && s1)
+                                sensor->componentShutdown();
+                            if (startup && s2)
+                                estimator->componentShutdown();
+                            if (startup && s3)
+                                generator->componentShutdown();
+                            if (startup && s4)
+                                controller->componentShutdown();
+                            if (startup && s5)
+                                effector->componentShutdown();
+                            if (startup)
+                                {
+                                    abortKernel(); // if we are still in startup phase, abort the kernel.
+                                    return;        // abort the step() loop.
+                                }
                         }
                             
                     // Call the extension (eg : reporting, execution engine, command interpreter... )
@@ -134,7 +157,8 @@ namespace ORO_ControlKernel
                 }
             else
                 {
-                    // safe stop in abort().
+                    // Aborted :
+                    // safe stop in abort() after a successful startup
                     if (!startup)
                         {
                             startup = true;
@@ -243,13 +267,23 @@ namespace ORO_ControlKernel
         bool loadController(DefaultController* c) {
             if ( isRunning() )
                 return false;
-            controllers.push_back( c );
             c->writeTo(&outputs);
             c->readFrom(&setpoints);
             c->readFrom(&models);
             c->readFrom(&inputs);
-            c->enableAspect(this);
-            return true;
+            if ( ! c->enableAspect(this) )
+                {
+                    c->disconnect(&models);
+                    c->disconnect(&outputs);
+                    c->disconnect(&setpoints);
+                    c->disconnect(&inputs);
+                    return false;
+                }
+            else
+                {
+                    controllers.push_back( c );
+                    return true;
+                }
         }
 
         bool unloadController(DefaultController* c) {
@@ -346,13 +380,23 @@ namespace ORO_ControlKernel
         bool loadGenerator(DefaultGenerator* c) {
             if ( isRunning() )
                 return false;
-            generators.push_back( c );
             c->writeTo(&setpoints);
             c->readFrom(&models);
             c->readFrom(&inputs);
             c->readFrom(&commands);
-            c->enableAspect(this);
-            return true;
+            if ( ! c->enableAspect(this) )
+                {
+                    c->disconnect(&models);
+                    c->disconnect(&commands);
+                    c->disconnect(&setpoints);
+                    c->disconnect(&inputs);
+                    return false;
+                }
+            else
+                {
+                    generators.push_back( c );
+                    return true;
+                }
         }
 
         bool unloadGenerator(DefaultGenerator* c) {
@@ -448,11 +492,19 @@ namespace ORO_ControlKernel
         bool loadEstimator(DefaultEstimator* c) {
             if ( isRunning() )
                 return false;
-            estimators.push_back( c );
             c->writeTo(&models);
             c->readFrom(&inputs);
-            c->enableAspect(this);
-            return true;
+            if ( ! c->enableAspect(this) )
+                {
+                    c->disconnect(&models);
+                    c->disconnect(&inputs);
+                    return false;
+                }
+            else
+                {
+                    estimators.push_back( c );
+                    return true;
+                }
         }
 
         bool unloadEstimator(DefaultEstimator* c) {
@@ -545,10 +597,17 @@ namespace ORO_ControlKernel
         bool loadSensor(DefaultSensor* c) {
             if ( isRunning() )
                 return false;
-            sensors.push_back( c );
             c->writeTo(&inputs);
-            c->enableAspect(this);
-            return true;
+            if ( ! c->enableAspect(this) )
+                {
+                    c->disconnect(&inputs);
+                    return false;
+                }
+            else
+                {
+                    sensors.push_back( c );
+                    return true;
+                }
         }
 
         bool unloadSensor(DefaultSensor* c) {
@@ -641,10 +700,17 @@ namespace ORO_ControlKernel
         bool loadEffector(DefaultEffector* c) {
             if ( isRunning() )
                 return false;
-            effectors.push_back( c );
             c->readFrom(&outputs);
-            c->enableAspect(this);
-            return true;
+            if ( ! c->enableAspect(this) )
+                {
+                    c->disconnect(&outputs);
+                    return false;
+                }
+            else
+                {
+                    effectors.push_back( c );
+                    return true;
+                }
         }
 
         bool unloadEffector(DefaultEffector* c) {

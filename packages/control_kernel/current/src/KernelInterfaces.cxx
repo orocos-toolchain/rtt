@@ -15,7 +15,11 @@ bool ComponentBaseInterface::enableAspect(KernelBaseFunction* e)
 {
     kern = e;
     kern->addComponent(this);
-    componentLoaded();
+    if ( ! componentLoaded() )
+        {
+            kern->removeComponent(this);
+            return false;
+        }
     return true;
 }
 
