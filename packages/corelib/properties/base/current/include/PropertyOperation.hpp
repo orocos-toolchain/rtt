@@ -41,7 +41,8 @@ namespace ORO_Geometry
     class Wrench;
 }
 
-// I don't fully understand why forward decls don't work :
+// A bug in gcc causes the forward decls not to work.
+// icc can handle it without problems :-(
 #include "pkgconf/system.h"
 #ifdef OROPKG_GEOMETRY
 #include "geometry/frames.h"
