@@ -18,15 +18,22 @@ clean:
 
 orocos-dist: doc-dist
 
+# After the tgz is made, we remove the 'heavy' files,
+# so that packages only contain the html+png version,
+# ps/pdf is for online docs.
+
 doc-dist:
 	@echo "Making doc tarballs..."
 	@for i in $$(find . -name Makefile); do make -C $$(dirname $$i) dist; done
-	@find . -name "*.eps" -o -name "*.pdf" -o -name "*.ps" | xargs rm
 	@rm -rf orocos-docs
+	@rm -rf eps
 	@mkdir  orocos-docs
+	@mkdir  eps
+	@find . -name "*.pdf" -o -name "*.ps" | xargs rm
 	@echo "Copying..."
-	@mv  $$(find . -name "*.tgz") orocos-docs
-	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz; )
+	@mv $$(find . -name "*.eps") eps
+	@mv $$(find . -name "*.tgz") orocos-docs
+	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz )
 	@echo "Done !"
 
 html-dist:

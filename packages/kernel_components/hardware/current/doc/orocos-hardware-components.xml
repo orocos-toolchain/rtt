@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -9,8 +9,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title> Orocos Generic Hardware Control Kernel Components</title>
     <authorgroup>
       <author>
@@ -45,14 +45,14 @@
 	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
       </para>
     </legalnotice>
-  </bookinfo>
-  <chapter>
+  </articleinfo>
+  <sect1>
     <title>Introduction</title>
     <para>
-      This chapter explains installation, and gives an overview of the
+      This section explains installation, and gives an overview of the
       features and interface of the &orocos; &hardwcomp;.
     </para>
-    <sect1>
+    <sect2>
       <title>Installation</title>
       <para>
 	This package depends on the interfaces defined in the 
@@ -67,12 +67,12 @@
 	instructions for the advised configuration and installation
 	procedure. 
       </para>
-    </sect1>
-  </chapter>
-  <chapter>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Generic Hardware Abstraction</title>
     <para>
-      This chapter explains how hardware sensors and outputs
+      This section explains how hardware sensors and outputs
       are abstracted using these Components in the Control
       Kernel Framework. They allow to do a quick test of
       existing device drivers, accessing them from a 
@@ -81,7 +81,7 @@
       a simulink-like (thus without much semantical
       meaning attached) way in 'channels'.
     </para>
-    <sect1>
+    <sect2>
       <title>GenericSensor : Sensor Hardware Abstraction</title>
       <para>
 	The Generic Sensor knows two fundamental
@@ -95,7 +95,7 @@
 	The Sensor provides methods to add Analog and
 	Digital Inputs.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating a GenericSensor Component</title>
 	<para>
 	  The GenericSensor is created like all
@@ -106,8 +106,8 @@
 	  Where NUM_CHANS is the maximal number of channels
 	  this Sensor exposes (see later).
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding and Removing an Analog Input</title>
 	<para>
 	  An unlimited number of Analog Inputs can be added
@@ -140,8 +140,8 @@
 	  Which removes the "AIn_1" DataObject from the Inputs
 	  DataObjects.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using Virtual Channels</title>
 	<para>
 	  Analog Outputs can be ordered in a virtual channels DataObject.
@@ -170,8 +170,8 @@
 	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding Digital Inputs</title>
 	<para>
 	  Digital Inputs are not introduced in DataObjects, as digital
@@ -196,16 +196,16 @@
   var bool result = GenericSensor.isOn("DIn_1")
 	  </programlisting>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>GenericEffector : Effector Hardware Abstraction</title>
       <para>
 	The GenericEffector is very similar to the GenericSensor, but
 	analog/digital inputs are replaced by the ouputs counterparts.
 	The GenericEffector reads from the Outputs DataObject.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating a GenericEffector</title>
 	<para>
 	  This is analogous to creating a GenericSensor :
@@ -215,8 +215,8 @@
 	  Whrere NUM_CHANS is the maximum number of channels read from
 	  the "ChannelValues" DataObject.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding and Removing Analog Outputs</title>
 	<para> Analogous to the GenericSensor :
 	  <programlisting>
@@ -252,8 +252,8 @@
 	  This does not remove the AOut_1 DataObject, it just
 	  does no longer use it.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using Virtual Channels</title>
 	<para>
 	  Analog Outputs can be read from a virtual channels DataObject.
@@ -281,8 +281,8 @@
 	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding Digital Outputs</title>
 	<para>
 	  Digital Outputs are not read from DataObjects, as digital
@@ -310,9 +310,9 @@
   do GenericEffector.switchOff("DOut_1")
 	  </programlisting>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Using Components with the GenericEffector and GenericSensor</title>
       <para>
 	The GenericEffector and GenericSensor allow for a quick test of the
@@ -325,6 +325,6 @@
 	These components can be found in the
 	signal_processing and process_control packages.
       </para>
-    </sect1>
-  </chapter>
-</book>
+    </sect2>
+  </sect1>
+</article>

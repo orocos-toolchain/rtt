@@ -1,7 +1,7 @@
 /***************************************************************************
   tag: Peter Soetens  Thu Apr 22 20:40:57 CEST 2004  CommandFunction.hpp 
 
-                        CommandFunction.hpp -  description
+                        CommandFunctor.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens

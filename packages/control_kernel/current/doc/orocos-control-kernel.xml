@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -8,8 +8,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title> The Orocos Control Kernel</title>
     <authorgroup>
       <author>
@@ -126,9 +126,9 @@
       </para>
     </legalnotice>
 
-  </bookinfo>
+  </articleinfo>
 
-  <chapter>
+  <sect1>
     <title>Introduction</title>
     <para>
       This document explains the design and programming interface of
@@ -268,7 +268,7 @@
 	linkend="standard-control-kernel">Standard Control
 	Kernel</link>; it contains the basic building blocks of
       &orocos; (the feedback control DataObjects and Components) and
-      nothing more. The next chapters then introduce more advanced
+      nothing more. The next sections then introduce more advanced
       Control Kernels: <link
 	linkend="control-kernel-extensions">Extensions</link>; <link
 	linkend="data-objects">multiple DataObjects</link> to
@@ -288,9 +288,9 @@
 	reader is familiar with their exact meaning.
 	</para>      
       </tip>
-  </chapter>
+  </sect1>
 
-  <chapter id="philosophy">
+  <sect1 id="philosophy">
     <title>Design philosophy</title>
     <para>
       &orocos; has a somewhat non-traditional view on how to build
@@ -315,7 +315,7 @@
     <para>
       The following items are at the core of the &orocos; design
       philosophy, and all implementation decisions introduced in the
-      other chapters of this document are strongly inspired by them.
+      other sections of this document are strongly inspired by them.
 <itemizedlist>
 
 	<listitem>
@@ -443,7 +443,7 @@
       practice of implementing control applications.
     </para>
 
-    <sect1 id="simulink-implementations">
+    <sect2 id="simulink-implementations">
       <title>&ldquo;Simulink&rdquo;-like implementations</title>
       <para>
 	A number of graphical programming tools exist with which control
@@ -526,8 +526,8 @@
 	above-mentioned problems is a strong motivation behind the
 	&orocos; project.
       </para>
-    </sect1>
-    <sect1 id="communication-flows">
+    </sect2>
+    <sect2 id="communication-flows">
       <title>Separation of Communication Flows</title>
       <para>
 	&orocos; distinguishes three distinctive communication flows:
@@ -536,7 +536,7 @@
 	constraints, and different kinds of data. The following
 	sections explain these three types.
       </para>
-      <sect2 id="configuration-flow">
+      <sect3 id="configuration-flow">
 	<title>Configuration Flow</title>
 	<para>
 	  The first type of communication flow is normally also the
@@ -571,8 +571,8 @@
 	  For the time being, &orocos; uses XML files to store
 	  persistent information for most of its configuration flow.
 	</para>
-      </sect2>
-      <sect2 id="data-flow">
+      </sect3>
+      <sect3 id="data-flow">
 	<title>Data Flow</title>
 	<para>
 	  A Control Kernel has as its main purpose to gather sensor
@@ -604,8 +604,8 @@
 	    linkend="execution-flow">Execution Flow</link>, and not
 	  the Data Flow. 
 	</para>
-      </sect2>
-      <sect2 id="execution-flow">
+      </sect3>
+      <sect3 id="execution-flow">
 	<title>Execution Flow</title>
 	<para>
 	  The &ldquo;Execution Flow&rdquo; is the last kind of
@@ -642,9 +642,9 @@
 	  This is described in more detail in the Program Execution
 	  Package of &orocos;.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1 id="connection-control-kernels">
+      </sect3>
+    </sect2>
+    <sect2 id="connection-control-kernels">
       <title>Structured Connection of Control Kernels</title>
       <para>
 	Application Builders have to wonder about how they can compose
@@ -733,13 +733,13 @@
 	control kernel is an input for the lower-level kernel, and
 	vice versa, and this situation requires a much more careful
 	design. The <link linkend="standard-control-kernel">next
-	  chapter</link> presents the simplest case, and later
+	  section</link> presents the simplest case, and later
 	sections discuss more advanced building blocks.
       </para>
-    </sect1>
-  </chapter>
+    </sect2>
+  </sect1>
 
-  <chapter id="standard-control-kernel">
+  <sect1 id="standard-control-kernel">
     <title>The Standard Control Kernel</title>
     <para>
       Anyone wanting to write a feedback control application needs at
@@ -769,7 +769,7 @@
 	linkend="execution-flow">Execution Flow</link>; etc.
     </para>
 
-    <sect1 id="standard-control-kernel-core">
+    <sect2 id="standard-control-kernel-core">
       <title>The realtime feedback core</title>
       <para>
 	The virtual Control Kernel concept is based on the <ulink
@@ -898,8 +898,8 @@
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-    </sect1>
-    <sect1 id="creating-standard-control-kernel">
+    </sect2>
+    <sect2 id="creating-standard-control-kernel">
       <title>Creating a Standard Control Kernel</title>
       <para>
 	When you start thinking about a control application, you
@@ -928,7 +928,7 @@
 	This defines the type <type>MyKernel</type> as being a
 	<classname>StandardControlKernel&lt;&gt;</classname>.
 	The StandardControlKernel can be given template parameter,
-	but this is explained in the next chapter.
+	but this is explained in the next section.
 	Next you can create an instance of your new
 	Control Kernel:
       </para>
@@ -942,10 +942,10 @@
 	is the Application Builders' task to replace the Default Data Flow Components with
 	&ldquo;functional&rdquo; Components, actually doing something with the
 	data. This is explained in the <link linkend="components">
-	Data Flow Components</link> chapter.
+	Data Flow Components</link> section.
       </para>
-    </sect1>
-    <sect1 id="non-core-standard-control-kernel">
+    </sect2>
+    <sect2 id="non-core-standard-control-kernel">
       <title>The non-core parts</title>
       <para>
 	Besides the Data Flow Components and DataObjects needed in the <link
@@ -1042,8 +1042,8 @@
 	  </imageobject>
 	</mediaobject>
       </figure>
-    </sect1>
-    <sect1 id="data-objects">
+    </sect2>
+    <sect2 id="data-objects">
       <title>DataObjects</title>
       <para>
 	Many complex applications have <link
@@ -1186,8 +1186,8 @@ contents  = my_Do.Get(); // equivalent
 	  </listitem>
 	</itemizedlist>
       </para>
-    </sect1>
-    <sect1 id="components">
+    </sect2>
+    <sect2 id="components">
       <title>Data Flow Components</title>
       <para>
 	The Data Flow Components of a Control Kernel contain functional
@@ -1200,7 +1200,7 @@ contents  = my_Do.Get(); // equivalent
 	do this, and also discusses other features offered by
 	Data Flow Components.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating your own Data Flow Component</title>
 	<para>
 	  As mentioned before, creating a
@@ -1310,8 +1310,8 @@ first_kernel.selectGenerator( &amp;my_gen );
 	  not usable when the Control Kernel is running. The above
 	  methods are available for all Components of the kernel.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Defining the Data Flow with DataObjects</title>
 	<para>
 	  A Data Flow Component implementation must derive from its
@@ -1498,8 +1498,8 @@ public:
 	</example>
 	<para>
 	</para>
-      </sect2>
-      <sect2 id="pull-calculate-push">
+      </sect3>
+      <sect3 id="pull-calculate-push">
 	<title>Inserting Functionality in Components</title> 
 	<para>
 	  As seen above, each Component has standardized,
@@ -1536,9 +1536,9 @@ public:
 	  setpoint for the Controller Component at a &ldquo;high
 	  frequency&rdquo;.
 	</para>
-      </sect2>
+      </sect3>
 
-      <sect2 id="communication-flow-coupling">
+      <sect3 id="communication-flow-coupling">
 	<title>Components should not couple communication flows</title>
 	<para>
 	  The <ulink
@@ -1619,8 +1619,8 @@ public:
 	  the Controller Component must first have registered the
 	  disable/enable-methods as handlers for the Event.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Components Define DataObjects</title>
 	<para>
 	  In the <ulink
@@ -1638,16 +1638,19 @@ public:
 	  figure below illustrates the responsabilities for each
 	  Component in the framework.
 	</para>
+	<figure>
+	  <title>Data Flow Components Produce Data</title>
 	<mediaobject>
-	  <imageobject role="html">
+ 	  <imageobject role="html">
 	    <imagedata fileref="component_data_production.png" format="PNG"/>
 	  </imageobject>
 	  <imageobject role="fo">
 	    <imagedata fileref="component_data_production.eps" format="EPS"/>
 	  </imageobject>
 	</mediaobject>
-      </sect2>
-      <sect2>
+	</figure>
+      </sect3>
+      <sect3>
 	<title>Components and NameServing</title>
 	<para>
 	  Each Component must be given a <emphasis
@@ -1683,8 +1686,8 @@ public:
 	  Component is only allowed <emphasis>after</emphasis>
 	  the kernel is started.
 	</para>
-      </sect2>
-      <sect2 id="events-hooks-states">
+      </sect3>
+      <sect3 id="events-hooks-states">
 	<title>Events, Hooks and States</title>
 	<para>
 	  A Component might be interested in the fact whether it is
@@ -1781,7 +1784,8 @@ public:
 	</para>
 	<para>The following image explains the life cycle of a typical
 	  Component. 
-	  <figure><title>Component Life Cycle</title>
+	  <figure>
+	    <title>Component Life Cycle</title>
 	    <mediaobject>
 	      <imageobject role="html">
 		<imagedata fileref="component_life_cycle.png" format="PNG"/>
@@ -1794,7 +1798,8 @@ public:
 	  The <emphasis role="strong">state</emphasis> of the Component
 	  depends on the Control Kernel state.  How Control Kernel methods
 	  change a Component's state is shown below.
-	      <figure><title>Control Kernel - Component Interaction</title>
+	  <figure>
+	    <title>Control Kernel - Component Interaction</title>
 		<mediaobject>
 		  <imageobject role="html">
 		    <imagedata fileref="kernel_component_interaction.png" format="PNG"/>
@@ -1805,8 +1810,8 @@ public:
 		</mediaobject>
 	      </figure>
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Component Base Methods</title>
 	<para>
 	  The ComponentBaseInterface contains some handy methods
@@ -1842,8 +1847,8 @@ public:
 	    </para>
 	  </listitem>
 	</itemizedlist>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Support Components</title>
 	<para>
 	  There are components which have nothing to do with the
@@ -1885,15 +1890,15 @@ kernel.loadSupport( &amp;hmi_out );
 	  function exists. In the example above, the HMIConsoleOutput
 	  component will become visisble in the Command Interpreter.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1 id="kernel-configuration">
+      </sect3>
+    </sect2>
+    <sect2 id="kernel-configuration">
       <title>Control Kernel Configuration</title>
       <para>
 	This section explains how to configure a Control Kernel and how to
 	access this information from within your program.
       </para>
-      <sect2>
+      <sect3>
 	<title>The KernelConfigurator</title>
 	<para>
 	  Control kernels (and components)  can be configured at
@@ -2010,8 +2015,8 @@ kernel.loadSupport( &amp;hmi_out );
 	    <filename class="directory">doc</filename> directory of the packages.
 	  </para>
 	</tip>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Accessing the Configuration parameters</title>
 	<para>
 	  Each Component inherits from the <classname>ComponentBaseInterface</classname>
@@ -2031,15 +2036,15 @@ if ( this->inKernel() )
     this->_period = this->kernel()->getPeriod();
 	  </programlisting>
 	</para>
-      </sect2>
-    </sect1>
-  </chapter>
-  <chapter id="control-kernel-extensions">
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1 id="control-kernel-extensions">
     <title>Extensions to the Standard Control Kernel</title>
     <para>
       The discussion about the <link
 	linkend="standard-control-kernel">Standard Control
-	Kernel</link> in the previous Chapters was mostly limited to
+	Kernel</link> in the previous Sections was mostly limited to
       its core functionality: the execution of realtime feedback
       control loops. However, most control applications also have
       extra functional needs (which are also represented on <xref
@@ -2115,7 +2120,7 @@ if ( this->inKernel() )
       extension that the Component doesn't wish to use.
     </para>
 
-    <sect1>
+    <sect2>
       <title>Component Aspects</title>
       <para>
 	Adding an Extension to a Control Kernel does not (visibly)
@@ -2146,7 +2151,7 @@ if ( this->inKernel() )
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2>
+      <sect3>
 	<title>Aspect Method Hooks</title>
 	<para>
 	  Almost every Aspect will provide a hook method that each
@@ -2214,9 +2219,9 @@ if ( this->inKernel() )
 	    </tgroup>
 	  </table>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1 id="adding-extensions">
+      </sect3>
+    </sect2>
+    <sect2 id="adding-extensions">
       <title>How to add an Extension?</title>
       <para>
 	How does one add an extension to the Standard Control Kernel?
@@ -2271,8 +2276,8 @@ typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
 	  </imageobject>
 	</mediaobject>
       </figure>
-    </sect1>
-    <sect1 id="adding-aspects">
+    </sect2>
+    <sect2 id="adding-aspects">
       <title>How to add an Aspect?</title>
       <para>
 	If a Component wants to use a kernel Extension, it needs to inherit
@@ -2331,9 +2336,9 @@ class MyGenerator
 	contain a link to the Aspect class. Also, mostly, the Aspect
 	and Extension are defined in the same header file.
       </para>
-    </sect1>
+    </sect2>
    
-    <sect1 id="property-extension">
+    <sect2 id="property-extension">
       <title>The Property Extension</title>
       <para>
 	By default, only the Control Kernel has a limited set of
@@ -2362,7 +2367,7 @@ class MyGenerator
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2>
+      <sect3>
 	<title>Using the Property Extension</title>
 	<para>
 	  The PropertyExtension can be added to a
@@ -2380,8 +2385,8 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	  are enabled, allowing the Component to react differently to the
 	  other Extension hooks.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Configuring the Property Extension</title>
 	<para>
 	  The <type>PropertyExtension</type> can be configured through the CPF
@@ -2432,8 +2437,8 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 ]]>
 	  </programlisting>
 	</example>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Hooks</title>
 	<para>The Property Extension has one hook: the
 	  <function>updateProperties(const PropertyBag&amp;
@@ -2501,9 +2506,9 @@ private:
 ]]>
 	  </programlisting>
 	</example>
-      </sect2>
-    </sect1>
-    <sect1 id="reporting-extension">
+      </sect3>
+    </sect2>
+    <sect2 id="reporting-extension">
       <title>The Reporting (Data Flow Logging) Extension</title>
       <para>
 	A second functional Extension is the Reporting Extension.
@@ -2540,7 +2545,7 @@ private:
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2>
+      <sect3>
 	<title>Using the Reporting Extension</title>
 	<para>
 	  The ReportingExtension can be added to a
@@ -2556,8 +2561,8 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	  so that it reports the latest data. Otherwise, the data of 
 	  the previous control cycle would be reported.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Configuring the Reporting Extension</title>
 	<para>
 	  The ReportingExtension can be configured through the CPF
@@ -2633,8 +2638,8 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 	    Kernel is <link linkend="kernel-configuration">configured</link>.
 	  </para>
 	</example>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Reporting Data Flow Components : Using Hooks</title>
 	<para>The ReportingExtension has one Component hook: the
 	  <function>void exportReports( PropertyBag&amp; bag)
@@ -2701,8 +2706,8 @@ private:
 ]]>
 	  </programlisting>
 	</example>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Reporting DataObjects</title>
 	<para>
 	  As shown in the example CPF file, also DataObjects can generate
@@ -2721,8 +2726,8 @@ private:
 	  It is also possible to log the dataobjects of other
 	  StandardControlKernels, given that they have the same prefix.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Example output</title>
 	<example>
 	  <title>Reporting DataObjects</title>
@@ -2745,10 +2750,10 @@ private:
 ]]>
 	  </screen>
 	</example>
-      </sect2>
-    </sect1>
+      </sect3>
+    </sect2>
 
-    <sect1 id="scripting-extension">
+    <sect2 id="scripting-extension">
       <title>Command Interpreter and Command Processing : ExecutionExtension</title>
       <para>
 	The Execution Extension allows the kernel to execute &orocos;
@@ -2789,7 +2794,7 @@ private:
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <sect2>
+      <sect3>
 	<title>Using the ExecutionExtension</title>
 	<para>
 	  The ExecutionExtension provides a more userfriendly 
@@ -2837,8 +2842,8 @@ do engine.startStateContext("SecondContext")
 do engine.stopStateContext("SecondContext")
 	</programlisting>
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Elaborated Example</title>
 	<para>
 	  The Orocos Program Parser presents a StateContext and Program
@@ -3013,8 +3018,8 @@ program {
 }
 	  </programlisting>
 	</example>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Configuring the ExecutionExtension</title>
 	<para>
 	  The ExecutionExtension has the following xml options:
@@ -3035,10 +3040,10 @@ program {
 	  extension will run one statement of the program and recheck
 	  the State transitions.
 	</para>
-      </sect2>
-    </sect1>
-  </chapter>
-  <chapter id="cascaded-control-kernels">
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1 id="cascaded-control-kernels">
     <title>Cascaded Control Kernels</title>
     <para>
       Many applications need more than one layer of control. For
@@ -3071,7 +3076,7 @@ program {
       for all relevant synchronization cases (see section <link 
 	linkend="data-objects"> DataObjects</link>.
     </para>
-    <sect1 id="cascade-ns">
+    <sect2 id="cascade-ns">
       <title>The CascadeControlKernel</title>
       <para>
 	This Kernel is usable for most control loop cascades imaginable.
@@ -3169,12 +3174,12 @@ CascadeControlKernel<>
 	  </para>
 	</example>
       </para>
-    </sect1>
-  </chapter>
+    </sect2>
+  </sect1>
 
   <appendix>
     <title>Left-Overs</title>
-    <sect1 id="prop-intro">
+    <sect2 id="prop-intro">
       <title>Properties</title>
       <para>
 	Properties are a way to represent configuration options in
@@ -3206,7 +3211,7 @@ Property&lt; A &gt; a_prop;
 	  which can be found in the file <filename>geometry
 	    MotionProperties.hpp</filename> file.</para>
       </example>      
-    </sect1>
+    </sect2>
   </appendix>
   <appendix>
     <title>Legal Notices</title>
@@ -3218,7 +3223,7 @@ Property&lt; A &gt; a_prop;
 ////////////////////////////////////////////////////////////////////////////////
 // The Loki Library
 // Copyright (c) 2001 by Andrei Alexandrescu
-// This code accompanies the book:
+// This code accompanies the article:
 // Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design
 //     Patterns Applied". Copyright (c) 2001. Addison-Wesley.
 // Permission to use, copy, modify, distribute and sell this software for any
@@ -3242,4 +3247,4 @@ Property&lt; A &gt; a_prop;
   </biblioentry>
 </bibliography>
 
-</book>
+</article>

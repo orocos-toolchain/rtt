@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -9,8 +9,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title>Orocos Hardware Device Interface</title>
     <authorgroup>
       <author>
@@ -81,11 +81,11 @@
       </para>
     </legalnotice>
 
-  </bookinfo>
+  </articleinfo>
 
-  <chapter>
+  <sect1>
     <title>Introduction</title>
-    <sect1>
+    <sect2>
       <title>The Orocos Device Interface (<acronym>DI</acronym>)</title>
       <para>
 	Designing portable software which should interact with
@@ -172,8 +172,8 @@ of the physical interfaces they use underneath. You just want to know the
 	  </mediaobject>
 	</figure>
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>The Device Interface Classes</title>
       <para>
 	The most common used interfaces for machine control
@@ -181,7 +181,7 @@ of the physical interfaces they use underneath. You just want to know the
 	All the Device Interface classes reside in the
 	<classname>ORO_DeviceInterface</classname> namespace.
       </para>
-      <sect2>
+      <sect3>
 	<title>Physical IO</title>
 	<para>
 	  There are several classes for representing
@@ -232,8 +232,8 @@ of the physical interfaces they use underneath. You just want to know the
 	  </tgroup>
 	  <!-- one of (graphic mediaobject tgroup) -->
 	</table>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Logical Device Interfaces</title>
 	<para>
 	  The interfaces found in the logical
@@ -251,9 +251,9 @@ of the physical interfaces they use underneath. You just want to know the
 	  <classname>DigitalOutput</classname> and
 	  <classname>Drive</classname>.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Porting Device Drivers to Device Interfaces</title>
       <para>
 	The methods in each interface are well documented
@@ -265,8 +265,8 @@ of the physical interfaces they use underneath. You just want to know the
 	use these implementations to provide higher level
 	functionalities.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Name Serving</title>
       <para>
 	Name Serving is introduced in the Orocos CoreLib documentation.
@@ -297,9 +297,9 @@ delete card;
 	  </programlisting>
 	</example>
       </para>
-    </sect1>
-  </chapter>
-    <chapter>
+    </sect2>
+  </sect1>
+    <sect1>
     <title>The Orocos Object Hierarchy</title>
     <para>
       It is our aim to gradually build a common class hierarchy in the
@@ -307,5 +307,5 @@ delete card;
       This will allow our applications to share the same data format
       and thus communicate efficiently.
     </para>
-  </chapter>
-</book>
+  </sect1>
+</article>

@@ -3,7 +3,8 @@ cdl_package OROPKG_KERNEL_COMPONENTS {
     description "
 Components for Control Kernels. This parent
 package contains some common, application
-independent Components."
+independent Components like a console command reader
+and a console output component."
 
     requires OROPKG_CONTROL_KERNEL
 

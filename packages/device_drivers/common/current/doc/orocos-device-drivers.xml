@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd">
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title> Orocos Device Drivers </title>
     <authorgroup>
       <author>
@@ -33,8 +33,8 @@
 
     <abstract>
       <para>
-	This document explains the design and implementation of the
-	Drivers components.
+	This document explains what device drivers are
+	standard available in Orocos.
       </para>
     </abstract>
 
@@ -50,16 +50,16 @@
 	  http://www.fsf.org/copyleft/fdl.html </ulink>.
       </para>
     </legalnotice>
-  </bookinfo>
+  </articleinfo>
 
-  <chapter>
+  <sect1>
     <title>Introduction</title>
     <para>
-      This chapter gives you the basic knowledge to start working with the
+      This section gives you the basic knowledge to start working with the
       Orocos Device Drivers package.
     </para>
 
-    <sect1>
+    <sect2>
       <title>Requirements</title>
       <para>
 	This package has a dependency on the Orocos Core Library and
@@ -82,8 +82,8 @@
 	the <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">
 	  Porting to LXRT HOWTO</ulink>.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>What's in this package</title>
       <para>
         <itemizedlist>
@@ -134,9 +134,9 @@
 	implements one of the Device Interfaces, so that the hardware
 	is properly abstracted.
       </para>
-    </sect1>
-  </chapter>
-  <chapter>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Installation Instructions</title>
     <para>
       We refer to the orocos-installation manual on how to install
@@ -146,8 +146,8 @@
       Most device drivers are configurable in the configtool
       menus so that they match the card configuration.
     </para>
-  </chapter>
-  <chapter>
+  </sect1>
+  <sect1>
     <title>Developers Documentation</title>
     <para>
       All the drivers code resides in the
@@ -157,7 +157,7 @@
 	url="http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-device-interface.html"> 
 	Device Interface</ulink>.
     </para>
-    <sect1>
+    <sect2>
       <title>Comedi C++</title>
       <para>
 	We have currently two Comedi C++ implementations. The one in
@@ -175,8 +175,8 @@
 	not currently use it, but you are encouraged to experiment
 	with it or provide us suggestions and patches :-).
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Logical Device Drivers</title>
       <para>
 	This contains implementation of logical devices such as DigitalInput,
@@ -184,7 +184,7 @@
 	access-wrappers around the more general IO Interfaces. They require
 	the corresponding Device Interface to communicate with.
       </para>
-      <sect2>
+      <sect3>
 	<title>Analog and Digital IO</title>
 	<para>
 	  Helpfull utility classes AnalogInput, AnalogOutput, DigitalInput
@@ -193,8 +193,8 @@
 	  they should operate on and the channel of that device they
 	  represent.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>The Axis class</title>
 	<para>
 	  The Axis is parameterised by an Encoder, a Drive and Breaks.
@@ -204,9 +204,9 @@
 	  pysical units (translation or rotation). It associates
 	  three dependent hardware parts in one object.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>CANPie and CANOpen Device Drivers</title>
       <para>
 	Orocos has an application independent implementation of
@@ -218,6 +218,6 @@
 	Core Library. Class documentation can be found on the Doxygen
 	pages.
       </para>
-    </sect1>
-  </chapter>
-</book>
+    </sect2>
+  </sect1>
+</article>

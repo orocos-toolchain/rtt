@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -8,8 +8,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title> Orocos Motion Control Kernel Components</title>
     <authorgroup>
       <author>
@@ -44,14 +44,14 @@
 	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
       </para>
     </legalnotice>
-  </bookinfo>
-  <chapter>
+  </articleinfo>
+  <sect1>
     <title>Introduction</title>
     <para>
-      This chapter explains installation, and gives an overview of the
+      This section explains installation, and gives an overview of the
       features and interface of the &orocos; &motcontrol; Components.
     </para>
-    <sect1>
+    <sect2>
       <title>Installation</title>
       <para>
         Install the Orocos Geometry and Kinematics package first, we
@@ -65,8 +65,8 @@
 	instructions for the advised configuration and installation
 	procedure. 
       </para>
-    </sect1>
-<!--     <sect1><title>Prerequisites</title> -->
+    </sect2>
+<!--     <sect2><title>Prerequisites</title> -->
 <!--       <tip> -->
 <!-- 	<para> -->
 <!-- 	  If you want detailed information about a class or function, -->
@@ -75,16 +75,16 @@
 <!-- 	  presented here. -->
 <!-- 	</para> -->
 <!--       </tip> -->
-<!--     </sect1> -->
-  </chapter>
-  <chapter>
+<!--     </sect2> -->
+  </sect1>
+  <sect1>
     <title>Multi Axis Control Components</title>
     <para>
-      This chapter discusses the components to control machines
+      This section discusses the components to control machines
       consisting of multiple axes with drives, homing switches,
       any kind of analog sensors and encoders.
     </para>
-    <sect1>
+    <sect2>
       <title>Axis Hardware Abstraction</title>
       <para>
 	The Axis is abstracted as a logical device in the
@@ -118,8 +118,8 @@
 	implementation can be found in the <filename>
 	  kernel_samples/axis_control</filename> example directory.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>The AxisSensor Component</title>
       <para>
 	The AxisSensor Component will introduce an Axis object
@@ -130,7 +130,7 @@
 	discrete state (enabled/disabled/breaked/...) can be
 	read out.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating an AxisSensor Component</title>
 	<para>
 	  The AxisSensor is created like all
@@ -141,8 +141,8 @@
 	  Where NUM_CHANS is the maximal number of virtual channels
 	  this Sensor exposes (see later).
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding and Removing an Axis</title>
 	<para>
 	  An unlimited number of Axes can be added
@@ -171,8 +171,8 @@
 	  </programlisting>
 	  Which removes the "Axis_1" DataObjects from the AxisSensor.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Reading the Axis' State</title>
 	<para>
 	  Not only sensors are tied to the Axis, also the discrete 
@@ -188,8 +188,8 @@
 	  state of a digital input ('Home', reference switch) or output
 	  ('Break', optional break and 'Drive' the drive enable signal).
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using Virtual Channels</title>
 	<para>
 	  The Sensor data of Axes can be ordered in a virtual channels DataObject.
@@ -217,9 +217,9 @@
 	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>The AxisEffector Component</title>
       <para>
 	The AxisEffector works similar to the AxisSensor but
@@ -227,7 +227,7 @@
 	and drives an Axis object with the given values. It allows
 	to operate the Axis actively.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating an AxisEffector Component</title>
 	<para>
 	  The AxisEffector is created like all
@@ -238,8 +238,8 @@
 	  Where NUM_CHANS is the maximal number of virtual channels
 	  this Effector will accept (see later).
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Adding and Removing an Axis</title>
 	<para>
 	  An unlimited number of Axes can be added
@@ -258,8 +258,8 @@
   axis_eff.removeAxis("Axis_1");
 	  </programlisting>
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Modifying the Axis' State</title>
 	<para>
 	  The state of the Axis can be modified as a whole (enable/disable)
@@ -273,8 +273,8 @@
   var bool result_3b = AxisEffector.switchOff("Axis_1.Drive")
 	  </programlisting>
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Using Virtual Channels</title>
 	<para>
 	  The Axis can be driven through a virtual channel. If a
@@ -299,9 +299,9 @@
 	  The Process Control Components in the kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>The AxisPositionGenerator (APG) Component</title>
       <para>
 	This Generator Component generates interpolated trajectories
@@ -310,7 +310,7 @@
 	individually. It expects the Axes positions to be located on the
 	"ChannelValues" Input DataObject.
       </para>
-      <sect2>
+      <sect3>
 	<title>Creating the AxisPositionGenerator</title>
 	<para>
 	  As usual :
@@ -320,8 +320,8 @@
 	  Where NUM_CHANS is the maximal number of Axes it can
 	  generate trajectories for.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>Properties</title>
 	<para>
 	  The AxisPositionGenerator (APG) requires a component
@@ -365,8 +365,8 @@
 
 ]]>
 	</programlisting>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>APG Commands</title>
 	<para>
 	  Two commands are available : move and wait. They
@@ -393,9 +393,9 @@
 	  <programlisting>
   var double pos = AxisPositionGenerator.position( 1 )
 	  </programlisting>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Choosing an Axis Estimator and Controller Component</title>
       <para>
 	For now, no Estimator is available. As Controller, the
@@ -403,18 +403,18 @@
 	Control Kernel Components package can be used without any
 	adaptation.
       </para>
-    </sect1>
-  </chapter>
-  <chapter>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>6DOF Motion Control Components</title>
     <para>
-      This chapter explains the working of the Motion Control Kernel
+      This section explains the working of the Motion Control Kernel
       Components for controlling 6DOF robots and machines. The
       components rely on the Geometry library for path interpolation
       and on the Control Kernel for configuring and running the
       control loop.
     </para>
-    <sect1>
+    <sect2>
       <title>File Overview</title>
       <para>
 	The 6DOF Motion Control Components have implementations in
@@ -497,8 +497,8 @@
 	  </tbody>
 	</tgroup>
       </table>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Generator Component : CartesianGenerator</title>
       <para>
 	The <classname>CartesianGenerator</classname> is the main
@@ -514,7 +514,7 @@
 	which means that it addresses its DataObjects through a
 	"Name".
       </para>
-      <sect2>
+      <sect3>
 	<title>Configuration parameters</title>
 	<para>The Generator can be configured in two ways :
 	  through the xml property file or through the interface
@@ -584,8 +584,8 @@
 	    </tbody>
 	  </tgroup>
 	</table>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>CartesianGenerator Interface Methods</title>
 	<para>
 	  The main interfaces are move (with a twist), moveTo ( to a
@@ -650,9 +650,9 @@
 	    </tgroup>
 	  </table>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Generator Component : CartesianPositionTracker</title>
       <para>
 	The <classname>CartesianPositionTracker</classname> is
@@ -664,14 +664,14 @@
       <para>
 	This component is only available in the NSControlKernel.
       </para>
-      <sect2>
+      <sect3>
 	<title>Configuration parameters</title>
 	<para>
 	  The Generator's properties can be
 	  configured like the CartesianGenerator.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>CartesianPositionTracker Interface Methods</title>
 	<para>
 	  The interface methods are equal to the CartesianGenerator,
@@ -722,9 +722,9 @@
 	    </tgroup>
 	  </table>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Generator Component : CartesianVelocityTracker</title>
       <warning>
 	<para>
@@ -741,14 +741,14 @@
       <para>
 	This component is only available in the NSControlKernel.
       </para>
-      <sect2>
+      <sect3>
 	<title>Configuration parameters</title>
 	<para>
 	  The Generator's properties can be
 	  configured like the CartesianGenerator.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>CartesianVelocityTracker Interface Methods</title>
 	<para>
 	  The interface methods are equal to the CartesianGenerator,
@@ -794,9 +794,9 @@
 	    </tgroup>
 	  </table>
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </sect3>
+    </sect2>
+    <sect2>
       <title>Controller Component : CartesianController</title>
       <para>
 	The CartesianController takes a end effector frame as 
@@ -806,8 +806,8 @@
 	joint level. Desired joint velocities are written
 	to the Output DataObject.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Estimator Component : CartesianEstimator</title>
       <para>
 	This component calculates the end effector position
@@ -815,21 +815,21 @@
 	It must be given a <classname>KinematicsInterface</classname> object
 	to do the forward kinematics.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Sensor Component : CartesianSensor</title>
       <para>
 	The CartesianSensor is a dummy component. It
 	provides joint positions. A real implementation
 	must provide the same joint positions.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Effector Component : CartesianEffector</title>
       <para>
 	The CartesianEffector uses a simulator to integrate
 	the joint velocities into joint positions.
       </para>
-    </sect1>
-  </chapter>
-</book>
+    </sect2>
+  </sect1>
+</article>

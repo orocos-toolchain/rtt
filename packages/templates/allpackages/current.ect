@@ -12,7 +12,7 @@ cdl_savefile_command cdl_interface { value_source user_value wizard_value inferr
 # You can use this for copy-pasting to another template
 #
 cdl_configuration template_allpackages {
-    description "This is a standard configuration.";
+    description "This is a configuration with all packages included.";
     package     OROPKG_CORELIB current ;
     package     OROPKG_OS current ;
     package     OROPKG_CORELIB_EVENTS current;
@@ -33,6 +33,11 @@ cdl_configuration template_allpackages {
     package	OROPKG_DEVICE_INTERFACE_IO current;
     package	OROPKG_DEVICE_DRIVERS current;
     package	OROPKG_DEVICE_DRIVERS_LOGICAL current;
+    package     OROPKG_DEVICE_DRIVERS_JR3 current;
+    package     OROPKG_DEVICE_DRIVERS_APCI current;
+    package     OROPKG_DEVICE_DRIVERS_CANPIE current;
+    package     OROPKG_DEVICE_DRIVERS_COMEDI current;
+    package     OROPKG_DEVICE_DRIVERS_CANOPEN current;
     package	OROPKG_CONTROL_KERNEL current;
     package     OROPKG_KERNEL_COMPONENTS current ;
     package	OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL current;

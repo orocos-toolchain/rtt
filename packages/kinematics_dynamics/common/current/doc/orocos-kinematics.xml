@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -8,8 +8,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
     <title> Orocos Kinematics Package</title>
     <authorgroup>
       <author>
@@ -64,14 +64,14 @@
 	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
       </para>
     </legalnotice>
-  </bookinfo>
-  <chapter>
+  </articleinfo>
+  <sect1>
     <title>Introduction</title>
     <para>
-      This chapter explains installation, and gives an overview of the
+      This section explains installation, and gives an overview of the
       features and interface of the &orocos; &kinematics; module.
     </para>
-    <sect1>
+    <sect2>
       <title>Installation</title>
       <para>
         Install the Orocos Geometry package first, it contains
@@ -85,8 +85,8 @@
 	instructions for the advised configuration and installation
 	procedure. 
       </para>
-    </sect1>
-    <sect1><title>Prerequisites</title>
+    </sect2>
+    <sect2><title>Prerequisites</title>
       <tip>
 	<para>	We highly advise you to read first the Orocos CoreLib and Geometry
 	documentation before going on.
@@ -98,11 +98,11 @@
 	of this package. You will find a lot of complementary
 	information in there not presented here.</para>
       </tip>
-    </sect1>
-  </chapter>
-  <chapter>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Kinematics</title>
-    <sect1>
+    <sect2>
       <title>Introduction</title>
       <para>
 	Kinematics are used for converting postions, velocities,...
@@ -133,7 +133,7 @@
 	Our kinematics algorithms keep track of all the above and much
 	more. This can clearly be seen from the used interfaces too.
       </para>
-      <sect2>
+      <sect3>
 	<title>The KinematicsInterface</title>
 	<para>
 	  This interface describes the library side of the kinematics
@@ -156,8 +156,8 @@
 	  than 360 degrees). All state information is kept in the
 	  <classname>KinematicsComponent</classname>.
 	</para>
-      </sect2>
-      <sect2>
+      </sect3>
+      <sect3>
 	<title>The KinematicsComponent</title>
 	<para>
 	  As each robot only needs one instance of the
@@ -174,18 +174,18 @@
 	  KinematicsComponent to keep track of the state of the
 	  calculations.
 	</para>
-      </sect2>
-    </sect1>
-  </chapter>
+      </sect3>
+    </sect2>
+  </sect1>
 
-  <chapter id="chap-interface">
+  <sect1 id="chap-interface">
     <title>Interfaces</title>
     <para>
-      This chapter describes the <emphasis>interfaces</emphasis> of
+      This section describes the <emphasis>interfaces</emphasis> of
       the different components in the motion control part of &orocos;.
     </para>
 
-    <sect1 id="interface-motivation">
+    <sect2 id="interface-motivation">
       <title>Motivation</title>
       <para>
 A complex and feature-rich application such as motion control can be
@@ -259,18 +259,18 @@ A complex and feature-rich application such as motion control can be
 </itemizedlist>
       </para>
 
-    </sect1>
+    </sect2>
 
 
-    <sect1 id="interface-cart-motion">
+    <sect2 id="interface-cart-motion">
       <title>Cartesian motion</title>
       <para>
 	moveTo (Cartesian position); move (Cartesian velocity);
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-axis-motion">
+    <sect2 id="interface-axis-motion">
       <title>Axis</title>
       <para>
 	readId(); setId();
@@ -289,9 +289,9 @@ A complex and feature-rich application such as motion control can be
 	home ();
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-device">
+    <sect2 id="interface-device">
       <title>Device</title>
       <para>
 	readId(); setId();
@@ -300,9 +300,9 @@ A complex and feature-rich application such as motion control can be
 	Activate(), deactivate().
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-robot">
+    <sect2 id="interface-robot">
       <title>Robot</title>
       <para>
 	readId(); setId();
@@ -311,29 +311,29 @@ A complex and feature-rich application such as motion control can be
 	composite of Axis objects;
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-servo">
+    <sect2 id="interface-servo">
       <title>Servo</title>
       <para>
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-trajectory">
+    <sect2 id="interface-trajectory">
       <title>Trajectory</title>
       <para>
       </para>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="interface-interpolation">
+    <sect2 id="interface-interpolation">
       <title>Interpolation</title>
       <para>
       </para>
 
-    </sect1>
+    </sect2>
 
-  </chapter>
+  </sect1>
 
-</book>
+</article>

@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
 [
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
@@ -8,8 +8,8 @@
 ]
 >
 
-<book>
-  <bookinfo>
+<article>
+  <articleinfo>
   <title>The Orocos Program Processor Manual</title>
     <authorgroup>
       <author>
@@ -85,17 +85,17 @@
       </para>
     </legalnotice>
 
-  </bookinfo>
+  </articleinfo>
   
 
   
-  <chapter>
+  <sect1>
     <title>Introduction</title>
     <para>
-      This chapter explains installation, and gives an overview of the
+      This section explains installation, and gives an overview of the
 features and interface of the &orocos; &interf; package.
     </para>
-    <sect1>
+    <sect2>
       <title>What is Orocos Execution : Program Processor ?</title>
       <para>
 	&orocos; is meant for building realtime systems. You will find
@@ -121,9 +121,9 @@ features and interface of the &orocos; &interf; package.
 	generates ProgramGraphs and StateGraphs from user friendly
 	text files, which can then be executed in realtime.
       </para>
-    </sect1>
+    </sect2>
 
-    <sect1>
+    <sect2>
       <title>Installation</title>
       <para>
 	&orocos; uses the eCos tools for configuration and building.
@@ -135,12 +135,12 @@ features and interface of the &orocos; &interf; package.
       <para>
       Further information can be found in the &orocos; installation documentation.
       </para>
-    </sect1>
-</chapter>
+    </sect2>
+</sect1>
 
-  <chapter>
+  <sect1>
     <title>Processing Programs and StateContexts</title>
-      <sect1>
+      <sect2>
 	<title>Processor</title>
 	<para>
 	  The <classname>Processor</classname> is the core component
@@ -159,8 +159,8 @@ features and interface of the &orocos; &interf; package.
 	  and State Contexts. The available commands are presented
 	  in the figures in the next sections.
 	</para>
-      </sect1>
-      <sect1>
+      </sect2>
+      <sect2>
 	<title>State Context and State</title>
 	<para>
 	  The <classname>StateContext</classname> is a collection
@@ -198,8 +198,8 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      </sect1>
-      <sect1>
+      </sect2>
+      <sect2>
 	<title>State Transitions</title>
 	<para>
 	  State Transitions are the edges of the state diagram. They
@@ -211,8 +211,8 @@ features and interface of the &orocos; &interf; package.
 	  order they are checked. A multiple of
 	  conditions can lead to the same state.
 	</para>
-      </sect1>
-      <sect1>
+      </sect2>
+      <sect2>
 	<title>A Program</title>
 	<para>
 	  A Program is defined by the ProgramInterface. A Program
@@ -244,9 +244,9 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      </sect1>
+      </sect2>
 
-      <sect1>
+      <sect2>
 	<title>The Command Node</title>
 	<para>
 	  The <classname>CommandNode</classname> contains a
@@ -262,8 +262,8 @@ features and interface of the &orocos; &interf; package.
 	  Also a line number can be associated with each command node,
 	  as a reference to the input file formatted by the user.
 	</para>
-      </sect1>
-      <sect1>
+      </sect2>
+      <sect2>
 	<title>The Command class</title>
 	<para>
 	  The <classname>Command</classname> is the abstraction of a
@@ -273,8 +273,8 @@ features and interface of the &orocos; &interf; package.
 	  The basic interface, CommandInterface, is provided by the
 	  Orocos CoreLib.
 	</para>
-      </sect1>
-      <sect1>
+      </sect2>
+      <sect2>
 	<title>The Condition class</title>
 	<para>
 	  The <classname>Condition</classname> is the abstraction of a
@@ -284,16 +284,16 @@ features and interface of the &orocos; &interf; package.
 	  Conditions. The basic interface, ConditionInterface, is
 	  provided by the Orocos CoreLib
 	</para>
-      </sect1>
-  </chapter>
-  <chapter>
+      </sect2>
+  </sect1>
+  <sect1>
     <title>Using Commands</title>
     <para>
       Apart from the Program and State Context Commands, the application
       can generate commands for the Processor to execute. This is usefull
       if a function must be called at a later moment.
     </para>
-    <sect1>
+    <sect2>
       <title>Generic Functors</title>
       <para>
 	Orocos uses the 'Generic Functor' paradigm to encapsulate Commands.
@@ -314,8 +314,8 @@ features and interface of the &orocos; &interf; package.
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Creating a CommandFunctor</title>
       <para>
 	The CommandFunctor is the object used to store the function
@@ -380,8 +380,8 @@ features and interface of the &orocos; &interf; package.
 	Since the Program Processor can execute CommandInterface objects,
 	it is a powerfull way to delay calling of a function to a later moment.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Processing a Command</title>
       <para>
 	Using the CommandFunctor from the previous section, we can pass
@@ -405,8 +405,8 @@ features and interface of the &orocos; &interf; package.
 	function. This must happend periodically to empty the command
 	queue and advance the program execution.
       </para>
-    </sect1>
-    <sect1>
+    </sect2>
+    <sect2>
       <title>Common Usage Examples</title>
       <para>
 	The CommandFunctor can be used when a separate thread of
@@ -420,6 +420,6 @@ features and interface of the &orocos; &interf; package.
 	commands in the Processor after the control calculations
 	are done. In this way, safe data access can be guaranteed.
       </para>
-    </sect1>
-  </chapter>
-</book>
+    </sect2>
+  </sect1>
+</article>
