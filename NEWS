@@ -1,3 +1,22 @@
+OROCOS v0.14.0  Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of the Open RObot COntrol Software v0.14.0.
+
+Orocos aims at building a community for designing realtime
+open robot controllers using Free Software. This is a brief features
+list of this release :
+
+* Parallel execution of Orocos Machine State Scripts and Program Scripts
+* Improved Hardware Abstraction layer
+* Generic Hardware Access ControlKernel Components
+* Cartesian Space MoveTo/Wait and Tracking ControlKernel Components
+* Added Axis Motion Control Components
+* Generic DataObject "out of the box" Reporting
+* XML Parser memory leak fixes
+* More interactive Motion/Machine Control Examples
+
 OROCOS v0.12.0  Release Notes
    http://www.orocos.org
 ----------------------------

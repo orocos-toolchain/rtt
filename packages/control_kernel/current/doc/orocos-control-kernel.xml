@@ -3037,11 +3037,11 @@ CascadeNSControlKernel<Casc3CommandT, Casc3SetPointT, Casc3InputT, Casc3ModelT, 
 	read a given XML file and configure a control kernel with that
 	information. KernelConfig parses the file and passes
 	the result (a PropertyBag) to the
-	<function>updateProperties(const PropertyBag& bag)</function> method of the
+	<function>updateProperties(const PropertyBag &amp; bag)</function> method of the
 	<classname>KernelBaseFunction</classname>. If you want to
 	add your own configuration options to a
 	Kernel subclass (which is quite common), you can
-	define an updateKernelProperties(const PropertyBag& bag)
+	define an updateKernelProperties(const PropertyBag &amp; bag)
 	method in this subclass. KernelConfig
 	will pass the PropertyBag to this function too.
       </para>
