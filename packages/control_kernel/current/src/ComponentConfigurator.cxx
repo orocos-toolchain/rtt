@@ -10,10 +10,13 @@ using namespace ORO_ControlKernel;
 bool ComponentConfigurator::configure(std::string& filename, PropertyComponentInterface* target)
 {
     bool result = false;
+    XMLCh* name;
     cout << "Configuring " <<target->getName()<< endl;
     try
     {
-        LocalFileInputSource fis( XMLString::transcode( filename.c_str() ) );
+        name =  XMLString::transcode( filename.c_str() );
+        LocalFileInputSource fis( name );
+        delete[] name;
         CPFDemarshaller<InputSource> demarshaller(fis);
 
         // store results in Components own bag if component exists.
@@ -34,6 +37,7 @@ bool ComponentConfigurator::configure(std::string& filename, PropertyComponentIn
             }
     } catch (...)
     {
+        delete[] name;
         cerr << "Could not find "<< filename << endl;
     }
     return result;

@@ -25,8 +25,11 @@ namespace ORO_ControlKernel
     bool KernelConfig::configure()
     {
         // read/parse file
+        XMLCh* fname = 0;
         try {
-            LocalFileInputSource fis( XMLString::transcode( filename.c_str() ) );
+            fname = XMLString::transcode( filename.c_str() );
+            LocalFileInputSource fis( fname );
+            delete[] fname;
             CPFDemarshaller<LocalFileInputSource> parser(fis);
 
             //cout <<"Parsing... ";
@@ -56,6 +59,10 @@ namespace ORO_ControlKernel
             // this updates the user's properties
             kernel->updateKernelProperties( baseBag->value() );
 
+            flattenPropertyBag( baseBag->value() );
+            deleteProperties( baseBag->value()  );
+            delete baseBag;
+
             // other possibility :  do not store in bag, dispatch right away, but then
             // need our own xml parser.
             // Iterate over all extensions
@@ -68,13 +75,15 @@ namespace ORO_ControlKernel
                     Property<string>*  extFileName;
                     if ( res && (extFileName = dynamic_cast<Property<string>* >(res)) )
                         {
-                            // We Got the filename of the Extension.
-                            PropertyBag extensionConfig;
                             try 
                                 {
                                     // Parse The properties of the Extension.
-                                    LocalFileInputSource extfis(XMLString::transcode( extFileName->get().c_str() ) );
+                                    fname = XMLString::transcode( extFileName->get().c_str() );
+                                    LocalFileInputSource extfis( fname );
+                                    delete[] fname;
                                     parser.setStream(extfis);
+                                    // We Got the filename of the Extension.
+                                    PropertyBag extensionConfig;
                                     if ( parser.deserialize( extensionConfig ) )
                                         {
                                             // update nameserved props.
@@ -89,12 +98,15 @@ namespace ORO_ControlKernel
                                                 }
                                         } else
                                             {
-                                                cerr << "file found but unable to parse !"<<endl;
+                                                cerr << "File "<< extFileName->get() <<" found but unable to parse !"<<endl;
                                                 return false;
                                             }
+                                    flattenPropertyBag( extensionConfig );
+                                    deleteProperties  ( extensionConfig );
                                 } catch (...)
                                     {
-                                        cerr << "file not found !"<<endl;
+                                        delete[] fname;
+                                        cerr << "File "<< extFileName->get() << " not found !"<<endl;
                                         return false;
                                     }
                         
@@ -103,6 +115,7 @@ namespace ORO_ControlKernel
                 }
         } catch (...)
             {
+                delete[] fname;
                 cerr <<"Kernel config file "<<filename<<" not found !"<<endl;
                 return false;
             }

@@ -6,6 +6,7 @@
 #include <execution/ProgramGraph.hpp>
 #include <execution/Parser.hpp>
 
+#include "execution/TemplateDataSourceFactory.hpp"
 #include <execution/TemplateCommandFactory.hpp>
 
 #include <functional>
@@ -49,10 +50,10 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return true;
     }
 
-    void ExecutionExtension::startProgram(const std::string& name)
+    bool ExecutionExtension::startProgram(const std::string& name)
     {
         proc.resetProgram(name);
-        proc.startProgram(name);
+        return proc.startProgram(name);
     }
 
     bool ExecutionExtension::isProgramRunning(const std::string& name) const
@@ -60,14 +61,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.isProgramRunning(name);
     }
 
-    void ExecutionExtension::stopProgram(const std::string& name)
+    bool ExecutionExtension::stopProgram(const std::string& name)
     {
-        proc.stopProgram(name);
+        return proc.stopProgram(name);
     }
 
-    void ExecutionExtension::resetProgram(const std::string& name)
+    bool ExecutionExtension::resetProgram(const std::string& name)
     {
-        proc.resetProgram(name);
+        return proc.resetProgram(name);
     }
 
     bool ExecutionExtension::loadProgram( std::istream& prog_stream, const std::string& name )
@@ -77,8 +78,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         program = parser.parseProgram( prog_stream, &proc, this );
         if (program == 0) 
             return false;
-        proc.loadProgram(name, program);
-        return true;
+        return proc.loadProgram(name, program);
     }
 
     bool ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& name )
@@ -88,8 +88,18 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         context = parser.parseStateContext( state_stream, &proc, this );
         if (context == 0) 
             return false;
-        proc.loadStateContext(name, context);
-        return true;
+        return proc.loadStateContext(name, context);
+    }
+
+    bool ExecutionExtension::startStateContext(const std::string& name)
+    {
+        proc.resetStateContext(name);
+        return proc.startStateContext(name);
+    }
+
+    bool ExecutionExtension::stopStateContext(const std::string& name)
+    {
+        return proc.stopStateContext(name);
     }
 
     bool ExecutionExtension::isStateContextRunning(const std::string& name) const
@@ -97,9 +107,9 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.isStateContextRunning(name);
     }
 
-    void ExecutionExtension::resetStateContext(const std::string& name)
+    bool ExecutionExtension::resetStateContext(const std::string& name)
     {
-        proc.resetStateContext(name);
+        return proc.resetStateContext(name);
     }
 
     void ExecutionExtension::step() {
@@ -146,7 +156,17 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         if ( dataSourceFactory )
             dataFactory().registerObject( "kernel", dataSourceFactory );
 
-        // Add the commands/ data of the EE:
+        // Add the data of the EE:
+        TemplateDataSourceFactory< ExecutionExtension >* dat =
+            newDataSourceFactory( this );
+
+        dat->add( "isProgramRunning", data( &ExecutionExtension::isProgramRunning, 
+                                            "Is a program running ?", "Name", "The Name of the Loaded Program" ) );
+        dat->add( "isStateContextRunning", data( &ExecutionExtension::isStateContextRunning, 
+                                            "Is a state context running ?", "Name", "The Name of the Loaded StateContext" ) );
+        dataFactory().registerObject( "engine", dat );
+ 
+        // Add the commands of the EE:
         TemplateCommandFactory< ExecutionExtension  >* ret =
             newCommandFactory( this );
         ret->add( "startProgram", 

@@ -32,6 +32,9 @@ namespace ORO_ControlKernel
 
     PropertyExtension::~PropertyExtension()
     {
+        for( CompNames::iterator it = componentFileNames.begin();
+             it != componentFileNames.end(); ++it )
+            delete *it;
     }
 
     TaskInterface* PropertyExtension::getTask() const
@@ -49,6 +52,9 @@ namespace ORO_ControlKernel
         composeProperty(bag, save_props);
             
         // build new list of present component config files
+        for( CompNames::iterator it = componentFileNames.begin();
+             it != componentFileNames.end(); ++it )
+            delete *it;
         componentFileNames.clear();
 
         PropertyBase* res = bag.find("PropertyFiles");

@@ -27,8 +27,6 @@
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Event.hpp>
 #include "ModuleControlInterface.hpp"
-#include "DataObjectInterfaces.hpp"
-#include "PortInterfaces.hpp"
 
 namespace ORO_ControlKernel
 {
@@ -356,6 +354,7 @@ namespace ORO_ControlKernel
                 return &kernelStopped;
             return &nullEvent;
         }
+
     protected:
 
         void setKernelName( const std::string& _name)

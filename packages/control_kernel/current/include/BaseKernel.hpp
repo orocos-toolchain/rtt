@@ -22,6 +22,7 @@
 
 #include "KernelInterfaces.hpp"
 #include "DataObjectInterfaces.hpp"
+#include "PortInterfaces.hpp"
 #include "BaseComponents.hpp"
 
 #include <pkgconf/system.h>
