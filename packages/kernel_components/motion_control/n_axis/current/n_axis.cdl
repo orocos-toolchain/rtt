@@ -1,0 +1,22 @@
+cdl_package OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL_N_AXIS { 
+    display "N-Axis control components"
+    description "
+Components for N-Axis motion control, e.g. trajectory
+planning and interpolation.
+"
+    parent OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
+    requires OROPKG_KERNEL_COMPONENTS_MOTION_CONTROL
+
+    requires OROPKG_CONTROL_KERNEL
+    requires OROPKG_GEOMETRY
+    requires OROPKG_DEVICE_INTERFACE
+    requires OROPKG_DEVICE_INTERFACE_IO
+    requires OROPKG_DEVICE_INTERFACE_LOGICAL
+
+    include_dir kernel_components
+
+    compile nAxesControllerPos.cxx nAxesControllerPosVel.cxx nAxesControllerVel.cxx
+    compile nAxesEffectorVel.cxx
+    compile nAxesGeneratorPos.cxx
+    compile nAxesSensorPos.cxx
+}
