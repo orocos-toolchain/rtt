@@ -26,8 +26,6 @@
  ***************************************************************************/
 #include <pkgconf/system.h>
 #include <pkgconf/device_drivers_apci.h>
-#include <device_drivers/SwitchDigitalInapci1032.hpp>
-#include <os/fosi.h>
 
 #if defined(OROINT_DEVICE_DRIVERS_APCI1032) && defined(OROPKG_OS_LXRT)
 #include "apci_lxrt.h"
@@ -42,6 +40,8 @@ extern "C"
 #undef new
 }
 #endif
+
+#include <device_drivers/SwitchDigitalInapci1032.hpp>
 
 namespace ORO_DeviceDriver
 {
