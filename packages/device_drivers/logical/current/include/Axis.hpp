@@ -103,6 +103,12 @@ namespace ORO_DeviceDriver
          */
         AnalogDrive* getDrive() const;
 
+        /**
+         * @brief Returns the last drive value that has been send
+         */
+        double getDriveValue() const;
+
+
         virtual const SensorInterface<double>* getSensor(const std::string& name) const;
 
         /** 
@@ -121,6 +127,8 @@ namespace ORO_DeviceDriver
 
 
     private:
+        double _drive_value;
+
         /**
          * Our actuator (motor)
          */

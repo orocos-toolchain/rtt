@@ -36,7 +36,9 @@ namespace ORO_DeviceDriver
     using namespace ORO_CoreLib;
 
     Axis::Axis( AnalogDrive* a ) 
-      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true), _max_drive( std::numeric_limits<double>::max()), _max_drive_event(NULL) 
+      : _drive_value(0), act( a ), brakeswitch(0),
+         _is_locked(false), _is_stopped(false), _is_driven(true), 
+         _max_drive( std::numeric_limits<double>::max()), _max_drive_event(NULL) 
     {
       stop();
       lock();
@@ -61,6 +63,7 @@ namespace ORO_DeviceDriver
           if ( (vel < _max_drive) && (vel > -_max_drive) )
           {
               act->driveSet( vel );
+	      _drive_value = vel;
               _is_stopped = false;
               _is_driven  = true;
               return true;
@@ -85,6 +88,7 @@ namespace ORO_DeviceDriver
     {
       if (_is_driven){
         act->driveSet( 0 );
+	_drive_value = 0;
         _is_driven  = false;
         _is_stopped = true;
         return true;
@@ -120,6 +124,7 @@ namespace ORO_DeviceDriver
             brakeswitch->switchOff();
         act->enableDrive();
         act->driveSet( 0 );
+	_drive_value = 0;
         _is_locked  = false;
         _is_stopped = true;
         return true;
@@ -188,6 +193,11 @@ namespace ORO_DeviceDriver
     AnalogDrive* Axis::getDrive() const
     {
         return act;
+    }
+
+    double Axis::getDriveValue() const
+    {
+      return _drive_value;
     }
 
     void Axis::setDrive(AnalogDrive* a)
