@@ -143,7 +143,7 @@ namespace ORO_ControlKernel
          */
         bool addAxis( const std::string& name, Axis* ax )
         {
-            if ( axes.count(name) != 0 || kernel()->isRunning() )
+            if ( axes.count(name) != 0 || this->kernel()->isRunning() )
                 return false;
 
             axes[name] = make_pair(ax, -1);
@@ -170,7 +170,7 @@ namespace ORO_ControlKernel
             if ( virt_channel >= max_channels ||
                  channels[virt_channel] != 0 ||
                  axes.count(name) == 0 ||
-                 kernel()->isRunning() )
+                 this->kernel()->isRunning() )
                 return false;
 
             ++usingChannels;
@@ -185,7 +185,7 @@ namespace ORO_ControlKernel
          */
         bool removeAxis( const std::string& name )
         {
-            if ( axes.count(name) != 1 || kernel()->isRunning() )
+            if ( axes.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
             int channr = axes[name].second;

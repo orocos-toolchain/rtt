@@ -140,7 +140,7 @@ namespace ORO_ControlKernel
          */
         bool addAnalogOutput( const std::string& name, AnalogOutInterface<unsigned int>* output, int channel )
         {
-            if ( a_out.count(name) != 0 || kernel()->isRunning() )
+            if ( a_out.count(name) != 0 || this->kernel()->isRunning() )
                 return false;
 
             // we will fill in the dataobject pointer in componentStartup()
@@ -159,7 +159,7 @@ namespace ORO_ControlKernel
          */
         bool removeAnalogOutput( const std::string& name )
         {
-            if ( a_out.count(name) != 1 || kernel()->isRunning() )
+            if ( a_out.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
             delete a_out[name].first;
@@ -179,7 +179,7 @@ namespace ORO_ControlKernel
          */
         bool addChannel( int virt_channel, AnalogOutInterface<unsigned int>* output, int channel )
         {
-            if ( channels[virt_channel] != 0 || kernel()->isRunning() )
+            if ( channels[virt_channel] != 0 || this->kernel()->isRunning() )
                 return false;
 
             channels[virt_channel] = new AnalogOutput<unsigned int>( output, channel );
@@ -195,7 +195,7 @@ namespace ORO_ControlKernel
          */
         bool removeChannel( int virt_channel )
         {
-            if ( channels[virt_channel] == 0 || kernel()->isRunning() )
+            if ( channels[virt_channel] == 0 || this->kernel()->isRunning() )
                 return false;
             
             delete channels[virt_channel];
@@ -215,7 +215,7 @@ namespace ORO_ControlKernel
          */
         bool addDigitalOutput( const std::string& name, DigitalOutInterface* output, int channel, bool invert=false)
         {
-            if ( d_out.count(name) != 0 || kernel()->isRunning() )
+            if ( d_out.count(name) != 0 || this->kernel()->isRunning() )
                 return false;
 
             d_out[name] = new DigitalOutput( output, channel, invert );
@@ -231,7 +231,7 @@ namespace ORO_ControlKernel
          */
         bool removeDigitalOutput( const std::string& name )
         {
-            if ( d_out.count(name) != 1 || kernel()->isRunning() )
+            if ( d_out.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
             delete d_out[name];
@@ -299,7 +299,7 @@ namespace ORO_ControlKernel
             AOutMap::const_iterator it = a_out.find(name);
             if ( it == a_out.end() )
                 return 0;
-            return it->second->value();
+            return it->second.first->value();
         }
 
         /** 
@@ -314,7 +314,7 @@ namespace ORO_ControlKernel
             AOutMap::const_iterator it = a_out.find(name);
             if ( it == a_out.end() )
                 return 0;
-            return it->second->rawValue();
+            return it->second.first->rawValue();
         }
 
         /**

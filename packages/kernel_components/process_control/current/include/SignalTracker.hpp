@@ -125,7 +125,7 @@ namespace ORO_ControlKernel
                         if (it->enable)
                             set_point[ it->sink_chan ] = it->factor * track_point[ it->source_chan ];
                         else
-                            set_point[i] = 0;
+                            set_point[ it->sink_chan ] = 0;
                 }
         }
             
@@ -235,7 +235,8 @@ namespace ORO_ControlKernel
              * </struct>
              * </sequence>
              */
-            return decomposeProperty( max_chans, bag);
+            //return decomposeProperty( max_chans, bag);
+            return true;
         }
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER

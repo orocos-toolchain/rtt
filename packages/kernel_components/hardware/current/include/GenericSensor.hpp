@@ -150,11 +150,11 @@ namespace ORO_ControlKernel
          */
         bool addAnalogInput( const std::string& DO_name, AnalogInInterface<unsigned int>* input, int channel)
         {
-            if ( a_in.count(DO_name) != 0  || kernel()->isRunning() )
+            if ( a_in.count(DO_name) != 0  || this->kernel()->isRunning() )
                 return false;
 
-            typedef typename Base::Input::DataObject<double>::type doubleType;
-            typedef typename Base::Input::DataObject<unsigned int>::type uintType;
+            typedef typename Base::Input::template DataObject<double>::type doubleType;
+            typedef typename Base::Input::template DataObject<unsigned int>::type uintType;
 
             DataObjectInterface<double>* doi =  new doubleType( DO_name );
             DataObjectInterface<unsigned int>* raw_doi = new uintType( DO_name+"_raw" );
@@ -169,12 +169,12 @@ namespace ORO_ControlKernel
         /**
          * @brief Remove a previously added AnalogInput.
          */
-        bool removeAnalogInput( const std::string& name )
+        bool removeAnalogInput( const std::string& DO_name )
         {
-            if ( a_in.count(DO_name) != 1 || kernel()->isRunning() )
+            if ( a_in.count(DO_name) != 1 || this->kernel()->isRunning() )
                 return false;
 
-            tuple<AnalogInput<unsigned int>*, DataObjectInterface<unsigned int>*, DataObjectInterface<double>* > res = a_in[name];
+            tuple<AnalogInput<unsigned int>*, DataObjectInterface<unsigned int>*, DataObjectInterface<double>* > res = a_in[DO_name];
 
             Base::Input::dObj()->deReg( get<1>(res) );
             Base::Input::dObj()->deReg( get<2>(res) );
@@ -183,7 +183,7 @@ namespace ORO_ControlKernel
             delete get<1>(res);
             delete get<2>(res);
 
-            a_in.erase(name);
+            a_in.erase(DO_name);
             return true;
         }
 
@@ -204,7 +204,7 @@ namespace ORO_ControlKernel
          */
         bool addChannel(int virt_channel, AnalogInInterface<unsigned int>* input, int channel )
         {
-            if ( channels[virt_channel] != 0 || kernel()->isRunning() )
+            if ( channels[virt_channel] != 0 || this->kernel()->isRunning() )
                 return false;
 
             channels[virt_channel] = new AnalogInput<unsigned int>( input, channel ) ;
@@ -217,7 +217,7 @@ namespace ORO_ControlKernel
          */
         bool removeChannel( int virt_channel )
         {
-            if ( kernel()->isRunning() )
+            if ( this->kernel()->isRunning() )
                 return false;
 
             channels[virt_channel] = 0;
@@ -237,7 +237,7 @@ namespace ORO_ControlKernel
          */
         bool addDigitalInput( const std::string& name, DigitalInInterface* input, int channel, bool invert=false)
         {
-            if ( d_in.count(name) != 0 || kernel()->isRunning() )
+            if ( d_in.count(name) != 0 || this->kernel()->isRunning() )
                 return false;
 
             d_in[name] = new DigitalInput( input, channel, invert );
@@ -250,7 +250,7 @@ namespace ORO_ControlKernel
          */
         bool removeDigitalInput( const std::string& name )
         {
-            if ( d_in.count(name) != 1 || kernel()->isRunning() )
+            if ( d_in.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
             DigitalInput* res = d_in[name];
@@ -278,7 +278,7 @@ namespace ORO_ControlKernel
             DInMap::iterator it = d_in.find(name);
             if ( it == d_in.end() )
                 return false;
-            return it->second.first->isOn();
+            return it->second->isOn();
         }
 
         /** 

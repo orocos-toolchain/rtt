@@ -29,6 +29,7 @@
 #define AXIS_SENSOR_HPP
 
 #include <device_drivers/Axis.hpp>
+#include <device_drivers/AnalogDrive.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
@@ -131,7 +132,7 @@ namespace ORO_ControlKernel
          */
         bool addAxis( const std::string& name, Axis* ax )
         {
-            if ( axes.count(name) != 0 || kernel()->isRunning() )
+            if ( axes.count(name) != 0 || this->kernel()->isRunning() )
                 return false;
 
             // no channel tied == -1
@@ -144,7 +145,7 @@ namespace ORO_ControlKernel
                 d_in[ name + ".Home" ] = ax->homeswitchGet();
 
             // Create the dataobjects in the Input DO.
-            typedef typename Base::Input::DataObject<double>::type doubleType;
+            typedef typename Base::Input::template DataObject<double>::type doubleType;
             drive[ name ] = make_pair( ax->driveGet(), new doubleType(name+".Velocity") );
             Base::Input::dObj()->reg( drive[ name ].second );
 
@@ -176,7 +177,7 @@ namespace ORO_ControlKernel
                  channels[virtual_channel].first != 0 ||
                  axes.count(axis_name) != 1 ||
                  axes[axis_name]->sensorGet( sensor_name ) == 0 ||
-                 kernel()->isRunning() )
+                 this->kernel()->isRunning() )
                return false;
 
             // The owner Axis is stored in the channel.
@@ -189,7 +190,7 @@ namespace ORO_ControlKernel
          */
         bool removeAxis( const std::string& name )
         {
-            if ( axes.count(name) != 1 || kernel()->isRunning() )
+            if ( axes.count(name) != 1 || this->kernel()->isRunning() )
                 return false;
 
             for ( std::vector< pair< const SensorInterface<double>*, Axis* > >::iterator it = channels.begin();
@@ -204,7 +205,7 @@ namespace ORO_ControlKernel
             drive.erase( name );
 
             // remove all sensors.
-            std::vector<std::string> res( ax->sensorList() );
+            std::vector<std::string> res( axes[name]->sensorList() );
             for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
                 {
                     std::string sname( name+"."+*it );
