@@ -31,6 +31,7 @@
 
 #include <device_interface/DigitalInInterface.hpp>
 #include "ComediDevice.hpp"
+#include <os/fosi.h>
 
 namespace ORO_DeviceDriver
 {
@@ -56,35 +57,35 @@ namespace ORO_DeviceDriver
      */
     ComediSubDeviceDIn( ComediDevice* cd, const std::string& name, unsigned int subdevice)
       : DigitalInInterface( name ),
-	myCard( cd ), subDevice( subdevice ) 
+	myCard( cd ), _subDevice( subdevice ) 
     {
       init();
     }
 
     ComediSubDeviceDIn( ComediDevice* cd, unsigned int subdevice )
-      : myCard( cd ), subDevice( subdevice )
+      : myCard( cd ), _subDevice( subdevice )
     {
       init();
     }
 
     void init()
     {
-      if ( ( myCard->getSubDeviceType( subDevice ) != COMEDI_SUBD_DI ) &&
-	   ( myCard->getSubDeviceType( subDevice ) != COMEDI_SUBD_DIO) )
+      if ( ( myCard->getSubDeviceType( _subDevice ) != COMEDI_SUBD_DI ) &&
+	   ( myCard->getSubDeviceType( _subDevice ) != COMEDI_SUBD_DIO) )
 	{
 	  error = -1;
 	  rtos_printf( "Comedi Digital In : comedi_get_subdevice_type failed\n" );
 	}
-      rtos_printf("Setting all dio on subdevice %d to input\n",subDevice);
+      rtos_printf("Setting all dio on subdevice %d to input\n",_subDevice);
       unsigned int num_chan = this->nbOfInputs();
       for (unsigned int i=0; i<num_chan; ++i)
-	comedi_dio_config(myCard->getDevice(), subDevice, i, COMEDI_INPUT);
+	comedi_dio_config(myCard->getDevice(), _subDevice, i, COMEDI_INPUT);
     }
 
     virtual bool isOn( unsigned int bit = 0) const
     {
       unsigned int tmp;
-      comedi_dio_read( myCard->getDevice(),subDevice,bit, &tmp );
+      comedi_dio_read( myCard->getDevice(),_subDevice,bit, &tmp );
       return (tmp == 1);
     }
 
@@ -98,17 +99,22 @@ namespace ORO_DeviceDriver
       return isOn(bit);
     }
 
+    virtual unsigned int nbOfInputs() const
+    {
+      return comedi_get_n_channels(myCard->getDevice(), _subDevice);
+    }
+
     virtual unsigned int readSequence(unsigned int start_bit, unsigned int stop_bit) const
     {
       unsigned int value = 0;
-      if (start_bit > stop_bit) || (stop_bit >= this->nbOfOutputs())
+      if ((start_bit > stop_bit) || (stop_bit >= this->nbOfInputs()))
 	{
 	  rtos_printf( "Comedi Digital In : You Moron, trying to trick me?  start_bit should be less than stop_bit)\n" );
 	}
       else
 	{
 	  // Read all channels
-	  comedi_dio_bitfield(myCard->getDevice(), subDevice, 0x0, &value);
+	  comedi_dio_bitfield(myCard->getDevice(), _subDevice, 0x0, &value);
 	  // Filter data from these channels
 	  unsigned int write_mask = 0;
 	  // Can somebody check this cumbersome line please?
@@ -122,14 +128,13 @@ namespace ORO_DeviceDriver
 	  value = value >> start_bit;
 	  // Everything is in read mode, so we don't have to call
 	  // dio_config here (as in ComediSubDeviceOut.hpp)
-	  return value;
-        }
-
-      virtual unsigned int nbOfInputs() const
-        {
-	  return comedi_get_n_channels(myCard->getDevice(), subDevice);
-        }
-    protected:
+	}
+      
+      return value;
+      
+    }
+    
+  protected:
       /**
        * The output device to write to
        */
@@ -138,7 +143,7 @@ namespace ORO_DeviceDriver
       /**
        * The subdevice number of this instance in <myCard>
        */
-      unsigned int subDevice;
+      unsigned int _subDevice;
       int error;
     };
 
