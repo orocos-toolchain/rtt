@@ -9,13 +9,12 @@ Always a good way of checking your installation."
     compile TestCase.cxx                        TestCaseEvent.cxx               TestCaseSimple.cxx              TestInit.cxx                  TestSuite.cxx
     compile TestCaseCPFDemarshaller.cxx         TestCaseEventInterrupt.cxx      TestCaseTasks.cxx               tests.cxx
     compile TestCaseCPFMarshaller.cxx           TestCaseHeartBeatGenerator.cxx  TestCaseTiming.cxx              
-    compile TestCaseReporting.cxx               TestRunnerNonInteractive.cxx    
+    compile TestCaseReporting.cxx               TestRunnerNonInteractive.cxx    TestMain.cxx
 
-    compile InitFramework.cxx RunFramework.cxx
-    
-    #TestRunnerInteractive.cxx TestCaseConditionVariableTimed.cxx TestCaseXMLRPCDemarshaller.cxx
+     #TestRunnerInteractive.cxx TestCaseConditionVariableTimed.cxx TestCaseXMLRPCDemarshaller.cxx
 
     # Please, how can this look cleaner ?
+    # I recompile TestMain.cxx again, to be able to link libtarget against an object file...
     make {
 	<PREFIX>/bin/test-cases: <PACKAGE>/*.cxx <PACKAGE>/*.hpp <PREFIX>/lib/libtarget.a
 	@mkdir -p $$(dirname $@)

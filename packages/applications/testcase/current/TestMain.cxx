@@ -40,17 +40,11 @@ namespace UnitTesting
 using namespace UnitTesting;
 using namespace std;
     
-
-#include "corelib/Framework.hpp"
 #include <iostream>
 #include <os/main.h>
 
 int ORO_main(int argc, const char* argv)
 {
-    cout << "Creating Threads..."<<endl;
-    //initFramework();
-    cout << "Starting Threads..."<<endl;
-    //startFramework();
     cout << "Starting Tests..."<<endl;
     quitEvent = new Event(Event::SYNASYN);
 
@@ -71,13 +65,5 @@ int ORO_main(int argc, const char* argv)
     
     delete testMain;
     delete quitEvent;
-
-    sleep(5);
-    
-    cout << "Stopping Threads..."<<endl;
-    //stopFramework();
-    cout << "Deleting Threads..."<<endl;
-    //cleanupFramework();
-
     return retValue;
 }

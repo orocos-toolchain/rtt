@@ -67,15 +67,18 @@ namespace UnitTesting
              */
             std::string errorWrongRelativeTimeGet;
 
+        static const int Test_Steps = 1000;
         /**
          * The cumulative time over the TestCase
          */
-        HeartBeatGenerator::ticks t1;
+        HeartBeatGenerator::ticks t[ Test_Steps ];
 
         /**
          * The first time measured in the TestCase
          */
         HeartBeatGenerator::ticks mark;
+
+        int steps;
     };
 
 }
