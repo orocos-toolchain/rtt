@@ -78,7 +78,7 @@ namespace ORO_ControlKernel
   bool nAxesControllerCartesianVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !nAxesControllerCartesianVel_typedef::Output::dObj()->Get("Velocity", _velocity_out_DOI) ){
+    if ( !nAxesControllerCartesianVel_typedef::Output::dObj()->Get("Twist", _velocity_out_DOI) ){
       cerr << "nAxesControllerCartesianVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
@@ -102,8 +102,8 @@ namespace ORO_ControlKernel
     // reset integrator
     _is_initialized = false;    
     // get interface to Input/Setpoint data types
-    if ( !nAxesControllerCartesianVel_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !nAxesControllerCartesianVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
+    if ( !nAxesControllerCartesianVel_typedef::Input::dObj(   )->Get("Frame", _position_meas_DOI) ||
+	 !nAxesControllerCartesianVel_typedef::SetPoint::dObj()->Get("Twist", _velocity_desi_DOI) ){
       cerr << "nAxesControllerCartesianVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

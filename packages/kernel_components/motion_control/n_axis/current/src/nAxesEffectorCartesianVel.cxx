@@ -87,7 +87,7 @@ namespace ORO_ControlKernel
   bool nAxesEffectorCartesianVel::componentStartup()
   {
     // get interface to Output data type
-    if ( !nAxesEffectorCartesianVel_typedef::Output::dObj(   )->Get("Velocity", _velocity_cartesian_DOI) ){
+    if ( !nAxesEffectorCartesianVel_typedef::Output::dObj(   )->Get("Twist", _velocity_cartesian_DOI) ){
       cerr << "nAxesEffectorCartesianVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }

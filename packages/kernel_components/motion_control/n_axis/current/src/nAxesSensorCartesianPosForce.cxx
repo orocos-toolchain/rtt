@@ -102,8 +102,8 @@ namespace ORO_ControlKernel
   bool nAxesSensorCartesianPosForce::componentLoaded()
   {
     // get interface to Input data types
-    if (!Sensor< Writes<nAxesSensorCartesianPosForceInput_pos_force> >::Input::dObj()->Get("Position", _position_out_DOI) ||
-	!Sensor< Writes<nAxesSensorCartesianPosForceInput_pos_force> >::Input::dObj()->Get("Force", _force_out_DOI)){
+    if (!Sensor< Writes<nAxesSensorCartesianPosForceInput_pos_force> >::Input::dObj()->Get("Frame", _position_out_DOI) ||
+	!Sensor< Writes<nAxesSensorCartesianPosForceInput_pos_force> >::Input::dObj()->Get("Wrench", _force_out_DOI)){
       cerr << "nAxesSensorCartesianPosForce::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }

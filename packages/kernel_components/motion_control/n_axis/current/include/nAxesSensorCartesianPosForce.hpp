@@ -39,8 +39,8 @@ namespace ORO_ControlKernel
   public:
     nAxesSensorCartesianPosForceInput_pos_force()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Position"));
-      this->insert(ORO_ControlKernel::make_pair(1,"Force"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Frame"));
+      this->insert(ORO_ControlKernel::make_pair(1,"Wrench"));
     }
   }; // class
 

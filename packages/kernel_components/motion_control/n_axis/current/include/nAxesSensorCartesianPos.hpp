@@ -39,7 +39,7 @@ namespace ORO_ControlKernel
   public:
     nAxesSensorCartesianPosInput_pos()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Position"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Frame"));
     }
   }; // class
 

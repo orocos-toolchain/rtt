@@ -135,8 +135,8 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorCartesianPos::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !nAxesGeneratorCartesianPos_typedef::SetPoint::dObj()->Get("Position", _position_out_DOI) ||
-	 !nAxesGeneratorCartesianPos_typedef::SetPoint::dObj()->Get("Velocity", _velocity_out_DOI) ){
+    if ( !nAxesGeneratorCartesianPos_typedef::SetPoint::dObj()->Get("Frame", _position_out_DOI) ||
+	 !nAxesGeneratorCartesianPos_typedef::SetPoint::dObj()->Get("Twist", _velocity_out_DOI) ){
       cerr << "nAxesGeneratorCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
