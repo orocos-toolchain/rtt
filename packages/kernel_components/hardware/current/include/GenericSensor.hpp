@@ -134,7 +134,8 @@ namespace ORO_ControlKernel
          */
         GenericSensor( int max_chan = 32, const std::string& name="GenericSensor") 
             :  Base( name ),
-               max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan)
+               max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
+               usingChannels(0)
         {
 //             channels.resize(max_chan, AnalogInput<unsigned int>*(0) );
             channels.resize(max_chan, 0 );
@@ -169,12 +170,13 @@ namespace ORO_ControlKernel
              */
             std::for_each( a_in.begin(), a_in.end(), bind( &GenericSensor::write_a_in_to_do, this, _1 ) );
 
-            // gather results.
-            for (unsigned int i=0; i < channels.size(); ++i)
-                chan_meas[i] = channels[i] ? channels[i]->value() : 0 ;
+            if (usingChannels) {
+                for (unsigned int i=0; i < channels.size(); ++i)
+                    chan_meas[i] = channels[i] ? channels[i]->value() : 0 ;
 
-            // writeout.
-            chan_DObj->Set( chan_meas );
+                // writeout.
+                chan_DObj->Set( chan_meas );
+            }
         }
 
         /**
@@ -244,6 +246,8 @@ namespace ORO_ControlKernel
             if ( channels[virt_channel] != 0 || this->kernel()->isRunning() )
                 return false;
 
+            ++usingChannels;
+
             channels[virt_channel] = new AnalogInput<unsigned int>( input, channel ) ;
 
             return true;
@@ -256,6 +260,8 @@ namespace ORO_ControlKernel
         {
             if ( this->kernel()->isRunning() )
                 return false;
+
+            --usingChannels;
 
             channels[virt_channel] = 0;
             return true;
@@ -342,7 +348,7 @@ namespace ORO_ControlKernel
          * 
          * @return The raw value.
          */
-        unsigned int rawValue(const std::string& name) const
+        int rawValue(const std::string& name) const
         {
             AInMap::const_iterator it = a_in.find(name);
             if ( it == a_in.end() )
@@ -405,6 +411,8 @@ namespace ORO_ControlKernel
                         DataObjectInterface<unsigned int>*,
                         DataObjectInterface<double>* > > AInMap;
         AInMap a_in;
+
+        int usingChannels;
     };
 
 }

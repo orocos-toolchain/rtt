@@ -33,7 +33,8 @@ namespace ORO_ControlKernel {
     AxisSensor::AxisSensor( int max_chan , const std::string& name ) 
         :  Base(name),
            max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
-           axis_to_remove("")
+           axis_to_remove(""),
+           usingChannels(0)
     {
         Axis* _a = 0;
         SensorInterface<double>* _d = 0;
@@ -102,12 +103,14 @@ namespace ORO_ControlKernel {
         std::for_each( drive.begin(), drive.end(), bind( &AxisSensor::drive_to_do, this, _1 ) );
         std::for_each( sensor.begin(), sensor.end(), bind( &AxisSensor::sensor_to_do, this, _1 ) );
 
-        // gather results.
-        for (unsigned int i=0; i < channels.size(); ++i)
-            chan_meas[i] = channels[i].first ? channels[i].first->readSensor() : 0 ;
+        // Only write to channels if user requested so.
+        if ( usingChannels ) {
+            for (unsigned int i=0; i < channels.size(); ++i)
+                chan_meas[i] = channels[i].first ? channels[i].first->readSensor() : 0 ;
 
-        // writeout.
-        chan_DObj->Set( chan_meas );
+            // writeout.
+            chan_DObj->Set( chan_meas );
+        }
     }
 
     bool AxisSensor::addAxis( const std::string& name, Axis* ax )
@@ -125,6 +128,7 @@ namespace ORO_ControlKernel {
             d_in[ name + ".Home" ] = ax->homeswitchGet();
 
         // Before Reload, Add All DataObjects :
+        assert( this->Base::Input::dObj() );
         this->Base::Input::dObj()->addDouble(name+".Velocity");
 
         // Repeat for each additional sensor...
@@ -150,6 +154,7 @@ namespace ORO_ControlKernel {
              this->kernel()->isRunning() )
             return false;
 
+        ++usingChannels;
         // The owner Axis is stored in the channel.
         channels[virtual_channel] = std::make_pair( axes[axis_name]->sensorGet( sensor_name ), axes[axis_name] );
         return true;
@@ -162,6 +167,8 @@ namespace ORO_ControlKernel {
              channels[virtual_channel].first == 0 ||
              this->kernel()->isRunning() )
             return;
+
+        --usingChannels;
 
         Axis* _a = 0;
         SensorInterface<double>* _d = 0;

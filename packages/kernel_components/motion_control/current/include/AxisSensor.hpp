@@ -223,6 +223,7 @@ namespace ORO_ControlKernel
         AxisMap axes;
 
         std::string axis_to_remove;
+        int usingChannels;
     };
 }
 

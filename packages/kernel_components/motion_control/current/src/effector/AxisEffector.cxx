@@ -59,18 +59,20 @@ namespace ORO_ControlKernel {
     void AxisEffector::push()      
     {
         /*
-         * Acces Drives
+         * Access Drives, if a dataobject is present
          */
         std::for_each( drive.begin(), drive.end(), bind( &AxisEffector::write_to_drive, this, _1 ) );
 
-        // gather results.
+        /* Access Drives if the user uses 'ChannelValues' */
         if (usingChannels ) {
             chan_DObj->Get( chan_out );
 
             // writeout.
-            for (unsigned int i=0; i < channels.size(); ++i)
-                if ( channels[i] )
+            for (unsigned int i=0; i < channels.size(); ++i) {
+                if ( channels[i] ) {
                     channels[i]->drive( chan_out[i] );
+                }
+            }
         }
     }
 
@@ -204,6 +206,7 @@ namespace ORO_ControlKernel {
             
     void AxisEffector::write_to_drive( pair<std::string, pair<Axis*, DataObjectInterface<double>* > > dd )
     {
+        // This only do something if the Controller component has an AxisName.Drive DataObject
         // If it does not lack the Axis.Drive dataobject :
         if ( dd.second.second != 0)
             dd.second.first->drive( dd.second.second->Get() );
