@@ -140,7 +140,7 @@ namespace ORO_Execution
       {
         if ( ! bag.getProperties().empty() )
           throw wrong_number_of_args_exception(
-            bag.getProperties().size(), 0 );
+           0,  bag.getProperties().size() );
         return fun( c );
       }
 
@@ -149,7 +149,7 @@ namespace ORO_Execution
       const std::vector<DataSourceBase*>& args ) const
       {
         if ( ! args.empty() )
-          throw wrong_number_of_args_exception( args.size(), 0 );
+          throw wrong_number_of_args_exception( 0, args.size() );
         return fun( comp );
       }
   };
@@ -183,7 +183,7 @@ namespace ORO_Execution
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
         if ( props.size() != 1 )
-          throw wrong_number_of_args_exception( props.size(), 1 );
+          throw wrong_number_of_args_exception( 1, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
         if ( ! arg1 )
@@ -195,7 +195,7 @@ namespace ORO_Execution
       const std::vector<DataSourceBase*>& args ) const
       {
         if ( args.size() != 1 )
-          throw wrong_number_of_args_exception( args.size(), 1 );
+          throw wrong_number_of_args_exception( 1, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
         if ( ! a )
@@ -240,7 +240,7 @@ namespace ORO_Execution
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
         if ( props.size() != 2 )
-          throw wrong_number_of_args_exception( props.size(), 2 );
+          throw wrong_number_of_args_exception( 2, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
         if ( ! arg1 ) throw wrong_types_of_args_exception( 1 );
@@ -252,7 +252,7 @@ namespace ORO_Execution
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
       {
         if ( args.size() != 2 )
-          throw wrong_number_of_args_exception( args.size(), 2 );
+          throw wrong_number_of_args_exception( 2, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
         if ( !a ) throw wrong_types_of_args_exception( 1 );
@@ -309,7 +309,7 @@ namespace ORO_Execution
       {
         PropertyBag::PropertyContainerType props = bag.getProperties();
         if ( props.size() != 3 )
-          throw wrong_number_of_args_exception( props.size(), 3 );
+          throw wrong_number_of_args_exception( 3, props.size() );
         Property<first_argument_type>* arg1 =
           dynamic_cast<Property<first_argument_type>*>( props[0] );
         if ( !arg1 ) throw wrong_types_of_args_exception( 1 );
@@ -324,7 +324,7 @@ namespace ORO_Execution
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
       {
         if ( args.size() != 3 )
-          throw wrong_number_of_args_exception( args.size(), 3 );
+          throw wrong_number_of_args_exception( 3, args.size() );
         DataSource<first_argument_type>* a =
           dynamic_cast<DataSource<first_argument_type>*>( args[0] );
         if ( !a ) throw wrong_types_of_args_exception( 1 );

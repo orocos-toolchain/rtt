@@ -105,7 +105,7 @@ namespace ORO_Execution
     {
       throw parse_exception(
         "Wrong number of arguments in call to \"" + mcurobject + "." +
-        mcurmethod + "\": " +
+        mcurmethod + "\":\n Got " + boost::lexical_cast<std::string>( e.received ) + " argument(s), but " +
         boost::lexical_cast<std::string>( e.wanted ) + " needed." );
     }
     catch( const wrong_types_of_args_exception& e )
