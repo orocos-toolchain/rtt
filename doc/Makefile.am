@@ -2,7 +2,7 @@ SUBDIRS = .
 
 
 EXTRA_DIST = orocos-core.xml orocos-overview.xml orocos-core.dia properties.dia simple-overview.dia io-overview.dia \
-	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cpp \
+	heartbeat-tree.dia CODING_STYLE.txt demonstrateProps.cxx \
 	execution-collaboration.dia execution-sequence.dia \
     tasks_threads-conceptual.dia fdi.dia FDIvsFOSI.dia orocos-core.html  \
     execution-collaboration.png execution-sequence.png \
