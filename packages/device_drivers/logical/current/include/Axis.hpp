@@ -34,7 +34,7 @@ namespace CBDeviceDriver
 {
 
     using namespace ORO_CoreLib;
-    using namespace CAN;
+//    using namespace CAN;
     using namespace std;
     /**
      * Axis is an example of how you can easily implement
