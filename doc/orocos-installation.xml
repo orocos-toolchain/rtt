@@ -545,8 +545,11 @@
 <!-- 	  </tip> -->
 <!-- 	</para> -->
       <para>
-	When running <command>../configure --with-lxrt</command> the configure
-	script will select the os/lxrt target.
+	When running <command>../configure --with-lxrt=/usr/local/realtime</command> (the path is optional)
+	the configure
+	script will try to find your installation in <filename>/usr/local/realtime</filename>
+	and select the os/lxrt target. The default path where LXRT is being looked for is
+	<filename>/usr/realtime</filename>. Watch carefully the output to find any errors.
       </para>
       <para>
 	When the target is selected with configure, you can run
