@@ -2,7 +2,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
     display "Device Drivers JR3 Force-Torque Sensor"
 
     include_dir jr3
-#    include_files JR3Sensor.hpp
     parent OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_DRIVERS
 
@@ -33,7 +32,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
 	requires OROPKG_OS_LXRT
 	requires OROPKG_CORELIB_TASKS
     implements OROINT_DEVICE_DRIVERS_JR3
-	compile JR3Sensor.cxx JR3WrenchSensor.cxx
 	make  {
 	    <PREFIX>/modules/jr3dsp_lxrt.o : <PACKAGE>/src/jr3dsp_lxrt.c <PACKAGE>/src/jr3dsp_lxrt.h
 	    @mkdir -p $(PREFIX)/modules
