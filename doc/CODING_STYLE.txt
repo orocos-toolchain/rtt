@@ -76,6 +76,3 @@ The following coding style is used in Orocos:
     typedef ReportExporter<Property> PropertyExporter;
 
 * Boost Concept checking is allowed for use in your template classes.
-
-
-
