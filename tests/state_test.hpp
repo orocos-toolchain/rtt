@@ -38,7 +38,7 @@ class StateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testParseState );
     //CPPUNIT_TEST( testStateFailure );
     CPPUNIT_TEST( testStateChildren );
-//     CPPUNIT_TEST( testStateAnd );
+    CPPUNIT_TEST( testStateEmpty );
 //     CPPUNIT_TEST( testStateTry );
 //     CPPUNIT_TEST( testStateUntil );
 //     CPPUNIT_TEST( testStateUntilFail );
@@ -74,7 +74,7 @@ public:
     void testParseState();
     void testStateFailure();
     void testStateChildren();
-    void testStateAnd();
+    void testStateEmpty();
     void testStateTry();
     void testStateUntil();
     void testStateUntilFail();

@@ -384,7 +384,7 @@ void StateTest::testStateChildren()
         + "     do y3.stop()\n"
         + "     do z1.stop()\n"
         + " }\n"
-        + " handle {\n"
+        + " exit {\n"
         + "     do test.instantDone()\n"
         + "     do y1.deactivate()\n"
         + "     do y2.deactivate()\n"
@@ -406,10 +406,24 @@ void StateTest::testStateChildren()
     this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateAnd()
+void StateTest::testStateEmpty()
 {
-//     this->doState( prog, &gtc );
-//     this->finishState( &gtc, "x");
+    // test processing of completely empty states
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " transitions {\n"
+        + "     select TEST\n" // only a transition
+        + " }\n"
+        + " }\n"
+        + " state TEST {\n"  // not even used
+        + " }\n"
+        + " final state FINI {\n" // completely empty
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState( prog, &gtc );
+     this->finishState( &gtc, "x");
 }
 
 void StateTest::testStateTry()
