@@ -30,6 +30,7 @@
 
 #include "KernelInterfaces.hpp"
 #include "ComponentInterfaces.hpp"
+#include <os/Mutex.hpp>
 #include <corelib/Property.hpp>
 
 #include <execution/Processor.hpp>
@@ -257,7 +258,14 @@ namespace ORO_ControlKernel
 
         virtual DataSourceFactoryInterface* createDataSourceFactory();
 
-        
+        /**
+         * @brief Execute a Command safely.
+         *
+         * If the kernel is running it is processed by the Processor,
+         * otherwise, it is called directly, under critical section
+         * protection.
+         */
+        bool executeCommand( CommandInterface* c);
 
     protected:
         virtual bool initialize();
@@ -280,6 +288,8 @@ namespace ORO_ControlKernel
         Property<int> interval;
 
         std::map<std::string,ParsedStateContext*> parsed_states;
+
+        ORO_OS::Mutex execguard;
     };
 
 }

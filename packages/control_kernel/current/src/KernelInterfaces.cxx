@@ -112,6 +112,7 @@ void KernelBaseFunction::finalize()
     selectGenerator("DefaultGenerator");
     selectController("DefaultController");
     selectEffector("DefaultEffector");
+    // stop all other components in kernel implementation class.
 }
 
 double KernelBaseFunction::getPeriod() const
@@ -170,6 +171,16 @@ CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
 {
     TemplateCommandFactory< KernelBaseFunction >* ret =
         newCommandFactory( this );
+    ret->add( "start", 
+              command
+              ( &KernelBaseFunction::startKernel ,
+                &KernelBaseFunction::true_gen,
+                "Start the Kernel Task"  ) );
+    ret->add( "stop", 
+              command
+              ( &KernelBaseFunction::stopKernel ,
+                &KernelBaseFunction::true_gen,
+                "Stop the Kernel Task"  ) );
     ret->add( "selectController", 
               command
               ( &KernelBaseFunction::selectController ,

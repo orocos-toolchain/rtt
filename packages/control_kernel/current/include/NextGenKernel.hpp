@@ -257,10 +257,14 @@ namespace ORO_ControlKernel
             // is strictly non blocking (what it should be), otherwise
             // it will lead to deadlocks.
             Extension::finalize();
-            // Last, shutdown all the support components
-            NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
-            for( itl = this->supports.getValueBegin(); itl != this->supports.getValueEnd(); ++itl)
-                this->stopComponent( *itl );
+            // Last, shutdown all the remaining components
+            ComponentStateMap::iterator itl;
+            for( itl = this->componentStates.begin(); itl != this->componentStates.end(); ++itl)
+                this->shutdown( itl->first );
+            NameServer<ComponentBaseInterface*>::value_iterator its = this->supports.getValueBegin();
+            for( its = this->supports.getValueBegin(); its != this->supports.getValueEnd(); ++its)
+                this->stopComponent( *its );
+
             this->kernelStopped.fire();
         }
 

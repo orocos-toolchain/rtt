@@ -114,7 +114,7 @@ namespace ORO_ControlKernel
              *
              */
             ExtensionInterface(ControlKernelInterface* kernel, const std::string name) 
-                :extensionName(name)
+                :extensionName(name), _kernel(kernel)
             {
                 kernel->addExtension(this);
             }
@@ -138,6 +138,11 @@ namespace ORO_ControlKernel
 #endif
         protected:
             /**
+             * Return a pointer of the kernel of this Extension.
+             */
+            ControlKernelInterface* kernel() const { return _kernel; }
+
+            /**
              * @brief This method is called when the kernel is started.
              * @return true if startup may proceed, false otherwise.
              */
@@ -155,10 +160,12 @@ namespace ORO_ControlKernel
              */
             virtual void finalize() = 0;
 
+        private:
             /**
              * @brief Unique name of this extension.
              */
             std::string extensionName;
+            ControlKernelInterface* _kernel;
         };
 
     }
@@ -404,6 +411,30 @@ namespace ORO_ControlKernel
          *         False otherwise.
          */
         virtual bool stopEffector( const std::string& name ) = 0;
+
+        /**
+         * Start the task associated with this kernel.
+         * @return false if no task associated or already running
+         *         true if successful
+         */
+        bool startKernel() {
+            if ( this->kernel()->getTask() )
+                return this->kernel()->getTask()->start();
+            return false;
+        }
+
+        /**
+         * Stop the task associated with this kernel.
+         * @return false if no task associated.
+         *         true if successful
+         */
+        bool stopKernel() {
+            if ( this->kernel()->getTask() ) {
+                this->kernel()->getTask()->stop();
+                return true;
+            }
+            return false;
+        }
 
         /**
          * This method can be called to abort the startup process 

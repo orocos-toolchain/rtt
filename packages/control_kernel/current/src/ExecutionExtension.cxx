@@ -27,6 +27,8 @@
 #pragma implementation
 #include "control_kernel/ExecutionExtension.hpp"
 
+
+#include <os/MutexLock.hpp>
 #include <execution/CommandFactoryInterface.hpp>
 #include <execution/GlobalCommandFactory.hpp>
 #include <execution/GlobalDataSourceFactory.hpp>
@@ -47,6 +49,7 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_Execution;
+    using namespace ORO_OS;
     using namespace boost;
 
     ExecutionExtension::ExecutionExtension( ControlKernelInterface* _base )
@@ -226,6 +229,19 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     {
         return proc.resetStateContext(name);
     }
+
+    bool ExecutionExtension::executeCommand( CommandInterface* c)
+    {
+        if ( this->kernel()->getTask()->isRunning() )
+            return proc.process( c );
+        else {
+            MutexLock lockit( execguard );
+            c->execute();
+        }
+        return true;
+    }
+                
+                
 
     void ExecutionExtension::step() {
         if ( count % interval == 0 )

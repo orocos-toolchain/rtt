@@ -299,6 +299,7 @@ namespace ORO_ControlKernel
                     }
                 delete reporterTask;
                 delete reporter;
+                reporter = 0;
             }
 #ifdef OROINT_OS_STDIOSTREAM
         if ( toFile )
