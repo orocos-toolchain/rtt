@@ -9,5 +9,5 @@ interfaces, but is strictly not needed by applications."
 
     parent OROPKG_DEVICE_INTERFACE
     include_dir device_interface
-    compile SensorInterface.cxx
+    compile SensorInterface.cxx AxisInterface.cxx HomingInterface.cxx
 }

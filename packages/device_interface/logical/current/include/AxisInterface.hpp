@@ -1,12 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue May 4 16:49:13 CEST 2004  CalibrationInterface.hpp 
 
-                        CalibrationInterface.hpp -  description
-                           -------------------
-    begin                : Tue May 04 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
+                       AxisInterface.hpp -  description
+                          -------------------
+   begin                : Thu October 21 2004
+   copyright            : (C) 2002 Johan Rutgeerts
+   email                : peter.soetens@mech.kuleuven.ac.be
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,41 +22,38 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
-#ifndef CALIBRATION_INTERFACE_HPP
-#define CALIBRATION_INTERFACE_HPP
+ ***************************************************************************/
+
+#ifndef _AXISINTERFACE_HPP
+#define _AXISINTERFACE_HPP
+
+#include "HomingInterface.hpp"
+#include <device_interface/SensorInterface.hpp>
+#include <string>
 
 namespace ORO_DeviceInterface
 {
-    /**
-     * @brief A class which will calibrate a sensor. It is
-     * useful for making 'calibration' objects.
-     * @see SensorInterface
-     */
-    class CalibrationInterface
-    {
-    public:
-        virtual ~CalibrationInterface() {}
-        /**
-         * @brief Start or perform calibration.
-         */
-        virtual void calibrate() = 0;
 
-        /** 
-         * @brief Inspect if a calibration has been done.
-         * 
-         * 
-         * @return True if so.
-         */
-        virtual bool isCalibrated() const = 0;
+class AxisInterface
+{
+public:
 
-        /** 
-         * @brief Undo any previous calibration
-         * ( this function may have no effect ).
-         */
-        virtual void unCalibrate() = 0;
-    };
-}
+    AxisInterface() {};
 
-#endif
+    virtual ~AxisInterface() {};
+
+    virtual bool enable() = 0;
+    virtual bool disable() = 0;
+
+    virtual bool drive( double v ) = 0;
+
+    virtual HomingInterface* getHomingInterface() = 0;
+
+    virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
+};
+
+
+}; // namespace ORO_DeviceInterface
+
+#endif //_AXISINTERFACE_HPP
+

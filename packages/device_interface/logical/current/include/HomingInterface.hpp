@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue May 4 16:49:13 CEST 2004  CalibrationInterface.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:22:14 CEST 2002  Axis.hpp 
 
-                        CalibrationInterface.hpp -  description
-                           -------------------
-    begin                : Tue May 04 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
- 
+                          HomingInterface.hpp -  description
+                          -------------------
+   begin                : Thu October 21 2004
+   copyright            : (C) 2004 Johan Rutgeerts
+   email                : peter.soetens@mech.kuleuven.ac.be
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,41 +23,50 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
-#ifndef CALIBRATION_INTERFACE_HPP
-#define CALIBRATION_INTERFACE_HPP
+ ***************************************************************************/
+
+#ifndef _HOMING_INTERFACE_HPP
+#define _HOMING_INTERFACE_HPP
 
 namespace ORO_DeviceInterface
 {
+
+class HomingInterface
+{
+public:
+
     /**
-     * @brief A class which will calibrate a sensor. It is
-     * useful for making 'calibration' objects.
-     * @see SensorInterface
+     * A HomingInterface provides all necessary data to perform axis homing.
+     *
      */
-    class CalibrationInterface
-    {
-    public:
-        virtual ~CalibrationInterface() {}
-        /**
-         * @brief Start or perform calibration.
-         */
-        virtual void calibrate() = 0;
+    HomingInterface();
 
-        /** 
-         * @brief Inspect if a calibration has been done.
-         * 
-         * 
-         * @return True if so.
-         */
-        virtual bool isCalibrated() const = 0;
+    virtual ~HomingInterface();
 
-        /** 
-         * @brief Undo any previous calibration
-         * ( this function may have no effect ).
-         */
-        virtual void unCalibrate() = 0;
-    };
-}
+    /**
+     * Returns true if a 'home switch event' has occurred 
+     * (e.g. a home switch pulsed or changed its state) since
+     * the last reset.
+     */
+    virtual bool homingStatus() = 0;
 
-#endif
+    
+    /**
+     * Sets the homingstatus to false.
+     */
+    virtual void resetHomingStatus() = 0;
+
+    
+    /**
+     * Returns the recommended drive value for coarse movement to
+     * the home switch. If the axis is driven with this value,
+     * a 'home switch event' is guaranteed to occur.
+     */
+    virtual double homingDriveValue() = 0;
+
+};
+
+}; //namespace ORO_DeviceInterface
+
+#endif //_HOMING_INTERFACE_HPP
+

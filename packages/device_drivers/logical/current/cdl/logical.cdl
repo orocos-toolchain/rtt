@@ -11,5 +11,5 @@ classes."
 
     include_dir device_drivers
 
-    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx
+    compile Axis.cxx HardwareAxis.cxx SimulationAxis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx AbsoluteEncoderSensor.cxx IncrementalEncoderSensor.cxx
 }
