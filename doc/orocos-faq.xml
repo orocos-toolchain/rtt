@@ -17,11 +17,11 @@
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
-    <pubdate>15 January, 2005</pubdate>
+    <pubdate>13 January, 2005</pubdate>
     <revhistory>
       <revision>
         <revnumber>0.1</revnumber>
-        <date>15 Jan 2005</date>
+        <date>13 Jan 2005</date>
         <authorinitials>PS</authorinitials>
         <revremark>
 	  Initial version.
@@ -147,8 +147,8 @@
 	<answer>
 	  <para>
 	    Orocos works with RTAI 3.0r4 ( you need to apply a <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai3.0rx.patch">patch</ulink> 
-	    ) and RTAI 3.1
+	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> 
+	    ) and RTAI 3.1 (no patch).
 	  </para>
 	</answer>
       </qandaentry>
