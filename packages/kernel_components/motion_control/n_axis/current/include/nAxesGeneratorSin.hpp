@@ -84,7 +84,7 @@ namespace ORO_ControlKernel
   private:
     unsigned int                                                          _num_axes;
 
-    std::vector<double>                                                   _position_desired, _position_initial,  _position_local, _velocity_local;
+    std::vector<double>                                                   _position_desired, _position_meas_local, _position_initial,  _position_local, _velocity_local;
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI, *_position_DOI, *_velocity_DOI;
 
     ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
