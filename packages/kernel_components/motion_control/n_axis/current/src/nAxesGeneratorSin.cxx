@@ -32,6 +32,7 @@ namespace ORO_ControlKernel
     : nAxesGeneratorSin_typedef(name),
       _num_axes(num_axes), 
       _position_desired(num_axes),
+      _position_meas_local(num_axes),
       _position_initial(num_axes),
       _position_local(num_axes),
       _velocity_local(num_axes),
@@ -53,7 +54,10 @@ namespace ORO_ControlKernel
     // initialize
     if (!_is_initialized){
       _is_initialized = true;
-      _position_meas_DOI->Get(_position_initial);
+      _position_meas_DOI->Get(_position_meas_local);
+      for (unsigned int i=0; i<_num_axes; i++)
+	_position_initial[i] = _position_meas_local[i] - ( _sin_amplitude.value()[i] * sin(_sin_phase.value()[i]) );
+
       _time_begin = HeartBeatGenerator::Instance()->ticksGet();
     }
   }
@@ -63,7 +67,7 @@ namespace ORO_ControlKernel
   {
     _time_passed = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
     for (unsigned int i=0; i<_num_axes; i++){
-      _position_local[i] = _position_initial[i] + _sin_amplitude.value()[i] * sin( (_sin_frequency.value()[i] * _time_passed) + _sin_phase.value()[i] );
+      _position_local[i] = _position_initial[i] + (_sin_amplitude.value()[i] * sin( (_sin_frequency.value()[i] * _time_passed) + _sin_phase.value()[i] ));
       _velocity_local[i] = _sin_amplitude.value()[i] * _sin_frequency.value()[i] * cos( (_sin_frequency.value()[i] * _time_passed) + _sin_phase.value()[i] );
     }
   }
@@ -94,13 +98,16 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorSin::componentStartup()
   {
     // check if updateProperties has been called
-    assert(_properties_read);
+    if (!_properties_read){
+      cerr << "nAxesGeneratorSin::componentStartup() Properties have not been read." << endl;
+      return false;
+    }
 
     // initialize
     _is_initialized = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !nAxesGeneratorSin_typedef::Input::dObj()->Get("Sinition", _position_meas_DOI) ){
+    if ( !nAxesGeneratorSin_typedef::Input::dObj()->Get("Position", _position_meas_DOI) ){
       cerr << "nAxesGeneratorSin::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
