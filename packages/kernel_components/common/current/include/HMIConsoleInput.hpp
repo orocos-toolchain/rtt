@@ -32,6 +32,7 @@
 #include <execution/TemplateDataSourceFactory.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
 #include <execution/Parser.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -55,7 +56,7 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base = SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
+    template< class Base = SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class HMIConsoleInput
         : public Base
     {

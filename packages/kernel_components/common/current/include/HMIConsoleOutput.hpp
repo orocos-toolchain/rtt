@@ -32,6 +32,8 @@
 #include <execution/TemplateDataSourceFactory.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/PropertyComposition.hpp>
 #include <iostream>
 
 #pragma interface
@@ -48,7 +50,7 @@ namespace ORO_ControlKernel
      * HMI == Human-Machine Interface
      * @ingroup kcomps kcomp_support
      */
-    template< class Base = SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > >
+    template< class Base = SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > >
     class HMIConsoleOutput
         : public Base
     {
@@ -132,51 +134,6 @@ namespace ORO_ControlKernel
     };
 
     extern template class HMIConsoleOutput<>;
-
-#if 0
-    /**
-     * @brief This component can be used to display messages on the
-     * standard output. 
-     *
-     * It should not be used in hard realtime
-     * programs, but is nice for testing program and state scripts.
-     * HMI == Human-Machine Interface
-     * @ingroup kcomps kcomp_support
-     */
-    class HMIConsoleOutputImpl
-        : public SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase >
-    {
-        std::string coloron;
-        std::string coloroff;
-        typedef SupportComponent< MakeExtension<KernelBaseFunction, ExecutionExtension>::Result::CommonBase > Base;
-    public :
-        HMIConsoleOutputImpl();
-
-        /**
-         * @brief Display a message on standard output.
-         */
-        void display(const std::string & what);
-
-        /**
-         * @brief Display a boolean on standard output.
-         */
-        void displayBool(bool what);
-
-        /**
-         * @brief Display an integer on standard output.
-         */
-        void displayInt( int what);
-
-        /**
-         * @brief Display a double on standard output.
-         */
-        void displayDouble( double what );
-
-        bool true_gen() const { return true; }
-
-        // Commands are display commands.
-        CommandFactoryInterface* createCommandFactory();
-    };
 
 }
 

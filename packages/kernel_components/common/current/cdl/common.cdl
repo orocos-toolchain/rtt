@@ -5,6 +5,8 @@ Components for Control Kernels. This parent
 package contains some common, application
 independent Components."
 
+    requires OROPKG_CONTROL_KERNEL
+
     include_dir kernel_components
 
     compile HMIConsoleOutput.cxx HMIConsoleInput.cxx
