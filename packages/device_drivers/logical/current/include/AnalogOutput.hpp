@@ -21,32 +21,27 @@ namespace ORO_DeviceDriver
         /**
          * Create an analog output object to read the state of a channel.
          *
-         * this->value() = this->rawValue()*scale + offset;
-         *
          * @param ana_out     The analog output device to use to read the status.
          * @param channel_nr The channel number to use on the device.
-         * @param offset  The offset to be added to the converted value of the raw input.
-         * @param scale   Conversion factor for the raw input value.
          */
-        AnalogOutput( AnalogOutInterface<OutputType>* ana_out, unsigned int channel_nr, double _offset=0.0, double _scale=1.0)
-            :board(ana_out), channel(channel_nr),
-             offset(_offset), scale(_scale)
+        AnalogOutput( AnalogOutInterface<OutputType>* ana_out, unsigned int channel_nr )
+            :board(ana_out), channel(channel_nr)
         {
         }
 
         /**
          * Destruct the AnalogOutput.
          */
-        virtual ~AnalogOutput() {};
+        ~AnalogOutput() {};
 
         /**
          * Write the value of this channel.
          */
-        void value(double d)
+        void value(double v)
         {
-            d_cache = d;
-            OutputType res = OutputType((d-offset)/scale);
-            board->write(channel, res);
+            d_cache = v;
+            i_cache = board->binaryLowest() + OutputType( ( v - board->lowest(channel) ) * board->resolution(channel) );
+            board->write(channel, i_cache);
         }
 
         /**
@@ -63,7 +58,7 @@ namespace ORO_DeviceDriver
          */
         double value()
         {
-            return d_cache;
+             return d_cache;
         }
 
         /**
@@ -74,13 +69,28 @@ namespace ORO_DeviceDriver
             return i_cache;
         }
 
+        /**
+         * Return the highest output.
+         */
+        double highest()
+        {
+            return board->highest(channel);
+        }
+
+        /**
+         * Return the lowest output.
+         */
+        double lowest()
+        {
+            return board->lowest(channel);
+        }
+
     private:
         AnalogOutInterface<OutputType> *board;
         int channel;
-        double offset, scale;
         double d_cache;
         OutputType i_cache;
     };
-};
+}
 
 #endif // ANALOGOUTPUT_HPP

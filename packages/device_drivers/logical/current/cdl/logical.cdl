@@ -11,7 +11,7 @@ classes."
 
     include_dir device_drivers
 
-    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx Drive.cxx DistanceSensor.cxx
+    compile Axis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx DistanceSensor.cxx
     #compile SwitchEndLimit.cxx
 
 }

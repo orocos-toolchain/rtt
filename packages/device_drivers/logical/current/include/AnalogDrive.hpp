@@ -20,11 +20,13 @@
    - Adapted to new AnalogOutInterface API
 */ 
 
-#ifndef DEVICE_DRIVERS_DRIVE_HPP
-#define DEVICE_DRIVERS_DRIVE_HPP
+#ifndef DEVICE_DRIVERS_ANALOGDRIVE_HPP
+#define DEVICE_DRIVERS_ANALOGDRIVE_HPP
 
 #include <device_interface/AnalogOutInterface.hpp>
 #include <device_interface/DigitalOutInterface.hpp>
+#include "AnalogOutput.hpp"
+#include "DigitalOutput.hpp"
 
 namespace ORO_DeviceDriver
 {
@@ -55,12 +57,12 @@ namespace ORO_DeviceDriver
          * @param _scale The scale of unit per volt such that unit = volt * _scale
          * @param _offset The offset to be added to the unit such that new_unit = vel + offset
          */
-        AnalogDrive( AnalogOutput<double>* an_out,
+        AnalogDrive( AnalogOutput<unsigned int>* an_out,
                DigitalOutput* dig_out, DigitalOutput* _break, double _scale=1.0, double _offset=0.0 )
-            : analogDevice( an_out )
+            : analogDevice( an_out ),
             enableDevice(dig_out), breakDevice(_break), mySpeed(0.0),
             scale(_scale), offset( _offset ),
-            lowvel( an_out->highest() ), highvel( an_out->lowest )
+            lowvel( an_out->highest() ), highvel( an_out->lowest() )
         {
             driveSet(0);
             enableBreak();
@@ -114,13 +116,43 @@ namespace ORO_DeviceDriver
             return !enableDevice->isOn();
         }
 
+        DigitalOutput* breakGet()
+        {
+            return breakDevice;
+        }
+
+        DigitalOutput* enableGet()
+        {
+            return enableDevice;
+        }
+
         /**
          * Limit the velocity of the drive.
          */
         void limit(double lower, double higher)
         {
             lowvel = lower;
-            highvel = higer;
+            highvel = higher;
+        }
+
+        /**
+         * Lock the drive mechanically into one position.
+         */
+        void lock()
+        {
+            driveSet(0);
+            enableBreak();
+            disableDrive();
+        }
+
+        /**
+         * Stop the drive controlled in one position.
+         */
+        void stop()
+        {
+            driveSet(0);
+            enableDrive();
+            disableBreak();
         }
 
         /**
@@ -132,7 +164,7 @@ namespace ORO_DeviceDriver
 
             // limit v;
             if ( mySpeed < lowvel )
-                mySpeed = lower;
+                mySpeed = lowvel;
             else if ( mySpeed > highvel)
                 mySpeed = highvel;
 
@@ -154,7 +186,7 @@ namespace ORO_DeviceDriver
          */
         double maxDriveGet() const
         {
-            return a_out->highest()*scale-offset;
+            return analogDevice->highest()*scale-offset;
         }
 
         /**
@@ -162,7 +194,7 @@ namespace ORO_DeviceDriver
          */
         double minDriveGet() const
         {
-            return a_out->lowest()*scale-offset;
+            return analogDevice->lowest()*scale-offset;
         }
 
     protected:
@@ -171,6 +203,7 @@ namespace ORO_DeviceDriver
         DigitalOutput* enableDevice;
         DigitalOutput* breakDevice;
 
+        double mySpeed;
         double scale, offset;
         double lowvel, highvel;
     };

@@ -41,7 +41,7 @@ namespace ORO_DeviceDriver
              * @param dig_in The digital input device to use to read the status.
              * @param bit_nr The bit number to use on the device.
              */
-            DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr, bool _invert )
+            DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr, bool _invert = false )
                 :board(dig_in), bitnumber(bit_nr) , invert(_invert)
             {
             }
@@ -49,15 +49,15 @@ namespace ORO_DeviceDriver
             /**
              * Destruct the DigitalInput.
              */
-            virtual ~DigitalInput() {};
+            ~DigitalInput() {};
 
             /**
              * Status.
              *
              * @return true if the input is high.
              */
-            bool isOn()
-            {
+            bool isOn() const
+            {  
                 // Q: who knew that != is logical xor ?
                 return invert != board->isOn(bitnumber);
             }

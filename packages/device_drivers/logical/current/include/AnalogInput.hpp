@@ -21,49 +21,43 @@ namespace ORO_DeviceDriver
         /**
          * Create an analog input object to read the state of a channel.
          *
-         * this->value() = this->rawValue()*scale + offset;
-         *
          * @param ana_in     The analog input device to use to read the status.
          * @param channel_nr The channel number to use on the device.
-         * @param offset  The offset to be added to the converted value of the raw input.
-         * @param scale   Conversion factor for the raw input value.
          */
-        AnalogInput( AnalogInInterface<InputType>* ana_in, unsigned int channel_nr, double _offset=0.0, double _scale=1.0)
-            :board(ana_in), channel(channel_nr),
-             offset(_offset), scale(_scale)
+        AnalogInput( AnalogInInterface<InputType>* ana_in, unsigned int channel_nr )
+            :board(ana_in), channel(channel_nr)
         {
         }
 
         /**
          * Destruct the AnalogInput.
          */
-        virtual ~AnalogInput() {};
+        ~AnalogInput() {};
 
         /**
          * Read the value of this channel.
          */
-        double value()
+        double value() const
         {
-            InputType d;
-            board->read(channel, d);
-            return d*scale + offset;
+            InputType r;
+            board->read(channel, r);
+            return ( r - board->binaryLowest() ) / board->resolution(channel) + board->lowest(channel);
         }
 
         /**
          * Read the raw value of this channel.
          */
-        InputType rawValue()
+        InputType rawValue() const
         {
-            InputType i;
-            board->read(channel, i);
-            return i;
+            InputType r;
+            board->read(channel, r);
+            return r;
         }
 
     private:
         AnalogInInterface<InputType> *board;
         int channel;
-        double offset, scale;
     };
-};
+}
 
 #endif // ANALOGINPUT_HPP

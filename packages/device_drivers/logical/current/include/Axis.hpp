@@ -17,57 +17,52 @@
    ***************************************************************************/
 
 
-#ifndef AXIS_HPP
-#define AXIS_HPP
+#ifndef DEVICEDRIVERS_AXIS_HPP
+#define DEVICEDRIVERS_AXIS_HPP
 
 #include <device_interface/EncoderInterface.hpp>
+#include <device_interface/SensorInterface.hpp>
 #include "DigitalInput.hpp"
-#include "Drive.hpp"
-
-//#include <corelib/EventListenerInterface.hpp>
-//#include <corelib/EventCompleterInterface.hpp>
-//#include <corelib/TaskPreemptible.hpp>
+#include "AnalogDrive.hpp"
 
 #include <math.h>
 
 namespace ORO_DeviceDriver
 {
+    class Axis_PositionSensor;
+
 
     using namespace ORO_DeviceInterface;
 
     /**
-     * Axis is an example of how you can easily implement
-     * a generic axis using the Device Interfaces. Most people can use this class to see
-     * how some tasks are combined in a component (the Axis) and that this
-     * component can execute them on request. 
+     * @brief Axis is an example of how you can easily implement
+     * a generic axis using the Device Interfaces.
      *
-     * Take a look at the ActuatorInterface, EncoderInterface,
-     * DigitalInput classes for 
-     * the interfaces which your classes must implement so you can use Axis.
+     * @todo PositionSensor for this axis, so that the constructor looks like:
+     *       Axis( AnalogDrive* drive );
      */
     class Axis
     {
     public:
 
         /**
-         * Constructs an Axis object and initializes the Actuator,Encoder and
-         * Homing switch with the appropriate attributes.
+         * Constructs an Axis object and initializes the Drive,Encoder and
+         * Homing switch. 
          * 
-         * @post the actuator is stopped
+         * @post the drive is disabled
+         * @post The Drive, EncoderInterface and DigitalInput are aggregated by the Axis.
          */
-        Axis( Drive* a, double _v_to_u,  EncoderInterface* e, double _mm_to_inc,  DigitalInput* s ) 
-            : act( a ), encoder( e ), swt( s ), v_to_u(_v_to_u), mm_to_inc(_mm_to_inc), posOffset(0)
-        {
-            act->disableDrive();
-            this->reset();
-        }
+        Axis( AnalogDrive* a,  EncoderInterface* e, double _unit_to_inc,  DigitalInput* s);
 
+        /**
+         * Disable the Drive and destruct the Axis object.
+         * @post Drive, Encoder and DigitalInput objects are deleted.
+         */
         virtual ~Axis();
 
         /**
-         * Resets the component.
-         * @post The actuator is stopped
-         * @post Calibration is undone
+         * Resets the Axis.
+         * @post The actuator is fully stopped.
          */
         void reset();
 
@@ -75,14 +70,21 @@ namespace ORO_DeviceDriver
 
         void disable();
 
+        bool isEnabled();
+
         void turnSet( int t );
 
-        void move( double v );
+        void drive( double v );
 
         double positionGet();
 
+        void sensorSet(const std::string& name, SensorInterface<double>* _sens);
+        SensorInterface<double>* sensorGet(const std::string& name);
+
         void positionSet( double newpos );
         
+        void positionLimits(double min, double max);
+
         /**
          * Calibrate the Axis with a given calibration position
          * and direction of the counter.
@@ -94,12 +96,10 @@ namespace ORO_DeviceDriver
          */
         double calibrate( double cal_pos, double direction);
 
-        double velocity();
-
         /**
-         * Returns the actuator used
+         * Returns the drive used
          */
-        Drive* actuatorGet();
+        AnalogDrive* driveGet();
 
         /**
          * Returns the encoder used
@@ -115,7 +115,7 @@ namespace ORO_DeviceDriver
         /**
          * Our actuator (motor)
          */
-        Drive* act;
+        AnalogDrive* act;
         /**
          * Our encoder
          */
@@ -126,159 +126,17 @@ namespace ORO_DeviceDriver
          */
         DigitalInput* swt;
 
-        double v_to_u;
-        double mm_to_inc;
+        double unit_to_inc;
         double posOffset;
 
+        Axis_PositionSensor* pos_sens;
+
+        bool status;
+
+        std::map<std::string,SensorInterface<double>* > sens;
     };
 
 }
-
-#if 0
-
-class HomeTask;
-friend class HomeTask;
-
-/**
- * The HomeTask will home the axis until an event is 
- * received from the homing switch. It will then reset the encoder
- * and stop the axis.
- */
-class HomeTask : public TaskPreemptible, 
-                 public EventListenerInterface,
-                 public EventCompleterInterface
-{
-public:
-    HomeTask(Axis* ax) 
-        : TaskPreemptible(0.01), phase(0), parent(ax), k(0.0001), t(0)
-    {
-    }
-    virtual bool initialize()
-    {
-        phase = 0;
-        homingPos = 0;
-        cout << "Homing..." << endl;
-        parent->swt->homingEvent()->addHandler( this, this );
-        double res = 0.05 * parent->act->minDriveGet(); // 5% of backward
-        parent->act->drive( res );
-        return true;
-    }
-    virtual void step() 
-    {
-        // you can put a trajectory here.
-        if (phase == 1)
-            {
-                int cur_pos;
-                parent->encincr->readCounter(cur_pos);
-                int ref_pos = int( 500.0 * sin(2.*M_PI/10.*t) ); // sin goes forward then backward until negative.
-                int e = ref_pos - cur_pos;
-                cout <<"R: "<<ref_pos<<" t: "<<float(t)<<" cur: "<<cur_pos<<endl;
-                parent->act->drive(k*e*parent->act->maxDriveGet() );
-                t += 0.01;
-            }
-    }
-    virtual void finalize()
-    {
-        parent->swt->homingEvent()->removeHandler( this, this );
-        cout <<endl;
-    }
-
-    virtual void handleEvent( CallbackInterface* ei )
-    {
-        cout << "Homing Event Occured !\n";
-        parent->encincr->readCounter( homingPos );
-        ei->complete();
-    }
-
-    virtual void completeEvent()
-    {
-        parent->act->stop();     
-        parent->encincr->reset(); 
-                
-        rtos_printf( "Completer : Homed at %d", homingPos );
-
-        if ( phase == 0 )
-            {
-                t = 0;
-                phase = 1;
-            }
-        else
-            {
-                phase = 0;
-                this->stop();
-            }
-    }
-
-protected:
-    /**
-     * A variable used for home()
-     */
-    int homingPos;
-
-    int phase;
-
-    Axis* parent;
-
-    double k;
-    double t;
-
-} homeTask;
-
-class CallibrationTask;
-friend class CallibrationTask;
-
-/**
- * The CallibrationTask simply measures drift and sets the offset of
- * the actuator accordingly.
- */
-class CallibrationTask 
-    : public TaskPreemptible
-{
-public:
-    CallibrationTask(Axis* ax) : TaskPreemptible(0.01), parent(ax) {}
-
-    virtual bool initialize()
-    {
-        encPos = 0; oldPos = 0; offset = 0; t = 0;
-        parent->act->stop();
-        parent->encincr->readCounter( oldPos );
-        // this should take how many time ? is this present in comedi ?
-        rtos_printf( "Starting Callibration.\n" );
-        return true;
-    }
-
-    virtual void step()
-    {
-        parent->encincr->readCounter( encPos );
-
-        if ( t < 100 )
-            {
-                if ( oldPos < encPos )
-                    --offset; // go slower
-                else if ( oldPos > encPos )
-                    ++offset; // go faster
-                        
-                // apply changes
-                parent->act->offsetSet( offset );
-                parent->act->stop();
-                        
-                ++t;
-                oldPos = encPos;
-            }
-        else
-            stop();
-    }
-    virtual void finalize()
-    {
-        rtos_printf( "Offset : %d. Took me %d loops\n", offset, t );
-    }
-protected:
-    Axis* parent;
-    int encPos, oldPos, t, offset;
-} calTask;
-
-
-#endif
 
 
 #endif

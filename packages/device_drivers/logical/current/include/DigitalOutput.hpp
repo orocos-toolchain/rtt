@@ -15,7 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
+#ifndef DIGITAL_OUTPUT_HPP
+#define DIGITAL_OUTPUT_HPP
  
  
 #include <device_interface/DigitalOutInterface.hpp>
@@ -38,14 +39,14 @@ namespace ORO_DeviceDriver
              * @param dig_out The digital output device to use
              * @param relay_nr The bit number to use on <dig_out>
              */
-            DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert )
+            DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert=false )
                 : board( dig_out ), relaynumber( relay_nr ), invert(_invert)
             {}
 
             /**
              * Destruct a DigitalOutpuputt
              */
-            virtual ~DigitalOutput()
+            ~DigitalOutput()
             {}
 
             /**
@@ -69,9 +70,9 @@ namespace ORO_DeviceDriver
              *
              * @return true if the bit is high.
              */
-            bool isOn()
+            bool isOn() const
             {
-                return invert ^ board->checkBit( relaynumber );
+                return invert != board->checkBit( relaynumber );
             }
 
         private:
@@ -81,3 +82,4 @@ namespace ORO_DeviceDriver
     };
 };
 
+#endif

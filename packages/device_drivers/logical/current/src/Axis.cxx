@@ -17,38 +17,117 @@
 ***************************************************************************/
 
 #include "device_drivers/Axis.hpp"
-#include <corelib/EventInterfaces.hpp>
+
 
 
 
 namespace ORO_DeviceDriver
 {
+    struct Axis_PositionSensor
+        : public SensorInterface<double>
+    {
+        Axis* ax;
+        double min;
+        double max;
+
+        Axis_PositionSensor(Axis* _ax, double _minpos, double _maxpos) : ax(_ax), min(_minpos), max(_maxpos) {}
+
+        virtual int readSensor( double& p ) const
+        {
+            p = ax->positionGet();
+            return 0;
+        }
+
+        void limit(double _min, double _max) 
+        {
+            min = _min;
+            max = _max;
+        }
+
+        virtual double readSensor() const
+        {
+            return ax->positionGet();
+        }
+
+        virtual double maxMeasurement() const
+        {
+            return max;
+        }
+
+        virtual double minMeasurement() const
+        {
+            return min;
+        }
+
+        virtual double zeroMeasurement() const
+        {
+            return 0.0;
+        }
+    };
+
 
     using namespace ORO_CoreLib;
 
-    Axis::~Axis()
+    Axis::Axis( AnalogDrive* a,  EncoderInterface* e, double _unit_to_inc,  DigitalInput* s) 
+        : act( a ), encoder( e ), swt( s ), unit_to_inc(_unit_to_inc), posOffset(0), status(false)
     {
-        act->disableDrive();
+        this->reset();
+        pos_sens = new Axis_PositionSensor(this, 0.0, 0.0);
+        this->sensorSet("Position",pos_sens);
     }
 
-    void Axis::move( double vel )
+    Axis::~Axis()
     {
-        act->driveSet( vel * v_to_u );
+        reset();
+        delete pos_sens;
+        delete act;
+        delete encoder;
+        delete swt;
+    }
+
+    void Axis::drive( double vel )
+    {
+        act->driveSet( vel );
     }
 
     void Axis::enable()
     {
-        act->enableDrive();
+        act->stop();
+        status = true;
+    }
+
+    bool Axis::isEnabled()
+    {
+        return status;
     }
 
     void Axis::disable()
     {
-        act->disableDrive();
+        act->lock();
+        status = false;
+    }
+
+    void Axis::positionLimits(double min, double max)
+    {
+        pos_sens->limit(min, max);
     }
 
     double Axis::positionGet()
     {
-        return double( encoder->turnGet()*encoder->resolution() +  encoder->positionGet() ) / mm_to_inc + posOffset;
+        return double( encoder->turnGet()*encoder->resolution() +  encoder->positionGet() ) / unit_to_inc + posOffset;
+    }
+
+    void Axis::sensorSet(const std::string& name,  SensorInterface<double>* _sens)
+    {
+        sens[name] = _sens;
+    }
+
+    SensorInterface<double>* Axis::sensorGet(const std::string& name)
+    {
+        if (sens.count(name) == 0)
+            return 0;
+        else
+            return sens[name];
     }
 
     void Axis::positionSet( double newpos )
@@ -61,17 +140,17 @@ namespace ORO_DeviceDriver
         double currentPos;
         if ( sign < 0 )
             {
-                if ( mm_to_inc > 0)
-                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet() ) / mm_to_inc;
+                if ( unit_to_inc > 0)
+                    currentPos = calpos - ( encoder->resolution() - encoder->positionGet() ) / unit_to_inc;
                 else
-                    currentPos = calpos - encoder->positionGet() / mm_to_inc;
+                    currentPos = calpos - encoder->positionGet() / unit_to_inc;
             }
         else
             {
-                if ( mm_to_inc > 0)
-                    currentPos =  calpos + encoder->positionGet() / mm_to_inc;
+                if ( unit_to_inc > 0)
+                    currentPos =  calpos + encoder->positionGet() / unit_to_inc;
                 else
-                    currentPos = calpos + (encoder->resolution() - encoder->positionGet() ) / mm_to_inc;
+                    currentPos = calpos + (encoder->resolution() - encoder->positionGet() ) / unit_to_inc;
             }
         double oldposition = positionGet();
         positionSet( currentPos );
@@ -83,18 +162,14 @@ namespace ORO_DeviceDriver
         encoder->turnSet( t );
     }
 
-    double Axis::velocity()
-    {
-        return act->driveGet() / v_to_u;
-    }
-
     void Axis::reset()
     { 
+        act->driveSet( 0 );
+        act->enableBreak();
         act->disableDrive();
-        act->stop();
     }
 
-    Drive* Axis::actuatorGet()
+    AnalogDrive* Axis::driveGet()
     {
         return act;
     }
