@@ -33,6 +33,7 @@
 //#include <os/Time.hpp>
 
 #include <pkgconf/os_lxrt.h>
+#include "fosi.h"
 
 extern "C"
 int lock_all(int stk, int heap);
@@ -51,7 +52,7 @@ namespace ORO_OS
             
         virtual ~SchedPolicy();
     protected:
-        void* rt_task;
+        RT_TASK* rt_task;
     };
 
     /**

@@ -26,11 +26,11 @@
  ***************************************************************************/
 
 #include "os/MainThread.hpp"
-#include <linux/module.h>
+//#include <linux/module.h>
 #include <sched.h>
 #include <sys/mman.h>
 #include <iostream>
-#include "fosi.h"
+#include "os/fosi.h"
 
 namespace ORO_OS
 {
@@ -38,13 +38,13 @@ namespace ORO_OS
     {
         std::cout <<"Sched Policy Init"<<std::endl;
         /* check to see if rtai_lxrt module is loaded */
-        struct module_info modInfo;
-        size_t retSize;
-        if ( query_module("rtai_lxrt", QM_INFO, &modInfo, 
-                          sizeof(modInfo), &retSize) != 0 ) {
-            std::cerr <<"It appears the rtai_lxrt module is not loaded !"<<std::endl;
-            exit();
-        }
+//         struct module_info modInfo;
+//         size_t retSize;
+//         if ( query_module("rtai_lxrt", QM_INFO, &modInfo, 
+//                           sizeof(modInfo), &retSize) != 0 ) {
+//             std::cerr <<"It appears the rtai_lxrt module is not loaded !"<<std::endl;
+//             exit();
+//         }
         struct sched_param param;
         param.sched_priority = 99;
         sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_LXRT_SCHEDTYPE, &param);
