@@ -111,8 +111,8 @@ namespace ORO_ControlKernel
          */
         AxisPositionGenerator( int _num_axes ) 
             : Base("AxisPositionGenerator"),
-              maxVel("MaxVel","",0),
-              maxAcc("MaxAcc","",0),
+              maxVel("MaxVel",""),
+              maxAcc("MaxAcc",""),
               num_axes(_num_axes),
               axes(_num_axes),
               hbg( HeartBeatGenerator::Instance() )
@@ -128,12 +128,10 @@ namespace ORO_ControlKernel
 
         void componentShutdown()
         {
-            cout << "Shutdown APG" <<endl;
         }
 
         bool componentStartup()
         {
-            cout << "Startup APG"<<endl;
             // we need the inputs for the stand-still setpoint
             if ( Base::Input::dObj()->Get("ChannelValues", inp_dObj ) )
                 {
@@ -212,7 +210,9 @@ namespace ORO_ControlKernel
                 return false;
 
             --axis_nr;
-            axes[axis_nr].traj_planner.SetMax( velocity, maxAcc );
+            if (velocity > maxVel.get()[axis_nr] )
+                velocity = maxVel.get()[axis_nr];
+            axes[axis_nr].traj_planner.SetMax( velocity, maxAcc.get()[axis_nr] );
             axes[axis_nr].traj_planner.SetProfile( setpoints[axis_nr], position );
             axes[axis_nr].timestamp = hbg->ticksGet();
             axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
@@ -224,10 +224,10 @@ namespace ORO_ControlKernel
          */
         bool wait( int axis_nr, double time )
         {
-            if ( isReady(axis_nr) )
+            if ( !isReady(axis_nr) )
                 return false;
             --axis_nr;
-            axes[axis_nr].traj_planner.SetMax( 0 , maxAcc );
+            axes[axis_nr].traj_planner.SetMax( 0 , maxAcc.get()[axis_nr] );
             axes[axis_nr].traj_planner.SetProfileDuration( setpoints[axis_nr], setpoints[axis_nr], time );
             axes[axis_nr].timestamp = hbg->ticksGet();
             axes[axis_nr].traj_ptr  = &axes[axis_nr].traj_planner;
@@ -239,7 +239,9 @@ namespace ORO_ControlKernel
         virtual bool updateProperties( const PropertyBag& bag )
         {
             bool status = composeProperty(bag, maxVel ) &&
-                composeProperty(bag, maxAcc );
+                composeProperty(bag, maxAcc ) &&
+                int(maxAcc.get().size()) == num_axes &&
+                int(maxVel.get().size()) == num_axes;
             return status;
         }
             
@@ -286,8 +288,8 @@ namespace ORO_ControlKernel
         }
 #endif
             
-        Property<double> maxVel;
-        Property<double> maxAcc;
+        Property< std::vector<double> > maxVel;
+        Property< std::vector<double> > maxAcc;
         int num_axes;
         std::vector< AxisInfo > axes;
 

@@ -113,25 +113,295 @@
 	will be given an endlimit which disables (in software) the drive
 	in the positive direction if the position is to large.
       </para>
+      <para>
+	An example of a fairly complete Axis Hardware Abstraction
+	implementation can be found in the <filename>
+	  kernel_samples/axis_control</filename> example directory.
+      </para>
     </sect1>
     <sect1>
       <title>The AxisSensor Component</title>
       <para>
+	The AxisSensor Component will introduce an Axis object
+	into the Control Kernel Sensor Component such that it
+	can be used for control. It creates DataObjects which
+	represent the continuous variables of the Axis and
+	extra methods in the program framework such that its
+	discrete state (enabled/disabled/breaked/...) can be
+	read out.
       </para>
+      <sect2>
+	<title>Creating an AxisSensor Component</title>
+	<para>
+	  The AxisSensor is created like all
+	  the other components in the control framework :
+	  <programlisting>
+  AxisSensor   axis_sens(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of virtual channels
+	  this Sensor exposes (see later).
+	</para>
+      </sect2>
+      <sect2>
+	<title>Adding and Removing an Axis</title>
+	<para>
+	  An unlimited number of Axes can be added
+	  to the AxisSensor :
+	  <programlisting>
+  axis_sens.addAxis("Axis_1", axis_object );
+	  </programlisting>
+	  This methods adds an axis with name "Axis_1" to the AxisSensor.
+	  Each Sensor of the <varname>axis_object</varname> will lead
+	  to the creation of a DataObjectInterface&lt;double&gt; object
+	  with the name "Axis_1.SensorName" to the Inputs DataObject.
+	  If an Axis with this name already exists, addAxis returns false.
+	</para>
+	<para>
+	  The Axis Sensors can also be read from an Orocos
+	  Program Script or State Description :
+	  <programlisting>
+  var double result_1 = AxisSensor.readSensor("Axis_1.Position")
+  var double result_2 = AxisSensor.readSensor("Axis_1.Current")
+	  </programlisting>
+	</para>
+	<para>
+	  An Axis can be removed with the following method call :
+	  <programlisting>
+  axis_sens.removeAxis("Axis_1");
+	  </programlisting>
+	  Which removes the "Axis_1" DataObjects from the AxisSensor.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Reading the Axis' State</title>
+	<para>
+	  Not only sensors are tied to the Axis, also the discrete 
+	  state of the Axis can be queried. You can query individual
+	  inputs or the overall Axis state :
+	  <programlisting>
+  var bool result_1 = AxisSensor.isEnabled("Axis_1")
+  var bool result_2 = AxisSensor.isOn("Axis_1.Break")
+  var bool result_3 = AxisSensor.isOn("Axis_1.Drive")
+  var bool result_4 = AxisSensor.isOn("Axis_1.Home")
+	  </programlisting>
+	  Which queries the logical state of the axis and the individual
+	  state of a digital input ('Home', reference switch) or output
+	  ('Break', optional break and 'Drive' the drive enable signal).
+	</para>
+      </sect2>
+      <sect2>
+	<title>Using Virtual Channels</title>
+	<para>
+	  The Sensor data of Axes can be ordered in a virtual channels DataObject.
+	  This allows a more generic way of accessing the DataObjects
+	  in the other components. The Channel DataObject which is
+	  created is of the type
+	  <classname>DataObjectInterface&lt; std::vector&lt;double&gt; &gt;</classname>
+	  and has the name "ChannelValues". Axis Sensor values
+	  can be added to a channel in this vector :
+	  <programlisting>
+  int VIRT_CHANNEL = 1;
+  axis_sens.addSensorOnChannel("Axis_1","Position", VIRT_CHANNEL );
+	  </programlisting>
+	  Which demonstrates that the Position Sensor of the Axis
+	  is inserted in position 1 of the Channel DataObject. If this
+	  channel was already taken, addSensorOnChannel returns false.
+	</para>
+	<para>
+	  Removing a virtual channel is quite straightforward :
+	  <programlisting>
+  axis_sens.removeSensorFromChannel( VIRT_CHANNEL );
+	  </programlisting>
+	</para>
+	<para>
+	  The Process Control Components in the kernel_components/process_control
+	  package use virtual channels for their operations.
+	</para>
+      </sect2>
     </sect1>
     <sect1>
       <title>The AxisEffector Component</title>
       <para>
+	The AxisEffector works similar to the AxisSensor but
+	does the inverse operations. It reads Output DataObjects
+	and drives an Axis object with the given values. It allows
+	to operate the Axis actively.
       </para>
+      <sect2>
+	<title>Creating an AxisEffector Component</title>
+	<para>
+	  The AxisEffector is created like all
+	  the other components in the control framework :
+	  <programlisting>
+  AxisEffector   axis_eff(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of virtual channels
+	  this Effector will accept (see later).
+	</para>
+      </sect2>
+      <sect2>
+	<title>Adding and Removing an Axis</title>
+	<para>
+	  An unlimited number of Axes can be added
+	  to the AxisEffector :
+	  <programlisting>
+  axis_eff.addAxis("Axis_1", axis_object );
+	  </programlisting>
+	  This methods adds an axis with name "Axis_1" to the AxisEffector.
+	  If a  DataObjectInterface&lt;double&gt; exists with the "Axis_1.Velocity"
+	  name, it will be used to drive the axis_object.
+	  If an Axis with this name already exists, addAxis returns false.
+	</para>
+	<para>
+	  An Axis can be removed with the following method call :
+	  <programlisting>
+  axis_eff.removeAxis("Axis_1");
+	  </programlisting>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Modifying the Axis' State</title>
+	<para>
+	  The state of the Axis can be modified as a whole (enable/disable)
+	  or using the individual digital outputs :
+	  <programlisting>
+  var bool result_1 = AxisEffector.enable("Axis_1")
+  var bool result_1b = AxisEffector.disable("Axis_1")
+  var bool result_2 = AxisEffector.switchOn("Axis_1.Break")
+  var bool result_2b = AxisEffector.switchOff("Axis_1.Break")
+  var bool result_3 = AxisEffector.switchOn("Axis_1.Drive")
+  var bool result_3b = AxisEffector.switchOff("Axis_1.Drive")
+	  </programlisting>
+	</para>
+      </sect2>
+      <sect2>
+	<title>Using Virtual Channels</title>
+	<para>
+	  The Axis can be driven through a virtual channel. If a
+	  <classname>DataObjectInterface&lt; std::vector&lt;double&gt; &gt;</classname>
+	  is present and has the name "ChannelValues". The Axis 
+	  can be driven using a channel of this vector :
+	  <programlisting>
+  int VIRT_CHANNEL = 1;
+  axis_eff.addAxisOnChannel("Axis_1", VIRT_CHANNEL );
+	  </programlisting>
+	  Which demonstrates that the axis is controlled on channel 1.
+	  If this
+	  channel was already taken, addAxisOnChannel returns false.
+	</para>
+	<para>
+	  Removing a virtual channel is done by providing the Axis name :
+	  <programlisting>
+  axis_eff.removeAxisFromChannel( "Axis_1" );
+	  </programlisting>
+	</para>
+	<para>
+	  The Process Control Components in the kernel_components/process_control
+	  package use virtual channels for their operations.
+	</para>
+      </sect2>
     </sect1>
     <sect1>
-      <title>The AxisPositionGenerator Component</title>
+      <title>The AxisPositionGenerator (APG) Component</title>
       <para>
+	This Generator Component generates interpolated trajectories
+	for simultaneous point to point movements of multiple axes.
+	It introduces program commands to manipulate each trajectory
+	individually. It expects the Axes positions to be located on the
+	"ChannelValues" Input DataObject.
       </para>
+      <sect2>
+	<title>Creating the AxisPositionGenerator</title>
+	<para>
+	  As usual :
+	  <programlisting>
+  AxisPositionGenerator   apg(NUM_CHANS);
+	  </programlisting>
+	  Where NUM_CHANS is the maximal number of Axes it can
+	  generate trajectories for.
+	</para>
+      </sect2>
+      <sect2>
+	<title>Properties</title>
+	<para>
+	  The AxisPositionGenerator (APG) requires a component
+	  property file for configuration of each axis. For each
+	  axis, a MaxVel and MaxAcc vector must be given which
+	  denote the individual axis limits in velocity and
+	  acceleration.
+	</para>
+	<programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the AxisPositionGenerator component -->
+
+<!--
+	This file is an example for two axes.
+	The dimension of the vectors must equal the number
+	of axes the AxisPositionGenerator will use.
+-->
+
+<properties>
+    <struct name="MaxVel" type="std::vector&lt;double&gt;">
+      <description>The maximum velocities per Axis.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><value>1.5</value></simple>
+      <simple name="d01" type="double"><value>1.6</value></simple>
+    </struct>
+    <struct name="MaxAcc" type="std::vector&lt;double&gt;">
+      <description>The maximum acceleration per Axis.</description>
+      <simple name="dim" type="int">
+	<description>The size of this std::vector.</description>
+	<value>2</value>
+      </simple>
+      <simple name="d00" type="double"><value>10</value></simple>
+      <simple name="d01" type="double"><value>10</value></simple>
+    </struct>
+</properties>
+
+]]>
+	</programlisting>
+      </sect2>
+      <sect2>
+	<title>APG Commands</title>
+	<para>
+	  Two commands are available : move and wait. They
+	  take as first argument the axis number (starting from 1) "
+	  <programlisting>
+  var double velocity = 10.0
+  var double position = 25.9
+  do AxisPositionGenerator.move( 1, velocity, position )
+
+  var double wait_time = 3.123
+  do AxisPositionGenerator.wait(1, 3.123)
+	  </programlisting>
+	  wait does no more than a controlled stand still and could
+	  be considered a bit redundant.
+	</para>
+	<para>
+	  The APG can be queried if an Axis is ready for the next 
+	  command :
+	  <programlisting>
+  var bool ready = AxisPositionGenerator.isReady( 1 )
+	  </programlisting>
+	  The actual setpoint position can be evaluated as well :
+	</para>
+	  <programlisting>
+  var double pos = AxisPositionGenerator.position( 1 )
+	  </programlisting>
+      </sect2>
     </sect1>
     <sect1>
       <title>Choosing an Axis Estimator and Controller Component</title>
       <para>
+	For now, no Estimator is available. As Controller, the
+	P_Controller and PID_Controller components of the Process
+	Control Kernel Components package can be used without any
+	adaptation.
       </para>
     </sect1>
   </chapter>

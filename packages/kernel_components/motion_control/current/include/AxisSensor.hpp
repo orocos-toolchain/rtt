@@ -147,6 +147,14 @@ namespace ORO_ControlKernel
          */
         bool addSensorOnChannel(const std::string& axis_name, const std::string& sensor_name, int virtual_channel );
 
+        /** 
+         * @brief Remove a Sensor from a virtual channel.
+         * 
+         * @param virtual_channel The channel to remove.
+         * 
+         */
+        void removeSensorFromChannel(int virtual_channel);
+
         /**
          * @brief Remove a previously added Axis.
          */
@@ -172,6 +180,11 @@ namespace ORO_ControlKernel
          * Digital Output.
          */
         bool isOn( const std::string& name ) const;
+
+        /**
+         * @brief Inspect a Sensor value of the Axis.
+         */
+        double readSensor( const std::string& name ) const;
         /**
          * @}
          */

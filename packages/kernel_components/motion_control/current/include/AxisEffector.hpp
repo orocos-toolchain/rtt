@@ -125,6 +125,12 @@ namespace ORO_ControlKernel
          */
         bool removeAxis( const std::string& name );
 
+        /** 
+         * @brief Remove an Axis from a Channel
+         * 
+         * @param name The Axis to remove from a channel.
+         */
+        void removeAxisFromChannel( const std::string& name );
         /**
          * @name The AxisEffector Commands.
          */

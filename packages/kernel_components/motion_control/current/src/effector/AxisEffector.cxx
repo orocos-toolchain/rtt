@@ -79,6 +79,19 @@ namespace ORO_ControlKernel {
         return true;
     }
 
+    void AxisEffector::removeAxisFromChannel( const std::string& name )
+    {
+        if (
+             axes.count(name) == 0 ||
+             axes[name].second == -1 ||
+             this->kernel()->isRunning() )
+            return;
+
+        channels[ axes[name].second ] = 0;
+        axes[name].second = -1;
+        --usingChannels;
+    }
+
     bool AxisEffector::removeAxis( const std::string& name )
     {
         if ( axes.count(name) != 1 || this->kernel()->isRunning() )

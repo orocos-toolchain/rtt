@@ -129,6 +129,20 @@ namespace ORO_ControlKernel {
         return true;
     }
 
+    void AxisSensor::removeSensorFromChannel( int virtual_channel )
+    {
+        if ( virtual_channel >= max_channels ||
+             virtual_channel < 0 ||
+             channels[virtual_channel].first == 0 ||
+             this->kernel()->isRunning() )
+            return;
+
+        Axis* _a = 0;
+        SensorInterface<double>* _d = 0;
+        // Reset the channel
+        channels[virtual_channel] = std::make_pair( _d, _a);
+    }
+
     bool AxisSensor::removeAxis( const std::string& name )
     {
         if ( axes.count(name) != 1 || this->kernel()->isRunning() )
@@ -187,6 +201,14 @@ namespace ORO_ControlKernel {
         return 0;
     }
 
+    double AxisSensor::readSensor( const std::string& name ) const
+    {
+        SensorMap::const_iterator it = sensor.find(name);
+        if ( it != sensor.end() )
+            return it->second.first->readSensor();
+        return 0;
+    }
+
     bool AxisSensor::isOn( const std::string& name ) const
     {
         if ( d_in.count(name) == 1 )
@@ -211,6 +233,11 @@ namespace ORO_ControlKernel {
                   data( &AxisSensor::position,
                         "Inspect the status of the Position of an Axis.",
                         "Name", "The Name of the Axis."
+                        ) );
+        ret->add( "readSensor", 
+                  data( &AxisSensor::readSensor,
+                        "Inspect the status of a Sensor of an Axis.",
+                        "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
                         ) );
         ret->add( "isEnabled", 
                   data( &AxisSensor::isEnabled,
