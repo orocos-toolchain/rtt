@@ -409,6 +409,29 @@
 		<!-- one of (graphic mediaobject tgroup) -->
 	      </table>
 	    </para>
+	    <para>The following image explains the life cycle of a typical component.
+	      <figure><title>Component Life Cycle</title>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="component_life_cycle.png" format="PNG"/>
+		  </imageobject>
+		  <imageobject>
+		    <imagedata fileref="component_life_cycle.eps" format="EPS"/>
+		  </imageobject>
+		</mediaobject>
+	      </figure>
+	      The stage the component is in is entirely dependent on the kernel state.
+	      How kernel methods change a components state is shown below.
+	      <figure><title>Kernel - Component Interaction</title>
+		<mediaobject>
+		  <imageobject>
+		    <imagedata fileref="kernel_component_interaction.png" format="PNG"/>
+		  </imageobject>
+		  <imageobject>
+		    <imagedata fileref="kernel_component_interaction.eps" format="EPS"/>
+		  </imageobject>
+		</mediaobject>
+	    </para>
 	  </sect4>
 	</sect3>
       </sect2>
