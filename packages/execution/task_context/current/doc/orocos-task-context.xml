@@ -477,7 +477,7 @@
   {
     public:
     bool startCycle() { ... }
-    bool cycleDone() { ... }
+    bool cycleDone() const { ... }
 
     bool cleanupMess(double f) { ... }
     bool isMessCleaned() { ... }
