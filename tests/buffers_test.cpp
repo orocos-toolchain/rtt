@@ -39,7 +39,21 @@ struct Dummy {
     {
         return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
     }
+
+//     volatile Dummy& operator=(const Dummy& d) volatile
+//     {
+//         d1 = d.d1;
+//         d2 = d.d2;
+//         d3 = d.d3;
+//         return *this;
+//     }
+        
 };
+
+    std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
+        os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
+        return os;
+    }
 
 #define QS 10
 
@@ -50,6 +64,8 @@ BuffersTest::setUp()
     aqueue->clear();
 
     lockfree = new BufferLockFree<Dummy>(QS);
+
+    dataobj  = new DataObjectLockFree<Dummy>("name");
 }
 
 
@@ -60,6 +76,8 @@ BuffersTest::tearDown()
     delete aqueue;
 
     delete lockfree;
+
+    delete dataobj;
 }
 
 void BuffersTest::testAtomic()
@@ -261,4 +279,24 @@ void BuffersTest::testBufLockFree()
     CPPUNIT_ASSERT( v[8] == *d );
     CPPUNIT_ASSERT( v[9] == *c );
     CPPUNIT_ASSERT( 0 == lockfree->read(v) );
+    delete d;
+    delete c;
+}
+
+void BuffersTest::testDObjLockFree()
+{
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy  d;
+    dataobj->Set( *c );
+    CPPUNIT_ASSERT_EQUAL( *c, dataobj->Get() );
+    int i = 0;
+    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) { 
+        dataobj->Set( *c );
+        dataobj->Set( d );
+        ++i;
+    }
+    CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
+    CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
+
+    delete c;
 }

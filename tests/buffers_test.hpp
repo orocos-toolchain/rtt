@@ -24,6 +24,7 @@
 
 #include <corelib/AtomicQueue.hpp>
 #include <corelib/BufferLockFree.hpp>
+#include <corelib/DataObjectInterfaces.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -35,10 +36,12 @@ class BuffersTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAtomic );
     CPPUNIT_TEST( testAtomicCounted );
     CPPUNIT_TEST( testBufLockFree );
+    CPPUNIT_TEST( testDObjLockFree );
     CPPUNIT_TEST_SUITE_END();
 
     AtomicQueue<Dummy*>* aqueue;
     BufferLockFree<Dummy>* lockfree;
+    DataObjectLockFree<Dummy>* dataobj;
 public:
 
     void setUp();
@@ -47,6 +50,7 @@ public:
     void testAtomic();
     void testAtomicCounted();
     void testBufLockFree();
+    void testDObjLockFree();
 };
 
 #endif
