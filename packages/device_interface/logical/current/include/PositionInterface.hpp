@@ -38,6 +38,8 @@ namespace ORO_DeviceInterface
     {
         public:
         typedef PositionData Data;
+      
+      virtual ~PositionInterface(){};
 
         /**
          * Read T, the structure that this sensor 'exports'
