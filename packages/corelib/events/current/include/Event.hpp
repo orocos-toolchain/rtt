@@ -28,7 +28,9 @@
 #include "CompletionProcessor.hpp"
 #include "TaskInterface.hpp"
 #include "TaskExecution.hpp"
-
+#include <os/Mutex.hpp>
+#include <os/MutexLock.hpp>
+#include <assert.h>
 
 namespace ORO_CoreLib
 {
@@ -43,42 +45,49 @@ namespace ORO_CoreLib
         class Handle
         {
         public:
-            boost::signals::connection c;
-            boost::signals::connection c2;
-            Handle( const boost::signals::connection & c_,
-                    const boost::signals::connection & c2_) : c(c_), c2(c2_){}
-            Handle( const boost::signals::connection & c_ ) : c(c_), c2(c_){}
-            Handle( const Handle& h ) : c(h.c), c2(h.c2) {}
-            Handle(){}
+            boost::signals::connection _c;
+            boost::signals::connection _c2;
+            ORO_OS::MutexRecursive* _mutex;
+            Handle( const boost::signals::connection & c,
+                    const boost::signals::connection & c2,
+                    ORO_OS::MutexRecursive& mutex) : _c(c), _c2(c2), _mutex(&mutex) {}
+            Handle( const boost::signals::connection & c, ORO_OS::MutexRecursive& mutex ) : _c(c), _c2(c), _mutex(&mutex){}
+            Handle( const Handle& h ) : _c(h._c), _c2(h._c2), _mutex(h._mutex) {}
+            Handle() : _mutex(0) {}
 
             Handle& operator=(const Handle& h) {
-                c = h.c;
-                c2 = h.c2;
+                _c = h._c;
+                _c2 = h._c2;
+                _mutex = h._mutex;
                 return *this;
             }
 
             bool operator==(const Handle& h) const {
-                return (c == h.c) && (c2 == h.c2);
+                return (_c == h._c) && (_c2 == h._c2);
             }
 
             bool operator<(const Handle& h) const {
-                return (c < h.c) && (c2 < h.c2);
+                return (_c < h._c) && (_c2 < h._c2);
             }
 
             bool connected() const {
-                return c.connected() && c2.connected();
+                return _c.connected() && _c2.connected();
             }
 
-            void disconnect() const {
-                c.disconnect();
-                c2.disconnect();
+            void disconnect() {
+                if ( _mutex == 0 )
+                    return; // nothing to disconnect
+                    
+                ORO_OS::MutexLock lock(*_mutex); // can lock on fire(), unless it is self-removal.
+                _c.disconnect();
+                _c2.disconnect();
             }
         };
 
     using boost::function;
 
     /**
-     * The Orocos Event is a wrapper around the boost::signal library
+     * The Orocos Event is a thread-safe wrapper around the boost::signal library
      * and extends its connection syntax with asynchronous event handling.
      */
     template<
@@ -96,6 +105,7 @@ namespace ORO_CoreLib
             GroupCompare,
             _SlotFunction>*>
     {
+        ORO_OS::MutexRecursive _mutex;
     public:
         typedef boost::signal<
             _Signature,
@@ -134,7 +144,7 @@ namespace ORO_CoreLib
          */
         Handle connect(const SlotFunction& f)
         {
-            return signal_type::connect( f );
+            return Handle(signal_type::connect( f ), _mutex);
         }
 
         /**
@@ -142,7 +152,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, TaskInterface* task)
         {
-            return Handle( task->thread()->connect( l, *this ) );
+            return Handle( task->thread()->connect( l, *this ), _mutex );
         }
 
         /**
@@ -150,7 +160,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, EventProcessor* ep)
         {
-            return Handle( ep->connect( l, *this ) );
+            return Handle( ep->connect( l, *this ), _mutex );
         }
 
         /**
@@ -158,7 +168,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task)
         {
-            return Handle( signal_type::connect( l ), task->thread()->connect( c, *this ) );
+            return Handle( signal_type::connect( l ), task->thread()->connect( c, *this ), _mutex );
         }
 
         /**
@@ -166,25 +176,28 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance() )
         {
-            return Handle( signal_type::connect( l ), ep->connect( c, *this ) );
+            return Handle( signal_type::connect( l ), ep->connect( c, *this ), _mutex );
         }
 
         /**
-         * This method is 100% equivalent to the operator() method
+         * This method is the thread-safe equivalent to the operator() method
          * of boost::signal.
          */
         void fire() {
+            ORO_OS::MutexLock lock( _mutex );
             signal_type::operator()();
         }
 
         template<class A1>
         void fire(const A1& a1) {
+            ORO_OS::MutexLock lock( _mutex );
             signal_type::operator()(a1);
         }
 
         template<class A1, class A2>
         void fire(typename boost::call_traits<A1>::param_type a1,
                   typename boost::call_traits<A2>::param_type a2) {
+                      ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2);
                   }
 
@@ -192,6 +205,7 @@ namespace ORO_CoreLib
         void fire(typename boost::call_traits<A1>::param_type a1,
                   typename boost::call_traits<A2>::param_type a2,
                   typename boost::call_traits<A3>::param_type a3) {
+                      ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3);
                   }
 
@@ -200,6 +214,7 @@ namespace ORO_CoreLib
                   typename boost::call_traits<A2>::param_type a2,
                   typename boost::call_traits<A3>::param_type a3,
                   typename boost::call_traits<A4>::param_type a4) {
+                      ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4);
                   }
 
@@ -209,6 +224,7 @@ namespace ORO_CoreLib
                   typename boost::call_traits<A3>::param_type a3,
                   typename boost::call_traits<A4>::param_type a4,
                   typename boost::call_traits<A5>::param_type a5) {
+                      ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4, a5);
                   }
 
@@ -219,10 +235,11 @@ namespace ORO_CoreLib
                   typename boost::call_traits<A4>::param_type a4,
                   typename boost::call_traits<A5>::param_type a5,
                   typename boost::call_traits<A6>::param_type a6) {
+                      ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4, a5, a6);
                   }
 
-        // repeat for A4, A5,...
+        // repeat for A7,A8,... + same in EventProcessor.hpp
 
         /**
          * @brief Public nameserver for Events.

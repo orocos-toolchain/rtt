@@ -43,6 +43,13 @@ namespace ORO_CoreLib
             EventCatcherImpl(const Function& f_, SignalType& sig )
                 : f(f_), work(false)
             {
+                // What happens if a h.disconnect() or this connect occurs when the
+                // event is fired ? This will probably lead to corruption,
+                // since boost::signal is not thread-safe in itself. We
+                // do wrap h in a handle object which could lock on fire if
+                // Handle had a pointer to Event...
+
+                // Call the underlying connect of Event (to avoid recursion!) :
                 h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<0, SignalType>::handler,
                                                                        this) );
             }
@@ -84,6 +91,190 @@ namespace ORO_CoreLib
             Result handler( typename Function::arg1_type& a1 ) {
                 ORO_OS::MutexLock locker( lock );
                 f_nullary = bind(f, a1);
+                work = true;
+                return Result();
+            }
+
+            virtual void complete() {
+                ORO_OS::MutexLock locker( lock );
+                if (work)
+                    f_nullary();
+                work = false;
+            }
+            ORO_OS::Mutex lock;
+            bool work;
+        };
+
+        template<class SignalType>
+        struct EventCatcherImpl<2, SignalType>
+            : public EventCatcher
+        {
+            typedef typename SignalType::SlotFunction Function;
+            typedef typename Function::result_type Result;
+
+            function< Result(void) > f_nullary;
+            Function f;
+
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_), work(false)
+            {
+                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<2, SignalType>::handler,
+                                                                       this, _1, _2) );
+            }
+
+            Result handler( typename Function::arg1_type& a1, typename Function::arg2_type& a2 ) {
+                ORO_OS::MutexLock locker( lock );
+                f_nullary = bind(f, a1, a2);
+                work = true;
+                return Result();
+            }
+
+            virtual void complete() {
+                ORO_OS::MutexLock locker( lock );
+                if (work)
+                    f_nullary();
+                work = false;
+            }
+            ORO_OS::Mutex lock;
+            bool work;
+        };
+
+        template<class SignalType>
+        struct EventCatcherImpl<3, SignalType>
+            : public EventCatcher
+        {
+            typedef typename SignalType::SlotFunction Function;
+            typedef typename Function::result_type Result;
+
+            function< Result(void) > f_nullary;
+            Function f;
+
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_), work(false)
+            {
+                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<3, SignalType>::handler,
+                                                                       this, _1, _2, _3) );
+            }
+
+            Result handler( typename Function::arg1_type& a1,
+                            typename Function::arg2_type& a2,
+                            typename Function::arg3_type& a3 ) {
+                ORO_OS::MutexLock locker( lock );
+                f_nullary = bind(f, a1, a2, a3);
+                work = true;
+                return Result();
+            }
+
+            virtual void complete() {
+                ORO_OS::MutexLock locker( lock );
+                if (work)
+                    f_nullary();
+                work = false;
+            }
+            ORO_OS::Mutex lock;
+            bool work;
+        };
+
+        template<class SignalType>
+        struct EventCatcherImpl<4, SignalType>
+            : public EventCatcher
+        {
+            typedef typename SignalType::SlotFunction Function;
+            typedef typename Function::result_type Result;
+
+            function< Result(void) > f_nullary;
+            Function f;
+
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_), work(false)
+            {
+                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<4, SignalType>::handler,
+                                                                       this, _1, _2, _3, _4) );
+            }
+
+            Result handler( typename Function::arg1_type& a1,
+                            typename Function::arg2_type& a2,
+                            typename Function::arg3_type& a3,
+                            typename Function::arg4_type& a4 ) {
+                ORO_OS::MutexLock locker( lock );
+                f_nullary = bind(f, a1, a2, a3, a4);
+                work = true;
+                return Result();
+            }
+
+            virtual void complete() {
+                ORO_OS::MutexLock locker( lock );
+                if (work)
+                    f_nullary();
+                work = false;
+            }
+            ORO_OS::Mutex lock;
+            bool work;
+        };
+
+        template<class SignalType>
+        struct EventCatcherImpl<5, SignalType>
+            : public EventCatcher
+        {
+            typedef typename SignalType::SlotFunction Function;
+            typedef typename Function::result_type Result;
+
+            function< Result(void) > f_nullary;
+            Function f;
+
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_), work(false)
+            {
+                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<5, SignalType>::handler,
+                                                                       this, _1, _2, _3, _4, _5) );
+            }
+
+            Result handler( typename Function::arg1_type& a1,
+                            typename Function::arg2_type& a2,
+                            typename Function::arg3_type& a3,
+                            typename Function::arg4_type& a4,
+                            typename Function::arg5_type& a5) {
+                ORO_OS::MutexLock locker( lock );
+                f_nullary = bind(f, a1, a2, a3, a4, a5);
+                work = true;
+                return Result();
+            }
+
+            virtual void complete() {
+                ORO_OS::MutexLock locker( lock );
+                if (work)
+                    f_nullary();
+                work = false;
+            }
+            ORO_OS::Mutex lock;
+            bool work;
+        };
+
+        template<class SignalType>
+        struct EventCatcherImpl<6, SignalType>
+            : public EventCatcher
+        {
+            typedef typename SignalType::SlotFunction Function;
+            typedef typename Function::result_type Result;
+
+            function< Result(void) > f_nullary;
+            Function f;
+
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_), work(false)
+            {
+                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<6, SignalType>::handler,
+                                                                       this, _1, _2, _3, _4, _5, _6) );
+            }
+
+            Result handler( typename Function::arg1_type& a1,
+                            typename Function::arg2_type& a2,
+                            typename Function::arg3_type& a3,
+                            typename Function::arg4_type& a4,
+                            typename Function::arg5_type& a5,
+                            typename Function::arg6_type& a6) {
+                ORO_OS::MutexLock locker( lock );
+                f_nullary = bind(f, a1, a2, a3, a4, a5, a6);
                 work = true;
                 return Result();
             }

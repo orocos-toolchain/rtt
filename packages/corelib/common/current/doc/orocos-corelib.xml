@@ -602,6 +602,11 @@ emergencyStop.fire(); // User not notified
 	that the asyn_func could be called before the task is run,
 	or even multiple times in between a task run.
       </para>
+      <note>
+	<para>Asynchronous event handlers can have no more than
+	6 arguments in the current implementation, but more
+	can be easily added.</para>
+      </note>
     </sect2>
 <!--
     <sect2>
