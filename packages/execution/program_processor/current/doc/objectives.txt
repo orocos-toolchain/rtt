@@ -3,7 +3,7 @@ Interfacing to robots is about...
 
 * text and graphical interfaces.
 
-* the notion of commmands, conditions and events to create programs.
+* the notion of commands, conditions and events to create programs.
 
 * an action (command/event) has one main effect, is the cause of a change
   in the system. It can have multiple side effects, like reporting an error
