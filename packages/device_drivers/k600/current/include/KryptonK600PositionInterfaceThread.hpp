@@ -50,7 +50,7 @@ namespace ORO_DeviceDriver
     virtual int PositionGet(std::vector<Data> & p);
 
   protected:
-    virtual void step();
+    virtual void loop();
 
     // Should make a seperate class from these...
     void switchBuffers();

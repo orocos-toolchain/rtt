@@ -138,7 +138,7 @@ namespace ORO_DeviceDriver
 
   // Don't forget: Step of SingleThread is only executed once
   template <class Data>
-  void K600PositionInterface<Data>::step()
+  void K600PositionInterface<Data>::loop()
   {
     SEM * udp_message_arrived;
     MBX * udp_message;
