@@ -753,7 +753,7 @@
       <sect3>
 	<title>The KernelConfigurator</title>
 	<para>Kernels ( and Components )  can be configured at runtime with an XML file
-	  in the CPF (Component Property Format) format, defined by the OMG group. The
+	  in the CPF (Component Property File<xref linkend="corba3"/>) format, defined by the OMG group. The
 	  KernelConfigurator is a class which can read a given xml file and configure a
 	  kernel with that information. The KernelConfigurator parses the file and
 	  passes the result to the <methodname>updateKernelProperties()</methodname> method.
@@ -1366,5 +1366,14 @@
     </sect1>
 
   </chapter>
+
+<bibliography><title>Bibliography</title>
+  <biblioentry xreflabel="corba3">
+    <title>CORBA Components</title>
+    <pubdate>2002</pubdate>
+    <publisher><publishername>Object Management Group</publishername></publisher>
+    <pagenums>277-282</pagenums>
+  </biblioentry>
+</bibliography>
 
 </book>
