@@ -760,7 +760,7 @@ namespace ORO_ControlKernel
         struct Wrapper
         {
             template<class T>
-            struct wrap
+            struct Wrap
             {
                 typedef DataObjectBuffer<T> Result;
             };
