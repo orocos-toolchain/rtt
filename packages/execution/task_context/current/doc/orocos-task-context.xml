@@ -385,7 +385,7 @@
 	guidelines :
 	<table id="method-args-table">
 	  <title>Method Return / Argument Types</title>
-	  <tgroup cols="2">
+	  <tgroup cols="3">
 	    <thead>
 	      <row>
 		<entry>Type</entry>
