@@ -70,8 +70,9 @@ namespace ORO_ControlKernel
              * Constructor.
              */
             CartesianGenerator() 
-                 :end_pos("End Position","One of many variables which can be reported."),
-                 timestamp(0), time(0), tr(0), onetime(false), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity()), restart(false)
+                 : Base("CartesianGenerator"),
+                   end_pos("End Position","One of many variables which can be reported."),
+                   timestamp(0), time(0), tr(0), onetime(false), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity()), restart(false)
             {}
 
                  /**
@@ -188,7 +189,8 @@ namespace ORO_ControlKernel
             typedef typename Base::ModelType ModelType;
             
             CartesianEstimator() 
-                : kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0)
+                : Base("CartesianEstimator"),
+                  kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0)
             {
                 kine = KinematicsFactory::create( kineName );
                 if (kine)
@@ -285,7 +287,8 @@ namespace ORO_ControlKernel
             typedef typename Base::OutputType OutputType;
             
             CartesianController(KinematicsInterface* k) 
-                : gain("Gain","The error gain.",0),
+                : Base("CartesianController"),
+                  gain("Gain","The error gain.",0),
                   end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints","")
             {}
             
@@ -384,7 +387,7 @@ namespace ORO_ControlKernel
             typedef typename Base::OutputType OutputType;
             
             CartesianEffector(SimulatorInterface* _sim) 
-                : endTwist("Twist","The End Effector twist"), sim(_sim)
+                : Base("CartesianEffector"),endTwist("Twist","The End Effector twist"), sim(_sim)
             {}
             
             /**
@@ -439,7 +442,8 @@ namespace ORO_ControlKernel
             typedef typename Base::InputType InputType;
             
             CartesianSensor(SimulatorInterface* _sim = 0)
-                 :sensorError(Event::SYNASYN, "CartesianSensor::SensorError"),
+                 :Base("CartesianSensor"),
+                  sensorError(Event::SYNASYN, "CartesianSensor::SensorError"),
                   q6("JointPositions",""), sim(_sim)
             {}
             
