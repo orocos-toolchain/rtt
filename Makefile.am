@@ -31,6 +31,9 @@ EXTRA_DIST = \
 DISTCHECK_CONFIGURE_FLAGS = --disable-tests
 
 PATHHEADERS=$$(cd packages/install/include; find . -type f )
+PATHEXISTS =$$( if test -d packages/install/include; echo yes; fi )
+
+.PHONY: docs myinstall myuninstall new_packages configure_packages all_packages clean_packages init_packages inst-headers check-headers
 
 docs:
 	$(MAKE) -C doc docs
@@ -41,7 +44,7 @@ packages/ecos.db:
 inst-headers:
 	${MAKE} -C packages headers
 
-check-headers: inst-headers
+check-headers: clean_headers init_packages inst-headers
 	@cd packages/install/include ;\
 	for i in $$(find . -name *.h -o -name *.hpp); do \
 	echo  "Checking $$i..." ;\
@@ -115,13 +118,18 @@ test_all_packages: .all-stamp
 
 # This makes the ecos makefiles in the packages
 # build directory and makes the library
-all_packages: test_new_packages 
+# it will exit if no ecos.ecc file is found.
+all_packages: init_packages
+	cd packages &&\
+	{ test -f ecos.ecc || exit 0; } &&\
+	{ $(MAKE) -C . || exit -1; } &&\
+	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
+
+init_packages: test_new_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	export ECOS_REPOSITORY=$(ECOS_REP) &&\
-	{ ecosconfig tree || exit -1; } &&\
-	{ $(MAKE) -C . || exit -1; } &&\
-	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a && cd ../..
+	{ ecosconfig tree || exit -1; }
 
 precompile_headers:
 	$(MAKE) headers -C packages
@@ -138,6 +146,10 @@ precompile_headers:
 clean_packages: test_new_packages
 	if test -f packages/ecos.ecc; then \
 	$(MAKE) -C packages clean ; fi
+
+clean_headers: test_new_packages
+	if test -f packages/ecos.ecc; then \
+	$(RM) -r packages/install/include ; fi
 
 test_check_packages: .check-stamp
 
