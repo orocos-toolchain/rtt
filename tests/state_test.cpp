@@ -464,7 +464,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor load exception", false );
     }
     CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
-    sleep(1);
     CPPUNIT_ASSERT( gtask.start() );
     CommandInterface* ca = newCommandFunctor(boost::bind(&Processor::activateStateContext, tc->getProcessor(),(*pg_list.begin())->getName() ));
     CommandInterface* cs = newCommandFunctor(boost::bind(&Processor::startStateContext,tc->getProcessor(),(*pg_list.begin())->getName() ) );
