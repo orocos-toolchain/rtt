@@ -29,11 +29,13 @@
 #ifndef KINEMATICSFACTORY_HPP
 #define KINEMATICSFACTORY_HPP
 
+#include <corelib/Logger.hpp>
 #include <math.h>
 #include <iostream>
 #include "KinematicsInterface.hpp"
 #include "SerialZYYDWH.hpp"
 #include "SerialmZXXmZXmZ.hpp"
+
 
 
 namespace ORO_KinDyn
@@ -69,7 +71,7 @@ namespace ORO_KinDyn
 	  return ki;
 	}
 	else{
-	  std::cout << "No robot kinematics available for the chosen robot" << std::endl;
+	  ORO_CoreLib::Logger::log() << ORO_CoreLib::Logger::Error << "(KinematicsFactory) No robot kinematics available for the chosen robot" << ORO_CoreLib::Logger::endl;
 	  return NULL;
 	}
 	  
