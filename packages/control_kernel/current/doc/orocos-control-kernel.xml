@@ -794,7 +794,7 @@ void push()
 		</row>
 		<row>
 		      <!-- one of (entrytbl entry) -->
-		  <entry>virtual bool componentStartUp() {}</entry>
+		  <entry>virtual bool componentStartup() {}</entry>
 		  <entry>
 		    Called when the control kernel is started and all
 		    components are initialised. The component must
@@ -810,7 +810,7 @@ void push()
 		  <entry>
 		    Called when the control kernel is stopped and all
 		    components should return to a safe off-state. 
-		    This method is not called when componentStartUp()
+		    This method is not called when componentStartup()
 		    returned false.
 		  </entry>
 		</row>
