@@ -36,7 +36,7 @@
 
 #ifndef MEMBER
 #error "Do not include this file directly. Use TemplateDataSourceFactory.hpp or TemplateMethodFactory.hpp"
-#endif
+#else
 
 /**
  * @file This file contains the TemplateMemberFactory template,
@@ -796,3 +796,4 @@ namespace ORO_Execution
 
 }
 
+#endif // defined(MEMBER)

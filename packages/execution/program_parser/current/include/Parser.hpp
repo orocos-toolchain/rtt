@@ -32,6 +32,8 @@
 #include <utility>
 #include <map>
 #include <string>
+#include <istream>
+#include <vector>
 #include "parse_exception.hpp"
 #include "DataSource.hpp"
 

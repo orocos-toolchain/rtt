@@ -30,6 +30,7 @@
 #ifndef COMMANDFACTORYCOMPOSITE_HPP
 #define COMMANDFACTORYCOMPOSITE_HPP
 
+#include "CommandFactoryInterface.hpp"
 
 namespace ORO_Execution
 {

@@ -29,6 +29,9 @@
 #define MYSTD_HPP
 
 #include <boost/type_traits.hpp>
+#include <functional>
+#include <algorithm>
+#include <vector>
 
 // here we define some generally useful template stuff that is missing
 // from the STL..
