@@ -85,7 +85,7 @@ namespace ORO_ControlKernel
 
     // mass compensation and offset for force sensor
     _world_FS = _world_MP * _MP_FS;
-    _gravity.torque = ((_world_FS.M * _center_gravity) + _world_FS.p) * _gravity.force;
+    _gravity.torque = (_world_FS * _center_gravity) * _gravity.force;
     _force = ( _world_FS * (_force - _offset) ) - _gravity;
   }
 

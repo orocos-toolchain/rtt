@@ -145,7 +145,7 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesSensorForcesensor::startMeasuring(unsigned int num_meas)
+  bool nAxesSensorForcesensor::startMeasuring(int num_meas)
   {
     if (_is_measuring)
       return false;
