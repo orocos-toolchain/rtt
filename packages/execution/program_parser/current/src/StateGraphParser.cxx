@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  StateGraphParser.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  StateGraphParser.cxx
 
                         StateGraphParser.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -106,7 +106,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( statevars );
     newline = ch_p( '\n' );
 
-    // Zero or more declarations and Zero or more states 
+    // Zero or more declarations and Zero or more states
     production = ( *varline >> *state )[bind( &StateGraphParser::finished, this)];
 
     varline = !vardec >> newline;
@@ -118,11 +118,11 @@ namespace ORO_Execution
                | ( str_p("Final_State")
                    >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::finistate, this, _1, _2) ])
                    );
-    
+
     // a function is very similar to a program, but it also has a name
     state = (
        *newline
-       >> str_p( "state" ) 
+       >> str_p( "state" )
        >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::statedef, this, _1, _2 ) ])
        >> !newline
        >> expect_open(ch_p( '{' ))
@@ -156,7 +156,7 @@ namespace ORO_Execution
         >> expect_open(str_p("{")) >> *eeline >> expect_end(str_p("}"));
 
     eeline = !( statevars | eecommand[bind( &StateGraphParser::seenstatement, this)]) >> newline;
-    
+
     handle = str_p( "handle" )[ bind( &StateGraphParser::inhandle, this)]
         >> expect_open(str_p("{"))>> *handleline >> expect_end(str_p("}"));
 
@@ -186,9 +186,9 @@ namespace ORO_Execution
 
     brancher = str_p( "if") >> conditionparser.parser()[ bind( &StateGraphParser::seencondition, this)]
                             >> expect_if(str_p( "then" ))>> !newline >> expect_if(selector);
-    
+
     selector = str_p( "select" ) >> commonparser.identifier[ bind( &StateGraphParser::selecting, this, _1, _2) ];
-    
+
     connectevent = str_p( "connect" )
         >> expect_ident(commonparser.identifier[ bind( &StateGraphParser::selecthandler, this, _1, _2) ])
         >> eventbinding[ bind( &StateGraphParser::seenconnect, this)];
@@ -237,11 +237,11 @@ namespace ORO_Execution
                 }
         else
             mstate = mstates[def] = state_graph->newState(def); // create an empty state
-        
+
         // start defining this state
         state_graph->startState( mstate );
     }
-    
+
     void StateGraphParser::seenstateend()
     {
         assert ( mstate );
@@ -249,7 +249,7 @@ namespace ORO_Execution
         context.valueparser.clear(); // cleanup left over variables
         mstate = 0;
     }
- 
+
     void StateGraphParser::inentry()
     {
         state_graph->selectEntryNode();
@@ -262,7 +262,7 @@ namespace ORO_Execution
     {
         state_graph->selectHandleNode();
     }
-    
+
     void StateGraphParser::seenstatement()
     {
         state_graph->proceedToNext();
@@ -285,7 +285,7 @@ namespace ORO_Execution
             }
         else
             next_state = mstates[state_id] = state_graph->newState(state_id); // create an empty state
-        
+
         if (mcondition == 0)
             mcondition = new ConditionTrue;
 
@@ -300,12 +300,12 @@ namespace ORO_Execution
 
         if ( !res )
             throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
-            
+
         std::string event_id( res->toDataSource()->get() );
         EventOperationInterface* eoi = EventOperationInterface::nameserver.getObject(event_id);
         if (eoi == 0 )
             throw parse_exception("Event \""+ event_id+ "\" can not be emitted because it is not created yet.");
-        
+
         state_graph->setCommand( new CommandEmitEvent( eoi ) );
         state_graph->connectToNext( state_graph->currentNode(),  new ConditionTrue );
     }
@@ -315,7 +315,7 @@ namespace ORO_Execution
         std::string h_name(s, f);
         if ( mhandles.count( h_name ) != 0 )
             throw parse_exception("Event Handle " + h_name + " redefined.");
-            
+
         mhandles[ h_name ] = new detail::EventHandle;
     }
 
@@ -324,7 +324,7 @@ namespace ORO_Execution
         std::string h_name(s, f);
         if ( mhandles.count( h_name ) == 0 )
             throw parse_exception("Event Handle " + h_name + " not declared.");
-            
+
         mhand = mhandles[ h_name ];
     }
 
@@ -342,22 +342,22 @@ namespace ORO_Execution
         std::string h_name(s, f);
         if ( mhandles.count( h_name ) == 0 )
             throw parse_exception("Event Handle " + h_name + " not declared.");
-            
+
         state_graph->setCommand( mhandles[ h_name ]->createDisconnect() );
         state_graph->connectToNext( state_graph->currentNode(),  new ConditionTrue );
     }
-    
+
     void StateGraphParser::eventselected()
     {
         const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
-            
+
         std::string ev_name( res->toDataSource()->get() );
         if ( !EventInterface::nameserver.isNameRegistered(ev_name) )
             throw parse_exception("Event " + ev_name + " not known.");
-        
+
         mevent = EventInterface::nameserver.getObject( ev_name );
     }
 
@@ -369,7 +369,7 @@ namespace ORO_Execution
         // Check if Initial State is ok.
         if ( mstates.count( minit ) == 0 || !mstates[minit]->isDefined() )
             throw parse_exception("Initial State " + minit + " not defined.");
-        
+
         state_graph->initState( mstates[minit] );
 
         // Check if all States are defined.
@@ -380,7 +380,7 @@ namespace ORO_Execution
         // Check if Final State is ok.
         if ( mstates.count( mfini ) == 0 || !mstates[mfini]->isDefined() )
             throw parse_exception("Final State " + mfini + " not defined.");
-        
+
         state_graph->finalState( mstates[mfini] );
     }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  EdgeCondition.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  EdgeCondition.cxx
 
                         EdgeCondition.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -46,6 +46,7 @@ namespace ORO_Execution
 
     void EdgeCondition::setCondition(ConditionInterface* cond)
 	{
+                delete condition;
 		condition = cond;
 	}
 
