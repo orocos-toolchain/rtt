@@ -39,7 +39,6 @@ namespace ORO_Execution {
         keywords =
             "do",
             "until",
-            "next",
             "done",
             "or",
             "and",
@@ -47,7 +46,6 @@ namespace ORO_Execution {
             "include",
             "if",
             "define",
-            "end",
             "then",
             "else",
             "for",
@@ -55,7 +53,6 @@ namespace ORO_Execution {
             "while",
             "true",
             "false",
-            "stop",
             "async",
             "time",
             "const",
