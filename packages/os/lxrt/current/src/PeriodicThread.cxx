@@ -178,7 +178,7 @@ namespace ORO_OS
             num2nam( nname, taskName); // set taskName to new name
         }
 
-        sem = rt_sem_init( rt_get_name(0), 0 );
+        sem = rt_typed_sem_init( rt_get_name(0), 0, BIN_SEM );
         if ( sem == 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'sem' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
@@ -190,7 +190,7 @@ namespace ORO_OS
             throw std::bad_alloc();
         }
 
-        confDone = rt_sem_init( rt_get_name(0), 0 );
+        confDone = rt_typed_sem_init( rt_get_name(0), 0, BIN_SEM );
         if ( confDone == 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'confDone' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
@@ -258,7 +258,13 @@ namespace ORO_OS
 #endif
         running=true;
 
-//         Logger::log() << Logger::Info <<" sem_signal returns :"<< rt_sem_signal(sem) << Logger::endl;
+        // be sure that confDone is set to zero
+        // could be in case stop() times out.
+        rt_sem_wait_if( confDone );
+        // signal start :
+        int ret = rt_sem_signal(sem);
+        if ( ret == SEM_ERR )
+            Logger::log() << Logger::Critical <<"PeriodicThread::start(): sem_signal returns SEM_ERR." << Logger::endl;
         // do not wait, we did our job.
 
         return true;
@@ -277,13 +283,12 @@ namespace ORO_OS
         int ret = -1;
 
         // wait until the loop detects running == false
-        // we wait one second in total.
+        // we wait 10 times 5*period.
 #if 1
-        while ( ret != 0 && cnt < 100 )
+        while ( ret != 0 && cnt < 10 )
             {
                 // given time in argument is relative to 'now'
-                // 0.1 second :
-                ret = rt_sem_wait_timed( confDone, nano2count(100000000) );
+                ret = rt_sem_wait_timed( confDone, nano2count(5*period) );
                 // if ret == 0, confDone was signaled.
                 cnt++;
             } 
@@ -292,9 +297,9 @@ namespace ORO_OS
         rt_sem_wait( confDone );
 #endif
 #ifdef OROPKG_CORELIB_REPORTING
-        if ( cnt == 100 ) {
+        if ( cnt == 10 ) {
             Logger::log() << Logger::Debug << " failed."<<Logger::endl;
-            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked."<<Logger::nl;
+            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked ( ret was "<< ret<<" .)"<<Logger::nl;
         }
         else
             Logger::log() << Logger::Debug << " done."<<Logger::endl;
