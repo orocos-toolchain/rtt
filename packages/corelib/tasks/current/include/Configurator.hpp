@@ -33,6 +33,7 @@
 #include "TaskNonRealTime.hpp"
 #include "TaskPreemptible.hpp"
 #include "TaskNonPreemptible.hpp"
+#include "HeartBeatGenerator.hpp"
 #include "Time.hpp"
 
 namespace ORO_CoreLib
