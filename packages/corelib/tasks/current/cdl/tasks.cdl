@@ -20,6 +20,17 @@ register."
 	default_value 1
     }
 
+    cdl_option ORONUM_CORELIB_TASKS_PRIOLIMIT {
+	display "Maximum hard realtime thread priority"
+	description "
+Any thread with a priority higher than this number will not
+be running realtime by default. This is used by the 
+PriorityThread to determine if it should be a hard or soft
+realtime thread.
+"
+	default_value 10
+    }
+
     cdl_option OROSEM_CORELIB_TASKS_CONSERVATIVE_TASK {
 	display "Enable fixed task periodicities"
 	description "
@@ -28,6 +39,7 @@ the apropriate thread at task construction time instead of start()
 time. This allows a more conservative task management, with start()
 only setting a flag, instead of doing the whole registration procedure.
 The drawback is that the task's periodicity can not be changed once created."
+	requires OROCFG_CORELIB_EXPERIMENTAL
     }
 
     cdl_option OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION {
