@@ -29,7 +29,8 @@ namespace ORO_ControlKernel
     using namespace ORO_DeviceInterface;
     using namespace ORO_DeviceDriver;
     using boost::bind;
-    
+    using std::make_pair;
+    using std::pair;
 
     /**
      * We can read integers, doubles and booleans.
@@ -55,7 +56,7 @@ namespace ORO_ControlKernel
          */
         typedef typename Base::OutputType OutputType;
             
-        GenericEffector(int max_chan = 32) 
+        GenericEffector(int max_chan = 1) 
             :  Base("GenericEffector"),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
                usingChannels(0)
@@ -68,7 +69,8 @@ namespace ORO_ControlKernel
         {
             // We check if the required DataObjects are present
             // they are introduced by the Controller component.
-            if ( std::count_if( a_out.begin(), a_out.end(), bind( &GenericEffector<Base>::lacksAOut, this, _1 ) ) ||
+            if (
+                std::count_if( a_out.begin(), a_out.end(), bind( &GenericEffector<Base>::lacksAOut, this, _1 ) ) ||
                  ( usingChannels && ! Base::Output::dObj()->Get("ChannelValues", chan_DObj) ) )
                 return false;
             return true;
@@ -80,7 +82,7 @@ namespace ORO_ControlKernel
         virtual void push()      
         {
             /*
-             * Acces Analog device drivers
+             * Acces Analog device drivers and Drives
              */
             std::for_each( a_out.begin(), a_out.end(), bind( &GenericEffector<Base>::write_to_aout, this, _1 ) );
 
@@ -93,14 +95,14 @@ namespace ORO_ControlKernel
                     channels[i]->value( chan_out[i] );
         }
 
-        bool addAnalogOutput( const std::string& name, AnalogOutInterface<unsigned int>* output, int channel, double offset=0.0, double scale=1.0 )
+        bool addAnalogOutput( const std::string& name, AnalogOutInterface<unsigned int>* output, int channel )
         {
             if ( a_out.count(name) != 0 || kernel()->isRunning() )
                 return false;
 
             // we will fill in the dataobject pointer in componentStartup()
             DataObjectInterface<double>* tmp = 0;
-            a_out[name] = std::make_pair( new AnalogOutput<unsigned int>( output, channel, offset, scale ), tmp);
+            a_out[name] = make_pair( new AnalogOutput<unsigned int>( output, channel ), tmp);
 
             return true;
         }
@@ -116,13 +118,12 @@ namespace ORO_ControlKernel
             return true;
         }
 
-        bool addChannel( int virt_channel, AnalogOutInterface<unsigned int>* output, int channel, double offset=0.0, double scale=1.0 )
+        bool addChannel( int virt_channel, AnalogOutInterface<unsigned int>* output, int channel )
         {
             if ( channels[virt_channel] != 0 || kernel()->isRunning() )
                 return false;
 
-            // we will fill in the dataobject pointer in componentStartup()
-            channels[virt_channel] = new AnalogOutput<unsigned int>( output, channel, offset, scale );
+            channels[virt_channel] = new AnalogOutput<unsigned int>( output, channel );
             ++usingChannels;
             return true;
         }
@@ -158,6 +159,11 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /**
+         * @defgroup geneffcomms
+         * Runtime Commands ...
+         * @{
+         */
         void switchOn( const std::string& name )
         {
             if ( d_out.count(name) != 1 )
@@ -167,17 +173,8 @@ namespace ORO_ControlKernel
 
         bool isOn( const std::string& name ) const
         {
-            // use  std::logical_not<bool>() to detect isOff.
             if ( d_out.count(name) == 1 )
                 return d_out[name]->isOn();
-            return false;
-        }
-
-        bool isOff( const std::string& name ) const
-        {
-            // use  std::logical_not<bool>() to detect isOff.
-            if ( d_out.count(name) == 1 )
-                return !d_out[name]->isOn();
             return false;
         }
 
@@ -187,13 +184,17 @@ namespace ORO_ControlKernel
                 return;
             d_out[name]->switchOff();
         }
+
+        /**
+         * @}
+         */
         
     protected:
 
         /**
          * Write to Data to digital output.
          */
-        void write_to_aout( std::pair<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > dd )
+        void write_to_aout( pair<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > dd )
         {
             dd.second.first->value( dd.second.second->Get() );
         }
@@ -201,7 +202,7 @@ namespace ORO_ControlKernel
         /**
          * Check if the Output DataObject lacks a user requested output.
          */
-        bool lacksAOut( std::pair<std::string,pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > dd )
+        bool lacksAOut( pair<std::string,pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > dd )
         {
             // fill in the dataobject, if it fails, abort startup...
             if ( !Base::Output::dObj()->Get(dd.first, dd.second.second) )
@@ -216,8 +217,8 @@ namespace ORO_ControlKernel
         DataObjectInterface< std::vector<double> >* chan_DObj;
 
         std::map<std::string, DigitalOutput* > d_out;
-        std::map<std::string, std::pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > a_out;
-        
+        std::map<std::string, pair<AnalogOutput<unsigned int>*, DataObjectInterface<double>* > > a_out;
+
         int usingChannels;
     };
 

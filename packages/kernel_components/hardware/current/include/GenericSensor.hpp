@@ -203,7 +203,7 @@ namespace ORO_ControlKernel
          * @param channel The channel of the input.
          * @param invert  True if the input must be inverted, false(default) otherwise.
          */
-        bool addDigitalInput( const std::string& name, DigitalInInterface* input, int channel, bool invert)
+        bool addDigitalInput( const std::string& name, DigitalInInterface* input, int channel, bool invert=false)
         {
             if ( d_in.count(name) != 0 || kernel()->isRunning() )
                 return false;
