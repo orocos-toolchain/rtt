@@ -54,10 +54,10 @@ extern "C" {
 // include custom redirect-like include
 #if ORONUM_RTAI_VERSION == 3
 #include <rtai_config.h>
-#define ORO_RTAI_CONFIG_VERSION PACKAGE_VERSION
+#define ORO_RTAI_CONFIG_VERSION CONFIG_RTAI_VERSION_MAJOR.CONFIG_RTAI_VERSION_MINOR
 #else
 #include "rtai_config.h"
-#define ORO_RTAI_CONFIG_VERSION "24.x"
+#define ORO_RTAI_CONFIG_VERSION 2.0
 #endif
 
 
