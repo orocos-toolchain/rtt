@@ -29,6 +29,7 @@
 #define DEVICEDRIVERS_AXIS_HPP
 
 #include <device_interface/AxisInterface.hpp>
+#include <corelib/Event.hpp>
 #include <string>
 #include <map>
 #include <vector>
@@ -79,6 +80,7 @@ namespace ORO_DeviceDriver
         virtual bool isDriven() const;
 
         virtual void limitDrive( double max );
+        virtual void setLimitDriveEvent(ORO_CoreLib::Event<void(void)>& maximumDrive);
 
         /**
          * @brief Add a brake to the Axis. It is aggregated.
@@ -110,6 +112,7 @@ namespace ORO_DeviceDriver
          * @param name The name of the sensor.
          * @param _sens The sensor
          * @param lowlim The LowLimit switch, disabling negative drive commands if \a lowlim->isOn()
+
          * @param highlim The HighLimit switch, disabling positive drive commands if \a highlim->isOn()
          */
         void setSensor(const std::string& name, SensorInterface<double>* _sens);
@@ -135,9 +138,10 @@ namespace ORO_DeviceDriver
         bool _is_locked, _is_stopped, _is_driven;
 
         /**
-         * Maximum drive value
+         * Maximum drive value and event
          */
         double _max_drive;
+        ORO_CoreLib::Event<void(void)>* _max_drive_event;
     };
 
 }

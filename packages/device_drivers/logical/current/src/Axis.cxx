@@ -36,7 +36,7 @@ namespace ORO_DeviceDriver
     using namespace ORO_CoreLib;
 
     Axis::Axis( AnalogDrive* a ) 
-      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true), _max_drive( std::numeric_limits<double>::max() )
+      : act( a ), brakeswitch(0), _is_locked(false), _is_stopped(false), _is_driven(true), _max_drive( std::numeric_limits<double>::max()), _max_drive_event(NULL) 
     {
       stop();
       lock();
@@ -67,9 +67,13 @@ namespace ORO_DeviceDriver
           }
           else
           {
+	    if (_max_drive_event == NULL){
               stop();
               lock();
-              return false;
+	    }
+	    else
+	      _max_drive_event->fire();
+	    return false;
           }
       }
       else
@@ -152,6 +156,12 @@ namespace ORO_DeviceDriver
     }
 
 
+    void Axis::setLimitDriveEvent(ORO_CoreLib::Event<void(void)>& maximumDrive)
+    {
+      _max_drive_event = &maximumDrive;
+    }
+  
+    
     void Axis::setSensor(const std::string& name,  SensorInterface<double>* _sens)
     {
         if (sens.count(name) != 0)
