@@ -91,7 +91,7 @@ namespace ORO_KinDyn
         static
         KinematicsInterface* create(const std::string& name)
         {
-            KinematicsFactoryStub* ki = KinematicsFactoryStub::nameserver.getObjectByName(name);
+            KinematicsFactoryStub* ki = KinematicsFactoryStub::nameserver.getObject(name);
             if (ki) 
                 return ki->create();
             return 0;
