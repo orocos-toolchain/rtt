@@ -145,21 +145,21 @@ namespace ORO_ControlKernel
               externalModels(false), externalSetPoints(false), externalCommands(false)
         {
             // Load the default (empty) components.
-            loadController(controller);
-            loadGenerator(generator);
-            loadEstimator(estimator);
-            loadEffector(effector);
-            loadSensor(sensor);
+            loadController(&dummy_controller);
+            loadGenerator(&dummy_generator);
+            loadEstimator(&dummy_estimator);
+            loadEffector(&dummy_effector);
+            loadSensor(&dummy_sensor);
             // Select the default components for execution.
             this->running = true;  // quite ok workaround
-            selectController(controller);
-            selectGenerator(generator);
-            selectEstimator(estimator);
-            selectEffector(effector);
-            selectSensor(sensor);
+            selectController(&dummy_controller);
+            selectGenerator(&dummy_generator);
+            selectEstimator(&dummy_estimator);
+            selectEffector(&dummy_effector);
+            selectSensor(&dummy_sensor);
             this->running = false;
 
-            setKernelName( kernel_name );
+            KernelBaseFunction::setKernelName( kernel_name );
         }
 
         virtual bool isSelectedController( const std::string& name ) const
@@ -201,7 +201,7 @@ namespace ORO_ControlKernel
                 }
                 
             // initial startup of all components
-            kernelStarted.fire();
+            this->kernelStarted.fire();
 
             return true;
         }
@@ -209,7 +209,7 @@ namespace ORO_ControlKernel
         virtual void step() 
         {
             // Check if we are in running state ( !aborted )
-            if ( isRunning() )
+            if ( this->isRunning() )
                 Extension::step();
             else
                 KernelBaseFunction::finalize(); // select default components
@@ -228,7 +228,7 @@ namespace ORO_ControlKernel
             // Last, shutdown all the support components
             std::for_each(supports.getValueBegin(), supports.getValueEnd(),
                           std::mem_fun( &DefaultSupport::componentShutdown ));
-            kernelStopped.fire();
+            this->kernelStopped.fire();
         }
 
         /**
@@ -264,7 +264,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadController(DefaultController* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             c->writeTo(outputs);
             c->readFrom(setpoints);
@@ -286,7 +286,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadController(DefaultController* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( controllers.isObjectRegistered( c ) )
                 {
@@ -354,7 +354,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadGenerator(DefaultGenerator* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             c->writeTo(setpoints);
             c->readFrom(models);
@@ -376,7 +376,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadGenerator(DefaultGenerator* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if (  generators.isObjectRegistered( c ) )
                 {
@@ -444,7 +444,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadEstimator(DefaultEstimator* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             c->writeTo(models);
             c->readFrom(inputs);
@@ -462,7 +462,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadEstimator(DefaultEstimator* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( estimators.isObjectRegistered(c) )
                 {
@@ -528,7 +528,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadSensor(DefaultSensor* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             c->writeTo(inputs);
             if ( ! c->enableAspect(this) )
@@ -544,7 +544,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadSensor(DefaultSensor* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( sensors.isObjectRegistered( c ) )
                 {
@@ -609,7 +609,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadEffector(DefaultEffector* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             c->readFrom(outputs);
             if ( ! c->enableAspect(this) )
@@ -625,7 +625,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadEffector(DefaultEffector* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( effectors.isObjectRegistered( c ) )
                 {
@@ -683,7 +683,7 @@ namespace ORO_ControlKernel
         }
 
         bool loadSupport(DefaultSupport* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( ! c->enableAspect(this) )
                 {
@@ -697,7 +697,7 @@ namespace ORO_ControlKernel
         }
 
         bool unloadSupport(DefaultSupport* c) {
-            if ( isRunning() )
+            if ( this->isRunning() )
                 return false;
             if ( supports.isObjectRegistered( c ) )
                 {
@@ -775,11 +775,11 @@ namespace ORO_ControlKernel
         /**
          * Pointers to the Component we will actually use.
          */
-        DefaultController *controller;
-        DefaultGenerator  *generator;
-        DefaultEstimator  *estimator;
-        DefaultEffector   *effector;
-        DefaultSensor     *sensor;
+        ComponentBaseInterface *controller;
+        ComponentBaseInterface  *generator;
+        ComponentBaseInterface  *estimator;
+        ComponentBaseInterface   *effector;
+        ComponentBaseInterface     *sensor;
 
         /**
          * @brief The local (default) Data Objects.

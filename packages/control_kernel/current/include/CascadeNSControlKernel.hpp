@@ -104,17 +104,17 @@ namespace ORO_ControlKernel
         {
             // If a DataObject is external, 
             // we do not own it and thus will not write to it...
-            if ( !externalInputs )
-                sensor->update();
-            if ( !externalModels )
-                estimator->update();
-            if ( !externalSetPoints )
-                generator->update();
-            if ( !externalOutputs )
-                controller->update();
+            if ( !this->externalInputs )
+                this->sensor->update();
+            if ( !this->externalModels )
+                this->estimator->update();
+            if ( !this->externalSetPoints )
+                this->generator->update();
+            if ( !this->externalOutputs )
+                this->controller->update();
             
             // does not write to a dataobject.
-            effector->update();
+            this->effector->update();
         }
     };
 
@@ -186,11 +186,11 @@ namespace ORO_ControlKernel
 
         virtual void updateComponents()
         {
-            sensor->update();
-            estimator->update();
-            generator->update();
-            controller->update();
-            effector->update();
+            this->sensor->update();
+            this->estimator->update();
+            this->generator->update();
+            this->controller->update();
+            this->effector->update();
         }
     };
 

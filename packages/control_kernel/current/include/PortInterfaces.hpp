@@ -61,7 +61,7 @@ namespace ORO_ControlKernel
             template < class _DataType >
             struct DataObject
             {
-                typedef typename _DataObjectType::DataObject< _DataType >::type type;
+                typedef typename _DataObjectType::template DataObject< _DataType >::type type;
             };
 
             /**
@@ -216,7 +216,7 @@ namespace ORO_ControlKernel
             template < class _DataType >
             struct DataObject
             {
-                typedef typename _DataObjectType::DataObject< _DataType >::type type;
+                typedef typename _DataObjectType::template DataObject< _DataType >::type type;
             };
 
             /**

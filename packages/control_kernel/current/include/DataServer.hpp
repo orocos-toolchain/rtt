@@ -104,7 +104,7 @@ namespace ORO_ControlKernel
          *        each lookup. This allows different DOS'es to work
          *        in the same namespace, although being in different kernels.
          */
-        DataObjectServer(const std::string& _name, const std::string& _prefix = _name ) 
+        DataObjectServer(const std::string& _name, const std::string& _prefix )//= _name ) 
             : DataObjectReporting( _name ), prefix( _prefix ) {}
 
         virtual ~DataObjectServer() {}
@@ -643,7 +643,7 @@ namespace ORO_ControlKernel
     {
 
         /**
-         * A Typelist operation that wraps each type
+         * A Typelist operation that wraps each type T
          * in _Typelist so that it becomes _Wrapper::wrap<T>
          */
         template<class _Wrapper , class _Typelist >
@@ -652,19 +652,19 @@ namespace ORO_ControlKernel
         template<class _Wrapper>
         struct Wrap<_Wrapper, nil_type>
         {
-            typedef typename _Wrapper::Wrap<nil_type>::Result Result;
+            typedef typename _Wrapper::template Wrap<nil_type>::Result Result;
         };
 
         template<class _Wrapper, class Head, class Tail>
         struct Wrap<_Wrapper, Typelist<Head, Tail> >
         {
-            typedef Typelist< typename _Wrapper::Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
+            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
         };
 
         template<class _Wrapper, class Head >
         struct Wrap<_Wrapper, Typelist<Head, nil_type> >
         {
-            typedef Typelist< typename _Wrapper::Wrap<Head>::Result, nil_type > Result;
+            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, nil_type > Result;
         };
 
     /**
@@ -815,9 +815,9 @@ namespace ORO_ControlKernel
          * @param prefix The scope of the nameserver, to avoid clashes with
          *        other nameservers (the user does not see this).
          */
-        NameServedDataObject(const std::string& name, const std::string& prefix = name ) 
+        NameServedDataObject(const std::string& name, const std::string& prefix )// = name ) 
             :  _NameContainer::NamesTypes(),
-              _NameContainer::tree(name, prefix, std::make_pair( begin(), end() ), 0 )
+              _NameContainer::tree(name, prefix, std::make_pair( this->begin(), this->end() ), 0 )
             //,DefaultDataObject( name, prefix )
         {
         }
@@ -842,7 +842,7 @@ namespace ORO_ControlKernel
         template< typename _DataT >
         struct DataObject
         {
-            typedef typename _NameContainer::DataObjectType< _DataT >::type type;
+            typedef typename _NameContainer::template DataObjectType< _DataT >::type type;
         };
 
         //typedef typename _NameContainer::NamesTypes::DataType DataType;
@@ -933,7 +933,7 @@ namespace ORO_ControlKernel
 //             using NameServedDataObject< _NameContainer<S> >::Get;
 //             using NameServedDataObject< _NameContainer<S> >::Set;
 
-            NameServedDataObject(const std::string& name, const std::string& prefix = name ) 
+            NameServedDataObject(const std::string& name, const std::string& prefix ) //= name ) 
                 : FrontEnd(name, prefix),
                   first_server(name, prefix),
                   second_server(name, prefix)
@@ -993,7 +993,7 @@ namespace ORO_ControlKernel
             template< typename _DataT >
             struct DataObject
             {
-                typedef typename _NameContainer<F>::DataObjectType< _DataT >::type type;
+                typedef typename _NameContainer<F>::template DataObjectType< _DataT >::type type;
             };
 
             //typedef typename _NameContainer<F>::NamesTypes::DataType DataType;

@@ -645,7 +645,7 @@ namespace ORO_ControlKernel
      */
     template<class _DataType>
     class DataRecursive
-        :public DataObject<_DataType>
+        :public DataObjectInterface<_DataType>
     {
         /**
          * One element of Data.
@@ -669,6 +669,7 @@ namespace ORO_ControlKernel
         mutable ModuleControlInterface* module;
     };
 
+#if 0
     using ORO_CoreLib::HeartBeatGenerator;
 
     /**
@@ -676,10 +677,11 @@ namespace ORO_ControlKernel
      * @see DataObjectInterface
      * @see DataObject
      * @see DataRecursive
+     * @note not a working implementation.
      */
     template<class _DataType>
     class DataRefreshed
-        :public DataObject<_DataType>
+        :public DataObjectInterface<_DataType>
     {
         /**
          * One element of Data.
@@ -728,9 +730,9 @@ namespace ORO_ControlKernel
             
         void Get( DataType& pull ) const  
         { 
-            if ( period < HeartBeatGenerator::timeSecondsGet(period) )
+            if ( period < HeartBeatGenerator::secondsSince(period) )
                 {
-                    period = HeartBeatGenerator::timeGet();
+                    period = HeartBeatGenerator::secondsGet();
                     module->update(); 
                 }
             pull = data; 
@@ -738,9 +740,9 @@ namespace ORO_ControlKernel
             
         DataType Get() const
         { 
-            if ( period < HeartBeatGenerator::timeSecondsGet(period) )
+            if ( period < HeartBeatGenerator::secondsSince(period) )
                 {
-                    period = HeartBeatGenerator::timeGet();
+                    period = HeartBeatGenerator::secondsGet();
                     module->update(); 
                 }
             return data; 
@@ -749,7 +751,7 @@ namespace ORO_ControlKernel
         void Set( const DataType& push ) { data = push; }
 
     };
-
+#endif
 
 }
 

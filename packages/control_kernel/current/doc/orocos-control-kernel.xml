@@ -100,6 +100,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Added DataObject Reporting</revremark>
       </revision>
+      <revision>
+	<revnumber>0.15</revnumber>
+	<date>2 June 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Many clarifications based on feedback (drawings, code examples)</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -959,6 +965,24 @@ StandardControlKernel &lt;CommandType, SetPointType, InputType, ModelType, Outpu
 	This means that if you change the type of the data exchanged
 	by two Components, you have in fact changed the application. 
       </para>
+      <para>
+	You are not forced to use all DataObjects. If you need for example
+	no Commands or no Models, you can specify the empty class, for example :
+      <programlisting>
+<![CDATA[
+  class Input { double input; };
+  class NoModel { };
+  class Command { };
+  class Setpoint { double setpoint; };
+  class Output { double output; };
+
+  #include <control_kernel/StandardControlKernel.hpp>
+  typedef StandardControlKernel< NoCommand, SetPoint,
+	                         Input, NoModel, Output> MySimpleKernel;
+]]>
+</programlisting>
+	which shows empty model and command DataObjects.
+      </para>
     </sect1>
     <sect1 id="non-core-standard-control-kernel">
       <title>The non-core parts</title>
@@ -1236,6 +1260,7 @@ contents  = my_Do.Get(); // equivalent
   class MyGenerator 
       : public _DefaultGenerator 
   { 
+  public:
       MyGenerator : _DefaultGenerator("MyGeneratorName") {}
       void pull() 
       { 
@@ -1249,6 +1274,8 @@ contents  = my_Do.Get(); // equivalent
       { 
           // ... 
       } 
+
+      // ...
   };
 ]]>
 	</programlisting>
@@ -1270,7 +1297,8 @@ contents  = my_Do.Get(); // equivalent
 	  strange to people not familiar with templates, but the aim
 	  of this construct is to allow the changing of the base class
 	  of a Component, without having to adjust the code each time.
-	  The name ("MyGeneratorName") of the component must be unique within a kernel.
+	  The name ("MyGeneratorName") of the component must be unique within 
+	  the type (Generator) in one kernel.
 	  As you can guess, the <type>_DefaultGenerator</type> type is
 	  supplied by the Control Kernel. You can access it like
 	  this:</para>
@@ -1374,26 +1402,33 @@ first_kernel.selectGenerator( &amp;my_gen );
 	</para>
 	<programlisting>
 <![CDATA[
-// ... 
-_DefaultGenerator::InputType inputReading;
-_DefaultGenerator::SetPointType localResult; 
-// ... 
-void pull() 
-{ 
+  template < class _DefaultGenerator >
+  class MyGenerator 
+      : public _DefaultGenerator 
+  { 
+    // ... 
+    _DefaultGenerator::InputType inputReading;
+    _DefaultGenerator::SetPointType localResult;
+  public:
+    MyGenerator : _DefaultGenerator("MyGeneratorName") {}
+
+    void pull() 
+    { 
       inputReading = _DefaultGenerator::Inputs::dObj()->Get(); 
-} 
+    } 
 
-void calculate()
-{ 
+    void calculate()
+    { 
       // ... calculate the setpoint 
-} 
+    } 
 
-void push() 
-{
-     _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
-}
+    void push() 
+    {
+      _DefaultGenerator::SetPoints::dObj()->Set( localResult ); 
+    }
+  };
 ]]>
-	</programlisting>
+</programlisting>
 	<para>
 	  This means that the DefaultGenerator has Ports and one
 	  DataObject associated with each port. In the example, only
@@ -1524,7 +1559,7 @@ void push()
       <sect2>
 	<title>Components and NameServing</title>
 	<para>
-	  Each Component can be given a <emphasis
+	  Each Component must be given a <emphasis
 	    role="strong">name</emphasis> upon construction. The name
 	  of a Component is stored in a NameServer for each Control
 	  Kernel, and for each Component in that Kernel. Each Control
@@ -1535,6 +1570,13 @@ void push()
 	  serving is described in more detail in the CoreLib
 	  documentation.
 	</para>
+	<warning>
+	  <para>
+	    It is strongly advised to use within one kernel
+	    unique names for components of the same type ( Generator, Sensor,...).
+	    Components of different type may have the same name.
+	  </para>
+	</warning>
 	<para>
 	  There are some methods that allow easy working with named
 	  Components. Going further with the <type>MyKernel1D</type> example:
@@ -2045,7 +2087,7 @@ typedef StandardControlKernel< Command, SetPoint,
 	                       Input, Model, Output, KernelBaseFunction> My1DKernel;
 
 	// adding a new extension to the KernelBaseFunction: 
-typedef CompositeExtension<KernelBaseFunction, PropertyExtension> MyExtension; 
+typedef CompositeExtension<PropertyExtension, KernelBaseFunction> MyExtension; 
 typedef StandardControlKernel< Command, SetPoint,
 	                       Input, Model, Output, MyExtension> My1DPropertyKernel;
 ]]>
@@ -2058,13 +2100,13 @@ typedef StandardControlKernel< Command, SetPoint,
 	First, Second determines which Extension is executed before
 	the other. In the example above, the
 	<classname>KernelBaseFunction</classname> is executed by the
-	control kernel before the
+	control kernel after the
 	<classname>PropertyExtension</classname>, as it should be.
 	Adding the reporting extension is then analogous:
       </para>
       <programlisting>
 <![CDATA[
-	// ... // A control kernel with two additional Extensions:
+	// A control kernel with two additional Extensions:
 typedef CompositeExtension< MyFirstExtension, ReportingExtension > MySecondExtension;
 typedef StandardControlKernel <Input, Model, Command, SetPoint,
 Output, MySecondExtension > My1DPropRepKernel;
@@ -2192,9 +2234,17 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </para>
 	  <programlisting>
 <![CDATA[
+template < class _DefaultGenerator >
+class MyGenerator 
+    : public _DefaultGenerator 
+{ 
+public:
   // In constructor, gain defaults to zero:
+  MyGenerator() :
+     _DefaultGenerator("MyGenerator"),
      gain("Gain","The gain of the controller",0),
-     max_track_error("MaxTrackError", "The maximum tracking error", 0)
+     max_track_error("MaxTrackError", "The maximum tracking error", 0) 
+  {}
 
   // Hook In Controller Component:
   virtual bool updateProperties( const PropertyBag& bag)
@@ -2204,11 +2254,13 @@ Output, MySecondExtension > My1DPropRepKernel;
       // returns true if successful.
   }
 
+private:
   // ... The gain of the Controller ...
   Property<double> gain;
   Property<double> max_track_error;
 
   // ...
+};
 ]]>
 	  </programlisting>
 	  <para>The CPF file looks like this:</para>
@@ -2360,8 +2412,15 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  </para>
 	  <programlisting>
 <![CDATA[
+template < class _DefaultGenerator >
+class MyGenerator 
+    : public _DefaultGenerator 
+{ 
+public:
   // In constructor:
-     :end_pos("End Position","One of many variables which can be reported.")
+  MyGenerator() :
+     _DefaultGenerator("MyGenerator"),
+     end_pos("End Position","One of many variables which can be reported.")
 
   // Hook in Generator Component:
        virtual void exportReports(PropertyBag& bag)
@@ -2369,10 +2428,12 @@ Output, MySecondExtension > My1DPropRepKernel;
            bag.add(&end_pos);
        }
 
+private:
   // The property itself
   Property< ORO_Geometry::Frame > end_pos;
 
   // ...
+};
 ]]>
 	  </programlisting>
 	</example>
@@ -2480,36 +2541,44 @@ Output, MySecondExtension > My1DPropRepKernel;
 	  A StateContext file and Program file
 	  can be loaded as such :
 	</para>
-	<screen>
+      <programlisting>
+<![CDATA[
+	// adding the extension to the KernelBaseFunction: 
+typedef CompositeExtension<KernelBaseFunction, ExecutionExtension> ExecExtension; 
+typedef StandardControlKernel< Command, SetPoint,
+	                       Input, Model, Output, ExecExtension> MyExecKernel;
+]]>
+MyExecKernel my_kernel;
+// ... load components, then :
 my_kernel.loadStateContext("state.osd", "MyState");
 my_kernel.loadProgram("program.ops", "MyProgram");
-	</screen>
+      </programlisting>
 	<para>
 	  The StateContext will immediately enter the "Initial_State",
 	  but both StateContext and Program will be idle. To use the
 	  StateContext, it must be started :
 	</para>
-	<screen>
+	<programlisting>
 my_kernel.startStateContext("MyState");
-	</screen>
+	</programlisting>
 	<para>
 	  It is most common to start the program itself from within
 	  a state of the StateContext, so that it is sure that
 	  it is safe to start a program. To do this in the state
 	  the commands
-	<screen>
+	<programlisting>
 do engine.startProgram("MyProgram")
 //...
 do engine.stopProgram("MyProgram")
-	</screen>
+	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateContexts from within a program or another 
 	  State Context :
-	<screen>
+	<programlisting>
 do engine.startStateContext("SecondContext")
 //...
 do engine.stopStateContext("SecondContext")
-	</screen>
+	</programlisting>
 	</para>
       </sect2>
       <sect2>
@@ -2528,7 +2597,7 @@ do engine.stopStateContext("SecondContext")
 	  </para>
 	</note>
 	<example>
-	  <title>Program and StateContext example</title>
+	  <title>"state.osd" : StateContext with name "MyState"</title>
 	  <programlisting>
 Event_Handle home_switch1
 Event_Handle home_switch2
@@ -2616,6 +2685,9 @@ state exec_state {
 	}
 }
 	  </programlisting>
+	</example>
+	<example>
+	  <title>"program.ops" : Program with name "MyProgram"</title>
 	  <programlisting>
 /**
  * This program is executed in the exec_state.
@@ -2654,12 +2726,12 @@ function runTrajectory {
 }
 
 function ExitProgram {
-	HMI.display("Program Ended\n")
+	do HMI.display("Program Ended\n")
 	stop
 }
 
 program {
-	HMI.display("Program Started\n")
+	do HMI.display("Program Started\n")
 	var int cycle = 0
 
 	// We actually wait here until a 
@@ -2668,8 +2740,8 @@ program {
 	   if HMI.trajectoryPresent then goto next
 	}
 
-start:  cycle = cycle + 1
-	HMI.display("Cycle nr: %d.\n", cycle )
+start:  set cycle = cycle + 1
+	do HMI.display("Cycle nr: %d.\n", cycle )
 	call ResetAxes
 	call HMIRequestTrajectory
 	call runTrajectory
@@ -2770,7 +2842,7 @@ start:  cycle = cycle + 1
 struct MyNamesModel 
 : public ServedTypes<Frame, double>
 {
-  MyModel()
+  MyNamesModel()
   {
     this->insert( make_pair(0, "EndPosition"));
     this->insert( make_pair(0, "OldPosition"));
@@ -2883,14 +2955,23 @@ struct MyNamesModel
       </para>
 	<programlisting>
 <![CDATA[
-// ...
-
-Frame delta_position;
-double tool_temp;
-
-// ... 
-void pull() 
+template < class _DefaultGenerator >
+class MyGenerator 
+    : public _DefaultGenerator 
 { 
+  // ...
+
+  Frame delta_position;
+  double tool_temp;
+
+public:
+  MyGenerator() :
+     _DefaultGenerator("MyGenerator")
+  {}
+
+  // ... 
+  void pull() 
+  { 
       Frame end_f, old_f;
 	// The EndPosition and OldPosition variables in the Model DataObject.
       if ( !_DefaultGenerator::Model::dObj()->Get("EndPosition", end_f) ||
@@ -2901,18 +2982,20 @@ void pull()
 
       if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp) )
            { // Error, "Temperature" not found ! }
-} 
+  } 
 
-void calculate()
-{ 
+  void calculate()
+  { 
       // ... calculate the setpoint
-} 
+  } 
 
-void push() 
-{
+  void push() 
+  {
      // The EndPosition variable in the SetPoint DataObject.
      _DefaultGenerator::SetPoint::dObj()->Set("EndPosition", localResult ); 
-}
+  }
+
+};
 ]]>
 	</programlisting>
       <para>
@@ -2944,19 +3027,28 @@ void push()
 	</para>
 	<programlisting>
 	  <![CDATA[
-// ... 
-Frame resultFrame;
-Frame delta_position;
-double tool_temp;
+template < class _DefaultGenerator >
+class MyGenerator 
+    : public _DefaultGenerator 
+{ 
+  // ... 
+  Frame resultFrame;
+  Frame delta_position;
+  double tool_temp;
 
-// Pointers to the DataObjects
-DataObjectInterface<double>* tool_temp_dobj;
-DataObjectInterface<Frame>* old_f_dobj;
-DataObjectInterface<Frame>* end_f_dobj;
-DataObjectInterface<Frame>* setp_f_dobj;
+  // Pointers to the DataObjects
+  DataObjectInterface<double>* tool_temp_dobj;
+  DataObjectInterface<Frame>* old_f_dobj;
+  DataObjectInterface<Frame>* end_f_dobj;
+  DataObjectInterface<Frame>* setp_f_dobj;
 
-bool componentLoaded()
-{
+public:
+  MyGenerator() :
+     _DefaultGenerator("MyGenerator")
+  {}
+
+  bool componentLoaded()
+  {
     // called when the component is loaded into the kernel.
     // Early Resolving :
     if ( !_DefaultGenerator::Model::dObj()->Get("Temperature", tool_temp_dobj ) ||
@@ -2967,11 +3059,12 @@ bool componentLoaded()
 	  // Error, "Temperature", "EndPosition" or "OldPosition" not found !
 	  return false;
     }
-}
+    return true;
+  }
 
-// ... 
-void pull() 
-{ 
+  // ... 
+  void pull() 
+  { 
       Frame end_f, old_f;
 
       // Get the data from the previously resolved DataObjects :
@@ -2979,11 +3072,14 @@ void pull()
       old_f_dobj->Get( old_f );
       delta_position = end_f - old_f;
       tool_temp = tool_temp_dobj->Get();
-} 
-// ...
-void push()
-{
+  } 
+  // ...
+  void push()
+  {
       setp_f_dobj->Set(resultFrame);
+  }
+
+};
 ]]>
 	</programlisting>
       </example>

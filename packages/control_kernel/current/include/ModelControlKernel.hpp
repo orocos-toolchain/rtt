@@ -247,10 +247,10 @@ namespace ORO_ControlKernel
         virtual void updateComponents()
         {
             // update estimator, if own model is used.
-            if ( ! externalModels )
-                estimator->update();
-            generator->update();
-            controller->update();
+            if ( ! this->externalModels )
+                this->estimator->update();
+            this->generator->update();
+            this->controller->update();
         }
     };
 
@@ -305,10 +305,10 @@ namespace ORO_ControlKernel
 
         virtual void updateComponents()
         {
-            sensor->update();
-            generator->update();
-            controller->update();
-            effector->update();
+            this->sensor->update();
+            this->generator->update();
+            this->controller->update();
+            this->effector->update();
         }
     };
 

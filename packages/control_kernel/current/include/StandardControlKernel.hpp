@@ -91,11 +91,11 @@ namespace ORO_ControlKernel
             // This is called from the KernelBaseFunction
             // one step is one control cycle
             // The figure is a unidirectional graph
-            sensor->update();
-            estimator->update();
-            generator->update();
-            controller->update();
-            effector->update();
+            this->sensor->update();
+            this->estimator->update();
+            this->generator->update();
+            this->controller->update();
+            this->effector->update();
         }
     };
 

@@ -171,11 +171,11 @@ namespace ORO_ControlKernel
 
         virtual void updateComponents()
         {
-            sensor->update();
-            estimator->update();
-            generator->update();
-            controller->update();
-            effector->update();
+            this->sensor->update();
+            this->estimator->update();
+            this->generator->update();
+            this->controller->update();
+            this->effector->update();
         }
     };
 
