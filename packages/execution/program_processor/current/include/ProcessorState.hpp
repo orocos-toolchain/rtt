@@ -21,11 +21,12 @@
 #define PROCESSORSTATE_HPP
 
 #include <string>
+#include <corelib/StateContext.hpp>
 
 namespace ORO_Execution
 {
-	
-    class SystemContext;
+    using ORO_CoreLib::StateContext;
+
     class ProgramInterface;
     class Processor;
     
@@ -51,7 +52,7 @@ namespace ORO_Execution
 			virtual bool abort() =0;
 			
 			//state tasks
-			virtual bool loadSystemContext(SystemContext* sc) = 0; 
+			virtual bool loadStateContext(StateContext* sc) = 0; 
 			virtual bool loadProgram(ProgramInterface* pi) = 0;
 			virtual bool resetProgram() = 0; 
 			virtual void doStep() = 0;  

@@ -42,7 +42,7 @@ namespace ORO_Execution
              * @post a valid system configuration is defined
              * @post a valid program is defined
              */ 
-			ProcessorStateExec(Processor* proc, SystemContext* sc, ProgramInterface* pi);
+			ProcessorStateExec(Processor* proc, StateContext* sc, ProgramInterface* pi);
 			
 			virtual ~ProcessorStateExec();
 			
@@ -80,7 +80,7 @@ namespace ORO_Execution
 			
 			virtual bool startExecution(){output("startExecution: no legal action in execution state"); return false;}
 			
-			virtual bool loadSystemContext(SystemContext* sc){output("loadSystemContext: no legal action in execution state"); return false;} 
+			virtual bool loadStateContext(StateContext* sc){output("loadStateContext: no legal action in execution state"); return false;} 
 			
 			virtual bool loadProgram(ProgramInterface* pi){output("loadProgram: no legal action in execution state"); return false;}
 			
@@ -91,7 +91,7 @@ namespace ORO_Execution
 			/**
 			 * The system configuration associated with this state.
 			 */
-			SystemContext* systemContext;
+			StateContext* systemContext;
 			/**
 			 * The program associated with this state.
 			 */

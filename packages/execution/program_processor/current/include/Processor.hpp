@@ -56,7 +56,7 @@ namespace ORO_Execution
 			virtual bool stopExecution();
 
 			//see ProcessorInterface
-			virtual bool loadSystemContext(SystemContext* sc);
+			virtual bool loadStateContext(StateContext* sc);
 			virtual bool loadProgram(ProgramInterface* pi) ;
 			virtual bool resetProgram() ;
 			virtual void doStep();

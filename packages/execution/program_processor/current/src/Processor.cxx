@@ -33,7 +33,7 @@ namespace ORO_Execution
 	bool Processor::startExecution() {return currentState->startExecution();}
 	bool Processor::stopExecution() {return currentState->stopExecution();}
 
-	bool Processor::loadSystemContext(SystemContext* sc){return currentState->loadSystemContext(sc);}
+	bool Processor::loadStateContext(StateContext* sc){return currentState->loadStateContext(sc);}
 	bool Processor::loadProgram(ProgramInterface* pi){return currentState->loadProgram(pi);}
 	bool Processor::resetProgram() {return currentState->resetProgram();}
 	void Processor::doStep(){currentState->doStep();}

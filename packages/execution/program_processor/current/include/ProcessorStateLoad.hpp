@@ -42,7 +42,7 @@ namespace ORO_Execution
              * @post a valid system configuration is defined
              * @post no valid program is loaded yet
              */  
-			ProcessorStateLoad(Processor* proc, SystemContext* sc);
+			ProcessorStateLoad(Processor* proc, StateContext* sc);
 			
 			virtual ~ProcessorStateLoad();
 			
@@ -81,8 +81,8 @@ namespace ORO_Execution
 			//rest of interface
             virtual bool startConfiguration(){output("startConfiguration : Processor is in load state"); return false;}
             virtual bool endConfiguration(){output("endConfiguration : Processor is in load state"); return false;}
-			virtual bool loadSystemContext(SystemContext* sc){output("loadSystemContext : Processor is in load state"); return false;}  
-			virtual void doStep() {}  
+			virtual bool loadStateContext(StateContext* sc){output("loadStateContext : Processor is in load state"); return false;}  
+        virtual void doStep();
 			virtual bool stopExecution(){output("stopExecution : Processor is in load state"); return false;}
 			
 		private :
@@ -98,7 +98,7 @@ namespace ORO_Execution
 			/**
 			 * The system configuration associated with this state.
 			 */
-			SystemContext* systemContext;
+			StateContext* systemContext;
 			/**
 			 * The program associated with this state.
 			 */

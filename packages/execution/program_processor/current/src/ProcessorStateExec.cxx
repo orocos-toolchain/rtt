@@ -6,7 +6,7 @@
 namespace ORO_Execution
 {
 
-	ProcessorStateExec::ProcessorStateExec(Processor* proc, SystemContext* sc, ProgramInterface* pi)
+	ProcessorStateExec::ProcessorStateExec(Processor* proc, StateContext* sc, ProgramInterface* pi)
         :ProcessorState(proc), systemContext(sc), program(pi)
 	{
 	}
@@ -37,7 +37,7 @@ namespace ORO_Execution
 	bool ProcessorStateExec::deleteProgram()
 	{
 		ProcessorStateConfig* newState= new ProcessorStateConfig(processor);
-		newState->loadSystemContext(systemContext);
+		newState->loadStateContext(systemContext);
         // we pass ownership of the systemContext to the
         // config state
         systemContext = 0;
@@ -50,12 +50,12 @@ namespace ORO_Execution
 
 	void ProcessorStateExec::doStep()
 	{
-        // request to stay in current state, and thus handle the 
-        // resulting state.
-		systemContext->requestState( systemContext->currentState());
+        // search for a next state.
+		systemContext->requestNextState( );
 
 		//Execute next program node
-		program->execute();
+        if ( program )
+            program->execute();
 	}
 
 }

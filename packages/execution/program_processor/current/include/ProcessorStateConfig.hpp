@@ -65,7 +65,7 @@ namespace ORO_Execution
 			 * @param <sc> The system configuration to be loaded. 			   
 			 * @post If given system configuration is valid, it is loaded.		
 			 */
-			virtual bool loadSystemContext(SystemContext* sc);
+			virtual bool loadStateContext(StateContext* sc);
 			
 			
 			
@@ -81,7 +81,7 @@ namespace ORO_Execution
 			
 			virtual bool resetProgram(){output("no legal action in configuration state"); return false;} 
 			
-			virtual void doStep(){}
+        virtual void doStep();
 			
 		private :
 		
@@ -92,12 +92,12 @@ namespace ORO_Execution
 			 * @param <sc> The system configuration to be checked.
 			 * @return True if given system configuration is not zero
 			 */
-			virtual bool isValidConfig(SystemContext* sc);
+			virtual bool isValidConfig(StateContext* sc);
 			
 			/**
 			 * The system configuration associated with this state.
 			 */
-			SystemContext* systemContext;	   
+			StateContext* systemContext;	   
 
 	};
 

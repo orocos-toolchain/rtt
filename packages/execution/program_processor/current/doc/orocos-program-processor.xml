@@ -30,7 +30,7 @@
   <abstract>
       <para>
 	This document explains the design and implementation of the
-	Program Execution component.
+	Program Processor.
       </para>
     </abstract>
 
@@ -129,10 +129,10 @@ features and interface of the &orocos; &interf; package.
 	&interf;.
       </para>
       <note>
-	We refer to the source code documentation or the
-	<application>doxygen</application> generated files for the
-	most recent
+	<para>	We refer to the source code documentation or the
+	doxygen generated files for the	most recent
 	documentation about which functions exist and do what. 
+	</para>
       </note>
       <sect2>
 	<title>Processor</title>

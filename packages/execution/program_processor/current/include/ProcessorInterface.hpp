@@ -21,11 +21,11 @@
 #define PROCESSORINTERFACE_HPP
 
 #include "ProgramInterface.hpp"
-#include "SystemContext.hpp"
+#include <corelib/StateContext.hpp>
 
 namespace ORO_Execution
 {
-
+    using ORO_CoreLib::StateContext;
 
     /**
      * This abstract base class provides functionality to 
@@ -42,7 +42,7 @@ namespace ORO_Execution
             /**
              * Load a configured system 
              */
-            virtual bool loadSystemContext(SystemContext* sc) = 0; 
+            virtual bool loadStateContext(StateContext* sc) = 0; 
 			
 			/**
 			 * Load the data to be executed.

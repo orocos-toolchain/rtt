@@ -8,7 +8,7 @@
 namespace ORO_Execution
 {
 
-	ProcessorStateLoad::ProcessorStateLoad(Processor* proc, SystemContext* sc)
+	ProcessorStateLoad::ProcessorStateLoad(Processor* proc, StateContext* sc)
        : ProcessorState(proc), systemContext(sc), program(0)
 	{
 	}
@@ -30,7 +30,7 @@ namespace ORO_Execution
 	bool ProcessorStateLoad::deleteProgram()
 	{
 		ProcessorStateConfig* newState = new ProcessorStateConfig(processor);
-		newState->loadSystemContext(systemContext);
+		newState->loadStateContext(systemContext);
         // we pass ownership of systemContext to the config state.
         systemContext = 0;
         delete program;
@@ -42,19 +42,17 @@ namespace ORO_Execution
 
 	bool ProcessorStateLoad::startExecution()
 	{
-		if ( isValidProgram(program))
-		{
-            // Reset the program, just before execution is entered.
+        // Reset the program, just before execution is entered.
+        if ( program )
             program->reset();
-			ProcessorStateExec* newState=new ProcessorStateExec(processor, systemContext, program);
-            // we pass ownership of the programand systemContext to
-            // ProcessorStateExec.
-            program = 0;
-            systemContext = 0;
-			changeState(newState);
-            return true;
-		}
-		else { std::cout << "A valid program needs to be loaded first" <<std::endl; return false; }
+
+        ProcessorStateExec* newState=new ProcessorStateExec(processor, systemContext, program);
+        // we pass ownership of the programand systemContext to
+        // ProcessorStateExec.
+        program = 0;
+        systemContext = 0;
+        changeState(newState);
+        return true;
 	}
 
 
@@ -71,7 +69,9 @@ namespace ORO_Execution
 
 	bool ProcessorStateLoad::resetProgram()
 	{
-		program->reset();
+        if ( program == 0 )
+            return false;
+        program->reset();
         return true;
 	}
 
@@ -80,6 +80,14 @@ namespace ORO_Execution
 	{
 		return ( p != 0 );
 	}
+
+	void ProcessorStateLoad::doStep()
+	{
+        // If stepping is requested, we process the systemContext;
+        systemContext->requestNextState( );
+	}
+
+
 }
 
 

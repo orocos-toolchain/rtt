@@ -21,7 +21,7 @@ pngimages: PPstates.png
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
 %.fo:%.xml
-	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
+	xsltproc --stringparam fop.extensions 1 /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
 
 %.ps:%.fo
 	fop $< $@

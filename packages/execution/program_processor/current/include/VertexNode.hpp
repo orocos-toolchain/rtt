@@ -42,6 +42,7 @@ namespace ORO_Execution
 
 	class ProcessorControlInterface;
 	class ProcessorInterface;
+    class StateDescription;
 
 	/**
 	 * This class represents elements in a program tree.
@@ -56,7 +57,7 @@ namespace ORO_Execution
         enum { normal_node, prog_start_node, prog_exit_node, func_start_node, func_exit_node };
         typedef property<vertex_command_t, VertexNode,
                          property<vertex_exec_t, int,
-                                  property<vertex_index_t, int> > > VertProperty;
+                                  property<vertex_index_t, int > > > VertProperty;
 
         /**
          * Construct an empty program node with no command,

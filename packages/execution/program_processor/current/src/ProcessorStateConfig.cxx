@@ -40,16 +40,23 @@ namespace ORO_Execution
     	}
     }
 
-    bool ProcessorStateConfig::loadSystemContext(SystemContext* sc)
+    bool ProcessorStateConfig::loadStateContext(StateContext* sc)
     {
     	if (isValidConfig(sc)){systemContext = sc; return true;} return false;
     }
 
 
-    bool ProcessorStateConfig::isValidConfig(SystemContext* sc)
+    bool ProcessorStateConfig::isValidConfig(StateContext* sc)
     {
     	return (sc != 0 && sc->currentState() != 0);
     }
+
+	void ProcessorStateConfig::doStep()
+	{
+        // If stepping is requested, we process the systemContext;
+        if ( systemContext )
+            systemContext->requestNextState( );
+	}
 
 }
 
