@@ -21,16 +21,20 @@ bool ComponentConfigurator::configure(std::string& filename, PropertyComponentIn
         {
             // instruct component to update.
             if (!target->updateProperties( target->getLocalStore().value() ) )
-                cout << "Component "<<target->getName() << " dit not successfully update its properties !"<<endl;
+                cerr << "Component "<<target->getName() << " dit not successfully update its properties !"<<endl;
             else
                 result = true;
             // cleanup
             flattenPropertyBag( target->getLocalStore().value() );
             deleteProperties( target->getLocalStore().value() );
         }
+        else
+            {
+                cerr << "Some error occured while parsing "<< filename.c_str() <<endl;
+            }
     } catch (...)
     {
-        cout << "Could not find "<< filename << endl;
+        cerr << "Could not find "<< filename << endl;
     }
     return result;
 }
