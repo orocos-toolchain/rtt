@@ -105,7 +105,7 @@ cd -
 
 
 AC_CONFIG_FILES([ 
-  Doxyfile Makefile 
+  Makefile 
   doc/Makefile
   doc/catalog.xml
   tests/Makefile
