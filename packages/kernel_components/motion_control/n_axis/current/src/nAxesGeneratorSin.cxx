@@ -124,9 +124,9 @@ namespace ORO_ControlKernel
     }
 
     // check size of properties
-    assert(_sin_amplitude.value().size() >= _num_axes);
-    assert(_sin_frequency.value().size() >= _num_axes);
-    assert(_sin_phase.value().size()     >= _num_axes);
+    assert(_sin_amplitude.value().size() == _num_axes);
+    assert(_sin_frequency.value().size() == _num_axes);
+    assert(_sin_phase.value().size()     == _num_axes);
 
     return true;
   }
