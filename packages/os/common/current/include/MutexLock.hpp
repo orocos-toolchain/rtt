@@ -27,10 +27,9 @@
 namespace ORO_OS
 {
     /**
-     * MutexLock is a scope based Monitor, protecting critical
+     * @brief MutexLock is a scope based Monitor, protecting critical
      * sections with a Mutex object through locking and unlocking it.
      */
-
     class MutexLock
     {
 
@@ -63,10 +62,9 @@ namespace ORO_OS
     };
 
     /**
-     * A MutexTryLock tries to lock an Mutex object on construction
-     * and unlocks it on destruction of the MutexTryLock.
+     * @brief A MutexTryLock tries to lock an Mutex object on construction
+     * and if successful, unlocks it on destruction of the MutexTryLock.
      */
-
     class MutexTryLock
     {
 
@@ -78,7 +76,7 @@ namespace ORO_OS
              * @param mutex The Mutex which should be attempted to be locked
              */
             MutexTryLock( Mutex &mutex )
-                    : _mutex( &mutex), successful( _mutex->trylock() )
+                    : _mutex( &mutex), successful( mutex.trylock() )
             {
             }
 

@@ -12,6 +12,7 @@ can only select one OS Package which is called the
     #compile ConditionVariableTimed.cxx  
     compile startstop.cxx
     compile StartStopManager.cxx
+    compile Mutex.cxx
 
     cdl_option OROBLD_OS_LINUX_KERNEL {
 	display "The source directory of the target Linux kernel"

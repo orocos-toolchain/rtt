@@ -67,6 +67,8 @@ namespace ORO_OS
 
         ~StartStopManager()
         {
+            startv.clear();
+            stopv.clear();
         }
 
          void res_collector( start_fun f )
@@ -82,6 +84,9 @@ namespace ORO_OS
 
         int start()
         {
+            // save some memory trick
+            startv.resize( startv.size() );
+            stopv.resize( stopv.size() );
             std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
             return res;
         }

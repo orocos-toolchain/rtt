@@ -25,21 +25,18 @@
 
 namespace ORO_OS
 {
-	
-
     /**
-     * An object oriented wrapper around the posix mutex.
+     * @brief An object oriented wrapper around the posix mutex.
+     *
      * A mutex can only be  unlock()'ed, by the thread which lock()'ed 
      * it. A trylock is a non blocking lock action which fails or succeeds.
-     * @Warning Mutex instances should only be created in soft realtime,
+     * @warning Mutex instances should only be created in soft realtime,
      *          since the initialisation of a mutex can not be done in hard realtime.
      *
-     * @see MutexLock
+     * @see MutexLock, MutexTryLock
      */
     class Mutex 
-    //: public pthread_mutex_t
     {
-
         friend class MutexLock;
 
         friend class MutexTryLock;
@@ -64,7 +61,8 @@ namespace ORO_OS
             ~Mutex()
             {
                 lock();
-                unlock();
+                unlock(); // remove this ? then we destroy a locked mutex.
+                // race condition here...
                 rtos_mutex_destroy( &m );
             }
 
@@ -85,11 +83,8 @@ namespace ORO_OS
              */
             bool trylock()
             {
-                int res;
-                if ( (res = rtos_mutex_trylock( &m )) == 0 )
+                if ( rtos_mutex_trylock( &m ) == 0 )
                     return true;
-                if ( res == EINVAL )
-                    exit(1);
                 return false;
             }
 
