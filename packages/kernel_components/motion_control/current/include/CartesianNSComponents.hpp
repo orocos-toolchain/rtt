@@ -117,7 +117,10 @@ namespace ORO_ControlKernel
         CartesianGenerator() 
             : Base("CartesianGenerator"),
               end_pos("End Position","One of many variables which can be reported."),
-              timestamp(0), _time(0), cur_tr(0), task_frame(Frame::Identity()), tool_mp_frame(Frame::Identity())
+              timestamp(0), _time(0), cur_tr(0),
+              homepos(Frame::Identity()),
+              task_frame(Frame::Identity()),
+              tool_mp_frame(Frame::Identity())
         {}
 
         /**
@@ -227,9 +230,11 @@ namespace ORO_ControlKernel
             // XXX insert proper delete code.
             if ( kernel()->isRunning() && trajectoryDone() )
                 {
-                    cout <<"Home : from "<< model.mp_base_frame <<" to "<<_command.task_frame<<endl;
+                    cout <<"Home : from "<< model.mp_base_frame <<" to "<<endl<< homepos <<endl;
                     _time = 0;
-                    cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, _command.task_frame, new RotationalInterpolation_SingleAxis(),1.0 ), new VelocityProfile_Trap(1,10),10.0);
+                    cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, homepos,
+                                                                   new RotationalInterpolation_SingleAxis(),1.0 ),
+                                                     new VelocityProfile_Trap(1,10),10.0);
                     task_frame = Frame::Identity(); //only used for storing the homing pos
                     tool_mp_frame = Frame::Identity();
                     timestamp = HeartBeatGenerator::Instance()->ticksGet();
@@ -244,6 +249,11 @@ namespace ORO_ControlKernel
         bool isTrajectoryLoaded()
         {
             return cur_tr != 0;
+        }
+
+        void setHomeFrame( Frame _homepos )
+        {
+            homepos = _homepos;
         }
 
 #ifdef OROPKG_EXECUTION_PROGRAM_PARSER
@@ -266,6 +276,9 @@ namespace ORO_ControlKernel
             return ret;
         }
 
+        template< class T >
+        bool true_gen( T t ) { return true; }
+
         CommandFactoryInterface* createCommandFactory()
         {
             TemplateCommandFactory< CartesianGenerator<Base> >* ret =
@@ -274,6 +287,10 @@ namespace ORO_ControlKernel
                       command( &CartesianGenerator<Base>::home,
                                &CartesianGenerator<Base>::isHomed,
                                "Move the robot to its home position" ) );
+            ret->add( "setHomeFrame", 
+                      command( &CartesianGenerator<Base>::setHomeFrame,
+                               &CartesianGenerator<Base>::true_gen,
+                            "The home position of the robot.", "Frame", "Homing End Frame" ) );
             ret->add( "loadTrajectory",
                       command( &CartesianGenerator<Base>::loadTrajectory,
                                &CartesianGenerator<Base>::isTrajectoryLoaded,
@@ -294,6 +311,7 @@ namespace ORO_ControlKernel
         Trajectory*  cur_tr;
         Trajectory*  com_tr;
 
+        Frame homepos;
         Frame task_frame;
         Frame tool_mp_frame;
         Frame mp_base_frame;
