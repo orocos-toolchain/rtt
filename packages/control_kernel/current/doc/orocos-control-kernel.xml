@@ -2855,17 +2855,17 @@ my_kernel.startStateContext("MyState");
 	  it is safe to start a program. To do this in the state
 	  the commands
 	<programlisting>
-do engine.startProgram("MyProgram")
+do Execution.startProgram("MyProgram")
 //...
-do engine.stopProgram("MyProgram")
+do Execution.stopProgram("MyProgram")
 	</programlisting>
 	  are available. Likewise, it is possible to start and stop
 	  other StateContexts from within a program or another 
 	  State Context :
 	<programlisting>
-do engine.startStateContext("SecondContext")
+do Execution.startStateContext("SecondContext")
 //...
-do engine.stopStateContext("SecondContext")
+do Execution.stopStateContext("SecondContext")
 	</programlisting>
 	</para>
       </sect3>
@@ -2898,8 +2898,8 @@ Final_State fini_state
  */
 state init_state {
     entry {
-	do kernel.selectSensor("HWSensor")
-	do kernel.selectGenerator("MoveToGenerator")
+	do Kernel.selectSensor("HWSensor")
+	do Kernel.selectGenerator("MoveToGenerator")
 	}
     transitions {
 	select stop_state
@@ -2912,8 +2912,8 @@ state init_state {
  */
 state fini_state {
     entry {
-	do kernel.selectSensor("Default")
-	do kernel.selectGenerator("Default")
+	do Kernel.selectSensor("Default")
+	do Kernel.selectGenerator("Default")
 	}
 }
 
@@ -2924,8 +2924,8 @@ state fini_state {
 state stop_state {
     entry {
 	// The Default Effector and Controller do nothing
-	do kernel.selectController("Default")
-	do kernel.selectEffector("Default")
+	do Kernel.selectController("Default")
+	do Kernel.selectEffector("Default")
     transitions {
 	if HMI.start_pushed() then
 	     select run_state
@@ -2942,8 +2942,8 @@ state run_state {
 	// make sure we are not moving
 	do MoveToGenerator.safeStop()
 	// Select components controlling the machine
-	do kernel.selectController("PID")
-	do kernel.selectEffector("HWEffector")
+	do Kernel.selectController("PID")
+	do Kernel.selectEffector("HWEffector")
 	}
 
     transitions {
@@ -2960,11 +2960,11 @@ state run_state {
  */
 state exec_state {
     entry {
-	do engine.startProgram("MyProgram")
+	do Execution.startProgram("MyProgram")
 	}
 
     exit {
-	do engine.stopProgram("MyProgram")
+	do Execution.stopProgram("MyProgram")
 	}
 	
     transitions {
@@ -2999,7 +2999,7 @@ function HMILoadTrajectory {
  * without a program.
  */
 function ResetAxes {
-	do kernel.selectGenerator("HomingGenerator")
+	do Kernel.selectGenerator("HomingGenerator")
 	do HomingGenerator.home()
 }
 

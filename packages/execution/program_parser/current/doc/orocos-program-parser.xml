@@ -740,18 +740,18 @@ transitions {
       the Parser. When the parser is used
       in the Orocos Control Kernel framework,
       the Kernel and the Processor expose themselves
-      as the 'engine' component. We refer to the control kernel
+      as the 'Execution' component. We refer to the control kernel
       documentation for a detailled list of commands,
       but here are a few examples :
       <programlisting>
-do kernel.selectGenerator( "CartesianGenerator" )
-do kernel.selectController( "CartesianController" )
+do Kernel.selectGenerator( "CartesianGenerator" )
+do Kernel.selectController( "CartesianController" )
 // ...
-do engine.startProgram( "name" )
-do engine.stopProgram( "name" )
+do Execution.startProgram( "name" )
+do Execution.stopProgram( "name" )
 // ..
-do engine.startStateContext( "name" )
-do engine.stopStateContext( "name" )
+do Execution.startStateContext( "name" )
+do Execution.stopStateContext( "name" )
       </programlisting>
       The selectX commands are instructing the kernel
       itself while the start/stopProgram commands
@@ -793,8 +793,8 @@ state init_state {
  */
 state startup_state {
     entry {
-	do kernel.selectSensor("HWSensor")
-	do kernel.selectGenerator("MoveToGenerator")
+	do Kernel.selectSensor("HWSensor")
+	do Kernel.selectGenerator("MoveToGenerator")
 	}
     transitions {
 	select stop_state
@@ -807,8 +807,8 @@ state startup_state {
  */
 state fini_state {
     entry {
-	do kernel.selectSensor("Default")
-	do kernel.selectGenerator("Default")
+	do Kernel.selectSensor("Default")
+	do Kernel.selectGenerator("Default")
 	}
 }
 
@@ -819,8 +819,8 @@ state fini_state {
 state stop_state {
     entry {
 	// The Default Effector and Controller do nothing
-	do kernel.selectController("Default")
-	do kernel.selectEffector("Default")
+	do Kernel.selectController("Default")
+	do Kernel.selectEffector("Default")
     transitions {
 	if HMI.start_pushed() then
 	     select run_state
@@ -837,8 +837,8 @@ state run_state {
 	// make sure we are not moving
 	do MoveToGenerator.safeStop()
 	// Select components controlling the machine
-	do kernel.selectController("PID")
-	do kernel.selectEffector("HWEffector")
+	do Kernel.selectController("PID")
+	do Kernel.selectEffector("HWEffector")
 	}
 
     transitions {
@@ -855,11 +855,11 @@ state run_state {
  */
 state exec_state {
     entry {
-	do engine.startProgram("MyProgram")
+	do Execution.startProgram("MyProgram")
 	}
 
     exit {
-	do engine.stopProgram("MyProgram")
+	do Execution.stopProgram("MyProgram")
 	}
 	
     transitions {
@@ -894,7 +894,7 @@ function HMILoadTrajectory {
  * without a program.
  */
 function ResetAxes {
-	do kernel.selectGenerator("HomingGenerator")
+	do Kernel.selectGenerator("HomingGenerator")
 	do HomingGenerator.home()
 }
 
