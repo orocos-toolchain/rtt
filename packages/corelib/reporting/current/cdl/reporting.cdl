@@ -12,7 +12,7 @@ Logger implementation for tracking system configuration."
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile ReportHandler.cxx  ReportWriter.cxx
+    compile ReportWriter.cxx
     compile ReportCollectorInterface.cxx PropertyExporter.cxx
     compile Logger.cxx
 
