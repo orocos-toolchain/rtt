@@ -21,11 +21,35 @@
 
 #include "pkgconf/corelib_tasks.h"
 
+#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#include <os/StartStopManager.hpp>
+namespace ORO_CoreLib
+{
+    namespace
+    {
+        int startZLTThread()
+        {
+            ZeroLatencyThread::Instance()->start();
+            return true;
+        }
+
+        void stopZLTThread()
+        {
+            ZeroLatencyThread::Release();
+        }
+
+        ORO_OS::InitFunction ZLTInit( &startZLTThread );
+        ORO_OS::CleanupFunction ZLTCleanup( &stopZLTThread );
+    }
+}
+#endif
+
+
 namespace ORO_CoreLib
 {
     
     // The static class variables
-    ZeroLatencyThread* ZeroLatencyThread::_instance = 0;
+    ZeroLatencyThread* ZeroLatencyThread::_instance;
 
     ZeroLatencyThread* ZeroLatencyThread::Instance()
     {

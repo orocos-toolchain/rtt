@@ -74,7 +74,7 @@ namespace ORO_CoreLib
          * @param priority 
          *        The priority of this thread
          * @param periodicity
-         *        The periodicity of this thread
+         *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
          */
         TaskExecution(int priority, const std::string& name, double periodicity);
 
@@ -86,46 +86,14 @@ namespace ORO_CoreLib
          * @param t The task to handle each n nanoseconds
          * @param n handle every n nanoseconds
          */
-        bool taskAdd( EventListenerInterface* t, const nsecs n )
-        {
-            { 
-                // scoped mutexlock with the for loop
-                std::list<EventPeriodic*>::iterator itl;
-                MutexLock locker(lock);
-                for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-                    if ( *itl && (*itl)->periodGet() == n )
-                        {
-                            (*itl)->addHandler(t, Completer::None );
-                            return true;
-                        }
-            }
-#if OROSEM_CORELIB_TASKS_DYNAMIC_REG
-            /**
-             * Create the event when not existing.
-             */
-            EventPeriodic* ep = new EventPeriodic( n );
-            ep->addHandler(t, Completer::None);
-            eventAdd(ep);
-            return true;
-#else
-            return false;
-#endif
-        }
+        bool taskAdd( EventListenerInterface* t, const nsecs n );
 
         /**
          * Remove a EventListenerInterface from handleing
          *
          * @post <t> is no longer handled by this thread
          */
-        void taskRemove( EventListenerInterface* t )
-        {
-            // this is doing it the hard way.
-            std::list<EventPeriodic*>::iterator itl;
-            MutexLock locker(lock);
-            for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-                if ( *itl )
-                    (*itl)->removeHandler(t,0);
-        }
+        void taskRemove( EventListenerInterface* t );
         
         /**
          * A list containing all the EventPeriodic instances

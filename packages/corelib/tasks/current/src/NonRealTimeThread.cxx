@@ -7,8 +7,31 @@
 
 #ifdef OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION
 #include <corelib/CompletionProcessor.hpp>
-#endif
+#else
 
+#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#include <os/StartStopManager.hpp>
+namespace ORO_CoreLib
+{
+    namespace
+    {
+        int startNRTThread()
+        {
+            NonRealTimeThread::Instance()->start();
+            return true;
+        }
+
+        void stopNRTThread()
+        {
+            NonRealTimeThread::Release();
+        }
+
+        ORO_OS::InitFunction NRTInit( &startNRTThread );
+        ORO_OS::CleanupFunction NRTCleanup( &stopNRTThread );
+    }
+}
+#endif
+#endif
 
 namespace ORO_CoreLib
 {

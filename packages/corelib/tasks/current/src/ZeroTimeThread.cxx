@@ -20,12 +20,36 @@
 #include "corelib/TaskNonPreemptible.hpp"
 #include "corelib/Time.hpp"
 
-#include "pkgconf/corelib_tasks.h"
+#include <pkgconf/corelib_tasks.h>
+
+
+#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#include <os/StartStopManager.hpp>
+namespace ORO_CoreLib
+{
+    namespace
+    {
+        int startZTTThread()
+        {
+            ZeroTimeThread::Instance()->start();
+            return true;
+        }
+
+        void stopZTTThread()
+        {
+            ZeroTimeThread::Release();
+        }
+
+        ORO_OS::InitFunction ZTTInit( &startZTTThread );
+        ORO_OS::CleanupFunction ZTTCleanup( &stopZTTThread );
+    }
+}
+#endif
 
 namespace ORO_CoreLib
 {
     // The static class variables
-    ZeroTimeThread* ZeroTimeThread::_instance = 0;
+    ZeroTimeThread* ZeroTimeThread::_instance;
 
     ZeroTimeThread* ZeroTimeThread::Instance()
     {

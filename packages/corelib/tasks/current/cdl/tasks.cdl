@@ -48,6 +48,19 @@ as if it is a separate class from the CompletionProcessor.
 	}
     }
 
+    cdl_option OROSEM_CORELIB_TASKS_AUTOSTART {
+	display "Automatically start Realtime threads"
+	description "
+This option will automatically start the realtime threads
+(listed below)
+on program startup and stop them on program exit. This has
+nothing to do with starting or stopping Tasks."
+	flavor bool
+	default_value 1
+    }
+
+    
+
     cdl_component OROPKG_CORELIB_TASKS_ZTT {
 	display "Properties of the ZeroTimeThread"
 	flavor none
