@@ -78,6 +78,7 @@ namespace ORO_DeviceDriver
 
     double* _coordinates[MAX_NUM_COORD];
     int _num_leds;
+    bool _exit;
     
   };
 

@@ -100,7 +100,7 @@ namespace ORO_DeviceDriver
   template <class Data>
   K600PositionInterface<Data>::K600PositionInterface(int num_leds)
     : ORO_OS::SingleThread(SINGLE_THREAD_PRIORITY,"KryptonEncoderThread"),
-      _writeBuffer_p(&_buf1), _readBuffer_p(&_buf2), _num_leds(num_leds)
+      _writeBuffer_p(&_buf1), _readBuffer_p(&_buf2), _num_leds(num_leds), _exit(false)
   {
     _buf1.resize(_num_leds * NUM_COORD_PER_LED);
     _buf2.resize(_num_leds * NUM_COORD_PER_LED);
@@ -123,7 +123,7 @@ namespace ORO_DeviceDriver
     // In the while loop, we might be waiting for the sem, so first
     // post it...
     SEM * udp_message_arrived;
-    this->prepareForExit = true;
+    this->_exit = true;
     udp_message_arrived = (SEM *) rt_get_adr(nam2num("KEDSEM"));
     rt_sem_signal (udp_message_arrived);
   }
@@ -162,14 +162,14 @@ namespace ORO_DeviceDriver
 
     // data from message
     unsigned short a,b,c,d,e,f,g; char mychar;
-    while(!prepareForExit)
+    while(!_exit)
       {
 	// Wait until kernel Module posts semaphore
 	rt_sem_wait(udp_message_arrived);
 
 	// Check if we really got a message or if the
 	// udp_message_arrived was posted by the destructor
-	if (!prepareForExit)
+	if (!_exit)
 	  {
 	    // rtos_printf("K600PositionInterface Step: Got UDP packet\n");
 	    if ((ret = rt_mbx_receive_if(udp_message,(void *) &msg, MAX_MESSAGE_LENGTH)) < 0 )
