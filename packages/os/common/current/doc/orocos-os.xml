@@ -74,6 +74,12 @@
 	  sections, since it is no longer maintained. Everything in this
 	manual now applies to the GNU/Linux and RTAI/LXRT targets.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.19</revnumber>
+	<date>16 Feb 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Introduction cleanup, restructuring.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -90,7 +96,7 @@
 
   </articleinfo>
 
-<sect1>
+  <sect1>
     <title>Introduction</title>
     <sect2>
       <title>Realtime OS Abstraction</title>
@@ -113,18 +119,8 @@
       </para>
       <para>
 	The abstractions cause (almost) no execution overhead, because
-	the wrapping is solved at compile or configuration time, i.e.,
-	before the hard realtime tasks are running.
-      </para>
-    </sect2>
-    <sect2>
-      <title>Beyond Realtime</title>
-      <para>Not everything must be executed in realtime in a control
-	system, on the contrary. User interaction, some environment
-	interaction, and system configuration can not execute within
-	deterministic time limits. &orocos; also provides this
-	interaction and configuration without disturbing the
-	determinism of the control task execution.
+	the wrappers can be called inline. See the <option>OROBLD_OS_AGNOSTIC</option>
+	option in the configuration tool to control inlining.
       </para>
     </sect2>
   </sect1>
@@ -132,35 +128,59 @@
     <title>The Operating System Interface</title>
     <sect2>
       <title>Basics</title>
-    <para>
-      Keeping the &orocos; core portable requires an extra abstraction
-      of some operating system (OS) functionalities. For
-      example, a thread can be created, started,
-      paused, scheduled, etc., but each OS uses other function calls
-      to do this. &orocos; prefers C++ interfaces, which led to the
-      <classname>PeriodicThread</classname> class interface as the
-      abstraction of a periodic thread.  Each OS implements in its <filename
-	class="directory">os/&lt;OS-name-here&gt;</filename> directory
-      the specific system calls to get the desired effect. The
-      Mutex and MutexRecursive with MutexLock and MutexTryLock class are also commonly
-      used abstractions. 
-    </para>
-    <para>
-      This drawing situates the Operating System abstraction
-      with respect to device driver interfacing (DI) and the
-      rest of &orocos;
-      <figure><title>OS Interface overview</title>
-	<mediaobject>
-	  <imageobject role="html">
-	    <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
-	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
-	  </imageobject>
-	</mediaobject>
+      <para>
+	Keeping the &orocos; core portable requires an extra
+	abstraction of some operating system (OS) functionalities. For
+	example, a thread can be created, started, paused, scheduled,
+	etc., but each OS uses other function calls to do this.
+	&orocos; prefers C++ interfaces, which led to the
+	<classname>PeriodicThreadInterface</classname> interface and
+	<classname>PeriodicThread</classname> class as the
+	abstractions of a periodic thread. The
+	<classname>SingleThread</classname> is a non periodic thread
+	which executes the functionality once each time it is started.
+	Each OS implements in its <filename
+	  class="directory">os/&lt;OS-name-here&gt;</filename>
+	directory the specific system calls to get the desired effect.
+	The <classname>Mutex</classname> and
+	<classname>MutexRecursive</classname> classes in combination
+	with the <classname>MutexLock</classname> and
+	<classname>MutexTryLock</classname> classes are also commonly
+	used abstractions in multithreaded frameworks.
+      </para>
+      <para>
+	This drawing situates the Operating System abstraction with
+	respect to device driver interfacing (DI) and the rest of
+	&orocos; <figure><title>OS Interface overview</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="FDIvsFOSI.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="FDIvsFOSI.eps" format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
       </figure>
       </para>
     </sect2>
+  </sect1>
+  <sect1>
+    <title>OS Package Structure</title>
+      <para>
+      The OS package has always a <filename>common</filename>
+      directory for all common interfaces and configuration options.
+      This directory is OS independent but may contain assembler
+      instructions ( such as Compare And Swap ) for spicific processor
+      architectures. However, if Orocos grows to support many
+      different architectures, an <filename>arch</filename> directory
+      will most likely be introduced to sort files for specific
+      architectures. Next to the common directory is a
+      <filename>&lt;target></filename> directory which contains the
+      abstraction implementations for a specific OS. Multiple OS
+      abstractions may be available, but only one can be configured
+      and compiled in one configuration.
+    </para>
+
 <!--     <sect2> -->
 <!--       <title>Using the OS abstraction in the Linux kernel </title> -->
 <!--       <para> -->
@@ -238,7 +258,7 @@
 <!--       </para> -->
 <!--     </sect2> -->
     <sect2>
-      <title>Using the OS Abstraction in Fully Supported OSes</title>
+      <title>The RTAI/LXRT OS target</title>
       <para>
 	<!-- 	The previous section explained which headers to include -->
 <!-- 	when building Linux kernel applications. Fortunately, an -->
@@ -269,8 +289,15 @@
 	same program. <emphasis>Using the Orocos provided C++ primitives
 	is in any case correct.</emphasis>
       </para>
+    </sect2>
+    <sect2>
+      <title>OS Header Files</title>
+      <para>
+	The following table gives a short overview of the available
+	headers in the OS package.
+      </para>
       <table frame="all">
-	<title>Header Files for Fully Supported Applications</title>
+	<title>Header Files</title>
 	<tgroup cols="3" colsep="1" rowsep="1">
 	  <thead >
 	    <row>
@@ -294,7 +321,7 @@
 	      <entry align="center"
 		  valign="middle">&lt;any_header&gt;</entry>
 	      <entry align="left" valign="middle">All headers
-		can be included, exceptions should not be used. iostreams
+		can be included, exceptions and iostreams
 		can not be used from a hard realtime thread.</entry>
 	    </row>
 	    <row>
@@ -315,7 +342,7 @@
 		classes</entry>
 	      <entry align="center" valign="middle">
 		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp, SingleThread.hpp,
-		EvenInterrupt.hpp, main.h
+		main.h
 	      </entry>
 	      <entry align="left" valign="middle">
 		The standard provided C++ OS primitives. main.h
@@ -327,44 +354,41 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>Threads and Realtime Execution of Your Program</title>
+    <title>Using Threads and Realtime Execution of Your Program</title>
     <sect2>
-      <title>Starting your program</title>
-      <sect3>
-	<title>Normal Usage</title>
+      <title>Writing the Program main()</title>
+      <para>
+	All tasks in the realtime system have to be performed by some
+	thread.  The OS abstraction expects an <function>int
+	  ORO_main(int argc, char** argv)</function> function (which
+	the user has written) and will call that after all system
+	initialisation has been done, meaning thread creation or
+	setting up the realtime primitives. Inside ORO_main() the user
+	may expect that the system is properly set up and can be used.
+	The resulting libtarget.a library will contain the real main()
+	function which will call the ORO_main() function.
+      </para>
+      <note>
 	<para>
-	  All tasks in the realtime system have to be performed by
-	  some thread.  The OS abstraction expects an
-	  <function>int ORO_main(int argc, char** argv)</function> 
-	  function (which the user has
-	  written) and will call that after all system initialisation
-	  has been done, meaning thread creation or setting
-	  up the realtime primitives. Inside ORO_main() the user may
-	  expect that the system is properly set up and can be used.
-	  The resulting libtarget.a library will contain the real
-	  main() function which will call the ORO_main() function.
+	  Do not forget to include
+	  <filename>&lt;os/main.h&gt;</filename> in the main program
+	  file, or the linker will not find the ORO_main function.
 	</para>
-	<note>
-	  <para>
-	    Do not forget to include <filename>&lt;os/main.h&gt;</filename>
-	    in the main program file, or the linker will not
-	    find the ORO_main function.
-	  </para>
-	</note>
-	<note>
-	  <para>
-	    Using global objects ( or <emphasis>static</emphasis> class members )
-	    which use the OS functions before 
-	    ORO_main() is entered (because they are constructed before
-	    main() ), can come into conflict with an uninitialised system.
-	    It is therefor advised not to use static global objects which
-	    use the OS primitives. Events in the CoreLib 
-	    are an example of objects which should not be constructed 
-	    as global static. Dynamic (i.e. created with <emphasis>new</emphasis> ) 
-	    global events are ok.
-	  </para>
-	</note>
-      </sect3> 
+      </note>
+      <note>
+	<para>
+	  Using global objects ( or <emphasis>static</emphasis> class
+	  members ) which use the OS functions before ORO_main() is
+	  entered (because they are constructed before main() ), can
+	  come into conflict with an uninitialised system. It is
+	  therefor advised not to use static global objects which use
+	  the OS primitives. <classname>Event</classname>s in the
+	  CoreLib are an example of objects which should not be
+	  constructed as global static. You can use dynamically
+	  created (i.e. created with <emphasis>new</emphasis> ) global
+	  events instead.
+	</para>
+      </note>
 <!--       <sect3> -->
 <!-- 	<title>Starting Kernel Applications</title> -->
 <!-- 	<para> -->
@@ -401,35 +425,36 @@
       <title>The Orocos Thread System</title>
       <sect3>
 	<title>Periodic Threads</title>
-      <para>
-	An &orocos; thread, which must execute a task periodically,
-	is defined by the
-	<classname>PeriodicThreadInterface</classname>. The most
-	common operations are <methodname>start()</methodname>,
-	<methodname>stop()</methodname> and setting the periodicity.
-	What is executed is defined in the <classname>
-	  RunnableInterface</classname>. It contains three methods :
-	<methodname>initialize()</methodname>,
-	<methodname>step()</methodname> and
-	<methodname>finalize()</methodname>. You can inherit from this
-	interface to implement your own functionality. In
-	initialize(), you put the code that has to be executed once
-	when the component is start()'ed. In step(), you put the
-	instructions that must be executed periodically. In
-	finalize(), you put the instructions that must be executed
-	right after the last step() when the component is stop()'ed.
-      </para>
-      <para>
-	&orocos; delivers one implementation of the
-	<classname>PeriodicThreadInterface</classname> : <classname>
-	  PeriodicThread</classname>, which creates a thread
-	according to the operating system you are compiling for.
-	However, you are encouraged <emphasis>NOT</emphasis> to use it!
-	  The CoreLib uses this class as a basis to provide a more
-	fundamental task-based (as opposite to thread based)
-	execution mechanism which allows to write applications
-	more efficiently. It is provided in the corelib/task package.
-      </para>
+	<para>
+	  An &orocos; thread, which must execute a task periodically,
+	  is defined by the
+	  <classname>PeriodicThreadInterface</classname>. The most
+	  common operations are <methodname>start()</methodname>,
+	  <methodname>stop()</methodname> and setting the periodicity.
+	  What is executed is defined in the <classname>
+	    RunnableInterface</classname>. It contains three methods :
+	  <methodname>initialize()</methodname>,
+	  <methodname>step()</methodname> and
+	  <methodname>finalize()</methodname>. You can inherit from
+	  this interface to implement your own functionality. In
+	  initialize(), you put the code that has to be executed once
+	  when the component is start()'ed. In step(), you put the
+	  instructions that must be executed periodically. In
+	  finalize(), you put the instructions that must be executed
+	  right after the last step() when the component is stop()'ed.
+	</para>
+	<para>
+	  &orocos; delivers one implementation of the
+	  <classname>PeriodicThreadInterface</classname> : <classname>
+	    PeriodicThread</classname>, which creates a thread
+	  according to the operating system you are compiling for.
+	  However, you are encouraged <emphasis>NOT</emphasis> to use
+	  it! The CoreLib uses this class as a basis to provide a more
+	  fundamental task-based (as opposite to thread based)
+	  execution mechanism which will insert your periodic tasks in
+	  a periodic thread. It is provided in the corelib/task
+	  package.
+	</para>
 	<para>
 	  Common uses are :
 	  <itemizedlist>
@@ -535,9 +560,20 @@
       <sect3>
 	<title>Signals and Semaphores</title>
 	<para>
-	  Orocos does not yet provide a semaphore abstraction. The higher level
-	  Event implementation in CoreLib can be used for thread safe signalling and
-	  data exchange.
+	  Orocos does not yet provide a C++ semaphore abstraction. The
+	  <filename>os/fosi.h</filename> file provides os independent C
+	  functions for semaphores. The higher level Event
+	  implementation in CoreLib can be used for thread safe
+	  signalling and data exchange.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Compare And Swap ( CAS )</title>
+	<para>
+	  CAS is a fundamental building block of the CoreLib package
+	  for inter-thread communication and must be implemented for
+	  each OS target. See the Lock-Free sections of the CoreLib manual
+	  for Orocos classes which use this primitive.
 	</para>
       </sect3>
     </sect2>
