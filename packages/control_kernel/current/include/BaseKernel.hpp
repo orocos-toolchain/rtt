@@ -62,7 +62,7 @@ namespace ORO_ControlKernel
      */
     template <class _CommandPort, class _SetPointPort, class _InputPort, class _ModelPort, class _OutputPort, class _Extension = KernelBaseFunction>
     class BaseKernel
-        : public _Extension, public ControlKernelInterface
+        : public ControlKernelInterface, public _Extension
     {
     public:
         /**
@@ -170,7 +170,7 @@ namespace ORO_ControlKernel
             selectSensor(&dummy_sensor);
             this->running = false;
 
-            KernelBaseFunction::setKernelName( kernel_name );
+            this->setKernelName( kernel_name );
         }
 
         virtual bool isSelectedController( const std::string& name ) const
