@@ -18,7 +18,7 @@
 //  
 
 
-#include "kernel_components/nAxesSensorForce.hpp"
+#include "kernel_components/nAxesSensorForcesensor.hpp"
 #include <assert.h>
 
 
@@ -29,13 +29,13 @@ namespace ORO_ControlKernel
   using namespace ORO_DeviceInterface;
 
 
-  nAxesSensorFSposFSforce::nAxesSensorFSposFSforce(unsigned int num_axes,
-						   std::vector<AxisInterface*> axes,
-						   SensorInterface<ORO_Geometry::Wrench>* forcesensor,
-						   ORO_KinDyn::KinematicsComponent* kin,
-						   const Frame& MP_FS,
-						   std::string name)
-    : nAxesSensorFSposFSforce_typedef(name),
+  nAxesSensorForcesensor::nAxesSensorForcesensor(unsigned int num_axes,
+						 std::vector<AxisInterface*> axes,
+						 SensorInterface<ORO_Geometry::Wrench>* forcesensor,
+						 ORO_KinDyn::KinematicsComponent* kin,
+						 const Frame& MP_FS,
+						 std::string name)
+    : nAxesSensorForcesensor_typedef(name),
       _num_axes(num_axes), 
       _axes(axes),
       _position_sensors(num_axes),
@@ -54,10 +54,10 @@ namespace ORO_ControlKernel
   }
 
 
-  nAxesSensorFSposFSforce::~nAxesSensorFSposFSforce(){};
+  nAxesSensorForcesensor::~nAxesSensorForcesensor(){};
   
 
-  void nAxesSensorFSposFSforce::pull()
+  void nAxesSensorForcesensor::pull()
   {
     // copy values from position sensors to local variable
     for (unsigned int i=0; i<_num_axes; i++)
@@ -68,7 +68,7 @@ namespace ORO_ControlKernel
   }
 
 
-  void nAxesSensorFSposFSforce::calculate()
+  void nAxesSensorForcesensor::calculate()
   {
     // forwarard kinematics
     ORO_CoreLib::Double6D temp;
@@ -79,7 +79,7 @@ namespace ORO_ControlKernel
 
 
   
-  void nAxesSensorFSposFSforce::push()      
+  void nAxesSensorForcesensor::push()      
   {
     _position_out_DOI->Set(_world_MP * _MP_FS);
     _force_out_DOI->Set(_force);
@@ -87,12 +87,12 @@ namespace ORO_ControlKernel
 
 
 
-  bool nAxesSensorFSposFSforce::componentLoaded()
+  bool nAxesSensorForcesensor::componentLoaded()
   {
     // get interface to Input data types
-    if (!Sensor< Writes<nAxesSensorFSposFSforceInput_pos_force> >::Input::dObj()->Get("FSposition", _position_out_DOI) ||
-	!Sensor< Writes<nAxesSensorFSposFSforceInput_pos_force> >::Input::dObj()->Get("FSforce", _force_out_DOI)){
-      cerr << "nAxesSensorFSposFSforce::componentLoaded() DataObjectInterface not found" << endl;
+    if (!Sensor< Writes<nAxesSensorForcesensorInput_pos_force> >::Input::dObj()->Get("ForcesensorPosition", _position_out_DOI) ||
+	!Sensor< Writes<nAxesSensorForcesensorInput_pos_force> >::Input::dObj()->Get("ForcesensorForce", _force_out_DOI)){
+      cerr << "nAxesSensorForcesensor::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
 
@@ -106,7 +106,7 @@ namespace ORO_ControlKernel
   }
 
 
-  bool nAxesSensorFSposFSforce::componentStartup()
+  bool nAxesSensorForcesensor::componentStartup()
   {
     return true;
   }

@@ -1,4 +1,4 @@
-// $Id: nAxesSensorFSposFSforce.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
+// $Id: nAxesSensorForcesensor.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
 // Copyright (C) 2003 Klaas Gadeyne <klaas.gadeyne@mech.kuleuven.ac.be>
 //                    Wim Meeussen  <wim.meeussen@mech.kuleuven.ac.be>
 //  
@@ -33,10 +33,10 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesSensorFSposFSforceInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench>
+  class nAxesSensorForcesensorInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench>
   {
   public:
-    nAxesSensorFSposFSforceInput_pos_force()
+    nAxesSensorForcesensorInput_pos_force()
     {
       this->insert(ORO_ControlKernel::make_pair(0,"FSposition"));
       this->insert(ORO_ControlKernel::make_pair(1,"FSforce"));
@@ -49,8 +49,8 @@ namespace ORO_ControlKernel
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorFSposFSforceInput_pos_force>,
-				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorFSposFSforce_typedef;
+  typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorForcesensorInput_pos_force>,
+				     ORO_ControlKernel::MakeAspect<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorForcesensor_typedef;
   
 
   /// Component returns force measurement and frame of froce sensor
@@ -59,17 +59,17 @@ namespace ORO_ControlKernel
       frame of the force sensor, which it returns together with the
       force measurement
   */
-  class nAxesSensorFSposFSforce
-    : public nAxesSensorFSposFSforce_typedef
+  class nAxesSensorForcesensor
+    : public nAxesSensorForcesensor_typedef
   {
   public:
-    nAxesSensorFSposFSforce(unsigned int num_axes,
-			    std::vector<ORO_DeviceInterface::AxisInterface*> axes,
-			    ORO_DeviceInterface::SensorInterface<ORO_Geometry::Wrench>* forcesensor,
-			    ORO_KinDyn::KinematicsComponent* kin,
-			    const ORO_Geometry::Frame& MP_FS,
-			    std::string name);
-    virtual ~nAxesSensorFSposFSforce();
+    nAxesSensorForcesensor(unsigned int num_axes,
+			   std::vector<ORO_DeviceInterface::AxisInterface*> axes,
+			   ORO_DeviceInterface::SensorInterface<ORO_Geometry::Wrench>* forcesensor,
+			   ORO_KinDyn::KinematicsComponent* kin,
+			   const ORO_Geometry::Frame& MP_FS,
+			   std::string name);
+    virtual ~nAxesSensorForcesensor();
   
     // Redefining virtual members
     virtual bool componentLoaded();
