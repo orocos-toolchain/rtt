@@ -1,11 +1,11 @@
 
 cdl_package OROPKG_CORELIB_REPORTING {
-    display "Reporting infrastructure"
+    display "Reporting and Logging Infrastructure"
     description "This package adds binary to text reporting
 of internal data in a separate thread. It is mainly used for
 logging and data gathering. See the README for a short 
 description of the nomenclature. Also, contains the Orocos
-Logger implementation."
+Logger implementation for tracking system configuration."
 
     include_dir corelib
 
@@ -18,4 +18,16 @@ Logger implementation."
 
     requires OROINT_OS_STDSTRING
     requires OROPKG_CORELIB_PROPERTIES
+
+    cdl_option OROBLD_CORELIB_REPORTING_DISABLE_LOGGING {
+	display "Disable Logging Messages"
+	no_define
+	define OROBLD_DISABLE_LOGGING
+	description "
+Enable this option to disable the Logger. No logging messages
+will be displayed or written to the orocos.log file."
+	flavor bool
+	default_value 0
+    }
+
 }
