@@ -157,6 +157,7 @@ namespace ORO_DeviceDriver
 	rtos_printf("K600PositionInterface Step: Can't find sem/mbx; sleep one second\n");
 	rt_sleep(nano2count(1000000000));
       }
+
     // Prepare for exit is set by the destructor of SingleThread
 
     // data from message
@@ -164,7 +165,9 @@ namespace ORO_DeviceDriver
     while(!prepareForExit)
       {
 	// Wait until kernel Module posts semaphore
-	rt_sem_wait(udp_message_arrived);
+	 rtos_printf("Before Sem wait\n");
+     rt_sem_wait(udp_message_arrived);
+     rtos_printf("After Sem wait\n");
 
 	// Check if we really got a message or if the
 	// udp_message_arrived was posted by the destructor
