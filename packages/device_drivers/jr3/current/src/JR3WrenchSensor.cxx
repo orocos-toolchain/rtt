@@ -61,6 +61,8 @@ JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, std::stri
 
   JR3DSP_setUnits_N_dNm_mmX10(_dsp);
 
+  this->checkSensorAndDSP();
+
   this->start();
   rtos_printf("(WrenchSensorJR3)  task started\n");
 }
