@@ -10,6 +10,20 @@ if ! test -e configure.ac; then
 
 PACKAGES_INIT("Orocos Packages",0,10,0)
 
+AC_CHECK_PROGS(PYTHON, python python1.5,no)
+if test $PYTHON = no; then
+ AC_MSG_ERROR([
+The Packaging system requires Python 2.3 
+])
+fi;
+
+AC_CHECK_PROGS(TCL, tclsh tclsh8.3,no)
+if test $TCL = no; then
+AC_MSG_ERROR([
+The Packaging system requires tcl 8.3 
+])
+fi;
+
 DETECT_BOOSTPKG
 DETECT_BOOST_GRAPHPKG
 DETECT_XERCESCPKG
