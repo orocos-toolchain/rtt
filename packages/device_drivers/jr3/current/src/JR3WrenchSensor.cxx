@@ -41,12 +41,34 @@
 namespace ORO_DeviceDriver
 {
 
-JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type )
+JR3WrenchSensor::JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type,
+                                 ORO_CoreLib::Event<void(void)> maximumload, ORO_CoreLib::Event<void(void)> highload)
+
     : TaskNonPreemptible( samplePeriod ), _type(type), _filterToReadFrom(Filter6), _dsp(DSP)
 {
     chooseFilter( this->periodGet() );
     _readBuffer  = &_buffer1;
     _writeBuffer = &_buffer2;
+
+    switch(type)
+    {
+        case _200N20:
+            _highload_wrench(0) = 200;
+            _highload_wrench(1) = 200;
+            _highload_wrench(2) = 400;
+            _highload_wrench(3) =  20;
+            _highload_wrench(4) =  20;
+            _highload_wrench(5) =  20;
+            break;
+        case _100N5:
+            _highload_wrench(0) = 100;
+            _highload_wrench(1) = 100;
+            _highload_wrench(2) = 200;
+            _highload_wrench(3) =   5;
+            _highload_wrench(4) =   5;
+            _highload_wrench(5) =   5;
+            break;
+    }
 
 
     JR3DSP_setUnits_N_dNm_mmX10(_dsp);
@@ -101,6 +123,12 @@ void JR3WrenchSensor::offsetAdd(const ForceArray& extraOffset)
   _currentOffset.Tz += extraOffset.Tz*10.0;
   
   JR3DSP_set_offsets(&_currentOffset, _dsp);
+}
+
+
+void JR3WrenchSensor::setHighLoad(const ORO_Geometry::Wrench& highLoad)
+{
+    _highload_wrench = highLoad;
 }
 
 
@@ -208,6 +236,42 @@ void JR3WrenchSensor::refresh()
     (*_writeBuffer)(3) =   _writeArray.Tx/10.0;
     (*_writeBuffer)(4) = - _writeArray.Ty/10.0;
     (*_writeBuffer)(5) =   _writeArray.Tz/10.0;
+
+    
+    switch (_type)
+    {
+        case _200N20:
+            if (    ((*_writeBuffer)(0) > 200 ) || ((*_writeBuffer)(0) < -200)
+                 || ((*_writeBuffer)(1) > 200 ) || ((*_writeBuffer)(1) < -200)
+                 || ((*_writeBuffer)(2) > 400 ) || ((*_writeBuffer)(2) < -400)
+                 || ((*_writeBuffer)(3) >  20 ) || ((*_writeBuffer)(3) <  -20)
+                 || ((*_writeBuffer)(4) >  20 ) || ((*_writeBuffer)(4) <  -20)
+                 || ((*_writeBuffer)(5) >  20 ) || ((*_writeBuffer)(5) <  -20) )   _maximumload_event.fire();
+            else
+                if (    (_(*_writeBuffer)(0) > _highload_wrench(0) ) || (_(*_writeBuffer)(0) < -_highload_wrench(0) )
+                     || (_(*_writeBuffer)(1) > _highload_wrench(1) ) || (_(*_writeBuffer)(1) < -_highload_wrench(1) ) 
+                     || (_(*_writeBuffer)(2) > _highload_wrench(2) ) || (_(*_writeBuffer)(2) < -_highload_wrench(2) )
+                     || (_(*_writeBuffer)(3) > _highload_wrench(3) ) || (_(*_writeBuffer)(3) < -_highload_wrench(3) )
+                     || (_(*_writeBuffer)(4) > _highload_wrench(4) ) || (_(*_writeBuffer)(4) < -_highload_wrench(4) )
+                     || (_(*_writeBuffer)(5) > _highload_wrench(5) ) || (_(*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
+            break;
+
+        case _100N5:
+            if (    ((*_writeBuffer)(0) > 100 ) || ((*_writeBuffer)(0) < -100)
+                 || ((*_writeBuffer)(1) > 100 ) || ((*_writeBuffer)(1) < -100)
+                 || ((*_writeBuffer)(2) > 200 ) || ((*_writeBuffer)(2) < -200)
+                 || ((*_writeBuffer)(3) >   5 ) || ((*_writeBuffer)(3) <   -5)
+                 || ((*_writeBuffer)(4) >   5 ) || ((*_writeBuffer)(4) <   -5)
+                 || ((*_writeBuffer)(5) >   5 ) || ((*_writeBuffer)(5) <   -5) )   _maximumload_event.fire();
+            else
+                if (    (_(*_writeBuffer)(0) > _highload_wrench(0) ) || (_(*_writeBuffer)(0) < -_highload_wrench(0) )
+                     || (_(*_writeBuffer)(1) > _highload_wrench(1) ) || (_(*_writeBuffer)(1) < -_highload_wrench(1) ) 
+                     || (_(*_writeBuffer)(2) > _highload_wrench(2) ) || (_(*_writeBuffer)(2) < -_highload_wrench(2) )
+                     || (_(*_writeBuffer)(3) > _highload_wrench(3) ) || (_(*_writeBuffer)(3) < -_highload_wrench(3) )
+                     || (_(*_writeBuffer)(4) > _highload_wrench(4) ) || (_(*_writeBuffer)(4) < -_highload_wrench(4) )
+                     || (_(*_writeBuffer)(5) > _highload_wrench(5) ) || (_(*_writeBuffer)(5) < -_highload_wrench(5) ) )  _highload_event.fire();
+            break;
+    }
 
     switchBuffers();
 };

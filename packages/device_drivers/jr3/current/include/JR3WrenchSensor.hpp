@@ -32,6 +32,7 @@
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
 #include <corelib/TaskNonPreemptible.hpp>
+#include <corelib/Event.hpp>
 #include <device_interface/SensorInterface.hpp>
 #include <geometry/frames.h>
 #include "jr3dsp.h"
@@ -40,16 +41,18 @@ namespace ORO_DeviceDriver
 {
 
 enum JR3Sensors {Undefined, _200N20, _100N5};
-    
+
+
+
+
 class JR3WrenchSensor : public ORO_CoreLib::TaskNonPreemptible,
                         public ORO_DeviceInterface::SensorInterface<ORO_Geometry::Wrench>
 {
-    enum JR3Filters {Undefined, Filter1, Filter2, Filter3, Filter4, Filter5, Filter6};
-    
-    
 public:
     // Constructor
-    JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type );
+    JR3WrenchSensor(unsigned int DSP, float samplePeriod, JR3Sensors type,
+                    ORO_CoreLib::Event<void(void)> maximumload, ORO_CoreLib::Event<void(void)> highload);
+
     virtual ~JR3WrenchSensor();
 
     
@@ -95,6 +98,8 @@ public:
     void offsetSet( const ForceArray& offsets );
     void offsetAdd( const ForceArray& offsets );
 
+    // Set load that triggers the high load event
+    void setHighLoad(  const ORO_Geometry::Wrench& highLoad );
     
 protected:
     virtual void step() { refresh(); };
@@ -104,6 +109,8 @@ private:
     JR3WrenchSensor(JR3WrenchSensor& copy) : TaskNonPreemptible(0.01), _filterToReadFrom(Filter6) {};
     void refresh();
     void switchBuffers();
+
+    enum JR3Filters {Undefined, Filter1, Filter2, Filter3, Filter4, Filter5, Filter6};
 
     JR3Sensors                 _type;
     JR3Filters                 _filterToReadFrom;
@@ -115,7 +122,11 @@ private:
     ForceArray                 _writeArray;
     ORO_Geometry::Wrench       _buffer1;
     ORO_Geometry::Wrench       _buffer2;
-    mutable ORO_OS::Mutex              _readLock;
+    ORO_Geometry::Wrench       _highload_wrench;
+    mutable ORO_OS::Mutex      _readLock;
+    
+    ORO_CoreLib::Event<void(void)> _maximumload_event;
+    ORO_CoreLib::Event<void(void)> _highload_event;
     
     // The offsets currently in use
     ForceArray       _currentOffset;
