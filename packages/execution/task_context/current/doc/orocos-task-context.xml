@@ -1197,6 +1197,26 @@ Syntactic error: Task 'MyAxisKernel' has no dataobject or method 'this'.
  In Task MyAxisKernel. Enter a command. (Status of previous command : done )
  (type 'quit' for exit) :  
     </screen>
+    <para>
+      Last but not least, hitting TAB twice, will show you a list of
+      possible completions, such as peers or commands :
+    </para>
+    <screen>
+ In Task T2. Enter a command. (Status of previous command : none )
+ (type 'quit' for exit) :
+T1.      T3.      back     help     peers    quit     switch   test.
+ (type 'quit' for exit) :quit
+    </screen>
+    <para>
+      TAB completion works even across peers, such that you can type
+      a TAB completed command to another peer than the current peer.
+    </para>
+    <para>
+      The TaskBrowser is application agnostic, so that your application
+      might need a more suitable interface. However, for testing and
+      inspecting what is happening inside your realtime programs,
+      it is a very useful tool.
+    </para>
   </sect1>
   <sect1>
     <title>Applying the Task Infrastructure to Your Application</title>

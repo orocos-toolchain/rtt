@@ -92,7 +92,7 @@ namespace ORO_Execution
         std::string::size_type startpos;
         std::string line( rl_line_buffer );
 
-        if ( line.find(std::string("switch ")) == 0 ) { // complete on switch
+        if ( line.find(std::string("switch ")) == 0 || line.find(std::string("cd ")) == 0) { // complete on switch or 'cd'
             //cerr <<endl<< "switch to :" << text<<endl;
 //             pos = text.rfind(".");
             pos = line.find(" ");      // pos+1 is first peername
@@ -434,9 +434,13 @@ namespace ORO_Execution
                     cout <<endl<< "  This task's peer tasks are :"<<endl;
                     objlist = taskcontext->getPeerList();
                     std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-                } else if ( command.find("switch") == 0  ) {
-                    int pos = command.find("switch");
-                    command = std::string(command, pos+6, command.length());
+                } else if ( command.find("switch") == 0 || command.find("cd") == 0  ) {
+                    unsigned int pos = command.find("switch");
+                    if ( pos == std::string::npos )
+                        pos = command.find("cd")+2;
+                    else
+                        pos += 6;
+                    command = std::string(command, pos, command.length());
                     switchTask( command );
                 } else if ( command.find("back") == 0  ) {
                     switchBack( );
