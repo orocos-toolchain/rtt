@@ -288,8 +288,8 @@
 	    Well, that is not a question really, but anyway...
 	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
 	  </para>
-	</answer>
-	<answer>
+<!-- 	</answer> -->
+<!-- 	<answer> -->
 	  <para>
 	    Are you calling Linux system calls from a hard-realtime
 	    thread ? See <ulink

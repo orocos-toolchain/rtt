@@ -19,6 +19,7 @@
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
+    <subtitle>@VERSION@</subtitle>
     <authorgroup>
       <author>
 	<firstname>Peter</firstname>
@@ -26,7 +27,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004</year>
+      <year>2002,2003,2004, 2005</year>
       <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 
@@ -40,6 +41,9 @@
     </abstract>
 
     <legalnotice>
+      <para>
+	Orocos Version @VERSION@.
+      </para>
       <para>
 	Permission is granted to copy, distribute and/or modify this document
 	under the terms of the GNU Free Documentation License, Version 1.1 or

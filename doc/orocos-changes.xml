@@ -5,6 +5,7 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY version     "0.20.0">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -13,26 +14,34 @@
 <article>
   <articleinfo>
     <title>
-      Orocos 0.18.2 Release Series
+      Orocos &version; Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between Orocos 0.18.1 and
-    Orocos 0.18.2. If your application does not work, look here for
+    This document provides a quick overview of what changed between Orocos 0.18.2 and
+    Orocos 0.20.0. Hence, this release includes all bugfixes of the 0.18.x
+    branch. If your application does not work, look here for
     possible causes and solutions. Also feature additions and improvements
     are documented.
   </para>
-  <para>See also <ulink url="orocos-changes-0.18.0.html">what changed from 0.16.0 to 0.18.0</ulink>.</para>
   <para>See also <ulink url="orocos-changes-0.18.1.html">what changed from 0.18.0 to 0.18.1</ulink>.</para>
+  <para>See also <ulink url="orocos-changes-0.18.2.html">what changed from 0.18.1 to 0.18.2</ulink>.</para>
   <section id="caveats">
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
 	<para>
-	  None known.
+	  Some heavily deprecated header files have been removed or otherwise renamed.
+	  The chance anyone was using them ( due to compile errors ) remains rather small though.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The BufferedControlKernel (and its header file) has been renamed to LockFreeControlKernel, possibly breaking
+	  the build of your cascaded control applications. 
 	</para>
       </listitem>
     </itemizedlist>
@@ -41,8 +50,9 @@
     <title>General Improvements</title>
     <itemizedlist>
       <listitem>
-	<para>
-	  Some last make and make install glitches wrt libtarget.a have been ironed out.
+	<para> 
+	  This release is more on code quality improvement than on feature addition. Focussing on
+	  error detection/recovery and the overall Real-Time behaviour.
 	</para>
       </listitem>
     </itemizedlist>
@@ -54,21 +64,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Exception detection can be disabled by the <option>--nocatch</option>
-	    flag. If an uncaught exception is detected, a useful
-	    <emphasis>what next ?</emphasis> message is displayed.
-	  </para>
-      </listitem>
-    </itemizedlist>
-    </section>
-    <section>
-      <title>RTAI/LXRT</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    A patch has been made  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">
-	    online</ulink> available. You should apply it to your rtai directory in order to fix the 'left over' semaphores
-	    bug in RTAI/LXRT.
+	    None
 	  </para>
       </listitem>
     </itemizedlist>
@@ -79,8 +75,23 @@
     <itemizedlist>
       <listitem>
 	<para>
+	  The main manual now contains a version number.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  A Logging section has been added to the CoreLib Manual. Small updates
 	  in the ControlKernel Manual wrt ReportingExtension and PropertyExtension.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  DataObject documentation has been moved to the CoreLib Manual.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  A Priority Inversions section was added to the Corelib Manual.
 	</para>
       </listitem>
     </itemizedlist>
@@ -102,6 +113,28 @@
 	  effect on the ControlKernel PropertyExtension.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  DataObjects have been moved into the CoreLib's namespace (from ControlKernel) and are now
+	  usable to all application types.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Asynchonous Event callbacks may choose the <emphasis>policy</emphasis> of which data
+	  they get on event firing overruns. On overruns, the asynchronous callback will only 
+	  be called once. The default policy is to provide the arguments of the first fire() call,
+	  but it can be changed ( at a slight performance cost ) to contain the arguments of the
+	  last fire() call during the overrun. See the CoreLib manual for more information.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  A new kind of Buffer, <classname>BufferLockFree</classname> has been
+	  added to provide a non blocking, many readers, many writers realtime FIFO queue.
+	  The existing buffers (Circular and Simple) have been revised but remain experimental.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="control">
@@ -113,11 +146,6 @@
 	  stop() script method which can trigger reporting from your program
 	  scripts. ( <command>do Reporter.start()</command> or
 	  <command>do Reporter.stop()</command> )
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The ReportingExtension logs to different files for different kernels by default.
 	</para>
       </listitem>
       <listitem>
@@ -142,8 +170,7 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The Processor Commands for StateContexts contained a bug which
-	  might lead to memory allocation. Fixed.
+	  None
 	</para>
       </listitem>
     </itemizedlist>
