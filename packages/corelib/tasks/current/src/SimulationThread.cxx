@@ -92,7 +92,7 @@ namespace ORO_CoreLib
         : TimerThread(ORONUM_CORELIB_TASKS_SIM_PRIORITY,
                         ORODAT_CORELIB_TASKS_SIM_NAME, 
                         ORONUM_CORELIB_TASKS_SIM_PERIOD),
-          beat( TimeService::Instance() )
+          beat( TimeService::Instance() ), maxsteps_(0)
     {
         this->continuousStepping( true );
         Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"ms periodicity";
@@ -110,6 +110,7 @@ namespace ORO_CoreLib
         // we will update the clock in step()
         beat->enableSystemClock( false );
 
+        cursteps = 0;
         // No TimerThread::initialize() to allow 'freeze'
         return true;
     }
@@ -126,8 +127,14 @@ namespace ORO_CoreLib
 
     void SimulationThread::step()
     {
-        TimerThread::step();
-        beat->secondsChange(ORONUM_CORELIB_TASKS_SIM_PERIOD);
+        ++cursteps;
+        // call stop once :
+        if ( cursteps == maxsteps_ ) // if maxsteps == 0, will never call stop().
+            this->stop();
+        if ( maxsteps_ == 0 || cursteps < maxsteps_ ) {
+            TimerThread::step();
+            beat->secondsChange(ORONUM_CORELIB_TASKS_SIM_PERIOD);
+        }
     }
 
 }

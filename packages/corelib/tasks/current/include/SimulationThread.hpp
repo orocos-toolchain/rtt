@@ -65,6 +65,17 @@ namespace ORO_CoreLib
          */
         virtual ~SimulationThread();
 
+        using TimerThread::start;
+
+        /**
+         * Only run the simulation \a maxsteps time steps, then stop the SimulationThread.
+         */
+        virtual bool start(unsigned int maxsteps)
+        {
+            maxsteps_ = maxsteps;
+            return TimerThread::start();
+        }
+                           
     protected:
         bool initialize();
         void step();
@@ -87,6 +98,7 @@ namespace ORO_CoreLib
          */
         TimeService* beat;
 
+        unsigned int maxsteps_, cursteps;
     };
 } // namespace ORO_CoreLib
 
