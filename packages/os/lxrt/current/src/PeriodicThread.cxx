@@ -123,10 +123,9 @@ namespace ORO_OS
                         break; // break while(1) {}
                     }
                 task->stopped = false;
-                if (task->runComp != 0)        
-                    task->runComp->step(); // one cycle
-                else
-                    task->step();
+
+                task->step(); // one cycle
+
                 if (task->wait_for_step)
                     task->periodWait();
             }
@@ -207,10 +206,7 @@ namespace ORO_OS
 #endif
 
         bool result;
-        if ( runComp )
-            result = runComp->initialize();
-        else
-            result = initialize();
+        result = this->initialize();
 
         if (result == false) {
 #ifdef OROPKG_CORELIB_REPORTING
@@ -260,10 +256,7 @@ namespace ORO_OS
         //std::cout <<"Finalizing thread after "<<cnt<<" tries !"<<std::endl;
         // from now on, the thread waits on sem.
 
-        if ( runComp )
-            runComp->finalize();
-        else
-            finalize();
+        this->finalize();
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h->disconnect();
@@ -341,13 +334,23 @@ namespace ORO_OS
 
     void PeriodicThread::step()
     {
+        if ( runComp )        
+            runComp->step();
     }
 
     bool PeriodicThread::initialize()
-    { return true; }
+    {
+        if ( runComp )
+            return runComp->initialize();
+            
+        return true;
+    }
 
     void PeriodicThread::finalize()
-    {}
+    {
+        if ( runComp )
+            runComp->finalize();
+    }
 
     int PeriodicThread::periodSet( double s )
     {

@@ -76,10 +76,7 @@ namespace ORO_OS
             if (comp->timeToQuit)
                 break;
 
-            if ( comp->runner != 0 )
-                comp->runner->step();
-            else
-                comp->step(); // one cycle
+            comp->step(); // one cycle
 
             if (comp->wait_for_step)
                 comp->periodWaitRemaining();
@@ -130,10 +127,7 @@ namespace ORO_OS
         Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" started."<<Logger::endl;
 #endif
 
-        if ( runner )
-            running = runner->initialize();
-        else
-            running = initialize();
+        running = initialize();
 
 #ifdef OROPKG_CORELIB_REPORTING
         if ( running == false )
@@ -160,10 +154,7 @@ namespace ORO_OS
 
         running = false;
         sem_wait( &msyncer );
-        if ( runner )
-            runner->finalize();
-        else
-            finalize();
+        finalize();
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h->disconnect();
@@ -219,13 +210,23 @@ namespace ORO_OS
     }
 
     void PeriodicThread::step()
-    {}
+    {
+        if ( runner )
+            runner->step();
+    }
 
     bool PeriodicThread::initialize()
-    { return true; }
+    {
+        if ( runner )
+            return runner->initialize();
+        return true;
+    }
 
     void PeriodicThread::finalize()
-    {}
+    {
+        if ( runner )
+            runner->finalize();
+    }
 
     void PeriodicThread::periodGet( secs& s, nsecs& ns ) const
     {
