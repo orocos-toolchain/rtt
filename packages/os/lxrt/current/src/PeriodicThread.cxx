@@ -81,13 +81,12 @@ namespace ORO_OS
 
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
-#ifdef OROPKG_CORELIB_REPORTING
-            Logger::log()<< Logger::Fatal << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<Logger::nl;
-            Logger::log()<< Logger::Fatal << "Exiting this thread." <<Logger::endl;
-#endif
-            return 0;
+            std::cerr << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<std::endl;
+            std::cerr << "Exiting this thread." <<std::endl;
+            exit (-1); // return is no usefull since the main would remain blocked on sem.
         }
 
+        // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created."<<Logger::endl;
 #endif
@@ -169,7 +168,7 @@ namespace ORO_OS
         h = new ORO_CoreLib::Handle();
         stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
-        if ( !name.empty() )
+        if ( !name.empty() && rt_get_adr(nam2num( name.c_str() ) == 0 )
             taskNameSet(name.c_str());
         else
             num2nam(rt_get_name(0), taskName);

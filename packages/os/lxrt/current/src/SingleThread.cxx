@@ -33,6 +33,10 @@
 #ifdef OROPKG_CORELIB
 #include "pkgconf/corelib.h"
 #endif
+#ifdef OROPKG_CORELIB_REPORTING
+#include "corelib/Logger.hpp"
+using ORO_CoreLib::Logger;
+#endif
 
 #include <iostream>
 #include <sys/mman.h>
@@ -48,17 +52,21 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        rtos_printf("Single Thread created...\n");
         SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
 
         mytask_name = nam2num( task->taskNameGet() );
 
         // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
         if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
-	  std::cout << "CANNOT INIT TASK " << mytask_name <<std::endl;
-	  exit(1);
+            std::cerr << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<std::endl;
+            std::cerr << "Exiting this thread." <<std::endl;
+            return 0;
         }
     
+        // Reporting available from this point :
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" created."<<Logger::endl;
+#endif
         task->rt_task = mytask;
         task->sem     = rt_sem_init( rt_get_name(0), 0 );
         rt_sem_signal( task->confDone );
@@ -75,10 +83,7 @@ namespace ORO_OS
                 // make the switch again...
                 rt_sem_wait( task->sem );
                 if ( task->prepareForExit )
-		  {
-		    rtos_printf("Single Thread: Got signal from Destructor\n");
                     break;
-		  }
 
                 // The configuration might have changed
                 // While waiting on the sem...
@@ -112,6 +117,9 @@ namespace ORO_OS
         if ( task->isHardRealtime() )
             rt_make_soft_real_time();
 
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" exiting."<<Logger::endl;
+#endif
         rt_sem_delete(task->sem);        
 	rt_sem_signal( task->confDone );
         rt_task_delete(mytask);
@@ -127,7 +135,9 @@ namespace ORO_OS
         else
             num2nam(rt_get_name(0), taskName);
 
-        rtos_printf("SingleThread Constructor: Creating SingleThread %s.\n", taskName );
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Debug << "SingleThread: Creating "<< taskName <<"."<<Logger::endl;
+#endif
 
         confDone = rt_sem_init( rt_get_name(0), 0 );
         pthread_create( &thread, 0, singleThread_f, this);
@@ -144,8 +154,13 @@ namespace ORO_OS
         rt_sem_wait( confDone );
         rt_sem_delete(confDone);
 
-        if ( pthread_join(thread,0) != 0 ) rtos_printf("Error : %s failed to join\n",taskName);
-        rtos_printf("Destructor: SingleThread %s destroyed.\n", taskName );
+        if ( pthread_join(thread,0) != 0 ) 
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Error << "SingleThread: Failed to join with thread "<< taskName <<"."<<Logger::endl;
+        else
+            Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl
+#endif
+                ;
     }
 
     bool SingleThread::start() 
