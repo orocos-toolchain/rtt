@@ -153,24 +153,24 @@ given in the general &orocos; overview document.
 	introduction of more threads or interactions between threads.
       </para>
       <para>
-	A minimum of realtime threads : A high priority thread and a
-	low priority thread are enough for most contained control
-	applications. The high priority thread is used for all tasks
-	that need to be executed atomically. No action in this thread
-	will ever be pre-empted. The low priority realtime thread is
-	used for all tasks which may be interrupted but still have
-	hard deadlines. It can always be preempted by the high
-	priority thread. There is also a non realtime thread which
-	gives no deadline guarantees. When more realtime threads are
-	introduced, only the highest priority thread can do
-	non-preemptive execution, and all the others have only deadline
-	guarantees. When the second group gets larger, it gets harder
-	for the OS to guarantee these deadlines, and soon, the
-	lower priority realtime threads are failing. Technically, this
-	only happens if the CPU is underspecified for the task, but in
-	reality, the scheduler failes earlier because of non optimal
-	scheduling. Hence users should only add additional realtime
-	threads where application complexity demands it.
+	A high priority thread and a low priority thread are enough
+	for basic control applications. The high priority thread is
+	used for all tasks that need to be executed atomically. No
+	action in this thread will ever be pre-empted. The low
+	priority realtime thread is used for all tasks which may be
+	interrupted but still have hard deadlines. It can always be
+	preempted by the high priority thread. There is also a non
+	realtime thread which gives no deadline guarantees. When more
+	realtime threads are introduced, only the highest priority
+	thread can do non-preemptive execution, and all the others
+	have only deadline guarantees. When the second group gets
+	larger, it gets harder for the OS to guarantee these
+	deadlines, and soon, the lower priority realtime threads are
+	failing. Technically, this only happens if the CPU is
+	underspecified for the task, but in reality, the scheduler
+	failes earlier because of non optimal scheduling. Hence users
+	should only add additional realtime threads where application
+	complexity demands it.
       </para>
       <para>
 	For users needing to solve more complex control problems, the

@@ -7,21 +7,18 @@
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
  
- ***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    ***************************************************************************
+    *                                                                         *
+    *   This program is free software; you can redistribute it and/or modify  *
+    *   it under the terms of the GNU General Public License as published by  *
+    *   the Free Software Foundation; either version 2 of the License, or     *
+    *   (at your option) any later version.                                   *
+    *                                                                         *
+    ***************************************************************************/
  
  
 #ifndef NAMESERVER_HPP
 #define NAMESERVER_HPP
-
-#include "os/fosi.h"
-#include <boost/call_traits.hpp>
 
 #include <iterator>
 #include <string>
@@ -29,8 +26,6 @@
 
 namespace ORO_CoreLib
 {
-
-
     /**
      * @brief A nameserver for Orocos classes.
      *
@@ -70,307 +65,306 @@ namespace ORO_CoreLib
     template <class ValueType, class NameType = std::string, class Rep = std::map<NameType, ValueType> >
     class NameServer
     {
-            /**
-             * The iterator for iterating over the internal representation
-             */
-            typedef typename Rep::iterator iterator;
-            /**
-             * The const_iterator for iterating over the internal representation
-             */
-            typedef typename Rep::const_iterator const_iterator;
+        /**
+         * The iterator for iterating over the internal representation
+         */
+        typedef typename Rep::iterator iterator;
+        /**
+         * The const_iterator for iterating over the internal representation
+         */
+        typedef typename Rep::const_iterator const_iterator;
 
-        public:
-            /**
-             * Construct an empty NameServer.
-             */
-            NameServer() : objects()
-            {}
+    public:
+        /**
+         * Construct an empty NameServer.
+         */
+        NameServer() : objects()
+        {}
 
-            /**
-             * Destruct a nameserver.
-             */
-            ~NameServer()
-            {}
+        /**
+         * Destruct a nameserver.
+         */
+        ~NameServer()
+        {}
 
-            /**
-             * Determine if a given name is registered
-             *
-             * @param s the name to check
-             *
-             * @returns true if <s> is registered, false otherwise
-             */
-            bool isNameRegistered( typename boost::call_traits<NameType>::param_type s ) const
-            {
-                return ( objects.find( s ) != objects.end() );
-            }
+        /**
+         * Determine if a given name is registered
+         *
+         * @param s the name to check
+         *
+         * @returns true if <s> is registered, false otherwise
+         */
+        bool isNameRegistered( const NameType& s ) const
+        {
+            return ( objects.find( s ) != objects.end() );
+        }
 
-            /**
-             * Determine if a given object is registered
-             *
-             * @param o the object to check
-             *
-             * @returns true if <o> is registered, false otherwise
-             */
-            bool isObjectRegistered( typename boost::call_traits<ValueType>::param_type o ) const
-            {
-                for ( const_iterator i = objects.begin(); i != objects.end(); ++i )
+        /**
+         * Determine if a given object is registered
+         *
+         * @param o the object to check
+         *
+         * @returns true if <o> is registered, false otherwise
+         */
+        bool isObjectRegistered( const ValueType o ) const
+        {
+            for ( const_iterator i = objects.begin(); i != objects.end(); ++i )
                 {
                     if ( ( *i ).second == o )
                         return true;
                 }
 
-                return false;
-            }
+            return false;
+        }
 
-            /**
-             * Get the object registered for a name.
-             *
-             * @param s the name of the object you need
-             * 
-             * @returns the object the name is registered with,
-             *  if the name isn't registered, it will return 0
-             */
-            ValueType getObject( typename boost::call_traits<NameType>::param_type s ) const
-            {
-                if ( isNameRegistered( s ) )
+        /**
+         * Get the object registered for a name.
+         *
+         * @param s the name of the object you need
+         * 
+         * @returns the object the name is registered with,
+         *  if the name isn't registered, it will return 0
+         */
+        ValueType getObject( const NameType& s ) const
+        {
+            if ( isNameRegistered( s ) )
                 {
                     const_iterator itc = objects.find( s );
                     return ( *itc ).second;
                 }
 
-                else
+            else
                 {
                     return 0;
                 }
-            }
+        }
 
-            /**
-             * Get the object registered earlier by that name.
-             *
-             * @param s the name of the object you need.
-             * @deprecated by Get()
-             * 
-             * @returns the object the name is registered with,
-             *  if the name isn't registered, it will return 0
-             */
-        ValueType getObjectByName( typename::boost::call_traits<NameType>::param_type s ) const
+        /**
+         * Get the object registered earlier by that name.
+         *
+         * @param s the name of the object you need.
+         * @deprecated by GetObject()
+         * 
+         * @returns the object the name is registered with,
+         *  if the name isn't registered, it will return 0
+         */
+        ValueType getObjectByName( const NameType& s ) const
         {
             return getObject(s);
         }
-            /**
-             * Get the name registered for a object.
-             *
-             * @param s the object of the name you need
-             * 
-             * @returns the name the object is registered with,
-             *  if the object isn't registered, it will return 0
-             */
-            typename boost::call_traits<NameType>::const_reference 
-                getName( const typename boost::call_traits<ValueType>::param_type s ) const
-            {
-                for ( const_iterator i = objects.begin(); i != objects.end(); ++i )
+
+        /**
+         * Get the name registered for a object.
+         *
+         * @param s the object of the name you need
+         * 
+         * @returns the name the object is registered with,
+         *  if the object isn't registered, it will return 0
+         */
+        const NameType& 
+        getName( const ValueType s ) const
+        {
+            for ( const_iterator i = objects.begin(); i != objects.end(); ++i )
                 {
                     if ( ( *i ).second == s )
                         return ( *i ).first;
                 }
 
-                return NoName;
-            }
+            return NoName;
+        }
 
-            /**
-             * Get the name registered for a object.
-             *
-             * @param s the object of the name you need
-             * @deprecated by getName()
-             * 
-             * @returns the name the object is registered with,
-             *  if the object isn't registered, it will return 0
-             */
-            typename boost::call_traits<NameType>::const_reference 
-                getNameByObject( const typename boost::call_traits<ValueType>::param_type s ) const
+        /**
+         * Get the name registered for a object.
+         *
+         * @param s the object of the name you need
+         * @deprecated by getName()
+         * 
+         * @returns the name the object is registered with,
+         *  if the object isn't registered, it will return 0
+         */
+        const NameType&
+        getNameByObject( const ValueType s ) const
         {
             return getName( s );
         }
-            /**
-             * Register an object with a name
-             *
-             * @param obj the instance you wish to register with a name
-             * @param name stop. think. think of your object as a cuddly little bear,
-             *  now look at it hopping around in the garden. Call the little cute bear
-             *  over. What is the first word that comes into your mind to call the little
-             *  cute object bear ? That's what you put here.
-             */
-            void registerObject( typename boost::call_traits<ValueType>::const_reference obj, typename boost::call_traits<NameType>::param_type name )
-            {
-                objects[ name ] = obj;
-            }
 
-            /**
-             * Remove an object from the nameserver registrations
-             *
-             * @param obj the object you want removed
-             * 
-             * @post obj will not be registered anymore
-             */
-            void unregisterObject( typename boost::call_traits<ValueType>::const_reference obj )
-            {
-                iterator i(objects.begin());
+        /**
+         * Register an object with a name
+         *
+         * @param obj  The instance you wish to register with a name
+         * @param name The name of the object
+         */
+        void registerObject( const ValueType obj, const NameType& name )
+        {
+            objects[ name ] = obj;
+        }
 
-                while ( i != objects.end() )
+        /**
+         * Remove an object from the nameserver registrations
+         *
+         * @param obj the object you want removed
+         * 
+         * @post obj will not be registered anymore
+         */
+        void unregisterObject( const ValueType obj )
+        {
+            iterator i(objects.begin());
+
+            while ( i != objects.end() )
                 {
                     for ( i = objects.begin();
-                            i != objects.end();
-                            ++i )
-                    {
-                        if ( ( *i ).second == obj )
-                            break;
-                    }
+                          i != objects.end();
+                          ++i )
+                        {
+                            if ( ( *i ).second == obj )
+                                break;
+                        }
 
                     if ( i != objects.end() )
                         objects.erase( i );
                 }
-            }
+        }
 
-            /**
-             * Remove a name from the nameserver registrations
-             *
-             * @param name the name of the object you want remove
-             * 
-             */
-            void unregisterName( typename boost::call_traits<NameType>::param_type name )
-            {
-                iterator i = objects.find( name );
+        /**
+         * Remove a name from the nameserver registrations
+         *
+         * @param name the name of the object you want remove
+         * 
+         */
+        void unregisterName( const NameType& name )
+        {
+            iterator i = objects.find( name );
 
-                if ( i != objects.end() )
-                    objects.erase( i );
-            }
+            if ( i != objects.end() )
+                objects.erase( i );
+        }
 
-            /**
-             * An Iterator to iterate over the registered objects
-             *
-             * On dereference it will give you a ValueType (an object)
-             */
+        /**
+         * An Iterator to iterate over the registered objects
+         *
+         * On dereference it will give you a ValueType (an object)
+         */
 #if __GNUC__ == 2
         class value_iterator : public bidirectional_iterator<ValueType, int>
 #else
         class value_iterator : public std::iterator<ValueType, int>
 #endif
+        {
+        protected:
+            iterator i;
+
+        public:
+            value_iterator( iterator _i ) : i( _i )
+            {}
+
+            ValueType operator*()
             {
-                protected:
-                    iterator i;
+                return ( ( *i ).second );
+            }
 
-                public:
-                    value_iterator( iterator _i ) : i( _i )
-                    {}
+            value_iterator operator++()
+            {
+                ++i;
+                return *this;
+            }
 
-                    typename boost::call_traits<ValueType>::value_type operator*()
-                    {
-                        return ( ( *i ).second );
-                    }
+            value_iterator operator--()
+            {
+                --i;
+                return *this;
+            }
 
-                    value_iterator operator++()
-                    {
-                        ++i;
-                        return *this;
-                    }
+            bool operator==( value_iterator other )
+            {
+                return ( i == other.i );
+            }
 
-                    value_iterator operator--()
-                    {
-                        --i;
-                        return *this;
-                    }
+            bool operator!=( value_iterator other )
+            {
+                return ( i != other.i );
+            }
 
-                    bool operator==( value_iterator other )
-                    {
-                        return ( i == other.i );
-                    }
+            int operator- ( value_iterator other )
+            {
+                return ( i -other.i );
+            }
+        };
 
-                    bool operator!=( value_iterator other )
-                    {
-                        return ( i != other.i );
-                    }
-
-                    int operator- ( value_iterator other )
-                    {
-                        return ( i -other.i );
-                    }
-            };
-
-            /**
-             * An Iterator to iterate over the registered names
-             *
-             * on dereference it will give you a NameType (a name)
-             */
+        /**
+         * An Iterator to iterate over the registered names
+         *
+         * on dereference it will give you a NameType (a name)
+         */
 #if __GNUC__ == 2
         class name_iterator : public bidirectional_iterator<NameType, int>
 #else
         class name_iterator : public std::iterator<NameType, int>
 #endif
+        {
+
+        protected:
+            iterator i;
+
+        public:
+            name_iterator( iterator _i ) : i( _i )
+            {}
+
+            NameType operator*()
             {
+                return ( ( *i ).first );
+            }
 
-                protected:
-                    iterator i;
+            name_iterator operator++()
+            {
+                ++i;
+                return *this;
+            }
 
-                public:
-                    name_iterator( iterator _i ) : i( _i )
-                    {}
+            name_iterator operator--()
+            {
+                --i;
+                return *this;
+            }
 
-                    typename boost::call_traits<NameType>::value_type operator*()
-                    {
-                        return ( ( *i ).first );
-                    }
+            bool operator==( name_iterator other )
+            {
+                return ( i == other.i );
+            }
 
-                    name_iterator operator++()
-                    {
-                        ++i;
-                        return *this;
-                    }
+            bool operator!=( name_iterator other )
+            {
+                return ( i != other.i );
+            }
 
-                    name_iterator operator--()
-                    {
-                        --i;
-                        return *this;
-                    }
+            int operator- ( name_iterator other )
+            {
+                return ( i -other.i );
+            }
+        };
 
-                    bool operator==( name_iterator other )
-                    {
-                        return ( i == other.i );
-                    }
+        /**
+         * Get an iterator to the beginning of the names list.
+         */
+        name_iterator getNameBegin() { return name_iterator( objects.begin() ); }
 
-                    bool operator!=( name_iterator other )
-                    {
-                        return ( i != other.i );
-                    }
+        /**
+         * Get an iterator to the end of the names list.
+         */
+        name_iterator getNameEnd()   { return name_iterator( objects.end() ); }
 
-                    int operator- ( name_iterator other )
-                    {
-                        return ( i -other.i );
-                    }
-            };
-
-            /**
-             * Get an iterator to the beginning of the names list.
-             */
-            name_iterator getNameBegin() { return name_iterator( objects.begin() ); }
-
-            /**
-             * Get an iterator to the end of the names list.
-             */
-            name_iterator getNameEnd()   { return name_iterator( objects.end() ); }
-
-            /**
-             * Get an iterator to the beginning of the objects list.
-             */
-            value_iterator getValueBegin() { return value_iterator( objects.begin() ); }
+        /**
+         * Get an iterator to the beginning of the objects list.
+         */
+        value_iterator getValueBegin() { return value_iterator( objects.begin() ); }
             
-            /**
-             * Get an iterator to the end of the objects list.
-             */
-            value_iterator getValueEnd()   { return value_iterator( objects.end() ); }
+        /**
+         * Get an iterator to the end of the objects list.
+         */
+        value_iterator getValueEnd()   { return value_iterator( objects.end() ); }
 
-        private:
-            Rep objects;
-            static NameType NoName;
+    private:
+        Rep objects;
+        static NameType NoName;
     };
 
     template<class T, class V, class W>
