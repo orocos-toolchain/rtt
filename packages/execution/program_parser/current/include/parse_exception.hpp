@@ -220,7 +220,7 @@ namespace ORO_Execution
 
     const std::string what() const
       {
-        return "Component \"" + mname + "\" registered no commands.";
+        return "Object or task \"" + mname + "\" registered no commands or methods (or was not found at all).";
       }
 
     parse_exception_no_such_component* copy() const
@@ -248,7 +248,7 @@ namespace ORO_Execution
 
     const std::string what() const
       {
-        return "No method \"" + mmethodname + "\" registered for the component \"" + mcomponentname + "\".";
+        return "No method \"" + mmethodname + "\" registered for the object or task \"" + mcomponentname + "\".";
       }
 
     parse_exception_no_such_method_on_component* copy() const

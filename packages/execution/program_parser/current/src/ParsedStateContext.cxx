@@ -164,6 +164,7 @@ namespace ORO_Execution {
 //           replacements[i->second->toDataSource()] = npvb->toDataSource();
         }
 
+        // TODO : these DS'es are no longer used, since all goes through the StateGraphCommands now.
         for ( SubContextNameMap::const_iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
         {
             // we first copy the subcontexts, and add the datasources
@@ -353,17 +354,19 @@ namespace ORO_Execution {
         return nameds.get();
     }
 
-    void ParsedStateContext::setName( const std::string& name )
+    void ParsedStateContext::setName( const std::string& name, bool recursive )
     {
         // set the StateContextTree name
         this->_name = name;
         // set the datasource's name
         nameds->set( name );
+        if ( recursive == false )
+            return;
         for ( SubContextNameMap::iterator i = subcontexts.begin(); i != subcontexts.end(); ++i )
         {
             std::string subname = name + "." + i->first;
             ParsedStateContext* psc = static_cast<ParsedStateContext*>( i->second->get() );
-            psc->setName( subname );
+            psc->setName( subname, true );
             this->getTaskContext()->addPeer( psc->getTaskContext() );
         }
     }

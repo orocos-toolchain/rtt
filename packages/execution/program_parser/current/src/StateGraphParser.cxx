@@ -585,21 +585,22 @@ namespace ORO_Execution
             }
         else if (varinitcommands.size() == 1 )
             curtemplatecontext->setInitCommand( *varinitcommands.begin() );
-        // test :
-//         if (curtemplatecontext->getInitCommand() )
-//             curtemplatecontext->getInitCommand()->execute();
 
         varinitcommands.clear();
 
-        // by ps : no longer needed, they are now in curcontext.
-        // remove the data factories we added to the context again..
-//         std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
-//         for ( std::vector<std::string>::iterator i = subcontextnames.begin();
-//               i != subcontextnames.end(); ++i )
-//             context->dataFactory.unregisterObject( *i );
-
         // finally : 
         curtemplatecontext->finish();
+
+        // remove temporary subcontext peers from current task.
+        for( StateContextTree::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
+             it != curtemplatecontext->getChildren().end(); ++it )
+            context->removePeer( (*it)->getName() );
+
+        // reset stack to task.
+        valuechangeparser.setStack(context);
+        commandparser.setStack(context);
+        expressionparser.setStack(context);
+        conditionparser.setStack(context);
 
         StateContextBuilder* scb = new StateContextBuilder( curtemplatecontext );
         contextbuilders[curcontextname] = scb;
@@ -696,14 +697,22 @@ namespace ORO_Execution
         curcontextbuilder = 0;
         delete curinstantiatedcontext;
         curinstantiatedcontext = 0;
-        // Ownership is transfered to __states.
-        // but if not null, delete it :
+        // If non null, there was a parse-error, undo all :
         if ( curtemplatecontext )
         {
-          // remove the data factories we added to the context again..
-          std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
           // remove all 'this' data factories
           curtemplatecontext->getTaskContext()->dataFactory.unregisterObject( "this" );
+          curtemplatecontext->getTaskContext()->methodFactory.unregisterObject( "this" );
+
+          // remove all temporary peers
+          for( StateContextTree::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
+               it != curtemplatecontext->getChildren().end(); ++it )
+              context->removePeer( (*it)->getName() );
+
+          // remove the type from __states
+          context->getPeer("__states")->removePeer( curtemplatecontext->getTaskContext()->getName() ) ;
+
+          // will also delete all children : 
           delete curtemplatecontext;
           curtemplatecontext = 0;
         }
@@ -750,17 +759,23 @@ namespace ORO_Execution
         // 'sc' acts as a stack for storing variables.
         curcontext = new TaskContext(curcontextname, context->getProcessor() );
         __s->addPeer( curcontext );   // store in __states.
-        curcontext->addPeer(context,"task"); // necessary for parsing
         curtemplatecontext->setTaskContext( curcontext ); // store.
 
         // Everything is stored in curcontext
-        valuechangeparser.setContext(curcontext);
-        commandparser.setContext(curcontext);
-        expressionparser.setContext(curcontext);
-        conditionparser.setContext(curcontext);
+//         valuechangeparser.setContext(curcontext);
+//         commandparser.setContext(curcontext);
+//         expressionparser.setContext(curcontext);
+//         conditionparser.setContext(curcontext);
+//         curcontext->addPeer(context,"task"); // necessary for parsing
+
+        // Only the stack is stored in curcontext
+        valuechangeparser.setStack(curcontext);
+        commandparser.setStack(curcontext);
+        expressionparser.setStack(curcontext);
+        conditionparser.setStack(curcontext);
 
         // set the 'type' name :
-        curtemplatecontext->setName( curcontextname );
+        curtemplatecontext->setName( curcontextname, false );
     }
 
     void StateGraphParser::saveText( iter_t begin, iter_t end ) {
@@ -786,7 +801,7 @@ namespace ORO_Execution
             throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
         // recursively set the name of this SC and all subs :
-        curinstantiatedcontext->setName( curinstcontextname );
+        curinstantiatedcontext->setName( curinstcontextname, true );
 
         // add it to the "states" (all instantiated) of the current context :
         TaskContext* __s = context->getPeer("states");
@@ -808,30 +823,20 @@ namespace ORO_Execution
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
-        if ( context->dataFactory.getObjectFactory( curinstcontextname ) != 0 )
+
+        // Since we parse in the task context, we must _temporarily_
+        // make each subcontext a peer of the task so that we can access
+        // its methods.
+        if ( !context->addPeer( curinstantiatedcontext->getTaskContext() ) )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
-                "\"  already used." );
-        //DataSource<StateContextTree*>* dsc = 
+                "\"  already used as peer name in task '"+context->getName()+"'." );
+            
         curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         TaskAliasAttribute<std::string>* pv = new TaskAliasAttribute<std::string>( curinstantiatedcontext->getNameDS() );
         context->attributeRepository.setValue( curinstcontextname, pv );
-
-        // first create the TaskContext which represents this subcontext.
-        // add it to the current context.
-        // XXX memleak.
-        //StateContextTask* sct = new StateContextTask(curinstcontextname, current->getProcessor(), dsc );
-        // add the new subcontext to this task's  :
-        curcontext->addPeer( curinstantiatedcontext->getTaskContext() );
-
-        // we add a SubContextDataSourceFactory for this subcontext to
-        // the global data source factory, so that we can support
-        // subcontext introspection...
-//         SubContextDataSourceFactory* scdsf =
-//             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
-//         curinstantiatedcontext->getTaskContext()->dataFactory.registerObject( "this", scdsf );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -925,7 +930,7 @@ namespace ORO_Execution
         curinstcontextparams.clear();
 
         // set the TaskContext name to the instance name :
-        curinstantiatedcontext->getTaskContext()->setName(curinstcontextname);
+        curinstantiatedcontext->getTaskContext()->setName(curinstcontextname );
     }
 
     void StateGraphParser::seencontextvariable() {

@@ -302,6 +302,27 @@ namespace ORO_Execution
   {
       std::string def(begin, end);
       program_graph->setName( def );
+
+      TaskContext* __p = context->getPeer("programs");
+      if ( __p == 0 ) {
+          // install the __functions if not yet present.
+          __p = new TaskContext("programs", context->getProcessor() );
+          context->connectPeers( __p );
+      }
+
+      if ( __p->hasPeer( def ) )
+          throw parse_exception_semantic_error("program " + def + " redefined.");
+
+      TaskContext* fun = new TaskContext(def, context->getProcessor() );
+      __p->addPeer( fun );
+      fun->addPeer(context);
+      fun->addPeer(context,"task");
+
+      // like functions : variables are always on foo's 'stack'
+      valuechangeparser.setStack(fun);
+      commandparser.setStack(fun);
+      expressionparser.setStack(fun);
+      conditionparser.setStack(fun);
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -336,6 +357,7 @@ namespace ORO_Execution
       TaskContext* fun = new TaskContext(funcdef, context->getProcessor() );
       __f->addPeer( fun );
       fun->addPeer(context);
+      fun->addPeer(context,"task");
       // variables are always on foo's 'stack'
       valuechangeparser.setStack(fun);
       commandparser.setStack(fun);
@@ -605,6 +627,11 @@ namespace ORO_Execution
       program_graph->reset();
       program_list.push_back(program_graph);
       program_graph = new ProgramGraph(); // will be deleted if no other progs follow
+
+      // restore 'stack' to task's stack.
+      valuechangeparser.setStack(context); 
+      commandparser.setStack(context);
+      expressionparser.setStack(context);
   }
 
   std::vector<ProgramGraph*> ProgramGraphParser::parse( iter_t& begin, iter_t end )

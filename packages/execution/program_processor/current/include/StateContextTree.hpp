@@ -21,6 +21,8 @@ namespace ORO_Execution
     protected:
         std::string _name;
     public:
+        typedef std::vector<StateContextTree*> ChildList;
+
         virtual ~StateContextTree() {}
 
         StateContextTree(StateContextTree* parent, const std::string& name="Default")
@@ -43,7 +45,7 @@ namespace ORO_Execution
         /**
          * Get a list of all child state contexts.
          */
-        virtual const std::vector<StateContextTree*>& getChildren()
+        virtual const ChildList& getChildren()
         {
             return _children;
         }

@@ -109,10 +109,12 @@ namespace ORO_Execution {
          */
         DataSource<std::string>* getNameDS() const;
 
-        // Set the name of this context.  This also sets subcontexts'
-        // names, to the given name + "." + the name they have been
-        // instantiated by in this context.
-        void setName( const std::string& name );
+        /**
+         * Set the name of this context. If \a recurisive == true, this also sets subcontexts'
+         * names, to the given name + "." + the name they have been
+         * instantiated by in this context.
+         */
+        void setName( const std::string& name, bool recursive );
 
         const std::string& getText() const { return _text; }
         void setText(const std::string& text) { _text = text; }

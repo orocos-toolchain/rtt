@@ -128,7 +128,7 @@ namespace ORO_Execution
     const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
     if ( ! cfi && ! mfi )
-      throw parse_exception_no_such_component( peer->getName()+"::"+mcurobject );
+      throw parse_exception_no_such_component( peer->getName()+"."+mcurobject );
 
     // One of both must have the method
     if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) ) )
