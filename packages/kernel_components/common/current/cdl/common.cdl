@@ -1,0 +1,9 @@
+cdl_package OROPKG_KERNEL_COMPONENTS {
+    display "Control Kernel components"
+    description "
+Components for Control Kernels. This parent
+package contains some common, application
+independent Components."
+
+    include_dir kernel_components
+}
