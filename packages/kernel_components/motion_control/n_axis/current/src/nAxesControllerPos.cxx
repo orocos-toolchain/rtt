@@ -158,6 +158,8 @@ namespace ORO_ControlKernel
 
   bool nAxesControllerPos::startMeasuring(double treshold_moving)
   {
+    cerr << "start measuring" << endl;
+
     // don't do anything if still measuring
     if (_is_measuring)
       return false;
@@ -181,6 +183,8 @@ namespace ORO_ControlKernel
 
   double nAxesControllerPos::getMeasurement(int i) const
   {
+    cerr << "get measurement " << i << " = " << _offset_measurement[i] << endl;
+
     if (i<0 || i>((int)_num_axes)-1)
       return 0.0;
     else
