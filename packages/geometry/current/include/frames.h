@@ -362,7 +362,7 @@ public:
     static Rotation Rot2(const Vector& rotvec,double angle);
     
     //! Returns a vector with the direction of the equiv. axis
-    //! and its norm is sin(angle)  
+    //! and its norm is angle
     Vector GetRot() const; 
 
 	/** Returns the rotation angle around the equiv. axis

@@ -171,12 +171,23 @@ Rotation Rotation::Rot2(const Vector& rotvec,double angle) {
 
 Vector Rotation::GetRot() const 
          // Returns a vector with the direction of the equiv. axis
-         // and its norm is sin(angle)
+         // and its norm is angle
      {
-         return Vector((data[7]-data[5])/2,
-                       (data[2]-data[6])/2,
-                       (data[3]-data[1])/2  );
+       Vector axis  = Vector((data[7]-data[5]),
+			     (data[2]-data[6]),
+			     (data[3]-data[1]) )/2;
+       
+       double sa    = axis.Norm();
+       double ca    = (data[0]+data[4]+data[8]-1)/2.0;
+       double alfa;
+       if (sa > 1E-7)
+	 alfa = ::atan2(sa,ca)/sa;
+       else
+	 alfa = 1;
+       return axis * alfa;
      }
+
+
 
 /** Returns the rotation angle around the equiv. axis
  * @param axis the rotation axis is returned in this variable
