@@ -39,7 +39,6 @@
 #include <geometry/rotational_interpolation_sa.h>
 #include <geometry/MotionProperties.hpp>
 #include <corelib/HeartBeatGenerator.hpp>
-#include <corelib/EventInterfaces.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/PropertyExtension.hpp>

@@ -112,7 +112,7 @@ namespace ORO_ControlKernel
                 if (refreshFile)
                     if ( composeProperty(bag, filename) )
                     {
-                        std::ifstream f( filename.c_str() );
+                        std::ifstream f( filename.get().c_str() );
                         tr = Trajectory::Read(f);
                         composeProperty(bag, repeat);
                         composeProperty(bag, acceptCommands);
@@ -135,18 +135,18 @@ namespace ORO_ControlKernel
             void setTaskInWorldFrame( const Frame& f )
             {
                 task_world_frame = f;
-                task_base_frame  = robot_world_frame.Inverse() * task_world_frame;
+                task_base_frame  = robot_world_frame.get().Inverse() * task_world_frame;
             }
 
             void setRobotInWorldFrame( const Frame& f )
             {
                 robot_world_frame = f;
-                task_base_frame  = robot_world_frame.Inverse() * task_world_frame;
+                task_base_frame  = robot_world_frame.get().Inverse() * task_world_frame;
             }
 
             void resetTime( double newTime = 0)
             {
-                time_stamp = HeartBeatGenerator::Instance()->ticksGet() - HeartBeatGenerator::Instance()->nano2ticks(newTime);
+                time_stamp = HeartBeatGenerator::Instance()->ticksGet() - HeartBeatGenerator::nsecs2ticks(newTime);
             }
 
             /**
@@ -158,13 +158,13 @@ namespace ORO_ControlKernel
              */
             void timeScale( double percent )
             {
-                MotionProfile* t_prof = t->GetProfile();
+                VelocityProfile* t_prof = tr->GetProfile();
                 double oldDur = t_prof->Duration();
                 double newDur = percent / 100.0 * oldDur;
                 
-                t_prof->SetDuration(t_prof->Pos(0), t_prof->Pos(oldDur), newDur);
+                t_prof->SetProfileDuration(t_prof->Pos(0), t_prof->Pos(oldDur), newDur);
                 
-                fact  = t_prof->Duration() / oldDur;
+                double fact  = t_prof->Duration() / oldDur;
                 time *= fact;
                 resetTime( time );
             }

@@ -29,7 +29,7 @@
 #ifndef CARTESIAN_NS_SENSOR_HPP
 #define CARTESIAN_NS_SENSOR_HPP
 
-#include <corelib/EventInterfaces.hpp>
+#include <corelib/Event.hpp>
 #include <kernel_components/Simulator.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>
@@ -77,7 +77,7 @@ namespace ORO_ControlKernel
             
         CartesianSensor(SimulatorInterface* _sim = 0) 
             : Base("CartesianSensor"),
-              sensorError(Event::SYNASYN, "CartesianSensor::SensorError"),
+              sensorError( "CartesianSensor::SensorError"),
               q6("JointPositions",""), sim(_sim)
         {}
             
@@ -123,7 +123,7 @@ namespace ORO_ControlKernel
 
             
     protected:
-        Event sensorError;
+        Event<void(void)> sensorError;
 
         Property<Double6D> q6;
         DataObjectInterface<Double6D>* jpos_DObj;

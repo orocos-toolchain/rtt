@@ -74,7 +74,7 @@ namespace ORO_ControlKernel
 #endif
 
         bool start;
-        Event startEvent;
+        Event<void(void)> startEvent;
         static ExecutionExtension* ee;
         ConditionInterface* condition;
         CommandInterface*   command;
@@ -290,7 +290,7 @@ namespace ORO_ControlKernel
     public :
         HMIReadline( ExecutionExtension* _ee = 0, const std::string& name = "cin")
             : Base( name ), start(false),
-              startEvent(Event::SYNASYN,"HMIReadline::StartEvent"),
+              startEvent("HMIReadline::StartEvent"),
               condition(0), command(0), command_fact(0), datasource_fact(0),
               prompt(" (type 'quit' for exit) :"),
               coloron("\033[1;34m"), coloroff("\033[0m"),

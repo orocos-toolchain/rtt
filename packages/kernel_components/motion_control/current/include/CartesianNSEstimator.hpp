@@ -33,7 +33,7 @@
 #include <kindyn/KinematicsComponent.hpp>
 #include <kindyn/KinematicsFactory.hpp>
 
-#include <corelib/EventInterfaces.hpp>
+#include <corelib/Event.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/PropertyExtension.hpp>
@@ -124,7 +124,7 @@ namespace ORO_ControlKernel
         {
             if ( !kineComp->positionForward( q6, mp_base_frame) )
                 {
-                    EventOperationInterface* es = EventOperationInterface::nameserver.getObjectByName("SingularityDetected");
+                    Event<void(void)>* es = Event<void(void)>::nameserver.getObjectByName("SingularityDetected");
                     if ( es != 0 )
                         es->fire();
                 }

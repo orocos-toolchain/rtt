@@ -61,7 +61,7 @@ namespace ORO_ControlKernel
     {
         typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result > Base;
         bool start;
-        Event startEvent;
+        Event<void(void)> startEvent;
         ExecutionExtension* ee;
         ConditionInterface* condition;
         CommandInterface*   command;
@@ -70,7 +70,7 @@ namespace ORO_ControlKernel
     public :
         HMIConsoleInput( ExecutionExtension* _ee = 0,  const std::string& name = "cin")
             : Base( name ), start(false),
-              startEvent(Event::SYNASYN,"HMIConsoleInput::StartEvent"),
+              startEvent("HMIConsoleInput::StartEvent"),
               ee(_ee), condition(0), command(0), tester(0), dataobject(0) {}
 
         /**
