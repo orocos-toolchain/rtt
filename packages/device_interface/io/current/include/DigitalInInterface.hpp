@@ -29,7 +29,8 @@ namespace ORO_DeviceInterface
     using namespace ORO_CoreLib;
 
     /**
-     * A class for reading digital inputs.
+     * @brief A class representing a Digital Input device with a maximum of 32
+     * channels. When there are N bits, the bits are numbered from Zero to N-1.
      */
     class DigitalInInterface
                 : private NameServerRegistrator<DigitalInInterface*, std::string>

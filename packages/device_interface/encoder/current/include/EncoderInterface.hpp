@@ -70,6 +70,7 @@ namespace ORO_DeviceInterface
         /**
          * Returns true if after a positive turn increment,
          * position increments positively.
+         *
          * Meaning from 0 to |resolution()| or from
          * resolution() to zero if resolution() < 0
          */

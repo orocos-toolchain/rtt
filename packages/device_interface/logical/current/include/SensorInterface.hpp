@@ -25,11 +25,15 @@ namespace ORO_DeviceInterface
 {
 
     /**
-     * An interface that describes the general senor
+     * @brief An interface that describes the general senor
      * You can read a value/structure
      *
      * The OutputData is the actual SI unit of the measured data
      * (e.g. force, velocity,...) and is in case of a 1D sensor a double.
+     *
+     * If the sensor is not callibrated, the \a minMeasurement() and
+     * \a maxMeasurement() functions should return std::numeric_limits<SensorData>::min()
+     * and std::numeric_limits<SensorData>::max() respectively.
      */
     template <class SensorData>
     class SensorInterface
@@ -50,12 +54,12 @@ namespace ORO_DeviceInterface
         virtual DataType readSensor() const = 0;
 
         /**
-         * Returns the maximum value this sensor can read
+         * Returns the maximum value this sensor can read.
          */
         virtual DataType maxMeasurement() const = 0;
 
         /**
-         * Returns the minimum value this sensor can read
+         * Returns the minimum value this sensor can read.
          */
         virtual DataType minMeasurement() const = 0;
 

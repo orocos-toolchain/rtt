@@ -29,8 +29,9 @@ namespace ORO_DeviceInterface
     using namespace ORO_CoreLib;
 
     /**
-     * An interface that describes a digital output card of maximum
-     * 32 bits.
+     * @brief A class representing a Digital Output device with a maximum of 32
+     * channels. When there are N bits, the bits are numbered from Zero to N-1.
+     *
      * @invar Bit 0 denotes the first digital output on the card.
      * @invar No more than 32 bits can be addressed 
      */
