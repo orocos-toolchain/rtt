@@ -1,0 +1,15 @@
+cdl_package OROPKG_CONTROL_KERNEL_SERVER {
+    display "Control Kernel CORBA Server"
+    description "
+A CORBA server which allows your kernel to be used with the KernelClient GUI.
+"
+    parent   OROPKG_CONTROL_FRAMEWORK
+    requires OROPKG_CONTROL_FRAMEWORK
+
+    include_dir control_kernel
+
+    compile KernelInterfaceI.cpp
+    compile kernelserver.cpp
+    compile directkernelinterface.cc
+    compile kernelinterface.cpp
+}

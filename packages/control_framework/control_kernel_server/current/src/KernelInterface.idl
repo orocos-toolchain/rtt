@@ -1,0 +1,94 @@
+module Orocos
+{
+  exception LoadException
+  {
+    string what;
+  };
+
+  exception ParseException
+  {
+    string what;
+  };
+
+  interface KernelInterface
+  {
+    typedef sequence<string> NameList;
+
+    // try to shutdown the server.
+    // return true if accepted.
+    boolean requestShutdown();
+
+    NameList getProgramNames();
+
+    // state contexts
+    NameList getStateContextNames();
+
+    // The filename is not needed, but it will be used to construct
+    // error messages.  This function will throw a
+    // file_parse_exception ( defined in
+    // <execution/parse_exception.hpp> ) if parsing fails, or a
+    // statecontext_load_exception ( defined in ExecutionExtension.hpp
+    // ) if loading fails.
+    void loadStateContexts( in string code, in string filename ) raises (LoadException, ParseException);
+    boolean unloadStateContext( in string name ) raises (LoadException);
+
+    void loadPrograms( in string code, in string filename ) raises (LoadException);
+    boolean unloadProgram( in string name ) raises (LoadException);
+
+    // One line of log info
+    string getLogLine();
+    // One line of report info
+    //string getReportLine();
+
+    string getProgramText(in string name );
+    string getStateText(in string name );
+    string getProgramStatus(in string name );
+    long getProgramLine(in string name );
+    string getStateStatus(in string name );
+    string getState(in string name );
+
+    // return the list of names of all controller components
+    NameList getControllers();
+    // return the list of names of all generator components
+    NameList getGenerators();
+    // return the list of names of all effector components
+    NameList getEffectors();
+    // return the list of names of all estimator components
+    NameList getEstimators();
+    // return the list of names of all sensor components
+    NameList getSensors();
+    // return the list of names of all support components
+    NameList getSupports();
+
+    // return the list of names of those components that have
+    // registered either a DataSourceFactory or a CommandFactory.
+    NameList getComponents();
+
+    // return the list of commands of the given component.  Can return
+    // an empty list.
+    NameList getCommands( in string comp );
+
+    // return the list of datasources of the given component.  Can
+    // return an empty list.
+    NameList getData( in string comp );
+
+    // return the list of methods of the given component.  Can
+    // return an empty list.
+    NameList getMethods( in string comp );
+
+    // This function parses the command in the given string, and
+    // starts executing it.  The returned long is a unique id for
+    // the executing command on success.  Will throw a parse_exception
+    // on parse error and a load_exception if loading fails...
+    long startExecutingCommand( in string code ) raises (LoadException);
+
+    // is the command with identifier commandid ( as returned by
+    // startExecutingCommand ) finished executing ?  Note that you
+    // still need to call abandonCommand if the command is finished.
+    boolean isCommandFinished( in long commandid );
+
+    // stop waiting for the execution of the command with the given id
+    // ( as returned by startExecutingCommand ) to complete.
+    void abandonCommand( in long commandid );
+  };
+};
