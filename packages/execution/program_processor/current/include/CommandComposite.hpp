@@ -70,7 +70,7 @@ namespace ORO_Execution
          * add a command to the list
          * 
          */
-        virtual int add(CommandInterface * com) {		
+        virtual void add(CommandInterface * com) {		
             list.push_back(com);
         };
 

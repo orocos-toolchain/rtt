@@ -29,62 +29,50 @@
 #define EXEC_EVENTHANDLE_HPP
 
 #include <corelib/CommandInterface.hpp>
-#include <corelib/EventInterfaces.hpp>
+#include <corelib/Event.hpp>
 
 namespace ORO_Execution
 {
-    using ORO_CoreLib::HandlerRegistrationInterface;
-    using ORO_CoreLib::EventListenerInterface;
     namespace detail 
     {
+        using namespace ORO_CoreLib;
+
     class CommandConnect : public CommandInterface
     {
+        Event<void(void)>* event;
+        boost::function<void(void)> listener;
+        Handle* h;
     public :
-        HandlerRegistrationInterface* event;
-        EventListenerInterface* listener;
-
-        CommandConnect( HandlerRegistrationInterface* _e, EventListenerInterface* _l )
-            : event(_e), listener(_l)
+        CommandConnect( Event<void(void)>* _e, boost::function<void(void)> _l, Handle* _h )
+            : event(_e), listener(_l), h( _h)
         {}
         
         virtual void execute() {
-            event->addHandler( listener, ORO_CoreLib::Completer::None );
-        }
-
-        virtual std::string toString()
-        {
-            return std::string("CommandConnect");
+            *h = event->connect( listener );
         }
 
         virtual CommandInterface* clone() const
         {
-            return new CommandConnect(event, listener);
+            return new CommandConnect(event, listener, h);
         }
     };
 
 
     class CommandDisconnect : public CommandInterface
     {
+        Handle* h;
     public :
-        HandlerRegistrationInterface* event;
-        EventListenerInterface* listener;
-
-        CommandDisconnect( HandlerRegistrationInterface* _e, EventListenerInterface* _l )
-            : event(_e), listener(_l)
+        CommandDisconnect( Handle* _h )
+            : h(_h)
         {}
         
         virtual void execute() {
-            event->removeHandler( listener, ORO_CoreLib::Completer::None );
-        }
-
-        virtual std::string toString()
-        {
-            return std::string("CommandDisconnect");
+            h->disconnect();
         }
 
         virtual CommandInterface* clone() const
         {
-            return new CommandDisconnect(event, listener);
+            return new CommandDisconnect(h);
         }
     };
 
@@ -93,12 +81,13 @@ namespace ORO_Execution
      */
     struct EventHandle
     {
-        HandlerRegistrationInterface* event;
-        EventListenerInterface* listener;
+        Event<void(void)>* event;
+        boost::function<void(void)> listener;
+        Handle h;
         
-        EventHandle() : event(0), listener(0) {}
+        EventHandle() : event(0) {}
 
-        void init( HandlerRegistrationInterface* _e, EventListenerInterface* _l)
+        void init( Event<void(void)>* _e,  boost::function<void(void)> _l)
         {
             event = _e;
             listener = _l;
@@ -106,12 +95,12 @@ namespace ORO_Execution
 
         CommandInterface* createConnect()
         {
-            return new CommandConnect( event, listener );
+            return new CommandConnect( event, listener, &h );
         }
 
         CommandInterface* createDisconnect()
         {
-            return new CommandDisconnect( event, listener );
+            return new CommandDisconnect( &h );
         }
     };
     }

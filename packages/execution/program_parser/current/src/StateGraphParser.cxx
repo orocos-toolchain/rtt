@@ -36,7 +36,6 @@
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ParsedValue.hpp"
 #include "execution/EventHandle.hpp"
-#include "corelib/StandardEventListener.hpp"
 #include "execution/StateDescription.hpp"
 #include "corelib/CommandEmitEvent.hpp"
 
@@ -76,7 +75,7 @@ namespace ORO_Execution
           conditionparser( context ),
           commandparser( context ),
           valuechangeparser( context ),
-          mhand(0), mevent(0), meventsink(0),
+          mhand(0), mevent(0),
           mcondition(0), mstate(0)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
@@ -302,7 +301,7 @@ namespace ORO_Execution
             throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
 
         std::string event_id( res->toDataSource()->get() );
-        EventOperationInterface* eoi = EventOperationInterface::nameserver.getObject(event_id);
+        Event<void(void)>* eoi = Event<void(void)>::nameserver.getObject(event_id);
         if (eoi == 0 )
             throw parse_exception("Event \""+ event_id+ "\" can not be emitted because it is not created yet.");
 
@@ -355,10 +354,10 @@ namespace ORO_Execution
             throw parse_exception("Please specify a string containing the Event's name. e.g. \"eventname\".");
 
         std::string ev_name( res->toDataSource()->get() );
-        if ( !EventInterface::nameserver.isNameRegistered(ev_name) )
+        if ( !Event<void(void)>::nameserver.isNameRegistered(ev_name) )
             throw parse_exception("Event " + ev_name + " not known.");
 
-        mevent = EventInterface::nameserver.getObject( ev_name );
+        mevent = Event<void(void)>::nameserver.getObject( ev_name );
     }
 
     void StateGraphParser::finished()
@@ -387,7 +386,7 @@ namespace ORO_Execution
     void StateGraphParser::seensink()
     {
         CommandInterface *cresult = commandparser.getCommand();
-        meventsink = listener( &CommandInterface::execute, cresult );
+        meventsink = boost::bind( &CommandInterface::execute, cresult );
         delete commandparser.getImplTermCondition(); // we do not use this here
         commandparser.reset();
     }

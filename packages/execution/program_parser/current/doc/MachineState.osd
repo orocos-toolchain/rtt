@@ -4,32 +4,64 @@ import AxisHoming;
 
 StateContext Machine
 {
-	Initial_State machine_init
-	Final_State   machine_exit
+       /**
+	* Krachtlijnen : 
+	* 1. lezen/schrijven SC params moet uniform zijn
+	* => set axis.nr = 1 vs if axis.nr == 1 then...
+	*
+	* 2. De constructor is een 'set'-uitzondering : alle param
+	*    variabelen moeten geinitialiseerd worden.
+	* -> De constructor wordt aangeroepen als de parent SC
+	*    gestart wordt (dus voor entry{} van de parent initial state).
+	*    Ook bij stop/reset/start worden ze terug aangeroepen.
+	* => StateContext AxisHoming  axis1( axis_nr = comp.ds(), error = 0)
+	*
+	* 3. StateContext mag als 'pointer' type in parser
+	* -> Laat toe 'gebruiksvriendelijker' ermee om te springen.
+	*    zodoende worden :
+	* => const string axis1 = "Axis1" en
+	*    Execution.startStateContext( axis1 ) en
+	*    Execution.isFinal( axis1 ) dan
+	* => var StateContext AxisHoming axis1 = Execution.getStateContext("Axis1")
+	*    ...
+	*    Mutatie   vb : axis1.start()
+	*    Inspectie vb : axis1.isFinal()
+	*    Dit wint niet echt aan kracht, enkel aan leesbaarheid.
+	*    Of winnen we meer dan dat ? En hoe koppelen we die commandos aan de processor ?
+	*/
+	//
 
-	// 2 sub contexts, which can run in parallel
-	AxisHoming  axis1 : axis_nr(1), error(0);
-	AxisHoming  axis2 : axis_nr(2), error(0);
+	const StateContext AxisHoming  axis2 : axis_nr(2), error(0);
 
-	Context {
-		const int total_axis = 2;
+	var StateContext AxisHoming axis3 = Execution.getStateContext("Axis1")
+
+	const int total_axis = 2;
+
+	// Start homing of axis 1 and wait for result
+	state HomeAxis1 {
+	preconditions 
+	{
+		axis1
+		// Bij SC wordt een tussen 'check precond' state
+		// aangemaakt die enkel deze transition checkt en
+		// anders bij de volgende tick doorgaat naar
+		// deze state.
+		if axisinfo.homeAxis( 1 ) == false
+			select errorState
 	}
-}
 
-state machine_init
-{
-	//...
-}
-
-state machine_exit
-{
-	//...
-}
-
-// Start homing of axis 1 and wait for result
-state HomeAxis1 {
 	entry
 	{
+		// dit heeft geen zin, het beperkt ons niet
+		// we kunnen dit gelijk wanneer schrijven,
+		// eist nieuwe syntax, 'set' syntax blijft
+		init axis1( axis_nr = 2, ... )
+
+		// kan tot gevaar leiden, beperkt de gebruiker
+		// niet... we voeren het hoedanook uit, bestaande
+		// syntax met uitbreiding voor de '.'
+		set axis1.axis_nr = comp.ds()
+
 		startContext( axis1 ); // is a no-op if already started.
 		//engine.startStateContext( "axis1" );
 	}
@@ -47,10 +79,23 @@ state HomeAxis1 {
 		if axis1.error == true then
 			select notifyError
 	}
-}
+	}
 
-// start homing and do not wait
-state DeferedHomeAxis1 {
+
+	initial state machine_init
+	{
+		//...
+		entry {
+			set axis3.axis_nr = 3
+	}
+
+	final state machine_exit
+	{
+		//...
+	}
+
+	// start homing and do not wait
+	state DeferedHomeAxis1 {
 	handle
 	{	
 		startContext( axis1 );
@@ -58,6 +103,7 @@ state DeferedHomeAxis1 {
 	transitions
 	{
 		select nextState
+	}
 	}
 }
 	

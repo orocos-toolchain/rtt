@@ -32,7 +32,7 @@
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
 #include "ParseContext.hpp"
-#include "corelib/EventInterfaces.hpp"
+#include "corelib/Event.hpp"
 #include "StateGraph.hpp"
 #include "ValueChangeParser.hpp"
 
@@ -45,8 +45,6 @@ namespace ORO_Execution
     namespace detail {
         class EventHandle;
     }
-    using ORO_CoreLib::HandlerRegistrationInterface;
-    using ORO_CoreLib::EventListenerInterface;
 
   /**
    * This is not a parser in the Boost.spirit sense of the word, it's
@@ -102,8 +100,8 @@ namespace ORO_Execution
       StateGraph* state_graph;
       detail::EventHandle* mhand;
 
-      HandlerRegistrationInterface* mevent;
-      EventListenerInterface*     meventsink;
+      ORO_CoreLib::Event<void(void)>* mevent;
+      boost::function<void(void)> meventsink;
 
       ConditionInterface* mcondition;
       StateDescription*   mstate;

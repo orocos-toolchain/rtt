@@ -28,6 +28,8 @@
 #define PARSER_DEBUG_HPP
 
 //#define BOOST_SPIRIT_DEBUG 
+#ifndef BOOST_SPIRIT_DEBUG_OUT
 #define BOOST_SPIRIT_DEBUG_OUT std::cerr
+#endif
 
 #endif

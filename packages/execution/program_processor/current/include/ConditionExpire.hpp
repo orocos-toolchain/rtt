@@ -35,7 +35,7 @@
 namespace ORO_Execution
 {
 
-	namespace ORO_CoreLib;
+	using namespace ORO_CoreLib;
 
     /**
      * A conditional that evaluates true until
@@ -61,10 +61,10 @@ namespace ORO_Execution
 
             virtual bool evaluate()
             {
-                return ( time < hb->timeGet() );
+                return ( time < hb->ticksGet() );
             }
 
-            virtual ConditionInterface* copy() const
+            virtual ConditionInterface* clone() const
             {
                 return new ConditionExpire( time );
             }
