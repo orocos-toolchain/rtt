@@ -118,7 +118,12 @@ namespace ORO_ControlKernel
 
     
     /**
-     * A Cartesian Position Tracker.
+     * @brief A Cartesian Position Frame / TaskFrame Tracker.
+     *
+     * This Generator can track an externally generated Frame
+     * and adapt to an externally generated TaskFrame.
+     *
+     * @ingroup kcomps kcomp_generator
      */
     template <class Base>
     class CartesianPositionTracker
@@ -230,7 +235,17 @@ namespace ORO_ControlKernel
         {
             end_f_DObj->Set( end_pos );
         }
+
+        /**
+         * @name Cartesian Position Tracking commands.
+         * @{
+         */
             
+        /** 
+         * @brief Inspect if the current trajectory is finished.
+         * 
+         * @return true if so, false otherwise
+         */
         bool trajectoryDone() const
         {
             if (cur_tr)
@@ -238,16 +253,34 @@ namespace ORO_ControlKernel
             return true;
         }
         
+        /** 
+         * @brief Return the current Cartesian position.
+         * 
+         * 
+         * @return The current position.
+         */
         Frame position() const
         {
             return mp_base_frame;
         }
 
+        /** 
+         * @brief Return the current elapsed movement time
+         * 
+         * 
+         * @return The time passed.
+         */
         double time() const
         {
             return _time;
         }
 
+
+        /** 
+         * @brief Select an interpolation algorithm
+         * 
+         * @param algorithm One of "Trapezoidal, "Linear" or "Step"
+         */
         void interpolate(const std::string& algorithm )
         {
             if ( algorithm == "Trapezoidal" ) {
@@ -264,82 +297,103 @@ namespace ORO_ControlKernel
             }
         }
 
+        /** 
+         * @brief Track the TaskFrame in the Command DataObject.
+         * 
+         * @param do_name The name of the taskframe DataObject
+         * 
+         * @return true if acceptable.
+         */
         bool trackTaskFrameCommand( const std::string& do_name )
         {
             return trackTaskFrame( Base::Command::dObj(), do_name );
         }
 
+        /** 
+         * @brief Track the TaskFrame in the Input DataObject.
+         * 
+         * @param do_name The name of the taskframe DataObject
+         * 
+         * @return true if acceptable.
+         */
         bool trackTaskFrameInput( const std::string& do_name )
         {
             return trackTaskFrame( Base::Input::dObj(), do_name );
         }
 
+        /** 
+         * @brief Track the TaskFrame in the Model DataObject.
+         * 
+         * @param do_name The name of the taskframe DataObject
+         * 
+         * @return true if acceptable.
+         */
         bool trackTaskFrameModel( const std::string& do_name )
         {
             return trackTaskFrame( Base::Model::dObj(), do_name );
         }
 
-        template < class DOS >
-        bool trackTaskFrame( DOS* dObj, const std::string& do_name )
-        {
-            if (!dObj->has(do_name, Frame() ) )
-                task_tracking = false;
-            else
-                {
-                    dObj->Get(do_name, task_f_DObj);
-                    task_tracking = true;
-                }
-            return task_tracking;
-        } 
-
+        /** 
+         * @brief Track the Position in the Command DataObject.
+         * 
+         * @param do_name The name of the DataObject which contains the position
+         * @param do_time The refresh time to read a new position.
+         * 
+         * @return true if acceptable.
+         */
         bool trackPositionCommand(const std::string& do_name, const std::string& do_time)
         {
             return trackPosition( Base::Command::dObj(), do_name, do_time );
         }
 
+        /** 
+         * @brief Track the Position in the Model DataObject.
+         * 
+         * @param do_name The name of the DataObject which contains the position
+         * @param do_time The refresh time to read a new position.
+         * 
+         * @return true if acceptable.
+         */
         bool trackPositionModel(const std::string& do_name, const std::string& do_time)
         {
             return trackPosition( Base::Model::dObj(), do_name, do_time );
         }
 
+        /** 
+         * @brief Track the Position in the Input DataObject.
+         * 
+         * @param do_name The name of the DataObject which contains the position
+         * @param do_time The refresh time to read a new position.
+         * 
+         * @return true if acceptable.
+         */
         bool trackPositionInput(const std::string& do_name, const std::string& do_time)
         {
-//             if (!Base::Input::dObj()->has(do_name) ||
-//                 !Base::Input::dObj()->has(do_time) )
-//                 tracking = false;
-//             else
-//                 {
-//                     Base::Input::dObj()->Get(do_name, track_f_DObj);
-//                     Base::Input::dObj()->Get(do_time, track_t_DObj);
-//                     tracking = true;
-//                 }
-//             return tracking;
             return trackPosition( Base::Input::dObj(), do_name, do_time );
         }
 
-        template< class DOS >
-        bool trackPosition(const DOS* dObj, const std::string& do_name, const std::string& do_time) {
-            if (!dObj->has(do_name, Frame() ) ||
-                !dObj->has(do_time, double() ) )
-                tracking = false;
-            else
-                {
-                    dObj->Get(do_name, track_f_DObj);
-                    dObj->Get(do_time, track_t_DObj);
-                    tracking = true;
-                }
-            return tracking;
-        }
-
-        bool isTracking(const std::string& do_name, const std::string& do_time) const
+        /** 
+         * @brief Inspect if a tracking operation is succeeding.
+         * 
+         * @return True if succesfull
+         */
+        bool isTracking() const
         {
             return tracking;
         }
 
-        bool isTaskTracking(const std::string& do_name ) const
+        /** 
+         * @brief Inspect if a TaskFrame is being tracked.
+         * 
+         * @return  True if successful.
+         */
+        bool isTaskTracking( ) const
         {
             return task_tracking;
         }
+        /**
+         * @}
+         */
 
         virtual bool updateProperties( const PropertyBag& bag)
         {
@@ -392,6 +446,33 @@ namespace ORO_ControlKernel
         }
 #endif
     protected:
+        template < class DOS >
+        bool trackTaskFrame( DOS* dObj, const std::string& do_name )
+        {
+            if (!dObj->has(do_name, Frame() ) )
+                task_tracking = false;
+            else
+                {
+                    dObj->Get(do_name, task_f_DObj);
+                    task_tracking = true;
+                }
+            return task_tracking;
+        } 
+
+        template< class DOS >
+        bool trackPosition(const DOS* dObj, const std::string& do_name, const std::string& do_time) {
+            if (!dObj->has(do_name, Frame() ) ||
+                !dObj->has(do_time, double() ) )
+                tracking = false;
+            else
+                {
+                    dObj->Get(do_name, track_f_DObj);
+                    dObj->Get(do_time, track_t_DObj);
+                    tracking = true;
+                }
+            return tracking;
+        }
+
         bool tracking;
         bool task_tracking;
 
@@ -404,23 +485,18 @@ namespace ORO_ControlKernel
         Frame tool_mp_frame;
 
         Frame task_frame;
-        //typename Base::Command::DataObject<Frame>::type* task_f_DObj;
         DataObjectInterface<Frame>* task_f_DObj;
 
         Frame track_frame;
-        //typename Base::Command::DataObject<Frame>::type* track_f_DObj;
         DataObjectInterface<Frame>* track_f_DObj;
 
         double track_time;
-        //typename Base::Command::DataObject<double>::type* track_t_DObj;
         DataObjectInterface<double>* track_t_DObj;
 
         Frame end_pos;
-        //typename Base::Model::DataObject<Frame>::type* end_f_DObj;
         DataObjectInterface<Frame>* end_f_DObj;
 
         Frame mp_base_frame;
-        //typename Base::Model::DataObject<Frame>::type* mp_base_f_DObj;
         DataObjectInterface<Frame>* mp_base_f_DObj;
 
         Property<double> closeness;

@@ -29,11 +29,12 @@ namespace ORO_ControlKernel
     using std::endl;
 
     /**
-     * This component allows console input to be passed
+     * @brief This component allows console input to be passed
      * to the program or state scripts. It can be referenced
-     * as the 'console' component in these scripts.
+     * as the 'console_output' component in these scripts.
      *
      * HMI == Human-Machine Interface
+     * @ingroup kcomps kcomp_support
      */
     template< class Base>
     class HMIConsoleInput
@@ -48,7 +49,7 @@ namespace ORO_ControlKernel
 
 
         /**
-         * Call this method from ORO_main() to 
+         * @brief Call this method from ORO_main() to 
          * process keyboard input.
          */
         void loop()
@@ -76,7 +77,6 @@ namespace ORO_ControlKernel
                 }
         }
                 
-
         void startButton()
         {
             start = true;

@@ -46,7 +46,8 @@ namespace ORO_ControlKernel
 
 
     /**
-     * A AxisPosition Generator. Axes are numbered from 1 .. N.
+     * @brief An Axis Position Generator. Axes are numbered from 1 .. N.
+     * @ingroup kcomps kcomp_generator
      */
     template <class Base>
     class AxisPositionGenerator 
@@ -62,7 +63,7 @@ namespace ORO_ControlKernel
         };            
     public:
         /**
-         * Constructor.
+         * @brief Create a generator for interpolating N axes.
          */
         AxisPositionGenerator( int _num_axes ) 
             : Base("AxisPositionGenerator"),
@@ -109,6 +110,17 @@ namespace ORO_ControlKernel
             setp_dObj->Set(setpoints);
         }
 
+        /**
+         * @name AxisPositionGenerator commands.
+         */
+        // @{
+        /** 
+         * @brief Inspect if an Axis is ready for the next command. 
+         * 
+         * @param nr The Axis number
+         * 
+         * @return true if so.
+         */
         bool isReady( int nr )
         {
             --nr;
@@ -122,6 +134,15 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /** 
+         * @brief Instruct an axis to move to a position with a velocity.
+         * 
+         * @param axis_nr  The number of the axis to move
+         * @param velocity The desired velocity
+         * @param position The endposition
+         * 
+         * @return true if acceptable, false otherwise
+         */
         bool move( int axis_nr, double velocity, double position)
         {
             if ( !isReady(axis_nr) )
@@ -133,7 +154,9 @@ namespace ORO_ControlKernel
             axes[axis_nr].SetProfile( inputs[axis_nr], position );
             axes[axis_nr].timestamp = hbg->ticksGet();
             axes[axis_nr].traj_ptr  = axes[axis_nr].traj_planner;
+            return true;
         } 
+        // @}
 
         virtual bool updateProperties( const PropertyBag& bag )
         {

@@ -47,12 +47,15 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * A Generator for generating all kinds of signals
-     * for N channels. It only accepts commands through its
+     * @brief A Generator Component for generating all kinds of signals
+     * for N channels.
+     *
+     * It only accepts commands through its
      * methods and not through the Command DataObject.
      * For now, it also does not read the Input or Model
      * DataObject. It only writes new SignalSetPoints
      * for each channel.
+     * @ingroup kcomps kcomp_generator
      */
     template< class Base >
     class SignalGenerator
@@ -60,7 +63,7 @@ namespace ORO_ControlKernel
     {
     public:
         /**
-         * Constructor.
+         * @brief Create a signalgenerator with a fixed number of channels.
          */
         SignalGenerator(int num_channels =  1) 
             : Base("SignalGenerator"),
@@ -101,7 +104,12 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Generate a sine on a channel.
+         * @name The SignalGenerator Commands.
+         * @{
+         */
+
+        /**
+         * @brief Generate a sine on a channel.
          * @param chan_num The channel to set a sine.
          * @param amplitude The amplitude of the sine.
          * @param frequence The frequence of the sine in Hz.
@@ -117,7 +125,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Multiply the output of a channel with a special value.
+         * @brief Multiply the output of a channel with a special value.
          */
         bool scaleValue( unsigned int chan_num, double factor )
         {
@@ -128,7 +136,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Unmute a channel.
+         * @brief Unmute a channel.
          *
          * @return true if chan_num was valid.
          */
@@ -143,7 +151,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Mute a channel.
+         *  @brief Mute a channel.
          *
          * @return true if chan_num was valid.
          */
@@ -170,7 +178,9 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Freeze or pause the output of the channel. It will resume
+         * @brief Freeze or pause the output of the channel.
+         *
+         * It will resume
          * when unfreezed. During freeze, it keeps generating its
          * last setpoint.
          */
@@ -185,7 +195,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Unfreeze the channel, it will continue to generate
+         * @brief Unfreeze the channel, it will continue to generate
          * new setpoints.
          */
         bool unfreezeChannel( unsigned int chan_num)
@@ -200,7 +210,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Return the current setpoint of a channel.
+         * @brief Return the current setpoint of a channel.
          */
         double channelValue( unsigned int chan_num )
         {
@@ -216,6 +226,9 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /**
+         * @}
+         */
         virtual bool updateProperties( const PropertyBag& bag )
         {
             /*

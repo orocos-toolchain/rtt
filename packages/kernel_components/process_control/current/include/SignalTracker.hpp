@@ -59,8 +59,10 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * A Generator for tracking any input signal
-     * for N channels. It only accepts data through its
+     * @brief A Generator for tracking any input signal
+     * for N channels.
+     *
+     * It only accepts data through its
      * data object ports. It copies a channel value from
      * Command, Model or Input DataObject to the a SetPoint
      * DataObject channel. WARNING if you try to track from different
@@ -70,6 +72,7 @@ namespace ORO_ControlKernel
      * at a time (so all tracked channels come from one dataobject). 
      * Interested parties can extend this implementation with
      * multi-dataobject tracking.
+     * @ingroup kcomps kcomp_generator
      */
     template< class Base >
     class SignalTracker
@@ -126,6 +129,10 @@ namespace ORO_ControlKernel
             setp_DObj->Set( set_point );
         }
 
+        /**
+         * @name The SignalTracker Commands.
+         * @{
+         */
         bool trackCommand( int sp_chan, int com_chan )
         {
             return track( Base::Command::dObj(), "ChannelCommand", sp_chan, com_chan );
@@ -140,27 +147,6 @@ namespace ORO_ControlKernel
         {
             return track( Base::Model::dObj(), "ChannelModel", sp_chan, mod_chan );
         }
-
-        template < class DOS >
-        bool track( DOS* dObj, const std::string& do_name, int sp_chan, int track_chan )
-        {
-            if ( !isValidChannel(sp_chan) || !isValidChannel(track_chan) )
-                return false;
-
-            if (!dObj->has(do_name, vector<double>() ) )
-                {
-                    track_DObj = 0;
-                    return false;
-                }
-            else
-                {
-                    channel[sp_chan].source_chan = track_chan;
-                    channel[sp_chan].sink_chan   = sp_chan;
-                    dObj->Get(do_name, track_DObj);
-                    channel[sp_chan].tracker     = track_DObj;
-                    return true;
-                }
-        } 
 
         bool isTracking(const std::string& do_name ) const
         {
@@ -227,7 +213,9 @@ namespace ORO_ControlKernel
                 return false;
             return true;
         }
-
+        /**
+         * @}
+         */
         virtual bool updateProperties( const PropertyBag& bag )
         {
             /*
@@ -307,6 +295,28 @@ namespace ORO_ControlKernel
 #endif
 
     protected:
+
+        template < class DOS >
+        bool track( DOS* dObj, const std::string& do_name, int sp_chan, int track_chan )
+        {
+            if ( !isValidChannel(sp_chan) || !isValidChannel(track_chan) )
+                return false;
+
+            if (!dObj->has(do_name, vector<double>() ) )
+                {
+                    track_DObj = 0;
+                    return false;
+                }
+            else
+                {
+                    channel[sp_chan].source_chan = track_chan;
+                    channel[sp_chan].sink_chan   = sp_chan;
+                    dObj->Get(do_name, track_DObj);
+                    channel[sp_chan].tracker     = track_DObj;
+                    return true;
+                }
+        } 
+
         Property<int> max_chans;
 
         /**

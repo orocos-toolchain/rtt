@@ -61,6 +61,7 @@ namespace ORO_ControlKernel
      *
      * @todo : Better channel<->sensor assignment
      * Break will move from Drive to Axis.       
+     * @ingroup kcomps kcomp_sensor
      */
     template <class Base>
     class AxisSensor
@@ -177,7 +178,12 @@ namespace ORO_ControlKernel
             axes.erase(name);
             return true;
         }
-        
+
+        /**
+         * @name AxisSensor Commands.
+         * Runtime commands for the AxisSensor.
+         * @{
+         */
         /**
          * @brief Inspect if an axis is enabled.
          */
@@ -206,6 +212,9 @@ namespace ORO_ControlKernel
                 return d_out[name];
             return false;
         }
+        /**
+         * @}
+         */
 
     protected:
 

@@ -45,8 +45,9 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * A Controller component which just feedforwards the
+     * @brief An Open Loop Controller component which just feedforwards the
      * setpoint values to the output dataobject.
+     * @ingroup kcomps kcomp_controller
      */
     template< class Base >
     class FeedForwardController
@@ -54,7 +55,7 @@ namespace ORO_ControlKernel
     {
     public:
         /**
-         * Constructor.
+         * Forward a fixed number of channels from Setpoints to Outputs.
          */
         FeedForwardController(int num_channels =  1) 
             : Base("FeedForwardController"),

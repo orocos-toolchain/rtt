@@ -28,10 +28,11 @@ namespace ORO_ControlKernel
 {
 
     /**
-     * This component can be used to display messages on the
+     * @brief This component can be used to display messages on the
      * standard output. It should not be used in hard realtime
      * programs, but is nice for testing program and state scripts.
      * HMI == Human-Machine Interface
+     * @ingroup kcomps kcomp_support
      */
     template< class Base>
     class HMIConsoleOutput
@@ -43,7 +44,7 @@ namespace ORO_ControlKernel
               {}
 
         /**
-         * Display a message on standard output.
+         * @brief Display a message on standard output.
          */
         void display(const std::string & what)
         {

@@ -73,6 +73,7 @@ namespace ORO_ControlKernel
      * @brief A Generic Sensor using the ORO_DeviceInterface devices
      * for accessing hardware devices. Off course, you
      * can also use simulated hardware.
+     * @ingroup kcomps kcomp_sensor
      */
     template <class Base>
     class GenericSensor
@@ -160,7 +161,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * @brief Remove a previously added Analog Input.
+         * @brief Remove a previously added AnalogInput.
          */
         bool removeAnalogInput( const std::string& name )
         {
@@ -206,7 +207,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Remove a previously added analog Channel.
+         * @brief Remove a previously added analog Channel.
          */
         bool removeChannel( int virt_channel )
         {
@@ -218,7 +219,8 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Add an DigitalInput device.
+         * @brief Add an DigitalInput device.
+         *
          * No DataObject is created, but the input is available through the execution
          * interface.
          *
@@ -238,7 +240,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * Remove a previously added Digital Input.
+         * @brief Remove a previously added Digital Input.
          */
         bool removeDigitalInput( const std::string& name )
         {
@@ -253,6 +255,18 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /**
+         * @name Generic Sensor Commands
+         * Runtime commands to inspect the sensor values.
+         * @{
+         */
+        /** 
+         * @brief Inspect if a DigitalInput is on
+         * 
+         * @param name The name of the DigitalInput
+         * 
+         * @return true if so.
+         */
         bool isOn(const std::string& name)
         {
             if ( d_in.count(name) == 0)
@@ -260,6 +274,13 @@ namespace ORO_ControlKernel
             return d_in[name]->isOn();
         }
 
+        /** 
+         * @brief Return the value of an AnalogInput
+         * 
+         * @param name The name of the AnalogInput
+         * 
+         * @return The physical value.
+         */
         double value(const std::string& name)
         {
             if ( a_in.count(name) == 0)
@@ -267,12 +288,22 @@ namespace ORO_ControlKernel
             return get<0>( a_in[name] )->value();
         }
 
+        /** 
+         * @brief Return the raw sensor value of an AnalogInput
+         * 
+         * @param name The name of the AnalogInput
+         * 
+         * @return The raw value.
+         */
         unsigned int rawValue(const std::string& name)
         {
             if ( a_in.count(name) == 0)
                 return 0;
             return get<0>( a_in[name] )->rawValue();
         }
+        /**
+         * @}
+         */
 
     protected:
 

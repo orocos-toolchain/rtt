@@ -52,16 +52,18 @@ namespace ORO_ControlKernel
     using std::pair;
 
     /**
-     * We can read integers, doubles and booleans.
+     * @brief A GenericEffector can read integers, doubles and booleans
+     * and Channel Values.
      */
     struct GenericOutput
         : public ServedTypes<unsigned int, int, double, bool, std::vector<double> >
     {};
 
     /**
-     * An Effector using the ORO_DeviceInterface devices
+     * @brief An Effector using the ORO_DeviceInterface devices
      * for accessing hardware devices. Off course, you
      * can also use simulated hardware.
+     * @ingroup kcomps kcomp_effector
      */
     template <class Base>
     class GenericEffector
@@ -74,7 +76,12 @@ namespace ORO_ControlKernel
          * Necessary typedefs.
          */
         typedef typename Base::OutputType OutputType;
-            
+        /** 
+         * @brief Create a Generic Effector component with a maximum number of channels.
+         * 
+         * @param max_chan The maximum number of channels
+         * 
+         */
         GenericEffector(int max_chan = 1) 
             :  Base("GenericEffector"),
                max_channels("MaximumChannels","The maximum number of virtual analog channels", max_chan),
@@ -114,6 +121,15 @@ namespace ORO_ControlKernel
                     channels[i]->value( chan_out[i] );
         }
 
+        /** 
+         * @brief Add an AnalogOutput which reads from an Output DataObject.
+         * 
+         * @param name    The name of the DataObject to read.
+         * @param output  The Analog Device to write to.
+         * @param channel The channel of the Device to write to.
+         * 
+         * @return true on success, false otherwise 
+         */
         bool addAnalogOutput( const std::string& name, AnalogOutInterface<unsigned int>* output, int channel )
         {
             if ( a_out.count(name) != 0 || kernel()->isRunning() )
@@ -126,6 +142,13 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /** 
+         * @brief Remove a previously added AnalogOutput
+         * 
+         * @param name The name of the DataObject to which it was connected
+         * 
+         * @return true on success, false otherwise
+         */
         bool removeAnalogOutput( const std::string& name )
         {
             if ( a_out.count(name) != 1 || kernel()->isRunning() )
@@ -137,6 +160,15 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /** 
+         * @brief Add a virtual channel for reading an analog value from the OutputDataObject
+         * 
+         * @param virt_channel The Channel number of the DataObject.
+         * @param output       The Device to write the data to.
+         * @param channel      The channel of the device to use.
+         * 
+         * @return true on success, false otherwise.
+         */
         bool addChannel( int virt_channel, AnalogOutInterface<unsigned int>* output, int channel )
         {
             if ( channels[virt_channel] != 0 || kernel()->isRunning() )
@@ -147,6 +179,12 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /** 
+         * @brief Remove the use of a virtual channel
+         * 
+         * @param virt_channel The number of the channel to remove
+         * 
+         */
         bool removeChannel( int virt_channel )
         {
             if ( channels[virt_channel] == 0 || kernel()->isRunning() )
@@ -157,6 +195,16 @@ namespace ORO_ControlKernel
             return true;
         }
 
+
+        /** 
+         * @brief Add a DigitalOutput.
+         * 
+         * @param name    The name of the DigitalOutput.
+         * @param output  The Device to write to.
+         * @param channel The channel/bit of the device to use
+         * @param invert  Invert the output or not.
+         * 
+         */
         bool addDigitalOutput( const std::string& name, DigitalOutInterface* output, int channel, bool invert=false)
         {
             if ( d_out.count(name) != 0 || kernel()->isRunning() )
@@ -167,6 +215,12 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        /** 
+         * @brief Remove a previously added DigitalOutput
+         * 
+         * @param name The name of the DigitalOutput
+         * 
+         */
         bool removeDigitalOutput( const std::string& name )
         {
             if ( d_out.count(name) != 1 || kernel()->isRunning() )
@@ -179,9 +233,15 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * @defgroup geneffcomms
-         * Runtime Commands ...
+         * @name Generic Effector Commands
+         * Runtime Commands to inspect and set the state of the 
+         * Digital Outputs
          * @{
+         */
+        /** 
+         * @brief Switch on a DigitalOutput.
+         * 
+         * @param name The name of the output to switch on.
          */
         void switchOn( const std::string& name )
         {
@@ -190,6 +250,13 @@ namespace ORO_ControlKernel
             d_out[name]->switchOn();
         }
 
+        /** 
+         * @brief Is a DigitalOutput on ?
+         * 
+         * @param name The DigitalOutput to inspect.
+         * 
+         * @return true if on, false otherwise.
+         */
         bool isOn( const std::string& name ) const
         {
             if ( d_out.count(name) == 1 )
@@ -197,6 +264,11 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /** 
+         * @brief Switch off a DigitalOutput.
+         * 
+         * @param name The name of the output to switch off.
+         */
         void switchOff( const std::string& name )
         {
             if ( d_out.count(name) != 1 )

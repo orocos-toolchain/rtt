@@ -57,6 +57,7 @@ namespace ORO_ControlKernel
      * for accessing machine or robot axes.
      *
      * @see ControlKernel
+     * @ingroup kcomps kcomp_effector
      */
     template <class Base>
     class AxisEffector
@@ -187,6 +188,10 @@ namespace ORO_ControlKernel
         }
 
         /**
+         * @name The AxisEffector Commands.
+         */
+        // @{
+        /**
          * @brief Enable an Axis.
          */
         void enableAxis( const std::string& name )
@@ -205,6 +210,7 @@ namespace ORO_ControlKernel
                 return;
             axes[name]->disable();
         }
+        // @}
 
     protected:
             

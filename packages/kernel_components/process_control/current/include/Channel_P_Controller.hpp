@@ -35,11 +35,13 @@ namespace ORO_ControlKernel
     };
 
   /**
-     A controller for XY[Z]* table, with reporting and updateProperties
-     - In: Position Setpoints and Model
-     - Out: Velocity sendpoints to send to the effector
-  */
-  template <class Base> class Channel_P_Controller
+   *  @brief A simple P controller which operates on signals.
+   *  - In: Position Setpoints and Model
+   *  - Out: Velocity sendpoints to send to the effector
+   *  @ingroup kcomps kcomp_controller 
+   */
+  template <class Base>
+  class Channel_P_Controller
     : public Base
   {
   protected:
@@ -59,17 +61,17 @@ namespace ORO_ControlKernel
       Property<double> _controller_gain;
 
   public:
-    Channel_P_Controller(unsigned int _num_axes);
-    virtual ~Channel_P_Controller();
+      Channel_P_Controller(unsigned int _num_axes);
+      virtual ~Channel_P_Controller();
 
-    // Redefining virtual members
-    virtual bool updateProperties(const PropertyBag& bag);
+      // Redefining virtual members
+      virtual bool updateProperties(const PropertyBag& bag);
       virtual bool componentLoaded();
       virtual bool componentStartup();
 
-    virtual void pull();
-    virtual void calculate();
-    virtual void push();
+      virtual void pull();
+      virtual void calculate();
+      virtual void push();
 
   };
 
