@@ -42,8 +42,7 @@ namespace ORO_ControlKernel
     using std::cout;
     using std::cin;
     using std::endl;
-    //using namespace boost;
-    //using namespace boost::lambda;
+    using namespace ORO_Execution;
 
     /**
      * @brief This component allows console input to be passed

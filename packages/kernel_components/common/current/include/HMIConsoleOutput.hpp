@@ -34,6 +34,7 @@
 
 namespace ORO_ControlKernel
 {
+    using namespace ORO_Execution;
 
     /**
      * @brief This component can be used to display messages on the
