@@ -15,16 +15,16 @@ pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTi
 
 #orocos-control-kernel.html: 
 
-.xml.html: 
+%.html:%.xml
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/ldp/ldp-html.xsl $< > $@
 
-.xml.fo:
+%.fo:%.xml
 	xsltproc /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/fo/docbook.xsl $< > $@
 
-.fo.ps:
+%.ps:%.fo
 	fop $< $@
 
-.ps.pdf:
+%.pdf:%.ps
 	ps2pdf $<
 
 # PDF files rendered from Postscript files by ghostscript look better
@@ -34,16 +34,16 @@ pngimages: kernel_component_interaction.png component_life_cycle.png ExtensionTi
 #	fop $< $@
 
 
-.fo.txt:
+%.txt:%.fo
 	fop $< $@
 
-.dia.eps:
+%.eps:%.dia
 	dia -t eps --nosplash $<
 
-.dia.png:
+%.png:%.dia
 	dia -t png --nosplash $<
 
-.eps.png:
+%.png:%.eps
 	imagemagick $< $@
 
 clean-local:
