@@ -1,0 +1,68 @@
+cdl_package OROPKG_CONTROL_KERNEL {
+    display "Control Kernel"
+    description "
+The templates and implementations for control kernels
+and extensions. You will need this if you want to build
+an open controller."
+
+    include_dir control_kernel
+
+    parent   OROPKG_CONTROL_FRAMEWORK
+    requires OROPKG_CONTROL_FRAMEWORK
+
+    compile KernelInterfaces.cxx ComponentInterfaces.cxx
+    compile ComponentConfigurator.cxx KernelConfig.cxx
+    compile DataObjectReporting.cxx DataServer.cxx
+
+    cdl_option OROSEM_CONTROL_KERNEL_OLDKERNEL {
+	display "Enable backward old-style Kernel"
+	description "
+Enable if you want to use the old-style kernels by
+default. Some Orocos components will refuse to compile if this
+option is enabled."
+	default_value 0
+
+    }
+
+    cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
+	display "Control Kernel Extensions"
+	description "
+Extensions allow to add piecewise functionality to a 
+control kernel. Examples are automatic configuration of
+components and data logging. A Component can opt-in
+to make use of an Extension. Most users will want this."
+	default_value 1
+
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_REPORTING {
+	    display "Runtime Data-to-Text Reporting"
+	    description "
+Allow Components and DataObjects to report numerical values
+(the Data Flow) to a file or standard output. The ReportingExtension implements
+this functionality."
+	    default_value 1
+	    active_if OROPKG_CORELIB_REPORTING
+	    compile ReportingExtension.cxx
+	}
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY {
+	    display "Configure Components through properties"
+	    description "
+Configure Components using an XML property file. Configuration
+can happen at load time or runtime using the PropertyExtension."
+	    default_value 1
+	    active_if OROPKG_CORELIB_PROPERTIES
+	    compile PropertyExtension.cxx
+	}
+	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION {
+	    display "Program script parsing and execution"
+	    description "
+Allow Components to export methods of their interface to the
+Orocos Program Parser. This enables commandline interaction
+with Components and execution of program scripts and processing
+of state machines in a running kernel. Implemented by the
+ExecutionExtension."
+	    default_value 1
+	    active_if OROPKG_EXECUTION_PROGRAM_PARSER && OROPKG_EXECUTION_PROGRAM_PROCESSOR
+	    compile ExecutionExtension.cxx
+	}
+    }
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the ReportingExtension -->
+<properties>
+
+    <simple name="ReportPeriod" type="double">
+            <description>The period, in seconds, for writing reports.</description>
+            <value>0.1</value>
+    </simple>
+
+    <simple name="SubSamplingInterval" type="short">
+            <description>The sub sampling interval for copying reports (making snapshots),
+			 relative to the kernel cycle.</description>
+            <value>10</value>
+    </simple>
+
+    <simple name="ReportFile" type="string">
+        <description>The file to write the reports to.</description>
+        <value>reports.txt</value>
+    </simple>
+    <simple name="ReportServer" type="string">
+        <description>The name of the report server to use.</description>
+        <value>MyReporter</value>
+    </simple>
+    <simple name="WriteToStdOut" type="boolean">
+        <description>True if the report needs to be written to standard output.</description>
+        <value>1</value>
+    </simple>
+    <simple name="WriteToFile" type="boolean">
+        <description>True if the report needs to be written to a file.</description>
+        <value>1</value>
+    </simple>
+    <simple name="WriteHeader" type="boolean">
+        <description>True if the report needs a header
+        </description>
+        <value>1</value>
+    </simple>
+    <struct name="Exporters" type="type_less">
+        <simple name="Component" type="string"><value>Sensor</value></simple>
+        <simple name="Component" type="string"><value>Effector</value></simple>
+        <simple name="Component" type="string"><value>Controller</value></simple>
+        <simple name="Component" type="string"><value>Estimator</value></simple>
+        <simple name="Component" type="string"><value>Generator</value></simple>
+
+	<simple name="DataObject" type="string"><value>Models</value></simple>
+	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
+    </struct>
+
+
+</properties>

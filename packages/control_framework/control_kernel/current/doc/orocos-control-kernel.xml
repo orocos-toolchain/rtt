@@ -1,0 +1,3482 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd"
+[
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY control  "ControlKernel">
+]
+>
+
+<article>
+  <articleinfo>
+    <title>The Orocos Control Kernel</title>
+    <subtitle>An Orocos Application</subtitle>
+    <authorgroup>
+      <author>
+        <firstname>Peter</firstname>
+        <surname>Soetens</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+      <author>
+        <firstname>Herman</firstname>
+        <surname>Bruyninckx</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+      <author>
+        <firstname>Panagiotis</firstname>
+        <surname>Issaris</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+      <author>
+        <firstname>Klaas</firstname>
+        <surname>Gadeyne</surname>
+        <affiliation>
+          <orgname>K.U.Leuven</orgname>
+          <address><country>Belgium</country></address>
+        </affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002,2003,2004,2005</year>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the design and programming interface of the
+	Control Kernel of the &orocos; Framework.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>22 Aug 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.02</revnumber>
+	<date>19 Sep 2002</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Initial interface description</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.9</revnumber>
+	<date>13 Nov 2002</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated for release</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.11</revnumber>
+	<date>28 Oct 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated to reflect new control kernel
+	  infrastructure</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.12</revnumber>
+	<date>11 Dec 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added NSControlKernel docs</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.13</revnumber>
+	<date>17 Dec 2003</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added Cascade/ModelControlKernel docs</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.14</revnumber>
+	<date>6 Jan 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Added Name Server Kernel docs</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.15</revnumber>
+	<date>9 Mar 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added DataObject Reporting</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.15b</revnumber>
+	<date>2 June 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Many clarifications based on feedback (drawings, code examples)</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.16</revnumber>
+	<date>18 June 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>New DataFlow Components</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.16b</revnumber>
+	<date>30 September 2004</date>
+	<authorinitials>kg</authorinitials>
+	<revremark>Fix typos and code example errors</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>23 December 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark> Introduced the TaskBrowser</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18.2</revnumber>
+	<date>5 January 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added start/stop commands for Reporting and Exceptions for loadProgram/StateContext</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>7 Febrary 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Wrote down difference between starting and selecting a Component.</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this
+	document under the terms of the GNU Free Documentation
+	License, Version 1.1 or any later version published by the
+	Free Software Foundation, with no Invariant Sections, with no
+	Front-Cover Texts, and with no Back-Cover Texts. A copy of
+	this license can be found at <ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <sect1>
+    <title>Introduction</title>
+    <para>
+      This document explains the design and programming interface of
+      feedback control applications developed with the <emphasis>Open
+	RObot COntrol Software</emphasis> project &orocos;. It covers
+      only high-level material, and some generic use cases. If you
+      want detailed information about a class or function, please read
+      the Doxygen-generated reference of the corresponding package. 
+    </para>
+    <para>
+      The text uses the concept of &ldquo;<emphasis
+	role="strong">Control Kernel&rdquo;</emphasis> as a set of
+      functionality and data that &ldquo;really belong together&rdquo;
+      in a feedback control application. And a &ldquo;<emphasis
+	role="strong">Control Application</emphasis>&rdquo; is a
+      collection of one or more &ldquo;appropriately connected&rdquo;
+      Control Kernels that provide a more complex and completely
+      functioning control system. Each of  the Control Application's
+      individual Control Kernels possibly run in their own operating
+      system threads, different processes, or even on different
+      processors in a network.
+    </para>
+    <para>
+      <anchor id="virtual-concept"/> &ldquo;Control Kernel&rdquo; as used in
+      this text is a <emphasis role="strong">virtual
+	concept</emphasis>: it gives Application Builders the
+      terminology and the structure to discuss and design control
+      applications, but it is not a functional piece of code in
+      itself. So, the virtual concept is concretely implemented in
+      various &ldquo;<emphasis
+	role="strong">instantiations</emphasis>&rdquo;, that <emphasis
+	role="strong">each optimize specific trade-offs</emphasis> for
+      the family of applications they are designed for. Hence,
+      &orocos; does not provide one single &ldquo;best&rdquo; control
+      application, but a framework to build customized control
+      applications. Already from these early beginnings of the
+      project, &orocos; offers a set of real applications, that can
+      serve as &ldquo;templates&rdquo; for new designs, and as
+      discussion material to improve the &orocos; ideas and building
+      blocks.
+    </para>
+    <para>
+      This document's target public are the &ldquo;<emphasis
+	role="strong">Application Builders</emphasis>&rdquo;,
+      <emphasis>i.e.</emphasis> the people that design and implement a
+      new instantiation of a Control Kernel, for a particular
+      application area, and with a particular set of &ldquo;<emphasis
+	role="strong">(End) Users</emphasis>&rdquo; in mind. This text
+      is not meant to be read by the End Users themselves; they should
+      consult the user manual that the Application Builders provide
+      with their particular application.
+    </para>
+    <para>
+      The Application Builders have a tough job: making a complex
+      realtime control application &ldquo;work&rdquo; is not easy. So,
+      &orocos; supports these people with guidelines explaining our
+      ideas and motivations behind the development of &orocos; Control
+      Kernels, as well as the semantics of the rich set of building
+      blocks that &orocos; makes available to facilitate the creation
+      of a new control application.
+    </para>
+    <para>
+      As a <emphasis role="strong">free software</emphasis> project,
+      &orocos; has <emphasis role="strong">significant added
+	value</emphasis> with respect to closed-source control
+      software:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    It can collect many well-designed control applications,
+	    via contributions of users, and continuously improve on
+	    them via discussion on the <ulink
+	      url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">developers' 
+	      mailing list</ulink>.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    the availability of all the source code gives an unfair
+	    competitive advantage with respect to closed-source
+	    control software: <emphasis role="strong">all possible
+	      trade-offs can be serviced</emphasis>, because the
+	    binary code for a Control Kernel instantiation can be
+	    specifically <emphasis role="strong">compiled</emphasis>
+	    from the available &orocos; building blocks, in order to
+	    optimally satisfy the particular constraints and
+	    trade-offs of a particular application. Indeed, because
+	    the granularity of the building blocks in a free software
+	    project is typically an order of magnitude finer than that
+	    of closed-source products, more optimal configurations can
+	    be obtained.
+	  </para>
+	</listitem>
+      </itemizedlist>
+      In the long term, &orocos; wants to provide <emphasis
+	role="strong">automated support</emphasis> to make the
+      creation of application-specific controllers as user-friendly
+      and robust as possible.  Examples of such automated support are:
+      code generation and optimization tools, program verification,
+      support for distributing a controller over a network, etc. In
+      the short term, &orocos; only provides the raw building blocks,
+      and leaves it to the human developers to manually generate and
+      optimize their applications. Anyway, there should be enough
+      interesting stuff in the &orocos; project already to create a
+      community that can build a rich library of high-quality and
+      optimally decoupled sub-applications that are available for
+      reuse. In practice, this means that creating a new application
+      can (almost) always start from re-using appropriate Control
+      Kernels of already existing applications.  The long-term success
+      of the project depends on how much new building blocks and
+      designs are contributed by &ldquo;external developers&rdquo; to
+      our &ldquo;application library&rdquo;.
+    </para>
+    <para>
+      A first step in the above-mentioned road to automated building
+      support is already made: &orocos; uses the <ulink
+	url="http://sources.redhat.com/ecos/">eCos</ulink> tools for
+      code configuration and building. These tools are one of the
+      &ldquo;hidden gems&rdquo; of free software, and offer a
+      consistent, powerful and user-friendly configuration and
+      building experience. We refer to the &orocos; <ulink
+	url="http://www.orocos.org/downloads.html">Base installation
+	instructions</ulink> for more details about these
+      configuration and installation procedures. These instructions
+      also apply unchanged to the <filename>control-kernel</filename>
+      package whose contents is discussed in this text.
+      </para>
+    
+    <para>
+      <emphasis role="strong">Overview of this document.</emphasis> We
+      first explain the <link linkend="philosophy">design
+	philosophy</link> of the &orocos; project, such that the
+      reader understands the somewhat unorthodox way in which we
+      design control applications. We then present the simplest
+      instantiation of the Control Kernel concept, which is the <link
+	linkend="standard-control-kernel">Standard Control
+	Kernel</link>; it contains the basic building blocks of
+      &orocos; (the feedback control DataObjects and Components) and
+      nothing more. The next sections then introduce more advanced
+      Control Kernels: <link
+	linkend="control-kernel-extensions">Extensions</link>; <link
+	linkend="data-objects">multiple DataObjects</link> to
+      exchange data between Components; <link
+	linkend="cascaded-control-kernels">cascaded Control
+	Kernels</link>; and <link
+	linkend="kernel-configuration">Control Kernel
+	Configuration</link>
+</para>
+      <tip>
+	<para>
+	We advise you to read first the &orocos; <ulink
+	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html">CoreLib</ulink> 
+	documentation before going on. That document explains Events,
+	Tasks versus Threads, NameServing, and many other basic
+	&orocos; functionalities, and this text assumes that the
+	reader is familiar with their exact meaning.
+	</para>      
+      </tip>
+  </sect1>
+
+  <sect1 id="philosophy">
+    <title>Design philosophy</title>
+    <para>
+      &orocos; has a somewhat non-traditional view on how to build
+      feedback control applications. We think we have found a good
+      balance between the opposing forces of user-friendliness and
+      efficiency of an application on the one hand, and formal
+      structure, distributability and reuse on the other hand. An
+      important motivation is that &orocos; should support (in the
+      long run) the construction of control applications to a very
+      large extent by automatic computer tools, including code
+      generation and &ldquo;intelligent&rdquo; configuration support.
+      Therefore, &orocos; gives high preference to <emphasis
+	role="strong">strongly structured designs</emphasis>, even if
+      they seem (at first sight) to be less efficient than what expert
+      control programmers are used to. This lack of efficiency of a
+      structured design is only apparent, and we will explain how
+      optimal efficiency can be obtained from the structured designs.
+      For the time being, efficiency optimization must still be
+      performed manually, but the infrastructure to later add the
+      above-mentioned computer support is already in place.
+    </para>
+    <para>
+      The following items are at the core of the &orocos; design
+      philosophy, and all implementation decisions introduced in the
+      other sections of this document are strongly inspired by them.
+<itemizedlist>
+
+	<listitem>
+	  <para>
+	    <link linkend="communication-flows"> <emphasis
+		role="strong">Separation of communication
+		flows</emphasis></link>. Each application has
+	    different functional components that must communicate in
+	    order to synchronize their actions. This communication
+	    involves the exchange of data, and the correct sequencing
+	    of control and configuration actions. For large control
+	    systems, it's mandatory to keep these three different
+	    communication flows as separate as possible: different
+	    developers are responsible for different components in the
+	    system, and only absolute clarity about the data exchange
+	    and sequencing specifications of each component can lead
+	    to a maintainable application. But also small applications
+	    can profit from this clear separation, especially if the
+	    Application Builder of such a small application gets the
+	    decoupled designs <emphasis>for free</emphasis>, by
+	    reusing Control Kernels contributed to the project's
+	    application library.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <anchor id="sync-async"/> <emphasis
+	      role="strong">Determine (a)synchronous
+	      activities</emphasis>. Efficiency of the run-time
+	    program is one of the most important properties to pay
+	    attention to when designing a control application. So, it
+	    is important to determine what activities in the
+	    application should run <emphasis
+	      role="strong">synchronously</emphasis> or <emphasis
+	      role="strong">asynchronously</emphasis>. Synchronous
+	    activities have an order of execution that can be imposed
+	    or predicted deterministically during programming, while
+	    the execution of asynchronous activities will sooner or
+	    later interfere with each other. So, synchronous actions
+	    should be run in one single thread of the operating system
+	    (which increases efficiency), while asynchronous actions
+	    should be appropriately distributed over different
+	    threads. The simplest approach is to let all activities
+	    run in their own thread, and leave it to the scheduler of
+	    the underlying operating system to synchronize them. This
+	    approach, however, has several drawbacks: it cannot make
+	    use of inherent structure in the application, in order to
+	    put multiple activities in the same thread and to optimize
+	    the scheduling of the activities; it also leads to too
+	    much data communication, because of a too high granularity
+	    of the <link linkend="data-flow">Data Flow</link>.
+	  </para>
+	  <para>
+	    The importance of finding the inherently synchronous and
+	    asynchronous activities in a control application cannot be
+	    overestimated. So, &orocos; pays much attention to get
+	    this right.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <link linkend="connection-control-kernels"> <emphasis
+		role="strong">Structured connection of Control
+		Kernels</emphasis></link>. &ldquo;<emphasis>Divide and
+	      conquer</emphasis>&rdquo; is one of the most successful
+	    approaches to design complex systems. If the division is
+	    done &ldquo;appropriately&rdquo;, building new
+	    applications is to a large extent nothing more than (i)
+	    connecting together already existing elementary Control
+	    Kernels, and (ii) replacing the data objects of the
+	    &ldquo;old&rdquo; application with those of the
+	    &ldquo;new&rdquo; application. 
+	  </para>
+	  <para>
+	    However, we want to impose very stringent constraints
+	    about how to interconnect things: the availability of the
+	    source code &ldquo;invites&rdquo; Application Builders to
+	    interconnect &ldquo;everything to everything&rdquo;,
+	    without giving much thought about the resulting
+	    &ldquo;spaghetti&rdquo; code. In addition, automatic
+	    computer support and code optimization can only be done
+	    right when the designs obey
+	    <anchor id="formal-rules"/> <emphasis
+	      role="strong">formalized structural rules</emphasis>. We
+	    are doing our utmost best to impose only formal structural
+	    rules that can be thoroughly motivated, and that do not
+	    prevent efficient code to be generated.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <emphasis role="strong">Compile-time versus run-time
+	      trade-off.</emphasis> &orocos; wants to provide robust
+	    solutions to a large variety of control applications,
+	    hence generality and configurability are important design
+	    issues. Therefore, you will see extensive use being made
+	    of: C++ templates, strong type checking, configuration
+	    support for building binaries, etc. This implies that we
+	    allow for a larger compile effort, but that the resulting
+	    run-time binary is quite efficient.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    <emphasis role="strong">Distributability.</emphasis>
+	    &orocos; wants to be ready for large-scale distributed
+	    control systems, and all of its control applications
+	    should take this into account. That means that the
+	    designers must strive for large-grain data objects and for
+	    avoiding &ldquo;spaghetti&rdquo; execution and
+	    configuration flow. Both reduce the number of network
+	    method calls required to distribute the application.
+	  </para>
+	</listitem>
+
+      </itemizedlist> The following sections give somewhat more
+      details about some of the above-mentioned items. First, we
+      elaborate a little bit about how these items differ from most of
+      the wide-spread <link
+	linkend="simulink-implementations">&ldquo;Simulink&rdquo;-like</link> 
+      practice of implementing control applications.
+    </para>
+
+    <sect2 id="simulink-implementations">
+      <title>&ldquo;Simulink&rdquo;-like implementations</title>
+      <para>
+	A number of graphical programming tools exist with which control
+	applications can be made: <emphasis>Simulink</emphasis> of
+	<ulink url="http://www.mathworks.com">The MathWorks</ulink>;
+	<emphasis>SciCos</emphasis> of <ulink url="http://scilabsoft.inria.fr/">SciLab</ulink>;
+	<ulink url="http://www.dspaceinc.com">dSpace</ulink>; <ulink
+	  url="http://www.20sim.com">20Sim</ulink>; etc. These tools
+	drastically reduce the threshold for new users to start
+	building control applications. However, at the same time, they
+	prevent (to various extents) these users from becoming
+	advanced application builders, and they prevent advanced
+	application builders to optimize their application. The major
+	differences with the &orocos; approach are:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      <emphasis>No strong type checking.</emphasis> Most data
+	      flow consists of dimensionless numbers, and any
+	      component can be connected to every other component.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Very fine granularity of data flow.</emphasis>
+	      Data is exchanged between components by drawing
+	      graphical connections between them. This implies a lot
+	      of connections, each carrying small chunks of data. This
+	      also invites programmers to produce
+	      &ldquo;spaghetti&rdquo; code.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Execution and configuration flow embedded in
+		data flow.</emphasis> Few tools offer explicit <link
+		linkend="execution-flow">execution flow</link> or
+	      <link linkend="configuration-flow">configuration
+		flow</link>, which invites programmers to embed this
+	      kind of communication into the <link
+		linkend="data-flow">data flow</link>.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>No influence on synchronous/asynchronous
+		configuration, execution determinism and data
+		locking.</emphasis> The tools use some, mostly unknown
+	      algorithm to decompose the program graph into a
+	      <emphasis>Directed Acyclic Graph</emphasis>, that is
+	      then serialized and distributed over operating system
+	      threads. Application builders have no influence over
+	      either of both operations, and hence cannot make the
+	      trade-off that is most optimal for their application.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Difficult to distribute.</emphasis> The
+	      mentioned tools are invariably meant for
+	      single-programmer, single-processor applications.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Lock-in with specific vendor.</emphasis>
+	      (This, of course, holds only for the commercial tools.)
+	      The lack of interoperability between the products of
+	      different vendors drastically reduces the flexibility
+	      and the cost efficiency for the users.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+	Providing solutions to all of the
+	above-mentioned problems is a strong motivation behind the
+	&orocos; project.
+      </para>
+    </sect2>
+    <sect2 id="communication-flows">
+      <title>Separation of Communication Flows</title>
+      <para>
+	&orocos; distinguishes three distinctive communication flows:
+	configuration, data, and execution. All three are
+	complementary, and have different purposes, different timing
+	constraints, and different kinds of data. The following
+	sections explain these three types.
+      </para>
+      <sect3 id="configuration-flow">
+	<title>Configuration Flow</title>
+	<para>
+	  The first type of communication flow is normally also the
+	  one you encounter first when using an &orocos; control
+	  application. All components in the system need to be
+	  configured to suit the needs of the targeted application.
+	  Configuration information can be provided in several ways:
+	  hard coded into the program, read from an XML file, or given
+	  by the user through a Command Line or Graphical User
+	  Interface. Configuration involves a mostly slow, non
+	  time-deterministic communication flow through the system.
+	  Most engineers familiar with control know this, and they
+	  make sure that all configuration flow has stopped before the
+	  hard realtime control loop is started. The &orocos;
+	  framework prevents, whenever possible, further configuration
+	  once the hard realtime loop in the system is running. That
+	  loop must be stopped, reconfigured and restarted if the user
+	  wishes to reconfigure and restart the system. This is not
+	  always acceptable, since some systems can not be stopped
+	  right away, at any given moment. The <link
+	    linkend="execution-flow">Execution Flow</link>
+	  communication provides support for these reconfiguration
+	  problems. This support is structured with some of the
+	  above-mentioned <link linkend="formal-rules">formal
+	    rules</link>: all components in the system have
+	  standardized configuration states, and standardized ways to
+	  reach these states.  However, this structured support in
+	  itself cannot <emphasis>guarantee</emphasis> that developers
+	  use the provided solutions correctly.
+	</para>
+	<para>
+	  For the time being, &orocos; uses XML files to store
+	  persistent information for most of its configuration flow.
+	</para>
+      </sect3>
+      <sect3 id="data-flow">
+	<title>Data Flow</title>
+	<para>
+	  A Control Kernel has as its main purpose to gather sensor
+	  readings, to take into account the user program setpoints,
+	  to do some mathematical operations on all that data, and to
+	  send the results to the effectors of the system. This cycle
+	  is done many times a second and generates a constant flow of
+	  data through the system. The Data Flow Components in the Control
+	  Kernel are responsible for sustaining this flow: they
+	  convert one kind of data into another kind and make it
+	  available to other Data Flow Components, in a timely and deterministic
+	  way. In any feedback system, data goes through a set of
+	  stages before it leaves the system again. Each such stage
+	  gives an intermediate meaning to the data. This is another
+	  place where the above-mentioned <link
+	    linkend="formal-rules">structural rules</link> show up:
+	  all the above-mentioned data flows are kept <emphasis
+	    role="strong">unidirectional</emphasis>. This structure
+	  allow for an efficient implementation: all actions on the
+	  data can be nicely serialized, and each data object has only
+	  one writer, but possibly multiple readers.
+	</para>
+	<para>
+	  The Control Kernel uses DataObjects to store the
+	  intermediate data flow. Particular values of the data inside
+	  DataObjects might trigger a state change in one of the
+	  Data Flow Components reading them. However, triggering specific
+	  actions inside a component should happen through the <link
+	    linkend="execution-flow">Execution Flow</link>, and not
+	  the Data Flow. 
+	</para>
+	<para>
+	  To avoid ambiguity in the Data Flow, only one Component is
+	  allowed to write specific data <emphasis>at a time</emphasis>.
+	  Selection is the mechanism in Orocos to enable a Data Flow
+	  Component to operate in the Data Flow, the previous selected Component
+	  will be automatically de-selected. Selection has only influence
+	  on the Data Flow. Other facilities such as reporting, commands
+	  etc remain available for not selected Components.
+	</para>
+      </sect3>
+      <sect3 id="execution-flow">
+	<title>Execution Flow</title>
+	<para>
+	  The &ldquo;Execution Flow&rdquo; is the last kind of
+	  communication flow that is needed in any control application
+	  of even moderate complexity. Execution Flow is actually
+	  hardly a real &ldquo;flow&rdquo;, in the sense that it does
+	  not consist of continuously changing parameters, but of
+	  <emphasis>discrete actions</emphasis> performed by the
+	  running Control Kernel. The Execution Flow offers the user a
+	  means to influence the running application; examples are:
+	  opening a gripper, switching on a spindle or a coolant,
+	  instructing the machine to home, selecting another algorithm
+	  in the Controller component, etc.
+	</para>
+	<para>
+	  Execution Flow operations are guaranteed to be executed
+	  <emphasis role="strong">synchronously</emphasis> with the
+	  realtime control operations that process the Data Flow,
+	  <emphasis>i.e.</emphasis> they switch a flag or (re)set a
+	  parameter in the system only at deterministically defined
+	  moments in the data flow processing. Again, &orocos; imposes
+	  <link linkend="formal-rules">formal structural rules</link>
+	  upon the Execution Flow implementations.  One of these rules
+	  is obvious: Execution Flow commands should not be
+	  &ldquo;hidden&rdquo; in the Data Flow.
+	</para>
+	<para>
+	  Typically, an application that is started up, executes the
+	  first couple of commands from within its main program
+	  function, and then hands control of the Execution Flow over
+	  to the user. A Program Execution mechanism has been
+	  developed to parse text programs provided by the user, and
+	  execute the parsed commands in a running Control Kernel.
+	  This is described in more detail in the Program Execution
+	  Package of &orocos;.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2 id="connection-control-kernels">
+      <title>Structured Connection of Control Kernels</title>
+      <para>
+	Application Builders have to wonder about how they can compose
+	their new application by connecting together a set of already
+	existing Control Kernels, including the adaptation of the
+	Data, Execution and/or Configuration flows to the new
+	application. In addition, if their application needs more than
+	what the library of existing Control Kernels can offer, they
+	must think deeply about what exactly are the missing parts,
+	and how these missing parts can be &ldquo;isolated&rdquo; from
+	their application, and contributed back as new members of the
+	library.
+      </para>
+      <para>
+	The key question to be answered at the beginning of the creation of a
+	new control application is: &ldquo;How is the application
+	<emphasis role="strong">decoupled most optimally</emphasis>
+	into sub-applications?&rdquo;. 
+	<anchor id="optimal"/> &ldquo;Optimal&rdquo; in this context means
+	&ldquo;with the smallest and most efficient Data, Execution
+	and Configuration flow between the sub-applications&rdquo;.
+	Keeping these communication flows as small as possible is
+	advantageous in many ways: less inter-process communication;
+	easier to separate the <link linkend="sync-async">synchronous
+	  and asynchronous</link> activities; more focused
+	documentation for users and maintainers; easier to distribute
+	and update; etc.
+      </para>
+      <para>
+	One way to find an answer to the question whether an application needs
+	multiple interconnected Control Kernels is to check the
+	following list:
+	  <itemizedlist>
+	  <listitem>
+	    <para>
+	      Do I need <emphasis role="strong">to control different
+		system states at different sample
+		frequencies</emphasis>?  For example, do I need to
+	      control velocities at a different frequency than
+	      positions?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Do I need <emphasis role="strong">to exchange data in a
+		synchronous way</emphasis> between control loops that
+	      run at different frequencies? For example, the faster
+	      loop needs data from the slower loop, but, in order to
+	      guarantee consistency, this data should be produced in a
+	      strictly specified part of that slower loop.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Do I need to control and synchronize <emphasis
+		role="strong">different sub-systems</emphasis>? For
+	      example, do I need to control isolated parts, such as
+	      three independent axes, or an external workpiece table?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Do I <emphasis role="strong">need to switch between the
+		controlled states</emphasis> in a running system? For
+	      example, do I have to keep a low-level control loop
+	      running while I switch control modes at a higher-level ?
+	    </para>
+	  </listitem>
+	  </itemizedlist> Any &ldquo;Yes&rdquo; answer is an
+	indication that more than one Control Kernel is needed. The
+	Application Builder then has to find the most &ldquo;<link
+	  linkend="optimal">optimal</link>&rdquo; decoupling of the
+	whole application into sub-applications. As mentioned before,
+	finding the optimal decoupling is best done via a thorough
+	discussion on the &orocos; mailing list.
+      </para>
+      <para>
+	Control Kernels can run in parallel (e.g. for two uncoupled
+	systems), or in series (e.g. hierarchically &ldquo;<emphasis
+	  role="strong"> <link
+	    linkend="cascaded-control-kernels">cascaded</link>
+	</emphasis>&rdquo; control loops). Parallel kernels do not
+	know of each other, or are independently commanded from a
+	higher level; so, their design is easy. However, when two or
+	more kernels are cascaded, the output of the higher-level
+	control kernel is an input for the lower-level kernel, and
+	vice versa, and this situation requires a much more careful
+	design. <xref linkend="standard-control-kernel" />
+	 presents the simplest case, and later
+	sections discuss more advanced building blocks.
+      </para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="standard-control-kernel">
+    <title>The Standard Control Kernel</title>
+    <para>
+      Anyone wanting to write a feedback control application needs at
+      least one Control Kernel. In &orocos;, the <link
+	linkend="standard-control-kernel">Standard Control
+	Kernel</link> is the <emphasis role="strong">simplest &orocos;
+	instantiation</emphasis> of the <link
+	linkend="virtual-concept">virtual Control Kernel
+	concept</link>. The Standard Control Kernel basically
+      implements one single <link
+	linkend="standard-control-kernel-core">realtime feedback
+	control loop</link>, with nothing more than <link
+	linkend="data-flow">data flow</link> support. It contains
+      infrastructure for loading of functionality into <link
+	linkend="components">Components</link>, running this
+      functionality in realtime feedback loops, while taking care of
+      the data exchange between Components by means of <link
+	linkend="data-objects">DataObjects</link>.
+    </para>
+    <para>
+      Of course, even if the realtime control loop is simple and
+      non-cascaded, many of these applications also require some <link
+	linkend="non-core-standard-control-kernel">non-core
+	support</link>: parsing input files from the application End
+      User; exporting information from the realtime loop for off-line
+      analysis; some Finite State Machine based <link
+	linkend="execution-flow">Execution Flow</link>; etc.
+    </para>
+
+    <sect2 id="standard-control-kernel-core">
+      <title>The realtime feedback core</title>
+      <para>
+	The virtual Control Kernel concept is based on the <ulink
+	  url="http://www.orocos.org/documents/motconframe.pdf">software 
+	  pattern for control</ulink>, that we believe is common to
+	all possible feedback control applications. The Control Kernel
+	contains <link linkend="components">Data Flow Components</link> and
+	<link linkend="data-objects">DataObjects</link> as its
+	building blocks, according to the <link
+	  linkend="formal-rules">formally imposed structure</link> of
+	<xref linkend="fig-standard-control-kernel"/>:
+	<orderedlist>
+	  <listitem>
+	    <para>
+	      <emphasis role="strong"> <link
+		  linkend="components">Data Flow Components</link> </emphasis>
+	      contain the functionality (&ldquo;algorithms&rdquo;) of
+	      the control application. They are indicated by
+	      rectangles in
+	      <xref linkend="fig-standard-control-kernel"/>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <emphasis role="strong"> <link
+		  linkend="data-objects">DataObjects</link>
+	      </emphasis> contain the data that Data Flow Components exchange
+	      between each other. They are indicated by ovals in
+	      <xref linkend="fig-standard-control-kernel"/>.
+	    </para>
+	  </listitem>
+
+	</orderedlist>
+	The arrows in the Figure indicate the <link
+	  linkend="data-flow">data flow</link> in the Kernel. There is
+	no <link linkend="configuration-flow">configuration
+	  flow</link> (except for the obvious start-up and shutdown of
+	the system), and no <link linkend="execution-flow">execution
+	  flow</link> (the application directly starts the feedback
+	control, and processes the user commands as soon as they
+	become available).
+      </para>
+      <para>
+	The feedback loop has five Data Flow Components and five DataObjects:
+	the <emphasis role="strong">Sensor</emphasis> gathers data
+	from the interfaces to the &ldquo;real world&rdquo;; the
+	<emphasis role="strong">Estimator</emphasis> processes the
+	sensor data to estimate (&ldquo;identify&rdquo;) parameters of
+	a mathematical model of that world, as far as needed by the
+	controlled system; the <emphasis
+	  role="strong">Generator</emphasis> receives commands from
+	the user of the application, and produces setpoints, that the
+	<emphasis role="strong">Controller</emphasis> transforms into
+	a control action; finally, the <emphasis
+	  role="strong">Effector</emphasis> applies the outputs
+	resulting from this action to the &ldquo;real world&rdquo;. 
+      </para>
+      <para>
+	According to the above-mentioned software pattern for control,
+	any application passes the following data around in
+	DataObjects: <emphasis role="strong">Input</emphasis> data
+	from sensors; <emphasis role="strong">User Commands</emphasis>
+	from a higher-level producer (can be a real human user, but
+	also another software system); <emphasis
+	  role="strong">Model</emphasis> data representing the current
+	system state, <emphasis role="strong">SetPoint</emphasis> data
+	denoting the desired system state; and <emphasis
+	  role="strong">Output</emphasis> data to send to the system's
+	effectors.
+      </para>
+      <para>
+	Some control applications do not need one or more of the
+	above-mentioned Data Flow Components or DataObjects, which is not a
+	problem, because they can just be left &ldquo;empty&rdquo;.
+      </para>
+      <para>
+	Different applications differ from each other in that they use
+	other implementations of the Components, together with other
+	content in the Data Objects.  Application Builders must
+	provide these application-dependent implementations and data
+	content.
+      </para>
+      <para>
+	The formal conceptual structure of
+	<xref linkend="fig-standard-control-kernel"/> has one very big
+	advantage: it allows for a straightforward <link
+	  linkend="sync-async"><emphasis role="strong">synchronous
+	    execution</emphasis></link> of all functionalities in the
+	Data Flow Components. That means that one must provide only one single
+	operating system thread to run all Components, and the order
+	in which they run follows from the arrows in the Figure.
+	Indeed, the <emphasis>graph</emphasis> shown in the Figure is
+	a <emphasis role="strong">Directed Acyclic Graph</emphasis>,
+	that can be <emphasis role="strong">serialized</emphasis> in
+	various ways. For example, first execute the Sensor, then the
+	Estimator, then the Generator, the Controller and the
+	Effector.
+      </para>
+      <para>
+	In addition, if there is only one Control Kernel, the arrows
+	between Components and DataObjects do not (have to) involve
+	copying of data: the serialization allows for <emphasis
+	  role="strong">lock-free, &ldquo;in-place&rdquo; data
+	  access</emphasis>.
+      </para>
+      <para>
+	Of course, the Standard Control Kernel
+	<emphasis>can</emphasis> be distributed, by cutting through
+	one or more of the DataObjects. In that case, the
+	implementation of the cut DataObjects must take care of the
+	network-transparent copying of its content. The Data Object
+	Interface thus decouples Data Flows between Components.
+      </para>
+	<figure id="fig-standard-control-kernel"  pgwide="0">
+	  <title>
+	    The formal structure of a bare feedback control loop.
+	  </title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="standard-control-kernel.png"
+		format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="standard-control-kernel.eps"
+		format="EPS"/>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+    </sect2>
+    <sect2 id="creating-standard-control-kernel">
+      <title>Creating a Standard Control Kernel</title>
+      <para>
+	When you start thinking about a control application, you
+	mostly have a concrete control scheme in mind. This scheme
+	most often only identifies the required <link
+	  linkend="data-flow">data flow</link> from data sources
+	(Sensors) over algorithms to data sinks (Effectors).
+      </para>
+      <para>
+	The data flow is established by the Control Kernel.
+	The <classname>StandardControlKernel</classname> is an
+	implementation  with non distributed
+	Data Flow Components. It allows efficient stand alone
+	control applications.
+	The Application Builder of this simple Control
+	Kernel then writes the following code to define the kernel :
+      </para>
+      <programlisting>
+<![CDATA[
+
+  #include <control_kernel/StandardControlKernel.hpp>
+  typedef StandardControlKernel<> MyKernel;
+]]>
+      </programlisting>
+      <para>
+	This defines the type <type>MyKernel</type> as being a
+	<classname>StandardControlKernel&lt;&gt;</classname>.
+	The StandardControlKernel can be given template parameter,
+	but this is explained in the next section.
+	Next you can create an instance of your new
+	Control Kernel:
+      </para>
+      <programlisting>
+	MyKernel first_kernel;
+      </programlisting>
+      <para>
+	This creates a control kernel with five
+	"Default Data Flow Components" which do nothing. Other kernels may
+	define other default Components. It
+	is the Application Builders' task to replace the Default Data Flow Components with
+	&ldquo;functional&rdquo; Components, actually doing something with the
+	data. This is explained in the <link linkend="components">
+	Data Flow Components</link> section.
+      </para>
+    </sect2>
+    <sect2 id="non-core-standard-control-kernel">
+      <title>The non-core parts</title>
+      <para>
+	Besides the Data Flow Components and DataObjects needed in the <link
+	  linkend="standard-control-kernel-core">realtime feedback
+	  loop</link>, a control application typically also contains
+	some other parts. Some of them have realtime needs, others
+	have not.
+	<xref linkend="fig-control-pattern"/> shows the <link
+	  linkend="formal-rules">conceptual structure</link> of the
+	whole Standard Control Kernel: 
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      the <emphasis
+		role="strong">CommandInterpreter</emphasis> parses the
+	      commands from the &ldquo;user&rdquo;, and converts them
+	      in, either, data flow objects that are the inputs to the
+	      realtime feedback loop, or execution and configuration
+	      commands, that are processed in the <link
+		linkend="execution-engine">Execution Engine</link>.
+	      The latter can have realtime as well as non-realtime
+	      effects.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      information from within the Control Kernel can be sent
+	      to the &ldquo;user&rdquo; via the <emphasis
+		role="strong">Reporter</emphasis> Component, and, vice
+	      versa, the &ldquo;user&rdquo; can send <emphasis
+		role="strong">Updates</emphasis>. 
+	    </para>
+	  </listitem>
+                                                                                
+	  <listitem>
+	    <para>
+	      <anchor id="execution-engine"/> The <emphasis
+		role="strong">ExecutionEngine</emphasis> contains all
+	      decision making (sequencing; firing events to configure
+	      Components, or to make them initiate state transitions;
+	      etc.) that cannot be done by the other Components
+	      individually because it requires synchronized
+	      <emphasis>coupling</emphasis> between more than one
+	      Component at the same time.
+	    </para>
+	  </listitem>
+                                                                                
+	  <listitem>
+	    <para>
+	      Finally, the <emphasis
+		role="strong">HeartBeat</emphasis> is needed in a
+	      distributed control system, in order to keep the clocks
+	      of all processors synchronized to a virtual
+	      &ldquo;network time&rdquo; (The Orocos CoreLib HeartBeatGenerator
+	      already implements a part of this functionality).
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	These additions to the realtime control loop seem simple from
+	a user point of view, but they are a first reason why a <link
+	  linkend="formal-rules">structured approach</link> is needed
+	to cope with the <link
+	  linkend="communication-flows">communication flows</link>
+	between the <link linkend="sync-async">synchronous and
+	  asynchronous</link> parts of the application: the Data Flow Components
+	in the feedback loop can run synchronously in one single
+	thread, but (most of) the additional Component functionality
+	need to live in another thread. Hence, thread-safe exchange of
+	data between both parts of the application is required; and
+	this implies some form of <emphasis
+	  role="strong">locking</emphasis> within the DataObjects that
+	connect a non-realtime Data Flow Component to a realtime
+	Data Flow Component.
+      </para>
+
+      <figure id="fig-control-pattern"  pgwide="0">
+	<title>
+	  The structure of the complete Standard Control Kernel,
+	  <emphasis>i.e.</emphasis> the realtime control loop of
+	  <xref linkend="fig-standard-control-kernel"/>, plus the
+	  non-realtime Components.
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="control-pattern.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="control-pattern.eps"
+           format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+    </sect2>
+    <sect2 id="data-objects">
+      <title>DataObjects</title>
+      <para>
+	Many complex applications have <link
+	  linkend="cascaded-control-kernels">multiple feedback
+	  loops</link>, and hence multiple Control Kernels running in
+	multiple operating system threads.  So, their data flow must
+	certainly be guarded against concurrent
+	(&ldquo;asynchronous&rdquo;, &ldquo;multi-threaded&rdquo;)
+	access. And of course, in distributed systems, it may even be
+	needed to fetch data from a remote server, or to instruct a
+	remote data producer to provide a new sample of data. It is
+	the responsibility of the DataObjects to make all these
+	actions transparent to the Components to which they are
+	connected.
+      </para>
+      <para>
+	Data Flow Components access DataObjects always in the same generic way
+	with <function>Get()</function> and <function>Set()</function>
+	methods, acting on a <emphasis>Port</emphasis> of the
+	DataObject. (A Port acts more or less like a
+	&ldquo;proxy&rdquo; of the DataObject; this will be explained
+	in the <link linkend="components">Data Flow Components</link> section.)
+	The <emphasis>implementation</emphasis> of the
+	<function>Get()</function> and <function>Set()</function>
+	methods within the DataObjects depends on the synchronization
+	needs. For example, a Control Kernel running in a single
+	thread needs no mutual exclusion at all in its data flow, and
+	thus its DataObjects can use efficient, non-locking
+	implementations for <function>Get()</function> and
+	<function>Set()</function>. At the other end of the spectrum,
+	a distributed Control Kernel working with <ulink
+	  url="http://www.corba.org">CORBA</ulink> for its
+	network-transparent communication needs DataObjects that
+	encapsulate CORBA in a thread-safe way inside their
+	implementation. Anyway, the number of possible data access
+	methods that DataObjects could need is limited, and &orocos;
+	provides ready-to-use implementations, explained later in this
+	Section.
+      </para>
+      <para>
+	See the CoreLib Manual for all available DataObjects. The ControlKernel
+	chooses which type of DataObjects it uses for communication between
+	its Data Flow Components. Thus if you want to use a specific DataObject,
+	you must use a different ControlKernel or redefine one of your own
+	( Example kernels are given lateron ).
+      </para>
+    </sect2>
+    <sect2 id="components">
+      <title>Data Flow Components</title>
+      <para>
+	The Data Flow Components of a Control Kernel contain functional
+	algorithms, that process the data exchanged through the
+	connected DataObjects. The Control Kernel provides standard
+	Data Flow Components and standard interfaces to DataObjects, but the
+	Component Builders must still fill in the concrete
+	functionality (algorithm) in the Data Flow Components.
+	This Section explains how to
+	do this, and also discusses other features offered by
+	Data Flow Components.
+      </para>
+      <sect3>
+	<title>Creating your own Data Flow Component</title>
+	<para>
+	  As mentioned before, creating a
+	  <classname>StandardControlKernel</classname> makes
+	  <classname>DefaultComponents</classname> which do not
+	  act on the Data Flow.
+	  The control kernel is equipped with
+	  <function>loadController()</function>,
+	  <function>unloadGenerator()</function>, &hellip; methods
+	  which allow a clean insertion of a new Component
+	  (<emphasis>i.c.</emphasis> the Controller Component) and
+	  which guarantee a clean removal of a component
+	  (<emphasis>i.c.</emphasis> the Generator Component).
+	  Defining your own Component functionality works as in the
+	  following example for the Generator Component:
+	</para>
+	<programlisting>
+<![CDATA[
+  #include <control_kernel/BaseComponents.hpp>
+
+  using namespace ORO_ControlKernel;
+
+  // Definition of MG_InputData, MG_CommandData and MG_SetPointData,
+  // see later.
+
+  class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >
+  { 
+  public:
+      MyGenerator( const std::string& name = "MyGeneratorName")
+	  : Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >( name ) {}
+      void pull() 
+      { 
+          // ... 
+      } 
+      void calculate()
+      { 
+          // ... 
+      } 
+      void push() 
+      { 
+          // ... 
+      } 
+
+      // ...
+  };
+]]>
+	</programlisting>
+	<para>
+	  This defines a class <classname>MyGenerator</classname>,
+	  which is derived from the <type>ORO_ControlKernel::Generator</type> class,
+	  and implements the three <classname>DataFlowInterface</classname>
+	  ( which is a base class from <classname>Generator</classname> ) method calls,
+	  <function>pull()</function>,
+	  <function>calculate()</function>, and
+	  <function>push()</function>. (More on these method calls
+	  <link linkend="pull-calculate-push">later</link> in the
+	  text.)
+	</para>
+	<para>
+	  The <classname>Generator</classname> base class needs at least four template
+	  parameters in a specified order. The first three denote
+	  what objects the Component expects in the Data Flow.
+	  The last template argument denotes what the Generator
+	  will write in the Data Flow (ie SetPointData). Depending
+	  on the Component type (Sensor, Generator,...), other
+	  parameters must be passed.
+	</para>
+	<para>
+	  The name ("MyGeneratorName") of the component must be unique within 
+	  the type (Generator) in one kernel. It will be used later on
+	  to identify it from scripts or configuration files. The name of
+	  a Component should be as stable as possible, as many configuration
+	  files must be changed if the name changes.
+	</para>
+	<screen>
+  MyGenerator  my_gen;</screen>
+	<para>
+	  The above line has created one instance of
+	  <classname>MyGenerator</classname> called my_gen and using
+	  the default name "MyGeneratorName".
+	  It can
+	  be used with the <function>loadGenerator()</function> method
+	  call of the <classname>StandardControlKernel</classname>.
+	  The next line could then be:
+	</para>
+	<screen>
+  first_kernel.loadGenerator( &amp;my_gen );</screen>
+	<para>
+	  which would cause my_gen to be loaded into the Kernel.
+	  Components can be configured when they are loaded or when
+	  the kernel is started. Any component not loaded at that time
+	  will not be configured by that Control Kernel and is thus
+	  not usable when the Control Kernel is running.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Starting and Stopping a Component (startup and shutdown)</title>
+	<para>
+	  To introduce the Generator in the Data Flow 
+	  (thus let it generate SetPoints),
+	  it must be started :
+	</para>
+	<screen>
+  first_kernel.startup( &amp;my_gen );</screen>
+	<para>
+	  Starting is enabling a Data Flow Component to operate on the
+	  Data Objects, ie, the <classname>DataFlowInterface</classname> of the Component is called. This
+	  does not mean that a not started component is not accessible.
+	  It can still accept commands, report variables etc.
+	</para>
+	<para>
+	  Likewise, it can be shutdown :
+	</para>
+	<programlisting>
+  first_kernel.shutdown( &amp;my_gen );</programlisting>
+	<para>
+	  Which will stop its participation in the Data Flow processing.
+	  The above methods can be applied to all types of Components of the kernel.
+	  They are equivalent to the <function>start<emphasis>ComponentType</emphasis></function> and
+	  <function>stop<emphasis>ComponentType</emphasis></function> kernel methods.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Real-time Component Switching ( select )</title>
+	<para>
+	  It can be usefull to switch one component in realtime with another,
+	  for example, when the Controller or Generator needs to be switched 
+	  due to a realtime configuration change. To allow a component to be
+	  switched with another one, it must be <emphasis>'selected'</emphasis> :
+	</para>
+	<programlisting>  first_kernel.selectGenerator( &amp;my_gen );</programlisting>
+	<para>
+	  A selected component is started, but also stops the previously
+	  selected component of the same type ( here : Generator ). This has
+	  no effect on components which are started or stopped with the normal
+	  method calls. Thus a startGenerator(X) followed with selectGenerator(Y)
+	  will have both generators X and Y running in the kernel. If
+	  some time later a startGenerator(A) followed with selectGenerator(B) is
+	  called, components X, A and B will be running and Y will be stopped.
+	</para>
+	<para>
+	  Selecting and startup/shutdown calls should not be mixed for the same component.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Defining the Data Flow with DataObjects</title>
+	<para>
+	  A Data Flow Component implementation must derive from its
+	  Component base class which gets the data types as 
+	  template parameters using <classname>Expects&lt;...&gt;</classname>
+	  and <classname>Writes&lt;...&gt;</classname>, as seen in the previous
+	  section.
+	  A DataType is defined
+	  in a special way. An example shows what a DataType is :
+	</para>
+	<example>
+	  <title>A Nameserved DataType</title>
+	  <para>
+	    The SetPoint Data is produced by the Generator Component. A
+	    Generator must thus provide a
+	    specification of the setpoints it produces. Producing two
+	    frames (&ldquo;BasePosition&rdquo; and
+	    &ldquo;EndPosition&rdquo;) and a double
+	    (&ldquo;Velocity&rdquo;) in the SetPoint DataObject is done
+	    as follows:
+	  </para>
+	  <programlisting>
+<![CDATA[
+struct MG_SetPointData
+: public ServedTypes<Frame, double>
+{
+  MG_SetPointData()
+  {
+    this->insert( make_pair(0, "EndPosition"));
+    this->insert( make_pair(0, "BasePosition"));
+    this->insert( make_pair(1, "Velocity"));
+  }
+};
+]]>
+	  </programlisting>
+	  <para>
+	    The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
+	    listed in the ServedTypes list. So "EndPosition" and
+	    "BasePosition" are of type Frame and "Velocity" is of type double.
+	  </para>
+	</example>
+	<para>
+	  In the <type>ServedTypes</type> list, you can specify from
+	  zero to ten different types which the Component will produce. Each
+	  type may only occur once in that list. If you don't want to
+	  produce any type, you should make an empty list, denoted by
+	  ServedTypes&lt;&gt;, which means that this Component does not
+	  introduce new data in the Data Flow.
+	</para>
+	<para>
+	  The <function>insert()</function> function adds a (number,
+	  name) pair for each object one wants to create. The number
+	  denotes the n'th type listed in ServedTypes&lt;...&gt;,
+	  starting from zero. In the example, two <type>Frames</type>
+	  are created, with each their own name and one
+	  <type>double</type>, which holds the temperature. The number
+	  of objects created with <function>insert()</function> is not
+	  restrained, although the number of <type>ServedTypes</type>
+	  is.
+	</para>
+	<para>
+	  The Expect Parameter is built in the same way as the Writes
+	  Parameter, except that it has an empty constructor, thus
+	  only the ServedTypes are listed. The names
+	  of the DataObjects are resolved inside the Component.
+	</para>
+	<example>
+	  <title>Expecting a kind of DataObject</title>
+	  <para>
+	    This example shows how a Data Flow Component
+	    indicates which kind of data it expects.
+	  </para>
+	  <programlisting>
+<![CDATA[
+struct MG_InputData
+: public ServedTypes<Frame, double>
+{
+};
+]]>
+	  </programlisting>
+	  <para>
+	    In this case, one or more Frames and one or more doubles
+	    are expected.
+	  </para>
+	</example>
+	<para>
+	  If a type of DataObject is not used (for example the Model),
+	  then, the Component uses the Expects&lt;NoModel&gt; construct. For
+	  Each Data Object type, there is such a class predefined :
+	  <classname>NoInput</classname>,
+	  <classname>NoModel</classname>,
+	  <classname>NoCommand</classname>,
+	  <classname>NoSetPoint</classname>,
+	  <classname>NoOutput</classname>.
+	</para>
+	<para>
+	  To get hold of a pointer to the DataObject from 
+	  within the component, it must be resolved by name ( using a string ).
+	  For DataObjects a Component writes, it is done in the 
+	  <methodname>componentLoaded()</methodname> method, for
+	  DataObjects a Components expects (reads), it is done
+	  in the <methodname>componentStartup</methodname> method.
+	  Besides the methods the resolving happens in, the 
+	  manner is the identical.
+	</para>
+	<example>
+	  <title>Early resolving of the DataObject</title>
+	  <para>
+	    This example demonstrates that the Component can
+	    get a pointer to the DataObject, which then in turn
+	    must be accessed like a normal DataObject to
+	    <function>Get()</function> or <function>Set()</function> the Data.
+	  </para>
+	<programlisting>
+	  <![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData> 
+	  >
+{ 
+  typedef Generator<Expects<MG_InputData>,
+	            Expects<NoModel>,
+	            Expects<MG_CommandData>,
+	            Writes<MG_SetPointData> > BaseGen;
+  
+  // Our internal copy of the data
+  Frame end_frame;
+  Frame base_frame;	    
+  double tool_temp;
+  Frame input_f;
+
+  // Pointers to the DataObjects
+  DataObjectInterface<double>* tool_temp_dobj;
+  DataObjectInterface<Frame>* input_f_dobj;
+
+  DataObjectInterface<double>* velocity_dobj;
+  DataObjectInterface<Frame>* base_f_dobj;
+  DataObjectInterface<Frame>* end_f_dobj;
+
+public:
+  // See earlier code examples for constructor ...
+
+  bool componentLoaded()
+  {
+    // called when the component is loaded into the kernel.
+    // Early Resolving of Write DataObjects :
+    if ( !SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
+         !SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
+         !SetPoint::dObj()->Get("Velocity", velocity_dobj )
+	)
+    { 
+	  // Error, "Velocity", "EndPosition" or "BasePosition" not found !
+	  return false;
+    }
+    return true;
+  }
+
+  bool componentStartup()
+  {
+    // called when the component is started in the kernel.
+    // Early Resolving of Expect DataObjects :
+    if ( !Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
+	  !Input::dObj()->Get("EndPosition", input_f_dobj ))
+    { 
+	  // Error, "Temperature" or "EndPosition"  not found !
+	  return false;
+    }
+    return true;
+  }
+
+  // ... 
+  void pull() 
+  { 
+      // Get the data from the previously resolved DataObjects :
+      input_f_dobj->Get( input_f );
+      tool_temp = tool_temp_dobj->Get();
+  } 
+  // ...
+  void push()
+  {
+      // Write out the resulting data.
+      end_f_dobj->Set(end_frame);
+      base_f_dobj->Set(base_frame);
+      velocity_dobj->Set( velocity );	    
+  }
+
+};
+]]>
+	  </programlisting>
+	</example>
+	<para>
+	</para>
+      </sect3>
+      <sect3 id="pull-calculate-push">
+	<title>Inserting Functionality in Components</title> 
+	<para>
+	  As seen above, each Component has the <classname>DataFlowInterface</classname>
+	   methods <function>pull()</function>,
+	  <function>calculate()</function>, and
+	  <function>push()</function>, for data exchange and data
+	  processing during its normal control loop activity. The
+	  Component Builder must fill in the concrete
+	  application-dependent contents of these methods.
+	</para>
+	<para>
+	  The <function>pull()</function> method must
+	  <function>Get()</function> the Data Objects the Component is
+	  connected to from its &ldquo;input&rdquo; side, and copy
+	  their contents to local variables.  The
+	  <function>calculate()</function> method performs the
+	  algorithmic functionality of the Component on the data. And
+	  the <function>push()</function> method must
+	  <function>Set()</function> the results in the DataObjects at
+	  the &ldquo;output&rdquo; side of the Component.
+	</para>
+	<para>
+	  Standardizing on these three method calls isolates
+	  communication and processing in different methods so that a
+	  more structured interaction between Control Kernel and
+	  Components is possible. For example, a particular Control
+	  Kernel implementation could only call the
+	  <function>pull()</function> method if new data is
+	  effectively available, but always call the
+	  <function>calculate</function> and
+	  <function>push()</function> methods. For example, a
+	  Generator Component typically gets new goal points from the
+	  user at &ldquo;low frequency&rdquo; but must produce a new
+	  setpoint for the Controller Component at a &ldquo;high
+	  frequency&rdquo;. The Component Builder can implement
+	  this behavior by overriding the update() method,
+	  defined in the <classname>DataFlowInterface</classname>.
+	</para>
+      </sect3>
+
+      <sect3 id="communication-flow-coupling">
+	<title>Components should not couple communication flows</title>
+	<para>
+	  The <ulink
+	    url="http://www.orocos.org/documents/motconframe.pdf">Software
+	    Pattern for Control</ulink> implies that a Component
+	    cannot have access to every DataObject. However, many
+	    control engineers are used to use all available data in
+	    their control application in all Components. For example,
+	    the Generator Component could want access to the Outputs
+	    Port of the Controller and Effector, in order to adapt its
+	    own output to what the system is doing &ldquo;at this
+	    moment&rdquo;. However, &orocos; does not allow this
+	    coupling, and gives a compile error when a Component tries
+	    to access a DataObject to which it is not connected in the
+	    Software Pattern. The motivations for this
+	    &ldquo;restriction&rdquo; are as follows: 
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Adding more arrows to
+		<xref linkend="fig-standard-control-kernel"/> would
+		destroy the <emphasis>Directed Acyclic
+		  Graph</emphasis> property of the Control Kernel, and
+		hence it deterministic serialization.
+	      </para>
+	    </listitem>
+
+<!-- 	    <listitem> -->
+<!-- By ps : i don't understand this part -->
+<!-- 	      <para> -->
+<!-- 		The example above, of the Generator that needs to know -->
+<!-- 		the value of Outputs sent to the hardware, is a case -->
+<!-- 		of <link linkend="communication-flows">coupling</link> -->
+<!-- 		between Data Flow and Execution Flow: determining that -->
+<!-- 		one needs to get the data of the -->
+<!-- 		&ldquo;previous&rdquo; time stamp is part of the -->
+<!-- 		Execution Flow (<emphasis>i.e.</emphasis> deciding in -->
+<!-- 		what order actions have to be executed, in this case -->
+<!-- 		in two subsequent execution cycles of the control -->
+<!-- 		loop), and not the Data Flow. This does not mean that -->
+<!-- 		the Generator cannot use the Outputs from the previous -->
+<!-- 		time stamp, but it should get them from the Sensor -->
+<!-- 		Components, that has a Port that provides this data. -->
+<!-- 		In other words, the Control Kernel has this Sensor -->
+<!-- 		Port connected to its own Reporter reports, which the -->
+<!-- 		Application Builder should program to contain the -->
+<!-- 		required information. -->
+<!-- 	      </para> -->
+<!-- 	      <para> -->
+<!-- 		Recall that this structure is -->
+<!-- 		<emphasis>conceptual</emphasis>: it represents the -->
+<!-- 		system as a set of Components that copy data through -->
+<!-- 		the DataObjects. But the -->
+<!-- 		<emphasis>implementation</emphasis> of the concept can -->
+<!-- 		be much more efficient, if manual or automatic support -->
+<!-- 		eliminates all unnecessary copying operations. -->
+<!-- 	      </para> -->
+<!-- 	    </listitem> -->
+	  </itemizedlist>
+	</para>
+	<para>
+	  The <function>push()</function>, <function>pull()</function>
+	  and <function>calculate()</function> methods are only used
+	  for the <emphasis>data flow</emphasis> in the Control
+	  Kernel. However, if you need to configure or modify a
+	  Component, you must add a method call for it. An example is
+	  a method to turn off the D action of a PID algorithm in the
+	  Controller Component. The wrong way to do this is to insert
+	  a &ldquo;bool&rdquo; member in the <type>SetPointType</type>
+	  to indicate whether the D action should be enabled or not.
+	  Because in this way, one <link
+	    linkend="communication-flows">couples</link> the data flow
+	  and the configuration flow! The correct way is to provide
+	  methods to the Controller Component that start and stop the
+	  D action. These methods can be called via Events
+	  fired by one of the other Components (Generator, Estimator,
+	  &hellip;), possibly from another Control Kernel or through
+	  the Command Processor.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Components Define DataObjects</title>
+	<para>
+	  In the <ulink
+	    url="http://www.orocos.org/documents/motconframe.pdf">Software 
+	    Pattern</ulink>, each DataObject is only written by
+	  exactly one Component, so this Component defines the
+	  contents of a DataObject. When components are distributed,
+	  they will provide a specification (by means of a class
+	  construct) of the data they produce. The Effector is an
+	  exception, because it defines what hardware it accesses
+	  instead of DataObjects. It must be looked after by the
+	  Application Builders that the Components match each other
+	  for writing and reading data, otherwise, a compile time
+	  error or runtime error will occur. The
+	  figure below illustrates the responsibilities for each
+	  Component in the framework.
+	</para>
+	<figure>
+	  <title>Data Flow Components Produce Data</title>
+	<mediaobject>
+ 	  <imageobject role="html">
+	    <imagedata fileref="component_data_production.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="component_data_production.eps" format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+	</figure>
+      </sect3>
+      <sect3>
+	<title>Components and NameServing</title>
+	<para>
+	  Each Component must be given a <emphasis
+	    role="strong">name</emphasis> upon construction. The name
+	  of a Component is stored in a NameServer for each Control
+	  Kernel, and for each Component in that Kernel. Each Control
+	  Kernel thus causes NameServers to be created for each of its
+	  Component types, because this prevents name clashing. If a
+	  Component is created twice with the same name in the same kernel,
+	  only the first one will show up in the NameServer. Name
+	  serving is described in more detail in the CoreLib
+	  documentation.
+	</para>
+	<warning>
+	  <para>
+	    It is strongly advised to use within one kernel
+	    unique names for components of the same type ( Generator, Sensor,...).
+	    Components of different type may have the same name.
+	  </para>
+	</warning>
+	<para>
+	  There are some methods that allow easy working with named
+	  Components. Going further with the <type>MyKernel</type> example:
+	<programlisting>
+
+  // ... after start of the kernel task :
+  if ( first_kernel.isLoadedGenerator( "GeneratorName") ) 
+       first_kernel.selectGenerator( "GeneratorName" );
+	  </programlisting>
+	  <emphasis>Loading</emphasis> is not realtime safe
+	  and must happen <emphasis>before</emphasis> the
+	  kernel started, <emphasis>selecting</emphasis> a
+	  Component is only allowed <emphasis>after</emphasis>
+	  the Component is loaded.
+	</para>
+      </sect3>
+      <sect3 id="events-hooks-states">
+	<title>Events, Hooks and States</title>
+	<para>
+	  A Component might be interested in the fact whether it is
+	  inserted in a Control Kernel, and whether this Control
+	  Kernel is running or not. For example, a Control Kernel
+	  needs to startup its Components, so that their member
+	  variables can be initialized correctly. All these actions
+	  are standardized for every Component and Control Kernel.
+<!-- 	  And for each such action, an Event is created -->
+<!-- 	  and fired by the Control Kernel.  However, Events do, by -->
+<!-- 	  definition, not provided <emphasis -->
+<!-- 	  role="strong">ordered notification</emphasis>,  -->
+<!-- 	  <emphasis>i.e.</emphasis> one cannot know in advance in -->
+<!-- 	  which order the handlers of an event will be -->
+<!-- 	  processed after the event is fired. So, &orocos; -->
+<!-- 	  provides a feature that guarantees such an ordered  -->
+<!-- 	  execution. --> In addition, the handling of the actions
+	  takes place <link linkend="sync-async">synchronously</link>
+	  with (and in the process context of) the execution of the
+	  other activities in a Control Kernel. This feature is called
+	  a <emphasis role="strong">hook</emphasis> of a Component. It
+	  is defined as a <emphasis role="strong">virtual
+	    function</emphasis> of the Component, which must be made
+	  concrete by the Component. (<xref
+	    linkend="control-kernel-extensions"/> goes into more
+	  details.)
+	</para>
+<!-- <para> -->
+<!-- The typical usage of the Hook feature is as follows. Somewhere in the -->
+<!-- Control Kernel an event is fired. the handler of that event does -->
+<!-- nothing more than setting a flag for each Component that has a Hook -->
+<!-- registered with that event. When the Control Kernel executes the -->
+<!-- thread of the involved Components, it can notice the flag and execute -->
+<!-- the method of the Hook. -->
+<!-- </para> -->
+	<para>
+	  Each DefaultComponent (and thus each Component you will
+	  insert into a Kernel) is a subclass of the class
+	  <classname>ComponentBaseInterface</classname>, defined in
+	  the file <filename>ComponentInterfaces.hpp</filename>. This
+	  interface allows each Component to locate the Control Kernel
+	  in which it is loaded by the <function>kernel()</function>
+	  method, which returns a pointer to the
+	  <classname>KernelBaseFunction</classname>,
+	  <emphasis>i.e.</emphasis> the base class of each Control
+	  Kernel. The <classname>ComponentBaseInterface</classname>
+	  defines the Hook methods which a Component can
+	  override, and the <classname>KernelBaseFunction</classname>
+	  interface allows them to access the Standard Control Kernel
+	  Events. See the Doxygen API documentation for the full
+	  documentation of these interfaces. The CoreLib manual
+	  explains how Events work and how a handler can be added.
+	</para>
+	<para>
+	  The following hooks are available for each Component to fill in:
+	  <table>
+	    <title>ComponentBaseInterface Hooks</title>
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry>virtual bool componentLoaded() {}</entry>
+		  <entry>Called when the Component is loaded into the
+		    Kernel. It must return false if a failure is detected.</entry>
+		</row>
+		<row>
+		  <entry>virtual void componentUnloaded() {}</entry>
+		  <entry>Called when the Component is unloaded from
+		    the Kernel. This method is not called when
+		    <function>componentLoaded()</function> returned false.</entry>
+		</row>
+		<row>
+		  <entry>virtual bool componentStartup() {}</entry>
+		  <entry>
+		    Called when the Control Kernel is started and all
+		    Components are initialized. The Component must
+		    write meaningful information to its data objects
+		    and is guaranteed to find meaningful information
+		    in its readable data objects. If a failure is
+		    detected, it must return false.
+		  </entry>
+		</row>
+		<row>
+		  <entry>virtual void componentShutdown() {}</entry>
+		  <entry>
+		    Called when the Control Kernel is stopped and all
+		    Components should return to a safe off-state. 
+		    This method is not called when
+		    <function>componentStartup()</function> returned false.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+	<para>The following image explains the life cycle of a typical
+	  Component. 
+	  <figure>
+	    <title>Component Life Cycle</title>
+	    <mediaobject>
+	      <imageobject role="html">
+		<imagedata fileref="component_life_cycle.png" format="PNG"/>
+	      </imageobject>
+	      <imageobject role="fo">
+		<imagedata fileref="component_life_cycle.eps" format="EPS"/>
+	      </imageobject>
+	    </mediaobject>
+	  </figure>
+	  The <emphasis role="strong">state</emphasis> of the Component
+	  depends on the Control Kernel state.  How Control Kernel methods
+	  change a Component's state is shown below.
+	  <figure>
+	    <title>Control Kernel - Component Interaction</title>
+		<mediaobject>
+		  <imageobject role="html">
+		    <imagedata fileref="kernel_component_interaction.png" format="PNG"/>
+		  </imageobject>
+		  <imageobject role="fo">
+		    <imagedata fileref="kernel_component_interaction.eps" format="EPS"/>
+		  </imageobject>
+		</mediaobject>
+	      </figure>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Component Base Methods</title>
+	<para>
+	  The ComponentBaseInterface contains some handy methods
+	  to check its status, which evolves as in the figures
+	  above. Although these methods are mostly called from within the
+	  component, it is also legal to call them from outside the component :
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>bool : this->inKernel()</para>
+	    <para>Query if this component is loaded in a kernel.
+	      Use it to prevent a crash if the method requires
+	      that the component is loaded in a kernel (e.g.
+	      it operates on Data Objects ).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>bool : this->isSelected()</para>
+	    <para>Query if this component is selected in the kernel.
+	      Use it to guard methods that only have meaningful effect
+	      if the component is selected (i.e. it requires a running
+	      kernel).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>KernelBaseInterface* : this->kernel()</para>
+	    <para>Returns a pointer to the KernelBaseInterface of the
+	      kernel this component is loaded in. Returns null if
+	      this->inKernel() == false. Useful to query the kernel's
+	      configuration parameters, like its period (see
+	      section <link linkend="kernel-configuration">
+	      Control Kernel Configuration</link> ).
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </sect3>
+    </sect2>
+    <sect2>
+	<title>Support Components</title>
+	<para>
+	  Support Components do
+	  not operate in the data flow and thus do not have 'select' semantics
+	  (which 'inserts' a loaded component in the dataflow). However, they can
+	  use properties, the execution extension etc.
+	</para>
+	<para>
+	  Put otherwise, they are components which have nothing to do with the
+	  control loop (ie Data Flow) but still need to be integrated
+	  in the realtime kernel. Examples are :
+	  <itemizedlist>
+	    <listitem>
+	      <para>User interfacing components (HMI Components)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Safety components (Requires a Kernel Extension)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Knowledge repositories (Reading parameters from property files)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Synchronisation components (the HeartBeat) </para>
+	    </listitem>
+	  </itemizedlist>
+	  They need to be accessible by other parts of the kernel and
+	  may use features (see <xref linkend="control-kernel-extensions" /> )
+	  the kernel provides to its standard components. As we will show
+	  later, it allows for example the components
+	  to use the Property system of the kernel.
+	</para>
+	<para>
+	  In short, Support Components are with one foot in the
+	  kernel and one foot outside, providing or using external services.
+	</para>
+	<para>
+	  Support Components must be loaded in the kernel as regular
+	  components and are started when the kernel is started. For
+	  example :
+	  <programlisting>
+#include &lt;kernel_components/HMIConsoleOutput.hpp&gt;
+//...
+
+HMIConsoleOutput hmi_out;
+kernel.loadSupport( &amp;hmi_out );
+
+// When the kernel is started, hmi_out is automatically selected.
+	  </programlisting>
+	  All Support components are used when the kernel is 
+	  started, thus no <function>selectSupport()</function>
+	  function exists. In the example above, the HMIConsoleOutput
+	  component will become visible in the Command Interpreter.
+	</para>
+      <para>
+	It is common for support components to export a command interface which
+	allows scripts to use their functionality.
+      </para>
+    </sect2>
+    <sect2 id="kernel-configuration">
+      <title>Control Kernel Configuration</title>
+      <para>
+	This section explains how to configure a Control Kernel and how to
+	access this information from within your program.
+      </para>
+      <sect3>
+	<title>The KernelConfigurator</title>
+	<para>
+	  Control kernels (and components)  can be configured at
+	  runtime with an XML file in the CPF (Component Property File
+	  <citation>CCM</citation>) format, defined by the OMG group.
+	  This group defines the standards to be used within <ulink
+	    url="http://www.corba.org">CORBA</ulink>, but they are
+	  usable outside CORBA too. The
+	  <classname>KernelConfig</classname> is a class which can
+	  read a given XML file and configure a control kernel with
+	  that information. KernelConfig parses the file and passes
+	  the result (a PropertyBag) to the
+	  <function>updateProperties(const PropertyBag &amp;
+	    bag)</function> method of the
+	  <classname>KernelBaseFunction</classname> base class of the
+	  kernel. If you want to add your own configuration options to
+	  a Kernel subclass (which is quite common), you can define an
+	  updateKernelProperties(const PropertyBag &amp; bag) method
+	  in this subclass. KernelConfig will pass the PropertyBag to
+	  this function too.
+      </para>
+      <para>
+	  All Kernel implementations support this configuration scheme.
+      </para>
+      <para>A control kernel configuration file might look like this:</para>
+      <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+<struct name="KernelProperties" type="type_less">
+  <description>The Basic characteristics of this kernel.</description>
+  <simple name="frequency" type="double">
+  <description>The periodic execution frequency in Hz</description>
+  <value>1000</value></simple>
+  <simple name="priority"  type="string">
+  <description>The priority of the kernel.</description>
+  <value>NonPreemptible</value></simple>
+</struct>
+
+  <struct name="StartupComponents" type="type_less">
+    <description>The Components to be Selected when the kernel is started
+    </description>
+    <simple name="Sensor" type="string">
+      <value>CartesianSensor</value>
+    </simple>
+    <simple name="Estimator" type="string">
+      <value>CartesianEstimator</value>
+    </simple>
+    <simple name="Generator" type="string">
+      <value>CartesianGenerator</value>
+    </simple>
+    <simple name="Controller" type="string">
+      <value>CartesianController</value>
+    </simple>
+    <simple name="Effector" type="string">
+      <value>CartesianEffector</value>
+    </simple>
+  </struct>
+   
+<struct name="Extensions" type="type_less">
+  <simple name="Reporter" type="string">
+  <description>The property file of the reporter</description>
+  <value>reporter.cpf</value></simple>
+
+  <simple name="Execution" type="string">
+  <description>The property file of the Execution Engine</description>
+  <value>execution.cpf</value></simple>
+
+  <simple name="Property" type="string">
+  <description>The property file of the property manager</description>
+  <value>property.cpf</value></simple>
+</struct>
+</properties>
+]]>
+      </programlisting>
+	<para>
+	  It has three major parts: KernelProperties, StartupComponents and Extensions. The
+	  first and second struct contain options which apply to any kernel.
+	  They are both used by the KernelConfig class to setup the KernelBaseFunction.
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		The KernelProperties struct contains the periodic execution
+		frequency of the kernel.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>The StartupComponents struct contains a
+		list of components which must be selected when the kernel
+		is started. If it is not specified, the "Default" components
+		remain in place and the selection can be done with the
+		<link linkend="scripting-extension">Execution Extension</link>
+		(recommended) or manually in your program after
+		the kerneltask is started. This is only provided to allow
+		thread-safe selecting components on startup when the 
+		Execution Extension is not used.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		The third specifies the property file for each (possible)
+		extension. If the file is not found, an error is raised by
+		the KernelConfigurator. The XML format is further explained
+		in the Property Extension section. It is allowed to define
+		your own properties in this file and update them in the
+		<function>updateKernelProperties</function> method of a
+		derived class of the Control Kernel.
+	      </para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+	  <tip>
+	  <para> Example CPF files can often be found in the
+	    <filename class="directory">doc</filename> directory of the packages.
+	  </para>
+	</tip>
+      </sect3>
+      <sect3>
+	<title>Accessing the Configuration parameters</title>
+	<para>
+	  Each Component inherits from the <classname>ComponentBaseInterface</classname>
+	  which provides, among others, the <function>bool inKernel() const</function>
+	  function and the <function>KernelBaseFunction* kernel() const</function>
+	  function. The former returns true if the component is loaded in
+	  a kernel, the latter returns a pointer to the base class of
+	  that kernel.
+	</para>
+	<para>
+	  To get the execution period of the kernel, (for example
+	  in a PID controller or in an interpolator generator, the following
+	  construct can be used :
+	  <programlisting>
+// ... in a component method :
+if ( this->inKernel() )
+    this->_period = this->kernel()->getPeriod();
+	  </programlisting>
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1 id="control-kernel-extensions">
+    <title>Extensions to the Standard Control Kernel</title>
+    <para>
+      The discussion about the <link
+	linkend="standard-control-kernel">Standard Control
+	Kernel</link> in the previous Sections was mostly limited to
+      its core functionality: the execution of realtime feedback
+      control loops. However, most control applications also have
+      extra functional needs (which are also represented on <xref
+	linkend="fig-control-pattern"/>): <link
+	linkend="reporting-extension">reporting data</link> to, and
+      importing updates from, the &ldquo;outside world&rdquo;; <link
+	linkend="property-extension">changing properties</link> of
+      Components on line; the use of <link
+	linkend="scripting-extension">scripting languages</link> to
+      execute programs that use the Control Kernel functionalities
+      (this is an example of application-dependent <link
+	linkend="execution-flow">Execution Flow</link>); etc. The
+      &orocos; infrastructure that provides these extra functional
+      needs are the <emphasis role="strong">Extensions</emphasis>.
+      Currently, &orocos; has the three above-mentioned Extensions,
+      but others could be added if the need arises.
+    </para>
+    <para>
+      Extensions have been designed to bring the following features:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Each Extension executes <link
+	      linkend="sync-async">synchronously</link> with the
+	    realtime feedback loop of the Control Kernel, even though
+	    it is not a part of that loop. When multiple extensions
+	    are used, they are called one after the other in the order
+	    specified by the Application Builder.
+	  </para>
+	  <para>
+	    This guarantees time-determinism between the feedback loop
+	    activities and the activities in the Extension(s).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Adding Extensions is <emphasis
+	      role="strong">transparent</emphasis> for the programmers
+	    of the functionality in the feedback loop Components.
+	  </para>
+	  <para>
+	    Each Extension is accompanied by a piece of code (called
+	    the <emphasis role="strong">Component Aspect</emphasis>),
+	    which is present in all Components that wish to use
+	    the extension.
+	    It provides method calls (<link
+	      linkend="events-hooks-states">hooks</link>) to each
+	    Component, such that it can be accessed by the particular
+	    Extension. No locking or
+	    race problems will occur during this access, because of
+	    the synchronous execution.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      Each Control Kernel has a default Extension, the
+      <classname>KernelBaseFunction</classname>, coupled with the
+      <classname>ComponentBaseInterface</classname> Aspect. It defines
+      the basic Data Flow Component interaction features that each Control
+      Kernel has. The most important one of these interaction features
+      is calling the <function>update()</function> methods of the
+      Components and changing the Components' state when the Control
+      Kernel is started or stopped. In most applications, the
+      <classname>KernelBaseFunction</classname> is the first Extension
+      to be executed.
+    </para>
+    <para>
+      It is possible (and legal) that a Component may have the
+      functions present for using an Extension, but that it is
+      inserted in a Control Kernel which does not provide it. The
+      opposite can be true too, i.e. the Control Kernel provides an
+      extension that the Component doesn't wish to use.
+    </para>
+
+    <sect2>
+      <title>Component Aspects</title>
+      <para>
+	Adding an Extension to a Control Kernel does not (visibly)
+	change the existing Components. So a Component does not need
+	to anticipate any possible extension (nor does the Control
+	Kernel). <emphasis>The Component indicates that it wishes to use
+	an Extension by inheriting from the Aspect of that Extension.</emphasis>
+	For example, if a Component wants to export some data when the
+	Control Kernel has the reporting extension, it will implement
+	the <function>exportReports()</function> hook. If the
+	reporting extension is not present in the Kernel, the
+	<function>exportReports()</function> method will never be
+	called. The Extension can know if a Component has implemented
+	the hook by providing a default implementation which gets
+	called if the component does not want to use it. Each Aspect
+	is defined such that the Component has a passive role,
+	meaning that the hook is always called by the Extension, and
+	the Component does not need to call the Extension (which would
+	lead to locking the component into an Extension).
+      </para>
+      <figure><title>Component Aspects versus Kernel Extensions</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="ExtensionAspect.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="ExtensionAspect.eps" format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <sect3>
+	<title>Aspect Method Hooks</title>
+	<para>
+	  Almost every Aspect will provide a hook method that each
+	  Component can override (re-implement) to make use of the
+	  functionality. One hook might be used by different
+	  Extensions, as long as the semantical meaning remains the
+	  same for both Extensions. The following hooks are defined
+	  until now:
+	  <table>
+	    <title>Extension Method Hooks</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Used For</entry>
+		  <entry>Used By Extension</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>
+		    void exportReports( PropertyBag&amp; bag )
+		  </entry>
+		  <entry>The component needs to fill the bag with its
+		    own Properties which will be read after each
+		    Control Kernel cycle. This is how the Extension
+		    knows what the Component wants to report.
+		  </entry>
+		  <entry>ReportingExtension, CORBAExtension</entry>
+		</row>
+		<row>
+		  <entry>bool updateProperties( const PropertyBag&amp; bag )</entry>
+		  <entry>The Component can use the Properties found in the bag to
+		    update its own properties. The Extension got the Properties from
+		    a CPF file.</entry>
+		  <entry>PropertyExtension</entry>
+		</row>
+		<row>
+		  <entry>void exportProperties( PropertyBag&amp; bag )</entry>
+		  <entry>
+		    A component may add() its properties to this bag
+		    such that they can be read out from within another
+		    part of the program.
+		  </entry>
+		  <entry>PropertyExtension</entry>
+		</row>
+		<row>
+		  <entry>
+		   DataSourceFactoryInterface* createDataSourceFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export Component
+		    functions as DataSources which a Component wants to
+		    expose to the &orocos; scripting language. What the
+		    function needs to contain is documented in the
+		    &orocos; Program Parser and Task Infrastructure manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
+		<row>
+		  <entry>
+		    CommandFactoryInterface* createCommandFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export Component
+		    functions as Commands which a Component wants to expose
+		    to the &orocos; scripting language. What the
+		    function needs to contain is documented in the
+		    &orocos; Program Parser and Task Infrastructure manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
+		<row>
+		  <entry>
+		    CommandFactoryInterface* createMethodFactory()
+		  </entry>
+		  <entry>
+		    This function is needed to export Component
+		    functions as Methods which a Component wants to expose
+		    to the &orocos; scripting language. What the
+		    function needs to contain is documented in the
+		    &orocos; Program Parser and Task Infrastructure manual.
+		  </entry>
+		  <entry>ExecutionExtension</entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2 id="adding-extensions">
+      <title>How to add an Extension?</title>
+      <para>
+	How does one add an extension to the Standard Control Kernel?
+	It happens by adding the extra template parameter on creation.
+	To revisit the <type>MyKernel</type> example:
+      </para>
+      <programlisting>
+<![CDATA[
+	// equivalent typedef as before: 
+typedef StandardControlKernel<KernelBaseFunction> MyKernel;
+
+	// adding a new extension to the KernelBaseFunction: 
+typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
+]]>
+      </programlisting>
+      <para>
+	As can be seen, Extensions are composed using the
+	<classname>MakeExtension</classname> class, specifying
+	the &lt; First, Second, Third,... &gt; extension. The order
+	First, Second,... determines which Extension is executed before
+	the other. In the example above, the
+	<classname>KernelBaseFunction</classname> is executed by the
+	control kernel after the
+	<classname>PropertyExtension</classname>, as it should be.
+	Adding the reporting extension is then analogous:
+      </para>
+      <programlisting>
+<![CDATA[
+	// A control kernel with two additional Extensions:
+typedef MakeExtension< PropertyExtension,
+	               KernelBaseFunction,
+	               ReportingExtension >::Result MySecondExtension;
+typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;
+]]>
+      </programlisting>
+      <para>
+	The order in which the Extensions are composed is important.
+	If one Extension fails on startup, the other will not be
+	initialized and the starting of the Control Kernel will fail
+	(return false). Logically, you can read from left to right: if
+	the first works, check then if the second works, then the
+	third, etc. Each Extension can occur only once. 
+      </para>
+      <figure><title>Ordering Extensions</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="ExtensionTimeLine.png" format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="ExtensionTimeLine.eps" format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+    </sect2>
+    <sect2 id="adding-aspects">
+      <title>How to add an Aspect?</title>
+      <para>
+	If a Component wants to use a kernel Extension, it needs to inherit
+	from the Aspect. This is done by using a special construct, called
+	<classname>MakeAspect</classname>. It is, similar to adding an
+	Extension to a kernel, given as an extra template parameter
+	to its base class (e.g. Generator).
+      </para>
+      <para>
+	If no Aspect is given, the default is used, ComponentBaseInterface.
+	Thus the following is equivalent to the previous MyGenerator
+	definition (note the last parameter of Generator&lt;...&gt; ):
+	<programlisting>
+<![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData>,
+	  MakeAspect<KernelBaseFunction>::Result
+	  >
+{ 
+    // ...
+};
+]]>
+	</programlisting>
+	The ComponentBaseInterface is the Aspect of the KernelBaseFunction.
+      </para>
+      <para>
+	To add an additional Aspect to the Component, you must use MakeAspect
+	and <emphasis>specify the Extensions you want to support</emphasis> :
+	<programlisting>
+<![CDATA[
+class MyGenerator 
+      : public Generator< 
+	  Expects<MG_InputData>,
+	  Expects<NoModel>,
+	  Expects<MG_CommandData>,
+	  Writes<MG_SetPointData>,
+	  MakeAspect<PropertyExtension, KernelBaseFunction>::Result
+	  >
+{ 
+    // ...
+};
+]]>
+	</programlisting>
+	MakeAspect is thus analogous to MakeExtension, but is aimed at
+	Components. The MakeAspect structure will ask every listed
+	Extension, which its Aspect is and compose them in a class hierarchy.
+      </para>
+      <para>
+	To see what the Aspect is (and which methods it defines)
+	of an Extension, you can look
+	the Extension up in the Doxygen Code documentation, which will
+	contain a link to the Aspect class. Also, mostly, the Aspect
+	and Extension are defined in the same header file.
+      </para>
+    </sect2>
+   
+    <sect2 id="property-extension">
+      <title>The Property Extension</title>
+      <para>
+	By default, only the Control Kernel has a limited set of
+	properties, Components have none. The <type>PropertyExtension</type> adds
+	properties also to the Components. The
+	<filename>properties.cpf</filename> file lists the CPF
+	(Component Property Format) file
+	for each component type. All the Components which loaded in the Control
+	Kernel will get the properties updated on starting the Control
+	Kernel. The Property Extension can be configured to configure the
+	components at 'component-load' time (default) or at 'kernel-start' time.
+      </para>
+
+      <figure id="fig-property-extension">
+	<title>
+	  Overview of the Property Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="property-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="property-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <sect3>
+	<title>Using the Property Extension</title>
+	<para>
+	  The PropertyExtension can be added to a
+	  <classname>StandardControlKernel</classname> using the
+	  MakeExtension structure :
+	  <programlisting>
+<![CDATA[
+typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
+]]>
+	  </programlisting>
+	  It is best to put this Extension in front of other
+	  extensions, so that on component load time, the
+	  component's properties are set first before the other Extensions
+	  are enabled, allowing the Component to react differently to the
+	  other Extension hooks.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring the Property Extension</title>
+	<para>
+	  The <type>PropertyExtension</type> can be configured through the CPF
+	  file given in the Control Kernel configuration file.
+	  An example looks like this:
+	</para>
+	<example>
+	  <title>Example properties.cpf file</title>
+	  <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<properties>
+
+<sequence name="PropertyFiles" type="ComponentEntry">
+    <simple name="MyGenerator"  type="string">
+    <description>The Generator Component Property File.</description>
+    <value>generator.cpf</value></simple>
+    <simple name="MyOtherGenerator"  type="string">
+    <description>The OtherGenerator Component Property File.</description>
+    <value>other_generator.cpf</value></simple>
+
+    <simple name="MyEstimator"  type="string">
+    <description>The Estimator Component Property File.</description>
+    <value>estimator.cpf</value></simple>
+    <simple name="MyController" type="string">
+    <description>The Controller Component Property File.</description>
+    <value>controller.cpf</value></simple>
+    <simple name="MySensor"     type="string">
+    <description>The Sensor Component Property File.</description>
+    <value>sensor.cpf</value></simple>
+    <simple name="MyEffector"   type="string">
+    <description>The Effector Component Property File.</description>
+    <value>effector.cpf</value></simple>
+</sequence>
+
+    <simple name="ConfigureOnLoad" type="boolean">
+	<description>
+	    Set to True (1) if components must be configured on load.
+	    Set to False (0) if components must be configured when the kernel is started.
+	</description>
+        <value>
+	    1
+	</value>
+    </simple>
+    <simple name="IgnoreMissingFiles"   type="boolean">
+        <description>Ignore missing files in PropertyFiles sequence</description><value>0</value>
+    </simple>
+    <simple name="SaveProperties"   type="boolean">
+        <description>Save Component Properties on kernel.stop()</description><value>0</value>
+    </simple>
+    <simple name="SaveFilePrefix"   type="string">
+        <description>The suffix of the filename to store the components state into</description><value>saved_</value>
+    </simple>
+    <simple name="SaveFileExtension"   type="string">
+        <description>The extension of the filename to store the components state into</description><value>cpf</value>
+    </simple>
+
+</properties>
+]]>
+	  </programlisting>
+	</example>
+      </sect3>
+      <sect3>
+	<title>Hooks</title>
+	<para>The Property Extension has two hooks : the
+	  <function>updateProperties(const PropertyBag&amp;
+	    bag)</function> method and the <function>exportProperties(PropertyBag&amp;
+	    bag)</function> method. In the former, the user must extract properties
+	  from the bag and assign his own proper property with the
+	  value found, in the latter, the inverse happens and the 
+	  component adds its properties to the bag.
+	  A helper function can be written to facilitate this for any type.
+	</para>
+	<example>
+	  <title>The PropertyExtension used in
+	    CartesianComponents.hpp</title>
+	  <para>
+	    A simple component with only one property. If
+	    composeProperty can not find the gain property back, it
+	    will return false, and the control kernel will not start.
+	  </para>
+	  <programlisting>
+<![CDATA[
+class MyGenerator 
+    : public Generator< ..data objects... ,
+	               MakeAspect<PropertyExtension,KernelBaseFunction>::Result >
+{ 
+  typedef Generator< ..data objects...,
+	    MakeAspect< PropertyExtension, KernelBaseFunction >::Result > Base
+public:
+  // In constructor, gain defaults to zero:
+  MyGenerator() :
+     Base("MyGenerator"),
+     gain("Gain","The gain of the controller",0),
+     max_track_error("MaxTrackError", "The maximum tracking error", 0) 
+  {}
+
+  // Hook In Controller Component:
+  virtual bool updateProperties( const PropertyBag& bag)
+  {
+      return composeProperty(bag, gain ) &&
+	     composeProperty(bag, max_track_error);
+      // returns true if successful.
+  }
+
+  virtual void exportProperties( PropertyBag& bag )
+  {
+      bag.add( &gain );
+      bag.add( &max_track_error );
+  }
+
+private:
+  // ... The gain of the Controller ...
+  Property<double> gain;
+  Property<double> max_track_error;
+
+  // ...
+};
+]]>
+	  </programlisting>
+	  <para>The CPF file looks like this:</para>
+	  <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<properties>
+    <simple name="Gain"    type="double">
+    <description>The gain of the controller </description>
+    <value>2</value>
+    </simple>
+    <simple name="MaxTrackError"    type="double">
+    <description>The maximum tracking error of the controller.</description>
+    <value>0.2</value>
+    </simple>
+</properties>
+]]>
+	  </programlisting>
+	</example>
+      </sect3>
+    </sect2>
+    <sect2 id="reporting-extension">
+      <title>The Reporting (Data Flow Logging) Extension</title>
+      <para>
+	A second functional Extension is the Reporting Extension.
+	It enables Components and DataObjects to report (log)
+	the status of internal variables to the screen or to a file,
+	independent of the kernel's execution period. It can be used
+	for synchronous reporting of data (every sample), but the
+	design favors determinism of execution time over determinism
+	of data acquisition. This means that it is possible that a
+	data sample is lost, but never possible that the Control
+	Kernel stalls because of the reporting activity.
+      </para>
+      <para>
+	What happens is that after each Control Kernel step, the
+	Reporting Extension tries to make a copy of the Component's 
+	exported data. If
+	the data is accessed by the report writing task
+	(which reads the copies), the
+	copy operation is cancelled. A better buffering mechanism
+	(swinging buffers) might solve this in a better way.
+      </para>
+      <figure id="fig-reporting-extension"  pgwide="0">
+	<title>
+	  Overview of the Reporting Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="reporting-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="reporting-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <sect3>
+	<title>Using the Reporting Extension</title>
+	<para>
+	  The ReportingExtension can be added to a
+	  <classname>StandardControlKernel</classname> analogous
+	  to the PropertyExtension :
+	  <programlisting>
+<![CDATA[
+typedef MakeExtension< KernelBaseFunction, ReportingExtension >::Result MyExtension; 
+typedef StandardControlKernel< MyExtension > MyPropertyKernel;
+]]>
+	  </programlisting>
+	  This Extension is mostly put after the KernelBaseFunction,
+	  so that it reports the latest data. Otherwise, the data of 
+	  the previous control cycle would be reported.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring the Reporting Extension</title>
+	<para>
+	  The ReportingExtension can be configured through the CPF
+	  file given in the Control Kernel configuration file.
+	  An example looks like this:
+	</para>
+	<example>
+	  <title>Example reporting.cpf file</title>
+	  <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the ReportingExtension -->
+<properties>
+
+    <simple name="ReportPeriod" type="double">
+       <description>The period, in seconds, for writing
+	    reports to the file or screen.</description>
+       <value>0.1</value>
+    </simple>
+    <simple name="SubSamplingInterval" type="short">
+            <description>The sub sampling interval for internally
+	       copying reports (making snapshots),
+	       relative to the kernel cycle.</description>
+            <value>1</value>
+    </simple>
+    <simple name="ReportFile" type="string">
+        <description>The file to write the reports to.</description>
+        <value>reports.txt</value>
+    </simple>
+    <simple name="ReportServer" type="string">
+        <description>The name of the report server to use.
+	    This allows multiple kernels
+	    to use a common server</description>
+        <value>MyReporter</value>
+    </simple>
+    <simple name="WriteToStdOut" type="boolean">
+        <description>True if the report needs to be written
+	    to standard output.</description>
+        <value>1</value>
+    </simple>
+    <simple name="WriteToFile" type="boolean">
+        <description>True if the report needs to be written
+	    to a file.</description>
+        <value>1</value>
+    </simple>
+    <simple name="WriteHeader" type="boolean">
+        <description>True if the report needs a header
+        </description>
+        <value>1</value>
+    </simple>
+    <simple name="AutoStart" type="boolean">
+        <description>True if the reporting is automatically started.
+        </description>
+        <value>1</value>
+    </simple>
+    <struct name="Exporters" type="type_less">
+        <simple name="Component" type="string"><value>MySensor</value></simple>
+        <simple name="Component" type="string"><value>MyEffector</value></simple>
+        <simple name="Component" type="string"><value>MyController</value></simple>
+        <simple name="Component" type="string"><value>MyEstimator</value></simple>
+        <simple name="Component" type="string"><value>MyGenerator</value></simple>
+
+	<simple name="DataObject" type="string"><value>Models</value></simple>
+	<simple name="DataObject" type="string"><value>Outputs::EndEffPosition</value></simple>
+    </struct>
+</properties>
+]]>
+	  </programlisting>
+	  <para>
+	    Most options are self explanatory. The Exporters list has two types
+	    of entries : <emphasis>Component</emphasis> and <emphasis>DataObject</emphasis>.
+	    The value of Component is the name of the Data Flow Component to query for
+	    reports. If the Component is not present in the Control Kernel, the rule
+	    is ignored. The DataObject value is any of Inputs, Models, Commands, SetPoints
+	    and Outputs. A scope '::' can be added to specify a specific DataObject.
+	    The EndEffPosition Frame in this example. This file is read when the
+	    Kernel is <link linkend="kernel-configuration">configured</link>.
+	  </para>
+	</example>
+      </sect3>
+      <sect3>
+	<title>Reporter Commands</title>
+	<para>
+	  When the kernel is started. The Reporter can be given two commands
+	  to control the reports it generates :
+	  <programlisting>
+  do Reporter.start()
+  do Reporter.stop()  </programlisting>
+	  You can use these in the command console or program scripts
+	  to start/stop the generation of reports.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Reporting Data Flow Components : Using Hooks</title>
+	<para>The ReportingExtension has one Component hook: the
+	  <function>void exportReports( PropertyBag&amp; bag)
+	  </function> method. The user must put every value he
+	  wishes to report in a Property of the according type. For
+	  example to report a 6D position, one would create a Property
+	  <screen>Property&lt; Double6D &gt; q6;</screen> in the
+	  Component class. The exportReports method must then insert
+	  this property into the given bag. The exportReports method
+	  is called once when the Control Kernel is started
+	  ( in the initialize() phase, See
+	  <classname>CoreLib::RunnableTaskInterface</classname> ).
+	  During runtime, every change of the value of the Property will be noticed
+	  by the ReportingExtension. A common use is to update the 
+	  Properties value in the calculate() method.
+	</para>
+	<para>
+	  Of course, a component
+	  does not need to report all its properties, depending on the
+	  configuration, other types might be reported. 
+	</para>
+	<para>
+	  The <link linkend="prop-intro">Decomposition</link> constraint
+	  of the <link linkend="property-extension">PropertyExtension</link>
+	  also applies here.
+	</para>
+	<example>
+	  <title>Reporting in CartesianComponents.hpp</title>
+	  <para>
+	    A simple component with only one value to report.
+	  </para>
+	  <programlisting>
+<![CDATA[
+class MyGenerator 
+    : public Generator< ...,
+	    MakeAspect<KernelBaseFunction,
+	               ReportingExtension>::Result >
+{
+  // For ease of writing :
+  typedef Generator<....> Base;
+public:
+  // In constructor:
+  MyGenerator() :
+     Base("MyGenerator"),
+     end_pos("End Position","One of many variables which can be reported.")
+
+  virtual void calculate () {
+      // ...
+      end_pos = ... ; // update end_pos
+  }
+
+  // Reporting Hook :
+  virtual void exportReports(PropertyBag& bag)
+  {
+      bag.add(&end_pos);
+  }
+
+private:
+  // The property itself
+  Property< ORO_Geometry::Frame > end_pos;
+
+  // ...
+};
+]]>
+	  </programlisting>
+	</example>
+      </sect3>
+      <sect3>
+	<title>Reporting DataObjects</title>
+	<para>
+	  As shown in the example CPF file, also DataObjects can generate
+	  automatically reports. One can request to report the whole DataObject, for
+	  example "Models", "Inputs",... or a more specific part :
+	  "Models::Temperature", "Inputs::AxisPositions". The framework
+	  will be able to generate the reports if the
+	  <link linkend="prop-intro">Property Composition</link>
+	  implementation is provided at compile time of the ReportingExtension.
+	  This is so for any primitive type (double, string,...) and
+	  the Geometry primitives (Frame, Vector,...). Reporting of 
+	  DataObjects is very interesting for tracking or visualizing
+	  the Data Flow afterwards.
+	</para>
+	<para>
+	  It is also possible to log the data objects of other
+	  StandardControlKernels, given that they have the same prefix.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Example output</title>
+	<example>
+	  <title>Reporting DataObjects</title>
+	  <para>This example (from kernel_samples/cartesian_names)
+	    shows the header of a DataObject that is monitored
+	    ( off course, an arbitrary number is possible). Running
+	    the program, 7 columns of numbers will be generated
+	    logging the evolution of the Data. The TimeStamp is
+	    the realtime instant when the data was copied to a
+	    buffer. Each generated report is always made with
+	    a time stamp.
+	  </para>
+	  <screen>
+<![CDATA[
+ | CartKernel::Models                                                 |
+ | TimeStamp | Data                                                   |
+ |           | EndEffPosition <MotCon::Frame>                         |
+ |           | Position <MotCon::Vector> | EulerZYX <MotCon::EulerZYX>|
+ |           | X | Y | Z |               | X | Y | Z |                |
+]]>
+	  </screen>
+	</example>
+      </sect3>
+    </sect2>
+
+    <sect2 id="scripting-extension">
+      <title>Command Interpreter and Command Processing : ExecutionExtension</title>
+      <para>
+	This extension makes from the Kernel a Task, such that it can
+	be used by the Orocos Task Infrastructure.
+	The Execution Extension allows the kernel to execute &orocos;
+	program scripts and &orocos; state descriptions
+	synchronous with the kernel loop. For convenience,
+	it contains a program parser which will read an std::istream 
+	object to obtain the program text and another one to obtain
+	the state graph.
+      </para>
+      <para>
+	The &orocos; execution package contains three manuals which
+	explain the behavior of the Program Processor and the Program
+	and State 
+	Parsers. The Processor can load a state machine which
+	keeps track of the user defined system states and transitions,
+	which define the states of the machine (Orocos State Descriptions).
+	On top of this it executes a program (Orocos Program Script)
+	presented in a hierarchical tree of CommandNodes (which
+	may contain loops). A CommandNode contains about one script
+	command with its termination conditions. The Parser converts a
+	program script to a tree of CommandNodes, which is called a
+	Program. The scriptcommands are all functions of kernel
+	components or external objects which have registered
+	themselves to the parser framework.
+      </para>
+      <figure id="fig-execution-extension"  pgwide="0">
+	<title>
+	  Overview of the Execution Extension
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="execution-ext.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="execution-ext.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <para>
+	The next figure shows how the kernel can be interfaced
+	in a thread-safe way using the Execution Extension.
+	Any part of the application can communicate with the
+	Control Kernel Components using this mechanism. The
+	example uses the not-realtime HMI Visualisation client.
+      </para>
+      <figure>
+	<title>
+	  Interfacing the Control Kernel
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="KernelInterfacing.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="KernelInterfacing.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <sect3>
+	<title>Using the ExecutionExtension</title>
+	<para>
+	  The ExecutionExtension provides a more user friendly 
+	  interface for managing Programs and StateContexts.
+	  A StateContext file and Program file
+	  can be loaded as such :
+	</para>
+      <programlisting>
+<![CDATA[
+  // adding the extension to the KernelBaseFunction: 
+  typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
+  typedef StandardControlKernel<ExecExtension> MyExecKernel;
+
+  MyExecKernel my_kernel;
+  // ... load components, then :
+  try {
+    my_kernel.loadStateContext("state.osd");
+    my_kernel.loadProgram("program.ops");
+  } catch ( file_parse_exception& fpe ) {
+    cerr << fpe.what() << endl;
+    // parse error.
+  } catch ( program_load_exception & ple ) {
+    cerr << ple.what() << endl;
+    // parsed fine, but failed to load
+  }   ]]>   </programlisting>
+	<para>
+	  The Program name is given in the program.ops file.
+	  Both Program and StateContext can cause parse errors or
+	  fail to be loaded in the kernel ( with duplicate names
+	  for example ). If no exceptions occured, 
+	  both StateContext and Program will be non active
+	  after load. To use the
+	  StateContext, it must be activated and started :
+	</para>
+	<programlisting>
+  my_kernel.activateStateContext("MyState");   // Enter initial state 
+  my_kernel.startStateContext("MyState");      // Start transitions</programlisting>
+	<para>
+	  It is most common to start the program itself from within
+	  a state of the StateContext, so that it is sure that
+	  it is safe to start a program. To do this in the state
+	  the commands
+	<programlisting>
+  do programs.MyProgram.start()
+  //...
+  do programs.MyProgram.stop()	</programlisting>
+	  are available. Likewise, it is possible to start and stop
+	  other StateContexts from within a program or another 
+	  State Context :
+	<programlisting>
+  do states.SecondContext.activate()
+  do states.SecondContext.start()
+  //...
+  do states.SecondContext.stop()
+  do states.SecondContext.deactivate()	</programlisting>
+	  Consult the Program Parser and Task Infrastructure manuals
+	  for all details.
+	</para>
+	<para>
+	  With this Extension, the Control Kernel exports itself in a <classname>TaskContext</classname>,
+	  which can be used to integrate it with other Orocos tasks.
+	  The name of the task is the kernel name ("Default" by default).
+	  The listing below shows how you can connect the kernel's task to the
+	  <classname>TaskBrowser</classname>.
+	  <programlisting>
+  TaskContext* kern_task = my_kernel.getTaskContext();
+
+  TaskBrowser browser( kern_task );
+  browser.loop();	  </programlisting>
+	  The above code snippet will cause a text console to be opened
+	  which allows a user to interface the Control Kernel,
+	  its Components and its peer tasks.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Elaborated Example</title>
+	<para>
+	  The Orocos Program Parser presents a StateContext and Program
+	  example. It also goes into great detail about syntax
+	  and possibilities. The Example is for completeness repeated here.
+	</para>
+	<example>
+	  <title>"state.osd" : StateContext with name "MyState"</title>
+	  <programlisting>
+StateContext MachineContext
+{
+    Event_Handle home_switch1
+    Event_Handle home_switch2
+
+    /**
+     * This state is entered when the StateContext is loaded.
+     * The kernel is not running yet...
+     */
+    initial state init_state {
+	transitions {
+	    select startup_state
+	}
+    }
+
+    /**
+     * Kernel is running, select the components.
+     */
+    state startup_state {
+	entry {
+	    do Kernel.selectSensor("HWSensor")
+	    do Kernel.selectGenerator("MoveToGenerator")
+	    }
+	transitions {
+	    select stop_state
+	    }
+    }
+
+    /**
+     * This state is only reached when the State Context
+     * is stopped.
+     */
+    final state fini_state {
+	entry {
+	    do Kernel.selectSensor("Default")
+	    do Kernel.selectGenerator("Default")
+	    }
+    }
+
+    /**
+     * This state is the 'turn off' state of the
+     * machine.
+     */
+    state stop_state {
+	entry {
+	    // The Default Effector and Controller do nothing
+	    do Kernel.selectController("Default")
+	    do Kernel.selectEffector("Default")
+	transitions {
+	    if HMI.start_pushed() then
+		 select run_state
+	    }
+    }
+
+    /**
+     * This state puts the machine under 'control'
+     * effectively accepting commands and driving
+     * the machine.
+     */
+    state run_state {
+	entry {
+	    // make sure we are not moving
+	    do MoveToGenerator.safeStop()
+	    // Select components controlling the machine
+	    do Kernel.selectController("PID")
+	    do Kernel.selectEffector("HWEffector")
+	    }
+
+	transitions {
+	    if HMI.stop_pushed() then
+		 select stop_state
+	    if HMI.start_program() then
+		 select exec_state
+	    }
+    }
+
+    /**
+     * This state starts a previously loaded
+     * program.
+     */
+    state exec_state {
+	entry {
+            do programs.MyProgram.start()
+	    }
+
+	exit {
+            do programs.MyProgram.stop()
+	    }
+
+	transitions {
+	    if HMI.stop_program() then
+		 select run_state
+	    }
+    }
+}
+
+RootContext MainContext mainContext
+	  </programlisting>
+	</example>
+	<example>
+	  <title>"program.ops" : Program with name "MyProgram"</title>
+	  <programlisting>
+/**
+ * This program is executed in the exec_state.
+ */
+
+/**
+ * Request the HMI to load the user selected
+ * trajectory into the kernel.
+ */
+function HMILoadTrajectory {
+	// request a 'push' of the next
+	// trajectory :
+	do HMI.requestTrajectory
+	// when the HMI is done :
+	do Generator.loadTrajectory
+}
+
+/**
+ * Do a Homing (reset) of the axes.
+ * This could also be done using a Homing state,
+ * without a program.
+ */
+function ResetAxes {
+	do Kernel.selectGenerator("HomingGenerator")
+	do HomingGenerator.home()
+}
+
+/**
+ * Request the Generator to use the current
+ * trajectory.
+ */
+function runTrajectory {
+	do Generator.startTrajectory
+	// this function returns when the
+	// trajectory is done.
+}
+
+function ExitProgram {
+	do HMI.display("Program Ended\n")
+	stop
+}
+
+program DemoRun {
+	do HMI.display("Program Started\n")
+	var int cycle = 0
+
+	// We actually wait here until a 
+	// Trajectory is present in the HMI.
+	do nothing until {
+	   if HMI.trajectoryPresent then continue
+	}
+
+	while HMI.cycle {
+	    do HMI.display("Cycle nr: %d.\n", cycle )
+	    call ResetAxes
+	    call HMIRequestTrajectory
+	    call runTrajectory
+
+	    do HeartBeat.sleep( 5.0 ) // wait 5s
+	}
+
+	call ExitProgram
+}
+	  </programlisting>
+	</example>
+      </sect3>
+      <sect3>
+	<title>Configuring the ExecutionExtension</title>
+	<para>
+	  The ExecutionExtension has the following xml options:
+	  <programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<!-- Properties of the ExecutionExtension -->
+<properties>
+    <simple name="Interval"  type="short">
+	<description>The relative interval of executing a program step.</description>
+	<value>5</value>
+    </simple>
+</properties>
+]]>
+	  </programlisting>
+	  For example, if Interval is 5, every fifth cycle, the
+	  extension will run one statement of the program and recheck
+	  the State transitions.
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1 id="cascaded-control-kernels">
+    <title>Cascaded Control Kernels</title>
+    <para>
+      Many applications need more than one layer of control. For
+      example, a fast and (hence) high-priority Kernel is doing
+      fine-grained feedback control, while a slower, lower-priority
+      Kernel is taking care of more coarse-grained planning. However,
+      when two or more kernels are cascaded, the output of the
+      higher-level control kernel is an input for the lower-level
+      kernel, and the outputs for the lower-level kernel can be
+      &ldquo;sensors&rdquo; of the higher-level kernel. If realtime
+      synchronization between both levels is needed, one level must
+      access data objects in the other Kernel in a synchronized, safe
+      and efficient way.  For example, the higher-level Control Kernel
+      could want to access DataObjects of the low-level Control Kernel
+      to acquire Model or Input data. It is also possible that all
+      kernels access common sensor Inputs.  Anyway, proper locking and
+      synchronization of the shared DataObjects must be provided as
+      soon as Control Kernels are running <link
+	linkend="sync-async">asynchronously</link>. This is certainly
+      the case when two or more kernels run at different frequencies,
+      in different operating system threads.
+    </para>
+    <para>
+      Since &orocos; imposes the <link linkend="formal-rules">formal
+	rule</link> that data sharing can only be done through
+      DataObjects, any kind of data can be guarded against concurrent
+      access by careful design of the DataObjects. (This design is
+      sometimes referred to as the &ldquo;monitor software
+      pattern&rdquo;.) &orocos; provides concurrent access primitives
+      for all relevant synchronization cases (see section <link 
+	linkend="data-objects"> DataObjects</link>.
+    </para>
+    <sect2 id="cascade-ns">
+      <title>The CascadeControlKernel</title>
+      <para>
+	This Kernel is usable for most control loop cascades imaginable.
+	Each cascaded Kernel can have all Components and all DataObjects
+	shared across these Kernels. The
+	limitation that only one Component may write to a certain
+	nameserved DataObject still holds but all the others may read it, independent
+	of the priority level. This is logical since if more than one
+	Component writes data into a DataObject, the contents become
+	ambiguous.
+      </para>
+      <figure id="fig-cascade" pgwide="0">
+	<title>
+	  Overview of three Cascading NameServing Control Kernels
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="cascnames.png"
+	      format="PNG"/>
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="cascnames.eps"
+	      format="EPS"/>
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <para>
+	From the public interface, the CascadeControlKernel does not
+	look differently than the StandardControlKernel. However, its
+	DataObjects are chosen in such a way that they are fully
+	thread safe and non blocking by using the
+	<link linkend="data-objects">DataObjectBuffer</link>
+	implementation. In this Kernel however, you want the prefix
+	to match the one of the other Kernel, so that they share 
+	the same DataObjects.
+      </para>
+      <para>
+	The Outputs DataObject of a CascadeControlKernel will be
+	automatically introduced
+	in the Commands namespace of the other Kernels. One should be
+	aware of possible name clashes. Of course, what one Kernel
+	expects as a Command should be produced by another Kernel as
+	Output. If this is not the case, the DataObject will not be
+	found by the nameserver, and the Component will fail to startup.
+      </para>
+      <para>
+	If you want to extend an existing control kernel with a cascade
+	kernel, you need to use the LockFreeControlKernel
+	( instead of the StandardControlKernel), which allows
+	thread-safe and lock-free data access to all DataObjects. See the example below.
+      </para>
+      <para>
+	<example>
+	  <title>Cascading Three Control Kernels</title>
+	  <para>
+	    This example demonstrates a three-layer Kernel layout with
+	    the CascadeControlKernel. Any DataObject may be calculated 
+	    anywhere and different parts of a DataObject type may be calculated
+	    in different Kernels. Again, only one Component in one Kernel
+	    may write to a specific DataObject, while all
+	    the others may read from it.
+	  </para>
+	    <programlisting>
+<![CDATA[
+// The highest priority kernel is standard
+LockFreeControlKernel<> 
+    innerKernel("InnerLoop", "my_cascade" );
+
+// A cascade, its outputs get in the command dataobject
+// of "InnerLoop"
+CascadeControlKernel<>
+    casc2Kernel("MiddleLoop", "my_cascade" );
+
+// same as above
+CascadeControlKernel<> 
+    casc3Kernel("OuterLoop", "my_cascade" );
+
+// ... repeat as much as you want
+
+// Load and Select components...
+
+// Configure the kernels using KernelConfig
+
+// Start kernels in seperate tasks and threads
+]]>
+	  </programlisting>
+	  <para>
+	    The CascadeControlKernel knows it has to put the Outputs of
+	    the Kernel in the namespace of the Commands of all the
+	    other Kernels. "my_cascade" is the namespace prefix of the kernel,
+	    not the name. So all three kernels will place their DataObjects
+	    in the "my_cascade" namespace.
+	    An example can be found in
+	    the <filename>kernel_samples</filename> package.
+	  </para>
+	</example>
+      </para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Converting Old-Style Components to New-Style</title>
+    <para>
+      Prior to the presented StandardControlKernel, two other kernels
+      were presented in the previous Orocos releases. This Appendix
+      gives a short overview of how to migrate these Components to
+      the new Infrastructure.
+    </para>
+    <sect2>
+      <title>Converting from the Old StandardControlKernel</title>
+      <para>
+	The Data Flow Components and Control Kernel have been adapted such that
+	Component and Kernel can be separately compiled. This was only possible
+	because of name served Data Objects. The Old StandardControlKernel
+	did not use this feature. The example shows first an old style
+	implementation :
+      </para>
+      <example>
+	<title>An Old-Style StandardControlKernel</title>
+	<programlisting>
+  StandardControlKernel&lt;CommandType, SetPointType,
+	                   InputType, ModelType, OutputType, Extension&gt; kernel;
+ 
+  template&lt; class Base &gt;
+  XGenerator : public Base
+  {
+     // access Inputs::dObj() with Get() and Set(),...
+  };
+	</programlisting>
+      </example>
+      <para>
+	This must be changed to :
+      </para>
+      <example>
+	<title>A Converted Old-Style StandardControlKernel</title>
+	<programlisting>
+  StandardControlKernel&lt;Extension&gt; kernel;
+
+  struct NSInputType
+    : public ServedTypes&lt;InputType&gt;
+  {
+      NSInputType() {
+	  this->insert(make_pair(0,"Input"));
+      }
+  };
+
+  // repeat for other Types...
+
+  XGenerator 
+    : public Generator&lt; Expects&lt;NSInputType&gt;,
+                           Expects&lt;NSModelType&gt;,
+                           Expects&lt;NSCommandType&gt;,
+                           Writes&lt;NSSetPointType&gt; &gt;
+  {
+    // Use the nameserving technique to get a pointer to the
+    // "Input" DataObject.
+  };
+	</programlisting>
+
+	<para>
+	  <note>
+	    <para>If you were using Extensions/Aspects such as 
+	      <function>exportReports()</function> or
+	      <function>updateProperties()</function>, you will need an extra
+	      template parameter <classname>MakeAspect</classname>.  See <xref
+		linkend="control-kernel-extensions" /> for
+	      more information.</para>
+	  </note>
+	</para>
+      </example>
+    </sect2>
+    <sect2>
+      <title>Converting from the NSControlKernel</title>
+      <para>
+	Adaptation from this kernel is quite minimal. As above,
+	all DataObject types can be removed from the kernel 
+	definition as above. Next the component uses the
+	already defined NS DataObjects in Expects and Writes :
+      </para>
+      <example>
+	<title>A Converted Old-Style NSControlKernel</title>
+	<programlisting>
+  // Change the kernel definition :
+  StandardControlKernel&lt;Extension&gt; kernel;
+
+  // Remove the template, inherit from Generator directly :
+  XGenerator 
+    : public Generator&lt; Expects&lt;NSInputType&gt;,
+                           Expects&lt;NSModelType&gt;,
+                           Expects&lt;NSCommandType&gt;,
+                           Writes&lt;NSSetPointType&gt; &gt;
+  {
+    // Use the nameserving technique to get a pointer to the
+    // DataObjects, no change here
+  };
+	</programlisting>
+      </example>
+      <para>
+	If you used the <classname>CompositeDataObject</classname>
+	to define the Kernel type, this is no longer needed
+	and each component expects or writes its own DataObjects.
+      </para>
+    </sect2>
+  </sect1>
+
+  <appendix>
+    <title>Left-Overs</title>
+    <sect1 id="prop-intro">
+      <title>Properties</title>
+      <para>
+	Properties are a way to represent configuration options in
+	an abstract way. The property contains data (has a value),
+	which is of one certain, immutable, type. Any type can be
+	encapsulated by a Property. A Property of a double is
+	written as: 
+<screen>
+Property&lt;double&gt; d_prop;
+</screen>
+	A Property of an arbitrary type A is
+	equally written as 
+<screen>
+Property&lt; A &gt; a_prop;
+</screen> 
+	This however does not enable the
+	marshallers or demarshallers (converters) to know how to convert a
+	property to a text file and vice versa. For each unknown
+	type, the user has to write a composeProperty and
+	decomposeProperty method. How this must happen can be read
+	in the <filename>corelib/properties/base
+	  PropertyComposition.hpp</filename> and
+	<filename>corelib/properties/base
+	  PropertyDecomposition.hpp</filename> files.
+      </para>
+      <example>
+	<title>Property Composition and Decomposition</title>
+	<para> The Geometry primitives have also such custom functions
+	  which can be found in the file <filename>geometry
+	    MotionProperties.hpp</filename> file.</para>
+      </example>      
+    </sect1>
+  </appendix>
+  <appendix>
+    <title>Legal Notices</title>
+    <para>Orocos ControlKernel contains files from the Loki Library, which requires
+      the following notice :
+    </para>
+    <para>
+      <programlisting>
+////////////////////////////////////////////////////////////////////////////////
+// The Loki Library
+// Copyright (c) 2001 by Andrei Alexandrescu
+// This code accompanies the article:
+// Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design
+//     Patterns Applied". Copyright (c) 2001. Addison-Wesley.
+// Permission to use, copy, modify, distribute and sell this software for any
+//     purpose is hereby granted without fee, provided that the above copyright
+//     notice appear in all copies and that both that copyright notice and this
+//     permission notice appear in supporting documentation.
+// The author or Addison-Wesley Longman make no representations about the
+//     suitability of this software for any purpose. It is provided "as is"
+//     without express or implied warranty.
+////////////////////////////////////////////////////////////////////////////////
+      </programlisting>
+    </para>
+  </appendix>
+<bibliography><title>Bibliography</title>
+  <biblioentry xreflabel="corba3">
+    <abbrev>CCM</abbrev>
+    <title>CORBA Components</title>
+    <pubdate>2002</pubdate>
+    <publisher><publishername>Object Management Group</publishername></publisher>
+    <pagenums>277-282</pagenums>
+  </biblioentry>
+</bibliography>
+
+</article>
