@@ -31,6 +31,7 @@
 #define COMEDISUBDEVICEAOUT_HPP
 
 #include <device_interface/AnalogOutInterface.hpp>
+#include <os/fosi.h>
 #include "ComediDevice.hpp"
 
 namespace ORO_DeviceDriver
