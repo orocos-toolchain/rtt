@@ -31,12 +31,12 @@
 namespace ORO_CoreLib
 {
 
-    template class Property<Frame>;
+    template class Property<ORO_Geometry::Frame>;
     template class Property<Double6D>;
-    template class Property<Wrench>;
-    template class Property<Twist>;
-    template class Property<Rotation>;
-    template class Property<Vector>;
+    template class Property<ORO_Geometry::Wrench>;
+    template class Property<ORO_Geometry::Twist>;
+    template class Property<ORO_Geometry::Rotation>;
+    template class Property<ORO_Geometry::Vector>;
 
     /**
      *
@@ -61,7 +61,7 @@ namespace ORO_CoreLib
     public: 
         
         Double6DDecomposer( const Property<Double6D>& v );
-        Double6DDecomposer( const Double6D& v, const string& name );
+        Double6DDecomposer( const Double6D& v, const std::string& name );
         
         Property<PropertyBag>& result() { return resultBag; }
     };
@@ -83,7 +83,7 @@ namespace ORO_CoreLib
             return getResult( res.value(), res.getName() );
         }
                 
-        bool getResult( Double6D& res, const string& name );
+        bool getResult( Double6D& res, const std::string& name );
     };
             
     /**
@@ -107,8 +107,8 @@ namespace ORO_CoreLib
         resultBag.value().add(&D6);
     }
 
-    Double6DDecomposer::Double6DDecomposer( const Double6D& d, const string& name )
-        : resultBag( name, string(), PropertyBag("MotCon::Double6D") ), // bag_type
+    Double6DDecomposer::Double6DDecomposer( const Double6D& d, const std::string& name )
+        : resultBag( name, std::string(), PropertyBag("MotCon::Double6D") ), // bag_type
           D1("D1","D1 Value", d[0]),
           D2("D2","D2 Value", d[1]),
           D3("D3","D3 Value", d[2]),
@@ -124,7 +124,7 @@ namespace ORO_CoreLib
         resultBag.value().add(&D6);
     }
 
-    bool Double6DComposer::getResult( Double6D& res, const string& name )
+    bool Double6DComposer::getResult( Double6D& res, const std::string& name )
     {
         // find the Double6D with the same name in the bag.
         PropertyBase* v_base = bag.find( name );
@@ -175,8 +175,8 @@ namespace ORO_CoreLib
         
     public: 
         
-        VectorDecomposer( const Property<Vector>& v );
-        VectorDecomposer( const Vector& v, const string& name );
+        VectorDecomposer( const Property<ORO_Geometry::Vector>& v );
+        VectorDecomposer( const ORO_Geometry::Vector& v, const std::string& name );
         
         Property<PropertyBag>& result() { return resultBag; }
     };
@@ -193,15 +193,15 @@ namespace ORO_CoreLib
             : bag(_bag)
         {}
 
-        bool getResult( Property<Vector>& res )
+        bool getResult( Property<ORO_Geometry::Vector>& res )
         {
             return getResult( res.value(), res.getName() );
         }
                 
-        bool getResult( Vector& res, const string& name );
+        bool getResult( ORO_Geometry::Vector& res, const std::string& name );
     };
             
-    VectorDecomposer::VectorDecomposer( const Property<Vector>& v )
+    VectorDecomposer::VectorDecomposer( const Property<ORO_Geometry::Vector>& v )
         : resultBag(v.getName(), v.getDescription(), PropertyBag("MotCon::Vector") ), // bag_type
           X("X","X Value", v.get()[0]),
           Y("Y","Y Value", v.get()[1]),
@@ -212,8 +212,8 @@ namespace ORO_CoreLib
         resultBag.value().add(&Z);
     }
 
-    VectorDecomposer::VectorDecomposer( const Vector& v, const string& name )
-        : resultBag( name, string(), PropertyBag("MotCon::Vector") ), // bag_type
+    VectorDecomposer::VectorDecomposer( const ORO_Geometry::Vector& v, const std::string& name )
+        : resultBag( name, std::string(), PropertyBag("MotCon::Vector") ), // bag_type
           X("X","X Value", v[0]),
           Y("Y","Y Value", v[1]),
           Z("Z","Z Value", v[2])
@@ -223,7 +223,7 @@ namespace ORO_CoreLib
         resultBag.value().add(&Z);
     }
 
-    bool VectorComposer::getResult( Vector& res, const string& name )
+    bool VectorComposer::getResult( ORO_Geometry::Vector& res, const std::string& name )
     {
         // find the Vector with the same name in the bag.
         PropertyBase* v_base = bag.find( name );
@@ -239,7 +239,7 @@ namespace ORO_CoreLib
                         // found it.
                         if ( px != 0 && py != 0  && pz != 0)
                             {
-                                res = Vector( px->get(),py->get(),pz->get() );
+                                res = ORO_Geometry::Vector( px->get(),py->get(),pz->get() );
                                 return true;
                             }
                     }
@@ -272,8 +272,8 @@ namespace ORO_CoreLib
         Property<double> Z_z;
     public: 
         
-        RotationDecomposer( const Property<Rotation>& r );
-        RotationDecomposer( const Rotation& r, const string& name );
+        RotationDecomposer( const Property<ORO_Geometry::Rotation>& r );
+        RotationDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
         
         Property<PropertyBag>& result() { return resultBag; }
     };
@@ -290,15 +290,15 @@ namespace ORO_CoreLib
             :  bag(_bag)
         {}
 
-        bool getResult( Property<Rotation>& res )
+        bool getResult( Property<ORO_Geometry::Rotation>& res )
         {
             return getResult( res.value(), res.getName() );
         }
 
-        bool getResult( Rotation& res, const string& name );
+        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
     };
             
-    RotationDecomposer::RotationDecomposer( const Property<Rotation>& r )
+    RotationDecomposer::RotationDecomposer( const Property<ORO_Geometry::Rotation>& r )
         : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::Rotation") ),
           X_x("X_x","", r.get()(0,0) ),
           X_y("X_y","", r.get()(0,1) ),
@@ -321,8 +321,8 @@ namespace ORO_CoreLib
         resultBag.value().add(&Z_z);
     }
 
-    RotationDecomposer::RotationDecomposer( const Rotation& r, const string& name )
-        : resultBag(name, string(), PropertyBag("MotCon::Rotation") ),
+    RotationDecomposer::RotationDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
+        : resultBag(name, std::string(), PropertyBag("MotCon::Rotation") ),
           X_x("X_x","", r(0,0) ),
           X_y("X_y","", r(0,1) ),
           X_z("X_z","", r(0,2) ),
@@ -344,7 +344,7 @@ namespace ORO_CoreLib
         resultBag.value().add(&Z_z);
     }
 
-    bool RotationComposer::getResult( Rotation& res, const string& name )
+    bool RotationComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
     {
         // find the Rotation with the same name in the bag.
         PropertyBase* v_base = bag.find( name );
@@ -368,7 +368,7 @@ namespace ORO_CoreLib
                               Y_x != 0 && Y_y != 0  && Y_z != 0 &&
                               Z_x != 0 && Z_y != 0  && Z_z != 0 )
                             {
-                                res = Rotation( 
+                                res = ORO_Geometry::Rotation( 
                                                X_x->get(), Y_x->get(),Z_x->get(),
                                                X_y->get(),Y_y->get(),Z_y->get(),
                                                X_z->get(),Y_z->get(),Z_z->get() 
@@ -393,8 +393,8 @@ namespace ORO_CoreLib
 
     public: 
         
-        EulerZYXDecomposer( const Property<Rotation>& r );
-        EulerZYXDecomposer( const Rotation& r, const string& name );
+        EulerZYXDecomposer( const Property<ORO_Geometry::Rotation>& r );
+        EulerZYXDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
         
         Property<PropertyBag>& result() { return resultBag; }
     };
@@ -411,15 +411,15 @@ namespace ORO_CoreLib
             :  bag(_bag)
         {}
 
-        bool getResult( Property<Rotation>& res )
+        bool getResult( Property<ORO_Geometry::Rotation>& res )
         {
             return getResult( res.value(), res.getName() );
         }
 
-        bool getResult( Rotation& res, const string& name );
+        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
     };
             
-    EulerZYXDecomposer::EulerZYXDecomposer( const Property<Rotation>& r )
+    EulerZYXDecomposer::EulerZYXDecomposer( const Property<ORO_Geometry::Rotation>& r )
         : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::EulerZYX") ),
           _x("X","" ),
           _y("Y","" ),
@@ -431,8 +431,8 @@ namespace ORO_CoreLib
         resultBag.value().add(&_z);
     }
 
-    EulerZYXDecomposer::EulerZYXDecomposer( const Rotation& r, const string& name )
-        : resultBag(name, string(), PropertyBag("MotCon::EulerZYX") ),
+    EulerZYXDecomposer::EulerZYXDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
+        : resultBag(name, std::string(), PropertyBag("MotCon::EulerZYX") ),
           _x("X","" ),
           _y("Y","" ),
           _z("Z","" )
@@ -443,7 +443,7 @@ namespace ORO_CoreLib
         resultBag.value().add(&_z);
     }
 
-    bool EulerZYXComposer::getResult( Rotation& res, const string& name )
+    bool EulerZYXComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
     {
         // find the Rotation with the same name in the bag.
         PropertyBase* v_base = bag.find( name );
@@ -460,7 +460,7 @@ namespace ORO_CoreLib
                         // found it.
                         if (  _x != 0 && _y != 0  && _z != 0 )
                             {
-                                res = Rotation::EulerZYX(_x->get(), _y->get(), _z->get() );
+                                res = ORO_Geometry::Rotation::EulerZYX(_x->get(), _y->get(), _z->get() );
                                 return true;
                             }
                     }
@@ -481,20 +481,20 @@ namespace ORO_CoreLib
         return vas.getResult(v);
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Vector> &v)
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Vector> &v)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         VectorDecomposer vco(v);
         p->introspect( vco.result() );
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Vector> &v)
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Vector> &v)
     {
         VectorComposer vas( bag );
         return vas.getResult(v);
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Rotation> &b)
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Rotation> &b)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
 #ifdef OROSEM_GEOMETRY_EULERPROPERTIES
@@ -506,7 +506,7 @@ namespace ORO_CoreLib
         p->introspect( rot.result() );
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Rotation> &r)
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Rotation> &r)
     {
 #ifdef OROSEM_GEOMETRY_EULERPROPERTIES
         EulerZYXComposer ras(bag);
@@ -516,7 +516,7 @@ namespace ORO_CoreLib
         return ras.getResult( r );
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Twist> &t)
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         Property<PropertyBag> result(t.getName(), t.getDescription(), PropertyBag("MotCon::Twist") ); // bag_type
@@ -530,7 +530,7 @@ namespace ORO_CoreLib
         p->introspect(result);
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Twist> &t)
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Twist> &t)
     {
         // find the Twist with the same name in the bag.
         PropertyBase* t_base = bag.find( t.getName() );
@@ -538,7 +538,7 @@ namespace ORO_CoreLib
             {
                 Property<PropertyBag>* t_bag = dynamic_cast< Property<PropertyBag>* >( t_base );
 
-                if ( t_bag != 0  && t_bag->get().getType() == string("MotCon::Twist") )
+                if ( t_bag != 0  && t_bag->get().getType() == std::string("MotCon::Twist") )
                     {
                         // pass this bag to the vector Composers
                         VectorComposer vas_vel( t_bag->get() );
@@ -550,7 +550,7 @@ namespace ORO_CoreLib
         return false;
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Wrench> &b)
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Wrench> &b)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         Property<PropertyBag> result(b.getName(), b.getDescription(), PropertyBag("MotCon::Wrench") ); // bag_type
@@ -564,7 +564,7 @@ namespace ORO_CoreLib
         p->introspect(result);
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Wrench> &w)
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Wrench> &w)
     {
         // find the Wrench with the same name in the bag.
         PropertyBase* w_base = bag.find( w.getName() );
@@ -572,7 +572,7 @@ namespace ORO_CoreLib
             {
                 Property<PropertyBag>* w_bag = dynamic_cast< Property<PropertyBag>* >( w_base );
 
-                if ( w_bag != 0  && w_bag->get().getType() == string("MotCon::Wrench") )
+                if ( w_bag != 0  && w_bag->get().getType() == std::string("MotCon::Wrench") )
                     {
                         // pass this bag to the vector Composers
                         VectorComposer vas_force( w_bag->get() );
@@ -584,7 +584,7 @@ namespace ORO_CoreLib
         return false;
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Frame> &f)
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Frame> &f)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         Property<PropertyBag> result(f.getName(), f.getDescription(), PropertyBag("MotCon::Frame") ); // bag_type
@@ -602,7 +602,7 @@ namespace ORO_CoreLib
         p->introspect(result);
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Frame> &f)
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Frame> &f)
     {
         // find the Frame with the same name in the bag.
         PropertyBase* f_base = bag.find( f.getName() );
@@ -610,7 +610,7 @@ namespace ORO_CoreLib
             {
                 Property<PropertyBag>* f_bag = dynamic_cast< Property<PropertyBag>* >( f_base );
 
-                if ( f_bag != 0  && f_bag->get().getType() == string("MotCon::Frame") )
+                if ( f_bag != 0  && f_bag->get().getType() == std::string("MotCon::Frame") )
                     {
                         // pass this bag to the vector Composers
                         VectorComposer vas_pos( f_bag->get() );

@@ -73,7 +73,7 @@ namespace ORO_ControlKernel
     }
 
     // set empty values
-    Twist _temp_twist;
+    ORO_Geometry::Twist _temp_twist;
     _velocity_out_DOI->Set(_temp_twist);
 
     return true;

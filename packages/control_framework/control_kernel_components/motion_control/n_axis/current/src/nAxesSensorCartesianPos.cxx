@@ -31,7 +31,7 @@ namespace ORO_ControlKernel
   nAxesSensorCartesianPos::nAxesSensorCartesianPos(unsigned int num_axes, 
 						   std::vector<AxisInterface*> axes,
 						   ORO_KinDyn::KinematicsComponent* kin,
-						   const Frame& offset,
+						   const ORO_Geometry::Frame& offset,
 						   std::string name)
     : nAxesSensorCartesianPos_typedef(name),
       _num_axes(num_axes), 
@@ -91,7 +91,7 @@ namespace ORO_ControlKernel
     }
 
     // set empty values
-    Frame _temp_frame;
+    ORO_Geometry::Frame _temp_frame;
     _position_out_DOI->Set(_temp_frame);
 
     return true;

@@ -42,14 +42,6 @@
 
 namespace ORO_CoreLib
 {
-    using std::string;
-    using ORO_Geometry::Vector;
-    using ORO_Geometry::Frame;
-    using ORO_Geometry::Twist;
-    using ORO_Geometry::Rotation;
-    using ORO_Geometry::Wrench;
-
-
     /**
      * Additional functionality for handling a Property<Double6D>
      */
@@ -65,25 +57,25 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Vector>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Vector> &v);
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Vector> &v);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Vector, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Vector> &v);
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Vector> &v);
 
         
     /**
      * Additional functionality for handling a Property<Rotation>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Rotation> &b);
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Rotation> &b);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Rotation, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Rotation> &r);
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Rotation> &r);
 
     /**
      *
@@ -94,13 +86,13 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Twist>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Twist> &t);
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Twist, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Twist> &t);
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Twist> &t);
 
     /**
      *
@@ -111,13 +103,13 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Wrench>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Wrench> &b);
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Wrench> &b);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Wrench, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Wrench> &w);
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Wrench> &w);
 
     /**
      *
@@ -128,20 +120,20 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Frame>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Frame> &f);
+    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Frame> &f);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Frame, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Frame> &f);
+    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Frame> &f);
 
-    extern template class Property<Frame>;
+    extern template class Property<ORO_Geometry::Frame>;
     extern template class Property<Double6D>;
-    extern template class Property<Wrench>;
-    extern template class Property<Twist>;
-    extern template class Property<Rotation>;
-    extern template class Property<Vector>;
+    extern template class Property<ORO_Geometry::Wrench>;
+    extern template class Property<ORO_Geometry::Twist>;
+    extern template class Property<ORO_Geometry::Rotation>;
+    extern template class Property<ORO_Geometry::Vector>;
 }
 
 #endif

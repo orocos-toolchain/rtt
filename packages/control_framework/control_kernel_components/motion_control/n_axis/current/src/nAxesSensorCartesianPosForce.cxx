@@ -34,8 +34,8 @@ namespace ORO_ControlKernel
 							     std::vector<AxisInterface*> axes,
 							     SensorInterface<ORO_Geometry::Wrench>* forcesensor,
 							     ORO_KinDyn::KinematicsComponent* kin,
-							     const Frame& MP_EE,
-							     const Frame& MP_FS,
+							     const ORO_Geometry::Frame& MP_EE,
+							     const ORO_Geometry::Frame& MP_FS,
 							     std::string name)
     : nAxesSensorCartesianPosForce_typedef(name),
       _num_axes(num_axes), 
@@ -109,8 +109,8 @@ namespace ORO_ControlKernel
     }
 
     // set empty values
-    Frame _temp_frame;
-    Wrench _temp_wrench;
+    ORO_Geometry::Frame _temp_frame;
+    ORO_Geometry::Wrench _temp_wrench;
     _position_out_DOI->Set(_temp_frame);
     _force_out_DOI->Set(_temp_wrench);
 
@@ -145,7 +145,7 @@ namespace ORO_ControlKernel
     }
 
     // foce component of gravity
-    _gravity.force  = Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));
+    _gravity.force  = ORO_Geometry::Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));
 
     return true;
   }
@@ -174,7 +174,7 @@ namespace ORO_ControlKernel
     _offset = offset;
     _center_gravity = center_gravity;
 
-    _gravity.force  = Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));
+    _gravity.force  = ORO_Geometry::Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));
   }
   
 
