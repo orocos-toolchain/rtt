@@ -527,8 +527,8 @@ namespace ORO_Execution
 
     // constructors:
     add( newTernaryOperator( "vectorxyz", mystl::ptr_fun( &vectorxyz ) ) );
-    add( newTernaryOperator( "rotationeuler",
-                             mystl::ptr_fun( Rotation::EulerZYZ ) ) );
+    add( newTernaryOperator( "rotationRPY",
+                             mystl::ptr_fun( Rotation::RPY ) ) );
     add( newBinaryOperator( "framevr", std::ptr_fun( &framevr ) ) );
     add( newBinaryOperator( "wrenchft", std::ptr_fun( &wrenchft ) ) );
     add( newBinaryOperator( "twistvw", std::ptr_fun( &twistvw ) ) );

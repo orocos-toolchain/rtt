@@ -466,7 +466,7 @@ namespace ORO_Execution
       >> comma
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_ternary, this,
-                      "rotationeuler" ) ];
+                      "rotationRPY" ) ];
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..
