@@ -7,9 +7,9 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
 
 
-  nAxesVelController::nAxesVelController(unsigned int num_axes, 
+  nAxesControllerVel::nAxesControllerVel(unsigned int num_axes, 
 					 std::string name)
-    : nAxesVelController_typedef(name),
+    : nAxesControllerVel_typedef(name),
       _num_axes(num_axes), 
       _velocity_local(num_axes),
       _position_desired(num_axes),
@@ -19,10 +19,10 @@ namespace ORO_ControlKernel
   {}
 
 
-  nAxesVelController::~nAxesVelController(){};
+  nAxesControllerVel::~nAxesControllerVel(){};
   
 
-  void nAxesVelController::pull()
+  void nAxesControllerVel::pull()
   {
     // copy Input and Setpoint to local values
     _position_meas_DOI->Get(_position_meas_local);
@@ -31,8 +31,17 @@ namespace ORO_ControlKernel
 
 
 
-  void nAxesVelController::calculate()
+  void nAxesControllerVel::calculate()
   {
+    // initialize
+    if (!_is_initialized){
+      _is_initialized = true;
+      for (unsigned int i=0; i<_num_axes; i++)
+	_position_desired[i] = _position_meas_local[i];
+      _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+    }
+
+    // position feedback on integrated velocity
     double time_difference = HeartBeatGenerator::Instance()->secondsSince(_time_begin);
     for(unsigned int i=0; i<_num_axes; i++){
       _position_desired[i] += _velocity_desi_local[i] * time_difference;
@@ -42,51 +51,49 @@ namespace ORO_ControlKernel
   }
 
   
-  void nAxesVelController::push()      
+  void nAxesControllerVel::push()      
   {
     _velocity_DOI->Set(_velocity_local);
   }
 
 
-  bool nAxesVelController::componentLoaded()
+  bool nAxesControllerVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !nAxesVelController_typedef::Output::dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesVelController::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !nAxesControllerVel_typedef::Output::dObj()->Get("Velocity", _velocity_DOI) ){
+      cerr << "nAxesControllerVel::componentLoaded() DataObjectInterface not found" << endl;
       return false;
     }
     return true;
   }
 
 
-  bool nAxesVelController::componentStartup()
+  bool nAxesControllerVel::componentStartup()
   {
     // check if updateProperties has been called
     assert(_properties_read);
 
     // reset integrator
-    for (unsigned int i=0; i<_num_axes; i++)
-      _position_desired[i] = _position_meas_local[i];
-    _time_begin = HeartBeatGenerator::Instance()->ticksGet();
+    _is_initialized = false;
 
     // get interface to Input/Setpoint data types
-    if ( !nAxesVelController_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !nAxesVelController_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
-      cerr << "nAxesVelController::componentStartup() DataObjectInterface not found" << endl;
+    if ( !nAxesControllerVel_typedef::Input::dObj(   )->Get("Position", _position_meas_DOI) ||
+	 !nAxesControllerVel_typedef::SetPoint::dObj()->Get("Velocity", _velocity_desi_DOI) ){
+      cerr << "nAxesControllerVel::componentStartup() DataObjectInterface not found" << endl;
       return false;
     }
     return true;
   }
   
 
-  bool nAxesVelController::updateProperties(const PropertyBag& bag)
+  bool nAxesControllerVel::updateProperties(const PropertyBag& bag)
   {
     // properties have been read
     _properties_read = true;
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesVelController::updateProperties() failed" << endl;
+      cerr << "nAxesControllerVel::updateProperties() failed" << endl;
       return false;
     }
 

@@ -1,4 +1,4 @@
-// $Id: nAxisVelController.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
+// $Id: nAxisControllerVel.hpp,v 1.1.1.1 2003/12/02 20:32:06 kgadeyne Exp $
 // Copyright (C) 2003 Klaas Gadeyne <klaas.gadeyne@mech.kuleuven.ac.be>
 //                    Wim Meeussen  <wim.meeussen@mech.kuleuven.ac.be>
 //  
@@ -17,8 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#ifndef __N_AXES_VEL_CONTROLLER_H__
-#define __N_AXES_VEL_CONTROLLER_H__
+#ifndef __N_AXES_CONTROLLER_VEL_H__
+#define __N_AXES_CONTROLLER_VEL_H__
 
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ReportingExtension.hpp>
@@ -32,24 +32,24 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesVelControllerInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
+  class nAxesControllerVelInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
-    nAxesVelControllerInput_pos() {}
+    nAxesControllerVelInput_pos() {}
   }; // class
 
 
-  class nAxesVelControllerSetpoint_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
+  class nAxesControllerVelSetpoint_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
-    nAxesVelControllerSetpoint_pos() {}
+    nAxesControllerVelSetpoint_pos() {}
   }; // class
 
 
-  class nAxesVelControllerOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
+  class nAxesControllerVelOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
-    nAxesVelControllerOutput_vel()
+    nAxesControllerVelOutput_vel()
     {
       this->insert(ORO_ControlKernel::make_pair(0,"Velocity"));
     }
@@ -61,19 +61,19 @@ namespace ORO_ControlKernel
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Controller< ORO_ControlKernel::Expects<nAxesVelControllerInput_pos>,
+  typedef ORO_ControlKernel::Controller< ORO_ControlKernel::Expects<nAxesControllerVelInput_pos>,
 					 ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
-					 ORO_ControlKernel::Expects<nAxesVelControllerSetpoint_pos>,
-					 ORO_ControlKernel::Writes<nAxesVelControllerOutput_vel>,
+					 ORO_ControlKernel::Expects<nAxesControllerVelSetpoint_pos>,
+					 ORO_ControlKernel::Writes<nAxesControllerVelOutput_vel>,
 					 ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesVelController_typedef;
+								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerVel_typedef;
 
-  class nAxesVelController
-    : public nAxesVelController_typedef
+  class nAxesControllerVel
+    : public nAxesControllerVel_typedef
   {
   public:
-    nAxesVelController(unsigned int num_axes, std::string name);
-    virtual ~nAxesVelController();
+    nAxesControllerVel(unsigned int num_axes, std::string name);
+    virtual ~nAxesControllerVel();
 
     virtual bool componentLoaded();
     virtual bool componentStartup();
@@ -91,7 +91,7 @@ namespace ORO_ControlKernel
     ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_meas_DOI,  *_velocity_desi_DOI,  *_velocity_DOI;
 
     double                                                                _timestep;
-    bool                                                                  _properties_read;
+    bool                                                                  _properties_read, _is_initialized;
     ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;
 
@@ -99,4 +99,4 @@ namespace ORO_ControlKernel
 
 } // namespace
 
-#endif // __N_AXES_VEL_CONTROLLER_H__
+#endif // __N_AXES_CONTROLLER_VEL_H__
