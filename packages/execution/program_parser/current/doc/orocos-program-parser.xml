@@ -585,7 +585,7 @@ while <emphasis>condition</emphasis> {
       <sect3>
 	<title>Introduction</title>
 	<para>
-	  A StateContext is a kind of state machine used in the &OROCOS;
+	  A StateContext is a kind of state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
 	  defines what to do on entry of the state, when it is handled
 	  and on exit.  It also defines all transitions to a next
@@ -792,7 +792,7 @@ transitions {
 	  <title>State Preconditions</title>
 	  <para>
 	    Often it's useful to specify some preconditions that need
-	    to hold before entering a state.  &OROCOS; states
+	    to hold before entering a state.  &orocos; states
 	    explicitly allow for this.  A state's preconditions will
 	    be checked before the state is entered.
 	  </para>
@@ -813,6 +813,7 @@ preconditions {
 	    state, whereas transitions are checked every time the
 	    state is handled.
 	  </para>
+	</sect4>
       </sect3>
       <sect3>
 	<title>Instantiating Contexts: SubContexts and RootContexts</title>
@@ -1012,7 +1013,7 @@ StateContext ParentStateContext
 	      Inspecting StateContext public variables is simply done
 	      using the syntax "someSubContextInstName.someValue",
 	      just as you would do if someSubContextInstName were an
-	      &OROCOS; kernel component.  Like this, you can inspect
+	      &orocos; kernel component.  Like this, you can inspect
 	      all of a subcontext's public variables.
 	    </para>
 	    <para>
