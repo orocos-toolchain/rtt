@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "cpf.dtd">
-<!-- Properties of the Generator component -->
+<!-- Properties of the CartesianGenerator component -->
 <properties>
-    <simple name="Name" type="string"><description>The unique name of this component</description><value>KULGenerator</value></simple>
-    <simple name="RestValue" type="double"><description>The rest value of the generator</description><value>0</value></simple>
+    <simple name="MaximumVelocity" type="double"><description>The Maximum Cartesian Velocity of a Path.</description>
+	<value>0.5</value></simple>
+    <simple name="MaximumAcceleration" type="double"><description>The Maximum Cartesian Acceleration of a Path.</description>
+	<value>5</value></simple>
+    <simple name="Interpolation"  type="string"><description>The Interpolation Algorithm</description>
+	<value>Trapezoidal</value>
+    </simple>
 </properties>

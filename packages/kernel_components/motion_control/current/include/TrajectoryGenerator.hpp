@@ -24,17 +24,20 @@
 #include <geometry/frames.h>
 #include <corelib/PropertyComposition.hpp>
 
-namespace ControlKernel
+namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
 
     /**
      * This Generator reads a Trajectory in the Task Frame and converts
-     * it to the robot frame. It can read a Trajectory from file or
+     * it to the robot frame. It can read a Trajectory from a file or
      * can use an existing Trajectory object.
      *
      * It will only read a new trajectory when the previous is done.
      * 
+     * @warning This code is experimental an most likely does not compile.
+     *
+     * @todo TODO Finish this implementation.
      */
     template< class Base>
     class TrajectoryGenerator

@@ -16,32 +16,12 @@
         <firstname>Peter</firstname>
         <surname>Soetens</surname>
         <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
-
-      <author>
-        <honorific>Dr. ir</honorific>
-        <firstname>Herman</firstname>
-        <surname>Bruyninckx</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
-        </affiliation>
-      </author>
-
-      <author>
-        <firstname>Panagiotis</firstname>
-        <surname>Issaris</surname>
-        <affiliation>
-          <orgname>K.U.Leuven</orgname>
-          <address><country>Belgium</country></address>
+          <orgname>K.U.Leuven</orgname>          <address><country>Belgium</country></address>
         </affiliation>
       </author>
     </authorgroup>
     <copyright>
-      <year>2002</year>
+      <year>2002-2004</year>
       <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
       <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
     </copyright>
@@ -69,7 +49,7 @@
     <title>Introduction</title>
     <para>
       This chapter explains installation, and gives an overview of the
-      features and interface of the &orocos; &motcontrol; module.
+      features and interface of the &orocos; &motcontrol; Components.
     </para>
     <sect1>
       <title>Installation</title>
@@ -86,42 +66,417 @@
 	procedure. 
       </para>
     </sect1>
-    <sect1><title>Prerequisites</title>
-      <tip>
-	We highly advise you to read first the Orocos CoreLib and Control Kernel
-	documentation before going on.
-      </tip>
-      <tip>
-	This document only covers some generic use cases. If you want detailed
-	information about a class or function, read the Doxygen generated reference
-	of this package. You will find a lot of complementary
-	information in there not presented here.
-      </tip>
-    </sect1>
+<!--     <sect1><title>Prerequisites</title> -->
+<!--       <tip> -->
+<!-- 	<para> -->
+<!-- 	  If you want detailed information about a class or function, -->
+<!-- 	  read the Doxygen generated reference of this package. You -->
+<!-- 	  will find a lot of complementary information in there not -->
+<!-- 	  presented here. -->
+<!-- 	</para> -->
+<!--       </tip> -->
+<!--     </sect1> -->
   </chapter>
   <chapter>
-    <title>Ready To Use Components</title>
+    <title>6DOF Motion Control Components</title>
+    <para>
+      This chapter explains the working of the Motion Control Kernel
+      Components for controlling 6DOF robots and machines. The
+      components rely on the Geometry library for path interpolation
+      and on the Control Kernel for configuring and running the
+      control loop.
+    </para>
     <sect1>
-      <title>Control Components</title>
+      <title>File Overview</title>
       <para>
-	This section gives an overview of the services used for
-	control
+	The 6DOF Motion Control Components have implementations in
+	these files :
       </para>
+      <table>
+	<title>6DOF Motion Control File Overview</title>
+	<tgroup cols="4">
+	  <thead>
+	    <row>
+	      <entry>Filename</entry>
+	      <entry>Control Kernel</entry>
+	      <entry>Remarks </entry>
+	      <entry>Used in</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>CartesianComponents.hpp</entry>
+	      <entry>StandardControlKernel</entry>
+	      <entry>6DOF MoveTo Generator.
+		Slightly outdated, does not use Execution
+		Extension, DataObject Reporting not possible.
+		Sensor And Effector
+		implement a simulation, but can be replaced by
+		'real' ones.
+	      </entry>
+	      <entry>kernel-samples/cartesian</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSGenerator.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		6DOF Move/MoveTo/Wait Generator.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianPositionTracker.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		6DOF tracking Generator. It can track
+		Sensor, Model and Command data.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSController.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		A simple proportional controller, which does the
+		inverse kinematics and calculates the error and
+		control action on joint level.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSEstimator.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		Calculates the forward kinematics from joint positions (Sensor
+		Data) to Cartesian space ( Model Data ).
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	    <row>
+	      <entry>CartesianNSSensor.hpp CartesianNSEffector.hpp</entry>
+	      <entry>NSControlKernel</entry>
+	      <entry>
+		Simulates a 6-joints robot, just for
+		testing purposes.
+	      </entry>
+	      <entry>kernel-samples/cartesian-names,
+		kernel-samples/program-state</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </sect1>
+    <sect1>
+      <title>Generator Component : CartesianGenerator</title>
       <para>
-	We refer to the source code documentation or the
-	<application>doxygen</application> generated files for the
-	most recent documentation about which functions exist and do
-	what. 
+	The <classname>CartesianGenerator</classname> is the main
+	access point for accepting move and move-to commands.
+	It can also move to a predefined home position. The Generator
+	can accept commands from four different places. The first place
+	is the Component's interface methods which can be accessed
+	from the Orocos Program Script or within the motioncontrol
+	application itself. The three other places are the Input,
+	Model and Command DataObjects.
+      </para>
+      <para>This section describes the NameServed Cartesian Generator,
+	which means that it addresses its DataObjects through a
+	"Name".
       </para>
       <sect2>
-	<title>The Control Kernel</title>
+	<title>Configuration parameters</title>
+	<para>The Generator can be configured in two ways :
+	  through the xml property file or through the interface
+	  methods.
+	</para>
+	<table>
+	  <title>CartesianGenerator Property Configuration</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Property Name</entry>
+		<entry>Default Value</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Interpolation</entry>
+		<entry>Trapezoidal</entry>
+		<entry>Other Possibilities : Step, Linear</entry>
+	      </row>
+	      <row>
+		<entry>MaximumVelocity</entry>
+		<entry>0</entry>
+		<entry>
+		  The maximum velocity in cartesian space, 
+		  must be set.
+		</entry>
+	      </row>
+	      <row>
+		<entry>MaximumAcceleration</entry>
+		<entry>0</entry>
+		<entry>
+		  The maximum acceleration in cartesian space, 
+		  must be set.
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
 	<para>
-	  Components must be loaded into a control kernel to be useful.
-	  The Control Kernel is fully explained in the 
-	  <ulink url="orocos-control-kernel.html">orocos-control-kernel.html</ulink> 
-	  document.
+	  The Property configuration of the Generator can be overridden
+	  by these method calls :
+	</para>
+	<table>
+	  <title>CartesianGenerator Configuration Methods</title>
+	  <tgroup cols="2">
+	    <thead>
+	      <row>
+		<entry>Method Name</entry>
+		<entry>Remarks</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>CartesianGenerator.maximumVelocity( double v_max )</entry>
+		<entry>Must be used if the Property is not set.</entry>
+	      </row>
+	      <row>
+		<entry>CartesianGenerator.maximumAcceleration( double a_max )</entry>
+		<entry>Must be used if the Property is not set.</entry>
+	      </row>
+	      <row>
+		<entry>CartesianGenerator.interpolate( "Algorithm" )</entry>
+		<entry>Algorithm is one of Trapezoidal, Step or Linear.</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </sect2>
+      <sect2>
+	<title>CartesianGenerator Interface Methods</title>
+	<para>
+	  The main interfaces are move (with a twist), moveTo ( to a
+	  frame ) and wait (for a specified time). The semantics are
+	  always that a started movement is not interrupted, and thus
+	  a new command is only accepted when the previous one is
+	  terminated. If no given time is provided, maximum velocity
+	  and acceleration are applied to the trajectory. A time can
+	  only be used to 'stretch' the movement in time.
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianGenerator Position Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>CartesianGenerator.moveTo(Geometry::Frame end_frame, double time) </entry>
+		  <entry>
+		    Uses a trapezoidal velocity profile.  'time' is optional,
+		    when omitted, maximum velocity and acceleration will
+		    be respected.
+		  </entry>
+		</row>
+		<row>
+		  <entry>CartesianGenerator.wait(double time) </entry>
+		  <entry>
+		    Wait for the given time at the current position.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianGenerator Velocity Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entry>CartesianGenerator.move(Geometry::Twist end_velocity, double time) </entry>
+		  <entry>
+		    Accelerate/decelerate to the given speed using
+		    a trapezoidal acceleration profile. 'time' is optional,
+		    when ommitted, maximum velocity and acceleration will
+		    be respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
 	</para>
       </sect2>
+    </sect1>
+    <sect1>
+      <title>Generator Component : CartesianPositionTracker</title>
+      <para>
+	The <classname>CartesianPositionTracker</classname> is
+	designed to track (externally) generated position setpoints.
+	The Generator can accept commands from three different places.
+	These places are the Input, Model and Command DataObjects.
+	It is complementary to the 'moveTo' generator.
+      </para>
+      <para>
+	This component is only available in the NSControlKernel.
+      </para>
+      <sect2>
+	<title>Configuration parameters</title>
+	<para>
+	  The Generator's properties can be
+	  configured like the CartesianGenerator.
+	</para>
+      </sect2>
+      <sect2>
+	<title>CartesianPositionTracker Interface Methods</title>
+	<para>
+	  The interface methods are equal to the CartesianGenerator,
+	  but the move/moveTo/wait instructions are replaced by
+	  <function>trackPositionSource("name", "time")</function>.
+	</para>
+	<para>
+	  <table>
+	    <title>CartesianPositionTracker Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <!-- one of (entrytbl entry) -->
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entrytbl cols="1">
+		    <tbody>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionCommand("PosName", "TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionModel("PosName", "TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianPositionTracker.trackPositionInput("PosName", "TimeName") </entry>
+		      </row>
+		    </tbody>
+		  </entrytbl>
+		  <entry>
+		    These three methods request the tracker to follow
+		    the position setpoints presented int the Command
+		    (from an external source), Model (from the
+		    Estimator Component) or Input (from the Sensor
+		    Component) data objects. PosName is the name of a
+		    Frame within the DataObject. Each change will lead
+		    to a new interpolated path. The data is read when
+		    the previous interpolation is ended. TimeName is
+		    optional, when specified as the empty string,
+		    maximum velocity and acceleration will be
+		    respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Generator Component : CartesianVelocityTracker</title>
+      <para>
+	The <classname>CartesianVelocityTracker</classname> is
+	designed to track (externally) generated velocity setpoints.
+	The Generator can accept commands from three different places.
+	These places are the Input, Model and Command DataObjects.
+	It is complementary to the 'move' generator.
+      </para>
+      <para>
+	This component is only available in the NSControlKernel.
+      </para>
+      <sect2>
+	<title>Configuration parameters</title>
+	<para>
+	  The Generator's properties can be
+	  configured like the CartesianGenerator.
+	</para>
+      </sect2>
+      <sect2>
+	<title>CartesianVelocityTracker Interface Methods</title>
+	<para>
+	  The interface methods are equal to the CartesianGenerator,
+	  but the move/moveTo/wait instructions are replaced by
+	  <function>trackVelocitySource("name","time")</function>.
+	</para>
+	<para>
+	  <table>
+	    <title>Cartesian Velocity Interface</title>
+	    <tgroup cols="2">
+	      <thead>
+		<row>
+		  <entry>Method</entry>
+		  <entry>Remarks</entry>
+		</row>
+	      </thead>
+	      <tbody>
+		<row>
+		  <entrytbl cols="1">
+		    <tbody>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityCommand("VelName","TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityModel("VelName","TimeName") </entry>
+		      </row>
+		      <row>
+			<entry>CartesianVelocityTracker.trackVelocityInput("VelName","TimeName") </entry>
+		      </row>
+		    </tbody>
+		  </entrytbl>
+		  <entry>
+		    VelName is the name of a Twist within the Input
+		    DataObject. Each change will lead to a new
+		    interpolated path. The data is read when the
+		    previous interpolation is ended. TimeName is
+		    optional, when specified as the empty string,
+		    maximum veloicty and acceleration will be
+		    respected.
+		  </entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </table>
+	</para>
+      </sect2>
+    </sect1>
+    <sect1>
+      <title>Controller Component</title>
+    </sect1>
+    <sect1>
+      <title>Estimator Component</title>
+
+    </sect1>
+    <sect1>
+      <title>Sensor Component</title>
+
+    </sect1>
+    <sect1>
+      <title>Effector Component</title>
+
     </sect1>
   </chapter>
 </book>

@@ -2,6 +2,4 @@
 <!DOCTYPE properties SYSTEM "cpf.dtd">
 <!-- Properties of the Generator component -->
 <properties>
-    <simple name="Name" type="string"><description>The unique name of this component</description><value>KULGenerator</value></simple>
-    <simple name="RestValue" type="double"><description>The rest value of the generator</description><value>0</value></simple>
 </properties>
