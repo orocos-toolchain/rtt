@@ -40,12 +40,13 @@ namespace ORO_Execution
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");
-        assertion<std::string> expect_close("Closing brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_close("Closing brace expected (or could not find out what this line means).");
         assertion<std::string> expect_type("Unknown type. Please specify a type.");
         assertion<std::string> expect_expr("Expected a valid expression.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_init("Expected an initialisation value of the value.");
         assertion<std::string> expect_is("Expected an '=' sign.");
+        assertion<std::string> expect_index("Expected an index: [index].");
     }
 
 
@@ -95,19 +96,18 @@ namespace ORO_Execution
     variableassignment = (
          "set"
          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] )
-         >> !( '[' >> expressionparser.parser() >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
+         >> !( '[' >> expect_index( expressionparser.parser() ) >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
          >> expect_is( ch_p( '=' ) )
-         >> expect_expr( expressionparser.parser()) )[
-           bind( &ValueChangeParser::seenvariableassignment, this ) ];
+         >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
     paramdefinition =
         "param"
         >> baredefinition;
 
     baredefinition = (
-      expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
-      >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-      )[bind( &ValueChangeParser::seenbaredefinition, this )];
+            expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
+	 >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
+       )[bind( &ValueChangeParser::seenbaredefinition, this )];
   };
 
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
