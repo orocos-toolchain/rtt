@@ -1,5 +1,6 @@
 
 #include "corelib/EventMultiCast.hpp"
+#include "corelib/CompletionProcessor.hpp"
 
 namespace ORO_CoreLib
 {

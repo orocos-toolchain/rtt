@@ -1,37 +1,16 @@
 
 #include "corelib/EventSimple.hpp"
+#include "corelib/CompletionProcessor.hpp"
 
 namespace ORO_CoreLib
 {
     using namespace detail;
 
         EventSimple::EventSimple(EventType t)
-            : EventStrategyMethods(t), myList(0), myComp(0)
+            : EventStrategyMethods(t), myList( Listener::None ), myComp( Completer::None )
         {
             cp = CompletionProcessor::Instance();
         }
-//         switch ( t )
-//             {
-
-//             case SYNSYN:
-//                 strategy = &ss;
-//                 break;
-
-//             case SYNASYN:
-//                 strategy = &sa;
-//                 break;
-//             case ASYNSYN:
-//                 strategy = &as;
-//                 break;
-//             case ASYNASYN:
-//                 strategy = &aa;
-//                 break;
-//             default:
-//                 strategy = &ss;
-//             }
-
-//             cp = CompletionProcessor::Instance();
-//         }
 
         EventSimple::~EventSimple()
         {}

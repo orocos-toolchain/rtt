@@ -98,8 +98,6 @@ namespace ORO_CoreLib
 
         virtual void fire();
 
-        virtual void complete( EventListenerInterface * eli );
-
         virtual void addHandler( EventListenerInterface * eli, EventCompleterInterface * eci );
 
         virtual void removeHandler( EventListenerInterface * eli, EventCompleterInterface* eci );
@@ -119,23 +117,24 @@ namespace ORO_CoreLib
 
         virtual void completeAsyn( EventListenerInterface* eli );
 
+        virtual void complete( EventListenerInterface * eli );
 
-        private:
+    private:
 
-            /**
-             * The default constructor should not be used
-             */
+        /**
+         * The default constructor should not be used
+         */
         Event();
 
-            /**
-             * Our Future Completion Processor for queueing completion events
-             * and executing them asynchronously
-             */
+        /**
+         * Our Future Completion Processor for queueing completion events
+         * and executing them asynchronously
+         */
         CompletionProcessor* cp;
 
-            /**
-             * Protects access of event method calls
-             */
+        /**
+         * Protects access of event method calls
+         */
         ORO_OS::Mutex evLock;
 
         std::vector<EventCallbackStub> evCallback;

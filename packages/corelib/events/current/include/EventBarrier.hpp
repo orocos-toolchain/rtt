@@ -3,11 +3,12 @@
 
 #include "EventInterfaces.hpp"
 #include "EventStrategy.hpp"
-#include "CompletionProcessor.hpp"
 
 namespace ORO_CoreLib
 {
     using namespace detail;
+
+    class CompletionProcessor;
 
     /**
      * Defines an Event for synchronisation purposes. The Completer will
