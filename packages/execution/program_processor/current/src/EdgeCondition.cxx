@@ -46,7 +46,7 @@ namespace ORO_Execution
 
     void EdgeCondition::setCondition(ConditionInterface* cond)
 	{
-                delete condition;
+        delete condition;
 		condition = cond;
 	}
 
@@ -66,7 +66,7 @@ namespace ORO_Execution
     }
 
     EdgeCondition::EdgeCondition( const EdgeCondition& orig )
-        : condition( orig.getCondition()->clone() ), rank(condition_counter++)
+        : condition( orig.getCondition()->clone() ), rank( orig.getRank() )
     {
     }
     

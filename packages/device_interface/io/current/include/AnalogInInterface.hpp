@@ -57,7 +57,7 @@ namespace ORO_DeviceInterface
      */
     template < class T>
     class AnalogInInterface
-                : private NameServerRegistrator<AnalogInInterface<T>*, std::string>
+                : private NameServerRegistrator<AnalogInInterface<T>*>
     {
         public:
             
@@ -71,7 +71,7 @@ namespace ORO_DeviceInterface
              * Create a nameserved AnalogInInterface. When <name> is not "" and
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
-            AnalogInInterface( const std::string& name ) : NameServerRegistrator<AnalogInInterface<T>*, std::string>( nameserver, name, this )
+            AnalogInInterface( const std::string& name ) : NameServerRegistrator<AnalogInInterface<T>*>( nameserver, name, this )
             {}
 
             virtual ~AnalogInInterface()

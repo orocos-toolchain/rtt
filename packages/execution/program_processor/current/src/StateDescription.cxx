@@ -70,10 +70,12 @@ namespace ORO_Execution {
   }
 
   void StateDescription::onEntry() {
-    // if this state has an entry program, let's run it...
+    // if this state has an entry command and program, let's run it...
+    if ( initc )
+        initc->execute();
     if ( mentry )
     {
-      mentry->executeToStop();
+      mentry->executeAll();
       mentry->reset();
     }
   }
@@ -83,7 +85,7 @@ namespace ORO_Execution {
     // if this state has a handle program, let's run it...
     if ( mhandle )
     {
-      mhandle->executeToStop();
+      mhandle->executeAll();
       mhandle->reset();
     }
   }
@@ -93,7 +95,7 @@ namespace ORO_Execution {
     // if this state has an exit program, let's run it...
     if ( mexit )
     {
-      mexit->executeToStop();
+      mexit->executeAll();
       mexit->reset();
     }
   }

@@ -10,6 +10,7 @@ is also provided for testing purposes.
 
     requires OROPKG_CONTROL_KERNEL
     requires OROPKG_GEOMETRY
+    requires OROPKG_KINDYN
 
     include_dir kernel_components
 
@@ -18,4 +19,5 @@ is also provided for testing purposes.
     compile CartesianNSController.cxx
     compile CartesianNSGenerator.cxx
     compile CartesianNSEstimator.cxx
+    compile CartesianPositionTracker.cxx
 }

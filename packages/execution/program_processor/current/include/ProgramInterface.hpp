@@ -34,8 +34,8 @@ namespace ORO_Execution
 {
 	
 	/**
-	 * @brief This abstract class represents a collection of 
-	 * instructions that can be executed.
+	 * @brief A Program represents a collection of 
+	 * instructions that can be stepwise executed.
 	 */
 	class ProgramInterface
 	{
@@ -45,8 +45,15 @@ namespace ORO_Execution
 
         /**
          * Execute the next logical step of this program interface.
+         * @return false if a program error occured.
          */
         virtual bool execute()= 0;
+
+        /**
+         * Execute all steps of this program interface.
+         * @return false if a program error occured.
+         */
+        virtual bool executeAll()= 0;
 
         /**
          * Reset the execution point to the beginning of this program interface.
@@ -57,6 +64,11 @@ namespace ORO_Execution
          * Returns true if the program has finished executing.
          */
         virtual bool isFinished() const = 0;
+	
+        /**
+         * Returns true if the program is in error.
+         */
+        virtual bool inError() const = 0;
 	
         /**
          * Return the current 'line number' of the program.

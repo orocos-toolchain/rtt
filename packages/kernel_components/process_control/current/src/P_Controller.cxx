@@ -36,26 +36,25 @@ namespace ORO_ControlKernel {
 P_Controller::P_Controller(unsigned int num_axes , const std::string& name) 
   : Base( name ),
     _num_axes(num_axes),
-    _controller_gain("K", "Proportional Gain")
+    _xyerr("Track_Err", "Tracking error", std::vector<double>( num_axes, 0) ),
+    _controller_gain("K", "Proportional Gain", std::vector<double>( num_axes, 1.0))
 {
   _result.resize(_num_axes, 0.0);
   _refPos.resize(_num_axes, 0.0);
-  _xyerr.resize(_num_axes, 0.0);
   _measPos.resize(_num_axes, 0.0);
-  _controller_gain.set().resize(num_axes, 1.0); // set gain to one
 }
 
 P_Controller::~P_Controller(){};
 
 bool P_Controller::componentLoaded()
 {
-    return Base::Output::dObj()->Get("ChannelValues",outp_dObj);
+    return Output::dObj()->Get("ChannelValues",outp_dObj);
 }
 
 bool P_Controller::componentStartup()
 {
-    if ( Base::SetPoint::dObj()->Get("ChannelValues",setp_dObj) &&
-         Base::Input::dObj()->Get("ChannelValues", inp_dObj) )
+    if ( SetPoint::dObj()->Get("ChannelValues",setp_dObj) &&
+         Input::dObj()->Get("ChannelValues", inp_dObj) )
         {
             this->update();
             return true;
@@ -77,8 +76,8 @@ void P_Controller::calculate()
 {
   for (unsigned int i=0; i< _num_axes; i++)
     {
-      _xyerr[i] = _refPos[i] - _measPos[i];
-      _result[i] = _xyerr[i] * _controller_gain.get()[i];
+      _xyerr.set()[i] = _refPos[i] - _measPos[i];
+      _result[i] = _xyerr.get()[i] * _controller_gain.get()[i];
     }
 }
 
@@ -86,6 +85,16 @@ bool P_Controller::updateProperties(const PropertyBag& bag)
 {
   std::cerr << "P_Controller::updateProperties()" << std::endl;
   return composeProperty(bag, _controller_gain);
+}
+
+void P_Controller::exportProperties(PropertyBag& bag)
+{
+    bag.add( &_controller_gain );
+}
+
+void P_Controller::exportReports(PropertyBag& bag)
+{
+    bag.add( &_xyerr );
 }
 
 

@@ -21,6 +21,7 @@
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
@@ -58,9 +59,9 @@ namespace ORO_ControlKernel
    *  @ingroup kcomps kcomp_controller 
    */
   class P_Controller
-    : public Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction>::Result >
+    : public Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
   {
-      typedef Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction>::Result > Base;
+      typedef Controller<Expects<CPC_Input>, Expects<NoModel>, Expects<CPC_SetPoint>, Writes<P_Controller_Output>, MakeAspect<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
   protected:
       typedef std::vector<double> ChannelType;
       DataObjectInterface<ChannelType>* inp_dObj;
@@ -73,7 +74,7 @@ namespace ORO_ControlKernel
       double _K;
       unsigned int _num_axes;
 
-      ChannelType _xyerr;
+      Property< ChannelType > _xyerr;
 
       Property< ChannelType > _controller_gain;
 
@@ -83,6 +84,8 @@ namespace ORO_ControlKernel
 
       // Redefining virtual members
       virtual bool updateProperties(const PropertyBag& bag);
+      virtual void exportProperties(PropertyBag& bag);
+      virtual void exportReports(PropertyBag& bag);
       virtual bool componentLoaded();
       virtual bool componentStartup();
 

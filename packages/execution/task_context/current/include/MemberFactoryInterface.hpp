@@ -25,19 +25,21 @@
  *                                                                         *
  ***************************************************************************/ 
 
-#ifndef MEMBERFACTORYINTERFACE
-#error "This is an internal headerfile" 
-#endif
+#ifndef MEMBERFACTORYINTERFACE_HPP
+#define MEMBERFACTORYINTERFACE_HPP
  
 #include <string>
 #include <vector>
 #include <map>
-#include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
+#include <corelib/Property.hpp>
+#include <corelib/PropertyBag.hpp>
 
 namespace ORO_Execution
 {
+    class DataSourceBase;
+
   /**
    * @brief This is an interface for a factory generating DataSource's..
    *
@@ -53,10 +55,10 @@ namespace ORO_Execution
    * Some of these methods throw exceptions that you can find in
    * FactoryExceptions.hpp
    */
-  class MEMBERFACTORYINTERFACE
+  class MemberFactoryInterface
   {
   public:
-    virtual ~MEMBERFACTORYINTERFACE();
+    virtual ~MemberFactoryInterface();
 
     /**
      * Returns a list of all available names..
@@ -99,7 +101,7 @@ namespace ORO_Execution
      *
      * throws name_not_found_exception
      */
-    virtual PropertyBag
+    virtual ORO_CoreLib::PropertyBag
     getArgumentSpec( const std::string& method ) const = 0;
 
     /**
@@ -115,7 +117,7 @@ namespace ORO_Execution
      */
     virtual DataSourceBase* create(
       const std::string& name,
-      const PropertyBag& args ) const = 0;
+      const ORO_CoreLib::PropertyBag& args ) const = 0;
 
     /**
      * We also support passing DataSources as the arguments.  In this
@@ -136,3 +138,5 @@ namespace ORO_Execution
   };
 
 }
+
+#endif

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ParseContext.hpp
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSourceFactoryInterface.cxx 
 
-                        ParseContext.hpp -  description
+                        DataSourceFactoryInterface.cxx -  description
                            -------------------
-    begin                : Mon January 19 2004
+    begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
-
+ 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,32 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-
-#ifndef PARSECONTEXT_HPP
-#define PARSECONTEXT_HPP
-
-#include "parser-types.hpp"
-#include "ValueParser.hpp"
+#include "execution/MemberFactoryInterface.hpp"
 
 namespace ORO_Execution
 {
-
-    /**
-     * A Helper class to store parser relevant
-     * objects.
-     */
-    struct ParseContext
-    {
-        ParseContext( Processor* proc,
-                      GlobalFactory* gf )
-            : processor( proc ), globalfactory( gf )
-        {
-        }
-
-        ValueParser valueparser;
-        Processor* processor;
-        GlobalFactory* globalfactory;
-  };
+  MemberFactoryInterface::~MemberFactoryInterface()
+  {
+  }
 }
-
-#endif

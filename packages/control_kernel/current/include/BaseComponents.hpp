@@ -92,38 +92,9 @@ namespace ORO_ControlKernel
         typedef typename _InputType::ReadPort Input;
         typedef typename _ModelType::ReadPort Model;
 
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
         Controller(const std::string& name ) 
             : Aspect( name )
         {}
-            
-
-        /*
-          void addController( Controller* c)
-          {
-          if ( inKernel() )
-          {
-          c.readFrom(Input::dObj);
-          c.readFrom(Setpoint::dObj);
-          c.readFrom(Model::dObj);
-          c.writeTo (Output::dObj);
-          }
-          plugins.push_back(c);
-          }
-
-          void readFrom( const InputType* _data)
-          {
-          for (it
-            
-
-          void removeController( Controller* c)
-          {
-          vector<Controller*>::iterator it = find(plugins.begin(), plugins.end(), c);
-          if (it != plugins.end() )
-          plugins.erase(it);
-          }*/
             
         /**
          * Method Overloading is not done across scopes.
@@ -168,9 +139,6 @@ namespace ORO_ControlKernel
         typedef typename _ModelType::ReadPort     Model ;
         typedef typename _SetPointType::WritePort SetPoint;
             
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
         Generator(const std::string& name ) 
             : Aspect( name )
         {}
@@ -212,9 +180,6 @@ namespace ORO_ControlKernel
         typedef typename _InputType::ReadPort Input;
         typedef typename _ModelType::WritePort Model;
             
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
         Estimator(const std::string& name ) 
             : Aspect( name )
         {}
@@ -246,9 +211,6 @@ namespace ORO_ControlKernel
 
         typedef typename _OutputType::ReadPort Output;
 
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
         Effector(const std::string& name ) 
             : Aspect( name )
         {}
@@ -275,9 +237,6 @@ namespace ORO_ControlKernel
             
         typedef typename _InputType::WritePort Input;
             
-        /**
-         * Pas the Kernel id key on to the Aspect Base Class.
-         */
         Sensor(const std::string& name ) 
             : Aspect( name )
         {}

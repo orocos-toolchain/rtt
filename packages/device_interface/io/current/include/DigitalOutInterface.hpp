@@ -44,7 +44,7 @@ namespace ORO_DeviceInterface
      * @invar No more than 32 bits can be addressed 
      */
     class DigitalOutInterface
-                : private NameServerRegistrator<DigitalOutInterface*>
+        : private NameServerRegistrator<DigitalOutInterface*>
     {
 
         public:

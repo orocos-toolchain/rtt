@@ -123,7 +123,7 @@ namespace ORO_ControlKernel
 
         bool componentLoaded()
         {
-            return Base::SetPoint::dObj()->Get("ChannelValues", setp_dObj );
+            return SetPoint::dObj()->Get("ChannelValues", setp_dObj );
         }
 
         void componentShutdown()
@@ -244,6 +244,13 @@ namespace ORO_ControlKernel
                 int(maxVel.get().size()) == num_axes;
             return status;
         }
+
+        virtual void exportProperties( PropertyBag& bag )
+        {
+            bag.add( &maxVel );
+            bag.add( &maxAcc );
+        }
+
             
     protected:
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION

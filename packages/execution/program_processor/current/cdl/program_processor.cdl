@@ -14,11 +14,20 @@ which encapsulates the command to be executed."
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_CORELIB_STATE
 
-    compile StateContextBuilder.cxx
-    compile VertexNode.cxx EdgeCondition.cxx ProgramGraph.cxx 
+    compile VertexNode.cxx EdgeCondition.cxx
+    compile FunctionGraph.cxx ProgramGraph.cxx 
     compile CommandCounter.cxx  CommandIllegal.cxx  CommandString.cxx  
     compile ConditionBool.cxx  ConditionBoolDataSource.cxx  ConditionBoolProperty.cxx  ConditionComposite.cxx
     compile Processor.cxx
     compile AsynchCommandDecorator.cxx
     compile StateDescription.cxx
+
+    cdl_option ORONUM_EXECUTION_PROC_QUEUE_SIZE {
+	display "Processor Queue Size"
+	description "
+The size of the command queue of the Program Processor."
+	flavor data
+	default_value 16
+    }
+
 }

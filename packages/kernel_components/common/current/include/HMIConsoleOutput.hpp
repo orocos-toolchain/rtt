@@ -28,9 +28,13 @@
 #ifndef HMI_CONSOLE_OUTPUT_HPP
 #define HMI_CONSOLE_OUTPUT_HPP
 
-#include <execution/TemplateMethodFactory.hpp>
 #include <control_kernel/BaseComponents.hpp>
+
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <execution/TemplateMethodFactory.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
+#endif
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/TaskNonRealTime.hpp>
@@ -42,7 +46,9 @@
 #pragma interface
 namespace ORO_ControlKernel
 {
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
+#endif
     using ORO_OS::Mutex;
     using ORO_OS::MutexLock;
     using ORO_OS::MutexTryLock;
@@ -57,10 +63,18 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_support
      */
     class HMIConsoleOutput
-        : public SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result >,
+        : public SupportComponent< MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                              , ExecutionExtension
+#endif
+                                              >::Result >,
           public ORO_CoreLib::TaskNonRealTime
     {
-        typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::Result > Base;
+        typedef SupportComponent< MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                             , ExecutionExtension
+#endif
+                                             >::Result > Base;
         std::string coloron;
         std::string coloroff;
         std::string _prompt;
@@ -169,13 +183,7 @@ namespace ORO_ControlKernel
             //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
-
-
-        bool true_gen() const
-        {
-            return true;
-        }
-
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         // Methods are display commands.
         MethodFactoryInterface* createMethodFactory()
         {
@@ -203,6 +211,7 @@ namespace ORO_ControlKernel
                                ) );
             return ret;
         }
+#endif
     };
 
 }

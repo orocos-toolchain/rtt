@@ -16,14 +16,19 @@ is very powerful."
     compile StateGraphParser.cxx
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
-    compile Types.cxx DataSourceCondition.cxx Operators.cxx CommandFactoryInterface.cxx
-    compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactoryInterface.cxx 
-    compile GlobalDataSourceFactory.cxx
+    compile Types.cxx DataSourceCondition.cxx Operators.cxx
+    compile DataSource.cxx
     compile ParsedStateContext.cxx
+    compile StateContextBuilder.cxx
+    compile PeerParser.cxx 
+    compile FunctionFactory.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 
+    requires OROPKG_CORELIB_PROPERTIES
+    requires OROPKG_EXECUTION
     requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
+    requires OROPKG_EXECUTION_TASK_CONTEXT
 
     cdl_option OROPKG_EXECUTION_PROGRAM_PARSER_CFLAGS_REMOVE {
         display "Flags to remove for compiling"

@@ -110,7 +110,7 @@ precompile_headers:
 # This cleans out the object files but leaves
 # the headers and library
 clean_packages: test_new_packages
-	if test -f ecos.ecc; then \
+	if test -f packages/ecos.ecc; then \
 	$(MAKE) -C packages clean ; fi
 
 test_check_packages: .check-stamp
@@ -166,28 +166,3 @@ check_drivers:
 clean_drivers:
 	$(MAKE) -C drv-@ECOS_TARGET@ clean
 
-#######################################################################
-# LVD Specific :
-#######################################################################
-lvd_new:
-	mkdir -p lvd-@ECOS_TARGET@
-	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
-	ecosconfig -v new @ECOS_TARGET@ minimal > new_drivers.log ; \
-	for i in $$(find @ECOS_REP@/support -name "*.cdl"); do \
-	ecosconfig add support_$$(basename $$i .cdl) > support.log; done ;\
-	ecosconfig template lvd
-
-lvd_config:
-	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
-	configtool ecos.ecc
-
-lvd:
-	cd lvd-@ECOS_TARGET@ ;\
-	export ECOS_REPOSITORY=@ECOS_REP@ ;\
-	ecosconfig -v tree
-	$(MAKE) lvd-@ECOS_TARGET@
-
-lvd_clean:
-	$(MAKE) -C lvd-@ECOS_TARGET@ clean

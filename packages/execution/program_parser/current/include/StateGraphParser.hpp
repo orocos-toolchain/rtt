@@ -34,6 +34,7 @@
 #include "ParseContext.hpp"
 #include "corelib/Event.hpp"
 #include "ValueChangeParser.hpp"
+#include "ValueParser.hpp"
 
 #include <map>
 #include <string>
@@ -64,11 +65,11 @@ namespace ORO_Execution
    */
   class StateGraphParser
   {
-      ParseContext context;
+      TaskContext* context;
       our_pos_iter_t& mpositer;
 
       typedef std::map<std::string, ParsedStateContext*> contextnamemap_t;
-      typedef std::map<std::string, ParsedValueBase*> contextparams_t;
+      typedef std::map<std::string, TaskAttributeBase*> contextparams_t;
       typedef std::map<std::string, DataSourceBase*> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
       typedef std::map<std::string, StateContextBuilder*> contextbuilders_t;
@@ -150,6 +151,7 @@ namespace ORO_Execution
       CommandParser commandparser;
       ValueChangeParser valuechangeparser;
       ExpressionParser expressionparser;
+      ValueParser valueparser;
 
       void clear();
 
@@ -206,7 +208,7 @@ namespace ORO_Execution
 
       ProgramGraph* emptyProgram(const std::string& name);
   public:
-    StateGraphParser( iter_t& positer, Processor* proc, GlobalFactory* ext );
+    StateGraphParser( iter_t& positer, TaskContext* tc );
     ~StateGraphParser();
 
     // tries to parse, returns the instantiated root contexts.  On all

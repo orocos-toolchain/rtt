@@ -30,9 +30,7 @@
 #include "control_kernel/ComponentInterfaces.hpp"
 #include "corelib/PropertyComposition.hpp"
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
-#include "execution/TemplateMethodFactory.hpp"
+#include "execution/TemplateFactories.hpp"
 #endif
 
 using namespace ORO_ControlKernel;
@@ -168,99 +166,6 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
 
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-CommandFactoryInterface* KernelBaseFunction::createCommandFactory()
-{
-    TemplateCommandFactory< KernelBaseFunction >* ret =
-        newCommandFactory( this );
-#if 0
-    ret->add( "start", 
-              command
-              ( &KernelBaseFunction::startKernel ,
-                &KernelBaseFunction::true_gen,
-                "Start the Kernel Task"  ) );
-    ret->add( "stop", 
-              command
-              ( &KernelBaseFunction::stopKernel ,
-                &KernelBaseFunction::true_gen,
-                "Stop the Kernel Task"  ) );
-    ret->add( "selectController", 
-              command
-              ( &KernelBaseFunction::selectController ,
-                &KernelBaseFunction::true_gen,
-                "Select a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "selectGenerator", 
-              command
-              ( &KernelBaseFunction::selectGenerator ,
-                &KernelBaseFunction::true_gen,
-                "Select a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "selectEstimator", 
-              command
-              ( &KernelBaseFunction::selectEstimator ,
-                &KernelBaseFunction::true_gen,
-                "Select a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "selectSensor", 
-              command
-              ( &KernelBaseFunction::selectSensor ,
-                &KernelBaseFunction::true_gen,
-                "Select a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "selectEffector", 
-              command
-              ( &KernelBaseFunction::selectEffector ,
-                &KernelBaseFunction::true_gen,
-                "Select a Effector Component", "Name", "The name of the Effector" ) );
-    ret->add( "startController", 
-              command
-              ( &KernelBaseFunction::startController ,
-                &KernelBaseFunction::true_gen,
-                "Start a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "startGenerator", 
-              command
-              ( &KernelBaseFunction::startGenerator ,
-                &KernelBaseFunction::true_gen,
-                "Start a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "startEstimator", 
-              command
-              ( &KernelBaseFunction::startEstimator ,
-                &KernelBaseFunction::true_gen,
-                "Start a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "startSensor", 
-              command
-              ( &KernelBaseFunction::startSensor ,
-                &KernelBaseFunction::true_gen,
-                "Start a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "stopEffector", 
-              command
-              ( &KernelBaseFunction::stopEffector ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Effector Component", "Name", "The name of the Effector" ) );
-    ret->add( "stopController", 
-              command
-              ( &KernelBaseFunction::stopController ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Controller Component", "Name", "The name of the Controller" ) );
-    ret->add( "stopGenerator", 
-              command
-              ( &KernelBaseFunction::stopGenerator ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Generator Component", "Name", "The name of the Generator" ) );
-    ret->add( "stopEstimator", 
-              command
-              ( &KernelBaseFunction::stopEstimator ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Estimator Component", "Name", "The name of the Estimator" ) );
-    ret->add( "stopSensor", 
-              command
-              ( &KernelBaseFunction::stopSensor ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Sensor Component", "Name", "The name of the Sensor" ) );
-    ret->add( "stopEffector", 
-              command
-              ( &KernelBaseFunction::stopEffector ,
-                &KernelBaseFunction::true_gen,
-                "Stop a Effector Component", "Name", "The name of the Effector" ) );
-#endif
-    return ret;
-}
 
 MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
 {

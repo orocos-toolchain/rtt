@@ -44,6 +44,16 @@ OROCOS_DEFAULT_FLAGS(
 
 OROCOS_EXPORT_FLAGS
 
+AC_CHECK_PROG(ECOSCONFIG,ecosconfig,ecosconfig,no)
+if test "x$ECOSCONFIG" = "xno"; then
+AC_MSG_ERROR("The program 'ecosconfig' not found on your system.
+Orocos needs it to configure its packages properly. See the
+Orocos.org download web page for information on how to obtain
+ecosconfig ( and configtool ).
+")
+fi
+
+
 AC_MSG_CHECKING(for repository)
 ECOS_REP=$(cd $(dirname $0); pwd)/packages
 AC_SUBST(ECOS_REP)

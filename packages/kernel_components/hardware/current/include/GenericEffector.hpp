@@ -33,7 +33,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/Factories.hpp"
+#include "execution/TemplateFactories.hpp"
 #include "control_kernel/ExecutionExtension.hpp"
 #endif
 

@@ -29,43 +29,42 @@
 #define VALUEPARSER_HPP
 
 #include "parser-types.hpp"
-#include "AssignVariableCommand.hpp"
-#include <corelib/CommandInterface.hpp>
 #include "CommonParser.hpp"
+#include "PeerParser.hpp"
+#include "AttributeRepository.hpp"
 
 #include <memory>
 #include <map>
 
 namespace ORO_Execution
 {
+    class TaskContext;
+
     /**
-     * @brief A class for keeping track of parsed values/variables.
+     * @brief A class for parsing const values.
      *
-     * It recognizes types and stores them in a map,
-     * so that they can be referenced to later on.
-     * If the 'context' has changed, it must be reset.
+     * It recognizes types and stores them in a TaskVariableBase.
      */
   class ValueParser
   {
     rule_t constant, const_double, const_int, const_bool, named_constant,
       const_string;
     CommonParser commonparser;
+    PeerParser peerparser;
 
-    typedef std::map<const std::string, ParsedValueBase*> map_t;
-    map_t values;
     // a auto_ptr used only to make sure we don't forget to delete
-    // the ParsedValueBase it holds..  Here we store a pointer to
-    // the ParsedValueBase for a temporary variable we've just
+    // the TaskVariableBase it holds..  Here we store a pointer to
+    // the TaskVariableBase for a temporary variable we've just
     // parsed.  If we parse a non-temporary, then we don't need to
     // delete it, as it remains in the values map, however a
     // constant only gets stored temporarily in ret, so this
     // variable makes sure it gets deleted.
-    std::auto_ptr<ParsedValueBase> deleter;
-    // the ParsedValue we've just parsed..  we only store it and
+    std::auto_ptr<TaskAttributeBase> deleter;
+    // the TaskVariable we've just parsed..  we only store it and
     // assume that the ProgramParser will do something useful with
     // it.  We don't ever own it, and don't delete it, or set it to
     // 0..
-    ParsedValueBase* ret;
+    TaskAttributeBase* ret;
     // contains the string constant we're parsing ( it has to be
     // parsed char-by-char, because of the way c_escape_ch_p works
     // )..
@@ -78,31 +77,24 @@ namespace ORO_Execution
     void push_str_char( char c );
     void seenstring();
 
+      TaskContext* context;
   public:
-    ValueParser();
+    ValueParser( TaskContext* tc );
+
+      void setStack( TaskContext* tc );
+
     ~ValueParser();
+      /**
+       * Clears this parser, not the repository where it stores its results.
+       */
     void clear();
 
     rule_t& parser();
 
-    const ParsedValueBase* lastParsed() const
+    const TaskAttributeBase* lastParsed() const
       {
         return ret;
-      };
-
-    bool isDefined( const std::string& name ) const;
-
-    void addConstant( const std::string& name, bool value );
-    void addConstant( const std::string& name, double value );
-    void addConstant( const std::string& name, int value );
-    void addConstant( const std::string& name, const std::string& value );
-    void setValue( const std::string& name, ParsedValueBase* pc );
-    void removeValue( const std::string& name );
-    /**
-     * Get the value with name name.  If no such value exists, this
-     * returns 0.
-     */
-    ParsedValueBase* getValue( const std::string& name );
+      }
   };
 }
 

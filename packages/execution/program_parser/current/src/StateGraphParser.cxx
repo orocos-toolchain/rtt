@@ -30,16 +30,18 @@
 #include "execution/StateGraphParser.hpp"
 #include "execution/StateContextBuilder.hpp"
 #include "execution/DataSourceFactory.hpp"
-#include "execution/GlobalFactory.hpp"
+#include "execution/TaskContext.hpp"
 #include "execution/mystd.hpp"
 
 #include "execution/Processor.hpp"
+#include "execution/CommandComposite.hpp"
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
 #include "execution/EventHandle.hpp"
 #include "execution/StateDescription.hpp"
+#include "execution/ProgramGraph.hpp"
 #include "execution/ParsedStateContext.hpp"
 #include "corelib/CommandEmitEvent.hpp"
 
@@ -316,9 +318,8 @@ namespace ORO_Execution
     }
 
     StateGraphParser::StateGraphParser( iter_t& positer,
-                                        Processor* proc,
-                                        GlobalFactory* e )
-        : context( proc, e ),
+                                        TaskContext* tc )
+        : context( tc ),
           mpositer( positer ),
           curtemplatecontext( 0 ),
           curinstantiatedcontext( 0 ),
@@ -334,7 +335,8 @@ namespace ORO_Execution
           conditionparser( context ),
           commandparser( context ),
           valuechangeparser( context ),
-          expressionparser( context )
+          expressionparser( context ),
+          valueparser( context )
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( newline );
@@ -501,7 +503,7 @@ namespace ORO_Execution
         statecommand = emitcommand;
 
         emitcommand = str_p("emit") >> expect_open(str_p("(") )
-                                    >> context.valueparser.parser()[bind( &StateGraphParser::seenemit, this ) ]
+                                    >> valueparser.parser()[bind( &StateGraphParser::seenemit, this ) ]
                                     >> expect_end( str_p( ")" ) );
 
         // You are able to do something everywhere except in transistions :
@@ -524,7 +526,7 @@ namespace ORO_Execution
 
         eventbinding = expect_open(str_p("("))
                        // We use the valueparser to get the const_string actually.
-                       >> context.valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
+                       >> valueparser.parser()[ bind( &StateGraphParser::eventselected, this )]
                        >> expect_comma(str_p(","))
                        >> commandparser.parser()[ bind( &StateGraphParser::seensink, this)]
                        >> expect_end( str_p(")") );
@@ -559,7 +561,28 @@ namespace ORO_Execution
             curstate = new StateDescription(def); // create an empty state
             curtemplatecontext->addState( def, curstate );
         }
+
+        // Lookup our SC :
+        TaskContext* __s = context->getPeer("__states");
+        assert(__s);
+        __s = __s->getPeer( curcontextname );
+        assert(__s);
+
+        // Insert the new state:
+        if ( __s->hasPeer( def ) )
+            throw parse_exception_semantic_error("State " + def + " redefined.");
+
+        TaskContext* stck = new TaskContext(def, context->getProcessor() );
+        // state can access state context and task context :
+        __s->connectPeers( stck );
+        stck->addPeer(context);
+        // variables are always on foo's 'stack'
+        valuechangeparser.setStack(stck);
+        commandparser.setStack(stck);
+        expressionparser.setStack(stck);
+        conditionparser.setStack(stck);
     }
+
     void StateGraphParser::seenstateend()
     {
         if ( curinitialstateflag )
@@ -581,6 +604,11 @@ namespace ORO_Execution
         curstate = 0;
         curinitialstateflag = false;
         curfinalstateflag = false;
+
+        valuechangeparser.setStack(context);
+        commandparser.setStack(context);
+        expressionparser.setStack(context);
+        conditionparser.setStack(context);
     }
 
     void StateGraphParser::inprogram(const std::string& name)
@@ -650,7 +678,7 @@ namespace ORO_Execution
 
     void StateGraphParser::seenemit()
     {
-        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
+        const TaskAliasAttribute<std::string>* res = dynamic_cast<const TaskAliasAttribute<std::string>* >( valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception_semantic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
@@ -707,7 +735,7 @@ namespace ORO_Execution
     void StateGraphParser::eventselected()
     {
         assert( !curevent );
-        const ParsedAliasValue<std::string>* res = dynamic_cast<const ParsedAliasValue<std::string>* >( context.valueparser.lastParsed()) ;
+        const TaskAliasAttribute<std::string>* res = dynamic_cast<const TaskAliasAttribute<std::string>* >( valueparser.lastParsed()) ;
 
         if ( !res )
             throw parse_exception_syntactic_error("Please specify a string containing the Event's name. e.g. \"eventname\".");
@@ -786,24 +814,35 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error("State " + it->first + " not defined, but referenced to.");
         }
 
-        ProgramGraph* initentryprogram = initstate->getEntryProgram();
-        if ( ! initentryprogram )
-        {
-            initentryprogram = emptyProgram("entry");
-            initstate->setEntryProgram( initentryprogram );
-        }
+//         FunctionGraph* initentryprogram = initstate->getEntryProgram();
+//         if ( ! initentryprogram )
+//         {
+//             initentryprogram = emptyProgram("entry");
+//             initstate->setEntryProgram( initentryprogram );
+//         }
         // prepend the commands for initialising the subcontext
         // parameters..
-        for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-              i != preentrycommands.end(); ++i )
-            initentryprogram->prependCommand( *i, mpositer.get_position().line );
+        if ( preentrycommands.size() > 1 )
+            {
+                CommandComposite* comcom = new CommandComposite;
+                for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
+                      i != preentrycommands.end(); ++i )
+                    comcom->add( *i );
+                initstate->setInitCommand( comcom );
+            }
+        else if (preentrycommands.size() == 1 )
+            initstate->setInitCommand( *preentrycommands.begin() );
+
+//         for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
+//               i != preentrycommands.end(); ++i )
+//             initentryprogram->prependCommand( *i, mpositer.get_position().line );
         preentrycommands.clear();
 
         // remove the data factories we added to the context again..
         std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
         for ( std::vector<std::string>::iterator i = subcontextnames.begin();
               i != subcontextnames.end(); ++i )
-            context.globalfactory->dataFactory().unregisterObject( *i );
+            context->dataFactory.unregisterObject( *i );
 
         StateContextBuilder* scb = new StateContextBuilder( curtemplatecontext );
         contextbuilders[curcontextname] = scb;
@@ -811,7 +850,7 @@ namespace ORO_Execution
         curcontextname.clear();
         curtemplatecontext = 0;
         curcontextname.clear();
-        context.valueparser.clear();
+        valueparser.clear();
     }
 
     std::vector<ParsedStateContext*> StateGraphParser::parse( iter_t& begin, iter_t end )
@@ -821,7 +860,7 @@ namespace ORO_Execution
         scanner_pol_t policies( iter_policy );
         scanner_t scanner( begin, end, policies );
 
-        context.valueparser.clear();
+        valueparser.clear();
 
         // reset the condition-transition priority.
         rank = 0;
@@ -870,6 +909,9 @@ namespace ORO_Execution
                 e.copy(), mpositer.get_position().file,
                 mpositer.get_position().line, mpositer.get_position().column );
         }
+//         catch( ... ) {
+//             assert( false );
+//         }
     }
 
     StateGraphParser::~StateGraphParser() {
@@ -902,7 +944,7 @@ namespace ORO_Execution
           std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
           for ( std::vector<std::string>::iterator i = subcontextnames.begin();
                 i != subcontextnames.end(); ++i )
-            context.globalfactory->dataFactory().unregisterObject( *i );
+            context->dataFactory.unregisterObject( *i );
           delete curtemplatecontext;
           curtemplatecontext = 0;
         }
@@ -914,11 +956,39 @@ namespace ORO_Execution
               i != contextbuilders.end(); ++i )
           delete i->second;
         contextbuilders.clear();
+
+        valuechangeparser.setStack(context);
+        commandparser.setStack(context);
+        expressionparser.setStack(context);
+        conditionparser.setStack(context);
     }
 
     void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
         assert( curcontextname.empty() );
         curcontextname = std::string ( begin, end );
+
+        // store the SC in the TaskContext current.__states
+        TaskContext* __s = context->getPeer("__states");
+        if ( __s == 0 ) {
+            // install the __states if not yet present.
+            __s = new TaskContext("__states", context->getProcessor() );
+            context->addPeer( __s );
+        }
+
+        if ( __s->hasPeer( curcontextname ) )
+            throw parse_exception_semantic_error("State Context " + curcontextname + " redefined.");
+
+        // Connect the new SC to the relevant contexts.
+        // 'sc' acts as a stack for storing variables.
+        TaskContext* sc = new TaskContext(curcontextname, context->getProcessor() );
+        __s->addPeer( sc );
+        sc->addPeer(context);
+        // variables are always on sc's 'stack'
+        valuechangeparser.setStack(sc);
+        commandparser.setStack(sc);
+        expressionparser.setStack(sc);
+        conditionparser.setStack(sc);
+
         curtemplatecontext = new ParsedStateContext();
     }
 
@@ -948,21 +1018,29 @@ namespace ORO_Execution
         assert( curinstantiatedcontext->getInitialState() );
         StateDescription* initialstate = dynamic_cast<StateDescription*>( curinstantiatedcontext->getInitialState() );
         assert( initialstate );
-        ProgramGraph* entryprog = initialstate->getEntryProgram();
-        if ( !entryprog )
-        {
-            // it's possible that the initial state does not have an entryprogram
-            entryprog = emptyProgram("entry");
-            initialstate->setEntryProgram( entryprog );
-        }
+//         FunctionGraph* entryprog = initialstate->getEntryProgram();
+//         if ( !entryprog )
+//         {
+//             // it's possible that the initial state does not have an entryprogram
+//             entryprog = emptyProgram("entry");
+//             initialstate->setEntryProgram( entryprog );
+//         }
 
         // prepend the commands for initialising the subcontext
         // parameters ( for root contexts, we do it in their own
         // initstate's entry method instead of in the entry method of the
         // initstate of their parent.
-        for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
-              i != preentrycommands.end(); ++i )
-            entryprog->prependCommand( *i, mpositer.get_position().line );
+        if ( preentrycommands.size() > 1 )
+            {
+                CommandComposite* comcom = new CommandComposite;
+                for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
+                      i != preentrycommands.end(); ++i )
+                    comcom->add( *i );
+                initialstate->setInitCommand( comcom );
+            }
+        else if (preentrycommands.size() == 1 )
+            initialstate->setInitCommand( *preentrycommands.begin() );
+        
         preentrycommands.clear();
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -971,22 +1049,22 @@ namespace ORO_Execution
     void StateGraphParser::seensubcontextinstantiation() {
         if( curtemplatecontext->getSubContext( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error( "SubContext \"" + curinstcontextname + "\" already defined." );
-        if ( context.globalfactory->dataFactory().getObjectFactory( curinstcontextname ) != 0 )
+        if ( context->dataFactory.getObjectFactory( curinstcontextname ) != 0 )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used." );
         DataSource<StateContextTree*>* dsc = curtemplatecontext->addSubContext( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
-        ParsedAliasValue<std::string>* pv = new ParsedAliasValue<std::string>( curinstantiatedcontext->getNameDS() );
-        context.valueparser.setValue( curinstcontextname, pv );
+        TaskAliasAttribute<std::string>* pv = new TaskAliasAttribute<std::string>( curinstantiatedcontext->getNameDS() );
+        context->attributeRepository.setValue( curinstcontextname, pv );
 
         // we add a SubContextDataSourceFactory for this subcontext to
         // the global data source factory, so that we can support
         // subcontext introspection...
         SubContextDataSourceFactory* scdsf =
             new SubContextDataSourceFactory( curinstantiatedcontext, dsc, curinstcontextname );
-        context.globalfactory->dataFactory().registerObject( curinstcontextname, scdsf );
+        context->dataFactory.registerObject( curinstcontextname, scdsf );
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -1097,7 +1175,7 @@ namespace ORO_Execution
       throw parse_exception_semantic_error(
         "Use of unknown subcontext \"" + curscvccontextname +
         "\"in subcontext parameter assignment." );
-    ParsedValueBase* pvb = psc->getParameter( curscvcparamname );
+    TaskAttributeBase* pvb = psc->getParameter( curscvcparamname );
     if ( !pvb )
       throw parse_exception_semantic_error(
           "Subcontext \"" + curscvccontextname +

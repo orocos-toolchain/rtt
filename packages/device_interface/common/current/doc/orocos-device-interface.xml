@@ -160,18 +160,18 @@ of the physical interfaces they use underneath. You just want to know the
 	also put a simulation of an encoder in place of the device
 	driver for testing purposes.
       </para>
-      <para>
-	<figure><title>(insert example-picture here)</title>
-	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="example.png" format="PNG"/>
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="example.png" format="EPS"/>
-	    </imageobject>
-	  </mediaobject>
-	</figure>
-      </para>
+<!--       <para> -->
+<!-- 	<figure><title>(insert example-picture here)</title> -->
+<!-- 	  <mediaobject> -->
+<!-- 	    <imageobject role="html"> -->
+<!-- 	      <imagedata fileref="example.png" format="PNG"/> -->
+<!-- 	    </imageobject> -->
+<!-- 	    <imageobject role="fo"> -->
+<!-- 	      <imagedata fileref="example.png" format="EPS"/> -->
+<!-- 	    </imageobject> -->
+<!-- 	  </mediaobject> -->
+<!-- 	</figure> -->
+<!--       </para> -->
     </sect2>
     <sect2>
       <title>The Device Interface Classes</title>

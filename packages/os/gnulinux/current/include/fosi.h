@@ -44,6 +44,7 @@ extern "C"
 
 	// Orocos Implementation (i386 specific)
 #include "oro_atomic.h"
+#include "oro_bitops.h"
 
     // Time Related
 #include <sys/time.h>

@@ -1,8 +1,9 @@
 #ifndef DATASOURCEFACTORYINTERFACE_HPP
 #define DATASOURCEFACTORYINTERFACE_HPP
 
-#define  MEMBERFACTORYINTERFACE DataSourceFactoryInterface
 #include "MemberFactoryInterface.hpp"
-#undef MEMBERFACTORYINTERFACE
+namespace ORO_Execution {
+    typedef MemberFactoryInterface DataSourceFactoryInterface;
+}
 
 #endif

@@ -565,8 +565,8 @@ emergencyStop.fire(); // User not notified
   event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); // Default
   event.connect(&amp;syn_func, &amp; asyn_func, PriorityThread&lt;N&gt;::Instance() );
 	</programlisting>
-	If you would write above listings in a real program, on <methodsynopsis>
-	  event.fire()</methodsynopsis>, the syn_func will be called directly
+	If you would write above listings in a real program, on <method>
+	  event.fire()</method>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
 	preempting itself.
       </para>

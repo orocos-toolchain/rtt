@@ -42,6 +42,7 @@
  * class can be constructed conforming to it.
  */
 
+#pragma interface
 
 #include <iterator>
 #include <string>
@@ -55,6 +56,7 @@
 #include <corelib/PropertyDecomposition.hpp>
 #include <corelib/VectorComposition.hpp>
 #include "Typelist.h"
+#include <boost/shared_ptr.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
@@ -82,11 +84,14 @@ namespace ORO_ControlKernel
      */
     template< class _DataObjectType >
     class DataObjectServer
-        : public DataObjectReporting
+        : public ReportingClient
     {
         static ORO_CoreLib::NameServer< DataObjectInterface< typename _DataObjectType::DataType>* > ns;
         std::string prefix;
-
+        /**
+         * A server where we reg our dataobjs for reporting.
+         */
+        boost::shared_ptr<DataObjectReporting> repserver;
     public :
         typedef _DataObjectType DataObjectType;
         typedef _DataObjectType* DataObjectType_ptr;
@@ -112,9 +117,17 @@ namespace ORO_ControlKernel
          *        in the same namespace, although being in different kernels.
          */
         DataObjectServer(const std::string& _name, const std::string& _prefix )//= _name ) 
-            : DataObjectReporting( _name ), prefix( _prefix ) {}
+            : prefix( _prefix ), repserver( DataObjectReporting::nameserver.getObject( _name ) ) {
+            if ( repserver.get() == 0 ) {
+                new DataObjectReporting( _name );
+                repserver = DataObjectReporting::nameserver.getObject( _name );
+            }
+            repserver->addClient( this );
+        }
 
-        virtual ~DataObjectServer() {}
+        virtual ~DataObjectServer() {
+            repserver->removeClient( this );
+        }
 
         /**
          * @brief Change the prefix of this server.

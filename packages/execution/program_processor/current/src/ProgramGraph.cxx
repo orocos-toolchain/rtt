@@ -26,6 +26,11 @@
  ***************************************************************************/
 #include "execution/ProgramGraph.hpp"
 #include "execution/FunctionGraph.hpp"
+#include "execution/CommandComposite.hpp"
+#include "execution/TaskAttribute.hpp"
+//#include "execution/parse_exception.hpp"
+#include "execution/FactoryExceptions.hpp"
+#include "GraphCopier.hpp"
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"
@@ -42,58 +47,8 @@ namespace ORO_Execution
     using ORO_CoreLib::CommandNOP;
     using ORO_CoreLib::ConditionTrue;
 
-    namespace {
-        // these two are used as policy parameters for the
-        // boost::copy_graph function.
-        class ProgramGraphVertexCopier {
-            typedef ProgramGraph::Graph Graph;
-            typedef graph_traits<Graph>::vertex_descriptor VertexDesc;
-            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
-            property_map<Graph, vertex_command_t>::const_type commandmap1;
-            property_map<Graph, vertex_all_t>::const_type allmap1;
-            property_map<Graph, vertex_command_t>::type commandmap2;
-            property_map<Graph, vertex_all_t>::type allmap2;
-        public:
-            ProgramGraphVertexCopier( const Graph& g1, Graph& g2,
-                                      std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
-                : rdss( replacementdss ),
-                  commandmap1( get( vertex_command, g1 ) ), allmap1( get( vertex_all, g1 ) ),
-                  commandmap2( get( vertex_command, g2 ) ), allmap2( get( vertex_all, g2 ) )
-                {
-                }
-            void operator()( const VertexDesc& a, VertexDesc& b )
-                {
-                    put( allmap2, b, get( allmap1, a ) );
-                    put( commandmap2, b, get( commandmap1, a ).copy( rdss ) );
-                }
-        };
-
-        class ProgramGraphEdgeCopier {
-            typedef ProgramGraph::Graph Graph;
-            typedef graph_traits<Graph>::edge_descriptor EdgeDesc;
-            std::map<const DataSourceBase*, DataSourceBase*>& rdss;
-            property_map<Graph, edge_condition_t>::const_type conditionmap1;
-            property_map<Graph, edge_condition_t>::type conditionmap2;
-            property_map<Graph, edge_all_t>::const_type allmap1;
-            property_map<Graph, edge_all_t>::type allmap2;
-        public:
-            ProgramGraphEdgeCopier( const Graph& g1, Graph& g2,
-                                    std::map<const DataSourceBase*, DataSourceBase*>& replacementdss )
-                : rdss( replacementdss ),
-                  conditionmap1( get( edge_condition, g1 ) ), conditionmap2( get( edge_condition, g2 ) ),
-                  allmap1( get( edge_all, g1 ) ), allmap2( get( edge_all, g2 ) )
-                {
-                }
-            void operator()( const EdgeDesc& a, const EdgeDesc& b )
-                {
-                    put( allmap2, b, get( allmap1, a ) );
-                    put( conditionmap2, b, get( conditionmap1, a ).copy( rdss ) );
-                }
-        };
-    }
-
     ProgramGraph::ProgramGraph(const std::string& _name)
-        : graph( 0 ), myName(_name)
+        : FunctionGraph(_name), graph( 0 )
     {
     }
 
@@ -101,77 +56,14 @@ namespace ORO_Execution
     {
     }
 
-    bool ProgramGraph::executeToStop()
-    {
-        static const int maxsteps = 5000;
-        int count = 0;
-        bool result = true;
-
-        while ( current != end && count++ <= maxsteps && result )
-            result = execute();
-        return result;
-    }
-
-    bool ProgramGraph::execute()
-    {
-        graph_traits<Graph>::out_edge_iterator ei, ei_end;
-        // the map contains _references_ to all vertex_command properties
-        boost::property_map<Graph, vertex_command_t>::type
-            cmap = get(vertex_command, program);
-        boost::property_map<Graph, edge_condition_t>::type
-            emap = get(edge_condition, program);
-
-        // initialise current node if needed and reset all its out_edges
-        if ( previous != current )
-        {
-            for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-                emap[*ei].reset();
-            cmap[current].startExecution();
-            previous = current;
-        }
-
-        // execute the current command.
-        if ( !cmap[current].execute() )
-            return false;
-
-        // Branch selecting Logic :
-        for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-        {
-            if ( emap[*ei].evaluate() )
-            {
-                current = boost::target(*ei, program);
-                // a new node has been found ...
-                // it will be executed in the next step.
-                return true;
-            }
-        }
-        return true; // no new branch found yet !
-    }
-
-    void ProgramGraph::reset()
-    {
-        current = root;
-        previous = end;
-    }
-
-    bool ProgramGraph::isFinished() const 
-    {
-        return current == end;
-    }
-
-    const ProgramGraph::Graph& ProgramGraph::getGraph() const
-    {
-        return program;
-    }
-
-    FunctionGraph* ProgramGraph::startFunction()
+    FunctionGraph* ProgramGraph::startFunction(const std::string& fname)
     {
         // next node should be 'empty'/ not used here.
 
         // a function is to be constructed
-        FunctionGraph* fn =  new FunctionGraph( );
+        FunctionGraph* fn =  new FunctionGraph( fname );
         graph   = &fn->getGraph();
-        current = fn->startNode();
+        build   = fn->startNode();
         next    = add_vertex( *graph );
         put( vertex_exec, *graph, next, VertexNode::normal_node );
         return fn;
@@ -179,26 +71,26 @@ namespace ORO_Execution
 
     void ProgramGraph::returnFunction( ConditionInterface* cond, FunctionGraph* fn)
     {
-        // connect the current node to the exitNode under a condition,
-        // for example, the current implicit term condition.
-        add_edge(current, fn->exitNode(), EdgeCondition(cond), *graph);
+        // connect the build node to the exitNode under a condition,
+        // for example, the build implicit term condition.
+        add_edge(build, fn->exitNode(), EdgeCondition(cond), *graph);
     }
 
     void ProgramGraph::endFunction( FunctionGraph* fn)
     {
         // A return statement is obligatory, so the returnFunction has
-        // already connected the current node to exitNode of the function.
+        // already connected the build node to exitNode of the function.
         // the end of the statement will proceedToNext
         // remove the empty next nodes.
-        remove_vertex( current, *graph );
+        remove_vertex( build, *graph );
         remove_vertex( next, *graph );
         fn->finish();
     }
 
     ProgramGraph::CommandNode ProgramGraph::addCommand( ConditionInterface* cond,  CommandInterface* com )
     {
-        add_edge(current, next, EdgeCondition(cond), *graph);
-        current = next;
+        add_edge(build, next, EdgeCondition(cond), *graph);
+        build = next;
         setCommand(com);
         next    = add_vertex( *graph );
         put( vertex_exec, *graph, next, VertexNode::normal_node );
@@ -207,19 +99,19 @@ namespace ORO_Execution
 
     void ProgramGraph::addConditionEdge( ConditionInterface* cond, CommandNode vert )
     {
-        add_edge(current, vert, EdgeCondition(cond), *graph);
+        add_edge(build, vert, EdgeCondition(cond), *graph);
     }
 
     void ProgramGraph::closeConditionEdge( CommandNode vert, ConditionInterface* cond )
     {
-        add_edge(vert, current, EdgeCondition(cond), *graph);
+        add_edge(vert, build, EdgeCondition(cond), *graph);
     }
 
-    ProgramGraph::CommandNode ProgramGraph::moveTo( CommandNode _current, CommandNode _next, int linenumber )
+    ProgramGraph::CommandNode ProgramGraph::moveTo( CommandNode _build, CommandNode _next, int linenumber )
     {
         this->setLineNumber( linenumber );
-        CommandNode old = current;
-        current = _current;
+        CommandNode old = build;
+        build = _build;
         next    = _next;
         return old;
     }
@@ -229,13 +121,13 @@ namespace ORO_Execution
         // the map contains _references_ to all vertex_command properties
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, *graph);
-        // access the one of current
+        // access the one of build
         return cmap[cn].getCommand();
     }
 
     void ProgramGraph::setCommand( CommandInterface* comm )
     {
-        this->setCommand(current, comm);
+        this->setCommand(build, comm);
     }
 
     void ProgramGraph::setCommand(CommandNode cn, CommandInterface* comm )
@@ -243,13 +135,13 @@ namespace ORO_Execution
         // the map contains _references_ to all vertex_command properties
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, *graph);
-        // access the one of current
+        // access the one of build
         delete cmap[cn].setCommand( comm );
     }
 
     ProgramGraph::CommandNode ProgramGraph::proceedToNext( ConditionInterface* cond, int this_line )
     {
-        add_edge(current, next, EdgeCondition(cond), *graph);
+        add_edge(build, next, EdgeCondition(cond), *graph);
         return proceedToNext( this_line );
     }
 
@@ -257,10 +149,10 @@ namespace ORO_Execution
     {
         if ( this_line )
             this->setLineNumber( this_line );
-        current = next;
+        build = next;
         next    = add_vertex( *graph );
         put(vertex_exec, *graph, next, VertexNode::normal_node );
-        return current;
+        return build;
     }
 
     void ProgramGraph::connectToNext( CommandNode v, ConditionInterface* cond )
@@ -268,45 +160,48 @@ namespace ORO_Execution
         add_edge( v, next, EdgeCondition(cond), *graph);
     }
 
+    ProgramGraph::CommandNode ProgramGraph::buildNode() const
+    {
+        return build;
+    }
+
+    size_t ProgramGraph::buildEdges() const
+    {
+        return out_degree( build, *graph );
+    }
+
+    ProgramGraph::CommandNode ProgramGraph::nextNode() const
+    {
+        return next;
+    }
+
+    void ProgramGraph::setLineNumber( int line )
+    {
+        boost::property_map<Graph, vertex_command_t>::type
+            cmap = get(vertex_command, *graph);
+        cmap[build].setLineNumber( line );
+    }
+
     ProgramGraph::CommandNode ProgramGraph::startProgram()
     {
         // we work now on the program.
         graph = &program;
-        // the current node
-        current = add_vertex( *graph );
-        put(vertex_exec, *graph, current, VertexNode::prog_start_node );
+        // the build node
+        build = this->start;
+        put(vertex_exec, *graph, build, VertexNode::prog_start_node );
         next    = add_vertex( *graph );
         put(vertex_exec, *graph, next, VertexNode::normal_node );
 
-        end  = add_vertex( *graph );
-        root = current;
+        //exit  = add_vertex( *graph );
+        //put(vertex_exec, *graph, next, VertexNode::normal_node );
+        //start = build;
 
-        return current;
-    }
-
-    const std::string& ProgramGraph::getName() const
-    {
-        return myName;
-    }
-
-    void ProgramGraph::setName(const std::string& name)
-    {
-        myName = name;
-    }
-
-    std::string ProgramGraph::getText() const
-    {
-        return _text;
-    }
-
-    void ProgramGraph::setText(const std::string& text)
-    {
-        _text = text;
+        return build;
     }
 
     void ProgramGraph::returnProgram( ConditionInterface* cond )
     {
-        add_edge(current, end, EdgeCondition(cond), program );
+        add_edge(build, exit, EdgeCondition(cond), program );
     }
 
     void ProgramGraph::endProgram( CommandInterface* finalCommand ) {
@@ -315,15 +210,15 @@ namespace ORO_Execution
         // End of all processing. return already linked to end.
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get(vertex_command, program);
-        delete cmap[end].setCommand( finalCommand );
-        put(vertex_exec, *graph, end, VertexNode::prog_exit_node );
+        delete cmap[exit].setCommand( finalCommand );
+        put(vertex_exec, *graph, exit, VertexNode::prog_exit_node );
 
-        assert( current != next );
-        assert( out_degree(current, program) == 0 );
+        assert( build != next );
+        assert( out_degree(build, program) == 0 );
         assert( out_degree(next, program) == 0 );
-        clear_vertex(current, program);
+        clear_vertex(build, program);
         clear_vertex(next, program);
-        remove_vertex( current, program );
+        remove_vertex( build, program );
         remove_vertex( next, program );
 
         // now let's reindex the vertices ( this is necessary for the
@@ -344,21 +239,26 @@ namespace ORO_Execution
         bool operator()(const ProgramGraph::Vertex& v,
                         const std::pair<_Map, int>& to_find  ) const
             {
+                // return : Is this the node with the given property ?
                 return to_find.first[v] == to_find.second;
             }
     };
 
-    ProgramGraph::CommandNode ProgramGraph::appendFunction( ConditionInterface* cond, FunctionGraph* fn )
+    ProgramGraph::CommandNode ProgramGraph::appendFunction( ConditionInterface* cond, FunctionGraph* fn,
+                                                            std::vector<DataSourceBase*> fnargs )
     {
         /**
          * This can be used if a function must be called conditionally.
          */
-        // Do not move current inhere !
+        // Do not move build inhere !
         // copy FunctionGraph's graph into the current *graph, add an edge with
         // the condition. Connect the exitNode() of the function with
         // the next node.
 
-        // first reindex the vertices...
+        // The reason to reindex the vertexes of source graph is
+        // to silence valgrinds warnings about uninitialised values
+        // in the following piece of code. Technically, copy_graph
+        // does not need it.
         boost::property_map<Graph, vertex_index_t>::type indexmap =
             get( vertex_index, *graph );
         boost::graph_traits<Graph>::vertex_iterator v, vend;
@@ -366,10 +266,43 @@ namespace ORO_Execution
         for ( tie( v, vend ) = vertices( *graph ); v != vend; ++v )
             indexmap[*v] = index++;
 
+        // check nb of arguments:
+        std::vector<TaskAttributeBase*> origlist = fn->getArguments();
+        if ( fnargs.size() != origlist.size() )
+            throw wrong_number_of_args_exception( origlist.size(), fnargs.size() );
+            
+        // make a deep copy of the function :
         std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
+        std::vector<TaskAttributeBase*> newlist;
+        for (unsigned int i=0; i < origlist.size(); ++i)
+            newlist.push_back( origlist[i]->copy( replacementdss ) );
+        // newlist contains the DS which need initialisations :
+
+        // create commands that init all the args :
+        CommandComposite* icom=  new CommandComposite();
+        std::vector<DataSourceBase*>::const_iterator dit = fnargs.begin();
+        std::vector<TaskAttributeBase*>::const_iterator tit =  newlist.begin();
+        try {
+            for (; dit != fnargs.end(); ++dit, ++tit)
+                icom->add( (*tit)->assignCommand( *dit, true ) );
+        }
+        catch( const bad_assignment& e) {
+            // cleanup allocated memory
+            for (unsigned int i=0; i < newlist.size(); ++i)
+                delete newlist[i];
+            delete icom;
+            int parnb = (dit - fnargs.begin());
+            throw wrong_types_of_args_exception(parnb);
+        }
+
+        // set the init command on the build node 
+        //assert( build not used by other than NOP )
+        this->setCommand( icom );
+
         boost::copy_graph( fn->getGraph(), *graph,
-                           boost::vertex_copy( ProgramGraphVertexCopier( fn->getGraph(), *graph, replacementdss ) ).
-                           edge_copy( ProgramGraphEdgeCopier( fn->getGraph(), *graph, replacementdss ) ) );
+                           boost::vertex_copy( GraphVertexCopier( fn->getGraph(), *graph, replacementdss ) ).
+                           edge_copy( GraphEdgeCopier( fn->getGraph(), *graph, replacementdss ) ) );
+
         // the subgraph has been copied but is now 'floating' in the current graph.
         // we search func start and exit points and connect them to
         // the current graph.
@@ -378,10 +311,27 @@ namespace ORO_Execution
         // reference to its enter and exit point, and we would use the
         // copy_graph orig_to_copy map to find the corresponding nodes
         // in the copy...
-        graph_traits<Graph>::vertex_iterator v1,v2;
+        graph_traits<Graph>::vertex_iterator v1,v2, vc;
         tie(v1,v2) = vertices(*graph);
         boost::property_map<Graph, vertex_exec_t>::type
             vmap = get(vertex_exec, *graph);
+
+//         // test not initialised value.
+//         vc = v1;
+//         while (vc != v2) {
+//             std::cerr << int( vmap[*vc] )<<std::endl;
+//             ++vc;
+//         }
+//         std::cerr<<std::endl;
+//         // test foo :
+//         tie(v1,v2) = vertices(fn->getGraph());
+//             vmap = get(vertex_exec, fn->getGraph());
+//         vc = v1;
+//         while (vc != v2) {
+//             std::cerr << int( vmap[*vc] )<<std::endl;
+//             ++vc;
+//         }
+
 
         Vertex funcStart=*
                          find_if(v1, v2,
@@ -402,44 +352,18 @@ namespace ORO_Execution
         return funcExit;
     }
 
-    ProgramGraph::CommandNode ProgramGraph::setFunction( FunctionGraph* fn )
+    ProgramGraph::CommandNode ProgramGraph::setFunction( FunctionGraph* fn,
+                                                         std::vector<DataSourceBase*> fnargs )
     {
         /**
-         * This function must/should be used when current has no edges yet leaving.
-         * Off course, edges can already be pointing to current of the previous
-         * command. That's why current can not be overwritten with the first node
-         * of the function, and we need to insert an extra edge from current to
+         * This function must/should be used when build has no edges yet leaving.
+         * Off course, edges can already be pointing to build of the previous
+         * command. That's why build can not be overwritten with the first node
+         * of the function, and we need to insert an extra edge from build to
          * funcStart. That is why we use (until better solution found) the append
          * Function.
          */
-        return appendFunction( new ConditionTrue, fn) ;
-    }
-
-    ProgramGraph::CommandNode ProgramGraph::currentNode() const
-    {
-        return current;
-    }
-
-    size_t ProgramGraph::currentEdges() const
-    {
-        return out_degree( current, *graph );
-    }
-
-    ProgramGraph::CommandNode ProgramGraph::nextNode() const
-    {
-        return next;
-    }
-
-    int ProgramGraph::getLineNumber() const
-    {
-        return get(vertex_command, program)[current].getLineNumber();
-    }
-
-    void ProgramGraph::setLineNumber( int line)
-    {
-        boost::property_map<Graph, vertex_command_t>::type
-            cmap = get(vertex_command, program);
-        cmap[current].setLineNumber( line );
+        return appendFunction( new ConditionTrue, fn, fnargs) ;
     }
 
     void ProgramGraph::startIfStatement( ConditionInterface* cond, int linenumber )
@@ -457,11 +381,11 @@ namespace ORO_Execution
         CommandNode after_else_node =  add_vertex( *graph );
         put(vertex_exec, *graph, after_else_node, VertexNode::normal_node );
         branch_stack.push( after_else_node );
-        //branch_stack.push( current );
+        //branch_stack.push( build );
 
-        // add edge from current to next
+        // add edge from build to next
         addConditionEdge( cond, next );
-        // add edge from current to 'after_else_node'
+        // add edge from build to 'after_else_node'
         addConditionEdge( new ConditionTrue(), else_node );
         proceedToNext(linenumber);
     }
@@ -473,7 +397,7 @@ namespace ORO_Execution
         CommandNode after_else_node = branch_stack.top();
         addConditionEdge( new ConditionTrue(), after_else_node );
         branch_stack.pop();
-        // make else_node current, next remains.
+        // make else_node build, next remains.
         moveTo( branch_stack.top(), next, linenumber );
         branch_stack.pop();
         // store again !
@@ -486,7 +410,7 @@ namespace ORO_Execution
         CommandNode after_else_node = branch_stack.top();
         branch_stack.pop();
         addConditionEdge( new ConditionTrue(), after_else_node );
-        // make after_else_node current
+        // make after_else_node build
         moveTo( after_else_node, next, linenumber );
     }
 
@@ -497,10 +421,10 @@ namespace ORO_Execution
         CommandNode after_while_node = add_vertex( *graph );
         put(vertex_exec, *graph, after_while_node, VertexNode::normal_node );
         branch_stack.push( after_while_node );
-        branch_stack.push( current );
-        // add edge from current to next if condition == true
+        branch_stack.push( build );
+        // add edge from build to next if condition == true
         addConditionEdge( cond, next );
-        // if condition fails, go from current to 'after_while_node'
+        // if condition fails, go from build to 'after_while_node'
         addConditionEdge( new ConditionTrue(), after_while_node );
         proceedToNext(linenumber);
     }
@@ -509,54 +433,29 @@ namespace ORO_Execution
     {
         CommandNode start_of_while = branch_stack.top();
         branch_stack.pop();
-        // go from current back to start (and check there the condition).
+        // go from build back to start (and check there the condition).
         addConditionEdge( new ConditionTrue(), start_of_while );
         CommandNode after_while_node =  branch_stack.top();
         branch_stack.pop();
         moveTo( after_while_node, next, linenumber );
     }
 
-    ProgramGraph* ProgramGraph::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
-    {
-        typedef boost::property_map<Graph, vertex_index_t>::const_type indexmap_t;
-        typedef boost::graph_traits<Graph>::vertex_descriptor vd_t;
-        typedef std::vector<vd_t> o2cvect_t;
-        typedef boost::iterator_property_map<o2cvect_t::iterator, indexmap_t, vd_t, vd_t&> o2cmap_t;
-        ProgramGraph* ret = new ProgramGraph( getName() );
-        indexmap_t indexmap = get( vertex_index, program );
-        // here we assume that the indexing of program is set properly...
-        o2cvect_t o2cvect( num_vertices( program ) );
-        o2cmap_t o2cmap( o2cvect.begin(), indexmap );
-
-        boost::copy_graph( program, ret->program,
-                           boost::vertex_copy( ProgramGraphVertexCopier( program, ret->program, replacementdss ) ).
-                           edge_copy( ProgramGraphEdgeCopier( program, ret->program, replacementdss ) ).
-                           orig_to_copy( o2cmap ) );
-
-        ret->root = o2cmap[root];
-        ret->end = o2cmap[end];
-        ret->current = o2cmap[current];
-        ret->previous = o2cmap[previous];
-
-        return ret;
-    }
-
     void ProgramGraph::prependCommand( CommandInterface* command, int line_nr )
     {
-        CommandNode previousroot = root;
-        root = add_vertex( program );
+        CommandNode previousstart = start;
+        start = add_vertex( program );
         boost::property_map<Graph, vertex_exec_t>::type
             vmap = get(vertex_exec, program);
-        put( vmap, root, get( vmap, previousroot ) );
-        put( vmap, previousroot, VertexNode::normal_node );
+        put( vmap, start, get( vmap, previousstart ) );
+        put( vmap, previousstart, VertexNode::normal_node );
         boost::property_map<Graph, vertex_command_t>::type
             cmap = get( vertex_command, program );
         VertexNode vnode( command );
         vnode.setLineNumber( line_nr );
-        put( cmap, root, vnode );
-        add_edge(root, previousroot, EdgeCondition(new ConditionTrue), program);
-        if ( current == previousroot )
-            current = root;
+        put( cmap, start, vnode );
+        add_edge(start, previousstart, EdgeCondition(new ConditionTrue), program);
+        if ( build == previousstart )
+            build = start;
 
         // now let's reindex the vertices...
         boost::property_map<Graph, vertex_index_t>::type indexmap =
@@ -567,24 +466,5 @@ namespace ORO_Execution
             indexmap[*v] = index++;
     }
 
-    void ProgramGraph::debugPrintout() const {
-        graph_traits<Graph>::vertex_iterator v,vend;
-        tie(v,vend) = vertices(program);
-        boost::property_map<Graph, vertex_command_t>::const_type
-            cmap = get(vertex_command, program);
-        boost::property_map<Graph, vertex_index_t>::const_type
-            imap = get(vertex_index, program);
-        std::cerr << "program " << getName() << std::endl;
-        std::cerr << " number of vertices: " << boost::num_vertices(program) << std::endl;
-        for ( ; v != vend; ++v )
-        {
-            int index = get( imap, *v );
-            CommandInterface* cmd = get( cmap, *v ).getCommand();
-            if ( cmd )
-                std::cerr << " " << index << " " << typeid( *cmd ).name() << std::endl;
-            else
-                std::cerr << " " << index << " (null)" << std::endl;
-        }
-    }
 }
 

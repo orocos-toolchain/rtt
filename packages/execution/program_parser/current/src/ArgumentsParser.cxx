@@ -33,17 +33,18 @@
 #include <boost/lexical_cast.hpp>
 
 #include "execution/ExpressionParser.hpp"
-#include "execution/ParseContext.hpp"
+#include "execution/TaskContext.hpp"
+
 
 namespace ORO_Execution
 {
   using boost::bind;
 
   ArgumentsParser::ArgumentsParser(
-    ExpressionParser& p, ParseContext& c, const std::string& o,
+    ExpressionParser& p,  TaskContext* peer, const std::string& o,
     const std::string& m )
-    : mparsed( false ), context( c ), expressionparser( p ),
-      mobject( o ), mmethod( m )
+    : mparsed( false ), expressionparser( p ),
+      mobject( o ), mmethod( m ), _peer(peer)
   {
     BOOST_SPIRIT_DEBUG_RULE( argument );
     BOOST_SPIRIT_DEBUG_RULE( arguments );

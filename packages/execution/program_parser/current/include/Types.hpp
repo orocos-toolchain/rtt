@@ -34,7 +34,7 @@
 namespace ORO_Execution
 {
   class DataSourceBase;
-  class ParsedValueBase;
+  class TaskAttributeBase;
 
   /**
    * \file We need some information on types if we want to make
@@ -45,13 +45,13 @@ namespace ORO_Execution
   {
   public:
     virtual ~TypeInfo();
-    virtual ParsedValueBase* buildConstant() = 0;
-    virtual ParsedValueBase* buildVariable() = 0;
+    virtual TaskAttributeBase* buildConstant() = 0;
+    virtual TaskAttributeBase* buildVariable() = 0;
     /**
      * build an alias with b as the value.  If b is of the wrong type,
      * 0 will be returned..
      */
-    virtual ParsedValueBase* buildAlias( DataSourceBase* b ) = 0;
+    virtual TaskAttributeBase* buildAlias( DataSourceBase* b ) = 0;
   };
 
   class TypeInfoRepository

@@ -24,11 +24,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
+
 #include "execution/Processor.hpp"
 #include "execution/ProgramInterface.hpp"
 #include "execution/StateContextTree.hpp"
 #include <corelib/CommandInterface.hpp>
-
+#include <corelib/AtomicQueue.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -118,8 +119,12 @@ namespace ORO_Execution
         };
 
 
-    Processor::Processor()
-        :command(0)
+    Processor::Processor(int queue_size)
+        :funcs( queue_size ),
+         f_it( funcs.begin() ),
+        accept(false), a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
+         f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(queue_size) ),
+         coms_processed(0)
     {
         programs = new list<ProgramInfo>();
         states   = new list<StateInfo>();
@@ -129,6 +134,7 @@ namespace ORO_Execution
     {
         delete programs;
         delete states;
+        delete a_queue;
     }
 
     bool program_lookup( const Processor::ProgramInfo& pi, const std::string& name)
@@ -525,7 +531,19 @@ namespace ORO_Execution
             }
     }
 
-	void Processor::doStep()
+    bool Processor::initialize()
+    {
+        a_queue->clear();
+        accept = true;
+        return true;
+    }
+
+    void Processor::finalize()
+    {
+        accept = false;
+    }
+
+	void Processor::step()
     {
         {
             MutexLock lock( statemonitor );
@@ -533,16 +551,6 @@ namespace ORO_Execution
             for_each(states->begin(), states->end(), _executeState );
         }
 
-        // Execute any additional (deferred/external) command.
-        if ( command )
-            {
-                command->execute();
-                command = 0;
-                // should we allow the system context to check validity ??
-                // external commands can gravely interfere with the
-                // system...
-                // for_each(states->begin(), states->end(), executeState);
-            }
         {
             MutexLock lock( progmonitor );
             //Execute all normal programs->
@@ -550,6 +558,41 @@ namespace ORO_Execution
 
             //Execute all programs in Stepping mode.
             for_each(programs->begin(), programs->end(), _stepProgram );
+        }
+
+        // Execute any FunctionGraph :
+        {
+            // 1. Fetch new ones from queue.
+            while ( !f_queue->isEmpty() ) {
+                ProgramInterface* foo;
+                f_queue->dequeue( foo );
+                // find an empty spot to store :
+                while( *f_it != 0 ) {
+                    ++f_it;
+                    if (f_it == funcs.end() )
+                        f_it = funcs.begin();
+                }
+                *f_it = foo;
+            }
+            // 2. execute all present
+            for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
+                it != funcs.end(); ++it )
+                if ( *it )
+                    if ( (*it)->isFinished() || (*it)->inError() )
+                        (*it) = 0;
+                    else
+                        (*it)->execute(); // should we check on inError() ?
+        }
+
+        // Execute any additional (deferred/external) command.
+        {
+            // execute one command from the AtomicQueue.
+            CommandInterface* com;
+            int res = a_queue->dequeueCounted( com );
+            if ( res ) {
+                com->execute();
+                coms_processed = res;
+            }
         }
     }
 
@@ -563,13 +606,26 @@ namespace ORO_Execution
         return it != programs->end();
     }
 
-
-    bool Processor::process( CommandInterface* c)
+    int Processor::process( CommandInterface* c )
     {
-        if (command != 0)
+        if (accept)
+            return a_queue->enqueueCounted( c );
+        return 0;
+    }
+
+    bool Processor::runFunction( ProgramInterface* f )
+    {
+        if (accept)
+            return f_queue->enqueue( f );
+        return false;
+    }
+
+    bool Processor::isFunctionFinished( ProgramInterface* f )
+    {
+        if ( f == 0 )
             return false;
-        command = c;
-        return true;
+        // function is finished if it is no longer in our map.
+        return std::find( funcs.begin(), funcs.end(), f ) == funcs.end();
     }
 
     std::vector<std::string> Processor::getProgramList()
@@ -597,15 +653,9 @@ namespace ORO_Execution
         return ret;
     }
 
-    bool Processor::isCommandProcessed( CommandInterface* c )
+    bool Processor::isProcessed( int nr )
     {
-        return command != c;
-    }
-
-    void Processor::abandonCommand( CommandInterface* c )
-    {
-        if ( command == c )
-            command = 0;
+        return nr <= coms_processed;
     }
 }
 

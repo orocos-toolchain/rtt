@@ -28,15 +28,18 @@
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
 #include "execution/ProgramGraphParser.hpp"
+#include "execution/ArgumentsParser.hpp"
 
 #include "execution/Processor.hpp"
 #include "corelib/CommandNOP.hpp"
 #include "execution/ProgramGraph.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
 #include "execution/ConditionComposite.hpp"
-#include "TryCommand.hpp"
+#include "execution/TryCommand.hpp"
+#include "execution/FunctionFactory.hpp"
+#include "execution/CommandBinary.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -65,18 +68,19 @@ namespace ORO_Execution
     }
 
 
-  ProgramGraphParser::ProgramGraphParser( iter_t& positer,
-                                          Processor* proc,
-                                          GlobalFactory* e )
-      : context( proc, e ), mpositer( positer ),
+  ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
+      : rootc( t ),context(t), mpositer( positer ),
         mfunc(0), mcallfunc(0), 
-        implcond(0), mcondition(0), try_cond(0),
+        implcond(0), mcondition(0), try_cond(0), dc(0),
         conditionparser( context ),
         commandparser( context ),
         valuechangeparser( context ),
+        expressionparser( context ),
+        argsparser(0),
         program_graph(0),
         for_init_command(0),
-        for_incr_command(0)
+        for_incr_command(0),
+        exportf(false)
   {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( terminationclause );
@@ -92,6 +96,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( production );
     BOOST_SPIRIT_DEBUG_RULE( valuechange );
     BOOST_SPIRIT_DEBUG_RULE( function );
+    BOOST_SPIRIT_DEBUG_RULE( arguments );
     BOOST_SPIRIT_DEBUG_RULE( returnstatement );
     BOOST_SPIRIT_DEBUG_RULE( funcstatement );
     BOOST_SPIRIT_DEBUG_RULE( continuepart );
@@ -99,7 +104,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( returnpart );
     BOOST_SPIRIT_DEBUG_RULE( ifstatement );
     BOOST_SPIRIT_DEBUG_RULE( ifblock );
-    BOOST_SPIRIT_DEBUG_RULE( elseblock );
+    BOOST_SPIRIT_DEBUG_RULE( funcargs );
 
     newline = ch_p( '\n' );
     openbrace = expect_open( ch_p('(') );
@@ -119,13 +124,20 @@ namespace ORO_Execution
     // a function is very similar to a program, but it also has a name
     function = (
        *newline
+       >> !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
        >> str_p( "function" )
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
-       >> *newline
+       >> *newline >> !funcargs >> *newline
        >> opencurly
        >> content
        >> closecurly
        >> *newline ) [ bind( &ProgramGraphParser::seenfunctionend, this ) ];
+
+    // the function's definition args :
+    funcargs = ch_p('(')
+        >>!( valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]
+             >> *(ch_p(',')>> valuechangeparser.bareDefinitionParser()[bind(&ProgramGraphParser::seenfunctionarg, this)]) )
+        >> closebrace;
 
     // a program looks like "program { content }".
     program = (
@@ -181,6 +193,7 @@ namespace ORO_Execution
     funcstatement = (
       str_p( "call" )
       >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
+      >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
       )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
 
     // a return statement : "return"
@@ -249,9 +262,10 @@ namespace ORO_Execution
       }
       implcond_v.clear();
 
-      context.valueparser.setValue(
-      "done", new ParsedAliasValue<bool>(
+      context->attributeRepository.setValue(
+      "done", new TaskAliasAttribute<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
+      dc = 0;
   }
 
   void ProgramGraphParser::seendostatement()
@@ -261,20 +275,22 @@ namespace ORO_Execution
       // a CommandNode should have at least one edge
       // If it doesn't, then we add a default one,
       // which just moves on to the next node..
-      if ( program_graph->currentEdges() == 0 )
+      if ( program_graph->buildEdges() == 0 )
           {
-              program_graph->proceedToNext( implcond, mpositer.get_position().line );
+              program_graph->proceedToNext( implcond->clone(), mpositer.get_position().line );
           }
       else
           {
-              // do not need it.
-              delete implcond;
               program_graph->proceedToNext( mpositer.get_position().line );
-      }
+          }
+      delete implcond;
       implcond = 0;
 
-    // the done condition is no longer valid..
-    context.valueparser.removeValue( "done" );
+      delete dc;
+      dc = 0;
+
+      // the done condition is no longer valid..
+      context->attributeRepository.removeValue( "done" );
   }
 
     void ProgramGraphParser::startofprogram()
@@ -293,15 +309,47 @@ namespace ORO_Execution
       //program_text = std::string(begin, end);
   }
 
+  void ProgramGraphParser::exportdef()
+  {
+      exportf = true;
+  }
   void ProgramGraphParser::functiondef( iter_t begin, iter_t end )
   {
       // store the function in our map for later
       // referencing.
       std::string funcdef(begin, end);
-      if ( mfuncs.count(funcdef) != 0 )
+      // store the function in the TaskContext current.__functions
+      TaskContext* __f = context->getPeer("__functions");
+      if ( __f == 0 ) {
+          // install the __functions if not yet present.
+          __f = new TaskContext("__functions", context->getProcessor() );
+          context->connectPeers( __f );
+      }
+
+      if ( __f->hasPeer( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      mfunc = mfuncs[funcdef] = program_graph->startFunction();
+      mfunc = mfuncs[funcdef] = program_graph->startFunction( funcdef );
+
+      // Connect the new function to the relevant contexts.
+      // 'fun' acts as a stack for storing variables.
+      TaskContext* fun = new TaskContext(funcdef, context->getProcessor() );
+      __f->addPeer( fun );
+      fun->addPeer(context);
+      // variables are always on foo's 'stack'
+      valuechangeparser.setStack(fun);
+      commandparser.setStack(fun);
+      expressionparser.setStack(fun);
+      conditionparser.setStack(fun);
+  }
+
+  void ProgramGraphParser::seenfunctionarg()
+  {
+      // the ValueChangeParser stores each variable in the
+      // current stack's repository, but we need to inform the
+      // FunctionGraph itself about its arguments.
+      mfunc->addArgument( valuechangeparser.lastDefinedValue() );
+      valuechangeparser.reset();
   }
 
   void ProgramGraphParser::seenfunctionend()
@@ -311,14 +359,31 @@ namespace ORO_Execution
       program_graph->returnFunction( new ConditionTrue, mfunc );
       program_graph->proceedToNext( mpositer.get_position().line );
       program_graph->endFunction( mfunc );
-      // close the function.
+      // export the function in the context's interface.
+      if (exportf) {
+          FunctionFactory* cfi = new FunctionFactory( context->getProcessor() );
+          cfi->addFunction( mfunc->getName() , mfunc);
+          context->commandFactory.registerObject("this", cfi );
+      }
+      // reset
       mfunc = 0;
+      exportf = false;
+      context = rootc;
+      // restore 'stack' to task's stack.
+      valuechangeparser.setStack(context); 
+      commandparser.setStack(context);
+      expressionparser.setStack(context);
   }
 
   void ProgramGraphParser::seencondition()
   {
        mcondition = conditionparser.getParseResult();
        assert( mcondition );
+       // do we need to wrap the condition in a dispatch condition ?
+       // if so, mcondition is only evaluated if the command is dispatched.
+       if ( dc )
+          mcondition = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), mcondition->clone() );
+
        // leaves the condition in the parser, if we want to use
        // getParseResultAsCommand();
        // mcondition is only used with seen*label statements,
@@ -347,10 +412,11 @@ namespace ORO_Execution
       assert(mcondition);
 
       if ( mfunc == 0 )
-          program_graph->returnProgram( mcondition );
+          program_graph->returnProgram( mcondition->clone() );
       else
-          program_graph->returnFunction( mcondition,  mfunc );
+          program_graph->returnFunction( mcondition->clone(),  mfunc );
 
+      delete mcondition;
       mcondition = 0;
   }
 
@@ -360,8 +426,21 @@ namespace ORO_Execution
       std::string fname(begin, end);
       if ( mfuncs.count(fname) == 0 )
           throw parse_exception_semantic_error("calling function " + fname + " but it is not defined.");
+      if ( mfunc && fname == mfunc->getName() )
+          throw parse_exception_semantic_error("calling function " + fname + " recursively is not allowed.");
 
       mcallfunc = mfuncs[ fname ];
+
+      // Parse the function's args
+      argsparser = new ArgumentsParser( expressionparser, context,
+                                        "this", fname );
+      arguments = argsparser->parser();
+
+  }
+
+  void ProgramGraphParser::seencallfuncargs()
+  {
+      callfnargs = argsparser->result();
   }
 
   void ProgramGraphParser::seencallfuncstatement()
@@ -371,7 +450,27 @@ namespace ORO_Execution
 
       // add it to the main program line of execution.
       assert( mcallfunc );
-      program_graph->setFunction( mcallfunc );
+        try
+            {
+                program_graph->setFunction( mcallfunc, callfnargs );
+                // only delete parser, when the args are used.
+                delete argsparser;
+                argsparser = 0;
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    ( context->getName(), mcallfunc->getName(), e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( context->getName(), mcallfunc->getName(), e.whicharg );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
 
       // The exit node of the function is already connected
       // to program->nextNode().
@@ -380,9 +479,10 @@ namespace ORO_Execution
 
   void ProgramGraphParser::startofnewstatement(const std::string& type)
   {
-      // Set the line number.
-      //int ln = mpositer.get_position().line;
-      //mcurrentnode->setLineNumber( ln );
+      // cleanup previous left conds (should do this in endofnewstatement func)
+      // try_cond will be zero if used, othewise, delete it
+      delete try_cond;
+      try_cond = 0;
 
       // a 'do' fails on the first rejected command,
       // a 'try' tries all commands.
@@ -483,7 +583,7 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endforstatement() {
-        // the last statement is an increment of the 'counter'
+        // the last statement is a _conditional_ increment of the 'counter'
         if ( for_incr_command )
             {
                 program_graph->setCommand( for_incr_command );
@@ -543,10 +643,13 @@ namespace ORO_Execution
           (*it)->setText( program_text );
       return program_list;
     }
+    // Catch Boost::Spirit exceptions
     catch( const parser_error<std::string, iter_t>& e )
         {
             delete program_graph;
             program_graph = 0;
+            delete argsparser;
+            argsparser = 0;
             for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
                  it!=program_list.end();
                  ++it)
@@ -558,10 +661,13 @@ namespace ORO_Execution
                 mpositer.get_position().column );
 
         }
+    // Catch our Orocos exceptions
     catch( const parse_exception& e )
     {
       delete program_graph;
       program_graph = 0;
+      delete argsparser;
+      argsparser = 0;
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();
            it!=program_list.end();
            ++it)
@@ -585,64 +691,54 @@ namespace ORO_Execution
       } else {
           // try-wrap the command, store the result in try_cond.
           TryCommand* trycommand =  new TryCommand( command );
+          // returns true if failure :
           try_cond = new TryCommandResult( trycommand->result() );
           program_graph->setCommand( trycommand );
+          // go further if command failed or if command finished.
+          implcond = new ConditionBinaryComposite< std::logical_or<bool> >(try_cond->clone(), implcond->clone() );
       }
 
-    if ( !implcond )
-      implcond = new ConditionTrue;
     implcond_v.push_back(implcond); // store
+
+    // check if we must store the dispatchCondition
+    if ( commandparser.dispatchCondition() != 0 )
+        dc = commandparser.dispatchCondition()->clone();
+
     commandparser.reset();
   }
-
-    namespace {
-        struct CommandComposite : public CommandInterface
-        {
-            CommandInterface* _f;
-            CommandInterface* _s;
-            CommandComposite( CommandInterface* f, CommandInterface* s)
-                : _f(f), _s(s) {}
-            virtual ~CommandComposite() {
-                delete _f;
-                delete _s;
-            }
-            virtual bool execute() {
-                return _f->execute() && _s->execute();
-            }
-            virtual void reset() {
-                _f->reset();
-                _s->reset();
-            }
-            virtual CommandInterface* clone() const {
-                return new CommandComposite( _f->clone(), _s->clone() );
-            }
-            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandComposite( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
-            }
-        };
-    }
 
   void ProgramGraphParser::seenandcall()
   {
       // retrieve a clone of the previous 'do' or 'and' command:
-    CommandInterface* oldcmnd = program_graph->getCommand( program_graph->currentNode() )->clone();
+    CommandInterface* oldcmnd = program_graph->getCommand( program_graph->buildNode() )->clone();
     assert(oldcmnd);
     // set composite command : (oldcmnd can not be zero)
     CommandInterface* compcmnd;
     if ( !try_cmd )
-        compcmnd = new CommandComposite( oldcmnd,
-                                         commandparser.getCommand() );
+        compcmnd = new CommandBinary( oldcmnd,
+                                      commandparser.getCommand() );
     else {
         TryCommand*      trycommand = new TryCommand( commandparser.getCommand() );
         TryCommandResult* tryresult = new TryCommandResult( trycommand->result() );
-        compcmnd = new CommandComposite( oldcmnd,
-                                           trycommand );
+        compcmnd = new CommandBinary( oldcmnd,
+                                      trycommand );
         try_cond = new ConditionBinaryComposite< std::logical_or<bool> >( try_cond, tryresult );
     }
         
     program_graph->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( commandparser.getImplTermCondition() );
+
+    // check if we must store the dispatchCondition
+    // They are composed into one big condition, guarding all
+    // the other condition branches. Only if all dc's say the
+    // command is accepted, the branch opens for evaluation.
+    if ( commandparser.dispatchCondition() != 0 ) {
+        if ( dc )
+            dc = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), commandparser.dispatchCondition()->clone() );
+        else
+            dc = commandparser.dispatchCondition()->clone();
+    }
 
     commandparser.reset();
   }
@@ -671,7 +767,7 @@ namespace ORO_Execution
 
           assert( mcondition );
           assert( mcallfunc );
-          program_graph->appendFunction( mcondition, mcallfunc);
+          program_graph->appendFunction( mcondition, mcallfunc, callfnargs);
           mcondition = 0;
 
     }

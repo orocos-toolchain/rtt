@@ -102,8 +102,8 @@ namespace ORO_Execution
    * and perhaps it would be useful to somehow merge the two..  Or
    * perhaps just providing adaptors in two directions will do ?
    * Currently, the second approach is taken, with adapters in
-   * interfacing/src/ConditionBoolDataSource.hpp and
-   * parser/src/DataSourceCondition.hpp.
+   * ConditionBoolDataSource.hpp and
+   * DataSourceCondition.hpp.
    */
   template<typename T>
   class DataSource
@@ -134,9 +134,9 @@ namespace ORO_Execution
 
   /**
    * A simple, yet very useful DataSource, which keeps a value, and
-   * returns it in its get() method.  This used to be named
-   * ConstantDataSource, but I have recently added support for
-   * changing the value..
+   * returns it in its get() method. 
+   * The VariableDataSource acts like a non-const variable, which
+   * thus can be changed.
    */
   template<typename T>
   class VariableDataSource

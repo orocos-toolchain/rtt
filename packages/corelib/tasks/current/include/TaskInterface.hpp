@@ -35,7 +35,7 @@ namespace ORO_CoreLib
     class TaskThreadInterface;
 
     /**
-     * @brief Interface to start/stop and query a Task.
+     * @brief Interface to start/stop and query a periodic Task.
      *
      * A TaskInterface provides the control methods
      * for tasks. They can be started, stopped

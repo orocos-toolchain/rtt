@@ -38,7 +38,7 @@ namespace ORO_Execution {
 
     class StateDescription;
     class Processor;
-    class ParsedValueBase;
+    class TaskAttributeBase;
 
     class ParsedStateContext
         : public StateContextTree
@@ -58,7 +58,7 @@ namespace ORO_Execution {
         typedef std::map<std::string, DataSource<StateContextTree*>::shared_ptr> SubContextNameMap;
 
         typedef std::map<std::string, DataSourceBase::shared_ptr> VisibleReadOnlyValuesMap;
-        typedef std::map<std::string, ParsedValueBase*> VisibleWritableValuesMap;
+        typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
 
     public:
         ParsedStateContext();
@@ -93,9 +93,9 @@ namespace ORO_Execution {
         void addState( const std::string& name, StateDescription* state );
 
         void addReadOnlyVar( const std::string& name, DataSourceBase* var );
-        void addParameter( const std::string& name, ParsedValueBase* var );
+        void addParameter( const std::string& name, TaskAttributeBase* var );
         DataSourceBase* getReadOnlyVar( const std::string& name ) const;
-        ParsedValueBase* getParameter( const std::string& name ) const;
+        TaskAttributeBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
         VisibleReadOnlyValuesMap getReadOnlyValues() const;
         std::vector<std::string> getParameterNames() const;

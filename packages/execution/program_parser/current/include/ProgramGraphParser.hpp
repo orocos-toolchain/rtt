@@ -30,7 +30,8 @@
 #include "CommonParser.hpp"
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
-#include "ParseContext.hpp"
+#include "ExpressionParser.hpp"
+#include "TaskContext.hpp"
 #include "ValueChangeParser.hpp"
 #include "ProgramGraph.hpp"
 
@@ -55,7 +56,16 @@ namespace ORO_Execution
       typedef ProgramGraph::ConditionEdge ConditionEdge;
       typedef ProgramGraph::Graph  Graph;
 
-      ParseContext context;
+      /**
+       * The context given to us by the user to root 
+       * the parsed programs into.
+       */
+      TaskContext* rootc;
+
+      /**
+       * The current subcontext of root where we are working in.
+       */
+      TaskContext* context;
 
       our_pos_iter_t& mpositer;
 
@@ -81,11 +91,15 @@ namespace ORO_Execution
       // current command from the CommandParser..
       ConditionInterface* implcond;
       std::vector<ConditionInterface*> implcond_v;
+      std::vector<DataSourceBase*> callfnargs;
 
       // last seen condition
       ConditionInterface* mcondition;
       // try-block condition
       ConditionInterface* try_cond;
+
+      // Dispatch Condition
+      ConditionInterface* dc;
 
       void seencondition();
 
@@ -105,10 +119,13 @@ namespace ORO_Execution
       void seenvaluechange();
 
       void functiondef( iter_t begin, iter_t end );
+      void exportdef(  );
+      void seenfunctionarg();
       void seenfunctionend();
 
       void seenfuncidentifier( iter_t begin, iter_t end);
       void seencallfuncstatement();
+      void seencallfuncargs();
 
       void seenreturnstatement();
       void seenreturnlabel();
@@ -132,15 +149,17 @@ namespace ORO_Execution
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
           dostatement, trystatement, statement, line, content, program, valuechange_parsers,
-          production, valuechange, returnstatement, function, funcstatement,
+          production, valuechange, returnstatement, function, arguments, funcstatement,
           continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement,
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
-          condition, catchpart;
+          condition, catchpart, funcargs, functionarg ;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
       CommandParser commandparser;
       ValueChangeParser valuechangeparser;
+      ExpressionParser expressionparser;
+      ArgumentsParser* argsparser;
 
       ProgramGraph* program_graph;
       std::vector<ProgramGraph*> program_list;
@@ -148,9 +167,9 @@ namespace ORO_Execution
       CommandInterface* for_init_command;
       CommandInterface* for_incr_command;
       std::string program_text;
+      bool exportf;
   public:
-    ProgramGraphParser( iter_t& positer, Processor* proc,
-                        GlobalFactory* ext );
+      ProgramGraphParser( iter_t& positer, TaskContext*);
 
       /**
        * @brief Tries to parse programs, returns the generated programs on success.

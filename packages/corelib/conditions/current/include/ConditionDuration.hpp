@@ -54,9 +54,9 @@ namespace ORO_CoreLib
              * @param t the period of time starting from the first evaluation
              *          for which this Condition evaluates true
              */
-            ConditionDuration( nsecs t )
+            ConditionDuration( nsecs t, bool invert = false )
                     : time( t ), hb( HeartBeatGenerator::Instance() ),
-                    mark( 0 )
+                      mark( 0 ), _invert(_invert)
             {}
 
             virtual ~ConditionDuration()
@@ -71,7 +71,7 @@ namespace ORO_CoreLib
             {
                 assert( mark );
 
-                return ( time < HeartBeatGenerator::ticks2nsecs( hb->ticksGet( mark ) ) );
+                return _invert != ( time < HeartBeatGenerator::ticks2nsecs( hb->ticksGet( mark ) ) );
             };
 
             virtual void reset()
@@ -98,6 +98,11 @@ namespace ORO_CoreLib
              * The time the evaluation is called the first time
              */
             ticks mark;
+
+        /**
+         * Invert the time comparison to 'smaller then'
+         */
+        bool _invert;
     };
 
 }

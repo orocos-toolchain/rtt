@@ -36,12 +36,12 @@
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateMethodFactory.hpp"
+#include <control_kernel/ExecutionExtension.hpp>
 #endif
 
 #include <map>
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
-#include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 
 #pragma interface
@@ -73,10 +73,18 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class AxisEffector
-        : public Effector< Expects<AxisOutput>, MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase >
+        : public Effector< Expects<AxisOutput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                           , ExecutionExtension
+#endif
+                                                           >::CommonBase >
     {
     public:
-        typedef Effector< Expects<AxisOutput>, MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > Base;
+        typedef Effector< Expects<AxisOutput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                          , ExecutionExtension
+#endif
+                                                          >::CommonBase > Base;
         typedef AxisOutput OutputDataObject;
 
         /**

@@ -30,11 +30,11 @@
 
 #include "KernelInterfaces.hpp"
 #include "ComponentInterfaces.hpp"
-#include <os/Mutex.hpp>
 #include <corelib/Property.hpp>
 
 #include <execution/Processor.hpp>
-#include <execution/GlobalFactory.hpp>
+#include <execution/ProgramGraph.hpp>
+#include <execution/TaskContext.hpp>
 
 #include <map>
 #include <string>
@@ -53,7 +53,7 @@ namespace ORO_ControlKernel
     using ORO_Execution::MethodFactoryInterface;
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
-    using ORO_Execution::GlobalFactory;
+    using ORO_Execution::TaskContext;
     using ORO_Execution::ParsedStateContext;
     using ORO_Execution::ProgramInterface;
     class ExecutionExtension;
@@ -121,8 +121,7 @@ namespace ORO_ControlKernel
      * the generated commands at runtime.
      */
     class ExecutionExtension
-        : public detail::ExtensionInterface,
-        public GlobalFactory
+        : public detail::ExtensionInterface
     {
         ProgramGraph* program;
 
@@ -134,27 +133,26 @@ namespace ORO_ControlKernel
         virtual ~ExecutionExtension();
 
         /**
-         * Set a ProgramGraph to be used the next time the kernel is started.
+         * Set Programs to be used in the kernel.
          *
-         * @param prog_stream A stream containing a program.
-         */
-        bool loadProgram( std::istream& prog_stream );
-
-        /**
-         * Load the StateContexts from the given file ( using the given
-         * filename in error messages )
-         *
-         * @param state_stream A stream containing the definitions of
-         *     the statecontexts script to be executed.  All root
-         *     contexts will be loaded.
-         * @param filename The name of the StateContext.
-         * @throws a file_parse_exception ( defined in
-         * <execution/parse_exception.hpp> ) if parsing fails, or a
-         * statecontext_load_exception ( defined in
+         * @param filename A file containing one or more programs.
+         * @throw file_parse_exception ( defined in
+         * <execution/parse_exception.hpp> ) if parsing fails
+         * @throw program_load_exception ( defined in
          * this header ) if loading fails...
          */
-        void loadStateContext(
-          std::istream& state_stream, const std::string& filename );
+        bool loadProgram( const std::string&  filename );
+
+        /**
+         * Load the StateContexts from the given file.
+         *
+         * @param filename The name of the StateContext.
+         * @throw file_parse_exception ( defined in
+         * <execution/parse_exception.hpp> ) if parsing fails
+         * @throw program_load_exception ( defined in
+         * this header ) if loading fails...
+         */
+        void loadStateContext( const std::string& filename );
 
         ParsedStateContext* getStateContext(const std::string& name);
         ProgramInterface* getProgram(const std::string& name);
@@ -251,24 +249,16 @@ namespace ORO_ControlKernel
 
         bool continuousStateContext(const std::string& name);
 
-
-        TaskInterface* getTask() const;
-
-        //void setTask( TaskInterface* task );
-
         virtual bool updateProperties( const PropertyBag& bag );
 
         virtual CommandFactoryInterface* createCommandFactory();
 
         virtual DataSourceFactoryInterface* createDataSourceFactory();
-        /**
-         * @brief Execute a Command safely.
-         *
-         * If the kernel is running it is processed by the Processor,
-         * otherwise, it is called directly, under critical section
-         * protection.
-         */
-        bool executeCommand( CommandInterface* c);
+
+        TaskContext* getTaskContext()
+        {
+            return &tc;
+        }
 
     protected:
         virtual bool initialize();
@@ -278,13 +268,13 @@ namespace ORO_ControlKernel
         virtual void finalize();
 
         void initKernelCommands();
-        //bool foo( bool( ExecutionExtension::*cond)() const, bool (*adapter)(const bool&) ) const;
     private:
-        bool true_gen() const { return true; }
+        bool true_gen() const {return true;}
         bool running_progr;
 
-        Processor proc;
         int count;
+
+        Processor proc;
 
         ControlKernelInterface* base;
 
@@ -292,7 +282,7 @@ namespace ORO_ControlKernel
 
         std::map<std::string,ParsedStateContext*> parsed_states;
 
-        ORO_OS::Mutex execguard;
+        TaskContext tc;
     };
 
 }

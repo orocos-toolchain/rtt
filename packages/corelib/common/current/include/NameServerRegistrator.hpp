@@ -34,41 +34,41 @@ namespace ORO_CoreLib
 {
 
     /**
-     * @brief Utility class to register a given object with a nameserver.
+     * @brief Utility class to register a given object with a nameserver, and deregister upon destruction.
      *
-     * usage: you inherit from it, and call it's constructor in your object's constructor
-     *  -> your object will be registered with the namesever you specify, and will unregister on destruction
+     * Usage: you inherit from this class, and call it's constructor in your classes constructor,
+     * then your object will be registered with the nameserver you specify, and will unregister the object on destruction.
      *
      * @param T the class you wish to contain in the nameserver
-     * @param NameType the type of the name representing T (e.g. could be string, or int)
      */
-    template <class T, class NameType = std::string>
+    template <class T>
     class NameServerRegistrator
     {
-            // to hold a reference to the nameserver
-            // call_traits< NameServer<T,NameType> >::reference _nameserver;
-            NameServer<T, NameType>* _nameserver;
+        typedef std::string NameType;
+        // to hold a reference to the nameserver
+        // call_traits< NameServer<T> >::reference _nameserver;
+        NameServer<T>* _nameserver;
+        
+        // to hold the name
+        NameType _name;
+        
+    public:
+        NameServerRegistrator()
+            : _nameserver( 0 )
+        {}
 
-            // to hold the name
-            NameType _name;
+        NameServerRegistrator( typename boost::call_traits< NameServer< T > >::reference nameserver, const NameType& name,
+                               typename boost::call_traits<T>::const_reference object )
+            : _nameserver( &nameserver ), _name( name )
+        {
+            _nameserver->registerObject( object, _name );
+        }
 
-        public:
-            NameServerRegistrator()
-                    : _nameserver( 0 )
-            {}
-
-            NameServerRegistrator( typename boost::call_traits< NameServer< T, NameType > >::reference nameserver, NameType name,
-                                   typename boost::call_traits<T>::const_reference object )
-                    : _nameserver( &nameserver ), _name( name )
-            {
-                _nameserver->registerObject( object, _name );
-            }
-
-            ~NameServerRegistrator()
-            {
-                if ( _nameserver != 0 )
-                    _nameserver->unregisterName( _name );
-            }
+        ~NameServerRegistrator()
+        {
+            if ( _nameserver != 0 )
+                _nameserver->unregisterName( _name );
+        }
     };
 
 }

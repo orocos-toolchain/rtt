@@ -32,12 +32,14 @@
 #include <corelib/PropertyBag.hpp>
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
+#include "PeerParser.hpp"
 
 #pragma interface
 
 namespace ORO_Execution
 {
-  using ORO_CoreLib::PropertyBagOwner;
+    class TryCommand;
+    using ORO_CoreLib::PropertyBagOwner;
 
   /**
    * This class parses commands.  Actually, it only parses call
@@ -60,14 +62,11 @@ namespace ORO_Execution
     // asynchronous..
     bool masync;
 
+    TryCommand* tcom;
     CommandInterface* retcommand;
     ConditionInterface* implicittermcondition;
-
-    void seenobjectname( iter_t begin, iter_t end )
-      {
-        std::string objname( begin, end );
-        mcurobject = objname;
-      };
+    ConditionInterface* dispatchCond;
+    TaskContext* peer;
 
     void seenmethodname( iter_t begin, iter_t end )
       {
@@ -86,14 +85,21 @@ namespace ORO_Execution
 
     rule_t objectmethod, command, callcommand, nopcommand, arguments;
 
-    ParseContext& context;
+    TaskContext* context;
     CommonParser commonparser;
     ArgumentsParser* argsparser;
     ExpressionParser expressionparser;
-
+      PeerParser peerparser;
   public:
-    CommandParser( ParseContext& context );
+    CommandParser( TaskContext* context );
     ~CommandParser();
+
+      /**
+       * Change the context in which values are 
+       * looked up.
+       * @return the previous TaskContext.
+       */
+      TaskContext* setStack( TaskContext* tc);
 
       bool foundObject() {
           return !mcurobject.empty();
@@ -106,6 +112,22 @@ namespace ORO_Execution
       {
         return command;
       };
+
+      /**
+       * Each condition, which relates to this command,
+       * might be subject to wrapping.
+       */
+      ConditionInterface* wrapCondition( ConditionInterface* );
+
+      /**
+       * Return a condition evaluating to true if the command
+       * is dispatched and accepted. Return zero if not applicable.
+       * This method is needed, because the CommandParser can
+       * only save state for one command. If multiple commands
+       * are involved, this condition must be kept by the
+       * parent of this parser and used if necessary.
+       */
+      ConditionInterface* dispatchCondition();
 
     /**
      * Get the parsed command.  Call the reset method if you use the
@@ -131,14 +153,7 @@ namespace ORO_Execution
      * resets the CommandParser, use this after you've succesfully
      * used the created command and implicit termination condition.
      */
-    void reset()
-      {
-        retcommand = 0;
-        implicittermcondition = 0;
-        masync = true;
-        mcurobject.clear();
-        mcurmethod.clear();
-      }
+      void reset();
   };
 }
 

@@ -150,6 +150,12 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        virtual void exportProperties( PropertyBag& bag)
+        {
+            bag.add( &kineName );
+        }
+            
+
         bool setKinematics( const std::string& name )
         {
             KinematicsInterface* _k;

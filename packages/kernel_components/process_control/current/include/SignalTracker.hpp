@@ -46,7 +46,9 @@
 namespace ORO_ControlKernel
 {
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
+#endif
 
     /**
      * The Model expected by the SignalTracker.

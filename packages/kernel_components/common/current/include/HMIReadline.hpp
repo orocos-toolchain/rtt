@@ -28,30 +28,39 @@
 #define HMIREADLINE_HPP
  
 
+#include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/ExtensionComposition.hpp>
+
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateDataSourceFactory.hpp>
-#include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExecutionExtension.hpp>
-#include <control_kernel/ExtensionComposition.hpp>
 #include <execution/Parser.hpp>
 #include <execution/parse_exception.hpp>
-#include <boost/lambda/lambda.hpp>
+#endif
 
 #include <iostream>
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+
 
 #pragma interface
 
 namespace ORO_ControlKernel
 {
     using std::cout;
+    using std::cerr;
     using std::cin;
     using std::endl;
     using boost::bind;
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
+#endif
+    class ExecutionExtension;
 
     /**
      * @brief This component allows console input to be passed
@@ -62,18 +71,30 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_support
      */
     class HMIReadline
-        : public  SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase >
+        : public  SupportComponent< MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                               , ExecutionExtension
+#endif
+                                               >::CommonBase >
     {
-        typedef SupportComponent< MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > Base;
+        typedef SupportComponent< MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                             , ExecutionExtension
+#endif
+                                             >::CommonBase > Base;
 
         bool start;
         Event<void(void)> startEvent;
         static ExecutionExtension* ee;
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        static TaskContext* taskcontext;
         ConditionInterface* condition;
         CommandInterface*   command;
         const CommandFactoryInterface* command_fact;
         const DataSourceFactoryInterface* datasource_fact;
         const MethodFactoryInterface* method_fact;
+#endif
 
         std::string prompt;
         std::string coloron;
@@ -81,6 +102,7 @@ namespace ORO_ControlKernel
 
         /* A static variable for holding the line. */
         char *line_read;
+        int lastc; // last command's number
 
         /* Read a string, and return a pointer to it.
            Returns NULL on EOF. */
@@ -146,6 +168,7 @@ namespace ORO_ControlKernel
         }
 
         static void find_completes() {
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
             std::string::size_type pos;
             std::string::size_type startpos;
 
@@ -165,15 +188,15 @@ namespace ORO_ControlKernel
 
                 component = comp;
                 // try if it is a component :
-                if ( ee->commandFactory().getObjectFactory( comp ) ) {
+                if ( taskcontext->commandFactory.getObjectFactory( comp ) ) {
                     // fill with new ones.
                     find_command( pos+1 );
                 }
-                if ( ee->dataFactory().getObjectFactory( comp ) ) {
+                if ( taskcontext->dataFactory.getObjectFactory( comp ) ) {
                     // fill with new ones.
                     find_datasource( pos+1 );
                 }
-                if ( ee->methodFactory().getObjectFactory( comp ) ) {
+                if ( taskcontext->methodFactory.getObjectFactory( comp ) ) {
                     // fill with new ones.
                     find_method( pos+1 );
                 }
@@ -187,17 +210,17 @@ namespace ORO_ControlKernel
             while ( comp.find(" ") != std::string::npos )
                 comp.replace( comp.find(" "),1,"" );
 
-            std::vector<std::string> comps = ee->commandFactory().getObjectList();
+            std::vector<std::string> comps = taskcontext->commandFactory.getObjectList();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( comp ) == 0  )
                     completes.push_back( *i+"." );
             }
-            comps = ee->dataFactory().getObjectList();
+            comps = taskcontext->dataFactory.getObjectList();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( comp ) == 0  )
                     completes.push_back( *i+"." );
             }
-            comps = ee->methodFactory().getObjectList();
+            comps = taskcontext->methodFactory.getObjectList();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( comp ) == 0  )
                     completes.push_back( *i+"." );
@@ -210,8 +233,10 @@ namespace ORO_ControlKernel
                 completes.push_back("help");
             if ( std::string( "quit" ).find(comp) == 0 )
                 completes.push_back("quit");
+#endif
         }
         
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         static void find_command(std::string::size_type startpos)
         {
             std::string::size_type pos;
@@ -224,12 +249,12 @@ namespace ORO_ControlKernel
                     _method.replace( _method.find(" "),1,"" );
 
                 // try if it is a command :
-                if ( ee->commandFactory().getObjectFactory( component )->hasCommand( _method ) ) {
+                if ( taskcontext->commandFactory.getObjectFactory( component )->hasCommand( _method ) ) {
                     // complete :
                     method = _method;
                     return; // nothing to do
                 } else {
-                    cout << "Illegal method" << endl;
+                    cerr << "Illegal method" << endl;
                 }
             }
             // no brace found, thus build completion list :
@@ -241,7 +266,7 @@ namespace ORO_ControlKernel
                 _method.replace( _method.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->commandFactory().getObjectFactory( component)->getCommandList();
+            comps = taskcontext->commandFactory.getObjectFactory( component)->getCommandList();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _method ) == 0  )
                     completes.push_back( component +"."+ *i );
@@ -260,7 +285,7 @@ namespace ORO_ControlKernel
                     _datasource.replace( _datasource.find(" "),1,"" );
 
                 // try if it is a command :
-                if ( ee->dataFactory().getObjectFactory( component )->hasMember( _datasource ) ) {
+                if ( taskcontext->dataFactory.getObjectFactory( component )->hasMember( _datasource ) ) {
                     datasource = _datasource;
                 }
             }
@@ -273,7 +298,7 @@ namespace ORO_ControlKernel
                 _datasource.replace( _datasource.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->dataFactory().getObjectFactory(component)->getNames();
+            comps = taskcontext->dataFactory.getObjectFactory(component)->getNames();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _datasource ) == 0  )
                     completes.push_back( component +"."+ *i );
@@ -292,7 +317,7 @@ namespace ORO_ControlKernel
                     _method.replace( _method.find(" "),1,"" );
 
                 // try if it is a command :
-                if ( ee->methodFactory().getObjectFactory( component )->hasMember( _method ) ) {
+                if ( taskcontext->methodFactory.getObjectFactory( component )->hasMember( _method ) ) {
                     method = _method;
                 }
             }
@@ -305,12 +330,13 @@ namespace ORO_ControlKernel
                 _method.replace( _method.find(" "),1,"" );
 
             std::vector<std::string> comps;
-            comps = ee->methodFactory().getObjectFactory(component)->getNames();
+            comps = taskcontext->methodFactory.getObjectFactory(component)->getNames();
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( _method ) == 0  )
                     completes.push_back( component +"."+ *i );
             }
         }
+#endif
 
         static char ** orocos_hmi_completion ( const char *text, int start, int end )
         {
@@ -326,12 +352,18 @@ namespace ORO_ControlKernel
         HMIReadline( ExecutionExtension* _ee = 0, const std::string& name = "cin")
             : Base( name ), start(false),
               startEvent("HMIReadline::StartEvent"),
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
               condition(0), command(0), command_fact(0), datasource_fact(0),
+#endif
               prompt(" (type 'quit' for exit) :"),
               coloron("\033[1;34m"), coloroff("\033[0m"),
-              line_read(0)
+              line_read(0),
+              lastc(0)
         {
             ee = _ee;
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+            taskcontext = ee->getTaskContext();
+#endif
             rl_completion_append_character = '\0'; // avoid adding spaces
             rl_attempted_completion_function = &HMIReadline::orocos_hmi_completion;
         }
@@ -350,6 +382,7 @@ namespace ORO_ControlKernel
          */
         void loop()
         {
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
             cout << endl<< coloron <<
 "  This simple console reader can only accept start and stop \n\
   commands to start or stop the running program and  allows \n\
@@ -357,14 +390,21 @@ namespace ORO_ControlKernel
   If the ReportingExtension is used, you can track the changes \n\
   in another terminal window by typing 'tail -f results.txt' ."<<endl<<endl;
             cout << "    TAB completion and HISTORY is available for Component commands" <<coloroff<<endl<<endl;
+#else
+            cout << endl<<
+"  The HMIConsoleInput Component was compiled without the ExecutionExtension \n\
+   or without the Program Parser. You can only 'quit' the application."<<endl<<endl;
+#endif
             while (1)
                 {
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                     cout << "Type 'start' or 'stop' to start/stop the current program-script " << endl;
                     if ( ee !=0 ) {
                         cout << " Or enter a command. (Status of previous command : ";
                         cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
                     }
                     cout << endl;
+#endif
                     // Call readline wrapper :
                     std::string command( rl_gets() ); // copy over to string
                     if ( command == "quit" ) {
@@ -387,6 +427,7 @@ namespace ORO_ControlKernel
         {
             if ( ee == 0 )
                 return;
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 //             if ( condition != 0 && condition->evaluate() == false )
 //                 {
 //                     cout << "Previous command not done yet !"<<endl;
@@ -394,14 +435,14 @@ namespace ORO_ControlKernel
 //                 }
             if ( ee->isProgramRunning("Default") )
                 {
-                    cout << "A Program is running, not accepting commands  !"<<endl;
+                    cerr << "A Program is running, not accepting commands  !"<<endl;
                     return;
                 }
             cout << "      Got :"<< comm <<endl;
 
-            command_fact = ee->commandFactory().getObjectFactory( comm );
-            datasource_fact = ee->dataFactory().getObjectFactory( comm );
-            method_fact = ee->methodFactory().getObjectFactory( comm );
+            command_fact = taskcontext->commandFactory.getObjectFactory( comm );
+            datasource_fact = taskcontext->dataFactory.getObjectFactory( comm );
+            method_fact = taskcontext->methodFactory.getObjectFactory( comm );
             if ( command_fact ) // only commandobject name was typed
                 {
                     std::vector<std::string> methods = command_fact->getCommandList();
@@ -421,63 +462,106 @@ namespace ORO_ControlKernel
             if ( command_fact || datasource_fact || method_fact )
                 return;
                     
-            delete command;
-            delete condition;
+            if ( ee->getTaskContext()->getProcessor()->isProcessed( lastc ) ) {
+                delete command;
+                delete condition;
+            } else
+                cerr << "Warning : previous command is not yet processed." <<endl;
+
             ORO_Execution::Parser _parser;
             std::pair< CommandInterface*, ConditionInterface*> comcon;
             try {
-                comcon = _parser.parseCommand(comm, ee);
+                DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, ee->getTaskContext() );
+                if ( ds.get() != 0 )
+                    this->printResult( ds.get() );
+                return; // done here
+            } catch ( fatal_syntactic_parse_exception& pe ) {
+                // ignore it, try to parse it as a command :
+                try {
+                    comcon = _parser.parseCommand(comm, ee->getTaskContext() );
+                } catch ( parse_exception& pe ) {
+                    cerr << "Parse Error : Illegal command."<<endl;
+                    cerr << pe.what() <<endl;
+                    command = 0;
+                    condition = 0;
+                    return;
+                }
             } catch ( parse_exception& pe ) {
-                cout << "Parse Error : Illegal command."<<endl;
-                cout << pe.what() <<endl;
-                command = 0;
-                condition = 0;
-                return;
+                cerr << "Parse Error : Invalid Expression."<<endl;
+                cerr << pe.what() <<endl;
+            } catch ( ... ) {
+                cerr << "Illegal Command."<<endl;
             }
                 
             command = comcon.first;
             condition = comcon.second;
             if ( command == 0 ) { // this should not be reached
-                cout << "Parse Error : Illegal command."<<endl;
+                cerr << "Parse Error : Illegal command."<<endl;
                 return;
             }
-            if ( ee->executeCommand( command ) == false ) {
-                cout << "Command not accepted by Processor ! " << endl;
+            lastc = ee->getTaskContext()->getProcessor()->process( command );
+            if ( lastc == 0 && ee->getTaskContext()->executeCommand(command) == false ) {
+                cerr << "Command not accepted by Processor ! " << endl;
                 delete command;
                 delete condition;
                 command = 0;
                 condition = 0;
                 return;
             }
+#endif
         }
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        void printResult( DataSourceBase* ds) {
+            std::string prompt("   = ");
+            // this method can print some primitive DataSource<>'s.
+            DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
+            if (dsb)
+                cout <<prompt<< (dsb->get() ? "true" : "false") <<endl;
+            DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
+            if (dsi)
+                cout <<prompt<< dsi->get() <<endl;
+            DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
+            if (dss)
+                cout <<prompt<< dss->get() <<endl;
+            DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
+            if (dsd)
+                cout <<prompt<< dsd->get() <<endl;
+            DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
+            if (dsc)
+                cout <<prompt<< dsc->get() <<endl;
+        }
+#endif
         void printHelp()
         {
             using boost::lambda::_1;
             if (ee == 0){
-                cout <<coloron<< "  The HMIReadline object hasn't got a reference to the Execution"<<endl;
-                cout <<"   Engine on construction. No Commands are available."<<endl<< coloroff;
+                cerr <<coloron<< "  The HMIReadline object hasn't got a reference to the Execution"<<endl;
+                cerr <<"   Engine on construction. No Commands are available."<<endl<< coloroff;
                 return;
             }
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+
             cout << endl<< coloron;
             cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
             cout << "  name, followed by the parameters. An example could be :"<<endl;
             cout << "  CartesianGenerator.moveTo( frame( vector( .75, .5, .8), rotation( 90., 0., 90. ) ), 15.0 ) [then press enter] "<<endl;
             cout << "  cout.displayDouble( CartesianGenerator.currentTime ) [enter]" <<endl << coloroff;
             cout << endl<<"  The available Components are :"<<endl;
-            std::vector<std::string> objlist = ee->commandFactory().getObjectList();
+            std::vector<std::string> objlist = taskcontext->commandFactory.getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
             cout << "  The available DataSources are :"<<endl;
-            objlist = ee->dataFactory().getObjectList();
+            objlist = taskcontext->dataFactory.getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
             cout << "  The available Methods are :"<<endl;
-            objlist = ee->methodFactory().getObjectList();
+            objlist = taskcontext->methodFactory.getObjectList();
             std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
             cout << coloron <<"  For the Argument list of an object, just type the object name (eg 'kernel')" <<endl<< coloroff;
             cout <<endl;
-            
+#endif            
         }
         
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         void printCommand( const std::string m )
         {
             using boost::lambda::_1;
@@ -526,6 +610,7 @@ namespace ORO_ControlKernel
             }
             cout <<endl;
         }
+#endif
                 
         void startButton()
         {
@@ -543,7 +628,7 @@ namespace ORO_ControlKernel
             return start;
         }
 
-#if 1
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         // The only data we export is the user's start input.
         DataSourceFactoryInterface* createDataSourceFactory()
         {

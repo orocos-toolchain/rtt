@@ -31,6 +31,7 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include <corelib/CommandNOP.hpp>
+#include "ProgramInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -43,13 +44,17 @@ namespace ORO_Execution
     using boost::put;
     using ORO_CoreLib::CommandNOP;
 
+    class TaskAttributeBase; // defined in TaskContext...
+
     /**
      * This class represents a function. It has
      * much in common with a program but is only
      * used for storing a Graph.
      */
     class FunctionGraph
+        :public ProgramInterface
     {
+    public:
         typedef EdgeCondition::EdgeProperty EdgeProperty;
         typedef VertexNode::VertProperty    VertProperty;
 
@@ -61,54 +66,112 @@ namespace ORO_Execution
         typedef graph_traits<Graph>::vertex_descriptor Vertex;
         typedef graph_traits<Graph>::edge_descriptor Edge;
 
+    private:
+        /**
+         * The node which is executed now
+         */
+        Vertex current;
+
+        /**
+         * The node that was run before this one.
+         */
+        Vertex previous;
+
+    protected:
         /**
          * The graph containing this function.
          */
-        Graph function;
+        Graph program;
 
         Vertex start;
         Vertex exit;
+
+        /**
+         * The (unique) name of this program.
+         */
+        std::string myName;
+
+        /**
+         * Program text.
+         */
+        std::string _text;
+
+        /**
+         * Is true if this program is in Error.
+         */
+        bool error;
+
+        /**
+         * Ordered arguments (are also in the repository).
+         */
+        std::vector<TaskAttributeBase*> args;
     public:
-        FunctionGraph( ) 
-        {
-            // the start vertex of our function graph
-            start = add_vertex( function );
-            put(vertex_exec, function, start, VertexNode::normal_node );
-            exit = add_vertex( function );
-            put(vertex_exec, function, exit, VertexNode::normal_node);
-        }
+        /**
+         * Create a FunctionGraph with a given name.
+         */
+        FunctionGraph( const std::string& _name );
 
-        FunctionGraph( const FunctionGraph& orig )
-            : function( orig.getGraph() )
-        {
-            graph_traits<Graph>::vertex_iterator v1,v2, it;
-            tie(v1,v2) = vertices(function);
-            for ( it=v1; it != v2; ++it)
-                if ( get( vertex_exec, function, *it) == VertexNode::func_start_node )
-                    break;
-            start = *v1;
-            for ( it=v1; it != v2; ++it)
-                if ( get( vertex_exec, function, *it) == VertexNode::func_exit_node )
-                    break;
-            exit = *v1;
-        }
+        /**
+         * Copy a FunctionGraph.
+         */
+        FunctionGraph( const FunctionGraph& orig );
 
-        void finish()
-        {
-            put(vertex_exec, function, start, VertexNode::func_start_node );
-            put(vertex_exec, function, exit, VertexNode::func_exit_node);
+        ~FunctionGraph();
 
-            // Because we use listS, we need to re-index the map :-(
-            // If we do not do this, it can not be copied by the copy_graph
-            // function.
-            property_map<Graph, vertex_index_t>::type
-                index = get(vertex_index, function);
-            // initialize the vertex_index property values
-            graph_traits<Graph>::vertex_iterator vi, vend;
-            graph_traits<Graph>::vertices_size_type cnt = 0;
-            for(tie(vi,vend) = vertices(function); vi != vend; ++vi)
-                put(index, *vi, cnt++);
-        }
+        /**
+         * To be called after a function is constructed.
+         */
+        void finish();
+
+        virtual bool execute();
+
+        virtual bool executeAll();
+
+        virtual void reset();
+
+        virtual bool isFinished() const;
+        
+        virtual bool inError() const;
+
+        /**
+         * Clone this FunctionGraph.  This will produce a completely
+         * new FunctionGraph, that has nothing in common with this one.
+         * It takes care to properly map identical DataSources to
+         * identical DataSources.
+         *
+         * @param alreadyMappedData A map of some DataSources used in
+         *   this program to new DataSources that should replace them
+         *   in the new Program.  This is provided, because in some
+         *   cases the outside world also keeps references to
+         *   datasources used somewhere in this programgraph.  It is
+         *   then important that when this Program is copied, the
+         *   outside world has a way to get a reference to the
+         *   corresponding datasources in the new program.  We do this
+         *   by allowing it to map some datasources itself, and simply
+         *   provide us a list of its mappings.
+         */
+        FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+
+        FunctionGraph* clone() const;
+
+        virtual int  getLineNumber() const;
+
+        virtual const std::string& getName() const;
+
+        /**
+         * Set the name of this program.
+         * Only valid before endProgram() is called.
+         */
+        void setName(const std::string& _name);
+
+        /**
+         * Set the program text.
+         */
+        void setText( const std::string& t);
+
+        std::string getText() const;
+
+        void debugPrintout() const;
 
         Vertex startNode() const
         {
@@ -122,12 +185,23 @@ namespace ORO_Execution
 
         const Graph& getGraph() const
         {
-            return function;
+            return program;
         }
 
         Graph& getGraph()
         {
-            return function;
+            return program;
+        }
+
+        /**
+         * Return an ordered list of this funcion's arguments.
+         */
+        std::vector<TaskAttributeBase*> getArguments() const {
+            return args;
+        }
+
+        void addArgument( TaskAttributeBase* a) {
+            args.push_back(a);
         }
     };
 

@@ -34,12 +34,13 @@
 #include "execution/ParseContext.hpp"
 #include "execution/ArgumentsParser.hpp"
 #include "execution/Operators.hpp"
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
 #include "execution/DataSourceCondition.hpp"
-#include "execution/GlobalFactory.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
 
 #include "corelib/ConditionDuration.hpp"
+#include "execution/TaskContext.hpp"
+#include "execution/PeerParser.hpp"
 
 #include <boost/bind.hpp>
 
@@ -56,12 +57,16 @@ namespace ORO_Execution
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_init("Expected an initialisation value of the value.");
         assertion<std::string> expect_comma("Expected the ',' separator after expression.");
+        assertion<std::string> expect_timespec("Expected a time specification (e.g. > 10s) after 'time' .");
+
+        guard<std::string> my_guard;
     }
 
 
 
-  DataCallParser::DataCallParser( ExpressionParser& p, ParseContext& c )
-    : expressionparser( p ), context( c )
+  DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c )
+      : expressionparser( p ), peerparser( c ),
+        context( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
@@ -76,37 +81,54 @@ namespace ORO_Execution
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
     datacall = (
-         lexeme_d[
-              commonparser.lexeme_notassertingidentifier[
-                bind( &DataCallParser::seenobjectname, this, _1, _2 ) ]
-           >> "."
-           >> commonparser.lexeme_identifier[
-                bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
-           ][ bind( &DataCallParser::seendataname, this ) ]
+                peerparser.parser() >>
+                lexeme_d[
+                         commonparser.lexeme_identifier[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
+                ]
+                [ bind( &DataCallParser::seendataname, this ) ]
       >> !arguments
       )[ bind( &DataCallParser::seendatacall, this ) ];
   };
 
+
+    TaskContext* DataCallParser::setContext( TaskContext* tc )
+    {
+        TaskContext* ret = context;
+        context = tc;
+        peerparser.setContext(tc);
+        // do not change the expressionparser ! (we do not own it)
+        return ret;
+    }
+
+
   void DataCallParser::seendataname()
   {
+      mobject =  peerparser.object();
+      TaskContext* peer = peerparser.peer();
+
       // this is slightly different from CommandParser
     const GlobalDataSourceFactory& gdsf =
-      context.globalfactory->dataFactory();
+      peer->dataFactory;
     const GlobalMethodFactory& gmf =
-      context.globalfactory->methodFactory();
+      peer->methodFactory;
     const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( mobject );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mobject );
     if ( ! dfi && ! mfi )
-      throw parse_exception_no_such_component( mobject );
+        if ( mobject != "this")
+            throw_( iter_t(), std::string("Task '")+context->getName()+"' has no object '"+mobject+"'." );
+        else
+            throw_( iter_t(), std::string("Task '")+context->getName()+"' has no object or function '"+mmethod+"'." );
+        //      throw parse_exception_no_such_component( mobject );
 
     // One of both must have the method
     if ( !( ( dfi && dfi->hasMember(mmethod)) || ( mfi && mfi->hasMember(mmethod)) ) )
         throw parse_exception_no_such_method_on_component( mobject, mmethod );
 
     // create an argument parser for the call..
+    // Store the peer in the ArgumentsParser !
     ArgumentsParser* argspar =
-      new ArgumentsParser( expressionparser, context,
-                           mobject, mmethod );
+        new ArgumentsParser( expressionparser, peer,
+                             mobject, mmethod );
     // we no longer need these two..
     mobject.clear();
     mmethod.clear();
@@ -126,11 +148,12 @@ namespace ORO_Execution
     argparsers.pop();
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
+    TaskContext* peer = argspar->peer();
 
     const GlobalDataSourceFactory& gdsf =
-      context.globalfactory->dataFactory();
+      peer->dataFactory;
     const GlobalMethodFactory& gmf =
-      context.globalfactory->methodFactory();
+      peer->methodFactory;
     const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( obj );
     const MethodFactoryInterface*  mfi = gmf.getObjectFactory( obj );
 
@@ -203,8 +226,22 @@ namespace ORO_Execution
     };
   };
 
-  ExpressionParser::ExpressionParser( ParseContext& pc )
-    : context( pc ), datacallparser( *this, pc )
+    error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& )
+    {
+        // retry if it is a datacall, thus fail this rule
+        return error_status<>( error_status<>::fail );
+    }
+
+    error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>& )
+    {
+        // if this rule also fails, throw global exception
+        return error_status<>( error_status<>::rethrow );
+    }
+
+  ExpressionParser::ExpressionParser( TaskContext* pc )
+      : context( pc ), datacallparser( *this, pc ),
+        valueparser( pc ),
+        _invert_time(false)
   {
     BOOST_SPIRIT_DEBUG_RULE( expression );
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );
@@ -236,10 +273,14 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( vectorctor );
     // Cappellini Consonni Extension
     BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
+    BOOST_SPIRIT_DEBUG_RULE( double6Dctor6 );
     BOOST_SPIRIT_DEBUG_RULE( rotationctor );
     BOOST_SPIRIT_DEBUG_RULE( time_expression );
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
+    BOOST_SPIRIT_DEBUG_RULE( comma );
+    BOOST_SPIRIT_DEBUG_RULE( close_brace );
+    BOOST_SPIRIT_DEBUG_RULE( open_brace );
 
     comma = expect_comma( ch_p(',') );
     close_brace = expect_close( ch_p(')') );
@@ -324,12 +365,12 @@ namespace ORO_Execution
         // or a time expression
       | time_expression
         // or a constant or user-defined value..
-      | datacallparser.parser()[
-          bind( &ExpressionParser::seendatacall, this ) ]
-      | context.valueparser.parser()[
-          bind( &ExpressionParser::seenvalue, this ) ]
+        | my_guard( valueparser.parser())[ &handle_no_value ]
+               [ bind( &ExpressionParser::seenvalue, this ) ]
+      | my_guard( datacallparser.parser() )[&handle_no_datacall]
+                            [bind( &ExpressionParser::seendatacall, this ) ]
         // or a property of a component
-        ) >> ( !indexexp );
+      ) >> ( !indexexp );
     // take index of an atomicexpression
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
@@ -404,14 +445,24 @@ namespace ORO_Execution
     // in meaning, and time_spec is an amount of time, specified in
     // seconds ( "123s" ), milliseconds ( "123ms" ), microseconds(
     // "123us" ) or nanoseconds ( "123ns" ).
-    time_expression = "time" >> ( str_p( ">=" ) | ">" ) >> time_spec;
+    time_expression = "time"
+        >> expect_timespec( (( str_p( ">=" ) | ">" )
+                            |
+                            (str_p("<=") | "<")[bind( &ExpressionParser::inverttime, this)])
+        >> time_spec);
 
-    time_spec = lexeme_d[
-      uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ] >>
+    time_spec = //lexeme_d[
+        uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ] // ]
+        >>
       ( str_p( "s" ) | "ms" | "us" | "ns" )[
-        bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ];
+        bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ];
 
   };
+
+    void ExpressionParser::inverttime()
+    {
+        _invert_time = true;
+    }
 
   void ExpressionParser::seentimeunit( iter_t begin, iter_t )
   {
@@ -428,10 +479,18 @@ namespace ORO_Execution
     };
 
     DataSourceBase* dsb = new DataSourceCondition(
-      new ConditionDuration( total ) );
+      new ConditionDuration( total, _invert_time ) );
+    _invert_time = false;
     dsb->ref();
     parsestack.push( dsb );
   }
+
+    TaskContext* ExpressionParser::setStack( TaskContext* tc )
+    {
+        valueparser.setStack( tc );
+        return context;
+    }
+
 
   void ExpressionParser::seentimespec( int n )
   {
@@ -440,7 +499,7 @@ namespace ORO_Execution
 
   void ExpressionParser::seenvalue()
   {
-    DataSourceBase* ds = context.valueparser.lastParsed()->toDataSource();
+    DataSourceBase* ds = valueparser.lastParsed()->toDataSource();
     ds->ref();
     parsestack.push( ds );
   };

@@ -25,16 +25,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef GLOBALMEMBERFACTORY
-#error "This is an internal header file"
-#endif
+#ifndef GLOBALMEMBERFACTORY_HPP
+#define GLOBALMEMBERFACTORY_HPP
 
 #include <string>
 #include <vector>
 #include <map>
-#include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
+#include "MemberFactoryComposite.hpp"
 
 namespace ORO_Execution
 {
@@ -48,11 +47,11 @@ namespace ORO_Execution
    * certain name, and the parser can ask for the factory registered
    * under a certain name..
    */
-  class GLOBALMEMBERFACTORY
+  class GlobalMemberFactory
   {
-    typedef std::map<std::string, const MEMBERFACTORYINTERFACE*> map_t;
+    typedef std::map<std::string, const MemberFactoryInterface*> map_t;
   public:
-    GLOBALMEMBERFACTORY()
+    GlobalMemberFactory()
       {
       };
 
@@ -60,26 +59,29 @@ namespace ORO_Execution
     const std::string& objectname,
     const std::string& source )
   {
-    const MEMBERFACTORYINTERFACE* o = getObjectFactory( objectname );
+    const MemberFactoryInterface* o = getObjectFactory( objectname );
     if ( o ) return o->hasMember( source );
     else return false;
   };
 
     /**
-     * Register a factory under a certain name..  This does not
-     * transfer ownership, the caller is responsible for making sure
-     * the factory is deleted at the appropriate time ( of course, not
-     * while the factory is registered with us.. )
+     * Register a factory under a certain name..  This does 
+     * transfer ownership.
      */
-    void registerObject( const std::string& name,
-                         const MEMBERFACTORYINTERFACE* fact )
+      void registerObject( const std::string& name,
+                           const MemberFactoryInterface* fact )
       {
-        mdata[name] = fact;
-      };
+          if ( mdata.count( name ) != 0 )
+              fact = new MemberFactoryComposite( mdata[name], fact );
+          mdata[name] = fact;
+      }
 
     void unregisterObject( const std::string& name )
       {
-        mdata.erase( name );
+          if ( mdata.count( name ) ) {
+              delete mdata[ name ];
+              mdata.erase( name );
+          }
       };
 
     /**
@@ -88,7 +90,7 @@ namespace ORO_Execution
      * @return the requested factory, or 0, indicating no factory
      * has been registered under that name..
      */
-    const MEMBERFACTORYINTERFACE* getObjectFactory( const std::string& name ) const
+    const MemberFactoryInterface* getObjectFactory( const std::string& name ) const
       {
         map_t::const_iterator i = mdata.find( name );
         if ( i == mdata.end() ) return 0;
@@ -106,3 +108,5 @@ namespace ORO_Execution
     map_t mdata;
   };
 }
+
+#endif

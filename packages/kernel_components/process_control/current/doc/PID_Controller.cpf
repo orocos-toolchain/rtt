@@ -12,7 +12,7 @@
       <simple name="d01" type="double"><description>Channel 2</description><value>1</value></simple>
     </struct>
     <struct name="Ti" type="std::vector&lt;double&gt;">
-      <description>Shortegrative time ct.</description>
+      <description>Integrative time ct.</description>
       <simple name="dim" type="short">
 	<description>The size of this std::vector.</description>
 	<value>2</value>
@@ -48,7 +48,7 @@
       <simple name="d01" type="double"><description>Channel 2</description><value>50</value></simple>
     </struct>
     <struct name="min_u" type="std::vector&lt;double&gt;">
-      <description>Minimal input.</description>
+      <description>Minimal output.</description>
       <simple name="dim" type="short">
 	<description>The size of this std::vector.</description>
 	<value>2</value>
@@ -57,7 +57,7 @@
       <simple name="d01" type="double"><description>Channel 2</description><value>-100</value></simple>
     </struct>
     <struct name="max_u" type="std::vector&lt;double&gt;">
-      <description>Maximal Input.</description>
+      <description>Maximal output.</description>
       <simple name="dim" type="short">
 	<description>The size of this std::vector.</description>
 	<value>2</value>

@@ -29,8 +29,7 @@
 #include "execution/parse_exception.hpp"
 #include "execution/ValueChangeParser.hpp"
 
-#include "execution/ParseContext.hpp"
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskContext.hpp"
 #include "execution/Types.hpp"
 
 #include <boost/bind.hpp>
@@ -50,7 +49,7 @@ namespace ORO_Execution
     }
 
 
-  ValueChangeParser::ValueChangeParser( ParseContext& pc )
+  ValueChangeParser::ValueChangeParser( TaskContext* pc )
     : assigncommand( 0 ), lastdefinedvalue( 0 ),
       type( 0 ), context( pc ), expressionparser( pc )
   {
@@ -71,7 +70,7 @@ namespace ORO_Execution
          // the type
       >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
          // next the name for the constant
-      >> expect_ident(commonparser.identifier [ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
+      >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
       >> expect_init( str_p( "=" )
          // and a value to assign to it..
       >> expressionparser.parser() )[
@@ -89,10 +88,9 @@ namespace ORO_Execution
 
     variabledefinition = (
          "var"
-         >> expect_type( type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-         >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
-         >> expect_is(ch_p('='))
-         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
+         >> baredefinition
+         >> ( ch_p('=')
+         >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] ));
 
     variableassignment = (
          "set"
@@ -102,19 +100,28 @@ namespace ORO_Execution
          >> expect_expr( expressionparser.parser()) )[
            bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
-    paramdefinition = (
-      "param"
-      >> expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
+    paramdefinition =
+        "param"
+        >> baredefinition;
+
+    baredefinition = (
+      expect_type( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )] )
       >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-      )[bind( &ValueChangeParser::seenparamdefinition, this )];
+      )[bind( &ValueChangeParser::seenbaredefinition, this )];
   };
+
+    TaskContext* ValueChangeParser::setStack( TaskContext* tc )
+    {
+        context = tc;
+        return expressionparser.setStack( tc );
+    }
 
   void ValueChangeParser::seenconstantdefinition()
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
-    ParsedValueBase* var = type->buildConstant();
-    context.valueparser.setValue( valuename, var );
+    TaskAttributeBase* var = type->buildConstant();
+    context->attributeRepository.setValue( valuename, var );
     try
     {
       assigncommand = var->assignCommand( expr.get(), true );
@@ -133,7 +140,7 @@ namespace ORO_Execution
   void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    if ( context.valueparser.isDefined( name ) )
+    if ( context->attributeRepository.isDefined( name ) )
       throw parse_exception_semantic_error( "Identifier \"" + name +
                                             "\" is already defined." );
     valuename = name;
@@ -151,43 +158,21 @@ namespace ORO_Execution
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
-    ParsedValueBase* alias;
+    TaskAttributeBase* alias;
     alias = type->buildAlias( expr.get() );
     if ( ! alias )
       throw parse_exception_semantic_error(
         "Attempt to define an alias to an expression of a different type." );
-    context.valueparser.setValue( valuename, alias );
+    context->attributeRepository.setValue( valuename, alias );
     lastdefinedvalue = alias;
     lastparseddefname = valuename;
     assigncommand = 0;
   };
 
-  void ValueChangeParser::seenvariabledefinition()
+  void ValueChangeParser::seenbaredefinition()
   {
-    ParsedValueBase* var = type->buildVariable();
-    context.valueparser.setValue( valuename, var );
-    DataSourceBase::shared_ptr expr = expressionparser.getResult();
-    expressionparser.dropResult();
-    try
-    {
-      assigncommand = var->assignCommand( expr.get(), true );
-    }
-    catch( const bad_assignment& e )
-    {
-      throw parse_exception_semantic_error(
-        "Attempt to initialize a variable with a value "
-        "of a different type." );
-    }
-    assert( assigncommand );
-    lastdefinedvalue = var;
-    lastparseddefname = valuename;
-    type = 0;
-  }
-
-  void ValueChangeParser::seenparamdefinition()
-  {
-    ParsedValueBase* var = type->buildVariable();
-    context.valueparser.setValue( valuename, var );
+    TaskAttributeBase* var = type->buildVariable();
+    context->attributeRepository.setValue( valuename, var );
     lastdefinedvalue = var;
     lastparseddefname = valuename;
     type = 0;
@@ -198,9 +183,28 @@ namespace ORO_Execution
     valuename = std::string( begin, end );
   }
 
+  void ValueChangeParser::seenvariabledefinition()
+  {
+    TaskAttributeBase* var =
+        context->attributeRepository.getValue( valuename );
+    DataSourceBase::shared_ptr expr = expressionparser.getResult();
+    expressionparser.dropResult();
+    try
+    {
+        assigncommand = var->assignCommand( expr.get(), true );
+    }
+    catch( const bad_assignment& e )
+    {
+      throw parse_exception_semantic_error(
+        "Attempt to initialize a variable with a value "
+        "of a different type." );
+    }
+    assert( assigncommand );
+  }
+
   void ValueChangeParser::seenvariableassignment()
   {
-    ParsedValueBase* var = context.valueparser.getValue( valuename );
+    TaskAttributeBase* var = context->attributeRepository.getValue( valuename );
     if ( !var )
       throw parse_exception_semantic_error(
         "Variable \"" + valuename + "\" not defined." );
@@ -272,5 +276,10 @@ namespace ORO_Execution
   rule_t& ValueChangeParser::paramDefinitionParser()
   {
     return paramdefinition;
+  }
+
+  rule_t& ValueChangeParser::bareDefinitionParser()
+  {
+    return baredefinition;
   }
 }

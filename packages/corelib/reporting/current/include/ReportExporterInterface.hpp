@@ -40,7 +40,7 @@ namespace ORO_CoreLib
      */
     template <class _ReportType>
     class ReportExporterInterface
-                :private NameServerRegistrator<ReportExporterInterface<_ReportType>*,std::string>
+                :private NameServerRegistrator<ReportExporterInterface<_ReportType>*>
     {
         public:
             /**
@@ -59,7 +59,7 @@ namespace ORO_CoreLib
              * @param name The name of this ReportExporterInterface.
              */
             ReportExporterInterface(const std::string& name)
-                    : NameServerRegistrator<ReportExporterInterface<ReportType>*,std::string>( nameserver, name, this )
+                    : NameServerRegistrator<ReportExporterInterface<ReportType>*>( nameserver, name, this )
             {}
 
             inline virtual ~ReportExporterInterface() {}

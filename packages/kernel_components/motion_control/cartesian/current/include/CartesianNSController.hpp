@@ -39,11 +39,10 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <corelib/PropertyComposition.hpp>
 
-#include <pkgconf/control_kernel.h>
-#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
-#endif
+// #include <pkgconf/control_kernel.h>
+// #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+// #include "execution/TemplateFactories.hpp"
+// #endif
 
 #include "CartesianNSDataObjects.hpp"
 
@@ -154,7 +153,7 @@ namespace ORO_ControlKernel
         {
             return composeProperty(bag, gain );
         }
-            
+
         /**
          * @see KernelPropertyExtension.hpp class PropertyComponentInterface
          */

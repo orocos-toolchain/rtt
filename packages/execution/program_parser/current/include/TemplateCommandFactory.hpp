@@ -37,6 +37,7 @@
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
 #include "CommandFactoryInterface.hpp"
+#include "AsynchCommandDecorator.hpp"
 
 /**
  * @file TemplateCommandFactory.hpp
@@ -49,9 +50,10 @@
  */
 namespace ORO_Execution
 {
-  using boost::mem_fn;
-  using boost::bind;
-
+    using boost::mem_fn;
+    using boost::bind;
+    using ORO_CoreLib::ConditionInterface;
+    using ORO_CoreLib::CommandInterface;
 #ifndef NO_DOXYGEN
 
   /**
@@ -967,14 +969,20 @@ namespace ORO_Execution
           return _TF::getArgumentList( method );
       }
 
-    ComCon create( const std::string& name, const PropertyBag& args ) const
+    ComCon create( const std::string& name, const PropertyBag& args, bool asyn=true ) const
       {
-        return _TF::produce( name, args );
+        ComCon res =  _TF::produce( name, args );
+        if (asyn)
+            res.first = new AsynchCommandDecorator( res.first );
+        return res;
       };
     ComCon create( const std::string& name,
-                   const std::vector<DataSourceBase*>& args ) const
+                   const std::vector<DataSourceBase*>& args, bool asyn=true ) const
       {
-        return _TF::produce( name, args );
+        ComCon res =  _TF::produce( name, args );
+        if (asyn)
+            res.first = new AsynchCommandDecorator( res.first );
+        return res;
       };
 
     void add( const std::string& name,

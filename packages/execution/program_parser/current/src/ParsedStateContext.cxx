@@ -29,7 +29,7 @@
 #include "execution/DataSource.hpp"
 #include "execution/Processor.hpp"
 #include "execution/StateDescription.hpp"
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
 #include "execution/mystd.hpp"
 
 namespace ORO_Execution {
@@ -57,7 +57,7 @@ namespace ORO_Execution {
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
               i != parametervalues.end(); ++i )
         {
-          ParsedValueBase* npvb = i->second->copy( replacements );
+          TaskAttributeBase* npvb = i->second->copy( replacements );
           ret->parametervalues[i->first] = npvb;
           replacements[i->second->toDataSource()] = npvb->toDataSource();
         }
@@ -187,7 +187,7 @@ namespace ORO_Execution {
         assert( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() );
         visiblereadonlyvalues[name] = var;
     }
-    void ParsedStateContext::addParameter( const std::string& name, ParsedValueBase* var )
+    void ParsedStateContext::addParameter( const std::string& name, TaskAttributeBase* var )
     {
         assert( parametervalues.find( name ) == parametervalues.end() );
         parametervalues[name] = var;
@@ -200,7 +200,7 @@ namespace ORO_Execution {
             return 0;
         return visiblereadonlyvalues.find(name)->second.get();
     }
-    ParsedValueBase* ParsedStateContext::getParameter( const std::string& name ) const
+    TaskAttributeBase* ParsedStateContext::getParameter( const std::string& name ) const
     {
         if( parametervalues.find( name ) == parametervalues.end() )
             return 0;

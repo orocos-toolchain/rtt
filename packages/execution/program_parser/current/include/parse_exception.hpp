@@ -35,6 +35,7 @@ namespace ORO_Execution
 {
   class parse_exception;
 
+
   /**
    * This is an exception class that keeps a parse_exception pointer
    * along with the location in the file and the file where it
@@ -77,8 +78,52 @@ namespace ORO_Execution
     virtual parse_exception* copy() const = 0;
   };
 
+    /**
+     * A Semantic parse exception means the parser recognised
+     * a part of the string, but got into trouble lateron,
+     * for example, a missing argument or non existing component.
+     */
+    class semantic_parse_exception
+        : public parse_exception
+    {
+        // make these private
+        semantic_parse_exception& operator=( const semantic_parse_exception& );
+    protected:
+        semantic_parse_exception() {};
+    };
+
+    /**
+     * A Fatal Syntactic parse exception means the parser
+     * did not get _any_ clue of what came in, and it
+     * should probably be passed to another parser.
+     */
+    class fatal_syntactic_parse_exception
+        : public parse_exception
+    {
+        // make these private
+        fatal_syntactic_parse_exception& operator=( const fatal_syntactic_parse_exception& );
+    protected:
+        fatal_syntactic_parse_exception() {};
+    };
+
+    /**
+     * A normal syntactic parse exception means the parser
+     * recognised the input, but got stuck later due to a
+     * syntactic error, like a missing brace.
+     */
+    class syntactic_parse_exception
+        : public parse_exception
+    {
+        // make these private
+        syntactic_parse_exception& operator=( const syntactic_parse_exception& );
+    protected:
+        syntactic_parse_exception() {};
+    };
+
+
+
   class parse_exception_illegal_identifier
-    : public parse_exception
+    : public syntactic_parse_exception
   {
     std::string mident;
   public:
@@ -108,7 +153,7 @@ namespace ORO_Execution
    * for which it was not worth defining a proper exception class.
    */
   class parse_exception_semantic_error
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mdesc;
   public:
@@ -138,7 +183,7 @@ namespace ORO_Execution
    * for which it was not worth defining a proper exception class.
    */
   class parse_exception_syntactic_error
-    : public parse_exception
+    : public fatal_syntactic_parse_exception
   {
     std::string mdesc;
   public:
@@ -164,7 +209,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_no_such_component
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mname;
   public:
@@ -190,7 +235,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_no_such_method_on_component
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mcomponentname;
     std::string mmethodname;
@@ -223,7 +268,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_wrong_number_of_arguments
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mcomponentname;
     std::string mmethodname;
@@ -268,7 +313,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_wrong_type_of_argument
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mcomponentname;
     std::string mmethodname;
@@ -306,7 +351,7 @@ namespace ORO_Execution
   };
 
   class parse_exception_undefined_value
-    : public parse_exception
+    : public semantic_parse_exception
   {
     std::string mname;
   public:

@@ -31,13 +31,16 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include "parser-types.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
+#include "Processor.hpp"
+#include <corelib/PropertyBag.hpp>
+#include <corelib/CommandInterface.hpp>
+#include <corelib/ConditionInterface.hpp>
 
 namespace ORO_Execution
 {
-    typedef std::pair<CommandInterface*, ConditionInterface*> ComCon;
+    typedef std::pair<ORO_CoreLib::CommandInterface*, ORO_CoreLib::ConditionInterface*> ComCon;
 
     /**
      * @brief An interface for creating CommandInterface instances.
@@ -96,7 +99,7 @@ namespace ORO_Execution
              * TODO: fix this requirement somehow..
              * throws name_not_found_exception
              */
-            virtual PropertyBag
+            virtual ORO_CoreLib::PropertyBag
             getArgumentSpec( const std::string& command ) const = 0;
 
         /**
@@ -119,7 +122,8 @@ namespace ORO_Execution
              * wrong_types_of_args_exception
              */
             virtual ComCon create( const std::string& command,
-                                   const PropertyBag& args ) const = 0;
+                                   const ORO_CoreLib::PropertyBag& args,
+                                   bool asyn = true) const = 0;
 
             /**
              * @brief Create a Command passing DataSources as the arguments.
@@ -139,7 +143,8 @@ namespace ORO_Execution
              */
             virtual ComCon create(
                 const std::string& command,
-                const std::vector<DataSourceBase*>& args ) const = 0;
+                const std::vector<DataSourceBase*>& args,
+                bool asyn = true ) const = 0;
 
     };
 };

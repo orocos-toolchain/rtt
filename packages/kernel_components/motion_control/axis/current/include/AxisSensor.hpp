@@ -37,6 +37,7 @@
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateMethodFactory.hpp"
+#include <control_kernel/ExecutionExtension.hpp>
 #endif
 
 #include <map>
@@ -46,7 +47,6 @@
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
-#include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 
 #ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
@@ -103,10 +103,18 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_sensor
      */
     class AxisSensor
-        : public Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase >
+        : public Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                       , ExecutionExtension
+#endif
+                                                       >::CommonBase >
     {
     public:
-        typedef Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction, ExecutionExtension>::CommonBase > Base;
+        typedef Sensor< Writes<AxisInput>, MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                                      , ExecutionExtension
+#endif
+                                                      >::CommonBase > Base;
         typedef AxisInput InputDataObject;
         typedef std::vector<double> ChannelType;
 

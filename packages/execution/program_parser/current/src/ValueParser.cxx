@@ -29,7 +29,8 @@
 #include "execution/parse_exception.hpp"
 #include "execution/ValueParser.hpp"
 
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
+#include "execution/TaskContext.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -38,26 +39,8 @@ namespace ORO_Execution
 {
   using boost::bind;
 
-  ParsedValueBase::~ParsedValueBase()
-  {
-  };
-
-  CommandInterface* ParsedValueBase::assignCommand(
-    DataSourceBase*, bool ) const
-  {
-    return 0;
-  };
-
-  CommandInterface* ParsedValueBase::assignIndexCommand(
-                                                   DataSourceBase*,
-                                                   DataSourceBase* ) const
-  {
-    return 0;
-  };
-
-
-
-  ValueParser::ValueParser()
+    ValueParser::ValueParser( TaskContext* tc)
+        : peerparser(tc), context(tc)
   {
     BOOST_SPIRIT_DEBUG_RULE( constant );
     BOOST_SPIRIT_DEBUG_RULE( const_double );
@@ -90,71 +73,77 @@ namespace ORO_Execution
         c_escape_ch_p[ bind( &ValueParser::push_str_char, this, _1 ) ]
         ), '"' )[ bind( &ValueParser::seenstring, this ) ];
     named_constant =
-      ( "done" | commonparser.identifier ) [
+        ( "done" | (!peerparser.parser() >> commonparser.identifier ) ) [
         bind( &ValueParser::seennamedconstant, this, _1, _2 ) ];
-  };
+  }
+
+    void ValueParser::setStack( TaskContext* tc ) {
+        //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
+        context = tc;
+        peerparser.setContext( tc );
+        peerparser.reset();
+    }
 
   void ValueParser::seenboolconstant( iter_t begin, iter_t end )
   {
     std::string value( begin, end );
     assert( value == "true" || value == "false" );
     if ( value == "true" )
-      ret = new ParsedAliasValue<bool>(
+      ret = new TaskAliasAttribute<bool>(
         new VariableDataSource<bool>( true ) );
     else
-      ret = new ParsedAliasValue<bool>(
+      ret = new TaskAliasAttribute<bool>(
         new VariableDataSource<bool>( false ) );
     deleter.reset( ret );
-  };
+  }
 
   void ValueParser::seennamedconstant( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    map_t::iterator i = values.find( name );
-    if ( i == values.end() )
-      throw parse_exception_undefined_value( name );
+    TaskContext* peer = peerparser.peer();
+    if ( !peer->attributeRepository.isDefined( name ) )
+        throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
+        //      throw parse_exception_undefined_value( name );
     else
-      ret = i->second;
+      ret = peer->attributeRepository.getValue(name);
+    peerparser.reset();
     deleter.reset( 0 );
-  };
+  }
 
   void ValueParser::seenintconstant( int i )
   {
-    ret = new ParsedAliasValue<int>( new VariableDataSource<int>( i ) );
-    // make the new ParsedValue managed by the auto_ptr..
+    ret = new TaskAliasAttribute<int>( new VariableDataSource<int>( i ) );
+    // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
-  };
+  }
 
   void ValueParser::seendoubleconstant( double i )
   {
-    ret = new ParsedAliasValue<double>( new VariableDataSource<double>( i ) );
-    // make the new ParsedValue managed by the auto_ptr..
+    ret = new TaskAliasAttribute<double>( new VariableDataSource<double>( i ) );
+    // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
-  };
+  }
 
   ValueParser::~ValueParser()
   {
     clear();
-  };
+  }
 
   void ValueParser::clear()
   {
-    for ( map_t::iterator i = values.begin(); i != values.end(); ++i )
-      delete i->second;
-    values.clear();
     ret = 0;
     deleter.reset( 0 );
-  };
+  }
 
   rule_t& ValueParser::parser()
   {
     return constant;
-  };
+  }
 
   void ValueParser::push_str_char( char c )
   {
     mcurstring += c;
-  };
+  }
 
   void ValueParser::seenstring()
   {
@@ -162,65 +151,9 @@ namespace ORO_Execution
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new ParsedAliasValue<std::string>(
+    ret = new TaskAliasAttribute<std::string>(
       new VariableDataSource<std::string>( mcurstring ) );
     deleter.reset( ret );
     mcurstring.clear();
-  };
-
-  void ValueParser::setValue( const std::string& name,
-                              ParsedValueBase* value )
-  {
-    std::auto_ptr<ParsedValueBase> v( value );
-    map_t::iterator i = values.find( name );
-    // if the name is already defined, we replace its definition..
-    if ( i != values.end() )
-      delete i->second;
-    values[name] = v.release();
   }
-
-  void ValueParser::addConstant( const std::string& name, bool value )
-  {
-    setValue( name, new ParsedAliasValue<bool>(
-                new VariableDataSource<bool>( value ) ) );
-  };
-
-  void ValueParser::addConstant( const std::string& name, int value )
-  {
-    setValue( name, new ParsedAliasValue<int>(
-                new VariableDataSource<int>( value ) ) );
-  };
-
-  void ValueParser::addConstant( const std::string& name, double value )
-  {
-    setValue( name, new ParsedAliasValue<double>(
-                new VariableDataSource<double>( value ) ) );
-  };
-
-  void ValueParser::addConstant( const std::string& name,
-                                 const std::string& value )
-  {
-    setValue( name, new ParsedAliasValue<std::string>(
-                new VariableDataSource<std::string>( value ) ) );
-  };
-
-  void ValueParser::removeValue( const std::string& name )
-  {
-    map_t::iterator i = values.find( name );
-    if ( i != values.end() )
-      delete i->second;
-    values.erase( name );
-  }
-
-  ParsedValueBase* ValueParser::getValue( const std::string& name )
-  {
-    map_t::iterator i = values.find( name );
-    if ( i == values.end() ) return 0;
-    else return i->second;
-  }
-
-  bool ValueParser::isDefined( const std::string& name ) const
-  {
-    return values.find( name ) != values.end();
-  };
-};
+}

@@ -55,13 +55,15 @@ namespace ORO_Execution
 
     rule_t condition;
 
-    ParseContext& context;
+    TaskContext* context;
     CommonParser commonparser;
     ExpressionParser expressionparser;
 
   public:
-    ConditionParser( ParseContext& );
+    ConditionParser( TaskContext* );
     ~ConditionParser();
+
+      TaskContext* setStack(TaskContext* tc);
 
     rule_t& parser()
       {

@@ -35,7 +35,7 @@
 // Cappellini Consonni Extension
 #include <corelib/MultiVector.hpp>
 
-#include "execution/ParsedValue.hpp"
+#include "execution/TaskVariable.hpp"
 
 namespace ORO_Execution
 {
@@ -52,24 +52,24 @@ namespace ORO_Execution
     : public TypeInfo
   {
   public:
-    ParsedValueBase* buildConstant()
+    TaskAttributeBase* buildConstant()
       {
-        return new ParsedConstantValue<T>();
+        return new TaskConstant<T>();
       };
-    ParsedValueBase* buildVariable()
+    TaskAttributeBase* buildVariable()
       {
-        return new ParsedVariableValue<T>();
+        return new TaskVariable<T>();
       };
-    ParsedValueBase* buildAlias( DataSourceBase* b )
+    TaskAttributeBase* buildAlias( DataSourceBase* b )
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new ParsedAliasValue<T>( ds );
+        return new TaskAliasAttribute<T>( ds );
       };
   };
 
-    // Identical to above, but the variable is of the ParsedIndexValue type.
+    // Identical to above, but the variable is of the TaskIndexVariable type.
   template<typename T, typename IndexType, typename SetType, typename Pred>
   class TemplateIndexTypeInfo
     : public TypeInfo
@@ -78,22 +78,22 @@ namespace ORO_Execution
   public:
       TemplateIndexTypeInfo(Pred p) : _p (p) {}
 
-    ParsedValueBase* buildConstant()
+    TaskAttributeBase* buildConstant()
       {
-        return new ParsedConstantValue<T>();
+        return new TaskConstant<T>();
       }
 
-    ParsedValueBase* buildVariable()
+    TaskAttributeBase* buildVariable()
       {
-        return new ParsedIndexValue<T, IndexType, SetType, Pred>(_p);
+        return new TaskIndexVariable<T, IndexType, SetType, Pred>(_p);
       }
 
-    ParsedValueBase* buildAlias( DataSourceBase* b )
+    TaskAttributeBase* buildAlias( DataSourceBase* b )
       {
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new ParsedAliasValue<T>( ds );
+        return new TaskAliasAttribute<T>( ds );
       }
   };
 

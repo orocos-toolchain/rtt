@@ -9,10 +9,10 @@ if ! test -e configure.ac; then
 "
 fi
 
-AC_CHECK_PROGS(PYTHON, python python2.3,no)
+AC_CHECK_PROGS(PYTHON, python python2.2,no)
 if test $PYTHON = no; then
  AC_MSG_ERROR([
-The Packaging system requires Python 2.3 
+The Packaging system requires at least Python 2.2 
 ])
 fi;
 

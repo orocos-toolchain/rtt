@@ -50,7 +50,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/Factories.hpp"
+#include "execution/TemplateFactories.hpp"
 #include <control_kernel/ExecutionExtension.hpp>
 #endif
 
@@ -398,6 +398,15 @@ namespace ORO_ControlKernel
             composeProperty( bag, homepos );
             composeProperty( bag, hometime );
             return true;
+        }
+
+        virtual void exportProperties( PropertyBag& bag)
+        {
+            bag.add( &max_vel );
+            bag.add( &max_vel );
+            bag.add( &interpol_prop );
+            bag.add( &homepos );
+            bag.add( &hometime );
         }
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION

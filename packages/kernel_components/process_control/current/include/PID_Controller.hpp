@@ -31,21 +31,24 @@
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/PropertyExtension.hpp>
-#include <control_kernel/ExecutionExtension.hpp>
+#include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/Factories.hpp"
+#include <control_kernel/ExecutionExtension.hpp>
+#include "execution/TemplateFactories.hpp"
 #endif
 
 #pragma interface
 
 namespace ORO_ControlKernel
 {
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
+#endif
 
     /**
      * The output of the PID_Controller.
@@ -95,20 +98,31 @@ namespace ORO_ControlKernel
                             Expects<NoModel>,
                             Expects<PID_SetPoint>,
                             Writes<PID_Controller_Output>,
-                            MakeAspect<PropertyExtension, KernelBaseFunction, ExecutionExtension>::Result >
+                            MakeAspect<PropertyExtension, KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                       , ExecutionExtension
+#endif
+                                       , ReportingExtension
+                                       >::Result >
 
     {
         typedef Controller<Expects<PID_Input>,
                            Expects<NoModel>,
                            Expects<PID_SetPoint>,
                            Writes<PID_Controller_Output>,
-                           MakeAspect<PropertyExtension, KernelBaseFunction, ExecutionExtension>::Result > Base;
+                           MakeAspect<PropertyExtension, KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                      , ExecutionExtension
+#endif
+                                      , ReportingExtension
+                                      >::Result > Base;
       
     public:
         PID_Controller(int _num_chans = 1, const std::string& name = "PID_Controller" ) 
             : Base ( name ),
               num_chans( _num_chans ),
-              _K("K", "Proportional gain", std::vector<double>( num_chans, 0) )
+              err("Error", "Tracking error", std::vector<double>( num_chans, 0) )
+            , _K("K", "Proportional gain", std::vector<double>( num_chans, 0) )
             , _Kff("Kff", "Proportional gain", std::vector<double>( num_chans, 1) )
             , _Ti("Ti", "Integrative time cte", std::vector<double>( num_chans, 0))
             , _Td("Td", "Derivative time cte", std::vector<double>( num_chans, 0))
@@ -157,7 +171,7 @@ namespace ORO_ControlKernel
                     recalculate(i, _K.get()[i]);
                 }
 
-            return Base::Output::dObj()->Get("ChannelValues",outp_dObj);
+            return Output::dObj()->Get("ChannelValues",outp_dObj);
 	    }
 
         void changeMinU(int channel, double newMinU )
@@ -241,12 +255,12 @@ namespace ORO_ControlKernel
 
         virtual bool componentStartup()
 	    {
-            if ( ! Base::SetPoint::dObj()->Get("ChannelValues",setp_dObj) ||
-                 ! Base::Input::dObj()->Get("ChannelValues", inp_dObj) )
+            if ( ! SetPoint::dObj()->Get("ChannelValues",setp_dObj) ||
+                 ! Input::dObj()->Get("ChannelValues", inp_dObj) )
                 {
                     return false;
                 }
-            if ( ! Base::SetPoint::dObj()->Get("FeedForward",setp_ff_dObj) )
+            if ( ! SetPoint::dObj()->Get("FeedForward",setp_ff_dObj) )
                 setp_ff_dObj = 0;
 
             // Set y_old to the current value...
@@ -282,7 +296,8 @@ namespace ORO_ControlKernel
                 {
                     uFF[i] = _ff[i] * _Kff.get()[i];
                     // Compute the proportional
-                    uP[i] = _K.get()[i] * ( _refPos[i] - y[i] );
+                    err.set()[i] = _refPos[i] - y[i];
+                    uP[i] = _K.get()[i] * ( err.get()[i] );
                     // update derivative part
 
                     if ( _Td.get()[i]  != 0 )
@@ -335,17 +350,22 @@ namespace ORO_ControlKernel
             return true;
         }
 
-        virtual void exportProperties( PropertyBag& bag ) {
-            bag.add ( &_K );
-            bag.add ( &_Kff );
-            bag.add ( &_Ti );
-            bag.add ( &_Td );
-            bag.add ( &_N );
-            bag.add ( &_Tt );
-            bag.add ( &_minu );
-            bag.add ( &_maxu );
+        virtual void exportProperties( PropertyBag& bag )
+        {
+            bag.add(&_K);
+            bag.add(&_Kff);
+            bag.add(&_Ti);
+            bag.add(&_Td);
+            bag.add(&_N);
+            bag.add(&_Tt);
+            bag.add(&_minu);
+            bag.add(&_maxu);
         }
       
+        virtual void exportReports( PropertyBag& bag )
+        {
+            bag.add(&err);
+        }
     protected:
 
         /**
@@ -453,6 +473,7 @@ namespace ORO_ControlKernel
         ChannelType   _result;
         ChannelType   _refPos;
         ChannelType   y, y_old, _ff;
+        Property< std::vector< double> > err;      // tracking error
 
         double T;
         // Desciption of PID in discrete time

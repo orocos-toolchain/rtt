@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include "parse_exception.hpp"
+#include "DataSource.hpp"
 
 namespace ORO_CoreLib
 {
@@ -42,8 +43,7 @@ namespace ORO_CoreLib
 namespace ORO_Execution
 {
     class ProgramGraph;
-    class Processor;
-    class GlobalFactory;
+    class TaskContext;
     class ParsedStateContext;
 }
 
@@ -72,17 +72,14 @@ namespace ORO_Execution
      * ProgramGraph..
      * @throw parse_exception Throws exceptions of type parse_exception.
      */
-      std::vector<ProgramGraph*> parseProgram( std::istream& s, Processor*,
-                                  GlobalFactory* );
+      std::vector<ProgramGraph*> parseProgram( std::istream& s, TaskContext*,const std::string& filename = "filename" );
 
     /**
      * @brief Reads out the stream, parses it, and returns a new @ref
      * StateContext ..
      * @throw file_parse_exception Throws exceptions of type file_parse_exception.
      */
-      std::vector<ParsedStateContext*> parseStateContext(
-          std::istream& s, const std::string& filename, Processor*,
-          GlobalFactory* );
+      std::vector<ParsedStateContext*> parseStateContext(std::istream& s, TaskContext*, const std::string& filename = "filename" );
 
     /**
      * @brief Parses the string as a condition, and returns a new
@@ -91,14 +88,22 @@ namespace ORO_Execution
      * @throw parse_exception
      */
     ORO_CoreLib::ConditionInterface* parseCondition(
-      std::string& s, GlobalFactory* ext );
+      std::string& s, TaskContext* );
 
       /**
        * @brief Parses the command in s.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
       std::pair<CommandInterface*,ConditionInterface*>
-      parseCommand( const std::string&s, GlobalFactory* gFact );
+      parseCommand( const std::string&s, TaskContext* );
+
+      /**
+       * @brief Parses the expression in s.
+       * @return A DataSourceBase which contains the expression.
+       * @throw parse_exception Throws exceptions of type parse_exception.
+       */
+      DataSourceBase::shared_ptr
+      parseExpression( const std::string&s, TaskContext* );
   };
 };
 #endif

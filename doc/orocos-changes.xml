@@ -48,6 +48,31 @@
 	  your program.
 	</para>
       </listitem>
+      <listitem>
+	<para>The signature of ORO_main has changed from
+	  <function>int ORO_main(int argc, const char** argv)</function>
+	  to
+	  <function>int ORO_main(int argc, char** argv)</function>. If
+	  you get 'undefined reference to ORO_main' while linking your
+	  program. This is what caused it.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Some Control Kernel Extensions have changed the Components
+	  interface to pure virtual methods instead of empty implementations.
+	  An example is the
+	  <methodname>
+	    virtual bool PropertyComponentInterface::updateProperties( const PropertyBag& ) = 0
+	  </methodname> and the
+	  <methodname>
+	    virtual void PropertyComponentInterface::exportProperties( PropertyBag& ) = 0
+	  </methodname>
+	  methods which must be implemented by each component which wants
+	  to use the PropertyExtension. If you have written components
+	  yourself, you need to implement these methods.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="general">
@@ -62,7 +87,8 @@
 	  <command>make new_packages</command>,
 	  <command>make configure_packages</command> and
 	  <command>make all_packages</command> targets behave
-	  as before.
+	  as before. Also, the dependency on Python 2.3 has
+	  been lowered to Python 2.2, which more more widespread.
 	</para>
       </listitem>
       <listitem>
@@ -77,7 +103,6 @@
 	</para>
       </listitem>
     </itemizedlist>
-
   </section>
   <section id="os">
     <title>OS Specific Improvements</title>
@@ -92,6 +117,30 @@
 	    avoid lockups when the main thread goes into
 	    an endless loop. This can still be changed in
 	    the configtool program.
+	  </para>
+      </listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>RedHat</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Orocos was tested on a RedHat 8 system, with 
+	    an upgraded compiler (to GCC 3.3) and additional 
+	    packages installed. Although we recommend using
+	    the latest Fedora Core if you want to stick to
+	    the RedHat distribution.
+	  </para>
+      </listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>Debian</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Orocos was tested on Debian testing and unstable.
 	  </para>
       </listitem>
     </itemizedlist>
@@ -190,6 +239,27 @@
 	  a finer granularity of package selection is possible.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The Data Objects <methodname>dObj()</methodname> can be 
+	  accessed without the <classname>Base::</classname> prefix.
+	  For example, the formerly written <methodname>Base::SetPoint::dObj()->Get()</methodname>
+	  can thus be rewritten as <methodname>SetPoint::dObj()->Get()</methodname>
+	  from within the Component methods, as long as your derived component
+	  class is not a template class itself (this is so from release 0.16.0).
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The <methodname>startComponent</methodname> and <methodname>stopComponent</methodname>
+	  methods have been added to the control kernel
+	  to start multiple components of the same type (e.g. Sensor).
+	  This is in addition to the classical <methodname>selectComponent</methodname>
+	  methods which are used for exclusive execution of
+	  components of a type. Select and start/stop should be 
+	  separated, thus not both applied on the same component.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="program">
@@ -249,7 +319,21 @@
       </listitem>
       <listitem>
 	<para>
-	  
+	  Orocos commands can be dispatched over Task boundaries.
+	  See the TaskContext class and documentation in the 
+	  Program Parser manual. This allows to define 
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Orocos TaskContexts have been added. A TaskContext is a 
+	  peer-to-peer task communication specification. It allows
+	  to define inter-dependent tasks, which can call on
+	  each others methods. A task's methods are exported through
+	  the earlier introduced command parser factories.
+	  The TaskContext is designed to be fully threadsafe, thus
+	  a program running in one task can invoke the methods
+	  of a peer task which runs at a different priority.
 	</para>
       </listitem>
     </itemizedlist>
@@ -265,6 +349,14 @@
 	  in the file of a running script can be monitored. 
 	  It allows to browse all present components and
 	  accepts online script commands.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The above mentioned client is also available in a 
+	  CORBA version. It communicates with a control server
+	  transparantly and allows connection/disconnection
+	  with a running server.
 	</para>
       </listitem>
     </itemizedlist>

@@ -30,6 +30,7 @@
 
 #include "parser-types.hpp"
 
+#include "TaskAttribute.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 
@@ -40,6 +41,7 @@ namespace ORO_Execution
    * variable definitions, variable change instructions, and alias
    * definitions..  It stores these in the ValueParser in the
    * ParseContext, and parses values using ExpressionParser..
+   * @todo The ValueChangeParser.cxx implementation needs refactoring.
    */
   class ValueChangeParser
   {
@@ -47,7 +49,7 @@ namespace ORO_Execution
     CommandInterface* assigncommand;
 
     // the last defined value...
-    ParsedValueBase* lastdefinedvalue;
+    TaskAttributeBase* lastdefinedvalue;
 
     // the last parsed variable or constant or alias or param
     // definition name
@@ -58,12 +60,13 @@ namespace ORO_Execution
     std::string valuename;
 
     // A TypeInfo of the type that was specified.  We use it to get
-    // hold of a ParsedConstantValue or a ParsedVariableValue or ...
+    // hold of a TaskConstant or a TaskVariable or ...
     TypeInfo* type;
 
     void seenconstantdefinition();
     void seenaliasdefinition();
     void seenvariabledefinition();
+    void seenbaredefinition();
     void seenparamdefinition();
     void seenvariableassignment();
     void storedefinitionname( iter_t begin, iter_t end );
@@ -72,15 +75,22 @@ namespace ORO_Execution
     void seenindexassignment();
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
-      variableassignment, paramdefinition;
+      variableassignment, paramdefinition, baredefinition;
 
-    ParseContext& context;
+    TaskContext* context;
     ExpressionParser expressionparser;
     CommonParser commonparser;
 
     DataSourceBase::shared_ptr index_ds;
   public:
-    ValueChangeParser( ParseContext& pc );
+    ValueChangeParser( TaskContext* tc );
+
+      /**
+       * Change the context in which variables are stored
+       * and looked up.
+       * @return the previous TaskContext.
+       */
+     TaskContext* setStack( TaskContext* tc );
 
     /**
      * This CommandInterface holds the command assigning a value to
@@ -93,17 +103,17 @@ namespace ORO_Execution
     CommandInterface* assignCommand()
       {
         return assigncommand;
-      };
+      }
 
-    ParsedValueBase* lastDefinedValue()
+    TaskAttributeBase* lastDefinedValue()
       {
         return lastdefinedvalue;
-      };
+      }
 
     std::string lastParsedDefinitionName()
       {
         return lastparseddefname;
-      };
+      }
 
     /**
      * the parser that parses definitions of constants.  Do not
@@ -139,6 +149,13 @@ namespace ORO_Execution
      * not necessary to check assignCommand() after this...
      */
     rule_t& paramDefinitionParser();
+
+    /**
+     * The parser that parses a bare variable definition.
+     * These do not get initialised where they are defined, so it is
+     * not necessary to check assignCommand() after this...
+     */
+    rule_t& bareDefinitionParser();
 
     /**
      * Reset should be called every time after this class parsed

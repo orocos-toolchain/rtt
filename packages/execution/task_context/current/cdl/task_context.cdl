@@ -1,0 +1,27 @@
+
+cdl_package OROPKG_EXECUTION_TASK_CONTEXT {
+    display "Task Context Infrastructure"
+    description "
+A Package that provides realtime-safe inter-task
+communication and task browsing. A Task Context
+contains the command-, method- and data-factories of that
+task, a Processor which accepts commands and executes
+task programs."
+
+    include_dir execution
+    
+    parent OROPKG_EXECUTION
+
+    requires OROPKG_SUPPORT_BOOST_GRAPH
+    requires OROPKG_SUPPORT_BOOST
+    requires OROPKG_CORELIB_STATE
+    requires OROPKG_EXECUTION
+    requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
+
+    compile TaskContext.cxx
+    compile AttributeRepository.cxx TaskAttribute.cxx 
+    compile DataSourceFactoryInterface.cxx  GlobalDataSourceFactory.cxx
+    compile GlobalCommandFactory.cxx
+    compile CommandFactoryInterface.cxx
+
+}

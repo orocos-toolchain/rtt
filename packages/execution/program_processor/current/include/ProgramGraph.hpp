@@ -28,11 +28,8 @@
 #ifndef PROGRAMGRAPH_HPP
 #define PROGRAMGRAPH_HPP
 
-#include "ProgramInterface.hpp"
-#include "ProcessorInterface.hpp"
-
-#include "VertexNode.hpp"
-#include "EdgeCondition.hpp"
+#include "Processor.hpp"
+#include "FunctionGraph.hpp"
 
 #include <utility>                   // for std::pair
 #include <stack>
@@ -47,7 +44,6 @@ namespace ORO_Execution
     using boost::property;
     using boost::graph_traits;
 
-    class FunctionGraph;
     class DataSourceBase;
 
     /**
@@ -56,7 +52,7 @@ namespace ORO_Execution
      * Boost Graph Library.
      */
     class ProgramGraph
-        : public ProgramInterface
+        : public FunctionGraph
     {
     public:
 
@@ -71,13 +67,13 @@ namespace ORO_Execution
          * A CommandNode serves as a token to construct
          * a vertex or node, containing a command.
          */
-        typedef Vertex CommandNode ;
+        typedef FunctionGraph::Vertex CommandNode ;
 
         /**
          * A ConditionEdge serves as a token to construct
          * an edge, containing a condition.
          */
-        typedef Edge ConditionEdge ;
+        typedef FunctionGraph::Edge ConditionEdge ;
 
         /**
          * Constructs an empty program (NOPprogram).
@@ -85,70 +81,19 @@ namespace ORO_Execution
          */
         ProgramGraph(const std::string& _name="Default");
 
-        void debugPrintout() const;
-
         virtual ~ProgramGraph();
 
-        virtual bool execute();
-
-        virtual bool executeToStop();
-
-        virtual void reset();
-
-        virtual bool isFinished() const;
-
         /**
-         * Clone this ProgramGraph.  This will produce a completely
-         * new ProgramGraph, that has nothing in common with this one.
-         * It takes care to properly map identical DataSources to
-         * identical DataSources.
-         *
-         * @param alreadyMappedData A map of some DataSources used in
-         *   this program to new DataSources that should replace them
-         *   in the new Program.  This is provided, because in some
-         *   cases the outside world also keeps references to
-         *   datasources used somewhere in this programgraph.  It is
-         *   then important that when this Program is copied, the
-         *   outside world has a way to get a reference to the
-         *   corresponding datasources in the new program.  We do this
-         *   by allowing it to map some datasources itself, and simply
-         *   provide us a list of its mappings.
-         */
-        ProgramGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
-
-        virtual int  getLineNumber() const;
-
-        virtual const std::string& getName() const;
-
-        /**
-         * Set the name of this program.
-         * Only valid before endProgram() is called.
-         */
-        void setName(const std::string& _name);
-
-        /**
-         * Set the line number of the current command node.
+         * Set the line number of the build command node.
          * @param ln The line number.
          */
         void setLineNumber( int ln );
 
         /**
-         * Set the program text.
-         */
-        void setText( const std::string& t);
-
-        std::string getText() const;
-
-        /**
-         * Returns the Graph of the program.
-         */
-        const Graph& getGraph() const;
-
-        /**
-         * Start a new function. Current is the start of the
+         * Start a new function. Build is the start of the
          * function.
          */
-        FunctionGraph* startFunction();
+        FunctionGraph* startFunction( const std::string& fname );
 
         /**
          * Function return is detected inside the function.
@@ -176,21 +121,21 @@ namespace ORO_Execution
         void endWhileBlock(int linenumber);
 
         /**
-         * Add a new command from the current CommandNode under a condition.
+         * Add a new command from the build CommandNode under a condition.
          *
-         * @return the 'new' current CommandNode.
+         * @return the 'new' build CommandNode.
          */
         CommandNode addCommand( ConditionInterface* cond,  CommandInterface* com );
 
         /**
-         * Add an edge from the current CommandNode to the given CommandNode
-         * without changing the current CommandNode.
+         * Add an edge from the build CommandNode to the given CommandNode
+         * without changing the build CommandNode.
          *
          */
         void addConditionEdge( ConditionInterface* cond, CommandNode vert );
 
         /**
-         * Add an edge between the given CommandNode and the current CommandNode.
+         * Add an edge between the given CommandNode and the build CommandNode.
          *
          */
         void closeConditionEdge( CommandNode vert, ConditionInterface* cond );
@@ -200,10 +145,10 @@ namespace ORO_Execution
          *
          * @return the previous CommandNode.
          */
-        CommandNode moveTo( CommandNode _current, CommandNode _next, int linenr );
+        CommandNode moveTo( CommandNode _build, CommandNode _next, int linenr );
 
         /**
-         * Sets a new Command on the current CommandNode.
+         * Sets a new Command on the build CommandNode.
          *
          */
         void setCommand( CommandInterface* comm );
@@ -240,29 +185,29 @@ namespace ORO_Execution
         void endProgram( CommandInterface* finalCommand = 0);
 
         /**
-         * Append a function to the current CommandNode.
+         * Append a function to the build CommandNode.
          *
-         * @param fn   The Function to append from the current CommandNode
+         * @param fn   The Function to append from the build CommandNode
          * @param cond The 'enter' condition
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn);
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<DataSourceBase*> fnargs);
 
         /**
-         * Put a function in the current CommandNode.
+         * Put a function in the build CommandNode.
          *
-         * @param fn   The Function to append from the current CommandNode
+         * @param fn   The Function to append from the build CommandNode
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode setFunction( FunctionGraph* fn);
+        CommandNode setFunction( FunctionGraph* fn, std::vector<DataSourceBase*> fnargs);
 
         /**
          * Proceed to the 'next' CommandNode.
          *
-         * @param line_nr The line number of the 'current' command.
-         * @return The new current CommandNode.
+         * @param line_nr The line number of the 'build' command.
+         * @return The new build CommandNode.
          */
         CommandNode proceedToNext( int line_nr = 0 );
 
@@ -271,8 +216,8 @@ namespace ORO_Execution
          * with a condition.
          *
          * @param cond The condition under which to proceed to the next node.
-         * @param line_nr The line number of the 'current' command.
-         * @return The new current CommandNode.
+         * @param line_nr The line number of the 'build' command.
+         * @return The new build CommandNode.
          */
         CommandNode proceedToNext( ConditionInterface* cond, int line_nr = 0 );
 
@@ -283,31 +228,37 @@ namespace ORO_Execution
 
         /**
          * Insert the given command at the front of this program,
-         * replacing the current root command, and having it pass to
-         * the current root command with a ConditionTrue.
+         * replacing the build root command, and having it pass to
+         * the build root command with a ConditionTrue.
          */
         void prependCommand( CommandInterface* command, int line_nr = 0 );
 
         /**
-         * Return the current CommandNode.
+         * Return the build CommandNode.
          */
-        CommandNode currentNode() const;
+        CommandNode buildNode() const;
 
         /**
-         * Return the number of edges of the current CommandNode.
+         * Return the number of edges of the build CommandNode.
          */
-        size_t currentEdges() const;
+        size_t buildEdges() const;
 
         /**
          * Return the next CommandNode.
          */
         CommandNode nextNode() const;
 
-    private:
         /**
-         * The graph containing all the program nodes.
+         * The node which will be built next.
          */
-        Graph program;
+        CommandNode build;
+
+        /**
+         * The node which will be built next.
+         */
+        CommandNode next;
+
+    private:
 
         /**
          * The graph currently working on.
@@ -315,51 +266,15 @@ namespace ORO_Execution
         Graph* graph;
 
         /**
-         * The node which is built now
-         */
-        CommandNode current;
-
-        /**
-         * The node which will be built next.
-         */
-        CommandNode next;
-
-        /**
-         * The node that was run before this one.
-         */
-        CommandNode previous;
-
-        /**
-         * The r00t of all evil
-         * (thus the start of the program).
-         */
-        CommandNode root;
-
-        /**
-         * The end of all evil
-         * (thus the end of the program).
-         */
-        CommandNode end;
-
-        /**
-         * The (unique) name of this program.
-         */
-        std::string myName;
-
-        /**
-         * Program text.
-         */
-        std::string _text;
-
-        /**
          * @brief A stack which keeps track of branch points.
          *
          * Each if statement pushes three nodes on the stack :
-         * 1st: next, 2nd: else, 3rd: current.
+         * 1st: next, 2nd: else, 3rd: build.
          * Each consequtive if statement places these three
          * and they are popped on endIfBlock and endElseBlock.
          */
         std::stack<CommandNode> branch_stack;
+
     };
 }
 

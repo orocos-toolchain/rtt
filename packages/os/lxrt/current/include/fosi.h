@@ -43,6 +43,7 @@ extern "C" {
 
 	// Orocos Implementation (i386 specific)
 #include "oro_atomic.h"
+#include "oro_bitops.h"
 
   // include custom redirect-like include
 #include <pkgconf/os_lxrt.h>

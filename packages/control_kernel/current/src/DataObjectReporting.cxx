@@ -31,5 +31,35 @@
 
 namespace ORO_ControlKernel
 {
-    ORO_CoreLib::NameServer<DataObjectReporting*> DataObjectReporting::nameserver;
+    ORO_CoreLib::NameServer<boost::shared_ptr<DataObjectReporting> > DataObjectReporting::nameserver;
+
+    ReportingClient::~ReportingClient() {}
+
+    DataObjectReporting::DataObjectReporting(const std::string& name)
+        : exporter( name ), reports( "Data","The Reported Data of this DataObject")
+    {
+        nameserver.registerObject( boost::shared_ptr<DataObjectReporting>(this), name );
+        exporter.value().add( &reports );
+    }
+
+    DataObjectReporting::~DataObjectReporting() {
+        // The nameserver should destroy if it holds the only reference...
+        //nameserver.unregisterName( this->getName()  );
+    }
+
+    void DataObjectReporting::addClient( ReportingClient* c)
+    {
+        clients.push_back(c);
+    }
+    void DataObjectReporting::removeClient( ReportingClient* c)
+    {
+        std::vector<ReportingClient*>::iterator it = std::find(clients.begin(), clients.end(), c);
+        if ( it != clients.end() )
+            clients.erase( it );
+    }
+
+    const std::string& DataObjectReporting::getName() const
+    {
+        return exporter.getName();
+    }
 }

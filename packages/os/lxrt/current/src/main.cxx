@@ -33,12 +33,24 @@
 
 #include <os/startstop.h>
 #include <os/main.h>
+#include <iostream>
+using namespace std;
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv)
 {
     __os_init(argc, argv);
 
-    int res = ORO_main(argc, argv);
+    int res;
+    try {
+        res = ORO_main(argc, argv);
+    }
+    catch( ... )
+        {
+            cout <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
+            cout << " in the ORO_main() function."<<endl;
+            cout << " You might have called a function which throws"<<endl;
+            cout << " without a try {} catch {} block."<< endl << endl;
+        }
 
     __os_exit();
 

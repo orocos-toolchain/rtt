@@ -1,0 +1,1262 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY task        "Task Infrastructure">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY procman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-program-processor.html'>Program Processor Manual</ulink>">
+<!ENTITY parseman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-program-parser.html'>Program Parser Manual</ulink>">
+<!ENTITY coreman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-corelib.html'>CoreLib Manual</ulink>">
+]
+>
+
+
+<article>
+  <articleinfo>
+    <title>
+      The Orocos Task Infrastructure Manual
+    </title>
+    <subtitle>Designing Real-Time Orocos Applications</subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2004</year>
+      <holder>Peter Soetens</holder>
+    </copyright>
+    
+    <abstract>
+      <para>
+	This document describes the &orocos; Task Infrastructure, which
+	allows to design Real-Time tasks which transparantly communicate
+	with each other.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.18.0</revnumber>
+	<date>19 Nov 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      This manual documents how multi-threaded tasks can be defined in &orocos;
+      such that they form a thread-safe robotics/machine control application.
+      The overall idea of the &task; and the mechanisms behind it are published in a 
+      <ulink url="http://www.orocos.org/pub/task-infrastructure04.pdf">6 page technical report</ulink>
+      which can be found on the Orocos website.  
+    </para>
+    <figure id="fig-task-peers">
+      <title>
+	Tasks Run in Threads
+      </title>
+      <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="TaskPeers.png"
+	    format="PNG"/>
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="TaskPeers.eps"
+	    format="EPS"/>
+	</imageobject>
+	<caption>
+	  <para>
+	    Tasks may run in the same (periodic) thread, in which
+	    case they may also share the same Processor.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
+    <para>
+      A task is a basic unit of functionality which executes one or more (realtime)
+      programs in a single thread. 
+      The program can vary from a mere C function over a realtime program script
+      to a realtime hierarchical state machine. The focus is completely on 
+      thread-safe time determinism. Meaning, that the system is free of priority-inversions,
+      and all operations are lock-free (also data sharing and other forms of communication
+      such as events and commands). This is done using the mechanisms of the &orocos;
+      Real-Time CoreLib which allows each task to run in its own thread or share
+      threads. Real-Time tasks can communicate with non Real-Time tasks (and vice versa)
+      transparantly. 
+    </para>
+    <para>
+      The Orocos Task Infrastructure enables :
+      <itemizedlist>
+	<listitem>
+	  <para>Lock free, thread-safe, inter-thread function calls.</para>
+	</listitem>
+	<listitem>
+	  <para>Communication between hard Real-Time and non Real-Time threads.</para>
+	</listitem>
+	<listitem>
+	  <para>	  Deterministic execution time during communication
+	  for the higher priority thread.</para>
+	</listitem>
+	<listitem>
+	  <para>	  Synchronous and asynchronous communication between threads.</para>
+	</listitem>
+	<listitem>
+	  <para>	  C++ class implementations for all the above.</para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      This document relates to other manuals as such :
+      <glosslist>
+	<glossentry>
+	  <glossterm>CoreLib</glossterm>
+	  <glossdef>
+	    <para> provides the Event infrastructure,
+	      Task-thread mapping, CommandInterface and lock-free queueing
+	      implementations.
+	    </para>
+	  </glossdef>
+	</glossentry>
+	<glossentry>
+	  <glossterm>Program Processor</glossterm>
+	  <glossdef>
+	    <para> provides a binary program-tree, state machines and command
+	      execution framework. In short, it can execute realtime programs
+	      which are composed of command objects.
+	    </para>
+	  </glossdef>
+	</glossentry>
+	<glossentry>
+	  <glossterm>Program Parser</glossterm>
+	  <glossdef>
+	    <para> provides a scripting language which is convertible to
+	    a binary form which can be accepted by the Program Processor.
+	      Also provides usefull templates to create realtime command objects
+	      with truely minimal effort.
+	    </para>
+	  </glossdef>
+	</glossentry>
+	<glossentry>
+	  <glossterm>Control Kernel</glossterm>
+	  <glossdef>
+	    <para> is an application which uses all of the above
+	      and provides an (although complex) example of how
+	      the &task; can be used in practice.
+	    </para>
+	  </glossdef>
+	</glossentry>
+      </glosslist>
+    </para>
+    <para>
+      You should read the Processor and Program Parser manuals
+      for more technical (C++) details.
+    </para>
+  </sect1>
+
+  <sect1 id="basic-task">
+    <title>Setting Up a Basic Task</title>
+    <para>
+      Tasks are rather simple entities in &orocos; and are
+      implemented by the <classname>TaskContext</classname> class,
+      which should not be confused with the CoreLib periodic Task
+      implementations.
+      It is useful speaking of a context because it defines
+      the context in which the task operates. 
+      It defines the interface of the task, its attributes,
+      its peer tasks and uses a 
+      <classname>Processor</classname> to handle its
+      programs and to accept commands from other tasks.
+    </para>
+    <para>
+      A <classname>TaskContext</classname> is constructed as :
+    </para>
+    <para>
+      <programlisting>
+  #include &lt;execution/Processor.hpp&gt;
+  #include &lt;execution/TaskContext.hpp&gt;
+
+  // we assume this is done in all the following code listings :
+  using namespace ORO_Execution;
+
+  Processor   a_processor, b_processor;
+  TaskContext a_task("ATask", &amp;a_processor);
+  TaskContext b_task("BTask", &amp;b_processor);
+
+  // task creates own (default) Processor :
+  TaskContext c_task("CTask");
+      </programlisting>
+    </para>
+    <para>
+      The first argument is the (unique) name of the task,
+      the second argument is its <classname>Processor</classname>, 
+      which is optional. If none is given, the Processor will
+      be constructed (and deleted) by the TaskContext itself.
+    </para>
+    <para>
+      A task's interface consists of : Commands,
+      Methods, DataSources and Attributes, which are all public.
+      We will refer to them as members.
+      The TaskContext exports the members (to other tasks)
+      by means of object factories.
+      Which members are exported is up to the application. Upon
+      construction, all factories are empty. A task factory hosts
+      object factories, that is, a TaskContext contains
+      objects, which have Commands, Methods and/or DataSources,
+      which all map to the C++ functions or variables of the task.
+    </para>
+    <figure id="fig-a-task-context">
+      <title>
+	Schematic Overview of a TaskContext
+      </title>
+      <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="ATaskContext.png"
+	    format="PNG"/>
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="ATaskContext.eps"
+	    format="EPS"/>
+	</imageobject>
+	<caption>
+	  <para>The Execution Flow is formed by Programs and
+	    State Machines sending commands to tasks. The Data Flow
+	    is the propagation of data from one task to another, where
+	    one producer can have multiple consumers.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
+    <para>
+      The object factories can be accessed as such :
+    </para>
+    <para>
+      <programlisting>
+  a_task.commandFactory.getObjectFactory("objname");
+
+  a_task.methodFactory.getObjectFactory("objname");
+  a_task.dataFactory.getObjectFactory("objname");
+
+  a_task.attributeRepository.getAttribute("objname");      </programlisting>
+    </para>
+    <para>
+    </para>
+<!--     <para> -->
+<!--       The objectfactories create <classname>CommandInterface</classname> -->
+<!--       objects which execute a function call on a C++ class. The arguments -->
+<!--       must be a vector of DataSources. A task's attribute is a DataSource, -->
+<!--       but they can also be created in program scripts, which we will -->
+<!--       demonstrate later on. -->
+<!--       <programlisting> -->
+<!--   std::vector&lt;DataSourceBase*&gt; args = ...; -->
+<!--   a_task.commandFactory.getObjectFactory("objname")->create("membername", args ); -->
+<!--       </programlisting> -->
+<!--     </para> -->
+    <sect2>
+      <title>The Method Factory</title>
+      <para>
+	The easiest way to access a TaskContext's interface
+	is through Methods. They resemble very much normal C
+	or C++ functions. They take arguments and return a value.
+	The return value can in return be used as an argument
+	for other Methods or stored in a variable. For
+	all details, we refer to the &orocos; Program Parser
+	Manual.
+      </para>
+      <para>
+	To add a method to the Method Factory, one can use
+	the <classname>TemplateMethodFactory</classname>,
+	to easily create method factories :</para>
+      <para>
+	<programlisting>
+  #include &lt;execution/TemplateFactories.hpp&gt;
+
+  class ClassX
+  {
+    public:
+    void reset() { ... }
+    string getName() { ... }
+    double changeParameter(double f) { ... }
+    // ...
+  };
+
+  ClassX xobj;
+
+  TemplateMethodFactory&lt;ClassX&gt;* fact =
+    newMethodFactory( &amp;xobj );
+  fact-&gt;add( &quot;reset&quot;,
+             method( &amp;ClassX::reset, &quot;Reset the system.&quot; ) );
+  fact-&gt;add( &quot;name&quot;,
+             method( &amp;ClassX::getName,
+                     &quot;Read out the name of the system.&quot; ) );
+  fact-&gt;add( &quot;changeP&quot;,
+             method( &amp;ClassX::changeParameter,
+                     &quot;Change a parameter, return the old value.&quot;,
+	             &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
+
+  a_task.methodFactory.registerObject("objname", fact);	</programlisting>
+      </para>
+      <para>
+	The first statement 
+	<programlisting>
+  TemplateMethodFactory&lt;ClassX&gt;* fact =
+    newMethodFactory( &amp;xobj );
+	</programlisting>
+	constructs a new TemplateMethodFactory, which will create methods
+	for the <emphasis>object</emphasis> 'xobj'. This means that each
+	object must have its own factory.
+	After this factory is constructed, we add
+	methods to it using the add() function.  The add() function requires a
+	name for the added method, and information on the method to be
+	associated with that name.  The latter is generated using the
+	function method().
+      </para>
+      <programlisting>
+  fact-&gt;add( &quot;reset&quot;,
+             method( &amp;ClassX::reset, &quot;Reset the system.&quot; ) );</programlisting>
+      <para>
+	The <function>method()</function> function requires a pointer to a
+	class function having a number of
+	arguments, and returning the appropriate result.  The function's
+	signature will automatically define the signature in the
+	exported API.  After the class function pointer follows a C
+	string containing a description of the function, followed by a
+	name and description for each of the arguments.
+      </para>
+      <para>
+	As one can see, any method of any class can be added to a task's
+	method interface. All methods are grouped in an object
+	namespace ( here &quot;objname&quot; ). To invoke this
+	method from a script, one can then write :</para>
+      <para>
+	<programlisting>
+  ATask.objname.changeP( 0.1 )	</programlisting></para>
+      <para>
+	If the method should
+	belong to the task's interface without an object, the
+	&quot;this&quot; object name may be given instead
+	of &quot;objname&quot;. Applied to the
+	above factory, this would result in :</para>
+      <para>
+	<programlisting>
+  ATask.changeP( 0.1 )  </programlisting></para>
+      <para>
+      </para>
+      <para>
+	Any number of methods and objects can be added to a
+	TaskContext. Also the methods of the TaskContext
+	itself (or its derived classes) may be added. The
+	added methods keep their polymorphism, meaning that
+	<emphasis>
+	  you may add pure virtual methods to the factory.
+	</emphasis>
+      </para>
+    </sect2>
+    <sect2>
+      <title>The Attribute Repository</title>
+      <para>
+	A TaskContext may have any number of attributes,
+	of any type. They can be used by programs in the
+	TaskContext to get (and set) configuration data.
+      </para>
+      <para>
+	An attribute can be added in the task's
+	<classname>AttributeRepository</classname> like this :</para>
+      <para>
+	<programlisting>
+  a_task.attributeRepository.addValue( "max", 
+                                      new TaskVariable&lt;int&gt; (5));	</programlisting></para>
+      <para>
+	Which inserts an attribute of type int, name 'max' and initial
+	value of 5 to the task's repository.
+	When a duplicate name entry is added (even of a different type),
+	the old one is removed. To get a value from the repository,
+	you can use :</para>
+      <para>
+	<programlisting>
+  TaskAttributeBase* attr = a_task.attributeRepository.getValue( "max" );</programlisting></para>
+      <para>
+	But it is more usefull to access attributes from a program
+	script, which is explained lateron.
+      </para>
+      <para>
+	You can also add constants, which can then no longer be
+	changed :</para>
+      <para>
+	<programlisting>
+  a_task.attributeRepository.addConstant( "pi", 3.14);	</programlisting></para>
+      <para>
+	You should again be careful for duplicate entries.
+      </para>
+      <para>
+	A program script can access the above attributes as in</para>
+      <para>
+	<programlisting>
+  var double pi2 = ATask.pi * 2.
+  var int    myMax = 3
+  set ATask.max = myMax	</programlisting></para>
+      <para>
+	When trying to assign a value to a constant, the script parser
+	will throw an exception, thus before the program is run.
+	You must always specify the task's name when accessing a
+	task's attribute, this is different from methods and commands,
+	which may omit the task's name if the program is running within
+	the task.
+      </para>
+    </sect2>
+    <sect2>
+      <title>The Command Factory</title>
+      <para>
+	The next factory we discuss is the Command Factory,
+	which produces C++ <classname>CommandInterface</classname>
+	objects which encapsulate a command call to a TaskContext's
+	interface. The philosophy behind commands is explained
+	in the CoreLib, which defines the CommandInterface and
+	in the Program Parser and Processor manuals, which 
+	provide easy to use implementations of this interface.
+      </para>
+      <para>
+	To add a command to the Command Factory, one can use
+	the <classname>TemplateCommandFactory</classname>,
+	to easily create command factories :</para>
+      <para>
+	<programlisting>
+  #include &lt;execution/TemplateFactories.hpp&gt;
+
+  class ClassX
+  {
+    public:
+    bool startCycle() { ... }
+    bool cycleDone() { ... }
+
+    bool cleanupMess(double f) { ... }
+    bool isMessCleaned() { ... }
+    // ...
+  };
+
+  Class_X x_obj;
+  TemplateCommandFactory&lt;Class_X&gt;* fact =
+    newCommandFactory( &amp;x_obj );
+  fact-&gt;add( &quot;startCycle&quot;, 
+            command( &amp;Class_X::startCycle,
+                     &amp;Class_X::cycleDone,
+                     &quot;Start a new cycle.&quot; ) );
+  fact-&gt;add( &quot;cleanup&quot;,
+            command( &amp;Class_X::cleanupMess,
+                     &amp;Class_X::isMessCleaned,
+                     &quot;Start cleanup operation.&quot;,
+	             &quot;factor&quot;, &quot;A factor denoting the thoroughness.&quot; ) );
+
+  a_task.commandFactory.registerObject("objname", fact);</programlisting></para>
+      <para>
+	Commands differ from Methods in that they take
+	an extra function which is called the Completion
+	Condition. It is a function which returns true
+	when the command is done. The command itself
+	also returns a boolean which indicates if it 
+	was accepted or not. Reasons to be rejected
+	can be faulty arguments or that the system
+	is not ready to accept a new command.
+      </para>
+      <programlisting>
+  fact-&gt;add( &quot;startCycle&quot;, 
+            command( &amp;Class_X::startCycle,
+                     &amp;Class_X::cycleDone,
+                     &quot;Start a new cycle.&quot; ) );</programlisting>
+      <para>
+	Thus the <function>command()</function> function
+	requires two member pointers instead of
+	one.  The first one is a function that does the actual work
+	that the command will invoke, and the second is a bool
+	<emphasis>const</emphasis> function having :</para>
+      <itemizedlist>
+	<listitem>
+	  <para>the same arguments as the first one,</para>
+	</listitem>
+	<listitem>
+	  <para>OR only the first argument as the first one,</para>
+	</listitem>
+	<listitem>
+	  <para>OR no arguments at all.</para>
+	</listitem>
+      </itemizedlist>
+      <para>
+	The second function (the completion condition)
+	will be called to see whether the
+	associated command is finished.  The rest of the arguments to
+	the command function remain the same.  It also requires a
+	constant C string describing the function, and two constant C
+	strings giving a description and name for every argument.
+      </para>
+      <para>
+	The above lets you write in a program script :</para>
+      <para>
+	<programlisting>
+  do objname.startCycle()
+  do objname.cleanupMess( 0.1 )	</programlisting></para>
+      <para>
+	when the program is loaded in a_task.
+      </para>
+      <para>
+	Commands returning false will propagate that error
+	to the program or function calling that command, which
+	will cause the program to enter an error state, ie
+	it stops its execution.
+      </para>
+    </sect2>
+    <sect2>
+      <title>The DataSource Factory</title>
+      <para>
+	DataSources are read-only objects which, when evaluated,
+	return some data. The source of the data can be anything,
+	as long as it takes finite time to get it. DataSources
+	can be combined to new DataSources using algorithmic
+	expressions. The only way they differ from Methods, is
+	that the corresponding C++ function must be const.
+      </para>
+      <para>
+	To add a method to the DataSource Factory, one can use
+	the <classname>TemplateDataSourceFactory</classname>,
+	to easily create DataSource factories :</para>
+      <para>
+	<programlisting>
+  #include &lt;execution/TemplateFactories.hpp&gt;
+
+  class ClassX
+  {
+    public:
+    int _number;
+    string getName() const { ... }
+    double power(double a, double b) const {}
+    // ...
+  };
+
+  ClassX xobj;
+
+  TemplateDataSourceFactory&lt;ClassX&gt;* fact =
+    newDataSourceFactory( &amp;xobj );
+  fact-&gt;add( &quot;number&quot;,
+            data( &amp;ClassX::_number,
+                  &quot;the number.&quot; ) );
+  fact-&gt;add( &quot;name&quot;,
+            data( &amp;ClassX::getName,
+                  &quot;Read out the name.&quot; ) );
+  fact-&gt;add( &quot;power&quot;,
+            data( &amp;ClassX::power,
+                  &quot;return a to the power of b&quot;,
+	          &quot;a&quot;, &quot;the base&quot;, 
+	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
+
+  a_task.datasourceFactory.registerObject("objname", fact);	</programlisting></para>
+      <para>
+	which is dus nearly identical to using a method.
+	Notice the usage of the _number class member. The
+	factory also accepts class member variables instead
+	of const functions, but likewise, they are also
+	read-only.
+	The braces are optional when no arguments must be
+	given :</para>
+      <para>
+	<programlisting>
+  var int nb = objname.number
+  var double result = objname.power( 5., 6.)</programlisting></para>
+      <para>
+	Again, the &quot;this&quot; object can be used if the 
+	DataSource should belong to the task's interface.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Creating Commands Without the Factories</title>
+      <para>
+	It is possible to create a command without the
+	Factory and DataSources. This is the prefered way
+	if you only intend to use C++ commands and no
+	Orocos Program Scripts, which is possible on some
+	embedded systems.
+      </para>
+      <para>
+	The key is to use the <classname>CommandFunctor</classname>,
+	which is explained in detail in the &procman;. Commands
+	created this way can be used analogously as in the next
+	sections.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1 id="connect-tasks">
+    <title>Connecting Tasks</title>
+    <para>
+      A Real-Time system contains multiple concurrent
+      tasks which must communicate to each other.
+      TaskContext objects can be connected to each other
+      so that they can communicate Real-Time data or commands.
+      We call them &quot;Peers&quot; as there is no fixed
+      hierarchy. A connection from one TaskContext to its
+      Peer can be uni- or bi-directional. In a uni-directional
+      connection, only one peer can send commands to the other, while
+      in a bi-directional connection, both can send each other
+      commands.
+    </para>
+    <para>
+      Peers are connected as such (<methodname>hasPeer</methodname> takes a string 
+      argument ):</para>
+    <para>
+      <programlisting>
+  // bi-directional :
+  a_task.connectPeers( &amp;b_task );
+  assert( a_task.hasPeer( &amp;b_task.getName() ) 
+          &amp;&amp; b_task.hasPeer( &amp;a_task.getName() );
+  // uni-directional :
+  a_task.addPeer( &amp;c_task );
+  assert( a_task.hasPeer( &amp;c_task.getName() ) 
+          &amp;&amp; ! c_task.hasPeer( &amp;a_task.getName() );</programlisting></para>
+    <para>
+      This allows to build strictly hierarchical topological
+      networks as well as complete flat or circular networks or any
+      kind of mixed network.
+    </para>
+    <para>
+      From within a program script, peers can be accessed by
+      merely prefixing their name to the member you want to
+      access. A program within &quot;ATask&quot; could
+      access its peers as such :</para>
+    <para>
+      <programlisting>
+  do BTask.object.command()
+  var int result = CTask.method() </programlisting></para>
+    <para>
+      The peer connection graph can be traversed at arbitrary
+      depth. Thus you can access your peer's peers.
+    </para>
+  </sect1>
+  <sect1 id="run-tasks">
+    <title>Running Tasks</title>
+    <para>
+      A TaskContext receives its commands from its Processor.
+      The Processor will check periodically for new commands
+      in it's queue
+      and execute programs which are running in the task.
+      Thus to start the task, one needs to start the Processor.
+      As long as it is not started, it will accept no commands
+      and run no programs.
+    </para>
+    <sect2>
+      <title>Starting Periodic Task Execution</title>
+      <para>
+	To run a Processor, you need to use one of the Periodic
+	Task classes from the CoreLib. ( See the &coreman;
+	for more documentation. ) Continued from
+	<xref linkend="basic-task"/> :</para>
+      <para>
+	<programlisting>
+  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
+
+  using namespace ORO_CoreLib;
+
+  // ... start the processor of a_task :
+  TaskNonPreemptible periodicTask(0.001, a_processor);
+  periodicTask.start(); </programlisting></para>
+      <para>
+	Which will start the processor of ATask with a timer frequency
+	of 1kHz. This is the frequency at which state machines are
+	evaluated, program steps taken and commands are accepted
+	and executed. When the processor is stopped again, all programs
+	are stopped, state machines are brought into the final state and
+	no more commands are accepted.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Task Program Scripts</title>
+      <para>
+	Commands are a Real-Time means of communication between tasks.
+	They are asynchronous method calls from one task to another,
+	without caring for multi-threaded locking issues.
+	A command can be rejected if the other task is not running, which 
+	can be detected by the sending task.
+      </para>
+      <para>
+	Commands can 
+	be grouped into Orocos Program Scripts (ops), which allow
+	programs to be loaded at runtime into a task. The
+	program script is parsed to a command object tree,
+	which can then be executed by the Processor of a task.
+      </para>
+      <sect3>
+	<title>Functions</title>
+	<para>
+	  A function is formed by a group of commands and
+	  methods, which can be executed by a task.
+	  The &parseman; defines functions as :</para>
+	<para>
+	  <programlisting>
+  export function myFoo( int arg1, double arg2 )
+  {
+    // Group commands and methods
+    var ...
+    do ...
+
+  }</programlisting></para>
+	<para>
+	  where the export keyword makes the function
+	  available as a task's command ( which will fail
+	  if one of its contained commands fail ).
+	  <programlisting>  do ATask.myFun( 1, 2)</programlisting>
+	</para>
+	<para>
+	  Functions must be parsed by the <classname>Parser</classname>,
+	  before they can be executed by the Processor. The Processor
+	executes the Function until it finishes or it goes into error.
+	In both cases, the Function is removed from the Processor's queue
+	and can then safely be deleted.</para>
+	<para>
+	  <programlisting>
+  #include &lt;execution/Parser.hpp&gt;
+
+  TaskContext* a_task = ...
+  Parser parser;
+  std::istream input("FunctionFoo.ops");
+
+  std::vector&lt;FunctionGraph*&gt; result =
+      parser.parseFunction( istream, a_task );
+
+  // if needed, also initialise the arguments of 
+  // the FunctionGraph
+  a_task-&gt;getProcessor()-&gt;executeFunction( result[0] );
+
+  while( !result[0]-&gt;isFinished() &amp;&amp; !result[0]-&gt;inError() )
+     sleep(1);
+ 
+  delete result[0];  </programlisting></para>
+	<para>
+	  Take a look at the <classname>FunctionGraph</classname>
+	  documentation if you want details about its interface.
+	  A quick way to use functions, is to call them
+	  in programs, which take no arguments and allow
+	  better control by the Processor.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Programs</title>
+	<para>
+	  Programs are special functions in that they
+	  can be finely controlled by (and are owned by)
+	  the Processor.
+	  A program can be paused, it's variables inspected
+	  and reset while it is loaded in the Processor.
+	  Also, the Processor will delete the program upon
+	  request.
+	  A program script calling the previous function
+	  would look like :</para>
+	<para>
+	  <programlisting>
+  program myBar
+  {
+    var int i = 1
+    var int j = 2
+    do myFun(i,j)
+  }</programlisting></para>
+	<para>
+	  Orocos Programs are loaded a bit different into the
+	  Processor :</para>
+	<para>
+	  <programlisting>
+  #include &lt;execution/Parser.hpp&gt;
+
+  TaskContext* a_task = ...
+  Parser parser;
+  std::istream input("ProgramBar.ops");
+
+  std::vector&lt;ProgramInterface*&gt; result =
+      parser.parseProgram( input, a_task );
+
+  // load a program
+  a_task->getProcessor()->loadProgram( result[0] );
+  // start a program
+  a_task->getProcessor()->startProgram( result[0] );	</programlisting></para>
+	<para>
+	  Take a look at the &procman; and the Processor
+	  class reference for more program related functions.
+	</para>
+      </sect3>
+      <sect3>
+	<title>State Contexts</title>
+	<para>
+	  Hierarchical state machines are modelled in Orocos
+	  with the <classname>StateContext</classname> class.
+	  They are like programs in that they can call a
+	  peer task's members, but the calls are grouped
+	  in a state and only executed when the state machine
+	  is in that state. A detailed introduction can be found
+	  in the &parseman;. This section limits to showing
+	  how an Orocos State Description (osd) script can be loaded in a 
+	  Task Context.
+	</para>
+	<para>
+	  <programlisting>
+  #include &lt;execution/Parser.hpp&gt;
+
+  TaskContext* a_task = ...
+  Parser parser;
+  std::istream input("StateContextBar.osd");
+
+  std::vector&lt;StateContext*&gt; result =
+      parser.parseStateContext( input, a_task );
+
+  // load a state context
+  a_task->getProcessor()->loadStateContext( result[0] );
+  // enter the initial state
+  a_task->getProcessor()->activateStateContext( result[0] );
+  // start state-transition evaluation
+  a_task->getProcessor()->startStateContext( result[0] );</programlisting></para>
+	<para>
+	  Again, take a look at the &procman; and the Processor
+	  class reference for more state context related functions.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Further Reading</title>
+	<para>
+	  Before you go any further, be sure to read the &parseman;
+	  such that you get a grip of the full power of Real-Time
+	  Orocos scripts. The next section explains a more low-level
+	  usage of commands, which may not be usefull to all users.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Adding Events</title>
+      <para>Events are explained in detail in the &coreman;.
+	To add Real-Time events to your task, you can simply 
+	instantiate it with a given name :
+      </para>
+      <programlisting>
+  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;corelib/Event.hpp&gt;
+
+  class MyTask : public TaskContext
+  {
+     ORO_CoreLib::Event&lt; void( int ) &gt; myEvent;
+     int data;
+  public:
+     MyTask()
+	: TaskContext("myTask"),
+	  myEvent("theEvent"), data(0)
+     {}
+
+     // ...
+     void foo() 
+     {
+        myEvent.fire( data );
+     }
+  }; </programlisting>
+      <para>
+	Another Task can then subscribe a handler to that Event,
+	and should provide its Processor's task as asynchronous
+	completer using <methodname>getTask()</methodname> :
+      </para>
+      <programlisting>
+  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;corelib/Event.hpp&gt;
+  #include &lt;boost/bind.hpp&gt;
+
+  class MyOtherTask : public TaskContext
+  {
+     ORO_CoreLib::TaskPreemptible ptask;
+     int inputdata;
+  public:
+     MyOtherTask()
+	: TaskContext("myTask"),
+          ptask( 0.01, this->getProcessor() ),
+	  inputdata(0)
+     {
+     }
+
+     void setUpEvent()
+     {
+        assert( proc->getTask() != 0 );
+
+	// connect bar with 'theEvent'
+        ORO_CoreLib::Event&lt; void (int) &gt;::nameserver.getObject("theEvent")
+           ->connect( boost::bind( &amp;MyOtherTask::bar, this), 
+                      proc->getTask() );
+     }
+	
+     // The event handler :
+     void bar( int in ) 
+     {
+	this-&gt;inputdata = in;
+     }
+  }; </programlisting>
+      <para>
+	Anytime "theEvent" is fired, bar() will be called asynchronously
+	in the Task's thread, guaranteeing thread-safe data exchange,
+	thus not requiring any mutex locks.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Applying the Task Infrastructure to Your Application</title>
+    <para>
+      In addition to the above methods of setting up tasks, this section
+      gives some common uses for integrating your existing application
+      framework in Orocos Tasks.
+    </para>
+    <sect2>
+      <title>Polymorphism : Task Interfaces</title>
+      <para>
+	Most projects have define their own task interfaces in C++.
+	Assume you have a class with the following interface :
+      </para>
+      <programlisting>
+  class DeviceInterface
+  {
+  public:
+    /**
+     * Set/Get a parameter. Returns false if parameter is read-only.
+     */
+    virtual bool setParameter(int parnr, double value) = 0;
+    virtual double getParameter(int parnr) const = 0;
+
+    /**
+     * Get the newest data.
+     * Return false on error.
+     */
+    virtual bool updateData() = 0;
+    virtual bool updated() const = 0;
+
+    /**
+     * Get Errors if any.
+     */
+    virtual int getError() const = 0;
+  };
+</programlisting>
+      <para>
+	Now suppose you want to do make this interface available,
+	such that program scripts of other tasks can access this 
+	interface. Because you have many devices, you surely want
+	all of them to be accessed transparantly from a supervising
+	task. Luckily for you, C++ polymorphism can be transparantly
+	adopted in Orocos TaskContexts. This is how it goes.
+      </para>
+      <sect3>
+	<title>Step 1 : Export the interface</title>
+	<para>We construct a TaskContext, which exports your
+	C++ interface to a task's interface.
+	</para>
+	<programlisting>
+  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;execution/TemplateFactories.hpp&gt;
+  #include "DeviceInterface.hpp"
+
+  class TaskDeviceInterface
+    : public DeviceInterface,
+      public TaskContext
+  {
+  public:
+      TaskDeviceInterface(const std::string&amp; name)
+        : TaskContext( name )
+      {
+         this->setup();
+      }
+
+      void setup() 
+      {
+         // Add Methods :
+         TemplateMethodFactory&lt;DeviceInterface&gt;* mfact =
+            newMethodFactory( this );
+         mfact-&gt;add(&quot;setParameter&quot;,
+                    method(&amp;DeviceInterface::setParameter,
+	                   &quot;Set a device parameter.&quot;,
+	                   &quot;Parameter&quot;, &quot;The number of the parameter.&quot;,
+	                   &quot;New Value&quot;, &quot;The new value for the parameter.&quot;)); 
+         this->methodFactory.registerObject("this", mfact);
+
+         // Add Data Sources :
+         TemplateDataSourceFactory&lt;DeviceInterface&gt;* dfact =
+            newDataSourceFactory( this );
+         dfact-&gt;add( &quot;getParameter&quot;,
+                     data(&amp;DeviceInterface::getParameter,
+	                  &quot;Get a device parameter.&quot;,
+                          &quot;Parameter&quot;, &quot;The number of the parameter.&quot;));
+         dfact-&gt;add(&quot;getError&quot;,
+                    data(&amp;DeviceInterface::getError,
+	                 &quot;Get device error status.&quot;));
+         this->datasourceFactory.registerObject("this", dfact);
+
+         // Add Commands :
+         TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
+            newCommandFactory( this );
+         cfact-&gt;add( &quot;updateData&quot;,
+                        command( &amp;DeviceInterface::updateData,
+                                 &amp;DeviceInterface::updated,
+                                 &quot;Command data acquisition.&quot; ) );
+         this->commandFactory.registerObject("this", cfact);
+      }
+  };</programlisting>
+	<para>
+	  The above listing just combines all factories which were introduced
+	  in the previous sections. </para>
+      </sect3>
+      <sect3>
+	<title>Step 2 : Inherit from the new interface</title>
+	<para>Your DeviceInterface implementations now
+	  only need to inherit from <classname>TaskDeviceInterface</classname>
+	  to instantiate a Device TaskContext :
+	</para>
+	<programlisting>
+  #include "TaskDeviceInterface.hpp"
+
+  class MyDevice_1 
+    : public TaskDeviceInterface
+  {
+  public:
+    MyDevice_1()
+      : TaskDeviceInterface("mydevice")
+    {}
+
+    bool setParameter(int parnr, double value) {
+      // ...
+    }
+    double getParameter(int parnr) const {      // ...
+    }
+    // etc.
+  };
+
+  // now add it to the supervising task :
+  MyDevice_1 mydev;
+  supervisor.addPeer( &amp;mydev );
+	</programlisting>
+	<para>
+	  From now on, the "supervisor" task will be able to access
+	  "mydevice". If the implementation changes, the same interface
+	  can be reused whithout changing the programs in the supervisor.
+	</para>
+	<para>
+	  A big warning needs to be issued though : if you change a
+	  peer at runtime (after parsing programs),
+	  you need to reload all the programs, functions,
+	  state contexts which use that peer so that they reference
+	  the new peer and its C++ implementation.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Step 3 : Use the task's interface</title>
+	<para>To make the example complete, here is an example
+	script which could run in the supervisor task :
+	</para>
+	<programlisting>
+  program ControlDevice
+  {
+     const int par1 = 0
+     const int par2 = 1
+     do mydevice.setParameter(par1, supervisor.par1 )
+     do mydevice.setParameter(par2, supervisor.par2 )
+
+     while ( mydevice.getError() == 0 ) 
+     {
+	if ( this.updateDevice("mydevice") == true )
+           do mydevice.updateData() until {
+	        if done || ( mydevice.getError() != 0 ) then
+	           continue
+	   }
+     }
+     do this.handleError("mydevice", mydevice.getError() )
+  }</programlisting>
+	<para>
+	  When the supervisor starts the program "ControlDevice",
+	  it initialises some parameters from its own attributes.
+	  Next, the program goes into a loop and sends updateData commands
+	  to the device as long as underlying supervisor (ie "this") logic requests
+	  an update and no error is reported. This code guarantees that
+	  no two updateData commands will intervene each other since the
+	  program waits for the commands completion or error.
+	  When the device returns
+	  an error, the supervisor can then handle the error of the
+	  device and restart the program if needed.
+	</para>
+	<para>
+	  The advantages of this program over classical C/C++ functions are :
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>If any error occurs (ie a command or method returns false),
+	    the program stops and other programs or state contexts can
+	    take apropriate action.</para>
+	  </listitem>
+	  <listitem>
+	    <para>The  "<function>mydevice.updateData()</function>" call waits
+	    for completion of the remote command, but can be given other
+	    completion or error conditions to watch for.</para>
+	  </listitem>
+	  <listitem>
+	    <para>While the program waits for <function>updateData()</function>
+	      to complete, it does not block other programs, etc within
+	      the same TaskContext and thread.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      There is no need for additional synchronisation primitives
+	      between the supervisor and the device since the commands
+	      are queued and executed in the thread of the device, which
+	      leads to :
+	    </para>
+	    <itemizedlist>
+	      <listitem>
+		<para>The command is executed at the priority of the device's
+		  thread, and not the supervisor's priority.</para>
+	      </listitem>
+	      <listitem>
+		<para>The command can never corrupt data of the device's thread,
+		  since it is <emphasis>serialised</emphasis>(executed after)
+		  with the programs running in that thread.
+		</para>
+	      </listitem>
+	    </itemizedlist>
+	  </listitem>
+	</itemizedlist>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Using C++ Commands</title>
+    <para>
+      Besides using scripts, you can directly build C++ commands, although
+      it requires more &quot;red tape&quot;.
+    </para>
+    <sect2>
+      <title>Sending a Task a Command</title>
+      <para>
+	To request a command from one task to another task, the command must
+	be fetched from the factories and next passed to the
+	TaskContext which has two methods to accept commands.
+	In a C++ program, this would be : </para>
+      <para>
+	<programlisting>
+  TaskContext* peer = this->getPeer("ATask");
+
+  // Create the command argument list :
+  std::vector&lt;DataSourceBase*&gt; args;
+  args.push_back( new DataSource&lt;double&gt;(0.1) );
+
+  // Create the command and condition :
+  ComCon comcon =
+     peer->commandFactory.getObjectFactory("objname")->
+	     create("cleanupMess", args );
+
+  // Execute the command :
+  if ( peer->executeCommand( comcon.first ) ==  false ) {
+       // Error !
+  }
+
+  // wait until done :
+  while ( comcon.second->evaluate() == false )
+     sleep(1);
+  // command done, we can now delete it or keep it.	</programlisting></para>
+      <para>
+	The factory can throw exceptions if the number of arguments,
+	the type of arguments or the command names are unknown.
+	It returns a <classname>ComCon</classname> struct, where the
+	<varname>first</varname> member contains a pointer to the
+	CommandInterface and the <varname>second</varname> member
+	contains a pointer to the ConditionInterface ( the Completion
+	Condition ).
+	<methodname>executeCommand</methodname> will always execute
+	the command, no matter if the processor is running or not.
+	If it is not running, the command is directly executed and
+	the return value of the command is returned (true or false).
+	If the processor is running, the command is queued and you
+	have no direct way to know what the return value is ( No panic, 
+	a solution is presented lateron !)
+	The alternative is <methodname>queueCommand</methodname>,
+	which will only queue if the Processor is running :</para>
+      <para>
+	<programlisting>
+  // ... see previous listing
+  int qnb = peer->queueCommand( comcon.first );
+  if ( qnb == 0 ) {
+	// Error, not accepted !
+  }
+  while ( !peer->getProcessor()->isProcessed( qnb ) )
+        sleep(1); // wait until the command is processed
+
+  while ( comcon.second->evaluate() == false )
+        sleep(1); // wait until the command is done
+  // command done, we can now delete it or keep it.	</programlisting></para>
+      <para>
+	Again, you only know if it got in the queue, but not
+	if it was accepted by the task itself, meaning, if the
+	command returned true. 
+      </para>
+    </sect2>
+    <sect2>
+      <title>Advanced Command Queueing</title>
+      <para>
+	The previous section showed how a command can be given to
+	a task, but the return value of the Command was lost.
+	In some cases, this does not matter, but when the
+	program logic needs to know the result, two options
+	are possible. One can write a program script, which
+	check command return values (and go into error if
+	the command fails) or wrap the command in a TryCommand.
+	The next sections will discuss the first and easiest
+	option. This sections discusses the second and thoughest
+	option. If you intend to use mainly scripts (or get
+	really confused), please skip this section.
+      </para>
+      <para>
+	Assume you have a command,condition pair as above :</para>
+      <para>
+	<programlisting>
+  ComCon comcon = ...;	</programlisting></para>
+      <para>
+	Before queueing, you can wrap both command and condition
+	as such :</para>
+      <para>
+	<programlisting>
+  #include &lt;execution/TryCommand.hpp&gt;
+  // ...
+  CommandInterface* trycommand
+     = new TryCommand( comcon.first );
+
+  DataSource&lt;bool&gt;* executed
+     = trycommand.executed();
+  DataSource&lt;bool&gt;* accepted 
+     = trycommand.result();
+
+  peer->queueCommand( trycommand );
+  
+  while ( executed->get() == false )
+     sleep(1); // wait for its execution
+  if ( accepted->get() == false ) {
+     // Error, Command returned false !
+  }
+  while ( comcon.second->evaluate() == false )
+     sleep(1); // wait for its completion	</programlisting></para>
+      <para>
+	The DataSources are used by the TryCommand to
+	store the result into. We use the get() function
+	to inspect the results.
+      </para>
+    </sect2>
+  </sect1>
+</article>

@@ -36,7 +36,8 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/Factories.hpp"
+#include "execution/TemplateFactories.hpp"
+#include <control_kernel/ExecutionExtension.hpp>
 #endif
 
 #include <map>
@@ -45,7 +46,6 @@
 #include <boost/tuple/tuple.hpp>
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
-#include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 
 #ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
@@ -120,10 +120,18 @@ namespace ORO_ControlKernel
      */
     class GenericSensor
         : public Sensor< Writes<GenericInput>,
-                                   MakeAspect<KernelBaseFunction, ExecutionExtension>::Result>
+                                   MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                              , ExecutionExtension
+#endif
+                                              >::Result>
     {
         typedef Sensor< Writes<GenericInput>,
-                        MakeAspect<KernelBaseFunction, ExecutionExtension>::Result> Base;
+                        MakeAspect<KernelBaseFunction
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                   , ExecutionExtension
+#endif
+                                   >::Result> Base;
     public:
         typedef GenericInput InputDataObject;
             

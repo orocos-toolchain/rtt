@@ -28,10 +28,8 @@
 #ifndef STATE_DESCRIPTION_HPP
 #define STATE_DESCRIPTION_HPP
 
-#include "VertexNode.hpp"
-#include "EdgeCondition.hpp"
 #include "corelib/StateInterface.hpp"
-#include "execution/ProgramGraph.hpp"
+#include "execution/FunctionGraph.hpp"
 
 namespace ORO_Execution
 {
@@ -56,9 +54,10 @@ namespace ORO_Execution
     class StateDescription
         : public StateInterface
     {
-        ProgramGraph* mentry;
-        ProgramGraph* mexit;
-        ProgramGraph* mhandle;
+        FunctionGraph* mentry;
+        FunctionGraph* mexit;
+        FunctionGraph* mhandle;
+        CommandInterface* initc;
         bool inited;
         std::string name;
     public:
@@ -67,7 +66,8 @@ namespace ORO_Execution
          * The StateGraph owning the nodes is needed for processing each state.
          */
         StateDescription(const std::string& _name )
-            : mentry(0), mexit(0), mhandle(0), inited(false), name(_name)
+            : mentry(0), mexit(0), mhandle(0),
+              initc(0), inited(false), name(_name)
         {
         }
 
@@ -101,29 +101,29 @@ namespace ORO_Execution
          */
         StateDescription* postponeState();
 
-        ProgramGraph* getEntryProgram() {
+        FunctionGraph* getEntryProgram() {
             return mentry;
         }
 
-        ProgramGraph* getHandleProgram() {
+        FunctionGraph* getHandleProgram() {
             return mhandle;
         }
 
-        ProgramGraph* getExitProgram() {
+        FunctionGraph* getExitProgram() {
             return mexit;
         }
 
-        void setEntryProgram( ProgramGraph* entry ) {
+        void setEntryProgram( FunctionGraph* entry ) {
             delete mentry;
             mentry = entry;
         }
 
-        void setHandleProgram( ProgramGraph* handle ) {
+        void setHandleProgram( FunctionGraph* handle ) {
             delete mhandle;
             mhandle = handle;
         }
 
-        void setExitProgram( ProgramGraph* exit ) {
+        void setExitProgram( FunctionGraph* exit ) {
             delete mexit;
             mexit = exit;
         }
@@ -138,6 +138,15 @@ namespace ORO_Execution
         }
 
         StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+
+        /**
+         * This was added for extra (non-user visible) initialisation
+         * before the state is entered.
+         */
+        void setInitCommand( CommandInterface* c)
+        {
+            initc = c;
+        }
     };
 };
 

@@ -66,7 +66,7 @@ namespace ORO_ControlKernel
         virtual bool enableAspect( PropertyExtension* ext);
 
         virtual void disableAspect();
-
+    public:
         /**
          * Destructor.
          */
@@ -77,16 +77,13 @@ namespace ORO_ControlKernel
         /**
          * Update the Component's properties with a bag.
          */
-        virtual bool updateProperties( const PropertyBag& bag)
-        {
-            return true;
-        }
+        virtual bool updateProperties( const PropertyBag& bag) = 0;
         
         /**
          * Export the Component's properties into a bag.
          */
-        virtual void exportProperties( PropertyBag& bag )
-        {}
+        virtual void exportProperties( PropertyBag& bag ) = 0;
+
     private:
         /**
          * Used by the PropertyExtension to access the components property bag.
@@ -96,7 +93,7 @@ namespace ORO_ControlKernel
         /**
          * The Kernel we belong to.
          */
-        PropertyExtension* master;
+PropertyExtension* master;
 
         /**
          * This bag is used by the PropertyExtension to store

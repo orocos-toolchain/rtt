@@ -327,8 +327,6 @@ namespace ORO_ControlKernel
         virtual bool isLoaded( const std::string& name ) const = 0;
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() ;
-
         virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory() ;
 
         virtual ORO_Execution::MethodFactoryInterface* createMethodFactory() ;

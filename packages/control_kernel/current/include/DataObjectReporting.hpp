@@ -33,6 +33,10 @@
 #include <corelib/PropertyExporter.hpp>
 #include <corelib/PropertyReporter.hpp>
 #include <corelib/PropertyBagIntrospector.hpp>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <algorithm>
+#include <vector>
 
 
 #pragma interface
@@ -45,6 +49,18 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::PropertyIntrospection;
 
     /**
+     * All DataObjectServer which wish to populate the
+     * DataObjectReporter with data.
+     */
+    struct ReportingClient {
+        virtual ~ReportingClient();
+        virtual void exportReports(  PropertyBag& bag ) const = 0;
+        virtual void refreshReports( PropertyBag& bag ) const = 0;
+        virtual void cleanupReports( PropertyBag& bag ) const = 0;
+        virtual void inspectReports( PropertyIntrospection* introspector ) const = 0;
+    };
+
+    /**
      * @brief An interface for gathering reports from DataObjects.
      *
      * It is very similar to the ReportingComponent Interface,
@@ -53,48 +69,39 @@ namespace ORO_ControlKernel
      */
     struct DataObjectReporting
     {
-        static ORO_CoreLib::NameServer<DataObjectReporting*> nameserver;
+        static ORO_CoreLib::NameServer< boost::shared_ptr<DataObjectReporting> > nameserver;
+        std::vector<ReportingClient*> clients;
         /**
          * Create a new DataObject suitable for reporting its contents.
          
          * @param name is the globally visible name of this DataObject.
          *  It is usually prefixed by the kernel's name it resides in.
          */
-        DataObjectReporting(const std::string& name)
-            : exporter( name ), reports( "Data","The Reported Data of this DataObject")
-        {
-            nameserver.registerObject( this, name );
-            exporter.value().add( &reports );
-        }
+        DataObjectReporting(const std::string& name);
 
-        virtual ~DataObjectReporting() {
-            nameserver.unregisterObject(this);
-        }
+        ~DataObjectReporting();
 
-        /**
-         * Sets a new name for this DataObject.
-         * This is needed if the kernel gets a new name.
-         */
-//         void setName( const std::string& name)
-//         {
-//             nameserver.unregisterObject(this);
-//             nameserver.registerObject( this, name );
-//             exporter.setName( name );
-//         }
+        void addClient( ReportingClient* c);
+        void removeClient( ReportingClient* c);
+
+        void exportReports( PropertyBag& bag ) const {
+            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::exportReports,_1, boost::ref(bag)) );
+        }
+        void refreshReports( PropertyBag& bag ) const {
+            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::refreshReports,_1, boost::ref(bag)) );
+        }
+        void cleanupReports( PropertyBag& bag ) const {
+            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::cleanupReports,_1, boost::ref(bag)) );
+        }
+        void inspectReports( PropertyIntrospection* introspector ) const {
+            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::inspectReports,_1, introspector) );
+        }
 
         /**
          * Returns the name of this DataObject.
          */
-        const std::string& getName()
-        {
-            return nameserver.getName( this );
-        }
+        const std::string& getName() const;
 
-        virtual void exportReports(  PropertyBag& bag ) const = 0;
-        virtual void refreshReports( PropertyBag& bag ) const = 0;
-        virtual void cleanupReports( PropertyBag& bag ) const = 0;
-        virtual void inspectReports( PropertyIntrospection* introspector ) const = 0;
-        
         PropertyExporter* getExporter()
         {
             return &exporter;
@@ -118,6 +125,7 @@ namespace ORO_ControlKernel
          */
         Property<PropertyBag> reports;
     };
+
 }
 
 #endif

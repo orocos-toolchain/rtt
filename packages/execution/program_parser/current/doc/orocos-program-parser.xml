@@ -7,6 +7,7 @@
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
+<!ENTITY taskman     "<ulink url='http://people.mech.kuleuven.ac.be/~psoetens/orocos-packages/orocos-task-context.html'>Task Infrastructure Manual</ulink>">
 ]
 >
 
@@ -80,7 +81,8 @@
 	<revnumber>0.18</revnumber>
 	<date>21 Sept 2004</date>
 	<authorinitials>PS</authorinitials>
-	<revremark>Documented methods, 'and', 'try...catch'</revremark>
+	<revremark>Documented methods, 'and', 'try...catch'. Added exported
+	functions, function arguments and TaskContext integration.</revremark>
       </revision>
 	
     </revhistory>
@@ -146,7 +148,7 @@
   </sect1>
 
   <sect1 id="program-syntax">
-    <title>Program Syntax</title>
+    <title>Orocos Program Scripts</title>
     <sect2 id="program-syntax-general-concepts">
       <title>General concepts</title>
       <para>
@@ -160,16 +162,16 @@
 	  Various sorts of comments are supported in the syntax.  Here
 	  is a small listing showing the various syntaxes:
 	  <programlisting>
-# A perl-style comment, starting at a &apos;#&apos;, and running until
-# the end of the line.
-
-// A C++/Java style comment, starting at &apos;//&apos;, and running
-// until the end of the line.
-
-/* A C-style comment, starting at &apos;/*&apos;, and running until
-   the first closing */ /* Nesting is not allowed, that&apos;s
-   why I have to start a new comment here :-) 
-*/
+  # A perl-style comment, starting at a &apos;#&apos;, and running until
+  # the end of the line.
+  
+  // A C++/Java style comment, starting at &apos;//&apos;, and running
+  // until the end of the line.
+  
+  /* A C-style comment, starting at &apos;/*&apos;, and running until
+     the first closing */ /* Nesting is not allowed, that&apos;s
+     why I have to start a new comment here :-) 
+  */
 	  </programlisting>
 	  Whitespace is in general ignored, except for the fact that it
 	  is used to separate tokens.
@@ -249,39 +251,41 @@
 	  ways, that are described below...
 	</para>
 	<sect4>
-	  <title>Component data</title>
+	  <title>Task Data Sources</title>
 	  <para>
-	    Components export some data.  This data can be of any
+	    Tasks can export read-only data.  This data can be of any
 	    possible type, and the Parser system retains that type
 	    information.  Getting component data is done using an
-	    expression of the following form:
+	    expression of the following form:</para>
+	  <para>
 	    <programlisting>
-component.dataname( argument1, argument2, ..., argumentN ) 
-	    </programlisting>
-	    where "component" is the name of the component whose data
+  task.dataname( argument1, argument2, ..., argumentN ) 	    </programlisting></para>
+	  <para>
+	    where "task" is the name of the <classname>TaskContext</classname> whose data
 	    you want to access, dataname is the name of the data
-	    member of the component you want to access.  "argument1"
+	    member of the task you want to access.  "argument1"
 	    through "argumentN" are the arguments you want to pass to
 	    the data call, and can be any kind of expression.  If a
 	    data call needs no arguments, the parentheses can be left
-	    out, like this:
+	    out, like this:</para>
 	    <programlisting>
-// equivalent to component.dataname()
-component.dataname
-	    </programlisting>
-	  </para>
+  // equivalent to task.dataname()
+  task.dataname	    </programlisting>
 	</sect4>
 	<sect4>
-	  <title>Component Methods</title>
+	  <title>Task Methods</title>
 	  <para>
 	    Methods are analogous to the data in the previous section.
-	    They can be used in expressions and executed as a command.
+	    But they can be used in expressions and executed as a command.
 	    For example, a method returning a boolean can be used
 	    in an 'if' clause and in a 'do' statement (see below).
-	    <programlisting>
-component.methodname( argument1, argument2, ..., argumentN ) 
-	    </programlisting>
 	  </para>
+	    <programlisting>
+  // executed as a method :
+  bool result = task.methodname( argument1, argument2, ..., argumentN )
+
+  // executed as a command :
+  do task.methodname( argument1, argument2, ..., argumentN )	    </programlisting>
 	</sect4>
 	<sect4>
 	  <title>Literals</title>
@@ -297,16 +301,15 @@ component.methodname( argument1, argument2, ..., argumentN )
 	    and can contain all the normal C/C++ style escaped
 	    characters.  Here are some examples:
 	    <programlisting>
-// a string with some escaped letters:
-&quot;\&quot;OROCOS rocks, \&quot; my mother said...&quot;
-// a normal integer
--123
-// a double literal
-3.14159265358979
-// and another one..
-1.23e10
-	    </programlisting>
-	  </para>
+  // a string with some escaped letters:
+  &quot;\&quot;OROCOS rocks, \&quot; my mother said...&quot;
+  // a normal integer
+  -123
+  // a double literal
+  3.14159265358979
+  // and another one..
+  1.23e10  	    </programlisting>
+  	  </para>
 	</sect4>
 	<sect4>
 	  <title>Constants, Variables and Aliases</title>
@@ -321,30 +324,29 @@ component.methodname( argument1, argument2, ..., argumentN )
 	    alias or an abbreviation during the rest of the program.
 	    All of them can always be used as expressions.  Here is
 	    some code showing how to use them.
-	    <programlisting>
-// define a constant of type double, with name "pi",
-// and value 3.14159265358979
-const double pi = 3.14159265358979
-// define a constant string and give it the initial
-// value "apples"
-const string applestring = &quot;apples&quot;
-
-// define a variable of type int, called counter,
-// and give it the initial value 0.
-var int counter = 0
-// add 1 to the counter variable
-set counter = counter + 1
-
-// make the name "counterPlusOne" an alias for the
-// expression counter + 1.  After this, using
-// counterPlusOne is completely equivalent to using
-// counter + 1
-alias int counterPlusOne = counter + 1
-// you can assign an arbitrarily complex expression
-// to an alias
-alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
-	    </programlisting>
 	  </para>
+	    <programlisting>
+  // define a constant of type double, with name "pi",
+  // and value 3.14159265358979
+  const double pi = 3.14159265358979
+  // define a constant string and give it the initial
+  // value "apples"
+  const string applestring = &quot;apples&quot;
+  
+  // define a variable of type int, called counter,
+  // and give it the initial value 0.
+  var int counter = 0
+  // add 1 to the counter variable
+  set counter = counter + 1
+  
+  // make the name "counterPlusOne" an alias for the
+  // expression counter + 1.  After this, using
+  // counterPlusOne is completely equivalent to using
+  // counter + 1
+  alias int counterPlusOne = counter + 1
+  // you can assign an arbitrarily complex expression
+  // to an alias
+  alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position    </programlisting>
 	  <para>
 	    Variables, constants and aliases are only supported for
 	    the following types: bool, int, double, string, rotation,
@@ -375,10 +377,11 @@ alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
 	  <para>
 	    For some special types, a special kind of operator is
 	    provided.  These are called constructors.  The simplest
-	    example is the vector constructor, that looks like this:
+	    example is the vector constructor, that looks like this:</para>
+	  <para>
 	    <programlisting>
-vector( arg1, arg2, arg3 )
-	    </programlisting>
+  vector( arg1, arg2, arg3 )	    </programlisting></para>
+	  <para>
 	    where arg1, arg2 and arg3 are expressions which
 	    <emphasis>must be of type double</emphasis>.
 	    This returns an expression of type vector, with arg1 as
@@ -387,73 +390,159 @@ vector( arg1, arg2, arg3 )
 	  </para>
 	  <para>
 	    Other constructors currently available are:
-	    <programlisting>
-// alfa, beta and gamma are double expressions, this
-// returns a rotation, that is constructed using the
-// EulerZYZ convention:
-// First rotate around Z with alfa, then around the
-// new Y with beta, then around new Z with gamma.
-var rotation rot = rotation( alfa, beta, gamma )
-
-// Vect is a vector expression, rot is a rotation
-// expression.  This returns a frame, constructed
-// using the vector x as the origin, and rotation
-// rot as the rotation..
-var frame f = frame( vect, rot )
-
-// Double6D is a commonly used type in Orocos
-// and has been recently introduced in the parser
-var double6d d6 = double6d(0.0)
-set d6[0] = 1.0
-var double d0 = d6[0]
-set d6 = double6d( 1., 2., 3., 4., 5., 6. )
-	    </programlisting>
 	  </para>
+	    <programlisting>
+  // alfa, beta and gamma are double expressions, this
+  // returns a rotation, that is constructed using the
+  // EulerZYZ convention:
+  // First rotate around Z with alfa, then around the
+  // new Y with beta, then around new Z with gamma.
+  var rotation rot = rotation( alfa, beta, gamma )
+  
+  // Vect is a vector expression, rot is a rotation
+  // expression.  This returns a frame, constructed
+  // using the vector x as the origin, and rotation
+  // rot as the rotation..
+  var frame f = frame( vect, rot )
+  
+  // Double6D is a commonly used type in Orocos
+  // and has been recently introduced in the parser
+  var double6d d6 = double6d(0.0)
+  set d6[0] = 1.0
+  var double d0 = d6[0]
+  set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
 	</sect4>
       </sect3>
+    </sect2>
+    <sect2>
+      <title>Parsing and Loading Programs</title>
+      <para>
+	Before we go on describing the details of the programs syntax,
+	we show how you can load a program in your Real-Time Task.
+      </para>
+      <para>
+	Assume that you have a program "progname"
+	in a file <filename>program.ops</filename>.
+	You've read the Orocos Task Infrastructure manual and constructed
+	a <classname>TaskContext</classname> which has some methods and is connected to its
+	Peer TaskContexts. Parsing the program is then straightforward :
+      </para>
+      <programlisting>
+  #include &lt;corelib/TaskPreemptible.hpp&gt;
+  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;execution/Parser.hpp&gt;
+  #include &lt;iostream&gt;      // std::ifstream
+  #include &lt;functional&gt;    // std::for_each
+  #include &lt;boost/bind.hpp&gt;// boost::bind
+
+  using namespace ORO_CoreLib;
+
+  TaskContext   tc;
+  ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
+  Parser        parser;
+
+  std::vector&lt;ProgramGraph*&gt; pg_list;
+  try {
+      pg_list = parser.parseProgram( std::ifstream("program.ops"), &amp;tc );
+  }
+  catch( const file_parse_exception&amp; exc )
+  {
+     std::cerr &lt;&lt; exc.what() &lt;&lt; endl;
+  }
+  if ( pg_list.empty() )
+  {
+     // no programs were listed, but functions might
+     // have been exported into tc's command interface
+  } else {
+     // Load all listed programs in the TaskContext's Processor:
+     std::for_each( pg_list.begin(), pg_list.end(),
+         boost::bind( &amp;Processor::loadProgram, tc.getProcessor(), _1));
+
+     // start the task :
+     ptask->start();
+
+     // start a program :
+     tc.getProcessor()->startProgram("progname");
+  }</programlisting>
+      <para>
+	The parser returns a vector of <classname>ProgramGraph</classname>'s.
+	It will throw a <classname>file_parse_exception</classname>
+	if a parse error occured.
+	It is possible that the returned list is empty, but that 
+	exported functions were loaded in the TaskContext's command interface.
+	If it's not empty, we load all the programs in the Processor using
+	the boost::bind function. Next we start the task's processor
+	and finally, the program "progname" is started.
+      </para>
     </sect2>
     <sect2 id="program-syntax-specifics">
       <title>Program Syntax</title>
       <para>
-	An &orocos; program looks like this:
-	<programlisting>
-function func_name {
-  // an arbitrary number of statements
-}
-
-function func_nameN {
-  // ...
-}
-
-program prog_name {
-  // an arbitrary number of statements
-}
-	</programlisting>
-	The statements are executed in order, starting at the first.
-	One statement is executed per tick.  There are currently three
-	kinds of statements, they are explained below. Statements
-	can be grouped in functions. A function can only call a function
-	which is earlier defined, and no parameters can be passed. Thus
-	recursive function calling is not allowed. Since most statements
-	use global Component commands, argument passing is not really
-	important.
+	An &orocos; program is a list of statements, quite similar
+	to a C program. Programs can call functions and functions
+	can be loaded into the system, such that other programs
+	can call them.
       </para>
+      <sect3>
+	<title><symbol>program</symbol></title>
+	<para> A program is formed like this: </para>
+	<programlisting>
+  program prog_name {
+    // an arbitrary number of statements
+  }	</programlisting>
+	<para>
+	  The statements are executed in order, starting at the first.
+	  One statement is executed per tick.  There are currently three
+	  kinds of statements, they are explained below. A program takes
+	  no arguments and is executed by the Program <classname>Processor</classname>.
+	</para>
+	<para>
+	  If any of the statements causes a run-time error, the Program Processor
+	  will put the program in the error state and stop executing it.
+	  It is the task of other logic (like state machines, see below)
+	  to detect such failures. 
+	</para>
+      </sect3>
+      <sect3>
+	<title><symbol>function</symbol></title>
+	<para>Statements
+	can be grouped in functions. A function can only call a function
+	which is earlier defined. Thus recursive function calling is not allowed.
+	</para>
+	<programlisting>
+  function func_name( int arg1, double arg2 ) {
+    // an arbitrary number of statements
+  }
+  
+  export function func_nameN(bool arg) {
+    // ...
+  }</programlisting>
+        <para>
+	  A function can have any number of arguments, which are passed
+  	  by value, but it returns no value.
+  	  A function can be exported, in which case it becomes a public
+	  available command (see below), which will fail if one of its
+	  commands fails. Exporting functions is a powerfull means to
+	  build reusable code in the scripting framework, since an
+	  external task can not see if it is calling a function or
+	  calling a C++ command.
+	</para>
+      </sect3>
       <sect3>
 	<title>Command Call Statements</title>
 	<para>
 	  A command call statement is a statement that calls a certain
 	  command, and defines some reactions. It looks like:
 	  <programlisting>
-do comp.action( args ) until {
-  if condition then continue
-  if condition2 then call func()
-  if condition3 then return
-}
-	  </programlisting>
-	  It calls the command "action", on the component "comp", with
-	  the comma-separated list of expressions args as the
-	  arguments.  The Processor executes the command once, and
-	  then checks where to go next using the "termination clauses"
+  do comp.action( args ) until {
+    if condition then continue
+    if condition2 then call func()
+    if condition3 then return
+  }  	  </programlisting>
+  	  It calls the command "action", on the component "comp", with
+  	  the comma-separated list of expressions args as the
+  	  arguments.  The Processor executes the command once, and
+  	  then checks where to go next using the "completion clauses"
 	  in the until part.  If none are true, then it waits another
 	  tick, and checks them again..
 	</para>
@@ -466,30 +555,29 @@ do comp.action( args ) until {
 	</note>
 	<para>
 	  Sometimes, you want to continue executing the command, while
-	  checking the termination conditions, instead of only
+	  checking the completion conditions, instead of only
 	  executing it the first time..  In that case, you can put the
 	  keyword "sync" before the command call.
 	  <programlisting>
-// continue moving to the right until you hit the wall..
-do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
-      until { if robot.hitWall() then return }
-	  </programlisting>
+  // continue moving to the right until you hit the wall..
+  do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
+      until { if robot.hitWall() then return }  </programlisting>
 	  The example above may be a bit stupid, but it only serves to
 	  show the use of the sync keyword..
 	</para>
 	<para>
-	  A termination clause always looks like
+	  A completion clause always looks like</para>
 	  <programlisting>
-if condition then continue
-// or
-if condition then call func_name
-// or
-if condition then return
-	  </programlisting>
+  if condition then continue
+  // or
+  if condition then call func_name
+  // or
+  if condition then return  </programlisting>
+	<para>
 	  condition can be any kind of expression, that is of type
 	  boolean.  One special condition is provided, the keyword
 	  "done".  Every command has an associated "implicit
-	  termination condition", and the condition "done" is
+	  completion condition", and the condition "done" is
 	  equivalent to that condition.  You can also combine the
 	  "done" condition with other expressions, as if it were a
 	  normal boolean expression. "continue" means to go to the
@@ -499,16 +587,16 @@ if condition then return
 	  in the next section
 	</para>
 	<para>
-	  If a termination list is left out, then an implicit one is
+	  If a completion list is left out, then an implicit one is
 	  generated.  This means that the two following statements are
 	  equivalent:
-	  <programlisting>
-do comp.action( args )
-// the implicitly generated termination list always looks like
-// "if done then continue"
-do comp.action( args ) until { if done then continue }
-	  </programlisting>
 	</para>
+	  <programlisting>
+  do comp.action( args )
+  // the implicitly generated completion list always looks like
+  // "if done then continue"
+  do comp.action( args ) until { if done then continue }
+	  </programlisting>
 	<sect4>
 	  <title>Accepting and Rejecting Commands</title>
 	  <para>
@@ -528,43 +616,45 @@ do comp.action( args ) until { if done then continue }
 	  intervention. This can be bypassed by using a 
 	  <emphasis>try...catch</emphasis> statement. It tries
 	  to execute the command, and if it is rejected,
-	  the optional catch clause is executed :
-	  <programlisting>
-// just try it :
-try comp.action( args )
-
-// When rejected, execute the catch clause :
-try comp.action( args ) catch { 
-    // statements...
-}
-	  </programlisting>
-	  You may place termination conditions between try
-	  and catch :
-	  <programlisting>
-try comp.action( args ) 
-until {
-    if comp.evaluate() then continue
-}
-catch { 
-    // statements...
-}
-// next statement
-	  </programlisting>
-	  If the command was accepted, the next statement is executed.
-	</para>
+	  the optional catch clause is executed :</para>
+	    <programlisting>
+  // just try it :
+  try comp.action( args )
+  
+  // When rejected, execute the catch clause :
+  try comp.action( args ) catch { 
+      // statements...
+  } </programlisting>
+	  <para>
+	    You may place completion conditions between try
+	    and catch :
+	  </para>
+	    <programlisting>
+  try comp.action( args ) 
+  until {
+      if comp.evaluate() then continue
+  }
+  catch { 
+      // statements...
+  }
+  // next statement </programlisting>
+	  <para>
+	    If the command was accepted, the next statement is executed.
+	  </para>
 	</sect4>
 	<sect4>
 	  <title>Parallel Commands with 'and'</title>
 	  <para>
 	    When it is desired to execute commands as one command
 	    ( in one time ), they can be combined with an
-	    'and' operator :
+	    'and' operator :</para>
 	    <programlisting>
-do comp.action1() and comp.action2() and comp.action3()
+  do comp.action1() and comp.action2() and comp.action3()
 	    </programlisting>
-	    The implicit termination condition (i.e. 'done') is when all
+	  <para>
+	    The implicit completion condition (i.e. 'done') is when all
 	    listed actions are done. This can be overridden
-	    by defining a termination condition with 'until'.
+	    by defining a completion condition with 'until'.
 	  </para>
 	  <para>
 	    The 'and' operator can also be used with 'try'.
@@ -578,21 +668,22 @@ do comp.action1() and comp.action2() and comp.action3()
 	<para>
 	  Methods behave like traditional functions. They take
 	  arguments and return a value immediately. They can be
-	  used in expressions or stand alone in a do statement :
+	  used in expressions or stand alone in a do statement :</para>
 	  <programlisting>
-// ignore the return value :
-do comp.method( args )
-
-// this will only work if the method returns a boolean :
-if ( comp.method( args ) ) {
-	    // ...
-}
-
-// use another method in an expression :
-set data = comp.getResult( args ) * 20. / comp.dataValue 
+  // ignore the return value :
+  do comp.method( args )
+  
+  // this will only work if the method returns a boolean :
+  if ( comp.method( args ) ) {
+  	    // ...
+  }
+  
+  // use another method in an expression :
+  set data = comp.getResult( args ) * 20. / comp.dataValue 
 	  </programlisting>
+	<para>
 	  A method can thus transparantly be used like a
-	  command, which implicit termination condition
+	  command, which implicit completion condition
 	  is always true.
 	</para>
 	<warning>
@@ -612,10 +703,15 @@ set data = comp.getResult( args ) * 20. / comp.dataValue
 	<title>Calling functions</title>
 	<para>
 	  A function can be called by writing :
+	</para>
 	  <programlisting>
-call func_name
-	  </programlisting>
-	  A function may also be called in a termination 
+  do foo(arg)
+  call foo(arg) // equivalent to 'do foo(arg)'</programlisting>
+	<para>
+	  The arguments are passed by value and no return value
+	  is possible. If one of the commands of the functions
+	  returns error, the calling program goes in error.
+	  A function may also be called in a completion 
 	  clause. If the function returns, the next statement
 	  of the calling function or program is executed.
 	</para>
@@ -626,7 +722,7 @@ call func_name
 	  A variable set statement is a statement that sets a variable
 	  to a certain value.  It looks like this:
 	  <programlisting>
-set variablename = expression
+  set variablename = expression
 	  </programlisting>
 	  Variablename is the name of the variable you want to assign
 	  to.  It should already have been defined.  Expression is an
@@ -635,25 +731,26 @@ set variablename = expression
       </sect3>
       <sect3>
 	<title>The if then else Statement</title>
-	A Program script can contain if..then..else blocks, very similar
+	<para>	A Program script can contain if..then..else blocks, very similar
 	to C syntax.
-	  <programlisting>
-if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
-[ else <emphasis>statement</emphasis> ]
-// or :
-if <emphasis>condition</emphasis> then {
-  <emphasis>statement</emphasis>
-  // ...
-} [ else {
-  <emphasis>statement</emphasis>
-  // ...
-} ]
-	  </programlisting>
-	It is thus possible to group statements. Each statement can
-	be another if clause. An else is always referring to the last
-	if, just like in C/C++. If you like, you can also write
-	parentheses around the condition. The else statement is
-	optional.
+</para>	  <programlisting>
+  if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
+  [ else <emphasis>statement</emphasis> ]
+  // or :
+  if <emphasis>condition</emphasis> then {
+    <emphasis>statement</emphasis>
+    // ...
+  } [ else {
+    <emphasis>statement</emphasis>
+    // ...
+  } ]	  </programlisting>
+	<para>
+	  It is thus possible to group statements. Each statement can
+	  be another if clause. An else is always referring to the last
+	  if, just like in C/C++. If you like, you can also write
+	  parentheses around the condition. The else statement is
+	  optional.
+	</para>
       </sect3>
       <sect3>
 	<title>The for Statement</title>
@@ -664,14 +761,13 @@ if <emphasis>condition</emphasis> then {
 	  to simulate an empty condition).
 	  The second statement changes a variable or is empty.
 	  <programlisting>
-for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
-      <emphasis>statement</emphasis>
-// or :
-for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
-      <emphasis>statement</emphasis>
-      // ...
-}
-	  </programlisting>
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
+        <emphasis>statement</emphasis>
+  // or :
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
+        <emphasis>statement</emphasis>
+        // ...
+  }  </programlisting>
 	</para>
       </sect3>
       <sect3>
@@ -679,16 +775,16 @@ for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>
 	<para>
 	  The while statement is another looping primitive in 
 	  the Orocos script language. A do statement is not
-	  ( yet ) implemented
+	  ( yet ) implemented</para>
 	  <programlisting>
-while <emphasis>condition</emphasis> 
-    <emphasis>statement</emphasis>
-// or :
-while <emphasis>condition</emphasis> {
-    <emphasis>statement</emphasis>
-    // ...
-}
-	  </programlisting>
+  while <emphasis>condition</emphasis> 
+      <emphasis>statement</emphasis>
+  // or :
+  while <emphasis>condition</emphasis> {
+      <emphasis>statement</emphasis>
+      // ...
+  }  </programlisting>
+	<para>
 	  As with the if statement, you can optionally put
 	  parentheses around the condition.
 	</para>
@@ -698,15 +794,16 @@ while <emphasis>condition</emphasis> {
 	<para>
 	  A special command 'nothing' is provided, and I'm sure you
 	  can already guess what it does..  It is useful to implement
-	  statements, where the termination list is really the only
+	  statements, where the completion list is really the only
 	  useful thing to do.  Control structures can be implemented
 	  this way.
 	</para>
       </sect3>
     </sect2>
-    <sect2>
-      <title>State Context Description Syntax</title>
-      <sect3>
+  </sect1>
+  <sect1>
+    <title>Orocos State Descriptions : The Real-Time State Machine</title>
+      <sect2>
 	<title>Introduction</title>
 	<para>
 	  A StateContext is a kind of state machine used in the &orocos;
@@ -719,8 +816,8 @@ while <emphasis>condition</emphasis> {
 	  the ExecutionExtension to manage parsing and loading State
 	  Contexts.
 	</para>
-      </sect3>
-      <sect3>
+      </sect2>
+      <sect2>
 	<title>StateContext Workings</title>
 	<para>
 	  A StateContext is composed of a set of states.  A running
@@ -759,7 +856,7 @@ while <emphasis>condition</emphasis> {
 	  StateContext.  This means that the transition from any state
 	  to the final state must always be meaningful.
 	</para>
-	<sect4>
+	<sect3>
 	  <title>Precise State Change Semantics</title>
 	  <para>
 	    At the start of every execution cycle of the Program
@@ -770,9 +867,73 @@ while <emphasis>condition</emphasis> {
 	    transition evaluated to true, the handle function of the
 	    current state is called.
 	  </para>
-	</sect4>
-      </sect3>
-      <sect3>
+	</sect3>
+      </sect2>
+    <sect2>
+      <title>Parsing and Loading State Contexts</title>
+      <para>
+	Analogous to the Program section, we first show how 
+	you can load a State Context in your Real-Time Task.
+      </para>
+      <para>
+	Assume that you have a State Context "statename"
+	in a file <filename>state-machine.osd</filename>.
+	You've read the Orocos Task Infrastructure manual and constructed
+	a <classname>TaskContext</classname> which has some methods and is connected to its
+	Peer TaskContexts. Parsing the State Context is very analogous
+	to parsing Programs:
+      </para>
+      <programlisting>
+  #include &lt;corelib/TaskPreemptible.hpp&gt;
+  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;execution/Parser.hpp&gt;
+  #include &lt;iostream&gt;      // std::ifstream
+  #include &lt;functional&gt;    // std::for_each
+  #include &lt;boost/bind.hpp&gt;// boost::bind
+
+  using namespace ORO_CoreLib;
+
+  TaskContext   tc;
+  ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
+  Parser        parser;
+
+  std::vector&lt;ParsedStateContext*&gt; sc_list;
+  try {
+      sc_list = parser.parseStateContext( std::ifstream("state-machine.osd"), &amp;tc );
+  }
+  catch( const file_parse_exception&amp; exc )
+  {
+     std::cerr &lt;&lt; exc.what() &lt;&lt; endl;
+  }
+  if ( sc_list.empty() )
+  {
+     // No states were 'instantiated', nothing can be loaded.
+  } else {
+     // Load all listed programs in the TaskContext's Processor:
+     std::for_each( sc_list.begin(), sc_list.end(),
+         boost::bind( &amp;Processor::loadStateContext, tc.getProcessor(), _1));
+
+     // start the task :
+     ptask->start();
+
+     // activate a state context :
+     tc.getProcessor()->activateStateContext("statename");
+     // start a state context :
+     tc.getProcessor()->startStateContext("statename");
+  }</programlisting>
+      <para>
+	The parser returns a vector of <classname>ParsedStateContext</classname>'s.
+	It will throw a <classname>file_parse_exception</classname>
+	if a parse error occured.
+	If the returned vector is not empty, we load all the StateContexts in the Processor using
+	the boost::bind function. Next we start the task's Processor
+	and finally. StateContexts have a more complex lifetime than
+	Programs. They need first to be activated, upon which they
+	enter a fixed initial state. When they are started, state
+	transitions to other states can take place.
+      </para>
+    </sect2>
+      <sect2>
 	<title>Defining StateContexts</title>
   	<para>
 	  You can think of StateContexts somewhat like C++ classes.  You
@@ -835,7 +996,7 @@ StateContext MyStateContext
 	    method is optional, and a state can even be defined empty.
 	  </para>
 	</example>
-	<sect4>
+	<sect3>
 	  <title>The <function>state</function> Statement</title>
 	  <para>
 	    A state context can have an unlimited number of states.  A
@@ -843,8 +1004,8 @@ StateContext MyStateContext
 	    exit and transitions.  Any one of them is optional, and a
 	    state can even conceivably be defined empty.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>The <function>entry</function> and
 	    <function>exit</function> Statements</title>
 	  <para>
@@ -885,8 +1046,8 @@ StateContext SomeStateContext
 	    declared beforehand on top of the state script, before any
 	    state is defined.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>The <function>handle</function> and
 	    <function>transitions</function> Statement</title>
 	  <para>
@@ -911,8 +1072,8 @@ transitions {
 	    the onExit and onEntry functions will not be called in that
 	    case.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>State Preconditions</title>
 	  <para>
 	    Often it's useful to specify some preconditions that need
@@ -937,9 +1098,9 @@ preconditions {
 	    state, whereas transitions are checked every time the
 	    state is handled.
 	  </para>
-	</sect4>
-      </sect3>
-      <sect3>
+	</sect3>
+      </sect2>
+      <sect2>
 	<title>Instantiating Contexts: SubContexts and RootContexts</title>
 	<para>
 	  As mentionned before: you can look at a SubContext
@@ -953,7 +1114,7 @@ preconditions {
 	  Note that you always need to write the instantiation after
 	  the definition of the StateContext you're instantiating.
 	</para>
-	<sect4>
+	<sect3>
 	  <title>Root Contexts</title>
 	  <para>
 	    A Root Context is a normal instantiation of a
@@ -977,10 +1138,10 @@ RootContext SomeStateContext someSCinst
 	    This makes an instantiation of the StateContext type
 	    SomeStateContext by the name of 'someSCinst'.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>Parameters and public variables</title>
-	  <sect5>
+	  <sect4>
 	    <title>StateContext public variables</title>
 	    <para>
 	      You can define variables at the StateContext level.
@@ -997,7 +1158,9 @@ StateContext SomeStateContext
     // a public constant
     const double pi = 3.1415926535897
     var int counter = 0
-    alias string errorText = "Error in SomeStateContext: " + someComponent.errorStatement()
+    alias string errorText = "Error in SomeStateContext: " +
+		someComponent.errorStatement()
+
     initial state initState
     {
 	handle
@@ -1023,34 +1186,34 @@ StateContext SomeStateContext
 	      StateContext SomeStateContext, and uses them throughout
 	      the state context.
 	    </para>
-	  </sect5>
-	  <sect5>
+	  </sect4>
+	  <sect4>
 	    <title>StateContext parameters</title>
 	    <para>
 	      A StateContext can have parameters that need to be set
-	      on its instantiation.  Here's an example:
+	      on its instantiation.  Here's an example:</para>
 	      <programlisting>
-StateContext AxisController
-{
-    // a parameter specifying which axis this Controller controls
-    param int axisNumber
-    initial state init
-    {
-        entry
-        {
-            var double power = someComponent.getPowerForAxis( axisNumber )
-	    // do something with it...
-        }
-    }
-}
-
-RootContext AxisController axiscontroller1( axisNumber = 1 )
-RootContext AxisController axiscontroller2( axisNumber = 2 )
-RootContext AxisController axiscontroller3( axisNumber = 3 )
-RootContext AxisController axiscontroller4( axisNumber = 4 )
-RootContext AxisController axiscontroller5( axisNumber = 5 )
-RootContext AxisController axiscontroller6( axisNumber = 6 )
-	      </programlisting>
+  StateContext AxisController
+  {
+      // a parameter specifying which axis this Controller controls
+      param int axisNumber
+      initial state init
+      {
+          entry
+          {
+              var double power = someComponent.getPowerForAxis( axisNumber )
+  	    // do something with it...
+          }
+      }
+  }
+  
+  RootContext AxisController axiscontroller1( axisNumber = 1 )
+  RootContext AxisController axiscontroller2( axisNumber = 2 )
+  RootContext AxisController axiscontroller3( axisNumber = 3 )
+  RootContext AxisController axiscontroller4( axisNumber = 4 )
+  RootContext AxisController axiscontroller5( axisNumber = 5 )
+  RootContext AxisController axiscontroller6( axisNumber = 6 )</programlisting>
+	    <para>
 	      This example creates an AxisController StateContext with
 	      one integer parameter called axisNumber.  When the
 	      StateContext is instantiated, values for all of the
@@ -1062,9 +1225,9 @@ RootContext AxisController axiscontroller6( axisNumber = 6 )
 	      be instantiated multiple times with different parameter
 	      values.
 	    </para>
-	  </sect5>
-	</sect4>
-	<sect4>
+	  </sect4>
+	</sect3>
+	<sect3>
 	  <title>SubContexts</title>
 	  <para>
 	    A SubContext is a StateContext that is instantiated within
@@ -1074,49 +1237,48 @@ RootContext AxisController axiscontroller6( axisNumber = 6 )
 	    stopped, by calling the processor's startStateContext and
 	    stopStateContext methods.
 	  </para>
-	  <sect5>
+	  <sect4>
 	    <title>Instantiating SubContexts</title>
 	    <para>
 	      An instantiation of a SubContext is written as follows:
 	      <programlisting>
-StateContext ChildStateContext
-{
-    initial state initState
-    {
-        // ...
-    }
-    final state finalState
-    {
-        // ...
-    }
-}
-
-StateContext ParentStateContext
-{
-    SubContext ChildStateContext childcontext1
-    SubContext ChildStateContext childcontext2
-    initial state initState
-    {
-	entry
-        {
-	    Execution.startStateContext(childcontext1)
-	    Execution.startStateContext(childcontext2)
-        }
-        exit
-        {
-            Execution.stopStateContext(childcontext2)
-        }
-    }
-
-    final state finalState
-    {
-        entry
-        {
-            Execution.stopStateContext(childcontext1)
-        }
-    }
-}
-	      </programlisting>
+  StateContext ChildStateContext
+  {
+      initial state initState
+      {
+          // ...
+      }
+      final state finalState
+      {
+          // ...
+      }
+  }
+  
+  StateContext ParentStateContext
+  {
+      SubContext ChildStateContext childcontext1
+      SubContext ChildStateContext childcontext2
+      initial state initState
+      {
+  	entry
+          {
+  	    Execution.startStateContext(childcontext1)
+  	    Execution.startStateContext(childcontext2)
+          }
+          exit
+          {
+              Execution.stopStateContext(childcontext2)
+          }
+      }
+  
+      final state finalState
+      {
+          entry
+          {
+              Execution.stopStateContext(childcontext1)
+          }
+      }
+  } </programlisting>
 	      Here you see a ParentStateContext which has two
 	      ChildStateContexts.  One of them is started in the
 	      initial state's entry method and stopped in its exit
@@ -1124,8 +1286,8 @@ StateContext ParentStateContext
 	      entry method and stopped in the final state's entry
 	      method.
 	    </para>
-	  </sect5>
-	  <sect5>
+	  </sect4>
+	  <sect4>
 	    <title>SubContext manipulating</title>
 	    <para>
 	      In addition to starting and stopping a SubContext, a
@@ -1145,7 +1307,7 @@ StateContext ParentStateContext
 	      instantiation.  However, you can still change the values
 	      of the parameters afterwards.  The syntax is: "set
 	      someSubContext.someParam = someExpression".  Here's an
-	      elaborate example:
+	      elaborate example:</para>
 	      <programlisting>
 StateContext ChildStateContext
 {
@@ -1199,17 +1361,15 @@ StateContext ParentStateContext
     }
 }
 	      </programlisting>
-	    </para>
 	    <para>
 	      One more thing you can do with a subcontext is checking
 	      if it is in a certain state.  The syntax looks like:
 	      'someSubContext.inState( "someStateName" )'.  It should
 	      be straightforward to use...
 	    </para>
-	  </sect5>
-	</sect4>
-      </sect3>
-    </sect2>
+	  </sect4>
+	</sect3>
+      </sect2>
   </sect1>
   <sect1>
     <title>Kernel and Processor Commands</title>
@@ -1220,17 +1380,17 @@ StateContext ParentStateContext
       the Kernel and the Processor expose themselves
       as the 'Execution' component. We refer to the control kernel
       documentation for a detailed list of commands,
-      but here are a few examples :
+      but here are a few examples :</para>
       <programlisting>
-do Kernel.selectGenerator( "CartesianGenerator" )
-do Kernel.selectController( "CartesianController" )
-// ...
-do Execution.startProgram( "name" )
-do Execution.stopProgram( "name" )
-// ..
-do Execution.startStateContext( "name" )
-do Execution.stopStateContext( "name" )
-      </programlisting>
+  do Kernel.selectGenerator( "CartesianGenerator" )
+  do Kernel.selectController( "CartesianController" )
+  // ...
+  do Execution.startProgram( "name" )
+  do Execution.stopProgram( "name" )
+  // ..
+  do Execution.startStateContext( "name" )
+  do Execution.stopStateContext( "name" )       </programlisting>
+    <para>
       The selectX commands are instructing the kernel
       itself while the start/stopProgram commands
       instruct the processor to start or stop a loaded
@@ -1250,179 +1410,185 @@ do Execution.stopStateContext( "name" )
     <example>
       <title>State Context Example (state.osd)</title>
       <programlisting>
-StateContext MachineContext
-{
-    Event_Handle home_switch1
-    Event_Handle home_switch2
-
-    /**
-     * This state is entered when the StateContext is loaded.
-     * The kernel is not running yet...
-     */
-    initial state init_state {
-	transitions {
-	    select startup_state
-	}
-    }
-
-    /**
-     * Kernel is running, select the components.
-     */
-    state startup_state {
-	entry {
-	    do Kernel.selectSensor("HWSensor")
-	    do Kernel.selectGenerator("MoveToGenerator")
-	    }
-	transitions {
-	    select stop_state
-	    }
-    }
-
-    /**
-     * This state is only reached when the State Context
-     * is stopped.
-     */
-    final state fini_state {
-	entry {
-	    do Kernel.selectSensor("Default")
-	    do Kernel.selectGenerator("Default")
-	    }
-    }
-
-    /**
-     * This state is the 'turn off' state of the
-     * machine.
-     */
-    state stop_state {
-	entry {
-	    // The Default Effector and Controller do nothing
-	    do Kernel.selectController("Default")
-	    do Kernel.selectEffector("Default")
-	transitions {
-	    if HMI.start_pushed() then
-		 select run_state
-	    }
-    }
-
-    /**
-     * This state puts the machine under 'control'
-     * effectively accepting commands and driving
-     * the machine.
-     */
-    state run_state {
-	entry {
-	    // make sure we are not moving
-	    do MoveToGenerator.safeStop()
-	    // Select components controlling the machine
-	    do Kernel.selectController("PID")
-	    do Kernel.selectEffector("HWEffector")
-	    }
-
-	transitions {
-	    if HMI.stop_pushed() then
-		 select stop_state
-	    if HMI.start_program() then
-		 select exec_state
-	    }
-    }
-
-    /**
-     * This state starts a previously loaded
-     * program.
-     */
-    state exec_state {
-	entry {
-	    do Execution.startProgram("MyProgram")
-	    }
-
-	exit {
-	    do Execution.stopProgram("MyProgram")
-	    }
-
-	transitions {
-	    if HMI.stop_program() then
-		 select run_state
-	    }
-    }
-}
-
-RootContext MainContext mainContext
+  StateContext MachineContext
+  {
+      Event_Handle home_switch1
+      Event_Handle home_switch2
+  
+      /**
+       * This state is entered when the StateContext is loaded.
+       * The kernel is not running yet...
+       */
+      initial state init_state {
+  	transitions {
+  	    select startup_state
+  	}
+      }
+  
+      /**
+       * Kernel is running, select the components.
+       */
+      state startup_state {
+  	entry {
+  	    do Kernel.selectSensor("HWSensor")
+  	    do Kernel.selectGenerator("MoveToGenerator")
+  	    }
+  	transitions {
+  	    select stop_state
+  	    }
+      }
+  
+      /**
+       * This state is only reached when the State Context
+       * is stopped.
+       */
+      final state fini_state {
+  	entry {
+  	    do Kernel.selectSensor("Default")
+  	    do Kernel.selectGenerator("Default")
+  	    }
+      }
+  
+      /**
+       * This state is the 'turn off' state of the
+       * machine.
+       */
+      state stop_state {
+  	entry {
+  	    // The Default Effector and Controller do nothing
+  	    do Kernel.selectController("Default")
+  	    do Kernel.selectEffector("Default")
+  	transitions {
+  	    if HMI.start_pushed() then
+  		 select run_state
+  	    }
+      }
+  
+      /**
+       * This state puts the machine under 'control'
+       * effectively accepting commands and driving
+       * the machine.
+       */
+      state run_state {
+  	entry {
+  	    // make sure we are not moving
+  	    do MoveToGenerator.safeStop()
+  	    // Select components controlling the machine
+  	    do Kernel.selectController("PID")
+  	    do Kernel.selectEffector("HWEffector")
+  	    }
+  
+  	transitions {
+  	    if HMI.stop_pushed() then
+  		 select stop_state
+  	    if HMI.start_program() then
+  		 select exec_state
+  	    }
+      }
+  
+      /**
+       * This state starts a previously loaded
+       * program.
+       */
+      state exec_state {
+  	entry {
+  	    do Execution.startProgram("MyProgram")
+  	    }
+  
+  	exit {
+  	    do Execution.stopProgram("MyProgram")
+  	    }
+  
+  	transitions {
+  	    if HMI.stop_program() then
+  		 select run_state
+  	    }
+      }
+  }
+  
+  RootContext MainContext mainContext
       </programlisting>
     </example>
     <example>
       <title>Program example (program.ops)</title>
       <programlisting>
-/**
- * This program is executed in the exec_state.
- */
+  /**
+   * This program is executed in the exec_state.
+   */
+  
+  /**
+   * Request the HMI to load the user selected
+   * trajectory into the kernel.
+   */
+  function HMILoadTrajectory {
+  	// request a 'push' of the next
+  	// trajectory :
+  	do HMI.requestTrajectory
+  	// when the HMI is done :
+  	do Generator.loadTrajectory
+  }
+  
+  /**
+   * Do a Homing (reset) of the axes.
+   * This could also be done using a Homing state,
+   * without a program.
+   */
+  function ResetAxes {
+  	do Kernel.selectGenerator("HomingGenerator")
+  	do HomingGenerator.home()
+  }
+  
+  /**
+   * Request the Generator to use the current
+   * trajectory.
+   */
+  function runTrajectory {
+  	do Generator.startTrajectory
+  	// this function returns when the
+  	// trajectory is done.
+  }
+  
+  function ExitProgram {
+  	do HMI.display("Program Ended\n")
+  	stop
+  }
 
-/**
- * Request the HMI to load the user selected
- * trajectory into the kernel.
- */
-function HMILoadTrajectory {
-	// request a 'push' of the next
-	// trajectory :
-	do HMI.requestTrajectory
-	// when the HMI is done :
-	do Generator.loadTrajectory
-}
-
-/**
- * Do a Homing (reset) of the axes.
- * This could also be done using a Homing state,
- * without a program.
- */
-function ResetAxes {
-	do Kernel.selectGenerator("HomingGenerator")
-	do HomingGenerator.home()
-}
-
-/**
- * Request the Generator to use the current
- * trajectory.
- */
-function runTrajectory {
-	do Generator.startTrajectory
-	// this function returns when the
-	// trajectory is done.
-}
-
-function ExitProgram {
-	do HMI.display("Program Ended\n")
-	stop
-}
-
-program DemoRun {
-	do HMI.display("Program Started\n")
-	var int cycle = 0
-
-	// We actually wait here until a 
-	// Trajectory is present in the HMI.
-	do nothing until {
-	   if HMI.trajectoryPresent then continue
-	}
-
-	while HMI.cycle {
-	    do HMI.display("Cycle nr: %d.\n", cycle )
-	    call ResetAxes
-	    call HMIRequestTrajectory
-	    call runTrajectory
-
-	    do HeartBeat.sleep( 5.0 ) // wait 5s
-	}
-
-	call ExitProgram
-}
-      </programlisting>
+  program DemoRun {
+  	do HMI.display("Program Started\n")
+  	var int cycle = 0
+  
+  	// We actually wait here until a 
+  	// Trajectory is present in the HMI.
+  	do nothing until {
+  	   if HMI.trajectoryPresent then continue
+  	}
+  
+  	while HMI.cycle {
+  	    do HMI.display("Cycle nr: %d.\n", cycle )
+  	    call ResetAxes
+  	    call HMIRequestTrajectory
+  	    call runTrajectory
+  
+  	    do HeartBeat.sleep( 5.0 ) // wait 5s
+  	}
+  
+  	call ExitProgram
+  }  </programlisting>
     </example>
   </sect1>
   <sect1 id="exporting-component-api">
-    <title>Exporting a Component's API</title>
+    <title>The Parser and Orocos ControlKernel</title>
+    <para>
+      This section explains how the Orocos ControlKernel
+      Components can be set up to export their interface
+      to the ControlKernel infrastructure. The
+      &taskman; gives a more general introduction to
+      this topic, while this section is ControlKernel specific.
+    </para>
     <sect2 id="exporting-component-api-data-and-commands">
       <title>Data, Methods and Commands</title>
       <para>
-	A component's API can consist of three things: Data, Methods and
+	A Component's API can consist of three things: Data, Methods and
 	Commands. Data should be accessible without any side effects
 	( it is const ), thus many readouts do not influence the data
 	or other data, although the data may change because of other reasons.
@@ -1430,7 +1596,7 @@ program DemoRun {
 	thus they can still be used in expressions.
 	Commands are specifically meant to generate side effects
 	<emphasis>over time</emphasis>.  Suppose you're
-	writing a robot component, then an example of a command would
+	writing a robot task, then an example of a command would
 	be: "robot.moveTo", telling the robot to move to the specified
 	position, and an example of a data value would be
 	"robot.isAtPosition", checking whether the robot has already
@@ -1442,7 +1608,7 @@ program DemoRun {
 	An &orocos; program is not executed at the same time it is
 	parsed.  It is first parsed, and compiled down to an object
 	representation of it, allowing the program to be executed in a
-	near-realtime environment. 
+	realtime environment. 
       </para>
       <para>
 	Specifically, Commands are represented by child classes of 
@@ -1459,10 +1625,10 @@ program DemoRun {
 	CommandInterface and DataSource classes by respectively
 	CommandFactory's, MethodFactory's and DataSourceFactory's.
 	These are provided
-	by the various components.  Every component can have one
+	by the various tasks.  Every task can have one
 	CommandFactory, one MethodFactory and one DataSourceFactory.
 	Continue reading
-	for more information on how to add one to your own component. 
+	for more information on how to add one to your own components. 
       </para>
     </sect2>
     <sect2 id="exporting-api-the-extension">
@@ -1507,7 +1673,7 @@ class Robot
 {
 public:
   void moveToHomePosition();
-  // A Termination condition must be const :
+  // A Completion condition must be const :
   bool isAtHomePosition() const;
   
   void moveTo( const Vector&amp; position );

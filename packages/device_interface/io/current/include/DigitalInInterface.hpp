@@ -41,7 +41,7 @@ namespace ORO_DeviceInterface
      * channels. When there are N bits, the bits are numbered from Zero to N-1.
      */
     class DigitalInInterface
-                : private NameServerRegistrator<DigitalInInterface*, std::string>
+        : private NameServerRegistrator<DigitalInInterface*>
     {
         public:
         /**
@@ -52,7 +52,7 @@ namespace ORO_DeviceInterface
          *        The name which will refer to this instance.
          */
         DigitalInInterface( const std::string& name )
-            : NameServerRegistrator<DigitalInInterface*, std::string>
+            : NameServerRegistrator<DigitalInInterface*>
         ( nameserver, name, this )
         { }
 

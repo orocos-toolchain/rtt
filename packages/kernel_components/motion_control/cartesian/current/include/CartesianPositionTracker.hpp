@@ -48,8 +48,7 @@
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <control_kernel/ExecutionExtension.hpp>
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateCommandFactory.hpp"
+#include "execution/TemplateFactories.hpp"
 #endif
 
 
@@ -412,6 +411,14 @@ namespace ORO_ControlKernel
             return true;
         }
 
+        virtual void exportProperties( PropertyBag & bag )
+        {
+            bag.add(&closeness);
+            bag.add(&max_vel);
+            bag.add(&max_acc);
+            bag.add(&interpol_prop);
+        }
+
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 
         DataSourceFactoryInterface* createDataSourceFactory()
@@ -425,26 +432,25 @@ namespace ORO_ControlKernel
                       data( &CartesianPositionTracker::time, 
                             "The current time in the movement "
                             ) );
+            ret->add( "isTracking",
+                      data( &CartesianPositionTracker::isTracking, 
+                            "Return true if the Generator is tracking an object."
+                            ) );
             return ret;
         }
 
-        template< class T >
-        bool true_gen( T t ) const { return true; }
-
-        CommandFactoryInterface* createCommandFactory()
+        MethodFactoryInterface* createMethodFactory()
         {
-            TemplateCommandFactory< CartesianPositionTracker >* ret =
-                newCommandFactory( this );
+            TemplateMethodFactory< CartesianPositionTracker >* ret =
+                newMethodFactory( this );
             ret->add( "trackPositionInput",
-                      command( &CartesianPositionTracker::trackPositionInput,
-                               &CartesianPositionTracker::isTracking,
+                      method( &CartesianPositionTracker::trackPositionInput,
                                "Track the Frame in the Input DataObject",
                                "FrameName","The DataObject Name of the Frame to track",
                                "TimeName", "The DataObject Name of the duration of one setpoint."
                                ) ); 
             ret->add( "trackTaskFrameInput",
-                      command( &CartesianPositionTracker::trackTaskFrameInput,
-                               &CartesianPositionTracker::isTaskTracking,
+                      method( &CartesianPositionTracker::trackTaskFrameInput,
                                "Use the Task Frame in the Input DataObject",
                                "FrameName","The DataObject Name of the Task Frame"
                                ) ); 

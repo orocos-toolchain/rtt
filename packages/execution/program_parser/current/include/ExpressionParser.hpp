@@ -30,6 +30,8 @@
 
 #include "parser-types.hpp"
 #include "CommonParser.hpp"
+#include "PeerParser.hpp"
+#include "ValueParser.hpp"
 #include "DataSource.hpp"
 #include "corelib/Time.hpp"
 
@@ -51,25 +53,29 @@ namespace ORO_Execution
 
     rule_t datacall, arguments;
 
-    void seenobjectname( iter_t begin, iter_t end )
-      {
-        std::string name( begin, end );
-        mobject = name;
-      };
     void seenmethodname( iter_t begin, iter_t end )
       {
         std::string name( begin, end );
         mmethod = name;
       };
+
     void seendataname();
     void seendatacall();
     CommonParser commonparser;
     ExpressionParser& expressionparser;
-    ParseContext& context;
+    PeerParser peerparser;
+    TaskContext* context;
     std::stack<ArgumentsParser*> argparsers;
   public:
-    DataCallParser( ExpressionParser& p, ParseContext& pc );
+    DataCallParser( ExpressionParser& p, TaskContext* pc );
     ~DataCallParser();
+
+      /**
+       * Change the context in which datacalls are 
+       * looked up.
+       * @return the previous TaskContext.
+       */
+      TaskContext* setContext( TaskContext* tc);
 
     rule_t& parser()
       {
@@ -125,12 +131,22 @@ namespace ORO_Execution
     void seendatacall();
     void seentimespec( int n );
     void seentimeunit( iter_t begin, iter_t end );
+      void inverttime();
 
-    ParseContext& context;
-    DataCallParser datacallparser;
+      TaskContext* context;
+      DataCallParser datacallparser;
+      ValueParser valueparser;
+      bool _invert_time;
   public:
-    ExpressionParser( ParseContext& pc );
+    ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
+
+      /**
+       * Change the context in which values are 
+       * looked up.
+       * @return the previous TaskContext.
+       */
+      TaskContext* setStack( TaskContext* tc);
 
     rule_t& parser();
 
@@ -140,6 +156,8 @@ namespace ORO_Execution
     // going back down the parse stack.  This is what this function
     // does..
     void dropResult();
+
+      bool hasResult() { return !parsestack.empty(); }
   };
 }
 

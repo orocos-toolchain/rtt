@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/GlobalCommandFactory.hpp"
+#include "execution/CommandFactoryComposite.hpp"
 
 #include <cassert>
 
@@ -44,6 +45,8 @@ namespace ORO_Execution {
     CommandFactoryInterface* cif )
   {
     assert( cif );
+    if ( mdata.count( objectname ) != 0 )
+        cif = new CommandFactoryComposite( mdata[objectname], cif );
     mdata[objectname] = cif;
   };
 
@@ -62,7 +65,10 @@ namespace ORO_Execution {
 
   void GlobalCommandFactory::unregisterObject( const std::string& objectname )
   {
-    mdata.erase( objectname );
+      if ( mdata.count( objectname ) ) {
+          delete mdata[objectname];
+          mdata.erase( objectname );
+      }
   }
 
     std::vector<std::string> GlobalCommandFactory::getObjectList() const

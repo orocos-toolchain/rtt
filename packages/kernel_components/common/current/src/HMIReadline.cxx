@@ -38,5 +38,8 @@ namespace ORO_ControlKernel
     std::string HMIReadline::datasource;
     std::string HMIReadline::text;
     ExecutionExtension* HMIReadline::ee = 0;
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+    TaskContext* HMIReadline::taskcontext = 0;
+#endif
 #endif
 }

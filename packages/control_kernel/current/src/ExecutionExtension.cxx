@@ -45,6 +45,7 @@
 
 #include <functional>
 #include <boost/function.hpp>
+#include <fstream>
 
 namespace ORO_ControlKernel
 {
@@ -53,10 +54,12 @@ namespace ORO_ControlKernel
     using namespace boost;
 
     ExecutionExtension::ExecutionExtension( ControlKernelInterface* _base )
-        : detail::ExtensionInterface( _base, "Execution" ), program(0),
+        : detail::ExtensionInterface( _base, "Execution" ),
+          program(0),
           running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
-with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
+with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
+          tc(_base->getKernelName(), &proc) // pass task name, runnableinterface and processor.
     {
     }
 
@@ -67,17 +70,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     using std::cerr;
     using std::endl;
 
-    // is this still needed ???
-//     TaskInterface* ExecutionExtension::getTask() const
-//     {
-//         return base->getTask();
-//     }
-
-//     void ExecutionExtension::setTask( TaskInterface* task )
-//     {
-//         base->setTask( task );
-//     }
-
     bool ExecutionExtension::initialize()
     {
         initKernelCommands();
@@ -85,6 +77,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
             cerr << "Warning : Processor could not activate \"Default\" StateContext."<<endl;
         else if ( !proc.startStateContext("Default") )
             cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
+        proc.setTask( this->kernel()->getTask() );
+        proc.initialize();
         return true;
     }
 
@@ -113,13 +107,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.stepProgram(name);
     }
 
-    bool ExecutionExtension::loadProgram( std::istream& prog_stream )
+    bool ExecutionExtension::loadProgram( const std::string& filename )
     {
         initKernelCommands();
         Parser    parser;
         std::vector<ProgramGraph*> pg_list;
+        std::ifstream prog_stream(filename.c_str());
         try {
-            pg_list = parser.parseProgram( prog_stream, &proc, this );
+            pg_list = parser.parseProgram( prog_stream, &tc, filename );
         }
         catch( const file_parse_exception& exc )
         {
@@ -128,7 +123,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         }
         if ( pg_list.empty() )
         {
-          throw program_load_exception( "No Programs defined in inputfile." );
+          throw program_load_exception( "Warning : No Programs defined in inputfile." );
         }
         for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, &proc, _1) );
         return true;
@@ -143,13 +138,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         }
     }
 
-    void ExecutionExtension::loadStateContext( std::istream& state_stream, const std::string& filename )
+    void ExecutionExtension::loadStateContext( const std::string& filename )
     {
         initKernelCommands();
         Parser    parser;
         std::vector<ParsedStateContext*> contexts;
+        std::ifstream state_stream(filename.c_str());
         try {
-          contexts = parser.parseStateContext( state_stream, filename, &proc, this );
+          contexts = parser.parseStateContext( state_stream, &tc, filename );
         }
         catch( const file_parse_exception& exc )
         {
@@ -230,24 +226,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         return proc.resetStateContext(name);
     }
 
-    bool ExecutionExtension::executeCommand( CommandInterface* c)
-    {
-        if ( this->kernel()->getTask()->isRunning() )
-            return proc.process( c );
-        else {
-            MutexLock lockit( execguard );
-            c->execute();
-        }
-        return true;
-    }
-                
-                
-
     void ExecutionExtension::step() {
         if ( count % interval == 0 )
             {
                 count = 0;
-                proc.doStep();
+                proc.step();
             }
         ++count;
     }
@@ -256,6 +239,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     {
         proc.stopStateContext("Default");
         proc.deactivateStateContext("Default");
+        proc.setTask(0);
+        proc.finalize();
     }
 
     void ExecutionExtension::initKernelCommands()
@@ -277,15 +262,15 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
                 // Add the commands / data of the kernel :
                 commandfactory = (*it)->createCommandFactory();
                 if ( commandfactory )
-                    commandFactory().registerObject( (*it)->getName(), commandfactory );
+                    tc.commandFactory.registerObject( (*it)->getName(), commandfactory );
 
                 datasourcefactory = (*it)->createDataSourceFactory();
                 if ( datasourcefactory )
-                    dataFactory().registerObject( (*it)->getName(), datasourcefactory );
+                    tc.dataFactory.registerObject( (*it)->getName(), datasourcefactory );
 
                 methodfactory = (*it)->createMethodFactory();
                 if ( methodfactory ) {
-                    methodFactory().registerObject( (*it)->getName(), methodfactory );
+                    tc.methodFactory.registerObject( (*it)->getName(), methodfactory );
                 }
                 ++it;
             }
@@ -394,13 +379,13 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
         master = ext;
         _commandfactory = this->createCommandFactory();
         if ( _commandfactory )
-            master->commandFactory().registerObject( name, _commandfactory );
+            master->getTaskContext()->commandFactory.registerObject( name, _commandfactory );
         _datasourcefactory = this->createDataSourceFactory();
         if ( _datasourcefactory )
-            master->dataFactory().registerObject( name, _datasourcefactory );
+            master->getTaskContext()->dataFactory.registerObject( name, _datasourcefactory );
         _methodfactory = this->createMethodFactory();
         if ( _methodfactory )
-            master->methodFactory().registerObject( name, _methodfactory );
+            master->getTaskContext()->methodFactory.registerObject( name, _methodfactory );
         return true;
     }
 
@@ -408,9 +393,12 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
     {
         if (master == 0 )
             return;
-        master->commandFactory().unregisterObject( name );
-        master->dataFactory().unregisterObject( name );
-        master->methodFactory().unregisterObject( name );
+        master->getTaskContext()->commandFactory.unregisterObject( name );
+        master->getTaskContext()->dataFactory.unregisterObject( name );
+        master->getTaskContext()->methodFactory.unregisterObject( name );
+        _commandfactory = 0;
+        _datasourcefactory = 0;
+        _methodfactory = 0;
     }
 
     ExecutionComponentInterface::~ExecutionComponentInterface()

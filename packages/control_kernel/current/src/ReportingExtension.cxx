@@ -209,6 +209,8 @@ namespace ORO_ControlKernel
                         ic->second->exportReports( ic->second->getReports()->value() );
                         reporter->exporterAdd( ic->second->getExporter() );
                     }
+                else 
+                    cerr << " ReportingExtension : "<< *it << " not found !"<<endl;
             }
 
         // iterate over all xml-listed dataobjects :
@@ -216,46 +218,72 @@ namespace ORO_ControlKernel
             {
                 unsigned int pos;
                 // see if xml-listed data_server is present in this kernel :
-                DataObjectReporting* do_server;
-                if ( (do_server = DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ) ) )
+                boost::shared_ptr<DataObjectReporting>
+                    do_server(DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ));
+                if ( do_server.get() )
                     {
+                        //std::cerr <<" found as '" + base->getKernelName() + "::" + *it+"'";
                         // The user gave a "DataObject" identifier
                         // Check for double registration
                         if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
                             {
+                                //std::cerr <<" first time, thus adding ";
                                 active_dos.push_back( do_server );
                                 reporter->exporterAdd( do_server->getExporter() );
                             }
                         else
                             {
+                                //std::cerr <<" already present in reporter, cleanup bag ";
                                 // This server exists. Request it to export all reports,
                                 // but remove the old entry, whatever it was.
                                 do_server->cleanupReports( do_server->getReports()->value() );
                             }
+                        //std::cerr <<" exporting Reports to bag "<<std::endl;
                         do_server->exportReports( do_server->getReports()->value() );
                     }
-                else if ( (pos = (*it).find("::")) != std::string::npos && (do_server =
-                          DataObjectReporting::nameserver.getObject( base->getKernelName()
-                                                                     +"::" + std::string( *it, 0, pos ) )) )
-                    {
-                        PropertyBag tmp_bag;
-                        PropertyBase* new_item;
-                        // The user gave a "DataObject::DataName" identifier, we need to add one item.
-                        // check if it is the first registration...
-                        if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
-                            {
-                                active_dos.push_back( do_server );
-                                reporter->exporterAdd( do_server->getExporter() );
+                else if ( (pos = (*it).find("::")) != std::string::npos ) {
+                    // extract the server's name :
+                    do_server =
+                        DataObjectReporting::nameserver.getObject( base->getKernelName()
+                                                                   +"::" + std::string( *it, 0, pos ) );
+                    if ( do_server.get() )
+                        {
+                            //std::cerr <<" found as '" + base->getKernelName()+"::" + std::string( *it, 0, pos )<<"'";
+                            PropertyBag tmp_bag;
+                            PropertyBase* new_item;
+                            // The user gave a "DataObject::DataName" identifier, we need to add one item.
+                            // check if it is the first registration...
+                            if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
+                                {
+                                    //std::cerr <<" first time, thus adding ";
+                                    active_dos.push_back( do_server );
+                                    reporter->exporterAdd( do_server->getExporter() );
+                                }
+                            do_server->exportReports( tmp_bag );
+
+                            //std::cerr <<" checking if '"+ std::string( *it, pos+2 )+"' is present in DataObject : "<<endl;
+                            // if the DataName is in the server, but not in the reports yet, add it to the reports.
+                            new_item = tmp_bag.find( std::string( *it, pos+2 ) );
+                            if ( new_item != 0 ) {
+                                //cerr << " ok: present in DataObject."<<endl;
+                                //cerr << " Checking if server has parent '" + std::string( *it, 0, pos+2 ) +"' : ";
+                                if ( do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0) {
+                                    //std::cerr << " not found thus adding new_item"<<endl;
+                                    do_server->getReports()->value().add( new_item->clone() );
+                                } //else std::cerr << " found thus no need to add "<<endl;
+                            } else {
+                                std::cerr <<std::endl<< " ReporingExtension : Looking up '"<< *it <<"' : ";
+                                cerr << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<""<<endl;
                             }
-                        do_server->exportReports( tmp_bag );
 
-                        // if the DataName is in the server, but not in the reports yet, add it to the reports.
-                        if ( (new_item = tmp_bag.find( std::string( *it, pos+2 ) ) ) &&
-                             do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0)
-                            do_server->getReports()->value().add( new_item->clone() );
-
-                        do_server->cleanupReports( tmp_bag );
-                    }
+                            do_server->cleanupReports( tmp_bag );
+                        }
+                }
+                else {
+                    std::cerr <<std::endl<< " ReporingExtension : Looking up '"<< *it <<"' : ";
+                    std::cerr <<" not found !"<<endl ;
+                    std::cerr <<" Tried " + base->getKernelName()+"::" + std::string( *it, 0, pos ) <<endl;
+                }
             }
         if (serverOwner)
             reporterTask->start();

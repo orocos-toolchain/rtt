@@ -62,15 +62,15 @@ namespace ORO_CoreLib
      * In case two objects are registered with the same name, the first one is kept and the
      * second one rejected.<br>
      *
-     *  @param ValueType  The type of objects you want to have nameserved( usually a pointer type ).
-     *  @param NameType The type of the name you want to used (string by default, but you could use ints)
-     *  @param Rep The container you wish to use for actually storing the name value pairs
-     *   it has to support the [] operator with a NameType
-     *   and it needs iterators and begin() and end().
+     *  @param _ValueType  The type of objects you want to have nameserved( usually a pointer type ).
      */
-    template <class ValueType, class NameType = std::string, class Rep = std::map<NameType, ValueType> >
+    template < class _ValueType >
     class NameServer
     {
+    public:
+        typedef _ValueType ValueType;
+        typedef std::string NameType;
+        typedef std::map<NameType, ValueType> Rep;
         /**
          * The iterator for iterating over the internal representation
          */
@@ -80,7 +80,6 @@ namespace ORO_CoreLib
          */
         typedef typename Rep::const_iterator const_iterator;
 
-    public:
         /**
          * @brief Construct an empty NameServer.
          */
@@ -134,7 +133,9 @@ namespace ORO_CoreLib
         ValueType getObject( const NameType& s ) const
         {
             const_iterator itc = objects.find( s );
-            return  itc == objects.end() ? 0 : ( *itc ).second;
+            if ( itc == objects.end() ) 
+                return ValueType();
+            return( *itc ).second;
         }
 
         /**
@@ -198,7 +199,7 @@ namespace ORO_CoreLib
         {
             if ( isNameRegistered( name ) )
                 return;
-            objects[ name ] = obj;
+            objects.insert(std::make_pair(name,obj));
         }
 
         /**
@@ -384,7 +385,7 @@ namespace ORO_CoreLib
         /**
          * @brief Get an iterator to the end of the names list.
          */
-        name_iterator getNameEnd()   { return name_iterator( objects.end() ); }
+        name_iterator getNameEnd() { return name_iterator( objects.end() ); }
 
         /**
          * @brief Get an iterator to the beginning of the objects list.
@@ -394,15 +395,15 @@ namespace ORO_CoreLib
         /**
          * @brief Get an iterator to the end of the objects list.
          */
-        value_iterator getValueEnd()   { return value_iterator( objects.end() ); }
+        value_iterator getValueEnd() { return value_iterator( objects.end() ); }
 
     private:
         Rep objects;
         static NameType NoName;
     };
 
-    template<class T, class V, class W>
-    V NameServer<T, V, W>::NoName;
+    template<class T>
+    std::string NameServer<T>::NoName;
 
 }
 

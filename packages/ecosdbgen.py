@@ -24,7 +24,12 @@ on stdout.
 import os
 import re
 import sys
-from optparse import OptionParser
+
+useOpts = True
+try:
+    from optparse import OptionParser
+except ImportError:
+    useOpts = False
 
 def package_factory(arg, dirname, filelist):
     "Create package found in dirname (if any)"
@@ -106,31 +111,39 @@ class Package :
         _out.write("  script "+self.script+"\n")
         _out.write("}\n")
 
-# Option Parser
-myusage = "\n    %prog [options] \n" \
-          " %prog generates an ecos.db file to be used with the ecos tools."
+# Defaults
+repository = "."
+output  = ""
+verbose = False
+quiet   = False
+
+if useOpts:
+    # Option Parser
+    myusage = "\n    %prog [options] \n" \
+              " %prog generates an ecos.db file to be used with the ecos tools."
 
 
-parser = OptionParser( usage=myusage, version = "%prog 0.1")
-parser.add_option("-R", "--repository", dest="repository", default=".",
-                  help="The path to the eCos repository [default='./']", metavar="PATH")
-parser.add_option("-q", "--quiet",
-                  action="store_true", dest="quiet", default=False,
-                  help="don't print any messages to stdout")
-parser.add_option("-v", "--verbose",
-                  action="store_true", dest="verbose", 
-                  help="make lots of noise")
-parser.add_option("-o", "--output",
-                  action="store", dest="output", default="", metavar="FILE",
-                  help="The output file to store the results in. [default : stdout]")
+    parser = OptionParser( usage=myusage, version = "%prog 0.1")
+    parser.add_option("-R", "--repository", dest="repository", default=".",
+                      help="The path to the eCos repository [default='./']", metavar="PATH")
+    parser.add_option("-q", "--quiet",
+                      action="store_true", dest="quiet", default=False,
+                      help="don't print any messages to stdout")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose", 
+                      help="make lots of noise")
+    parser.add_option("-o", "--output",
+                      action="store", dest="output", default="", metavar="FILE",
+                      help="The output file to store the results in. [default : stdout]")
 
-# interpret given options
-(options, args) = parser.parse_args()
+    # interpret given options
+    (options, args) = parser.parse_args()
 
-repository = options.repository
-output  = options.output
-verbose = options.verbose
-quiet   = options.quiet
+    # override defaults
+    repository = options.repository
+    output  = options.output
+    verbose = options.verbose
+    quiet   = options.quiet
 
 # Script start
 

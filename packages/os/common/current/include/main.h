@@ -12,5 +12,5 @@ extern "C"
 /**
  * The users startup code.
  */
-int ORO_main(int argc, const char** argv);
+int ORO_main(int argc, char** argv);
 
