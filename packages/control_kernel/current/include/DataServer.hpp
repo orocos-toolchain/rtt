@@ -120,7 +120,7 @@ namespace ORO_ControlKernel
          * which must be Get.
          * @return true if it could be get, false otherwise.
          */
-        bool Get( const std::string& name, DataObjectType*& m )
+        bool Get( const std::string& name, DataObjectType*& m ) const
         {
             DataObjectType_ptr res;
             if ( (res = ns.getObject(prefix + name) ) )

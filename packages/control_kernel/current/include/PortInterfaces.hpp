@@ -47,6 +47,16 @@ namespace ORO_ControlKernel
             typedef _DataObjectType DataObjectType;
 
             /**
+             * This is a helper class for use in the
+             * NSControlKernel (it is nonnensical in other kernels).
+             */
+            template < class _DataType >
+            struct DataObject
+            {
+                typedef typename _DataObjectType::DataObject< _DataType >::type type;
+            };
+
+            /**
              * Default contructor.
              */
             StandardReadPort() : _dObj(0) {}
@@ -190,6 +200,16 @@ namespace ORO_ControlKernel
              * The type of data the Port will read
              */
             typedef _DataObjectType DataObjectType;
+
+            /**
+             * This is a helper class for use in the
+             * NSControlKernel (it is nonnensical in other kernels).
+             */
+            template < class _DataType >
+            struct DataObject
+            {
+                typedef typename _DataObjectType::DataObject< _DataType >::type type;
+            };
 
             /**
              * Default contructor.

@@ -45,7 +45,7 @@ namespace ORO_ControlKernel
     }
 
     ReportingExtension::ReportingExtension( KernelBaseFunction* _base )
-        : detail::ExtensionInterface("Reporter"), 
+        : detail::ExtensionInterface("Reporter"),
           period("ReportPeriod","in seconds", 0.1 ), 
           interval("SubSamplingInterval","", 1),
           repFile("ReportFile","", "report.txt"),
@@ -109,6 +109,8 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::initialize()
     {
+        splitStream =0; config =0; nh_config = 0;
+        reporter = 0; reporterTask = 0;
 #ifdef OROINT_OS_STDIOSTREAM
         if ( toFile && toStdOut )
             {
@@ -127,11 +129,6 @@ namespace ORO_ControlKernel
                             } else
                                 {
                                     // do nothing.
-                                    config = 0;
-                                    nh_config = 0;
-                                    splitStream = 0;
-                                    reporter = 0;
-                                    reporterTask = 0;
                                     return true;
                                 }
                     
