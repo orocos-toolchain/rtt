@@ -49,7 +49,7 @@ namespace ORO_Execution {
     }
 
     ParsedStateContext* ParsedStateContext::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const {
-        std::map<const StateInterface*, StateInterface*> statemapping;
+        std::map<const StateInterface*, StateDescription*> statemapping;
         ParsedStateContext* ret = new ParsedStateContext();
 
         ret->nameds = nameds->copy( replacements );
@@ -76,13 +76,34 @@ namespace ORO_Execution {
             replacements[i->second.get()] = ncds.get();
         }
 
+        // First make a copy of all states.  All states are either
+        // known by their name or by a transition from or to them...
+        for ( TransitionMap::const_iterator i = stateMap.begin(); i != stateMap.end(); ++i )
+        {
+            assert( dynamic_cast<StateDescription*>( i->first ) );
+            StateDescription* fromState = static_cast<StateDescription*>( i->first );
+            if( statemapping.find( fromState ) == statemapping.end() )
+                statemapping[fromState] = fromState->copy( replacements );
+            for ( TransList::const_iterator j = i->second.begin(); j != i->second.end(); ++j )
+            {
+                assert( dynamic_cast<StateDescription*>( j->get<1>() ) );
+                StateDescription* toState = static_cast<StateDescription*>( j->get<1>() );
+                if( statemapping.find( toState ) == statemapping.end() )
+                    statemapping[toState] = toState->copy( replacements );
+            }
+        }
+        for ( StateNameMap::const_iterator i = states.begin(); i != states.end(); ++i )
+            if ( statemapping.find( i->second ) == statemapping.end() )
+                statemapping[i->second] = i->second->copy( replacements );
+
+        // now link the names to the new states
         for ( StateNameMap::const_iterator i = states.begin(); i != states.end(); ++i )
         {
-            StateDescription* newstate = i->second->copy( replacements );
-            ret->states[i->first] = newstate;
-            statemapping[i->second] = newstate;
+            assert( statemapping.find( i->second ) != statemapping.end() );
+            ret->states[i->first] = statemapping[i->second];
         }
 
+        // next, copy the transitions
         for ( TransitionMap::const_iterator i = stateMap.begin(); i != stateMap.end(); ++i )
         {
             assert( statemapping.find( i->first ) != statemapping.end() );

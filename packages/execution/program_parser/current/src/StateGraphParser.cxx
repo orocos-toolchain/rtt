@@ -903,8 +903,16 @@ namespace ORO_Execution
         curcontextbuilder = 0;
         delete curinstantiatedcontext;
         curinstantiatedcontext = 0;
-        delete curtemplatecontext;
-        curtemplatecontext = 0;
+        if ( curtemplatecontext )
+        {
+          // remove the data factories we added to the context again..
+          std::vector<std::string> subcontextnames = curtemplatecontext->getSubContextList();
+          for ( std::vector<std::string>::iterator i = subcontextnames.begin();
+                i != subcontextnames.end(); ++i )
+            context.globalfactory->dataFactory().unregisterObject( *i );
+          delete curtemplatecontext;
+          curtemplatecontext = 0;
+        }
         for ( std::vector<CommandInterface*>::iterator i = preentrycommands.begin();
               i != preentrycommands.end(); ++ i )
           delete *i;
@@ -929,6 +937,7 @@ namespace ORO_Execution
 
     void StateGraphParser::seenpreconditions() {
         curtemplatecontext->transitionSet( curstate, curnonprecstate, new ConditionTrue, rank-- );
+        curstate->setDefined( true );
         curstate = curnonprecstate;
         curnonprecstate = 0;
     }
