@@ -343,7 +343,7 @@
 	    </para>
 	  </sect4>
 	  <sect4>
-	    <title>Standard Kernel Events</title>
+	    <title>Standard Kernel Events and Hooks</title>
 	    <para>
 	      A component might be interested in the fact if it is inserted in a kernel and if
 	      this kernel is running or not. A kernel might possibly do an init- run of the
@@ -369,6 +369,45 @@
 	      interface allows you to access the Standard Kernel Events. We refer to the Doxygen
 	      API documentation for the full documentation of these interfaces. The Events document
 	      explains how Events work and how a handler can be added.
+	    </para>
+	    <para>
+	      The following hooks are available for each Component to fill in :
+	      <table>
+		<title>ComponentBaseInterface Hooks</title>
+		<tgroup cols="2">
+		  <tbody>
+		    <row>
+		      <!-- one of (entrytbl entry) -->
+		      <entry>virtual void componentLoaded() {}</entry>
+		      <entry>Called when the component is loaded into the kernel.</entry>
+		    </row>
+		    <row>
+		      <!-- one of (entrytbl entry) -->
+		      <entry>virtual void componentUnloaded() {}</entry>
+		      <entry>Called when the component is unloaded from the kernel.</entry>
+		    </row>
+		    <row>
+		      <!-- one of (entrytbl entry) -->
+		      <entry>virtual void componentStartUp() {}</entry>
+		      <entry>
+			Called when the kernel is started and all components are
+			initialised. The component must write meaningful information to
+		        its data objects and is guaranteed to find meaningfull information
+		        in its readable data objects.
+		      </entry>
+		    </row>
+		    <row>
+		      <!-- one of (entrytbl entry) -->
+		      <entry>virtual void componentShutdown() {}</entry>
+		      <entry>
+			Called when the kernel is stopped and all components should
+			return to a safe off-state.
+		      </entry>
+		    </row>
+		  </tbody>
+		</tgroup>
+		<!-- one of (graphic mediaobject tgroup) -->
+	      </table>
 	    </para>
 	  </sect4>
 	</sect3>
