@@ -7,6 +7,7 @@
 #include "CANRequest.hpp"
 
 #include <vector>
+#include <os/rtstreams.hpp>
 
 namespace Beckhoff
 {

@@ -7,6 +7,8 @@ namespace CAN
 
     struct CANListenerInterface
     {
+        virtual ~CANListenerInterface {}
+
 		/**
 		 * This method instructs the CANDeviceInterface instance to process a
          * certain CANMessage. You are not the owner of <msg>.
@@ -23,6 +25,8 @@ namespace CAN
 	struct CANDeviceInterface 
         : public CANListenerInterface
     {
+        virtual ~CANDeviceInterface {}
+
         /**
          * Returns the node ID of this device.
          */

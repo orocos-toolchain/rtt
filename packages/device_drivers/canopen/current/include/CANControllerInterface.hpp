@@ -13,6 +13,7 @@ namespace CAN
 	struct CANControllerInterface 
         : public CANDeviceInterface
     {
+        virtual ~CANDeviceInterface() {}
 	};
 			
 }
