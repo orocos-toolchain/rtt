@@ -34,6 +34,7 @@ ProgramTest::setUp()
 void 
 ProgramTest::tearDown()
 {
+    gtask.stop();
     gtc.methodFactory.unregisterObject( "test" );
     gtc.commandFactory.unregisterObject( "test" );
     gtc.dataFactory.unregisterObject( "test" );
@@ -292,7 +293,6 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     gtask.start();
 //     while (1)
     sleep(1);
-    gtask.stop();
     SimulationThread::Instance()->stop();
 
     if (test ) {
@@ -301,6 +301,7 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
         CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
     }
+    gtask.stop();
 }
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
