@@ -82,7 +82,7 @@ namespace ORO_Execution
 
             virtual ~Processor();
 
-			virtual bool startStepping(const std::string& name);
+			virtual bool pauseProgram(const std::string& name);
 
 			virtual bool loadStateContext( StateContextTree* sc );
             virtual bool unloadStateContext( const std::string& name );
@@ -99,7 +99,7 @@ namespace ORO_Execution
 			virtual bool loadProgram( ProgramInterface* pi ) ;
 			virtual bool startProgram(const std::string& name);
 			virtual bool stopProgram(const std::string& name);
-			virtual bool resetProgram(const std::string& name);
+			virtual bool stepProgram(const std::string& name);
 			virtual bool deleteProgram(const std::string& name);
 
         virtual bool isProgramRunning( const std::string& name) const;
@@ -107,13 +107,14 @@ namespace ORO_Execution
         virtual bool isStateContextStepped(const std::string& name) const;
 
 			virtual void doStep();
-			virtual bool nextStep(const std::string& name);
 			virtual bool process(CommandInterface* c);
       virtual bool isCommandProcessed( CommandInterface* c );
       virtual void abandonCommand( CommandInterface* c );
 
       std::vector<std::string> getProgramList();
       std::vector<std::string> getStateContextList();
+
+        ProgramInterface* getProgram(const std::string& name) const;
 
         class ProgramInfo;
         class StateInfo;

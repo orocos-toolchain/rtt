@@ -43,13 +43,13 @@ namespace ORO_Execution
 
         struct Processor::ProgramInfo
         {
+            enum prog_states { stopped, running, stepmode };
+            prog_states pstate;
             ProgramInfo(const std::string&_name, ProgramInterface* p)
-                : program(p),
-                  running(false),
-                  stepping(false), name(_name) {}
+                : pstate(stopped), program(p),
+                  step(false), name(_name) {}
             ProgramInterface* program;
-            bool running;
-            bool stepping;
+            bool step;
             std::string name;
         };
 
@@ -155,24 +155,12 @@ namespace ORO_Execution
         return true;
     }
 
-	bool Processor::resetProgram(const std::string& name)
-    {
-        program_iter it =
-            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
-        if ( it != programs->end() && it->running == false && it->stepping == false)
-            {
-                it->program->reset();
-                return true;
-            }
-        return false;
-    }
-
 	bool Processor::startProgram(const std::string& name)
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
         if ( it != programs->end() )
-            it->running = true;
+            it->pstate = ProgramInfo::running;
         return it != programs->end();
     }
 
@@ -181,16 +169,16 @@ namespace ORO_Execution
         cprogram_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
         if ( it != programs->end() )
-            return it->running;
+            return it->pstate == ProgramInfo::running;
         return false;
     }
 
-	bool Processor::startStepping(const std::string& name)
+	bool Processor::pauseProgram(const std::string& name)
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
         if ( it != programs->end() )
-            it->stepping = true;
+            it->pstate = ProgramInfo::stepmode;
         return it != programs->end();
     }
 
@@ -198,8 +186,10 @@ namespace ORO_Execution
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
-        if ( it != programs->end() )
-            it->running = false;
+        if ( it != programs->end() ) {
+            it->pstate = ProgramInfo::stopped;
+            it->program->reset();
+        }
         return it != programs->end();
     }
 
@@ -207,11 +197,23 @@ namespace ORO_Execution
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
-        if ( it != programs->end() && it->running == false && it->stepping == false)
+        if ( it != programs->end() && it->pstate == ProgramInfo::stopped )
             {
                 delete it->program;
                 programs->erase(it);
                 return true;
+            }
+        if ( it == programs->end() ) {
+                std::string error(
+                                  "Could not unload Program \"" + name +
+                                  "\" with the processor. It does not exist." );
+                throw program_unload_exception( error );
+            }
+        if ( it->pstate != ProgramInfo::stopped ) {
+                std::string error(
+                                  "Could not unload Program \"" + name +
+                                  "\" with the processor. It is still running." );
+                throw program_unload_exception( error );
             }
         return false;
     }
@@ -266,7 +268,7 @@ namespace ORO_Execution
     {
         state_iter it =
             find_if(states->begin(), states->end(), bind(state_lookup, _1, name) );
-        if ( it != states->end() && it->gstate == StateInfo::active ) {
+        if ( it != states->end() && it->gstate == StateInfo::active || it->gstate == StateInfo::paused) {
             MutexLock lock( statemonitor );
             it->action = bind( &StateInfo::start, &(*it) );
             return true;
@@ -473,24 +475,24 @@ namespace ORO_Execution
             }
         return false;
     }
-    void executeState( Processor::StateInfo& s)
+    void _executeState( Processor::StateInfo& s)
     {
         if ( s.action )
             s.action();
     }
 
-    void executeProgram( Processor::ProgramInfo& p)
+    void _executeProgram( Processor::ProgramInfo& p)
     {
-        if (p.running)
+        if (p.pstate == Processor::ProgramInfo::running)
             p.program->execute();
     }
 
-    void stepProgram( Processor::ProgramInfo& p)
+    void _stepProgram( Processor::ProgramInfo& p)
     {
-        if (p.stepping)
+        if (p.pstate == Processor::ProgramInfo::stepmode && p.step)
             {
                 p.program->execute();
-                p.stepping=false;
+                p.step = false;
             }
     }
 
@@ -499,7 +501,7 @@ namespace ORO_Execution
         {
             MutexLock lock( statemonitor );
             // Evaluate all states->
-            for_each(states->begin(), states->end(), executeState );
+            for_each(states->begin(), states->end(), _executeState );
         }
 
         // Execute any additional (deferred/external) command.
@@ -515,20 +517,20 @@ namespace ORO_Execution
         {
             MutexLock lock( progmonitor );
             //Execute all normal programs->
-            for_each(programs->begin(), programs->end(), executeProgram);
+            for_each(programs->begin(), programs->end(), _executeProgram);
 
             //Execute all programs in Stepping mode.
-            for_each(programs->begin(), programs->end(), stepProgram );
+            for_each(programs->begin(), programs->end(), _stepProgram );
         }
     }
 
 
-    bool Processor::nextStep(const std::string& name)
+    bool Processor::stepProgram(const std::string& name)
     {
         program_iter it =
             find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
         if ( it != programs->end() )
-            it->stepping = true;
+            it->step = true;
         return it != programs->end();
     }
 
@@ -547,6 +549,15 @@ namespace ORO_Execution
         for ( program_iter i = programs->begin(); i != programs->end(); ++i )
             ret.push_back( i->name );
         return ret;
+    }
+
+    ProgramInterface* Processor::getProgram(const std::string& name) const
+    {
+        program_iter it =
+            find_if(programs->begin(), programs->end(), bind(program_lookup, _1, name) );
+        if ( it != programs->end() )
+            return it->program;
+        return 0;
     }
 
     std::vector<std::string> Processor::getStateContextList()

@@ -83,22 +83,17 @@ namespace ORO_Execution
         virtual bool loadProgram( ProgramInterface* pi) = 0;
 			
         /**
-         * Reset execution logic to the beginning of the associated program.
-         */
-        virtual bool resetProgram(const std::string& name) = 0;
-
-        /**
          * Start execution mode.
          */
         virtual bool startProgram(const std::string& name) = 0;
 
         /**
-         * Start stepping mode of a program.
+         * Start stepping/pause mode of a program.
          */
-        virtual bool startStepping(const std::string& name) = 0;
+        virtual bool pauseProgram(const std::string& name) = 0;
 
         /**
-         * End stepping or execution mode.
+         * Stop execution and reset logic to the beginning of the associated program.
          */
         virtual bool stopProgram(const std::string& name) = 0;
             
@@ -134,11 +129,10 @@ namespace ORO_Execution
          */
         virtual bool continuousStateContext(const std::string& name) = 0;
 
-
         /**
-         * In stepping mode, do the next step.
+         * In stepping mode, execute one command of a program.
          */
-        virtual bool nextStep(const std::string& name) = 0;
+        virtual bool stepProgram(const std::string& name) = 0;
 
         /**
          * Execute a given command asynchronously

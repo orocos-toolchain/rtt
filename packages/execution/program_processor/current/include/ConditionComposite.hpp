@@ -62,10 +62,14 @@ namespace ORO_Execution {
       {
       };
 
-    ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryComposite<op>( lhs->clone(), rhs->clone() );
       };
+
+      ConditionBinaryComposite<op>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new ConditionBinaryComposite<op>(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
+      }
 
     virtual ~ConditionBinaryComposite() {
       delete lhs;
@@ -76,7 +80,7 @@ namespace ORO_Execution {
       return o( lhs->evaluate(), rhs->evaluate() );
     }
 
-    void reset()
+    virtual void reset()
       {
         lhs->reset();
         rhs->reset();

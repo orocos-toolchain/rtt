@@ -285,9 +285,19 @@ namespace ORO_Execution
         return myName;
     }
 
-    void ProgramGraph::setName(const std::string& _name)
+    void ProgramGraph::setName(const std::string& name)
     {
-        myName = _name;
+        myName = name;
+    }
+
+    std::string ProgramGraph::getText() const
+    {
+        return _text;
+    }
+
+    void ProgramGraph::setText(const std::string& text)
+    {
+        _text = text;
     }
 
     void ProgramGraph::returnProgram( ConditionInterface* cond )

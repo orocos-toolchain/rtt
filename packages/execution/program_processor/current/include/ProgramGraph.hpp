@@ -131,6 +131,13 @@ namespace ORO_Execution
         void setLineNumber( int ln );
 
         /**
+         * Set the program text.
+         */
+        void setText( const std::string& t);
+
+        std::string getText() const;
+
+        /**
          * Returns the Graph of the program.
          */
         const Graph& getGraph() const;
@@ -345,6 +352,11 @@ namespace ORO_Execution
          * The (unique) name of this program.
          */
         std::string myName;
+
+        /**
+         * Program text.
+         */
+        std::string _text;
 
         /**
          * @brief A stack which keeps track of branch points.

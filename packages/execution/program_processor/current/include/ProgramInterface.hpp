@@ -59,6 +59,12 @@ namespace ORO_Execution
         virtual int getLineNumber() const = 0;
 
         /**
+         * Return the program text to which \a getLineNumber()
+         * refers.
+         */
+        virtual std::string getText() const = 0;
+
+        /**
          * Programs can be refered to by name.
          */
         virtual const std::string& getName() const = 0;
