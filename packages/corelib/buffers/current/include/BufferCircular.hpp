@@ -20,9 +20,9 @@
 #ifndef BUFFERCIRCULAR_HPP
 #define BUFFERCIRCULAR_HPP
 
-#include <BufferInterface.hpp>
-#include <ReadNonBlockingInterface.hpp>
-#include <WriteNonBlockingInterface.hpp>
+#include "BufferInterface.hpp"
+#include "ReadNonBlockingInterface.hpp"
+#include "WriteNonBlockingInterface.hpp"
 #include <os/Mutex.hpp>
 
 namespace ORO_CoreLib
