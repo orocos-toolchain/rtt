@@ -9,5 +9,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_K600 {
     requires OROPKG_DEVICE_INTERFACE
     requires OROPKG_DEVICE_INTERFACE_IO
 
+    include_dir rtnet
     include_files KryptonK600PositionInterfaceThread.hpp KryptonK600PositionInterfaceThread.inc
 }
