@@ -199,7 +199,7 @@ namespace ORO_ControlKernel
          */
         bool wait( double time )
         {
-            if ( kernel()->isRunning() && trajectoryDone() )
+            if ( this->kernel()->isRunning() && trajectoryDone() )
                 {
                     Frame pos = targetPosition();
                     cout <<"Waiting for "<< time<<" seconds."<< endl;
@@ -224,7 +224,7 @@ namespace ORO_ControlKernel
          */
         bool moveTo( Frame new_pos, double time = 0 )
         {
-            if ( kernel()->isRunning() && trajectoryDone() )
+            if ( this->kernel()->isRunning() && trajectoryDone() )
                 {
                     Frame pos = targetPosition();
                     cout <<"MoveTo : from "<< pos <<" to "<<endl<< new_pos <<endl;
@@ -260,13 +260,14 @@ namespace ORO_ControlKernel
 
         /**
          * Stop as fast as possible (with a_max).
+         * EXPERIMENTAL
          */
         void safeStop()
         {
-            if ( kernel()->isRunning && cur_tr )
+            if ( this->kernel()->isRunning && cur_tr )
                 {
                     // assume vel and acc are positive...
-                    double current_v = cur_tr->getProfile()->Vel( _time );
+                    double current_v = cur_tr->GetProfile()->Vel( _time );
                     double needed_time = current_v / max_acc;
                     // we will travel this distance until stopped :
                     double needed_distance = current_v * needed_time
@@ -283,18 +284,19 @@ namespace ORO_ControlKernel
 
         /**
          * Move with a certain velocity (translational and rotational)
-         * for a period of time.
+         * for a period of time. EXPERIMENTAL
          */
         bool move( Twist end_twist, double time = 0 )
         {
-            if ( kernel()->isRunning() && trajectoryDone() )
+            if ( this->kernel()->isRunning() && trajectoryDone() )
                 {
                     Frame pos = targetPosition();
                     Trajectory* tr_copy = cur_tr;
                     // This is an approximation, should be delta_v / a_max.
                     if ( time == 0 )
                         time = max_vel.get() / max_acc.get();
-                    Frame new_pos = pos + end_twist * time;
+                    Frame new_pos = pos;
+                    new_pos.Integrate(end_twist, 1./time);
                     cout <<"Move : with twist "<< end_twist <<endl;
                     cur_tr = new Trajectory_Segment( new Path_Line(mp_base_frame, new_pos,
                                                                    new RotationalInterpolation_SingleAxis(),1.0 ),
@@ -313,7 +315,7 @@ namespace ORO_ControlKernel
          */
         void loadTrajectory()
         {
-            if ( kernel()->isRunning() && trajectoryDone() )
+            if ( this->kernel()->isRunning() && trajectoryDone() )
                 {
                     /**
                      * First, be sure the given traj is not zero.
