@@ -29,6 +29,8 @@
 
 #include <functional>
 
+#include <assert.h>
+
 namespace ORO_CoreLib
 {
     using boost::tuples::get;
@@ -64,6 +66,9 @@ namespace ORO_CoreLib
 
     void StateContext::requestFinalState()
     {
+        // if we are inactive, don't do anything.
+        if ( current == 0 )
+            return;
         // If we are already in Final state, just handle again.
         if ( current == finistate )
             current->handle();
@@ -76,6 +81,8 @@ namespace ORO_CoreLib
 
     StateInterface* StateContext::requestNextState()
     {
+        // bad idea, user, don't run this if we're not active...
+        assert ( current != 0 );
         TransList::iterator it1, it2;
         it1 = stateMap[ current ].begin();
         it2 = stateMap[ current ].end();
@@ -100,6 +107,8 @@ namespace ORO_CoreLib
 
     StateInterface* StateContext::nextState()
     {
+        // bad idea, user, don't run this if we're not active...
+        assert ( current != 0 );
         TransList::iterator it1, it2;
         it1 = stateMap[ current ].begin();
         it2 = stateMap[ current ].end();
@@ -113,6 +122,9 @@ namespace ORO_CoreLib
 
     bool StateContext::requestState( StateInterface * s_n )
     {
+        // bad idea, user, don't run this if we're not active...
+        assert ( current != 0 );
+
         // to current state
         if ( current == s_n )
         {
