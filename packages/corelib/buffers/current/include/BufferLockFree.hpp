@@ -38,6 +38,9 @@ namespace ORO_CoreLib
     /**
      * A Lock-free buffer implementation to read and write
      * data of type \a T in a FIFO way.
+     * No memory allocation is done, but the maximum number
+     * of threads which can access this object is defined by
+     * MAX_THREADS - 1.
      */
     template< class T>
     class BufferLockFree {
@@ -61,7 +64,9 @@ namespace ORO_CoreLib
             for (unsigned int i=0; i < MAX_THREADS; ++i) {
                 bufs[i].data.reserve( bufsize ); // pre-allocate
             }
+            // bootstrap the first buffer :
             active = bufs;
+            atomic_inc( &active->count );
         }
 
         /**
@@ -77,8 +82,11 @@ namespace ORO_CoreLib
                 if (orig)
                     atomic_dec(&orig->count);
                 orig = lockAndGetActive();
-                if ( orig->data.size() == orig->data.capacity() ) // check for full
+                if ( orig->data.size() == orig->data.capacity() ) { // check for full
+                    atomic_dec( &orig->count );
+                    atomic_dec( &usingbuf->count );
                     return false;
+                }
                 usingbuf->data = orig->data;
                 usingbuf->data.push_back( d );
             } while ( CAS(&active, orig, usingbuf ) ==false);
@@ -102,6 +110,11 @@ namespace ORO_CoreLib
                     atomic_dec(&orig->count);
                 orig = lockAndGetActive();
                 int maxwrite = orig->data.capacity() - orig->data.size();
+                if ( maxwrite == 0 ) {
+                    atomic_dec( &orig->count );
+                    atomic_dec( &usingbuf->count );
+                    return 0;
+                }
                 if ( towrite > maxwrite )
                     towrite = maxwrite;
                 usingbuf->data = orig->data;
@@ -126,8 +139,11 @@ namespace ORO_CoreLib
                 if (orig)
                     atomic_dec(&orig->count);
                 orig = lockAndGetActive();
-                if ( orig->data.empty() )
+                if ( orig->data.empty() ) {
+                    atomic_dec( &orig->count );
+                    atomic_dec( &nextbuf->count );
                     return false;
+                }
                 res = orig->data.front();
                 nextbuf->data.insert( nextbuf->data.begin(), orig->data.begin()+1, orig->data.end() );
             } while ( CAS(&active, orig, nextbuf ) ==false );
@@ -145,7 +161,7 @@ namespace ORO_CoreLib
         int read(std::vector<T>& res)
         {
             Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
-            nextbuf->data.clear();
+            nextbuf->data.clear(); // an empty buffer will become active next.
             Item* orig=0;
             do {
                 if (orig)
