@@ -20,7 +20,7 @@
 #define TEMPLATE_DATASOURCE_FACTORY_HPP
  
 #include "DataSource.hpp"
-#include "DataSourceFactory.hpp"
+#include "DataSourceFactoryInterface.hpp"
 #include "TemplateFactory.hpp"
 
 #include <boost/bind.hpp>
@@ -208,7 +208,7 @@ namespace ORO_Execution
    */
   template<typename ComponentT>
   class TemplateDataSourceFactory
-    : public DataSourceFactory,
+    : public DataSourceFactoryInterface,
       private TemplateFactory<ComponentT, DataSourceBase*>
   {
     typedef TemplateFactory<ComponentT, DataSourceBase*> _TF;

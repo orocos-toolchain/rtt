@@ -6,7 +6,7 @@
 #include "execution/ParsedValue.hpp"
 #include "execution/DataSourceCondition.hpp"
 #include "execution/GlobalFactory.hpp"
-#include "execution/DataSourceFactory.hpp"
+#include "execution/DataSourceFactoryInterface.hpp"
 
 #include "corelib/ConditionDuration.hpp"
 
@@ -51,7 +51,7 @@ namespace ORO_Execution
       context.scriptableextension->dataFactory();
     // get hold of the DataSourceFactory for the object being
     // called..
-    const DataSourceFactory* fact = gdsf.factory( mobject );
+    const DataSourceFactoryInterface* fact = gdsf.factory( mobject );
     if ( !fact )
       throw parse_exception( "Object \"" + mobject + "\"not registered." );
     if ( ! fact->hasData( mmethod ) )
@@ -83,7 +83,7 @@ namespace ORO_Execution
 
     const GlobalDataSourceFactory& gdsf =
       context.scriptableextension->dataFactory();
-    const DataSourceFactory* fact = gdsf.factory( obj );
+    const DataSourceFactoryInterface* fact = gdsf.factory( obj );
     // we already checked for the existence of this object and method
     // in seendataname()..
     assert( fact );

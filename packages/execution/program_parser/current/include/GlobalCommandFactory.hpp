@@ -47,7 +47,7 @@ namespace ORO_Execution
       GlobalCommandFactory();
 
       /**
-       *  check whether the factory registered with a given object,
+       *  @brief Check whether the factory registered with a given object,
        *  contains a given command.
        *
        * @param objectname a registered object

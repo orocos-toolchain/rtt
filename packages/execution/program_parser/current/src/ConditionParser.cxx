@@ -11,7 +11,7 @@
 
 #include "execution/ParseContext.hpp"
 
-#include "execution/DataSourceFactory.hpp"
+#include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TemplateFactory.hpp"
 
 namespace ORO_Execution

@@ -15,7 +15,8 @@ is very powerfull."
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
     compile Types.cxx DataSourceCondition.cxx Operators.cxx CommandFactoryInterface.cxx
-    compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactory.cxx 
+    compile GlobalCommandFactory.cxx DataSource.cxx DataSourceFactoryInterface.cxx 
+    compile GlobalDataSourceFactory.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

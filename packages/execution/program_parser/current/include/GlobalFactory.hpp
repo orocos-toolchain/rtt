@@ -20,17 +20,20 @@
 #ifndef GLOBAL_FACTORY_HPP
 #define GLOBAL_FACTORY_HPP
 
-#include "CommandFactoryInterface.hpp"
 #include "GlobalCommandFactory.hpp"
-#include "DataSourceFactory.hpp"
+#include "CommandFactoryInterface.hpp"
+
+#include "GlobalDataSourceFactory.hpp"
+#include "DataSourceFactoryInterface.hpp"
 
 
 namespace ORO_Execution
 {
 
     /**
-     * This factory is used by the Parser ( and sub-Parsers )
+     * @brief This factory is used by the Parser ( and sub-Parsers )
      * to retrieve existing commands and data structures.
+     *
      * It merely stores the GlobalCommandFactory and GlobalDataSourceFactory
      * for a given application.
      */
