@@ -52,8 +52,14 @@
 #include <boost/type_traits.hpp>
 #include "DataObjectInterfaces.hpp"
 #include "DataObjectReporting.hpp"
+#include <corelib/PropertyDecomposition.hpp>
 #include <corelib/VectorComposition.hpp>
 #include "Typelist.h"
+
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/MotionProperties.hpp>
+#endif
 
 namespace ORO_ControlKernel
 {

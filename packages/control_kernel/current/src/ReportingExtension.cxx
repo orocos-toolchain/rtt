@@ -27,10 +27,9 @@
 
 #pragma implementation
 
-#include <corelib/PropertyComposition.hpp>
 #include <pkgconf/system.h>
-
 #include "control_kernel/ReportingExtension.hpp"
+#include <corelib/PropertyComposition.hpp>
 
 namespace ORO_ControlKernel
 {

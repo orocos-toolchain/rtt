@@ -46,6 +46,8 @@
 #ifdef OROINT_OS_STDIOSTREAM
 #include <fstream>
 #endif
+
+#include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/MotionProperties.hpp>
 #endif
