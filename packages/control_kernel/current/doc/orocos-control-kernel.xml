@@ -2519,8 +2519,8 @@ private:
       <para>
 	What happens is that after each Control Kernel step, the
 	Reporting Extension tries to make a copy of the Component's 
-	exported data. If by
-	accident the data is accessed by the report writing task
+	exported data. If
+	the data is accessed by the report writing task
 	(which reads the copies), the
 	copy operation is cancelled. A better buffering mechanism
 	(swinging buffers) might solve this in a better way.
@@ -2622,18 +2622,37 @@ typedef StandardControlKernel< MyExtension > MyPropertyKernel;
 </properties>
 ]]>
 	  </programlisting>
+	  <para>
+	    Most options are self explanitory. The Exporters list has two types
+	    of entries : <emphasis>Component</emphasis> and <emphasis>DataObject</emphasis>.
+	    The value of Component is the name of the Data Flow Component to query for
+	    reports. If the Component is not present in the Control Kernel, the rule
+	    is ignored. The DataObject value is any of Inputs, Models, Commands, SetPoints
+	    and Outputs. A scope '::' can be added to specify a specific DataObject.
+	    The EndEffPosition Frame in this example. This file is read when the
+	    Kernel is <link linkend="kernel-configuration">configured</link>.
+	  </para>
 	</example>
       </sect2>
       <sect2>
-	<title>Hooks</title>
-	<para>The ReportingExtension has one hook: the
+	<title>Reporting Data Flow Components : Using Hooks</title>
+	<para>The ReportingExtension has one Component hook: the
 	  <function>void exportReports( PropertyBag&amp; bag)
 	  </function> method. The user must put every value he
 	  wishes to report in a Property of the according type. For
 	  example to report a 6D position, one would create a Property
 	  <screen>Property&lt; Double6D &gt; q6;</screen> in the
-	  component class. The exportReports method will then insert
-	  this property into the given bag. Of course, a component
+	  Component class. The exportReports method must then insert
+	  this property into the given bag. The exportReports method
+	  is called once when the Control Kernel is started
+	  ( in the initialize() phase, See
+	  <classname>CoreLib::RunnableTaskInterface</classname> ).
+	  During runtime, every change of the value of the Property will be noticed
+	  by the ReportingExtension. A common use is to update the 
+	  Properties value in the calculate() method.
+	</para>
+	<para>
+	  Of course, a component
 	  does not need to report all its properties, depending on the
 	  configuration, other types might be reported. 
 	</para>
@@ -2662,11 +2681,16 @@ public:
      Base("MyGenerator"),
      end_pos("End Position","One of many variables which can be reported.")
 
-  // Hook in Generator Component:
-       virtual void exportReports(PropertyBag& bag)
-       {
-           bag.add(&end_pos);
-       }
+  virtual void calculate () {
+      // ...
+      end_pos = ... ; // update end_pos
+  }
+
+  // Reporting Hook :
+  virtual void exportReports(PropertyBag& bag)
+  {
+      bag.add(&end_pos);
+  }
 
 private:
   // The property itself
@@ -2782,9 +2806,11 @@ typedef StandardControlKernel<ExecExtension> MyExecKernel;
 MyExecKernel my_kernel;
 // ... load components, then :
 my_kernel.loadStateContext("state.osd", "MyState");
-my_kernel.loadProgram("program.ops", "MyProgram");
+my_kernel.loadProgram("program.ops");
       </programlisting>
 	<para>
+	  The Program name is given in the program.ops file, in the
+	  future, the same will hold for the StateContext.
 	  The StateContext will immediately enter the "Initial_State",
 	  but both StateContext and Program will be idle. To use the
 	  StateContext, it must be started :
@@ -2971,14 +2997,16 @@ program {
 	   if HMI.trajectoryPresent then continue
 	}
 
+	// HMI.cycle is a boolean which the user (or other logic)
+	// can set to true or false
 	while ( HMI.cycle ) {
-	set cycle = cycle + 1
-	do HMI.display("Cycle nr: %d.\n", cycle )
-	call ResetAxes
-	call HMIRequestTrajectory
-	call runTrajectory
+	    set cycle = cycle + 1
+	    do HMI.display("Cycle nr: %d.\n", cycle )
+	    call ResetAxes
+	    call HMIRequestTrajectory
+	    call runTrajectory
 
-	do HeartBeat.sleep( 5.0 ) // wait 5s
+	    do HeartBeat.sleep( 5.0 ) // wait 5s
 	}
 
 	call ExitProgram

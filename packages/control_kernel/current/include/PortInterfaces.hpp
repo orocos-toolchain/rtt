@@ -407,6 +407,17 @@ namespace ORO_ControlKernel
                 delete data_object;
             }
 
+            /**
+             * @brief Return the WritePortInterface of this Component.
+             *
+             * Usefull to get a pointer to this interface, like in
+             * writePort()->dObj() to resolve ambiguity with the dObj()
+             * method of the ReadPortInterfaces.
+             */
+            WritePortInterface<_DataObjectType>* writePort() {
+                return this;
+            }
+
             void createPort(const std::string& name, const std::string& prefix) 
             {
                 // create the frontend (for access)

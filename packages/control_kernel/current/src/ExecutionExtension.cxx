@@ -75,6 +75,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1)
 
     bool ExecutionExtension::initialize() 
     { 
+        initKernelCommands();
         if ( !proc.startStateContext("Default") )
             cerr << "Warning : Processor could not start \"Default\" StateContext."<<endl;
         return true;

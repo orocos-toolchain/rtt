@@ -58,11 +58,11 @@ namespace ORO_ControlKernel
                                      _Extension >
     {
         typedef detail::BaseKernel< detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC ,
-                                     detail::DataObjectBufferC , 
-                                     _Extension > Base
+                                    detail::DataObjectBufferC ,
+                                    detail::DataObjectBufferC ,
+                                    detail::DataObjectBufferC ,
+                                    detail::DataObjectBufferC , 
+                                    _Extension > Base;
     public:
         /**
          * @brief Create a nameserved control kernel.
