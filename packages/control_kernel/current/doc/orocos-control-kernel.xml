@@ -804,14 +804,14 @@
 	<para>
 	  Runtime configuration of the Kernel and its Components can happen with XML files,
 	  so that you don't have to recompile your program each time you want to change an option.
-	  The CPF format is defined in the cpf.dtd file and is equal to the CORBA 3 standard's
-	  property file format. The Default Kernel and each extension have an own cpf file, which
+	  The CPF format is defined in the <filename>cpf.dtd</filename> file and is equal to the CORBA 3 standard's
+	  property file format. The Default Kernel and each extension have an own CPF file, which
 	  defines the values some (or all) properties should take. There may be more
-	  properties than listed in the cpf file and vice versa. The parser will do its 
+	  properties than listed in the CPF file and vice versa. The parser will do its 
 	  best effort to configure each component with the given data.
 	</para>
 	<tip>
-	  Example cpf files can often be found in the doc directory of the packages.
+	  Example CPF files can often be found in the doc directory of the packages.
 	</tip>
       </sect3>
       <sect3>
@@ -845,15 +845,16 @@
       </para>
       <para>
 	By default, only the Kernel has a limited set of properties, Components have none. 
-	The PropertyExtension adds properties also to the components. The properties.cpf
-	file lists the cpf file for each component type. The components present
+	The PropertyExtension adds properties also to the components. The
+    <filename>properties.cpf</filename>
+	file lists the CPF file for each component type. The components present
 	in the kernel will get the properties updated on starting the kernel. An option
 	can be enabled to configure all components, even those not loaded in the kernel.
       </para>
       <sect2>
 	<title>Configuring the Property Extension</title>
 	<para>
-	  The PropertyExtension can be configured through the cpf
+	  The PropertyExtension can be configured through the CPF
 	  file given in the kernel configuration file. Not all configuration options
 	  are yet implemented and the layout may change in future releases.
 	  An example looks like this :
@@ -922,7 +923,7 @@
 
 	    // ...
 	  </programlisting>
-	  <para>The cpf file looks like this :</para>
+	  <para>The CPF file looks like this :</para>
 	  <programlisting>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE properties SYSTEM "cpf.dtd"&gt;
@@ -958,7 +959,7 @@
       <sect2>
 	<title>Configuring the Reporting Extension</title>
 	<para>
-	  The ReportingExtension can be configured through the cpf
+	  The ReportingExtension can be configured through the CPF
 	  file given in the kernel configuration file. Not all configuration options
 	  are yet implemented and the layout may change in future releases.
 	  An example looks like this :
