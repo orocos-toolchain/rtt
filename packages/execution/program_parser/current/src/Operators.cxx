@@ -41,6 +41,7 @@
 using namespace ORO_CoreLib;
 
 #include <boost/type_traits.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace std
 {
@@ -545,10 +546,30 @@ namespace ORO_Execution
     return d6d;
   }
 
-  const std::vector<double>& array( int size )
-  {
-    return *(new std::vector<double>(size));
-  }
+    struct array_ctor
+        : public std::unary_function<int, const std::vector<double>&>
+    {
+        mutable boost::shared_ptr< std::vector<double> > ptr;
+        array_ctor()
+            : ptr( new std::vector<double>() ) {}
+        const std::vector<double>& operator()( int size ) const
+        {
+            ptr->resize( size );
+            return *(ptr);
+        }
+    };
+
+    struct string_index
+        : public std::binary_function<const std::string&, int, char>
+    {
+        char operator()(const std::string& s, int index) const
+        {
+            if ( index >= (int)(s.length()) || index < 0)
+                return 0;
+            return s[index];
+        }
+    };
+                    
 
   double double6D_index( Double6D d6,  int index )
   {
@@ -557,14 +578,17 @@ namespace ORO_Execution
       return d6[index];
   }
 
-  double array_index( const std::vector<double>& v,  int index )
-  {
-      if ( index >= (int)(v.size()) || index < 0 )
-          return 0.0;
-      return v[index];
-  }
-
-
+    struct array_index
+        : public std::binary_function<const std::vector<double>&, int, double>
+    {
+        double operator()(const std::vector<double>& v, int index) const
+        {
+            if ( index >= (int)(v.size()) || index < 0)
+                return 0;
+            return v[index];
+        }
+    };
+                    
   OperatorRegistry::OperatorRegistry()
   {
     // boolean stuff:
@@ -620,6 +644,7 @@ namespace ORO_Execution
     add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
     add( newBinaryOperator( "<", std::less<const std::string&>() ) );
     add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
+    add( newBinaryOperator( "[]", string_index() ) );
 
     // chars
     add( newBinaryOperator( "==", std::equal_to<char>() ) );
@@ -660,7 +685,7 @@ namespace ORO_Execution
 #endif
     add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
     add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
-    add( newUnaryOperator( "array", std::ptr_fun( &array ) ) );
+    add( newUnaryOperator( "array", array_ctor() ) );
 
     add( newBinaryOperator( "==", std::equal_to<Double6D>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to<Double6D>() ) );
@@ -672,7 +697,7 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", mystl::multiplies<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
-    add( newBinaryOperator( "[]", std::ptr_fun( &array_index ) ) );
+    add( newBinaryOperator( "[]", array_index() ) );
   };
 
   void OperatorRegistry::add( UnaryOp* a )

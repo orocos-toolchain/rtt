@@ -77,6 +77,7 @@ namespace ORO_Execution
     void seendoubleconstant( double c );
     void push_str_char( char c );
     void seenstring();
+    void seennull();
 
       TaskContext* context;
   public:

@@ -120,6 +120,7 @@ void TypesTest::testTypes()
         "var string s=\"string\"\n"+
         "do test.assert( s == \"string\" )\n" +
         "var double6d d6 = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n"+
+        // 10
 //         "do test.assert( d6 == d6 )\n" +
 //         "do test.assert( d6 == double6d(0.1,0.2,0.3,0.4,0.5,0.6) )\n" + // fails to parse
         "var double6d d6_2 = double6d(0.01)\n"+
@@ -135,6 +136,7 @@ void TypesTest::testTypes()
         "const string sc=s\n"+
         "do test.assert( s == sc )\n" +
         "const double6d d6c = d6\n"+
+        // 20
 //         "do test.assert( d6c == d6 )\n" +
         "set d6[0]=1.0\n"+
         "do test.assert( d6[0] == 1.0 )\n" +
@@ -146,6 +148,7 @@ void TypesTest::testTypes()
         "do test.assert( d6[3] == 1.0 )\n" +
         "set d6[4]=d6[0]\n"+
         "do test.assert( d6[4] == 1.0 )\n" +
+        // 30
         "set d6[5]=d6[0]\n"+
         "do test.assert( d6[5] == 1.0 )\n" +
 #ifdef OROPKG_GEOMETRY
@@ -158,6 +161,7 @@ void TypesTest::testTypes()
 #endif
         "var array ar(10)\n"+
         "set ar[0] = 0.0\n"+
+        // 40
         "set ar[1] = 1.0\n"+
         "set ar[2] = 0.2\n"+
         "set ar[8] = 0.8\n"+
@@ -168,6 +172,20 @@ void TypesTest::testTypes()
         "do test.assert( ar[8] == 0.8 )\n"+
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
+        // 50
+        "var string str(10) = \"hello\"\n"+
+        "set str[0] = 'a'\n"+
+        "set str[1] = 'b'\n"+
+        "set str[2] = 'c'\n"+
+        "do test.assert( str[0] == 'a' )\n"+
+        "do test.assert( str[1] == 'b' )\n"+
+        "do test.assert( str[2] == 'c' )\n"+
+        "do test.assert( str == \"abclo\" )\n"+
+        "do test.assert( str[20] == '\\0' )\n"+
+        "do test.assert( str[8] == '\\0' )\n"+
+        // 60
+        "do test.assert( str[9] == '\\0' )\n"+
+        "do test.assert( str[10] == '\\0' )\n"+
         "}";
     stringstream progs(prog);
     std::vector<ProgramGraph*> pg_list;

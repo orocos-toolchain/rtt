@@ -35,6 +35,8 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <iostream>
+using namespace std;
 namespace ORO_Execution
 {
     namespace {
@@ -84,8 +86,8 @@ namespace ORO_Execution
       ( str_p( "true" ) | "false" )[
         bind( &ValueParser::seenboolconstant, this, _1, _2 ) ];
 
-    const_char = confix_p(
-        "'", c_escape_ch_p[ bind( &ValueParser::seencharconstant, this, _1 ) ], "'" );
+    const_char = (ch_p('\'') >> ch_p('\\') >> ch_p('0') >> ch_p('\''))[bind( &ValueParser::seennull,this)] |
+        confix_p( "'", (c_escape_ch_p[ bind( &ValueParser::seencharconstant, this, _1 ) ]) , "'" );
 
     const_string = confix_p(
       ch_p( '"' ), *(
@@ -144,12 +146,19 @@ namespace ORO_Execution
     deleter.reset( 0 );
   }
 
-  void ValueParser::seencharconstant( iter_t i )
-  {
-    ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( *i ) );
-    // make the new TaskVariable managed by the auto_ptr..
-    deleter.reset( ret );
-  }
+    void ValueParser::seennull()
+    {
+        ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( '\0' ) );
+        // make the new TaskVariable managed by the auto_ptr..
+        deleter.reset( ret );
+    }
+
+    void ValueParser::seencharconstant( iter_t c )
+    {
+        ret = new TaskAliasAttribute<char>( new VariableDataSource<char>( *c ) );
+        // make the new TaskVariable managed by the auto_ptr..
+        deleter.reset( ret );
+    }
 
   void ValueParser::seenintconstant( int i )
   {
