@@ -55,8 +55,9 @@ namespace ORO_ControlKernel
     using namespace ORO_Geometry;
     using namespace ORO_CoreLib;
     using namespace ORO_KinDyn;
+#ifdef OROPKG_EXECUTION_PROGRAM_PARSER
     using namespace ORO_Execution;
-
+#endif
     struct CartesianCommands     { Trajectory* trajectory; Frame task_frame; Frame tool_mp_frame; };
 
     /**
