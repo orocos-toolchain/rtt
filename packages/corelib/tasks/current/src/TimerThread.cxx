@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TaskExecution.cpp 
+ tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimerThread.cpp 
 
-                       TaskExecution.cpp -  description
+                       TimerThread.cpp -  description
                           -------------------
    begin                : Wed April 17 2002
    copyright            : (C) 2002 Peter Soetens
@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/TaskExecution.hpp"
+#include "corelib/TimerThread.hpp"
 #include "corelib/PeriodicTask.hpp"
 #include "corelib/TaskTimerInterface.hpp"
 #include "corelib/Time.hpp"
@@ -35,12 +35,12 @@
 namespace ORO_CoreLib
 {
 
-    TaskExecution::TaskExecution(int priority, const std::string& name, double periodicity)
+    TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
         : TaskThreadInterface( priority, name, periodicity)
     {
     }
 
-    TaskExecution::~TaskExecution()
+    TimerThread::~TimerThread()
     {
         // make sure the thread does not run when we start deleting clocks...
         this->stop();
@@ -50,7 +50,7 @@ namespace ORO_CoreLib
             delete *itl; 
     }
 
-    bool TaskExecution::initialize()
+    bool TimerThread::initialize()
     {
         TimerList::iterator itl;
         MutexLock locker(lock);
@@ -59,7 +59,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    void TaskExecution::step()
+    void TimerThread::step()
     {
         TimerList::iterator itl;
         {
@@ -74,7 +74,7 @@ namespace ORO_CoreLib
         EventProcessor::step();
     }        
 
-    void TaskExecution::finalize()
+    void TimerThread::finalize()
     {
         TimerList::iterator itl;
         MutexLock locker(lock);
@@ -82,7 +82,7 @@ namespace ORO_CoreLib
             (*itl)->stop();
     }
 
-    TaskTimerInterface* TaskExecution::timerGet( Seconds period ) const {
+    TaskTimerInterface* TimerThread::timerGet( Seconds period ) const {
         MutexLock locker(lock);
         for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
             if ( (*it)->getPeriod() == Seconds_to_nsecs(period) )
@@ -92,7 +92,7 @@ namespace ORO_CoreLib
         return 0;
     }
 
-    bool TaskExecution::timerAdd( TaskTimerInterface* t)
+    bool TimerThread::timerAdd( TaskTimerInterface* t)
     {
         secs s;
         nsecs ns;

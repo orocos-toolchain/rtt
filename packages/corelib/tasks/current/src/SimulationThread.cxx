@@ -89,7 +89,7 @@ namespace ORO_CoreLib
 
 
     SimulationThread::SimulationThread()
-        : TaskExecution(ORONUM_CORELIB_TASKS_SIM_PRIORITY,
+        : TimerThread(ORONUM_CORELIB_TASKS_SIM_PRIORITY,
                         ORODAT_CORELIB_TASKS_SIM_NAME, 
                         ORONUM_CORELIB_TASKS_SIM_PERIOD),
           beat( TimeService::Instance() )
@@ -110,7 +110,7 @@ namespace ORO_CoreLib
         // we will update the clock in step()
         beat->enableSystemClock( false );
 
-        // No TaskExecution::initialize() to allow 'freeze'
+        // No TimerThread::initialize() to allow 'freeze'
         return true;
     }
 
@@ -120,13 +120,13 @@ namespace ORO_CoreLib
         // release systemclock again.
         beat->enableSystemClock( true );
 
-        // DO NOT CALL TaskExecution::finalize(), since we want to be able to start/stop the
+        // DO NOT CALL TimerThread::finalize(), since we want to be able to start/stop the
         // SimulationThread and inspect the tasks still running.
     }
 
     void SimulationThread::step()
     {
-        TaskExecution::step();
+        TimerThread::step();
         beat->secondsChange(ORONUM_CORELIB_TASKS_SIM_PERIOD);
     }
 

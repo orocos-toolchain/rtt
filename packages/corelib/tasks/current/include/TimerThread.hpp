@@ -1,7 +1,7 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TaskExecution.h 
+ tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TimerThread.h 
 
-                       TaskExecution.h -  description
+                       TimerThread.h -  description
                           -------------------
    begin                : Wed April 17 2002
    copyright            : (C) 2002 Peter Soetens
@@ -64,7 +64,7 @@ namespace ORO_CoreLib
      *
      * @see PeriodicThread
      */
-    class TaskExecution
+    class TimerThread
         : public TaskThreadInterface
     {
 
@@ -73,7 +73,7 @@ namespace ORO_CoreLib
         /**
          * Destructor
          */
-        virtual ~TaskExecution();
+        virtual ~TimerThread();
 
         /**
          * Add an Timer that will be ticked every execution period
@@ -102,7 +102,7 @@ namespace ORO_CoreLib
          * @param periodicity
          *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
          */
-        TaskExecution(int priority, const std::string& name, double periodicity);
+        TimerThread(int priority, const std::string& name, double periodicity);
 
         virtual bool initialize();
         virtual void step();

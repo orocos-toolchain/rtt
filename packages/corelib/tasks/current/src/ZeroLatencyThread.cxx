@@ -85,7 +85,7 @@ namespace ORO_CoreLib
 
 
     ZeroLatencyThread::ZeroLatencyThread()
-        : TaskExecution(ORONUM_CORELIB_TASKS_ZLT_PRIORITY,
+        : TimerThread(ORONUM_CORELIB_TASKS_ZLT_PRIORITY,
                         ORODAT_CORELIB_TASKS_ZLT_NAME, 
                         ORONUM_CORELIB_TASKS_ZLT_PERIOD)
     {

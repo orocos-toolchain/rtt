@@ -39,7 +39,7 @@
 namespace ORO_CoreLib
 {
     class TaskTimerInterface;
-    class TaskExecution;
+    class TimerThread;
     /**
      * @brief A PeriodicTask is the general implementation of a Task
      * which has (realtime,) periodic constraints.
@@ -66,7 +66,7 @@ namespace ORO_CoreLib
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        PeriodicTask(Seconds period, TaskExecution* thread, RunnableInterface* r=0 );
+        PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r=0 );
 
         /**
          * @brief Create a RealTime Task with a given period which runs
@@ -81,7 +81,7 @@ namespace ORO_CoreLib
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
          */
-        PeriodicTask(secs sec, nsecs nsec, TaskExecution* thread, RunnableInterface* r=0 );
+        PeriodicTask(secs sec, nsecs nsec, TimerThread* thread, RunnableInterface* r=0 );
 
         /**
          * Stops and terminates a PeriodicTask
@@ -140,7 +140,7 @@ namespace ORO_CoreLib
         /**
          * The thread which runs this task.
          */
-        TaskExecution* _thread;
+        TimerThread* _thread;
 
         /**
          * The timer which steps this task.

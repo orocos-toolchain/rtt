@@ -29,7 +29,7 @@
 #ifndef ZEROLATENCYTHREAD_HPP
 #define ZEROLATENCYTHREAD_HPP
 
-#include "TaskExecution.hpp"
+#include "TimerThread.hpp"
 
 
 namespace ORO_CoreLib
@@ -45,7 +45,7 @@ namespace ORO_CoreLib
      * @see PeriodicThread, ZeroTimeThread
      */
     class ZeroLatencyThread
-        : public TaskExecution
+        : public TimerThread
     {
     public:
         static ZeroLatencyThread* Instance();

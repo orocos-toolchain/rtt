@@ -30,7 +30,7 @@
 #include "corelib/PeriodicTask.hpp"
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
-#include "corelib/TaskExecution.hpp"
+#include "corelib/TimerThread.hpp"
 
 // This define is used for creating and static_casting the Timer.
 #include <pkgconf/corelib_tasks.h>
@@ -47,7 +47,7 @@
 namespace ORO_CoreLib
 {
     
-    PeriodicTask::PeriodicTask(Seconds period, TaskExecution* thread, RunnableInterface* r )
+    PeriodicTask::PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r )
         : runner(r), running(false), inError(false), _thread(thread)
     {
         per_ns = Seconds_to_nsecs( period );
@@ -77,7 +77,7 @@ namespace ORO_CoreLib
         _timer = timer;
     }
 
-    PeriodicTask::PeriodicTask(secs s, nsecs ns, TaskExecution* thread, RunnableInterface* r )
+    PeriodicTask::PeriodicTask(secs s, nsecs ns, TimerThread* thread, RunnableInterface* r )
         : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns), _thread(thread)
     {
         this->init();

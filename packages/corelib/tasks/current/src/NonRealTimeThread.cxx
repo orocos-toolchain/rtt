@@ -82,7 +82,7 @@ namespace ORO_CoreLib
     }
 
     NonRealTimeThread::NonRealTimeThread()
-        : TaskExecution(ORONUM_CORELIB_TASKS_NRT_PRIORITY, ORODAT_CORELIB_TASKS_NRT_NAME, ORONUM_CORELIB_TASKS_NRT_PERIOD )
+        : TimerThread(ORONUM_CORELIB_TASKS_NRT_PRIORITY, ORODAT_CORELIB_TASKS_NRT_NAME, ORONUM_CORELIB_TASKS_NRT_PERIOD )
     {
         Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_NRT_NAME <<" created with "<< ORONUM_CORELIB_TASKS_NRT_PERIOD <<"s periodicity";
         Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_NRT_PRIORITY << Logger::endl;

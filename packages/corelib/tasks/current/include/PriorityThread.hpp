@@ -29,7 +29,7 @@
 #ifndef PRIORITYTHREAD_HPP
 #define PRIORITYTHREAD_HPP
 
-#include "TaskExecution.hpp"
+#include "TimerThread.hpp"
 #include "Time.hpp"
 #include "Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
@@ -52,7 +52,7 @@ namespace ORO_CoreLib
      */
     template< int Priority >
     class PriorityThread
-        : public TaskExecution
+        : public TimerThread
     {
     public:
         /**
@@ -95,7 +95,7 @@ namespace ORO_CoreLib
          * @param _period The period in seconds.
          */
         PriorityThread(double _period)
-            : TaskExecution( Priority, 
+            : TimerThread( Priority, 
                              "PriorityThread", 
                              _period )
         {

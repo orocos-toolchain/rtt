@@ -29,7 +29,7 @@
 #ifndef NONREALTIMETHREAD_HPP
 #define NONREALTIMETHREAD_HPP
 
-#include "TaskExecution.hpp"
+#include "TimerThread.hpp"
 
 namespace ORO_CoreLib
 {
@@ -39,7 +39,7 @@ namespace ORO_CoreLib
      * will try to meet deadlines 'as good as possible'.
      */
     class NonRealTimeThread 
-        : public TaskExecution
+        : public TimerThread
     {
 
         public:

@@ -30,7 +30,7 @@
 #ifndef SIMULATIONTHREAD_HPP
 #define SIMULATIONTHREAD_HPP
 
-#include "TaskExecution.hpp"
+#include "TimerThread.hpp"
 
 
 namespace ORO_CoreLib
@@ -47,7 +47,7 @@ namespace ORO_CoreLib
      * @see PeriodicThread, ZeroTimeThread
      */
     class SimulationThread
-        : public TaskExecution
+        : public TimerThread
     {
     public:
         static SimulationThread* Instance();

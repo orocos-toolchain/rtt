@@ -29,7 +29,7 @@
 #ifndef ZEROTIMETHREAD_HPP
 #define ZEROTIMETHREAD_HPP
 
-#include "TaskExecution.hpp"
+#include "TimerThread.hpp"
 
 
 namespace ORO_CoreLib
@@ -49,7 +49,7 @@ namespace ORO_CoreLib
      * @see PeriodicThread
      */
     class ZeroTimeThread
-        : public TaskExecution
+        : public TimerThread
     {
     public:
         static ZeroTimeThread* Instance();
