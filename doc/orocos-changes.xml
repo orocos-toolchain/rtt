@@ -31,6 +31,8 @@
   <para>See also <ulink url="orocos-changes-0.18.2.html">what changed from 0.18.1 to 0.18.2</ulink>.</para>
   <section id="caveats">
     <title>Caveats</title>
+    <section>
+      <title>Core Infrastructure</title>
     <itemizedlist>
       <listitem>
 	<para>
@@ -62,16 +64,86 @@
       </listitem>
       <listitem>
 	<para>
-	  The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
-	  in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
-	  Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reached <emphasis>and</emphasis>
-	  this command is not immediately done ( its completion condition returns <emphasis>false</emphasis> ). The next periodic step will
-	  check if the command is done, and if so, execute again as much as possible <emphasis>etc</emphasis>. To introduce
-	  a pause in your program, issue a <command>do nothing</command> command, which will act as a command which pauses your
-	  program for one step, such that you can wait on changes in a while loop or similar.
+	  The SingleThread's <function>step()</function> function has been renamed to <function>loop()</function>.
+	  Also, the RunnableInterface::loop() function has been added to allow implementation of a blocking ( non periodic )
+	  alternative to RunnableInterface::step().
 	</para>
       </listitem>
     </itemizedlist>
+    </section>
+    <section>
+      <title>Program and State Execution</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
+	    in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
+	    Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reached <emphasis>and</emphasis>
+	    this command is not immediately done ( its completion condition returns <emphasis>false</emphasis> ). The next periodic step will
+	    check if the command is done, and if so, execute again as much as possible <emphasis>etc</emphasis>. To introduce
+	    a pause in your program, issue a <command>do nothing</command> command, which will act as a command which pauses your
+	    program for one step, such that you can wait on changes in a while loop or similar.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The execution semantics of State Contexts (<classname>StateContext</classname>) has been changed drastically.
+	    State transitions no longer need to happen atomically. The entry, handle and exit programs are executed with
+	    exactly the same semantics as the Orocos Programs above, which mean they may 'take time'.
+	    To reflect this change, the StateContext has been
+	    renamed to StateMachine in all places, also to avoid confusion with the TaskContext. State Machine programs
+	    may now contain loops, variable assignments, nested commands etc. just like ordinary programs. If your program
+	    does not contain commands, state transitions will still happen atomically, otherwise (if your program
+	    waits for a command to finish ) transitions are only evaluated ( and can thus only be made ) after the
+	    entry or handle program has finished. A State Machine can thus be 'in transition', 'activating', etc.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Commands, Methods and DataSources must take all their arguments <emphasis>by value</emphasis> and return by value. Except for
+	    the types <classname> std::string</classname> and <classname>std::vector&lt;double&gt;</classname>.
+	    Thus :
+	    <programlisting> // Commands,Methods, DataSources :
+  int doXYZ( const Frame&amp; target ) { ... }   // WRONG
+  int doXYZ( Frame target ) { ... }              // Correct
+	      
+  bool checkXYZ( const std::string&amp; target ) { ... }   // Correct
+  bool checkXYZ( std::string target ) { ... }             // WRONG  </programlisting>
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Control Kernel Architecture</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Methods for Component loading, starting, stopping, selecting etc in the ControlKernel have all been
+	    generalised to <methodname>loadComponent</methodname>, <methodname>startComponent</methodname>,
+	    <methodname>selectComponent</methodname> etc. instead of <methodname>selectGenerator</methodname> for
+	    example.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Every occurence of the word Aspect (such as in <classname>MakeAspect</classname> ) has been renamed
+	    to Facet, using the correct terminology ( ie a Facet is an Interface of a Component ).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Component ports (Model, Input,...) are now accessed as member pointers, instead of subclasses.
+	    To access a DataObject through a port, use : Model->dObj()->Get() instead of Model::dObj()->Get().
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The BufferedControlKernel has been renamed to LockFreeControlKernel. The StandardControlKernel's
+	    Command DataObject is now of the LockFree type ( no components or applications need to be adapted ).
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
   </section>
   <section id="general">
     <title>General Improvements</title>
@@ -92,13 +164,16 @@
 	<listitem>
 	  <para>
 	    The OS package was cleaned up to remove deprecated classes such as <classname>ConditionVariable</classname>
-	    and <classname>EventInterrupt</classname> and related classes.
+	    and <classname>EventInterrupt</classname> and related classes, while a <classname>Semaphore</classname>
+	    class was added.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    PeriodicThread implementations guard against exceptions being thrown in step(),
-	    analogous to the ORO_main protection against uncaught exception.
+	    <classname> PeriodicThread</classname> and
+	    <classname>SingleThread</classname> implementations guard
+	    against exceptions being thrown in step() or loop(), analogous to
+	    the ORO_main protection against uncaught exception.
 	  </para>
 	</listitem>
 	<listitem>
@@ -174,6 +249,12 @@
 	  A Priority Inversions section was added to the Corelib Manual.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The main Orocos manuals are split in two big parts, the Realtime Control
+	  Services Manual and the Robot Control Software Manual.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="corelib">
@@ -225,6 +306,17 @@
       </listitem>
       <listitem>
 	<para>
+	  A new kind of Task, TaskNonPeriodic has been added to provide a framework for non
+	  periodic tasks, which can wait for Events and execute non periodic functionality.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Events CompletionProcessor is now a TaskNonPeriodic.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  The time conversion algorithms in Orocos have had a code review and extra test suite
 	  to validate and guarantee time keeping and conversion correctness.
 	</para>
@@ -239,7 +331,8 @@
 	  The Reporting extension has been extended with a start() and a 
 	  stop() script method which can trigger reporting from your program
 	  scripts. ( <command>do Reporter.start()</command> or
-	  <command>do Reporter.stop()</command> )
+	  <command>do Reporter.stop()</command> ). Also some reporting bugs
+	  were fixed.
 	</para>
       </listitem>
       <listitem>
@@ -254,13 +347,23 @@
       <listitem>
 	<para>
 	  The PropertyExtension has implemented the 'SaveProperties' property flag
-	  which enables a write out of the properties of each component to a file.
+	  which enables a write out of the properties of each component to a file
+	  ( or the original read file ). Also, the PropertyExtension can read/write
+	  properties off a set of components from/to the same file, allowing them
+	  to share properties.
 	</para>
       </listitem>
       <listitem>
 	<para>
           The Effector component now reads from Inputs, Models and
-          Outputs. 
+          Outputs ( only Outputs previously ).
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  To reduce compilation times, a <methodname>preloadComponent</methodname>
+	  method has been made available to load Components in separate implementation
+	  files, which is very usefull if Component and Kernel do not change.
 	</para>
       </listitem>
     </itemizedlist>
@@ -284,6 +387,12 @@
       </listitem>
       <listitem>
 	<para>
+	  The scripting language now also supports the <classname>std::vector&lt; double &gt;</classname>. 
+	  It is known as the parser type 'array'. The parser manual contains some practical usage examples.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  If a Program dispatches a command to a Processor which is not running or not
 	  accepting commands, the program will fail (previously it would retry forever).
 	  With the same semantics, the TaskContext and TaskBrowser refuse to execute commands if the Processor
@@ -300,6 +409,19 @@
           fixed y-axis and Y the rotation around the fixed z-axis.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The StateMachine can now execute all program syntax, maintaining program execution
+	  semantics ( commands versus methods ).
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Command Processor can run in a TaskNonPeriodic,
+	  executing Commands in its own thread as they enter the
+	  queue.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="interfacing">
@@ -310,7 +432,9 @@
 	  KernelClient version 0.4 has been released to take advantage
 	  of the new logging infrastructure (locally and remotely).
 	  Furthermore, a shutdown command is available to shutdown the 
-	  server process (ie remote control kernel).
+	  server process (ie remote control kernel). Furthermore,
+	  line number tracking in State Machines has been
+	  implemented.
 	</para>
       </listitem>
     </itemizedlist>
