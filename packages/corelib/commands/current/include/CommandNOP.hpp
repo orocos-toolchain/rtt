@@ -24,9 +24,6 @@
 
 namespace ORO_CoreLib
 {
-
-	using namespace ORO_CoreLib;
-	
     /**
      * The empty command.
      *
