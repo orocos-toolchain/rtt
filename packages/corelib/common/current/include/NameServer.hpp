@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  NameServer.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  NameServer.hpp
 
                         NameServer.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef NAMESERVER_HPP
 #define NAMESERVER_HPP
 
@@ -61,7 +61,7 @@ namespace ORO_CoreLib
      *
      * In case two objects are registered with the same name, the first one is kept and the
      * second one rejected.<br>
-     * 
+     *
      *  @param ValueType  The type of objects you want to have nameserved( usually a pointer type ).
      *  @param NameType The type of the name you want to used (string by default, but you could use ints)
      *  @param Rep The container you wish to use for actually storing the name value pairs
@@ -127,7 +127,7 @@ namespace ORO_CoreLib
          * @brief Get the object registered for a name.
          *
          * @param s the name of the object you need
-         * 
+         *
          * @return the object the name is registered with,
          *  if the name isn't registered, it will return 0
          */
@@ -142,7 +142,7 @@ namespace ORO_CoreLib
          *
          * @param s the name of the object you need.
          * @deprecated by GetObject()
-         * 
+         *
          * @return the object the name is registered with,
          *  if the name isn't registered, it will return 0
          */
@@ -155,11 +155,11 @@ namespace ORO_CoreLib
          * @brief Get the name registered for a object.
          *
          * @param s the object of the name you need
-         * 
+         *
          * @return the name the object is registered with,
          *  if the object isn't registered, it will return 0
          */
-        const NameType& 
+        const NameType&
         getName( const ValueType s ) const
         {
             for ( const_iterator i = objects.begin(); i != objects.end(); ++i )
@@ -176,7 +176,7 @@ namespace ORO_CoreLib
          *
          * @param s the object of the name you need
          * @deprecated by getName()
-         * 
+         *
          * @return the name the object is registered with,
          *  if the object isn't registered, it will return 0
          */
@@ -205,7 +205,7 @@ namespace ORO_CoreLib
          * @brief Remove an object from the nameserver registrations.
          *
          * @param obj the object you want removed
-         * 
+         *
          * @post obj will not be registered anymore
          */
         void unregisterObject( const ValueType obj )
@@ -234,7 +234,7 @@ namespace ORO_CoreLib
          * @brief Remove a name from the nameserver registrations.
          *
          * @param name the name of the object you want remove
-         * 
+         *
          */
         void unregisterName( const NameType& name )
         {
@@ -303,7 +303,7 @@ namespace ORO_CoreLib
 #if __GNUC__ == 2
         class name_iterator : public bidirectional_iterator<NameType, int>
 #else
-        class name_iterator : public std::iterator<NameType, int>
+        class name_iterator : public std::iterator< std::input_iterator_tag , NameType>
 #endif
         {
 
@@ -311,6 +311,7 @@ namespace ORO_CoreLib
             iterator i;
 
         public:
+
             name_iterator( iterator _i ) : i( _i )
             {}
 
@@ -319,16 +320,30 @@ namespace ORO_CoreLib
                 return ( ( *i ).first );
             }
 
-            name_iterator operator++()
+            name_iterator operator++( int )
+            {
+                name_iterator ret( i );
+                operator++();
+                return ret;
+            }
+
+            name_iterator& operator++()
             {
                 ++i;
                 return *this;
             }
 
-            name_iterator operator--()
+            name_iterator& operator--()
             {
                 --i;
                 return *this;
+            }
+
+            name_iterator operator--( int )
+            {
+                name_iterator ret( i );
+                operator--();
+                return ret;
             }
 
             bool operator==( name_iterator other )
@@ -361,7 +376,7 @@ namespace ORO_CoreLib
          * @brief Get an iterator to the beginning of the objects list.
          */
         value_iterator getValueBegin() { return value_iterator( objects.begin() ); }
-            
+
         /**
          * @brief Get an iterator to the end of the objects list.
          */
@@ -374,7 +389,7 @@ namespace ORO_CoreLib
 
     template<class T, class V, class W>
     V NameServer<T, V, W>::NoName;
-    
+
 }
 
 #endif // NAMESERVER_HPP
