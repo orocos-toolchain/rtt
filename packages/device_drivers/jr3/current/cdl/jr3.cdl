@@ -37,7 +37,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_JR3 {
 	make  {
 	    <PREFIX>/modules/jr3dsp_lxrt.o : <PACKAGE>/src/jr3dsp_lxrt.c <PACKAGE>/src/jr3dsp_lxrt.h
 	    @mkdir -p $(PREFIX)/modules
-	    $(CC) -I/lib/modules/$$(uname -r)/build/include $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/jr3dsp_lxrt.c  -o $@
+	    $(CC) -I/lib/modules/$$(uname -r)/build/include -I$(PREFIX)/include/ $(CFLAGS) -O2 -DMODULE -D__KERNEL__ -DEXPORT_SYMTAB -c $(REPOSITORY)/$(PACKAGE)/src/jr3dsp_lxrt.c  -o $@
 	}
     }
 }
