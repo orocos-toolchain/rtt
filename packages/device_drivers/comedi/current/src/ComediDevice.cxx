@@ -45,7 +45,7 @@
    Major rewrite of original file by Peter Soetens
 */
 
-#include "comedi/v2/ComediDevice.hpp"
+#include "comedi/ComediDevice.hpp"
 #include <os/fosi.h>
 
 extern "C"

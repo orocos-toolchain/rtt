@@ -1,6 +1,0 @@
-This subdirectory contains a preliminary project to wrap the
-comedi C library to a C++ class hierarchy. It is not yet
-well thought out but could be a good starting point
-for anyone, needing this.
-
-For now, we use the heavily crippled version in the main src dir.

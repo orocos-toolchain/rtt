@@ -41,7 +41,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#include "ComediEncoder.hpp"
+#include "comedi/ComediEncoder.hpp"
 #include <os/fosi.h>
 
 namespace ORO_DeviceDriver
