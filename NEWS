@@ -15,10 +15,15 @@ Tasks within applications are online browsable and
 can be manipulated interactively using the TaskBrowser. 
 For Control Kernel users, a GUI was designed for
 KDE 3 which allows to interact with the Control Kernel.
+Also, the installation process of Orocos has been streamlined.
 
-Feature improvements, bugfixes and caveats can be found
-in 
-<http://www.orocos.org/releases/orocos-changes-0.18.0.html>
+Feature improvements, bugfixes and caveats can be found in :
+  <http://www.orocos.org/releases/orocos-changes-0.18.0.html>
+
+Orocos can be downloaded using this script :
+  <http://www.orocos.org/releases/orocos-install.tcl>
+which is invoked as in :
+  $ sh orocos-install.tcl
 
 OROCOS v0.16.0 Release Notes
    http://www.orocos.org

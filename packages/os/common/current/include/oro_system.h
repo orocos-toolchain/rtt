@@ -7,7 +7,9 @@
  */
 
 #define new _new
+#ifndef CONFIG_X86_CMPXCHG
 #define CONFIG_X86_CMPXCHG
+#endif
 #include <asm/system.h>
 #undef new
 #undef mb

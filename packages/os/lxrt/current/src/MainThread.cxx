@@ -70,7 +70,7 @@ namespace ORO_OS
         // XXX Debugging, this works
         // BE SURE TO SET rt_preempt_always(1) when using one shot mode
         rt_set_oneshot_mode();
-        //rt_preempt_always(1);
+        rt_preempt_always(1);
         start_rt_timer(0);
     }
 

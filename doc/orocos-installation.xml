@@ -199,21 +199,22 @@
 	<para>
 	  The tools you will need are <command>ecosconfig</command>
 	  and <command>configtool</command>. In Debian, you can
-	  download a package for testing and unstable from <ulink
-	    url="http://www.orocos.org/downloads.html"> The Orocos
-	    Download Page</ulink> or use the official Debian version
-	  using
+	  use the official Debian version  using
 	  <screen>  apt-get install ecosconfig</screen>
-	  (recommended).
-	  <screen>  dpkg -i ecosconfig_2.0-0pre3_i386.deb </screen> 
-	  If this does not
-	  work for you, consult the <ulink
+	  If this does not work for you, you can try the ready-to-use tools
+	  in tools/bin after the archive is unpacked. In that case, you'll have to point
+	  your path to :
+	  <screen>
+  export PATH=$PATH:(...)/orocos-0.18.0/tools/bin
+	  </screen>
+	  In order to use them.  The
+	  <command>orocos-install.tcl</command> script
+	  will provide a shell script which sets this path for you.
+	  If that does not work, consult the <ulink
 	    url="http://www.ecoscentric.com/devzone/configtool.shtml"> eCos
 	    Configuration Tool Version 2</ulink> webpage for source
 	  and binary downloads or consult the <ulink url="http://www.orocos.org/download.php#ecostools">
-	    Orocos download page</ulink>. A copy of these tools is also
-	  included if you use the <command>orocos-install.tcl</command> script
-	  below.
+	    Orocos download page</ulink>.
 	</para>
 	<note>
 	  <para>
@@ -234,15 +235,15 @@
 	  written in the <ulink
 	    url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html"> 
 	    eCos Component Writer Guide</ulink>.
-	</para>
 	<note>
 	  <para>
-	    In the eCos operating system, a target is a
+	    In the eCos Operating System, a target is a
 	    hardware platform, in Orocos, a target is RTAI, GNU/Linux,
 	    LXRT and so on, so you can skip all hardware specific
 	    sections in the eCos manuals.
 	  </para>
 	</note>
+	</para>
       </sect3>
       <sect3>
 	<title>Quick Installation Instructions</title>
@@ -312,35 +313,47 @@
 	</para>
       </sect3>
       <sect3>
+	<title>Configuration</title>
+	<para>
+	  Orocos is configured in a two-stage system. First the configure scripts
+	  detect available libraries and take some command-line options to point
+	  it in the right direction. Also, it takes the Operating System you want
+	  to configure for as an argument ( <parameter>--with-lxrt</parameter>,
+	  <parameter>--with-gnulinux</parameter>). 
+	</para>
+	<para>
+	  The second stage is when you issue a <command>make configure_packages</command>,
+	  which will show a GUI where you can further tweak build flags and package
+	  specific options.
+	  This is also the stage where you can add/remove packages for compilation.
+	</para>
+	<para>
+	  When you completed these two stages, you can now <command>make</command>.
+	  For more details, consult <xref linkend="install-configure"/>.
+	</para>
+      </sect3>
+      <sect3>
 	<title>Manual Download Instructions</title>
 	<para> If you choose to download the tools and packages manually, proceed as follows :
 	</para>
 	<orderedlist>
-	  <listitem><para>Download orocos-base package from the Orocos webpage</para></listitem>
+	  <listitem><para>Download orocos-0.18.0.i386linux package from the Orocos webpage</para></listitem>
 	  <listitem><para>Extract it using :
 	      <screen><command>
-  tar -xvzf orocos-0.18.0.tar.gz
+  tar -xvzf orocos-0.18.0.i386linux.tar.bz2
 		</command></screen>
 	    </para></listitem>
 	  <listitem><para>Setup the base environment : 
 	      <screen>
 		<command>
   cd orocos-0.18.0
-  ./bootstrap.sh
+  EXPORT PATH=$PATH:$(pwd)/tools/bin
+  EXPORT ECOS_REPOSITORY=$(pwd)/packages
+  mkdir build
+  cd build
+  ../configure
 		</command>
 	      </screen>
-	    </para></listitem>
-	  <listitem><para>Download the Orocos .epk packages. We suggest : allpackages-0.18.0.epk, 
-	    gnulinux-0.18.0.epk and lxrt-0.18.0.epk</para></listitem>
-	  <listitem><para>Install each of them in the orocos-0.18.0/packages subdir, using
-	      <screen><command>
-  cd orocos-0.18.0/packages
-  ./ecosadmin.tcl add /path/to/filename.epk
-		</command></screen>
-	      This action is also documented in the eCos manuals and equivalent to the installation
-	      of any eCos package, see 
-	      <ulink url="http://sources.redhat.com/ecos/docs-latest/user-guide/managing-package-repository.html">
-		The eCos Userguide</ulink> for the synopsis.
 	    </para></listitem>
 	</orderedlist>
 	<para>
@@ -490,7 +503,7 @@
       </table>
     </sect2>
   </sect1>
-  <sect1>
+  <sect1 id="install-configure">
       <title>Configuration</title>
       <sect2>
 	<title>Configuring an Orocos Package</title>
@@ -589,19 +602,20 @@
       <para>
 	Read first the 'Getting Started' section from <ulink
 	  url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this 
-	  page</ulink> if you are not familiar with RTAI instalation
+	  page</ulink> if you are not familiar with RTAI installation
       </para>
       <para>
-	We recommend using
-	RTAI 3.0. You can obtain it from 
+	RTAI 3.1 with Linux 2.6 is the most stable combination in our experience, 
+	however you can also use RTAI 3.0 for less resource consuming applications.
+	You can obtain it from 
 	<ulink url="http://www.aero.polimi.it/projects/rtai/">
 	  the RTAI home page</ulink>.
 	Read The README.* files in the
 	<filename class="directory">rtai</filename> directory for detailed
-	instructions.  First, you need to patch your Linux kernel. A patch per
+	instructions.  First, you need to patch your Linux kernel with the RTAI patch. A patch per
 	kernel version can be found in the rtai-core/arch/i386/patches directory. You should
 	apply
-	the <filename>hal12-X.Y.Z.patch</filename> for RTAI 3.0 to a clean
+	the <filename>hal12-X.Y.Z.patch</filename> for RTAI  to a clean
 	Linux kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>
@@ -632,36 +646,42 @@
 	      <para>C++ support</para>
 	    </listitem>
 	  </itemizedlist>
-	  After configuring you can run 'make' in your RTAI directory
+	  After configuring you can run 'make' and 'make install' in your RTAI directory
 	</para>
+      <para>
+	  After installation, RTAI can be found in /usr/realtime. You'll have to 
+	  specify during the Orocos configure step the alternative if you chose so.
+	  Also, you need to set the path to your Linux source tree (on which the
+	  patch was applied ) in the <command>make configure_packages</command> step.
+      </para>
       </sect3>
+<!--       <sect3> -->
+<!-- 	<title> Loading RTAI without LXRT (not recommended)</title> -->
+<!-- 	<para> -->
+<!-- 	  To enable RTAI without LXRT run in your rtai directory one of the programs -->
+<!-- 	  <screen> -->
+<!-- ./setsched up    # for uniprocessor systems OR -->
+<!-- ./setsched smp   # for smp systems -->
+<!-- 	  </screen> -->
+<!-- 	  next you can 'make  install'.  -->
+<!-- 	  Make sure that the following RTAI kernel modules are loaded -->
+<!-- 	  <itemizedlist> -->
+<!-- 	    <listitem><para>rtai_cpp</para></listitem> -->
+<!-- 	    <listitem><para>rtai_sched_ext</para></listitem> -->
+<!-- 	    <listitem><para>rtai_bits</para></listitem> -->
+<!-- 	    <listitem><para>rtai_up</para></listitem> -->
+<!-- 	    <listitem><para>rtai_pthread</para></listitem> -->
+<!-- 	    <listitem><para>rtai_sem</para></listitem> -->
+<!-- 	    <listitem><para>rtai_fifos</para></listitem> -->
+<!-- 	    <listitem><para>rtai_hal</para></listitem> -->
+<!-- 	    <listitem><para>adeos</para></listitem> -->
+<!-- 	  </itemizedlist> -->
+<!-- 	  For example, by executing as root: -->
+<!-- 	  <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>. -->
+<!--         </para> -->
+<!--       </sect3> -->
       <sect3>
-	<title> Loading RTAI without LXRT (not recommended)</title>
-	<para>
-	  To enable RTAI without LXRT run in your rtai directory one of the programs
-	  <screen>
-./setsched up    # for uniprocessor systems OR
-./setsched smp   # for smp systems
-	  </screen>
-	  next you can 'make  install'. 
-	  Make sure that the following RTAI kernel modules are loaded
-	  <itemizedlist>
-	    <listitem><para>rtai_cpp</para></listitem>
-	    <listitem><para>rtai_sched_ext</para></listitem>
-	    <listitem><para>rtai_bits</para></listitem>
-	    <listitem><para>rtai_up</para></listitem>
-	    <listitem><para>rtai_pthread</para></listitem>
-	    <listitem><para>rtai_sem</para></listitem>
-	    <listitem><para>rtai_fifos</para></listitem>
-	    <listitem><para>rtai_hal</para></listitem>
-	    <listitem><para>adeos</para></listitem>
-	  </itemizedlist>
-	  For example, by executing as root:
-	  <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>.
-        </para>
-      </sect3>
-      <sect3>
-	<title> Loading RTAI with LXRT (recommended)</title>
+	<title> Loading RTAI with LXRT</title>
 	<para>
 	  LXRT is a all-in-one scheduler that works for kernel and userspace.
 	  So if you use this, you can still run kernel programs but have the ability
@@ -669,12 +689,13 @@
 	  to build these programs.
 	  Make sure that the following RTAI kernel modules are loaded
 	  <itemizedlist>
+	    <listitem><para>rtai_sem</para></listitem>
 	    <listitem><para>rtai_lxrt</para></listitem>
 	    <listitem><para>rtai_hal</para></listitem>
 	    <listitem><para>adeos</para></listitem>
 	  </itemizedlist>
 	  For example, by executing as root:
-	  <command>modprobe rtai_lxrt</command>.
+	  <command>modprobe rtai_lxrt; modprobe rtai_sem</command>.
 	</para>
 	<para>For a more detailed description of what LXRT really is,
 	  you can read the LXRT HOWTO 
@@ -725,10 +746,16 @@
     <sect2>
       <title>A quick test</title>
       <para>
-	To quickly test &orocos; code, you can download the kernel_samples
+	You can issue a <command>make check</command> in the Orocos
+	build dir, but this stresses your system heavily, so it might crash
+	not fully stable RTAI installations. make check for the gnulinux
+	target should successfully complete.
+      </para>
+      <para>
+	To quickly test an &orocos; application, you can download the kernel_samples
 	tar.gz package, untar it, make a link from within a subdirectory (e.g.
 	program_state/orocos or program_state/orocos-lxrt)
-	to the Orocos install directory and type make all (
+	to the Orocos install directory ( build/packages/install ) and type make all (
 	or make all-lxrt for lxrt). The kernel_samples/README file contains
 	complete instructions.
       </para>

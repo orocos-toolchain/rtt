@@ -41,11 +41,13 @@ namespace ORO_CoreLib
 
     /**
      * @brief This is a Task Executing Thread with a fixed priority. It is used
-     * by the PriorityTask for it's scheduling needs.
-     *
-     * It Uses the Singleton pattern, since there will be only one EVER.
+     * by the PriorityTask for it's scheduling needs. You need to start this
+     * thread manually with \a start(). 
+     * @param Priority The fixed priority of this thread. Only one thread
+     * with such priority can exist in an Orocos framework.
      *
      * @see PeriodicThread
+     * @see PriorityTask
      */
     template< int Priority >
     class PriorityThread
@@ -54,15 +56,16 @@ namespace ORO_CoreLib
     public:
         /**
          * Create a PriorityThread with a certain periodicity.
+         * @param period The periodicity of the instance. When omitted, 0.01s will be used as default.
          *
-         * @note period is to be set with the periodSet() method
-         * Before any tasks are added.
+         * @note period is to be set (or checked) with the periodSet()/Get() methods
+         * before any tasks are added.
          *
          */
-        static PriorityThread<Priority>* Instance()
+        static PriorityThread<Priority>* Instance( double period = 0 )
         {
             if ( _instance == 0 )
-                _instance = new PriorityThread<Priority>( 0.01 );// XXX use some DEFAULT_PRIO define
+                _instance = new PriorityThread<Priority>( period == 0 ? 0.01 : period );
             return _instance;
         }
 

@@ -79,6 +79,13 @@
 	  yourself, you need to implement these methods.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The <emphasis>default</emphasis> periods of the ZeroLatencyThread, ZeroTimeThread, NonRealTimeThread
+	  and CompletionProcessor have chenged.
+	  You should set them to your needs with the configuration tool ( make configure_packages ).
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="general">

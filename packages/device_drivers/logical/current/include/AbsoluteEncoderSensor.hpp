@@ -40,8 +40,7 @@ namespace ORO_DeviceDriver
      * the counter to a physical unit, with support for calibration.
      */
     class AbsoluteEncoderSensor
-        : public ORO_DeviceInterface::SensorInterface<double>,
-          public ORO_DeviceInterface::CalibrationInterface
+        : public ORO_DeviceInterface::SensorInterface<double>
     {
         ORO_DeviceInterface::EncoderInterface* enc;
         double unit_to_inc;

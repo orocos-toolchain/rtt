@@ -54,7 +54,7 @@ Indicates the time between processing two completion requests.
 Since the request is inherently deferred (delayed), this value should mostly not
 be smaller then 0.01 second."
 	    flavor data
-	    default_value 0.01
+	    default_value 0.05
 	    #legal_values positive number
 	}
 	cdl_option ORONUM_CORELIB_EVENTS_CP_PRIORITY {

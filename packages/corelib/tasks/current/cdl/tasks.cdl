@@ -99,7 +99,7 @@ Indicates the time between processing all tasks. No
 TaskNonPreemptible can have a smaller periodicity
 (thus higher frequency) than this value."
 	    flavor data
-	    default_value 0.001
+	    default_value 0.01
 	}
     }
 
@@ -139,7 +139,7 @@ Indicates the time between processing all tasks. No
 TaskPreemptible can have a smaller periodicity
 (thus higher frequency) than this value."
 	    flavor data
-	    default_value 0.01
+	    default_value 0.05
 	}
     }
 
@@ -182,7 +182,7 @@ Indicates the time between processing all tasks. No
 TaskNonRealTime can have a smaller periodicity
 (thus higher frequency) than this value."
 	    flavor data
-	    default_value 0.01
+	    default_value 0.1
 	}
     }
     cdl_component OROPKG_CORELIB_TASKS_SIM {
