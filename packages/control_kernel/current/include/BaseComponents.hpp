@@ -42,9 +42,8 @@ namespace ORO_ControlKernel
         typedef _Aspect Aspect;
 
         /**
-         * A Default Support Component.
+         * A Support Component.
          */
-        SupportComponent() : Aspect( "SupportComponent" ) {}
         SupportComponent(const std::string& name ) 
             : Aspect( name ), NameServerRegistrator< SupportComponent<_Aspect>* >(nameserver,name,this)
         {}
@@ -167,7 +166,6 @@ namespace ORO_ControlKernel
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
          */
-        Generator( ) : Aspect( "Generator" ) {}
         Generator(const std::string& name ) 
             : Aspect( name ), 
               NameServerRegistrator< Generator<_CommandType, _InputType, _ModelType, _SetPointType, _Aspect>* >(nameserver,name,this) 
@@ -218,7 +216,6 @@ namespace ORO_ControlKernel
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
          */
-        Estimator() : Aspect( "Estimator" ) {}
         Estimator(const std::string& name ) 
             : Aspect( name ), 
               NameServerRegistrator< Estimator<_InputType, _ModelType,  _Aspect>* >(nameserver,name,this) 
@@ -257,7 +254,6 @@ namespace ORO_ControlKernel
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
          */
-        Effector() : Aspect( "Effector" ) {}
         Effector(const std::string& name ) 
             : Aspect( name ), 
               NameServerRegistrator< Effector<_OutputType, _Aspect>* >(nameserver,name,this) 
@@ -293,7 +289,6 @@ namespace ORO_ControlKernel
         /**
          * Pas the Kernel id key on to the Aspect Base Class.
          */
-        Sensor() : Aspect( "Sensor" ) {}
         Sensor(const std::string& name ) 
             : Aspect( name ), 
               NameServerRegistrator< Sensor<_InputType, _Aspect>* >(nameserver,name,this) 

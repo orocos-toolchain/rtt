@@ -118,6 +118,9 @@ namespace ORO_ControlKernel
                    const std::string& setp_prefix=std::string("Default"),
                    const std::string& out_prefix=std::string("Default"))
             : _Extension(this),
+              dummy_controller("DefaultController"), dummy_generator("DefaultGenerator"),
+              dummy_estimator("DefaultEstimator"), dummy_effector("DefaultEffector"),
+              dummy_sensor("DefaultSensor"),
               controller(&dummy_controller), generator(&dummy_generator),
               estimator(&dummy_estimator), effector(&dummy_effector), sensor(&dummy_sensor),
 

@@ -136,7 +136,7 @@ namespace ORO_ControlKernel
          * Start a previously loaded Program.
          * @param name The name of the Program.
          */
-        void startProgram(const std::string& name);
+        bool startProgram(const std::string& name);
 
         /**
          * Returns true if the program was successfully started.
@@ -148,19 +148,19 @@ namespace ORO_ControlKernel
          * Stops the execution of a program.
          * @param name The name of the Program.
          */
-        void stopProgram(const std::string& name);
+        bool stopProgram(const std::string& name);
 
         /**
          * Resets the execution of a stopped program to the first instruction.
          * @param name The name of the Program.
          */
-        void resetProgram(const std::string& name);
+        bool resetProgram(const std::string& name);
 
         /**
          * Start a previously loaded StateContext.
          * @param name The name of the StateContext.
          */
-        void startStateContext(const std::string& name);
+        bool startStateContext(const std::string& name);
 
         /**
          * Returns true if the program was successfully started.
@@ -172,13 +172,13 @@ namespace ORO_ControlKernel
          * Stops the execution of a StateContext and enters the Final_State.
          * @param name The name of the StateContext.
          */
-        void stopStateContext(const std::string& name);
+        bool stopStateContext(const std::string& name);
 
         /**
          * Resets the execution of a StateContext and enters the Initial_State.
          * @param name The name of the StateContext.
          */
-        void resetStateContext(const std::string& name);
+        bool resetStateContext(const std::string& name);
 
         /**
          * The Processor is needed during program construction,
