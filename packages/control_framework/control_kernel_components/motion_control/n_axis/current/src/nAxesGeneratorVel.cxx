@@ -163,17 +163,17 @@ namespace ORO_ControlKernel
 					       "Set the velocity",
 					       "velocity", "joint velocity for all axes",
 					       "duration", "duration of movement") );
-    my_commandFactory->add( "gotoVelocities", command( &nAxesGeneratorVel::gotoVelocities,
-					      &nAxesGeneratorVel::velocitiesFinished,
-					      "Set the velocity",
-					      "velocity", "joint velocity for all axes",
-					      "duration", "duration of movement") );
     my_commandFactory->add( "applyVelocity", command( &nAxesGeneratorVel::applyVelocity,
 					     &nAxesGeneratorVel::velocityFinished,
 					     "Set the velocity for one axis",
                                              "axis", "selected axis",
 					     "velocity", "joint velocity for axis",
 					     "duration", "duration of movement") );
+    my_commandFactory->add( "gotoVelocities", command( &nAxesGeneratorVel::gotoVelocities,
+					      &nAxesGeneratorVel::velocitiesFinished,
+					      "Set the velocity",
+					      "velocities", "joint velocities for all axes",
+					      "duration", "duration of movement") );
     my_commandFactory->add( "gotoVelocity", command( &nAxesGeneratorVel::gotoVelocity,
 					    &nAxesGeneratorVel::velocityFinished,
 					    "Set the velocity for one axis",
@@ -184,6 +184,43 @@ namespace ORO_ControlKernel
   }
 
 
+  MethodFactoryInterface* nAxesGeneratorVel::createMethodFactory()
+  {
+    TemplateMethodFactory<nAxesGeneratorVel>* my_methodFactory = newMethodFactory( this );
+    my_methodFactory->add( "setInitVelocity", method( &nAxesGeneratorVel::setInitVelocity, "set initial velocity", 
+						      "axis", "axis where to set velocity",
+						      "velocity", "velocity to set" ));
+    my_methodFactory->add( "setInitVelocities", method( &nAxesGeneratorVel::setInitVelocities, "set initial velocity", 
+							"velocities", "velocities to set" ));
+
+    return my_methodFactory;
+  }
+
+
+
+  bool nAxesGeneratorVel::setInitVelocity(const int axis, const double velocity)
+  {
+    if ( axis < 0 || axis >= (int)_num_axes)
+      return false;
+    else{
+      _velocity_local[axis] = velocity;
+      applyVelocity(axis, _velocity_local[axis], 0.0);
+      return true;
+    }
+  }
+
+
+  bool nAxesGeneratorVel::setInitVelocities(const std::vector<double>& velocity)
+  {
+    assert(velocity.size() == _num_axes);
+
+    bool success = true;
+    for (unsigned int i=0; i<_num_axes; i++)
+      if (!setInitVelocity(i, velocity[i]))
+	success = false;
+    return success;
+  }
+    
 
 
   bool nAxesGeneratorVel::gotoVelocity(const int axis, const double velocity, double duration)
@@ -207,7 +244,7 @@ namespace ORO_ControlKernel
   }
 
 
-  bool nAxesGeneratorVel::gotoVelocities(const std::vector<double>& velocity,std::vector<double>& duration)
+  bool nAxesGeneratorVel::gotoVelocities(const std::vector<double>& velocity, const std::vector<double>& duration)
   {
     assert(velocity.size() == _num_axes);
     assert(duration.size() == _num_axes);
@@ -242,7 +279,7 @@ namespace ORO_ControlKernel
   }
 
 
-  bool nAxesGeneratorVel::applyVelocities(const std::vector<double>& velocity,std::vector<double>& duration)
+  bool nAxesGeneratorVel::applyVelocities(const std::vector<double>& velocity, const std::vector<double>& duration)
   {
     assert(velocity.size() == _num_axes);
     assert(duration.size() == _num_axes);

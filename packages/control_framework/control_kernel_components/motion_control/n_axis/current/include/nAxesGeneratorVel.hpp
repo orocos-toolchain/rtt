@@ -27,6 +27,7 @@
 #include <control_kernel/ExtensionComposition.hpp>
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateMethodFactory.hpp>
+#include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
 #include <corelib/TimeService.hpp>
@@ -79,15 +80,17 @@ namespace ORO_ControlKernel
     virtual void calculate();
     virtual void push();
 
-    // commands
     virtual CommandFactoryInterface* createCommandFactory();
+    virtual MethodFactoryInterface*  createMethodFactory();
 
+    bool setInitVelocity(const int axis, const double velocity);
+    bool setInitVelocities(const std::vector<double>& velocity);
     bool velocityFinished(const int axis) const;
     bool velocitiesFinished() const;
     bool applyVelocity(const int axis, const double velocity, double duration=0);
-    bool applyVelocities(const std::vector<double>& velocity,std::vector<double>& duration);
+    bool applyVelocities(const std::vector<double>& velocity, const std::vector<double>& duration);
     bool gotoVelocity(const int axis, const double velocity, double duration=0);
-    bool gotoVelocities(const std::vector<double>& velocity,std::vector<double>& duration);
+    bool gotoVelocities(const std::vector<double>& velocity, const std::vector<double>& duration);
 
 
   private:
