@@ -48,8 +48,7 @@ namespace ORO_ControlKernel
       _MP_FS(MP_FS),
       _properties_read(false),
       _mass("mass", "Mass attached to force sensor"),
-      _center_gravity("center_gravity", "Center of gravity from mass attached to force sensor"),
-      _offset("offset", "Offset on measured values of force sensor")
+      _center_gravity("center_gravity", "Center of gravity from mass attached to force sensor")
   {
     assert(_axes.size() == num_axes);
 
@@ -83,10 +82,10 @@ namespace ORO_ControlKernel
       temp[i] = _position_joint[i];
     _kinematics->positionForward(temp, _world_MP );
 
-    // mass compensation and offset for force sensor
+    // mass compensation for force sensor
     _world_FS = _world_MP * _MP_FS;
     _gravity.torque = (_world_FS * _center_gravity) * _gravity.force;
-    _force = ( _world_FS * (_force - _offset) ) - _gravity;
+    _force = ( _world_FS * _force ) - _gravity;
   }
 
 
@@ -138,8 +137,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _mass) ||
-	!composeProperty(bag, _center_gravity) ||
-        !composeProperty(bag, _offset)){
+	!composeProperty(bag, _center_gravity) ){
 	cerr << "nAxesSensorCartesianPosForce::updateProperties() failed" << endl;
       return false;
     }
@@ -159,7 +157,6 @@ namespace ORO_ControlKernel
   {
     TemplateMethodFactory<nAxesSensorCartesianPosForce>* my_methodFactory = newMethodFactory( this );
     my_methodFactory->add( "setMassProperties", method( &nAxesSensorCartesianPosForce::setMassProperties, "set mass properties",
-							"offset","constant offset on measurements of forcesensor",
 							"center_gravity","center of gravity of object attached to forcesensor",
 							"mass","mass of object attached to forcesensor"));
 
@@ -168,10 +165,9 @@ namespace ORO_ControlKernel
 
 
 
-  void nAxesSensorCartesianPosForce::setMassProperties(const ORO_Geometry::Wrench offset, const ORO_Geometry::Vector center_gravity, const double mass)
+  void nAxesSensorCartesianPosForce::setMassProperties(const ORO_Geometry::Vector center_gravity, const double mass)
   {
     _mass = mass;
-    _offset = offset;
     _center_gravity = center_gravity;
 
     _gravity.force  = ORO_Geometry::Vector(0, 0, (-1 * _mass * GRAVITY_CONSTANT));

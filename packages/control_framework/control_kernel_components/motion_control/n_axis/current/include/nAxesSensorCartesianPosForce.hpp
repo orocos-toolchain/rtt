@@ -81,7 +81,7 @@ namespace ORO_ControlKernel
     virtual void push();
 
     virtual MethodFactoryInterface*  createMethodFactory();
-    void setMassProperties(const ORO_Geometry::Wrench offset, const ORO_Geometry::Vector center_gravity, const double mass);
+    void setMassProperties(const ORO_Geometry::Vector center_gravity, const double mass);
     
   private:
     unsigned int                                                          _num_axes;
@@ -99,7 +99,6 @@ namespace ORO_ControlKernel
     bool                                                                  _properties_read;
     ORO_ControlKernel::Property< double >                                 _mass;    
     ORO_ControlKernel::Property< ORO_Geometry::Vector >                   _center_gravity;
-    ORO_ControlKernel::Property< ORO_Geometry::Wrench >                   _offset;
 
   }; // class
 
