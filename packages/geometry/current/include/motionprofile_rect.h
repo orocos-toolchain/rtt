@@ -36,6 +36,7 @@ namespace ORO_Geometry {
 		// constructs motion profile class with <maxvel> as parameter of the
 		// trajectory.
 
+		void SetMax( double _maxvel );
 		void SetProfile(double pos1,double pos2);
 		virtual void SetProfileDuration(
 			double pos1,double pos2,double duration);

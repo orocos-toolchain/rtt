@@ -44,7 +44,7 @@ class Trajectory_Composite: public Trajectory
 		Trajectory_Composite();
 		// Constructs an empty composite
 
-		virtual double Duration();
+		virtual double Duration() const;
 		virtual Frame Pos(double time) const;
 		virtual Twist Vel(double time) const;
 		virtual Twist Acc(double time) const;
