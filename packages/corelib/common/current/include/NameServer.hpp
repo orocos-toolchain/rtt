@@ -52,7 +52,7 @@ namespace ORO_CoreLib
      *   Let's say you want object "Servoloop2" of type Servoloop (the type
      *   may be the type of the instance itself or an ancestor class of the
      *   instance). The code is very simple :
-     *    Servoloop::nameserver.getObjectByName("Servoloop2")
+     *    Servoloop::nameserver.getObject("Servoloop2")
      *
      *  -> getting all names registered in the nameservers
      *   with the getnBegin() and getnEnd() will get you a name_iterator suitable for iterating

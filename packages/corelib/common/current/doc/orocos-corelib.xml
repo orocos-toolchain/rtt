@@ -88,6 +88,12 @@ given in the general &orocos; overview document.
 	<authorinitials>ps</authorinitials>
 	<revremark>Change in the StateContext interface</revremark>
       </revision>
+      <revision>
+	<revnumber>0.14</revnumber>
+	<date>2 June 2004</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Clarified some parts based on feedback</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -184,6 +190,9 @@ given in the general &orocos; overview document.
 	should only add additional realtime threads where application
 	complexity demands it.
       </para>
+    </sect1>
+    <sect1>
+      <title>Adding Additional Threads</title>
       <para>
 	For users needing to solve more complex control problems, the
 	PriorityThread and PriorityTask are provided with which you
@@ -191,7 +200,15 @@ given in the general &orocos; overview document.
 	one thread per priority level. It needs a bit more setup than
 	the standard Orocos threads, since you still have to set the
 	priority and start the thread. An example is given below. 
+	A PriorityThread is not automatically started like the ZeroTimeThread,
+	ZeroLatencyThread and NonRealTimeThread. It must be done by the
+	user. Furthermore, The PriorityThread is the general case of the
+	above three cases, since its priority can match their priorities
+	as given in the configuration tool.
       </para>
+    </sect1>
+    <sect1>
+      <title>Creating Tasks</title>
       <para></para>
       <para>
 	If you want to execute functionality in one of these threads, you need to 
@@ -287,11 +304,16 @@ ORO_main( int argc, const char** argv)
 }
 ]]>
 	</programlisting>
+	<para>
+	  The tasks in the example are all empty since no class is
+	  derived from the Task and no RunnableInterface is given
+	  (see next section)
+	</para>
       </example>
       <para>
 	The high priority thread is the
 	<classname>ZeroTimeThread</classname>. It will execute all
-	<classname>TaskNonPreemptable</classname> Components
+	<classname>TaskNonPreemptable</classname> Tasks
 	synchronically. You can create your own not preemtable task by
 	inheriting from this class. Its name is derived from the fact
 	that some tasks need to be executed in an infinite small
@@ -300,47 +322,85 @@ ORO_main( int argc, const char** argv)
 	constraint, we make sure that the task is never preempted by
 	another task and thus is executed 'atomically'.
       </para>
-
-	  <para>
-	    <figure><title>Execution sequence diagram</title>
-	      <mediaobject>
-		<imageobject role="html">
-		  <imagedata fileref="execution-sequence.png" format="PNG"/>
-		</imageobject>
-		<imageobject role="fo">
-		  <imagedata fileref="execution-sequence.eps" format="EPS"/>
-		</imageobject>
-		<!--
-		<caption><para>
-	      </para></caption>
-		-->
-	      </mediaobject>
-	    </figure>
-	  </para>
-	  <para>
-	    The low priority tasks are executed by the <classname>ZeroLatencyThread</classname>
-	    Component.
-	    It will execute all <classname>TaskPreemptable</classname> Components
-	    sequentially, when no non-preemptable tasks are 
-	    executed. Every <classname>TaskPreemptable</classname> can be preempted by a 
-	    <classname>TaskNonPreemptable</classname> but not by another <classname>TaskPreemptable</classname>.
-	    The ZeroLatencyThread has this name because the zero time constraint is
-	    dropped, but replaced by the constraint that no latency may occur and 
-	    thus, execution is still realtime. Again, to satisfy this constraint,
-	    only deterministic time operations may be done in this thread.
-	  </para>
-	  <para> For not realtime executions, as there are userspace communication,
-	    memory allocations,... we use the NonRealTimeThread. Roughly put, you
-	    can do <emphasis>anything</emphasis> in this thread, as long as it 
-	    takes finite time. This is the lowest priority thread in the system and
-	    it should never lock a resource of the realtime thread. Tasks being executed
-	    in the NonRealTimeThread are called <classname>TaskNonRealTime</classname>.
-	  </para>
+      <para>
+	The low priority tasks are executed by the
+	<classname>ZeroLatencyThread</classname> class. It will
+	execute all <classname>TaskPreemptable</classname> Tasks
+	sequentially, when no non-preemptable tasks are executed.
+	Every <classname>TaskPreemptable</classname> can be preempted
+	by a <classname>TaskNonPreemptable</classname> but not by
+	another <classname>TaskPreemptable</classname>. The
+	ZeroLatencyThread has this name because the zero time
+	constraint is dropped, but replaced by the constraint that no
+	latency may occur and thus, execution is still realtime.
+	Again, to satisfy this constraint, only deterministic time
+	operations may be done in this thread.
+      </para>
+      <para>
+	For not realtime executions, as there are userspace
+	communication, memory allocations,... we use the
+	NonRealTimeThread. Roughly put, you can do
+	<emphasis>anything</emphasis> in this thread, as long as it
+	takes finite time. This is the lowest priority thread in the
+	system and it should never lock a resource of the realtime
+	thread. Tasks being executed in the NonRealTimeThread are
+	called <classname>TaskNonRealTime</classname>.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Putting Functionality in a Task</title>
+      <para>
+	There are two ways to run functionality in a task. By :
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Implementing the <classname>RunnableInterface</classname>  in another class
+	      ( functions initialize, step and finalize ). The RunnableInterface object (i.e. run_impl) can
+	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
+	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Inheriting from a Task class and overriding the initialize, step
+	      and finalize methods.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+	The Task will detect if it must run an external RunnableInterface. If none
+	was given, it will call its own virtual methods.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Task Ordering</title>
+      <para>
+	Tasks are executed <emphasis>in the order as they are started</emphasis>.
+	The Thread responsible
+	for the Task will execute all tasks one after the other, respecting
+	the periodicity of the task. This means that a Task with a lower periodicity
+	of the thread (e.g. 10 times lower) will only be called a fraction of the
+	time (thus every 10th period), still respecting the ordering.
+      </para>
+      <para>
+	<figure><title>Execution sequence diagram</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="execution-sequence.png" format="PNG"/>
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="execution-sequence.eps" format="EPS"/>
+	    </imageobject>
+	    <!--
+	    <caption><para>
+	  </para></caption>
+	    -->
+	  </mediaobject>
+	</figure>
+      </para>
     </sect1>
   </chapter>
     <chapter>
       <title>Events</title>
-
       <para>
 	Events are implemented using the <classname>Observer</classname> 
 	design pattern. An object or component which wants to be notified
@@ -753,16 +813,20 @@ emergencyStop.fire(); // User not notified
         url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink> library for the XML
         related marshalling.
 	</para>
+      <note>
 	<para>
-	  The marshaller uses the <classname>PropertyIntrospectionInterface</classname>
-	  for inspecting the type of a Property. This mechanism is called 
-	  double dispatching. Double dispatching is an extension of the standard C++
-      single dispatching also known as virtual functions. When a virtual
-      function is called, the method which will be invoked is dependent on the
-      object on which it gets invoked. With double dispatching, after the first
-      dispatching on the object itself, there's a second dispatching done on one
-      of the parameters of the function.
+	  The marshaller uses the
+	  <classname>PropertyIntrospectionInterface</classname> for
+	  inspecting the type of a Property. This mechanism is called
+	  double dispatching. Double dispatching is an extension of
+	  the standard C++ single dispatching also known as virtual
+	  functions. When a virtual function is called, the method
+	  which will be invoked is dependent on the object on which it
+	  gets invoked. With double dispatching, after the first
+	  dispatching on the object itself, there's a second
+	  dispatching done on one of the parameters of the function.
 	</para>
+      </note>
     </sect1>
   </chapter>
   <chapter>

@@ -160,6 +160,16 @@ namespace ORO_CoreLib
             return tmp;
         }
 
+        MultiVector operator - () const
+        {
+            MultiVector tmp;
+
+            for ( unsigned int i = 0; i < S; ++i )
+                tmp.data[ i ] = - data[ i ];
+
+            return tmp;
+        }
+
         /**
          * Returns the addition of this and another MultiVector
          *
@@ -188,6 +198,16 @@ namespace ORO_CoreLib
 
             for ( unsigned int i = 0; i < S; ++i )
                 tmp[ i ] = data[ i ] * d.data[ i ];
+
+            return tmp;
+        }
+
+        MultiVector operator / ( const T d ) const
+        {
+            MultiVector tmp;
+
+            for ( unsigned int i = 0; i < S; ++i )
+                tmp[ i ] = data[ i ] / d;
 
             return tmp;
         }
@@ -265,6 +285,25 @@ namespace ORO_CoreLib
             return data[ i ];
         }
     };
+
+    template<unsigned S, typename D>
+    MultiVector<S,D> operator * ( const D d, const MultiVector<S,D>& v ) 
+    {
+        return v*d;
+    }
+
+    template<unsigned S, typename D>
+    MultiVector<S,D> operator + ( const D d, const MultiVector<S,D>& v ) 
+    {
+        return v+d;
+    }
+
+    template<unsigned S, typename D>
+    MultiVector<S,D> operator - ( const D d, const MultiVector<S,D>& v ) 
+    {
+        return v-d;
+    }
+
 
     /**
      * A MultiVector consisting of 6 doubles
