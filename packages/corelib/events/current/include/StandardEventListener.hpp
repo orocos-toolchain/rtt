@@ -148,8 +148,9 @@ namespace ORO_CoreLib
     return simpllistener( boost::bind( f, t ) );
   }
 
-  /**
-   * @example An example how to use this class.
+    // This is too confusing for now...
+  /*
+   * example An example how to use this class.
    *
   class PseudoComponent
   {

@@ -28,21 +28,18 @@
 #include "ReportExporterInterface.hpp"
 #include "ReportCollectorInterface.hpp"
 #include <os/MutexLock.hpp>
+#include "RunnableInterface.hpp"
 #include "NameServerRegistrator.hpp"
 
 namespace ORO_CoreLib
 {
 
     /**
-     * A client for retrieving and formatting
+     * @brief A Server for retrieving and formatting
      * property based reports.
      *
-     * Header : hierarchical structure reflecting
-     *          all reportexporters.
-     *
-     * Data   : The values of the reportexporters.
-     *
-     * Footer : Statistics, closing of the Data stream
+     * @param MarshallConfig The Marshalling of Header, Data and Footer.
+     * @see MarshallConfig
      */
     template < class MarshallConfig >
     class PropertyReporter
@@ -57,8 +54,8 @@ namespace ORO_CoreLib
          * Create A PropertyReporter with a given marshalling configuration
          * without a name.
          */
-        PropertyReporter( MarshallConfig& m ) :
-        adaptor(m), mytask(0) {}
+        PropertyReporter( MarshallConfig& m )
+            : adaptor(m), mytask(0) {}
         
         /**
          * Create A PropertyReporter with a given marshalling configuration
