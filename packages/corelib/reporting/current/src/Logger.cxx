@@ -32,6 +32,10 @@
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
+#include <pkgconf/system.h>
+#ifdef OROPKG_OS_LXRT
+#include <pkgconf/os_lxrt.h>
+#endif
 
 namespace ORO_CoreLib 
 {
@@ -68,7 +72,10 @@ namespace ORO_CoreLib
         _instance = 0;
       }
     }
-        
+
+#define ORO_xstr(s) ORO_str(s)
+#define ORO_str(s) #s        
+
     void Logger::startup() {
         if (started)
             return;
@@ -100,6 +107,16 @@ namespace ORO_CoreLib
             
         timestamp = TimeService::Instance()->getTicks();
         *this<<xtramsg<<Logger::nl;
+        *this<< " OROCOS version '" ORO_xstr(OROPKG_CORELIB) "'";
+#ifdef __GNUC__
+        *this << " compiled with GCC " ORO_xstr(__GNUC__) "." ORO_xstr(__GNUC_MINOR__) "." ORO_xstr(__GNUC_PATCHLEVEL__) ".";
+#endif
+#ifdef OROPKG_OS_LXRT
+        *this<<" Running in LXRT, RTAI version '" ORO_xstr(ORO_RTAI_CONFIG_VERSION) "'."<< Logger::nl;
+#endif
+#ifdef OROPKG_OS_GNULINUX
+        *this<<" Running in GNU/Linux."<< Logger::nl;
+#endif
         *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
         *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(TimeService::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::endl;
