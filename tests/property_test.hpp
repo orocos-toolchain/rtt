@@ -4,6 +4,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/MotionProperties.hpp>
+#endif
 
 using namespace ORO_CoreLib;
 
@@ -22,6 +26,7 @@ class PropertyTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testPrimitives );
     CPPUNIT_TEST( testBags );
     CPPUNIT_TEST( testBagOperations );
+    CPPUNIT_TEST( testMarshalling );
     CPPUNIT_TEST_SUITE_END();
 
     PropertyBag bag1;
@@ -40,6 +45,7 @@ public:
     void testPrimitives();
     void testBags();
     void testBagOperations();
+    void testMarshalling();
 };
 
 #endif  // PROPERTYTEST_H

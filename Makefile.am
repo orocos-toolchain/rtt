@@ -193,7 +193,7 @@ mrproper:
 # This cleans the install directory, meaning
 # the install/include, install/lib, install/modules
 # and install/bin directories.
-clean_install:
+clean_install: clean-local
 	@echo -e "\nThis command will erase the install directory !\n"
 	@rm -rvf packages/install
 

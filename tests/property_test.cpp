@@ -4,6 +4,7 @@
 
 #include "property_test.hpp"
 #include <boost/bind.hpp>
+#include <corelib/PropertyBagIntrospector.hpp>
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
@@ -103,4 +104,28 @@ void PropertyTest::testBags()
 }
 void PropertyTest::testBagOperations()
 {
+}
+
+using namespace ORO_Geometry;
+
+void PropertyTest::testMarshalling()
+{
+#ifdef OROPKG_GEOMETRY
+    // decompose some types
+    PropertyBag bag;
+    PropertyBagIntrospector  inspector( bag );
+
+    Property<Wrench> w("Wrench","A Wrench", Wrench(Vector(0.1,0.2,0.3),Vector(0.5,0.6,0.7)));
+
+    inspector.introspect( w );
+
+    CPPUNIT_ASSERT( bag.find("Wrench") != 0 );
+
+    CPPUNIT_ASSERT( find( bag, "Wrench::Force::X" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Force::Y" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Force::Z" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::X" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Y" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Z" ) != 0 );
+#endif
 }
