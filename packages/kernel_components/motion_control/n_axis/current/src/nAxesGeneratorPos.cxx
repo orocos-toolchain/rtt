@@ -26,6 +26,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
+  using namespace ORO_Execution;
   
 
   nAxesGeneratorPos::nAxesGeneratorPos(unsigned int num_axes,  std::string name)
@@ -202,6 +203,18 @@ namespace ORO_ControlKernel
   
 
 
+  CommandFactoryInterface* nAxesGeneratorPos::createCommandFactory()
+  {
+    TemplateCommandFactory<nAxesGeneratorPos>* my_commandFactory = newCommandFactory( this );
+    my_commandFactory->add( "moveTo", command( &nAxesGeneratorPos::moveTo,
+					       &nAxesGeneratorPos::moveFinished,
+					       "Set the position setpoint",
+					       "setpoint", "joint setpoint for each axis",
+					       "time", "minimum time to execute trajectory") );
+    return my_commandFactory;
+  }
+
+
   bool nAxesGeneratorPos::moveTo(const std::vector<double>& position, double time)
   {
     MutexLock locker(_my_lock);
@@ -218,6 +231,12 @@ namespace ORO_ControlKernel
     // new values already set
     else
       return false;
+  }
+
+  bool nAxesGeneratorPos::moveFinished() const
+  {
+    MutexLock locker(_my_lock);
+    return (!_is_moving && !_new_values);
   }
 
 

@@ -26,6 +26,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
+  using namespace ORO_Execution;
   
 
   nAxesGeneratorCartesianPos::nAxesGeneratorCartesianPos(std::string name)
@@ -201,6 +202,18 @@ namespace ORO_ControlKernel
   {};
 
 
+
+  CommandFactoryInterface* nAxesGeneratorCartesianPos::createCommandFactory()
+  {
+    TemplateCommandFactory<nAxesGeneratorCartesianPos>* my_commandFactory = newCommandFactory( this );
+    my_commandFactory->add( "moveTo", command( &nAxesGeneratorCartesianPos::moveTo,
+					       &nAxesGeneratorCartesianPos::moveFinished,
+					       "Set the position setpoint",
+					       "setpoint", "position setpoint for end effector",
+					       "time", "minimum time to execute trajectory") );
+    return my_commandFactory;
+  }
+
   
   bool nAxesGeneratorCartesianPos::moveTo(const ORO_Geometry::Frame& frame, double time)
   {
@@ -217,6 +230,12 @@ namespace ORO_ControlKernel
     // new values already set
     else
       return false;
+  }
+
+  bool nAxesGeneratorCartesianPos::moveFinished() const
+  {
+    MutexLock locker(_my_lock);
+    return (!_is_moving && !_new_values);
   }
 
 

@@ -23,7 +23,9 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/PropertyExtension.hpp>
+#include <control_kernel/ExecutionExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <execution/TemplateCommandFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <geometry/velocityprofile_trap.h>
 #include <corelib/HeartBeatGenerator.hpp>
@@ -64,8 +66,8 @@ namespace ORO_ControlKernel
 					ORO_ControlKernel::Expects<ORO_ControlKernel::NoCommand>,
 					ORO_ControlKernel::Writes<nAxesGeneratorCartesianPosSetpoint_pos_vel>,
 					ORO_ControlKernel::MakeAspect<ORO_ControlKernel::PropertyExtension,
-								      ORO_ControlKernel::KernelBaseFunction>::Result > nAxesGeneratorCartesianPos_typedef;
-  
+								      ORO_ControlKernel::KernelBaseFunction,
+								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesGeneratorCartesianPos_typedef;  
 
   class nAxesGeneratorCartesianPos
     : public nAxesGeneratorCartesianPos_typedef
@@ -74,8 +76,6 @@ namespace ORO_ControlKernel
     nAxesGeneratorCartesianPos(std::string name);
     virtual ~nAxesGeneratorCartesianPos();
 
-    bool moveTo(const ORO_Geometry::Frame& frame, double time=0);
-    
     virtual bool componentLoaded();
     virtual bool componentStartup();
     virtual bool updateProperties(const ORO_ControlKernel::PropertyBag& bag);
@@ -84,6 +84,12 @@ namespace ORO_ControlKernel
     virtual void pull();
     virtual void calculate();
     virtual void push();
+
+    virtual CommandFactoryInterface* createCommandFactory();
+
+    bool moveTo(const ORO_Geometry::Frame& frame, double time=0);
+    bool moveFinished() const;
+    
 
   private:
     ORO_Geometry::Frame                                                   _traject_end, _traject_begin;
@@ -95,7 +101,7 @@ namespace ORO_ControlKernel
     std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _motion_profile;
     ORO_CoreLib::HeartBeatGenerator::ticks                                _time_begin;
     ORO_CoreLib::HeartBeatGenerator::Seconds                              _time_passed;
-    ORO_OS::Mutex                                                         _my_lock;
+    mutable ORO_OS::Mutex                                                 _my_lock;
     double                                                                _max_duration, _traject_duration;
     
     bool                                                                  _properties_read, _is_moving, _new_values, _is_initialized;
