@@ -33,7 +33,7 @@
 #include <iostream>
 #include "KinematicsInterface.hpp"
 #include "SerialZYYDWH.hpp"
-#include "SerialZXXZXZInverse.hpp"
+#include "SerialmZXXmZXmZ.hpp"
 
 
 namespace ORO_KinDyn
