@@ -53,8 +53,8 @@ namespace ORO_Execution
     std::istream_iterator<char> streamend;
     std::copy( streambegin, streamend, std::back_inserter( program ) );
 
-    our_pos_iter_t parsebegin( program.begin(), program.end(), "teststring" );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parsebegin( program.begin(), program.end(), "programname" );
+    our_pos_iter_t parseend; // not used.
 
     // The internal parser.
     ProgramGraphParser gram( parsebegin, proc, ext );

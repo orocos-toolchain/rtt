@@ -212,8 +212,9 @@ namespace ORO_Execution
         add_edge(vert, current, EdgeCondition(cond), *graph);
     }
 
-    ProgramGraph::CommandNode ProgramGraph::moveTo( CommandNode _current, CommandNode _next )
+    ProgramGraph::CommandNode ProgramGraph::moveTo( CommandNode _current, CommandNode _next, int linenumber )
     {
+        this->setLineNumber( linenumber );
         CommandNode old = current;
         current = _current;
         next    = _next;
@@ -486,7 +487,7 @@ namespace ORO_Execution
         proceedToNext(linenumber);
     }
 
-    void ProgramGraph::endIfBlock(){
+    void ProgramGraph::endIfBlock(int linenumber){
         // this is called after a proceedToNext of the last statement of
         // the if block.
         // Connect end of if block with after_else_node
@@ -494,20 +495,20 @@ namespace ORO_Execution
         addConditionEdge( new ConditionTrue(), after_else_node );
         branch_stack.pop();
         // make else_node current, next remains.
-        moveTo( branch_stack.top(), next );
+        moveTo( branch_stack.top(), next, linenumber );
         branch_stack.pop();
         // store again !
         branch_stack.push( after_else_node );
     }
 
     // Else : can be empty and is then a plain proceed to next.
-    void ProgramGraph::endElseBlock() {
+    void ProgramGraph::endElseBlock(int linenumber) {
         // after_else_node is on top of stack
         CommandNode after_else_node = branch_stack.top();
         branch_stack.pop();
         addConditionEdge( new ConditionTrue(), after_else_node );
         // make after_else_node current
-        moveTo( after_else_node, next );
+        moveTo( after_else_node, next, linenumber );
     }
 
     void ProgramGraph::startWhileStatement( ConditionInterface* cond, int linenumber )
@@ -525,7 +526,7 @@ namespace ORO_Execution
         proceedToNext(linenumber);
     }
 
-    void ProgramGraph::endWhileBlock()
+    void ProgramGraph::endWhileBlock(int linenumber)
     {
         CommandNode start_of_while = branch_stack.top();
         branch_stack.pop();
@@ -533,7 +534,7 @@ namespace ORO_Execution
         addConditionEdge( new ConditionTrue(), start_of_while );
         CommandNode after_while_node =  branch_stack.top();
         branch_stack.pop();
-        moveTo( after_while_node, next );
+        moveTo( after_while_node, next, linenumber );
     }
 
     ProgramGraph* ProgramGraph::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const

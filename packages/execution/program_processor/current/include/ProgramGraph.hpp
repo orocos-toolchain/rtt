@@ -167,11 +167,11 @@ namespace ORO_Execution
         void endFunction( FunctionGraph* fn);
 
         void startIfStatement( ConditionInterface* cond, int linenumber );
-        void endIfBlock();
-        void endElseBlock();
+        void endIfBlock(int linenumber);
+        void endElseBlock(int linenumber);
 
         void startWhileStatement( ConditionInterface* cond, int linenumber );
-        void endWhileBlock();
+        void endWhileBlock(int linenumber);
 
         /**
          * Add a new command from the current CommandNode under a condition.
@@ -198,7 +198,7 @@ namespace ORO_Execution
          *
          * @return the previous CommandNode.
          */
-        CommandNode moveTo( CommandNode _current, CommandNode _next );
+        CommandNode moveTo( CommandNode _current, CommandNode _next, int linenr );
 
         /**
          * Sets a new Command on the current CommandNode.

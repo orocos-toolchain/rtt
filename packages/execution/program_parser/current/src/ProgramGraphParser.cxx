@@ -272,7 +272,7 @@ namespace ORO_Execution
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
   {
-      program_text = std::string(begin, end);
+      //program_text = std::string(begin, end);
   }
 
   void ProgramGraphParser::functiondef( iter_t begin, iter_t end )
@@ -370,12 +370,12 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endifblock() {
-        program_graph->endIfBlock();
+        program_graph->endIfBlock(mpositer.get_position().line);
     }
 
 
     void ProgramGraphParser::endifstatement() {
-        program_graph->endElseBlock();
+        program_graph->endElseBlock(mpositer.get_position().line);
     }
 
     void ProgramGraphParser::seenwhilestatement() {
@@ -385,7 +385,7 @@ namespace ORO_Execution
     }
 
     void ProgramGraphParser::endwhilestatement() {
-        program_graph->endWhileBlock();
+        program_graph->endWhileBlock(mpositer.get_position().line);
     }
 
 
@@ -427,7 +427,7 @@ namespace ORO_Execution
             }
         for_incr_command = 0;
 
-        program_graph->endWhileBlock();
+        program_graph->endWhileBlock(mpositer.get_position().line);
     }
 
   void ProgramGraphParser::seenprogramend()
@@ -443,11 +443,12 @@ namespace ORO_Execution
 
   std::vector<ProgramGraph*> ProgramGraphParser::parse( iter_t& begin, iter_t end )
   {
+      // end is not used !
+    iter_t begin_copy = begin;
     skip_parser_t skip_parser = SKIP_PARSER;
     iter_pol_t iter_policy( skip_parser );
     scanner_pol_t policies( iter_policy );
     scanner_t scanner( begin, end, policies );
-
     program_list.clear();
 
     try {
@@ -463,6 +464,7 @@ namespace ORO_Execution
         program_list.clear();
         return std::vector<ProgramGraph*>();
       }
+      program_text = std::string( begin_copy, begin ); // begin is by reference.
       // set the program text in each program :
       for (std::vector<ProgramGraph*>::iterator it= program_list.begin();it!=program_list.end();++it)
           (*it)->setText( program_text );
