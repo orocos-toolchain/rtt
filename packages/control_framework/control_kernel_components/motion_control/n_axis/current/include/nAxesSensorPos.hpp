@@ -17,6 +17,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
+/**
+ * @defgroup kcomp_naxis All Available Control Kernel nAxis Components.
+ */
+
 #ifndef __N_AXES_SENSOR_POS_H__
 #define __N_AXES_SENSOR_POS_H__
 
@@ -34,6 +38,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesSensorPos can write a vector of doubles.
+   */
   class nAxesSensorPosInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -52,10 +59,21 @@ namespace ORO_ControlKernel
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorPosInput_pos>,
 				     ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorPos_typedef;
 
+  /**
+   * @brief A Joint space SensorPos which reads the joint positions
+   * from a vector of AxisInterfaces.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_sensor
+   *
+   */
   class nAxesSensorPos
     : public nAxesSensorPos_typedef
   {
   public:
+    /**
+     * @brief Create a SensorPos with num_axes axis and a vector of
+     * AxisInterfaces to access Position encoders.
+     */
     nAxesSensorPos(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
 
     virtual ~nAxesSensorPos();

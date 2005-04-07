@@ -34,6 +34,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesControllerCartesianPosVel can read a Frame.
+   */
   class nAxesControllerCartesianPosVelInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame >
   {
   public:
@@ -41,6 +44,9 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesControllerCartesianPosVel can read a Frame and Twist.
+   */
   class nAxesControllerCartesianPosVelSetpoint_pos_vel: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Twist >
   {
   public:
@@ -48,6 +54,9 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesControllerCartesianPosVel can write a Twist.
+   */
   class nAxesControllerCartesianPosVelOutput_vel: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Twist >
   {
   public:
@@ -71,10 +80,20 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerCartesianPosVel_typedef;
 
+  /**
+   * @brief A Cartesian ControllerPosVel which uses a
+   * velocity feedforward together with a proportional feedback to
+   * convert a desired and measured position into a velocity.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_controller
+   */
   class nAxesControllerCartesianPosVel
     : public nAxesControllerCartesianPosVel_typedef
   {
   public:
+    /**
+     * @brief Create a ControllerPosVel.
+     */
     nAxesControllerCartesianPosVel(std::string name);
     virtual ~nAxesControllerCartesianPosVel();
 

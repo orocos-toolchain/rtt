@@ -35,6 +35,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesEffectorCartesianVel can read a Twist.
+   */
   class nAxesEffectorCartesianVelOutput_vel: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Twist >
   {
   public:
@@ -52,10 +55,21 @@ namespace ORO_ControlKernel
 				       ORO_ControlKernel::Expects<nAxesEffectorCartesianVelOutput_vel>,
 				       ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
 
+  /**
+   * @brief A Cartesian EffectorVel which sends a desired velocity
+   * to each of its AxisInterfaces, using the inverse kinematics.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_effector
+   */
   class nAxesEffectorCartesianVel
     : public nAxesEffectorCartesianVel_typedef
   {
   public:
+    /**
+     * @brief Create an EffectorVel with num_axes axis, a
+     * kinematicsComponent to get the inverse kinematics, and a vector of
+     * AxisInterfaces to access analog drives.
+     */
     nAxesEffectorCartesianVel(unsigned int num_axes, 
 			      std::vector<ORO_DeviceInterface::AxisInterface*> axes,
 			      ORO_KinDyn::KinematicsComponent* kin,

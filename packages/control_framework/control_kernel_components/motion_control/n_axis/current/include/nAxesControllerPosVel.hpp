@@ -32,13 +32,18 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesControllerPosVel can read a vector of doubles.
+   */
   class nAxesControllerPosVelInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
     nAxesControllerPosVelInput_pos() {}
   }; // class
 
-
+  /**
+   * @brief An nAxesControllerPosVel can read a vector of doubles.
+   */
   class nAxesControllerPosVelSetpoint_pos_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -46,6 +51,9 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesControllerPosVel can write a vector of doubles.
+   */
   class nAxesControllerPosVelOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -68,10 +76,20 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerPosVel_typedef;
 
+  /**
+   * @brief A Joint space ControllerPosVel which uses a
+   * velocity feedforward together with a proportional feedback to
+   * convert a desired and measured position into a velocity.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_controller
+   */
   class nAxesControllerPosVel
     : public nAxesControllerPosVel_typedef
   {
   public:
+    /**
+     * @brief Create a ControllerPosVel with num_axes axis.
+     */
     nAxesControllerPosVel(unsigned int num_axes, std::string name);
     virtual ~nAxesControllerPosVel();
 

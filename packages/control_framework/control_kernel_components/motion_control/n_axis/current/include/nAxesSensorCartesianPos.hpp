@@ -34,6 +34,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesSensorCartesianPos can write a Frame.
+   */
   class nAxesSensorCartesianPosInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame >
   {
   public:
@@ -52,10 +55,26 @@ namespace ORO_ControlKernel
   typedef ORO_ControlKernel::Sensor< ORO_ControlKernel::Writes<nAxesSensorCartesianPosInput_pos>,
 				     ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesSensorCartesianPos_typedef;
 
+  /**
+   * @brief A Cartesian SensorPos which reads the joint positions
+   * from a vector of AxisInterfaces and uses forward kinematics to
+   * convert them to a frame.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_sensor
+   *
+   */
   class nAxesSensorCartesianPos
     : public nAxesSensorCartesianPos_typedef
   {
   public:
+    /**
+     * @brief Create a SensorPos with num_axes axis, a vector of
+     * AxisInterfaces to access Position encoders, a
+     * kinematicsComponent to get the forward kinematics to a robot frame,
+     * and an offset from the robot frame to and end-effector frame. The
+     * sensor component will return a frame representing the end-effector
+     * position and orientation.
+     */
     nAxesSensorCartesianPos(unsigned int num_axes,
 			    std::vector<ORO_DeviceInterface::AxisInterface*> axes,
 			    ORO_KinDyn::KinematicsComponent* kin,

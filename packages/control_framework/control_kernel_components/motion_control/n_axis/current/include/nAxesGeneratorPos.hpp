@@ -38,6 +38,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesGeneratorPos can write a vector of doubles.
+   */
   class nAxesGeneratorPosSetpoint_pos_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -70,6 +73,12 @@ namespace ORO_ControlKernel
 								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesGeneratorPos_typedef;
   
 
+  /**
+   * @brief A Joint space GeneratorPos calculates a desired velocity
+   * and position trajectory from a position setpoint.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_generator
+   */
   class nAxesGeneratorPos
     : public nAxesGeneratorPos_typedef
   {

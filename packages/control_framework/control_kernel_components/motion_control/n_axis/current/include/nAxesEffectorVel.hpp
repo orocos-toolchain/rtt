@@ -33,6 +33,10 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+
+  /**
+   * @brief An nAxesEffectorVel can read a vector of doubles.
+   */
   class nAxesEffectorVelOutput_vel: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -50,10 +54,20 @@ namespace ORO_ControlKernel
 				       ORO_ControlKernel::Expects<nAxesEffectorVelOutput_vel>,
 				       ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorVel_typedef;
 
+  /**
+   * @brief A Joint space EffectorVel which sends a desired velocity
+   * to each of its AxisInterfaces
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_effector
+   */
   class nAxesEffectorVel
     : public nAxesEffectorVel_typedef
   {
   public:
+    /**
+     * @brief Create an EffectorVel with num_axes axis and a vector of
+     * AxisInterfaces to access analog drives.
+     */
     nAxesEffectorVel(unsigned int num_axes, std::vector<ORO_DeviceInterface::AxisInterface*> axes, std::string name);
     virtual ~nAxesEffectorVel();
 
