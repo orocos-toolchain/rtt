@@ -29,7 +29,7 @@
 
 
 namespace ORO_ControlKernel
-n{
+{
 
   // ---------------
   // -- DATA TYPE --
