@@ -52,6 +52,9 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesGeneratorPos can read a vector of doubles.
+   */
   class nAxesGeneratorPosInput_pos: public ORO_ControlKernel::ServedTypes<std::vector<double> >
   {
   public:
@@ -83,6 +86,9 @@ namespace ORO_ControlKernel
     : public nAxesGeneratorPos_typedef
   {
   public:
+    /**
+     * @brief Create a GeneratorPos with num_axes axis.
+     */
     nAxesGeneratorPos(unsigned int num_axes, std::string name);
     virtual ~nAxesGeneratorPos();
 

@@ -39,6 +39,9 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
+  /**
+   * @brief An nAxesGeneratorCartesianPos can write a Frame and a Twist
+   */
   class nAxesGeneratorCartesianPosSetpoint_pos_vel: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Twist >
   {
   public:
@@ -50,6 +53,9 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesGeneratorCartesianPos can read Frame.
+   */
   class nAxesGeneratorCartesianPosInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame >
   {
   public:
@@ -70,10 +76,19 @@ namespace ORO_ControlKernel
 								      ORO_ControlKernel::KernelBaseFunction,
 								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesGeneratorCartesianPos_typedef;  
 
+  /**
+   * @brief A Cartesian GeneratorPos calculates a desired velocity
+   * and position trajectory from a position setpoint.
+   * 
+   * @ingroup kcomps kcomp_naxis kcomp_generator
+   */
   class nAxesGeneratorCartesianPos
     : public nAxesGeneratorCartesianPos_typedef
   {
   public:
+    /**
+     * @brief Create a GeneratorPos.
+     */
     nAxesGeneratorCartesianPos(std::string name);
     virtual ~nAxesGeneratorCartesianPos();
 
