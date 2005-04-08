@@ -49,15 +49,12 @@ namespace ORO_ControlKernel
     }
   }
 
-}
+
   
 
 
   nAxesGeneratorCartesianSin::~nAxesGeneratorCartesianSin()
-  {
-    for( unsigned int i=0; i<6; i++)
-      delete _motion_profile[i];
-  }
+  {}
   
   
 
@@ -119,7 +116,8 @@ namespace ORO_ControlKernel
     // is moving: follow trajectory
     if (_is_moving){
       // position
-      _position_out_local = _start_frame*Vector(_amplitude[0]*sin(_pulsation[0]*_time_passed+_phase[0]),_amplitude[1]*sin(_pulsation[1]*_time_passed+_phase[1]),_amplitude[2]*sin(_pulsation[2]*_time_passed+_phase[2]));
+      for(unsigned int i=0; i<3; i++)
+	_position_out_local.p(i) = _start_frame.p(i)+_amplitude[i]*sin(_pulsation[i]*_time_passed+_phase[i]);
 
       // velocity
       for(unsigned int i=0; i<3; i++)
@@ -177,12 +175,6 @@ namespace ORO_ControlKernel
     _new_values = false;
     _is_moving = false;
 
-    // get interface to Cammand / Model / Input data types
-    if ( !Input->dObj()->Get("Frame", _position_meas_DOI) ){
-      cerr << "nAxesGeneratorCartesianSin::componentStartup() DataObjectInterface not found" << endl;
-      return false;
-    }
-
     return true;
   }
 
@@ -203,10 +195,6 @@ namespace ORO_ControlKernel
     // check size of properties
     assert(_maximum_velocity.value().size() == 6);
     assert(_maximum_acceleration.value().size() == 6);
-
-    // Instantiate Motion Profiles
-    for( unsigned int i=0; i<6; i++)
-      _motion_profile.push_back( new VelocityProfile_Trap( _maximum_velocity.value()[i], _maximum_acceleration.value()[i]) );
 
     return true;
   }

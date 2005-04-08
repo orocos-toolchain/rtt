@@ -28,7 +28,7 @@
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
-#include <geometry/velocityprofile_trap.h>
+#include <geometry/velocityprofile_traphalf.h>
 #include <corelib/TimeService.hpp>
 #include <os/MutexLock.hpp>
 #include <geometry/frames.h>
@@ -68,7 +68,7 @@ namespace ORO_ControlKernel
 					ORO_ControlKernel::Writes<nAxesGeneratorCartesianSinSetpoint_pos_vel>,
 					ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
 								      ORO_ControlKernel::KernelBaseFunction,
-								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesGeneratorCartesianPos_typedef;  
+								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesGeneratorCartesianSin_typedef;  
 
   class nAxesGeneratorCartesianSin
     : public nAxesGeneratorCartesianSin_typedef
