@@ -75,45 +75,6 @@ namespace ORO_ControlKernel
         return &reports;
     }
 
-    ReportingExtension::ReportingExtension( ControlKernelInterface* _base )
-        : detail::ExtensionInterface(_base, "Reporter"),
-          reporter(0),
-          period("ReportPeriod","in seconds", 0.1 ), 
-          interval("SubSamplingInterval","", 1),
-          repFile("ReportFile","", "report.txt"),
-          toStdOut("WriteToStdOut","", false),
-          writeHeader("WriteHeader","", true),
-#ifdef OROINT_OS_STDIOSTREAM
-          toFile("WriteToFile","", false),
-#endif
-          reportServer("ReportServer","The name of the report server", _base->getKernelName() ),
-          autostart("AutoStart","Start reporting automatically.", true),
-          reporterTask(0), serverOwner(false), count( 0 ),
-          base(_base)
-    {
-    }
-
-    ReportingExtension::~ReportingExtension() {
-        if (serverOwner) {
-            // only cleanup upon destruction, if this reportserver is still used, the application
-            // will crash.
-            PropertyReporter<NoHeaderMarshallTableType>::nameserver.unregisterName( reportServer );
-            PropertyReporter<MarshallTableType>::nameserver.unregisterName( reportServer );
-            delete reporterTask;
-            delete reporter;
-        }
-    }
-
-//     TaskInterface* ReportingExtension::getTask() const
-//     {
-//         return base->getTask();
-//     }
-    
-//     void ReportingExtension::setTask( TaskInterface* task )
-//     {
-//         base->setTask( task );
-//     }
-
             
     /**
      * A class for streaming to two ostream objects.
@@ -149,43 +110,57 @@ namespace ORO_ControlKernel
         std::ostream* s;
     };
 
+    ReportingExtension::ReportingExtension( ControlKernelInterface* _base )
+        : detail::ExtensionInterface(_base, "Reporter"),
+          splitStream(0), config(0), nh_config(0),
+          reporter(0),
+          period("ReportPeriod","in seconds", 0.1 ), 
+          interval("SubSamplingInterval","", 1),
+          repFile("ReportFile","", "report.txt"),
+          toStdOut("WriteToStdOut","", false),
+          writeHeader("WriteHeader","", true),
+#ifdef OROINT_OS_STDIOSTREAM
+          toFile("WriteToFile","", false),
+#endif
+          reportServer("ReportServer","The name of the report server", _base->getKernelName() ),
+          autostart("AutoStart","Start reporting automatically.", true),
+          reporterTask(0), serverOwner(false), count( 0 ),
+          base(_base)
+    {
+    }
+
+    ReportingExtension::~ReportingExtension() {
+        if (serverOwner) {
+            // only cleanup upon destruction, if this reportserver is still used, the application
+            // will crash.
+            PropertyReporter<NoHeaderMarshallTableType>::nameserver.unregisterName( reportServer );
+            PropertyReporter<MarshallTableType>::nameserver.unregisterName( reportServer );
+            delete reporterTask;
+            delete reporter;
+            delete config;
+            delete nh_config;
+            delete splitStream;
+#ifdef OROINT_OS_STDIOSTREAM
+            if ( toFile )
+                {
+                    delete fileStream;
+                }
+#endif
+        }
+    }
+
+//     TaskInterface* ReportingExtension::getTask() const
+//     {
+//         return base->getTask();
+//     }
+    
+//     void ReportingExtension::setTask( TaskInterface* task )
+//     {
+//         base->setTask( task );
+//     }
+
     bool ReportingExtension::initialize()
     {
-        splitStream =0; config =0; nh_config = 0;
-#ifdef OROINT_OS_STDIOSTREAM
-        if ( toFile && toStdOut )
-            {
-                Logger::log() <<Logger::Info << "ReportingExtension : ";
-                Logger::log() <<Logger::Info << "Reporting to File and std output."<< Logger::endl;
-                fileStream = new ofstream( repFile.get().c_str() );
-                splitStream = new SplitStream( fileStream, &std::cout);
-            } else
-                if ( toFile )
-                    {
-                        Logger::log() <<Logger::Info << "ReportingExtension : ";
-                        Logger::log() <<Logger::Info << "Reporting to File."<< Logger::endl;
-                        fileStream = new ofstream( repFile.get().c_str() );
-                        splitStream = new SplitStream(fileStream);
-                    } else
-#endif
-                        if (toStdOut)
-                            {
-                                Logger::log() <<Logger::Info << "ReportingExtension : ";
-                                Logger::log() <<Logger::Info << "Reporting to std output."<< Logger::endl;
-                                splitStream = new SplitStream( &std::cout );
-                            } else
-                                {
-                                    Logger::log() <<Logger::Info << "ReportingExtension : ";
-                                    Logger::log() <<Logger::Info << "Not Reporting."<< Logger::endl;
-                                    // do nothing.
-                                    return true;
-                                }
-                    
-        if ( writeHeader )
-            config = new MarshallTableType( *splitStream );
-        else
-            nh_config = new NoHeaderMarshallTableType( *splitStream );
-
         // check for existing servers
         reporter = PropertyReporter<MarshallTableType>::nameserver.getObject( reportServer );
         if ( !reporter )
@@ -194,6 +169,41 @@ namespace ORO_ControlKernel
                 if ( !reporter )
                     {
                         // no server found, create it.
+#ifdef OROINT_OS_STDIOSTREAM
+                        if ( toFile && toStdOut )
+                            {
+                                Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                Logger::log() <<Logger::Info << "Reporting to file "<<repFile<<" and std output."<< Logger::endl;
+                                fileStream = new ofstream( repFile.get().c_str() );
+                                splitStream = new SplitStream( fileStream, &std::cout);
+                            } else
+                                if ( toFile )
+                                    {
+                                        Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                        Logger::log() <<Logger::Info << "Reporting to file "<< repFile <<"."<< Logger::endl;
+                                        fileStream = new ofstream( repFile.get().c_str() );
+                                        splitStream = new SplitStream(fileStream);
+                                    } else
+#endif
+                                        if (toStdOut)
+                                            {
+                                                Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                                Logger::log() <<Logger::Info << "Reporting to std output."<< Logger::endl;
+                                                splitStream = new SplitStream( &std::cout );
+                                            } else
+                                                {
+                                                    Logger::log() <<Logger::Info << "ReportingExtension : ";
+                                                    Logger::log() <<Logger::Info << "Not Reporting."<< Logger::endl;
+                                                    // do nothing.
+                                                    return true;
+                                                }
+                    
+                        if ( writeHeader )
+                            config = new MarshallTableType( *splitStream );
+                        else
+                            nh_config = new NoHeaderMarshallTableType( *splitStream );
+
+
                         RunnableInterface* tmp_run;
                         if ( writeHeader )
                             {
@@ -213,6 +223,7 @@ namespace ORO_ControlKernel
                         serverOwner = true;
                     }
             }
+        // from here on, we got a pointer to 'reporter' being it our own or a remote server.
                 
         // iterate over all external exporters :
         for ( ExpList::iterator it = exporters.begin(); it != exporters.end(); ++it )
@@ -354,16 +365,6 @@ namespace ORO_ControlKernel
                         reporter->exporterRemove( (*it)->getExporter() );
                     }
             }
-#ifdef OROINT_OS_STDIOSTREAM
-        if ( toFile )
-            {
-                delete fileStream;
-            }
-#endif
-        delete splitStream;
-        delete config;
-        delete nh_config;
-
         active_dos.clear();
     }
 
