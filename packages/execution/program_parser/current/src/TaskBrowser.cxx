@@ -632,7 +632,7 @@ namespace ORO_Execution
                 }
             }
         catch (...) {
-            cerr << "Illegal Command."<<endl;
+            cerr << "Illegal Input."<<endl;
             return;
         }
                 

@@ -108,6 +108,7 @@ namespace ORO_Execution {
         DataSourceFactoryInterface* createDataSourceFactory() {
             TemplateDataSourceFactory< DataSource<StateMachineCommands*> >* f = newDataSourceFactory(static_cast< DataSource<StateMachineCommands*>* >(_this.get()));
             f->add("inState", data_ds(&StateMachineCommands::inState, "Is the StateMachine in a given state ?", "State", "State Name") );
+            f->add("inError", data_ds(&StateMachineCommands::inError, "Is this StateMachine in error ?") );
             f->add("getState", data_ds(&StateMachineCommands::getState, "The name of the current state. An empty string if not active.") );
             f->add("isActive", data_ds(&StateMachineCommands::isActive, "Is this StateMachine activated (possibly in transition) ?") );
             f->add("isRunning", data_ds(&StateMachineCommands::isRunning, "Is this StateMachine running ?") );
@@ -135,6 +136,11 @@ namespace ORO_Execution {
         bool inRequest() const {
             // inRequest means ready for the next requestState command.
             return this->isStrictlyActive() && ! this->isRunning() && ! this->isPaused();
+        }
+
+        bool inError() const {
+            // check if an error occured
+            return this->inError();
         }
 
         bool requestState(const std::string& state) {
