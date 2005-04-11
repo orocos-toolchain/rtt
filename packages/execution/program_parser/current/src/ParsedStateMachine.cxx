@@ -140,7 +140,7 @@ namespace ORO_Execution {
 
         bool inError() const {
             // check if an error occured
-            return this->inError();
+            return _sc->inError();
         }
 
         bool requestState(const std::string& state) {
