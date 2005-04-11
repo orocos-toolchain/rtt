@@ -28,7 +28,7 @@
 #include <execution/TemplateCommandFactory.hpp>
 #include <execution/TemplateMethodFactory.hpp>
 #include <corelib/PropertyComposition.hpp>
-#include <geometry/velocityprofile_traphalf.h>
+#include <geometry/velocityprofile_trap.h>
 #include <corelib/TimeService.hpp>
 #include <os/MutexLock.hpp>
 #include <geometry/frames.h>
@@ -62,7 +62,7 @@ namespace ORO_ControlKernel
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Generator< ORO_ControlKernel::Expects<ORO_ControlKernel::NoInput>,
+  typedef ORO_ControlKernel::Generator< ORO_ControlKernel::Expects<nAxesGeneratorCartesianSinInput_pos>,
 					ORO_ControlKernel::Expects<ORO_ControlKernel::NoModel>,
 					ORO_ControlKernel::Expects<ORO_ControlKernel::NoCommand>,
 					ORO_ControlKernel::Writes<nAxesGeneratorCartesianSinSetpoint_pos_vel>,
@@ -91,9 +91,9 @@ namespace ORO_ControlKernel
     bool move(double time=0);
     bool moveFinished() const;
     void reset();
-    void setAmplitude(std::vector<double> amplitude);
-    void setPulsation(std::vector<double> pulsation);
-    void setPhase(std::vector<double> phase);
+    void setAmplitude(const std::vector<double>& amplitude);
+    void setPulsation(const std::vector<double>& pulsation);
+    void setPhase(const std::vector<double>& phase);
 
   private:
     ORO_Geometry::Frame                                                   _start_frame;
@@ -102,19 +102,15 @@ namespace ORO_ControlKernel
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >         *_position_meas_DOI, *_position_out_DOI;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_out_DOI;
 
-    std::vector<ORO_Geometry::VelocityProfile_TrapHalf*>                  _motion_profile;
-    ORO_CoreLib::TimeService::ticks                                _time_begin;
-    ORO_CoreLib::TimeService::Seconds                              _time_passed;
+    std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _pulsation_profile;
+    ORO_CoreLib::TimeService::ticks                                       _time_begin, _time_omega_begin;
+    ORO_CoreLib::TimeService::Seconds                                     _time_passed,_time_omega_passed;
     mutable ORO_OS::Mutex                                                 _my_lock;
-    double                                                                _max_duration, _traject_duration;
-    
-    bool                                                                  _properties_read, _is_moving, _new_values, _is_initialized;
-    ORO_ControlKernel::Property< std::vector<double> >                    _maximum_velocity, _maximum_acceleration;
-    std::vector<double>                                                   _amplitude;
-    std::vector<double>                                                   _pulsation;
-    std::vector<double>                                                   _phase;
+    double                                                                _max_duration;
+    ORO_ControlKernel::Property< std::vector<double> >                    _max_alpha, _max_alphadot;
+    bool                                                                  _properties_read, _is_moving, _is_initialized;
+    std::vector<double>                                                   _amplitude,_pulsation,_phase,_pulsation_local;
 
-    
 
   }; // class
 

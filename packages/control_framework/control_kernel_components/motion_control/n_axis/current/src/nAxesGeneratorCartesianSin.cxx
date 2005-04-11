@@ -28,17 +28,17 @@ namespace ORO_ControlKernel
   using namespace ORO_Geometry;
   using namespace ORO_Execution;
   using namespace ORO_OS;
-  using namespace std;  
 
   nAxesGeneratorCartesianSin::nAxesGeneratorCartesianSin(std::string name)
     : nAxesGeneratorCartesianSin_typedef(name),
+      _pulsation_profile(3),
+      _max_alpha("max_alpha", "Maximum rotation acceleration in Trajectory"),
+      _max_alphadot("max_alphadot", "Maximum rotation jerk in Trajectory"),
       _properties_read(false),
-      _new_values(false),
-      _maximum_velocity("max_vel", "Maximum Velocity in Trajectory"),
-      _maximum_acceleration("max_acc", "Maximum Acceleration in Trajectory"),
       _amplitude(3),
       _pulsation(3),
-      _phase(3)
+      _phase(3),
+      _pulsation_local(3)
 
     
   {
@@ -54,7 +54,10 @@ namespace ORO_ControlKernel
 
 
   nAxesGeneratorCartesianSin::~nAxesGeneratorCartesianSin()
-  {}
+  {
+    for( unsigned int i=0; i<3; i++)
+      delete _pulsation_profile[i];
+  }
   
   
 
@@ -63,72 +66,36 @@ namespace ORO_ControlKernel
     // initialize
     if (!_is_initialized){
       _is_initialized = true;
-      _position_meas_DOI->Get(_position_desired);
-      _start_frame = _position_desired;
+      _position_meas_DOI->Get(_start_frame);
+      for(unsigned int i = 0 ; i < 3 ; i++) 
+	_start_frame.p(i)=_start_frame.p(i)-_amplitude[i]*sin(_phase[i]);
+      _position_out_local.M=_start_frame.M;
     }
-
-    // is moving: do we have to stop?
-    if (_is_moving){
-      _time_passed = TimeService::Instance()->secondsSince(_time_begin);
-      if ( _time_passed > _max_duration ){
-	// set end position
-	_position_desired = _start_frame;
-	_is_moving = false;
-      }
-    }
-    /*
-    // is not moving: can create new trajectory?
-    if (!_is_moving){
-      // try to lock
-      ORO_OS::MutexTryLock locker(_my_lock);
-      if (locker.isSuccessful() && _new_values){
-	_max_duration = 0;
-
-	// get current position
-	_position_meas_DOI->Get(_traject_begin);
-	_velocity_begin_end = diff(_traject_begin, _traject_end);
-
-	// Set motion profiles
-	for (unsigned int i=0; i<6; i++){
-	  _motion_profile[i]->SetProfileDuration( 0, _velocity_begin_end(i), _traject_duration );
-	  _max_duration = max( _max_duration, _motion_profile[i]->Duration() );
-	}
-
-	// Rescale trajectories to maximal duration
-	for (unsigned int i=0; i<6; i++)
-	  _motion_profile[i]->SetProfileDuration( 0, _velocity_begin_end(i), _max_duration );
-
-	_time_begin = TimeService::Instance()->getTicks();
-	_time_passed = 0;
-
-	_new_values = false;
-	_is_moving = true;
-      }
     
-    }
-    */
+    _time_passed = TimeService::Instance()->secondsSince(_time_begin);
+    _time_omega_passed = TimeService::Instance()->secondsSince(_time_omega_begin);
   }
   
-
-
+  
   void nAxesGeneratorCartesianSin::calculate()
   {
+
     // is moving: follow trajectory
-    if (_is_moving){
-      // position
-      for(unsigned int i=0; i<3; i++)
-	_position_out_local.p(i) = _start_frame.p(i)+_amplitude[i]*sin(_pulsation[i]*_time_passed+_phase[i]);
-
-      // velocity
-      for(unsigned int i=0; i<3; i++)
-	_velocity_out_local(i) = _amplitude[i]*_pulsation[i]*cos(_pulsation[i]*_time_passed+_phase[i]);
-      //      _velocity_out_local.RefPoint( _position_out_local.p * -1 );
+    if (_is_moving || _time_passed <= _max_duration || _max_duration==0){
+      for(unsigned int i=0; i<3; i++) {
+	_pulsation_local[i]=_pulsation_profile[i]->Pos(_time_omega_passed);
+	// position
+	_position_out_local.p(i) = _start_frame.p(i)+_amplitude[i]*sin(_pulsation_local[i]*_time_passed+_phase[i]);
+	// velocity
+	_velocity_out_local(i) = _amplitude[i]*_pulsation_local[i]*cos(_pulsation_local[i]*_time_passed+_phase[i]);
+      }
     }
-
     // go to desired stop position
-    else{
-      _position_out_local = _position_desired;
-      SetToZero(_velocity_out_local);
+    else {
+      std::vector<double> zero(3);
+      for(unsigned int i=0; i<3; i++)
+	zero[i] = 0.0;
+      setPulsation(zero);
     }
   }
 
@@ -137,7 +104,7 @@ namespace ORO_ControlKernel
   void nAxesGeneratorCartesianSin::push()      
   {
     _position_out_DOI->Set(_position_out_local);
-    _velocity_out_DOI->Set(_velocity_out_local);
+    _velocity_out_DOI->Set(_velocity_out_local.RefPoint(-(_position_out_local.p)));
   }
 
 
@@ -170,9 +137,15 @@ namespace ORO_ControlKernel
       return false;
     }
 
+    // get interface to Cammand / Model / Input data types
+    if ( !Input->dObj()->Get("Frame", _position_meas_DOI) ){
+      cerr << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << endl;
+      return false;
+    }
+
+
     // initialize
     _is_initialized = false;
-    _new_values = false;
     _is_moving = false;
 
     return true;
@@ -186,15 +159,19 @@ namespace ORO_ControlKernel
     _properties_read = true;
 
     // get properties
-    if ( !composeProperty(bag, _maximum_velocity) ||
-	 !composeProperty(bag, _maximum_acceleration) ){
+    if ( !composeProperty(bag, _max_alpha) ||
+	 !composeProperty(bag, _max_alphadot) ){
       cerr << "nAxesGeneratorCartesianSin::updateProperties() failed" << endl;
       return false;
     }
 
     // check size of properties
-    assert(_maximum_velocity.value().size() == 6);
-    assert(_maximum_acceleration.value().size() == 6);
+    assert(_max_alpha.value().size() == 3);
+    assert(_max_alphadot.value().size() == 3);
+
+    // Instantiate Motion Profiles
+    for( unsigned int i=0; i<3; i++)
+      _pulsation_profile[i] = new VelocityProfile_Trap( _max_alpha.value()[i], _max_alphadot.value()[i]);
 
     return true;
   }
@@ -202,8 +179,8 @@ namespace ORO_ControlKernel
 
   void nAxesGeneratorCartesianSin::exportProperties(ORO_CoreLib::PropertyBag& bag)
   {
-    bag.add(&_maximum_velocity);
-    bag.add(&_maximum_acceleration);
+    bag.add(&_max_alpha);
+    bag.add(&_max_alphadot);
   }
 
 
@@ -242,22 +219,20 @@ namespace ORO_ControlKernel
   {
     _time_begin = TimeService::Instance()->getTicks();    
     _time_passed = 0;
-    
-    _traject_duration = time;
+    _max_duration = time;
     _is_moving = true;
     return true;
   }
   
   bool nAxesGeneratorCartesianSin::moveFinished() const
   {
-    return (!_is_moving);
+    return (!_is_moving || _max_duration==0 || _max_duration <= _time_passed);
   }
 
 
   void nAxesGeneratorCartesianSin::reset()
   {
     _is_initialized = false;
-    _new_values = false;
     _is_moving = false;
 
     for(unsigned int i = 0 ; i < 3 ; i++) {
@@ -267,21 +242,25 @@ namespace ORO_ControlKernel
     }
   }
 
-  void nAxesGeneratorCartesianSin::setAmplitude(vector<double> amplitude)
+  void nAxesGeneratorCartesianSin::setAmplitude(const std::vector<double>& amplitude)
   {
     assert(amplitude.size()==3);    
-    for(unsigned int i = 0 ; i < 3 ; i++) 
+    for(unsigned int i = 0 ; i < 3 ; i++)
       _amplitude[i] = amplitude[i];
   }
 
-  void nAxesGeneratorCartesianSin::setPulsation(vector<double> pulsation)
+  void nAxesGeneratorCartesianSin::setPulsation(const std::vector<double>& pulsation)
   {
+    _time_omega_begin = TimeService::Instance()->getTicks();    
+    _time_omega_passed = 0;
     assert(pulsation.size()==3);    
-    for(unsigned int i = 0 ; i < 3 ; i++) 
+    for(unsigned int i = 0 ; i < 3 ; i++) { 
+      _pulsation_profile[i]->SetProfile(_pulsation[i], pulsation[i]);
       _pulsation[i] = pulsation[i];
+    }
   }
 
-  void nAxesGeneratorCartesianSin::setPhase(vector<double> phase)
+  void nAxesGeneratorCartesianSin::setPhase(const std::vector<double>& phase)
   {
     assert(phase.size()==3);    
     for(unsigned int i = 0 ; i < 3 ; i++) 
