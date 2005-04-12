@@ -53,9 +53,31 @@
  * ORO_CoreLib::DataObject, the script ORO_Execution::Parser, command ORO_Execution::Processor and many other classes.
  * The <a href="../../orocos-manual.html">Orocos Software Manual</a> introduces these classes.
  *
+ * @section devdrivers Hardware Access and Device Drivers
+ * Orocos has an abstraction layer and some utility classes to easily
+ * access your devices from within Orocos and allow you to reuse Orocos
+ * infrastructure.
+ * @subsection comedi Comedi Device Communication
+ * We have implemented LXRT and GNU/Linux C++ wrappers for Comedi devices,
+ * which will use automatically the correct interface, depending 
+ * on the target you build for. See the ORO_DeviceDriver namespace with
+ * classes ORO_DeviceDriver::ComediSubDeviceAOut, ORO_DeviceDriver::ComediEncoder,
+ * ORO_DeviceDriver::ComediSubDeviceDIn, etc. The port the comedi layer to
+ * the Orocos ORO_DeviceInterface API, which allows you to use them in other
+ * classes which need I/O.
+ * @subsection can CANOpen Device Communication
+ * The CAN namespace contains device independent
+ * implementations for realtime CAN communication using a CAN::CANPieController
+ * and device driver in the ORO_DeviceDriver namespace. Device implementations
+ * are available for some Beckhoff modules.
+ * @subsection dev_integration Device Driver Integration
+ * If you want to integrate your existing device drivers with Orocos,
+ * they need to be wrapped to the Orocos ORO_DeviceInterface API in order
+ * to be used with existing implementations. You can take a look at the
+ * device drivers package to find some examples.
+ *
  * @section apps Applications
  * The following application frameworks are available : 
- *
  * @subsection comps Motion Control Kernel and Components
  * The <a href="modules.html"><tt>Modules</tt></a> page contains
  * a summary of all available components for the Orocos Control
@@ -64,15 +86,8 @@
  * ORO_Geometry::Trajectory ( using ORO_Geometry ), and mere signal processing
  * ( using ORO_SignalProcessing ).
  * The <a href="../../orocos-control-manual.html">Orocos Control Manual</a> introduces these classes.
- *
  * @note The Control Kernel Client GUI is not documented in this document.
  * It comes with its own documentation and you can fetch it from the 
  * <a href="http://www.orocos.org/download.php">Download</a> page.
- *
- * @subsection can CANOpen Device Communication
- * The CAN namespace contains device independent
- * implementations for realtime CAN communication using a CAN::CANPieController
- * and device driver in the ORO_DeviceDriver namespace. Device implementations
- * are available for some Beckhoff modules.
  *
  */
