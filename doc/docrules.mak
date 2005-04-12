@@ -36,11 +36,14 @@ $(PKGNAME)-doc.tgz: $(XMLDOCS) $(DIAS)
 
 docxml: dochtml docpdf
 
-dochtml: pngimages $(HTMLDOCS)
+dochtml: pngimages $(XMLDOCS)
+	${MAKE} $(HTMLDOCS)
 
-docpdf: jpgimages $(PDFDOCS)
+docpdf: jpgimages $(XMLDOCS)
+	${MAKE} $(PDFDOCS)
 
-docps: jpgimages $(PSDOCS)
+docps: jpgimages $(XMLDOCS)
+	${MAKE} $(PSDOCS)
 
 doctxt: $(TXTDOCS)
 
