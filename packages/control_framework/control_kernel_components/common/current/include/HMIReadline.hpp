@@ -432,11 +432,11 @@ namespace ORO_ControlKernel
 //                     cout << "Previous command not done yet !"<<endl;
 //                     return;
 //                 }
-            if ( ee->isProgramRunning("Default") )
-                {
-                    cerr << "A Program is running, not accepting commands  !"<<endl;
-                    return;
-                }
+//             if ( ee->isProgramRunning("Default") )
+//                 {
+//                     cerr << "A Program is running, not accepting commands  !"<<endl;
+//                     return;
+//                 }
             cout << "      Got :"<< comm <<endl;
 
             command_fact = taskcontext->commandFactory.getObjectFactory( comm );
@@ -474,7 +474,17 @@ namespace ORO_ControlKernel
                 if ( ds.get() != 0 )
                     this->printResult( ds.get() );
                 return; // done here
-            } catch ( fatal_syntactic_parse_exception& pe ) {
+            } catch ( syntactic_parse_exception& pe ) { // missing brace etc
+                // syntactic errors must be reported immediately
+                cerr << "Syntax Error : Invalid Expression."<<endl;
+                cerr << pe.what() <<endl;
+                return;
+            } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
+                // way to fatal,  must be reported immediately
+                cerr << "Parse Error : Invalid Expression."<<endl;
+                cerr << pe.what() <<endl;
+                return;
+            } catch ( parse_exception &pe ) { // Got not a clue exception, so try other parser
                 // ignore it, try to parse it as a command :
                 try {
                     comcon = _parser.parseCommand(comm, ee->getTaskContext() );
@@ -485,22 +495,22 @@ namespace ORO_ControlKernel
                     condition = 0;
                     return;
                 }
-            } catch ( parse_exception& pe ) {
-                cerr << "Parse Error : Invalid Expression."<<endl;
-                cerr << pe.what() <<endl;
             } catch ( ... ) {
-                cerr << "Illegal Command."<<endl;
+                cerr << "Illegal Input."<<endl;
+                return;
             }
                 
             command = comcon.first;
             condition = comcon.second;
             if ( command == 0 ) { // this should not be reached
-                cerr << "Parse Error : Illegal command."<<endl;
+                cerr << "Parse Error : Null command."<<endl;
                 return;
             }
+            // It is for sure a real command, dispatch to target processor :
             lastc = ee->getTaskContext()->getProcessor()->process( command );
-            if ( lastc == 0 && ee->getTaskContext()->executeCommand(command) == false ) {
-                cerr << "Command not accepted by Processor ! " << endl;
+            // returns null if Processor not running or not accepting.
+            if ( lastc == 0 ) {
+                cerr << "Command not accepted by"<<ee->getTaskContext()->getName()<<"'s Processor !" << endl;
                 delete command;
                 delete condition;
                 command = 0;

@@ -80,8 +80,11 @@ namespace ORO_ControlKernel
         std::string _prompt;
         std::ostringstream messages;
         std::ostringstream backup;
+        std::ostringstream logmessages;
+        std::ostringstream logbackup;
         //TaskNonRealtime printer;
         Mutex msg_lock;
+        Mutex log_lock;
     public :
         HMIConsoleOutput( const std::string& name = "cout")
             : Base( name ), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
@@ -90,13 +93,27 @@ namespace ORO_ControlKernel
                   this->start();
               }
 
+        ~HMIConsoleOutput()
+        {
+            this->stop();
+        }
+
         void step()
         {
-            MutexLock lock1( msg_lock );
-            if ( ! messages.str().empty() ) {
-                std::cout << coloron << _prompt<< coloroff <<
-                    messages.str() << std::endl;
-                messages.rdbuf()->str("");
+            {
+                MutexLock lock1( msg_lock );
+                if ( ! messages.str().empty() ) {
+                    std::cout << coloron << _prompt<< coloroff <<
+                        messages.str() << std::endl;
+                    messages.rdbuf()->str("");
+                }
+            }
+            {
+                MutexLock lock1( log_lock );
+                if ( ! logmessages.str().empty() ) {
+                    Logger::log() << Logger::Info << logmessages.str() << Logger::endl;
+                    logmessages.rdbuf()->str("");
+                }
             }
         }
 
@@ -128,7 +145,6 @@ namespace ORO_ControlKernel
          */
         void display(const std::string & what)
         {
-            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
             this->enqueue( what );
         }
 
@@ -143,11 +159,6 @@ namespace ORO_ControlKernel
             MutexTryLock try_lock( msg_lock );
             if ( try_lock.isSuccessful() ) {
                 // we got the lock, copy everything...
-//                 while( !backup.empty() ) {
-//                     messages.push( backup.front() );
-//                     backup.pop();
-//                 }
-//                 messages.push( what );
                 messages << backup.str();
                 messages << what << std::endl;
                 backup.rdbuf()->str("");
@@ -162,7 +173,6 @@ namespace ORO_ControlKernel
         void displayBool(bool what)
         {
             this->enqueue( what );
-            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
         /**
@@ -171,7 +181,6 @@ namespace ORO_ControlKernel
         void displayInt( int what)
         {
             this->enqueue( what );
-            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
         }
 
         /**
@@ -180,7 +189,49 @@ namespace ORO_ControlKernel
         void displayDouble( double what )
         {
             this->enqueue( what );
-            //std::cout << coloron << "HMIConsoleOutput : "<< coloroff << what << std::endl;
+        }
+
+        template<class T>
+        void dolog( const T& what )
+        {
+            MutexTryLock try_lock( log_lock );
+            if ( try_lock.isSuccessful() ) {
+                // we got the lock, copy everything...
+                logmessages << logbackup.str();
+                logmessages << what;
+                logbackup.rdbuf()->str("");
+            }
+            else  // no lock, backup.
+                logbackup << what;
+        }
+
+
+        void log(const std::string & what)
+        {
+            this->enqueue( what );
+        }
+        /**
+         * @brief Log a boolean on standard output.
+         */
+        void logBool(bool what)
+        {
+            this->dolog( what );
+        }
+
+        /**
+         * @brief Log an integer on standard output.
+         */
+        void logInt( int what)
+        {
+            this->dolog( what );
+        }
+
+        /**
+         * @brief Log a double on standard output.
+         */
+        void logDouble( double what )
+        {
+            this->dolog( what );
         }
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
@@ -208,6 +259,26 @@ namespace ORO_ControlKernel
                       method( &HMIConsoleOutput::displayDouble,
                                "Display a double on the console",
                                "double","The Double to be displayed"
+                               ) );
+            ret->add( "log", 
+                      method( &HMIConsoleOutput::log,
+                               "Log a message on the console",
+                               "message","The message to be logged"
+                               ) );
+            ret->add( "logBool", 
+                      method( &HMIConsoleOutput::logBool,
+                               "Log a boolean on the console",
+                               "boolean","The Boolean to be logged"
+                               ) );
+            ret->add( "logInt", 
+                      method( &HMIConsoleOutput::logInt,
+                               "Log a integer on the console",
+                               "integer","The Integer to be logged"
+                               ) );
+            ret->add( "logDouble", 
+                      method( &HMIConsoleOutput::logDouble,
+                               "Log a double on the console",
+                               "double","The Double to be logged"
                                ) );
             return ret;
         }
