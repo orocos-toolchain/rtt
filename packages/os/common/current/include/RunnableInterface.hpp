@@ -49,37 +49,49 @@ namespace ORO_OS
      * A non periodic thread will call \a loop(), which indicates that the
      * RunnableInterface is allowed to block ( step() is not allowed to block ).
      * By default, loop() calls step(), but a subclass may override the loop() method
-     * to put its own blocking functionality in.
+     * to put its own blocking functionality in. To break out of the loop() method,
+     * reimplement \a breakLoop() such that loop() returns when breakLoop() is called.
      */
     class RunnableInterface
     {
-        public:
-            virtual ~RunnableInterface()
-            {}
+    public:
+        virtual ~RunnableInterface()
+        {}
 
-            /**
-             * The method that will be called once each time before the periodical
-             * execution of step() is started.
-             */
-            virtual bool initialize() = 0;
+        /**
+         * The method that will be called once each time before the periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ) is started.
+         */
+        virtual bool initialize() = 0;
 
-            /**
-             * The method that will be periodically executed when this
-             * class is run in a periodic thread.
-             */
-            virtual void step() = 0;
+        /**
+         * The method that will be periodically executed when this
+         * class is run in a periodic thread.
+         */
+        virtual void step() = 0;
 
-            /**
-             * The method that will be executed once when this
-             * class is run in a non periodic thread
-             */
-             virtual void loop() { this->step(); }
+        /**
+         * The method that will be executed once when this
+         * class is run in a non periodic thread.
+         */
+        virtual void loop() { this->step(); }
 
-            /**
-             * The method that will be called once each time after the periodical
-             * execution of step() is stopped.
-             */
-            virtual void finalize() = 0;
+        /**
+         * This method is called to break out of the \a loop() method.
+         * Reimplement this method to let \a loop() return and return
+         * true on success. When this method is not reimplemented, it
+         * will always return false, denoting that the loop can not
+         * be breaked. The safest implementation of breakLoop only returns
+         * if \a loop() returns, and may thus itself be blocking.
+         * @return true if the loop could be notified to return.
+         */
+        virtual bool breakLoop() { return false; }
+
+        /**
+         * The method that will be called once each time after the periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ) is stopped.
+         */
+        virtual void finalize() = 0;
     };
 
 }

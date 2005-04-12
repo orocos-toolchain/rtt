@@ -58,11 +58,19 @@ namespace ORO_OS
         virtual ~SingleThread();
 
         /**
-         * Start the thread
+         * Start the thread and let it enter the loop() method.
          *
          * @return true if successfull.
          */
         virtual bool start();
+
+        /**
+         * Stop the thread. The return value of stop, is the
+         * same as the return value of RunnableInterface::breakLoop().
+         *
+         * @return true if successfull.
+         */
+        virtual bool stop();
 
         /**
          * Returns whether the thread is running
@@ -92,6 +100,8 @@ namespace ORO_OS
         bool isHardRealtime()   { return false; }
 
     protected:
+        virtual bool breakLoop();
+
         virtual void loop();
     
         virtual bool initialize();

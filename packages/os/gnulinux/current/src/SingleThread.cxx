@@ -114,6 +114,8 @@ namespace ORO_OS
     
     SingleThread::~SingleThread() 
     {
+        this->stop();
+
         // Send the message to the thread...
         prepareForExit = true;
         sem_post( &sem );
@@ -145,6 +147,13 @@ namespace ORO_OS
         return true;
     }
 
+    bool SingleThread::stop() 
+    {
+        if ( !isRunning() ) return false;
+
+        return this->breakLoop();
+    }
+
     bool SingleThread::isRunning() const
     {
         return running;
@@ -154,6 +163,13 @@ namespace ORO_OS
     {
         if ( runComp != 0 )
             runComp->loop();
+    }
+
+    bool SingleThread::breakLoop()
+    {
+        if ( runComp != 0 )
+            return runComp->breakLoop();
+        return false;
     }
 
     bool SingleThread::initialize()

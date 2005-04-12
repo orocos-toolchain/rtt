@@ -30,7 +30,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003, 2004</year>
+      <year>2003, 2004, 2005</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -277,6 +277,26 @@
       </para>
     </sect2>
     <sect2>
+      <title>Porting Orocos to other Architectures / OS'es</title>
+      <para>
+	The OS package is the only part of Orocos that needs to
+	be ported to other Operating Sytems or processor architectures
+	in case the target supports Standard C++. The os/common directory
+	contains code common to all OS'es and the architecture dependent
+	headers (for example atomic counters and compare-and-swap ).
+	The latter must be extended to support other processor architectures.
+	Also, when a processor architecture is added, it must be made
+	available in the os.cdl configuration file, allowing the user to
+	change the target processor.
+      </para>
+      <para>
+	The easiest way to port Orocos to another operating sytem, 
+	is to copy the gnulinux package into a new target and start
+	modifying the functions to match those in your OS. This package
+	is recommended because it uses the standard Unix/Posix functions.
+      </para>
+    </sect2>
+    <sect2>
       <title>OS Header Files</title>
       <para>
 	The following table gives a short overview of the available
@@ -308,7 +328,7 @@
 		  valign="middle">&lt;any_header&gt;</entry>
 	      <entry align="left" valign="middle">All headers
 		can be included, exceptions and iostreams
-		can not be used from a hard realtime thread.</entry>
+		may not be used from a hard realtime thread.</entry>
 	    </row>
 	    <row>
 	      <entry align="center" valign="middle">Streams</entry>
@@ -331,8 +351,8 @@
 		main.h
 	      </entry>
 	      <entry align="left" valign="middle">
-		The standard provided C++ OS primitives. main.h
-		is required to be included in your main program file.
+		The available C++ OS primitives. main.h
+		is required to be included in your ORO_main() program file.
 	      </entry></row>
 	  </tbody>
 	</tgroup>
@@ -463,7 +483,7 @@
 	  calculations, the <classname>SingleThread</classname> class
 	  can be used.  The corelib/task package uses the SingleThread
 	  for the TaskNonPeriodic.  Porting applications to Orocos
-	  might benifit this class in a first adaptation step. It only
+	  might benifit this class in a first adaptation step. It
 	  has a start() method, which will invoke one single call to
 	  loop() ( in contrast to step() above). It can be
 	  re-started each time the loop() function returns. The
@@ -471,10 +491,13 @@
 	  SingleThread is started and after loop() returns.
 	</para>
 	<para>
-	  The user is himself responsible for providing a mechanism
-	  to return from the loop() functions. The SingleThread itself
-	  can not force loop() to return and hence, does not have a
-	  stop() function. the <function>SingleThread::isRunning()</function>
+	  The user is himself is responsible for providing a mechanism
+	  to return from the loop() function. The SingleThread expects
+	  this mechanism to be implemented in the RunnableInterface::breakLoop()
+	  function, which must return true if the loop() function could be
+	  forced to return. Hence, SingleThread will call breakLoop() in its
+	  stop() method.
+	  The <function>SingleThread::isRunning()</function>
 	  function can be used to check if loop() is being executed or not.
 	</para>
 	<note>
@@ -493,6 +516,12 @@
 	  </listitem>
 	  <listitem>
 	    <para>Waiting for user input.</para>
+	  </listitem>
+	  <listitem>
+	    <para>Execute a lengthy calculation.</para>
+	  </listitem>
+	  <listitem>
+	    <para>React to asynchronous events.</para>
 	  </listitem>
 	</itemizedlist>
 	</para>
