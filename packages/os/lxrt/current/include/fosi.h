@@ -159,6 +159,8 @@ inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
 inline TICK_TIME systemTimeGet(void) { return rt_get_time(); }
 
+inline TICK_TIME systemNSecsTimeGet(void) { return rt_get_cpu_time_ns(); }
+
 inline TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
 
 	inline TICK_TIME nano2ticks(NANO_TIME t) { return nano2count(t); }
@@ -310,6 +312,8 @@ TIME_SPEC ticks2timespec(TICK_TIME hrt);
 NANO_TIME rtos_get_time_ns(void);
 
 TICK_TIME systemTimeGet(void);
+
+NANO_TIME systemNSecsTimeGet(void);
 
 TICK_TIME ticksPerSec(void);
 

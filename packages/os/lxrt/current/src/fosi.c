@@ -63,6 +63,8 @@ NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
 TICK_TIME systemTimeGet(void) { return rt_get_time(); }
 
+NANO_TIME systemNSecsTimeGet(void) { return rt_get_cpu_time_ns(); }
+
 TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
 
 TICK_TIME nano2ticks(NANO_TIME t) { return nano2count(t); }

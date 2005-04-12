@@ -82,6 +82,15 @@ extern "C"
         return rtos_get_time_ns();
     }
 
+    /**
+     * This function should return ticks,
+     * but we use ticks == nsecs in userspace
+     */
+    inline NANO_TIME systemNSecsTimeGet()
+    {
+        return rtos_get_time_ns();
+    }
+
     inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
         //    return usleep(rqtp->tv_nsec/1000L);
