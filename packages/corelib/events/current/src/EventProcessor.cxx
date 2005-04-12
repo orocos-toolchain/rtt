@@ -89,7 +89,7 @@ namespace ORO_CoreLib
     }
 
     BlockingEventProcessor::~BlockingEventProcessor() {
-        this->breakloop();
+        this->breakLoop();
         // race condition here, this->getTask()->isRunning() better be false
         // before EventProcessor is destructed, otherwise, solve with extra semaphore
     }
@@ -105,12 +105,13 @@ namespace ORO_CoreLib
             }
     }
 
-    void BlockingEventProcessor::breakloop() {
+    bool BlockingEventProcessor::breakLoop() {
         doloop = false;
         sem->signal();
         {
             ORO_OS::MutexLock lock( breaker ); // force a block until loop returns.
         }
+        return true;
     }
 
     void BlockingEventProcessor::setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s) {

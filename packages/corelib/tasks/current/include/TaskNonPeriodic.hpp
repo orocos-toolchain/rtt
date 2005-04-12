@@ -123,6 +123,13 @@ namespace ORO_CoreLib
                 proc->loop(); // block in EventProcessor.
         }
 
+        virtual bool breakLoop() {
+            if ( runner )
+                return runner->breakLoop();
+            return proc->breakLoop(); // return from EventProcessor.
+        }
+
+
         virtual void finalize() {
             if ( runner )
                 runner->finalize();
@@ -136,9 +143,8 @@ namespace ORO_CoreLib
         /**
          * Stop the EventProcessor's loop.
          */
-        bool stop() {
-            proc->breakloop();
-            return true;
+        virtual bool stop() {
+            return SingleThread::stop();
         }
 
         virtual bool isRunning() const {

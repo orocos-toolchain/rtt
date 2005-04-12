@@ -477,7 +477,7 @@ namespace ORO_CoreLib
         /**
          * Create a blocking (non periodic) EventProcessor, which will wait on ORO_OS::Semaphore  \a s.
          * All connected Events will signal this semaphore if an Event needs 
-         * processing. Also, signal this semaphore to break loop(), or call breakloop().
+         * processing. Also, signal this semaphore to break loop(), or call breakLoop().
          * The semaphore is shared through a shared_ptr, meaning that it will only delete
          * \a s if it holds the last reference to it.
          */
@@ -486,18 +486,18 @@ namespace ORO_CoreLib
         ~BlockingEventProcessor();
 
         /**
-         * Process Events until \a breakloop() (or destructor) is called.
+         * Process Events until \a breakLoop() (or destructor) is called.
          */
         void loop();
 
         /**
          * Force the loop() method to return.
          */
-        void breakloop();
+        bool breakLoop();
 
         /**
          * Let all registered (and future) connections use
-         * ORO_OS::Semaphore s to signal work to be done.
+         * ORO_OS::Semaphore \a s to signal work to be done.
          */
         void setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s);
     };

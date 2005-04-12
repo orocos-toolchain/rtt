@@ -604,11 +604,12 @@ ORO_main( int argc, char** argv)
 	After loop() returns, finalize() is called. TaskNonPeriodic
 	differs from the periodic tasks in the way it is
 	stopped. Since the task may be blocked in the user's loop()
-	function, there is no way to provide a general stop()
-	function. If you want to stop a TaskNonPeriodic, you'll have
-	to implement an extra functions which makes sure that the
-	loop() method returns, and this will stop the task
-	automatically.
+	function, the user should reimplement the
+	<function>RunnableInterface::breakLoop()</function>
+	function. This funcion must do whatever necessary to let the
+	user's loop() function return.  It must return true on
+	success, false if it was unable to let the loop() function
+	return (the latter is the default implementation's return value).
       </para>
       <para>
 	There is another use for TaskNonPeriodic, it can be used to
