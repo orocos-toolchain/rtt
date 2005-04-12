@@ -77,10 +77,12 @@ module Orocos
     // return an empty list.
     NameList getMethods( in string comp );
 
-    // This function parses the command in the given string, and
+    // This function parses the command or method in the given string, and
     // starts executing it.  The returned long is a unique id for
-    // the executing command on success.  Will throw a parse_exception
-    // on parse error and a load_exception if loading fails...
+    // the executing command on success. 
+    // Return -1 if it was a method, which has been invoked successfully
+    // Return 0 if it was an illegal command
+    // Return + if it is a successful command, which is now queued.
     long startExecutingCommand( in string code ) raises (LoadException);
 
     // is the command with identifier commandid ( as returned by

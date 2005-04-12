@@ -316,25 +316,29 @@ namespace ExecutionClient
 
   int DirectKernelInterface::startExecutingCommand( const std::string& code )
   {
+      // return zero to 'reject', return + to indicate an accepted command,
+      // return -1 for DS/Methods.
         Parser _parser;
         std::pair< CommandInterface*, ConditionInterface*> parseresult;
         try {
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( code, task );
             // methods and DS'es are processed immediately.
-            if ( ds.get() != 0 )
+            if ( ds.get() != 0 ) {
                 printResult( code, ds.get() );
-            return 0; // done here
+                return -1; // done here
+            }
+            return 0;
         } catch ( syntactic_parse_exception& pe ) { // missing brace etc
             // syntactic errors must be reported immediately
             Logger::log() << Logger::Error << "Invalid Expression."<<Logger::nl
                           << pe.what() <<Logger::endl;
-            return 0;
+            throw load_exception( pe.what() );
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
             Logger::log() << Logger::Error << "Invalid Expression."<<Logger::nl
                           << pe.what() <<Logger::endl;
-            return 0;
+            throw load_exception( pe.what() );
         } catch ( parse_exception &pe ) // Got not a clue exception, so try other parser
             {
                 // ignore it, try to parse it as a command :
@@ -353,25 +357,26 @@ namespace ExecutionClient
                 } catch ( parse_exception& pe ) {
                     Logger::log() << Logger::Error  << "Parse Error : Illegal command."<<Logger::nl
                                   << pe.what() << Logger::endl;
-                    return 0;
+                    throw load_exception( pe.what() );
                 }
             }
         catch (...) {
-            Logger::log() << Logger::Error << "Illegal Command : '"<< code <<"'"<<Logger::endl;
+            Logger::log() << Logger::Error << "Uncaught Command : '"<< code <<"'"<<Logger::endl;
             return 0;
         }
                 
         if ( parseresult.first == 0 ) { // this should not be reached
-            Logger::log() << Logger::Error << "Uncaught Illegal Command."<<Logger::endl;
+            Logger::log() << Logger::Error << "Empty Command."<<Logger::endl;
             return 0;
         }
         // It is for sure a real command, dispatch to target processor :
         int id = task->getProcessor()->process( parseresult.first );
         // returns null if Processor not running or not accepting.
         if ( id == 0 ) {
-            Logger::log() << Logger::Error << "Command '"<< code <<"'not accepted by"<<task->getName()<<"'s Processor !" <<Logger::endl;
+            Logger::log() << Logger::Error << "Command '"<< code <<"' not accepted by "<<task->getName()<<"'s Processor." <<Logger::endl;
             delete parseresult.first;
             delete parseresult.second;
+            throw load_exception( "Command '"+ code +"' not accepted by "+task->getName()+"'s Processor." );
         } else {
             Logger::log() << Logger::Debug << "Queueing Command "<<id<<" : '" << code << "'" <<Logger::endl;
             commandlist[ id ] = parseresult;
@@ -379,36 +384,6 @@ namespace ExecutionClient
             return id;
         }
 
-#if 0
-        // OLD CODE
-    Parser parser;
-    std::pair<CommandInterface*, ConditionInterface*> parseresult;
-    try {
-      parseresult =
-        parser.parseCommand( code, task );
-    }
-    catch( const ORO_Execution::parse_exception& exc )
-    {
-      throw;
-    }
-    // Now it's safe to execute and evaluate :
-    int id = executionext->getTaskContext()->queueCommand( parseresult.first );
-    if ( id == 0)
-    {
-        Logger::log() << Logger::Info << "Executing Command '" << code << "'" <<Logger::endl;
-        if ( executionext->getTaskContext()->executeCommand( parseresult.first ) == false ) {
-            Logger::log() << Logger::Warning << "Command '" << code << "' rejected by Task "<< executionext->getTaskContext()->getName() <<Logger::endl;
-            throw load_exception( "TaskContext did not accept this command" );
-        }
-    }
-    else
-    {
-        Logger::log() << Logger::Info << "Queueing Command "<<id<<" : '" << code << "'" <<Logger::endl;
-        commandlist[id] = parseresult;
-        checkCommandFinished( id );
-        return id;
-    }
-#endif
     return 0;
   }
 

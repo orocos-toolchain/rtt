@@ -42,12 +42,12 @@ namespace ORO_Execution
     class TaskContext;
 }
 
-using namespace ORO_ControlKernel;
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
-
 namespace ExecutionClient
 {
+    using namespace ORO_ControlKernel;
+    using namespace ORO_CoreLib;
+    using namespace ORO_Execution;
+
   class DirectKernelInterface
     : public KernelInterface
   {
