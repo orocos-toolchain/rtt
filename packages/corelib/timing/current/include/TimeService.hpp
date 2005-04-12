@@ -81,17 +81,17 @@ namespace ORO_CoreLib
         virtual ~TimeService();
 
         /**
-         * Get current tick of the HeartBeat clock
+         * Get current tick of the System clock
          * 
-         * @return current tick of the heartbeat clock
+         * @return current tick of the system clock
          * @deprecated by getTicks()
          */
         ticks ticksGet() const { return getTicks(); }
 
         /**
-         * Get current tick of the HeartBeat clock
+         * Get current tick of the System clock
          * 
-         * @return current tick of the heartbeat clock
+         * @return current tick of the system clock
          */
         ticks getTicks() const;
 
@@ -161,9 +161,24 @@ namespace ORO_CoreLib
          * \a secondsChange.
          */
         void enableSystemClock( bool yes_no );
+	
+        /**
+         * Get current nsecs of the System clock
+         * 
+         * @return current nsecs of the system clock
+         */
+        nsecs getNSecs() const;
 
         /**
-         * Convert an amount of nano seconds to HeartBeat ticks
+         * Get nsecs passed since a certain moment
+         * 
+         * @return nsecs passed since <relativeTime> unless <relativeTime>
+         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         */
+        nsecs getNSecs( nsecs &relativeTime ) const;
+
+        /**
+         * Convert an amount of nano seconds to System ticks
          * @param m The amount of nano seconds
          * @return  The equivalent in ticks
          */

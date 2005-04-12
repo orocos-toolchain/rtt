@@ -137,5 +137,20 @@ namespace ORO_CoreLib
         return nsecs_to_Seconds( ticks2nsecs( ticksSince( 0 ) ) ) ;
     }
 
+    TimeService::nsecs
+    TimeService::getNSecs() const
+    {
+        return systemNSecsTimeGet();
+    }
 
+    TimeService::nsecs
+    TimeService::getNSecs( TimeService::nsecs &relativeTime ) const
+    {
+        if ( relativeTime == 0 )
+        {
+            relativeTime = getNSecs();
+            return 0;
+        }
+        return ( getNSecs() - relativeTime );
+    }
 }
