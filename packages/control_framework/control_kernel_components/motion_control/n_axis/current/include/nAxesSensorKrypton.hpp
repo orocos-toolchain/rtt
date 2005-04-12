@@ -29,7 +29,7 @@
 #include <control_kernel/ReportingExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
-#include <device_drivers/KryptonK600PositionInterfaceThread.hpp>
+#include <rtnet/KryptonK600PositionInterfaceThread.hpp>
 
 
 namespace ORO_ControlKernel
@@ -86,8 +86,8 @@ namespace ORO_ControlKernel
     virtual bool componentStartup();
 
   private:
-    ORO_DeviceDriver::K600PositionInterface                                             _krypton;
     unsigned int                                                                        _num_leds;
+    ORO_DeviceDriver::K600PositionInterface<double>                                     _krypton;
     std::vector<double>                                                                 _kryptondata;
 
     std::vector<ORO_Geometry::Vector>                                                   _leds_local;
