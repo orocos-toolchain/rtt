@@ -40,9 +40,9 @@ namespace ORO_Execution
     /**
      * A State contains an entry, handle and exit program.
      *
-     * OnEntry() and onExit() will be called when
-     * the state is entered of left. handle() will be called each time
-     * (thus also the first time) the state is requested.
+     * The entry and exit programs will be called when
+     * the state is entered of left. The handle program will be called each time
+     * the state is requested and no transition is made.
      *
      * Thus when we are in state A and want to switch to state B, the
      * following happens : 
@@ -51,9 +51,9 @@ namespace ORO_Execution
      * if ( transition to B allowed )
      *   call A->onExit();
      *   call B->onEntry();
-     *   call B->handle();
      *   return true;
      * else 
+     *   call A->handle();
      *   return false;
      * @endverbatim
      *
@@ -61,8 +61,8 @@ namespace ORO_Execution
      * @verbatim
      * call B->handle();
      * @endverbatim
-     * Error recovery can be handled inside these functions, if even that fails,
-     * the functions return false and the state machine containing this state is considered
+     * Error recovery can be handled inside these programs, if even that fails,
+     * the programs return false and the state machine containing this state is considered
      * in error.
      */
     class StateInterface

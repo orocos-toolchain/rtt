@@ -239,7 +239,7 @@ namespace ORO_Execution
 
         /**
          * Use this method to run the Processor in blocked (non periodic) mode.
-         * @see breakloop(), resumeloop()
+         * @see breakLoop(), resumeLoop()
          */
         virtual void loop();
 
@@ -247,12 +247,12 @@ namespace ORO_Execution
          * Instruct the Processor to resume ( awake ) its loop and check pending programs
          * and commands.
          */
-        void resumeloop();
+        void resumeLoop();
 
         /**
          * Call this method to let the endless \a loop() return.
          */
-        void breakloop();
+        virtual bool breakLoop();
 
         virtual bool initialize();
         virtual void step();

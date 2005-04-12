@@ -161,7 +161,7 @@
       <para>
 	The Processor is responsible for accepting command requests
 	from other (realtime) tasks. It uses a non-blocking atomic queue
-	to store incomming requests and fetch-and-execute them in its periodic loop,
+	to store incomming requests and fetch-and-execute them in its periodic step,
 	which can be synchronised with tasks of the same priority. It offers
 	thus a thread-safe realtime means of message passing between threads,
 	without intervention of the Operating System.
@@ -279,8 +279,7 @@
       <title>State Machine and State</title>
       <para>
 	The <classname>StateMachine</classname> is a collection of
-	states, linked to each other and is defined in the <ulink
-	  url="orocos-corelib.html">Orocos CoreLib</ulink> . It
+	states, linked to each other through transition definitions. It
 	represents a state machine of the realtime system's logic and
 	may access internal and external data for deciding on its
 	state transitions. Every 'device' has some states or
@@ -288,19 +287,19 @@
 	entry, during or on exit) and transitions between states are
 	defined by boundary conditions (guards). Every such state is defined by
 	the <classname>StateInterface</classname>.
-	A state itself is defined by three methods : onEntry(),
-	handle() and onExit(). They are called by the Processor when
+	A state itself is defined by three programs : entry,
+	handle and exit. They are called by the Processor when
 	this state is entered, handled or left. When no state transition
-	took place, handle() is called in a periodic execution step
-	of the Processor. Otherwise, first the onExit() method of the current
-	state is called and then the onEntry() method of the new state
+	took place, handle is called in a periodic execution step
+	of the Processor. Otherwise, first the exit program of the current
+	state is called and then the entry program of the new state
 	is called. The next periodic step will evaluate transition conditions,
-	and if none succeeds, handle() will be called, and so on.
+	and if none succeeds, handle will be called, and so on.
       </para>
       <para>
 	As transitions define when a state will be left, preconditions
 	are used to define when a state should not be entered, and
-	an alternative must be provided.
+	an alternative must be provided (this feature is under development).
       </para>
 	<figure><title>Executing a StateMachine</title>
 	  <mediaobject>
@@ -385,10 +384,11 @@
   #include &lt;boost/bind.hpp&gt;
   
   void foo( int x, int y );
+  int a1 = 1, a2 = 2;
 
-  CommandInterface* command = newCommandFunctor( boost::bind( &amp;foo, 1, 2 ) );
+  CommandInterface* command = newCommandFunctor( boost::bind( &amp;foo, a1, a2 ) );
 
-  command->execute(); // calls foo(1,2)
+  command->execute(); // calls foo(a1,a2)
 
   delete command;
 	</programlisting>
@@ -399,7 +399,8 @@
       <para>
 	It is also possible to call the memberfunction of an object. In that
 	case, the first parameter of the function becomes the pointer to the
-	object, followed by the arguments of the function :
+	object, followed by the arguments of the function ( which must all be
+	variables ) :
 	<programlisting>
   #include &lt;corelib/CommandFunctor.hpp&gt;
   #include &lt;boost/bind.hpp&gt;
@@ -410,9 +411,10 @@
   };
 
   X x_object;
-  CommandInterface* command = newCommandFunctor( boost::bind( &amp;X::foo, x_object, 1, 2 ) );
+  int a1 = 1, a2 = 2;
+  CommandInterface* command = newCommandFunctor( boost::bind( &amp;X::foo, x_object, a1, a2 ) );
 
-  command->execute(); // calls x_object.foo(1,2)
+  command->execute(); // calls x_object.foo(a1,a2)
 
   delete command;
 	</programlisting>

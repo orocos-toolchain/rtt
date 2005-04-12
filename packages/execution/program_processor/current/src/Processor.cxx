@@ -758,15 +758,16 @@ namespace ORO_Execution
             }
     }
 
-    void Processor::breakloop()
+    bool Processor::breakLoop()
     {
         if (doloop) {
             doloop = false;
             queuesem->signal();
         }
+        return true;
     }
 
-    void Processor::resumeloop()
+    void Processor::resumeLoop()
     {
         if ( doloop )
             queuesem->signal();
