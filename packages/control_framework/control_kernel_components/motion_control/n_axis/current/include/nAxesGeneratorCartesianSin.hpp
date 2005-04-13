@@ -102,14 +102,14 @@ namespace ORO_ControlKernel
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >         *_position_meas_DOI, *_position_out_DOI;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_out_DOI;
 
-    std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _pulsation_profile;
-    ORO_CoreLib::TimeService::ticks                                       _time_begin, _time_omega_begin;
-    ORO_CoreLib::TimeService::Seconds                                     _time_passed,_time_omega_passed;
+    std::vector<ORO_Geometry::VelocityProfile_Trap*>                      _amplitude_profile;
+    ORO_CoreLib::TimeService::ticks                                       _time_begin, _time_amplitude_begin;
+    ORO_CoreLib::TimeService::Seconds                                     _time_passed,_time_amplitude_passed;
     mutable ORO_OS::Mutex                                                 _my_lock;
     double                                                                _max_duration;
     ORO_ControlKernel::Property< std::vector<double> >                    _max_alpha, _max_alphadot;
-    bool                                                                  _properties_read, _is_moving, _is_initialized;
-    std::vector<double>                                                   _amplitude,_pulsation,_phase,_pulsation_local;
+    bool                                                                  _properties_read, _is_initialized;
+    std::vector<double>                                                   _amplitude,_pulsation,_phase,_amplitude_local;
 
 
   }; // class
