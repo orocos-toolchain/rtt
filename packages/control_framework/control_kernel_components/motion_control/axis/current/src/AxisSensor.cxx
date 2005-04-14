@@ -250,6 +250,31 @@ namespace ORO_ControlKernel {
             return d_out.find(name)->second->isOn();
         return false;
     }
+
+    bool AxisSensor::calibrateSensor( const std::string& name )
+    {
+        SensorMap::iterator it = sensor.find(name);
+        if ( it != sensor.end() )
+            return it->second.first->calibrate(), true;
+        return false;
+    }
+
+    bool AxisSensor::resetSensor( const std::string& name )
+    {
+        SensorMap::iterator it = sensor.find(name);
+        if ( it != sensor.end() )
+            return it->second.first->unCalibrate(), true;
+        return false;
+    }
+
+    bool AxisSensor::isCalibrated( const std::string& name ) const
+    {
+        SensorMap::const_iterator it = sensor.find(name);
+        if ( it != sensor.end() )
+            return it->second.first->isCalibrated();
+        return false;
+    }
+
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 
@@ -277,6 +302,23 @@ namespace ORO_ControlKernel {
                         "Inspect the status of an Axis.",
                         "Name", "The Name of the Axis."
                         ) );
+        return ret;
+    }
+
+    CommandFactoryInterface* AxisSensor::createCommandFactory()
+    {
+        TemplateCommandFactory< AxisSensor >* ret =
+            newCommandFactory( this );
+        ret->add( "calibrateSensor", 
+                  command( &AxisSensor::calibrateSensor, &AxisSensor::isCalibrated,
+                        "Calibrate a Sensor of an Axis.",
+                        "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
+                        ) );
+        ret->add( "resetSensor", 
+                  command( &AxisSensor::resetSensor, &AxisSensor::isCalibrated,
+                        "UnCalibrate a Sensor of an Axis.",
+                        "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
+                        ,true) );
         return ret;
     }
 #endif

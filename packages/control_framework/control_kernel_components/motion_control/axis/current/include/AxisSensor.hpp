@@ -35,8 +35,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/TemplateMethodFactory.hpp"
+#include "execution/TemplateFactories.hpp"
 #include <control_kernel/ExecutionExtension.hpp>
 #endif
 
@@ -170,7 +169,7 @@ namespace ORO_ControlKernel
 
         /**
          * @name AxisSensor Methods.
-         * Runtime commands for the AxisSensor.
+         * Runtime inspection for the AxisSensor.
          * @{
          */
         /**
@@ -197,9 +196,31 @@ namespace ORO_ControlKernel
          * @}
          */
 
+        /**
+         * @name AxisSensor Commands.
+         * Runtime commands for the AxisSensor.
+         * @{
+         */
+        
+        /**
+         * Calibrate a Sensor of the Axis.
+         */
+        bool calibrateSensor( const std::string& name );
+        
+        /**
+         * Reset (uncalibrate) a Sensor of the Axis.
+         */
+        bool resetSensor( const std::string& name );
+        
+        /**
+         * Checks if a Sensor is calibrated ( Completion Condition ).
+         */
+        bool isCalibrated( const std::string& name ) const;
+        /** @} */
     protected:
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory();
+        ORO_Execution::CommandFactoryInterface* createCommandFactory();
 #endif
 
         /**
@@ -224,7 +245,7 @@ namespace ORO_ControlKernel
         std::map<std::string, std::pair<AnalogDrive*, DataObjectInterface<double>* > > DriveMap;
         DriveMap drive;
         typedef
-        std::map<std::string, std::pair< const SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
+        std::map<std::string, std::pair< SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
         SensorMap sensor;
         typedef
         std::map<std::string, Axis* > AxisMap;

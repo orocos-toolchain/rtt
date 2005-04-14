@@ -50,7 +50,6 @@ namespace ORO_DeviceDriver
         double min;
         double max;
         double posOffset;
-        bool calibrated;
         double cal_pos;
         double cal_dir;
     public:
@@ -64,7 +63,7 @@ namespace ORO_DeviceDriver
          * 
          */
         EncoderPositionSensor(EncoderInterface* _enc, double _unit_to_inc, double _minpos, double _maxpos)
-            : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false),
+            : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0),
               cal_pos(0), cal_dir(-1)
         {}
 

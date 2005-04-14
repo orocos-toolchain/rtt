@@ -21,7 +21,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003,2004</year>
+      <year>2003,2004,2005</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -125,15 +125,8 @@
 	C++ class using the C interface and representing the device as
 	a C++ object. This class uses the Orocos Core Library for more
 	advanced features like polling or nameserving. It also
-	implements one of the Device Interfaces, so that the hardware
+	implements one of the Orocos Device Interface, so that the hardware
 	is properly abstracted.
-      </para>
-    </sect2>
-    <sect2>
-    <title>Installation</title>
-      <para>
-	We refer to the orocos-installation manual on how to install
-	this package.
       </para>
       <para>
 	Most device drivers are configurable in the configtool
@@ -154,8 +147,7 @@
     <sect2>
       <title>Comedi C++</title>
       <para>
-	We have currently two Comedi C++ implementations. The one in
-	the main source tree provides
+	We have wrapped Comedi to C++ implementations. It provides
 	<classname>ComediDevice</classname>,
 	<classname>ComediSubDeviceAIn </classname> and <classname>
 	  ComediSubDeviceAOut</classname> classes which provide basic
@@ -163,11 +155,13 @@
 	<classname>ComediSubDeviceAOut</classname> and
 	<classname>ComediSubDeviceAIn</classname> show how the
 	<classname>AnalogOutInterface</classname> and the
-	<classname>AnalogInInterface</classname> interfaces of the FDI
-	can be implemented. A more extended, but experimental
-	implementation can be found in the comedi subdirectory. We do
-	not currently use it, but you are encouraged to experiment
-	with it or provide us suggestions and patches :-).
+	<classname>AnalogInInterface</classname> interfaces of the Device Interface
+	can be implemented. Likewise, the wrapper classes
+	<classname>ComediSubDeviceDOut</classname> and
+	<classname>ComediSubDeviceDIn</classname> show how the
+	<classname>DigitalOutInterface</classname> and the
+	<classname>DigitalInInterface</classname> interfaces of the Device Interface
+	can be implemented.
       </para>
     </sect2>
     <sect2>

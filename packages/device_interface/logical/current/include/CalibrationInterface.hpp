@@ -37,12 +37,15 @@ namespace ORO_DeviceInterface
      */
     class CalibrationInterface
     {
+    protected:
+        bool calibrated;
     public:
+        CalibrationInterface() : calibrated(false) {}
         virtual ~CalibrationInterface() {}
         /**
          * @brief Start or perform calibration.
          */
-      virtual void calibrate() {}
+        virtual void calibrate() { calibrated  = true;}
 
         /** 
          * @brief Inspect if a calibration has been done.
@@ -50,13 +53,13 @@ namespace ORO_DeviceInterface
          * 
          * @return True if so.
          */
-      virtual bool isCalibrated() const { return true; }
+        virtual bool isCalibrated() const { return calibrated; }
 
         /** 
          * @brief Undo any previous calibration
          * ( this function may have no effect ).
          */
-      virtual void unCalibrate() {}
+        virtual void unCalibrate() { calibrated = false; }
     };
 }
 
