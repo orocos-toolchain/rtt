@@ -31,6 +31,11 @@
 #include <string>
 #include <vector>
 
+namespace ORO_DeviceDriver
+{
+  class DigitalInput;
+}
+
 namespace ORO_DeviceInterface
 {
 
@@ -82,12 +87,32 @@ public:
   /**
    * @brief Retrieve a sensor from the Axis.
    */
-  virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
+  virtual ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
 
   /**
    * @brief Retrieve a list of the sensor from the Axis.
    */
   virtual std::vector<std::string> sensorList() const = 0;
+  
+  /**
+   * @brief Retrieve a switch from the Axis.
+   */
+  virtual ORO_DeviceDriver::DigitalInput* getSwitch(const std::string& name) const = 0;
+
+  /**
+   * @brief Retrieve a list of the switch from the Axis.
+   */
+  virtual std::vector<std::string> switchList() const = 0;
+  
+  /**
+   * @brief Retrieve a counter from the Axis.
+   */
+  virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const = 0;
+
+  /**
+   * @brief Retrieve a list of the counter from the Axis.
+   */
+  virtual std::vector<std::string> counterList() const = 0;
   
 };
 

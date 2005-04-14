@@ -108,8 +108,7 @@ namespace ORO_DeviceDriver
          */
         double getDriveValue() const;
 
-
-        virtual const SensorInterface<double>* getSensor(const std::string& name) const;
+        virtual SensorInterface<double>* getSensor(const std::string& name) const;
 
         /** 
          * @brief Add a sensor to the Axis (position, velocity, torque,...). The sensor
@@ -117,14 +116,37 @@ namespace ORO_DeviceDriver
          * 
          * @param name The name of the sensor.
          * @param _sens The sensor
-         * @param lowlim The LowLimit switch, disabling negative drive commands if \a lowlim->isOn()
-
-         * @param highlim The HighLimit switch, disabling positive drive commands if \a highlim->isOn()
          */
         void setSensor(const std::string& name, SensorInterface<double>* _sens);
 
-        virtual std::vector<std::string> sensorList() const;
+      virtual std::vector<std::string> sensorList() const;
 
+      virtual DigitalInput* getSwitch(const std::string& name) const;
+      
+      virtual std::vector<std::string> switchList() const;
+  
+        /** 
+         * @brief Add a digital input to the Axis (home switch, end of run,...). The \a _digin object
+         * is aggregated.
+         * 
+         * @param name The name of the input.
+         * @param _digin The DigitalInput.
+         */
+        void setSwitch(const std::string& name, DigitalInput* _digin);
+
+      virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const;
+
+      virtual std::vector<std::string> counterList() const;
+  
+        /** 
+         * @brief Add a counter to the Axis (position, turns,...).
+	 * The SensorInterface object is aggregated.
+         * is aggregated.
+         * 
+         * @param name The name of the counter.
+         * @param _sens The counter.
+         */
+        void setCounter(const std::string& name, SensorInterface<int>* _sens);
 
     private:
         double _drive_value;
@@ -137,11 +159,15 @@ namespace ORO_DeviceDriver
         DigitalOutput* brakeswitch;
 
         typedef std::map< std::string,SensorInterface<double>* > SensList;
+        typedef std::map< std::string,SensorInterface<int>* > CountList;
+        typedef std::map< std::string,DigitalInput* > SwitchList;
 
         /**
          * All sensors (position, torque, ... )
          */
         SensList sens;
+        CountList count;
+        SwitchList swtch;
 
         bool _is_locked, _is_stopped, _is_driven;
 

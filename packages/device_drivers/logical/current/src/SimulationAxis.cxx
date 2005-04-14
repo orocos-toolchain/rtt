@@ -84,7 +84,7 @@ SimulationAxis::SimulationAxis(double initial, double min, double max):
   _enable(false),
   _velocity(0),
   _max_drive_value(std::numeric_limits<double>::max()),
-  _encoder(initial, min, max),
+  _encoder( new SimulationEncoder( initial, min, max) ),
   _is_locked(true),
   _is_stopped(false),
   _is_driven(false)
@@ -93,7 +93,9 @@ SimulationAxis::SimulationAxis(double initial, double min, double max):
 
 
 SimulationAxis::~SimulationAxis()
-{}
+{
+  delete _encoder;
+}
 
 
 
@@ -108,7 +110,7 @@ SimulationAxis::drive( double vel )
       return false;
     }
     else{
-      _encoder.setDrive(vel);
+      _encoder->setDrive(vel);
       _drive_value = vel;
       _is_stopped = false;
       _is_driven  = true;
@@ -123,7 +125,7 @@ bool
 SimulationAxis::stop()
 {
   if (_is_driven){
-    _encoder.setDrive(0);
+    _encoder->setDrive(0);
     _drive_value = 0;
     _is_driven  = false;
     _is_stopped = true;
@@ -182,11 +184,11 @@ SimulationAxis::isDriven() const
 }
 
 
-const SensorInterface<double>* 
+SensorInterface<double>* 
 SimulationAxis::getSensor(const std::string& name) const
 {
   if (name == "Position")
-    return &_encoder;
+    return _encoder;
   else
     return NULL;
 }

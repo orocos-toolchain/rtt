@@ -174,7 +174,7 @@ namespace ORO_DeviceDriver
         sens.insert(make_pair(name, _sens) );
     }
 
-    const SensorInterface<double>* Axis::getSensor(const std::string& name) const
+    SensorInterface<double>* Axis::getSensor(const std::string& name) const
     {
         if (sens.count(name) == 0)
             return 0;
@@ -186,6 +186,52 @@ namespace ORO_DeviceDriver
     {
         std::vector<std::string> result;
         for (SensList::const_iterator it = sens.begin();  it != sens.end(); ++it)
+            result.push_back( it->first );
+        return result;
+    }
+
+    void Axis::setSwitch(const std::string& name, DigitalInput* _swtch)
+    {
+        if (swtch.count(name) != 0)
+            return;
+        swtch.insert(make_pair(name, _swtch) );
+    }
+
+    DigitalInput* Axis::getSwitch(const std::string& name) const
+    {
+        if (swtch.count(name) == 0)
+            return 0;
+        else
+            return swtch.find(name)->second;
+    }
+
+    std::vector<std::string> Axis::switchList() const
+    {
+        std::vector<std::string> result;
+        for (SwitchList::const_iterator it = swtch.begin();  it != swtch.end(); ++it)
+            result.push_back( it->first );
+        return result;
+    }
+
+    void Axis::setCounter(const std::string& name,  SensorInterface<int>* _count)
+    {
+        if (count.count(name) != 0)
+            return;
+        count.insert(make_pair(name, _count) );
+    }
+
+    SensorInterface<int>* Axis::getCounter(const std::string& name) const
+    {
+        if (count.count(name) == 0)
+            return 0;
+        else
+            return count.find(name)->second;
+    }
+
+    std::vector<std::string> Axis::counterList() const
+    {
+        std::vector<std::string> result;
+        for (CountList::const_iterator it = count.begin();  it != count.end(); ++it)
             result.push_back( it->first );
         return result;
     }

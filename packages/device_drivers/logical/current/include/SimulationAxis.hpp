@@ -62,8 +62,12 @@ public:
   virtual bool isLocked() const;
   virtual bool isStopped() const;
   virtual bool isDriven() const;
-  virtual const ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const;
+  virtual ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const;
   virtual std::vector<std::string> sensorList() const;
+  virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const { return  0;}
+  virtual std::vector<std::string> counterList() const { return std::vector<std::string>();}
+  virtual DigitalInput* getSwitch(const std::string& name) const { return 0; }
+  virtual std::vector<std::string> switchList() const { return std::vector<std::string>();}
 
   double getDriveValue() const;
   void   setMaxDriveValue( double v_max ) { _max_drive_value = v_max; }
@@ -72,7 +76,7 @@ private:
   bool        _enable;
   double      _velocity;
   double      _max_drive_value;
-  SimulationEncoder  _encoder;
+  SimulationEncoder*  _encoder;
   bool _is_locked, _is_stopped, _is_driven;
   
   
