@@ -28,6 +28,9 @@
  
 
 #include "can/BeckhoffCANCoupler.hpp"
+#include "corelib/Logger.hpp"
+
+using namespace ORO_CoreLib;
 
 namespace Beckhoff
 {
@@ -112,7 +115,7 @@ namespace Beckhoff
         if ( !(this->status == PreOperational ||
                this->status == Stopped) )
             return false;
-        cout << "Sending StartUp..."<<endl;
+        Logger::log() <<Logger::Info << "[ BechoffCANCoupler ] Sending StartUp to node "<<node_id<<Logger::endl;
         bus->write(&StartUpmsg);
 
         /**
@@ -126,7 +129,7 @@ namespace Beckhoff
 
     void BeckhoffCANCoupler::resetNode()
     {
-        cout << "Sending Reset..."<<endl;
+        Logger::log() <<Logger::Info << "[ BechoffCANCoupler ] Sending Reset to node "<<node_id<<Logger::endl;
         this->status = Initialisation;
         bus->write(&Resetmsg);
     }
@@ -136,7 +139,7 @@ namespace Beckhoff
         if ( !(this->status == PreOperational ||
                this->status == Operational) )
             return false;
-        cout << "Sending stop..."<<endl;
+        Logger::log() <<Logger::Info << "[ BechoffCANCoupler ] Sending Stop to node "<<node_id<<Logger::endl;
         bus->write(&Stopmsg);
         this->status = Stopped;
         return true;
