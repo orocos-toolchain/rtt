@@ -124,8 +124,8 @@ namespace ORO_ControlKernel {
         d_out[ name + ".Drive" ] = ax->getDrive()->enableGet();
         if ( ax->getBrake() )
             d_out[ name + ".Brake" ] = ax->getBrake();
-        //if ( ax->homeswitchGet() )
-        //    d_in[ name + ".Home" ] = ax->homeswitchGet();
+        if ( ax->getSwitch("Home") )
+           d_in[ name + ".Home" ] = ax->getSwitch("Home");
 
         // Before Reload, Add All DataObjects :
         assert( this->Input->dObj() );
