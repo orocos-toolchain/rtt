@@ -31,13 +31,13 @@
 
 #include <map>
 
-namespace ORO_Execution {
+namespace ORO_CoreLib {
     class DataSourceBase;
 }
 
 namespace ORO_CoreLib
 {
-    using ORO_Execution::DataSourceBase;
+
     /**
      * @brief This interface represents the concept of
      * a condition which can be evaluated and return

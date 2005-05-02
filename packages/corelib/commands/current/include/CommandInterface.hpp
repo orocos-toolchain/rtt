@@ -32,13 +32,12 @@
 
 #pragma interface
 
-namespace ORO_Execution {
+namespace ORO_CoreLib {
     class DataSourceBase;
 }
 
 namespace ORO_CoreLib
 {
-    using ORO_Execution::DataSourceBase;
 
     /**
      * @brief Based on the software pattern 'command', this
