@@ -59,12 +59,7 @@ namespace ORO_CoreLib
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        TaskNonPeriodic(int priority, RunnableInterface* _r = 0 )
-            : ORO_OS::SingleThread(priority, "TaskNonPeriodic" ),proc( new BlockingEventProcessor() ), runner(_r)
-        {
-            if ( runner )
-                runner->setTask(this);
-        }
+        TaskNonPeriodic(int priority, RunnableInterface* _r = 0 );
 
         /**
          * Create an TaskNonPeriodic with a given priority, name and
@@ -73,83 +68,36 @@ namespace ORO_CoreLib
          * @param name The name of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
-        TaskNonPeriodic(int priority, const std::string& name, RunnableInterface* _r = 0 )
-            : ORO_OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
-              runner(_r)
-        {
-            if ( runner )
-                runner->setTask(this);
-        }
+        TaskNonPeriodic(int priority, const std::string& name, RunnableInterface* _r = 0 );
 
-        virtual ~TaskNonPeriodic() 
-        {
-            this->stop();
-            if ( runner )
-                runner->setTask( 0 );
-            delete proc;
-        }
-        
+        virtual ~TaskNonPeriodic();
+
         /**
          * Run another (or self in case of null)
          * task.
          */
-        bool run( RunnableInterface* r )
-        {
-            if ( isRunning() )
-                return false;
-            if (runner)
-                runner->setTask(0);
-            runner = r;
-            if (runner)
-                runner->setTask(this);
-            return true;
-        }
+        bool run( RunnableInterface* r );
 
-        virtual Seconds getPeriod() const { return 0; }
+        virtual Seconds getPeriod() const ;
 
-        virtual EventProcessor* processor() const { return proc; }
+        virtual EventProcessor* processor() const ;
 
-        virtual bool initialize() {
-            bool result = proc->initialize();
-            if ( runner && result )
-                result = result && runner->initialize();
-            return  result;
-        }
+        virtual bool initialize();
 
-        virtual void loop() { 
-            if ( runner )
-                runner->loop();
-            else
-                proc->loop(); // block in EventProcessor.
-        }
+        virtual void loop();
 
-        virtual bool breakLoop() {
-            if ( runner )
-                return runner->breakLoop();
-            return proc->breakLoop(); // return from EventProcessor.
-        }
+        virtual bool breakLoop();
 
+        virtual void finalize();
 
-        virtual void finalize() {
-            if ( runner )
-                runner->finalize();
-            proc->finalize();
-        }
-
-        virtual bool start() {
-            return SingleThread::start();
-        }
+        virtual bool start();
 
         /**
          * Stop the EventProcessor's loop.
          */
-        virtual bool stop() {
-            return SingleThread::stop();
-        }
+        virtual bool stop();
 
-        virtual bool isRunning() const {
-            return SingleThread::isRunning();
-        }
+        virtual bool isRunning() const;
 
     private:
         BlockingEventProcessor* proc;

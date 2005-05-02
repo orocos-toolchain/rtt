@@ -28,3 +28,89 @@
  
 #pragma implementation
 #include "corelib/TaskNonPeriodic.hpp"
+#include "corelib/Logger.hpp"
+
+namespace ORO_CoreLib
+{
+    TaskNonPeriodic::TaskNonPeriodic(int priority, RunnableInterface* _r )
+        : ORO_OS::SingleThread(priority, "TaskNonPeriodic" ),proc( new BlockingEventProcessor() ), runner(_r)
+    {
+        if ( runner )
+            runner->setTask(this);
+    }
+
+    TaskNonPeriodic::TaskNonPeriodic(int priority, const std::string& name, RunnableInterface* _r )
+        : ORO_OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
+          runner(_r)
+    {
+        if ( runner )
+            runner->setTask(this);
+    }
+
+    TaskNonPeriodic::~TaskNonPeriodic() 
+    {
+        this->stop();
+        if ( runner )
+            runner->setTask( 0 );
+        delete proc;
+    }
+
+    bool TaskNonPeriodic::run( RunnableInterface* r )
+    {
+        if ( isRunning() )
+            return false;
+        if (runner)
+            runner->setTask(0);
+        runner = r;
+        if (runner)
+            runner->setTask(this);
+        return true;
+    }
+
+    Seconds TaskNonPeriodic::getPeriod() const { return 0; }
+
+    EventProcessor* TaskNonPeriodic::processor() const { return proc; }
+
+    bool TaskNonPeriodic::initialize() {
+        bool result = proc->initialize();
+        if ( runner && result )
+            result = result && runner->initialize();
+        return  result;
+    }
+
+    void TaskNonPeriodic::loop() { 
+        if ( runner )
+            runner->loop();
+        else
+            proc->loop(); // block in EventProcessor.
+    }
+
+    bool TaskNonPeriodic::breakLoop() {
+        if ( runner )
+            return runner->breakLoop();
+        if ( proc )
+            return proc->breakLoop(); // return from EventProcessor.
+        return true;
+    }
+
+
+    void TaskNonPeriodic::finalize() {
+        if ( runner )
+            runner->finalize();
+        proc->finalize();
+    }
+
+    bool TaskNonPeriodic::start() {
+        return SingleThread::start();
+    }
+
+    bool TaskNonPeriodic::stop() {
+        return SingleThread::stop();
+    }
+
+    bool TaskNonPeriodic::isRunning() const {
+        return SingleThread::isRunning();
+    }
+
+
+}

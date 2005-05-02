@@ -112,6 +112,7 @@ namespace ORO_CoreLib
 
         cursteps = 0;
         // No TimerThread::initialize() to allow 'freeze'
+        EventProcessor::initialize();
         return true;
     }
 
@@ -123,6 +124,7 @@ namespace ORO_CoreLib
 
         // DO NOT CALL TimerThread::finalize(), since we want to be able to start/stop the
         // SimulationThread and inspect the tasks still running.
+        EventProcessor::finalize();
     }
 
     void SimulationThread::step()

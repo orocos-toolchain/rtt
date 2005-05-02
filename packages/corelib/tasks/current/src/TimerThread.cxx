@@ -60,6 +60,7 @@ namespace ORO_CoreLib
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->start();
+        EventProcessor::initialize();
         return true;
     }
 
@@ -84,6 +85,7 @@ namespace ORO_CoreLib
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->stop();
+        EventProcessor::finalize();
     }
 
     TaskTimerInterface* TimerThread::timerGet( Seconds period ) const {
