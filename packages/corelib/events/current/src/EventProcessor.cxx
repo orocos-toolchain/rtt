@@ -37,7 +37,7 @@ namespace ORO_CoreLib
         using ORO_OS::Semaphore;
 
         EventCatcher::EventCatcher(Semaphore* s)
-            : sem(s)
+            : sem(s), enabled(false)
         {}
 
         EventCatcher::~EventCatcher() {}
@@ -49,7 +49,8 @@ namespace ORO_CoreLib
 
     }
 
-    EventProcessor::EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s) : sem(s)
+    EventProcessor::EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s)
+        : sem(s), active(false)
     {
         // TODO define MAX_ASYN_EVENTS
         catchers.reserve(128);
@@ -69,7 +70,12 @@ namespace ORO_CoreLib
             delete *it;
     }
 
-    bool EventProcessor::initialize() { return true;}
+    bool EventProcessor::initialize() {
+        active = true;
+        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
+            (*it)->enabled = true;
+        return true;
+    }
 
     void EventProcessor::step() {
         if ( catchers.empty() )
@@ -81,10 +87,13 @@ namespace ORO_CoreLib
     }
 
     void EventProcessor::finalize() {
+        active = false;
+        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
+            (*it)->enabled = false;
     }
 
     BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s )
-        : EventProcessor( s ), doloop(false)
+        : EventProcessor( s )
     {
     }
 
@@ -93,11 +102,18 @@ namespace ORO_CoreLib
         // race condition here, this->getTask()->isRunning() better be false
         // before EventProcessor is destructed, otherwise, solve with extra semaphore
     }
+
+    bool BlockingEventProcessor::initialize() {
+        // we set active to true inhere to avoid a race condition
+        // it was originally set in loop(), but it went wrong there.
+        active = true;
+        return true;
+    }
+
     void BlockingEventProcessor::loop() {
         //build critical section around loop()
         ORO_OS::MutexLock lock( breaker );
-        doloop = true;
-        while ( doloop )
+        while ( active )
             {
                 this->step();
                 // wait/block for the next Event
@@ -106,7 +122,7 @@ namespace ORO_CoreLib
     }
 
     bool BlockingEventProcessor::breakLoop() {
-        doloop = false;
+        active = false;
         sem->signal();
         {
             ORO_OS::MutexLock lock( breaker ); // force a block until loop returns.

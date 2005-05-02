@@ -42,6 +42,7 @@ namespace ORO_CoreLib
 {
     namespace detail {
         using ORO_OS::Semaphore;
+        using boost::make_tuple;
 
         struct EventCatcher {
             EventCatcher(Semaphore* s);
@@ -52,7 +53,11 @@ namespace ORO_CoreLib
 
             boost::signals::connection getConnection() const;
 
+            // optionally signal this semaphore in non blocking mode
             Semaphore* sem;
+            // if the catcher is not enabled ( EventProcessor not running)
+            // do not accept 'work'
+            bool enabled;
         };
 
         using boost::tuples::get;
@@ -88,8 +93,8 @@ namespace ORO_CoreLib
             }
 
             Result handler( void ) {
-                work = true;
-                if ( sem )
+                work = this->enabled;
+                if ( sem && work )
                     sem->signal();
                 return Result();
             }
@@ -120,7 +125,9 @@ namespace ORO_CoreLib
                                                                        this, _1) );
             }
 
-            Result handler( typename Function::arg1_type& a1 ) {
+            Result handler( typename Function::arg1_type a1 ) {
+                if ( !this->enabled )
+                    return Result();
                 // the container decides if a1 needs to be stored
                 _a1 = a1;
                 if ( sem )
@@ -132,6 +139,7 @@ namespace ORO_CoreLib
                 if ( !_a1 )
                     return;
                 f( _a1 );
+                _a1.clear();
             }
         };
 
@@ -142,18 +150,21 @@ namespace ORO_CoreLib
             {
                 Data() : work(false) {}
                 bool work;
-                T    val;
+                T    val_;
                 typedef T type;
                 operator bool() const {
                     return work;
                 }
                 operator T() const {
-                    return val;
+                    return val_;
                 }
-                void operator=(T& t) {
+                T val() const {
+                    return val_;
+                }
+                void operator=(const T& t) {
                     if (work)
                         return;
-                    val = t;
+                    val_ = t;
                     work = true;
                 }
                 void clear() {
@@ -167,19 +178,22 @@ namespace ORO_CoreLib
             template< class T>
             struct Data
             {
-                Data() : work(false), val("EventData") {}
+                Data() : work(false), val_("EventData") {}
                 bool work;
-                DataObjectLockFree<T> val;
+                DataObjectLockFree<T> val_;
                 typedef T type;
                 operator bool() const {
                     return work;
                 }
-                void operator=(T& t) {
-                    val.Set(t);
+                void operator=(const T& t) {
+                    val_.Set(t);
                     work = true;
                 }
                 operator T() const {
-                    return val.Get();
+                    return val_.Get();
+                }
+                T val() const {
+                    return val_.Get();
                 }
                 void clear() {
                     work = false;
@@ -207,8 +221,10 @@ namespace ORO_CoreLib
                                                                        this, _1, _2) );
             }
 
-            Result handler( typename Function::arg1_type& a1,
-                            typename Function::arg2_type& a2 ) {
+            Result handler( typename Function::arg1_type a1,
+                            typename Function::arg2_type a2 ) {
+                if ( !this->enabled )
+                    return Result();
                 args = make_tuple( a1, a2 );
                 if ( sem )
                     sem->signal();
@@ -218,7 +234,8 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args), get<1>(args) );
+                f( get<0>(args.val()), get<1>(args.val()) );
+                args.clear();
             }
         };
 
@@ -243,9 +260,11 @@ namespace ORO_CoreLib
                                                                        this, _1, _2, _3) );
             }
 
-            Result handler( typename Function::arg1_type& a1,
-                            typename Function::arg2_type& a2,
-                            typename Function::arg3_type& a3 ) {
+            Result handler( typename Function::arg1_type a1,
+                            typename Function::arg2_type a2,
+                            typename Function::arg3_type a3 ) {
+                if ( !this->enabled )
+                    return Result();
                 args = make_tuple( a1, a2, a3 );
                 if ( sem )
                     sem->signal();
@@ -255,7 +274,8 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args), get<1>(args), get<2>(args) );
+                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()) );
+                args.clear();
             }
         };
 
@@ -285,10 +305,12 @@ namespace ORO_CoreLib
                                                                        this, _1, _2, _3, _4) );
             }
 
-            Result handler( typename Function::arg1_type& a1,
-                            typename Function::arg2_type& a2,
-                            typename Function::arg3_type& a3,
-                            typename Function::arg4_type& a4 ) {
+            Result handler( typename Function::arg1_type a1,
+                            typename Function::arg2_type a2,
+                            typename Function::arg3_type a3,
+                            typename Function::arg4_type a4 ) {
+                if ( !this->enabled )
+                    return Result();
                 args = make_tuple( a1, a2, a3, a4 );
                 if ( sem )
                     sem->signal();
@@ -298,7 +320,8 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args), get<1>(args), get<2>(args), get<3>(args) );
+                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()) );
+                args.clear();
             }
         };
 
@@ -330,11 +353,13 @@ namespace ORO_CoreLib
                                                                        this, _1, _2, _3, _4, _5) );
             }
 
-            Result handler( typename Function::arg1_type& a1,
-                            typename Function::arg2_type& a2,
-                            typename Function::arg3_type& a3,
-                            typename Function::arg4_type& a4,
-                            typename Function::arg5_type& a5) {
+            Result handler( typename Function::arg1_type a1,
+                            typename Function::arg2_type a2,
+                            typename Function::arg3_type a3,
+                            typename Function::arg4_type a4,
+                            typename Function::arg5_type a5) {
+                if ( !this->enabled )
+                    return Result();
                 args = make_tuple( a1, a2, a3, a4, a5 );
                 if ( sem )
                     sem->signal();
@@ -344,7 +369,8 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args), get<1>(args), get<2>(args), get<3>(args), get<4>(args) );
+                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()) );
+                args.clear();
             }
         };
 
@@ -372,12 +398,14 @@ namespace ORO_CoreLib
                                                                        this, _1, _2, _3, _4, _5, _6) );
             }
 
-            Result handler( typename Function::arg1_type& a1,
-                            typename Function::arg2_type& a2,
-                            typename Function::arg3_type& a3,
-                            typename Function::arg4_type& a4,
-                            typename Function::arg5_type& a5,
-                            typename Function::arg6_type& a6) {
+            Result handler( typename Function::arg1_type a1,
+                            typename Function::arg2_type a2,
+                            typename Function::arg3_type a3,
+                            typename Function::arg4_type a4,
+                            typename Function::arg5_type a5,
+                            typename Function::arg6_type a6) {
+                if ( !this->enabled )
+                    return Result();
                 args = make_tuple( a1, a2, a3, a4, a5, a6 );
                 if ( sem )
                     sem->signal();
@@ -387,7 +415,8 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !args )
                     return;
-                f( get<0>(args), get<1>(args), get<2>(args), get<3>(args), get<4>(args), get<5>(args) );
+                f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()), get<5>(args.val()) );
+                args.clear();
             }
         };
     }
@@ -409,6 +438,7 @@ namespace ORO_CoreLib
         List catchers;
         ORO_OS::Mutex m;
         boost::shared_ptr<ORO_OS::Semaphore> sem;
+        bool active;
         /**
          *  Used by derived classes.
          */
@@ -448,10 +478,12 @@ namespace ORO_CoreLib
             case OnlyFirst:
                 // Use function arity to select implementation :
                 eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem.get());
+                eci->enabled = this->active;
                 break;
             case OnlyLast:
                 // Use function arity to select implementation :
                 eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem.get());
+                eci->enabled = this->active;
                 break;
             }
             {
@@ -472,7 +504,6 @@ namespace ORO_CoreLib
     {
     protected:
         ORO_OS::Mutex breaker;
-        bool doloop;
     public:
         /**
          * Create a blocking (non periodic) EventProcessor, which will wait on ORO_OS::Semaphore  \a s.
@@ -484,6 +515,8 @@ namespace ORO_CoreLib
         BlockingEventProcessor( boost::shared_ptr<ORO_OS::Semaphore> s = boost::shared_ptr<ORO_OS::Semaphore>( new ORO_OS::Semaphore(0) ) );
 
         ~BlockingEventProcessor();
+
+        bool initialize();
 
         /**
          * Process Events until \a breakLoop() (or destructor) is called.

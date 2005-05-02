@@ -129,6 +129,8 @@ namespace ORO_CoreLib
         typedef _Signature Signature;
         typedef _SlotFunction SlotFunction;
 
+        typedef typename boost::function_traits<_Signature>::result_type result_type;
+
         /**
          * Create a named Synchronous/Asynchronous Event.
          * @see boost::signals library
@@ -203,52 +205,52 @@ namespace ORO_CoreLib
         }
 
         template<class A1>
-        void fire(const A1& a1) {
+        void fire(A1 a1) {
             ORO_OS::MutexLock lock( _mutex );
             signal_type::operator()(a1);
         }
 
         template<class A1, class A2>
-        void fire(typename boost::call_traits<A1>::param_type a1,
-                  typename boost::call_traits<A2>::param_type a2) {
+        void fire(A1 a1,
+                  A2 a2) {
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2);
                   }
 
         template<class A1, class A2, class A3>
-        void fire(typename boost::call_traits<A1>::param_type a1,
-                  typename boost::call_traits<A2>::param_type a2,
-                  typename boost::call_traits<A3>::param_type a3) {
+        void fire(A1 a1,
+                  A2 a2,
+                  A3 a3) {
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3);
                   }
 
         template<class A1, class A2, class A3, class A4>
-        void fire(typename boost::call_traits<A1>::param_type a1,
-                  typename boost::call_traits<A2>::param_type a2,
-                  typename boost::call_traits<A3>::param_type a3,
-                  typename boost::call_traits<A4>::param_type a4) {
+        void fire(A1 a1,
+                  A2 a2,
+                  A3 a3,
+                  A4 a4) {
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4);
                   }
 
         template<class A1, class A2, class A3, class A4, class A5>
-        void fire(typename boost::call_traits<A1>::param_type a1,
-                  typename boost::call_traits<A2>::param_type a2,
-                  typename boost::call_traits<A3>::param_type a3,
-                  typename boost::call_traits<A4>::param_type a4,
-                  typename boost::call_traits<A5>::param_type a5) {
+        void fire(A1 a1,
+                  A2 a2,
+                  A3 a3,
+                  A4 a4,
+                  A5 a5) {
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4, a5);
                   }
 
         template<class A1, class A2, class A3, class A4, class A5, class A6>
-        void fire(typename boost::call_traits<A1>::param_type a1,
-                  typename boost::call_traits<A2>::param_type a2,
-                  typename boost::call_traits<A3>::param_type a3,
-                  typename boost::call_traits<A4>::param_type a4,
-                  typename boost::call_traits<A5>::param_type a5,
-                  typename boost::call_traits<A6>::param_type a6) {
+        void fire(A1 a1,
+                  A2 a2,
+                  A3 a3,
+                  A4 a4,
+                  A5 a5,
+                  A6 a6) {
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4, a5, a6);
                   }
