@@ -64,7 +64,7 @@ namespace ORO_CoreLib
          * without a name.
          */
         PropertyReporter( MarshallConfig& m )
-            : adaptor(m), mytask(0) {}
+            : adaptor(m) {}
         
         /**
          * Create A PropertyReporter with a given marshalling configuration
@@ -72,12 +72,7 @@ namespace ORO_CoreLib
          */
         PropertyReporter( MarshallConfig& m, const std::string& name ) :
             NameServerRegistrator<PropertyReporter<MarshallConfig>*>(nameserver, name, this),
-        adaptor(m), mytask(0) {}
-        
-        virtual TaskInterface* getTask() const { return mytask; }
-
-        virtual void setTask( TaskInterface* task ) { mytask = task; }
-
+        adaptor(m) {}
         virtual bool initialize()
         {
             time = TimeService::Instance()->getTicks();
@@ -175,8 +170,6 @@ namespace ORO_CoreLib
          * Marshalling info.
          */
         MarshallConfig& adaptor;
-
-        TaskInterface* mytask;
 
         /**
          * Timestamp since initialize().
