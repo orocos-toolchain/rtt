@@ -941,6 +941,20 @@ emergencyStop.fire(); // User not notified
   Event<void(double,double,double)>  positionEvent;
   positionEvent.fire( x, y, z);]]></programlisting>
       </example>
+    </para>
+    <para>
+      Furthermore, you need to setup the connect call differently if the Event
+      carries one or more arguments :
+      <programlisting>  SomeClass someclass;
+
+  Event&lt;void(int, float)&gt; event;
+
+  // notice that for each Event argument, you need to supply _1, _2, _3, etc...
+  event.connect( boost::bind( &amp;SomeClass::foo, someclass, _1, _2 );
+
+  event.fire( 1, 2.0 );</programlisting>
+    </para>
+    <para>
       The return type for synchronous events can be used analogous to
       the boost::signals library. For asynchronous callbacks, the return
       value is the default constructor. There is currently no way
