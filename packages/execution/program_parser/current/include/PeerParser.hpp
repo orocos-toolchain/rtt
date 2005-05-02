@@ -46,12 +46,16 @@ namespace ORO_Execution
     class PeerParser
     {
         CommonParser commonparser;
-        rule_t peerpath;
+        rule_t peerpath, peerlocator;
         std::queue<std::string> callqueue;
         std::string mcurobject;
         TaskContext* context;
         TaskContext* _peer;
         void done();
+
+        void seenobjectname( iter_t begin, iter_t end );
+        void locatepeer( iter_t begin, iter_t end );
+
     public:
         PeerParser(TaskContext* c);
 
@@ -61,16 +65,27 @@ namespace ORO_Execution
          * @return the previous TaskContext.
          */
         TaskContext* setContext( TaskContext* tc);
-
-        void seenobjectname( iter_t begin, iter_t end );
-
         /**
          * After reset, peer() == current context and
          * object() == "this".
          */
         void reset();
 
+        /**
+         * The parser tries to traverse a full peer-to-object
+         * path and throws if it got stuck in the middle. \a peer()
+         * will return the target peer and \a object() is \a this
+         * or the supposed object of the peer. The parser does not
+         * check if this object exists.
+         */
         rule_t& parser();
+
+        /**
+         * The locator tries to go as far as possible in the peer-to-object
+         * path and will never throw. \a peer() and \a object() will contain the last
+         * valid peer found and its supposed object, attribute or value.
+         */
+        rule_t& locator();
 
         TaskContext* peer();
 

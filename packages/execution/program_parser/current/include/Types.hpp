@@ -25,15 +25,15 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef TYPES_HPP
-#define TYPES_HPP
+#ifndef ORO_TYPES_HPP
+#define ORO_TYPES_HPP
 
 #include <map>
 #include <string>
+#include <corelib/DataSource.hpp>
 
 namespace ORO_Execution
 {
-  class DataSourceBase;
   class TaskAttributeBase;
 
   /**
@@ -68,7 +68,7 @@ namespace ORO_Execution
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..
          */
-        virtual TaskAttributeBase* buildAlias( DataSourceBase* b ) const = 0;
+        virtual TaskAttributeBase* buildAlias( ORO_CoreLib::DataSourceBase* b ) const = 0;
     };
 
     /**

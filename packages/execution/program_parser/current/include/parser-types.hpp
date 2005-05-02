@@ -51,7 +51,6 @@ namespace ORO_Execution
   class ArgumentsParser;
   class TypeInfo;
   class TypeInfoRepository;
-  class DataSourceBase;
 
   using ORO_CoreLib::PropertyBag;
   using ORO_CoreLib::PropertyBase;

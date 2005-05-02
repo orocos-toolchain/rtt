@@ -34,6 +34,9 @@ namespace ORO_Execution
 
   /**
    * @brief This class contains some very common parser definitions.
+   * @todo check the identifier parser implementation of asserting when 
+   * a keyword is wrongly used as an identifier. In current implementation
+   * it almost never throws.
    */
   class CommonParser
   {

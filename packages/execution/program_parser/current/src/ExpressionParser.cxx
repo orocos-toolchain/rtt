@@ -232,16 +232,24 @@ namespace ORO_Execution
     };
   };
 
-    error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& )
+    error_status<> handle_no_value(scanner_t const& scan, parser_error<std::string, iter_t>& e )
     {
+        //std::cerr << "No value in EP : "<<e.descriptor<<std::endl;
         // retry if it is a datacall, thus fail this rule
         return error_status<>( error_status<>::fail );
     }
 
     error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
-        // if this rule also fails, throw semantic exception ( obj or method not found)
+        // retry with a member :
+        return error_status<>( error_status<>::fail );
+    }
+
+    error_status<> handle_no_member(scanner_t const& scan, parser_error<std::string, iter_t>&e )
+    {
+        // if this rule also fails, throw semantic exception ( member not found )
         throw parse_exception_semantic_error( e.descriptor );
+        // dough ! not reached :
         return error_status<>( error_status<>::rethrow );
     }
 
@@ -276,6 +284,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( arrayexp );
     BOOST_SPIRIT_DEBUG_RULE( rotexp );
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
+    BOOST_SPIRIT_DEBUG_RULE( dotexp );
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
     BOOST_SPIRIT_DEBUG_RULE( constructorexp );
     BOOST_SPIRIT_DEBUG_RULE( framector );
@@ -376,15 +385,18 @@ namespace ORO_Execution
         // or a time expression
       | time_expression
         // or a constant or user-defined value..
-        | my_guard( valueparser.parser())[ &handle_no_value ]
+      | my_guard( valueparser.parser())[ &handle_no_value ]
                [ bind( &ExpressionParser::seenvalue, this ) ]
       | my_guard( datacallparser.parser() )[&handle_no_datacall]
                             [bind( &ExpressionParser::seendatacall, this ) ]
-        // or a property of a component
-      ) >> ( !indexexp );
+        // or an index or dot expression
+        ) >> ! dotexp >> !indexexp;
     // take index of an atomicexpression
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
+
+    dotexp = 
+        +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
 
     constructorexp =
 #ifdef OROPKG_GEOMETRY
@@ -584,7 +596,25 @@ namespace ORO_Execution
       OperatorRegistry::instance().applyUnary( op, arg.get() );
     if ( ! ret )
       throw parse_exception_semantic_error( "Cannot apply unary operator \"" + op +
-                                            "\" to " + ret->getType() +"." );
+                                            "\" to " + arg->getType() +"." );
+    ret->ref();
+    parsestack.push( ret );
+  };
+
+  void ExpressionParser::seen_dotmember( iter_t s, iter_t f )
+  {
+      std::string member(s,f);
+      // inspirired on seen_unary
+    DataSourceBase::shared_ptr arg( parsestack.top() );
+    // we still have a reference to this DataSource that we took when
+    // we pushed it up the parsestack..
+    arg->deref();
+    parsestack.pop();
+    DataSourceBase* ret =
+      OperatorRegistry::instance().applyDot( member, arg.get() );
+    if ( ! ret )
+      throw parse_exception_semantic_error( arg->getType() + " does not have member \"" + member +
+                                            "\"." );
     ret->ref();
     parsestack.push( ret );
   };

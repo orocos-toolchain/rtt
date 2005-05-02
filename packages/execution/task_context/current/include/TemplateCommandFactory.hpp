@@ -339,6 +339,7 @@ namespace ORO_Execution
     CommandGeneratorT comg;
     ConditionGeneratorT cong;
   public:
+      typedef bool result_type;
     ComConComposer( CommandGeneratorT com, ConditionGeneratorT con )
       : comg( com ), cong( con )
       {
@@ -409,6 +410,7 @@ namespace ORO_Execution
     CommandGeneratorT comg;
     ConditionGeneratorT cong;
   public:
+      typedef bool result_type;
     ComConNullaryComposer( CommandGeneratorT com, ConditionGeneratorT con )
       : comg( com ), cong( con )
       {
@@ -480,6 +482,7 @@ namespace ORO_Execution
     CommandGeneratorT comg;
     ConditionGeneratorT cong;
   public:
+      typedef bool result_type;
     ComConUnaryComposer( CommandGeneratorT com, ConditionGeneratorT con )
       : comg( com ), cong( con )
       {
@@ -1229,6 +1232,11 @@ namespace ORO_Execution
     std::vector<std::string> getCommandList() const
       {
         return _TF::getNames();
+      }
+
+    std::string getResultType( const std::string& com ) const
+      {
+        return _TF::getResultType( com );
       }
 
     bool hasCommand( const std::string& com ) const

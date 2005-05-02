@@ -38,7 +38,6 @@
 
 namespace ORO_Execution
 {
-    class DataSourceBase;
 
   /**
    * @brief This is an interface for a factory generating DataSource's..
@@ -74,10 +73,16 @@ namespace ORO_Execution
     virtual bool hasMember( const std::string& s ) const = 0;
 
       /**
-       * @brief Return the description of a given Data Source.
+       * @brief Return the description of a given DataSource/Method Member.
        * @param source The DataSource to get the description from.
        */
-      virtual std::string getDescription( const std::string& source ) const = 0;
+      virtual std::string getResultType( const std::string& method ) const = 0;
+
+      /**
+       * @brief Return the description of a given DataSource/Method Member.
+       * @param source The DataSource to get the description from.
+       */
+      virtual std::string getDescription( const std::string& method ) const = 0;
 
       /**
        * @brief Return the list of arguments of a certain method.
@@ -115,7 +120,7 @@ namespace ORO_Execution
      * throws name_not_found_exception,
      * wrong_number_of_args_exception, wrong_types_of_args_exception
      */
-    virtual DataSourceBase* create(
+    virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
       const ORO_CoreLib::PropertyBag& args ) const = 0;
 
@@ -132,9 +137,9 @@ namespace ORO_Execution
      * throws name_not_found_exception,
      * wrong_number_of_args_exception, wrong_types_of_args_exception
      */
-    virtual DataSourceBase* create(
+    virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
-      const std::vector<DataSourceBase*>& args ) const = 0;
+      const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const = 0;
   };
 
 }

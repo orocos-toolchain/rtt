@@ -44,7 +44,6 @@ namespace ORO_Execution
     using boost::property;
     using boost::graph_traits;
 
-    class DataSourceBase;
     class ProgramCommands;
     class TaskContext;
 
@@ -201,7 +200,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<DataSourceBase*> fnargs);
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase*> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -210,7 +209,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode setFunction( FunctionGraph* fn, std::vector<DataSourceBase*> fnargs);
+        CommandNode setFunction( FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase*> fnargs);
 
         /**
          * Proceed to the 'next' CommandNode.

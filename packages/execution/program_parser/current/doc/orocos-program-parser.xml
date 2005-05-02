@@ -506,7 +506,8 @@
   ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
   Parser        parser;
 
-  std::vector&lt;ProgramGraph*&gt; pg_list;
+  // An STL container containing all parsed Programs:
+  Parser::ParsedPrograms pg_list;
   try {
       pg_list = parser.parseProgram( "program.ops", &amp;tc );
   }
@@ -1054,7 +1055,8 @@
   ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
   Parser        parser;
 
-  std::vector&lt;ParsedStateMachine*&gt; sc_list;
+  // An STL container containing all parsed StateMachines:
+  Parser::ParsedStateMachines sc_list;
   try {
       sc_list = parser.parseStateMachine( "state-machine.osd", &amp;tc );
   }
@@ -1074,9 +1076,9 @@
      ptask->start();
 
      // activate a state context :
-     tc.getProcessor()->activateStateMachine("statename");
+     tc.getProcessor()->activateStateMachine("MachineInstanceName");
      // start a state context (automatic mode) :
-     tc.getProcessor()->startStateMachine("statename");
+     tc.getProcessor()->startStateMachine("MachineInstanceName");
   }</programlisting>
       <para>
 	The parser returns a vector of <classname>ParsedStateMachine</classname>'s.
@@ -1107,7 +1109,7 @@
 	</para>
 	<example>
 	  <title>StateMachine Definition Format</title>
-	  <programlisting>StateMachine <emphasis>MyStateMachine</emphasis>
+	  <programlisting>StateMachine <emphasis>MyStateMachineDefinition</emphasis>
 {
     initial state <emphasis>myInit</emphasis>
     {
@@ -1146,7 +1148,10 @@
     }
 
     // ... repeat
-}  </programlisting>
+}  
+
+// See <xref linkend="instantiating"/> :
+RootMachine MyStateMachineDefinition MachineInstanceName</programlisting>
 	  <para>
 	    A StateMachine definition: a StateMachine can have any
 	    number of states.  It needs to have exactly one "initial
@@ -1256,7 +1261,7 @@ transitions {
 <!-- 	  </para> -->
 <!-- 	</sect3> -->
       </sect2>
-      <sect2>
+      <sect2 id="instantiating">
 	<title>Instantiating Machines: SubMachines and RootMachines</title>
 	<para>
 	  As mentionned before: you can look at a SubMachine
@@ -1292,7 +1297,8 @@ StateMachine SomeStateMachine
 RootMachine SomeStateMachine someSMinstance
 	    </programlisting>
 	    This makes an instantiation of the StateMachine type
-	    SomeStateMachine by the name of 'someSMinstance'.
+	    SomeStateMachine by the name of 'someSMinstance', which can then
+	    be accessed from other scripts (by that name) or via the Processor.
 	  </para>
 	</sect3>
 	<sect3>

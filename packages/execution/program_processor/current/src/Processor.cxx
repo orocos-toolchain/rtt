@@ -30,6 +30,7 @@
 #include "execution/StateMachine.hpp"
 #include <corelib/CommandInterface.hpp>
 #include <corelib/AtomicQueue.hpp>
+#include <corelib/Logger.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -747,9 +748,10 @@ namespace ORO_Execution
         }
     };
 
+    using ORO_CoreLib::Logger;
+
     void Processor::loop()
     {
-        doloop = true;
         while ( doloop )
             {
                 queuesem->wait();
@@ -779,12 +781,14 @@ namespace ORO_Execution
         a_queue->clear();
         f_queue->clear();
         accept = true;
+        doloop = true; // must put doloop here to avoid race.
         return true;
     }
 
     void Processor::finalize()
     {
         accept = false;
+        doloop = false;
         // stop all programs and SCs.
         {
             MutexLock lock( *progmonitor );

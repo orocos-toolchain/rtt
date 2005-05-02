@@ -61,6 +61,7 @@ namespace ORO_Execution
 
         std::vector<std::string> getCommandList() const;
 
+        std::string getResultType( const std::string& com ) const;
         std::string getDescription( const std::string& com ) const;
 
         ORO_CoreLib::PropertyBag
@@ -73,7 +74,7 @@ namespace ORO_Execution
                        bool asyn = true ) const;
 
         ComCon create(const std::string& command,
-                      const std::vector<DataSourceBase*>& args,
+                      const std::vector<ORO_CoreLib::DataSourceBase*>& args,
                       bool asyn = true ) const;
     };
 }

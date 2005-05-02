@@ -656,7 +656,7 @@ namespace ORO_Execution
         curtemplatecontext->addSubMachine( curinstcontextname, curinstantiatedcontext );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
-        ParsedAlias<std::string>* pv = new ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
+        detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
         context->attributeRepository.setValue( curinstcontextname, pv );
 
         curinstantiatedcontext = 0;

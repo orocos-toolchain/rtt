@@ -52,9 +52,16 @@ namespace ORO_Execution
             delete other;
         }
 
-        bool hasMember(const std::string& com) const 
+        bool hasMember(const std::string& method) const 
         {
-            return one->hasMember(com) || other->hasMember(com);
+            return one->hasMember(method) || other->hasMember(method);
+        }
+
+        std::string getResultType( const std::string& method ) const 
+        {
+            if ( one->hasMember( method ) )
+                return one->getResultType(method);
+            return other->getResultType(method);
         }
 
         std::vector<std::string> getNames() const
@@ -87,7 +94,7 @@ namespace ORO_Execution
             return other->getArgumentList(member);
         }
 
-        DataSourceBase* create( const std::string& member,
+        ORO_CoreLib::DataSourceBase* create( const std::string& member,
                        const ORO_CoreLib::PropertyBag& args ) const
         {
             if ( one->hasMember( member ) )
@@ -95,9 +102,9 @@ namespace ORO_Execution
             return other->create(member, args);
         }
 
-        DataSourceBase* create(
+        ORO_CoreLib::DataSourceBase* create(
                       const std::string& member,
-                      const std::vector<DataSourceBase*>& args ) const
+                      const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const
         {
             if ( one->hasMember( member ) )
                 return one->create(member, args);

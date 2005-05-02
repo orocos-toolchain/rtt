@@ -66,6 +66,13 @@ namespace ORO_Execution
             return res;
         }
 
+        std::string getResultType( const std::string& com ) const
+        {
+            if ( one->hasCommand( com ) )
+                return one->getResultType(com);
+            return other->getResultType(com);
+        }
+
         std::string getDescription( const std::string& com ) const
         {
             if ( one->hasCommand( com ) )
@@ -98,7 +105,7 @@ namespace ORO_Execution
 
         ComCon create(
                       const std::string& command,
-                      const std::vector<DataSourceBase*>& args, bool asyn=true ) const
+                      const std::vector<ORO_CoreLib::DataSourceBase*>& args, bool asyn=true ) const
         {
             if ( one->hasCommand( command ) )
                 return one->create(command, args, asyn);

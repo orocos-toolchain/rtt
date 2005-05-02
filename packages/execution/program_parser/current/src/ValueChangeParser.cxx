@@ -45,10 +45,11 @@ namespace ORO_Execution
         assertion<std::string> expect_def("Expected a type definition. Please specify a type.");
         assertion<std::string> expect_expr("Expected a valid expression.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
-        assertion<std::string> expect_init("Expected an initialisation value of the value.");
+        assertion<std::string> expect_init("Expected an initialisation value of the variable.");
         assertion<std::string> expect_is("Expected an '=' sign.");
         assertion<std::string> expect_index("Expected an index: [index].");
         assertion<std::string> expect_integer("Expected a positive integer value.");
+        assertion<std::string> expect_assign("Expected an assignment after 'set'.");
     }
 
 
@@ -60,7 +61,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
     BOOST_SPIRIT_DEBUG_RULE( variabledefinition );
     BOOST_SPIRIT_DEBUG_RULE( variableassignment );
+    BOOST_SPIRIT_DEBUG_RULE( variablechange );
     BOOST_SPIRIT_DEBUG_RULE( paramdefinition );
+    BOOST_SPIRIT_DEBUG_RULE( baredefinition );
 
     // we can't use commonparser.identifier to parse a type name,
     // because that one is meant to be used for identifier used by the
@@ -94,12 +97,14 @@ namespace ORO_Execution
          >> expect_def( baredefinition )
          >> !( (ch_p('=') >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] )));
     
-    variableassignment = (
-         "set"
-         >> !(peerparser.parser()[ bind( &ValueChangeParser::storepeername, this) ])
+    variableassignment = 
+        "set" >> variablechange;
+
+    variablechange =    
+         ( !(peerparser.parser()[ bind( &ValueChangeParser::storepeername, this) ])
          >> expect_ident( commonparser.identifier)[ bind( &ValueChangeParser::storename, this, _1, _2 ) ]
          >> !( '[' >> expect_index( expressionparser.parser() ) >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
-         >> expect_is( ch_p( '=' ) )
+         >> ch_p( '=' )
          >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
     paramdefinition =
@@ -320,7 +325,12 @@ namespace ORO_Execution
   rule_t& ValueChangeParser::variableAssignmentParser()
   {
     return variableassignment;
-  };
+  }
+
+  rule_t& ValueChangeParser::variableChangeParser()
+  {
+    return variablechange;
+  }
 
   rule_t& ValueChangeParser::paramDefinitionParser()
   {

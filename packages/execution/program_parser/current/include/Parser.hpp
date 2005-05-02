@@ -56,75 +56,90 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
-  using ORO_CoreLib::PropertyBase;
-  using ORO_CoreLib::CommandInterface;
-  using ORO_CoreLib::ConditionInterface;
-  /**
-   * @brief This class is the public interface to the
-   * Orocos Program Parser Framework. It parsers Orocos program scripts,
-   * Orocos State Contexts and allows to parse a text Command, Condition or Expression
-   * to the respective objects.
-   */
-  class Parser
-  {
-  public:
+    using ORO_CoreLib::PropertyBase;
+    using ORO_CoreLib::CommandInterface;
+    using ORO_CoreLib::ConditionInterface;
     /**
-     * @brief Reads out the stream, parses it, and returns a new @ref
-     * FunctionGraph.
-     * @throw parse_exception Throws exceptions of type parse_exception.
+     * @brief This class is the public interface to the
+     * Orocos Program Parser Framework. It parsers Orocos program scripts,
+     * Orocos State Contexts and allows to parse a text Command, Condition or Expression
+     * to the respective objects.
      */
-      std::vector<FunctionGraph*> parseFunction( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+    class Parser
+    {
+    public:
+        /**
+         * List of parsed functions.
+         */
+        typedef std::vector<FunctionGraph*> ParsedFunctions;
 
-    /**
-     * @brief Open a file read-only, parses it, and returns a new @ref
-     * FunctionGraph.
-     * @throw parse_exception Throws exceptions of type parse_exception.
-     */
-      std::vector<FunctionGraph*> parseFunction( const std::string& filename, TaskContext* );
+        /**
+         * @brief Reads out the stream, parses it, and returns a new @ref
+         * FunctionGraph.
+         * @throw parse_exception Throws exceptions of type parse_exception.
+         */
+        ParsedFunctions parseFunction( std::istream& s, TaskContext*, const std::string& filename = "filename" );
 
-    /**
-     * @brief Reads out the stream, parses it, and returns a new @ref
-     * ProgramGraph..
-     * @throw parse_exception Throws exceptions of type parse_exception.
-     */
-      std::vector<ProgramGraph*> parseProgram( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+        /**
+         * @brief Open a file read-only, parses it, and returns a new @ref
+         * FunctionGraph.
+         * @throw parse_exception Throws exceptions of type parse_exception.
+         */
+        ParsedFunctions parseFunction( const std::string& filename, TaskContext* );
 
-    /**
-     * @brief Open a file read-only, parses it, and returns a new @ref
-     * ProgramGraph..
-     * @throw parse_exception Throws exceptions of type parse_exception.
-     */
-      std::vector<ProgramGraph*> parseProgram( const std::string& filename, TaskContext* );
+        /**
+         * List of parsed programs.
+         */
+        typedef std::vector<ProgramGraph*> ParsedPrograms;
 
-    /**
-     * @brief Reads out the stream, parses it, and returns a new @ref
-     * ParsedStateMachine ..
-     * @throw file_parse_exception Throws exceptions of type file_parse_exception.
-     */
-      std::vector<ParsedStateMachine*> parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "filename" );
+        /**
+         * @brief Reads out the stream, parses it, and returns a new @ref
+         * ProgramGraph..
+         * @throw parse_exception Throws exceptions of type parse_exception.
+         */
+        ParsedPrograms parseProgram( std::istream& s, TaskContext*, const std::string& filename = "filename" );
 
-    /**
-     * @brief Opens a file read-only, parses it, and returns a new @ref
-     * ParsedStateMachine ..
-     * @throw file_parse_exception Throws exceptions of type file_parse_exception.
-     */
-      std::vector<ParsedStateMachine*> parseStateMachine(const std::string& filename, TaskContext* );
+        /**
+         * @brief Open a file read-only, parses it, and returns a new @ref
+         * ProgramGraph..
+         * @throw parse_exception Throws exceptions of type parse_exception.
+         */
+        ParsedPrograms parseProgram( const std::string& filename, TaskContext* );
 
-    /**
-     * @brief Parses the string as a condition, and returns a new
-     * ConditionInterface..  Will throw parse_exception on
-     * failure... Use ext to get the data from the components..
-     * @throw parse_exception
-     */
-    ORO_CoreLib::ConditionInterface* parseCondition(
-      std::string& s, TaskContext* );
+        /**
+         * List of parsed State Machines.
+         */
+        typedef std::vector<ParsedStateMachine*> ParsedStateMachines;
 
-      /**
-       * @brief Parses the command in s.
-       * @throw parse_exception Throws exceptions of type parse_exception.
-       */
-      std::pair<CommandInterface*,ConditionInterface*>
-      parseCommand( const std::string&s, TaskContext* );
+        /**
+         * @brief Reads out the stream, parses it, and returns a new @ref
+         * ParsedStateMachine ..
+         * @throw file_parse_exception Throws exceptions of type file_parse_exception.
+         */
+        ParsedStateMachines parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "filename" );
+
+        /**
+         * @brief Opens a file read-only, parses it, and returns a new @ref
+         * ParsedStateMachine ..
+         * @throw file_parse_exception Throws exceptions of type file_parse_exception.
+         */
+        ParsedStateMachines parseStateMachine(const std::string& filename, TaskContext* );
+
+        /**
+         * @brief Parses the string as a condition, and returns a new
+         * ConditionInterface..  Will throw parse_exception on
+         * failure... Use ext to get the data from the components..
+         * @throw parse_exception
+         */
+        ORO_CoreLib::ConditionInterface* parseCondition(
+                                                        std::string& s, TaskContext* );
+
+        /**
+         * @brief Parses the command in s.
+         * @throw parse_exception Throws exceptions of type parse_exception.
+         */
+        std::pair<CommandInterface*,ConditionInterface*>
+        parseCommand( const std::string&s, TaskContext* );
 
       /**
        * @brief Parses the expression in s.
@@ -133,6 +148,14 @@ namespace ORO_Execution
        */
       DataSourceBase::shared_ptr
       parseExpression( const std::string&s, TaskContext* );
+
+      /**
+       * @brief Parses a change of a value in s.
+       * @return A DataSourceBase which contains the command to change the value.
+       * @throw parse_exception Throws exceptions of type parse_exception.
+       */
+      DataSourceBase::shared_ptr
+      parseValueChange( const std::string&s, TaskContext* );
   };
 };
 #endif

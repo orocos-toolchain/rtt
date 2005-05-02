@@ -316,7 +316,7 @@ namespace ORO_Execution
       implcond_v.clear();
 
       context->attributeRepository.setValue(
-      "done", new ParsedAlias<bool>(
+      "done", new detail::ParsedAlias<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
       dc = 0;
   }

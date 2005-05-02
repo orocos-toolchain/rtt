@@ -65,6 +65,12 @@ namespace ORO_Execution
             return ret;
         }
 
+        std::string FunctionFactory::getResultType( const std::string& com ) const {
+            if ( hasCommand(com) )
+                return std::string("bool");
+            throw name_not_found_exception();
+        }
+
         std::string FunctionFactory::getDescription( const std::string& com ) const {
             if ( hasCommand(com) )
                 return std::string("A function with name ") + com;
@@ -96,7 +102,7 @@ namespace ORO_Execution
             std::vector< ArgumentDescription > mlist;
             for ( std::vector<TaskAttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
-                mlist.push_back( ArgumentDescription( "arg", (*it)->toDataSource()->getType() ) );
+                mlist.push_back( ArgumentDescription( "arg", "Function Argument", (*it)->toDataSource()->getType() ) );
             return mlist;
         }
 

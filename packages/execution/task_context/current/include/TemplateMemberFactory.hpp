@@ -366,6 +366,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGenerator0( FunctorT f )
       : fun( f )
       {
@@ -382,6 +383,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGenerator1( FunctorT f )
       : fun( f )
       {
@@ -403,6 +405,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGeneratorDS0( FunctorT f )
       : fun( f )
       {
@@ -419,6 +422,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGeneratorDS1( FunctorT f )
       : fun( f )
       {
@@ -439,6 +443,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGenerator2( FunctorT f )
       : fun( f )
       {
@@ -462,6 +467,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGenerator3( FunctorT f )
       : fun( f )
       {
@@ -486,6 +492,7 @@ namespace ORO_Execution
   {
     FunctorT fun;
   public:
+      typedef ResultT result_type;
     FunctorDataSourceGenerator4( FunctorT f )
       : fun( f )
       {
@@ -601,6 +608,11 @@ namespace ORO_Execution
       {
         return _TF::hasMember( name );
       };
+
+    std::string getResultType( const std::string& method ) const
+      {
+        return _TF::getResultType( method );
+      }
 
     std::string getDescription( const std::string& method ) const
       {

@@ -74,6 +74,12 @@ namespace ORO_Execution
             virtual std::vector<std::string> getCommandList() const = 0;
 
             /**
+             * @brief Return the result type of a given command.
+             * @param com The command to get the description from.
+             */
+            virtual std::string getResultType( const std::string& com ) const = 0;
+
+            /**
              * @brief Return the description of a given command.
              * @param com The command to get the description from.
              */
@@ -143,7 +149,7 @@ namespace ORO_Execution
              */
             virtual ComCon create(
                 const std::string& command,
-                const std::vector<DataSourceBase*>& args,
+                const std::vector<ORO_CoreLib::DataSourceBase*>& args,
                 bool asyn = true ) const = 0;
 
     };

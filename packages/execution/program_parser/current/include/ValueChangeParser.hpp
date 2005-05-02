@@ -81,7 +81,7 @@ namespace ORO_Execution
     void seensizehint(int i);
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
-      variableassignment, paramdefinition, baredefinition;
+      variableassignment, variablechange, paramdefinition, baredefinition;
 
     TaskContext* context;
     ExpressionParser expressionparser;
@@ -140,11 +140,18 @@ namespace ORO_Execution
     rule_t& variableDefinitionParser();
 
     /**
-     * the parser that parses variable assignments, don't forget to
+     * the parser that parses variable assignments with 'set', don't forget to
      * check @ref assignCommand after a variable assignment is
      * parsed..
      */
     rule_t& variableAssignmentParser();
+
+    /**
+     * the parser that parses variable assignments without 'set' prefix , don't forget to
+     * check @ref assignCommand after a variable assignment is
+     * parsed..
+     */
+    rule_t& variableChangeParser();
 
     /**
      * The parser that parses alias definitions.  This does not work

@@ -33,7 +33,9 @@
 #include "execution/StateGraphParser.hpp"
 #include "execution/ConditionParser.hpp"
 #include "execution/ExpressionParser.hpp"
+#include "execution/ValueChangeParser.hpp"
 #include "execution/CommandParser.hpp"
+#include "execution/DataSourceCommand.hpp"
 #include "corelib/ConditionInterface.hpp"
 
 #include <iostream>
@@ -182,6 +184,35 @@ namespace ORO_Execution
         return ret;
     }
     throw parse_exception_syntactic_error("No expression found");
+  }
+
+  DataSourceBase::shared_ptr Parser::parseValueChange( const std::string& _s,
+                                                       TaskContext* tc )
+  {
+    std::string s( _s );
+
+    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+    our_pos_iter_t parseend;
+
+    ValueChangeParser parser( tc );
+    try
+    {
+        parse( parsebegin, parseend, parser.variableChangeParser(), SKIP_PARSER );
+    }
+    catch( const parse_exception& e )
+    {
+        throw;
+    }
+    catch( const parser_error<std::string, iter_t>& e )
+        {
+            throw parse_exception_syntactic_error( e.descriptor );
+        }
+    if ( parser.assignCommand() ) {
+        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand() );
+        parser.reset();
+        return ret;
+    }
+    throw parse_exception_syntactic_error("No statement found");
   }
 
   std::pair<CommandInterface*, ConditionInterface*>

@@ -43,7 +43,6 @@ namespace ORO_Execution
   {
       // we do not claim automatically ownership
       // call clear() manually to delete all contents.
-      //clear();
   }
 
     AttributeRepository* AttributeRepository::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const
@@ -62,15 +61,15 @@ namespace ORO_Execution
     values.clear();
   }
 
-  void AttributeRepository::setValue( const std::string& name,
+  bool AttributeRepository::setValue( const std::string& name,
                                       TaskAttributeBase* value )
   {
     std::auto_ptr<TaskAttributeBase> v( value );
     map_t::iterator i = values.find( name );
-    // if the name is already defined, we replace its definition..
     if ( i != values.end() )
-      delete i->second;
+        return false;
     values[name] = v.release();
+    return true;
   }
 
   void AttributeRepository::removeValue( const std::string& name )

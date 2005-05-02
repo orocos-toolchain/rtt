@@ -40,7 +40,7 @@ namespace ORO_Execution
 
   /**
    * This is a command that will assign the value of an expression to
-   * a variable at runtime.  You pass it the VariableDataSource that
+   * a variable at runtime.  You pass it the AssignableDataSource that
    * you want to assign to, and the DataSource that you want to assign
    * on construction, and it will take care of the assignment.  Note
    * that both DataSource's need to be of the same type, and this
@@ -50,12 +50,12 @@ namespace ORO_Execution
   class AssignVariableCommand
     : public CommandInterface
   {
-      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
       typedef typename DataSource<T>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignVariableCommand( VariableDataSource<T>* l, DataSource<T>* r )
+      AssignVariableCommand( AssignableDataSource<T>* l, DataSource<T>* r )
           : lhs( l ), rhs( r )
       {
       }
@@ -84,12 +84,12 @@ namespace ORO_Execution
   class AssignContainerCommand
     : public CommandInterface
   {
-      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
       typedef typename DataSource<T>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignContainerCommand( VariableDataSource<T>* l, DataSource<T>* r )
+      AssignContainerCommand( AssignableDataSource<T>* l, DataSource<T>* r )
           : lhs( l ), rhs( r )
       {
       }
@@ -118,12 +118,12 @@ namespace ORO_Execution
   {
       typedef typename DataSource<Index>::shared_ptr IndexSource;
       IndexSource i;
-      typedef typename VariableDataSource<T>::shared_ptr LHSSource;
+      typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
       typedef typename DataSource<SetType>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignIndexCommand( VariableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r)
+      AssignIndexCommand( AssignableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r)
           : i(index),lhs( l ), rhs( r )
       {
       }

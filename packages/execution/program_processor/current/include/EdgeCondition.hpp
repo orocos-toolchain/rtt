@@ -30,6 +30,7 @@
 
 #include <corelib/ConditionTrue.hpp>
 #include <corelib/ConditionInterface.hpp>
+#include <corelib/DataSource.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
 using boost::property;
@@ -44,6 +45,7 @@ namespace ORO_Execution
 {
     using ORO_CoreLib::ConditionInterface;
     using ORO_CoreLib::ConditionTrue;
+    using ORO_CoreLib::DataSourceBase;
 
     /**
      * @brief This class represents a conditional branch in a program

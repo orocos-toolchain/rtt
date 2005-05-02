@@ -434,6 +434,8 @@
 	A TaskContext may have any number of attributes,
 	of any type. They can be used by programs in the
 	TaskContext to get (and set) configuration data.
+	The repository allows to store any C++ value type and
+	also knows how to handle Property objects.
       </para>
       <para>
 	An attribute can be added in the task's
@@ -441,18 +443,31 @@
       <para>
 	<programlisting>
   a_task.attributeRepository.addAttribute( "aflag", bool(false) );
-  a_task.attributeRepository.addAttribute( "max",   int(5) );</programlisting></para>
+  a_task.attributeRepository.addAttribute( "max",   int(5) );
+      
+  Property&lt;std::string&gt; param("Param","Param Description","Value");
+  a_task.attributeRepository.addAttribute( &amp;param );</programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
-	value of false and 5 to the task's repository.
-	When a duplicate name entry is added (even of a different type),
-	the old one is removed. To get a value from the repository,
+	value of false and 5 to the task's repository. Adding a Property as
+	an Attribute is also straightforward.
+	The methods return false if an attribute with that name already exists.
+	To get a value from the repository,
 	you can use :</para>
       <para>
 	<programlisting>
-  TaskAttributeBase* attr = a_task.attributeRepository.getValue( "max" );</programlisting></para>
+  TaskAttribute&lt;bool&gt;* attrb 
+       = a_task.attributeRepository.getAttribute&lt;bool&gt;( "max" );
+
+  bool result = attrb->get();
+  assert( result == false );
+
+  TaskAttribute&lt;std::string&gt;* attrs 
+       = a_task.attributeRepository.getAttribute&lt;std::string&gt;( "Param" );
+
+  assert( attrs.get() == "Value" );</programlisting></para>
       <para>
-	But it is more usefull to access attributes from a program
+	Attributes get usefull to access them from a program
 	script, which is explained lateron.
       </para>
       <para>

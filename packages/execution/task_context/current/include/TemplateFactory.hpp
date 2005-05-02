@@ -114,15 +114,34 @@ namespace ORO_Execution
       {
       }
 
-    virtual ~TemplateFactoryPart() {};
-    std::string description() const
+      virtual ~TemplateFactoryPart() {};
+      std::string description() const
       {
-        return mdesc;
+          return mdesc;
       }
+      /**
+       * Return the result (return) type of this part.
+       */
+      virtual std::string resultType() const = 0;
+
+      /**
+       * Get a description of the desired arguments in
+       * the property format.
+       */
     virtual PropertyBag getArgumentSpec() const = 0;
+      /**
+       * Get a description of the desired arguments in
+       * the ArgumentDescription format.
+       */
     virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
+      /**
+       * Create one part (function object) for a given component.
+       */
     virtual ResultT produce( ComponentT* com,
                              const PropertyBag& args ) const = 0;
+      /**
+       * Create one part (function object) for a given component.
+       */
     virtual ResultT produce(
       ComponentT* com,
       const std::vector<DataSourceBase*>& args ) const = 0;
@@ -143,6 +162,11 @@ namespace ORO_Execution
     PropertyBag getArgumentSpec() const
       {
         return PropertyBag();
+      }
+
+      std::string resultType() const
+      {
+          return DataSource<typename FunctorT::result_type>::GetType();
       }
 
     std::vector<ArgumentDescription> getArgumentList() const
@@ -187,10 +211,15 @@ namespace ORO_Execution
       {
       }
 
+      std::string resultType() const
+      {
+          return DataSource<typename FunctorT::result_type>::GetType();
+      }
+
      std::vector< ArgumentDescription > getArgumentList( ) const
       {
           std::vector< ArgumentDescription > mlist;
-          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<first_argument_type>::GetType() ) );
           return mlist;
       }
 
@@ -254,11 +283,16 @@ namespace ORO_Execution
       {
       }
 
+      std::string resultType() const
+      {
+          return DataSource<typename FunctorT::result_type>::GetType();
+      }
+
      std::vector< ArgumentDescription > getArgumentList( ) const
       {
           std::vector< ArgumentDescription > mlist;
-          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
-          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<first_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc, DataSource<second_argument_type>::GetType() ) );
           return mlist;
       }
 
@@ -334,6 +368,11 @@ namespace ORO_Execution
       {
       }
 
+      std::string resultType() const
+      {
+          return DataSource<typename FunctorT::result_type>::GetType();
+      }
+
     PropertyBag getArgumentSpec() const
       {
         PropertyBag ret;
@@ -346,9 +385,9 @@ namespace ORO_Execution
      std::vector< ArgumentDescription > getArgumentList( ) const
       {
           std::vector< ArgumentDescription > mlist;
-          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
-          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
-          mlist.push_back( ArgumentDescription( arg3name, arg3desc ) );
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<first_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc, DataSource<second_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg3name, arg3desc, DataSource<third_argument_type>::GetType() ) );
           return mlist;
       }
 
@@ -434,6 +473,11 @@ namespace ORO_Execution
       {
       }
 
+      std::string resultType() const
+      {
+          return DataSource<typename FunctorT::result_type>::GetType();
+      }
+
     PropertyBag getArgumentSpec() const
       {
         PropertyBag ret;
@@ -447,10 +491,10 @@ namespace ORO_Execution
      std::vector< ArgumentDescription > getArgumentList( ) const
       {
           std::vector< ArgumentDescription > mlist;
-          mlist.push_back( ArgumentDescription( arg1name, arg1desc ) );
-          mlist.push_back( ArgumentDescription( arg2name, arg2desc ) );
-          mlist.push_back( ArgumentDescription( arg3name, arg3desc ) );
-          mlist.push_back( ArgumentDescription( arg4name, arg4desc ) );
+          mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<first_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg2name, arg2desc, DataSource<second_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg3name, arg3desc, DataSource<third_argument_type>::GetType() ) );
+          mlist.push_back( ArgumentDescription( arg4name, arg4desc, DataSource<fourth_argument_type>::GetType() ) );
           return mlist;
       }
 
@@ -646,6 +690,13 @@ namespace ORO_Execution
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
         return i->second->getArgumentList();
+      }
+
+    std::string getResultType( const std::string& name ) const
+      {
+        typename map_t::const_iterator i = data.find( name );
+        if ( i == data.end() ) throw name_not_found_exception();
+        return i->second->resultType();
       }
 
     std::string getDescription( const std::string& name ) const

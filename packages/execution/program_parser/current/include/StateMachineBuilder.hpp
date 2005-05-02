@@ -31,7 +31,6 @@
 namespace ORO_Execution {
 
     class ParsedStateMachine;
-    class DataSourceBase;
 
     struct wrong_context_params_exception {
         std::string mwhat;

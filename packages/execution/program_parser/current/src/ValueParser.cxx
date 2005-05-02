@@ -39,18 +39,6 @@
 using namespace std;
 namespace ORO_Execution
 {
-    namespace {
-        guard<std::string> peer_guard;
-    }
-
-    error_status<> handle_no_peer(scanner_t const& scan, parser_error<std::string, iter_t>& e)
-    {
-        // fail this rule, ignore the exception.
-        //std::cerr << "No such peer : " << e.descriptor<<std::endl;
-        return error_status<>( error_status<>::fail );
-    }
-
-
   using boost::bind;
 
     ValueParser::ValueParser( TaskContext* tc)
@@ -97,7 +85,7 @@ namespace ORO_Execution
     named_constant =
         ( str_p("done")[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]
           |
-          ( peer_guard(!peerparser.parser())[&handle_no_peer] >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
+          ( !peerparser.locator() >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
         ;
   }
 
@@ -120,10 +108,10 @@ namespace ORO_Execution
     std::string value( begin, end );
     assert( value == "true" || value == "false" );
     if ( value == "true" )
-      ret = new ParsedAlias<bool>(
+      ret = new detail::ParsedAlias<bool>(
         new VariableDataSource<bool>( true ) );
     else
-      ret = new ParsedAlias<bool>(
+      ret = new detail::ParsedAlias<bool>(
         new VariableDataSource<bool>( false ) );
     deleter.reset( ret );
   }
@@ -134,7 +122,7 @@ namespace ORO_Execution
     TaskContext* peer = peerparser.peer();
     if ( !peer->attributeRepository.isDefined( name ) ) {
         peerparser.reset();
-//         std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+        //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
 //         peerparser.peer()->debug(true);
 //         peer->debug(true);
         throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
@@ -148,28 +136,28 @@ namespace ORO_Execution
 
     void ValueParser::seennull()
     {
-        ret = new ParsedAlias<char>( new VariableDataSource<char>( '\0' ) );
+        ret = new detail::ParsedAlias<char>( new VariableDataSource<char>( '\0' ) );
         // make the new TaskVariable managed by the auto_ptr..
         deleter.reset( ret );
     }
 
     void ValueParser::seencharconstant( iter_t c )
     {
-        ret = new ParsedAlias<char>( new VariableDataSource<char>( *c ) );
+        ret = new detail::ParsedAlias<char>( new VariableDataSource<char>( *c ) );
         // make the new TaskVariable managed by the auto_ptr..
         deleter.reset( ret );
     }
 
   void ValueParser::seenintconstant( int i )
   {
-    ret = new ParsedAlias<int>( new VariableDataSource<int>( i ) );
+    ret = new detail::ParsedAlias<int>( new VariableDataSource<int>( i ) );
     // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
   }
 
   void ValueParser::seendoubleconstant( double i )
   {
-    ret = new ParsedAlias<double>( new VariableDataSource<double>( i ) );
+    ret = new detail::ParsedAlias<double>( new VariableDataSource<double>( i ) );
     // make the new TaskVariable managed by the auto_ptr..
     deleter.reset( ret );
   }
@@ -201,7 +189,7 @@ namespace ORO_Execution
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new ParsedAlias<const std::string&>(
+    ret = new detail::ParsedAlias<const std::string&>(
       new VariableDataSource<const std::string&>( mcurstring ) );
     deleter.reset( ret );
     mcurstring.clear();

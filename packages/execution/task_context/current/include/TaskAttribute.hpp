@@ -95,68 +95,147 @@ namespace ORO_Execution
                                              DataSourceBase* rhs ) const;
   };
 
-  /**
-   * A special DataSource only to be used for the TaskAttribute class.
-   * It has special copy semantics in comparison to 'local' DataSources,
-   * being that, a TaskAttributeDataSource can not be copied, but returns
-   * itself as the copy. This is because this DataSource is tied to the
-   * task, and must keep pointing to the same data of this TaskAttribute.
-   *
-   */
-  template<typename T>
-  class TaskAttributeDataSource
-    : public VariableDataSource<T>
-  {
-  public:
-      typedef boost::intrusive_ptr<TaskAttributeDataSource<T> > shared_ptr;
+    namespace detail
+    {
+        /**
+         * A special DataSource only to be used for the TaskAttribute class.
+         * It has special copy semantics in comparison to 'local' DataSources,
+         * being that, a TaskAttributeDataSource can not be copied, but returns
+         * itself as the copy. This is because this DataSource is tied to the
+         * task, and must keep pointing to the same data of this TaskAttribute.
+         *
+         */
+        template<typename T>
+        class TaskAttributeDataSource
+            : public VariableDataSource<T>
+        {
+        public:
+            typedef boost::intrusive_ptr<TaskAttributeDataSource<T> > shared_ptr;
 
-      TaskAttributeDataSource( T data )
-          : VariableDataSource<T>( data )
-      {
-      }
+            TaskAttributeDataSource( T data )
+                : VariableDataSource<T>( data )
+            {
+            }
 
-      TaskAttributeDataSource( )
-      {
-      }
+            TaskAttributeDataSource( )
+            {
+            }
 
-      virtual TaskAttributeDataSource<T>* clone() const
-      {
-          return new TaskAttributeDataSource<T>( this->get() );
-      }
+            virtual TaskAttributeDataSource<T>* clone() const
+            {
+                return new TaskAttributeDataSource<T>( this->get() );
+            }
 
-      virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
-          // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
-          if ( replace[this] != 0 )
-              return dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] );
+            virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
+                // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
+                if ( replace[this] != 0 )
+                    return dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] );
               
-          replace[this] = this;
-          // return this instead of a copy.
-          return this;
-      }
-  };
+                replace[this] = this;
+                // return this instead of a copy.
+                return this;
+            }
+        };
 
+        /**
+         * An AssignableDataSource which wraps around an ORO_CoreLib::Property,
+         * effectively making the Property available as a DataSource.
+         */
+        template<typename T>
+        class TaskPropertyDataSource
+            : public AssignableDataSource<T>
+        {
+            Property<T>* prop;
+        public:
+            typedef boost::intrusive_ptr<TaskPropertyDataSource<T> > shared_ptr;
 
+            TaskPropertyDataSource( Property<T>* p )
+                : AssignableDataSource<T>(), prop(p)
+            {
+            }
 
+            T get() const
+            {
+                return prop->get();
+            }
+
+            void set( T t )
+            {
+                prop->set(t);
+            }
+
+            T& set() {
+                return prop->set();
+            }
+
+            virtual TaskPropertyDataSource<T>* clone() const
+            {
+                return new TaskPropertyDataSource<T>( prop );
+            }
+
+            virtual TaskPropertyDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
+                // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
+                if ( replace[this] != 0 ) {
+                    assert( dynamic_cast<TaskPropertyDataSource<T>*>( replace[this] ) );
+                    return static_cast<TaskPropertyDataSource<T>*>( replace[this] );
+                }
+              
+                replace[this] = this;
+                // return this instead of a copy.
+                return this;
+            }
+        };
+    }
+
+    /**
+     * The Attribute of a TaskContext, which can be stored in an AttributeRepository.
+     * It is accessible from the scrip parsers (through its TaskAttributeBase parent).
+     * @param T The type of data this attribute holds.
+     */
   template<typename T>
   class TaskAttribute
     : public TaskAttributeBase
   {
   public:
-    typename TaskAttributeDataSource<T>::shared_ptr data;
+    typename AssignableDataSource<T>::shared_ptr data;
 
     TaskAttribute()
-      : data( new TaskAttributeDataSource<T>() )
+      : data( new detail::TaskAttributeDataSource<T>() )
       {
       }
     TaskAttribute(T t)
-      : data( new TaskAttributeDataSource<T>( t ) )
+      : data( new detail::TaskAttributeDataSource<T>( t ) )
       {
       }
-    TaskAttribute( TaskAttributeDataSource<T>* d )
+    TaskAttribute( AssignableDataSource<T>* d )
       : data( d )
       {
       }
-    TaskAttributeDataSource<T>* toDataSource() const
+
+      /**
+       * Get the value of this Attribute.
+       */
+      T get() const
+      {
+          return data->get();
+      }
+
+      /**
+       * Set the value of this Attribute.
+       */
+      void set( T t )
+      {
+          data->set(t);
+      }
+
+      /**
+       * Set the value of this Attribute.
+       */
+      T& set() {
+          return data->set();
+      }
+
+    AssignableDataSource<T>* toDataSource() const
       {
         return data.get();
       }
@@ -185,9 +264,84 @@ namespace ORO_Execution
       }
   };
 
+    namespace detail {
+        /**
+         * Member-from-base idiom.
+         */
+        template<class T>
+        struct MemberFromBase {
+            MemberFromBase(T t) : data(t) {}
+            T data;
+        };
+    }
+
+#if 0
+#warning "does not compile under gcc 3.3 (unimplemented feature, clone() in bases causes it)"
+    /**
+     * The ORO_CoreLib::Property based Attribute of a TaskContext,
+     * which can be stored in an AttributeRepository.  It is
+     * accessible from the scrip parsers (through its
+     * TaskAttributeBase parent), and from the ORO_CoreLib Property
+     * system.
+     * @param T The type of data this attribute holds.
+     */
+  template<typename T>
+  class TaskProperty
+      : public TaskAttributeBase,
+        public Property<T>
+  {
+  public:
+    typename detail::TaskPropertyDataSource<T>::shared_ptr data;
+
+    TaskProperty(const std::string& name, const std::string& description)
+        :  Property<T>(name, description ),
+           data( new detail::TaskPropertyDataSource<T>(this) )
+      {
+      }
+    TaskProperty(const std::string& name, const std::string& description, T t)
+        :  Property<T>(name, description, t ),
+           data( new detail::TaskPropertyDataSource<T>( this ) )
+      {
+      }
+      /*
+    TaskProperty(const std::string& name, const std::string& description, detail::TaskPropertyDataSource<T>* d )
+        :  Property<T>(name, description ),
+           : data( d )
+      {
+      }
+      */
+      AssignableDataSource<T>* toDataSource() const
+      {
+        return data.get();
+      }
+    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+      {
+        DataSourceBase::shared_ptr r( rhs );
+        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        if ( ! t ) {
+            throw bad_assignment();
+        }
+        return new AssignVariableCommand<T>( data.get(), t );
+      }
+    TaskProperty<T>* clone() const
+      {
+        return new TaskProperty<T>( data.get() );
+      }
+    TaskProperty<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+      {
+          // a bit special... The TaskProperty's DataSource is designed to be not copyable,
+          // but if the copy request is on the TaskProperty itself, forcefully make a copy
+          // of the underlying DataSource. Hence, TaskProperty must be copied before all
+          // other DataSources...
+          TaskProperty<T>* ret = new TaskProperty<T>( data->get() );
+          replacements[ data.get() ] = ret->toDataSource();
+          return ret;
+      }
+  };
+#endif 
 
     /**
-     * As opposed to a TaskAttribute, a TaskConstant can not be changed
+     * As opposed to a TaskAttribute, a TaskConstant can not be assigned to a new value
      * after creation.
      */
   template<typename T>
@@ -195,20 +349,29 @@ namespace ORO_Execution
     : public TaskAttributeBase
   {
   public:
-    typename TaskAttributeDataSource<T>::shared_ptr data;
+    typename detail::TaskAttributeDataSource<T>::shared_ptr data;
 
     TaskConstant()
-      : data( new TaskAttributeDataSource<T>() )
+      : data( new detail::TaskAttributeDataSource<T>() )
       {
       }
     TaskConstant(T t)
-      : data( new TaskAttributeDataSource<T>( t ) )
+      : data( new detail::TaskAttributeDataSource<T>( t ) )
       {
       }
-    TaskConstant( TaskAttributeDataSource<T>* d )
+    TaskConstant( detail::TaskAttributeDataSource<T>* d )
       : data( d )
       {
       }
+
+      /**
+       * Get the value of this Constant.
+       */
+      T get() const
+      {
+          return data->get();
+      }
+
     DataSource<T>* toDataSource() const
       {
         return data.get();
@@ -229,38 +392,40 @@ namespace ORO_Execution
       }
   };
 
-  /**
-   * This class is the most basic TaskAttribute implementation
-   * (only suitable for reading a DataSource), does
-   * not allow any assignment, just stores a DataSource<T>, and
-   * returns it.  This also makes it useful as an alias of
-   * temporary expressions like literal values, and rhs
-   * expressions.
-   */
-  template<typename T>
-  class ParsedAlias
-    : public TaskAttributeBase
-  {
-    typename DataSource<T>::shared_ptr data;
-  public:
-    ParsedAlias( DataSource<T>* d )
-      : data( d )
-      {
-      }
-    DataSource<T>* toDataSource() const
-      {
-        return data.get();
-      }
-    ParsedAlias<T>* clone() const
-      {
-        return new ParsedAlias<T>( data.get() );
-      }
-    ParsedAlias<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
-      {
-        return new ParsedAlias<T>( data->copy( replacements ) );
-      }
-  };
+    namespace detail
+    {
+        /**
+         * This class is the most basic TaskAttribute implementation
+         * (only suitable for reading a DataSource), does
+         * not allow any assignment, just stores a DataSource<T>, and
+         * returns it.  This also makes it useful as an alias of
+         * temporary expressions like literal values, and rhs
+         * expressions.
+         */
+        template<typename T>
+        class ParsedAlias
+            : public TaskAttributeBase
+        {
+            typename DataSource<T>::shared_ptr data;
+        public:
+            ParsedAlias( DataSource<T>* d )
+                : data( d )
+            {
+            }
 
-
+            DataSource<T>* toDataSource() const
+            {
+                return data.get();
+            }
+            ParsedAlias<T>* clone() const
+            {
+                return new ParsedAlias<T>( data.get() );
+            }
+            ParsedAlias<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+            {
+                return new ParsedAlias<T>( data->copy( replacements ) );
+            }
+        };
+    }
 }
 #endif

@@ -30,6 +30,7 @@
 
 
 #include <corelib/CommandInterface.hpp>
+#include <corelib/DataSource.hpp>
 //#include "CommandStopExecution.hpp"
 
 #include <boost/graph/adjacency_list.hpp>
@@ -53,6 +54,7 @@ namespace ORO_Execution
     class StateDescription;
 
     using ORO_CoreLib::CommandInterface;
+    using ORO_CoreLib::DataSourceBase;
 
 	/**
 	 * This class represents elements in a program tree.

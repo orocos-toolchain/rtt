@@ -117,8 +117,31 @@ namespace ORO_Execution
       DataSourceBase* d, DataSourceBase* e, DataSourceBase* f) = 0;
   };
 
+  /**
+   * The Dot Operator allows access to members of composite types, 
+   * such as in frame.pos.x .
+   * This is used if a dot was parsed on a value type. It is different by semantics of the
+   * UnaryOp because the dot is parsed as a binary operator but 
+   * actually is a unary ( hard to explain, look at the code...)
+   */
+  class DotOp
+  {
+  public:
+    virtual ~DotOp();
+    /**
+     * If op is the operator you are responsible for, and if the
+     * argument DataSource is of the correct type, then return an
+     * appropriate DataSource. ( i.e. a DataSource that will apply a
+     * certain operation on the value it gets from its argument
+     * DataSource, and will return that value ).  Otherwise, return 0.
+     */
+    virtual DataSourceBase* build( const std::string& member,
+                                   DataSourceBase* a ) = 0;
+  };
+
   class OperatorRegistry
   {
+    std::vector<DotOp*> dotops;
     std::vector<UnaryOp*> unaryops;
     std::vector<BinaryOp*> binaryops;
     std::vector<TernaryOp*> ternaryops;
@@ -127,11 +150,13 @@ namespace ORO_Execution
     OperatorRegistry( const OperatorRegistry& );
     ~OperatorRegistry();
     void add( UnaryOp* o );
+    void add( DotOp* o );
     void add( BinaryOp* o );
     void add( TernaryOp* o );
     void add( SixaryOp* o );
   public:
     static OperatorRegistry& instance();
+    DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
     DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
     DataSourceBase* applyBinary(
       const std::string& op, DataSourceBase* a, DataSourceBase* b );

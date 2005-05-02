@@ -36,66 +36,142 @@
 namespace ORO_Execution
 {
     class TaskAttributeBase;
-    class DataSourceBase;
 
     /**
-     * @brief A class for keeping track of values/variables.
-     *
-     * It stores types in a map,
-     * so that they can be referenced to later on.
+     * @brief A class for keeping track of TaskAttribute, TaskConstant, TaskProperty
+     * and ORO_CoreLib::Property objects of a TaskContext.
+     * It allows to store objects of these types and retrieve this type.
+     * It is used by the script parsers to browse the attributes of a TaskContext.
      */
-  struct AttributeRepository
-  {
-    typedef std::map<std::string, TaskAttributeBase*> map_t;
-    map_t values;
+    struct AttributeRepository
+    {
+        typedef std::map<std::string, TaskAttributeBase*> map_t;
+        map_t values;
 
-    AttributeRepository();
-    ~AttributeRepository();
-      /**
-       * Erases the whole repository.
-       */
-    void clear();
+        /**
+         * Create an empty AttributeRepository.
+         */
+        AttributeRepository();
+        ~AttributeRepository();
 
-    bool isDefined( const std::string& name ) const;
+        /**
+         * Erases the whole repository.
+         */
+        void clear();
 
-      template<class T>
-      void addConstant( const std::string& name, T value )
-      {
-          setValue( name, new TaskConstant<T>( value ) );
-      }
+        /**
+         * Check if a value is present.
+         */
+        bool isDefined( const std::string& name ) const;
 
-      template<class T>
-      void addAttribute( const std::string& name, T value )
-      {
-          setValue( name, new TaskAttribute<T>( value ));
-      }
+        /**
+         * Add a TaskConstant with a given value.
+         * @see getConstant
+         */
+        template<class T>
+        bool addConstant( const std::string& name, T value )
+        {
+            return setValue( name, new TaskConstant<T>( value ) );
+        }
 
-      /**
-       * The most common way to add or remove a variable to the repository.
-       */
-    void setValue( const std::string& name, TaskAttributeBase* pc );
-    void removeValue( const std::string& name );
-    /**
-     * Get the value with name name.  If no such value exists, this
-     * returns 0.
-     */
-    TaskAttributeBase* getValue( const std::string& name );
+        /**
+         * Retrieve a TaskConstant by name. Returns zero if 
+         * no TaskConstant<T> by that name exists.
+         * Example : getConstant<double>("Xconst")
+         * @see addConstant
+         */
+        template<class T>
+        TaskConstant<T>* getConstant( const std::string& name )
+        {
+            return dynamic_cast<TaskConstant<T>*>( this->getValue( name ) );
+        }
 
-      /**
-       * Return a new copy of this repository with the copy operation semantics.
-       * @see CommandInterface
-       */
-      AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const;
+        /**
+         * Add a TaskAttribute with a given value.
+         * @see getAttribute
+         */
+        template<class T>
+        bool addAttribute( const std::string& name, T value )
+        {
+            return setValue( name, new TaskAttribute<T>( value ));
+        }
 
-      /**
-       * Return a list of all attributes.
-       */
-      std::vector<std::string> attributes() const;
-//       const AttributeRepository& operator=(const AttributeRepository& orig) {
-//           this->values = orig.values;
-//       }
+        /**
+         * Add an ORO_CoreLib::Property<T> as an attribute, which then
+         * becomes available as a TaskAttribute<T>. The value of the Property
+         * and the TaskAttribute will always be identical.
+         * @see getAttribute
+         */
+        template<class T>
+        bool addAttribute( Property<T>* p ) {
+            return setValue( p->getName(), new TaskAttribute<T>( new detail::TaskPropertyDataSource<T>(p)));
+        }
+
+        /**
+         * Retrieve a TaskAttribute by name. Returns zero if 
+         * no TaskAttribute<T> by that name exists.
+         * Example : getAttribute<double>("Xval")
+         * @see addAttribute, addProperty
+         */
+        template<class T>
+        TaskAttribute<T>* getAttribute( const std::string& name )
+        {
+            return dynamic_cast<TaskAttribute<T>*>( this->getValue( name ) );
+        }
+
+#if 0
+        /**
+         * Add a TaskProperty, which will become accessible as both
+         * ORO_CoreLib::Property and TaskAttribute.
+         * @see getProperty, getAttribute
+         */
+        template<class T>
+        bool addProperty( TaskProperty<T>* p ) {
+            return setValue( p->getName(), p);
+        }
+
+        /**
+         * Retrieve a TaskProperty by name. Returns zero if 
+         * no TaskProperty<T> by that name exists.
+         * Example : getProperty<double>("Xprop")
+         * @see addProperty
+         */
+        template<class T>
+        TaskProperty<T>* getProperty( const std::string& name )
+        {
+            return dynamic_cast<TaskProperty<T>*>( this->getValue( name ) );
+        }
+#endif
+
+        /**
+         * Add a variable to the repository.
+         * @return false if \a name already present.
+         */
+        bool setValue( const std::string& name, TaskAttributeBase* pc );
+
+        /**
+         * Remove a variable to the repository.
+         */
+        void removeValue( const std::string& name );
+
+        /**
+         * Get the value with name name.  If no such value exists, this
+         * returns 0.
+         */
+        TaskAttributeBase* getValue( const std::string& name );
+
+        /**
+         * Return a new copy of this repository with the copy operation semantics.
+         * @see CommandInterface
+         */
+        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const;
+
+        /**
+         * Return a list of all attributes.
+         */
+        std::vector<std::string> attributes() const;
           
-  };
+    };
 }
 
 #endif

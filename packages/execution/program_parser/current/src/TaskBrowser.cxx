@@ -28,6 +28,7 @@
  
 
 #pragma implementation
+#include <corelib/Logger.hpp>
 #include "execution/TaskBrowser.hpp"
 
 #include <execution/TemplateFactories.hpp>
@@ -44,8 +45,16 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/frames.h>
+#include <geometry/frames_io.h>
+using namespace ORO_Geometry;
+#endif
+
 namespace ORO_Execution
 {
+    std::vector<std::string> TaskBrowser::candidates;
     std::vector<std::string> TaskBrowser::completes;
     std::vector<std::string>::iterator TaskBrowser::complete_iter;
     std::string TaskBrowser::component;
@@ -62,6 +71,15 @@ namespace ORO_Execution
     using std::cin;
     using std::endl;
     using boost::bind;
+    using namespace ORO_CoreLib;
+
+    /**
+     * Our own defined "\n"
+     */
+    static std::ostream&
+    nl(std::ostream& __os)
+    { return __os.put(__os.widen('\n')); }
+
 
     char *TaskBrowser::rl_gets ()
     {
@@ -112,7 +130,7 @@ namespace ORO_Execution
         if ( complete_iter == completes.end() )
             return 0;
         // return the next completion option
-        return  dupstr( complete_iter->c_str() ); // malloc !
+        return  dupstr( complete_iter->c_str() ); // RL requires malloc !
     }
 
     void TaskBrowser::find_completes() {
@@ -120,7 +138,8 @@ namespace ORO_Execution
         std::string::size_type startpos;
         std::string line( rl_line_buffer );
 
-        if ( line.find(std::string("switch ")) == 0 || line.find(std::string("cd ")) == 0) { // complete on switch or 'cd'
+        // complete on 'cd' or 'ls' :
+        if ( line.find(std::string("cd ")) == 0 || line.find(std::string("ls ")) == 0) { 
             //cerr <<endl<< "switch to :" << text<<endl;
 //             pos = text.rfind(".");
             pos = line.find(" ");      // pos+1 is first peername
@@ -144,10 +163,29 @@ namespace ORO_Execution
             return; // do not add component names.
         }
 
+        // TaskBrowser commands :
+        if ( line.find(std::string(".")) == 0 ) { 
+            // first make a list of all sensible completions.
+            std::vector<std::string> tbcoms;
+            tbcoms.push_back(".loadProgram"); 
+            tbcoms.push_back(".unloadProgram"); 
+            tbcoms.push_back(".loadStateMachine"); 
+            tbcoms.push_back(".unloadStateMachine"); 
+
+            // then see which one matches the already typed line :
+            for( std::vector<std::string>::iterator it = tbcoms.begin();
+                 it != tbcoms.end();
+                 ++it)
+                if ( it->find(line) == 0 )
+                    completes.push_back( *it ); // if partial match, add.
+            return;
+        }
+
         // check if the user is tabbing on an empty command, then add the console commands :
         if (  line.empty() ) {
-            completes.push_back("switch "); 
-            completes.push_back("back");
+            completes.push_back("cd "); 
+            completes.push_back("cd ..");
+            completes.push_back("ls"); 
             completes.push_back("peers");
             completes.push_back("help");
             completes.push_back("quit");
@@ -160,7 +198,7 @@ namespace ORO_Execution
 
         // complete on peers, and find the peer the user wants completion for
         find_peers(startpos);
-        // now proceed with peer as TC and component as object :
+        // now proceed with 'this->peer' as TC and component as object :
 
         // locate the last dot :
         startpos = text.rfind(".");
@@ -202,30 +240,32 @@ namespace ORO_Execution
         comps = peer->commandFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this" )
-                completes.push_back( peerpath+*i+"." );
+                completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->dataFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this"  )
-                completes.push_back( peerpath+*i+"." );
+                completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->methodFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this"  )
-                completes.push_back( peerpath+*i+"." );
+                completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->getPeerList();
         for (TaskContext::PeerList::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 && *i != "this" )
-                completes.push_back( peerpath+ *i+"." );
+                completes.push_back( peerpath+ *i + "." ); // +"."
         }
 
         // only try this if text is not empty.
         if ( !text.empty() ) {
-            if ( std::string( "switch " ).find(text) == 0 )
-                completes.push_back("switch "); 
-            if ( std::string( "back" ).find(text) == 0 )
-                completes.push_back("back");
+            if ( std::string( "cd " ).find(text) == 0 )
+                completes.push_back("cd "); 
+            if ( std::string( "ls" ).find(text) == 0 )
+                completes.push_back("ls"); 
+            if ( std::string( "cd .." ).find(text) == 0 )
+                completes.push_back("cd ..");
             if ( std::string( "peers" ).find(text) == 0 )
                 completes.push_back("peers");
             if ( std::string( "help" ).find(text) == 0 )
@@ -415,8 +455,7 @@ namespace ORO_Execution
 
     TaskBrowser::TaskBrowser( TaskContext* _c )
         :  condition(0), command(0), command_fact(0), datasource_fact(0),
-           prompt(" (type 'quit' for exit) :"),
-           coloron("\033[1;34m"), coloroff("\033[0m"),
+           debug(0),
            line_read(0),
            lastc(0)
     {
@@ -441,19 +480,21 @@ namespace ORO_Execution
     {
         using boost::lambda::_1;
 
-        cout << endl<< coloron <<
-            "  This console reader allows you to browse TaskContexts. \n\
-  You can type in a command (type 'help' for info),\n\
-  an datasource, method or expression. \n\n";
-        cout << "    To switch to another task, type 'switch <path-to-taskname>'"<<endl;
-        cout << "    TAB completion and HISTORY is available for commands" <<coloroff<<endl<<endl;
+        cout << nl<<
+            coloron <<
+            "  This console reader allows you to browse and manipulate TaskContexts."<<nl<<
+            "  You can type in a command, datasource, method, expression or change variables."<<nl;
+        cout <<"  (type '"<<underline<<"help"<<coloron<<"' for instructions)"<<nl;
+        cout << "    TAB completion and HISTORY is available ('bash' like)" <<coloroff<<nl<<nl;
         while (1)
             {
-                cout << " In Task "<< taskcontext->getName() << ". Enter a command. (Status of previous command : ";
+                cout << " In Task "<< taskcontext->getName() << ". Enter a command or expression. (Status of previous command : ";
                 if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
                     cout << "queued )";
                 else
                     cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
+                // This 'endl' is important because it flushes the whole output to screen of all
+                // processing that previously happened, which was using 'nl'.
                 cout << endl;
 
                 // Call readline wrapper :
@@ -462,37 +503,50 @@ namespace ORO_Execution
                     return;
                 } else if ( command == "help") {
                     printHelp();
+                } else if ( command == "#debug") {
+                    debug = !debug;
+                } else if ( command.find("ls") == 0 ) {
+                    std::string::size_type pos = command.find("ls")+2;
+                    command = std::string(command, pos, command.length());
+                    printInfo( command );
                 } else if ( command == "" ) { // nop
                 } else if ( command == "peers" ) {
                     std::vector<std::string> objlist;
                     cout <<endl<< "  This task's peer tasks are :"<<endl;
                     objlist = taskcontext->getPeerList();
-                    std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-                } else if ( command.find("switch") == 0 || command.find("cd") == 0  ) {
-                    unsigned int pos = command.find("switch");
-                    if ( pos == std::string::npos )
-                        pos = command.find("cd")+2;
-                    else
-                        pos += 6;
+                    std::for_each( objlist.begin(), objlist.end(), cout << _1 << " " );
+                } else if ( command.find("cd ..") == 0  ) {
+                    this->switchBack( );
+                } else if ( command.find("cd ") == 0  ) {
+                    std::string::size_type pos = command.find("cd")+2;
                     command = std::string(command, pos, command.length());
-                    switchTask( command );
-                } else if ( command.find("back") == 0  ) {
-                    switchBack( );
+                    this->switchTask( command );
+                } else if ( command.find(".") == 0  ) {
+                    command = std::string(command, 1, command.length());
+                    this->browserAction( command );
                 } else
-                    evalCommand( command );
+                    this->evalCommand( command );
                 cout <<endl;
             }
     }
 
     std::deque<TaskContext*> taskHistory;
+    std::string TaskBrowser::prompt(" (type 'ls' for context info) :");
+    std::string TaskBrowser::coloron("\e[m\e[1;31m");
+    std::string TaskBrowser::underline("\e[4m");
+    std::string TaskBrowser::coloroff("\e[m");
 
     void TaskBrowser::switchBack()
     {
         if ( taskHistory.size() == 0)
             return;
         if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
-            cerr << "Warning : previous command was not yet processed by previous Processor." <<endl;
+            Logger::log()<<Logger::Warning
+                         << "Previous command was not yet processed by previous Processor." <<Logger::nl
+                         << " Can not track command status across tasks."<< Logger::endl;
             // memleak it...
+            command = 0;
+            condition = 0;
         } else {
             delete command;
             delete condition;
@@ -505,35 +559,33 @@ namespace ORO_Execution
     }
 
     void TaskBrowser::switchTask(std::string& c) {
-        std::string s( c );
-        s +=".dummy";
+        // if nothing new found, return.
+        if ( this->findPeer( c + "." ) == 0  || peer == taskcontext )
+            return;
             
-        our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
-        our_pos_iter_t parseend;
-            
-        PeerParser pp( taskcontext );
-        try {
-            parse( parsebegin, parseend, pp.parser(), SKIP_PARSER );
-        }
-        catch( const parse_exception& e )
-            {
-                cerr<<e.what() <<endl;
-            }
         // put current on the stack :
         if (taskHistory.size() == 20 )
             taskHistory.pop_back();
         taskHistory.push_front( taskcontext );
+
+        // We need to release the comms, since taskcontext is changing,
+        // and we do not keep track of in which processor the comm was dropped.
         if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
-            cerr << "Warning : previous command was not yet processed by previous Processor." <<endl;
+            Logger::log()<<Logger::Warning
+                         << "Previous command was not yet processed by previous Processor." <<Logger::nl
+                         << " Can not track command status across tasks."<< Logger::endl;
             // memleak it...
+            command = 0;
+            condition = 0;
         } else {
             delete command;
             delete condition;
             command = 0;
             condition = 0;
         }
+
         // now switch to new one :
-        taskcontext = pp.peer(); // peer is the new taskcontext.
+        taskcontext = peer; // peer is the new taskcontext.
         lastc = 0;
 
         cerr << "   Switched to : " << taskcontext->getName() <<endl;
@@ -550,23 +602,119 @@ namespace ORO_Execution
         try {
             parse( parsebegin, parseend, pp.parser(), SKIP_PARSER );
         }
-        catch( const parse_exception& e )
+        catch( ... )
             {
-                cerr<<e.what() <<endl;
+                Logger::log()<<Logger::Error<<"No such peer : "<< c <<Logger::endl;
+                return 0;
             }
         object = pp.object(); // store object.
         peer = pp.peer();
         return pp.peer();
     }
 
+    void TaskBrowser::browserAction(std::string& act)
+    {
+        if ( taskcontext->getName() == "programs" || taskcontext->getName() == "states") {
+            Logger::log() << Logger::Error << "Refuse to take action in special TaskContext "<< taskcontext->getName() <<Logger::endl;
+        }
+
+        std::stringstream ss(act);
+        std::string instr;
+        ss >> instr;
+        if ( instr == "loadProgram") {
+            std::string arg;
+            ss >> arg;
+            Parser parser;
+            Parser::ParsedPrograms pg_list;
+            try {
+                Logger::log() << Logger::Info << "Parsing file "<<arg << Logger::endl;
+                pg_list = parser.parseProgram( arg, taskcontext );
+            }
+            catch( const file_parse_exception& exc )
+                {
+                    Logger::log() << Logger::Error << exc.what() << Logger::endl;
+                }
+            if ( pg_list.empty() )
+                {
+                    Logger::log() << Logger::Info << "No Programs found in "<< arg << Logger::endl;
+                    // no programs were listed, but functions might
+                    // have been exported into tc's command interface
+                } else {
+                    // Load all listed programs in the TaskContext's Processor:
+                    for( Parser::ParsedPrograms::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
+                        try {
+                            Logger::log() << Logger::Info << "Loading Program "<< (*it)->getName() << Logger::endl;
+                            taskcontext->getProcessor()->loadProgram( *it );
+                        } catch (program_load_exception& e ) {
+                            Logger::log() << Logger::Error << "Could not load Program "<< (*it)->getName() << Logger::endl;
+                        }
+                    }
+                    cout << "Done."<<endl;
+                    return;
+                }
+        }
+        if ( instr == "unloadProgram") {
+            std::string arg;
+            ss >> arg;
+            try {
+                Logger::log() << Logger::Info << "Unloading Program "<< arg << Logger::endl;
+                taskcontext->getProcessor()->deleteProgram(arg);
+            } catch (program_unload_exception& e ) {
+                Logger::log() << Logger::Error << "Could not unload Program "<<arg << Logger::endl;
+            }
+            cout << "Done."<<endl;
+            return;
+        }
+
+        if ( instr == "loadStateMachine") {
+            std::string arg;
+            ss >> arg;
+            Parser parser;
+            Parser::ParsedStateMachines pg_list;
+            try {
+                Logger::log() << Logger::Info << "Parsing file "<<arg << Logger::endl;
+                pg_list = parser.parseStateMachine( arg, taskcontext );
+            }
+            catch( const file_parse_exception& exc )
+                {
+                    Logger::log() << Logger::Error << exc.what() << Logger::endl;
+                }
+            if ( pg_list.empty() )
+                {
+                    Logger::log() << Logger::Info << "No StateMachines found in "<< arg << Logger::endl;
+                    // no stateMachines were listed, but functions might
+                    // have been exported into tc's command interface
+                } else {
+                    // Load all listed stateMachines in the TaskContext's Processor:
+                    for( Parser::ParsedStateMachines::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
+                        try {
+                            Logger::log() << Logger::Info << "Loading StateMachine "<< (*it)->getName() << Logger::endl;
+                            taskcontext->getProcessor()->loadStateMachine( *it );
+                        } catch (program_load_exception& e ) {
+                            Logger::log() << Logger::Error << "Could not load StateMachine "<< (*it)->getName() << Logger::endl;
+                        }
+                    }
+                    cout << "Done."<<endl;
+                    return;
+                }
+        }
+        if ( instr == "unloadStateMachine") {
+            std::string arg;
+            ss >> arg;
+            try {
+                Logger::log() << Logger::Info << "Unloading StateMachine "<< arg << Logger::endl;
+                taskcontext->getProcessor()->deleteStateMachine(arg);
+            } catch (program_unload_exception& e ) {
+                Logger::log() << Logger::Error << "Could not unload StateMachine "<<arg << Logger::endl;
+            }
+            cout << "Done."<<endl;
+            return;
+        }
+    }
+
     void TaskBrowser::evalCommand(std::string& comm )
     {
-        //             if ( condition != 0 && condition->evaluate() == false )
-        //                 {
-        //                     cout << "Previous command not done yet !"<<endl;
-        //                     return;
-        //                 }
-        cout << "      Got :"<< comm <<endl;
+        cout << "      Got :"<< comm <<nl;
 
         command_fact = taskcontext->commandFactory.getObjectFactory( comm );
         datasource_fact = taskcontext->dataFactory.getObjectFactory( comm );
@@ -595,6 +743,26 @@ namespace ORO_Execution
         std::pair< CommandInterface*, ConditionInterface*> comcon;
         try {
             // Check if it was a method or datasource :
+            DataSourceBase::shared_ptr ds = _parser.parseValueChange( comm, taskcontext );
+            // methods and DS'es are processed immediately.
+            if ( ds.get() != 0 )
+                this->printResult( ds.get() );
+            return; // done here
+        } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
+            // way to fatal,  must be reported immediately
+            cerr << "Parse Error : Invalid Expression."<<nl;
+            cerr << pe.what() <<nl;
+            return;
+        } catch ( parse_exception &pe )
+            {
+                // ignore, try next parser
+                if (debug) {
+                    cerr << "Ignoring ValueChange exception :"<<nl;
+                    cerr << pe.what() <<nl;
+                }
+            }
+        try {
+            // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );
             // methods and DS'es are processed immediately.
             if ( ds.get() != 0 )
@@ -602,49 +770,49 @@ namespace ORO_Execution
             return; // done here
         } catch ( syntactic_parse_exception& pe ) { // missing brace etc
             // syntactic errors must be reported immediately
-            cerr << "Syntax Error : Invalid Expression."<<endl;
-            cerr << pe.what() <<endl;
+            cerr << "Syntax Error : Invalid Expression."<<nl;
+            cerr << pe.what() <<nl;
             return;
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
-            cerr << "Parse Error : Invalid Expression."<<endl;
-            cerr << pe.what() <<endl;
+            cerr << "Parse Error : Invalid Expression."<<nl;
+            cerr << pe.what() <<nl;
             return;
         } catch ( parse_exception &pe ) // Got not a clue exception, so try other parser
             {
                 // ignore it, try to parse it as a command :
-                //cerr << "Ignoring : "<< pe.what() << endl;
-                try {
-                    comcon = _parser.parseCommand( comm, taskcontext );
-                    if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
-                        cerr << "Warning : previous command is not yet processed by Processor." <<endl;
-                        // memleak it...
-                    } else {
-                        delete command;
-                        delete condition;
-                    }
-                    command = comcon.first;
-                    condition = comcon.second;
-                } catch ( parse_exception& pe ) {
-                    cerr << "Parse Error : Illegal command."<<endl;
-                    cerr << pe.what() <<endl;
-                    return;
-                }
+                if (debug)
+                    cerr << "Ignoring Expression exception: "<< pe.what() << nl;
             }
-        catch (...) {
-            cerr << "Illegal Input."<<endl;
+        try {
+            comcon = _parser.parseCommand( comm, taskcontext );
+            if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+                cerr << "Warning : previous command is not yet processed by Processor." <<nl;
+                // memleak it...
+            } else {
+                delete command;
+                delete condition;
+            }
+            command = comcon.first;
+            condition = comcon.second;
+        } catch ( parse_exception& pe ) {
+            cerr << "Parse Error : Illegal command or expression."<<nl;
+            cerr << pe.what() <<nl;
+            return;
+        } catch (...) {
+            cerr << "Illegal Input."<<nl;
             return;
         }
                 
         if ( command == 0 ) { // this should not be reached
-            cerr << "Uncaught : Illegal command."<<endl;
+            cerr << "Uncaught : Illegal command."<<nl;
             return;
         }
         // It is for sure a real command, dispatch to target processor :
         lastc = taskcontext->getProcessor()->process( command );
         // returns null if Processor not running or not accepting.
         if ( lastc == 0 ) {
-            cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << endl;
+            cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << nl;
             delete command;
             delete condition;
             command = 0;
@@ -669,73 +837,202 @@ namespace ORO_Execution
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
         if (dsb) {
-            cout <<prompt<< (dsb->get() ? "true" : "false") <<endl;
+            cout <<prompt<< (dsb->get() ? "true" : "false") <<nl;
             return;
         }
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
         if (dsi) {
-            cout <<prompt<< dsi->get() <<endl;
+            cout <<prompt<< dsi->get() <<nl;
             return;
         }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
-            cout <<prompt<< dss->get() <<endl;
+            cout <<prompt<< dss->get() <<nl;
             return;
         }
         DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
         if (dscs) {
-            cout <<prompt<< dscs->get() <<endl;
+            cout <<prompt<< dscs->get() <<nl;
             return;
         }
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
         if (dsv) {
-            cout <<prompt<< dsv->get() <<endl;
+            cout <<prompt<< dsv->get() <<nl;
             return;
         }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
         if (dsd) {
-            cout <<prompt<< dsd->get() <<endl;
+            cout <<prompt<< dsd->get() <<nl;
             return;
         }
         DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
         if (dsc) {
-            cout <<prompt<< dsc->get() <<endl;
+            cout <<prompt<< dsc->get() <<nl;
             return;
         }
+#ifdef OROPKG_GEOMETRY
+        DataSource<Vector>* dsgv = dynamic_cast<DataSource<Vector>*>(ds);
+        if (dsgv) {
+            cout <<prompt<< dsgv->get() <<nl;
+            return;
+        }
+        DataSource<Twist>* dsgt = dynamic_cast<DataSource<Twist>*>(ds);
+        if (dsgt) {
+            cout <<prompt<< dsgt->get() <<nl;
+            return;
+        }
+        DataSource<Wrench>* dsgw = dynamic_cast<DataSource<Wrench>*>(ds);
+        if (dsgw) {
+            cout <<prompt<< dsgw->get() <<nl;
+            return;
+        }
+        DataSource<Frame>* dsgf = dynamic_cast<DataSource<Frame>*>(ds);
+        if (dsgf) {
+            cout <<prompt<< dsgf->get() <<nl;
+            return;
+        }
+        DataSource<Rotation>* dsgr = dynamic_cast<DataSource<Rotation>*>(ds);
+        if (dsgr) {
+            cout <<prompt<< dsgr->get() <<nl;
+            return;
+        }
+#endif
         if (ds)
             ds->evaluate();
 	
     }
 
+    struct comcol
+    {
+        const char* command;
+        comcol(const char* c) :command(c) {}
+        std::ostream& operator()( std::ostream& os ) const {
+            os<<"'"<< TaskBrowser::coloron<< TaskBrowser::underline << command << TaskBrowser::coloroff<<"'";
+            return os;
+        }
+    };
+
+    struct keycol
+    {
+        const char* command;
+        keycol(const char* c) :command(c) {}
+        std::ostream& operator()( std::ostream& os )const {
+            os<<"<"<< TaskBrowser::coloron<< TaskBrowser::underline << command << TaskBrowser::coloroff<<">";
+            return os;
+        }
+    };
+
+    struct titlecol
+    {
+        const char* command;
+        titlecol(const char* c) :command(c) {}
+        std::ostream& operator()( std::ostream& os ) const {
+            os<<endl<<"["<< TaskBrowser::coloron<< TaskBrowser::underline << command << TaskBrowser::coloroff<<"]";
+            return os;
+        }
+    };
+
+    std::ostream& operator<<(std::ostream& os, comcol f ){
+        return f(os);
+    }
+
+    std::ostream& operator<<(std::ostream& os, keycol f ){
+        return f(os);
+    }
+
+    std::ostream& operator<<(std::ostream& os, titlecol f ){
+        return f(os);
+    }
+
     void TaskBrowser::printHelp()
     {
-        using boost::lambda::_1;
+        cout << coloroff;
+        cout <<titlecol("Task Browsing")<<nl;
+        cout << "  To switch to another task, type "<<comcol("cd <path-to-taskname>")<<nl;
+        cout << "  and type "<<comcol("cd ..")<<" to go back to the previous task (History size is 20)."<<nl;
+        cout << "  Pressing "<<keycol("tab")<<" multiple times helps you to complete your command."<<nl;
+        cout << "  It is not mandatory to switch to a task to interact with it, you can type the"<<nl;;
+        cout << "  peer-path to the task (dot-separated) and then type command or expression :"<<nl;
+        cout << "     PeerTask.OtherTask.FinalTask.countTo(3) [enter] "<<nl;
+        cout << "  Where 'countTo' is a method of 'FinalTask'."<<nl;
 
-        cout << endl<< coloron;
-        cout << "  To switch to another task, type 'switch <path-to-taskname>'"<<endl;
-        cout << "  and type 'back' to go back to the previous task (History size is 20)."<<endl<<endl;
-        cout << "  A command consists of an object, followed by a dot ('.'), the method "<<endl;
-        cout << "  name, followed by the parameters. An example could be :"<<endl;
-        cout << "  myTask.orderBeers(\"Palm\", 5) [then press enter] "<<endl;
-        cout << "  1+1 [enter]" <<endl << coloroff;
-        cout << endl<<"  The attributes of this task are :"<<endl;
-        std::vector<std::string> objlist = taskcontext->attributeRepository.attributes();
-        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-        cout << endl<<"  The available Command objects are :"<<endl;
-        objlist = taskcontext->commandFactory.getObjectList();
-        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-        cout << "  The available DataSource objects are :"<<endl;
-        objlist = taskcontext->dataFactory.getObjectList();
-        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-        cout << "  The available Method objects are :"<<endl;
-        objlist = taskcontext->methodFactory.getObjectList();
-        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-        cout << "  This task's peers are (also : type 'peers') :"<<endl;
-        objlist = taskcontext->getPeerList();
-        std::for_each( objlist.begin(), objlist.end(), cout << _1 << "\n" );
-        cout << coloron <<"  For a detailed argument list of the object's methods, "<<endl;
-        cout <<"   just type the object name (eg 'myTask')" <<endl<< coloroff;
-        cout <<endl;
+        cout << "  "<<titlecol("Task Context Info")<<nl;
+        cout << "  To see the contents of a task, type "<<comcol("ls")<<nl;
+        cout << "  For a detailed argument list (and helpful info) of the object's methods, "<<nl;
+        cout <<"   type the name of one of the listed task objects : " <<nl;
+        cout <<"      Kernel [enter]" <<nl;
+        cout <<"   DataSource : isLoaded - Check if this Component is loaded."<<nl;
+        cout <<"   Argument 1 : Name - The name of the Component" <<nl;
+        cout <<"   Method : stop - Stop the Kernel task."<<nl;
+        cout <<"   ..."<<nl;
+
+        cout <<titlecol("Expressions")<<nl;
+        cout << "  You can evaluate any script expression by merely typing it :"<<nl;
+        cout << "     1+1 [enter]" <<nl;
+        cout << "   = 2" <<nl;
+        cout << "  or inspect the status of a program :"<<nl;
+        cout << "     programs.myProgram.isRunning [enter]" <<nl;
+        cout << "   = false" <<nl;
+        cout << "  and display the contents of complex data types (vector, array,...) :"<<nl;
+        cout << "     array(6)" <<nl;
+        cout << "   = {0, 0, 0, 0, 0, 0}" <<nl;
+
+        cout <<titlecol("Changing Attributes")<<nl;
+        cout << "  To change the value of a Task's attribute, type "<<comcol("varname = <newvalue>")<<nl;
+        cout << "  If you provided a correct assignment, the browser will inform you of the success"<<nl;
+        cout <<"   with '= true'." <<nl;
+
+        cout <<titlecol("Commands")<<nl;
+        cout << "  A Command is 'sent' to a task, which will process it in its own context (thread)."<<nl;
+        cout << "  A command consists of an object, followed by a dot ('.'), the command "<<nl;
+        cout << "  name, followed by the parameters. An example could be :"<<nl;
+        cout << "     otherTask.bar.orderBeers(\"Palm\", 5) [enter] "<<nl;
+        cout << "  The prompt will inform you about the status of the last command you entered. "<<nl;
+        cout << "  It is allowed to enter a new command while the previous is still busy. "<<nl;
+
+        cout <<titlecol("Methods and DataSources")<<nl;
+        cout << "  Methods and DataSources 'look' the same as commands, but they are evaluated"<<nl;
+        cout << "  immediately and print the result. An example could be :"<<nl;
+        cout << "     someTask.bar.getNumberOfBeers(\"Palm\") [enter] "<<nl;
+        cout << "   = 99" <<nl;
+
+        cout <<titlecol("Program Scripts")<<nl;
+        cout << "  To load a program script from local disc, type "<<comcol(".loadProgram <filename>")<<nl;
+        cout << "  To load a state machine script from local disc, type "<<comcol(".loadStateMachine <filename>")<<nl;
+        cout << "   ( notice the starting dot '.' )"<<nl;
+        cout << "  Likewise, "<<comcol(".loadProgram <ProgramName>")<<" and "<<comcol(".unloadStateMachine <StateMachineName>")<<nl;
+        cout << "   are available (notice it is the program's name, not the filename)."<<nl;
+        cout << "  You can "<<comcol("cd programs.progname")<<" to your program and type "<<comcol("ls")<<nl;
+        cout << "   to see the programs commands, methods and variables. You can manipulate each one of these,."<<nl;
+        cout << "   as if the program is a Task itself (see all items above)."<<nl;
+    }
+        
+    void TaskBrowser::printInfo(const std::string& peerp)
+    {
+        // this sets this->peer to the peer given
+        if ( this->findPeer( peerp+"." ) == 0 )
+            return;
+
+        cout <<nl<<peer->getName()<< " Attributes :"<<nl;
+        std::vector<std::string> objlist = peer->attributeRepository.attributes();
+        for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it)
+            cout <<"   "<< peer->attributeRepository.getValue(*it)->toDataSource()->getType()<< " "<< *it << nl;
+
+        cout <<nl<<peer->getName()<< " Objects    :  ";
+        objlist = peer->commandFactory.getObjectList();
+        std::vector<std::string> objlist2 = peer->dataFactory.getObjectList();
+        objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
+        objlist2 = peer->methodFactory.getObjectList();
+        objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
+
+        sort(objlist.begin(), objlist.end() );
+        std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
+        copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
+
+        cout <<nl<<peer->getName()<< " Peers      :  ";
+        objlist = peer->getPeerList();
+        copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        cout <<nl;
     }
         
     void TaskBrowser::printCommand( const std::string m )
@@ -743,48 +1040,57 @@ namespace ORO_Execution
         using boost::lambda::_1;
         std::vector<ArgumentDescription> args;
         args = command_fact->getArgumentList( m );
-        cout <<coloron<< "  Command     : " << coloroff << m <<coloron<< " - ";
-        cout << command_fact->getDescription(m) <<coloroff<<endl;
-        //int i = 0;
-        if (args.begin() != args.end() ){
-            for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
-                cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
-                cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
-            }
+        cout << "  Command    : bool " << coloron << m << coloroff<< "( ";
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+            cout << it->type <<" ";
+            cout << coloron << it->name << coloroff;
+            if ( it+1 != args.end() )
+                cout << ", ";
+            else
+                cout << " ";
         }
-        cout <<endl;
+        cout << ")"<<nl;
+        cout << "   " << command_fact->getDescription( m )<<nl;
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it)
+            cout <<"   "<< it->name <<" : " << it->description << nl;
     }
                 
     void TaskBrowser::printSource( const std::string m )
     {
-        using boost::lambda::_1;
         std::vector<ArgumentDescription> args;
         args = datasource_fact->getArgumentList( m );
-        cout <<coloron << "  DataSource : " << coloroff << m << coloron<< " - ";
-        cout << datasource_fact->getDescription( m )<<coloroff<<endl;
-        if (args.begin() != args.end() ){
-            for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
-                cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
-                cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
-            }
+        cout << "  DataSource : "<< datasource_fact->getResultType(m)<<" " << coloron << m << coloroff<< "( ";
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+            cout << it->type <<" ";
+            cout << coloron << it->name << coloroff;
+            if ( it+1 != args.end() )
+                cout << ", ";
+            else
+                cout << " ";
         }
-        cout <<endl;
+        cout << ")"<<nl;
+        cout << "   " << datasource_fact->getDescription( m )<<nl;
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it)
+            cout <<"   "<< it->name <<" : " << it->description << nl;
     }
                 
     void TaskBrowser::printMethod( const std::string m )
     {
-        using boost::lambda::_1;
         std::vector<ArgumentDescription> args;
         args = method_fact->getArgumentList( m );
-        cout <<coloron << "  Method     : " << coloroff << m << coloron<< " - ";
-        cout << method_fact->getDescription( m )<<coloroff<<endl;
-        if (args.begin() != args.end() ){
-            for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
-                cout <<coloron<< "  Argument "<< (it - args.begin()) + 1<<" : " <<coloroff;
-                cout << it->name << coloron << " - " << it->description <<coloroff<< endl;
-            }
+        cout << "  Method     : "<< method_fact->getResultType(m)<<" " << coloron << m << coloroff<< "( ";
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+            cout << it->type <<" ";
+            cout << coloron << it->name << coloroff;
+            if ( it+1 != args.end() )
+                cout << ", ";
+            else
+                cout << " ";
         }
-        cout <<endl;
+        cout << ")"<<nl;
+        cout << "   " << method_fact->getDescription( m )<<nl;
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it)
+            cout <<"   "<< it->name <<" : " << it->description << nl;
     }
 
 }

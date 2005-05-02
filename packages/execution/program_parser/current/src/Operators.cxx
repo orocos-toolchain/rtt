@@ -100,7 +100,7 @@ namespace mystl
     const T& operator()( const T& t ) const
       {
         return t;
-      };
+      }
   };
 
   // ternary
@@ -193,7 +193,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a*b;
-      };
+      }
   };
   template<typename A, typename B>
   struct divides
@@ -205,7 +205,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a/b;
-      };
+      }
   };
 #else
   template<typename R, typename A, typename B>
@@ -218,7 +218,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a*b;
-      };
+      }
   };
   template<typename R, typename A, typename B>
   struct divides
@@ -230,7 +230,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a/b;
-      };
+      }
   };
   template<typename R, typename A, typename B>
   struct adds
@@ -242,7 +242,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a+b;
-      };
+      }
   };
   template<typename R, typename A, typename B>
   struct subs
@@ -254,7 +254,7 @@ namespace mystl
     result_type operator()( A a, B b ) const
       {
         return a-b;
-      };
+      }
   };
 #endif
 };
@@ -284,7 +284,7 @@ namespace ORO_Execution
     UnaryOperator( const char* op, function f )
       : mop( op ), fun( f )
       {
-      };
+      }
     DataSource<result_t>* build( const std::string& op, DataSourceBase* a )
       {
         if ( op != mop ) return 0;
@@ -292,7 +292,7 @@ namespace ORO_Execution
           dynamic_cast<DataSource<arg_t>*>( a );
         if ( ! arg ) return 0;
         return new UnaryDataSource<function>( arg, fun );
-      };
+      }
   };
 
   /**
@@ -322,7 +322,7 @@ namespace ORO_Execution
     BinaryOperator( const char* op, function f )
       : mop( op ), fun( f )
       {
-      };
+      }
     DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
                            DataSourceBase* b )
       {
@@ -337,7 +337,7 @@ namespace ORO_Execution
         if ( !arg1 || ! arg2 ) return 0;
 //         Logger::log() << "success !"<< Logger::endl;
         return new BinaryDataSource<function>( arg1, arg2, fun );
-      };
+      }
   };
 
   template<typename function>
@@ -366,7 +366,7 @@ namespace ORO_Execution
     TernaryOperator( const char* op, function f )
       : mop( op ), fun( f )
       {
-      };
+      }
     DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
                                  DataSourceBase* b, DataSourceBase* c )
       {
@@ -379,7 +379,7 @@ namespace ORO_Execution
           dynamic_cast<DataSource<arg3_t>*>( c );
         if ( !arg1 || ! arg2 || !arg3 ) return 0;
         return new TernaryDataSource<function>( arg1, arg2, arg3, fun );
-      };
+      }
   };
 
   template<typename function>
@@ -415,7 +415,7 @@ namespace ORO_Execution
     SixaryOperator( const char* op, function f )
       : mop( op ), fun( f )
       {
-      };
+      }
     DataSource<result_t>* build( const std::string& op,
                                  DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
                                  DataSourceBase* d, DataSourceBase* e, DataSourceBase* f )
@@ -435,7 +435,7 @@ namespace ORO_Execution
           dynamic_cast<DataSource<arg6_t>*>( f );
         if ( !arg1 || ! arg2 || !arg3 || !arg4 || !arg5 || !arg6 ) return 0;
         return new SixaryDataSource<function>( arg1, arg2, arg3, arg4, arg5, arg6, fun );
-      };
+      }
   };
 
   template<typename function>
@@ -445,11 +445,51 @@ namespace ORO_Execution
     return new SixaryOperator<function>( op, f );
   }
 
+    /**
+     *  Dot : '.' for member access of composite values
+     */
+  template<typename function>
+  class DotOperator
+    : public DotOp
+  {
+    typedef typename function::argument_type arg1_t;
+    typedef typename function::result_type result_t;
+    const char* memb;
+    function fun;
+  public:
+      /**
+       * Create a Dot '.' accessor to a composite parser type.
+       */
+    DotOperator( const char* m, function f )
+      : memb( m ), fun( f )
+      {
+      }
+      DataSource<result_t>* build( const std::string& member, DataSourceBase* a)
+      {
+        if ( member != memb ) return 0;
+//         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
+        DataSource<arg1_t>* arg1 =
+          dynamic_cast<DataSource<arg1_t>*>( a );
+        if ( !arg1 ) return 0;
+//         Logger::log() << "success !"<< Logger::endl;
+        return new UnaryDataSource<function>( arg1, fun );
+      }
+  };
+
+  template<typename function>
+  DotOperator<function>*
+  newDotOperator( const char* member, function f )
+  {
+    return new DotOperator<function>( member, f );
+  }
+
+
+
   OperatorRegistry& OperatorRegistry::instance()
   {
     static OperatorRegistry reg;
     return reg;
-  };
+  }
 
 #ifdef OROPKG_GEOMETRY
     struct framevr
@@ -521,6 +561,103 @@ namespace ORO_Execution
                     return 0.0;
                 else
                     return v[index];
+            }
+    };
+
+    template< int I>
+    struct vector_dot
+        : public std::unary_function<Vector, double>
+    {
+        double operator()(const Vector& v ) const
+            {
+                return v[I];
+            }
+    };
+
+    struct twist_rot
+        : public std::unary_function<Twist, Vector>
+    {
+        Vector operator()(const Twist& t ) const
+            {
+                return t.rot;
+            }
+    };
+
+    struct twist_vel
+        : public std::unary_function<Twist, Vector>
+    {
+        Vector operator()(const Twist& t ) const
+            {
+                return t.vel;
+            }
+    };
+
+    struct wrench_torque
+        : public std::unary_function<Wrench, Vector>
+    {
+        Vector operator()(const Wrench& t ) const
+            {
+                return t.torque;
+            }
+    };
+
+    struct wrench_force
+        : public std::unary_function<Wrench, Vector>
+    {
+        Vector operator()(const Wrench& t ) const
+            {
+                return t.force;
+            }
+    };
+
+    struct frame_pos
+        : public std::unary_function<Frame, Vector>
+    {
+        Vector operator()(const Frame& f ) const
+            {
+                return f.p;
+            }
+    };
+
+    struct frame_rot
+        : public std::unary_function<Frame, Rotation>
+    {
+        Rotation operator()(const Frame& f ) const
+            {
+                return f.M;
+            }
+    };
+
+    struct rotation_roll
+        : public std::unary_function<Rotation, double>
+    {
+        double operator()(const Rotation& rot ) const
+            {
+                double r,p,y;
+                rot.GetRPY(r,p,y);
+                return r;
+            }
+    };
+
+    struct rotation_pitch
+        : public std::unary_function<Rotation, double>
+    {
+        double operator()(const Rotation& rot ) const
+            {
+                double r,p,y;
+                rot.GetRPY(r,p,y);
+                return p;
+            }
+    };
+
+    struct rotation_yaw
+        : public std::unary_function<Rotation, double>
+    {
+        double operator()(const Rotation& rot ) const
+            {
+                double r,p,y;
+                rot.GetRPY(r,p,y);
+                return y;
             }
     };
 
@@ -676,6 +813,23 @@ namespace ORO_Execution
     add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
     add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
 
+    // access to members of composite types, use the 'dot' operator
+    add( newDotOperator( "x", vector_dot<0>() ) );
+    add( newDotOperator( "y", vector_dot<1>() ) );
+    add( newDotOperator( "z", vector_dot<2>() ) );
+    add( newDotOperator( "rot", twist_rot() ) );
+    add( newDotOperator( "vel", twist_vel() ) );
+    add( newDotOperator( "force", wrench_torque() ) );
+    add( newDotOperator( "torque", wrench_force() ) );
+    add( newDotOperator( "r", rotation_roll() ) );
+    add( newDotOperator( "p", rotation_pitch() ) );
+    add( newDotOperator( "y", rotation_yaw() ) );
+    add( newDotOperator( "p", frame_pos() ) );
+    add( newDotOperator( "M", frame_rot() ) );
+
+    add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
+    add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
+
     // constructors:
     add( newTernaryOperator( "vectorxyz", vectorxyz() ));
     add( newTernaryOperator( "rotationRPY", mystl::ptr_fun( Rotation::RPY ) ) );
@@ -698,27 +852,32 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
     add( newBinaryOperator( "[]", array_index() ) );
-  };
+  }
+
+  void OperatorRegistry::add( DotOp* a )
+  {
+    dotops.push_back( a );
+  }
 
   void OperatorRegistry::add( UnaryOp* a )
   {
     unaryops.push_back( a );
-  };
+  }
 
   void OperatorRegistry::add( BinaryOp* b )
   {
     binaryops.push_back( b );
-  };
+  }
 
   void OperatorRegistry::add( TernaryOp* b )
   {
     ternaryops.push_back( b );
-  };
+  }
 
   void OperatorRegistry::add( SixaryOp* b )
   {
     sixaryops.push_back( b );
-  };
+  }
 
   OperatorRegistry::~OperatorRegistry()
   {
@@ -726,7 +885,20 @@ namespace ORO_Execution
     mystl::delete_all( binaryops.begin(), binaryops.end() );
     mystl::delete_all( ternaryops.begin(), ternaryops.end() );
     mystl::delete_all( sixaryops.begin(), sixaryops.end() ); 
- };
+ }
+
+  DataSourceBase* OperatorRegistry::applyDot(
+    const std::string& mem, DataSourceBase* a )
+  {
+    typedef std::vector<DotOp*> vec;
+    typedef vec::iterator iter;
+    for ( iter i = dotops.begin(); i != dotops.end(); ++i )
+    {
+      DataSourceBase* ret = (*i)->build( mem, a );
+      if ( ret ) return ret;
+    }
+    return 0;
+  }
 
   DataSourceBase* OperatorRegistry::applyUnary(
     const std::string& op, DataSourceBase* a )
@@ -737,9 +909,9 @@ namespace ORO_Execution
     {
       DataSourceBase* ret = (*i)->build( op, a );
       if ( ret ) return ret;
-    };
+    }
     return 0;
-  };
+  }
 
   DataSourceBase* OperatorRegistry::applyBinary(
     const std::string& op, DataSourceBase* a, DataSourceBase* b )
@@ -750,7 +922,7 @@ namespace ORO_Execution
     {
       DataSourceBase* ret = (*i)->build( op, a, b );
       if ( ret ) return ret;
-    };
+    }
     return 0;
   }
 
@@ -764,7 +936,7 @@ namespace ORO_Execution
     {
       DataSourceBase* ret = (*i)->build( op, a, b, c );
       if ( ret ) return ret;
-    };
+    }
     return 0;
   }
 
@@ -780,8 +952,12 @@ namespace ORO_Execution
     {
       DataSourceBase* ret = (*i)->build( op, a, b, c, d, e, f );
       if ( ret ) return ret;
-    };
+    }
     return 0;
+  }
+
+  DotOp::~DotOp()
+  {
   }
 
   UnaryOp::~UnaryOp()

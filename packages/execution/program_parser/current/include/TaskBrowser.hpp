@@ -48,11 +48,13 @@ namespace ORO_CoreLib {
 namespace ORO_Execution
 {
     class TaskContext;
-    class DataSourceBase;
 
     /**
      * @brief This class allows a text client to browse the
      * peers of a TaskContext and execute commands.
+     * If your console does not support colors or you want a different
+     * prompt, the member variables which control these 'escape sequences'
+     * are public and may be changed.
      */
     class TaskBrowser
     {
@@ -66,10 +68,7 @@ namespace ORO_Execution
         const DataSourceFactoryInterface* datasource_fact;
         const MethodFactoryInterface* method_fact;
 
-        std::string prompt;
-        std::string coloron;
-        std::string coloroff;
-
+        int debug;
         /* A static variable for holding the line. */
         char *line_read;
         int lastc; // last command's number
@@ -80,6 +79,9 @@ namespace ORO_Execution
            Returns NULL on EOF. */
         char *rl_gets ();
 
+        // use this vector to generate candidate strings
+        static std::vector<std::string> candidates;
+        // Add successful matches of candidate strings to completes.
         static std::vector<std::string> completes;
         static std::vector<std::string>::iterator complete_iter;
 
@@ -112,27 +114,53 @@ namespace ORO_Execution
 
         void evalCommand(std::string& comm );
 
-        void printResult( DataSourceBase* ds);
+        void browserAction(std::string& act );
+
+        void printResult( ORO_CoreLib::DataSourceBase* ds);
 
         void printHelp();
+        void printInfo(const std::string& peerp);
         
         void printCommand( const std::string m );
                 
         void printSource( const std::string m );
                 
         void printMethod( const std::string m );
+
+        static char *command_generator( const char *_text, int state );
+
     public :
-        TaskBrowser( TaskContext* _c );
+        /**
+         * Create a TaskBrowser which initially visits a given
+         * TaskContext \a c.
+         */
+        TaskBrowser( TaskContext* c );
 
         ~TaskBrowser();
 
         /**
          * @brief Call this method from ORO_main() to 
-         * process keyboard input.
+         * process keyboard input and thus startup the
+         * TaskBrowser.
          */
         void loop();
 
-        static char *command_generator( const char *_text, int state );
+        /**
+         * The prompt.
+         */
+        static std::string prompt;
+        /**
+         * The 'turn color on' escape sequence.
+         */
+        static std::string coloron;
+        /**
+         * The 'underline' escape sequence.
+         */
+        static std::string underline;
+        /**
+         * The 'turn color off' escape sequence.
+         */
+        static std::string coloroff;
 
     };
 

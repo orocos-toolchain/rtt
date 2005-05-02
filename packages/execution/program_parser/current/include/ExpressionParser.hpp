@@ -44,6 +44,10 @@ namespace ORO_Execution
   /**
    * This parser parses a call of the form
    * "a.b( arg1, arg2, ..., argN )".
+   *
+   * @todo check why lexeme_d[] is used in implementation,
+   * thus why datacalls are parsed on the character level
+   * instead of on the phrase level. (probably for the dots ?)
    */
   class DataCallParser
   {
@@ -100,7 +104,7 @@ namespace ORO_Execution
     rule_t expression, unarynotexp, unaryminusexp, unaryplusexp, multexp,
       divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
-      ifthenelseexp, frameexp, wrenchexp, twistexp, vectorexp, double6Dexp, arrayexp, rotexp, groupexp, atomicexpression,
+      ifthenelseexp, frameexp, wrenchexp, twistexp, vectorexp, double6Dexp, arrayexp, rotexp, dotexp, groupexp, atomicexpression,
       constructorexp, framector, wrenchctor, twistctor, vectorctor, double6Dctor, double6Dctor6, arrayctor, rotationctor, time_expression,
       time_spec, indexexp, comma, open_brace, close_brace;
 
@@ -127,6 +131,7 @@ namespace ORO_Execution
     void seen_binary( const std::string& op );
     void seen_ternary( const std::string& op );
     void seen_sixary( const std::string& op );
+    void seen_dotmember( iter_t begin, iter_t end );
     void seenvalue();
     void seendatacall();
     void seentimespec( int n );
@@ -135,6 +140,7 @@ namespace ORO_Execution
 
       TaskContext* context;
       DataCallParser datacallparser;
+      CommonParser commonparser;
       ValueParser valueparser;
       bool _invert_time;
   public:

@@ -39,11 +39,22 @@ namespace ORO_Execution
 {
   using boost::bind;
 
+    namespace {
+        enum PeerErrors { peer_not_found };
+        guard<PeerErrors> my_guard;
+    }
+
+    error_status<> handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
+    {
+        //std::cerr<<"Returning accept"<<std::endl;
+        // ok, got as far as possible, _peer contains the furthest we got.
+        return error_status<>( error_status<>::accept );
+    }
+
         void PeerParser::done()
         {
             //std::cerr<<"Peerparser operating in "<<  context->getName()<<std::endl;
-            // now first find the task / object which matches mcurobject :
-            _peer = context;
+
             // if size() > 1, it must be a peer 
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
                 //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
@@ -58,7 +69,7 @@ namespace ORO_Execution
                 while ( !callqueue.empty() )
                     callqueue.pop();
                 iter_t begin;
-                throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+_peer->getName()+"' : has no task or object '"+object+"'." );
+                throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+_peer->getName()+"' has no task or object '"+object+"'." );
             }
             if ( callqueue.empty() )
                 callqueue.push("this");
@@ -89,8 +100,16 @@ namespace ORO_Execution
             : mcurobject("this"),context(c), _peer(context)
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
+            BOOST_SPIRIT_DEBUG_RULE( peerlocator );
             peerpath = 
                 ( +(commonparser.identifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
+
+            // find as far as possible a peer without throwing an exception
+            // outside our interface
+            peerlocator =
+                my_guard
+                ( +(commonparser.identifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ])
+                [ &handle_no_peer ];
         }
 
     TaskContext* PeerParser::setContext( TaskContext* tc )
@@ -113,12 +132,31 @@ namespace ORO_Execution
         name.erase( name.length() -1  ); // compensate for extra "."
         callqueue.push( name );
         //std::cerr << "seen " << name <<std::endl;
-        //++end;
+    }
+
+    void PeerParser::locatepeer( iter_t begin, iter_t end )
+    {
+        std::string name( begin, end );
+        name.erase( name.length() -1  ); // compensate for extra "."
+
+        if ( _peer->hasPeer( name ) ) {
+            _peer = _peer->getPeer( name );
+        }
+        else {
+            // store object name for higher level access.
+            mcurobject = name;
+            throw_(begin, peer_not_found );
+        }
     }
 
     rule_t& PeerParser::parser()
     {
         return peerpath;
+    }
+
+    rule_t& PeerParser::locator()
+    {
+        return peerlocator;
     }
 
     TaskContext* PeerParser::peer()

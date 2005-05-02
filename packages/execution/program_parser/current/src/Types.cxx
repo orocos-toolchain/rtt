@@ -78,7 +78,7 @@ namespace ORO_Execution
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new ParsedAlias<T>( ds );
+        return new detail::ParsedAlias<T>( ds );
       }
   };
 
@@ -108,7 +108,7 @@ namespace ORO_Execution
         DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
         if ( ! ds )
           return 0;
-        return new ParsedAlias<T>( ds );
+        return new detail::ParsedAlias<T>( ds );
       }
   };
 

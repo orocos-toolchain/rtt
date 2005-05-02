@@ -84,7 +84,7 @@ namespace ORO_Execution
             return new CommandComposite( *this );
         }
 			
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
         {
             CommandComposite* res = new CommandComposite();
             for (std::vector<CommandInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
