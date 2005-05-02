@@ -62,8 +62,6 @@ namespace ORO_OS
         while ( !task->prepareForExit ) {
             try {
                 while(1) {
-                    task->running = false;
-
                     sem_wait( &task->sem );
 
                     if ( task->prepareForExit )
@@ -72,6 +70,8 @@ namespace ORO_OS
                     task->loop();
 
                     task->finalize();
+                    // set running to false at the end of this while loop !
+                    task->running = false;
                 }
             } catch( ... ) {
                 // set state to not running
@@ -114,7 +114,14 @@ namespace ORO_OS
     
     SingleThread::~SingleThread() 
     {
-        this->stop();
+        
+        if ( this->running == true)
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Warning << "~SingleThread: thread "<< taskName <<" still running upon destruction !"<<Logger::endl;
+        else
+            Logger::log() << Logger::Debug << "~SingleThread: thread "<< taskName <<" gets exit signal."<<Logger::endl
+#endif
+                ; // !!!!
 
         // Send the message to the thread...
         prepareForExit = true;
@@ -132,12 +139,12 @@ namespace ORO_OS
         else
             Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl
 #endif
-                ;
+                ; // !!!!
     }
 
     bool SingleThread::start() 
     {
-        if ( isRunning() ) return false;
+        if ( running ) return false;
 
         this->initialize();
 
@@ -149,9 +156,11 @@ namespace ORO_OS
 
     bool SingleThread::stop() 
     {
-        if ( !isRunning() ) return false;
+        if ( !this->running ) return false;
 
-        return this->breakLoop();
+        if ( this->breakLoop() == true )
+            running = false;
+        return !running;
     }
 
     bool SingleThread::isRunning() const
