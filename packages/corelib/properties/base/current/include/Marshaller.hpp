@@ -107,6 +107,21 @@ namespace ORO_CoreLib
              * data.
              */
             virtual void flush() = 0;
+
+            /** 
+             * Unknown types must decompose theirselves into the primitives.
+             * For each type you define, you need to provide the function
+             * 
+             *    decomposeProperty( Marshaller*, const Property<YourType>& )
+             *
+             * An link time error will be generated
+             * when this function is not found.
+             */
+            template< class T >
+            void serialize( const Property<T> &v )
+            {
+                decomposeProperty(this, v);
+            }
 	};
 
 	/**

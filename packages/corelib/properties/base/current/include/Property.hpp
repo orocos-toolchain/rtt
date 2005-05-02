@@ -33,6 +33,7 @@
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "PropertyOperation.hpp"
+#include "PropertyCommands.hpp"
 #include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING
@@ -171,6 +172,14 @@ namespace ORO_CoreLib
             /**
              * Acces to the value of the Property.
              */
+            void set(value_t& v)
+            {
+                _value = v;
+            }
+
+            /**
+             * Acces to the value of the Property.
+             */
             value_t& value()
             {
                 return _value;
@@ -184,16 +193,55 @@ namespace ORO_CoreLib
             return fillop.command( other );
         }
 
+        virtual CommandInterface* updateCommand( const PropertyBase* other)
+        {
+            const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
+            if (origin == 0 )
+                return 0;
+            return new detail::UpdatePropertyCommand<T>(this, origin);
+        }
+
         virtual bool refresh( const PropertyBase* other) 
         {
             detail::RefreshOperation<T> refop(this);
             return refop.command( other );
         }
 
+        virtual CommandInterface* refreshCommand( const PropertyBase* other)
+        {
+            const Property<T>* origin = dynamic_cast<const  Property<T>* >( other );
+            if (origin == 0 )
+                return 0;
+            return new detail::RefreshPropertyCommand<T>(this, origin);
+        }
+
+        virtual bool refresh( const DataSourceBase* other ) {
+            const DataSource<T>* origin = dynamic_cast< const DataSource<T>* >( other );
+            if (origin == 0 )
+                return false;
+            _value = origin->get();
+            return true;
+        }
+
+        virtual CommandInterface* refreshCommand( DataSourceBase* other) {
+            DataSource<T>* origin = dynamic_cast< DataSource<T>* >( other );
+            if (origin == 0 )
+                return 0;
+            return new detail::RefreshPropertyFromDSCommand<T>(this, origin);
+        }
+
         virtual bool copy( const PropertyBase* other )
         {
             detail::DeepCopyOperation<T> copop(this);
             return copop.command( other );
+        }
+
+        virtual CommandInterface* copyCommand( const PropertyBase* other)
+        {
+            const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
+            if (origin == 0 )
+                return 0;
+            return new detail::CopyPropertyCommand<T>(this, origin);
         }
 
             virtual bool accept( detail::PropertyOperation* op ) const
@@ -216,6 +264,14 @@ namespace ORO_CoreLib
              * Refresh only the value.
              */
             void refresh( const Property<T>& orig)
+            {
+                ORO_CoreLib::refresh( _value, orig.get() );
+            }
+
+            /**
+             * Refresh only the value.
+             */
+            void refresh( const DataSource<T>& orig)
             {
                 ORO_CoreLib::refresh( _value, orig.get() );
             }

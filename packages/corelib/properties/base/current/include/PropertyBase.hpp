@@ -29,6 +29,7 @@
 #define PI_PROPERTYBASE
 
 #include <string>
+#include "CommandInterface.hpp"
 
 #pragma interface
 
@@ -115,11 +116,25 @@ namespace ORO_CoreLib
         virtual bool update( const PropertyBase* other ) = 0;
 
         /**
+         * Generate a CommandInterface object which will update this Property
+         * with the value of another Property when execute()'ed.
+         * @return zero if the Property types do not match
+         */
+        virtual CommandInterface* updateCommand( const PropertyBase* other) = 0;
+
+        /**
          * Make a deep copy of this Property with the value of an \a other Property,
          * possibly causing duplicate information.
          * @return false if the Properties are of different type.
          */
         virtual bool copy( const PropertyBase* other ) = 0;
+
+        /**
+         * Generate a CommandInterface object which will copy this Property
+         * with the value of another Property when execute()'ed.
+         * @return zero if the Property types do not match
+         */
+        virtual CommandInterface* copyCommand( const PropertyBase* other) = 0;
 
         /**
          * Refresh the value of this Property with the value of an \a other Property.
@@ -129,6 +144,29 @@ namespace ORO_CoreLib
          * @return false if the Properties are of different type.
          */
         virtual bool refresh( const PropertyBase* other ) = 0;
+
+        /**
+         * Generate a CommandInterface object which will refresh this Property
+         * with the value of another Property when execute()'ed.
+         * @return zero if the Property types do not match
+         */
+        virtual CommandInterface* refreshCommand( const PropertyBase* other) = 0;
+
+        /**
+         * Refresh the value of this Property with the value of a \a other DataSource.
+         * Refresh does only the minimal update of the value, not adding extra
+         * information, or in case of a Property<PropertyBag> not adding extra
+         * Properties.
+         * @return false if the Properties are of different type.
+         */
+        virtual bool refresh( const DataSourceBase* other ) = 0;
+
+        /**
+         * Generate a CommandInterface object which will refresh this Property
+         * with the value or a DataSource when execute()'ed.
+         * @return zero if the value types do not match.
+         */
+        virtual CommandInterface* refreshCommand( DataSourceBase* other) = 0;
 
         /**
          * Helper function for update and copy. Implements the Visitor pattern
