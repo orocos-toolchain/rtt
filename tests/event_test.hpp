@@ -34,14 +34,17 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCompletionProcessor );
     CPPUNIT_TEST( testTask );
     CPPUNIT_TEST( testBlockingTask );
+    CPPUNIT_TEST( testEventArgs );
     CPPUNIT_TEST_SUITE_END();
 
     ORO_CoreLib::Event<void( void )>* t_event;
     ORO_CoreLib::Event<void( std::string )>* t_event_string;
+    ORO_CoreLib::Event<int( float, float )>* t_event_float;
     bool t_listener_value;
     bool t_completer_value;
     std::string t_listener_what;
     ORO_CoreLib::EventProcessor* event_proc;
+    float float_sum, float_sub;
 public:
     void setUp();
     void tearDown();
@@ -52,6 +55,9 @@ public:
     void listenerString(const std::string&);
     void completer();
 
+    int float_listener(float a, float b);
+    int float_completer(float a, float b);
+
     void testEmpty();
     void testSyncListener();
     void testSyncListenerString();
@@ -60,6 +66,7 @@ public:
     void testCompletionProcessor();
     void testTask();
     void testBlockingTask();
+    void testEventArgs();
 };
 
 #endif  // EVENTTEST_H

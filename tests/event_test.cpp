@@ -19,6 +19,7 @@
  
 
 #include <corelib/Event.hpp>
+#include <corelib/Logger.hpp>
 #include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/TaskSimulation.hpp>
@@ -39,6 +40,7 @@ EventTest::setUp()
 {
     t_event = new Event<void(void)>();
     t_event_string = new Event<void(std::string)>();
+    t_event_float = new Event<int(float, float)>();
     event_proc = new EventProcessor();
     reset();
 }
@@ -49,6 +51,7 @@ EventTest::tearDown()
 {
     delete t_event;
     delete t_event_string;
+    delete t_event_float;
     delete event_proc;
     SimulationThread::Release();
 }
@@ -66,6 +69,20 @@ void EventTest::listenerString(const std::string& what)
 void EventTest::completer(void)
 {
     t_completer_value = true;
+}
+
+int EventTest::float_listener(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
+    float_sum += a + b;
+    return 1;
+}
+
+int EventTest::float_completer(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
+    float_sub -= (a + b);
+    return 1; // ignored...
 }
 
 void EventTest::reset()
@@ -144,6 +161,46 @@ void EventTest::testBlockingTask()
     CPPUNIT_ASSERT( runobj.result );
 }
 
+void EventTest::testEventArgs()
+{
+    float_sum = 0;
+    float_sub = 0;
+    // use CompletionProcessor for completer
+    CompletionProcessor::Instance()->stop();
+    Handle h = t_event_float->connect(boost::bind(&EventTest::float_listener, this,_1,_2),
+                                      boost::bind(&EventTest::float_completer, this, _1, _2));
+
+    t_event_float->fire(1.0, 4.0);
+    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+
+    float a = 10.0, b = 5.0;
+    t_event_float->fire(a, b);
+    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+
+    CompletionProcessor::Instance()->start();
+    
+    h.disconnect();
+    float_sum = 0;
+    float_sub = 0;
+
+    // use CompletionProcessor for completer, use only last value
+    h = t_event_float->connect(boost::bind(&EventTest::float_listener, this,_1,_2),
+                                      boost::bind(&EventTest::float_completer, this, _1, _2),
+                                      CompletionProcessor::Instance(), EventProcessor::OnlyLast);
+
+    t_event_float->fire(1.0, 4.0);
+    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+
+    t_event_float->fire(a, b);
+    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+
+    sleep(1);
+    // asyn handlers should reach negative total.
+    CPPUNIT_ASSERT_EQUAL( float(-20.0), float_sub );
+    h.disconnect();
+}
+
 void EventTest::testSyncListener()
 {
     // No completer:
@@ -162,6 +219,7 @@ void EventTest::testSyncListenerThreadCompleter()
 {
     // in thread completer:
     reset();
+    event_proc->initialize();
     // Manually call step
     event_proc->step();
     Handle h = t_event->connect( boost::bind(&EventTest::listener,this),
@@ -183,6 +241,7 @@ void EventTest::testSyncListenerThreadCompleter()
 
     // Manually call step
     event_proc->step();
+    event_proc->finalize();
 
     // now, both must be called.
     CPPUNIT_ASSERT( t_listener_value );
