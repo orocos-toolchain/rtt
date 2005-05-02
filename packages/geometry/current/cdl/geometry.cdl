@@ -34,8 +34,20 @@ Rotation Matrices to Properties or vice versa. When
 disabled, The lesser readable, but more accurate
 Rotation Matrix (3x3) will be marshalled."
             flavor bool
+            default_value 0
+            active_if OROPKG_GEOMETRY_3D_FRAMES && !OROSEM_GEOMETRY_RPYPROPERTIES
+        }
+
+	cdl_option OROSEM_GEOMETRY_RPYPROPERTIES {
+	    display "Use Roll-Pitch-Yaw Angles for Properties"
+	    description "
+Enable this option to use Roll-Pitch-Yaw Angles when converting
+Rotation Matrices to Properties or vice versa. When
+disabled, The lesser readable, but more accurate
+Rotation Matrix (3x3) will be marshalled."
+            flavor bool
             default_value 1
-            active_if OROPKG_GEOMETRY_3D_FRAMES
+            active_if OROPKG_GEOMETRY_3D_FRAMES && !OROSEM_GEOMETRY_EULERPROPERTIES
         }
 
 	cdl_option OROPKG_GEOMETRY_3D_FRAMES_IO {

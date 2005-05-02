@@ -56,6 +56,7 @@
 #include <string.h>
 #endif
 
+#include <pkgconf/geometry.h>
 
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
@@ -94,6 +95,24 @@ ostream& operator << (ostream& os,const Wrench& v) {
 
 
 ostream& operator << (ostream& os,const Rotation& R) {
+#ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+    double r,p,y;
+    R.GetRPY(r,p,y);
+    os << "[RPY]";
+    os << "[";
+    os << setw(FRAMEWIDTH) << r << ",";
+    os << setw(FRAMEWIDTH) << p << ",";
+    os << setw(FRAMEWIDTH) << y << "]";
+#else
+# ifdef OROSEM_GEOMETRY_EULERPROPERTIES
+    double z,y,x;
+    R.GetEulerZYX(z,y,x);
+    os << "[EULERZYX]";
+    os << "[";
+    os << setw(FRAMEWIDTH) << z << ",";
+    os << setw(FRAMEWIDTH) << y << ",";
+    os << setw(FRAMEWIDTH) << x << "]";
+# else
     os << "[";
     for (int i=0;i<=2;i++) {
         os << setw(FRAMEWIDTH) << R(i,0) << "," <<
@@ -104,7 +123,8 @@ ostream& operator << (ostream& os,const Rotation& R) {
         else
             os << "]";
     }
-
+# endif
+#endif
     return os;
 }
 

@@ -389,9 +389,9 @@ namespace ORO_CoreLib
     class EulerZYXDecomposer
     {
         Property<PropertyBag> resultBag;
-        Property<double> _x;
-        Property<double> _y;
-        Property<double> _z;
+        Property<double> _a;
+        Property<double> _b;
+        Property<double> _g;
 
     public: 
         
@@ -423,26 +423,26 @@ namespace ORO_CoreLib
             
     EulerZYXDecomposer::EulerZYXDecomposer( const Property<ORO_Geometry::Rotation>& r )
         : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::EulerZYX") ),
-          _x("X","" ),
-          _y("Y","" ),
-          _z("Z","" )
+          _a("alpha","" ),
+          _b("beta","" ),
+          _g("gamma","" )
     {
-        r.get().GetEulerZYX(_x.set(), _y.set(), _z.set());
-        resultBag.value().add(&_x);
-        resultBag.value().add(&_y);
-        resultBag.value().add(&_z);
+        r.get().GetEulerZYX(_a.set(), _b.set(), _g.set());
+        resultBag.value().add(&_a);
+        resultBag.value().add(&_b);
+        resultBag.value().add(&_g);
     }
 
     EulerZYXDecomposer::EulerZYXDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
         : resultBag(name, std::string(), PropertyBag("MotCon::EulerZYX") ),
-          _x("X","" ),
-          _y("Y","" ),
-          _z("Z","" )
+          _a("alpha","" ),
+          _b("beta","" ),
+          _g("gamma","" )
     {
-        r.GetEulerZYX(_x.set(), _y.set(), _z.set());
-        resultBag.value().add(&_x);
-        resultBag.value().add(&_y);
-        resultBag.value().add(&_z);
+        r.GetEulerZYX(_a.set(), _b.set(), _g.set());
+        resultBag.value().add(&_a);
+        resultBag.value().add(&_b);
+        resultBag.value().add(&_g);
     }
 
     bool EulerZYXComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
@@ -455,14 +455,102 @@ namespace ORO_CoreLib
 
                 if ( v_bag != 0  && v_bag->get().getType() == "MotCon::EulerZYX" )
                     {
-                        Property<double>* _x = dynamic_cast<Property<double>*>( v_bag->get().find("X") );
-                        Property<double>* _y = dynamic_cast<Property<double>*>( v_bag->get().find("Y") );
-                        Property<double>* _z = dynamic_cast<Property<double>*>( v_bag->get().find("Z") );
+                        Property<double>* _a = dynamic_cast<Property<double>*>( v_bag->get().find("alpha") );
+                        Property<double>* _b = dynamic_cast<Property<double>*>( v_bag->get().find("beta") );
+                        Property<double>* _g = dynamic_cast<Property<double>*>( v_bag->get().find("gamma") );
+
+                        // found it.
+                        if (  _a != 0 && _b != 0  && _g != 0 )
+                            {
+                                res = ORO_Geometry::Rotation::EulerZYX(_a->get(), _b->get(), _g->get() );
+                                return true;
+                            }
+                    }
+            }
+        return false;
+    }
+
+    /**
+     * A Decomposer for Converting a Rotation or Property<Rotation>
+     * into a typed Property<PropertyBag> with the RPY convention.
+     */
+    class RPYDecomposer
+    {
+        Property<PropertyBag> resultBag;
+        Property<double> _x;
+        Property<double> _y;
+        Property<double> _z;
+
+    public: 
+        
+        RPYDecomposer( const Property<ORO_Geometry::Rotation>& r );
+        RPYDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
+        
+        Property<PropertyBag>& result() { return resultBag; }
+    };
+    
+    /**
+     * An Composer for constructing an RPY Rotation or Property<Rotation>
+     * from a typed PropertyBag.
+     */
+    class RPYComposer
+    {
+        const PropertyBag& bag;
+    public:
+        RPYComposer( const PropertyBag& _bag )
+            :  bag(_bag)
+        {}
+
+        bool getResult( Property<ORO_Geometry::Rotation>& res )
+        {
+            return getResult( res.value(), res.getName() );
+        }
+
+        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
+    };
+            
+    RPYDecomposer::RPYDecomposer( const Property<ORO_Geometry::Rotation>& r )
+        : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::RPY") ),
+          _x("R","" ),
+          _y("P","" ),
+          _z("Y","" )
+    {
+        r.get().GetRPY(_x.set(), _y.set(), _z.set());
+        resultBag.value().add(&_x);
+        resultBag.value().add(&_y);
+        resultBag.value().add(&_z);
+    }
+
+    RPYDecomposer::RPYDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
+        : resultBag(name, std::string(), PropertyBag("MotCon::RPY") ),
+          _x("R","" ),
+          _y("P","" ),
+          _z("Y","" )
+    {
+        r.GetRPY(_x.set(), _y.set(), _z.set());
+        resultBag.value().add(&_x);
+        resultBag.value().add(&_y);
+        resultBag.value().add(&_z);
+    }
+
+    bool RPYComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
+    {
+        // find the Rotation with the same name in the bag.
+        PropertyBase* v_base = bag.find( name );
+        if ( v_base != 0 )
+            {
+                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
+
+                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::RPY" )
+                    {
+                        Property<double>* _x = dynamic_cast<Property<double>*>( v_bag->get().find("R") );
+                        Property<double>* _y = dynamic_cast<Property<double>*>( v_bag->get().find("P") );
+                        Property<double>* _z = dynamic_cast<Property<double>*>( v_bag->get().find("Y") );
 
                         // found it.
                         if (  _x != 0 && _y != 0  && _z != 0 )
                             {
-                                res = ORO_Geometry::Rotation::EulerZYX(_x->get(), _y->get(), _z->get() );
+                                res = ORO_Geometry::Rotation::RPY(_x->get(), _y->get(), _z->get() );
                                 return true;
                             }
                     }
@@ -502,20 +590,23 @@ namespace ORO_CoreLib
 #ifdef OROSEM_GEOMETRY_EULERPROPERTIES
         EulerZYXDecomposer rot(b);
 #else
+# ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+        RPYDecomposer rot(b);
+# else
         RotationDecomposer rot(b);
-#error foute keuze
+# endif
 #endif
         p->introspect( rot.result() );
     }
 
     bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Rotation> &r)
     {
-#ifdef OROSEM_GEOMETRY_EULERPROPERTIES
-        EulerZYXComposer ras(bag);
-#else
-        RotationComposer ras(bag);
-#endif
-        return ras.getResult( r );
+        // try all three, see which one works, that one will fill in r.
+        RPYComposer      rpyc(bag);
+        EulerZYXComposer eulc(bag);
+        RotationComposer rotc(bag);
+
+        return rpyc.getResult( r ) || eulc.getResult( r ) || rotc.getResult( r );
     }
 
     void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t)
@@ -593,9 +684,13 @@ namespace ORO_CoreLib
 
         VectorDecomposer vel( f.get().p, "Position" );
 #ifdef OROSEM_GEOMETRY_EULERPROPERTIES
-        EulerZYXDecomposer rot( f.get().M, "EulerZYX" );
+        EulerZYXDecomposer rot( f.get().M, "Rotation" );
 #else
+# ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+        RPYDecomposer rot( f.get().M, "Rotation");
+# else
         RotationDecomposer rot( f.get().M, "Rotation" );
+# endif
 #endif
 
         result.value().add( &vel.result() );
@@ -616,12 +711,13 @@ namespace ORO_CoreLib
                     {
                         // pass this bag to the vector Composers
                         VectorComposer vas_pos( f_bag->get() );
-#ifdef OROSEM_GEOMETRY_EULERPROPERTIES
-                        EulerZYXComposer vas_rot( f_bag->get() );
-#else
+                        RPYComposer vas_rpy( f_bag->get() );
+                        EulerZYXComposer vas_eul( f_bag->get() );
                         RotationComposer vas_rot( f_bag->get() );
-#endif
-                        return vas_pos.getResult( f.value().p,"Position" ) && vas_rot.getResult( f.value().M, "Rotation" );
+                        return vas_pos.getResult( f.value().p,"Position" ) &&
+                            ( vas_rpy.getResult( f.value().M, "Rotation" ) ||
+                              vas_eul.getResult( f.value().M, "Rotation" ) ||
+                              vas_rot.getResult( f.value().M, "Rotation" ) );
                     }
             }
         return false;
