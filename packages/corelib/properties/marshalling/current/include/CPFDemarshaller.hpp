@@ -29,7 +29,7 @@
 #define PI_PROPERTIES_CPFDESERIALIZER
 
 #include <xercesc/util/XMLUniDefs.hpp>
-#include </usr/include/xercesc/sax/InputSource.hpp>
+#include <xercesc/sax/InputSource.hpp>
 
 #include "corelib/Marshaller.hpp"
 
