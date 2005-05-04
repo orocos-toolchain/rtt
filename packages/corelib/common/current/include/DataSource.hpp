@@ -30,6 +30,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/call_traits.hpp>
 
 #include <map>
 #include <vector>
@@ -137,13 +138,19 @@ namespace ORO_CoreLib
     : public DataSourceBase
   {
   public:
+      /**
+       * The bare type of T is extracted into value_t.
+       */
+      typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type value_t;
+      typedef T result_t;
+      
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
       virtual ~DataSource();
       /**
        * return the data you need to return..
        */
-      virtual T get() const = 0;
+      virtual result_t get() const = 0;
 
       virtual void evaluate() const { this->get(); }
       /**
@@ -184,17 +191,24 @@ namespace ORO_CoreLib
     : public DataSource<T>
   {
   public:
+      typedef typename DataSource<T>::value_t value_t;
+      typedef typename boost::call_traits<value_t>::param_type param_t;
+      typedef typename boost::call_traits<value_t>::reference reference_t;
+      /**
+       * Use this type to store a pointer to an AssignableDataSource.
+       */
       typedef boost::intrusive_ptr<AssignableDataSource<T> > shared_ptr;
 
-      virtual void set( T t ) = 0;
+      virtual void set( param_t t ) = 0;
 
-      virtual T& set() = 0;
+      virtual reference_t set() = 0;
 
       virtual AssignableDataSource<T>* clone() const = 0;
 
       virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
   };
 
+#if 0
   /**
    * A AssignableDataSource specialisation for const&.
    */
@@ -214,6 +228,7 @@ namespace ORO_CoreLib
 
       virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
   };
+#endif
 
 #if 0
     namespace detail
