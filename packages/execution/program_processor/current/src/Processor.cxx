@@ -915,6 +915,16 @@ namespace ORO_Execution
         return 0;
     }
 
+    const StateMachine* Processor::getStateMachine(const std::string& name) const
+    {
+        state_iter it =
+            states->find( name );
+
+        if ( it != states->end() )
+            return it->second.state;
+        return 0;
+    }
+
     std::vector<std::string> Processor::getStateMachineList() const
     {
         std::vector<std::string> ret;

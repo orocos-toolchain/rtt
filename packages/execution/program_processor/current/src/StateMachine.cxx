@@ -307,7 +307,7 @@ namespace ORO_Execution
     }
 
 
-    bool StateMachine::inTransition() {
+    bool StateMachine::inTransition() const {
         return currentProg != 0;
     }
 

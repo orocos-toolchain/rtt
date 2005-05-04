@@ -322,6 +322,11 @@ namespace ORO_Execution
         const ProgramInterface* getProgram(const std::string& name) const;
 
         /**
+         * Get a pointer to a loaded StateMachine.
+         */
+        const StateMachine* getStateMachine(const std::string& name) const;
+
+        /**
          * Should the Processor accept or reject commands in \a process().
          * @param true_false true to accept, false to reject.
          */

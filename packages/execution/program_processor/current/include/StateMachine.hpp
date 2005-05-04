@@ -216,7 +216,8 @@ namespace ORO_Execution
         void setFinalState( StateInterface* s );
 
         /**
-         * Retrieve the current state of the context
+         * Retrieve the current state of the context. Returns null if
+         * the StateMachine is not active.
          */
         StateInterface* currentState() const;
 
@@ -251,7 +252,7 @@ namespace ORO_Execution
         /**
          * Get the parent, returns zero if no parent.
          */
-        StateMachine* getParent() 
+        StateMachine* getParent() const
         {
             return _parent;
         }
@@ -264,7 +265,7 @@ namespace ORO_Execution
         /**
          * Get a list of all child state machines.
          */
-        const ChildList& getChildren()
+        const ChildList& getChildren() const
         {
             return _children;
         }
@@ -292,7 +293,7 @@ namespace ORO_Execution
          * @return true if it is executing a program, false if it
          * is not executing a program.
          */
-        bool inTransition();
+        bool inTransition() const;
 
     protected:
         /**

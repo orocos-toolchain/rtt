@@ -47,6 +47,9 @@ namespace ORO_Execution
         this->dataFactory.registerObject("this", dsfact); 
     }
 
+    GenericTaskContext::~GenericTaskContext()
+    {}
+
     /**
      * Start is a method which starts the Processor's task.
      * It can not be a command because if the Processor is not running,

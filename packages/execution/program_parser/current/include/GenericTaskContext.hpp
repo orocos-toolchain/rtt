@@ -24,20 +24,26 @@ namespace ORO_Execution
          */
         GenericTaskContext(const std::string& name);
 
+        virtual ~GenericTaskContext();
+
         /**
          * Start is a method which starts the Processor's task.
          * It can not be a command because if the Processor is not running,
          * it does not accept commands. Also, RunnableInterface::initialize()
          * is then called in the context of the caller.
+         * You can override this method to do something else or in addition
+         * to starting the Processor.
          */
-        bool start();
+        virtual bool start();
         
         /**
          * Stop is a method which stops the Processor's task.
          * RunnableInterface::finalize()
          * is called in the context of the caller.
+         * You can override this method to do something else or in addition
+         * to stopping the Processor.
          */
-        bool stop();
+        virtual bool stop();
   
         /**
          * DataSource to inspect if this Task is running.
