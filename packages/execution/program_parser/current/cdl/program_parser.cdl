@@ -23,6 +23,8 @@ is very powerful."
     compile PeerParser.cxx 
     compile FunctionFactory.cxx
     compile TaskBrowser.cxx
+    compile ProgramLoader.cxx
+    compile GenericTaskContext.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

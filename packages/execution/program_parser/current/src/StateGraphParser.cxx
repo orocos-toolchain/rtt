@@ -75,6 +75,7 @@ namespace ORO_Execution
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_open("Open brace expected.");
+        assertion<std::string> expect_eof("Invalid input in file.");
         assertion<std::string> expect_semicolon("Semi colon expected after statement.");
         assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
         assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
@@ -133,7 +134,7 @@ namespace ORO_Execution
 
         newline = ch_p( '\n' );
 
-        production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation );
+        production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation ) >> expect_eof(end_p);
 
         rootcontextinstantiation =
             str_p("RootMachine")
@@ -630,6 +631,7 @@ namespace ORO_Execution
             // install the __states if not yet present.
             __s = new TaskContext("states", context->getProcessor() );
             context->addPeer( __s );
+            __s->addPeer(context, "task");
         }
 
         // check if the type exists already :

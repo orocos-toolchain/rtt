@@ -120,19 +120,16 @@ namespace ORO_Execution
         Processor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 
         virtual ~Processor();
-
-        /**
-         * Pause the execution of a program.
-         */
-        bool pauseProgram(const std::string& name);
-
         /**
          * Load a new State Machine.
+         * @throw program_load_exception if a state machine with the same name already exists.
          */
         bool loadStateMachine( StateMachine* sc );
 
         /**
          * Unload a deactivated State Machine.
+         * @throw program_unload_exception if the state machine or one of its children is
+         * still active.
          */
         bool unloadStateMachine( const std::string& name );
         /**
@@ -166,6 +163,8 @@ namespace ORO_Execution
         bool resetStateMachine(const std::string& name);
         /**
          * Discard a state context.
+         * @throw program_unload_exception if the state machine or one of its children is
+         * still active or does not exist.
          */
         bool deleteStateMachine(const std::string& name);
 
@@ -194,11 +193,26 @@ namespace ORO_Execution
          */
         bool continuousModeStateMachine(const std::string& name);
 
-        ProgramStatus::status getProgramStatus(const std::string& name) const;
+        /**
+         * Return true if the StateMachine is successfully running.
+         */
+        bool isStateMachineRunning( const std::string& name) const;
+
+        /**
+         * Check if a StateMachine is in Stepped mode.
+         * @return true if it is so, false if it is continuous.
+         */
+        bool isStateMachineStepped(const std::string& name) const;
+
+        /**
+         * Return the status of a StateMachine.
+         */
         StateMachineStatus::status getStateMachineStatus(const std::string& name) const;
 
         /**
          * Load a new Program.
+         * @return false if a program with the same name already exists.
+         * @throw program_load_exception if a state machine with the same name already exists.
          */
         bool loadProgram( ProgramInterface* pi ) ;
 
@@ -206,6 +220,11 @@ namespace ORO_Execution
          * Start executing a Program.
          */
         bool startProgram(const std::string& name);
+
+        /**
+         * Pause the execution of a program.
+         */
+        bool pauseProgram(const std::string& name);
 
         /**
          * Stop execution and reset logic to the beginning of the associated program.
@@ -219,6 +238,9 @@ namespace ORO_Execution
 
         /**
          * Completely discard a loaded Program.
+         * @throw program_unload_exception if the program is
+         * not stopped or does not exist.
+         * @return false if a program with the same name already exists.
          */
         bool deleteProgram(const std::string& name);
 
@@ -226,16 +248,11 @@ namespace ORO_Execution
          * Return true if a Program is successfully running.
          */
         bool isProgramRunning( const std::string& name) const;
-        /**
-         * Return true if the StateMachine is successfully running.
-         */
-        bool isStateMachineRunning( const std::string& name) const;
 
         /**
-         * Check if a StateMachine is in Stepped mode.
-         * @return true if it is so, false if it is continuous.
+         * Return the status of a Program.
          */
-        bool isStateMachineStepped(const std::string& name) const;
+        ProgramStatus::status getProgramStatus(const std::string& name) const;
 
         /**
          * Use this method to run the Processor in blocked (non periodic) mode.
@@ -249,9 +266,6 @@ namespace ORO_Execution
          */
         void resumeLoop();
 
-        /**
-         * Call this method to let the endless \a loop() return.
-         */
         virtual bool breakLoop();
 
         virtual bool initialize();
@@ -259,20 +273,53 @@ namespace ORO_Execution
         virtual void finalize();
 
         /**
-         * Process a given command.
+         * Queue and execute (process) a given command. The command is executed in step() or loop() 
+         * directly after all other queued CommandInterface objects. The constructor parameter \a queue_size 
+         * limits how many commands can be queued in between step()s or loop().
          * @return The command number. You can check if the given command was processed
-         * by calling Processor::isProcessed( command number ).
+         * by calling Processor::isProcessed( command id ). The command number is reset to one
+         * each time the Processor is (re-)started. 
+         * @return 0 when the Processor is not running or does not accept commands.
+         * @see isProcessed, acceptCommands
          */
         int process(CommandInterface* c);
-        bool isProcessed( int i );
 
+        /**
+         * Check if a given command id has been processed.
+         */
+        bool isProcessed( int id ) const;
+
+        /**
+         * Run a given function in step() or loop(). The function may only
+         * be destroyed after isFunctionFinished() returns true or the 
+         * Processor is stopped. The number of functions the Processor can
+         * run in parallel is set in its constructor argument \a queue_size. In
+         * addition to that number, a queue of the same size is allocated for
+         * pending functions to execute.
+         * @return false if the Processor is not running or the 'pending' queue is full.
+         * @see isFunctionFinished, acceptCommands
+         */
         bool runFunction(ProgramInterface* f);
-        bool isFunctionFinished( ProgramInterface* f );
+        /**
+         * Check if the execution of a function has finished.
+         * @return true if so.
+         */
+        bool isFunctionFinished( ProgramInterface* f ) const;
 
-        std::vector<std::string> getProgramList();
-        std::vector<std::string> getStateMachineList();
+        /**
+         * Get a list of all loaded Programs.
+         */
+        std::vector<std::string> getProgramList() const;
 
-        ProgramInterface* getProgram(const std::string& name) const;
+        /**
+         * Get a list of all loaded StateMachines and their children.
+         */
+        std::vector<std::string> getStateMachineList() const;
+
+        /**
+         * Get a pointer to a loaded Program.
+         */
+        const ProgramInterface* getProgram(const std::string& name) const;
 
         /**
          * Should the Processor accept or reject commands in \a process().
@@ -298,7 +345,6 @@ namespace ORO_Execution
         typedef StateMap::const_iterator cstate_iter;
 
         std::vector<ProgramInterface*> funcs;
-        std::vector<ProgramInterface*>::iterator f_it;
 
         bool accept;
         ORO_CoreLib::AtomicQueue<CommandInterface*>* a_queue;
@@ -312,11 +358,11 @@ namespace ORO_Execution
         /**
          * Guard state list
          */
-        ORO_OS::MutexRecursive* statemonitor;
-        ORO_OS::Mutex* progmonitor;
+        ORO_OS::MutexRecursive* loadmonitor;
 
         ORO_OS::Semaphore* queuesem;
         bool doloop;
+        bool loopmode;
     };
 
 }

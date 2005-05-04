@@ -94,8 +94,8 @@ namespace ORO_Execution
 
     /**
      * A Fatal Syntactic parse exception means the parser
-     * did not get _any_ clue of what came in, and it
-     * should probably be passed to another parser.
+     * knows the input is plain wrong and no further attemts
+     * should be made to parse it.
      */
     class fatal_syntactic_parse_exception
         : public parse_exception
@@ -190,6 +190,31 @@ namespace ORO_Execution
     const std::string& desc() const
       {
         return mdesc;
+      }
+  };
+
+  /**
+   * An exception which a parser may throw to indicate that
+   * it failed to understand the input, and thus can not 
+   * interpret its validity. It is the equivalent of a 
+   * failing parser rule.
+   */
+  class parse_exception_parser_fail
+    : public parse_exception
+  {
+  public:
+      parse_exception_parser_fail()
+      {
+      }
+
+    const std::string what() const
+      {
+        return "Parse Failure Exception ( This _specific_ parser could not parse the input )";
+      }
+
+    parse_exception_parser_fail* copy() const
+      {
+        return new parse_exception_parser_fail( *this );
       }
   };
 

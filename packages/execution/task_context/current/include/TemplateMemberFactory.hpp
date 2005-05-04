@@ -68,7 +68,7 @@ namespace ORO_Execution
         {
         }
 
-      value_t get() const
+        typename DataSource<value_t>::result_t get() const
         {
           return gen();
         }

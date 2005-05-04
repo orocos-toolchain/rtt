@@ -41,12 +41,14 @@ namespace ORO_Execution
      * @brief A class for keeping track of TaskAttribute, TaskConstant, TaskProperty
      * and ORO_CoreLib::Property objects of a TaskContext.
      * It allows to store objects of these types and retrieve this type.
-     * It is used by the script parsers to browse the attributes of a TaskContext.
+     * It is used by the script parsers to browse the attributes and properties of a TaskContext.
      */
-    struct AttributeRepository
+    class AttributeRepository
     {
         typedef std::map<std::string, TaskAttributeBase*> map_t;
         map_t values;
+        ORO_CoreLib::PropertyBag* bag;
+    public:
 
         /**
          * Create an empty AttributeRepository.
@@ -98,14 +100,27 @@ namespace ORO_Execution
 
         /**
          * Add an ORO_CoreLib::Property<T> as an attribute, which then
-         * becomes available as a TaskAttribute<T>. The value of the Property
+         * becomes also available as a TaskAttribute<T>. The value of the Property
          * and the TaskAttribute will always be identical.
-         * @see getAttribute
+         * @see getAttribute, removeProperty
          */
         template<class T>
-        bool addAttribute( Property<T>* p ) {
-            return setValue( p->getName(), new TaskAttribute<T>( new detail::TaskPropertyDataSource<T>(p)));
+        bool addProperty( ORO_CoreLib::Property<T>* p ) {
+            TaskAttributeBase* attr =  new TaskAttribute<T>( p->createDataSource() );
+            bool result = setValue( p->getName(), attr );
+            if ( result ) {
+                if ( bag == 0 )
+                    bag = new ORO_CoreLib::PropertyBag();
+                bag->add( p );
+            } else
+                delete attr;
+            return result;
         }
+
+        /**
+         * Remove a previously added Property and associated attribute.
+         */
+        bool removeProperty( ORO_CoreLib::PropertyBase* p );
 
         /**
          * Retrieve a TaskAttribute by name. Returns zero if 
@@ -120,6 +135,7 @@ namespace ORO_Execution
         }
 
 #if 0
+        Most likely to be removed, since duplicate functionality + not compiling
         /**
          * Add a TaskProperty, which will become accessible as both
          * ORO_CoreLib::Property and TaskAttribute.
@@ -170,6 +186,12 @@ namespace ORO_Execution
          * Return a list of all attributes.
          */
         std::vector<std::string> attributes() const;
+          
+        /**
+         * Return a bag of all properties.
+         * @return null if none present.
+         */
+        ORO_CoreLib::PropertyBag* properties() const;
           
     };
 }

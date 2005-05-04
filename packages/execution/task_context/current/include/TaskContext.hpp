@@ -150,8 +150,6 @@ namespace ORO_Execution
             return _task_proc;
         }
 
-        void debug(bool);
-
         /**
          * The commandFactory of this TaskContext.
          */

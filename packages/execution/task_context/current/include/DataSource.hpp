@@ -46,7 +46,7 @@ namespace ORO_Execution
   class VariableDataSource
     : public AssignableDataSource<T>
   {
-      T mdata;
+      typename DataSource<T>::value_t mdata;
   public:
       typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
 
@@ -60,17 +60,17 @@ namespace ORO_Execution
       {
       }
 
-      T get() const
+      typename DataSource<T>::result_t get() const
       {
           return mdata;
       }
 
-      void set( T t )
+      void set( typename AssignableDataSource<T>::param_t t )
       {
           mdata = t;
       }
 
-      T& set() {
+      typename AssignableDataSource<T>::reference_t set() {
           return mdata;
       }
 
@@ -91,6 +91,7 @@ namespace ORO_Execution
       }
   };
 
+#if 0
   /**
    * VariableDataSource specialisation for const references.
    * We store the 'bare' valuetype and 'act' like a datasource for const
@@ -149,6 +150,7 @@ namespace ORO_Execution
           return static_cast<VariableDataSource<T>*>( i->second );
       }
   };
+#endif
 
   /**
    * A generic binary composite DataSource.  It takes a function

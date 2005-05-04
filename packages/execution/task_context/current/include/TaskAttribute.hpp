@@ -137,54 +137,6 @@ namespace ORO_Execution
             }
         };
 
-        /**
-         * An AssignableDataSource which wraps around an ORO_CoreLib::Property,
-         * effectively making the Property available as a DataSource.
-         */
-        template<typename T>
-        class TaskPropertyDataSource
-            : public AssignableDataSource<T>
-        {
-            Property<T>* prop;
-        public:
-            typedef boost::intrusive_ptr<TaskPropertyDataSource<T> > shared_ptr;
-
-            TaskPropertyDataSource( Property<T>* p )
-                : AssignableDataSource<T>(), prop(p)
-            {
-            }
-
-            T get() const
-            {
-                return prop->get();
-            }
-
-            void set( T t )
-            {
-                prop->set(t);
-            }
-
-            T& set() {
-                return prop->set();
-            }
-
-            virtual TaskPropertyDataSource<T>* clone() const
-            {
-                return new TaskPropertyDataSource<T>( prop );
-            }
-
-            virtual TaskPropertyDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
-                // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
-                if ( replace[this] != 0 ) {
-                    assert( dynamic_cast<TaskPropertyDataSource<T>*>( replace[this] ) );
-                    return static_cast<TaskPropertyDataSource<T>*>( replace[this] );
-                }
-              
-                replace[this] = this;
-                // return this instead of a copy.
-                return this;
-            }
-        };
     }
 
     /**
@@ -291,20 +243,20 @@ namespace ORO_Execution
         public Property<T>
   {
   public:
-    typename detail::TaskPropertyDataSource<T>::shared_ptr data;
+    typename ORO_CoreLib::detail::PropertyDataSource<T>::shared_ptr data;
 
     TaskProperty(const std::string& name, const std::string& description)
         :  Property<T>(name, description ),
-           data( new detail::TaskPropertyDataSource<T>(this) )
+           data( new ORO_CoreLib::detail::PropertyDataSource<T>(this) )
       {
       }
     TaskProperty(const std::string& name, const std::string& description, T t)
         :  Property<T>(name, description, t ),
-           data( new detail::TaskPropertyDataSource<T>( this ) )
+           data( new ORO_CoreLib::detail::PropertyDataSource<T>( this ) )
       {
       }
       /*
-    TaskProperty(const std::string& name, const std::string& description, detail::TaskPropertyDataSource<T>* d )
+    TaskProperty(const std::string& name, const std::string& description, ORO_CoreLib::detail::PropertyDataSource<T>* d )
         :  Property<T>(name, description ),
            : data( d )
       {

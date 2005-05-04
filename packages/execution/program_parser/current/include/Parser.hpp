@@ -78,7 +78,7 @@ namespace ORO_Execution
          * FunctionGraph.
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
-        ParsedFunctions parseFunction( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+        ParsedFunctions parseFunction( std::istream& s, TaskContext*, const std::string& filename = "stream" );
 
         /**
          * @brief Open a file read-only, parses it, and returns a new @ref
@@ -97,7 +97,7 @@ namespace ORO_Execution
          * ProgramGraph..
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
-        ParsedPrograms parseProgram( std::istream& s, TaskContext*, const std::string& filename = "filename" );
+        ParsedPrograms parseProgram( std::istream& s, TaskContext*, const std::string& filename = "stream" );
 
         /**
          * @brief Open a file read-only, parses it, and returns a new @ref
@@ -116,7 +116,7 @@ namespace ORO_Execution
          * ParsedStateMachine ..
          * @throw file_parse_exception Throws exceptions of type file_parse_exception.
          */
-        ParsedStateMachines parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "filename" );
+        ParsedStateMachines parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "stream" );
 
         /**
          * @brief Opens a file read-only, parses it, and returns a new @ref

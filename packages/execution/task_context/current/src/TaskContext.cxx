@@ -52,42 +52,6 @@ namespace ORO_Execution
         }
 
 
-    using std::cerr;
-    using std::cout;
-    using std::endl;
-    void TaskContext::debug(bool recurse) {
-        cerr << "TaskContext : "<< _task_name << endl;
-        for( AttributeRepository::map_t::iterator it = attributeRepository.values.begin(); it != attributeRepository.values.end(); ++it) {
-            cerr << " Value " << it->first;
-            std::string prompt(" = ");
-            DataSourceBase* ds = it->second->toDataSource();
-            // this method can print some primitive DataSource<>'s.
-            DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
-            if (dsb)
-                cout <<prompt<< (dsb->get() ? "true" : "false") <<endl;
-            DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
-            if (dsi)
-                cout <<prompt<< dsi->get() <<endl;
-            DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
-            if (dss)
-                cout <<prompt<< dss->get() <<endl;
-            DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
-            if (dsd)
-                cout <<prompt<< dsd->get() <<endl;
-            DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
-            if (dsc)
-                cout <<prompt<< dsc->get() <<endl;
-        }
-        cerr << " Peers :" <<endl;
-        for ( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it ) {
-            cout << it->second->getName()<<" under alias " << it->first <<endl;
-            if (recurse && it->second != this )
-                it->second->debug( false );
-        }
-        cerr <<" end Peers " << _task_name<<endl;
-    }
-
-
         TaskContext::~TaskContext()
         {
             // it is not possible to remove ourselves from our peers, since

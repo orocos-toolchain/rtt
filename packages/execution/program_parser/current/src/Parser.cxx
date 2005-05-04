@@ -154,6 +154,8 @@ namespace ORO_Execution
         }
     ConditionInterface* ret = parser.getParseResult();
     parser.reset();
+    if ( ret == 0 )
+        throw parse_exception_parser_fail();
     return ret;
   }
 
@@ -183,7 +185,7 @@ namespace ORO_Execution
         parser.dropResult();
         return ret;
     }
-    throw parse_exception_syntactic_error("No expression found");
+    throw parse_exception_parser_fail();
   }
 
   DataSourceBase::shared_ptr Parser::parseValueChange( const std::string& _s,
@@ -205,6 +207,7 @@ namespace ORO_Execution
     }
     catch( const parser_error<std::string, iter_t>& e )
         {
+            // this only happens if input is really wrong.
             throw parse_exception_syntactic_error( e.descriptor );
         }
     if ( parser.assignCommand() ) {
@@ -212,7 +215,7 @@ namespace ORO_Execution
         parser.reset();
         return ret;
     }
-    throw parse_exception_syntactic_error("No statement found");
+    throw parse_exception_parser_fail();
   }
 
   std::pair<CommandInterface*, ConditionInterface*>
@@ -231,7 +234,7 @@ namespace ORO_Execution
     {
       boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
       if ( ! ret.hit )
-        throw parse_exception_syntactic_error( "No command found" );
+        throw parse_exception_parser_fail();
     }
     catch( const parse_exception& e )
     {

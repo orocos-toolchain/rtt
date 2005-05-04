@@ -466,6 +466,8 @@ namespace ORO_Execution {
         this->_name = name;
         // set the datasource's name
         nameds->set( name );
+        this->getTaskContext()->addPeer( this->getTaskContext()->getPeer("states")->getPeer("task") );
+
         if ( recursive == false )
             return;
         for ( SubMachineNameMap::iterator i = subMachines.begin(); i != subMachines.end(); ++i )

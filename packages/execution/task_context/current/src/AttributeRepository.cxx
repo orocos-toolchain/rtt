@@ -34,13 +34,16 @@
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
 
   AttributeRepository::AttributeRepository()
+      :bag(0)
   {
   }
 
   AttributeRepository::~AttributeRepository()
   {
+      delete bag;
       // we do not claim automatically ownership
       // call clear() manually to delete all contents.
   }
@@ -92,8 +95,24 @@ namespace ORO_Execution
     return values.find( name ) != values.end();
   }
 
+    bool AttributeRepository::removeProperty( PropertyBase* p )
+    {
+        if ( bag && bag->find( p->getName() ) ) {
+            bag->remove(p);
+            removeValue( p->getName() );
+            return true;
+        }
+        return false;
+    }
+
+
     std::vector<std::string> AttributeRepository::attributes() const
     {
         return mystd::keys( values );
+    }
+
+    PropertyBag* AttributeRepository::properties() const
+    {
+        return bag;
     }
 }

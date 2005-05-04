@@ -428,7 +428,7 @@
 	in a parser variable.
       </para>
   </sect2>
-  <sect2>
+  <sect2 id="task-attr-rep">
       <title>The Attribute Repository</title>
       <para>
 	A TaskContext may have any number of attributes,
@@ -446,11 +446,11 @@
   a_task.attributeRepository.addAttribute( "max",   int(5) );
       
   Property&lt;std::string&gt; param("Param","Param Description","Value");
-  a_task.attributeRepository.addAttribute( &amp;param );</programlisting></para>
+  a_task.attributeRepository.addProperty( &amp;param );</programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
-	value of false and 5 to the task's repository. Adding a Property as
-	an Attribute is also straightforward.
+	value of false and 5 to the task's repository. Adding a Property
+	is also straightforward.
 	The methods return false if an attribute with that name already exists.
 	To get a value from the repository,
 	you can use :</para>
@@ -505,6 +505,10 @@
 	  the attribute types, when you want to access them from program scripts.
 	</para>
       </important>
+      <para>
+	See <xref linkend="task-property-config" /> for storing and loading
+	Property objects to and from files.
+      </para>
     </sect2>
     <sect2>
       <title>The Command Factory</title>
@@ -747,7 +751,7 @@
   <sect1 id="run-tasks">
     <title>Running Tasks</title>
     <para>
-      A TaskContext receives its commands from its Processor.
+      When a TaskContext is running, it receives its commands from its Processor.
       The Processor will check periodically for new commands
       in it's queue
       and execute programs which are running in the task.
@@ -779,6 +783,28 @@
 	are stopped, state machines are brought into the final state and
 	no more commands are accepted.
       </para>
+    </sect2>
+    <sect2 id="task-property-config">
+      <title>Task Property Configuration</title>
+      <para>
+	As was seen in <xref linkend="task-attr-rep" />, CoreLib Properties
+	can be added to a task's AttributeRepository. To read and write
+	properties from or to files, you can use the <classname>PropertyLoader</classname>
+	class. It uses the XML Component Property Format such that it is human readable.
+      </para>
+      <programlisting>  #include &lt;execution/PropertyLoader.hpp&gt;
+  // ...
+  TaskContext a_task = ...
+  PropertyLoader ploader;
+  ploader.configure("PropertyFile.cpf", a_task );
+  // ...
+  ploader.save("PropertyFile.cpf", a_task ); </programlisting>
+       <para>
+	 Where 'configure' reads the file and configures updates the task's properties
+	 and 'save' <emphasis>updates</emphasis> the given file with the properties
+	 of the task. It is allowed to share a single file with multiple tasks or
+	 update the task's properties from multiple files.
+       </para>
     </sect2>
     <sect2>
       <title>Task Program Scripts</title>
@@ -818,7 +844,7 @@
 	  if one of its contained commands fail ) :
 	  <programlisting>  do ATask.myFun( 1, 2)</programlisting>
 	  If you omit the export keyword, then the function will not
-	  become available as a command. To use a not exported function, you need to 
+	  become available as a command. To use such a function, you need to 
 	  execute it in the Processor ( see below ), or call it in a program,
 	  which was parsed in the same file (see <xref linkend="task-context-programs" /> ).
 	</para>
@@ -830,31 +856,31 @@
 	  and can then safely be deleted (or re-run).</para>
 	<note>
 	  <para>
-	    The <classname>Parser</classname> is located in the
+	    The <classname>Parser</classname> and <classname>ProgramLoader</classname> are located in the
 	    Orocos Program Parser package and not in the Task Context package.
 	  </para>
 	</note>
 	<para>
-	  To parse any number of functions in a file, do :
-	  <programlisting>
-  #include &lt;execution/Parser.hpp&gt;
+	  To directly execute any number of <emphasis>not exported</emphasis> functions in a file, 
+	  or <emphasis>add</emphasis> an exported function in a TaskContext's Command API, do :
+	  <programlisting>  #include &lt;execution/ProgramLoader.hpp&gt;
 
   TaskContext* a_task = ...
-  Parser parser;
+  ProgramLoader loader;
+  ProgramLoader::Functions funcs;
 
-  std::vector&lt;FunctionGraph*&gt; result =
-      parser.parseFunction( "Functions.ops", a_task );
-
-  // if needed, also initialise the arguments of 
-  // the FunctionGraph
-  a_task-&gt;getProcessor()-&gt;executeFunction( result[0] );
-
-  while( !result[0]-&gt;isFinished() &amp;&amp; !result[0]-&gt;inError() )
-     sleep(1);
- 
-  delete result[0];  </programlisting>
-          
+  funcs = loader.executeFunction( "Functions.ops", a_task );</programlisting>
+           funcs is an STL container wich contains all functions being executed.
 	</para>
+	<warning>
+	  <para>
+	    Using executeFunction with functions that require arguments will
+	    execute the functions with default initialisation of the arguments.
+	    Use the 'low-level' Orocos API (Parser and Processor) to initialise
+	    and execute functions with arguments. Otherwise, use programs to
+	    call such functions.
+	  </para>
+	</warning>
 	<para>
 	  Take a look at the <classname>FunctionGraph</classname>
 	  and the &parseman;
@@ -888,22 +914,16 @@
 	  As with functions, any number of programs may be listed in a file.
 	</para>
 	<para>
-	  Orocos Programs are loaded a bit different into the
-	  Processor :</para>
+	  Orocos Programs are loaded a bit different into a TaskContext
+	  :</para>
 	<para>
 	  <programlisting>
-  #include &lt;execution/Parser.hpp&gt;
+  #include &lt;execution/ProgramLoader.hpp&gt;
 
   TaskContext* a_task = ...
-  Parser parser;
+  ProgramLoader parser;
 
-  std::vector&lt;ProgramGraph*&gt; result =
-      parser.parseProgram( "ProgramBar.ops", a_task );
-
-  // load a program
-  a_task->getProcessor()->loadProgram( result[0] );
-  // start a program
-  a_task->getProcessor()->startProgram( result[0] );	</programlisting></para>
+  loader.loadProgram( "ProgramBar.ops", a_task ); </programlisting></para>
 	<para>
 	  When the Program is loaded in the Task Context, it can
 	  also be controlled from your scripts or TaskBrowser. Assuming
@@ -942,20 +962,12 @@
 	</para>
 	<para>
 	  <programlisting>
-  #include &lt;execution/Parser.hpp&gt;
+  #include &lt;execution/ProgramLoader.hpp&gt;
 
   TaskContext* a_task = ...
-  Parser parser;
+  ProgramLoader loader;
 
-  std::vector&lt;ParsedStateMachine*&gt; result =
-      parser.parseStateMachine( "StateMachineBar.osd", a_task );
-
-  // load a state context
-  a_task->getProcessor()->loadStateMachine( result[0] );
-  // enter the initial state
-  a_task->getProcessor()->activateStateMachine( result[0]->getName() );
-  // start state-transition evaluation
-  a_task->getProcessor()->startStateMachine( result[0]->getName() );</programlisting></para>
+  loader.loadStateMachine( "StateMachineBar.osd", a_task ); </programlisting></para>
 	<para>
 	  When the State Machine is loaded in the Task Context, it can
 	  also be controlled from your scripts or TaskBrowser. Assuming
@@ -1303,6 +1315,16 @@ T1.      T3.      back     help     peers    quit     switch   test.
       gives some common uses for integrating your existing application
       framework in Orocos Tasks.
     </para>
+    <sect2>
+      <title>Using the <classname>GenericTaskContext</classname></title>
+      <para>
+	To help users in setting up quickly a TaskContext, the GenericTaskContext
+	class has been made available which adds some standard methods and
+	commands to its interface which are common to many tasks.
+	You can download an introduction to setting up TaskContexts which
+	uses this class from the Orocos.org download page.
+      </para>
+    </sect2>
     <sect2>
       <title>Waiting for Something : Synchronisation</title>
       <para>

@@ -488,7 +488,7 @@ namespace ORO_Execution
         cout << "    TAB completion and HISTORY is available ('bash' like)" <<coloroff<<nl<<nl;
         while (1)
             {
-                cout << " In Task "<< taskcontext->getName() << ". Enter a command or expression. (Status of previous command : ";
+                cout << " In Task "<< taskcontext->getName() << ". (Status of last Command : ";
                 if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
                     cout << "queued )";
                 else
@@ -745,45 +745,60 @@ namespace ORO_Execution
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseValueChange( comm, taskcontext );
             // methods and DS'es are processed immediately.
-            if ( ds.get() != 0 )
+            if ( ds.get() != 0 ) {
                 this->printResult( ds.get() );
-            return; // done here
+                return; // done here
+            }
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
-            cerr << "Parse Error : Invalid Expression."<<nl;
             cerr << pe.what() <<nl;
             return;
-        } catch ( parse_exception &pe )
+        } catch ( syntactic_parse_exception& pe ) { // wrong content after = sign etc..
+            // syntactic errors must be reported immediately
+            cerr << pe.what() <<nl;
+            return;
+        } catch ( parse_exception_parser_fail &pe )
             {
                 // ignore, try next parser
                 if (debug) {
                     cerr << "Ignoring ValueChange exception :"<<nl;
                     cerr << pe.what() <<nl;
                 }
-            }
+        } catch ( parse_exception& pe ) { 
+            // syntactic errors must be reported immediately
+            cerr << pe.what() <<nl;
+            return;
+        }
         try {
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );
             // methods and DS'es are processed immediately.
-            if ( ds.get() != 0 )
+            if ( ds.get() != 0 ) {
                 this->printResult( ds.get() );
-            return; // done here
+                return; // done here
+            }
         } catch ( syntactic_parse_exception& pe ) { // missing brace etc
             // syntactic errors must be reported immediately
-            cerr << "Syntax Error : Invalid Expression."<<nl;
             cerr << pe.what() <<nl;
             return;
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
-            cerr << "Parse Error : Invalid Expression."<<nl;
             cerr << pe.what() <<nl;
             return;
-        } catch ( parse_exception &pe ) // Got not a clue exception, so try other parser
+        } catch ( parse_exception_parser_fail &pe )
             {
-                // ignore it, try to parse it as a command :
-                if (debug)
-                    cerr << "Ignoring Expression exception: "<< pe.what() << nl;
-            }
+                // ignore, try next parser
+                if (debug) {
+                    cerr << "Ignoring Expression exception :"<<nl;
+                    cerr << pe.what() <<nl;
+                }
+        } catch ( parse_exception& pe ) { 
+                // ignore, try next parser
+                if (debug) {
+                    cerr << "Ignoring Expression exception :"<<nl;
+                    cerr << pe.what() <<nl;
+                }
+        }
         try {
             comcon = _parser.parseCommand( comm, taskcontext );
             if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
@@ -796,7 +811,6 @@ namespace ORO_Execution
             command = comcon.first;
             condition = comcon.second;
         } catch ( parse_exception& pe ) {
-            cerr << "Parse Error : Illegal command or expression."<<nl;
             cerr << pe.what() <<nl;
             return;
         } catch (...) {

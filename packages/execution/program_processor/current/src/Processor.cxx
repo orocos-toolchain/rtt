@@ -233,14 +233,12 @@ namespace ORO_Execution
         : programs( new ProgMap() ),
           states( new StateMap() ),
           funcs( queue_size ),
-         f_it( funcs.begin() ),
          accept(false), a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
          f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(queue_size) ),
          coms_processed(0),
-         statemonitor( new ORO_OS::MutexRecursive() ),
-         progmonitor( new ORO_OS::Mutex() ),
+         loadmonitor( new ORO_OS::MutexRecursive() ),
          queuesem( new ORO_OS::Semaphore(0) ),
-         doloop(false)
+          doloop(false), loopmode(false)
     {
     }
 
@@ -250,8 +248,7 @@ namespace ORO_Execution
         delete states;
         delete a_queue;
         delete f_queue;
-        delete statemonitor;
-        delete progmonitor;
+        delete loadmonitor;
         delete queuesem;
     }
 
@@ -280,7 +277,7 @@ namespace ORO_Execution
             programs->find( pi->getName() );
         if ( it != programs->end() )
             return false;
-        MutexLock lock( *progmonitor );
+        MutexLock lock( *loadmonitor );
         programs->insert( make_pair( pi->getName(), Processor::ProgramInfo(pi) ) );
         pi->reset();
         return true;
@@ -342,7 +339,7 @@ namespace ORO_Execution
 
         if ( it != programs->end() && it->second.pstate == ProgramStatus::stopped )
             {
-                MutexLock lock( *progmonitor );
+                MutexLock lock( *loadmonitor );
                 delete it->second.program;
                 programs->erase(it);
                 return true;
@@ -406,7 +403,7 @@ namespace ORO_Execution
                 this->recursiveLoadStateMachine( *it );
             }
         
-        MutexLock lock( *statemonitor );
+        MutexLock lock( *loadmonitor );
         states->insert( make_pair( sc->getName(), Processor::StateInfo(sc)));
     }
 
@@ -657,7 +654,7 @@ namespace ORO_Execution
 
         assert( it2 != states->end() ); // we checked that this is possible
 
-        MutexLock lock( *statemonitor );
+        MutexLock lock( *loadmonitor );
         states->erase(it2);
     }
 
@@ -752,12 +749,14 @@ namespace ORO_Execution
 
     void Processor::loop()
     {
+        loopmode = true;
         while ( doloop )
             {
                 queuesem->wait();
                 // execute step with semaphore management.
                 this->step();
             }
+        loopmode = false; 
     }
 
     bool Processor::breakLoop()
@@ -771,7 +770,7 @@ namespace ORO_Execution
 
     void Processor::resumeLoop()
     {
-        if ( doloop )
+        if ( loopmode )
             queuesem->signal();
     }
 
@@ -781,7 +780,7 @@ namespace ORO_Execution
         a_queue->clear();
         f_queue->clear();
         accept = true;
-        doloop = true; // must put doloop here to avoid race.
+        doloop = true; // doloop is here and not in loop() to avoid race condition with breakLoop()
         return true;
     }
 
@@ -791,11 +790,8 @@ namespace ORO_Execution
         doloop = false;
         // stop all programs and SCs.
         {
-            MutexLock lock( *progmonitor );
+            MutexLock lock( *loadmonitor );
             for_each(programs->begin(), programs->end(), _stopProgram());
-        }
-        {
-            MutexLock lock( *statemonitor );
             for_each(states->begin(), states->end(), _stopState() );
         }
     }
@@ -803,13 +799,10 @@ namespace ORO_Execution
 	void Processor::step()
     {
         {
-            MutexLock lock( *statemonitor );
+            MutexLock lock( *loadmonitor );
             // Evaluate all states->
             for_each(states->begin(), states->end(), _executeState() );
-        }
 
-        {
-            MutexLock lock( *progmonitor );
             //Execute all normal programs->
             for_each(programs->begin(), programs->end(), _executeProgram() );
 
@@ -819,20 +812,19 @@ namespace ORO_Execution
 
         // Execute any FunctionGraph :
         {
+            // 0. find an empty spot to store :
+            ProgramInterface* foo = 0;
+            std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), foo );
             // 1. Fetch new ones from queue.
-            while ( !f_queue->isEmpty() ) {
-                ProgramInterface* foo;
+            while ( !f_queue->isEmpty() && f_it != funcs.end() ) {
                 f_queue->dequeue( foo );
                 // decrement semaphore if looping, but be sure not to block in any case
-                if ( doloop )
+                if ( loopmode )
                     queuesem->trywait();
-                // find an empty spot to store :
-                while( *f_it != 0 ) {
-                    ++f_it;
-                    if (f_it == funcs.end() )
-                        f_it = funcs.begin();
-                }
                 *f_it = foo;
+                // stored successfully, now reset for next item from queue.
+                foo = 0;
+                f_it = find(f_it, funcs.end(), foo );
             }
             // 2. execute all present
             for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
@@ -841,7 +833,7 @@ namespace ORO_Execution
                     if ( (*it)->isFinished() || (*it)->inError() )
                         (*it) = 0;
                     else
-                        (*it)->executeUntil(); // should we check on inError() ?
+                        (*it)->executeUntil();
         }
 
         // Execute any additional (deferred/external) command.
@@ -851,7 +843,7 @@ namespace ORO_Execution
             int res = a_queue->dequeueCounted( com );
             if ( res ) {
                 // decrement semaphore if looping, but be sure not to block in any case
-                if ( doloop )
+                if ( loopmode )
                     queuesem->trywait();
                 // note : the command's result is discarded.
                 // Wrap your command (ie CommandDispatch) to keep track
@@ -878,7 +870,7 @@ namespace ORO_Execution
     {
         if (accept && c) {
             int result = a_queue->enqueueCounted( c );
-            if ( doloop )
+            if ( loopmode )
                 queuesem->signal();
             return result;
         }
@@ -889,30 +881,31 @@ namespace ORO_Execution
     {
         if (accept && f) {
             int result = f_queue->enqueue( f );
-            if ( doloop )
+            if ( loopmode )
                 queuesem->signal();
             return result != 0;
         }
         return false;
     }
 
-    bool Processor::isFunctionFinished( ProgramInterface* f )
+    bool Processor::isFunctionFinished( ProgramInterface* f ) const
     {
         if ( f == 0 )
             return false;
         // function is finished if it is no longer in our map.
+        // funcs is fixed size, so iteration is always safe.
         return std::find( funcs.begin(), funcs.end(), f ) == funcs.end();
     }
 
-    std::vector<std::string> Processor::getProgramList()
+    std::vector<std::string> Processor::getProgramList() const
     {
         std::vector<std::string> ret;
-        for ( program_iter i = programs->begin(); i != programs->end(); ++i )
+        for ( cprogram_iter i = programs->begin(); i != programs->end(); ++i )
             ret.push_back( i->first );
         return ret;
     }
 
-    ProgramInterface* Processor::getProgram(const std::string& name) const
+    const ProgramInterface* Processor::getProgram(const std::string& name) const
     {
         program_iter it =
             programs->find( name );
@@ -922,15 +915,15 @@ namespace ORO_Execution
         return 0;
     }
 
-    std::vector<std::string> Processor::getStateMachineList()
+    std::vector<std::string> Processor::getStateMachineList() const
     {
         std::vector<std::string> ret;
-        for ( state_iter i = states->begin(); i != states->end(); ++i )
+        for ( cstate_iter i = states->begin(); i != states->end(); ++i )
             ret.push_back( i->first );
         return ret;
     }
 
-    bool Processor::isProcessed( int nr )
+    bool Processor::isProcessed( int nr ) const
     {
         return ( nr <= coms_processed );
     }

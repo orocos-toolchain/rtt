@@ -65,6 +65,7 @@ namespace ORO_Execution
         assertion<std::string> expect_command("Expected a command after 'do'.");
         assertion<std::string> expect_and_command("Expected a command after 'and'.");
         assertion<std::string> expect_nl("Expected a newline after statement.");
+        assertion<std::string> expect_eof("Invalid input in file.");
     }
 
 
@@ -130,7 +131,7 @@ namespace ORO_Execution
     // matched by...  This line basically means that we're finished
     // ;)
     // Zero or n functions can precede the program.
-    production = (functions >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] ;
+    production = (functions >> *program)[bind(&ProgramGraphParser::programtext,this, _1, _2)] >> expect_eof(end_p) ;
 
     functions = *function;
 
@@ -363,6 +364,7 @@ namespace ORO_Execution
           // install the "programs" if not yet present.
           __p = new TaskContext("programs", rootc->getProcessor() );
           rootc->addPeer( __p );
+          __p->addPeer(rootc, "task");
       }
 
       if ( __p->hasPeer( def ) )
