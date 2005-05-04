@@ -34,6 +34,7 @@
 #include "PropertyBag.hpp"
 #include "PropertyOperation.hpp"
 #include "PropertyCommands.hpp"
+#include "PropertyDataSource.hpp"
 #include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING
@@ -94,13 +95,14 @@ namespace ORO_CoreLib
     {
         public:
         /**
-         * The bare type (without const or references) of this property.
+         * The types of this property type.
+         * value_t is always the 'bare' value type of T. From this type,
+         * we derive the other (param, ref, ...) types.
          */
         typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type value_t;
-        /**
-         * A property stores a _writable_ value, even if the T given is a const.
-         */
-        typedef value_t prop_t;
+        typedef typename boost::call_traits<value_t>::param_type param_t;
+        typedef typename boost::call_traits<value_t>::reference reference_t;
+        typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
 
 			/**
 			 * The constructor which initializes the property's value.
@@ -109,7 +111,7 @@ namespace ORO_CoreLib
 			 * @param description The description of the property.
 			 * @param value The initial value of the property (optional).
 			 */
-            Property(const std::string& name, const std::string& description, prop_t value = value_t() )
+            Property(const std::string& name, const std::string& description, param_t value = value_t() )
 				: PropertyBase(name, description), _value(value)
             {}
 
@@ -127,7 +129,7 @@ namespace ORO_CoreLib
 			 * @param value The value to be set.
 			 * @return A reference to newly set property value.
 			 */
-            const value_t& operator=(const value_t &value)
+            const_reference_t operator=( param_t value)
             {
                 _value = value;
                 return _value;
@@ -156,29 +158,29 @@ namespace ORO_CoreLib
 			 * Get the value of the property.
 			 * @return The value of the property.
 			 */
-            const value_t& get() const
+            const_reference_t get() const
             {
                 return _value;
             }
 
             /**
-             * Acces to the value of the Property.
+             * Access to the value of the Property.
              */
-            value_t& set()
+            reference_t set()
             {
                 return _value;
             }
 
             /**
-             * Acces to the value of the Property.
+             * Set the value of the Property.
              */
-            void set(value_t& v)
+            void set(param_t v)
             {
                 _value = v;
             }
 
             /**
-             * Acces to the value of the Property.
+             * Access to the value of the Property.
              */
             value_t& value()
             {
@@ -295,8 +297,12 @@ namespace ORO_CoreLib
             {
                 return new Property<T>( _name, _description );
             }
+
+        virtual AssignableDataSource<T>* createDataSource() {
+            return new detail::PropertyDataSource<T>( this );
+        }
         protected:
-            prop_t _value;
+            value_t _value;
         private:
     };
 

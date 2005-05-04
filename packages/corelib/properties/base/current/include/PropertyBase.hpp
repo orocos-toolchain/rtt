@@ -30,6 +30,7 @@
 
 #include <string>
 #include "CommandInterface.hpp"
+#include "DataSource.hpp"
 
 #pragma interface
 
@@ -174,20 +175,26 @@ namespace ORO_CoreLib
          */
         virtual bool accept( detail::PropertyOperation* op ) const = 0;
 
-            /**
-             * Deliver an identical clone of this PropertyBase. The
-             * original may be deleted and the clone can be transparantly
-             * used in its place or vice versa.
-             */
-            virtual PropertyBase* clone() const = 0;
+        /**
+         * Deliver an identical clone of this PropertyBase. The
+         * original may be deleted and the clone can be transparantly
+         * used in its place or vice versa.
+         */
+        virtual PropertyBase* clone() const = 0;
 
-            /**
-             * Create a new default instance of the PropertyBase.
-             * This is a factory method to 'make something of the same type'.
-             * The new PropertyBase has the same name and description as this.
-             */
-            virtual PropertyBase* create() const = 0;
-        protected:
+        /**
+         * Create a new default instance of the PropertyBase.
+         * This is a factory method to 'make something of the same type'.
+         * The new PropertyBase has the same name and description as this.
+         */
+        virtual PropertyBase* create() const = 0;
+
+        /**
+         * Create a DataSource through which this PropertyBase can be
+         * manipulated.
+         */
+        virtual DataSourceBase* createDataSource() = 0;
+    protected:
             /**
              * A short name for this PropertyBase.
              */
