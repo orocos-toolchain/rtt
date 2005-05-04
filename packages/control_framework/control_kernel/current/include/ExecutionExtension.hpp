@@ -154,8 +154,8 @@ namespace ORO_ControlKernel
          */
         void loadStateMachine( const std::string& filename, const std::string& file = "" );
 
-        ParsedStateMachine* getStateMachine(const std::string& name);
-        ProgramInterface* getProgram(const std::string& name);
+        const ParsedStateMachine* getStateMachine(const std::string& name);
+        const ProgramInterface* getProgram(const std::string& name);
 
         /**
          * Delete the given StateMachine...

@@ -197,13 +197,13 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                       << "loadStateMachine loaded "<< contexts.end() - contexts.begin()<<" StateMachine(s) from " << filename << Logger::endl;
     }
 
-    ParsedStateMachine* ExecutionExtension::getStateMachine(const std::string& name) {
+    const ParsedStateMachine* ExecutionExtension::getStateMachine(const std::string& name) {
         if ( parsed_states.count(name) == 0 )
             return 0;
         return parsed_states[ name ];
     }
 
-    ProgramInterface* ExecutionExtension::getProgram(const std::string& name) {
+    const ProgramInterface* ExecutionExtension::getProgram(const std::string& name) {
         return getProcessor()->getProgram(name);
     }
 

@@ -208,7 +208,7 @@ namespace ORO_ControlKernel
 
         void log(const std::string & what)
         {
-            this->enqueue( what );
+            this->dolog( what );
         }
         /**
          * @brief Log a boolean on standard output.

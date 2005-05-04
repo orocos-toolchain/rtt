@@ -221,9 +221,13 @@ namespace ORO_ControlKernel
                             dot->Get(t);
                             // we are hosting this element.
                             // try to update the bag !
-                            refreshProperty( bag,
-                                             Property<MemberType>( (*it1)->getName(),
-                                                                   "", t ) );
+                            PropertyBase* target_prop;
+                            if ( 0 != (target_prop = bag.find( (*it1)->getName() ) ) )
+                                {
+                                    // this does not do any memory allocation.
+                                    Property<MemberType> temp("","",t);
+                                    target_prop->refresh( &temp );
+                                }
                         }
                 }
         }

@@ -39,17 +39,11 @@ namespace ORO_ControlKernel
      */
     class ComponentConfigurator
     {
-        public:
-            ComponentConfigurator()
-            {}
-
-            virtual ~ComponentConfigurator()
-            {}
-
-            /**
-             * Read the XML cpf files and try to configure the given component.
-             */
-            virtual bool configure(const std::string& filename, PropertyComponentInterface* target) const;
+    public:
+        /**
+         * Read the XML cpf files and try to configure the given component.
+         */
+        bool configure(const std::string& filename, PropertyComponentInterface* target) const;
     };
 }
 #endif
