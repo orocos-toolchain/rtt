@@ -207,6 +207,9 @@ namespace ORO_Execution
         return statecopy->getEntryPoint();
     }
 
+    std::string StateMachine::getText() const {
+        return std::string();
+    }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {

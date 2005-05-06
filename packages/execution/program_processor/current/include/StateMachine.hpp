@@ -284,9 +284,14 @@ namespace ORO_Execution
 
         /**
          * Returns the current program line in execution,
-         * @return -1 if not available.
+         * @return 1 if not active
          */
         int getLineNumber() const;
+
+        /**
+         * Return the text to which getLineNumber() refers.
+         */
+        virtual std::string getText() const;
 
         /**
          * Inspect if the StateMachine is performing a state transition.
