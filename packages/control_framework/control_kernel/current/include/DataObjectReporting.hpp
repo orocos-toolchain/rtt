@@ -44,6 +44,7 @@
 namespace ORO_ControlKernel
 {
     using ORO_CoreLib::Property;
+    using ORO_CoreLib::PropertyBase;
     using ORO_CoreLib::PropertyBag;
     using ORO_CoreLib::PropertyExporter;
     using ORO_CoreLib::PropertyIntrospection;
@@ -54,20 +55,18 @@ namespace ORO_ControlKernel
      */
     struct ReportingClient {
         virtual ~ReportingClient();
-        virtual void exportReports(  PropertyBag& bag ) const = 0;
-        virtual void refreshReports( PropertyBag& bag ) const = 0;
-        virtual void cleanupReports( PropertyBag& bag ) const = 0;
+        virtual void reportAll(std::vector<ORO_CoreLib::CommandInterface*>& c,  PropertyBag& bag ) const = 0;
+        virtual std::pair<PropertyBase*,ORO_CoreLib::CommandInterface*> createItem( const std::string name ) const = 0;
         virtual void inspectReports( PropertyIntrospection* introspector ) const = 0;
     };
 
     /**
      * @brief An interface for gathering reports from DataObjects.
-     *
-     * It is very similar to the ReportingComponent Interface,
-     * but the semantic difference is big enough to motivate
-     * a separate interface.
+     * And acts as a map for a type of kernel DataObjects,
+     * serving them as DataSources. For example MyKernel::Inputs.
      */
     struct DataObjectReporting
+        : public std::map<std::string, ORO_CoreLib::DataSourceBase::shared_ptr>
     {
         static ORO_CoreLib::NameServer< boost::shared_ptr<DataObjectReporting> > nameserver;
         std::vector<ReportingClient*> clients;
@@ -76,6 +75,7 @@ namespace ORO_ControlKernel
          
          * @param name is the globally visible name of this DataObject.
          *  It is usually prefixed by the kernel's name it resides in.
+         * for example : MyKernel::Inputs.
          */
         DataObjectReporting(const std::string& name);
 
@@ -84,17 +84,45 @@ namespace ORO_ControlKernel
         void addClient( ReportingClient* c);
         void removeClient( ReportingClient* c);
 
-        void exportReports( PropertyBag& bag ) const {
-            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::exportReports,_1, boost::ref(bag)) );
-        }
-        void refreshReports( PropertyBag& bag ) const {
-            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::refreshReports,_1, boost::ref(bag)) );
-        }
-        void cleanupReports( PropertyBag& bag ) const {
-            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::cleanupReports,_1, boost::ref(bag)) );
-        }
         void inspectReports( PropertyIntrospection* introspector ) const {
             std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::inspectReports,_1, introspector) );
+        }
+
+        void refresh() {
+            for( std::vector<ORO_CoreLib::CommandInterface*>::iterator it = comms.begin(); it != comms.end(); ++it )
+                (*it)->execute();
+        }
+
+        void reportAll()
+        {
+            std::for_each(clients.begin(), clients.end(), boost::bind(&ReportingClient::reportAll,_1, boost::ref(comms), boost::ref(reports.value())) );
+        }
+        
+        void reportNone()
+        {
+            flattenPropertyBag( reports.value() );
+            deleteProperties( reports.value() );
+            for( std::vector<ORO_CoreLib::CommandInterface*>::iterator it = comms.begin(); it!= comms.end(); ++it )
+                delete *it;
+            comms.clear();
+        }
+
+        bool reportItem( const std::string& name ) {
+            // name is already stripped from 'kernelname::DataObject'
+            // check if 'I' am not already reported, then do not add sub-item. 
+            unsigned int pos = this->getName().find("::");
+            if( reports.value().find( std::string(this->getName(), pos+2) ) != 0)
+                return true;
+
+            for(std::vector<ReportingClient*>::iterator it = clients.begin(); it!= clients.end(); ++it) {
+                std::pair<PropertyBase*,ORO_CoreLib::CommandInterface*> item = (*it)->createItem( name );
+                if ( item.first != 0 && item.second != 0 ) {
+                        reports.value().add( item.first );
+                        comms.push_back( item.second);
+                        return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -112,6 +140,11 @@ namespace ORO_ControlKernel
             return &reports;
         }
 
+        std::vector<ORO_CoreLib::CommandInterface*>* getCommands()
+        {
+            return &comms;
+        }
+
     private :
         /**
          * A Report Server which exports reports in the form of
@@ -124,6 +157,11 @@ namespace ORO_ControlKernel
          * A Bag containing the reports of the dataObject.
          */
         Property<PropertyBag> reports;
+
+        /**
+         * These commands update the contents of the PropertyBag.
+         */
+        std::vector<ORO_CoreLib::CommandInterface*> comms;
     };
 
 }

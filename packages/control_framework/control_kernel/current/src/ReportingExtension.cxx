@@ -269,10 +269,10 @@ namespace ORO_ControlKernel
                                 //std::cerr <<" already present in reporter, cleanup bag ";
                                 // This server exists. Request it to export all reports,
                                 // but remove the old entry, whatever it was.
-                                do_server->cleanupReports( do_server->getReports()->value() );
+                                do_server->reportNone();
                             }
                         //std::cerr <<" exporting Reports to bag "<<std::endl;
-                        do_server->exportReports( do_server->getReports()->value() );
+                        do_server->reportAll();
                     }
                 else if ( (pos = (*it).find("::")) != std::string::npos ) {
                     // extract the server's name :
@@ -282,8 +282,8 @@ namespace ORO_ControlKernel
                     if ( do_server.get() )
                         {
                             //std::cerr <<" found as '" + base->getKernelName()+"::" + std::string( *it, 0, pos )<<"'";
-                            PropertyBag tmp_bag;
-                            PropertyBase* new_item;
+                            //PropertyBag tmp_bag;
+                            //PropertyBase* new_item;
                             // The user gave a "DataObject::DataName" identifier, we need to add one item.
                             // check if it is the first registration...
                             if ( find( active_dos.begin(), active_dos.end(), do_server) == active_dos.end() )
@@ -292,25 +292,16 @@ namespace ORO_ControlKernel
                                     active_dos.push_back( do_server );
                                     reporter->exporterAdd( do_server->getExporter() );
                                 }
-                            do_server->exportReports( tmp_bag );
-
+                            
                             //std::cerr <<" checking if '"+ std::string( *it, pos+2 )+"' is present in DataObject : "<<endl;
                             // if the DataName is in the server, but not in the reports yet, add it to the reports.
-                            new_item = tmp_bag.find( std::string( *it, pos+2 ) );
-                            if ( new_item != 0 ) {
-                                //std::cerr << " ok: present in DataObject."<<endl;
-                                //std::cerr << " Checking if server has parent '" + std::string( *it, 0, pos+2 ) +"' : ";
-                                if ( do_server->getReports()->value().find( std::string( *it, 0, pos+2 ) ) == 0) {
-                                    //std::cerr << " not found thus adding new_item"<<endl;
-                                    do_server->getReports()->value().add( new_item->clone() );
-                                } //else std::cerr << " found thus no need to add "<<endl;
-                            } else {
+                            if ( do_server->reportItem( std::string( *it, pos+2 ) ) == false ) {
                                 Logger::log() <<Logger::Error << "ReportingExtension : "
                                               << " Looking up '"<< *it <<"' : "
                                               << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<"."<< Logger::endl;
                             }
 
-                            do_server->cleanupReports( tmp_bag );
+                            //do_server->cleanupReports( tmp_bag );
                         }
                 }
                 else {
@@ -328,7 +319,9 @@ namespace ORO_ControlKernel
     {
         // copy contents, if possible, on frequency of reporter.
         for ( DosList::iterator it = active_dos.begin(); it != active_dos.end(); ++it )
-            (*it)->refreshReports( (*it)->getReports()->value() );
+            (*it)->refresh();
+
+        //(*it)->refreshReports( (*it)->getReports()->value() );
 
         if ( reporter && serverOwner )
             {
@@ -361,7 +354,7 @@ namespace ORO_ControlKernel
                     }
                 for ( DosList::iterator it = active_dos.begin(); it != active_dos.end(); ++it )
                     {
-                        (*it)->cleanupReports( (*it)->getReports()->value() );
+                        (*it)->reportNone();
                         reporter->exporterRemove( (*it)->getExporter() );
                     }
             }

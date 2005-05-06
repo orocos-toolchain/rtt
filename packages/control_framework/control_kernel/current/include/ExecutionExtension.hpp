@@ -54,7 +54,7 @@ namespace ORO_ControlKernel
     using ORO_Execution::ProgramGraph;
     using ORO_Execution::Processor;
     using ORO_Execution::TaskContext;
-    using ORO_Execution::ParsedStateMachine;
+    using ORO_Execution::StateMachine;
     using ORO_Execution::ProgramInterface;
     class ExecutionExtension;
 
@@ -154,7 +154,7 @@ namespace ORO_ControlKernel
          */
         void loadStateMachine( const std::string& filename, const std::string& file = "" );
 
-        const ParsedStateMachine* getStateMachine(const std::string& name);
+        const StateMachine* getStateMachine(const std::string& name);
         const ProgramInterface* getProgram(const std::string& name);
 
         /**
@@ -279,8 +279,6 @@ namespace ORO_ControlKernel
         ControlKernelInterface* base;
 
         Property<int> interval;
-
-        std::map<std::string,ParsedStateMachine*> parsed_states;
 
         TaskContext tc;
     };

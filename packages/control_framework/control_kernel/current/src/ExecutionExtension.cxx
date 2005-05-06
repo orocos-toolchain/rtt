@@ -26,6 +26,7 @@
  ***************************************************************************/
 #pragma implementation
 #include "control_kernel/ExecutionExtension.hpp"
+#include "control_kernel/DataObjectReporting.hpp"
 
 
 #include <os/MutexLock.hpp>
@@ -37,6 +38,7 @@
 #include <execution/Parser.hpp>
 #include <execution/parse_exception.hpp>
 #include <execution/ParsedStateMachine.hpp>
+#include <execution/MapDataSourceFactory.hpp>
 
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
@@ -53,6 +55,7 @@ namespace ORO_ControlKernel
     using namespace ORO_Execution;
     using namespace ORO_OS;
     using namespace boost;
+    using namespace std;
 
     ExecutionExtension::ExecutionExtension( ControlKernelInterface* _base )
         : detail::ExtensionInterface( _base, "Execution" ),
@@ -147,15 +150,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         return true;
     }
 
-    namespace {
-        void recursiveRegister( std::map<std::string, ParsedStateMachine*>& m, ParsedStateMachine* parent ) {
-            std::vector<StateMachine*>::const_iterator chit;
-            m[parent->getName()] = parent;
-            for( chit = parent->getChildren().begin(); chit != parent->getChildren().end(); ++chit)
-                recursiveRegister(m, dynamic_cast<ParsedStateMachine*>(*chit) );
-        }
-    }
-
     void ExecutionExtension::loadStateMachine( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
@@ -190,17 +184,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         std::vector<ParsedStateMachine*>::iterator it;
         for( it= contexts.begin(); it !=contexts.end(); ++it) {
             getProcessor()->loadStateMachine( *it );
-            recursiveRegister( parsed_states, *it );
         }
 
         Logger::log() << Logger::Info << "ExecutionExtension : "
                       << "loadStateMachine loaded "<< contexts.end() - contexts.begin()<<" StateMachine(s) from " << filename << Logger::endl;
     }
 
-    const ParsedStateMachine* ExecutionExtension::getStateMachine(const std::string& name) {
-        if ( parsed_states.count(name) == 0 )
-            return 0;
-        return parsed_states[ name ];
+    const StateMachine* ExecutionExtension::getStateMachine(const std::string& name) {
+        return getProcessor()->getStateMachine( name );
     }
 
     const ProgramInterface* ExecutionExtension::getProgram(const std::string& name) {
@@ -229,7 +220,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     bool ExecutionExtension::deleteStateMachine( const std::string& name )
     {
-        parsed_states.erase( name );
         return proc.deleteStateMachine( name );
     }
 
@@ -305,6 +295,25 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                     tc.methodFactory.registerObject( (*it)->getName(), methodfactory );
                 }
                 ++it;
+            }
+        
+        // Now load in the DataObjects as DataSources
+        std::vector<std::string> objnames;
+        objnames.push_back("Inputs");
+        objnames.push_back("Models");
+        objnames.push_back("Commands");
+        objnames.push_back("SetPoints");
+        objnames.push_back("Outputs");
+        for ( vector<string>::iterator it = objnames.begin(); it != objnames.end(); ++it )
+            {
+                DataSourceFactoryInterface* dsf;
+                boost::shared_ptr<DataObjectReporting> drobjects( DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ) );
+                if ( drobjects == 0 )
+                    Logger::log() << Logger::Warning << " Could not load "+ base->getKernelName()+"::"+*it+" as DataSources."<<Logger::endl;
+                else {
+                    dsf = new MapDataSourceFactory( *drobjects, *it + " Data Object" );
+                    tc.dataFactory.registerObject( *it, dsf );
+                }
             }
     }
 

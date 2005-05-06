@@ -75,6 +75,7 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::DataObjectPriorityGet;
     using ORO_CoreLib::DataObjectLockFree;
     using ORO_CoreLib::DataObjectInterface;
+    using ORO_CoreLib::CommandInterface;
 
 
     /**
@@ -139,11 +140,11 @@ namespace ORO_ControlKernel
             repserver->removeClient( this );
         }
 
-        virtual void exportReports( PropertyBag& bag ) const
+        virtual void reportAll(std::vector<CommandInterface*>& comms,  PropertyBag& bag ) const 
         {
             // Export all members of this server.
             // this is only done once on startup. The reporting extension
-            // assumes they are updated with the updateReports() method.
+            // assumes they are updated with the comms Commands.
             //PropertyBagIntrospector inspector( bag );
             //this->inspectReports( &inspector );
             typename NameServer< NameServerType >::name_iterator it1( ns.getNameBegin() );
@@ -160,10 +161,33 @@ namespace ORO_ControlKernel
                             //std::cerr << " yes."<<endl;
                             MemberType val;
                             ns.getObject( *it1 )->Get(val);
-                            bag.add( new Property<MemberType>( std::string( (*it1), prefix.length() ),
-                                                               std::string( "" ), val ) );
+                            Property<MemberType>* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
+                                                                                    std::string( "" ), val );
+                            comms.push_back( item->refreshCommand( ns.getObject( *it1 ) ));
+                            bag.add( item );
                         } //else std::cerr << " no."<<endl;
                 }
+        }
+
+        virtual std::pair<PropertyBase*,CommandInterface*> createItem( const std::string name ) const 
+        {
+            typename NameServer< NameServerType >::name_iterator it1( ns.getNameBegin() );
+            typename NameServer< NameServerType >::name_iterator it2( ns.getNameEnd() );
+
+            for ( ; it1 != it2; ++it1)
+                {
+                    if ( (*it1).find( prefix ) == 0 && name.find( std::string( (*it1), prefix.length() ) ) == 0 )
+                        {
+                            MemberType val;
+                            ns.getObject( *it1 )->Get(val);
+                            PropertyBase* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
+                                                                                    std::string( "" ), val );
+                            // return the refresh command which updates orig with the DObj.
+                            CommandInterface* c =  item->refreshCommand( ns.getObject( *it1 ) );
+                            return std::make_pair( item, c );
+                        }
+                }
+            return std::pair<PropertyBase*, CommandInterface*>(0,0);
         }
 
         /**
@@ -194,48 +218,6 @@ namespace ORO_ControlKernel
                                                                            std::string( "" ), val ) );
                         }
                 }
-        }
-
-        /**
-         * Update the all elements in the given bag with new reports
-         * of data in this server.
-         */
-        void refreshReports( PropertyBag& bag ) const
-        {
-            // The bag is filled with placeholders, ready to get the
-            // updates.
-            // try to update all ns elements having 'prefix'
-            PropertyBag::iterator it1(bag.getProperties().begin()), it2(bag.getProperties().end() );
-            for ( ; it1 != it2; ++it1 )
-                {
-                    // @todo : We could automagically store every data element
-                    // in a property object. This would eliminate two copy operations !
-                    // from DO to t below and from t to the Property.
-                    // But since data is already stored in a DataObject, which controls access...
-                    // it is hard to get around it. A Refval Property could eliminate
-                    // one copy operation.
-                    NameServerType dot;
-                    if ( 0 != ( dot = ns.getObject( prefix + (*it1)->getName() ) ) )
-                        {
-                            MemberType t;
-                            dot->Get(t);
-                            // we are hosting this element.
-                            // try to update the bag !
-                            PropertyBase* target_prop;
-                            if ( 0 != (target_prop = bag.find( (*it1)->getName() ) ) )
-                                {
-                                    // this does not do any memory allocation.
-                                    Property<MemberType> temp("","",t);
-                                    target_prop->refresh( &temp );
-                                }
-                        }
-                }
-        }
-
-        virtual void cleanupReports( PropertyBag& bag ) const
-        {
-            flattenPropertyBag( bag );
-            deleteProperties( bag );
         }
 
 //         template< class T>
@@ -312,7 +294,8 @@ namespace ORO_ControlKernel
          */
         void reg( DataObjectInterface<MemberType>* m )
         {
-            ns.registerObject(m, prefix + m->getName() );
+            if ( ns.registerObject(m, prefix + m->getName() ) == true )
+                (*repserver)[m->getName()] = m;
         }
 
         /**
@@ -322,6 +305,7 @@ namespace ORO_ControlKernel
         void deReg( DataObjectInterface<MemberType>* m )
         {
             ns.unregisterObject( m );
+            repserver->erase( m->getName() );
         }
     };
 
@@ -379,7 +363,8 @@ namespace ORO_ControlKernel
      */
     template<typename First, typename Rest>
     struct NameSubClass< Typelist<First,Rest> >
-        : public DataObjectServer< DataObjectInterface< typename First::DataType> >, public NameSubClass<Rest>
+        : public DataObjectServer< DataObjectInterface< typename First::DataType> >,
+          public NameSubClass<Rest>
     {
         typedef DataObjectServer< DataObjectInterface<typename First::DataType> > ServerType;
         using ServerType::Get;
@@ -447,32 +432,12 @@ namespace ORO_ControlKernel
             NameSubClass<Rest>::recursiveReload(t, index+1);
             load(t, index);
         }
-            
-        virtual void refreshReports( PropertyBag& bag ) const
-        {
-            // Delegate to the subclass's implementation.
-            ServerType::refreshReports(bag);
-            NameSubClass<Rest>::refreshReports(bag);
-        }
-
-        void exportReports( PropertyBag& bag ) const
-        {
-            // Delegate to the subclass's implementation.
-            ServerType::exportReports(bag);
-            NameSubClass<Rest>::exportReports(bag);
-        }
 
         virtual void inspectReports(PropertyIntrospection* i) const
         {
             // Delegate to the subclass's implementation.
             ServerType::inspectReports(i);
             NameSubClass<Rest>::inspectReports(i);
-        }
-
-        virtual void cleanupReports( PropertyBag& bag ) const
-        {
-            ServerType::cleanupReports(bag);
-            NameSubClass<Rest>::cleanupReports(bag);
         }
 
     private:
@@ -576,11 +541,8 @@ namespace ORO_ControlKernel
         }
         void reg( First<nil_type>* ) {return ;}
         void deReg( First<nil_type>* ) {return ;}
-            
-        void refreshReports( PropertyBag& bag ) const {}
+
         void inspectReports( PropertyIntrospection* introspector ) const {}
-        void exportReports( PropertyBag& bag ) const  {}
-        void cleanupReports( PropertyBag& bag ) const {}
 
         void unload() {}
 
@@ -771,31 +733,11 @@ namespace ORO_ControlKernel
                 NameFrontEnd<Tail>(name, prefix, t, index)
             {}
 
-        virtual void refreshReports( PropertyBag& bag ) const
-        {
-            // Delegate to the subclass's implementation.
-            ServerType::refreshReports(bag);
-            NameFrontEnd<Tail>::refreshReports(bag);
-        }
-
-        void exportReports( PropertyBag& bag ) const
-        {
-            // Delegate to the subclass's implementation.
-            ServerType::exportReports(bag);
-            NameFrontEnd<Tail>::exportReports(bag);
-        }
-
         virtual void inspectReports(PropertyIntrospection* i) const
         {
             // Delegate to the subclass's implementation.
             ServerType::inspectReports(i);
             NameFrontEnd<Tail>::inspectReports(i);
-        }
-
-        virtual void cleanupReports( PropertyBag& bag ) const
-        {
-            ServerType::cleanupReports(bag);
-            NameFrontEnd<Tail>::cleanupReports(bag);
         }
 
         };
@@ -834,99 +776,8 @@ namespace ORO_ControlKernel
             }
             void reg( First<nil_type>* ) {return ;}
             void deReg( First<nil_type>* ) {return ;}
-            
-            void refreshReports( PropertyBag& bag ) const {}
             void inspectReports( PropertyIntrospection* introspector ) const {}
-            void exportReports( PropertyBag& bag ) const  {}
-            void cleanupReports( PropertyBag& bag ) const {}
         };
-
-#if 0
-        // deprecated, old compiler
-
-        /**
-         * @brief This specialisation detects the use of the CompositeDataObject
-         * class for composing DataObjects.
-         *
-         * It delegates the two parts to
-         * two NameServedDataObject subclasses. This allows recursive
-         * Composition of DataObjects. This specialisation is needed to
-         * remove the dupplicate type definitions when merging two Typelists
-         * and to provide a 'FrontEnd' to the types.
-         */
-        template< template<class> class _NameContainer, class F, class S>
-        struct NameServedDataObject< _NameContainer< CompositeDataObject<F,S> > >
-            : public NameFrontEnd< typename Loki::TL::NoDuplicates< typename _NameContainer< CompositeDataObject<F,S> >::WrappedNamesTypes >::Result > // All Types get an Accessor method.
-        {
-            NameServedDataObject< _NameContainer<F> > first_server;
-            NameServedDataObject< _NameContainer<S> > second_server;
-
-            typedef NameFrontEnd< typename Loki::TL::NoDuplicates< typename _NameContainer< CompositeDataObject<F,S> >::WrappedNamesTypes >::Result > FrontEnd;
-
-            using FrontEnd::Get;
-            using FrontEnd::Set;
-            using FrontEnd::has;
-            using FrontEnd::reg;
-            using FrontEnd::deReg;
-
-            NameServedDataObject(const std::string& name, const std::string& prefix ) //= name ) 
-                : FrontEnd(name, prefix, 0, 0),
-                  first_server(name, prefix),
-                  second_server(name, prefix)
-            {}
-
-            ~NameServedDataObject() {}
-
-            void changePrefix(const std::string& prefix)
-            {
-                first_server.changePrefix(prefix);
-                second_server.changePrefix(prefix);
-            }
-
-            virtual void refreshReports( PropertyBag& bag ) const
-            {
-                // Delegate to the subclass's implementation.
-                first_server.refreshReports(bag);
-                second_server.refreshReports(bag);
-            }
-
-            void exportReports( PropertyBag& bag ) const
-            {
-                // Delegate to the subclass's implementation.
-                first_server.exportReports(bag);
-                second_server.exportReports(bag);
-            }
-
-            virtual void inspectReports(PropertyIntrospection* i) const
-            {
-                // Delegate to the subclass's implementation.
-                first_server.inspectReports(i);
-                second_server.inspectReports(i);
-            }
-
-            virtual void cleanupReports( PropertyBag& bag ) const
-            {
-                first_server.cleanupReports(bag);
-                second_server.cleanupReports(bag);
-            }
-
-            /**
-             * @brief This allows the user to retrieve a DataObject<T> of type T.
-             *
-             * He needs this to retrieve the DataObject type itself from the NameServer 
-             * (instead of its contents or the type of its contents). It is a helper
-             * class.
-             */
-            template< typename _DataT >
-            struct DataObject
-            {
-                typedef typename _NameContainer<F>::template DataObjectType< _DataT >::type type;
-            };
-
-            //typedef typename _NameContainer<F>::NamesTypes::DataType DataType;
-            typedef nil_type DataType;
-        };
-#endif
 
         /**
          * A Typelist operation that wraps each type T
