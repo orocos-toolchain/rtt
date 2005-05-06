@@ -117,7 +117,7 @@ namespace ORO_Execution {
          */
         void setName( const std::string& name, bool recursive );
 
-        const std::string& getText() const { return _text; }
+        std::string getText() const { return _text; }
         void setText(const std::string& text) { _text = text; }
 
         TaskContext* getTaskContext() const {

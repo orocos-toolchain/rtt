@@ -21,7 +21,7 @@ namespace ORO_Execution
           Logger::log() << Logger::Error << "ProgramLoader::executeFunction : Script "+file+" does not exist." << Logger::endl;
           return ProgramLoader::Functions();
       }
-      return this->executeFunction( inputfile, c, file );
+      return this->loadFunction( inputfile, c, file );
   }
 
   ProgramLoader::Functions ProgramLoader::loadFunction( std::istream& s, TaskContext* c, const std::string& filename)
