@@ -85,7 +85,7 @@ namespace ExecutionClient
 
  std::string DirectKernelInterface::getProgramText(const std::string& name )
  {
-     ProgramInterface* pi = executionext->getProgram(name);
+     const ProgramInterface* pi = executionext->getProgram(name);
      if (pi)
          return pi->getText();
      return std::string("Error, could not find ")+name;
@@ -93,7 +93,7 @@ namespace ExecutionClient
 
  int DirectKernelInterface::getProgramLine(const std::string& name )
  {
-     ProgramInterface* pi = executionext->getProgram(name);
+     const ProgramInterface* pi = executionext->getProgram(name);
      if (pi)
          return pi->getLineNumber();
      return -1;
@@ -101,7 +101,7 @@ namespace ExecutionClient
 
  std::string DirectKernelInterface::getStateText(const std::string& name )
  {
-     ParsedStateMachine* ps = executionext->getStateMachine(name);
+     const StateMachine* ps = executionext->getStateMachine(name);
      if (ps)
          return ps->getText();
      return std::string("Error, could not find ")+name;
@@ -109,7 +109,7 @@ namespace ExecutionClient
 
  int DirectKernelInterface::getStateLine(const std::string& name )
  {
-     ParsedStateMachine* ps = executionext->getStateMachine(name);
+     const StateMachine* ps = executionext->getStateMachine(name);
      if (ps)
        return ps->getLineNumber();
      return -1;
@@ -181,7 +181,7 @@ namespace ExecutionClient
 
     std::string DirectKernelInterface::getState(const std::string& name )
     {
-     ParsedStateMachine* ps = executionext->getStateMachine(name);
+     const StateMachine* ps = executionext->getStateMachine(name);
      if (ps && ps->isActive() )
          return ps->currentState()->getName();
      return std::string("na");
@@ -191,8 +191,35 @@ namespace ExecutionClient
   void DirectKernelInterface::loadStateMachines(
     const std::string& code, const std::string& filename )
   {
-    try {
-        executionext->loadStateMachine( filename, code );
+        Parser    parser;
+        Parser::ParsedStateMachines contexts;
+        std::stringstream text_stream( code );
+      try {
+        try {
+          contexts = parser.parseStateMachine( text_stream, executionext->getTaskContext(), filename );
+        }
+        catch( const file_parse_exception& exc )
+        {
+            Logger::log() << Logger::Error << "ExecutionExtension : "
+                          << "loadStateMachine  : "<< exc.what()<< Logger::endl;
+          // no reason to catch this other than clarity
+          throw;
+        }
+        if ( contexts.empty() )
+        {
+            Logger::log() << Logger::Info << "ExecutionExtension : "
+                          << "loadStateMachine no StateMachines instantiated loaded from "<< filename << Logger::endl;
+            throw program_load_exception( "No StateMachines instantiated in file \"" + filename + "\"." );
+        }
+
+        // this can throw a program_load_exception
+        std::vector<ParsedStateMachine*>::iterator it;
+        for( it= contexts.begin(); it !=contexts.end(); ++it) {
+            executionext->getProcessor()->loadStateMachine( *it );
+        }
+
+        Logger::log() << Logger::Info << "ExecutionExtension : "
+                      << "loadStateMachine loaded "<< contexts.end() - contexts.begin()<<" StateMachine(s) from " << filename << Logger::endl;
     }
     catch ( program_load_exception& e) {
         throw load_exception( e.what() );
@@ -207,9 +234,32 @@ namespace ExecutionClient
 
  void DirectKernelInterface::loadPrograms( const std::string& code, const std::string& filename  )
   {
-    try {
-        executionext->loadProgram( filename, code );
-    }
+        Parser    parser;
+        Parser::ParsedPrograms pg_list;
+        std::stringstream text_stream( code );
+      try {
+        try {
+            pg_list = parser.parseProgram( text_stream, executionext->getTaskContext(), filename );
+        }
+        catch( const file_parse_exception& exc )
+        {
+            Logger::log() << Logger::Error << "ExecutionExtension : "
+                          << "loadProgram  : "<< exc.what()<< Logger::endl;
+          // no reason to catch this other than clarity
+          throw;
+        }
+        if ( pg_list.empty() )
+        {
+            Logger::log() << Logger::Warning << "ExecutionExtension : "
+                          << "loadProgram no programs loaded from "<< filename << Logger::endl;
+            return;
+            // since functions can be present, this is not so exceptional.
+            //throw program_load_exception( "Warning : No Programs defined in inputfile." );
+        }
+        for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, executionext->getProcessor(), _1) );
+        Logger::log() << Logger::Info << "ExecutionExtension : "
+                      << "loadProgram loaded "<< pg_list.end() - pg_list.begin()<<" program(s) from " << filename << Logger::endl;
+      }
     catch ( program_load_exception& e) {
         throw load_exception( e.what() );
     }

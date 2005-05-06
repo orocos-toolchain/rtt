@@ -35,10 +35,10 @@
 #include <execution/GlobalDataSourceFactory.hpp>
 #include <execution/DataSourceFactoryInterface.hpp>
 #include <execution/ProgramGraph.hpp>
-#include <execution/Parser.hpp>
 #include <execution/parse_exception.hpp>
 #include <execution/ParsedStateMachine.hpp>
 #include <execution/MapDataSourceFactory.hpp>
+#include <execution/ProgramLoader.hpp>
 
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
@@ -116,8 +116,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     bool ExecutionExtension::loadProgram( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
-        Parser    parser;
-        std::vector<ProgramGraph*> pg_list;
         std::ifstream file_stream;
         std::stringstream text_stream( file );
         std::istream *prog_stream;
@@ -126,35 +124,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
             prog_stream = &file_stream;
         } else
             prog_stream = &text_stream;
-        try {
-            pg_list = parser.parseProgram( *prog_stream, &tc, filename );
-        }
-        catch( const file_parse_exception& exc )
-        {
-            Logger::log() << Logger::Error << "ExecutionExtension : "
-                          << "loadProgram  : "<< exc.what()<< Logger::endl;
-          // no reason to catch this other than clarity
-          throw;
-        }
-        if ( pg_list.empty() )
-        {
-            Logger::log() << Logger::Warning << "ExecutionExtension : "
-                          << "loadProgram no programs loaded from "<< filename << Logger::endl;
-            return true;
-            // since functions can be present, this is not so exceptional.
-            //throw program_load_exception( "Warning : No Programs defined in inputfile." );
-        }
-        for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, &proc, _1) );
-        Logger::log() << Logger::Info << "ExecutionExtension : "
-                      << "loadProgram loaded "<< pg_list.end() - pg_list.begin()<<" program(s) from " << filename << Logger::endl;
-        return true;
+
+        ProgramLoader loader;
+        return loader.loadProgram( *prog_stream, &tc, filename );
     }
 
-    void ExecutionExtension::loadStateMachine( const std::string& filename, const std::string& file )
+    bool ExecutionExtension::loadStateMachine( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
-        Parser    parser;
-        std::vector<ParsedStateMachine*> contexts;
         std::ifstream file_stream;
         std::stringstream text_stream( file );
         std::istream *prog_stream;
@@ -163,31 +140,9 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
             prog_stream = &file_stream;
         } else
             prog_stream = &text_stream;
-        try {
-          contexts = parser.parseStateMachine( *prog_stream, &tc, filename );
-        }
-        catch( const file_parse_exception& exc )
-        {
-            Logger::log() << Logger::Error << "ExecutionExtension : "
-                          << "loadStateMachine  : "<< exc.what()<< Logger::endl;
-          // no reason to catch this other than clarity
-          throw;
-        }
-        if ( contexts.empty() )
-        {
-            Logger::log() << Logger::Info << "ExecutionExtension : "
-                          << "loadStateMachine no StateMachines instantiated loaded from "<< filename << Logger::endl;
-            throw program_load_exception( "No StateMachines instantiated in file \"" + filename + "\"." );
-        }
 
-        // this can throw a program_load_exception
-        std::vector<ParsedStateMachine*>::iterator it;
-        for( it= contexts.begin(); it !=contexts.end(); ++it) {
-            getProcessor()->loadStateMachine( *it );
-        }
-
-        Logger::log() << Logger::Info << "ExecutionExtension : "
-                      << "loadStateMachine loaded "<< contexts.end() - contexts.begin()<<" StateMachine(s) from " << filename << Logger::endl;
+        ProgramLoader loader;
+        return loader.loadStateMachine( *prog_stream, &tc, filename );
     }
 
     const StateMachine* ExecutionExtension::getStateMachine(const std::string& name) {

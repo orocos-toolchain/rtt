@@ -136,23 +136,15 @@ namespace ORO_ControlKernel
          * Set Programs to be used in the kernel.
          *
          * @param filename A file containing one or more programs.
-         * @throw file_parse_exception ( defined in
-         * <execution/parse_exception.hpp> ) if parsing fails
-         * @throw program_load_exception ( defined in
-         * this header ) if loading fails...
          */
         bool loadProgram( const std::string&  filename, const std::string& file = "" );
 
         /**
          * Load the StateMachines from the given file.
          *
-         * @param filename The name of the StateMachine.
-         * @throw file_parse_exception ( defined in
-         * <execution/parse_exception.hpp> ) if parsing fails
-         * @throw program_load_exception ( defined in
-         * this header ) if loading fails...
+         * @param filename A file containing one or more StateMachines.
          */
-        void loadStateMachine( const std::string& filename, const std::string& file = "" );
+        bool loadStateMachine( const std::string& filename, const std::string& file = "" );
 
         const StateMachine* getStateMachine(const std::string& name);
         const ProgramInterface* getProgram(const std::string& name);
