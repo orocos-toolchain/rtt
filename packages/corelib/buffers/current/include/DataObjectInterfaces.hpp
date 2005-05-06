@@ -33,17 +33,20 @@
 #include <os/oro_atomic.h>
 #include <string>
 
+#include "DataSource.hpp"
+
 namespace ORO_CoreLib
 {
 
     /**
-     * @brief A DataObjectInterface instance makes a data
-     * struct available for the outside world to read from and write to.
+     * @brief A DataObjectInterface extends the AssignableDataSource with
+     * implementations of multi-threaded read/write solutions.
      *
      * @see DataObject
      */
     template <class _DataType>
     struct DataObjectInterface
+        : public AssignableDataSource<_DataType>
     {
         virtual ~DataObjectInterface() {}
 
@@ -79,6 +82,21 @@ namespace ORO_CoreLib
          * @return The name
          */
         virtual const std::string& getName() const = 0;
+
+        virtual typename DataSource<DataType>::result_t get() const {
+            return this->Get();
+        }
+
+        virtual void set( typename AssignableDataSource<DataType>::param_t t ) {
+            this->Set( t );
+        }
+
+        virtual typename AssignableDataSource<DataType>::reference_t set() {
+            // return null reference, allowed by API.
+            typename DataSource<DataType>::value_t* tmp = 0;
+            return typename AssignableDataSource<DataType>::reference_t(*tmp);
+        }
+
     };
 
 
@@ -150,6 +168,14 @@ namespace ORO_CoreLib
          * @param push The data which must be set.
          */
         void Set( const DataType& push ) { ORO_OS::MutexLock locker(lock); data = push; }
+
+        DataObjectLocked<DataType>* clone() const {
+            return new DataObjectLocked<DataType>(name);
+        }
+
+        DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
+            return this;
+        }
     };
 
     /**
@@ -190,7 +216,7 @@ namespace ORO_CoreLib
          * One element of Data.
          */
         _DataType data;
-        _DataType copy;
+        _DataType mcopy;
 
         std::string name;
     public:
@@ -201,7 +227,7 @@ namespace ORO_CoreLib
          * @param _prefix The prefix of this DataObject (not used).
          */
         DataObjectPrioritySet(const std::string& _name, const std::string& _prefix = "")
-            : data(), copy(), name(_name) {}
+            : data(), mcopy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -226,7 +252,7 @@ namespace ORO_CoreLib
          * @param pull A copy of the data.
          */
         void Get( DataType& pull ) const
-        { if (dirty_flag) pull = copy; else {ORO_OS::MutexLock locker(lock); pull = data;} }
+        { if (dirty_flag) pull = mcopy; else {ORO_OS::MutexLock locker(lock); pull = data;} }
 
         /**
          * @brief Get a copy of the data of the module.
@@ -246,7 +272,15 @@ namespace ORO_CoreLib
             if (locker.isSuccessful()) 
                 {data = push; dirty_flag = false;} 
             else 
-                {copy = push; dirty_flag = true;}
+                {mcopy = push; dirty_flag = true;}
+        }
+
+        DataObjectPrioritySet<DataType>* clone() const {
+            return new DataObjectPrioritySet<DataType>(name);
+        }
+
+        DataObjectPrioritySet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
+            return this;
         }
     };
 
@@ -290,7 +324,7 @@ namespace ORO_CoreLib
          * One element of Data.
          */
         _DataType data;
-        _DataType copy;
+        _DataType mcopy;
 
         std::string name;
     public:
@@ -301,7 +335,7 @@ namespace ORO_CoreLib
          * @param _prefix The prefix of this DataObject (not used).
          */
         DataObjectPriorityGet(const std::string& _name, const std::string& _prefix  = std::string())
-            : data(), copy(), name(_name) {}
+            : data(), mcopy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -335,7 +369,7 @@ namespace ORO_CoreLib
             if ( locker.isSuccessful() ) 
                 {pull = data;} 
             else 
-                {pull = copy;}
+                {pull = mcopy;}
         }
 
         /**
@@ -356,7 +390,15 @@ namespace ORO_CoreLib
                 ORO_OS::MutexLock locker(lock); 
                 data = push; 
             }
-            copy = data;
+            mcopy = data;
+        }
+
+        DataObjectPriorityGet<DataType>* clone() const {
+            return new DataObjectPriorityGet<DataType>(name);
+        }
+
+        DataObjectPriorityGet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
+            return this;
         }
     };
 
@@ -536,6 +578,15 @@ namespace ORO_CoreLib
             read_ptr  = wrote_ptr;
             write_ptr = write_ptr->next; // we checked this in the while loop
         }
+
+        DataObjectLockFree<DataType>* clone() const {
+            return new DataObjectLockFree<DataType>(name);
+        }
+
+        DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
+            return this;
+        }
+
     };
 
     /**
@@ -602,192 +653,15 @@ namespace ORO_CoreLib
          */
         void Set( const DataType& push ) { data = push; }
 
-    };
-
-    // These classes are unused.  (ps)
-#if 0
-    /**
-     * @brief A class which provides update based access to one typed element of data.
-     */
-    template<class _DataType>
-    class DataObjectUpdated
-        : public DataObjectInterface< _DataType >
-    {
-        /**
-         * One element of Data.
-         */
-        _DataType data;
-        mutable Event    updated;
-
-        std::string name;
-    public:
-        /** 
-         * Construct a DataObject by name.
-         * 
-         * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
-         */
-        DataObjectUpdated(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
-
-        /** 
-         * Return the name of this DataObject.
-         * 
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
+        DataObject<DataType>* clone() const {
+            return new DataObject<DataType>(name);
         }
 
-        /**
-         * The type of the data.
-         */
-        typedef _DataType DataType;
-            
-        /**
-         * Get a copy of the Data of the module.
-         *
-         * @param pull A copy of the data.
-         */
-        void Get( DataType& pull ) const { pull = data; }
-
-        /**
-         * Get a copy of the data of the module.
-         *
-         * @return The result of the module.
-         */
-        DataType Get() const { return data; }
-            
-        /**
-         * Set the data to a certain value.
-         *
-         * @param push The data which must be set.
-         */
-        void Set( const DataType& push ) { data = push; updated.fire(); }
-
-        /**
-         * Allows you to register a Listenener,Completer handler
-         * to be notified when the DataObject is updated.
-         */
-        ORO_CoreLib::HandlerRegistrationInterface* eventGet() { return &updated; }
-    };
-
-    /**
-     * @brief This DataObject updates the data with each Get() method call.
-     * @see DataObject
-     * @see DataObjectInterface
-     */
-    template<class _DataType>
-    class DataRecursive
-        :public DataObjectInterface<_DataType>
-    {
-        /**
-         * One element of Data.
-         */
-        _DataType data;
-    public:
-        typedef _DataType DataType;
-            
-        /**
-         * Create a recursive data element which fetches the data from a
-         * DataFlowInterface.
-         *
-         * @param _module The module to provide the data for this instance.
-         */
-        DataRecursive( DataFlowInterface* _module) : module(_module) {}
-            
-        void Get( DataType& pull ) const { module->update(); pull = data; }
-        DataType Get() const { module->update(); return data; }
-        void Set( const DataType& push ) { data = push; }
-    protected:
-        mutable DataFlowInterface* module;
-    };
-
-    using ORO_CoreLib::TimeService;
-
-    /**
-     * @brief This DataObject refreshes the data after time S when a Get() method call is done.
-     * @see DataObjectInterface
-     * @see DataObject
-     * @see DataRecursive
-     * @note not a working implementation.
-     */
-    template<class _DataType>
-    class DataRefreshed
-        :public DataObjectInterface<_DataType>
-    {
-        /**
-         * One element of Data.
-         */
-        _DataType data;
-        
-        /**
-         * Time of data freshness.
-         */
-        mutable ORO_CoreLib::Seconds period;
-
-        /**
-         * Time of last measurement.
-         */
-        mutable TimeService::ticks timeStamp;
-        std::string name;
-    public:
-        /** 
-         * Construct a DataObject by name.
-         * 
-         * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
-         */
-        DataRefreshed(const std::string& _name, const std::string& _prefix  = std::string()) : name(_name) {}
-
-        /** 
-         * Return the name of this DataObject.
-         * 
-         * @return The name
-         */
-        const std::string& getName() const { return name;}
-
-        void setName( const std::string& _name )
-        {
-            name = _name;
+        DataObject<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
+            return this;
         }
 
-        typedef _DataType DataType;
-
-        /**
-         * Create a DataRefreshed with freshness <refresh>.
-         *
-         * @param refresh The maximum age of the data.
-         */
-        DataRefreshed(ORO_CoreLib::Seconds refresh) : period(refresh), timeStamp(0) {}
-            
-        void Get( DataType& pull ) const  
-        { 
-            if ( period < TimeService::secondsSince(period) )
-                {
-                    period = TimeService::getSeconds();
-                    module->update(); 
-                }
-            pull = data; 
-        }
-            
-        DataType Get() const
-        { 
-            if ( period < TimeService::secondsSince(period) )
-                {
-                    period = TimeService::getSeconds();
-                    module->update(); 
-                }
-            return data; 
-        }
-            
-        void Set( const DataType& push ) { data = push; }
-
     };
-#endif
-
 }
 
 #endif
