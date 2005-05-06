@@ -68,8 +68,10 @@ namespace ORO_Execution
     /**
      * Returns a copy of this TaskAttributeBase.  Uses the given
      * replacements to copy held DataSources.
+     * @param instantiate Set to true to get a copy which will return itself
+     * on any future copy request.
      */
-    virtual TaskAttributeBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) = 0;
+    virtual TaskAttributeBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) = 0;
 
     /**
      * return a command assigning rhs to the DataSource you're
@@ -128,9 +130,11 @@ namespace ORO_Execution
 
             virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
                 // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
-                if ( replace[this] != 0 )
-                    return dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] );
-              
+                if ( replace[this] != 0 ) {
+                    assert ( dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] ) );
+                    return static_cast<TaskAttributeDataSource<T>*>( replace[this] );
+                }
+                // Other pieces in the code rely on insertion in the map :
                 replace[this] = this;
                 // return this instead of a copy.
                 return this;
@@ -207,14 +211,14 @@ namespace ORO_Execution
       {
         return new TaskAttribute<T>( data.get() );
       }
-    TaskAttribute<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+    TaskAttribute<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool  )
       {
           // a bit special... The TaskAttribute's DataSource is designed to be not copyable,
           // but if the copy request is on the TaskAttribute itself, forcefully make a copy
           // of the underlying DataSource. Hence, TaskAttribute must be copied before all
           // other DataSources...
-          TaskAttribute<T>* ret = new TaskAttribute<T>( data->get() );
-          replacements[ data.get() ] = ret->toDataSource();
+          //           TaskAttribute<T>* ret = new TaskAttribute<T>( data->get() );
+          TaskAttribute<T>* ret = new TaskAttribute<T>( data->copy(replacements) ); //ironically, no copy of ds
           return ret;
       }
   };
@@ -230,70 +234,6 @@ namespace ORO_Execution
         };
     }
 
-#if 0
-#warning "does not compile under gcc 3.3 (unimplemented feature, clone() in bases causes it)"
-    /**
-     * The ORO_CoreLib::Property based Attribute of a TaskContext,
-     * which can be stored in an AttributeRepository.  It is
-     * accessible from the scrip parsers (through its
-     * TaskAttributeBase parent), and from the ORO_CoreLib Property
-     * system.
-     * @param T The type of data this attribute holds.
-     */
-  template<typename T>
-  class TaskProperty
-      : public TaskAttributeBase,
-        public Property<T>
-  {
-  public:
-    typename ORO_CoreLib::detail::PropertyDataSource<T>::shared_ptr data;
-
-    TaskProperty(const std::string& name, const std::string& description)
-        :  Property<T>(name, description ),
-           data( new ORO_CoreLib::detail::PropertyDataSource<T>(this) )
-      {
-      }
-    TaskProperty(const std::string& name, const std::string& description, T t)
-        :  Property<T>(name, description, t ),
-           data( new ORO_CoreLib::detail::PropertyDataSource<T>( this ) )
-      {
-      }
-      /*
-    TaskProperty(const std::string& name, const std::string& description, ORO_CoreLib::detail::PropertyDataSource<T>* d )
-        :  Property<T>(name, description ),
-           : data( d )
-      {
-      }
-      */
-      AssignableDataSource<T>* toDataSource() const
-      {
-        return data.get();
-      }
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
-      {
-        DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
-        if ( ! t ) {
-            throw bad_assignment();
-        }
-        return new AssignVariableCommand<T>( data.get(), t );
-      }
-    TaskProperty<T>* clone() const
-      {
-        return new TaskProperty<T>( data.get() );
-      }
-    TaskProperty<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
-      {
-          // a bit special... The TaskProperty's DataSource is designed to be not copyable,
-          // but if the copy request is on the TaskProperty itself, forcefully make a copy
-          // of the underlying DataSource. Hence, TaskProperty must be copied before all
-          // other DataSources...
-          TaskProperty<T>* ret = new TaskProperty<T>( data->get() );
-          replacements[ data.get() ] = ret->toDataSource();
-          return ret;
-      }
-  };
-#endif 
 
     /**
      * As opposed to a TaskAttribute, a TaskConstant can not be assigned to a new value
@@ -335,14 +275,14 @@ namespace ORO_Execution
       {
         return new TaskConstant<T>( data.get() );
       }
-    TaskConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) 
+    TaskConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) 
       {
           // a bit special... The TaskConstant's DataSource is designed to be not copyable,
           // but if the copy request is on the TaskConstant itself, forcefully make a copy
           // of the underlying DataSource. Hence, TaskConstant must be copied before all
           // other DataSources...
-          TaskConstant<T>* ret = new TaskConstant<T>( data->get() );
-          replacements[ data.get() ] = ret->toDataSource();
+          //          TaskConstant<T>* ret = new TaskConstant<T>( data->get() );
+          TaskConstant<T>* ret = new TaskConstant<T>( data->copy(replacements) );
           return ret;
       }
   };
@@ -376,8 +316,9 @@ namespace ORO_Execution
             {
                 return new ParsedAlias<T>( data.get() );
             }
-            ParsedAlias<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+            ParsedAlias<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool )
             {
+                // alias can not be instantiated ?
                 return new ParsedAlias<T>( data->copy( replacements ) );
             }
         };

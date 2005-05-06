@@ -100,6 +100,7 @@ namespace ORO_Execution
        * inserted in the StateMachine.
        */
       int rank;
+      bool isroot; // are we instantiating a rootmachine ?
 
       rule_t production;
       rule_t newline;
@@ -156,6 +157,7 @@ namespace ORO_Execution
       void seenstatecontextname( iter_t begin, iter_t end );
       void storeOffset();
       void saveText( iter_t begin, iter_t end );
+      void startrootcontextinstantiation();
       void seenrootcontextinstantiation();
       void seenstatecontextend();
       void seensubMachineinstantiation();

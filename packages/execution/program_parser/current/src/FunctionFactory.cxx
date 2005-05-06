@@ -127,7 +127,8 @@ namespace ORO_Execution
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );
 
-            // make a deep copy of the function :
+            // make a semi-deep copy of the function :
+            // copy the local variables, but clone() the remote datasources.
             std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
             boost::shared_ptr<FunctionGraph> copy( orig->copy( replacementdss ) );
             // create commands that init all the args :

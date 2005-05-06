@@ -97,6 +97,7 @@ namespace ORO_Execution
           curnonprecstate( 0 ),
           progParser( 0 ),
           curcondition( 0 ),
+          isroot(false),
           conditionparser( new ConditionParser( context ) ),
           commonparser( new CommonParser ),
           valuechangeparser( new ValueChangeParser(context) ),
@@ -137,7 +138,7 @@ namespace ORO_Execution
         production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation ) >> expect_eof(end_p);
 
         rootcontextinstantiation =
-            str_p("RootMachine")
+            str_p("RootMachine")[bind (&StateGraphParser::startrootcontextinstantiation, this) ]
             >> contextinstantiation[ bind( &StateGraphParser::seenrootcontextinstantiation, this ) ];
 
         statecontext =
@@ -618,7 +619,13 @@ namespace ORO_Execution
         curnonprecstate = 0;
     }
 
+    void StateGraphParser::startrootcontextinstantiation() {
+        isroot = true;
+    }
+
     void StateGraphParser::seenrootcontextinstantiation() {
+        // first reset the flag.
+        isroot = false;
         if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
             throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
@@ -703,7 +710,9 @@ namespace ORO_Execution
         // TODO : move this code to the ParsedStateMachine builder.
 
         // Create a full depth copy (including subMachines)
-        ParsedStateMachine* nsc = curcontextbuilder->build();
+        // if RootMachine, make special copy which fixes attributes such
+        // that on subsequent copy() they keep pointing to same var.
+        ParsedStateMachine* nsc = curcontextbuilder->build( isroot );
 
         // we stored the attributes which are params of nsc 
         // in the build operation :

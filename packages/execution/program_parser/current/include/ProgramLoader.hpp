@@ -25,14 +25,14 @@ namespace ORO_Execution
          * Processor or loads exported functions in \a target's Command Interface
          * @return All functions being executed.
          */
-        Functions executeFunction( std::istream& s, TaskContext* target, const std::string& filename = "stream" );
+        Functions loadFunction( std::istream& s, TaskContext* target, const std::string& filename = "stream" );
 
         /**
          * Executes all not exported functions in \a target's
          * Processor or loads exported functions in \a target's Command Interface.
          * @return All functions being executed.
          */
-        Functions executeFunction( const std::string& filename, TaskContext* target);
+        Functions loadFunction( const std::string& filename, TaskContext* target);
 
         /**
          * Load Programs and/or exported Functions from an Orocos Program Script into a TaskContext.

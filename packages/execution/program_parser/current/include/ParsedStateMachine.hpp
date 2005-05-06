@@ -78,7 +78,10 @@ namespace ORO_Execution {
          */
         DataSource<StateMachine*>* addSubMachine( const std::string& name, ParsedStateMachine* sc );
 
-        ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements ) const;
+        /**
+         * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
+         */
+        ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
 
         const std::map<std::string, StateDescription*>& getStates() const {
             return states;

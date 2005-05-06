@@ -605,7 +605,7 @@ namespace ORO_Execution
         }
         catch( ... )
             {
-                Logger::log()<<Logger::Error<<"No such peer : "<< c <<Logger::endl;
+                Logger::log()<<Logger::Debug<<"No such peer : "<< c <<Logger::endl;
                 return 0;
             }
         object = pp.object(); // store object.

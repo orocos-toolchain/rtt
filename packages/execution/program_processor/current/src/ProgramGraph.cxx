@@ -364,7 +364,7 @@ namespace ORO_Execution
         std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
         std::vector<TaskAttributeBase*> newlist;
         for (unsigned int i=0; i < origlist.size(); ++i)
-            newlist.push_back( origlist[i]->copy( replacementdss ) );
+            newlist.push_back( origlist[i]->copy( replacementdss, false ) ); // args are not instantiated.
         // newlist contains the DS which need initialisations :
 
         // create commands that init all the args :

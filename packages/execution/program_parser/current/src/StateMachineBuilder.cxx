@@ -43,9 +43,9 @@ namespace ORO_Execution {
       //delete templatecontext;
   }
 
-  ParsedStateMachine* StateMachineBuilder::build()
+  ParsedStateMachine* StateMachineBuilder::build(bool instantiate)
   {
     std::map<const DataSourceBase*, DataSourceBase*> dsmap;
-    return templatecontext->copy( dsmap );
+    return templatecontext->copy( dsmap, instantiate );
   }
 }

@@ -121,7 +121,8 @@ namespace ORO_Execution
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
     {
         context = tc;
-        peerparser.setContext( tc );
+        // DO NOT SET CONTEXT of PEERPARSER TO tc. 
+        // Peerparser operates in main task context and not on stack.
         return expressionparser.setStack( tc );
     }
 
@@ -253,9 +254,17 @@ namespace ORO_Execution
       // is it a peers attribute ?
       if ( peername ) {
           var = peername->attributeRepository.getValue( valuename );
+          // now, we must be sure that if this program gets copied,
+          // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute
+          // takes care of this by definition, but the variable of a loaded StateMachine or program
+          // will violate this rule. There are two solutions : change the behavior upon 'instantiation'
+          // of the prog/SM or act here. The former is better from design perspective, but if it does
+          // not work out there, we can wrap var here such that a peers attribute is never copied
+          // upon copy().
           if ( !var )
               throw parse_exception_semantic_error( "Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
       } else {
+          // local variable, _must_ be copied upon copy().
           var = context->attributeRepository.getValue( valuename );
           if ( !var )
               throw parse_exception_semantic_error( "Value \"" + valuename + "\" not defined in '"+context->getName()+"'." );

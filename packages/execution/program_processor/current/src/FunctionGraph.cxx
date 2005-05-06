@@ -259,7 +259,7 @@ namespace ORO_Execution
         // thus we can rebuild a vector<TaskAttributeBase*>, which will be automagically be
         // found by copy_graph.
         for (unsigned int i=0; i < args.size(); ++i)
-            ret->addArgument( args[i]->copy( replacementdss ) );
+            ret->addArgument( args[i]->copy( replacementdss, false ) ); // func args are never instantiated, always local.
 
         boost::copy_graph( program, ret->program,
                            boost::vertex_copy( GraphVertexCopier( program, ret->program, replacementdss ) ).

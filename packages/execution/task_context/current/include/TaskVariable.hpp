@@ -73,9 +73,14 @@ namespace ORO_Execution
       {
         return new ParsedVariable<T>( data.get() );
       }
-    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
       {
-        return new ParsedVariable<T>( data->copy( replacements ) );
+          if (instantiate ) {
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
+              replacements[ data.get() ] = instds;
+              return new ParsedVariable<T>( instds );
+          }
+          return new ParsedVariable<T>( data->copy( replacements ) );
       }
   };
 
@@ -129,8 +134,13 @@ namespace ORO_Execution
       {
         return new ParsedIndexVariable( data );
       }
-    ParsedIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+    ParsedIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
       {
+          if (instantiate ) {
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
+              replacements[ data.get() ] = instds;
+              return new ParsedIndexVariable( instds );
+          }
         return new ParsedIndexVariable( data->copy( replacements ) );
       }
   };
@@ -163,8 +173,13 @@ namespace ORO_Execution
       {
         return new ParsedIndexContainerVariable( this->data );
       }
-    ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+    ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate)
       {
+          if (instantiate ) {
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
+              replacements[ data.get() ] = instds;
+              return new ParsedIndexContainerVariable( instds );
+          }
         return new ParsedIndexContainerVariable( this->data->copy( replacements ) );
       }
   };
@@ -204,8 +219,13 @@ namespace ORO_Execution
       {
         return new ParsedConstant<T>( this->data.get() );
       }
-    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements )
+    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
       {
+          if (instantiate ) {
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
+              replacements[ data.get() ] = instds;
+              return new ParsedConstant( instds );
+          }
         return new ParsedConstant<T>( this->data->copy( replacements ) );
       }
   };

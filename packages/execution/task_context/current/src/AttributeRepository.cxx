@@ -48,11 +48,11 @@ namespace ORO_Execution
       // call clear() manually to delete all contents.
   }
 
-    AttributeRepository* AttributeRepository::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const
+    AttributeRepository* AttributeRepository::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool inst ) const
     {
         AttributeRepository* ar = new AttributeRepository();
         for ( map_t::const_iterator i = values.begin(); i != values.end(); ++i )
-            ar->setValue(i->first, i->second->copy( repl ) );
+            ar->setValue(i->first, i->second->copy( repl, inst ) );
         return ar;
     }
 

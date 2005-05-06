@@ -134,31 +134,6 @@ namespace ORO_Execution
             return dynamic_cast<TaskAttribute<T>*>( this->getValue( name ) );
         }
 
-#if 0
-        Most likely to be removed, since duplicate functionality + not compiling
-        /**
-         * Add a TaskProperty, which will become accessible as both
-         * ORO_CoreLib::Property and TaskAttribute.
-         * @see getProperty, getAttribute
-         */
-        template<class T>
-        bool addProperty( TaskProperty<T>* p ) {
-            return setValue( p->getName(), p);
-        }
-
-        /**
-         * Retrieve a TaskProperty by name. Returns zero if 
-         * no TaskProperty<T> by that name exists.
-         * Example : getProperty<double>("Xprop")
-         * @see addProperty
-         */
-        template<class T>
-        TaskProperty<T>* getProperty( const std::string& name )
-        {
-            return dynamic_cast<TaskProperty<T>*>( this->getValue( name ) );
-        }
-#endif
-
         /**
          * Add a variable to the repository.
          * @return false if \a name already present.
@@ -178,9 +153,11 @@ namespace ORO_Execution
 
         /**
          * Return a new copy of this repository with the copy operation semantics.
+         * @param instantiate set to true if you want a copy which will upon any future
+         * copy return the same DataSources, thus 'fixating' or 'instantiating' the DataSources.
          * @see CommandInterface
          */
-        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl ) const;
+        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
          * Return a list of all attributes.
