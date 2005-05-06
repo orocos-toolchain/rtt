@@ -57,6 +57,36 @@ namespace ORO_CoreLib
         template< class T >
         const std::string DataSourceTypeInfo<T&>::qual("& ");
 
+        template< class T>
+        struct DataSourceTypeInfo<const T> {
+            static const std::string qual;
+            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static const std::string& getQualifier() { return qual; }
+        };
+
+        template< class T >
+        const std::string DataSourceTypeInfo<const T>::qual("const ");
+
+        template< class T>
+        struct DataSourceTypeInfo<T*> {
+            static const std::string qual;
+            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static const std::string& getQualifier() { return qual; }
+        };
+
+        template< class T >
+        const std::string DataSourceTypeInfo<T*>::qual("* ");
+
+        template< class T>
+        struct DataSourceTypeInfo<const T*> {
+            static const std::string qual;
+            static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
+            static const std::string& getQualifier() { return qual; }
+        };
+
+        template< class T >
+        const std::string DataSourceTypeInfo<const T*>::qual("const* ");
+
         template<>
         struct DataSourceTypeInfo<void> {
             static const std::string type;
@@ -73,6 +103,13 @@ namespace ORO_CoreLib
 
         template<>
         struct DataSourceTypeInfo<int> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<unsigned int> {
             static const std::string type;
             static const std::string& getType()  { return type; }
             static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }

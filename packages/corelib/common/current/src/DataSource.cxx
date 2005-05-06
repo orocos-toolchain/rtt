@@ -43,6 +43,7 @@ namespace ORO_CoreLib
         const std::string DataSourceTypeInfo<void>::type("void");
         const std::string DataSourceTypeInfo<bool>::type("bool");
         const std::string DataSourceTypeInfo<int>::type("int");
+        const std::string DataSourceTypeInfo<unsigned int>::type("unsigned int");
         const std::string DataSourceTypeInfo<double>::type("double");
         const std::string DataSourceTypeInfo<char>::type("char");
         const std::string DataSourceTypeInfo<ORO_CoreLib::MultiVector<6,double> >::type("Double6D");

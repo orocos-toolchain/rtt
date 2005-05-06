@@ -137,6 +137,8 @@ namespace ORO_CoreLib
   class DataSource
     : public DataSourceBase
   {
+  protected:
+      virtual ~DataSource();
   public:
       /**
        * The bare type of T is extracted into value_t.
@@ -146,22 +148,22 @@ namespace ORO_CoreLib
       
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
-      virtual ~DataSource();
       /**
-       * return the data you need to return..
+       * Return the data.
        */
       virtual result_t get() const = 0;
 
       virtual void evaluate() const { this->get(); }
-      /**
-       * Clone Software Pattern.
-       */
+
       virtual DataSource<T>* clone() const = 0;
 
       virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
 
       virtual std::string getType() const;
 
+      /**
+       * Return usefull type info in a human readable format.
+       */
       static  std::string GetType();
   };
 
@@ -180,7 +182,7 @@ namespace ORO_CoreLib
   std::string DataSource<T>::GetType()
   {
       return detail::DataSourceTypeInfo< T >::getQualifier()
-          + detail::DataSourceTypeInfo< typename remove_cr<T>::type >::getType();
+          + detail::DataSourceTypeInfo< T >::getType();
   }
 
   /**
@@ -194,41 +196,30 @@ namespace ORO_CoreLib
       typedef typename DataSource<T>::value_t value_t;
       typedef typename boost::call_traits<value_t>::param_type param_t;
       typedef typename boost::call_traits<value_t>::reference reference_t;
+      typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
       /**
        * Use this type to store a pointer to an AssignableDataSource.
        */
       typedef boost::intrusive_ptr<AssignableDataSource<T> > shared_ptr;
 
+      /**
+       * Set this DataSource with a value.
+       */
       virtual void set( param_t t ) = 0;
 
+      /**
+       * Get a reference (or null) to the value of this DataSource.
+       * Getting a reference to an  internal data structure is not thread-safe.
+       * DataSources which wish to protect their data from concurrent access may
+       * return the null reference with this method. All calls to set() must first
+       * check whether they do not return null.
+       */
       virtual reference_t set() = 0;
 
       virtual AssignableDataSource<T>* clone() const = 0;
 
       virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
   };
-
-#if 0
-  /**
-   * A AssignableDataSource specialisation for const&.
-   */
-  template<typename _T>
-  class AssignableDataSource<const _T&>
-    : public DataSource<const _T&>
-  {
-  public:
-      typedef const _T& T;
-      typedef boost::intrusive_ptr<AssignableDataSource<T> > shared_ptr;
-
-      virtual void set( T t ) = 0;
-
-      virtual _T& set() = 0;
-
-      virtual AssignableDataSource<T>* clone() const = 0;
-
-      virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
-  };
-#endif
 
 #if 0
     namespace detail
