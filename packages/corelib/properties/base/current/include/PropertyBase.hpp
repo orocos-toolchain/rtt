@@ -47,65 +47,65 @@ namespace ORO_CoreLib
 	 */
     class PropertyBase
     {
-        public:
-			/**
-			 * The default destructor.
-			 */
-            virtual ~PropertyBase()
-            {}
+    public:
+        /**
+         * The default destructor.
+         */
+        virtual ~PropertyBase()
+        {}
 
-			/**
-			 * The constructor.
-			 * @param name The name which will be used to refer to this
-			 * property.
-			 * @param description A more elaborate description of the
-			 * property.
-			 */
-            PropertyBase( std::string name, std::string description)
-                    : _name(name), _description(description)
-            {}
+        /**
+         * The constructor.
+         * @param name The name which will be used to refer to this
+         * property.
+         * @param description A more elaborate description of the
+         * property.
+         */
+        PropertyBase( std::string name, std::string description)
+            : _name(name), _description(description)
+        {}
 
-			/**
-			 * Get the name of the property.
-			 * @return name of the property.
-			 */
-            const std::string& getName() const
-            {
-                return _name;
-            }
+        /**
+         * Get the name of the property.
+         * @return name of the property.
+         */
+        const std::string& getName() const
+        {
+            return _name;
+        }
 
-			/**
-			 * Set the name of the property.
-			 * @param name The name of the property.
-			 */
-            void setName(const std::string& name)
-            {
-                _name = name;
-            }
+        /**
+         * Set the name of the property.
+         * @param name The name of the property.
+         */
+        void setName(const std::string& name)
+        {
+            _name = name;
+        }
 
-			/**
-			 * Get a description of the property.
-			 * @return description of the property.
-			 */
-            const std::string& getDescription() const
-            {
-                return _description;
-            }
+        /**
+         * Get a description of the property.
+         * @return description of the property.
+         */
+        const std::string& getDescription() const
+        {
+            return _description;
+        }
 
-			/**
-			 * Set the description of the property.
-			 * @param desc The description of the property.
-			 */
-            void setDescription(const std::string& desc)
-            {
-                _description = desc;
-            }
+        /**
+         * Set the description of the property.
+         * @param desc The description of the property.
+         */
+        void setDescription(const std::string& desc)
+        {
+            _description = desc;
+        }
 
-            /**
-             * A call on this method will lead to a call to the PropertyIntrospection
-             * interface identifying this Property's proper type.
-             */
-            virtual void identify( PropertyIntrospection* pi) const = 0;
+        /**
+         * A call on this method will lead to a call to the PropertyIntrospection
+         * interface identifying this Property's proper type.
+         */
+        virtual void identify( PropertyIntrospection* pi) const = 0;
 
         /**
          * Update the value of this Property with the value of an \a other Property.
@@ -170,12 +170,6 @@ namespace ORO_CoreLib
         virtual CommandInterface* refreshCommand( DataSourceBase* other) = 0;
 
         /**
-         * Helper function for update and copy. Implements the Visitor pattern
-         * without blowing up the PropertyBase interface.
-         */
-        virtual bool accept( detail::PropertyOperation* op ) const = 0;
-
-        /**
          * Deliver an identical clone of this PropertyBase. The
          * original may be deleted and the clone can be transparantly
          * used in its place or vice versa.
@@ -195,16 +189,16 @@ namespace ORO_CoreLib
          */
         virtual DataSourceBase* createDataSource() = 0;
     protected:
-            /**
-             * A short name for this PropertyBase.
-             */
-            std::string _name;
+        /**
+         * A short name for this PropertyBase.
+         */
+        std::string _name;
 
-            /**
-             * A lengthy description for this PropertyBase.
-             */
-            std::string _description;
-        private:
+        /**
+         * A lengthy description for this PropertyBase.
+         */
+        std::string _description;
+    private:
 
     };
 } // namespace ORO_CoreLib

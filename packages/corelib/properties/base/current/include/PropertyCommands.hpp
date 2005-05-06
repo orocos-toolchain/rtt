@@ -12,14 +12,14 @@ namespace ORO_CoreLib
         /**
          * Update a Property<T>.
          */
-        template<class T>
+        template<class T, class S = T>
         class UpdatePropertyCommand
             : public CommandInterface
         {
             Property<T>* target;
-            const Property<T>* source;
+            const Property<S>* source;
         public:
-            UpdatePropertyCommand( Property<T>* tgt, const Property<T>* src)
+            UpdatePropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
             bool execute()
             {
@@ -27,22 +27,22 @@ namespace ORO_CoreLib
                 return true;
             }
 
-            virtual UpdatePropertyCommand<T>* clone() const {
-                return new UpdatePropertyCommand<T>(target, source);
+            virtual UpdatePropertyCommand<T,S>* clone() const {
+                return new UpdatePropertyCommand<T,S>(target, source);
             }
         };
 
         /**
          * Copy a Property<T>.
          */
-        template<class T>
+        template<class T, class S = T>
         class CopyPropertyCommand
             : public CommandInterface
         {
             Property<T>* target;
-            const Property<T>* source;
+            const Property<S>* source;
         public:
-            CopyPropertyCommand( Property<T>* tgt, const Property<T>* src)
+            CopyPropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
             bool execute()
             {
@@ -50,22 +50,22 @@ namespace ORO_CoreLib
                 return true;
             }
 
-            virtual CopyPropertyCommand<T>* clone() const {
-                return new CopyPropertyCommand<T>(target, source);
+            virtual CopyPropertyCommand<T,S>* clone() const {
+                return new CopyPropertyCommand<T,S>(target, source);
             }
         };
 
         /**
          * Refresh a Property<T>.
          */
-        template<class T>
+        template<class T, class S = T>
         class RefreshPropertyCommand
             : public CommandInterface
         {
             Property<T>* target;
-            const Property<T>* source;
+            const Property<S>* source;
         public:
-            RefreshPropertyCommand( Property<T>* tgt, const Property<T>* src)
+            RefreshPropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
             bool execute()
             {
@@ -73,22 +73,22 @@ namespace ORO_CoreLib
                 return true;
             }
 
-            virtual RefreshPropertyCommand<T>* clone() const {
-                return new RefreshPropertyCommand<T>(target, source);
+            virtual RefreshPropertyCommand<T,S>* clone() const {
+                return new RefreshPropertyCommand<T,S>(target, source);
             }
         };
 
         /**
-         * Refresh a Property<T> with a DataSource<T>.
+         * Refresh a Property<T> with a DataSource<S>.
          */
-        template<class T>
+        template<class T, class S = T>
         class RefreshPropertyFromDSCommand
             : public CommandInterface
         {
             Property<T>* target;
-            typename DataSource<T>::shared_ptr source;
+            typename DataSource<S>::shared_ptr source;
         public:
-            RefreshPropertyFromDSCommand( Property<T>* tgt, DataSource<T>* src)
+            RefreshPropertyFromDSCommand( Property<T>* tgt, DataSource<S>* src)
                 : target(tgt), source(src) {}
             bool execute()
             {
@@ -96,12 +96,12 @@ namespace ORO_CoreLib
                 return true;
             }
 
-            virtual RefreshPropertyFromDSCommand<T>* clone() const {
-                return new RefreshPropertyFromDSCommand<T>(target, source.get() );
+            virtual RefreshPropertyFromDSCommand<T,S>* clone() const {
+                return new RefreshPropertyFromDSCommand<T,S>(target, source.get() );
             }
 
-            virtual RefreshPropertyFromDSCommand<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new RefreshPropertyFromDSCommand<T>( target, source->copy(alreadyCloned) );
+            virtual RefreshPropertyFromDSCommand<T,S>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+                return new RefreshPropertyFromDSCommand<T,S>( target, source->copy(alreadyCloned) );
             }
         };
 

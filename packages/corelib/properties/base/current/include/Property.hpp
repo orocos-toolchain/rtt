@@ -32,7 +32,6 @@
 #include "Marshaller.hpp"
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
-#include "PropertyOperation.hpp"
 #include "PropertyCommands.hpp"
 #include "PropertyDataSource.hpp"
 #include <boost/type_traits.hpp>
@@ -60,20 +59,20 @@ namespace ORO_CoreLib
      *
      * @{
      */
-    template< class T>
-    inline void copy(T& a, const T& b)
+    template< class T, class S>
+    inline void copy(T& a, const S& b)
     {
         a = b;
     }
 
-    template< class T>
-    inline void update(T& a, const T& b)
+    template< class T, class S>
+    inline void update(T& a, const S& b)
     {
         a = b;
     }
 
-    template< class T>
-    inline void refresh(T& a, const T& b)
+    template< class T, class S>
+    inline void refresh(T& a, const S& b)
     {
         a = b;
     }
@@ -93,7 +92,7 @@ namespace ORO_CoreLib
     class Property
         : public PropertyBase
     {
-        public:
+    public:
         /**
          * The types of this property type.
          * value_t is always the 'bare' value type of T. From this type,
@@ -104,117 +103,133 @@ namespace ORO_CoreLib
         typedef typename boost::call_traits<value_t>::reference reference_t;
         typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
 
-			/**
-			 * The constructor which initializes the property's value.
-			 * @param name The name which will be used to refer to the
-			 * property.
-			 * @param description The description of the property.
-			 * @param value The initial value of the property (optional).
-			 */
-            Property(const std::string& name, const std::string& description, param_t value = value_t() )
-				: PropertyBase(name, description), _value(value)
-            {}
+        /**
+         * The constructor which initializes the property's value.
+         * @param name The name which will be used to refer to the
+         * property.
+         * @param description The description of the property.
+         * @param value The initial value of the property (optional).
+         */
+        Property(const std::string& name, const std::string& description, param_t value = value_t() )
+            : PropertyBase(name, description), _value(value)
+        {}
 
-            /**
-             * Copy constructors copies the name, description and value
-             * as deep copies.
-             */
-            Property( const Property<T>& orig)
-                : PropertyBase(orig.getName(), orig.getDescription()),
-                  _value( orig.get() )
-            {}
+        /**
+         * Copy constructors copies the name, description and value
+         * as deep copies.
+         */
+        Property( const Property<T>& orig)
+            : PropertyBase(orig.getName(), orig.getDescription()),
+              _value( orig.get() )
+        {}
 
-			/**
-			 * Set the property's value.
-			 * @param value The value to be set.
-			 * @return A reference to newly set property value.
-			 */
-            const_reference_t operator=( param_t value)
-            {
-                _value = value;
-                return _value;
-            }
+        /**
+         * Set the property's value.
+         * @param value The value to be set.
+         * @return A reference to newly set property value.
+         */
+        const_reference_t operator=( param_t value)
+        {
+            _value = value;
+            return _value;
+        }
 
-            /**
-             * Update the value of this property with
-             * another property.
-             */
-            Property<T>& operator<<=(Property<T> &p)
-            {
-                ORO_CoreLib::update(_value, p.get());
-                return *this;
-            }
+        /**
+         * Update the value of this property with
+         * another property.
+         */
+        Property<T>& operator<<=(Property<T> &p)
+        {
+            ORO_CoreLib::update(_value, p.get());
+            return *this;
+        }
 
-			/**
-			 * Get a copy of the value of the property.
-			 * @return A copy of the value of the property.
-			 */
-            operator value_t() const
-            {
-                return _value;
-            }
+        /**
+         * Get a copy of the value of the property.
+         * @return A copy of the value of the property.
+         */
+        operator value_t() const
+        {
+            return _value;
+        }
 
-			/**
-			 * Get the value of the property.
-			 * @return The value of the property.
-			 */
-            const_reference_t get() const
-            {
-                return _value;
-            }
+        /**
+         * Get the value of the property.
+         * @return The value of the property.
+         */
+        const_reference_t get() const
+        {
+            return _value;
+        }
 
-            /**
-             * Access to the value of the Property.
-             */
-            reference_t set()
-            {
-                return _value;
-            }
+        /**
+         * Access to the value of the Property.
+         */
+        reference_t set()
+        {
+            return _value;
+        }
 
-            /**
-             * Set the value of the Property.
-             */
-            void set(param_t v)
-            {
-                _value = v;
-            }
+        /**
+         * Set the value of the Property.
+         */
+        void set(param_t v)
+        {
+            _value = v;
+        }
 
-            /**
-             * Access to the value of the Property.
-             */
-            value_t& value()
-            {
-                return _value;
-            }
+        /**
+         * Access to the value of the Property.
+         */
+        value_t& value()
+        {
+            return _value;
+        }
 
         virtual void identify( PropertyIntrospection* pi) const;
         
         virtual bool update( const PropertyBase* other) 
         {
-            detail::FillOperation<T> fillop(this);
-            return fillop.command( other );
+            const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
+            if ( origin != 0 ) {
+                this->update( *origin );
+                return true;
+            }
+            return false;
         }
 
         virtual CommandInterface* updateCommand( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
-            if (origin == 0 )
-                return 0;
-            return new detail::UpdatePropertyCommand<T>(this, origin);
+            if ( origin != 0 )
+                return new detail::UpdatePropertyCommand<T>(this, origin);
+            const Property< const_reference_t >* corigin
+                = dynamic_cast<const Property<const_reference_t >* >( other );
+            if ( corigin != 0 )
+                return new detail::UpdatePropertyCommand<T, const_reference_t>(this, corigin);
+            return 0;
         }
 
         virtual bool refresh( const PropertyBase* other) 
         {
-            detail::RefreshOperation<T> refop(this);
-            return refop.command( other );
+            const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
+            if ( origin != 0 ) {
+                this->refresh( *origin );
+                return true;
+            }
+            return false;
         }
 
         virtual CommandInterface* refreshCommand( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast<const  Property<T>* >( other );
-            if (origin == 0 )
-                return 0;
-            return new detail::RefreshPropertyCommand<T>(this, origin);
+            if ( origin != 0 )
+                return new detail::RefreshPropertyCommand<T>(this, origin);
+            const Property< const_reference_t >* corigin
+                = dynamic_cast<const Property<const_reference_t >* >( other );
+            if ( corigin != 0 )
+                return new detail::RefreshPropertyCommand<T, const_reference_t>(this, corigin);
+            return 0;
         }
 
         virtual bool refresh( const DataSourceBase* other ) {
@@ -227,83 +242,94 @@ namespace ORO_CoreLib
 
         virtual CommandInterface* refreshCommand( DataSourceBase* other) {
             DataSource<T>* origin = dynamic_cast< DataSource<T>* >( other );
-            if (origin == 0 )
-                return 0;
-            return new detail::RefreshPropertyFromDSCommand<T>(this, origin);
+            if ( origin != 0 )
+                return new detail::RefreshPropertyFromDSCommand<T>(this, origin);
+            DataSource< const_reference_t >* corigin
+                = dynamic_cast<DataSource<const_reference_t >* >( other );
+            if ( corigin != 0 )
+                return new detail::RefreshPropertyFromDSCommand<T, const_reference_t>(this, corigin);
+            return 0;
         }
 
         virtual bool copy( const PropertyBase* other )
         {
-            detail::DeepCopyOperation<T> copop(this);
-            return copop.command( other );
+            const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
+            if ( origin != 0 ) {
+                this->copy( *origin );
+                return true;
+            }
+            return false;
         }
 
         virtual CommandInterface* copyCommand( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
-            if (origin == 0 )
-                return 0;
-            return new detail::CopyPropertyCommand<T>(this, origin);
+            if ( origin != 0 )
+                return new detail::CopyPropertyCommand<T>(this, origin);
+            const Property< const_reference_t >* corigin
+                = dynamic_cast<const Property<const_reference_t >* >( other );
+            if ( corigin != 0 )
+                return new detail::CopyPropertyCommand<T, const_reference_t>(this, corigin);
+            return 0;
         }
 
-            virtual bool accept( detail::PropertyOperation* op ) const
-            {
-                return op->comply( this );
-            }
-
-            /**
-             * Update the value, optionally also the description if current
-             * description is empty.
-             */
-            void update( const Property<T>& orig)
-            {
-                if ( _description.empty() )
-                    _description = orig.getDescription();
-                ORO_CoreLib::update( _value, orig.get() );
-            }
-
-            /**
-             * Refresh only the value.
-             */
-            void refresh( const Property<T>& orig)
-            {
-                ORO_CoreLib::refresh( _value, orig.get() );
-            }
-
-            /**
-             * Refresh only the value.
-             */
-            void refresh( const DataSource<T>& orig)
-            {
-                ORO_CoreLib::refresh( _value, orig.get() );
-            }
-
-            /**
-             * Make a full copy.
-             */
-            void copy( const Property<T>& orig)
-            {
-                _name = orig.getName();
+        /**
+         * Update the value, optionally also the description if current
+         * description is empty.
+         */
+        template<class S>
+        void update( const Property<S>& orig)
+        {
+            if ( _description.empty() )
                 _description = orig.getDescription();
-                ORO_CoreLib::copy( _value, orig.get() );
-            }
+            ORO_CoreLib::update( _value, orig.get() );
+        }
 
-            virtual PropertyBase* clone() const
-            {
-                return new Property<T>(*this);
-            }
+        /**
+         * Refresh only the value from a Property.
+         */
+        template<class S>
+        void refresh( const Property<S>& orig)
+        {
+            ORO_CoreLib::refresh( _value, orig.get() );
+        }
 
-            virtual PropertyBase* create() const
-            {
-                return new Property<T>( _name, _description );
-            }
+        /**
+         * Refresh only the value from a DataSource.
+         */
+        template<class S>
+        void refresh( const DataSource<S>& orig)
+        {
+            ORO_CoreLib::refresh( _value, orig.get() );
+        }
+
+        /**
+         * Make a full copy.
+         */
+        template<class S>
+        void copy( const Property<S>& orig)
+        {
+            _name = orig.getName();
+            _description = orig.getDescription();
+            ORO_CoreLib::copy( _value, orig.get() );
+        }
+
+        virtual PropertyBase* clone() const
+        {
+            return new Property<T>(*this);
+        }
+
+        virtual PropertyBase* create() const
+        {
+            return new Property<T>( _name, _description );
+        }
 
         virtual AssignableDataSource<T>* createDataSource() {
             return new detail::PropertyDataSource<T>( this );
         }
-        protected:
-            value_t _value;
-        private:
+    protected:
+        value_t _value;
+    private:
     };
 
     template<typename T>
