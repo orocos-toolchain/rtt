@@ -45,17 +45,19 @@ namespace ORO_Execution
    * on construction, and it will take care of the assignment.  Note
    * that both DataSource's need to be of the same type, and this
    * class needs that type as its template parameter..
+   * @param T Target type
+   * @param S Source type
    */
-  template<typename T>
+  template<typename T, typename S = T>
   class AssignVariableCommand
     : public CommandInterface
   {
       typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
-      typedef typename DataSource<T>::shared_ptr RHSSource;
+      typedef typename DataSource<S>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignVariableCommand( AssignableDataSource<T>* l, DataSource<T>* r )
+      AssignVariableCommand( AssignableDataSource<T>* l, DataSource<S>* r )
           : lhs( l ), rhs( r )
       {
       }
@@ -79,17 +81,19 @@ namespace ORO_Execution
     /**
      * Assign the contents of one variable-size container to another.
      * This class checks for capacity and fails execution if not sufficient.
+   * @param T Target type
+   * @param S Source type
      */
-  template<typename T>
+  template<typename T, typename S = T>
   class AssignContainerCommand
     : public CommandInterface
   {
       typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
       LHSSource lhs;
-      typedef typename DataSource<T>::shared_ptr RHSSource;
+      typedef typename DataSource<S>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignContainerCommand( AssignableDataSource<T>* l, DataSource<T>* r )
+      AssignContainerCommand( AssignableDataSource<T>* l, DataSource<S>* r )
           : lhs( l ), rhs( r )
       {
       }
@@ -131,7 +135,7 @@ namespace ORO_Execution
       bool execute()
       {
           Index ind = i->get();
-          if ( Pred()( lhs->get(), ind) ) {
+          if ( Pred()( lhs->get(), ind) && &(lhs->set()) != 0 ) {
               lhs->set()[ ind ] = rhs->get();
               return true;
           }

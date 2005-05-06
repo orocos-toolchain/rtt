@@ -33,6 +33,8 @@
 
 namespace ORO_Execution
 {
+    namespace detail
+    {
   /**
    * This class represents a variable held in ValueParser.
    */
@@ -207,6 +209,7 @@ namespace ORO_Execution
         return new ParsedConstant<T>( this->data->copy( replacements ) );
       }
   };
+    }
 }
 
 #endif

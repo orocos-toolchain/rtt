@@ -11,12 +11,12 @@ is very powerful."
 
     parent OROPKG_EXECUTION
 
+    compile Types.cxx Operators.cxx
     compile CommonParser.cxx
     compile parse_exception.cxx
     compile StateGraphParser.cxx
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
-    compile Types.cxx Operators.cxx
     compile DataSourceCondition.cxx DataSourceCommand.cxx 
     compile ParsedStateMachine.cxx
     compile StateMachineBuilder.cxx

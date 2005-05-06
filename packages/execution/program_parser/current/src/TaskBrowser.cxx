@@ -31,6 +31,7 @@
 #include <corelib/Logger.hpp>
 #include "execution/TaskBrowser.hpp"
 
+#include "execution/TryCommand.hpp"
 #include <execution/TemplateFactories.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Parser.hpp>
@@ -492,7 +493,7 @@ namespace ORO_Execution
                 if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
                     cout << "queued )";
                 else
-                    cout << (condition == 0 ? "none )" : condition->evaluate() == true ? "done )" : "busy )" );
+                    cout << (condition == 0 ? "none )" : accepted->get() == false ? "fail )" : condition->evaluate() == true ? "done )" : "busy )" );
                 // This 'endl' is important because it flushes the whole output to screen of all
                 // processing that previously happened, which was using 'nl'.
                 cout << endl;
@@ -823,6 +824,10 @@ namespace ORO_Execution
             return;
         }
         // It is for sure a real command, dispatch to target processor :
+        // to keep track of accepted/rejected status, we wrap it ourselves.
+        TryCommand *tcom = new TryCommand( command );
+        accepted = tcom->result();
+        command = tcom;
         lastc = taskcontext->getProcessor()->process( command );
         // returns null if Processor not running or not accepting.
         if ( lastc == 0 ) {
@@ -831,6 +836,7 @@ namespace ORO_Execution
             delete condition;
             command = 0;
             condition = 0;
+            accepted = 0;
         }
     }
 
@@ -847,6 +853,10 @@ namespace ORO_Execution
     }
 
     void TaskBrowser::printResult( DataSourceBase* ds) {
+        /**
+         * If this list of types gets to long, we can still add a virtual
+         * printOut( std::ostream& ) = 0 to DataSourceBase.
+         */
         std::string prompt("   = ");
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
@@ -859,6 +869,11 @@ namespace ORO_Execution
             cout <<prompt<< dsi->get() <<nl;
             return;
         }
+        DataSource<unsigned int>* dsui = dynamic_cast<DataSource<unsigned int>*>(ds);
+        if (dsui) {
+            cout <<prompt<< dsui->get() <<nl;
+            return;
+        }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
             cout <<prompt<< dss->get() <<nl;
@@ -867,6 +882,11 @@ namespace ORO_Execution
         DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
         if (dscs) {
             cout <<prompt<< dscs->get() <<nl;
+            return;
+        }
+        DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
+        if (dsvval) {
+            cout <<prompt<< dsvval->get() <<nl;
             return;
         }
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
@@ -882,6 +902,13 @@ namespace ORO_Execution
         DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
         if (dsc) {
             cout <<prompt<< dsc->get() <<nl;
+            return;
+        }
+
+        DataSource<void>* dsvd = dynamic_cast<DataSource<void>*>(ds);
+        if (dsvd) {
+            dsvd->get();
+            cout <<prompt<< "(void)" <<nl;
             return;
         }
 #ifdef OROPKG_GEOMETRY
@@ -911,8 +938,10 @@ namespace ORO_Execution
             return;
         }
 #endif
-        if (ds)
+        if (ds) {
             ds->evaluate();
+            cout <<prompt<< "( result type '"+ds->getType()+"' not known to TaskBrowser )" <<nl;
+        }
 	
     }
 

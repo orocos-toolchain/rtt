@@ -27,13 +27,16 @@
  
  
 #include "execution/MapDataSourceFactory.hpp"
+#include "execution/mystd.hpp"
 
+using namespace mystd;
+using namespace ORO_CoreLib;
 
 namespace ORO_Execution
 {
 
-       MapDataSourceFactory::MapDataSourceFactory( const map_t& map )
-            : mmap( map )
+       MapDataSourceFactory::MapDataSourceFactory( const map_t& map, const std::string& d )
+           : mmap( map ), descr(d)
         {
         }
 
@@ -83,4 +86,18 @@ namespace ORO_Execution
             else
                 return reti->second.get();
         }
+
+        std::string MapDataSourceFactory::getDescription( const std::string& source ) const
+        {
+            return descr;
+        }
+
+    std::string MapDataSourceFactory::getResultType( const std::string& source ) const {
+        map_t::const_iterator reti = mmap.find( source );
+        if ( reti == mmap.end() )
+            throw name_not_found_exception();
+        else
+            return reti->second->getType();
+    }        
+
 }

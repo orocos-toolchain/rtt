@@ -595,7 +595,7 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyUnary( op, arg.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( "Cannot apply unary operator \"" + op +
+      throw parse_exception_fatal_semantic_error( "Cannot apply unary operator \"" + op +
                                             "\" to " + arg->getType() +"." );
     ret->ref();
     parsestack.push( ret );
@@ -613,7 +613,7 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyDot( member, arg.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( arg->getType() + " does not have member \"" + member +
+      throw parse_exception_fatal_semantic_error( arg->getType() + " does not have member \"" + member +
                                             "\"." );
     ret->ref();
     parsestack.push( ret );
@@ -636,7 +636,7 @@ namespace ORO_Execution
     DataSourceBase* ret =
       OperatorRegistry::instance().applyBinary( op, arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
+      throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
                                             " "+arg1->getType() +"." );
     ret->ref();
     parsestack.push( ret );
@@ -663,7 +663,7 @@ namespace ORO_Execution
       OperatorRegistry::instance().applyTernary( op, arg3.get(),
                                                  arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( "Cannot apply ternary operator \"" + op +
+      throw parse_exception_fatal_semantic_error( "Cannot apply ternary operator \"" + op +
                                             "\" to "+ arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
     ret->ref();
     parsestack.push( ret );
@@ -700,7 +700,7 @@ namespace ORO_Execution
                                                   arg6.get(), arg5.get(), arg4.get(),
                                                   arg3.get(), arg2.get(), arg1.get() );
     if ( ! ret )
-      throw parse_exception_semantic_error( "Cannot apply sixary operator \"" + op +
+      throw parse_exception_fatal_semantic_error( "Cannot apply sixary operator \"" + op +
                                             "\" to "+ arg6->getType()+", " + arg5->getType()+", " + arg4->getType() +", " +
                                             arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
     ret->ref();

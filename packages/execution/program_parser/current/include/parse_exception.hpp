@@ -194,6 +194,36 @@ namespace ORO_Execution
   };
 
   /**
+   * parse_exception class that is used for fatal semantic errors
+   * for which it was not worth defining a proper exception class.
+   */
+  class parse_exception_fatal_semantic_error
+    : public fatal_semantic_parse_exception
+  {
+    std::string mdesc;
+  public:
+    parse_exception_fatal_semantic_error( const std::string& desc )
+      : mdesc( desc )
+      {
+      };
+
+    const std::string what() const
+      {
+        return "Fatal Semantic error: " + mdesc;
+      }
+
+    parse_exception_fatal_semantic_error* copy() const
+      {
+        return new parse_exception_fatal_semantic_error( *this );
+      }
+
+    const std::string& desc() const
+      {
+        return mdesc;
+      }
+  };
+
+  /**
    * An exception which a parser may throw to indicate that
    * it failed to understand the input, and thus can not 
    * interpret its validity. It is the equivalent of a 

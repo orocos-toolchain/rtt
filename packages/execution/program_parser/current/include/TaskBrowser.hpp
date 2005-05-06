@@ -64,6 +64,7 @@ namespace ORO_Execution
         static TaskContext* peer;
         ORO_CoreLib::ConditionInterface* condition;
         ORO_CoreLib::CommandInterface*   command;
+        ORO_CoreLib::DataSource<bool>::shared_ptr   accepted;
         const CommandFactoryInterface* command_fact;
         const DataSourceFactoryInterface* datasource_fact;
         const MethodFactoryInterface* method_fact;

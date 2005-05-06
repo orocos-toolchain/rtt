@@ -21,5 +21,6 @@ task programs."
     compile GlobalCommandFactory.cxx
     compile CommandFactoryInterface.cxx
     compile PropertyLoader.cxx
+    compile MapDataSourceFactory.cxx
 
 }
