@@ -852,6 +852,18 @@ namespace ORO_Execution
         return os;
     }
 
+    std::ostream& operator<<(std::ostream& os, const Double6D& v)
+    {
+        os << "[";
+        for(unsigned int  i = 0; i < v.size; ++i) {
+            os << v[i];
+            if (i + 1 != v.size )
+                os << ", ";
+        }
+        os << "]";
+        return os;
+    }
+
     void TaskBrowser::printResult( DataSourceBase* ds) {
         /**
          * If this list of types gets to long, we can still add a virtual
@@ -892,6 +904,11 @@ namespace ORO_Execution
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
         if (dsv) {
             cout <<prompt<< dsv->get() <<nl;
+            return;
+        }
+        DataSource< Double6D >* ds6d = dynamic_cast<DataSource< Double6D >* >(ds);
+        if (ds6d) {
+            cout <<prompt<< ds6d->get() <<nl;
             return;
         }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
