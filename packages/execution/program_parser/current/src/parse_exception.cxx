@@ -32,6 +32,7 @@
 
 namespace ORO_Execution
 {
+    using namespace detail;
   // implemented here to avoid having to include sstream in the header
   const std::string parse_exception_wrong_number_of_arguments::what() const
   {

@@ -39,7 +39,8 @@
 using namespace std;
 namespace ORO_Execution
 {
-  using boost::bind;
+    using boost::bind;
+    using namespace detail;
 
     ValueParser::ValueParser( TaskContext* tc)
         : peerparser(tc), context(tc)

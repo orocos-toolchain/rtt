@@ -39,7 +39,7 @@
 
 #pragma interface
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
   /**
    * This parser parses a call of the form
@@ -166,6 +166,6 @@ namespace ORO_Execution
 
       bool hasResult() { return !parsestack.empty(); }
   };
-}
+}}
 
 #endif

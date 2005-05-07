@@ -78,6 +78,8 @@ namespace ORO_Execution
     virtual parse_exception* copy() const = 0;
   };
 
+    namespace detail {
+
     /**
      * A Semantic parse exception means the parser recognised
      * a part of the string, but got into trouble lateron,
@@ -447,6 +449,7 @@ namespace ORO_Execution
       return mname;
     }
   };
+    }
 }
 
 #endif

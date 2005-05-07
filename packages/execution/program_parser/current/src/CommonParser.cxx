@@ -32,6 +32,7 @@
 
 namespace ORO_Execution {
     using boost::bind;
+    using namespace detail;
 
     CommonParser::CommonParser()
     {

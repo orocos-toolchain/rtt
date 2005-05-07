@@ -42,8 +42,8 @@ namespace ORO_Execution
 {
 
         TaskContext::TaskContext(const std::string& name, Processor* proc )
-            : _task_proc( proc == 0 ? new Processor : proc  ),
-              _task_proc_owner( proc == 0 ? true : false ),
+            :  _task_proc_owner( proc == 0 ? true : false ),
+               _task_proc( proc == 0 ? new Processor : proc  ),
               _task_name(name)
         {
             // I'll only add this line if there is a good reason for,

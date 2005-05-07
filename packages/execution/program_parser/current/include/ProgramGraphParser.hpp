@@ -42,7 +42,7 @@
 #include <vector>
 #include <string>
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
   /**
    * @brief A Parser for Orocos Program Scripts.
@@ -193,6 +193,6 @@ namespace ORO_Execution
       FunctionGraph* bodyParserResult();
 
   };
-}
+}}
 
 #endif

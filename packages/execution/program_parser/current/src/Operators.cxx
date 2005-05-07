@@ -270,6 +270,8 @@ namespace ORO_Execution
 #endif
   using ORO_CoreLib::Double6D;
 
+    using namespace detail;
+
   // Unary
   template<typename function>
   class UnaryOperator

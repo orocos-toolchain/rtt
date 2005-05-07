@@ -36,7 +36,7 @@
 
 #pragma interface
 
-namespace ORO_Execution
+namespace ORO_Execution  { namespace detail
 {
   using ORO_CoreLib::PropertyBagOwner;
   using ORO_CoreLib::PropertyBag;
@@ -119,6 +119,6 @@ namespace ORO_Execution
         return mmethod;
       };
   };
-}
+}}
 
 #endif

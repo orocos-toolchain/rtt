@@ -32,7 +32,7 @@
 #include <vector>
 #include "DataSource.hpp"
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
 
   /**
@@ -168,6 +168,6 @@ namespace ORO_Execution
       DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
       DataSourceBase* d, DataSourceBase* e, DataSourceBase* f);
   };
-}
+}}
 
 #endif

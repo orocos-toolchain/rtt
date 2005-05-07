@@ -34,8 +34,9 @@
 
 namespace ORO_Execution
 {
-  class TaskAttributeBase;
+    class TaskAttributeBase;
 
+    namespace detail {
   /**
    * \file We need some information on types if we want to make
    * constants, variables or aliases of them, the classes in this file
@@ -87,6 +88,6 @@ namespace ORO_Execution
          */
         TypeInfo* type( const std::string& name ) const;
     };
-}
+}}
 
 #endif

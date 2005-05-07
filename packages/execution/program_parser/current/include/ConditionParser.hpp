@@ -39,7 +39,7 @@
 
 #pragma interface
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
   /**
    * This is a class containing a parse function for conditions.  It
@@ -85,6 +85,6 @@ namespace ORO_Execution
 
     void reset();
   };
-}
+}}
 
 #endif

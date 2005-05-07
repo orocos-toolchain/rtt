@@ -32,6 +32,8 @@ namespace ORO_Execution {
 
     class ParsedStateMachine;
 
+    namespace detail {
+
     struct wrong_context_params_exception {
         std::string mwhat;
     public:
@@ -57,4 +59,4 @@ namespace ORO_Execution {
     private:
         ParsedStateMachine* templatecontext;
     };
-}
+}}

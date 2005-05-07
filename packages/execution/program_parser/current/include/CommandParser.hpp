@@ -36,9 +36,10 @@
 
 #pragma interface
 
-namespace ORO_Execution
+namespace ORO_Execution 
 {
     class TryCommand;
+    namespace detail {
     using ORO_CoreLib::PropertyBagOwner;
 
   /**
@@ -156,6 +157,6 @@ namespace ORO_Execution
      */
       void reset();
   };
-}
+}}
 
 #endif

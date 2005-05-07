@@ -37,7 +37,8 @@
 
 namespace ORO_Execution
 {
-  using boost::bind;
+    using boost::bind;
+    using namespace detail;
 
     namespace {
         enum PeerErrors { peer_not_found };

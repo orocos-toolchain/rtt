@@ -52,9 +52,10 @@
 
 namespace ORO_Execution
 {
-  using boost::bind;
-  using ORO_CoreLib::CommandNOP;
-  using ORO_CoreLib::ConditionTrue;
+    using boost::bind;
+    using ORO_CoreLib::CommandNOP;
+    using ORO_CoreLib::ConditionTrue;
+    using namespace detail;
 
     namespace {
         assertion<std::string> expect_methodname("Expected a method call on object.");

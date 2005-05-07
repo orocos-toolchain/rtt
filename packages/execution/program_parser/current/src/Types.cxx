@@ -48,6 +48,7 @@ namespace ORO_Execution
 #endif
   using ORO_CoreLib::Double6D;
 
+    using namespace detail;
 
     TaskAttributeBase* TypeInfo::buildVariable( int ) const {
         return this->buildVariable();

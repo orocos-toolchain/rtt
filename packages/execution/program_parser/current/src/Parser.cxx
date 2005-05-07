@@ -45,6 +45,7 @@ using namespace boost;
 
 namespace ORO_Execution
 {
+  using namespace detail;
 
   std::vector<FunctionGraph*> Parser::parseFunction( const std::string& file, TaskContext* c)
   {

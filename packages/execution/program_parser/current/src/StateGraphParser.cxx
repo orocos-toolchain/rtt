@@ -55,6 +55,7 @@
 namespace ORO_Execution
 {
     using namespace boost;
+    using namespace detail;
     using boost::bind;
     using namespace ORO_CoreLib;
     using namespace std;

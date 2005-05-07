@@ -35,10 +35,11 @@
 #include <queue>
 #include <string>
 
-namespace ORO_Execution
+namespace ORO_Execution 
 {
     class TaskContext;
 
+    namespace detail {
     /**
      * Get the peer and object from an invocation path like
      *  a.b.c.d() .
@@ -91,6 +92,6 @@ namespace ORO_Execution
 
         std::string object();
     };
-}
+}}
             
 #endif

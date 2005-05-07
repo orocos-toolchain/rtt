@@ -29,7 +29,7 @@
 
 #include "parser-types.hpp"
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
 
   /**
@@ -58,6 +58,6 @@ namespace ORO_Execution
 
       void seenillegalidentifier();
   };
-}
+}}
 
 #endif

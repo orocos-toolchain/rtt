@@ -39,7 +39,7 @@
 namespace ORO_Execution
 {
     class TaskContext;
-
+    namespace detail {
     /**
      * @brief A class for parsing const values.
      *
@@ -99,6 +99,6 @@ namespace ORO_Execution
         return ret;
       }
   };
-}
+}}
 
 #endif

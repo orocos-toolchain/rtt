@@ -35,7 +35,7 @@
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
 
-namespace ORO_Execution
+namespace ORO_Execution { namespace detail
 {
   /**
    * This class is responsible for parsing constant definitions,
@@ -181,6 +181,6 @@ namespace ORO_Execution
      */
     void reset();
   };
-}
+}}
 
 #endif

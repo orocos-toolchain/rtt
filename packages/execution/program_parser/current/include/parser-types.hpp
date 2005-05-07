@@ -47,10 +47,12 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
-  class ExpressionParser;
-  class ArgumentsParser;
-  class TypeInfo;
-  class TypeInfoRepository;
+    namespace detail {
+        class ExpressionParser;
+        class ArgumentsParser;
+        class TypeInfo;
+        class TypeInfoRepository;
+    }
 
   using ORO_CoreLib::PropertyBag;
   using ORO_CoreLib::PropertyBase;

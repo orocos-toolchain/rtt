@@ -38,6 +38,7 @@
 
 namespace ORO_Execution
 {
+  using namespace detail;
   using boost::bind;
 
     namespace {

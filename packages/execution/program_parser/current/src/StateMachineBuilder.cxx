@@ -31,6 +31,7 @@
 #include <assert.h>
 
 namespace ORO_Execution {
+  using namespace detail;
   StateMachineBuilder::StateMachineBuilder(
     ParsedStateMachine* tc )
     : templatecontext( tc )

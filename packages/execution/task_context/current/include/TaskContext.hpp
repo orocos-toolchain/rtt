@@ -57,15 +57,16 @@ namespace ORO_Execution
      */
     class TaskContext
     {
-        Processor*     _task_proc;
+        // non copyable
+        TaskContext( TaskContext& );
         bool           _task_proc_owner;
+    protected:
+        Processor*     _task_proc;
         std::string    _task_name;
     
         typedef std::map< std::string, TaskContext* > PeerMap;
         PeerMap         _task_map;
 
-        // non copyable
-        TaskContext( TaskContext& );
     public:
         typedef std::vector< std::string > PeerList;
 
@@ -140,10 +141,14 @@ namespace ORO_Execution
          */
         bool hasPeer( const std::string& peer_name ) const;
 
+        /**
+         * Get a pointer to a peer of this task.
+         * @return null if no such peer.
+         */
         TaskContext* getPeer(const std::string& peer_name ) const;
 
         /**
-         * Returns the processor of our task.
+         * Returns the processor of this task.
          */
         Processor* getProcessor() const
         {
@@ -151,10 +156,16 @@ namespace ORO_Execution
         }
 
         /**
-         * The commandFactory of this TaskContext.
+         * The Command Factory of this TaskContext.
          */
         GlobalCommandFactory    commandFactory;
+        /**
+         * The DataSource Factory of this TaskContext.
+         */
         GlobalDataSourceFactory dataFactory;
+        /**
+         * The Method Factory of this TaskContext.
+         */
         GlobalMethodFactory     methodFactory;
 
         /**

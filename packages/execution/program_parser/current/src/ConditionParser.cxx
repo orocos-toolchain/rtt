@@ -45,9 +45,10 @@
 
 namespace ORO_Execution
 {
-  using boost::bind;
-  using ORO_CoreLib::ConditionDuration;
-  using ORO_CoreLib::PropertyBag;
+    using namespace detail;
+    using boost::bind;
+    using ORO_CoreLib::ConditionDuration;
+    using ORO_CoreLib::PropertyBag;
 
   ConditionParser::ConditionParser( TaskContext* c )
     : ds_bool( 0 ), context( c ), expressionparser( c )

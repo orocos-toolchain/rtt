@@ -57,6 +57,7 @@ using namespace ORO_Geometry;
 
 namespace ORO_Execution
 {
+    using namespace detail;
     std::vector<std::string> TaskBrowser::candidates;
     std::vector<std::string> TaskBrowser::completes;
     std::vector<std::string>::iterator TaskBrowser::complete_iter;

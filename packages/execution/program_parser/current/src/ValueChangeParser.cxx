@@ -37,6 +37,7 @@
 namespace ORO_Execution
 {
   using boost::bind;
+    using namespace detail;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");

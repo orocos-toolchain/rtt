@@ -46,6 +46,7 @@
 namespace ORO_Execution
 {
   using namespace boost;
+  using namespace detail;
   using ORO_CoreLib::CommandNOP;
   using ORO_CoreLib::ConditionTrue;
 

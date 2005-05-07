@@ -37,17 +37,20 @@
 
 namespace ORO_Execution
 {
-    class StateMachineBuilder;
-    class ParsedStateMachine;
     class StateDescription;
+    class TaskContext;
+    class TaskAttributeBase;
+    class FunctionGraph;
+    class ParsedStateMachine;
+}
+namespace ORO_Execution { namespace detail
+{
+    class StateMachineBuilder;
     class ProgramGraphParser;
     class ConditionParser;
     class ValueChangeParser;
     class ExpressionParser;
     class CommonParser;
-    class TaskContext;
-    class TaskAttributeBase;
-    class FunctionGraph;
 
   /**
    * This is not a parser in the Boost.spirit sense of the word, it's
@@ -187,6 +190,6 @@ namespace ORO_Execution
     // will throw an file_parse_exception on error
     std::vector<ParsedStateMachine*> parse( iter_t& begin, iter_t end );
   };
-}
+}}
 
 #endif
