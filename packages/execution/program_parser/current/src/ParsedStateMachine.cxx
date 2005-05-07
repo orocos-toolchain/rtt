@@ -44,7 +44,7 @@ namespace ORO_Execution {
      * 3. refactor SM copying code in StateGraphParser to this file (and vice versa).
      * 4. in the end, no dynamic_casts should be needed anymore.
      */
-
+    namespace detail {
     /**
      * When a ParsedStateMachine is finished, these commands
      * are added to its TaskContext, such that it can be
@@ -216,6 +216,8 @@ namespace ORO_Execution {
             return _sc->getTaskContext()->getProcessor()->deactivateStateMachine( _sc->getName() );
         }
     };
+
+    }
 
     using ORO_CoreLib::ConditionInterface;
 

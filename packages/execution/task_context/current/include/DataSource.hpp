@@ -36,6 +36,8 @@ namespace ORO_Execution
     using ORO_CoreLib::DataSource;
     using ORO_CoreLib::AssignableDataSource;
 
+    namespace detail {
+
   /**
    * A simple, yet very useful DataSource, which keeps a value, and
    * returns it in its get() method. 
@@ -90,67 +92,6 @@ namespace ORO_Execution
           return static_cast<VariableDataSource<T>*>( i->second );
       }
   };
-
-#if 0
-  /**
-   * VariableDataSource specialisation for const references.
-   * We store the 'bare' valuetype and 'act' like a datasource for const
-   * references in the DataSource interface. The difference is subtle but
-   * important for the parser.
-   * @note This specialisation could have been replaced by an alternative
-   * implementation, such as ConstRefDataSource or so, but specialisation
-   * requires less replaces in the code.
-   */
-  template<typename _T>
-  class VariableDataSource<const _T&>
-    : public AssignableDataSource<const _T&>
-  {
-      _T mdata;
-  public:
-      typedef const _T& T;
-      typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
-
-      VariableDataSource()
-          : mdata()
-      {
-      }
-
-      VariableDataSource( T data )
-          : mdata( data )
-      {
-      }
-
-      T get() const
-      {
-          return mdata;
-      }
-
-      void set( T t )
-      {
-          mdata = t;
-      }
-
-      _T& set() {
-          return mdata;
-      }
-
-      virtual VariableDataSource<T>* clone() const
-      {
-          return new VariableDataSource<T>(mdata);
-      }
-
-      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
-          std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
-          if ( i == alreadyCloned.end() ) {
-              VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
-              alreadyCloned[this] = n;
-              return n;
-          }
-          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) );
-          return static_cast<VariableDataSource<T>*>( i->second );
-      }
-  };
-#endif
 
   /**
    * A generic binary composite DataSource.  It takes a function
@@ -386,6 +327,6 @@ namespace ORO_Execution
       }
   };
 
-}
+}}
 
 #endif

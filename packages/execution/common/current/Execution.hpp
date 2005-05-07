@@ -29,7 +29,7 @@
  * @brief This namespace contains all classes of the execution package.
  *
  * It is meant to group all packages for executing user commands
- * in a realtime system. It currently contains the %Program %Parser and
+ * in a realtime system. It currently contains the %Task Infrastructure, %Program %Parser and
  * The %Program %Processor.
  *
  * The packages are documented in the 
@@ -39,4 +39,14 @@
  * Online %Program %Processor Manual</a>.
  * 
  */
-namespace ORO_Execution {}
+namespace ORO_Execution {
+
+    /**
+     * @brief Implementation classes.
+     *
+     * Contains mainly the template generator code, script parsers and
+     * helper classes.
+     */
+    namespace detail {
+    }
+}

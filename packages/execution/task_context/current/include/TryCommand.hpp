@@ -35,7 +35,8 @@
 
 namespace ORO_Execution 
 {
-    using namespace ORO_CoreLib;
+    using ORO_CoreLib::CommandInterface;
+    using ORO_CoreLib::ConditionInterface;
 
     /**
      * A command which tries another command
@@ -47,18 +48,18 @@ namespace ORO_Execution
     {
         // we must use a DataSource for correct
         // copy sementics ...
-        VariableDataSource<bool>::shared_ptr _result;
-        VariableDataSource<bool>::shared_ptr _executed;
+        AssignableDataSource<bool>::shared_ptr _result;
+        AssignableDataSource<bool>::shared_ptr _executed;
         CommandInterface* c;
     public:
         /**
          * Try a command.
          */
         TryCommand( CommandInterface* command,
-                    VariableDataSource<bool>::shared_ptr storage=0,
-                    VariableDataSource<bool>::shared_ptr execstat=0 )
-            :_result( storage == 0 ? new VariableDataSource<bool>(true) : storage ),
-             _executed( execstat == 0 ? new VariableDataSource<bool>(false) : execstat ),
+                    AssignableDataSource<bool>::shared_ptr storage=0,
+                    AssignableDataSource<bool>::shared_ptr execstat=0 )
+            :_result( storage == 0 ? new detail::VariableDataSource<bool>(true) : storage ),
+             _executed( execstat == 0 ? new detail::VariableDataSource<bool>(false) : execstat ),
              c(command) {}
 
         ~TryCommand() {
@@ -75,11 +76,11 @@ namespace ORO_Execution
             _executed->set(false);
         }
 
-        VariableDataSource<bool>::shared_ptr result() {
+        AssignableDataSource<bool>::shared_ptr result() {
             return _result;
         }
 
-        VariableDataSource<bool>::shared_ptr executed() {
+        AssignableDataSource<bool>::shared_ptr executed() {
             return _executed;
         }
 
@@ -145,12 +146,12 @@ namespace ORO_Execution
         public CommandInterface
     {
         // the result
-        VariableDataSource<bool>::shared_ptr _cache;
+        AssignableDataSource<bool>::shared_ptr _cache;
         // the data to evaluate in the command.
         DataSource<bool>::shared_ptr _ds;
     public:
-        EvalCommand( DataSource<bool>::shared_ptr ds, VariableDataSource<bool>::shared_ptr cache=0)
-            :_cache( cache == 0 ? new VariableDataSource<bool>(false) : cache ),
+        EvalCommand( DataSource<bool>::shared_ptr ds, AssignableDataSource<bool>::shared_ptr cache=0)
+            :_cache( cache == 0 ? new detail::VariableDataSource<bool>(false) : cache ),
              _ds(ds) {}
 
         ~EvalCommand() {
@@ -166,7 +167,7 @@ namespace ORO_Execution
             _ds->reset();
         }
 
-        VariableDataSource<bool>::shared_ptr cache() {
+        AssignableDataSource<bool>::shared_ptr cache() {
             return _cache;
         }
 

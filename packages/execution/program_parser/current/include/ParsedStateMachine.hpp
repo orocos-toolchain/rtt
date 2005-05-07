@@ -35,10 +35,13 @@
 namespace ORO_Execution {
 
     class StateDescription;
-    class StateMachineCommands;
     class Processor;
     class TaskAttributeBase;
     class TaskContext;
+
+    namespace detail {
+        class StateMachineCommands;
+    }
 
     class ParsedStateMachine
         : public StateMachine
@@ -131,7 +134,7 @@ namespace ORO_Execution {
          */
         void finish();
     private:
-        VariableDataSource<std::string>::shared_ptr nameds;
+        detail::VariableDataSource<std::string>::shared_ptr nameds;
 
         SubMachineNameMap subMachines;
 
@@ -144,7 +147,7 @@ namespace ORO_Execution {
         std::string _text;
 
         TaskContext* context;
-        StateMachineCommands* sc_coms;
+        detail::StateMachineCommands* sc_coms;
     };
 }
 

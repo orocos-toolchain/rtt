@@ -54,7 +54,8 @@ namespace ORO_Execution
     using boost::bind;
     using ORO_CoreLib::ConditionInterface;
     using ORO_CoreLib::CommandInterface;
-#ifndef NO_DOXYGEN
+
+    namespace detail {
 
   /**
    * A command that simply calls the functor it was passed every
@@ -979,12 +980,15 @@ namespace ORO_Execution
     return FunctorConditionGenerator<FunctorT>( fun, _invert );
   };
 
+    }
+  /**
+   * @defgroup commandFactories Command Part Factories
+   */
 
   /**
-   * @defgroup commandFactories
    *
-   * @brief The command function is the function you should use to pass a
-   * member function to the TemplateCommandFactory..  You can
+   * The command function is the function you should use to pass a
+   * member function to the TemplateCommandFactory. You can
    * currently only use it with a member function taking a low number
    * of arguments ( current limit is three, but this can be improved
    * by writing some more overloads )..
@@ -999,165 +1003,165 @@ namespace ORO_Execution
    * You should pass a description for the command as the third
    * argument, and a name and description for every argument of the
    * command as the following arguments..
-   *
+   * @ingroup commandFactories
    * @{
    */
   template<typename ComponentT>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
            const char* desc , bool _invert = false)
   {
-    return fun_fact<ComponentT, ComCon>(
-      comcon_composer(
-        functor_command_generator( boost::mem_fn( comf ) ),
-        functor_condition_generator( boost::mem_fn( conf ), _invert )
+    return detail::fun_fact<ComponentT, ComCon>(
+      detail::comcon_composer(
+        detail::functor_command_generator( boost::mem_fn( comf ) ),
+        detail::functor_condition_generator( boost::mem_fn( conf ), _invert )
         ), desc );
   };
 
   // store the Component in a DataSource too !
   template<typename ComponentT>
-  TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
   command_ds( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
            const char* desc , bool _invert = false)
   {
-    return fun_fact_ds< ComponentT, ComCon>(
-      comcon_composer(
-        functor_command_generator( boost::mem_fn( comf ) ),
-        functor_condition_generator( boost::mem_fn( conf ), _invert )
+    return detail::fun_fact_ds< ComponentT, ComCon>(
+      detail::comcon_composer(
+        detail::functor_command_generator( boost::mem_fn( comf ) ),
+        detail::functor_condition_generator( boost::mem_fn( conf ), _invert )
         ), desc );
   };
 
   template<typename ComponentT, typename Arg1T>
-  TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
   command_ds( bool (ComponentT::*comf)(Arg1T),
               bool (ComponentT::*conf)(Arg1T) const,
               const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
   {
-    return fun_fact_ds< ComponentT, ComCon, typename ArgType<Arg1T>::type>(
-      comcon_composer(
-        functor_command_generator( boost::mem_fn( comf ) ),
-        functor_condition_generator( boost::mem_fn( conf ), _invert )
+    return detail::fun_fact_ds< ComponentT, ComCon, typename detail::ArgType<Arg1T>::type>(
+      detail::comcon_composer(
+        detail::functor_command_generator( boost::mem_fn( comf ) ),
+        detail::functor_condition_generator( boost::mem_fn( conf ), _invert )
         ), desc, arg1name, arg1desc );
   };
 
   template<typename ComponentT, typename Arg1T>
-  TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
   command_ds( bool (ComponentT::*comf)(Arg1T),
               bool (ComponentT::*conf)() const,
               const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
   {
-    return fun_fact_ds< ComponentT, ComCon, typename ArgType<Arg1T>::type>(
-      comcon_nullary_composer(
-        functor_command_generator( boost::mem_fn( comf ) ),
-        functor_condition_generator( boost::mem_fn( conf ), _invert )
+    return detail::fun_fact_ds< ComponentT, ComCon, typename detail::ArgType<Arg1T>::type>(
+      detail::comcon_nullary_composer(
+        detail::functor_command_generator( boost::mem_fn( comf ) ),
+        detail::functor_condition_generator( boost::mem_fn( conf ), _invert )
         ), desc, arg1name, arg1desc );
   };
 
     // extra functor tryout.
 //   template<typename ComponentT, typename ResT, typename F>
-//   TemplateFactoryPart<ComponentT, ComCon>*
+//   detail::TemplateFactoryPart<ComponentT, ComCon>*
 //   command( ResT (ComponentT::*comf)(), F conf,
 //            const char* desc )
 //   {
-//     return fun_fact<ComponentT, ComCon>(
-//       comcon_composer(
-//         functor_command_generator( boost::mem_fn( comf ) ),
-//         functor_condition_generator( conf )
+//     return detail::fun_fact<ComponentT, ComCon>(
+//       detail::comcon_composer(
+//         detail::functor_command_generator( boost::mem_fn( comf ) ),
+//         detail::functor_condition_generator( conf )
 //         ), desc );
 //   };
 
   template<typename ComponentT, typename Arg1T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc, bool invert = false )
   {
-    return fun_fact<ComponentT,
-      ComCon, typename ArgType<Arg1T>::type>(
-        comcon_composer(
-          functor_command_generator( boost::mem_fn( comf ) ),
-          functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT,
+      ComCon, typename detail::ArgType<Arg1T>::type>(
+        detail::comcon_composer(
+          detail::functor_command_generator( boost::mem_fn( comf ) ),
+          detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc );
   };
 
     // same as above, but with nullary terminationcondition checker
   template<typename ComponentT, typename Arg1T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T ),
            bool (ComponentT::*conf)() const,
            const char* desc, const char* arg1name, const char* arg1desc, bool invert = false )
   {
-    return fun_fact<ComponentT,
-      ComCon, typename ArgType<Arg1T>::type>(
-        comcon_nullary_composer(
-          functor_command_generator( boost::mem_fn( comf ) ),
-          functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT,
+      ComCon, typename detail::ArgType<Arg1T>::type>(
+        detail::comcon_nullary_composer(
+          detail::functor_command_generator( boost::mem_fn( comf ) ),
+          detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc );
   };
 
   template<typename ComponentT, typename Arg1T, typename Arg2T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)( Arg1T, Arg2T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type>(
-        comcon_composer( functor_command_generator( boost::mem_fn( comf ) ),
-                         functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type>(
+        detail::comcon_composer( detail::functor_command_generator( boost::mem_fn( comf ) ),
+                         detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name, arg2desc );
   };
 
     // same as above, but with nullary terminationcondition checker
   template<typename ComponentT, typename Arg1T, typename Arg2T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)() const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type>(
-        comcon_nullary_composer( functor_command_generator( boost::mem_fn( comf ) ),
-                         functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type>(
+        detail::comcon_nullary_composer( detail::functor_command_generator( boost::mem_fn( comf ) ),
+                         detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name, arg2desc );
   };
 
     // same as above, but with unary terminationcondition checker
   template<typename ComponentT, typename Arg1T, typename Arg2T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type>(
-        comcon_unary_composer( functor_command_generator( boost::mem_fn( comf ) ),
-                         functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type>(
+        detail::comcon_unary_composer( detail::functor_command_generator( boost::mem_fn( comf ) ),
+                         detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name, arg2desc );
   };
 
   template<typename ComponentT, typename Arg1T, typename Arg2T,
            typename Arg3T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( Arg1T, Arg2T, Arg3T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,
            const char* arg3name, const char* arg3desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type,
-      typename ArgType<Arg3T>::type >(
-        comcon_composer(
-          functor_command_generator( boost::mem_fn( comf ) ),
-          functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type,
+      typename detail::ArgType<Arg3T>::type >(
+        detail::comcon_composer(
+          detail::functor_command_generator( boost::mem_fn( comf ) ),
+          detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name,
         arg2desc, arg3name, arg3desc );
   };
@@ -1165,48 +1169,46 @@ namespace ORO_Execution
     // Nullary Condition Checking.
   template<typename ComponentT,  typename Arg1T, typename Arg2T,
            typename Arg3T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,
            const char* arg3name, const char* arg3desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type,
-      typename ArgType<Arg3T>::type >(
-        comcon_nullary_composer(
-          functor_command_generator( boost::mem_fn( comf ) ),
-          functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type,
+      typename detail::ArgType<Arg3T>::type >(
+        detail::comcon_nullary_composer(
+          detail::functor_command_generator( boost::mem_fn( comf ) ),
+          detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name,
         arg2desc, arg3name, arg3desc );
   };
     // Unary Condition Checking.
   template<typename ComponentT,  typename Arg1T, typename Arg2T,
            typename Arg3T>
-  TemplateFactoryPart<ComponentT, ComCon>*
+  detail::TemplateFactoryPart<ComponentT, ComCon>*
   command( bool (ComponentT::*comf)( Arg1T, Arg2T, Arg3T ),
            bool (ComponentT::*conf)( Arg1T ) const,
            const char* desc, const char* arg1name, const char* arg1desc,
            const char* arg2name, const char* arg2desc,
            const char* arg3name, const char* arg3desc, bool invert = false )
   {
-    return fun_fact<ComponentT, ComCon,
-      typename ArgType<Arg1T>::type,
-      typename ArgType<Arg2T>::type,
-      typename ArgType<Arg3T>::type >(
-        comcon_unary_composer(
-          functor_command_generator( boost::mem_fn( comf ) ),
-          functor_condition_generator( boost::mem_fn( conf ), invert )
+    return detail::fun_fact<ComponentT, ComCon,
+      typename detail::ArgType<Arg1T>::type,
+      typename detail::ArgType<Arg2T>::type,
+      typename detail::ArgType<Arg3T>::type >(
+        detail::comcon_unary_composer(
+          detail::functor_command_generator( boost::mem_fn( comf ) ),
+          detail::functor_condition_generator( boost::mem_fn( conf ), invert )
           ), desc, arg1name, arg1desc, arg2name,
         arg2desc, arg3name, arg3desc );
   };
   /**
    * @}
    */
-
-#endif // #ifndef NO_DOXYGEN
 
   /**
    * TemplateCommandFactory is a template class, written to facilitate
@@ -1276,7 +1278,7 @@ namespace ORO_Execution
       }
 
     void add( const std::string& name,
-              TemplateFactoryPart<ComponentT, ComCon>* part )
+              detail::TemplateFactoryPart<ComponentT, ComCon>* part )
       {
         _TF::add( name, part );
       }

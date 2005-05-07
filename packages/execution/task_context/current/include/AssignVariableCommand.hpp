@@ -35,8 +35,8 @@
 namespace ORO_Execution
 {
   using ORO_CoreLib::CommandInterface;
-  using ORO_Execution::DataSource;
-  using ORO_Execution::VariableDataSource;
+
+    namespace detail {
 
   /**
    * This is a command that will assign the value of an expression to
@@ -151,6 +151,6 @@ namespace ORO_Execution
           return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
-}
+}}
 
 #endif

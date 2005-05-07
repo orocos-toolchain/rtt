@@ -52,7 +52,7 @@
 
 namespace ORO_Execution
 {
-
+    namespace detail {
     /**
      * Type-selection for return type of methods and datasources.
      * primitives return by value, composite types by const reference
@@ -86,7 +86,6 @@ namespace ORO_Execution
         typedef typename boost::remove_const<C>::type type;
     };
 
-#ifndef NO_DOXYGEN
     
   using ORO_CoreLib::Property;
   using ORO_CoreLib::PropertyBase;
@@ -623,7 +622,8 @@ namespace ORO_Execution
   /**
    * @}
    */
-#endif // #ifndef NO_DOXYGEN
+
+    }
 
     /**
      * @brief This factory is a template for creating parts, on a per
@@ -634,7 +634,7 @@ namespace ORO_Execution
   class TemplateFactory
   {
   protected:
-    typedef std::map<std::string, TemplateFactoryPart<ComponentT, ResultT>* > map_t;
+    typedef std::map<std::string, detail::TemplateFactoryPart<ComponentT, ResultT>* > map_t;
     map_t data;
     ComponentT* comp;
   public:
@@ -663,7 +663,7 @@ namespace ORO_Execution
         return data.find( name ) != data.end();
       }
 
-    ResultT produce( const std::string& name, const PropertyBag& args ) const
+    ResultT produce( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
@@ -678,7 +678,7 @@ namespace ORO_Execution
         return i->second->produce( comp, args );
       }
 
-    PropertyBag getArgumentSpec( const std::string& name ) const
+    ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& name ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
@@ -707,7 +707,7 @@ namespace ORO_Execution
       }
 
     void add( const std::string& name,
-              TemplateFactoryPart<ComponentT, ResultT>* part )
+              detail::TemplateFactoryPart<ComponentT, ResultT>* part )
       {
         typename map_t::iterator i = data.find( name );
         // XXX, wouldn't it be better to throw ?

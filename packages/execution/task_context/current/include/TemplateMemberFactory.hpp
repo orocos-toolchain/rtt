@@ -28,7 +28,6 @@
  
 
 #include "DataSource.hpp"
-//#include "DataSourceFactoryInterface.hpp"
 #include "TemplateFactory.hpp"
 
 #include <boost/bind.hpp>
@@ -47,9 +46,10 @@
  */
 namespace ORO_Execution
 {
-#ifndef NO_DOXYGEN
+
 #ifndef FUNCTORDATASOURCES
 #define FUNCTORDATASOURCES
+    namespace detail {
     /**
      * These classes are generic DataSources that take a
      * functor, and a number of DataSources corresponding with the
@@ -579,7 +579,7 @@ namespace ORO_Execution
   /**
    * @}
    */
-
+    }
 #endif // FUNCTORDATASOURCES
 
   /**
@@ -619,7 +619,7 @@ namespace ORO_Execution
         return _TF::getDescription( method );
       };
 
-    PropertyBag getArgumentSpec( const std::string& method ) const
+    ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& method ) const
       {
         return _TF::getArgumentSpec( method );
       };
@@ -631,7 +631,7 @@ namespace ORO_Execution
 
     DataSourceBase* create(
       const std::string& name,
-      const PropertyBag& args ) const
+      const ORO_CoreLib::PropertyBag& args ) const
       {
         return _TF::produce( name, args );
       };
@@ -644,7 +644,7 @@ namespace ORO_Execution
       };
 
     void add( const std::string& name,
-              TemplateFactoryPart<ComponentT, DataSourceBase*>* part )
+              detail::TemplateFactoryPart<ComponentT, DataSourceBase*>* part )
       {
         _TF::add( name, part );
       }
@@ -652,11 +652,7 @@ namespace ORO_Execution
 
   /**
    * This is the function that generates the DataSourceFactory you
-   * want.  Here's an example of its use..
-   *
-   * Please refer to the documentation in
-   * <orocos-tree>/parser/doc/orocos-parser.xml for more information
-   * on its use.
+   * want.
    */
   template<typename ComponentT>
   TEMPLATE_FACTORY_NAME<ComponentT>*
@@ -668,7 +664,9 @@ namespace ORO_Execution
 
   /**
    * @defgroup data_factories DataSource Part Factories
-   *
+   */
+
+  /**
    * The data function is the function you should use to specify a
    * certain property to be added to your TemplateDataSourceFactory..
    * Several overloads are provided, for supporting various numbers of
@@ -684,111 +682,112 @@ namespace ORO_Execution
    *
    * TODO: more overloads to support a larger number of arguments.
    * We support zero to four arguments.
+   * @ingroup data_factories
    * @{
    */
   // A component's variable :
   template<typename ComponentT, typename ResultT>
-  TemplateFactoryPart<
-    typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<
+    typename detail::CompType<ComponentT>::type,
     DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*var) , const char* desc )
   {
       // in this special case, we need to ensure that no const slips in in ComponentT
-    return fun_fact<typename CompType<ComponentT>::type,
-      DataSourceBase*>( fun_datasource_gen<typename CompType<ComponentT>::type, typename ReturnType<ResultT>::type >(
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*>( detail::fun_datasource_gen<typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >(
                           boost::bind<ResultT>(boost::mem_fn<ResultT, ComponentT>( var ), _1 ) ), desc );
   };
 
   // A component's method :
   template<typename ComponentT, typename ResultT>
-  TemplateFactoryPart<typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc )
   {
-    return fun_fact<typename CompType<ComponentT>::type,
-      DataSourceBase*>( fun_datasource_gen<ComponentT, typename ReturnType<ResultT>::type >(
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
                           boost::mem_fn( fun ) ), desc );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
-  TemplateFactoryPart<typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d )
   {
-    return fun_fact<typename CompType<ComponentT>::type,
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
       DataSourceBase*, Arg1T>(
-        fun_datasource_gen<ComponentT, 
-        typename ReturnType<ResultT>::type,
-        typename ArgType<Arg1T>::type>(
+        detail::fun_datasource_gen<ComponentT, 
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type>(
           boost::mem_fn( fun ) ), desc, a1n, a1d );
   };
 
   template<typename ComponentT, typename ResultT>
-  TemplateFactoryPart< DataSource<typename CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc)
   {
-    return fun_fact_ds<typename CompType<ComponentT>::type, DataSourceBase*>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*>
         (
-         fun_datasource_gen_ds< typename CompType<ComponentT>::type, typename ReturnType<ResultT>::type >( boost::mem_fn( fun ) ),
+         detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >( boost::mem_fn( fun ) ),
          desc
          );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
-  TemplateFactoryPart< DataSource<typename CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d )
   {
-    return fun_fact_ds<typename CompType<ComponentT>::type, DataSourceBase*, typename ArgType<Arg1T>::type>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*, typename detail::ArgType<Arg1T>::type>
         (
-         fun_datasource_gen_ds< typename CompType<ComponentT>::type,
-         typename ReturnType<ResultT>::type,
-         typename ArgType<Arg1T>::type >( boost::mem_fn( fun ) ),
+         detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type,
+         typename detail::ReturnType<ResultT>::type,
+         typename detail::ArgType<Arg1T>::type >( boost::mem_fn( fun ) ),
          desc, a1n, a1d 
          );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
-  TemplateFactoryPart<typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d)
   {
-    return fun_fact<typename CompType<ComponentT>::type,
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
       DataSourceBase*, Arg1T, Arg2T>(
-        fun_datasource_gen<ComponentT,
-        typename ReturnType<ResultT>::type,
-        typename ArgType<Arg1T>::type,
-        typename ArgType<Arg2T>::type>
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type>
         (
           boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
-  TemplateFactoryPart<typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d)
   {
-      return fun_fact<typename CompType<ComponentT>::type,
+      return detail::fun_fact<typename detail::CompType<ComponentT>::type,
       DataSourceBase*, Arg1T, Arg2T, Arg3T>(
-        fun_datasource_gen<ComponentT,
-        typename ReturnType<ResultT>::type,
-        typename ArgType<Arg1T>::type,
-        typename ArgType<Arg2T>::type,
-        typename ArgType<Arg3T>::type>
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type,
+        typename detail::ArgType<Arg3T>::type>
         (
           boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d);
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
-  TemplateFactoryPart<typename CompType<ComponentT>::type,
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) MEMBER_CONST, const char* desc,
         const char* a1n, const char* a1d,
@@ -796,14 +795,14 @@ namespace ORO_Execution
         const char* a3n, const char* a3d,
         const char* a4n, const char* a4d)
   {
-      return fun_fact<typename CompType<ComponentT>::type,
+      return detail::fun_fact<typename detail::CompType<ComponentT>::type,
       DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
-        fun_datasource_gen<ComponentT,
-        typename ReturnType<ResultT>::type,
-        typename ArgType<Arg1T>::type,
-        typename ArgType<Arg2T>::type,
-        typename ArgType<Arg3T>::type,
-        typename ArgType<Arg4T>::type>
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type,
+        typename detail::ArgType<Arg3T>::type,
+        typename detail::ArgType<Arg4T>::type>
         (
           boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d, a4n, a4d );
   };
@@ -811,7 +810,6 @@ namespace ORO_Execution
   /**
    * @}
    */
-#endif // #ifndef NO_DOXYGEN
 
 }
 
