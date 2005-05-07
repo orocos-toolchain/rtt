@@ -954,12 +954,12 @@ emergencyStop.fire(); // User not notified
 
   event.fire( 1, 2.0 );</programlisting>
     </para>
+    <important>
     <para>
-      The return type for synchronous events can be used analogous to
-      the boost::signals library. For asynchronous callbacks, the return
-      value is the default constructor. There is currently no way
-      to retrieve the real return value of an asynchronous callback.
+      The return type for synchronous and asynchronous callbacks is ignored
+      and can not be recovered from fire(), which always returns void.
     </para>
+    </important>
     <sect2>
       <title>Choosing the Asynchronous Thread</title>
       <para>
