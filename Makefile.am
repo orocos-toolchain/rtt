@@ -168,7 +168,7 @@ control_services: test_new_packages
 	$(MAKE) -C . packages
 
 #Build most of Orocos, except device drivers.
-robot_software: test_new_packages dist_packages
+robot_control: test_new_packages dist_packages
 
 # This cleans out the object files but leaves
 # the headers and library
