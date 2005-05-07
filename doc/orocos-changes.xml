@@ -150,8 +150,9 @@
     <itemizedlist>
       <listitem>
 	<para> 
-	  This release is more on code quality improvement than on feature addition. Focussing on
-	  error detection/recovery and the overall Real-Time behaviour.
+	  This release is more on code and API quality improvement than on feature addition. Focussing on
+	  error detection/recovery and the overall Real-Time behaviour and easier to use classes. A lot of
+	  bugs got fixed along the way too, but these are not all listed here of course.
 	</para>
       </listitem>
     </itemizedlist>
@@ -312,13 +313,25 @@
       </listitem>
       <listitem>
 	<para>
-	  The Events CompletionProcessor is now a TaskNonPeriodic.
+	  The Event Asynchronous CompletionProcessor is now a TaskNonPeriodic.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Event implementation has been fixed for handlers with more than two arguments.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  The time conversion algorithms in Orocos have had a code review and extra test suite
 	  to validate and guarantee time keeping and conversion correctness.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The DataSource has been moved to CoreLib for use in more Orocos classes.
+	  Properties and DataObjects now support DataSource semantics, which benifits integration
+	  with the Oroocos parser infrastructure.
 	</para>
       </listitem>
     </itemizedlist>
@@ -332,7 +345,7 @@
 	  stop() script method which can trigger reporting from your program
 	  scripts. ( <command>do Reporter.start()</command> or
 	  <command>do Reporter.stop()</command> ). Also some reporting bugs
-	  were fixed.
+	  were fixed and implemented more efficiently.
 	</para>
       </listitem>
       <listitem>
@@ -364,6 +377,13 @@
 	  To reduce compilation times, a <methodname>preloadComponent</methodname>
 	  method has been made available to load Components in separate implementation
 	  files, which is very usefull if Component and Kernel do not change.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Control Kernel exports its DataObjects
+	  (Inputs,SetPoints,...) as DataSources to the Program Parsers
+	  and TaskBrowser.
 	</para>
       </listitem>
     </itemizedlist>
@@ -412,7 +432,7 @@
       <listitem>
 	<para>
 	  The StateMachine can now execute all program syntax, maintaining program execution
-	  semantics ( commands versus methods ).
+	  semantics ( asynchronous commands versus synchronous methods ).
 	</para>
       </listitem>
       <listitem>
@@ -427,6 +447,35 @@
 	  The On Request (requestState) Mode for State Machines has been made available in scripting
 	  commands, allowing to request a transition to a particular state by command, in contrast
 	  to the automatic state changes.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  A <classname>ProgramLoader</classname> class was added to
+	  provide user-friendly loading and unloading of all kinds of
+	  scripts into Tasks. A
+	  <classname>GenericTaskContext</classname> class was added
+	  which provides some default script methods for running a
+	  TaskContext. A new introductory example application lets the
+	  new user get more acquiented with Orocos Tasks.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The TaskContext now supports CoreLib Properties and a 
+	  <classname>PropertyLoader</classname> front-end class allows
+	  to configure and save properties to and from XML ( See also
+	  <classname>GenericTaskContext</classname> .) 
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The scripting 'dot' operator has been introduced in the geometry types
+	  (frame, twist, vector,...) which allows to read out individual
+	  members of these types. Examples are : vector.x, twist.rot, rotation.roll,
+	  frame.R.yaw, wrench.torque.y,... They can not be used to set individual
+	  members, but can be used with the geometry constructors as in ie
+	  vector v1 = vector( v2.x, v2.y, 0.).
 	</para>
       </listitem>
     </itemizedlist>
@@ -450,6 +499,15 @@
 	  to the orocos control_framework package. KernelClient now
 	  builds completely independent of an Orocos installation 
 	  directory.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The TaskBrowser got a face-lift and got a bit smarter too.
+	  It allows changing properties of tasks and even variables
+	  of (running) script programs, doing it all in a very bash-like
+	  way. It can provide information about the type of data and contents
+	  of data available in the scripting environment.
 	</para>
       </listitem>
     </itemizedlist>
