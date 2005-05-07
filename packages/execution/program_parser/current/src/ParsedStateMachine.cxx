@@ -36,6 +36,7 @@
 #include "execution/TemplateDataSourceFactory.hpp"
 
 namespace ORO_Execution {
+    using namespace detail;
     /**
      * @todo 
      * 1. add copy/clone semantics to StateInterface and StateMachine.

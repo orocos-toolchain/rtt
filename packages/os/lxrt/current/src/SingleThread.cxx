@@ -78,7 +78,6 @@ namespace ORO_OS
             try {
                 while(1) 
                     {
-                        task->running = false;
                         // for now, we always wait in soft RT.
                         // An extra check before here could
                         // make the switch again...
@@ -100,6 +99,7 @@ namespace ORO_OS
                             rt_make_soft_real_time();
 
                         task->finalize();
+                        task->running = false;
                     }
             } catch( ... ) {
                 // set state to not running
@@ -189,7 +189,9 @@ namespace ORO_OS
     {
         if ( !isRunning() ) return false;
 
-        return this->breakLoop();
+        if ( this->breakLoop() == true )
+            running = false;
+        return !running;
     }
 
     bool SingleThread::isRunning() const
