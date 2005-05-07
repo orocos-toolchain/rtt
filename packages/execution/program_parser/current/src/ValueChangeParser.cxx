@@ -102,7 +102,7 @@ namespace ORO_Execution
 
     variablechange =    
          ( !(peerparser.parser()[ bind( &ValueChangeParser::storepeername, this) ])
-         >> expect_ident( commonparser.identifier)[ bind( &ValueChangeParser::storename, this, _1, _2 ) ]
+         >> commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ]
          >> !( '[' >> expect_index( expressionparser.parser() ) >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
          >> ch_p( '=' )
          >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];

@@ -53,6 +53,8 @@
 using namespace ORO_Geometry;
 #endif
 
+#include <signal.h>
+
 namespace ORO_Execution
 {
     std::vector<std::string> TaskBrowser::candidates;
@@ -81,6 +83,22 @@ namespace ORO_Execution
     nl(std::ostream& __os)
     { return __os.put(__os.widen('\n')); }
 
+    // catch ctrl+c signal
+    void ctrl_c_catcher(int sig)
+    {
+        signal(sig, SIG_IGN);
+        //     sigset_t ss;
+        //     sigset_t ss2;
+        //     sigemptyset( &ss );
+        //     sigaddset( &ss, SIGABRT );
+        //     sigprocmask(SIG_BLOCK,  &ss, &ss2); // block out the abort signal
+        //cerr <<"SIGABRT in set1: "<<sigismember( &ss, SIGABRT) <<endl;
+        //cerr <<"SIGABRT in set2: "<<sigismember( &ss2, SIGABRT) <<endl;
+        //sigprocmask(SIG_SETMASK,  &ss2, &ss); // unblock abort, restore old.
+        cerr <<nl<<"TaskBrowser intercepted Ctrl-C. Type 'quit' to exit."<<endl;
+        //     cerr <<sigismember( &ss2, SIGABRT) <<endl;
+        signal(SIGINT, ctrl_c_catcher);
+    }
 
     char *TaskBrowser::rl_gets ()
     {
@@ -481,6 +499,9 @@ namespace ORO_Execution
     {
         using boost::lambda::_1;
 
+        // Intercept Ctrl-C
+        signal( SIGINT, ctrl_c_catcher );
+
         cout << nl<<
             coloron <<
             "  This console reader allows you to browse and manipulate TaskContexts."<<nl<<
@@ -501,6 +522,8 @@ namespace ORO_Execution
                 // Call readline wrapper :
                 std::string command( rl_gets() ); // copy over to string
                 if ( command == "quit" ) {
+                    // Intercept no Ctrl-C
+                    signal( SIGINT, SIG_DFL );
                     return;
                 } else if ( command == "help") {
                     printHelp();

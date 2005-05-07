@@ -250,21 +250,14 @@ namespace ORO_Execution {
         ret->nameds = nameds->copy( replacements );
         ret->sc_coms = sc_coms->copy( ret, replacements );
 
-        // XXX this piece of code works, but needs review :
         // the parameters of the SC, similar to FunctionGraph's Arguments.
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
               i != parametervalues.end(); ++i )
         {
             // What is sure, is that each param
             // must also be in the attributerepository.
-            //assert( replacements.find( i->second->toDataSource() ) != replacements.end() );
-          TaskAttributeBase* npvb = i->second->copy( replacements, instantiate );
-          ret->parametervalues[i->first] = npvb;
-          //assert( replacements[i->second->toDataSource()] == npvb->toDataSource() );
-          // XXX Why do we need to do this ?? the above assertion should be true already,
-          // when npvb is made a copy of i->second.
-          replacements[i->second->toDataSource()] = npvb->toDataSource();
-          
+            assert( ret->getTaskContext()->attributeRepository.getValue( i->first ) );
+            ret->parametervalues[i->first] = ret->getTaskContext()->attributeRepository.getValue( i->first );
         }
 
         // TODO : these DS'es are no longer used, since all goes through the StateGraphCommands now.
