@@ -120,7 +120,7 @@ namespace ORO_Execution
         if ( mobject != "this")
             throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
         else
-            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no dataobject or method '"+mmethod+"'." );
+            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object or method '"+mmethod+"'." );
         //      throw parse_exception_no_such_component( mobject );
 
     // One of both must have the method
