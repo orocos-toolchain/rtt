@@ -49,8 +49,9 @@
  * @section corelib Orocos Realtime Services
  * The classes in the following namespaces form the application
  * independent core services : ORO_OS, ORO_CoreLib, ORO_DeviceInterface and ORO_Execution,
- * which define the portable framework using the ORO_CoreLib::Event, ORO_CoreLib::PeriodicTask, ORO_Execution::TaskContext,
- * ORO_CoreLib::DataObject, the script ORO_Execution::Parser, command ORO_Execution::Processor and many other classes.
+ * which define the portable framework using the ORO_CoreLib::Event, ORO_CoreLib::PeriodicTask, ORO_Execution::GenericTaskContext,
+ * ORO_CoreLib::DataObject, the script ORO_Execution::ProgramLoader,
+ * the ORO_Execution::PropertyLoader, command ORO_Execution::Processor and many other classes.
  * The <a href="../../orocos-manual.html">Orocos Software Manual</a> introduces these classes.
  *
  * @section devdrivers Hardware Access and Device Drivers
