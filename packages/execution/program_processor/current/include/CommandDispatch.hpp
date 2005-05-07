@@ -48,7 +48,7 @@ namespace ORO_Execution
     class CommandDispatch :
         public ORO_CoreLib::CommandInterface
     {
-        VariableDataSource<bool>::shared_ptr _result;
+        AssignableDataSource<bool>::shared_ptr _result;
         bool send;
         Processor* proc;
         ORO_CoreLib::CommandInterface* com;
@@ -61,7 +61,7 @@ namespace ORO_Execution
          * When dispatching fails ( the Processor does not accept the Command \a c ), 
          * CommandDispatch will set \a result itself to false.
          */
-        CommandDispatch(Processor* p, CommandInterface* c,  VariableDataSource<bool>* result );
+        CommandDispatch(Processor* p, CommandInterface* c,  AssignableDataSource<bool>* result );
 
         /**
          * Be sure only to delete this command if the target processor is

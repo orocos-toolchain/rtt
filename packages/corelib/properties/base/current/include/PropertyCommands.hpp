@@ -31,6 +31,7 @@
 
 #include "CommandInterface.hpp"
 #include "DataSource.hpp"
+#include "Property.hpp"
 
 namespace ORO_CoreLib
 {

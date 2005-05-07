@@ -44,10 +44,10 @@ namespace ORO_Execution
     class ConditionExecFunction
         : public ConditionInterface
     {
-        VariableDataSource<FunctionGraph*>::shared_ptr _v;
+        DataSource<FunctionGraph*>::shared_ptr _v;
         Processor* _proc;
     public:
-        ConditionExecFunction( VariableDataSource<FunctionGraph*>* v, Processor* p )
+        ConditionExecFunction( DataSource<FunctionGraph*>* v, Processor* p )
             : _v( v ), _proc(p)
         {}
 
@@ -80,12 +80,12 @@ namespace ORO_Execution
         : public CommandInterface
     {
         Processor* _proc;
-        VariableDataSource<FunctionGraph*>::shared_ptr _v;
+        AssignableDataSource<FunctionGraph*>::shared_ptr _v;
         boost::shared_ptr<FunctionGraph> _foo;
         bool isqueued;
     public:
-        CommandExecFunction( boost::shared_ptr<FunctionGraph> foo, Processor* p, VariableDataSource<FunctionGraph*>* v = 0 )
-            : _proc(p), _v( v==0 ? new VariableDataSource<FunctionGraph*>(foo.get()) : v ),  _foo( foo ), isqueued(false)
+        CommandExecFunction( boost::shared_ptr<FunctionGraph> foo, Processor* p, AssignableDataSource<FunctionGraph*>* v = 0 )
+            : _proc(p), _v( v==0 ? new detail::VariableDataSource<FunctionGraph*>(foo.get()) : v ),  _foo( foo ), isqueued(false)
         {
         }
 
@@ -129,7 +129,7 @@ namespace ORO_Execution
             // this may seem strange, but :
             // make a copy of foo, make a copy of _v, store pointer to new foo in _v !
             boost::shared_ptr<FunctionGraph> fcpy( _foo->copy(alreadyCloned) );
-            VariableDataSource<FunctionGraph*>* vcpy = _v->copy(alreadyCloned);
+            AssignableDataSource<FunctionGraph*>* vcpy = _v->copy(alreadyCloned);
             vcpy->set( fcpy.get() ); // since we own _foo, we may manipulate the copy of _v
             return new CommandExecFunction( fcpy , _proc, vcpy );
         }

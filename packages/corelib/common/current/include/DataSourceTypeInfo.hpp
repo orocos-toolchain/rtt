@@ -30,6 +30,7 @@
 #define DATASOURCE_TYPE_INFO_HPP
 
 #include <string>
+#include <vector>
 
 
 namespace ORO_CoreLib

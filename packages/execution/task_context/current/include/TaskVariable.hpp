@@ -176,8 +176,8 @@ namespace ORO_Execution
     ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate)
       {
           if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
-              replacements[ data.get() ] = instds;
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
+              replacements[ this->data.get() ] = instds;
               return new ParsedIndexContainerVariable( instds );
           }
         return new ParsedIndexContainerVariable( this->data->copy( replacements ) );

@@ -32,7 +32,7 @@
 
 namespace ORO_Execution
 {
-        CommandDispatch::CommandDispatch(Processor* p, CommandInterface* c,  VariableDataSource<bool>* result )
+        CommandDispatch::CommandDispatch(Processor* p, CommandInterface* c,  AssignableDataSource<bool>* result )
             : _result(result), send(true), proc(p), com(c) {}
 
         CommandDispatch::~CommandDispatch() {
