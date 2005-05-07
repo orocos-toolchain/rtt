@@ -10,7 +10,7 @@
 <book>
   <bookinfo>
     <title>
-      The OROCOS Open Realtime Control Services
+      The Orocos Open Realtime Control Services
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -31,7 +31,7 @@
 	This document gives an introduction to 
 	the <ulink url="http://www.orocos.org">&orocos;</ulink>
 	<emphasis> ( Open RObot COntrol Software ) </emphasis> project.
-	It bundles the Installation and Software manuals.
+	It bundles the Installation and RealTime Control Software manuals.
       </para>
     </abstract>
 

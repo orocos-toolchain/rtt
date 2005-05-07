@@ -335,6 +335,27 @@
 	</para>
       </sect3>
       <sect3>
+	<title>Building RealTime Control Services or Robot Control Software</title>
+	<para>
+	  Building all of Orocos takes a long time. We provided two build targets
+	  which allow you to specify what to build. <screen><command> make control_services </command></screen>
+	  builds the Core Library, the Program Parsing and Execution Infrastructure
+	  and the OS and Device Interfaces. These are the most important 'core'
+	  parts or Orocos, and are sufficient for the 'taskintro' application and
+	  contains everything described in the 'RealTime Control Services' Manual.
+	</para>
+	<para>
+	   <screen><command> make robot_control </command></screen> builds the 
+	   same packages as control_services, but adds kinematics, the control framework
+	   and the control kernel components  and
+	   contains everything described in the 'Robot Control Software' Manual.
+	</para>
+	<para>
+	  Even then, not all packages are build. Type  <screen><command> make configure_packages </command></screen>
+	  to add or remove specific packages to suit your needs.
+	</para>
+      </sect3>
+      <sect3>
 	<title>Manual Download Instructions</title>
 	<para> If you choose to download the tools and packages manually, proceed as follows :
 	</para>

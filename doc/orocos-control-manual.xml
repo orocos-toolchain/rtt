@@ -10,7 +10,7 @@
 <book>
   <bookinfo>
     <title>
-      The Orocos Robot Control Application
+      The Orocos Robot Control Software Application Framework
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -31,8 +31,8 @@
 	This document gives an introduction to 
 	the <ulink url="http://www.orocos.org">&orocos;</ulink>
 	<emphasis> ( Open RObot COntrol Software ) </emphasis> Control
-	Kernel Infrastructure. It is complementary to the Orocos
-	Realtime Control Services Manual.
+	Kernel Infrastructure. It is an application framework on top of the Orocos
+	Realtime Control Services, meant for motion control.
       </para>
     </abstract>
 
