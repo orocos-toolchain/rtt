@@ -37,7 +37,7 @@
 namespace ORO_OS
 {
     /**
-     * @brief An object oriented wrapper around a counting semaphore.
+     * An object oriented wrapper around a counting semaphore.
      * It works like a traffic light on which a thread can \a wait() until
      * the sempahore's value becomes positive, otherwise it blocks. Another
      * thread then needs to \a signal() the semaphore. One thread which is
