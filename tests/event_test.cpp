@@ -184,20 +184,24 @@ void EventTest::testEventArgs()
     float_sum = 0;
     float_sub = 0;
 
-    // use CompletionProcessor for completer, use only last value
+    // use event processor
+    event_proc->initialize();
+
     h = t_event_float->connect(boost::bind(&EventTest::float_listener, this,_1,_2),
                                       boost::bind(&EventTest::float_completer, this, _1, _2),
-                                      CompletionProcessor::Instance(), EventProcessor::OnlyLast);
+                                      event_proc, EventProcessor::OnlyLast);
 
+    // simulate overrun :
     t_event_float->fire(1.0, 4.0);
     CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
 
     t_event_float->fire(a, b);
     CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
 
-    sleep(1);
-    // asyn handlers should reach negative total.
-    CPPUNIT_ASSERT_EQUAL( float(-20.0), float_sub );
+    event_proc->step();
+    event_proc->finalize();
+    // asyn handlers should reach only last total.
+    CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
     h.disconnect();
 }
 

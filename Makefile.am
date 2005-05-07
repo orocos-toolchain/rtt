@@ -125,7 +125,7 @@ all_packages: packages
 
 # make all dist-packages
 # it will exit if no ecos.ecc file is found.
-dist_packages: 
+dist_packages:
 	if test -f packages/ecos.ecc; then \
 	cd packages; \
 	export ECOS_REPOSITORY=$(ECOS_REP) ;\
@@ -158,14 +158,17 @@ precompile_headers:
 	g++-3.4 -O2 -c -x c++ all.h -o all.h.gch -I. 
 	echo "#error all.h.gch is not used. You must use CC=gcc-3.4" > all.h
 
-# Reset the template to build the coreservices
-core_packages: test_new_packages
+# Reset the template to build the controlservices
+control_services: test_new_packages
 	@if test -f packages/ecos.ecc; then \
 	cd packages; \
 	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	ecosconfig template controlservices;\
 	ecosconfig check ; fi
 	$(MAKE) -C . packages
+
+#Build most of Orocos, except device drivers.
+robot_software: test_new_packages dist_packages
 
 # This cleans out the object files but leaves
 # the headers and library
