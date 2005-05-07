@@ -33,7 +33,7 @@
 
 namespace ORO_Execution
 {
-
+    namespace detail {
     /**
      * Adapt parser DataSource storage type to user type.
      * Rationale : the Parser chooses internally how to pass
@@ -173,7 +173,7 @@ namespace ORO_Execution
         }
         
     };
-
+    }
 }
 
 #endif
