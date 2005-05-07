@@ -20,7 +20,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2004</year>
+      <year>2004,2005</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -38,6 +38,12 @@
 	<date>19 Nov 2004</date>
 	<authorinitials>PS</authorinitials>
 	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>1 May 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Moved TaskBrowser to front and updated to ProgramLoader</revremark>
       </revision>
     </revhistory>
 
@@ -160,7 +166,306 @@
       for more technical (C++) details.
     </para>
   </sect1>
+  <sect1>
+    <title>An Introductory Example to TaskContexts</title>
+    <para>
+      This section introduces tasks through the "taskintro"
+      application, which can be downloaded from Orocos.org.  It
+      contains 3 TaskContexts, each showing some features and
+      possibilities. The 'FactoringTask' waits for a command to factor
+      a number in its primes. When done, it fires an event with the
+      result.  The 'ReactiveTask' is a periodic task which waits for
+      the events to happen when it is running. The 'PeriodicTask' can
+      count to a certain number in each periodic step, when given the
+      command to do so. We show some example commands, but the
+      application has more methods and commands than presented here.
+    </para>
+    <para>
+      The way we interact with TaskContexts during development of an
+      Orocos application is through the TaskBrowser.  The
+      <classname>TaskBrowser</classname> is a powerful console tool
+      which helps you to explore, execute and debug
+      <classname>TaskContext</classname>s in running programs. All you
+      have to do is to instantiate a TaskBrowser and enter its loop()
+      method. When the program is started from a console, the
+      TaskBrowser takes over user input and output.
+    </para>
+    <note>
+      <para>
+	The <classname>TaskBrowser</classname> is located in the
+	Orocos Program Parser package and not in the Task Context package.
+      </para>
+    </note>
+    <programlisting>
+  #include &lt;execution/TaskBrowser.hpp&gt;
+  // ...
 
+  int ORO_main( int, char** )
+  {
+      // Create your tasks
+      TaskContext* task = ...
+
+      // when all is setup :
+      TaskBrowser tbrowser( task );
+
+      tbrowser.loop();
+      return 0;
+  }
+    </programlisting>
+    <para>
+      The TaskBrowser uses the GNU readline library to easily
+      enter commands to the tasks in your system. This means you
+      can press TAB to complete your commands and the up arrow
+      to scroll through previous commands.
+    </para>
+    <screen>
+$ ./taskintro
+0.003 [Info] Parsing file CountingSM.osd
+0.069 [Info] Loading StateMachine counterMachine
+0.074 [Info] ReactiveTaskContext reacting to PrimeEvent !
+
+  This console reader allows you to browse and manipulate TaskContexts.
+  You can type in a command, datasource, method, expression or change variables.
+  (type 'help' for instructions)
+    TAB completion and HISTORY is available ('bash' like)
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :
+    </screen>
+    <para>
+      The first lines are printed by the Orocos ORO_CoreLib::Logger, which has been
+      configured to display informative messages to console. You can always
+      watch the log file 'orocos.log' in the same directory to see all messages.
+    </para>
+    <para>
+      Depending on what you type, the TaskBrowser will act differently.
+      The builtin commands <command>cd</command>, <command>help</command>,
+      <command>quit</command> and <command>ls</command> are seen as commands
+      to the TaskBrowser itself, if you typed something else,
+      it tries to evaluate your command to an expression and will
+      print the result to the console. If you did not type an expression,
+      it tries to parse it as a command to a (peer) task. If that also
+      fails, it means you made a typo and it prints the syntax error
+      to console.
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>1+1</command>
+      Got :1+1
+   = 2
+    </screen>
+    <para>To display the contents of the current task, type <command>ls</command>,
+      and switch to one of the listed peers with <command>cd</command>, while
+      <command>cd ..</command> takes you one peer back in history :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>ls</command>
+
+PeriodicTask Attributes :
+   int Counter
+   std::string Parameter
+   double SpeedOfLight
+   int Target
+
+PeriodicTask Objects    :  this
+PeriodicTask Peers      :  FactoringTask ReactiveTask states
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>cd FactoringTask</command>
+   Switched to : FactoringTask
+
+ In Task FactoringTask. (Status of last Command : none )
+ (type 'ls' for context info) :ls
+
+FactoringTask Attributes :
+   int Priority
+
+FactoringTask Objects    :  this
+FactoringTask Peers      :  PeriodicTask ReactiveTask
+
+ In Task FactoringTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>cd ..</command>
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :
+    </screen>
+    <note>
+    <para>To get a quick overview of the commands, type
+      <command>help</command>.
+    </para>
+    </note>
+    <para>
+      Let's revisit the output of <command>ls</command> :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>ls</command>
+
+PeriodicTask Attributes :
+   int Counter
+   std::string Parameter
+   double SpeedOfLight
+   int Target
+
+PeriodicTask Objects    :  this
+PeriodicTask Peers      :  FactoringTask ReactiveTask states
+    </screen>
+    <para>
+      First you get a list of the Properties and Attributes (mixed) of
+      the current TaskContext. Propeties can be written to disk, attributes
+      are solely for script interaction. Each of them can be changed, except
+      task constants. The current task has only one object: 'this'. The 'this'
+      object serves like a public interface of the TaskContext. Objects can only contain
+      methods, commands or datasources. Last, the peers are shown, two other tasks
+      and 'states', which denotes that this TaskContext has a StateMachine. Likewise,
+      a peer task 'programs' contains all loaded programs.
+      To get a list of the Task's interface, you can always type an object name,
+      for example 'this' :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) : <command>this</command>
+      Got :this
+  Command    : bool countTo( int Target )
+   Count to a given number using a StateMachine program.
+   Target : Number to count to.
+  DataSource : bool isRunning( )
+   Is this GenericTaskContext started ?
+  Method     : bool loadProgram( const&amp; std::string Filename )
+   Load an Orocos Program Script from a file.
+   Filename : An ops file.
+  Method     : bool loadStateMachine( const&amp; std::string Filename )
+   Load an Orocos State Description from a file.
+   Filename : An osd file.
+  Method     : bool readProperties( const&amp; std::string Filename )
+   Read Properties from a file.
+   Filename : A CPF formatted XML file.
+  Method     : bool start( )
+   Start this GenericTaskContext.
+  Method     : bool stop( )
+   Stop this GenericTaskContext.
+  Method     : bool unloadProgram( const&amp; std::string ProgramName )
+   Unload an Orocos Program Script from a file.
+   ProgramName : The Program's name.
+  Method     : bool unloadStateMachine( const&amp; std::string StateMachineName )
+   Unload an Orocos State Description from a file.
+   StateMachineName : A name of a Root StateMachine instantiation.
+  Method     : bool writeProperties( const&amp; std::string Filename )
+   Write or update Properties to a file.
+   Filename : A CPF formatted XML file.
+    </screen>
+    <para>
+      The 'this' object is special in that the command or method must
+      not be prefixed by an object name and that it apears as if the
+      method is called directly on the task :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :ReactiveTask.stop()
+      Got :ReactiveTask.stop()
+   = true
+    </screen>
+    <para>
+      'Methods' and 'DataSources' are executed directly by the TaskBrowser itself,
+      and then it prints the result. The return value of stop() was a boolean,
+      which is 'true'.
+    </para>
+    <para>
+      When a 'Command' is entered, it is sent to the TaskContext itself, which 
+      will execute it in its own thread. The different stages of its lifetime are
+      displayed by the prompt. Hitting enter will refresh the status line.
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : <emphasis>none</emphasis> )
+ (type 'ls' for context info) :<command>countTo(1000)</command>
+      Got :countTo(1000)
+
+ In Task PeriodicTask. (Status of last Command : <emphasis>queued</emphasis>)
+ (type 'ls' for context info) :2589.528 [Info] PeriodicTaskContext counts to 1000.
+
+
+ In Task PeriodicTask. (Status of last Command : <emphasis>busy</emphasis> )
+ (type 'ls' for context info) :
+
+ In Task PeriodicTask. (Status of last Command : <emphasis>done</emphasis> )
+ (type 'ls' for context info) :
+    </screen>
+    <para>
+      A Command might be rejected (return false) by the receiving TaskContext :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : <emphasis>done</emphasis> )
+ (type 'ls' for context info) :<command>countTo(-20)</command>
+      Got :countTo(-20)
+
+ In Task PeriodicTask. (Status of last Command : <emphasis>queued</emphasis> )
+ (type 'ls' for context info) :
+
+ In Task PeriodicTask. (Status of last Command : <emphasis>fail</emphasis> )
+ (type 'ls' for context info) :         
+    </screen>
+    <para>
+      Besides giving commands to tasks, you can alter the attributes of 
+      any task, program or state machine. The TaskBrowser will confirm
+      validity of the assignment with 'true' or 'false' :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>ls states.counterMachine</command>
+
+counterMachine Attributes :
+   int multiplier
+
+counterMachine Objects    :  this
+counterMachine Peers      :  states
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>states.counterMachine.multiplier = 20</command>
+      Got :states.counterMachine.multiplier = 20
+   = true
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>states.counterMachine.multiplier</command>
+      Got :states.counterMachine.multiplier
+   = 20
+
+ In Task PeriodicTask. (Status of last Command : none )
+ (type 'ls' for context info) :<command>countTo(200)</command>
+      Got :countTo(200)
+
+ In Task PeriodicTask. (Status of last Command : queued )
+ (type 'ls' for context info) :60.272 [Info] PeriodicTaskContext counts to 200.
+
+
+ In Task PeriodicTask. (Status of last Command : done )
+ (type 'ls' for context info) :      
+    </screen>
+    <para>
+      Last but not least, hitting TAB twice, will show you a list of
+      possible completions, such as peers or commands :
+    </para>
+    <screen>
+ In Task PeriodicTask. (Status of last Command : fail )
+ (type 'ls' for context info) :
+Counter             SpeedOfLight        countTo             loadStateMachine    readProperties      unloadProgram
+FactoringTask.      Target              help                ls                  start               unloadStateMachine
+Parameter           cd                  isRunning           peers               states.             writeProperties
+ReactiveTask.       cd ..               loadProgram         quit                stop
+ (type 'ls' for context info) : 
+    </screen>
+    <para>
+      TAB completion works even across peers, such that you can type
+      a TAB completed command to another peer than the current peer.
+    </para>
+    <para>
+      The TaskBrowser is application independent, so that your enduser-application
+      might need a more suitable interface. However, for testing and
+      inspecting what is happening inside your realtime programs,
+      it is a very useful tool. The next sections show how you can add
+      properties, commands, methods etc to a TaskContext.
+    </para>
+  </sect1>
   <sect1 id="basic-task">
     <title>Setting Up a Basic Task</title>
     <para>
@@ -239,7 +544,7 @@
   a_task.methodFactory.getObjectFactory("objname");
   a_task.dataFactory.getObjectFactory("objname");
 
-  a_task.attributeRepository.getAttribute("objname");
+  a_task.attributeRepository.getAttribute&lt;Type>("attrname");
       </programlisting>
     </para>
     <para>
@@ -331,6 +636,13 @@
       <para>
 	Finally, the factory is stored in the method interface of a_task,
 	where it is <emphasis>added</emphasis> to the "objname" methods.
+      </para>
+      <important>
+	<para>The methodFactory, and all other factories of a TaskContext
+	take ownership of the registered or added objects. You are not
+	allowed to delete them.</para>
+      </important>
+      <para>
 	Using this mechanism, any method of any class can be added to a task's
 	method interface. All methods are grouped in an object
 	namespace ( here &quot;objname&quot; ), which can be served
@@ -452,6 +764,14 @@
 	value of false and 5 to the task's repository. Adding a Property
 	is also straightforward.
 	The methods return false if an attribute with that name already exists.
+      </para>
+      <important>
+	<para>The attributeRepository, and all other factories of a TaskContext
+	take ownership of the registered or added objects. You are not
+	allowed to delete them. Properties are an exception to this rule,
+	they remain owned by you and you may only delete them after a removeProperty().</para>
+      </important>
+      <para>
 	To get a value from the repository,
 	you can use :</para>
       <para>
@@ -577,10 +897,10 @@
 	<emphasis>const</emphasis> function having :</para>
       <itemizedlist>
 	<listitem>
-	  <para>the same arguments as the first one,</para>
+	  <para>the same arguments as the command,</para>
 	</listitem>
 	<listitem>
-	  <para>OR only the first argument as the first one,</para>
+	  <para>OR only the first argument of the command,</para>
 	</listitem>
 	<listitem>
 	  <para>OR no arguments at all.</para>
@@ -594,6 +914,11 @@
 	constant C string describing the function, and two constant C
 	strings giving a description and name for every argument.
       </para>
+      <important>
+	<para>The commandFactory, and all other factories of a TaskContext
+	take ownership of the registered or added objects. You are not
+	allowed to delete them.</para>
+      </important>
       <para>
 	The above lets you write in a program script :</para>
       <para>
@@ -660,14 +985,21 @@
 	          &quot;a&quot;, &quot;the base&quot;, 
 	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
-  a_task.datasourceFactory.registerObject("objname", fact);	</programlisting></para>
+  a_task.dataFactory.registerObject("objname", fact);	</programlisting></para>
       <para>
 	which is dus nearly identical to using a method.
 	Notice the usage of the _number class member. The
 	factory also accepts class member variables instead
 	of const functions, but likewise, they are also
 	read-only.
-	The braces are optional when no arguments must be
+      </para>
+      <important>
+	<para>The dataFactory, and all other factories of a TaskContext
+	take ownership of the registered or added objects. You are not
+	allowed to delete them.</para>
+      </important>
+      <para>
+	In scripting, the braces are optional when no arguments must be
 	given :</para>
       <para>
 	<programlisting>
@@ -869,26 +1201,18 @@
   ProgramLoader loader;
   ProgramLoader::Functions funcs;
 
-  funcs = loader.executeFunction( "Functions.ops", a_task );</programlisting>
+  funcs = loader.loadFunction( "Functions.ops", a_task );</programlisting>
            funcs is an STL container wich contains all functions being executed.
 	</para>
 	<warning>
 	  <para>
-	    Using executeFunction with functions that require arguments will
+	    Using loadFunction with functions that require arguments will
 	    execute the functions with default initialisation of the arguments.
 	    Use the 'low-level' Orocos API (Parser and Processor) to initialise
 	    and execute functions with arguments. Otherwise, use programs to
 	    call such functions.
 	  </para>
 	</warning>
-	<para>
-	  Take a look at the <classname>FunctionGraph</classname>
-	  and the &parseman;
-	  documentation if you want details.
-	  A quick way to use functions, is to call them
-	  in programs, which take no arguments and allow
-	  better control by the Processor.
-	</para>
       </sect3>
       <sect3 id="task-context-programs">
 	<title>Programs</title>
@@ -1069,246 +1393,6 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>Browsing Tasks Online</title>
-    <para>
-      The <classname>TaskBrowser</classname>
-      is a powerfull tool which helps you to
-      explore, execute and debug <classname>TaskContext</classname>s
-      in running programs. All you have to do is to instantiate a 
-      TaskBrowser and enter its loop() method. When the program is
-      started from a console, the TaskBrowser takes over user input 
-      and output.
-    </para>
-    <note>
-      <para>
-	The <classname>TaskBrowser</classname> is located in the
-	Orocos Program Parser package and not in the Task Context package.
-      </para>
-    </note>
-    <programlisting>
-  #include &lt;execution/TaskBrowser.hpp&gt;
-  // ...
-
-  int ORO_main( int, char** )
-  {
-      // Create your tasks
-      TaskContext* task = ...
-
-      // when all is setup :
-      TaskBrowser tbrowser( task );
-
-      tbrowser.loop();
-      return 0;
-  }
-    </programlisting>
-    <para>
-      The TaskBrowser uses the GNU readline library to easily
-      enter commands to the tasks in your system. This means you
-      can press TAB to complete your commands and the up arrow
-      to scroll through previous commands.
-    </para>
-    <screen>
-$ ./taskclient
-
-  This console reader allows you to browse TaskContexts.
-  You can type in a command (type 'help' for info),
-  an datasource, method or expression.
-
-    To switch to another task, type 'switch &lt;path-to-taskname&gt;'
-    TAB completion and HISTORY is available for commands
-
- In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :
-    </screen>
-    <para>
-      Depending on what you type, the TaskBrowser will act differently.
-      The builtin commands <command>switch</command>, <command>help</command>,
-      <command>quit</command> and <command>back</command> are detected
-      first, if you typed something else,
-      it tries to evaluate your command to an expression and will
-      print the result to the console. If you did not type an expression,
-      it tries to parse it as a command to a (peer) task. If that also
-      fails, it means you made a typo and it prints the syntax error
-      to console.
-    </para>
-    <screen>
- In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command> 1 + 1</command>
-      Got : 1 + 1
-   = 2
-    </screen>
-    <para>To display the peers of the current task, type <command>peers</command>,
-      and switch to one of the listed peers with <command>switch</command>, while
-      <command>back</command> takes you one peer back in history :
-    </para>
-    <screen>
- In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>peers</command>
-
-  This task's peer tasks are :
-T2
-this
-
- In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>switch T2</command>
- Switching to  T2
-
- In Task T2. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>peers</command>
-
-  This task's peer tasks are :
-T1
-T3
-this
-
- In Task T2. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>back</command>
-
- In Task T1. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :
-    </screen>
-    <para>In a more complex application, you might want to type
-      <command>help</command> to see some more information
-      about the current task :
-    </para>
-    <screen>
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>help</command>
-
-  To switch to another task, type 'switch &lt;path-to-taskname&gt;'
-  and type 'back' to go back to the previous task (History size is 20).
-
-  A command consists of an object, followed by a dot ('.'), the method
-  name, followed by the parameters. An example could be :
-  myTask.orderBeers("Palm", 5) [then press enter]
-  1+1 [enter]
-
-  The available Command Objects are :
-AxisPositionGenerator
-Execution
-fakecomp
-  The available DataSource Objects are :
-AxisPositionGenerator
-AxisSensor
-Execution
-Kernel
-fakecomp
-  The available Method Objects are :
-AxisEffector
-Kernel
-PID_Controller
-cout
-  This task's peers are (also : type 'peers') :
-this
-  For a detailed argument list of the object's methods,
-   just type the object name (eg 'myTask')
-    </screen>
-    <para>
-      Which shows us a task with no peers (this points to itself) and
-      quite a few objects which contain commands, datasources and
-      methods. As the text, suggests, just typing the name of such
-      an object, shows even more information. To get a list of the
-      Task's interface, you can always type 'this' :
-    </para>
-    <screen>
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>switch states.machine.axis_y</command>
-   Switched to : axis_y
-
- In Task axis_y. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>this</command>
-      Got :this
-  Command     : activate - Activate this StateMachine
-
-  Command     : deactivate - Deactivate this StateMachine
-
-  Command     : start - Start this StateMachine
-
-  Command     : stop - Stop this StateMachine
-
-  DataSource : inState - Is the StateMachine in a given state ?
-  Argument 1 : State Name - State Name
-    </screen>
-    <para>
-      Not all TaskContexts have implemented a 'this' interface,
-      it might be that it only has objects :
-    </para>
-    <screen>
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>this</command>
-      Got :this
-Parse Error : Invalid Expression.
-Syntactic error: Task 'MyAxisKernel' has no dataobject or method 'this'.
-
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>AxisPositionGenerator</command>
-      Got :AxisPositionGenerator
-  Command     : move - Move an axis to a position with a given velocity
-  Argument 1 : AxisNr - The Axis number (starting from 1).
-  Argument 2 : Velocity - The maximum velocity of the movement.
-  Argument 3 : Position - The end position of the movement.
-
-  Command     : wait - Hold the axis still for an amount of time
-  Argument 1 : AxisNr - The Axis number (starting from 1).
-  Argument 2 : Time - The time to wait, in seconds.
-
-  DataSource : isReady - Inspect if an Axis is ready for a next command.
-  Argument 1 : AxisNr - The Axis number (starting from 1).
-
-  DataSource : position - Get the axis position
-  Argument 1 : AxisNr - The Axis number (starting from 1).
-    </screen>
-    <para>
-      As shown, the AxisPositionGenerator object has two commands
-      and two datasources. Logically, you can now send a command
-      to that object, or inspect its DataSources.
-    </para>
-    <screen>
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>AxisPositionGenerator.isReady(1)</command>
-      Got :AxisPositionGenerator.isReady(1)
-   = true
-    </screen>
-    <para>
-      When a command is typed, the different stages of its lifetime are
-      displayed by the prompt. Hitting enter will refresh the status line.
-    </para>
-    <screen>
- In Task MyAxisKernel. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :<command>AxisPositionGenerator.move(1, 10., 100.)</command>
-      Got :AxisPositionGenerator.move(1, 10., 100.)
-
- In Task MyAxisKernel. Enter a command. (Status of previous command : queued )
- (type 'quit' for exit) :
-
- In Task MyAxisKernel. Enter a command. (Status of previous command : busy )
- (type 'quit' for exit) :
-
- In Task MyAxisKernel. Enter a command. (Status of previous command : done )
- (type 'quit' for exit) :  
-    </screen>
-    <para>
-      Last but not least, hitting TAB twice, will show you a list of
-      possible completions, such as peers or commands :
-    </para>
-    <screen>
- In Task T2. Enter a command. (Status of previous command : none )
- (type 'quit' for exit) :
-T1.      T3.      back     help     peers    quit     switch   test.
- (type 'quit' for exit) :quit
-    </screen>
-    <para>
-      TAB completion works even across peers, such that you can type
-      a TAB completed command to another peer than the current peer.
-    </para>
-    <para>
-      The TaskBrowser is application agnostic, so that your application
-      might need a more suitable interface. However, for testing and
-      inspecting what is happening inside your realtime programs,
-      it is a very useful tool.
-    </para>
-  </sect1>
-  <sect1>
     <title>Applying the Task Infrastructure to Your Application</title>
     <para>
       In addition to the above methods of setting up tasks, this section
@@ -1320,9 +1404,32 @@ T1.      T3.      back     help     peers    quit     switch   test.
       <para>
 	To help users in setting up quickly a TaskContext, the GenericTaskContext
 	class has been made available which adds some standard methods and
-	commands to its interface which are common to many tasks.
+	commands to its interface which are common to many tasks. It supports
+	loading Programs and StateMachines, saving Properties to disk and reading
+	them back in and stopping and starting the Task.
 	You can download an introduction to setting up TaskContexts which
 	uses this class from the Orocos.org download page.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Wrapping Methods in Functions</title>
+      <para>
+	Methods are always executed in the thread of the caller. If a 
+	method does non-realtime operations, like writing data to disk, 
+	it should not be called by a realtime thread. However, if the
+	thread which owns the method is itself not realtime, it can execute
+	the method as a command in its own thread. This can easily be
+	accomplished by writing a wrapper function ( or alternatively, 
+	register the method as a command too ).
+      </para>
+      <programlisting>  export function domethod( int arg ) {
+     do mymethod( arg )
+  } </programlisting>
+      <para>
+	Load this function with the <classname>ProgramLoader</classname>
+	in the TaskContext having 'mymethod', and hard realtime tasks
+	can instruct it to execute that method, without jeopardizing 
+	their own realtime behaviour.
       </para>
     </sect2>
     <sect2>
