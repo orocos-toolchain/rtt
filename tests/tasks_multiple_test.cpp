@@ -74,7 +74,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
 
         // we lower the 'load' if the period is too short.
         // this is a bit arbitrary.
-        int correction = 0.001 / ( ZeroTimeThread::Instance()->getPeriod() );
+        int correction = int(0.001 / ( ZeroTimeThread::Instance()->getPeriod() ));
         if ( correction == 0)
             correction = 1;
         if ( correction > 20 )
