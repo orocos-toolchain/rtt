@@ -259,7 +259,7 @@ namespace ORO_ControlKernel
          */
         typedef std::vector<PropertyExporterInterface*> ExpList;
 
-        typedef std::vector< boost::shared_ptr<DataObjectReporting> > DosList;
+        typedef std::vector< boost::shared_ptr<detail::DataObjectReporting> > DosList;
 
         /**
          * All external exporters that want to be reported.

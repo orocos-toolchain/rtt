@@ -43,6 +43,7 @@
 
 namespace ORO_ControlKernel
 {
+    namespace detail {
     using ORO_CoreLib::Property;
     using ORO_CoreLib::PropertyBase;
     using ORO_CoreLib::PropertyBag;
@@ -163,7 +164,7 @@ namespace ORO_ControlKernel
          */
         std::vector<ORO_CoreLib::CommandInterface*> comms;
     };
-
+    }
 }
 
 #endif

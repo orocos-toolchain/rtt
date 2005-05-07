@@ -35,6 +35,7 @@
 
 namespace ORO_ControlKernel
 {
+    using namespace detail;
 
     ReportingComponent::ReportingComponent(const std::string& _name) 
         : detail::ComponentFacetInterface<ReportingExtension>( _name ),

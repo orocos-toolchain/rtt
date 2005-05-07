@@ -31,6 +31,8 @@
 
 namespace ORO_ControlKernel
 {
+    using namespace detail;
+
     ORO_CoreLib::NameServer<boost::shared_ptr<DataObjectReporting> > DataObjectReporting::nameserver;
 
     ReportingClient::~ReportingClient() {}

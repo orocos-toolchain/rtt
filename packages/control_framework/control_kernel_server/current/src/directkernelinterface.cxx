@@ -36,13 +36,11 @@
 
 #include "execution/Parser.hpp"
 
-using ORO_Execution::Parser;
-using ORO_Execution::ProgramInterface;
-using ORO_Execution::program_load_exception;
-using ORO_Execution::program_unload_exception;
-
 namespace ExecutionClient
 {
+    using namespace ORO_Execution;
+    using namespace ORO_Execution::detail;
+
   int DirectKernelInterface::uniquecommandidcntr;
 
   DirectKernelInterface::DirectKernelInterface(

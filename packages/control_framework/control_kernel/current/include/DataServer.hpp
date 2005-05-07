@@ -78,6 +78,12 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::CommandInterface;
 
 
+    using namespace Loki::TL;
+    typedef Loki::NullType nil_type; // Moving to Loki.
+    using Loki::Typelist; // moving to Loki.
+
+    namespace detail {
+
     /**
      * @brief An Interface for registering DataObject members 
      * into a public namespace. One nameserver will be
@@ -312,8 +318,6 @@ namespace ORO_ControlKernel
     template< class _DataObjectType >
     NameServer< DataObjectInterface<typename _DataObjectType::DataType>* > DataObjectServer<_DataObjectType>::ns;
 
-    typedef Loki::NullType nil_type; // Moving to Loki.
-
 //     template<class T> 
 //     struct is_nil
 //     {
@@ -348,8 +352,6 @@ namespace ORO_ControlKernel
 //         typedef First first;
 //         typedef Rest rest;
 //     };
-
-    using Loki::Typelist; // moving to Loki.
 
     template<typename First > class NameSubClass;
 
@@ -574,9 +576,7 @@ namespace ORO_ControlKernel
 // //         }
 //     };
 
-
-
-    using namespace Loki::TL;
+    }
 
     /**
      * This class is almost the same as MakeTypelist from Loki. The copyright of this

@@ -52,6 +52,7 @@
 
 namespace ORO_ControlKernel
 {
+    using namespace detail;
     using namespace ORO_Execution;
     using namespace ORO_OS;
     using namespace boost;
