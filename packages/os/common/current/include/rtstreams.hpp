@@ -33,7 +33,15 @@
 #ifndef RTSTREAMS_HPP
 #define RTSTREAMS_HPP
 
-
+/**
+ * (Almost) Real-Time output streams.
+ * If you really have to print something out from a RealTime thread,
+ * you can use the streams of the rt_std namespace, which will call
+ * the rtos_printf functions (which are supposed to be as realtime as possible)
+ * of the OS you are using. Be warned, these classes have not been tested
+ * extensively and might in certain cases still break hard-realtime behaviour.
+ * avoid using it from your most critical threads and production code.
+ */
 namespace rt_std
 {
 
@@ -151,6 +159,9 @@ namespace rt_std
 
 //#ifdef __KERNEL__
 // defined in the namespace rt_std
+    /**
+     * Flush and newline.
+     */
     basic_ostreams& endl( basic_ostreams& );
 //#endif
 
@@ -182,10 +193,16 @@ namespace rt_std
             virtual ~printstream();
     };
 
+    /**
+     * Console Output.
+     */
     extern printstream cout;
     
     struct string_helper { string_helper() : str() {}; string_helper(const std::string& _init) :  str(_init) {};  stringbufs str; };
     
+    /**
+     * Stringstreams, are not guaranteed to be hard realtime.
+     */
     class stringstreams
         : private string_helper, public basic_iostreams
         {
