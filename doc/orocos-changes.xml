@@ -42,8 +42,9 @@
       </listitem>
       <listitem>
 	<para>
-	  The BufferedControlKernel (and its header file) has been renamed to LockFreeControlKernel, possibly breaking
-	  the build of your cascaded control applications. 
+	  A number of classes have been moved from their namespace to a sub-namespace 'detail'.
+	  Most users should not be worried about this, since they were for internal use only.
+	  You can check the API documentation to see which classes haved moved to this namespace.
 	</para>
       </listitem>
       <listitem>
@@ -140,6 +141,12 @@
 	  <para>
 	    The BufferedControlKernel has been renamed to LockFreeControlKernel. The StandardControlKernel's
 	    Command DataObject is now of the LockFree type ( no components or applications need to be adapted ).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The Control Kernel Components install in the 'control_kernel' directory instead of the 
+	    'kernel_components' directory previously.
 	  </para>
 	</listitem>
       </itemizedlist>

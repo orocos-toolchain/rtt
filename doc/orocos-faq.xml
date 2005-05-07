@@ -66,6 +66,14 @@ Alex Russell
 	  Updated broken links and RTAI version info.
         </revremark>
       </revision>
+      <revision>
+        <revnumber>0.3</revnumber>
+        <date>1 May 2005</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Added 'Testing Orocos' section.
+        </revremark>
+      </revision>
     </revhistory>
     <abstract>
       <para>
@@ -80,19 +88,22 @@ Alex Russell
       <title>General Questions</title>
       <qandaentry>
 	<question>
-	  <para>What is Orocos?</para>
+	  <para>What is Orocos - RealTime Control Services - Robot Control Software ?</para>
 	</question>
 	<answer>
 	  <para>
-	    Orocos stands for Open Robot Control Software and is a
-	    library for writing hard realtime control applications in
+	    Orocos stands for Open Robot Control Software and was a
+	    EU funded project to write Free Software for robots. This faq is
+	    about the RealTime Control Services and Robot Control Software
+	    libraries for writing hard realtime control applications in
 	    C++. It supports hard realtime <ulink
 	      url="http://www.rtai.org">RTAI/LXRT</ulink> and non
 	    realtime GNU/Linux programs. Take a look at the webpage for <ulink
 	      url="http://www.orocos.org/about.php"> Orocos history
 	    </ulink> and the <ulink
 	      url="http://www.orocos.org"> 
-	      main page</ulink> for a high level overview.</para>
+	      main page</ulink> for the difference between the RealTime Control
+	  Services and the Robot Control Software.</para>
 	</answer>
       </qandaentry>
       <qandaentry>
@@ -160,7 +171,7 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Configuring and Setting up Orocos</title>
+      <title>Configuring and Compiling Orocos</title>
       <qandaentry>
 	<question>
 	  <para>Where can I find the latest configuration instructions?</para>
@@ -264,6 +275,26 @@ Alex Russell
 	    they will no longer be compiled (without removing them physically).
 	  </para>
 	</answer>
+	<answer>
+	  <para>
+	    Use <command>make control_services</command> in your build directory to build
+	    only the RealTime Control Services library of Orocos.
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    Use <command>make robot_control</command> in your build directory to build
+	    the RealTime Control Services library, kinematics and the (feedback) control kernel application
+	    framework.
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    Use <command>make all_packages</command> in your build directory to build
+	    everything, some device drivers will probably not build on your system, consider
+	    using the first answer.
+	  </para>
+	</answer>
       </qandaentry>
       <qandaentry>
 	<question>
@@ -277,9 +308,48 @@ Alex Russell
 	</answer>
 	<answer>
 	  <para>
-	    For running an Orocos application, you need an Intel Pentium Processor with minimum 32MB RAM,
+	    For running an Orocos application, you need an Intel Pentium-like Processor with minimum 32MB RAM,
 	    but much depends on the application itself. Orocos has not been tested
 	    on other (PowerPC, ARM,...) processors, but an FPU unit is surely needed.
+	  </para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
+      <title>Testing Orocos</title>
+      <qandaentry>
+	<question>
+	  <para>Where can I find a quick demo application ?</para>
+	</question>
+	<answer>
+	  <para>
+	    You can download the 'taskintro' application from the download page.
+	    The RealTime Control Services manual gives a short walk-through.
+	    You need to download, build 'control_services' and install Orocos on your system 
+	    to be able to compile the demo.
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    The kernel_sample package contains a number of example feedback
+	    control kernels, using the Orocos 'robot_control' build.
+	  </para>
+	</answer>
+	<answer>
+	  <para>
+	    The KDE 'kernelclient' package contains an examples directory
+	    which can be used with the 'kernelclient' to monitor a remote (CORBA)
+	    control kernel using the Orocos 'robot_control' build.
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Why doesn't the demo application compile ?</para>
+	</question>
+	<answer>
+	  <para>Did you read the README ? Did you install Orocos in /usr/local/orocos ?
+	  Otherwise, adapt the Makefile.
 	  </para>
 	</answer>
       </qandaentry>
@@ -362,7 +432,7 @@ Alex Russell
 	  <para>
 	    No, the Control Kernel is designed for flexible realtime feedback control.
 	    If that does not fit your application, take a look
-	    at the Realtime Task Infrastructure and all surrounding documents
+	    at the Realtime Control Services and all surrounding documents
 	    to map your realtime tasks into Orocos.
 	  </para>
 	</answer>
@@ -392,7 +462,7 @@ Alex Russell
 	      lots more documents</ulink>. We are still finding ways
 	    to measure the overhead of using Orocos itself, and much
 	    depends on the application, but the minimum system
-	    requirements to run it are a Pentium processor with 32 MB
+	    requirements to run it are a Pentium-class processor with 32 MB
 	    of RAM. 
 	  </para>
 	</answer>
