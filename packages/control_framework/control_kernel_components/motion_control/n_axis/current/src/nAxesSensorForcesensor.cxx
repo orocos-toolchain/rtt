@@ -19,6 +19,7 @@
 
 
 #include "control_kernel/nAxesSensorForcesensor.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -28,6 +29,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
 
 
   nAxesSensorForcesensor::nAxesSensorForcesensor(unsigned int num_axes,
@@ -101,9 +103,9 @@ namespace ORO_ControlKernel
   bool nAxesSensorForcesensor::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input->dObj()->Get("Frame", _position_out_DOI) ||
+    if (!Input->dObj()->Get("Position_EE", _position_out_DOI) ||
 	!Input->dObj()->Get("ForcesensorForce", _force_out_DOI)){
-      cerr << "nAxesSensorForcesensor::componentLoaded() DataObjectInterface not found" << endl;
+      Logger::log() << Logger::Error << "nAxesSensorForcesensor::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 

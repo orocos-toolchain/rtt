@@ -44,8 +44,8 @@ namespace ORO_ControlKernel
   public:
     nAxesGeneratorCartesianSinSetpoint_pos_vel() 
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Frame"));
-      this->insert(ORO_ControlKernel::make_pair(1,"Twist"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Position_EE"));
+      this->insert(ORO_ControlKernel::make_pair(1,"Velocity_EE"));
     }
   }; // class
 

@@ -19,11 +19,17 @@
 
 
 #include "control_kernel/nAxesControllerCartesianPos.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
 namespace ORO_ControlKernel
 {
+
+  using namespace ORO_ControlKernel;
+  using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
+
 
   nAxesControllerCartesianPos::nAxesControllerCartesianPos(std::string name)
     : nAxesControllerCartesianPos_typedef(name),
@@ -56,15 +62,15 @@ namespace ORO_ControlKernel
   
   void nAxesControllerCartesianPos::push()      
   {
-    _velocity_out_DOI->Set(_velocity_out_local.RefPoint( _position_meas_local.p * -1 ));
+    _velocity_out_DOI->Set(_velocity_out_local);
   }
 
 
   bool nAxesControllerCartesianPos::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output->dObj()->Get("Twist", _velocity_out_DOI) ){
-      cerr << "nAxesControllerCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !Output->dObj()->Get("Velocity_EE", _velocity_out_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -80,14 +86,14 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerCartesianPos::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPos::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
     // get interface to Input/Setpoint data types
-    if ( !Input->dObj(   )->Get("Frame", _position_meas_DOI) ||
-	 !SetPoint->dObj()->Get("Frame", _position_desi_DOI) ){
-      cerr << "nAxesControllerCartesianPos::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj(   )->Get("Position_EE", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Position_EE", _position_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPos::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -101,7 +107,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerCartesianPos::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPos::updateProperties() failed" << Logger::endl;
       return false;
     }
 

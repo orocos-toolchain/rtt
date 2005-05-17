@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesEffectorCartesianVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -25,6 +26,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
+  using namespace ORO_CoreLib;
 
 
   nAxesEffectorCartesianVel::nAxesEffectorCartesianVel(unsigned int num_axes, 
@@ -36,6 +38,7 @@ namespace ORO_ControlKernel
       _axes(axes),
       _kinematics(kin),
       _velocity_joint_local(num_axes),
+      _position_joint_local(num_axes),
       _position_sensors(num_axes)
   {
     assert(_axes.size() == num_axes);
@@ -53,19 +56,20 @@ namespace ORO_ControlKernel
 
   void nAxesEffectorCartesianVel::pull()
   {
-    // copy Output to local values
+    // copy to local values
     _velocity_cartesian_DOI->Get(_velocity_cartesian_local);
+    _position_cartesian_DOI->Get(_position_cartesian_local);
+    _position_joint_DOI->Get(_position_joint_local);
   }
 
 
   void nAxesEffectorCartesianVel::calculate()
   {
+    // inverse velocity kinematics
     ORO_CoreLib::Double6D q, q_dot;
     for (unsigned int i=0; i<_num_axes; i++)
-      q[i] = _position_sensors[i]->readSensor();
-
-    // convert twist
-    _kinematics->velocityInverse(q, _velocity_cartesian_local, q_dot);
+      q[i] = _position_joint_local[i];
+    _kinematics->velocityInverse(q, _velocity_cartesian_local.RefPoint(_position_cartesian_local.p * -1), q_dot);
     for (unsigned int i=0; i<_num_axes; i++)
       _velocity_joint_local[i] = q_dot[i];
   }
@@ -87,8 +91,10 @@ namespace ORO_ControlKernel
   bool nAxesEffectorCartesianVel::componentStartup()
   {
     // get interface to Output data type
-    if ( !Output->dObj(   )->Get("Twist", _velocity_cartesian_DOI) ){
-      cerr << "nAxesEffectorCartesianVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Output->dObj(   )->Get("Velocity_EE", _velocity_cartesian_DOI) ||
+	 !Input->dObj(   )->Get("Position_joint", _position_joint_DOI) ||
+	 !Input->dObj(   )->Get("Position_EE", _position_cartesian_DOI) ){
+      Logger::log() << Logger::Error << "nAxesEffectorCartesianVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;

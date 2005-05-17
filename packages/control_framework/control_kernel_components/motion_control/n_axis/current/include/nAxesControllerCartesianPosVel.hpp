@@ -62,8 +62,7 @@ namespace ORO_ControlKernel
   public:
     nAxesControllerCartesianPosVelOutput_vel()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Twist"));
-      this->insert(ORO_ControlKernel::make_pair(0,"TrackingError"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Velocity_EE"));
     }
   }; // class
 
@@ -111,7 +110,7 @@ namespace ORO_ControlKernel
     ORO_Geometry::Twist                                                   _velocity_out_local, _velocity_desi_local, _velocity_feedback;
     
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >         *_position_meas_DOI,  *_position_desi_DOI;
-    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_desi_DOI, *_velocity_out_DOI, *_tracking_error_DOI;
+    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_desi_DOI, *_velocity_out_DOI;
 
     bool                                                                  _properties_read;
     ORO_ControlKernel::Property< std::vector<double> >                    _controller_gain;

@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesControllerCartesianPosVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -25,6 +26,7 @@ namespace ORO_ControlKernel
 {
 
   using namespace ORO_ControlKernel;
+  using namespace ORO_CoreLib;
 
   nAxesControllerCartesianPosVel::nAxesControllerCartesianPosVel(std::string name)
     : nAxesControllerCartesianPosVel_typedef(name),
@@ -42,14 +44,13 @@ namespace ORO_ControlKernel
     _position_meas_DOI->Get(_position_meas_local);
     _position_desi_DOI->Get(_position_desi_local);
     _velocity_desi_DOI->Get(_velocity_desi_local);
-    _velocity_desi_local.RefPoint( _position_meas_local.p );  // refpoint to EE
   }
 
 
 
   void nAxesControllerCartesianPosVel::calculate()
   {
-    // feedback on position
+// feedback on position
     _velocity_feedback = diff(_position_meas_local, _position_desi_local);
     for(unsigned int i=0; i<6; i++)
       _velocity_feedback(i) *= _controller_gain.value()[i];
@@ -60,15 +61,15 @@ namespace ORO_ControlKernel
   
   void nAxesControllerCartesianPosVel::push()      
   {
-    _velocity_out_DOI->Set(_velocity_out_local.RefPoint( _position_meas_local.p * -1));
+    _velocity_out_DOI->Set(_velocity_out_local);
   }
 
 
   bool nAxesControllerCartesianPosVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !nAxesControllerCartesianPosVel_typedef::Output->dObj()->Get("Twist", _velocity_out_DOI) ){
-      cerr << "nAxesControllerCartesianPosVel::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !nAxesControllerCartesianPosVel_typedef::Output->dObj()->Get("Velocity_EE", _velocity_out_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPosVel::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -84,15 +85,15 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerCartesianPosVel::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPosVel::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
     // get interface to Input/Setpoint data types
-    if ( !nAxesControllerCartesianPosVel_typedef::Input->dObj(   )->Get("Frame", _position_meas_DOI) ||
-	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Frame", _position_desi_DOI) ||
-	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Twist", _velocity_desi_DOI) ){
-      cerr << "nAxesControllerCartesianPosVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !nAxesControllerCartesianPosVel_typedef::Input->dObj(   )->Get("Position_EE", _position_meas_DOI) ||
+	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Position_EE", _position_desi_DOI) ||
+	 !nAxesControllerCartesianPosVel_typedef::SetPoint->dObj()->Get("Velocity_EE", _velocity_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPosVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -106,7 +107,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerCartesianPosVel::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianPosVel::updateProperties() failed" << Logger::endl;
       return false;
     }
 

@@ -46,7 +46,7 @@ namespace ORO_ControlKernel
   public:
     nAxesSensorPosInput_pos()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Position"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Position_joint"));
     }
   }; // class
 

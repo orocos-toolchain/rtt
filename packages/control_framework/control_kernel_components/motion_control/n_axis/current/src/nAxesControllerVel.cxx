@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesControllerVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -25,6 +26,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
 
   nAxesControllerVel::nAxesControllerVel(unsigned int num_axes, 
 					 std::string name)
@@ -84,8 +86,8 @@ namespace ORO_ControlKernel
   bool nAxesControllerVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output->dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesControllerVel::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !Output->dObj()->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerVel::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -101,7 +103,7 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerVel::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerVel::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
@@ -110,9 +112,9 @@ namespace ORO_ControlKernel
       _is_initialized[i] = false;
 
     // get interface to Input/Setpoint data types
-    if ( !Input->dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !SetPoint->dObj()->Get("Velocity", _velocity_desi_DOI) ){
-      cerr << "nAxesControllerVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj(   )->Get("Position_joint", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_joint", _velocity_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -126,7 +128,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerVel::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerVel::updateProperties() failed" << Logger::endl;
       return false;
     }
 

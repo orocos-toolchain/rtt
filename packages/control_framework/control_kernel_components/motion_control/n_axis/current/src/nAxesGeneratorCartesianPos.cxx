@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesGeneratorCartesianPos.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -27,6 +28,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
   using namespace ORO_OS;
   
 
@@ -111,7 +113,6 @@ namespace ORO_ControlKernel
       // velocity
       for(unsigned int i=0; i<6; i++)
 	_velocity_out_local(i) = _motion_profile[i]->Vel( _time_passed );
-      _velocity_out_local.RefPoint( _position_out_local.p * -1 );
     }
 
     // go to desired stop position
@@ -134,9 +135,9 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorCartesianPos::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !SetPoint->dObj()->Get("Frame", _position_out_DOI) ||
-	 !SetPoint->dObj()->Get("Twist", _velocity_out_DOI) ){
-      cerr << "nAxesGeneratorCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !SetPoint->dObj()->Get("Position_EE", _position_out_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_EE", _velocity_out_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -155,7 +156,7 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesGeneratorCartesianPos::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
@@ -165,8 +166,8 @@ namespace ORO_ControlKernel
     _is_moving = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !Input->dObj()->Get("Frame", _position_meas_DOI) ){
-      cerr << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj()->Get("Position_cart", _position_meas_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -183,7 +184,7 @@ namespace ORO_ControlKernel
     // get properties
     if ( !composeProperty(bag, _maximum_velocity) ||
 	 !composeProperty(bag, _maximum_acceleration) ){
-      cerr << "nAxesGeneratorCartesianPos::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::updateProperties() failed" << Logger::endl;
       return false;
     }
 
@@ -243,7 +244,7 @@ namespace ORO_ControlKernel
     }
     // new values already set
     else{
-      cerr << "(nAxesGeneratorCartesianPos)  cannot set new moveto setpoint: already have setpoint" << endl;
+      Logger::log() << Logger::Error << "(nAxesGeneratorCartesianPos)  cannot set new moveto setpoint: already have setpoint" << Logger::endl;
       return false;
     }
   }

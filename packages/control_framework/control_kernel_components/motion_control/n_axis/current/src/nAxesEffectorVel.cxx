@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesEffectorVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -25,6 +26,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
+  using namespace ORO_CoreLib;
 
 
   nAxesEffectorVel::nAxesEffectorVel(unsigned int num_axes, 
@@ -69,8 +71,8 @@ namespace ORO_ControlKernel
   bool nAxesEffectorVel::componentStartup()
   {
     // get interface to Output data type
-    if ( !Output->dObj(   )->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesEffectorVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Output->dObj(   )->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesEffectorVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -79,7 +81,6 @@ namespace ORO_ControlKernel
 
   bool nAxesEffectorVel::updateProperties(const PropertyBag& bag)
   {
-    cerr << "(Effector)  updateProperties()" << endl;
     return true;
   }
 

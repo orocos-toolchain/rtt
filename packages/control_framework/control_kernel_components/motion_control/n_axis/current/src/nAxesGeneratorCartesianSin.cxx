@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesGeneratorCartesianSin.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -27,6 +28,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
   using namespace ORO_OS;
 
   nAxesGeneratorCartesianSin::nAxesGeneratorCartesianSin(std::string name)
@@ -103,9 +105,9 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorCartesianSin::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !SetPoint->dObj()->Get("Frame", _position_out_DOI) ||
-	 !SetPoint->dObj()->Get("Twist", _velocity_out_DOI) ){
-      cerr << "nAxesGeneratorCartesianSin::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !SetPoint->dObj()->Get("Position_EE", _position_out_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_EE", _velocity_out_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianSin::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -124,13 +126,14 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
+      Logger::log() << Logger::Error << "" << Logger::endl;
       cerr << "nAxesGeneratorCartesianSin::componentStartup() Properties have not been read." << endl;
       return false;
     }
 
     // get interface to Cammand / Model / Input data types
-    if ( !Input->dObj()->Get("Frame", _position_meas_DOI) ){
-      cerr << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj()->Get("Position_EE", _position_meas_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -157,7 +160,7 @@ namespace ORO_ControlKernel
     // get properties
     if ( !composeProperty(bag, _max_alpha) ||
 	 !composeProperty(bag, _max_alphadot) ){
-      cerr << "nAxesGeneratorCartesianSin::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianSin::updateProperties() failed" << Logger::endl;
       return false;
     }
 

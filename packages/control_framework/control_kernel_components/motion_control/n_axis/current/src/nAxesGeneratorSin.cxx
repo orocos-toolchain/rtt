@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesGeneratorSin.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -26,6 +27,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
+  using namespace ORO_CoreLib;
   
 
   nAxesGeneratorSin::nAxesGeneratorSin(unsigned int num_axes,  std::string name)
@@ -85,9 +87,9 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorSin::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !SetPoint->dObj()->Get("Position", _position_DOI) ||
-	 !SetPoint->dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesGeneratorSin::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !SetPoint->dObj()->Get("Position_joint", _position_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorSin::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     
@@ -105,7 +107,7 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesGeneratorSin::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorSin::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
@@ -113,8 +115,8 @@ namespace ORO_ControlKernel
     _is_initialized = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !Input->dObj()->Get("Position", _position_meas_DOI) ){
-      cerr << "nAxesGeneratorSin::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj()->Get("Position_joint", _position_meas_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorSin::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -132,7 +134,7 @@ namespace ORO_ControlKernel
     if ( !composeProperty(bag, _sin_amplitude) ||
 	 !composeProperty(bag, _sin_frequency) ||
 	 !composeProperty(bag, _sin_phase) ){
-      cerr << "nAxesGeneratorSin::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorSin::updateProperties() failed" << Logger::endl;
       return false;
     }
 

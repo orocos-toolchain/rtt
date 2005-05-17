@@ -19,6 +19,7 @@
 
 
 #include "control_kernel/nAxesSensorCartesianPosForce.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 #define GRAVITY_CONSTANT    9.81
@@ -29,6 +30,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
 
   nAxesSensorCartesianPosForce::nAxesSensorCartesianPosForce(unsigned int num_axes, 
 							     std::vector<AxisInterface*> axes,
@@ -81,19 +83,22 @@ namespace ORO_ControlKernel
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
     _kinematics->positionForward(temp, _world_MP );
+    _position_cart = _world_MP * _MP_EE;
 
     // mass compensation for force sensor
     // transformation to world coordinates/reference point
     _world_FS = _world_MP * _MP_FS;
     _gravity.torque = (_world_FS * _center_gravity) * _gravity.force;
     _force = ( _world_FS * _force ) - _gravity;
+    _force = _force.RefPoint(_position_cart.p);
   }
 
 
   
   void nAxesSensorCartesianPosForce::push()      
   {
-    _position_out_DOI->Set(_world_MP * _MP_EE);
+    _position_cart_DOI->Set(_position_cart);
+    _position_joint_DOI->Set(_position_joint);
     _force_out_DOI->Set(_force);
   }
 
@@ -102,17 +107,17 @@ namespace ORO_ControlKernel
   bool nAxesSensorCartesianPosForce::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input->dObj()->Get("Frame", _position_out_DOI) ||
-	!Input->dObj()->Get("Wrench", _force_out_DOI)){
-      cerr << "nAxesSensorCartesianPosForce::componentLoaded() DataObjectInterface not found" << endl;
+    if (!Input->dObj()->Get("Position_EE", _position_cart_DOI) ||
+	!Input->dObj()->Get("Position_joint", _position_joint_DOI) ||
+	!Input->dObj()->Get("Force_EE", _force_out_DOI)){
+      Logger::log() << Logger::Error << "nAxesSensorCartesianPosForce::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
     // set empty values
-    ORO_Geometry::Frame _temp_frame;
-    ORO_Geometry::Wrench _temp_wrench;
-    _position_out_DOI->Set(_temp_frame);
-    _force_out_DOI->Set(_temp_wrench);
+    _position_cart_DOI->Set(_position_cart);
+    _position_joint_DOI->Set(_position_joint);
+    _force_out_DOI->Set(_force);
 
     return true;
   }
@@ -122,7 +127,7 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesSensorCartesianPosForce::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesSensorCartesianPosForce::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
@@ -139,7 +144,7 @@ namespace ORO_ControlKernel
     // get properties
     if (!composeProperty(bag, _mass) ||
 	!composeProperty(bag, _center_gravity) ){
-	cerr << "nAxesSensorCartesianPosForce::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesSensorCartesianPosForce::updateProperties() failed" << Logger::endl;
       return false;
     }
 

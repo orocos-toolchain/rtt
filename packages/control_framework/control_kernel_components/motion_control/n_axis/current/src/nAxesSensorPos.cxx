@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesSensorPos.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -40,7 +41,7 @@ namespace ORO_ControlKernel
 
     // get position sensors from axes
     for (unsigned int i=0; i<_num_axes; i++){
-      _position_sensors[i] = _axes[i]->getSensor("Position");
+      _position_sensors[i] = _axes[i]->getSensor("Position_joint");
       assert( _position_sensors[i] != NULL );
     }
   }
@@ -74,7 +75,7 @@ namespace ORO_ControlKernel
   {
     // get interface to Input data types
     if (!Input->dObj()->Get("Position", _position_DOI)){
-      cerr << "nAxesSensorPos::componentLoaded() DataObjectInterface not found" << endl;
+      Logger::log() << Logger::Error << "nAxesSensorPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 

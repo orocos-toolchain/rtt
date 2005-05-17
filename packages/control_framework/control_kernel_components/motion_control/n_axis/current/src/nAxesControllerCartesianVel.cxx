@@ -18,12 +18,14 @@
 //  
 
 #include "control_kernel/nAxesControllerCartesianVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
 {
 
   using namespace ORO_ControlKernel;
+  using namespace ORO_CoreLib;
 
   nAxesControllerCartesianVel::nAxesControllerCartesianVel(std::string name)
     : nAxesControllerCartesianVel_typedef(name),
@@ -40,7 +42,6 @@ namespace ORO_ControlKernel
     // copy Input and Setpoint to local values
     _position_meas_DOI->Get(_position_meas_local);
     _velocity_desi_DOI->Get(_velocity_desi_local);
-    _velocity_desi_local.RefPoint( _position_meas_local.p );  // refpoint to EE
   }
 
 
@@ -71,15 +72,15 @@ namespace ORO_ControlKernel
   
   void nAxesControllerCartesianVel::push()      
   {
-    _velocity_out_DOI->Set(_velocity_out_local.RefPoint( _position_meas_local.p * -1));
+    _velocity_out_DOI->Set(_velocity_out_local);
   }
 
 
   bool nAxesControllerCartesianVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output->dObj()->Get("Twist", _velocity_out_DOI) ){
-      cerr << "nAxesControllerCartesianVel::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !Output->dObj()->Get("Velocity_EE", _velocity_out_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianVel::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -95,16 +96,16 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerCartesianVel::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianVel::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
     // reset integrator
     _is_initialized = false;    
     // get interface to Input/Setpoint data types
-    if ( !Input->dObj(   )->Get("Frame", _position_meas_DOI) ||
-	 !SetPoint->dObj()->Get("Twist", _velocity_desi_DOI) ){
-      cerr << "nAxesControllerCartesianVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj(   )->Get("Position_EE", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_EE", _velocity_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerCartesianVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -118,7 +119,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerCartesianVel::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerCartesianVel::updateProperties() failed" << Logger::endl;
       return false;
     }
 

@@ -19,6 +19,7 @@
 
 
 #include "control_kernel/nAxesControllerPos.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -26,6 +27,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
 
 
   nAxesControllerPos::nAxesControllerPos(unsigned int num_axes, 
@@ -78,8 +80,8 @@ namespace ORO_ControlKernel
   bool nAxesControllerPos::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output->dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesControllerPos::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !Output->dObj()->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -95,14 +97,14 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerPos::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerPos::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
     // get interface to Input/Setpoint data types
-    if ( !Input->dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !SetPoint->dObj()->Get("Position", _position_desi_DOI) ){
-      cerr << "nAxesControllerPos::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj(   )->Get("Position_joint", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Position_joint", _position_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerPos::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -120,7 +122,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerPos::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerPos::updateProperties() failed" << Logger::endl;
       return false;
     }
 

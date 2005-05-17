@@ -36,13 +36,14 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesSensorCartesianPosForceInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench>
+  class nAxesSensorCartesianPosForceInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench, std::vector<double> >
   {
   public:
     nAxesSensorCartesianPosForceInput_pos_force()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Frame"));
-      this->insert(ORO_ControlKernel::make_pair(1,"Wrench"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Position_EE"));
+      this->insert(ORO_ControlKernel::make_pair(1,"Force_EE"));
+      this->insert(ORO_ControlKernel::make_pair(2,"Position_joint"));
     }
   }; // class
 
@@ -91,9 +92,10 @@ namespace ORO_ControlKernel
     ORO_KinDyn::KinematicsComponent*                                      _kinematics;
     std::vector<double>                                                   _position_joint;
 
-    ORO_Geometry::Frame                                                   _MP_EE, _MP_FS, _world_MP, _world_FS;
+    ORO_Geometry::Frame                                                   _MP_EE, _MP_FS, _world_MP, _world_FS, _position_cart;
     ORO_Geometry::Wrench                                                  _force, _gravity;
-    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_out_DOI;
+    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_cart_DOI;
+    ORO_ControlKernel::DataObjectInterface< std::vector<double> >*        _position_joint_DOI;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Wrench >*       _force_out_DOI;
 
     bool                                                                  _properties_read;

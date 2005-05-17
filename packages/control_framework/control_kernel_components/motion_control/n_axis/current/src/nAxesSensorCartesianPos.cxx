@@ -19,6 +19,7 @@
 
 
 #include <control_kernel/nAxesSensorCartesianPos.hpp>
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
@@ -26,6 +27,7 @@ namespace ORO_ControlKernel
 
   using namespace ORO_ControlKernel;
   using namespace ORO_DeviceInterface;
+  using namespace ORO_CoreLib;
 
 
   nAxesSensorCartesianPos::nAxesSensorCartesianPos(unsigned int num_axes, 
@@ -70,14 +72,15 @@ namespace ORO_ControlKernel
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
 
-    _kinematics->positionForward(temp, _position_out_local );
+    _kinematics->positionForward(temp, _position_cart );
   }
 
 
   
   void nAxesSensorCartesianPos::push()      
   {
-    _position_out_DOI->Set(_position_out_local * _offset);
+    _position_cart_DOI->Set(_position_cart * _offset);
+    _position_joint_DOI->Set(_position_joint);
   }
 
 
@@ -85,14 +88,15 @@ namespace ORO_ControlKernel
   bool nAxesSensorCartesianPos::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input->dObj()->Get("Frame", _position_out_DOI)){
-      cerr << "nAxesSensorCartesianPos::componentLoaded() DataObjectInterface not found" << endl;
+    if (!Input->dObj()->Get("Position_EE", _position_cart_DOI) ||
+	!Input->dObj()->Get("Position_joint", _position_joint_DOI)){
+      Logger::log() << Logger::Error << "nAxesSensorCartesianPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
     // set empty values
-    ORO_Geometry::Frame _temp_frame;
-    _position_out_DOI->Set(_temp_frame);
+    _position_cart_DOI->Set(_position_cart);
+    _position_joint_DOI->Set(_position_joint);
 
     return true;
   }

@@ -19,12 +19,14 @@
 
 
 #include "control_kernel/nAxesControllerPosVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 namespace ORO_ControlKernel
 {
 
   using namespace ORO_ControlKernel;
+  using namespace ORO_CoreLib;
 
   nAxesControllerPosVel::nAxesControllerPosVel(unsigned int num_axes, 
 					       std::string name)
@@ -68,8 +70,8 @@ namespace ORO_ControlKernel
   bool nAxesControllerPosVel::componentLoaded()
   {
     // get interface to Output data types
-    if ( !Output->dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesControllerPosVel::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !Output->dObj()->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerPosVel::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -85,14 +87,14 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesControllerPosVel::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesControllerPosVel::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
-    if ( !Input->dObj(   )->Get("Position", _position_meas_DOI) ||
-	 !SetPoint->dObj()->Get("Position", _position_desi_DOI) ||
-	 !SetPoint->dObj()->Get("Velocity", _velocity_desi_DOI) ){
-      cerr << "nAxesControllerPosVel::componentStartup() DataObjectInterface not found" << endl;
+    if ( !Input->dObj(   )->Get("Position_joint", _position_meas_DOI) ||
+	 !SetPoint->dObj()->Get("Position_joint", _position_desi_DOI) ||
+	 !SetPoint->dObj()->Get("Velocity_joint", _velocity_desi_DOI) ){
+      Logger::log() << Logger::Error << "nAxesControllerPosVel::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
     return true;
@@ -106,7 +108,7 @@ namespace ORO_ControlKernel
 
     // get properties
     if (!composeProperty(bag, _controller_gain) ){
-      cerr << "nAxesControllerPosVel::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesControllerPosVel::updateProperties() failed" << Logger::endl;
       return false;
     }
 

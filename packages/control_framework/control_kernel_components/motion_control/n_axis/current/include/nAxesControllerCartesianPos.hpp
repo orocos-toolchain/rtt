@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
 
     nAxesControllerCartesianPosOutput_vel()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Twist"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Velocity_EE"));
     }
   }; // class
 

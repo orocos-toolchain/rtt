@@ -59,7 +59,7 @@ namespace ORO_ControlKernel
   public:
     nAxesControllerPosVelOutput_vel()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Velocity"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Velocity_joint"));
     }
   }; // class
 

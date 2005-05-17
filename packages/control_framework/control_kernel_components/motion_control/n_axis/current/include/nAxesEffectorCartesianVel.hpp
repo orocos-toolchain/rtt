@@ -45,12 +45,21 @@ namespace ORO_ControlKernel
   }; // class
 
 
+  /**
+   * @brief An nAxesEffectorCartesianVel can read a Position.
+   */
+  class nAxesEffectorCartesianVelInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, std::vector<double> >
+  {
+  public:
+    nAxesEffectorCartesianVelInput_pos() {}
+  }; // class
+
 
 
   // ---------------
   // -- COMPONENT --
   // ---------------
-  typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<NoInput>,
+  typedef ORO_ControlKernel::Effector< ORO_ControlKernel::Expects<nAxesEffectorCartesianVelInput_pos>,
 				       ORO_ControlKernel::Expects<NoModel>,
 				       ORO_ControlKernel::Expects<nAxesEffectorCartesianVelOutput_vel>,
 				       ORO_ControlKernel::MakeFacet<ORO_ControlKernel::KernelBaseFunction>::Result > nAxesEffectorCartesianVel_typedef;
@@ -89,10 +98,12 @@ namespace ORO_ControlKernel
     std::vector<ORO_DeviceInterface::AxisInterface*>                      _axes;
     ORO_KinDyn::KinematicsComponent*                                      _kinematics;
 
-    std::vector<double>                                                   _velocity_joint_local;
+    std::vector<double>                                                   _velocity_joint_local, _position_joint_local;
     ORO_Geometry::Twist                                                   _velocity_cartesian_local;
-    ORO_Geometry::Frame                                                   _position_cartesian;
+    ORO_Geometry::Frame                                                   _position_cartesian_local;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Twist >         *_velocity_cartesian_DOI;
+    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >         *_position_cartesian_DOI;
+    ORO_ControlKernel::DataObjectInterface< std::vector<double> >         *_position_joint_DOI;
     std::vector< const ORO_DeviceInterface::SensorInterface<double>* >    _position_sensors;
 
   }; // class

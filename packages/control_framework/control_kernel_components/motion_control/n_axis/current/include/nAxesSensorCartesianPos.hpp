@@ -37,12 +37,13 @@ namespace ORO_ControlKernel
   /**
    * @brief An nAxesSensorCartesianPos can write a Frame.
    */
-  class nAxesSensorCartesianPosInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame >
+  class nAxesSensorCartesianPosInput_pos: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, std::vector<double> >
   {
   public:
     nAxesSensorCartesianPosInput_pos()
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Frame"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Position_EE"));
+      this->insert(ORO_ControlKernel::make_pair(1,"Position_joint"));
     }
   }; // class
 
@@ -96,8 +97,9 @@ namespace ORO_ControlKernel
     ORO_KinDyn::KinematicsComponent*                                      _kinematics;
     std::vector<double>                                                   _position_joint;
 
-    ORO_Geometry::Frame                                                   _offset, _position_out_local;
-    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_out_DOI;
+    ORO_Geometry::Frame                                                   _offset, _position_cart;
+    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_cart_DOI;
+    ORO_ControlKernel::DataObjectInterface< std::vector<double> >*        _position_joint_DOI;
     std::vector< const ORO_DeviceInterface::SensorInterface<double>* >    _position_sensors;
 
   }; // class
