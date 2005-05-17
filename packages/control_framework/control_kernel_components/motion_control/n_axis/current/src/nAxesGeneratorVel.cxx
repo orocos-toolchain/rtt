@@ -202,6 +202,7 @@ namespace ORO_ControlKernel
 
   bool nAxesGeneratorVel::setInitVelocity(const int axis, const double velocity)
   {
+    
     if ( axis < 0 || axis >= (int)_num_axes)
       return false;
     else{

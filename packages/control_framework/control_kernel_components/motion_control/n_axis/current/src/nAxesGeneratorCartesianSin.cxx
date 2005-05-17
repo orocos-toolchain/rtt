@@ -64,7 +64,7 @@ namespace ORO_ControlKernel
       _position_meas_DOI->Get(_start_frame);
       _position_out_local=_start_frame;
     }
-    
+    //get the new time that's passed    
     _time_passed = TimeService::Instance()->secondsSince(_time_begin);
     _time_amplitude_passed = TimeService::Instance()->secondsSince(_time_amplitude_begin);
   }
@@ -73,13 +73,14 @@ namespace ORO_ControlKernel
   void nAxesGeneratorCartesianSin::calculate()
   {
     for(unsigned int i=0; i<3; i++){
+      //Get the amplitude-profile
       _amplitude_local[i]=_amplitude_profile[i]->Pos(_time_amplitude_passed);
-      // position
+      //position
       _position_out_local.p(i) = _start_frame.p(i)+_amplitude_local[i]*sin(_pulsation[i]*_time_passed+_phase[i]);
       // velocity
       _velocity_out_local(i) = _amplitude_local[i]*_pulsation[i]*cos(_pulsation[i]*_time_passed+_phase[i]);
     }
-
+    //if movement is passed, make profile to amplitude zero and add duration of this profile
     if ( _time_passed > _max_duration && _max_duration != 0 && !moveFinished() ){
       vector<double> zero_amplitude(3);
       for (unsigned int i=0; i<3; i++)
@@ -216,6 +217,7 @@ namespace ORO_ControlKernel
 
   bool nAxesGeneratorCartesianSin::move(double time)
   {
+    //Initialize the start-time
     _time_begin = TimeService::Instance()->getTicks();    
     _time_passed = 0;
     _max_duration = time;
@@ -224,6 +226,7 @@ namespace ORO_ControlKernel
   
   bool nAxesGeneratorCartesianSin::moveFinished() const
   {
+    //check if movement is finished
     bool finished = true;
     for (unsigned int i=0; i<3; i++)
       if (_amplitude_local[i] != 0)  finished = false;
@@ -233,6 +236,7 @@ namespace ORO_ControlKernel
 
   void nAxesGeneratorCartesianSin::reset()
   {
+    //reset all setted values
     _is_initialized = false;
 
     for(unsigned int i = 0 ; i < 3 ; i++) {
@@ -244,6 +248,7 @@ namespace ORO_ControlKernel
 
   void nAxesGeneratorCartesianSin::setAmplitude(const std::vector<double>& amplitude)
   {
+    //create amplitude-profiles
     _time_amplitude_begin = TimeService::Instance()->getTicks();    
     _time_amplitude_passed = 0;
     assert(amplitude.size()==3);    
