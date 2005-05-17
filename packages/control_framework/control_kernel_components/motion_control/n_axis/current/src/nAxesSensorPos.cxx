@@ -74,7 +74,7 @@ namespace ORO_ControlKernel
   bool nAxesSensorPos::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input->dObj()->Get("Position", _position_DOI)){
+    if (!Input->dObj()->Get("Position_joint", _position_DOI)){
       Logger::log() << Logger::Error << "nAxesSensorPos::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
