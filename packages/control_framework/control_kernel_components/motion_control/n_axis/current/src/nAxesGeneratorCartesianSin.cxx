@@ -127,7 +127,7 @@ namespace ORO_ControlKernel
     // check if updateProperties has been called
     if (!_properties_read){
       Logger::log() << Logger::Error << "" << Logger::endl;
-      cerr << "nAxesGeneratorCartesianSin::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorCartesianSin::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 

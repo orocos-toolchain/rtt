@@ -45,7 +45,7 @@ namespace ORO_ControlKernel
   public:
     nAxesGeneratorVelSetpoint_vel() 
     {
-      this->insert(ORO_ControlKernel::make_pair(0,"Velocity"));
+      this->insert(ORO_ControlKernel::make_pair(0,"Velocity_joint"));
     }
   }; // class
 

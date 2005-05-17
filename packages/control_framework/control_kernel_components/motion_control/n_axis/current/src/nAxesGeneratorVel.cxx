@@ -18,6 +18,7 @@
 //  
 
 #include "control_kernel/nAxesGeneratorVel.hpp"
+#include <corelib/Logger.hpp>
 #include <assert.h>
 
 
@@ -27,6 +28,7 @@ namespace ORO_ControlKernel
   using namespace ORO_ControlKernel;
   using namespace ORO_Geometry;
   using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
   using namespace ORO_OS;
   
 
@@ -93,8 +95,8 @@ namespace ORO_ControlKernel
   bool nAxesGeneratorVel::componentLoaded()
   {
     // get interface to Setpoint data types
-    if ( !nAxesGeneratorVel_typedef::SetPoint->dObj()->Get("Velocity", _velocity_DOI) ){
-      cerr << "nAxesGeneratorVel::componentLoaded() DataObjectInterface not found" << endl;
+    if ( !nAxesGeneratorVel_typedef::SetPoint->dObj()->Get("Velocity_joint", _velocity_DOI) ){
+      Logger::log() << Logger::Error << "nAxesGeneratorVel::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
@@ -111,7 +113,7 @@ namespace ORO_ControlKernel
   {
     // check if updateProperties has been called
     if (!_properties_read){
-      cerr << "nAxesGeneratorPos::componentStartup() Properties have not been read." << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorPos::componentStartup() Properties have not been read" << Logger::endl;
       return false;
     }
 
@@ -132,7 +134,7 @@ namespace ORO_ControlKernel
     // get properties
     if ( !composeProperty(bag, _max_acc) ||
 	 !composeProperty(bag, _max_jerk) ){
-      cerr << "nAxesGeneratorVel::updateProperties() failed" << endl;
+      Logger::log() << Logger::Error << "nAxesGeneratorVel::updateProperties() failed" << Logger::endl;
       return false;
     }
 
