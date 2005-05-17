@@ -41,7 +41,7 @@ namespace ORO_ControlKernel
 
     // get position sensors from axes
     for (unsigned int i=0; i<_num_axes; i++){
-      _position_sensors[i] = _axes[i]->getSensor("Position_joint");
+      _position_sensors[i] = _axes[i]->getSensor("Position");
       assert( _position_sensors[i] != NULL );
     }
   }
