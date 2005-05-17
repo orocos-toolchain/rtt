@@ -166,7 +166,7 @@ namespace ORO_ControlKernel
     _is_moving = false;
 
     // get interface to Cammand / Model / Input data types
-    if ( !Input->dObj()->Get("Position_cart", _position_meas_DOI) ){
+    if ( !Input->dObj()->Get("Position_EE", _position_meas_DOI) ){
       Logger::log() << Logger::Error << "nAxesGeneratorCartesianPos::componentStartup() DataObjectInterface not found" << Logger::endl;
       return false;
     }
