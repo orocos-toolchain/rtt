@@ -19,6 +19,7 @@
 #include "KryptonK600PositionInterfaceThread.hpp"
 #include <cassert>
 
+
 #ifdef __cplusplus
 extern "C"
 {

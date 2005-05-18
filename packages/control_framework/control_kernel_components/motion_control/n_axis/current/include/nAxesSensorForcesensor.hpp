@@ -37,13 +37,14 @@ namespace ORO_ControlKernel
   // ---------------
   // -- DATA TYPE --
   // ---------------
-  class nAxesSensorForcesensorInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench>
+  class nAxesSensorForcesensorInput_pos_force: public ORO_ControlKernel::ServedTypes< ORO_Geometry::Frame, ORO_Geometry::Wrench, std::vector<double> >
   {
   public:
     nAxesSensorForcesensorInput_pos_force()
     {
       this->insert(ORO_ControlKernel::make_pair(0,"Position_EE"));
       this->insert(ORO_ControlKernel::make_pair(1,"ForcesensorForce"));
+      this->insert(ORO_ControlKernel::make_pair(2,"Position_joint"));
     }
   }; // class
 
@@ -102,7 +103,8 @@ namespace ORO_ControlKernel
 
     ORO_Geometry::Frame                                                   _MP_FS, _world_MP;
     ORO_Geometry::Wrench                                                  _force;
-    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_out_DOI;
+    ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Frame >*        _position_EE_DOI;
+    ORO_ControlKernel::DataObjectInterface< std::vector<double> >*        _position_joint_DOI;
     ORO_ControlKernel::DataObjectInterface< ORO_Geometry::Wrench >*       _force_out_DOI;
 
 

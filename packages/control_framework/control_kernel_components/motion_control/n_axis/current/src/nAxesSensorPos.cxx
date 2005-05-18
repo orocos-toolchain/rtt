@@ -58,7 +58,6 @@ namespace ORO_ControlKernel
   }
 
 
-
   void nAxesSensorPos::calculate()
   {}
 

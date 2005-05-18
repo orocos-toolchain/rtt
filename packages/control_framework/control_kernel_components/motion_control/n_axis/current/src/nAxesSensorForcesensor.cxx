@@ -94,7 +94,8 @@ namespace ORO_ControlKernel
   
   void nAxesSensorForcesensor::push()      
   {
-    _position_out_DOI->Set(_world_MP * _MP_FS);
+    _position_EE_DOI->Set(_world_MP * _MP_FS);
+    _position_joint_DOI->Set(_position_joint);
     _force_out_DOI->Set(_force);
   }
 
@@ -103,17 +104,17 @@ namespace ORO_ControlKernel
   bool nAxesSensorForcesensor::componentLoaded()
   {
     // get interface to Input data types
-    if (!Input->dObj()->Get("Position_EE", _position_out_DOI) ||
+    if (!Input->dObj()->Get("Position_EE", _position_EE_DOI) ||
+	!Input->dObj()->Get("Position_joint", _position_joint_DOI) ||
 	!Input->dObj()->Get("ForcesensorForce", _force_out_DOI)){
       Logger::log() << Logger::Error << "nAxesSensorForcesensor::componentLoaded() DataObjectInterface not found" << Logger::endl;
       return false;
     }
 
     // set empty values
-    ORO_Geometry::Frame  _temp_frame;
-    ORO_Geometry::Wrench _temp_wrench;
-    _position_out_DOI->Set(_temp_frame);
-    _force_out_DOI->Set(_temp_wrench);
+    _position_EE_DOI->Set(_world_MP);
+    _position_joint_DOI->Set(_position_joint);
+    _force_out_DOI->Set(_force);
 
     return true;
   }
