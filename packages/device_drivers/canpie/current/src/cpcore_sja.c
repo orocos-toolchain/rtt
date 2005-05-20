@@ -55,6 +55,10 @@
 
 
 //#define SJA_DEBUG
+#ifdef __KERNEL__
+#define printf printk
+#endif
+
 
 #ifdef SJA_DEBUG
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
@@ -344,7 +348,7 @@ _U08 Cp_PREFIX CpCoreDeInitDriver(_U08 ubChannelV)
 {
    BYTE_t cr;
 
-  rt_printk("CpCoreDeInitDriver\n");
+   printf("CpCoreDeInitDriver\n");
 #if   CP_SMALL_CODE == 0
    //---	test the channel number ------------------------------------
    if( (ubChannelV + 1) > CP_CHANNEL_MAX) return (CpErr_CHANNEL);
@@ -359,9 +363,9 @@ _U08 Cp_PREFIX CpCoreDeInitDriver(_U08 ubChannelV)
 
 	cr = read_reg_bcan(PCAN_IER);
     if ((cr & PCAN_IER_TIE ) != PCAN_IER_TIE )
-        rt_printk("Warning : Transmit interrupts were disabled !\n");
+        printf("Warning : Transmit interrupts were disabled !\n");
     if ((cr & PCAN_IER_RIE ) != PCAN_IER_RIE)
-        rt_printk("Warning : Receive interrupts were disabled !\n");
+        printf("Warning : Receive interrupts were disabled !\n");
 
    /* Command: reset */
    cr = PCAN_MODR_RM;
@@ -371,9 +375,9 @@ _U08 Cp_PREFIX CpCoreDeInitDriver(_U08 ubChannelV)
 
 	cr = read_reg_bcan(PCAN_IER);
     if ((cr & PCAN_IER_TIE ) != PCAN_IER_TIE )
-        rt_printk("Warning : Transmit interrupts were disabled !\n");
+        printf("Warning : Transmit interrupts were disabled !\n");
     if ((cr & PCAN_IER_RIE ) != PCAN_IER_RIE)
-        rt_printk("Warning : Receive interrupts were disabled !\n");
+        printf("Warning : Receive interrupts were disabled !\n");
 
    return (CpErr_OK);
 }
@@ -387,7 +391,7 @@ _U08 Cp_PREFIX CpCoreInitDriver(_U08 ubChannelV)
 {
 	BYTE_t cr;
 	BYTE_t b;
-	rt_printk("CpCoreInitDriver\n");
+	printf("CpCoreInitDriver\n");
 
 #if   CP_SMALL_CODE == 0
    //---	test the channel number ------------------------------------
@@ -490,7 +494,9 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 		DEBUG("Receive Interrupt\n");
         /* Read the new message */
 		//CpCoreMsgReceive(0);
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 		rt_sem_signal( &cp_rx_sem );
+#endif
         ++cp_recv_int;
 	}
 	if ( (Ir & PCAN_IR_TI) == PCAN_IR_TI)
@@ -499,7 +505,9 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
             //rt_printk("Transmit Interrupt\n");
             /* Transmit any messages still in fifo */
             //CpCoreMsgTransmit(0);
+#if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 			rt_sem_signal( &cp_tx_sem );
+#endif
 /*             if ( CpCoreMsgTransmit(0) == CpErr_FIFO_EMPTY) */
 /*                 rt_printk("Fifo empty error in interrupt!\n"); */
             ++cp_trns_int;
@@ -507,7 +515,7 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
     if ((Ir & PCAN_IR_EI) == PCAN_IR_EI)
 		{
 			DEBUG("Emergency Interrupt\n");
-			rt_printk("Emergency Interrupt\n");
+			printf("Emergency Interrupt\n");
 			if ((read_reg_bcan(PCAN_SR) & PCAN_SR_ES) == PCAN_SR_ES)
 			{
                 ++cp_emcy_int;
@@ -528,20 +536,20 @@ void CpCoreIntHandler(void)//( int irq, void* dev_id, struct pt_regs* regs )//(v
 		}
     if ((Ir & PCAN_IR_BEI) == PCAN_IR_BEI) {
         // Bus-error interrupt
-        rt_printk("Bus-error interrupt\n");
+        printf("Bus-error interrupt\n");
     }
     if ((Ir & PCAN_IR_ALI) == PCAN_IR_ALI) {
-        rt_printk("Arbitration lost interrupt\n");
+        printf("Arbitration lost interrupt\n");
         
     }
     if ((Ir & PCAN_IR_EPI) == PCAN_IR_EPI) {
-        rt_printk("Error-passive interrupt\n");
+        printf("Error-passive interrupt\n");
     }
     if ((Ir & PCAN_IR_WUI) == PCAN_IR_WUI) {
-        rt_printk("Wake-up interrupt\n");
+        printf("Wake-up interrupt\n");
     }
     if ((Ir & PCAN_IR_DOI) == PCAN_IR_DOI) {
-        rt_printk("Data-overrun interrupt\n");
+        printf("Data-overrun interrupt\n");
     }
 
 }

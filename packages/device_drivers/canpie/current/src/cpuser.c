@@ -316,9 +316,12 @@ _U32 Cp_PREFIX CpUserMsgWrite(_U32 channel, const CpStruct_CAN * msgPtr)
 
 
    //--- transmit the message ---------------------------------------
-   //return CpCoreMsgTransmit(channel);
+#if (defined OROPKG_OS_RTAI) || (defined OROPKG_OS_LXRT)
    rt_sem_signal(&cp_tx_sem);
    return CpErr_OK;
+#else
+   return CpCoreMsgTransmit(channel);
+#endif
 
 }
 

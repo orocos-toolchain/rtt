@@ -21,7 +21,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
 
     requires OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_INTERFACE
-    requires OROINT_OS_KERNEL_MODULE
     
     cdl_interface OROINT_DEVICE_DRIVERS_CP_CORE {
 	display "CANPie Core implementation"

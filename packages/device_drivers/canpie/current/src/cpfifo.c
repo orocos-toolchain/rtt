@@ -63,8 +63,11 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #if CP_FIFO_TYPE == 0
 
 #ifndef __KERNEL__
+// userspace library
 #include <stdlib.h>     // for malloc() and free()
+#include <os/fosi.h>    // for rtos_sem
 #else
+// lxrt kernel module
 #if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 #include <rtai.h>
 #include <rtai_malloc.h>
@@ -72,6 +75,7 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #define free(x) rt_free(x)
 #define malloc(x) rt_malloc(x)
 #else
+// gnulinux kernel module
 #include <linux/slab.h>
 #define free(x) kfree(x)
 #define malloc(x) kmalloc(x,GFP_KERNEL)
@@ -98,7 +102,6 @@ _U16           CpVar_FifoTrmTail[CP_CHANNEL_MAX];
 static SEM cp_tx_fifo_sem;
 static SEM cp_rx_fifo_sem;
 #endif
-
 
 //----------------------------------------------------------------------------//
 // CpFifoSetup()                                                              //
@@ -189,23 +192,32 @@ _U08 Cp_PREFIX CpFifoClear(_U08 channel, _U08 buffer)
    //--- delete messages from Receive FIFO ----------------
    if(buffer == CP_FIFO_RCV)
    {
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	   rt_sem_wait(&cp_rx_fifo_sem);
+#endif
+
       CpVar_FifoRcvHead[channel] = 0;
       CpVar_FifoRcvTail[channel] = 0;
       
       CpVar_FifoStatus[channel]  &= ~RCV_FIFO_FULL;
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_signal(&cp_rx_fifo_sem);
+#endif
    }
 
    //--- delete messages from Transmit FIFO ---------------
    if(buffer == CP_FIFO_TRM)
    {
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	   rt_sem_wait(&cp_tx_fifo_sem);
+#endif
       CpVar_FifoTrmHead[channel] = 0;
       CpVar_FifoTrmTail[channel] = 0;
 
       CpVar_FifoStatus[channel]  &= ~TRM_FIFO_FULL;
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_signal(&cp_tx_fifo_sem);
+#endif
    }
 
    return (CpErr_OK);
@@ -223,7 +235,9 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    register _U16  uwFifoHeadT;   // head position of FIFO
    register _U16  uwFifoTailT;   // tail position of FIFO
    register _U16  uwFifoSizeT;   // max number of entries in FIFO
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
    SEM* sem_to_signal;
+#endif
 
 
 #if   CP_SMALL_CODE == 0
@@ -237,8 +251,10 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
    {
       //--- test if FIFO is full --------------------------
       if(CpVar_FifoStatus[channel] & RCV_FIFO_FULL) return (CpErr_FIFO_FULL);
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_wait(&cp_rx_fifo_sem);
 	  sem_to_signal = &cp_rx_fifo_sem;
+#endif
 
       uwFifoHeadT = CpVar_FifoRcvHead[channel];
       uwFifoTailT = CpVar_FifoRcvTail[channel];
@@ -252,8 +268,10 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       if(CpVar_FifoStatus[channel] & TRM_FIFO_FULL) { 
           return (CpErr_FIFO_FULL);
       }
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_wait(&cp_tx_fifo_sem);
 	  sem_to_signal = &cp_tx_fifo_sem;
+#endif
 
       uwFifoHeadT = CpVar_FifoTrmHead[channel];
       uwFifoTailT = CpVar_FifoTrmTail[channel];
@@ -292,7 +310,9 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       if(buffer == CP_FIFO_RCV) CpVar_FifoStatus[channel] |= RCV_FIFO_FULL;
       else CpVar_FifoStatus[channel] |= TRM_FIFO_FULL; 
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_signal(sem_to_signal);
+#endif
       return (CpErr_OK);
    }
 
@@ -301,7 +321,9 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       if(buffer == CP_FIFO_RCV) CpVar_FifoStatus[channel] |= RCV_FIFO_FULL;
       else CpVar_FifoStatus[channel] |= TRM_FIFO_FULL; 
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_signal(sem_to_signal);
+#endif
       return (CpErr_OK);
    }
 
@@ -321,7 +343,9 @@ _U08 Cp_PREFIX CpFifoPush(_U08 channel, _U08 buffer, const CpStruct_CAN * msg)
       CpVar_FifoTrmTail[channel] = uwFifoTailT;
    }
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
    rt_sem_signal(sem_to_signal);
+#endif
    return (CpErr_OK);
 }
 
@@ -337,7 +361,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    register _U16  uwFifoHeadT;   // head position of FIFO
    register _U16  uwFifoTailT;   // tail position of FIFO
    register _U16  uwFifoSizeT;   // max number of entries in FIFO
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
    SEM* sem_to_signal;
+#endif
 
 #if   CP_SMALL_CODE == 0
    //--- test the channel number ------------------------------------
@@ -347,8 +373,10 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    //--- setup variables for Receive/Transmit FIFOs------------------
    if(buffer == CP_FIFO_RCV)
    {
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_wait(&cp_rx_fifo_sem);
 	  sem_to_signal = &cp_rx_fifo_sem;
+#endif
 
       uwFifoHeadT = CpVar_FifoRcvHead[channel];
       uwFifoTailT = CpVar_FifoRcvTail[channel];
@@ -358,8 +386,10 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    }
    else
    {
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_wait(&cp_tx_fifo_sem);
 	  sem_to_signal = &cp_tx_fifo_sem;
+#endif
 
       uwFifoHeadT = CpVar_FifoTrmHead[channel];
       uwFifoTailT = CpVar_FifoTrmTail[channel];
@@ -374,7 +404,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
    //
    if(uwFifoHeadT == uwFifoTailT)
    {
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
 	  rt_sem_signal(sem_to_signal);
+#endif
       return (CpErr_FIFO_EMPTY);
    }
 
@@ -441,7 +473,9 @@ _U08 Cp_PREFIX CpFifoPop(_U08 channel, _U08 buffer, CpStruct_CAN * msg)
       }
    }
 
+#if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)
    rt_sem_signal(sem_to_signal);
+#endif
 
    return (CpErr_OK);
 }
