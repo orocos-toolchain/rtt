@@ -362,6 +362,15 @@ namespace ORO_ControlKernel
                 return 0;
             return get<0>( it->second )->rawValue();
         }
+
+        /** 
+         * Return the number of Channels
+         * 
+         */
+        int getChannels() const
+        {
+            return chan_meas.size();
+        }
         /**
          * @}
          */
@@ -387,6 +396,10 @@ namespace ORO_ControlKernel
                       data( &GenericSensor::rawValue,
                             "Inspect the raw value of an Analog Input.",
                             "Name", "The Name of the Analog Input."
+                            ) );
+            ret->add( "channels", 
+                      data( &GenericSensor::getChannels,
+                            "Get the number of channels this Sensor monitors."
                             ) );
             return ret;
         }

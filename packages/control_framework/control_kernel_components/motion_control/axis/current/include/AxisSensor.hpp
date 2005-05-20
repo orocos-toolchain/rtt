@@ -192,6 +192,11 @@ namespace ORO_ControlKernel
          * @brief Inspect a Sensor value of the Axis.
          */
         double readSensor( const std::string& name ) const;
+
+        /**
+         * Get the number of axes.
+         */
+        int getAxes() const;
         /**
          * @}
          */

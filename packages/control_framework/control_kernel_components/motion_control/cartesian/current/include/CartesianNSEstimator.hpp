@@ -73,12 +73,14 @@ namespace ORO_ControlKernel
      */
     class CartesianEstimator
         : public Estimator<Expects<CartesianNSSensorInput>,
+                           Expects<NoOutput>,
                            Writes<CartesianNSModel>,
                            MakeFacet<PropertyExtension, KernelBaseFunction>::Result >
     {
         typedef Estimator<Expects<CartesianNSSensorInput>,
-            Writes<CartesianNSModel>,
-            MakeFacet<PropertyExtension, KernelBaseFunction>::Result > Base;
+                          Expects<NoOutput>,
+                          Writes<CartesianNSModel>,
+                          MakeFacet<PropertyExtension, KernelBaseFunction>::Result > Base;
     public:
             
         CartesianEstimator() 

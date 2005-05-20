@@ -329,6 +329,14 @@ namespace ORO_ControlKernel
             return it->second.first->rawValue();
         }
 
+        /** 
+         * Return the number of Channels
+         * 
+         */
+        int getChannels() const
+        {
+            return chan_out.size();
+        }
         /**
          * @}
          */
@@ -354,6 +362,10 @@ namespace ORO_ControlKernel
                       data( &GenericEffector::rawValue,
                             "Inspect the raw value of an Analog Output.",
                             "Name", "The Name of the Analog Output."
+                            ) );
+            ret->add( "channels", 
+                      data( &GenericEffector::getChannels,
+                            "Get the number of channels this Effector outputs."
                             ) );
             return ret;
         }
