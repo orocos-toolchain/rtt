@@ -26,11 +26,14 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the execution package.
+ * @brief Task Infrastructure, Program Script Loaders and Parsers, Hierarchical State Machines,
+ * Asynchronous Command Processing, Online Task Browsing.
  *
  * It is meant to group all packages for executing user commands
  * in a realtime system. It currently contains the %Task Infrastructure, %Program %Parser and
  * The %Program %Processor.
+ *
+ * Key classes are GenericTaskContext, ProgramLoader, PropertyLoader and TaskBrowser.
  *
  * The packages are documented in the 
  * <a href="../../orocos-task-context.html">

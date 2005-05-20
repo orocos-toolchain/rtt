@@ -1,7 +1,10 @@
 
 cdl_package OROPKG_EXECUTION {
-    display "Execution Program and Task Execution Infrastructure"
+    display "Execution Program and Task Infrastructure"
     description "
 This Package groups infrastructure for parsing and
 executing realtime program and task logic in the Orocos Framework."
+
+    include_files Execution.hpp
+    include_dir execution
 }
