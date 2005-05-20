@@ -8,11 +8,10 @@ cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_
 cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
 
 
-# This template contains all non-hardware packages.
-# You can use this for copy-pasting to another template
+# This template contains all packages for the online API.
 #
-cdl_configuration template_allpackages {
-    description "This is a configuration with all packages included.";
+cdl_configuration template_doxygen {
+    description "This is a configuration with all doxygen packages included.";
     package     OROPKG_CORELIB current ;
     package     OROPKG_OS current ;
     package     OROPKG_CORELIB_EVENTS current;
@@ -32,7 +31,6 @@ cdl_configuration template_allpackages {
     package	OROPKG_DEVICE_INTERFACE_IO current;
     package	OROPKG_DEVICE_DRIVERS current;
     package	OROPKG_DEVICE_DRIVERS_LOGICAL current;
-    package     OROPKG_DEVICE_DRIVERS_APCI current;
     package     OROPKG_DEVICE_DRIVERS_CANPIE current;
     package     OROPKG_DEVICE_DRIVERS_COMEDI current;
     package     OROPKG_DEVICE_DRIVERS_CANOPEN current;

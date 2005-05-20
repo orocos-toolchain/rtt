@@ -12,8 +12,15 @@ cdl_savefile_command cdl_interface { value_source user_value wizard_value inferr
 #
 cdl_configuration template_controlservices {
     description "This is a configuration with packages for the Realtime Control Services.";
-    package     OROPKG_CORELIB current ;
     package     OROPKG_OS current ;
+    package	OROPKG_DEVICE_INTERFACE current;
+    package	OROPKG_DEVICE_INTERFACE_ENCODER current;
+    package	OROPKG_DEVICE_INTERFACE_LOGICAL current;
+    package	OROPKG_DEVICE_INTERFACE_IO current;
+    package	OROPKG_DEVICE_DRIVERS current;
+    package	OROPKG_DEVICE_DRIVERS_LOGICAL current;
+    package     OROPKG_DEVICE_DRIVERS_PORTS current;
+    package     OROPKG_CORELIB current ;
     package     OROPKG_CORELIB_EVENTS current;
     package     OROPKG_CORELIB_BUFFERS current;
     package     OROPKG_CORELIB_TASKS current;
@@ -27,5 +34,4 @@ cdl_configuration template_controlservices {
     package	OROPKG_EXECUTION_PROGRAM_PROCESSOR current;
     package	OROPKG_EXECUTION_TASK_CONTEXT current;
     package	OROPKG_EXECUTION_PROGRAM_PARSER current;
-    package	OROPKG_GEOMETRY current;
 };
