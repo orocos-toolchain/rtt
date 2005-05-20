@@ -48,13 +48,13 @@ namespace ORO_CoreLib
          * Construct a TaskNonRealTime with a periodicity <period>
          * Seconds
          */
-        TaskNonRealTime(Seconds period, RunnableInterface* r=0 );
+        TaskNonRealTime(Seconds period, RunnableInterface* r=0, bool private_event_processor = false  );
 
         /**
          * Construct a TaskNonRealTime with a periodicity of
          * <s> seconds and <ns> nanoseconds
          */
-        TaskNonRealTime(secs s, nsecs ns, RunnableInterface* r=0 );
+        TaskNonRealTime(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false  );
 
         /**
          * Destroys this instance. The Task is stopped.

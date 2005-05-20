@@ -69,7 +69,9 @@ namespace ORO_CoreLib
 
     Seconds TaskNonPeriodic::getPeriod() const { return 0; }
 
-    EventProcessor* TaskNonPeriodic::processor() const { return proc; }
+    EventProcessor* TaskNonPeriodic::getEventProcessor() const { return proc; }
+
+    ORO_OS::ThreadInterface* TaskNonPeriodic::thread() { return this; }
 
     bool TaskNonPeriodic::initialize() {
         bool result = proc->initialize();

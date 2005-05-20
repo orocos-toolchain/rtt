@@ -35,6 +35,7 @@
 
 namespace ORO_CoreLib
 {
+    namespace detail {
 
     /**
      * A TaskTimer which step()s all tasks in 'one shot' in the
@@ -78,6 +79,7 @@ namespace ORO_CoreLib
         virtual void setTrigger(nsecs ns) { trig_per = ns; }
 
     };
+    }
 }
 
 #endif

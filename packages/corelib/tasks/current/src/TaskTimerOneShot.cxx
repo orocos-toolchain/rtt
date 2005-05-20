@@ -35,6 +35,7 @@
 #include <assert.h>
 namespace ORO_CoreLib
 {
+    using namespace detail;
     using ORO_OS::MutexLock;
     using std::find;
 
@@ -104,7 +105,7 @@ namespace ORO_CoreLib
             // t_iter is never invalidated.
             for( TaskList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
                 if ( *t_iter )
-                    (*t_iter)->step();
+                    (*t_iter)->doStep();
                         
         if ( turn * trig_per == task_per )
             turn = 1;

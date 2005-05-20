@@ -35,9 +35,10 @@
 
 namespace ORO_CoreLib
 {
+    using namespace detail;
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : TaskThreadInterface( priority, name, periodicity)
+        : PeriodicThread( priority, name, periodicity)
     {
         // create one default timer for the tasks with this periodicity.
         TaskTimerInterface* timer = new TaskTimerOneShot( Seconds_to_nsecs( periodicity ) );

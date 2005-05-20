@@ -34,6 +34,7 @@
 namespace ORO_CoreLib
 {
     class PeriodicTask;
+    namespace detail {
     /**
      * An TaskTimerInterface is an object that will step() a PeriodicTask every
      * n'th time it is tick()'ed such that when n tasks are present,
@@ -96,7 +97,7 @@ namespace ORO_CoreLib
         virtual void setTrigger(nsecs ns) = 0;
         
     };
-
+    }
 }
 
 #endif

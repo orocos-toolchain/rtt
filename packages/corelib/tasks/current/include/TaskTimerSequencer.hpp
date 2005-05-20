@@ -38,7 +38,7 @@
 
 namespace ORO_CoreLib
 {
-
+    namespace detail {
     /**
      * An TaskTimerSequencer is an object that will step() a PeriodicTask every
      * n'th time it is tick()'ed such that when n tasks are present,
@@ -144,7 +144,8 @@ namespace ORO_CoreLib
 
         bool in_tick;
     };
-
+    }
+        
 }
 
 #endif

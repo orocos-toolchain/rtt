@@ -32,12 +32,9 @@
 #include <algorithm>
 #include "corelib/PeriodicTask.hpp"
 
-
-#include <iostream>
-using namespace std;
-
 namespace ORO_CoreLib
 {
+    using namespace detail;
     using std::find_if;
 
     TaskTimerSequencer::TaskTimerSequencer( Seconds average_period, Seconds trigger_period )
@@ -78,7 +75,7 @@ namespace ORO_CoreLib
             {
                 if (f_iter->task != 0) 
                     {
-                        f_iter->task->step();
+                        f_iter->task->doStep();
                     }
                 if (reset_f_iter) 
                     {

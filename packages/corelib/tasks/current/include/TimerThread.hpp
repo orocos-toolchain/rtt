@@ -41,34 +41,32 @@
 namespace ORO_CoreLib
 {
     using ORO_OS::MutexLock;
-
-    class TaskTimerInterface;
+    namespace detail {
+        class TaskTimerInterface;
+    }
     class PeriodicTask;
 
     /**
-     * @brief A Thread executing a task is a
-     * PeriodicThread with an EventProcessor.
+     * This Periodic Thread is meant for executing a PeriodicTask
+     * object periodically.
+     *
+     * @see PeriodicTask
      */
-    struct TaskThreadInterface
+    class TimerThread
         : public ORO_OS::PeriodicThread,
           public EventProcessor
     {
-        TaskThreadInterface(int priority, const std::string& name, double periodicity)
-            : PeriodicThread( priority, name, periodicity)
-        {}
-    };
-
-    /**
-     * @brief This Periodic Thread is meant for executing a PeriodicTask
-     * object periodically.
-     *
-     * @see PeriodicThread
-     */
-    class TimerThread
-        : public TaskThreadInterface
-    {
 
     public:
+        /**
+         * Create a periodic Timer thread.
+         *
+         * @param priority 
+         *        The priority of this thread
+         * @param periodicity
+         *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
+         */
+        TimerThread(int priority, const std::string& name, double periodicity);
 
         /**
          * Destructor
@@ -78,37 +76,20 @@ namespace ORO_CoreLib
         /**
          * Add an Timer that will be ticked every execution period
          * Once added, a timer can not be removed.
-         * @return false if there are more timers added than MAX_TASK_TIMERS
          */
-        bool timerAdd( TaskTimerInterface* );
+        bool timerAdd( detail::TaskTimerInterface* );
 
         /**
          * Get a Timer ticking at a certain period.
          */
-        TaskTimerInterface* timerGet( Seconds period ) const;
-
-        /**
-         * This constant is currently not in use. Since timers are added
-         * at startup time, the storage is dynamically extended with each timerAdd().
-         */
-        static const unsigned int MAX_TASK_TIMERS = 0;
+        detail::TaskTimerInterface* timerGet( Seconds period ) const;
 
     protected:
-        /**
-         * Constructor. To be called from the friend classes.
-         *
-         * @param priority 
-         *        The priority of this thread
-         * @param periodicity
-         *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
-         */
-        TimerThread(int priority, const std::string& name, double periodicity);
-
         virtual bool initialize();
         virtual void step();
         virtual void finalize();
 
-        typedef std::vector<TaskTimerInterface*> TimerList;
+        typedef std::vector<detail::TaskTimerInterface*> TimerList;
 
         /**
          * A list containing all the TaskTimer instances

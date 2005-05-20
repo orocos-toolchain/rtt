@@ -30,13 +30,13 @@
 namespace ORO_CoreLib
 {
     
-    TaskNonRealTime::TaskNonRealTime(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, NonRealTimeThread::Instance(), r)
+    TaskNonRealTime::TaskNonRealTime(Seconds period, RunnableInterface* r, bool pep )
+        :PeriodicTask(period, NonRealTimeThread::Instance(), r, pep)
     {
     }
 
-    TaskNonRealTime::TaskNonRealTime(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, NonRealTimeThread::Instance(), r)
+    TaskNonRealTime::TaskNonRealTime(secs sec, nsecs nsec, RunnableInterface* r, bool pep )
+        :PeriodicTask(sec, nsec, NonRealTimeThread::Instance(), r, pep)
     {
     }
 

@@ -49,12 +49,12 @@ namespace ORO_CoreLib
          * Construct a TaskPreemptible with a periodicity <period>
          * Seconds
          */
-        TaskPreemptible(Seconds period, RunnableInterface* r=0 );
+        TaskPreemptible(Seconds period, RunnableInterface* r=0, bool private_event_processor = false );
         /**
          * Construct a TaskPreemptible with a periodicity of
          * <s> seconds and <ns> nanoseconds
          */
-        TaskPreemptible(secs s, nsecs ns, RunnableInterface* r=0 );
+        TaskPreemptible(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false );
 
         /**
          * Destroys this instance. The Task is stopped.

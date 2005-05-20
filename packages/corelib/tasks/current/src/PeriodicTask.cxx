@@ -46,9 +46,10 @@
 
 namespace ORO_CoreLib
 {
+    using namespace detail;
     
-    PeriodicTask::PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r )
-        : runner(r), running(false), inError(false), _thread(thread)
+    PeriodicTask::PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r, bool private_event_processor )
+        : runner(r), running(false), inError(false), thread_(thread), eprocessor_( private_event_processor ? new EventProcessor() : 0)
     {
         per_ns = Seconds_to_nsecs( period );
         this->init();
@@ -58,27 +59,31 @@ namespace ORO_CoreLib
         if (runner)
             runner->setTask(this);
 
-        TaskTimerInterface* timer = _thread->timerGet( this->getPeriod() );
+        TaskTimerInterface* timer = thread_->timerGet( this->getPeriod() );
         if ( timer == 0 ) {
             timer = new TaskTimerOneShot( per_ns );
-//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< _thread->getName() <<Logger::endl;
+//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< thread_->getName() <<Logger::endl;
             // The timer is owned by the thread !
-            if ( _thread->timerAdd( timer ) == false ) {
+            if ( thread_->timerAdd( timer ) == false ) {
                 delete timer;
                 timer = 0;
                 Logger::log() << Logger::Critical << "PeriodicTask with period "<<this->getPeriod()
-                              << "s failed to schedule in thread " << _thread->getName()
-                              << " which has period "<< _thread->getPeriod()<<"s."<< Logger::endl;
+                              << "s failed to schedule in thread " << thread_->getName()
+                              << " which has period "<< thread_->getPeriod()<<"s."<< Logger::endl;
             }
         }
 //         else
-//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< _thread->getName() <<Logger::endl;
+//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< thread_->getName() <<Logger::endl;
 
-        _timer = timer;
+        timer_ = timer;
     }
 
-    PeriodicTask::PeriodicTask(secs s, nsecs ns, TimerThread* thread, RunnableInterface* r )
-        : runner(r), running(false), inError(false), per_ns( secs_to_nsecs(s) + ns), _thread(thread)
+    PeriodicTask::PeriodicTask(secs s, nsecs ns, TimerThread* thread, RunnableInterface* r, bool private_event_processor )
+        : runner(r),
+          running(false), inError(false),
+          per_ns( secs_to_nsecs(s) + ns),
+          thread_(thread),
+          eprocessor_( private_event_processor ? new EventProcessor() : 0)
     {
         this->init();
     }
@@ -88,6 +93,7 @@ namespace ORO_CoreLib
         stop();
         if (runner)
             runner->setTask(0);
+        delete eprocessor_;
     }
      
     bool PeriodicTask::run( RunnableInterface* r )
@@ -104,15 +110,17 @@ namespace ORO_CoreLib
 
     bool PeriodicTask::start()
     {
-        if ( isRunning() || !_thread->isRunning() ) return false;
+        if ( isRunning() || !thread_->isRunning() ) return false;
 
         inError = !this->initialize();
 
-        if ( !inError && _timer )
-            running = _timer->addTask( this );
+        if ( !inError && timer_ )
+            running = timer_->addTask( this );
 //         else
 //             Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->getPeriod()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
 
+        if ( eprocessor_ )
+            eprocessor_->initialize();
         return running;
     }
 
@@ -122,8 +130,10 @@ namespace ORO_CoreLib
 
         // since removeTask synchronises, we do not need to mutex-lock
         // stop()
-        if ( _timer->removeTask( this ) ) {
+        if ( timer_->removeTask( this ) ) {
             running = false;
+            if ( eprocessor_ )
+                eprocessor_->finalize();
             this->finalize();
             return true;
         }
@@ -146,10 +156,17 @@ namespace ORO_CoreLib
         else
             return true;
     }
+
+    void PeriodicTask::doStep()
+    {
+        this->step();
+        if ( eprocessor_ )
+            eprocessor_->step();
+    }
         
     void PeriodicTask::step()
     {
-        // overload this method to avoid running runner.
+        // override this method to avoid running runner.
         if (runner != 0)
             runner->step();
     }
@@ -159,8 +176,8 @@ namespace ORO_CoreLib
             runner->finalize();
     }
 
-    TaskThreadInterface* PeriodicTask::thread() const { return _thread; }
+    ORO_OS::ThreadInterface* PeriodicTask::thread() { return thread_; }
 
-    EventProcessor* PeriodicTask::processor() const { return _thread; }
+    EventProcessor* PeriodicTask::getEventProcessor() const { return eprocessor_ == 0 ? thread_ : eprocessor_; }
 
 }

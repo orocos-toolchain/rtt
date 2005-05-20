@@ -38,8 +38,10 @@
 
 namespace ORO_CoreLib
 {
-    class TaskTimerInterface;
-    class TaskThreadInterface;
+    namespace detail {
+        class TaskTimerInterface;
+    }
+
     class TimerThread;
     /**
      * @brief A PeriodicTask is the general implementation of a Task
@@ -57,7 +59,7 @@ namespace ORO_CoreLib
     public:
 
         /**
-         * @brief Create a RealTime Task with a given period which runs
+         * @brief Create a Periodic Task with a given period which runs
          * a RunnableInterface.
          *
          * @param period
@@ -66,11 +68,17 @@ namespace ORO_CoreLib
          *        The thread this Task will be run in.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
+         * @param private_event_processor
+         *        If true, PeriodicTask creates its own EventProcessor
+         *        which will be started and stopped together with
+         *        the task, thus it will only handle asynchronous events if this task is running.
+         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
+         *        as long as \a thread is running.
          */
-        PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r=0 );
+        PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r=0, bool private_event_processor = false );
 
         /**
-         * @brief Create a RealTime Task with a given period which runs
+         * @brief Create a Periodic Task with a given period which runs
          * a RunnableInterface.
          *
          * @param sec
@@ -81,8 +89,14 @@ namespace ORO_CoreLib
          *        The thread this Task will be run in.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Task
+         * @param private_event_processor
+         *        If true, PeriodicTask creates its own EventProcessor
+         *        which will be started and stopped together with
+         *        the task, thus it will only handle asynchronous events if this task is running.
+         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
+         *        as long as \a thread is running.
          */
-        PeriodicTask(secs sec, nsecs nsec, TimerThread* thread, RunnableInterface* r=0 );
+        PeriodicTask(secs sec, nsecs nsec, TimerThread* thread, RunnableInterface* r=0, bool private_event_processor = false );
 
         /**
          * Stops and terminates a PeriodicTask
@@ -96,7 +110,7 @@ namespace ORO_CoreLib
          *        The RunnableInterface to run exclusively.
          * @return true if succeeded, false otherwise
          */
-        virtual bool run( RunnableInterface* r );
+        bool run( RunnableInterface* r );
 
         virtual bool start();
 
@@ -106,16 +120,29 @@ namespace ORO_CoreLib
 
         virtual Seconds getPeriod() const;
 
-        virtual TaskThreadInterface* thread() const;
+        virtual ORO_OS::ThreadInterface* thread();
 
-        virtual EventProcessor* processor() const;
+        virtual EventProcessor* getEventProcessor() const;
 
+        /**
+         * @see RunnableInterface::initialize()
+         */
         virtual bool initialize();
         
+        /**
+         * @see RunnableInterface::step()
+         */
         virtual void step();
         
+        /**
+         * @see RunnableInterface::finalize()
+         */
         virtual void finalize();
 
+        /**
+         * Called by the TimerInterface.
+         */
+        void doStep();
     protected:
         void init();
 
@@ -143,12 +170,17 @@ namespace ORO_CoreLib
         /**
          * The thread which runs this task.
          */
-        TimerThread* _thread;
+        TimerThread* thread_;
+
+        /**
+         * The thread which runs this task.
+         */
+        EventProcessor* eprocessor_;
 
         /**
          * The timer which steps this task.
          */
-        TaskTimerInterface* _timer;
+        detail::TaskTimerInterface* timer_;
     };
 
 }

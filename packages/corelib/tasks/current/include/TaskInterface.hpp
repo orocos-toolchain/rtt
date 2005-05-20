@@ -29,20 +29,23 @@
 #define TASK_INTERFACE_HPP
 
 #include "Time.hpp"
+#include "os/ThreadInterface.hpp"
 
 namespace ORO_CoreLib
 {
     class EventProcessor;
 
     /**
-     * @brief Interface to start/stop and query a periodic Task.
+     * @brief Interface to start/stop and query a Task.
      *
      * A TaskInterface provides the control methods
-     * for tasks. They can be started, stopped
-     * and be queried for their state and period.
+     * for tasks. A task can be periodic, non periodic, event driven
+     * or any task object which can be started, stopped
+     * and be queried for their state and (optional) period.
      *
      * It is complementary to the RunnableInterface, which
-     * defines the methods for the functionality.
+     * defines the methods for the functionality that is executed.
+     * @see RunnableInterface
      */
     class TaskInterface
     {
@@ -51,6 +54,10 @@ namespace ORO_CoreLib
 
         /**
          * Start the task.
+         * This will call RunnableInterface::initialize() and upon
+         * success, effectively start the task, by running the
+         * RunnableInterface::step() or RunnableInterface::loop() in
+         * a thread.
          * 
          * @return true if the task is started, false otherwise
          */
@@ -58,6 +65,9 @@ namespace ORO_CoreLib
 
         /**
          * Stop the task
+         * This will stop the task by removing it from the 'run-queue'
+         * of a thread or call RunnableInterface::breakLoop().
+         * If no errors occured, RunnableInterface::finalize() is called.
          *
          * @return true if the task is stopped, false otherwise
          */
@@ -78,10 +88,16 @@ namespace ORO_CoreLib
         virtual Seconds getPeriod() const = 0;
 
         /**
+         * Returns a pointer to the EventProcessor which will
+         * process the asynchronous Events of this task. Will not be null.
+         */
+        virtual EventProcessor* getEventProcessor() const = 0;
+
+        /**
          * Returns a pointer to the thread which will
          * run this task. Will not be null.
          */
-        virtual EventProcessor* processor() const = 0;
+        virtual ORO_OS::ThreadInterface* thread() = 0;
     };
 
 }

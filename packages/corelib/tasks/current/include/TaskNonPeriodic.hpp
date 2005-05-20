@@ -53,6 +53,8 @@ namespace ORO_CoreLib
          private ORO_OS::SingleThread
     {
     public:
+        using ORO_OS::SingleThread::run;
+
         /**
          * Create an TaskNonPeriodic with a given priority and
          * RunnableInterface instance.
@@ -78,9 +80,18 @@ namespace ORO_CoreLib
          */
         bool run( RunnableInterface* r );
 
+        /**
+         * Run another (or self in case of null)
+         * task. This overload is needed to redirect
+         * the call of run( 0 ) to the correct function.
+         */
+        bool run( int ) { RunnableInterface* d(0); return TaskNonPeriodic::run( d ); }
+
         virtual Seconds getPeriod() const ;
 
-        virtual EventProcessor* processor() const ;
+        virtual EventProcessor* getEventProcessor() const ;
+
+        virtual ThreadInterface* thread();
 
         virtual bool initialize();
 

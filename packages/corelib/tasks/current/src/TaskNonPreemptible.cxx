@@ -30,13 +30,13 @@
 namespace ORO_CoreLib
 {
     
-    TaskNonPreemptible::TaskNonPreemptible(Seconds period, RunnableInterface* r )
-        :PeriodicTask(period, ZeroTimeThread::Instance(), r)
+    TaskNonPreemptible::TaskNonPreemptible(Seconds period, RunnableInterface* r, bool pep )
+        :PeriodicTask(period, ZeroTimeThread::Instance(), r, pep)
     {
     }
 
-    TaskNonPreemptible::TaskNonPreemptible(secs sec, nsecs nsec, RunnableInterface* r )
-        :PeriodicTask(sec, nsec, ZeroTimeThread::Instance(), r)
+    TaskNonPreemptible::TaskNonPreemptible(secs sec, nsecs nsec, RunnableInterface* r, bool pep )
+        :PeriodicTask(sec, nsec, ZeroTimeThread::Instance(), r, pep)
     {
     }
 
