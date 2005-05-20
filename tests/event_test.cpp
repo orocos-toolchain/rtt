@@ -119,7 +119,7 @@ struct Runner : public RunnableInterface
     // blocking implementation
     void loop() {
         e.fire( 123456 );
-        this->getTask()->processor()->loop(); // wait for our own event.
+        this->getTask()->getEventProcessor()->loop(); // wait for our own event.
     }
 
     void finalize() {

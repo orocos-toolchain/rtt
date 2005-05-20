@@ -30,6 +30,7 @@
 #include <corelib/TaskNonPeriodic.hpp>
 
 using namespace ORO_CoreLib;
+using namespace ORO_CoreLib::detail;
 
 struct TestRunnableInterface;
 struct TestSelfRemove;
@@ -37,7 +38,7 @@ struct TestSelfRemove;
 class TasksTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TasksTest );
-    // Self Removal Test :
+    // Timer Test :
     CPPUNIT_TEST( testTimer );
 
     // Start - Stop Test :
@@ -47,7 +48,7 @@ class TasksTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRunnableInterface );
     
     // Allocation Test : [disabled, kills RTAI/LXRT]
-    //CPPUNIT_TEST( testAddAllocate );
+    CPPUNIT_TEST( testAddAllocate );
 
     // Self Removal Test :
     CPPUNIT_TEST( testSelfRemove );
@@ -60,16 +61,12 @@ class TasksTest : public CppUnit::TestFixture
     TaskNonRealTime*    t_task_nrt;
     TaskNonPreemptible* t_task_np;
     TaskPreemptible*    t_task_p;
-    TaskSimulation*     t_task_sim;
     PriorityTask<15>*   t_task_prio;
-    TaskNonPeriodic*    t_task_nonper;
 
     TestRunnableInterface*  t_run_int_np;
     TestRunnableInterface*  t_run_int_p;
     TestRunnableInterface*  t_run_int_nrt;
-    TestRunnableInterface*  t_run_int_sim;
     TestRunnableInterface*  t_run_int_prio;
-    TestRunnableInterface*  t_run_int_nonper;
 
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;

@@ -24,6 +24,11 @@
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <corelib/PropertyBagIntrospector.hpp>
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/frames.h>
+using namespace ORO_Geometry;
+#endif
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );

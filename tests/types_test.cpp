@@ -23,6 +23,11 @@
 #include <iostream>
 #include <execution/ProgramGraph.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/frames.h>
+using namespace ORO_Geometry;
+#endif
 
 using namespace std;
 
@@ -33,7 +38,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
 void 
 TypesTest::setUp()
 {
-    tc =  new TaskContext( "task", &processor);
+    tc =  new TaskContext( "root", &processor);
     tc->methodFactory.registerObject("test", this->createMethodFactory() );
 }
 
@@ -250,6 +255,87 @@ void TypesTest::testOperators()
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
         CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
     }
+}
+
+void TypesTest::testProperties()
+{
+    string prog = string("program x {\n") +
+        "do test.assert( task.Double1 == 1.234 )\n" +
+        "do test.assert( task.Double2 == 2.234 )\n" +
+        "do test.assert( task.Double3 == 3.234 )\n" +
+        "do test.assert( task.Collection.Double1 == 1.234 )\n" +
+        "do test.assert( task.Collection.Double3 == 3.234 )\n" +
+        "do test.assert( task.Collection.Collection.Double1 == 1.234 )\n" +
+        "do test.assert( task.Collection.Collection.Collection.Double3 == 3.234 )\n" +
+        "set task.Double1 = 4.321\n" +
+        "set task.Double2 = task.Double1\n" +
+        // -> = 10
+        "set task.Collection.Double3 = 0.3\n" +
+        "do test.assert( task.Double1 == 4.321 )\n" +
+        "do test.assert( task.Double2 == 4.321 )\n" +
+        "do test.assert( task.Double3 == 0.3 )\n" +
+        "set task.Collection.Collection.Collection.Double3 = 3.0\n" +
+        "do test.assert( task.Double3 == 3.0 )\n" +
+#ifdef OROPKG_GEOMETRY
+        "var vector v = vector(0.,0.,0.)\n"+
+        "var rotation r = rotation(0.,0.,0.)\n"+
+        "do test.assert( task.Frame == task.Frame ) \n"+
+        "do test.assert( task.Rotation == rotation(0., 45., 60. ) ) \n"+
+        // -> = 20
+        "set v = vector(0.,2.,4.)\n"+
+        "set r = rotation(0.,45.,60.) \n"+
+        "set task.Frame = frame( v, r )\n"+
+        "set task.Rotation = r\n"+
+        "do test.assert( task.Frame.p.x == frame(v,r).p.x ) \n"+
+        "do test.assert( task.Rotation.roll == rotation(0., 45., 60. ).roll ) \n"+
+        "do test.assert( task.Frame.p.x == task.Collection.Frame.p.x ) \n"+
+        "do test.assert( task.Collection.Rotation.pitch == rotation(0., 45., 60. ).pitch ) \n"+
+#endif
+        "}";
+
+    Property<PropertyBag> pb("Collection","");
+    Property<double> pd1("Double1","",1.234);
+    Property<double> pd2("Double2","",2.234);
+    Property<double> pd3("Double3","",3.234);
+#ifdef OROPKG_GEOMETRY
+    Property<Frame> pf("Frame","", Frame::Identity() );
+    Property<Rotation> pr("Rotation","", Rotation::RPY(0.0, 45.0, 60.0) );
+    tc->attributeRepository.addProperty( &pf );
+    tc->attributeRepository.addProperty( &pr );
+    pb.value().add( &pf );
+    pb.value().add( &pr );
+#endif
+
+    pb.value().add( &pd1 );
+    pb.value().add( &pd3 );
+    pb.value().add( &pb ); // yep, recursive !
+        
+    tc->attributeRepository.addProperty( &pd1 );
+    tc->attributeRepository.addProperty( &pd2 );
+    tc->attributeRepository.addProperty( &pd3 );
+    tc->attributeRepository.addProperty( &pb );
+
+    stringstream progs(prog);
+    std::vector<ProgramGraph*> pg_list;
+    try {
+        pg_list = parser.parseProgram( progs, tc );
+    }
+    catch( const file_parse_exception& exc )
+        {
+            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+        }
+    if ( pg_list.empty() )
+        {
+            CPPUNIT_ASSERT( false );
+        }
+    // execute
+    if ( (*pg_list.begin())->executeAll() == false ) {
+        stringstream errormsg;
+        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+    CPPUNIT_ASSERT( pd1.get() == 4.321 );
+    CPPUNIT_ASSERT( pd3.get() == 3.0 );
 }
 
     

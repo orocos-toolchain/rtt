@@ -26,6 +26,8 @@
 
 #include <iostream>
 using namespace std;
+using namespace ORO_CoreLib;
+using namespace ORO_CoreLib::detail;
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
