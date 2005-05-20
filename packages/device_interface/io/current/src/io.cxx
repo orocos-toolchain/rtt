@@ -28,6 +28,7 @@
 #include "device_interface/DigitalOutInterface.hpp"
 
 using namespace ORO_DeviceInterface;
+using namespace ORO_CoreLib;
 
 // REMARK Analog In and Out are declared in the headerfiles
 

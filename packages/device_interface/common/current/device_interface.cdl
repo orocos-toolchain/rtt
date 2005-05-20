@@ -8,4 +8,14 @@ they must be ported to these abstract C++ interfaces.
 
 See the Device Drivers package for examples.
 "
+    include_files DeviceInterface.hpp
+    include_dir device_interface
+
+    cdl_interface OROINT_DEVICE_INTERFACE_THREAD_SCOPE {
+	display "Support for a thread scope device driver"
+	flavor data
+	requires { OROINT_DEVICE_INTERFACE_THREAD_SCOPE <= 1 }
+    }
+
+
 }

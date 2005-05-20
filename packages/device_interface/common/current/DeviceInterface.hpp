@@ -26,11 +26,12 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the device_interface package.
+ * @brief Abstraction APIs for hardware devices ('cards') such as IO, counters,
+ * but also logical devices like Encoders and generic Sensors.
  *
- * It is meant to group all packages which provide hardware abstraction APIs.
- * Examples are IO, counters, but also logical devices like Encoders.
- *
+ * The Orocos Device Interface classes are DigitalInInterface, DigitalOutInterface,
+ * AnalogInInterface, AnalogOutInterface, SensorInterface, EncoderInterface,...
+ * 
  * Only header files are found in this package, and NameServer functionality.
  *
  * The device interfaces are documented in <a href="../../orocos-device-interface.html">

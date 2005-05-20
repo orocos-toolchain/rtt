@@ -34,17 +34,16 @@
 
 namespace ORO_DeviceInterface
 {
-    using namespace ORO_CoreLib;
-
     /**
-     * @brief A class representing a Digital Output device with a maximum of 32
-     * channels. When there are N bits, the bits are numbered from Zero to N-1.
+     * A class representing a Digital Output device which can read or write a maximum of 32
+     * bits at once. When there are N bits, the bits are numbered from Zero to N-1.
      *
      * @invar Bit 0 denotes the first digital output on the card.
      * @invar No more than 32 bits can be addressed 
+     * @see TemplateDigitalOut
      */
     class DigitalOutInterface
-        : private NameServerRegistrator<DigitalOutInterface*>
+        : private ORO_CoreLib::NameServerRegistrator<DigitalOutInterface*>
     {
 
         public:
@@ -54,7 +53,7 @@ namespace ORO_DeviceInterface
              * through DigitalOutInterface::nameserver .
              */
             DigitalOutInterface( const std::string& name )
-                    : NameServerRegistrator<DigitalOutInterface*>( nameserver, name, this )
+                    : ORO_CoreLib::NameServerRegistrator<DigitalOutInterface*>( nameserver, name, this )
             { }
 
             /**
@@ -68,11 +67,9 @@ namespace ORO_DeviceInterface
 
             /**
              * The NameServer of this interface.
-             * @see NameServer
+             * @see ORO_CoreLib::NameServer
              */
-            static NameServer<DigitalOutInterface*> nameserver;
-
-            typedef unsigned int DWord;
+            static ORO_CoreLib::NameServer<DigitalOutInterface*> nameserver;
 
             /**
              * Sets the n'th output on
@@ -94,7 +91,8 @@ namespace ORO_DeviceInterface
             virtual void setBit( unsigned int bit, bool value ) = 0;
                 
             /**
-             * Sets a sequence of bits to pattern <value>.
+             * Sets a sequence of bits to pattern <value> between <start_bit> and <stop_bit> inclusive.
+             * For example, setSequence(3, 3, 1) is equivalent to setBit(3, 1).
              */
             virtual void setSequence(unsigned int start_bit, unsigned int stop_bit, unsigned int value) = 0;
 
@@ -105,7 +103,8 @@ namespace ORO_DeviceInterface
             virtual bool checkBit(unsigned int n) const = 0;
 
             /**
-             * Returns the sequence of bits between <start_bit> and <stop_bit> inclusive.
+             * Returns the sequence of bits between <start_bit> and <stop_bit> inclusive,
+             * where start_bit occurs at position zero in the returned result.
              */
             virtual unsigned int checkSequence( unsigned int start_bit, unsigned int stop_bit ) const = 0;
             

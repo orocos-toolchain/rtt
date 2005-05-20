@@ -34,14 +34,14 @@
 
 namespace ORO_DeviceInterface
 {
-    using namespace ORO_CoreLib;
-
     /**
-     * @brief A class representing a Digital Input device with a maximum of 32
-     * channels. When there are N bits, the bits are numbered from Zero to N-1.
+     * A class representing a Digital Input device from which a
+     * maximum of 32 bits can be read at once. When there are N
+     * bits, the bits are numbered from Zero to N-1.
+     * @see TemplateDigitalIn
      */
     class DigitalInInterface
-        : private NameServerRegistrator<DigitalInInterface*>
+        : private ORO_CoreLib::NameServerRegistrator<DigitalInInterface*>
     {
         public:
         /**
@@ -52,7 +52,7 @@ namespace ORO_DeviceInterface
          *        The name which will refer to this instance.
          */
         DigitalInInterface( const std::string& name )
-            : NameServerRegistrator<DigitalInInterface*>
+            : ORO_CoreLib::NameServerRegistrator<DigitalInInterface*>
         ( nameserver, name, this )
         { }
 
@@ -67,9 +67,9 @@ namespace ORO_DeviceInterface
 
             /**
              * The NameServer of this interface.
-             * @see NameServer
+             * @see ORO_CoreLib::NameServer
              */
-            static NameServer<DigitalInInterface*> nameserver;
+            static ORO_CoreLib::NameServer<DigitalInInterface*> nameserver;
 
             /**
              * Inspect if a certain bit is on.
