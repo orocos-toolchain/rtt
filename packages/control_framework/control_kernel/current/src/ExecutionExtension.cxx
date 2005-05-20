@@ -250,6 +250,10 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                 if ( methodfactory ) {
                     tc.methodFactory.registerObject( (*it)->getName(), methodfactory );
                 }
+
+                // Load the Extension Properties in the TaskContext :
+                if ( (*it)->exportProperties( tc.attributeRepository ) == false ) 
+                    Logger::log() << Logger::Error << "ExecutionExtension: Could not load Properties of "+ base->getKernelName()+"::"+(*it)->getName()+" as Task Attributes because of duplicate entry."<<Logger::endl;
                 ++it;
             }
         
@@ -265,7 +269,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                 DataSourceFactoryInterface* dsf;
                 boost::shared_ptr<DataObjectReporting> drobjects( DataObjectReporting::nameserver.getObject( base->getKernelName() + "::" + *it ) );
                 if ( drobjects == 0 )
-                    Logger::log() << Logger::Warning << " Could not load "+ base->getKernelName()+"::"+*it+" as DataSources."<<Logger::endl;
+                    Logger::log() << Logger::Debug << " Could not load "+ base->getKernelName()+"::"+*it+" as DataSources."<<Logger::endl;
                 else {
                     dsf = new MapDataSourceFactory( *drobjects, *it + " Data Object" );
                     tc.dataFactory.registerObject( *it, dsf );
@@ -364,6 +368,11 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                       << interval.getName()<<" : "<< interval.get()<< Logger::endl;
         // check for validity.
         return interval > 0;
+    }
+
+    bool ExecutionExtension::exportProperties( AttributeRepository& bag )
+    {
+        return bag.addProperty( &interval );
     }
 
     ExecutionComponentInterface::ExecutionComponentInterface( const std::string& _name )

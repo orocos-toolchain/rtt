@@ -260,21 +260,24 @@ namespace ORO_ControlKernel
      * its ports to it.
      * @ingroup kcomps kcomp_estimator
      */
-    template <class _InputType, class _ModelType, class _Facet = DefaultBase >
+    template <class _InputType, class _OutputType, class _ModelType, class _Facet = DefaultBase >
     class Estimator
         : public _Facet
     {
     public:
         typedef typename _InputType::DataType InputType;
+        typedef typename _OutputType::DataType OutputType;
         typedef typename _ModelType::DataType ModelType;
         typedef _Facet Facet;
             
         typedef typename _InputType::ReadPort InputPort;
+        typedef typename _OutputType::ReadPort OutputPort;
         typedef typename _ModelType::WritePort ModelPort;
 
         Estimator(const std::string& name ) 
             : Facet( name ),
               Input( new InputPort() ),
+              Output( new OutputPort() ),
               Model( new ModelPort() )
         {}
 
@@ -301,11 +304,13 @@ namespace ORO_ControlKernel
         template< class KernelT >
         void createPorts( KernelT* k ) {
             Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Output->createPort( k->getKernelName()+"::Outputs", k->getOutputPrefix() );
             Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
         }
 
         void erasePorts() {
             Input->erasePort();
+            Output->erasePort();
             Model->erasePort();
         }
 
@@ -315,6 +320,7 @@ namespace ORO_ControlKernel
         }
 
         InputPort*  Input;
+        OutputPort* Output;
         ModelPort*  Model;
     };
 

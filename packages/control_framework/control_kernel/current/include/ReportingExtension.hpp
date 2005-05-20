@@ -163,10 +163,6 @@ namespace ORO_ControlKernel
          */
         struct SplitStream;
 
-//         virtual TaskInterface* getTask() const;
-
-//         virtual void setTask( TaskInterface* task );
-
         /**
          * Report an external PropertyExporterInterface.
          * You can use this method to add additional exporters during runtime.
@@ -194,6 +190,19 @@ namespace ORO_ControlKernel
          */
         void removeComponent( ReportingComponent* rep );
 
+        /**
+         * @defgroup methods Script Methods.
+         * @{
+         */
+
+        bool startReporting();
+        bool stopReporting() ;
+        bool reportComponent( const std::string& comp );
+        bool unreportComponent( const std::string& comp );
+        bool reportDataObject( const std::string& dob );
+        bool unreportDataObject( const std::string& dob );
+        /** @} */
+
         virtual bool updateProperties(const PropertyBag& bag);
             
     protected:
@@ -203,15 +212,16 @@ namespace ORO_ControlKernel
 
         virtual void finalize();
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        virtual bool exportProperties( ORO_Execution::AttributeRepository& bag );
+
         typedef MarshallConfiguration<TableHeaderMarshaller<SplitStream>,
                                       TableMarshaller<SplitStream> > MarshallTableType;
         typedef MarshallConfiguration<EmptyHeaderMarshaller<SplitStream>,
                                       TableMarshaller<SplitStream> > NoHeaderMarshallTableType;
 
         virtual ORO_Execution::MethodFactoryInterface* createMethodFactory();
-
-        bool startReporting();
-        bool stopReporting() ;
+#endif
 #ifdef OROINT_OS_STDIOSTREAM
         std::ofstream* fileStream;
 #endif

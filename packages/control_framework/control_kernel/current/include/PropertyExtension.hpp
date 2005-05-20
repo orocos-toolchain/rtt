@@ -30,7 +30,6 @@
 
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
-#include <corelib/PropertyIntrospection.hpp>
 #include "KernelInterfaces.hpp"
 #include "ComponentInterfaces.hpp"
 #include "ComponentConfigurator.hpp"
@@ -123,7 +122,7 @@ namespace ORO_ControlKernel
         virtual ~PropertyExtension();
 
         virtual bool updateProperties(const PropertyBag& bag);
-        
+
         /**
          * Used by the PropertyComponentInterface to register itself to
          * this Extension.
@@ -139,7 +138,11 @@ namespace ORO_ControlKernel
         bool configureComponent(const std::string& filename, PropertyComponentInterface* target);
 
     protected:
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        virtual bool exportProperties( ORO_Execution::AttributeRepository& bag );
+        
         virtual ORO_Execution::MethodFactoryInterface* createMethodFactory();
+#endif
 
         bool readAllProperties();
         bool readProperties( const std::string& compname );

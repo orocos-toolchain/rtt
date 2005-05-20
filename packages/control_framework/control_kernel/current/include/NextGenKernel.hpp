@@ -90,6 +90,7 @@ namespace ORO_ControlKernel
                           Expects<NoCommand>,
                           Writes<NoSetPoint>, CommonBase> DefaultGenerator;
         typedef Estimator<Expects<NoInput>,
+                          Expects<NoOutput>,
                           Writes<NoModel>, CommonBase> DefaultEstimator;
         typedef Effector<Expects<NoInput>,
 			 Expects<NoModel>,

@@ -29,9 +29,15 @@
 #include "control_kernel/KernelInterfaces.hpp"
 #include "control_kernel/ComponentInterfaces.hpp"
 #include "control_kernel/ComponentStateInterface.hpp"
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY
+#include "control_kernel/KernelConfig.hpp"
+#endif
+
 #include "corelib/PropertyComposition.hpp"
 #include "corelib/CompletionProcessor.hpp"
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include "control_kernel/ExecutionExtension.hpp"
 #include "execution/TemplateFactories.hpp"
 #endif
 #include <corelib/Logger.hpp>
@@ -160,7 +166,7 @@ bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
     composeProperty(bag, startupGenerator);
     composeProperty(bag, startupController);
     composeProperty(bag, startupEffector);
-    bool flag=composeProperty(bag, frequency);
+    composeProperty(bag, frequency);
 
     Logger::log() << Logger::Info << "KernelBaseFunction Properties : " << Logger::nl
                   << frequency.getName()<<" : "<< frequency.get()<< Logger::nl
@@ -170,7 +176,7 @@ bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
                   << startupController.getName()<<" : "<< startupController.get()<< Logger::nl
                   << startupSensor.getName()<<" : "<< startupSensor.get()<< Logger::endl;
 
-    return flag;
+    return frequency > 0;
 }
 
 Event<void(void)>* KernelBaseFunction::eventGet(const std::string& name)
@@ -209,8 +215,45 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
     }
 }
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY
+bool KernelBaseFunction::loadProperties( const std::string& filename )
+{
+    if (kernel()->getTask() && kernel()->getTask()->isRunning() )
+        return false;
+
+    KernelConfig config( (*this->kernel()), filename);
+    return config.configure();
+}
+#endif
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+
+bool KernelBaseFunction::refreshProperties() {
+    if ( kernel()->getExtension<ExecutionExtension>() == 0 
+         ||
+         kernel()->getExtension<ExecutionExtension>()->getTaskContext()->attributeRepository.properties() == 0 
+         ||
+         (kernel()->getTask() && kernel()->getTask()->isRunning() ) )
+        return false;
+    std::vector<detail::ExtensionInterface*>::const_iterator it = kernel()->getExtensions().begin();
+    bool result = true;
+    while ( it != kernel()->getExtensions().end() )
+        {
+            result = (*it)->updateProperties( *(kernel()->getExtension<ExecutionExtension>()->getTaskContext()->attributeRepository.properties())) && result;
+            ++it;
+        }
+    return result;
+}
+
+bool KernelBaseFunction::exportProperties(AttributeRepository& bag)
+{
+    return bag.addConstant( frequency.getName(), frequency.get() ) &&
+        bag.addProperty( &startupSensor) &&
+        bag.addProperty( &startupEstimator) &&
+        bag.addProperty( &startupGenerator) &&
+        bag.addProperty( &startupController) &&
+        bag.addProperty( &startupEffector);
+}
 
 MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
 {
@@ -236,6 +279,14 @@ MethodFactoryInterface* KernelBaseFunction::createMethodFactory()
               method
               ( &KernelBaseFunction::stopComponent ,
                 "Stop a Component", "Name", "The name of the Component" ) );
+    ret->add( "loadProperties", 
+              method
+              ( &KernelBaseFunction::loadProperties ,
+                "Load the Kernel's and Extensions Properties. Only works if this Kernel is not running.", "Filename", "The kernelconfig.xml file." ) );
+    ret->add( "refreshProperties", 
+              method
+              ( &KernelBaseFunction::refreshProperties ,
+                "Instruct the Kernel and its Extensions to re-read their Properties and reconfigure if necessary.\n Use this if you manually changed the properties through the kernel's task attributes.  Only works if this Kernel is not running." ) );
     return ret;
 }
 

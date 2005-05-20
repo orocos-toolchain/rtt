@@ -124,8 +124,8 @@ namespace ORO_ControlKernel
                         continue;
                     }
 
-                    // read the file associated with each extension
-                    PropertyBase* res = extensionBag->get().find( (*it)->getName() );
+                    // read the file associated with each extension ( or nil )
+                    PropertyBase* res = extensionBag ? extensionBag->get().find( (*it)->getName() ) : 0;
                     Property<string>*  extFileName;
                     if ( res && (extFileName = dynamic_cast<Property<string>* >(res)) )
                         {
@@ -164,15 +164,15 @@ namespace ORO_ControlKernel
                         }
                     else {
                         Logger::log() <<Logger::Info
-                                      << "KernelConfig: Extension \'" << (*it)->getName() << Logger::nl 
+                                      << "KernelConfig: Extension \'" << (*it)->getName()
                                       << "\' is present in the Control Kernel, but not listed in the file \'"
-                                      << filename <<"\'."<<endl;
+                                      << filename <<"\'."<<Logger::endl;
                         PropertyBag emptyBag;
                         if ( (*it)->updateProperties(emptyBag) == false) {
                             Logger::log() <<Logger::Error
-                                          << "KernelConfig: Extension \'" << (*it)->getName() << Logger::nl 
+                                          << "KernelConfig: Extension \'" << (*it)->getName()
                                           << "\' did not accept empty properties. List its property file in \'"
-                                          << filename <<"\'."<<endl;
+                                          << filename <<"\'."<<Logger::endl;
                             return false;
                         }
                     }
@@ -182,13 +182,13 @@ namespace ORO_ControlKernel
             if ( kernel->updateKernelProperties( baseBag->value() ) == false ) {
                 Logger::log() <<Logger::Error
                               << "KernelConfig: User's updateKernelProperties returned false with properties from"
-                              << "\'" << filename <<"\'."<<endl;
+                              << "\'" << filename <<"\'."<<Logger::endl;
                 return false;
             }
         } catch (...)
             {
                 Logger::log() <<Logger::Error
-                              <<"KernelConfig: file "<<filename<<" not found !"<<endl;
+                              <<"KernelConfig: file "<<filename<<" not found !"<<Logger::endl;
                 return false;
             }
 

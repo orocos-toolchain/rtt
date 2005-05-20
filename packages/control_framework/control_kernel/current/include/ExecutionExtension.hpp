@@ -48,6 +48,7 @@ namespace ORO_Execution {
 namespace ORO_ControlKernel
 {
     using ORO_CoreLib::PropertyBag;
+    using ORO_Execution::AttributeRepository;
     using ORO_Execution::CommandFactoryInterface;
     using ORO_Execution::DataSourceFactoryInterface;
     using ORO_Execution::MethodFactoryInterface;
@@ -242,6 +243,8 @@ namespace ORO_ControlKernel
         bool continuousStateMachine(const std::string& name);
 
         virtual bool updateProperties( const PropertyBag& bag );
+
+        virtual bool exportProperties( AttributeRepository& bag );
 
         virtual CommandFactoryInterface* createCommandFactory();
 

@@ -21,7 +21,7 @@
 #define CONTROLKERNEL_HPP
 
 /**
- * @brief This is the main namespace of the control_kernel package. 
+ * @brief Extendable Framework for Realtime Feedback Control Applications
  *
  * It groups all classes that are meant for controlling 
  * a realtime (robot) system. It defines Kernels and Components.

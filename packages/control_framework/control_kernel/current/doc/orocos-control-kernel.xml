@@ -148,6 +148,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>load/unload/select functions renamed.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>May 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>New view on pattern for feedback control.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -317,7 +323,8 @@
       <tip>
 	<para>
 	We advise you to read first the &orocos; <ulink
-	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-corelib.html">CoreLib</ulink> 
+	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-manual.html">
+        RealTime Control Services </ulink> 
 	documentation before going on. That document explains Events,
 	Tasks versus Threads, NameServing, and many other basic
 	&orocos; functionalities, and this text assumes that the
@@ -841,7 +848,7 @@
 	    <para>
 	      <emphasis role="strong"> <link
 		  linkend="data-objects">DataObjects</link>
-	      </emphasis> contain the data that Data Flow Components exchange
+	      </emphasis> contain the data that Data Flow which Components exchange
 	      between each other. They are indicated by ovals in
 	      <xref linkend="fig-standard-control-kernel"/>.
 	    </para>
@@ -917,27 +924,62 @@
 	In addition, if there is only one Control Kernel, the arrows
 	between Components and DataObjects do not (have to) involve
 	copying of data: the serialization allows for <emphasis
-	  role="strong">lock-free, &ldquo;in-place&rdquo; data
+	  role="strong">lock-free or &ldquo;in-place&rdquo; data
 	  access</emphasis>.
       </para>
       <para>
-	Of course, the Standard Control Kernel
+	The Standard Control Kernel
 	<emphasis>can</emphasis> be distributed, by cutting through
 	one or more of the DataObjects. In that case, the
 	implementation of the cut DataObjects must take care of the
 	network-transparent copying of its content. The Data Object
-	Interface thus decouples Data Flows between Components.
+	Interface thus decouples Data Flows between Components. There
+	is currently no Data Object implementation which provides
+	this network transport, but no alteration to existing
+	Components will need to be made when it becomes available.
       </para>
 	<figure id="fig-standard-control-kernel"  pgwide="0">
 	  <title>
-	    The formal structure of a bare feedback control loop.
+	    The formal structure of an Input-Centric feedback control loop.
 	  </title>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="standard-control-kernel" />
+	      <imagedata fileref="InputCentric" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
+	<para>
+	  We have identified two common uses of the pattern for control. The
+	  most common one is the Input-Centric usage, where all Components
+	  read the Inputs gathered by a Sensor Component. No Estimator
+	  Component is present, and thus the 'Models' Data Object is empty
+	  and left out.
+	</para>
+	<figure id="fig-model-control-kernel"  pgwide="0">
+	  <title>
+	    The formal structure of a Model-Centric feedback control loop.
+	  </title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="ModelCentric" />
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+	<para>
+	  For more advanced control applications, an Estimator Component
+	  is added which creates Models of the system based on the Inputs
+	  of the Sensor and Outputs of the Controller. The other Components
+	  read the Models Data Object to take further control actions. Adding
+	  the Estimator Component introduces a cycle in the graph. Therefore,
+	  the Outputs which the Estimator reads, will always be the
+	  Output of the Controller during the previous control step.
+	</para>
+	<para>
+	  The Orocos Standard Control Kernel can blend these two types
+	  of control applications seamlessly, meaning that you may combine
+	  them as you see fit. For example, a Generator reading both Inputs
+	  and Models.
+	</para>
     </sect2>
     <sect2 id="creating-standard-control-kernel">
       <title>Creating a Standard Control Kernel</title>
@@ -1613,15 +1655,21 @@ public:
 	  instead of DataObjects. It must be looked after by the
 	  Application Builders that the Components match each other
 	  for writing and reading data, otherwise, a compile time
-	  error or runtime error will occur. The
-	  figure below illustrates the responsibilities for each
-	  Component in the framework.
+	  error or runtime error will occur.
 	</para>
 	<figure>
 	  <title>Data Flow Components Produce Data</title>
 	<mediaobject>
  	  <imageobject>
 	    <imagedata fileref="component_data_production" />
+	  </imageobject>
+	</mediaobject>
+	</figure>
+	<figure>
+	  <title>Data Flow Components Consume Data</title>
+	<mediaobject>
+ 	  <imageobject>
+	    <imagedata fileref="component_data_consumption" />
 	  </imageobject>
 	</mediaobject>
 	</figure>
@@ -1868,23 +1916,32 @@ public:
       </para>
     </sect2>
     <sect2 id="kernel-configuration">
-      <title>Control Kernel Configuration</title>
+      <title>Control Kernel XML Configuration</title>
       <para>
 	This section explains how to configure a Control Kernel and how to
 	access this information from within your program.
       </para>
+      <note>
+	<para>
+	  XML Configuration requires that the Property Marshalling package
+	  is enabled in you configuration.
+	</para>
+      </note>
       <sect3>
-	<title>The KernelConfigurator</title>
+	<title>Loading the Kernel Configuration</title>
 	<para>
 	  Control kernels (and components)  can be configured at
 	  runtime with an XML file in the CPF (Component Property File
 	  <citation>CCM</citation>) format, defined by the OMG group.
 	  This group defines the standards to be used within <ulink
 	    url="http://www.corba.org">CORBA</ulink>, but they are
-	  usable outside CORBA too. The
-	  <classname>KernelConfig</classname> is a class which can
-	  read a given XML file and configure a control kernel with
-	  that information. KernelConfig parses the file and passes
+	  usable outside CORBA too. The Control Kernel can
+	  read a given XML file and configure its properties with
+	  that information. 
+	</para>
+	<programlisting>myKernel.loadProperties("kernelconfig.xml");</programlisting>
+	<para>
+	  The Kernel parses the file and passes
 	  the result (a PropertyBag) to the
 	  <function>updateProperties(const PropertyBag &amp;
 	    bag)</function> method of the
@@ -1971,8 +2028,8 @@ public:
 	    <listitem>
 	      <para>
 		The third specifies the property file for each (possible)
-		extension. If the file is not found, an error is raised by
-		the KernelConfigurator. The XML format is further explained
+		extension. If the file is not found, an error is raised
+		. The XML format is further explained
 		in the Property Extension section. It is allowed to define
 		your own properties in this file and update them in the
 		<function>updateKernelProperties</function> method of a

@@ -26,12 +26,15 @@
  ***************************************************************************/
 #pragma implementation
 #include "control_kernel/PropertyExtension.hpp"
+#include <corelib/PropertyIntrospection.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Logger.hpp>
 #include <corelib/marshalling/CPFMarshaller.hpp>
 #include <corelib/marshalling/CPFDemarshaller.hpp>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <execution/TemplateFactories.hpp>
+#endif
 
 namespace ORO_ControlKernel
 {
@@ -97,6 +100,7 @@ namespace ORO_ControlKernel
 //         base->setTask( task );
 //     }
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 
     MethodFactoryInterface* PropertyExtension::createMethodFactory()
@@ -123,6 +127,16 @@ namespace ORO_ControlKernel
                     "Write Component Properties to disk.") );
         return ret;
     }
+
+    bool PropertyExtension::exportProperties( AttributeRepository& bag)
+    {
+        return bag.addProperty( &save_props ) &&
+            bag.addProperty( &saveFilePrefix) &&
+            bag.addProperty( &saveFileExtension) &&
+            bag.addProperty( &ignoreMissingFiles) &&
+            bag.addProperty( &configureOnLoad);
+    }
+#endif
 
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
@@ -160,8 +174,8 @@ namespace ORO_ControlKernel
             }
         else
             {
-                Logger::log() << Logger::Error << "PropertyExtension : sequence \"PropertyFiles\" not found !"<< Logger::endl;
-                return false;
+                Logger::log() << Logger::Warning << "PropertyExtension : sequence \"PropertyFiles\" not found !"<< Logger::endl;
+                return true;
             }
         return true;
     }

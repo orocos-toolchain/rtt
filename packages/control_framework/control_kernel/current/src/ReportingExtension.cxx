@@ -31,7 +31,9 @@
 #include "control_kernel/ReportingExtension.hpp"
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <execution/TemplateFactories.hpp>
+#endif
 
 namespace ORO_ControlKernel
 {
@@ -224,6 +226,11 @@ namespace ORO_ControlKernel
                         serverOwner = true;
                     }
             }
+        if ( serverOwner == false ) {
+            Logger::log() << Logger::Info << "ReportingExtension : "
+                          << "Re-using running ReportServer \""
+                          << reportServer <<"\". Properties for Reportin of this Kernel have no effect !"<< Logger::endl;
+        }
         // from here on, we got a pointer to 'reporter' being it our own or a remote server.
                 
         // iterate over all external exporters :
@@ -358,11 +365,58 @@ namespace ORO_ControlKernel
                         (*it)->reportNone();
                         reporter->exporterRemove( (*it)->getExporter() );
                     }
+                if ( serverOwner && reporter->nbOfExporters() == 0 ) // safe to cleanup
+                    {
+                        Logger::log() << Logger::Info << "ReportingExtension : "
+                                      << "No more clients present, cleaning up ReportServer \""
+                                      << reportServer <<"\"."<< Logger::endl;
+                        PropertyReporter<NoHeaderMarshallTableType>::nameserver.unregisterName( reportServer );
+                        PropertyReporter<MarshallTableType>::nameserver.unregisterName( reportServer );
+                        delete reporterTask;
+                        delete reporter;
+                        delete config;
+                        delete nh_config;
+                        delete splitStream;
+                        reporterTask = 0;
+                        reporter = 0;
+                        config = 0;
+                        nh_config = 0;
+                        splitStream = 0;
+#ifdef OROINT_OS_STDIOSTREAM
+                        if ( toFile )
+                            {
+                                delete fileStream;
+                                fileStream = 0;
+                            }
+#endif
+                        serverOwner = false;
+                    }
+                else
+                    Logger::log() << Logger::Info << "ReportingExtension : "
+                                  << "Other clients present in ReportServer \""
+                                  << reportServer <<"\". Not cleaning up."<< Logger::endl;
+
+
             }
         active_dos.clear();
     }
 
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
+
+    bool ReportingExtension::exportProperties(AttributeRepository& bag)
+    {
+        return bag.addProperty( &period) &&
+            bag.addProperty( &interval) &&
+            bag.addProperty( &repFile) &&
+            bag.addProperty( &reportServer) &&
+            bag.addProperty( &toStdOut) &&
+            bag.addProperty( &writeHeader) &&
+#ifdef OROINT_OS_STDIOSTREAM
+            bag.addProperty( &toFile) &&
+#endif
+            bag.addProperty( &autostart);
+    }
 
     MethodFactoryInterface* ReportingExtension::createMethodFactory()
     {
@@ -378,8 +432,29 @@ namespace ORO_ControlKernel
                   method
                   ( &ReportingExtension::stopReporting ,
                     "Stop reporting.") );
+        ret->add( "reportComponent",
+                  method
+                  ( &ReportingExtension::reportComponent ,
+                    "Add a Component for reporting. Only works if Component exists and Kernel is not running.",
+                    "Component", "Name of the Component") );
+        ret->add( "reportDataObject",
+                  method
+                  ( &ReportingExtension::reportDataObject ,
+                    "Add a DataObject for reporting. Only works if DataObject exists and Kernel is not running.",
+                    "DataObject", "Name of the DataObject. For example, 'Inputs' or 'Inputs::ChannelValues'.") );
+        ret->add( "unreportComponent",
+                  method
+                  ( &ReportingExtension::unreportComponent ,
+                    "Remove a Component for reporting. Only works if Component exists and Kernel is not running.",
+                    "Component", "Name of the Component") );
+        ret->add( "reportDataObject",
+                  method
+                  ( &ReportingExtension::unreportDataObject ,
+                    "Remove a DataObject for reporting. Only works if DataObject exists and Kernel is not running.",
+                    "DataObject", "Name of the DataObject. For example, 'Inputs' or 'Inputs::ChannelValues'.") );
         return ret;
     }
+#endif
 
     bool ReportingExtension::startReporting()
     {
@@ -449,6 +524,46 @@ namespace ORO_ControlKernel
         comp_map.erase( rep->getExporter()->getName() );
     }
 
+    bool ReportingExtension::reportComponent( const std::string& comp )
+    {
+        if ( comp_map.count( comp ) == 0 || (kernel()->getTask() && kernel()->getTask()->isRunning()) )
+            return false;
+        rep_comps.push_back( comp );
+        return true;
+    }
+
+    bool ReportingExtension::reportDataObject( const std::string& dob )
+    {
+        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+            return false;
+        rep_dos.push_back( dob );
+        return true;
+    }
+
+    bool ReportingExtension::unreportDataObject( const std::string& dob )
+    {
+        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+            return false;
+        RepList::iterator it = find( rep_dos.begin(), rep_dos.end(), dob );
+        if ( it != rep_dos.end() ) {
+            rep_dos.erase( it );
+            return true;
+        }
+        return false;
+    }
+
+    bool ReportingExtension::unreportComponent( const std::string& comp )
+    {
+        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+            return false;
+        RepList::iterator it = find( rep_comps.begin(), rep_comps.end(), comp );
+        if ( it != rep_comps.end() ) {
+            rep_comps.erase( it );
+            return true;
+        }
+        return false;
+    }
+
     bool ReportingExtension::updateProperties(const PropertyBag& bag)
     {
         composeProperty(bag, period);
@@ -472,16 +587,16 @@ namespace ORO_ControlKernel
                       << toFile.getName()<< " : " << toFile.get() << Logger::nl
                       << autostart.getName()<< " : " << autostart.get() << Logger::endl;
                 
-        // a bit harsh, yeah...
-        exporters.clear();
-        rep_comps.clear();
-        rep_dos.clear();
-                
         // Reporting exporters, look them up by name.
         PropertyBase* exportbase = bag.find("Exporters");
         Property<PropertyBag>* res;
         if ( exportbase && (res = dynamic_cast<Property<PropertyBag>* >(exportbase) ))
             {
+                // a bit harsh, yeah...
+                exporters.clear();
+                rep_comps.clear();
+                rep_dos.clear();
+                
                 PropertyBag::const_iterator it = res->value().getProperties().begin();
                 while ( it != res->value().getProperties().end() )
                     {

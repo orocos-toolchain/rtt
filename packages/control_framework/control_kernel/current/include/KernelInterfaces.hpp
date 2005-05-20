@@ -39,6 +39,7 @@
 #include "execution/CommandFactoryInterface.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/MethodFactoryInterface.hpp"
+#include "execution/AttributeRepository.hpp"
 #endif
 
 #pragma interface
@@ -84,6 +85,18 @@ namespace ORO_ControlKernel
         const ExtensionList& getExtensions() const
         {
             return extensions;
+        }
+
+        /**
+         * Get an Extension of type T
+         * @return a pointer to extension T or null if not present.
+         */
+        template<class T>
+        T* getExtension() const {
+            for ( ExtensionList::const_iterator ci = extensions.begin(); ci != extensions.end(); ++ci)
+                if ( dynamic_cast<T*>( *ci ) )
+                    return dynamic_cast<T*>( *ci );
+            return 0;
         }
 
         const std::string& getKernelName() const;
@@ -148,6 +161,11 @@ namespace ORO_ControlKernel
             virtual bool updateProperties( const PropertyBag& bag ) = 0;
         
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+            /**
+             * @brief Export the properties with configuration data.
+             */
+            virtual bool exportProperties( ORO_Execution::AttributeRepository& bag ) { return true; };
+        
             virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() { return 0; }
 
             virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory()  { return 0; }
@@ -246,8 +264,6 @@ namespace ORO_ControlKernel
          */
         void setPeriod( double p );
 
-        bool updateProperties(const PropertyBag& bag);
-
         /**
          * @brief Select a Component from the kernel.
          *
@@ -281,7 +297,25 @@ namespace ORO_ControlKernel
          */
         virtual bool isLoaded( const std::string& name ) const = 0;
 
+        bool updateProperties(const PropertyBag& bag);
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY
+        /**
+         * Load the Control Kernel and Extensions properties from
+         * a given kernelconfig.xml file \a filename.
+         */
+        bool loadProperties( const std::string& filename );
+#endif
+
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        /**
+         * Inform the Kernel and its Extensions to reread their
+         * properties and reconfigure if necessary.
+         */
+        bool refreshProperties();
+
+        bool exportProperties( ORO_Execution::AttributeRepository& bag );
+
         virtual ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory() ;
 
         virtual ORO_Execution::MethodFactoryInterface* createMethodFactory() ;

@@ -11,19 +11,10 @@ an open controller."
     requires OROPKG_CONTROL_FRAMEWORK
 
     compile KernelInterfaces.cxx ComponentInterfaces.cxx
-    compile ComponentConfigurator.cxx KernelConfig.cxx
     compile DataObjectReporting.cxx DataServer.cxx
     compile StandardControlKernel.cxx
 
-    cdl_option OROSEM_CONTROL_KERNEL_OLDKERNEL {
-	display "Enable backward old-style Kernel"
-	description "
-Enable if you want to use the old-style kernels by
-default. Some Orocos components will refuse to compile if this
-option is enabled."
-	default_value 0
-
-    }
+    requires OROPKG_CORELIB_PROPERTIES
 
     cdl_component OROPKG_CONTROL_KERNEL_EXTENSIONS {
 	display "Control Kernel Extensions"
@@ -45,13 +36,14 @@ this functionality."
 	    compile ReportingExtension.cxx
 	}
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY {
-	    display "Configure Components through properties"
+	    display "Configure Kernel and Components through properties"
 	    description "
 Configure Components using an XML property file. Configuration
 can happen at load time or runtime using the PropertyExtension."
 	    default_value 1
-	    active_if OROPKG_CORELIB_PROPERTIES
+	    active_if { OROPKG_CORELIB_PROPERTIES_MARSHALLING }
 	    compile PropertyExtension.cxx
+    	    compile ComponentConfigurator.cxx KernelConfig.cxx
 	}
 	cdl_option OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION {
 	    display "Program script parsing and execution"
@@ -62,7 +54,7 @@ with Components and execution of program scripts and processing
 of state machines in a running kernel. Implemented by the
 ExecutionExtension."
 	    default_value 1
-	    active_if OROPKG_EXECUTION_PROGRAM_PARSER && OROPKG_EXECUTION_PROGRAM_PROCESSOR
+	    active_if { OROPKG_EXECUTION_PROGRAM_PARSER && OROPKG_EXECUTION_PROGRAM_PROCESSOR }
 	    compile ExecutionExtension.cxx
 	}
     }
