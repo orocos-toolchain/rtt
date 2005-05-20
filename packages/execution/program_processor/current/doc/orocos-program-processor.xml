@@ -21,7 +21,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002, 2003, 2004</year>
+      <year>2002, 2003, 2004, 2005</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -272,7 +272,9 @@
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a Program in the Processor.
+	of a Program in the Processor. Alternatively, you can use the
+	<classname>ProgramLoader</classname> class as a user-friendly 
+	frontend for loading Programs and Functions.
       </para>
     </sect2>
     <sect2>
@@ -326,7 +328,9 @@
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a State Machine in the Processor.
+	of a State Machine in the Processor. Alternatively, you can use the
+	<classname>ProgramLoader</classname> class as a user-friendly 
+	frontend for loading State Machines.
       </para>
     </sect2>
   </sect1>
