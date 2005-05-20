@@ -263,10 +263,11 @@ $ ./taskintro
  (type 'ls' for context info) :<command>ls</command>
 
 PeriodicTask Attributes :
-   int Counter
-   std::string Parameter
-   double SpeedOfLight
-   int Target
+    (Attribute  ) int Counter
+    (Property   ) PropertyBag ItemCollection
+    (Property   ) std::string Parameter
+    (Attribute  ) double SpeedOfLight
+    (Attribute  ) int Target
 
 PeriodicTask Objects    :  this
 PeriodicTask Peers      :  FactoringTask ReactiveTask states
@@ -279,7 +280,7 @@ PeriodicTask Peers      :  FactoringTask ReactiveTask states
  (type 'ls' for context info) :ls
 
 FactoringTask Attributes :
-   int Priority
+    (Attribute  ) int Priority
 
 FactoringTask Objects    :  this
 FactoringTask Peers      :  PeriodicTask ReactiveTask
@@ -303,16 +304,17 @@ FactoringTask Peers      :  PeriodicTask ReactiveTask
  (type 'ls' for context info) :<command>ls</command>
 
 PeriodicTask Attributes :
-   int Counter
-   std::string Parameter
-   double SpeedOfLight
-   int Target
+    (Attribute  ) int Counter
+    (Property   ) PropertyBag ItemCollection
+    (Property   ) std::string Parameter
+    (Attribute  ) double SpeedOfLight
+    (Attribute  ) int Target
 
 PeriodicTask Objects    :  this
 PeriodicTask Peers      :  FactoringTask ReactiveTask states
     </screen>
     <para>
-      First you get a list of the Properties and Attributes (mixed) of
+      First you get a list of the Properties and Attributes (alphabetical) of
       the current TaskContext. Propeties can be written to disk, attributes
       are solely for script interaction. Each of them can be changed, except
       task constants. The current task has only one object: 'this'. The 'this'
@@ -332,6 +334,9 @@ PeriodicTask Peers      :  FactoringTask ReactiveTask states
    Target : Number to count to.
   DataSource : bool isRunning( )
    Is this GenericTaskContext started ?
+  Method     : bool assert( bool MustBeTrue )
+   Assert will get your program in the error state if the argument is false.
+   MustBeTrue : The result of a boolean expression which must be true.
   Method     : bool loadProgram( const&amp; std::string Filename )
    Load an Orocos Program Script from a file.
    Filename : An ops file.
@@ -448,10 +453,15 @@ counterMachine Peers      :  states
     <screen>
  In Task PeriodicTask. (Status of last Command : fail )
  (type 'ls' for context info) :
-Counter             SpeedOfLight        countTo             loadStateMachine    readProperties      unloadProgram
-FactoringTask.      Target              help                ls                  start               unloadStateMachine
-Parameter           cd                  isRunning           peers               states.             writeProperties
-ReactiveTask.       cd ..               loadProgram         quit                stop
+Counter             cd ..               readProperties
+FactoringTask.      countTo             start
+ItemCollection      help                states.
+Parameter           isRunning           stop
+ReactiveTask.       loadProgram         unloadProgram
+SpeedOfLight        loadStateMachine    unloadStateMachine
+Target              ls                  writeProperties
+assert              peers
+cd                  quit
  (type 'ls' for context info) : 
     </screen>
     <para>
@@ -650,7 +660,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	method from a script, one can then write :</para>
       <para>
 	<programlisting>
-  ATask.objname.changeP( 0.1 )	</programlisting></para>
+  do ATask.objname.changeP( 0.1 )	</programlisting></para>
       <para>
 	If the method should
 	belong to the task's interface without an object, the
@@ -659,7 +669,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	above factory, this would result in :</para>
       <para>
 	<programlisting>
-  ATask.changeP( 0.1 )  </programlisting></para>
+  do ATask.changeP( 0.1 )  </programlisting></para>
       <para>
 	Any number of methods and objects can be added to a
 	TaskContext. Also the methods of the TaskContext
@@ -693,16 +703,16 @@ ReactiveTask.       cd ..               loadProgram         quit                
       <title>Method Argument and Return Types</title>
       <para>
 	The arguments can be of any type. However, to be compatible with
-	the Orocos Program Parser, it is best to follow the following 
+	the Orocos Program Parser variables, it is best to follow the following 
 	guidelines :
 	<table id="method-args-table">
-	  <title>Method Return / Argument Types</title>
+	  <title>Method Return &amp; Argument Types</title>
 	  <tgroup cols="3">
 	    <thead>
 	      <row>
-		<entry>Type</entry>
-		<entry>Passed by</entry>
-		<entry>Compatible with Parser type</entry>
+		<entry>C++ Type</entry>
+		<entry>In C++ functions passed by</entry>
+		<entry>Maps to Parser variable type</entry>
 	      </row>
 	    </thead>
 	    <tbody>
@@ -717,9 +727,9 @@ ReactiveTask.       cd ..               loadProgram         quit                
 		<entry>string, array</entry>
 	      </row>
 	      <row>
-		<entry>Orocos Fixed Container types : ORO_CoreLib::Double6D, ORO_Geometry::[Frame|Rotation|Vector]</entry>
+		<entry>Orocos Fixed Container types : ORO_CoreLib::Double6D, ORO_Geometry::[Frame | Rotation | Twist | ... ]</entry>
 		<entry><emphasis>value</emphasis> (no const, no reference )</entry>
-		<entry>double6d, frame, rotation, vector</entry>
+		<entry>double6d, frame, rotation, twist, ...</entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
@@ -741,14 +751,16 @@ ReactiveTask.       cd ..               loadProgram         quit                
       </para>
   </sect2>
   <sect2 id="task-attr-rep">
-      <title>The Attribute Repository</title>
-      <para>
-	A TaskContext may have any number of attributes,
-	of any type. They can be used by programs in the
-	TaskContext to get (and set) configuration data.
-	The repository allows to store any C++ value type and
-	also knows how to handle Property objects.
-      </para>
+    <title>The Attribute Repository</title>
+    <para>
+      A TaskContext may have any number of attributes,
+      of any type. They can be used by programs in the
+      TaskContext to get (and set) configuration data.
+      The repository allows to store any C++ value type and
+      also knows how to handle Property objects.
+    </para>
+    <sect3>
+      <title>Adding Task Attributes</title>
       <para>
 	An attribute can be added in the task's
 	<classname>AttributeRepository</classname> like this :</para>
@@ -758,37 +770,18 @@ ReactiveTask.       cd ..               loadProgram         quit                
   a_task.attributeRepository.addAttribute( "max",   int(5) );
       
   Property&lt;std::string&gt; param("Param","Param Description","Value");
-  a_task.attributeRepository.addProperty( &amp;param );</programlisting></para>
+  a_task.attributeRepository.addProperty( &amp;param );
+
+  // Put param also in a PropertyBag :
+  Property&lt;PropertyBag&gt; bagprop("Collection","Collection Description");
+  bagprop.get().add( &amp;param );
+  a_task.attributeRepository.addProperty( &amp;bagprop );</programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
 	value of false and 5 to the task's repository. Adding a Property
-	is also straightforward.
+	is also straightforward. The same property is also added in a bag which
+	can also be added to the repository.
 	The methods return false if an attribute with that name already exists.
-      </para>
-      <important>
-	<para>The attributeRepository, and all other factories of a TaskContext
-	take ownership of the registered or added objects. You are not
-	allowed to delete them. Properties are an exception to this rule,
-	they remain owned by you and you may only delete them after a removeProperty().</para>
-      </important>
-      <para>
-	To get a value from the repository,
-	you can use :</para>
-      <para>
-	<programlisting>
-  TaskAttribute&lt;bool&gt;* attrb 
-       = a_task.attributeRepository.getAttribute&lt;bool&gt;( "max" );
-
-  bool result = attrb->get();
-  assert( result == false );
-
-  TaskAttribute&lt;std::string&gt;* attrs 
-       = a_task.attributeRepository.getAttribute&lt;std::string&gt;( "Param" );
-
-  assert( attrs.get() == "Value" );</programlisting></para>
-      <para>
-	Attributes get usefull to access them from a program
-	script, which is explained lateron.
       </para>
       <para>
 	You can also add constants, which can then no longer be
@@ -799,15 +792,45 @@ ReactiveTask.       cd ..               loadProgram         quit                
       <para>
 	You should again be careful for duplicate entries.
       </para>
+      <important>
+	<para>The attributeRepository, and all other factories of a TaskContext
+	take ownership of the registered or added objects. You are not
+	allowed to delete them. Properties are an exception to this rule,
+	they remain owned by you and you may only delete them after a removeProperty().</para>
+      </important>
+    </sect3>
+    <sect3>
+      <title>Accessing Task Attributes in C++</title>
+      <para>
+	To get a value from the repository,
+      you can use :</para>
+      <para>
+	<programlisting>
+  TaskAttribute&lt;bool&gt;* attrb 
+       = a_task.attributeRepository.getAttribute&lt;bool&gt;( "aflag" );
+
+  bool result = attrb->get();
+  assert( result == false );
+
+  TaskAttribute&lt;std::string&gt;* attrs 
+       = a_task.attributeRepository.getAttribute&lt;std::string&gt;( "Param" );
+
+  assert( attrs.get() == "Value" );</programlisting></para>
+    </sect3>
+    <sect3>
+      <title>Accessing Task Attributes in Scripts</title>
       <para>
 	A program script can access the above attributes as in</para>
       <para>
 	<programlisting>  // a program in "ATask" does :
   var double pi2 = task.pi * 2.
   var int    myMax = 3
-  set task.max = myMax	
+  set task.max = myMax
 
-  // an external (peer task) program does :
+  // Both assignments below change the same Property !
+  set task.Param = "B Value"
+  set task.Collection.Param = "C Value"</programlisting>
+	<programlisting>  // an external (peer task) program does :
   var double pi2 = ATask.pi * 2.
   var int    myMax = 3
   set ATask.max = myMax	</programlisting></para>
@@ -825,12 +848,17 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  the attribute types, when you want to access them from program scripts.
 	</para>
       </important>
+    </sect3>
+    <sect3>
+      <title>Storing and Loading Task Properties</title>
       <para>
 	See <xref linkend="task-property-config" /> for storing and loading
-	Property objects to and from files.
+	the Properties in a AttributeRepository to and from files, in order
+	to save a TaskContext's state.
       </para>
-    </sect2>
-    <sect2>
+    </sect3>
+  </sect2>
+  <sect2>
       <title>The Command Factory</title>
       <para>
 	The next factory we discuss is the Command Factory,
@@ -943,7 +971,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
       </important>
     </sect2>
     <sect2>
-      <title>The DataSource Factory</title>
+      <title>The DataSource Factories</title>
       <para>
 	DataSources are read-only objects which, when evaluated,
 	return some data. The source of the data can be anything,
@@ -952,11 +980,13 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	expressions. The only way they differ from Methods, is
 	that the corresponding C++ function must be const.
       </para>
-      <para>
-	To add a method to the DataSource Factory, one can use
-	the <classname>TemplateDataSourceFactory</classname>,
+      <sect3>
+	<title>The Template DataSource Factory</title>
+	<para>
+	  To add a method to the DataSource Factory, one can use
+	  the <classname>TemplateDataSourceFactory</classname>,
 	to easily create DataSource factories :</para>
-      <para>
+	<para>
 	<programlisting>
   #include &lt;execution/TemplateFactories.hpp&gt;
 
@@ -986,29 +1016,65 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
   a_task.dataFactory.registerObject("objname", fact);	</programlisting></para>
-      <para>
-	which is dus nearly identical to using a method.
-	Notice the usage of the _number class member. The
-	factory also accepts class member variables instead
-	of const functions, but likewise, they are also
-	read-only.
-      </para>
-      <important>
-	<para>The dataFactory, and all other factories of a TaskContext
-	take ownership of the registered or added objects. You are not
-	allowed to delete them.</para>
-      </important>
-      <para>
-	In scripting, the braces are optional when no arguments must be
-	given :</para>
-      <para>
-	<programlisting>
-  var int nb = objname.number
-  var double result = objname.power( 5., 6.)</programlisting></para>
-      <para>
-	Again, the &quot;this&quot; object can be used if the 
-	DataSource should belong to the task's interface.
-      </para>
+        <para>
+	  which is dus nearly identical to using a method.
+	  Notice the usage of the _number class member. The
+	  factory also accepts class member variables instead
+	  of const functions, but likewise, they are also
+	  read-only.
+	</para>
+	<important>
+	  <para>The dataFactory, and all other factories of a TaskContext
+	  take ownership of the registered or added objects. You are not
+	  allowed to delete them.</para>
+	</important>
+      </sect3>
+      <sect3>
+	<title>The Map DataSource Factory</title>
+	<para>
+	  If your application has set up DataSources itself (for example,
+	  using CoreLib DataObjects ), the <classname>MapDataSourceFactory</classname>
+	  can be used to add them to you TaskContext's DataSource interface.
+	  For example, continued from the program listing of the previous
+	  section :
+	</para>
+	<programlisting> DataObjectInterface&lt;MyDataType&gt;* myData 
+     = new DataObjectLockFree&lt;MyDataType&gt;("MyData");
+
+  MapDataSourceFactory::Map storemap;
+  storemap["NewData_1"] = myData;
+  // store other DataSources...
+
+  // finally :
+  MapDataSourceFactory* mdf 
+     = new MapDataSourceFactory( storemap, "Thread-safe DataObjects");
+
+  a_task.dataFactory.registerObject("dataobjs", mdf);
+	</programlisting>
+	<para>
+	  Which uses the thread-safe DataObjectLockFree (which
+	  implements DataSource) to exchange data between
+	  TaskContexts. You must use DataObjectLockFree to exchange
+	  any composite type between threads.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Accessing DataSources from Scripts</title>
+	<para>
+	  In scripting, the braces are optional when no arguments must be
+	  given. An external task might read the DataSources of "ATask" as such:
+	</para>
+	<para>
+	  <programlisting>
+  var int nb = ATask.objname.number
+  var double result = ATask.objname.power( 5., 6.)
+
+  task.newData = ATask.dataobjs.NewData_1</programlisting></para>
+        <para>
+	  Again, the &quot;this&quot; object can be used if the 
+	  DataSource should belong to the task's interface.
+	</para>
+      </sect3>
     </sect2>
     <sect2>
       <title>Creating Commands Without the Factories</title>
@@ -1135,7 +1201,8 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	 Where 'configure' reads the file and configures updates the task's properties
 	 and 'save' <emphasis>updates</emphasis> the given file with the properties
 	 of the task. It is allowed to share a single file with multiple tasks or
-	 update the task's properties from multiple files.
+	 update the task's properties from multiple files. The <classname>GenericTaskContext</classname>
+	 has implemented this functionality also as script methods.
        </para>
     </sect2>
     <sect2>
@@ -1162,7 +1229,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  The &parseman; defines functions as :</para>
 	<para>
 	  <programlisting>
-  export function myFoo( int arg1, double arg2 )
+  export function myFun( int arg1, double arg2 )
   {
     // Group commands and methods
     var ...
@@ -1174,7 +1241,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  where the optional export keyword makes the function
 	  available as a task's command ( which will fail
 	  if one of its contained commands fail ) :
-	  <programlisting>  do ATask.myFun( 1, 2)</programlisting>
+	  <programlisting>  do ATask.myFun( 1, 2. )</programlisting>
 	  If you omit the export keyword, then the function will not
 	  become available as a command. To use such a function, you need to 
 	  execute it in the Processor ( see below ), or call it in a program,
@@ -1227,12 +1294,12 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  A program script calling the previous function
 	  would look like :</para>
 	<para>
-	  <programlisting> [ ... insert here the myFun() function ... ]
+	  <programlisting> [ ... myFun() function definition ... ]
 
   program myBar
   {
     var int i = 1
-    var int j = 2
+    var double j = 2.0
     do myFun(i,j)
   }</programlisting>
 	  As with functions, any number of programs may be listed in a file.
@@ -1265,6 +1332,13 @@ ReactiveTask.       cd ..               loadProgram         quit                
   programs.foo.isRunning()
   programs.foo.inError()
   programs.foo.isPaused()
+	</screen>
+	<para>You can also inspect and change the variables of a loaded program,
+	but as in any application, this should only be done
+	for debugging purposes.</para>
+	<screen>
+  set programs.foo.i = 3
+  var double oldj = programs.foo.j
 	</screen>
 	<para>
 	  Take a look at the &procman; and the Processor
@@ -1306,6 +1380,14 @@ ReactiveTask.       cd ..               loadProgram         quit                
   do states.machine.stop()
   do states.machine.deactivate()
   do states.machine.reset()
+  do states.machine.requestMode()
+  do states.machine.requestState("StateName")
+  ...
+	</screen>
+	<para>As with programs, you can inspect and change the
+	variables of a loaded StateMachine.</para>
+	<screen>
+  set programs.machine.myParam = ...
 	</screen>
 	<para>
 	  Again, take a look at the &procman; and the Processor
@@ -1521,7 +1603,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  A State Machine can be used such that it waits for state
 	  change requests instead of discovering itself to which 
 	  state it makes a transition. This requires the State Machine to run in
-	  another mode, the requestState mode ( as opposed to the steppingState mode,
+	  another mode, the requestState mode ( as opposed to the automatic mode,
 	  which is entered by start() ). 
 	</para>
 	<programlisting>
@@ -1575,7 +1657,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	   call requestState on the current state :
 	 </para>
 	<programlisting>
-  export function progress() {
+  export function handleState() {
        // request to handle current state :
        do this.states.x.requestState( this.states.x.getState() )
     }  </programlisting>
@@ -1584,7 +1666,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	   none) and then wait again for requests, use 'step()' :
 	 </para>
 	<programlisting>
-  export function progress() {
+  export function evaluate() {
        // request go to the next state and wait :
        do this.states.x.step()
     }  </programlisting>
@@ -1801,7 +1883,7 @@ ReactiveTask.       cd ..               loadProgram         quit                
 	  <listitem>
 	    <para>If any error occurs (ie a command or method returns false),
 	    the program stops and other programs or state contexts can
-	    take apropriate action.</para>
+	    detect this and take apropriate action.</para>
 	  </listitem>
 	  <listitem>
 	    <para>The  "<function>device.updateData()</function>" call waits
