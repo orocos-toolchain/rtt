@@ -14,6 +14,9 @@ task programs."
 
     requires OROPKG_EXECUTION
     requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
+    requires OROPKG_CORELIB
+    requires OROPKG_CORELIB_PROPERTIES
+    requires OROPKG_CORELIB_COMMANDS
 
     compile TaskContext.cxx
     compile AttributeRepository.cxx TaskAttribute.cxx 

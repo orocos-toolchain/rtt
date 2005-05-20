@@ -62,6 +62,8 @@ namespace ORO_Execution
     for ( map_t::iterator i = values.begin(); i != values.end(); ++i )
       delete i->second;
     values.clear();
+    delete bag;
+    bag = 0;
   }
 
   bool AttributeRepository::setValue( const std::string& name,

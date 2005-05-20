@@ -222,8 +222,8 @@ namespace ORO_Execution
     ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
       {
           if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
-              replacements[ data.get() ] = instds;
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
+              replacements[ this->data.get() ] = instds;
               return new ParsedConstant( instds );
           }
         return new ParsedConstant<T>( this->data->copy( replacements ) );

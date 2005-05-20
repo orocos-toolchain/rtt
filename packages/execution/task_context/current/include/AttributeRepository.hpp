@@ -32,6 +32,8 @@
 #include <memory>
 #include <map>
 #include "TaskAttribute.hpp"
+#include <corelib/Property.hpp>
+#include <corelib/PropertyBag.hpp>
 
 namespace ORO_Execution
 {
@@ -102,6 +104,7 @@ namespace ORO_Execution
          * Add an ORO_CoreLib::Property<T> as an attribute, which then
          * becomes also available as a TaskAttribute<T>. The value of the Property
          * and the TaskAttribute will always be identical.
+         * @return false if an attribute with the same name already exists.
          * @see getAttribute, removeProperty
          */
         template<class T>
@@ -119,6 +122,7 @@ namespace ORO_Execution
 
         /**
          * Remove a previously added Property and associated attribute.
+         * @return false if no such property by that name exists.
          */
         bool removeProperty( ORO_CoreLib::PropertyBase* p );
 

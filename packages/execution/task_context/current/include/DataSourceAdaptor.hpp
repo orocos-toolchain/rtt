@@ -84,14 +84,15 @@ namespace ORO_Execution
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
                 return n;
             }
-            assert( dynamic_cast< DataSourceAdaptor<From,To>* >( i->second ) );
+            typedef DataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) );
             return static_cast< DataSourceAdaptor<From,To>* >( i->second );
         }
     };
@@ -111,9 +112,9 @@ namespace ORO_Execution
         DataSourceAdaptor( DataSource<From>* orig)
             : orig_(orig) {}
 
-        From copy;
+        From copy_;
 
-        virtual To get() { copy = orig_->get(); return copy; }
+        virtual To get() { copy_ = orig_->get(); return copy_; }
 
         virtual void reset() { orig_->reset(); }
 
@@ -123,14 +124,15 @@ namespace ORO_Execution
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
                 alreadyCloned[this] = n;
                 return n;
             }
-            //assert( dynamic_cast< DataSourceAdaptor<From,To>* >( i->second ) );
+            typedef DataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) );
             return static_cast< DataSourceAdaptor<From,To>* >( i->second );
         }
 

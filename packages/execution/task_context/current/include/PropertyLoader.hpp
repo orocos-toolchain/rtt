@@ -35,10 +35,12 @@
 namespace ORO_Execution
 {
     /**
-     * This class loads and saves property files
+     * Load and save property files
      * to a TaskContext's AttributeRepository.
      * The default file format is 'cpf' from the
-     * ORO_CoreLib::CPFMarshaller class.
+     * ORO_CoreLib::CPFMarshaller class. You can select
+     * another file format using the configuration tool
+     * in CoreLib->Properties->Marshalling->Default.
      */
     class PropertyLoader
     {

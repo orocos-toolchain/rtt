@@ -28,8 +28,9 @@
  
 
 #include "execution/PropertyLoader.hpp"
-#include <corelib/marshalling/CPFDemarshaller.hpp>
-#include <corelib/marshalling/CPFMarshaller.hpp>
+#include <pkgconf/corelib_properties_marshalling.h>
+#include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
+#include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #include "corelib/Logger.hpp"
 
 using namespace std;
@@ -47,7 +48,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
     bool failure = false;
     try
     {
-        CPFDemarshaller demarshaller(filename);
+        OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller(filename);
         PropertyBag propbag;
         vector<CommandInterface*> assignComs;
 
@@ -122,7 +123,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
             ifile.close();
             Logger::log() << Logger::Info << "PropertyLoader: "<< target->getName()<<" updating of file "<< filename << Logger::endl;
             // The demarshaller itself will open the file.
-            CPFDemarshaller demarshaller( filename );
+            OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
             if ( demarshaller.deserialize( allProps ) == false ) {
                 // Parse error, abort writing of this file.
                 Logger::log() << Logger::Error << "PropertyLoader: While updating "<< target->getName() <<" : Failed to read "<< filename << Logger::endl;
@@ -143,7 +144,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     std::ofstream file( filename.c_str() );
     if ( file )
         {
-            CPFMarshaller<std::ostream> marshaller( file );
+            OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
             marshaller.serialize( allProps );
             Logger::log() << Logger::Info << "PropertyLoader: Wrote "<< filename <<Logger::endl;
         }

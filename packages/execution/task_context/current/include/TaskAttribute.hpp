@@ -29,7 +29,6 @@
 #ifndef ORO_TASKATTRIBUTE_HPP
 #define ORO_TASKATTRIBUTE_HPP
 
-#include <corelib/Property.hpp>
 #include <corelib/CommandInterface.hpp>
 
 #include "DataSource.hpp"
@@ -38,9 +37,12 @@
 namespace ORO_Execution
 {
   using ORO_CoreLib::CommandInterface;
-  using ORO_CoreLib::Property;
-  using ORO_CoreLib::PropertyBase;
 
+    /**
+     * This exception is thrown if the target and source type
+     * of an assignment of a TaskAttributeBase with a DataSourceBase
+     * differ.
+     */
   struct bad_assignment
   {
   };
@@ -76,8 +78,8 @@ namespace ORO_Execution
     /**
      * return a command assigning rhs to the DataSource you're
      * holding..  The default implementation returns 0, indicating
-     * this DataSource cannot be assigned to..  Throw a
-     * bad_assignment if rhs is of the wrong type..
+     * this DataSource cannot be assigned to.
+     * @throw bad_assignment if rhs is of the wrong type.
      *
      * If initialization is true, then this is the initialization of
      * the value.  E.g. ConstantValue needs to know this because it
@@ -86,15 +88,15 @@ namespace ORO_Execution
      */
     virtual CommandInterface* assignCommand( DataSourceBase* rhs,
                                              bool initialization ) const;
-
       /**
        * Create an assignment command of the TaskAttributeBase
        * to the rhs DataSource, with an index.
        * example is the left hand side [] operator. Returns zero if
        * not applicable. It can not be used for initialisation.
+       * @throw bad_assignment if rhs is of the wrong type.
        */
     virtual CommandInterface* assignIndexCommand( DataSourceBase* index,
-                                             DataSourceBase* rhs ) const;
+                                                  DataSourceBase* rhs ) const;
   };
 
     namespace detail

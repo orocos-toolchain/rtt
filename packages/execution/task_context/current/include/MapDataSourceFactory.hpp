@@ -44,10 +44,9 @@ namespace ORO_Execution
     class MapDataSourceFactory
         : public DataSourceFactoryInterface
     {
-        typedef std::map<std::string, DataSourceBase::shared_ptr> map_t;
-        map_t mmap;
-        std::string descr;
     public:
+        typedef std::map<std::string, DataSourceBase::shared_ptr> map_t;
+        typedef map_t Map;
         /**
          * Create a DataSourceFactory which creates DataSources 
          * according to the \a map.
@@ -63,6 +62,9 @@ namespace ORO_Execution
         DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
         std::string getDescription( const std::string& source ) const;
         std::string getResultType( const std::string& source ) const;
+    private:
+        map_t mmap;
+        std::string descr;
     };
 
  
