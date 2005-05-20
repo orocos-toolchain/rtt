@@ -3,7 +3,7 @@ cdl_package OROPKG_DEVICE_DRIVERS {
     description "
 This package groups home made C and C++ device drivers
 for a variety of hardware. Examples are : CANOpen
-bus drivers, Comedi and AddiData cards. They all
+bus drivers, parallel port, Comedi and AddiData cards. They all
 implement interfaces from the Device Interface package."
 
     include_dir device_drivers

@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the device_drivers package.
+ * @brief Logical and Physical device drivers.
  *
  * It is meant to group all packages which provide implementations to the 
  * hardware abstraction APIs, defined by the device_interface package.
@@ -36,8 +36,10 @@
  * Most Device Drivers have defined their own namespace again.
  * @see CAN
  * @see Beckhoff
+ * @see ORO_DeviceInterface
  *
  * The device drivers are documented in <a href="../../orocos-device-drivers.html">
  * The Orocos Device Drivers Online Manual</a>
  */
 namespace ORO_DeviceDriver {}
+
