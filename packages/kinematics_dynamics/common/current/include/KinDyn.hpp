@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the kinematics_dynamics package.
+ * @brief Stateful and Stateless Kinematics for 6DOF effectors.
  *
  * It is meant to group all packages which provide kinematic and 
  * dynamic algorithms. The algorithms are state-less and need all

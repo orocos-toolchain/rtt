@@ -30,7 +30,7 @@
 #define SIGNAL_PROCESSING_HPP
 
 /**
- * @brief This is the main namespace of the signal_processing package. 
+ * @brief Signal Generators.
  *
  * It groups all classes that are meant for signal generation and processing.
  * A signal is represented by a double, and signals are proccessed in a
