@@ -454,7 +454,6 @@ INPUT                  = corelib \
                          kinematics_dynamics \
                          math \
                          os/common \
-                         os/gnulinux \
                          signal_processing \
                          system_control \
                          Orocos.Main.hpp

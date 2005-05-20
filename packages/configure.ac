@@ -44,7 +44,7 @@ DETECT_READLINE
 DETECT_RTAI
 
 AC_CONFIG_FILES([ 
-  Doxyfile Makefile
+  Makefile
   $PACKAGES ])
 
 
