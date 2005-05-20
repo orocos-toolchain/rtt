@@ -26,12 +26,12 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the corelib package.
+ * @brief Buffers, DataObjects, Commands, NameServing, Tasks, Events, Timing, Properties
  *
  * It is meant to group all packages which provide OS independent
- * core functionality in a realtime system. Examples are Events,
- * Tasks, Buffers, State Machines, Timing Infrastructure
- * and common utility classes.
+ * core functionality in a realtime system. Frequently used classes are Event,
+ * PeriodicTask, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
+ * PropertyBag.
  *
  * The corelib is documented in <a href="../../orocos-corelib.html">
  * The Orocos CoreLib Online Manual</a>
