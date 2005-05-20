@@ -35,7 +35,9 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLUniDefs.hpp>
+#include <xercesc/framework/LocalFileInputSource.hpp>
 #include <iostream>
+#include <fstream>
 //#include <rtstl/rtstreams.hpp>
 #include <sstream>
 #include <vector>
@@ -45,6 +47,7 @@
 #include <corelib/Property.hpp>
 #include "StreamProcessor.hpp"
 #include <corelib/Marshaller.hpp>
+#include <istream>
 
 namespace ORO_CoreLib
 {
@@ -200,14 +203,37 @@ namespace ORO_CoreLib
     };
 
 
-    template <typename input_stream>
-    class XMLRPCDemarshaller : public Demarshaller, public StreamProcessor<input_stream>
+    /**
+     * A Demarshaller for the XMLRPC Protocol.
+     * Similar to the CPFDemarshaller, but less well tested.
+     */
+    class XMLRPCDemarshaller
+        : public Demarshaller
     {
-        public:
-            XMLRPCDemarshaller( input_stream &is ) :
-                    StreamProcessor<input_stream>( is )
-            {}
+        typedef unsigned short XMLCh;
 
+        XMLCh* name;
+        InputSource* fis;
+
+    public:
+        
+        /**
+         * Read Properties from a local file.
+         */
+        XMLRPCDemarshaller( const std::string filename ) : name(0), fis(0)
+        {
+            XMLPlatformUtils::Initialize();
+            name =  XMLString::transcode( filename.c_str() );
+            fis  = new LocalFileInputSource( name );
+            delete[] name;
+        }
+
+        ~XMLRPCDemarshaller()
+        {
+            delete fis;
+            XMLPlatformUtils::Terminate();
+        }
+    
             virtual bool deserialize( PropertyBag &v )
             {
                 try
@@ -239,14 +265,14 @@ namespace ORO_CoreLib
                     //  parser->setFeature( XMLUni::fgXercesSchema, false );
 
                     //parser->parse( xmlFile );
-                    parser->parse( *(this->s) );
+                    parser->parse( *fis );
                     errorCount = parser->getErrorCount();
                 }
                 catch ( const XMLException & toCatch )
                 {
                     cerr << "\nAn XML parsing error occurred\n  Error: " << endl;
                     XMLPlatformUtils::Terminate();
-                    return 4;
+                    return false;
                 }
                 catch ( ... )
                 {

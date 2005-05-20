@@ -49,11 +49,10 @@ namespace ORO_CoreLib
 #ifdef XERCES_CPP_NAMESPACE
         typedef XERCES_CPP_NAMESPACE::InputSource InputSource;
 #endif
-        typedef unsigned short XMLCh;
+        //typedef unsigned short XMLCh;
         XMLCh* name;
         InputSource* fis;
-
-        public:
+    public:
         CPFDemarshaller( const std::string& filename );
         ~CPFDemarshaller();
         virtual bool deserialize( PropertyBag &v );

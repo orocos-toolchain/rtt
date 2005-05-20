@@ -30,20 +30,20 @@
 
 #include <corelib/Property.hpp>
 #include <corelib/Marshaller.hpp>
+#include <istream>
 
 
 namespace ORO_CoreLib
 {
-    using namespace std;
-
 	/**
 	 * A demarshaller which parses data compatible with the previous Orocos property system.
 	 * @bug Not working yet :-)
 	 */
-	template<typename input_stream>
     class Orocos1Demarshaller : public Demarshaller
     {
         public:
+        typedef std::istream input_stream;
+
             Orocos1Demarshaller(input_stream &is) :
                     _is(is)
             {}
@@ -53,13 +53,13 @@ namespace ORO_CoreLib
             
             virtual bool deserialize(PropertyBag &v) 
 			{
-				string token;
+				std::string token;
 		    	_is >> token;
 
 #if 0
-				cerr <<"sdf:"<<endl;
+				std::cerr <<"sdf:"std::<<endl;
                 for (
-                    vector<PropertyBase*>::iterator i = v._properties.begin();
+                    std::vector<PropertyBase*>::iterator i = v._properties.begin();
                     i != v._properties.end();
                     i++ )
                 {

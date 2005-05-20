@@ -32,6 +32,7 @@
 
 #include <vector>
 #include <map>
+#include <istream>
 
 namespace ORO_CoreLib
 {
@@ -41,7 +42,6 @@ namespace ORO_CoreLib
 	 *
 	 * @see SimpleMarshaller
 	 */
-template<typename input_stream>
     class SimpleDemarshaller : public Demarshaller
     {
         static const char TYPECODE_BOOL = 'B';
@@ -51,6 +51,8 @@ template<typename input_stream>
 		static const char TYPECODE_STRING = 'S';
 
 public:
+        typedef std::istream input_stream;
+
             SimpleDemarshaller(input_stream &is) :
                     _is(is)
             {}

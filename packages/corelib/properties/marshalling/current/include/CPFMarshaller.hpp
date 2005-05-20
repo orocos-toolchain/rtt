@@ -52,7 +52,7 @@ namespace ORO_CoreLib
         template<class T>
         void doWrite( const Property<T> &v, const std::string& type )
         { 
-            *(this->s) << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+            *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
             if ( !v.getDescription().empty() )
                 *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
             *(this->s) << "<value>" << v.get() << "</value></simple>\n";
@@ -63,17 +63,18 @@ namespace ORO_CoreLib
          */
         void doWrite( const Property<std::string> &v, const std::string& type )
         { 
-            *(this->s) << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+            *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
             if ( !v.getDescription().empty() )
                 *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
             *(this->s) << "<value>" << this->escape( v.get() ) << "</value></simple>\n";
         }
+        std::string indent;
     public:
         /**
          * Construct a CPFMarshaller.
          */
         CPFMarshaller(output_stream &os) :
-            StreamProcessor<output_stream>(os)
+            StreamProcessor<output_stream>(os), indent("  ")
         {
         }
         
@@ -120,7 +121,7 @@ namespace ORO_CoreLib
                 {
                     (*i)->identify(this);
                 }
-            *(this->s) << "\n</properties>\n";
+            *(this->s) << "</properties>\n";
         }
 
         std::string escape(std::string s)
@@ -151,9 +152,10 @@ namespace ORO_CoreLib
         virtual void serialize(const Property<PropertyBag> &b) 
         {
             PropertyBag v = b.get();
-            *(this->s) <<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n";
+            *(this->s) <<indent<<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n";
+            indent +="   ";
             if ( !b.getDescription().empty() )
-                *(this->s) <<"<description>"  <<escape(b.getDescription()) << "</description>\n";
+                *(this->s) <<indent<<"<description>"  <<escape(b.getDescription()) << "</description>\n";
             for (
                  PropertyBag::const_iterator i = v.getProperties().begin();
                  i != v.getProperties().end();
@@ -161,7 +163,8 @@ namespace ORO_CoreLib
                 {
                     (*i)->identify(this);
                 }
-            *(this->s) <<"</struct>\n";
+            indent = indent.substr(0, indent.length()-3); 
+            *(this->s) <<indent<<"</struct>\n";
         }
 
         virtual void introspect(const Property<bool> &v) 

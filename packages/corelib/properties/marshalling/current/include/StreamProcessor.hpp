@@ -48,6 +48,14 @@ namespace ORO_CoreLib
         {}
         
         /**
+         * Create a StreamProcessor.
+         * @param _s The stream to be processed.
+         */
+        StreamProcessor( Stream* _s )
+            :s(_s)
+        {}
+        
+        /**
          * Set a new Stream.
          * @param _s The stream to be processed.
          */

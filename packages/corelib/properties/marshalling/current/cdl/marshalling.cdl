@@ -9,8 +9,80 @@ tables (for logging)."
 
     parent OROPKG_CORELIB_PROPERTIES
     requires OROPKG_CORELIB_PROPERTIES
-    requires OROPKG_SUPPORT_XERCESC
 
+    cdl_interface OROINT_CORELIB_PROPERTIES_MARSHALLING_FORMAT {
+	requires { OROINT_CORELIB_PROPERTIES_MARSHALLING_FORMAT == 1 }
+    }
+
+    cdl_component OROPKG_CORELIB_PROPERTIES_MARSHALLING_DEFAULT {
+	display "Defaul Marshalling Format"
+	description "Select the default format which will be
+used to read and write property files."
+	
+	flavor none
+	no_define
+
+	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_CPF {
+	    display "Component Property Format (XML)"
+	    description "
+This Property format is standardised by the Object Management Group
+(OMG) and is uses also in Corba 3 Components. It is quite readable
+and powerful. It is very well tested within Orocos."
+	    requires OROPKG_SUPPORT_XERCESC
+	    implements OROINT_CORELIB_PROPERTIES_MARSHALLING_FORMAT
+	    default_value 1
+
+	    define_proc { 
+		puts $::cdl_header "/***** proc output start *****/"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/CPFMarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER CPFMarshaller"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/CPFDemarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER CPFDemarshaller"
+		puts $::cdl_header "/****** proc output end ******/"
+	    }
+
+	}
+
+	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_XMLRPC {
+	    display "XMLRPC Fromat (XML)"
+	    description "
+This Property format is used by the XML-RPC protocol to marshall data.
+It only supports Properties of type 'int', 'char', 'string', 'double'
+and 'bool'. No composite types ( 'structs' ) are possible.
+It is not well tested within Orocos."
+	    requires OROPKG_SUPPORT_XERCESC
+	    implements OROINT_CORELIB_PROPERTIES_MARSHALLING_FORMAT
+	    default_value 0
+	    define_proc { 
+		puts $::cdl_header "/***** proc output start *****/"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/XMLRPCMarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER XMLRPCMarshaller"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/XMLRPCDemarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER XMLRPCDemarshaller"
+		puts $::cdl_header "/****** proc output end ******/"
+	    }
+	}
+
+	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_SIMPLE {
+	    display "Simple & Compact Fromat"
+	    description "
+This minimal format can serialise some common types in binary form.
+It only supports Properties of type 'int', 'char', 'string', 'double'
+and 'bool'. No composite types ( 'structs' ) are possible.
+It is not well tested within Orocos."
+	    implements OROINT_CORELIB_PROPERTIES_MARSHALLING_FORMAT
+	    default_value 0
+	    define_proc { 
+		puts $::cdl_header "/***** proc output start *****/"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/SimpleMarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER SimpleMarshaller"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/SimpleDemarshaller.hpp>"
+		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER SimpleDemarshaller"
+		puts $::cdl_header "/****** proc output end ******/"
+	    }
+	}
+
+    }
     include_dir corelib/marshalling
 
     include_files CPFDemarshaller.hpp  INIMarshaller.hpp       Orocos1Demarshaller.hpp  SimpleDemarshaller.hpp  TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp

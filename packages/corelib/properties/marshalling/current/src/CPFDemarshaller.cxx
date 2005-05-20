@@ -292,7 +292,7 @@ namespace ORO_CoreLib
     };
 
     CPFDemarshaller::CPFDemarshaller( const std::string& filename )
-        : name(0)
+        : name(0), fis(0)
     {
         XMLPlatformUtils::Initialize();
         name =  XMLString::transcode( filename.c_str() );
