@@ -20,4 +20,40 @@ detection of the packages configure script"
     requires OROPKG_DEVICE_INTERFACE_ENCODER
     
     compile ComediDevice.cxx ComediEncoder.cxx
+
+    cdl_component OROOPT_DEVICE_DRIVERS_COMEDI_THREAD_SCOPE {
+	display "Use Comedi driver as Thread Scope"
+	description "
+When enabled, each Orocos thread will set a bit of this device
+high or low to indicate its running status. The bit to thread
+mapping is logged in the CoreLib Logger."
+	flavor bool
+	implements OROINT_DEVICE_INTERFACE_THREAD_SCOPE
+
+	cdl_option ORODAT_DEVICE_DRIVERS_COMEDI_THREAD_SCOPE_MINOR {
+	        display "Thread Scope Comedi device minor"
+		description "
+The minor device number which you want to use for the scope.
+To use /dev/comedi0 , enter 0."
+		flavor data
+        	default_value 0
+	}
+
+	cdl_option ORODAT_DEVICE_DRIVERS_COMEDI_THREAD_SCOPE_SUBDEVICE {
+	        display "Thread Scope Comedi subdevice"
+		description "
+The comedi subdevice which you want to use for the scope. It
+must be a digital output subdevice."
+		flavor data
+        	default_value 0
+	}
+
+	define_proc { 
+	puts $::cdl_system_header "/***** proc output start *****/"
+	puts $::cdl_system_header "#define ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE <comedi/ComediThreadScope.hpp>"
+	puts $::cdl_system_header "#define OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER ComediThreadScope"
+	puts $::cdl_system_header "/****** proc output end ******/"
+	}
+    }
+
 }
