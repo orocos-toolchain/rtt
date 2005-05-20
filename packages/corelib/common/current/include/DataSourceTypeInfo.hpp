@@ -37,6 +37,7 @@ namespace ORO_CoreLib
 {
     template<unsigned int S, class T>
     class MultiVector;
+    class PropertyBag;
 }
 
 namespace ORO_Geometry
@@ -153,6 +154,13 @@ namespace ORO_CoreLib
 
         template<>
         struct DataSourceTypeInfo<char> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<PropertyBag> {
             static const std::string type;
             static const std::string& getType()  { return type; }
             static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }

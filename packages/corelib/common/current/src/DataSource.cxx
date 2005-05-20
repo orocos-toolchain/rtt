@@ -46,6 +46,7 @@ namespace ORO_CoreLib
         const std::string DataSourceTypeInfo<unsigned int>::type("unsigned int");
         const std::string DataSourceTypeInfo<double>::type("double");
         const std::string DataSourceTypeInfo<char>::type("char");
+        const std::string DataSourceTypeInfo<PropertyBag>::type("PropertyBag");
         const std::string DataSourceTypeInfo<ORO_CoreLib::MultiVector<6,double> >::type("Double6D");
         const std::string DataSourceTypeInfo<std::string>::type("std::string");
         const std::string DataSourceTypeInfo<std::vector<double> >::type("std::vector<double> (array)");
