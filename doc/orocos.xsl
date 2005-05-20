@@ -22,7 +22,9 @@
 
 <!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
-  <xsl:param name="admon.graphics.path" select="'http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/images/'"/>
+<!-- assume this xsl sheet is read from a build/doc dir. Otherwise, uncomment online url below -->
+  <xsl:param name="admon.graphics.path" select="'../../doc/images/'"/>
+<!--  <xsl:param name="admon.graphics.path" select="'http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/images/'"/>-->
   <xsl:param name="admon.graphics.extension" select="'.jpg'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>

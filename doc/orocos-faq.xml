@@ -410,13 +410,16 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para><command>make check</command> crashes my system. What did I
+	  <para><command>make check</command> crashes my (RTAI) system. What did I
 	  do wrong ?</para>
 	</question>
 	<answer>
 	  <para>
 	    The Orocos testcases test the system to its limits and may
-	    crash RTAI if not properly configured. Especially RTAI 3.0 and older.
+	    crash RTAI if not properly configured. Especially RTAI 3.0
+	    and older.  Also, verify that the RTAI/LXRT (aka
+	    'userspace') test programs work before blaming Orocos. Choosing
+	    a different compiler ( GCC 3.3 ) mostly solves that problem.
 	  </para>
 	</answer>
       </qandaentry>
@@ -439,15 +442,40 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Don't you have a shorter document than the 150 pages manual ?</para>
+	  <para>Is Orocos Portable ?</para>
 	</question>
 	<answer>
-	  <para>We have, but it tells completely different things.</para>
+	  <para>The minimum requirements for running Orocos on a
+	  different target are for the CPU : floating point unit (FPU)
+	  or FPU emulation (will degrade performance),
+	  compare-and-swap instruction ( CAS, cmpxch ), and is
+	  targetted at 32 bit processors. The target Operating System
+	  (OS) must support the GNU C/C++ compiler with the Standard
+	  Template Library, periodic threads, semaphores and recursive
+	  mutexes.</para>
+	  <para>
+	    Orocos has a very thin wrapper around the above OS functions in the 'OS'
+	    package, this is the only place of Orocos you need to port, where the
+	    'gnulinux' package is a good starting point if you intend to port to a
+	    Posix compliant OS. See also
+	    <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/latest/orocos-os.html">The OS Manual</ulink>.
+	  </para>
 	</answer>
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>What is the overhead of all this C++, can it be Realtime ?</para>
+	  <para>What future ports are most likely ?</para>
+	</question>
+	<answer>
+	  <para>The eCos Operating System (and all its supported processors)
+	  and the ACE library (and all its supported OS's).
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>What is the overhead of all this C++, can it be
+	  Realtime ?</para>
 	</question>
 	<answer>
 	  <para>

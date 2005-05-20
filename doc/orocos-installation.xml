@@ -206,9 +206,7 @@
 	  If this does not work for you, you can try the ready-to-use tools
 	  in tools/bin after the archive is unpacked. In that case, you'll have to point
 	  your path to :
-	  <screen>
-  export PATH=$PATH:(...)/orocos-&oversion;/tools/bin
-	  </screen>
+	  <screen>  export PATH=$PATH:(...)/orocos-&oversion;/tools/bin  </screen>
 	  In order to use them.  The
 	  <command>orocos-install.tcl</command> script
 	  will provide a shell script which sets this path for you.
@@ -254,17 +252,14 @@
 	    orocos-install.tcl</ulink> script, <emphasis>this is recommended</emphasis>.
 	</para>
 	<para>Save the script to your local drive and then do :</para>
-	<screen><command>
-  $ tclsh orocos-install.tcl</command></screen>
-
+	<screen><command>  $ tclsh orocos-install.tcl</command></screen>
 	<para>
 	  and follow the instructions. Watch for errors or warnings carefully !
 	</para>
 	<para>
 	  After the script finishes, make sure you followed the closing instructions to source
 	  the <command>orocosenv.sh</command> script :
-	  <screen><command>
-  source orocosenv.sh
+	  <screen><command>  source orocosenv.sh
   mkdir orocos-&oversion;/build 
   cd orocos-&oversion;/build
   ../configure --with-&lt;target&gt;
@@ -272,6 +267,7 @@
   make configure_packages
   make all</command> </screen>
 	  Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
+	  ( currently 'gnulinux' or 'lxrt' )
 	  <command>make configure_packages</command>
 	  will pop up a graphical configuration
 	  tool which allows you to add or remove packages from your configuration.
@@ -287,8 +283,7 @@
 	<para>
 	  For convenience, Orocos can also be used as a regular configure/make 
 	  system. It is thus allowed to :
-	  <screen> <command>
-  mkdir orocos-&oversion;/build 
+	  <screen> <command>  mkdir orocos-&oversion;/build 
   cd orocos-&oversion;/build
   ../configure --with-&lt;target&gt;
   make all
@@ -362,21 +357,15 @@
 	<orderedlist>
 	  <listitem><para>Download orocos-&oversion;.i386linux package from the Orocos webpage</para></listitem>
 	  <listitem><para>Extract it using :
-	      <screen><command>
-  tar -xvzf orocos-&oversion;.i386linux.tar.bz2
-		</command></screen>
+	      <screen><command>  tar -xvzf orocos-&oversion;.i386linux.tar.bz2	</command></screen>
 	    </para></listitem>
 	  <listitem><para>Setup the base environment : 
-	      <screen>
-		<command>
-  cd orocos-&oversion;
+	      <screen><command>  cd orocos-&oversion;
   EXPORT PATH=$PATH:$(pwd)/tools/bin
   EXPORT ECOS_REPOSITORY=$(pwd)/packages
   mkdir build
   cd build
-  ../configure
-		</command>
-	      </screen>
+  ../configure	</command> </screen>
 	    </para></listitem>
 	</orderedlist>
 	<para>
@@ -427,8 +416,9 @@
 	  technical support.
 	</para>
 	<para>
-	  The <command>make docs</command> or
-	  <command>doxygen</command> (in packages) commands build API documentation.
+	  The <command>make docs</command> and
+	  <command>make doxy-dist</command> (both in 'build') commands build 
+	  manuals and API documentation.
 	</para>
       </sect3>
     </sect2>
@@ -440,8 +430,7 @@
 	The
 	default directory is <filename>/usr/local/orocos</filename>, but 
 	can be changed with the <option>--with-prefix</option> option :
-	<screen>
-  ../configure --with-prefix=/opt/other/</screen></para>
+	<screen>  ../configure --with-prefix=/opt/other/</screen></para>
       <para>
 	If you choose not to install Orocos, you can find the build's result
 	in the <filename>build/packages/install/[lib/include]</filename> directory.
@@ -612,9 +601,7 @@
 	  classes, the Orocos configure script must first
 	  detect a valid installation. This can be done
 	  by providing two flags :
-	  <screen>
-../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib
-	  </screen>
+	  <screen>  ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib  </screen>
 	  If both are found, the Comedi support package will
 	  be generated, and you will be able to add the
 	  Orocos Comedi Device Driver to your configuration.
@@ -871,10 +858,18 @@
 	  but some care must be taken in initialising the realtime
 	  environment. First of all, you need to provide a function
 	  <function>int ORO_main(int argc, char** argv)
-	    {...}</function> which contains your program. If you link
-	  with the install/lib/libtarget.a library, this function will
-	  be called after the basic environment is set up. To put in
-	  other words, the libtarget.a library already contains a
+	    {...}</function>, defined in &lt;os/main.h&gt; which contains your program :
+	    <programlisting>  #include &lt;os/main.h&gt;
+	      
+  int ORO_main(int argc, char** argv)
+  {
+     // Your code, do not use 'exit()', use 'return' to 
+     // allow Orocos to cleanup system resources.
+  } </programlisting>
+          If you link
+	  with the liborocos-&lt;target&gt;.a library, this function will
+	  be called after the run-time environment is set up. To put in
+	  other words, the Orocos library already contains a
 	  main() function which will call the user-defined ORO_main()
 	  function.
 	</para>
@@ -883,12 +878,11 @@
 	  <para>
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
-	    <programlisting> 
-CXXFLAGS=-O2 -I/usr/local/orocos/include
-LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis>.a -lstdc++ -lpthreads -lboost-signals 
-all: myprogram.cpp
-      gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram 
-	    </programlisting>
+	    <programlisting>  CXXFLAGS=-O2 -I/usr/local/orocos/include
+  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis>.a -lstdc++ -lpthreads -lboost-signals -lreadline -lncurses
+
+  all: myprogram.cpp
+        gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
 	    As you can see, your application does not have to be
 	    inside the packages directory at all. Applications can
 	    be developped fully out of the Orocos (build) directory.
@@ -1062,10 +1056,8 @@ all: myprogram.cpp
 	    <listitem>
 	      <para>Add all detected support packages. The make target
 		new_packages does this by running :
-		<screen><command>
-for i in $(find $ECOS_REPOSITORY/support -name "*.cdl"); do \
-ecosconfig add support_$(basename $i .cdl); done
-		  </command></screen>
+		<screen><command>  for i in $(find $ECOS_REPOSITORY/support -name "*.cdl"); do \
+  ecosconfig add support_$(basename $i .cdl); done </command></screen>
 		They will all be added to the orocos.ecc file.
 		Fortunately, you can also add the support (or any other) packages
 		in the graphical configtool menu->Build->Packages.
@@ -1121,10 +1113,8 @@ ecosconfig add support_$(basename $i .cdl); done
       <para>
 	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
 	Package Tree from the Subversion tree.
-	<screen width="60">
-svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
-cd orocos-trunk
-	</screen>
+	<screen width="60">  svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
+  cd orocos-trunk </screen>
 	So, make sure you have
 	the Subversion program installed, i.e., the command "svn" works on your
 	 system.
@@ -1136,13 +1126,11 @@ cd orocos-trunk
 	<ulink url="http://www.gnu.org/software/autoconf/">autconf</ulink>
 	version 2.54 or later. You can check your
 	versions with the <parameter>--version</parameter> option:
-	<screen>
-$ automake --version
-automake (GNU automake) 1.7.3
- ...
-$ autoconf --version
-autoconf (GNU Autoconf) 2.54
-	</screen>
+	<screen>  $ automake --version
+  automake (GNU automake) 1.7.3
+   ...
+  $ autoconf --version
+  autoconf (GNU Autoconf) 2.54	</screen>
 	<note>
 	  <para> You need these programs if you intend to modify the makefiles</para>
 	</note>
@@ -1150,9 +1138,7 @@ autoconf (GNU Autoconf) 2.54
 	  ./autogen.sh </command> command in the base directory
 	, in order to initialize the <filename>autoconf</filename> 
 	and <filename>automake</filename> files:
-	<screen>
-./autogen.sh
-	</screen>
+	<screen>  ./autogen.sh</screen>
 	The configure script will detect the installed software on your
 	system and generate the appropriate scripts.
       </para>

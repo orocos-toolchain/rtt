@@ -21,7 +21,7 @@
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between Orocos 0.18.2 and
+    This document provides a quick overview of what changed between Orocos 0.18.0 and
     Orocos 0.20.0. Hence, this release includes all bugfixes of the 0.18.x
     branch. If your application does not work, look here for
     possible causes and solutions. Also feature additions and improvements
@@ -36,28 +36,33 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  Some heavily deprecated header files have been removed or otherwise renamed.
-	  The chance anyone was using them ( due to compile errors ) remains rather small though.
+	  API Change : Some heavily deprecated header files have been
+	  removed or otherwise renamed.  The chance anyone was using
+	  them ( due to compile errors ) remains rather small though.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  A number of classes have been moved from their namespace to a sub-namespace 'detail'.
-	  Most users should not be worried about this, since they were for internal use only.
-	  You can check the API documentation to see which classes haved moved to this namespace.
+	  API Change : A number of classes have been moved from their
+	  namespace to a sub-namespace 'detail'.  Most users should
+	  not be worried about this, since they were for internal use
+	  only.  You can check the API documentation to see which
+	  classes haved moved to this namespace.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The HeartBeatGenerator has been renamed to the TimeService
-	  (also its header file). Also, the
-	  <emphasis>ticksGet()</emphasis> and <emphasis>secondsGet()</emphasis> functions are deprecated and renamed to
-	  <emphasis>getTicks()</emphasis> and <emphasis>getSeconds()</emphasis>, for consistency.
+	  API Change : The HeartBeatGenerator has been renamed to the
+	  TimeService (also its header file). Also, the
+	  <emphasis>ticksGet()</emphasis> and
+	  <emphasis>secondsGet()</emphasis> functions are deprecated
+	  and renamed to <emphasis>getTicks()</emphasis> and
+	  <emphasis>getSeconds()</emphasis>, for consistency.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The PeriodicThread's <function>periodGet</function> and
+	  API Change : The PeriodicThread's <function>periodGet</function> and
 	  <function>periodSet</function> have been renamed to
 	  <function>getPeriod</function> and
 	  <function>setPeriod</function>.
@@ -65,9 +70,29 @@
       </listitem>
       <listitem>
 	<para>
-	  The SingleThread's <function>step()</function> function has been renamed to <function>loop()</function>.
-	  Also, the RunnableInterface::loop() function has been added to allow implementation of a blocking ( non periodic )
+	  API Change : The SingleThread's <function>step()</function>
+	  function has been renamed to <function>loop()</function>.
+	  Also, the RunnableInterface::loop() function has been added
+	  to allow implementation of a blocking ( non periodic )
 	  alternative to RunnableInterface::step().
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  API Change : SingleThread and PeriodicThread have been
+	  refactored to have a common 'ThreadInterface', which allows
+	  any Task (or RunnableInterface) in the Corelib to get
+	  information about the thread it is running in.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  API Change : The Property 'decomposition' of the vector&lt;double&gt; Property
+	  has been changed. The 'dim' Property changed name to 'Size' and the 'dxy' 
+	  Property changed to the string representation of the number ( as in '1234' ).
+	  The container limit of 100 elements has been lifted. You'll need to adapt 
+	  any XML files that contain this Property structure. The error logging will
+	  inform you about the places that need adaptation.
 	</para>
       </listitem>
     </itemizedlist>
@@ -77,7 +102,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
+	    API Change : The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
 	    in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
 	    Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reached <emphasis>and</emphasis>
 	    this command is not immediately done ( its completion condition returns <emphasis>false</emphasis> ). The next periodic step will
@@ -88,7 +113,7 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The execution semantics of State Contexts (<classname>StateContext</classname>) has been changed drastically.
+	    API Change : The execution semantics of State Contexts (<classname>StateContext</classname>) has been changed drastically.
 	    State transitions no longer need to happen atomically. The entry, handle and exit programs are executed with
 	    exactly the same semantics as the Orocos Programs above, which mean they may 'take time'.
 	    To reflect this change, the StateContext has been
@@ -101,7 +126,8 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Commands, Methods and DataSources must take all their arguments <emphasis>by value</emphasis> and return by value. Except for
+	    API Change : Commands, Methods and DataSources must take
+	    all their arguments <emphasis>by value</emphasis> and return by value. Except for
 	    the types <classname> std::string</classname> and <classname>std::vector&lt;double&gt;</classname>.
 	    Thus :
 	    <programlisting> // Commands,Methods, DataSources :
@@ -119,7 +145,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Methods for Component loading, starting, stopping, selecting etc in the ControlKernel have all been
+	    API Change : Methods for Component loading, starting, stopping, selecting etc in the ControlKernel have all been
 	    generalised to <methodname>loadComponent</methodname>, <methodname>startComponent</methodname>,
 	    <methodname>selectComponent</methodname> etc. instead of <methodname>selectGenerator</methodname> for
 	    example.
@@ -127,25 +153,25 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Every occurence of the word Aspect (such as in <classname>MakeAspect</classname> ) has been renamed
+	    API Change : Every occurence of the word Aspect (such as in <classname>MakeAspect</classname> ) has been renamed
 	    to Facet, using the correct terminology ( ie a Facet is an Interface of a Component ).
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Component ports (Model, Input,...) are now accessed as member pointers, instead of subclasses.
+	    API Change : Component ports (Model, Input,...) are now accessed as member pointers, instead of subclasses.
 	    To access a DataObject through a port, use : Model->dObj()->Get() instead of Model::dObj()->Get().
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The BufferedControlKernel has been renamed to LockFreeControlKernel. The StandardControlKernel's
+	    API Change : The BufferedControlKernel has been renamed to LockFreeControlKernel. The StandardControlKernel's
 	    Command DataObject is now of the LockFree type ( no components or applications need to be adapted ).
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The Control Kernel Components install in the 'control_kernel' directory instead of the 
+	    API Change : The Control Kernel Components install in the 'control_kernel' directory instead of the 
 	    'kernel_components' directory previously.
 	  </para>
 	</listitem>
@@ -191,9 +217,27 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    It is now possible to give your processor architecture in the configuration tool.
+	    Compilation flags can be better tweaked in the configuration tool.
+	    It is possible to give your processor architecture and if you want to
+	    optimize for speed or for debugging.
 	    A very sane default has been set, so only change if necessarily. Orocos applications
 	    are recommended to build with the same flags.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Thread monitoring through a digital output device has been added.
+	    An implementation for the parallel port and for comedi devices
+	    has been provided and can be selected in the configuration tool. Your
+	    application can easily access this port through the nameserver as
+	    "ThreadScope".
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The configuration tool allows to tweak compilation flags in
+	    more detail. For example, to optimize for execution time or
+	    for debugging.
 	  </para>
 	</listitem>
     </itemizedlist>
@@ -243,24 +287,34 @@
       </listitem>
       <listitem>
 	<para>
-	  A Logging section has been added to the CoreLib Manual. Small updates
-	  in the ControlKernel Manual wrt ReportingExtension and PropertyExtension.
+	  CoreLib : A Logging section has been added.  DataObject
+	  documentation has been moved to the CoreLib Manual.  A
+	  Priority Inversions section was added. The Property section
+	  has been extended with more examples and text. Events have
+	  been reviewed for correctness and we added figures. The TaskNonPeriodic
+	  documentation was added.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  DataObject documentation has been moved to the CoreLib Manual.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A Priority Inversions section was added to the Corelib Manual.
+	  Control Kernel : Small updates
+	  in the Control Kernel Manual wrt ReportingExtension and PropertyExtension.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  The main Orocos manuals are split in two big parts, the Realtime Control
 	  Services Manual and the Robot Control Software Manual.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  API : The Doxygen documentation can be easier build in your local Orocos
+	  build directory with 'make doxy-dist'. The class reference shows the
+	  correct include directive for a header file. The front-page was updated
+	  and the namespaces list shows a more meaningful overview. By moving tons
+	  of classes to the detail namespace, the namespace overview is more readable.
+	  Overall class and member comments have been added.
 	</para>
       </listitem>
     </itemizedlist>
@@ -330,6 +384,14 @@
       </listitem>
       <listitem>
 	<para>
+	  Periodic tasks can use a private Event Processor to handle task specific 
+	  asynchronous events. This instance will not handle asynchronous events if
+	  the periodic task is not running, in contrast with the thread-specific event
+	  processor which handles defered callbacks as long as the thread is running.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
 	  The time conversion algorithms in Orocos have had a code review and extra test suite
 	  to validate and guarantee time keeping and conversion correctness.
 	</para>
@@ -341,6 +403,12 @@
 	  with the Oroocos parser infrastructure.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The Property package is more configurable in the configuration tool.
+	  It allows you for example to select the default Property Marshaller.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="control">
@@ -348,11 +416,13 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The Reporting extension has been extended with a start() and a 
-	  stop() script method which can trigger reporting from your program
-	  scripts. ( <command>do Reporter.start()</command> or
-	  <command>do Reporter.stop()</command> ). Also some reporting bugs
-	  were fixed and implemented more efficiently.
+	  The Reporting extension has been extended with a start() and
+	  a stop() script method which can trigger reporting from your
+	  program scripts. ( <command>do Reporter.start()</command> or
+	  <command>do Reporter.stop()</command> ). Script methods to
+	  control what is reported were added too ( can only be
+	  changed when the Kernel is not running.) Also some reporting
+	  bugs were fixed and implemented more efficiently.
 	</para>
       </listitem>
       <listitem>
@@ -376,14 +446,17 @@
       <listitem>
 	<para>
           The Effector component now reads from Inputs, Models and
-          Outputs ( only Outputs previously ).
+          Outputs ( only Outputs previously ), while the Estimator component
+	  now also reads the Outputs of the previous control action.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  To reduce compilation times, a <methodname>preloadComponent</methodname>
 	  method has been made available to load Components in separate implementation
-	  files, which is very usefull if Component and Kernel do not change.
+	  files, which is usefull if Component and Kernel do not change. It remains
+	  recommended to compile Components in completely separate files in your
+	  application such that the main program file does not take forever to compile.
 	</para>
       </listitem>
       <listitem>
@@ -391,6 +464,15 @@
 	  The Control Kernel exports its DataObjects
 	  (Inputs,SetPoints,...) as DataSources to the Program Parsers
 	  and TaskBrowser.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Control Kernel (and its Extensions) export its Properties
+	  as Attributes in the Kernel's TaskContext. A Kernel.refreshProperties()
+	  script method has been added to force a reread of the current values of the Kernel's
+	  Properties. A Kernel.reloadProperties( filename ) script method has been
+	  added to instruct the reading of a kernel config XML file.
 	</para>
       </listitem>
     </itemizedlist>
@@ -503,8 +585,8 @@
       <listitem>
 	<para>
 	  KernelClient version 0.5 has split of the Control Kernel server
-	  to the orocos control_framework package. KernelClient now
-	  builds completely independent of an Orocos installation 
+	  to the orocos control_framework package. Corba based KernelClient now
+	  builds completely independently of an Orocos installation 
 	  directory.
 	</para>
       </listitem>
