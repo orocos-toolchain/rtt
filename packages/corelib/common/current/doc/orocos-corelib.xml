@@ -179,15 +179,15 @@ of the &orocos; framework.
     <sect2>
       <title>Periodic Tasks Run in Periodic Threads</title>
       <para>
-	For most basic control applications, a high priority periodic thread
-	and a low priority periodic thread are enough. The high priority thread is
+	A basic control application needs for example, a high priority periodic thread
+	and a low priority periodic thread. The high priority thread is
 	used for all periodic tasks that need to be executed atomically. No
-	action in this thread will ever be pre-empted. The low
+	action in this thread will ever be preempted by another thread. The low
 	priority realtime thread is used for all periodic tasks which may be
-	interrupted but still have hard deadlines. It can always be
+	preempted but still have hard deadlines. It can always be
 	preempted by the high priority thread. There is also a non
-	realtime periodic thread which gives no deadline guarantees. 
-	Orocos provides implementations for these three threads 
+	realtime (periodic) thread which gives no deadline guarantees. 
+	For convenience, Orocos provides implementations for these three types of threads 
 	( which only differ in periodicity and priority ) and allows
 	to extend to more for your specific needs.
       </para>
@@ -201,8 +201,14 @@ of the &orocos; framework.
 	has a lower priority and the <classname>NonRealTimeThread</classname>
 	has an even lower priority is not realtime at all (but still periodic).
 	If they are needed, Orocos will create and start/stop them automatically,
-	thus the user does not need to know or take care of them.
+	thus the user does not need to know or take care of them. 
       </para>
+      <important>
+	<para>
+	  You must configure the priority and periodicity of these three threads
+	  in the configtool program.
+	</para>
+      </important>
       <para>
 	For users needing to solve multi-threaded control problems, the
 	PriorityThread is provided with which you
@@ -245,7 +251,7 @@ ORO_main( int argc, char** argv)
   // 9 : The priority.
   // 0.01 : The period.
   // You have to manually start the thread.
-  PriorityThread<9>::Instance()->periodSet( 0.01 );
+  PriorityThread<9>::Instance()->setPeriod( 0.01 );
   PriorityThread<9>::Instance()->start();
   // Optional :
   PriorityThread<9>::Instance()->makeHardRealtime();
@@ -283,6 +289,11 @@ ORO_main( int argc, char** argv)
 	      </row>
 	    </thead>
 	    <tbody>
+	      <row>
+		<entry>TimerThread</entry>
+		<entry>PeriodicTask</entry>
+		<!-- one of (entrytbl entry) -->
+	      </row>
 	      <row>
 		<entry>ZeroTimeThread</entry>
 		<entry>TaskNonPreemptible</entry>
@@ -330,7 +341,7 @@ ORO_main( int argc, char** argv)
     // ...
     bool initialize() {
        // your init stuff
-       double myperiod = this->getTask()->periodGet();
+       double myperiod = this->getTask()->getPeriod();
        // ...
        return true; // if all went well
     }
@@ -370,7 +381,7 @@ ORO_main( int argc, char** argv)
 
     bool initialize() {
        // your init stuff
-       double myperiod = this->periodGet();
+       double myperiod = this->getPeriod();
        // ...
        return true; // if all went well
     }
@@ -475,7 +486,7 @@ ORO_main( int argc, char** argv)
 	The high priority thread is the
 	<classname>ZeroTimeThread</classname>. It will execute all
 	<classname>TaskNonPreemptible</classname> Tasks
-	synchronically. You can create your own not preemtable task by
+	synchronically. You can create your own not preemptable task by
 	inheriting from this class. Its name is derived from the fact
 	that some tasks need to be executed in an infinite small
 	amount of time to work correctly. Control loops are an example
@@ -570,7 +581,7 @@ ORO_main( int argc, char** argv)
 	</para>
       </warning>
     </sect2>
-    <sect2>
+    <sect2 id="task-non-periodic">
       <title>Non Periodic Tasks Run in Their Own Thread</title>
       <para>
 	Non periodic ( if blocking ) tasks can only run in <emphasis>non periodic</emphasis> threads, or 
@@ -789,6 +800,22 @@ ORO_main( int argc, char** argv)
 	</tgroup>
       </table>
     </sect2>
+    <sect2>
+      <title>Collecting Thread Information from Tasks</title>
+      <para>
+	Each Orocos Task (periodic, non periodic and event driven)
+	type has a <function>thread()</function> method in its
+	interface which gives a non-zero pointer to a
+	<classname>ThreadInterface</classname> object which provides
+	general thread information such as the priority and periodicity and allows to
+	control the realtimeness of the thread which runs this task. A
+	non periodic task's thread will return a period of zero.
+      </para>
+      <para>
+	A RunnableInterface can get the same information
+	through the <function>this->getTask()->thread()</function> method calls.
+      </para>
+    </sect2>
   </sect1>
   <sect1 id="corelib-events">
     <title>Events</title>
@@ -985,15 +1012,15 @@ emergencyStop.fire(); // User not notified
 	an additional argument can be given in the
 	<methodname>connect</methodname> method :
 	<programlisting>
-  event.connect(&amp;syn_func, &amp; asyn_func, ZeroLatencyThread::Instance() );</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, ZeroLatencyThread::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is fired(). It will do this after it has processed
 	all its tasks. The other Orocos threads can do this likewise :
-	<programlisting>  event.connect(&amp;syn_func, &amp; asyn_func, ZeroTimeThread::Instance() );
-  event.connect(&amp;syn_func, &amp; asyn_func, NonRealTimeThread::Instance() );
-  event.connect(&amp;syn_func, &amp; asyn_func, CompletionProcessor::Instance() ); <emphasis>// Default</emphasis>
-  event.connect(&amp;syn_func, &amp; asyn_func, PriorityThread&lt;N&gt;::Instance() );
-  event.connect(&amp;syn_func, &amp; asyn_func, &amp;nonperiodic_task );	</programlisting>
+	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, ZeroTimeThread::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, NonRealTimeThread::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, CompletionProcessor::Instance() ); <emphasis>// Default</emphasis>
+  event.connect(&amp;syn_func, &amp;asyn_func, PriorityThread&lt;N&gt;::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_task );	</programlisting>
 	If you would write above listings in a real program, on <function>
 	  event.fire()</function>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
@@ -1002,23 +1029,23 @@ emergencyStop.fire(); // User not notified
       <para>
 	It is also possible to only have the asyn_func called. In this
 	case the synopsis is :
-	<programlisting>  event.connect( &amp; asyn_func, ZeroLatencyThread::Instance() );
+	<programlisting>  event.connect( &amp;asyn_func, ZeroLatencyThread::Instance() );
 	</programlisting>
 	to distinguish from a synchronous callback connection. In this case
 	there is no default, so if you wish to use the CompletionProcessor,
 	you must specify it explicitly.
-	<programlisting>  event.connect( &amp; asyn_func, CompletionProcessor::Instance() );
+	<programlisting>  event.connect( &amp;asyn_func, CompletionProcessor::Instance() );
 	</programlisting>
       </para>
       <para>
 	For convenience, the Orocos Task threads can also be choosen in another way
 	by specifying the Task :
 	<programlisting>  TaskNonPreemptible my_task;
-  event.connect(&amp;syn_func, &amp; asyn_func, &amp;my_task );	</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, &amp;my_task );	</programlisting>
 	or even :
-	<programlisting>  RunnableInterface* my_function;
+	<programlisting>  RunnableInterface* my_function = ... ;
   // put my_function in a task;
-  event.connect(&amp;syn_func, &amp; asyn_func, my_function->getTask() );</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );</programlisting>
 	The above says that the asyn_func function should be executed
 	after the my_function's task execution period.
 	This is a very powerfull way of synchronising function calls
@@ -1032,6 +1059,33 @@ emergencyStop.fire(); // User not notified
 	6 arguments in the current implementation, but more
 	can be easily added.</para>
       </note>
+    </sect2>
+    <sect2>
+      <title>Private EventProcessors for Periodic Tasks</title>
+      <para>
+	Asynchronous handlers are called in an EventProcessor.
+	Each Orocos thread has such an EventProcessor to handle
+	the deferred callbacks of all its tasks. A Periodic task
+	can also have its a private EventProcessor which handles
+	only its deferred callbacks after each step()
+	and only when it is started. In this way, it resembles better
+	how a non periodic task handles its defered event callbacks.
+	To enable this behavior,
+	a boolean flag must be given upon construction of a PeriodicTask
+	or any derived task-types :
+      </para>
+	<programlisting>  RunnableInterface* my_function = ... ;
+  TaskNonPreemptible mytask( 0.01, my_function, true );     // enable private eventproc.
+
+  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );
+  
+  event.fire(); // calls only syn_func.
+
+  mytask.start();
+  event.fire(); // calls syn_func and after mytask's step(), asyn_func.</programlisting>
+       <para>
+	 The private EventProcessor is disabled by default.
+       </para>
     </sect2>
     <sect2>
       <title>Event Overrun Policy</title>
@@ -1051,9 +1105,9 @@ emergencyStop.fire(); // User not notified
 	overhead in execution time. To choose which policy is used,
 	an optional parameter can be given during connect :
       </para>
-      <programlisting>  event.connect( &amp; asyn_func, mytask, Event::OnlyLast );
-  event.connect( &amp; asyn_func, mytask, Event::OnlyFirst ); // default
-  event.connect( &amp; asyn_func, mytask ); // same as previous line</programlisting>
+      <programlisting>  event.connect( &amp;asyn_func, mytask, Event::OnlyLast );
+  event.connect( &amp;asyn_func, mytask, Event::OnlyFirst ); // default
+  event.connect( &amp;asyn_func, mytask ); // same as previous line</programlisting>
     </sect2>
     <sect2>
       <title>The Completion Processor</title>
@@ -1073,8 +1127,8 @@ emergencyStop.fire(); // User not notified
       <para>
 	The CompletionProcessor is a TaskNonPeriodic, thus not consuming
 	time resources when no Events need to be processed. If you need a 
-	hard realtime CompletionProcessor, use a TaskNonPeriodic ( see
-	
+	hard realtime CompletionProcessor, use a default TaskNonPeriodic ( see
+	<xref linkend="task-non-periodic" /> ) and call its makeHardRealTime() method.
       </para>
     </sect2>
   </sect1>
@@ -1124,12 +1178,8 @@ emergencyStop.fire(); // User not notified
 	has a value, a name and a description. The user can ask any PropertyBag
 	for its contents and change the values as they see fit. Java for
 	example presents a Property API. 
-      </para><para>
-      RTAI, LXRT and GNU/Linux have been tested succesfully
-	with properties. An example of how to build a PropertyBag can be found in the
-	<filename>doc/examples/properties/simple_hibernate.cpp</filename> file. 
-      The Doxygen Property API should
-      provide enough information for succesfully using them in your Software Component.
+	The Doxygen Property API should
+	provide enough information for succesfully using them in your Software Component.
 	<note>
 	  <para>
 	    Reading and writing a properties value can be done in realtime. Every other 
@@ -1149,56 +1199,89 @@ emergencyStop.fire(); // User not notified
 	  </para>
 	</note>
       </para>
-      </sect2>
-      <sect2>
-	<title>How should I use PropertyBag ?</title>
-	<para>
-        First of all, a PropertyBag is not the owner of the properties it owns,
-        it merely keeps track of them, it defines a logical group of properties
-        belonging together. Thus when you delete a bag, the properties in it are
-        not deleted, when you clone() a bag, the properties are not cloned
-        themselves. PropertyBag is thus a container of pointers to Property objects.
-	</para>
-    <para>
-        If you want to duplicate the contents of a PropertyBag or perform recursive
-        operations on a bag, you can use the helper functions we created and which
-        are defined in <filename>PropertyBag.hpp</filename> (see Doxygen documentation).
-        These operations are however, most likely not realtime.
-    </para>
-    <note><para>When you want to put a PropertyBag into another PropertyBag, you need
-        to make a Property&lt;PropertyBag&gt; and insert that property into the 
-        first bag.</para>
-    </note>
-      </sect2>
-      <sect2>
-	<title>Marshalling and demarshalling</title>
-	<para>
-        Marshalling is converting an object from machine code to a code suitable
-        for transportation or storage. When an object is marshalled, a copy is made
-        so that it can be restored in its original state. Demarshalling instantiates
-        the object again from the marshalled copy. Common formats of marshalling are
-        writing out properties or efficient binary memory copies. So properties are
-        just an example of objects that can be marshalled. We wrote however specific
-        marshallers for properties and property bags. These are the 
-        SimpleMarshaller, XMLMarshaller, XMLRPCMarshaller, INIMarshaller and
-        the CPFMarshaller (for CORBA). You will need the <ulink
-        url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink> library for the XML
-        related marshalling.
-	</para>
-      <note>
-	<para>
-	  The marshaller uses the
-	  <classname>PropertyIntrospectionInterface</classname> for
-	  inspecting the type of a Property. This mechanism is called
-	  double dispatching. Double dispatching is an extension of
-	  the standard C++ single dispatching also known as virtual
-	  functions. When a virtual function is called, the method
-	  which will be invoked is dependent on the object on which it
-	  gets invoked. With double dispatching, after the first
-	  dispatching on the object itself, there's a second
-	  dispatching done on one of the parameters of the function.
-	</para>
+      <para>
+	Properties are mainly used for two purposes. First, they allow an external
+	entity to browse their contents, as they can form hierarchies using
+	PropertyBags. Second, they can be written to screen, disk,
+	or any kind of stream and their contents can be restored lateron, for example
+	after a system restart. The next sections give a short introduction to these
+	two usages.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Grouping Properties in a PropertyBag</title>
+      <para>
+	First of all, a PropertyBag is not the owner of the properties it owns,
+	it merely keeps track of them, it defines a logical group of properties
+	belonging together. Thus when you delete a bag, the properties in it are
+	not deleted, when you clone() a bag, the properties are not cloned
+	themselves. PropertyBag is thus a container of pointers to Property objects.
+      </para>
+      <para>
+	If you want to duplicate the contents of a PropertyBag or perform recursive
+	operations on a bag, you can use the helper functions we created and which
+	are defined in <filename>PropertyBag.hpp</filename> (see Doxygen documentation).
+	These operations are however, most likely not realtime.
+      </para>
+      <note><para>When you want to put a PropertyBag into another PropertyBag, you need
+      to make a Property&lt;PropertyBag&gt; and insert that property into the 
+      first bag.</para>
       </note>
+      <para> Use <methodname>add</methodname> to add Properties to a bag and 
+      <methodname>find</methodname> or <methodname>getProperty&lt;T&gt;</methodname> to
+      get a pointer to a <classname>PropertyBase</classname> or <classname>Property&lt;T&gt;</classname> :
+	<programlisting>  PropertyBag bag;
+  Property&lt;double&gt; w("Weight", "in kilograms", 70.5 );
+  Property&lt;int&gt; pc("PostalCode", "", 3462 );
+
+  struct BirthDate {
+     BirthDate(int d, month m, int y) : day(d), month(m), year(y) {}
+     int day;
+     enum { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec} month;
+     int year;
+  };
+
+  Property&lt;BirthDate&gt; bd("BirthDate", " in 'BirthDate' format", BirthDate(1, apr, 1977));
+
+  bag.add( &amp;w );
+  bag.add( &amp;pc );
+  bag.add( &amp;bd );
+	
+  PropertyBase* weight = bag.find("PostalCode");    // assert( weight != 0 )
+
+  Property&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
+	</programlisting>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Marshalling and Demarshalling Properties (Serialization)</title>
+      <para>
+	Marshalling is converting an object from machine code to a code suitable
+	for transportation or storage. When an object is marshalled, a copy is made
+	so that it can be restored in its original state. Demarshalling instantiates
+	the object again from the marshalled copy. Common formats of marshalling are
+	writing out properties or efficient binary memory copies. So properties are
+	just an example of objects that can be marshalled. We wrote however specific
+	marshallers for properties and property bags. These are the 
+	SimpleMarshaller, XMLMarshaller, XMLRPCMarshaller, INIMarshaller and
+	the CPFMarshaller. You will need the <ulink
+	url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink> library for the XML
+	related marshalling.
+      </para>
+      <para>
+	The (de-)marshallers know how to convert native C++ types, but if you want
+	to store your own classes in a Property ( like <classname>BirthDate</classname>
+	in the example above ), then you need to provide two additional methods
+	to the Orocos Property System : <methodname>composeProperty</methodname> and
+	<methodname>decomposeProperty</methodname>. You'll need to consult the 
+	API documentation on how to fill in these two functions and an example.
+      </para>
+      <para>
+	If you are not interested in marshalling your own types, you can enable
+	the 'Default Marshalling' option in the configuration tool, which will
+	generate a default for these two functions for type T in any file where you use
+	a Property&lt;T&gt;.
+      </para>
     </sect2>
   </sect1>
   <sect1>
@@ -1258,7 +1341,7 @@ emergencyStop.fire(); // User not notified
     </sect2>
   </sect1>
   <sect1>
-    <title>Buffers and DataObjects</title>
+    <title>Buffers, DataObjects and DataSources</title>
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
       <filename>corelib/buffers</filename> package. The user should be aware of
@@ -1271,6 +1354,10 @@ emergencyStop.fire(); // User not notified
       Furthermore, a DataObject always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
+      The <classname>DataSourceBase</classname>, <classname>DataSource&lt;T&gt;</classname>
+      and <classname>AssignableDataSource&lt;T&gt;</classname> are interface definitions to
+      define how data of any type can be exchanged across objects or threads.
+      DataObjects implement the DataSource interfaces.
     </para>
     <figure><title>DataObjects versus Buffers</title>
     <mediaobject>
@@ -1328,7 +1415,7 @@ emergencyStop.fire(); // User not notified
 
   // A DataObject may also contain a class, instead of the simple
   // double in this example
-  DataObject<double> my_Do; 
+  DataObjectLockFree<double> my_Do("MyData"); 
   my_Do.Set( 3.14 ); 
   double  contents; 
   my_Do.Get( contents );   // contents == 3.14
@@ -1415,6 +1502,21 @@ emergencyStop.fire(); // User not notified
 	    </para>
 	  </listitem>
 	</itemizedlist>
+      </para>
+    </sect2>
+    <sect2>
+      <title>DataSources</title>
+      <para>
+	The <classname>DataSource</classname> Interface is the most
+	basic interface for exchanging data ( value types ) between
+	objects. They are reference counted ('smart pointers'), such
+	that ownership across many objects must not be managed. This
+	interface is used in the TaskContext Infrastructure to define how
+	tasks can exchange data.
+      </para>
+      <para>
+	The DataObjectInterface implements the DataSource interface,
+	and thus all Orocos DataObject types are DataSources.
       </para>
     </sect2>
   </sect1>
