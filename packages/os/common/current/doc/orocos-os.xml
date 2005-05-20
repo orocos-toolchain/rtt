@@ -69,6 +69,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Introduction cleanup, restructuring.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.20</revnumber>
+	<date>1 May 2005</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Thread monitoring via ParallelPort support.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -156,7 +162,7 @@
       The OS package has always a <filename>common</filename>
       directory for all common interfaces and configuration options.
       This directory is OS independent but may contain assembler
-      instructions ( such as Compare And Swap ) for spicific processor
+      instructions ( such as Compare And Swap ) for specific processor
       architectures. However, if Orocos grows to support many
       different architectures, an <filename>arch</filename> directory
       will most likely be introduced to sort files for specific
@@ -374,13 +380,13 @@
 	The resulting libtarget.a library will contain the real main()
 	function which will call the ORO_main() function.
       </para>
-      <note>
+      <important>
 	<para>
 	  Do not forget to include
 	  <filename>&lt;os/main.h&gt;</filename> in the main program
 	  file, or the linker will not find the ORO_main function.
 	</para>
-      </note>
+      </important>
       <note>
 	<para>
 	  Using global objects ( or <emphasis>static</emphasis> class
@@ -491,7 +497,7 @@
 	  SingleThread is started and after loop() returns.
 	</para>
 	<para>
-	  The user is himself is responsible for providing a mechanism
+	  The user himself is responsible for providing a mechanism
 	  to return from the loop() function. The SingleThread expects
 	  this mechanism to be implemented in the RunnableInterface::breakLoop()
 	  function, which must return true if the loop() function could be
@@ -528,6 +534,34 @@
 	<para>
 	  The user of this class must be aware that he must provide himself
 	  the locking primitives (like ORO_OS::Mutex) to provide thread safety.
+	</para>
+      </sect3>
+      <sect3>
+	<title>ThreadScope : Oscilloscope Monitoring of Orocos Threads</title>
+	<para>
+	  You can configure the OS package using the configtool to
+	  report thread execution as block-waves on the parallel port
+	  or any other digital output device.
+	  Monitoring through the parallel port requires that the Device
+	  Drivers Standard IO Ports package is installed, and for Linux based
+	  OS'es, that you execute the Orocos program as root.
+	</para>
+	<para>
+	  If the CoreLib Logger is active, it will log the mapping of
+	  Threads to the device's output pins to the <filename>orocos.log</filename>
+	  file. Just before step() is entered, the pin will be set
+	  high, and when step() is left, the pin is set low again.
+	  From within any (CoreLib) task, you may then additionally use the
+	  ThreadScope driver as such :
+	</para>
+	<programlisting>  DigitalOutInterface* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
+if ( pp )
+    pp->setBit( this->getTask()->thread()->threadNumber(), value );
+  	</programlisting>
+	<para>
+	  which sets the corresponding bit to a boolean value. The
+	  main thread claims pin zero, the other pins are assigned
+	  incrementally as each new Orocos thread is created.
 	</para>
       </sect3>
     </sect2>

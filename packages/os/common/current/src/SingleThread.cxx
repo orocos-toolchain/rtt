@@ -25,7 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#define OROBLD_OS_LXRT_INTERNAL
+// include OS-internal fosi as first file.
+#include "os/fosi_internal.hpp"
 #include <os/SingleThread.hpp>
 
 // extern package config headers.
@@ -41,73 +42,121 @@ using ORO_CoreLib::Logger;
 #include <iostream>
 #include <sys/mman.h>
 #include "corelib/Time.hpp"
+#include "os/threads.hpp"
+#include "pkgconf/os.h"
+#ifdef OROPKG_DEVICE_INTERFACE
+#include "pkgconf/device_interface.h"
+#ifdef OROPKG_OS_THREAD_SCOPE
+#include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
+using namespace ORO_DeviceInterface;
+using namespace ORO_DeviceDriver;
+#include <boost/scoped_ptr.hpp>
+#endif
+#endif
 
 namespace ORO_OS 
 {
+    using namespace detail;
+
     void *singleThread_f(void* t) 
     {
-        RT_TASK *mytask;
-        unsigned long mytask_name;
-
         /**
          * This is one time initialisation
          */
         SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
 
-        mytask_name = nam2num( task->taskNameGet() );
-
-        // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
-        if (!(mytask = rt_task_init_schmod(mytask_name, task->priority, 0, 0, SCHED_FIFO, 0xF ))) {
-            std::cerr << task->taskName << " : CANNOT INIT LXRT TASK " << mytask_name <<std::endl;
-            std::cerr << "Exiting this thread." <<std::endl;
-            exit (-1); // can not return 0 because main is blocked on sem.
-        }
+        task->rtos_task = detail::rtos_task_init( task );
     
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" created."<<Logger::endl;
 #endif
-        task->rt_task = mytask;
-        rt_sem_signal( task->confDone );
+
+#ifdef OROPKG_OS_THREAD_SCOPE
+        unsigned int bit = task->threadnb;
+
+        boost::scoped_ptr<DigitalOutInterface> pp;
+        try {
+            pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER() );
+        } catch( ... )
+            {
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Error<< "SingleThread : Failed to create ThreadScope." << Logger::endl;
+#endif
+            }
+        if ( pp ) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Info
+                          << "ThreadScope : Single Thread "<< task->taskName <<" toggles bit "<< bit << Logger::endl;
+#endif
+            pp->switchOff( bit );
+        }
+#endif
+
         // locking of all memory for this process
         mlockall(MCL_CURRENT|MCL_FUTURE);
         /**
          * The real task starts here.
          */
+
+        if ( task->goRealtime )
+            rtos_task_make_hard_real_time( task->rtos_task );
+
+        rtos_sem_signal( &(task->confDone) );
+
         while ( !task->prepareForExit ) {
             try {
                 while(1) 
                     {
-                        // for now, we always wait in soft RT.
-                        // An extra check before here could
-                        // make the switch again...
-                        rt_sem_wait( task->sem );
-                        if ( task->prepareForExit )
-                            break;
+                        rtos_sem_wait( &(task->sem) );
+                        if ( ! task->running ) {
+                            if ( task->prepareForExit )
+                                break;
+                            // The configuration might have changed
+                            // While waiting on the sem...
+                            if ( task->goRealtime && !rtos_task_is_hard_real_time( task->rtos_task ) )
+                                rtos_task_make_hard_real_time( task->rtos_task );
+                            if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->rtos_task ) )
+                                rtos_task_make_soft_real_time( task->rtos_task );
+                        } else {
 
-                        // The configuration might have changed
-                        // While waiting on the sem...
-                        if ( task->goRealtime )
-                            rt_make_hard_real_time();
-                        else
-                            rt_make_soft_real_time();
-                        task->loop();
+#ifdef OROPKG_OS_THREAD_SCOPE
+                            if ( pp )
+                                pp->switchOn( bit );
+#endif
+                            task->loop();
+#ifdef OROPKG_OS_THREAD_SCOPE
+                            if ( pp )
+                                pp->switchOff( bit );
+#endif
 
-                        // We do this to be able to safely
-                        // process the finalize method
-                        if ( task->isHardRealtime() )
-                            rt_make_soft_real_time();
+                            // We do this to be able to safely
+                            // process the finalize method
+                            if ( task->isHardRealtime() )
+                                rtos_task_make_soft_real_time( task->rtos_task );
 
-                        task->finalize();
-                        task->running = false;
+                            task->finalize();
+                            task->running = false;
+                            // if goRealtime, wait on sem in RT.
+                            if ( task->goRealtime )
+                                rtos_task_make_hard_real_time( task->rtos_task );
+                        }
                     }
             } catch( ... ) {
+#ifdef OROPKG_OS_THREAD_SCOPE
+                if ( pp )
+                    pp->switchOff( bit );
+#endif
+                if ( task->isHardRealtime() )
+                    rtos_task_make_soft_real_time( task->rtos_task );
                 // set state to not running
                 task->running = false;
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Single Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
 #endif
                 task->finalize();
+                if ( task->goRealtime )
+                    rtos_task_make_hard_real_time( task->rtos_task );
             }
         }
             
@@ -116,34 +165,31 @@ namespace ORO_OS
          * Cleanup stuff
          */
         if ( task->isHardRealtime() )
-            rt_make_soft_real_time();
+            rtos_task_make_soft_real_time( task->rtos_task );
 
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" exiting."<<Logger::endl;
 #endif
 
-        rt_sem_signal( task->confDone );
-        rt_task_delete(mytask);
+        rtos_sem_signal( &(task->confDone) );
+        detail::rtos_task_delete( task->rtos_task );
         return 0;
     }
 
     SingleThread::SingleThread(int _priority, const std::string& name, RunnableInterface* r) :
-        running(false), goRealtime(false), priority(_priority), prepareForExit(false),
+        running(false), goRealtime(false), prepareForExit(false), priority(_priority),
         runComp(r)
     {
-        if ( !name.empty() && rt_get_adr( nam2num(name.c_str() )) == 0 )
-            taskNameSet(name.c_str());
-        else
-            num2nam(rt_get_name(0), taskName);
+        rtos_thread_init( this, name);
 
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Debug << "SingleThread: Creating "<< taskName <<"."<<Logger::endl;
 #endif
 
-        sem      = rt_sem_init( rt_get_name(0), 0 );
-        confDone = rt_sem_init( rt_get_name(0), 0 );
+        rtos_sem_init( &sem, 0 );
+        rtos_sem_init( &confDone, 0 );
         pthread_create( &thread, 0, singleThread_f, this);
-        rt_sem_wait(confDone);
+        rtos_sem_wait( &confDone );
     }
     
     SingleThread::~SingleThread() 
@@ -152,25 +198,36 @@ namespace ORO_OS
 
         // Send the message to the thread...
         prepareForExit = true;
-        rt_sem_signal( sem );
+        rtos_sem_signal( &sem );
         
         // Wait for the 'ok' answer of the thread.
-        rt_sem_wait( confDone );
-        rt_sem_delete( confDone );
-        rt_sem_delete( sem );
+        rtos_sem_wait( &confDone );
+        rtos_sem_destroy( &confDone );
+        rtos_sem_destroy( &sem );
 
-        if ( pthread_join(thread,0) != 0 ) 
+        if ( pthread_join(thread,0) != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Error << "SingleThread: Failed to join with thread "<< taskName <<"."<<Logger::endl;
-        else
-            Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl
 #endif
-                ;
+        }
+        else {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl;
+#endif
+        }
     }
 
-    bool SingleThread::isHardRealtime()
+    bool SingleThread::run( RunnableInterface* r)
     {
-        return rt_is_hard_real_time(rt_task);
+        if ( isRunning() )
+            return false;
+        runComp = r;
+        return true;
+    }
+
+    bool SingleThread::isHardRealtime() const
+    {
+        return rtos_task_is_hard_real_time( rtos_task );
     }
 
     bool SingleThread::start() 
@@ -180,7 +237,7 @@ namespace ORO_OS
         this->initialize();
 
         running=true;
-        rt_sem_signal(sem);
+        rtos_sem_signal(&sem);
 
         return true;
     }
@@ -225,15 +282,14 @@ namespace ORO_OS
             runComp->finalize();
     }
 
-    void SingleThread::taskNameSet(const char* nm)
+    void SingleThread::setName(const char* nm)
     {
-        snprintf(taskName,TASKNAMESIZE,"%s",nm);
+        taskName = nm;
     }
 
-    const char* SingleThread::taskNameGet() const
+    const char* SingleThread::getName() const
     {
-        return taskName;
+        return taskName.c_str();
     }
    
-};
-    
+}

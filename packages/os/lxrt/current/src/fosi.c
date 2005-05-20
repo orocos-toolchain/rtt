@@ -84,7 +84,7 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         CHK_LXRT_CALL();
 		// store the pointer in m->opaque...
         m->opaque = (int) rt_sem_init( rt_get_name(0) , value);
-		return 0;
+		return m->opaque == 0 ? -1 : 0;
     }
 
     int rtos_sem_destroy(rt_sem_t* m )
@@ -115,6 +115,12 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     {
         CHK_LXRT_CALL();
         return rt_sem_count((rt_sem_t*)m->opaque);
+    }
+
+    int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_timed((rt_sem_t*)m->opaque, nano2count(delay) );
     }
 
     int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)

@@ -44,6 +44,16 @@
 #include "corelib/Logger.hpp"
 using ORO_CoreLib::Logger;
 #endif
+#include "pkgconf/os.h"
+#ifdef OROPKG_DEVICE_INTERFACE
+#include "pkgconf/device_interface.h"
+#ifdef OROPKG_OS_THREAD_SCOPE
+#include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
+#include <boost/scoped_ptr.hpp>
+using namespace ORO_DeviceInterface;
+using namespace ORO_DeviceDriver;
+#endif
+#endif
 
 using namespace std;
 
@@ -60,6 +70,27 @@ int main(int argc, char** argv)
         if ( strncmp(catchflag, argv[i], strlen(catchflag) ) == 0 )
             dotry = false;
 
+#ifdef OROPKG_OS_THREAD_SCOPE
+        unsigned int bit = 0;
+
+        boost::scoped_ptr<DigitalOutInterface> pp;
+        try {
+            // this is the device users can use across all threads to control the
+            // scope's output.
+            pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+        } catch( ... )
+            {
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() << Logger::Error<< "main() thread : Failed to create ThreadScope." << Logger::endl;
+#endif
+            }
+        if ( pp ) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Info << "ThreadScope : main thread toggles bit "<< bit << Logger::endl;
+#endif
+            pp->switchOn( bit );
+        }
+#endif
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "ORO_main starting..." << Logger::endl;
 #endif
@@ -84,7 +115,10 @@ int main(int argc, char** argv)
     } else {
         res = ORO_main(argc, argv);
     }
-    
+#ifdef OROPKG_OS_THREAD_SCOPE
+    if (pp)
+        pp->switchOff(bit);
+#endif
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "ORO_main done." << Logger::endl;
 #endif

@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the os package.
+ * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
  *
  * It is meant to group all packages which provide OS abstraction
  * classes and functions in a realtime system. Examples are Threads,

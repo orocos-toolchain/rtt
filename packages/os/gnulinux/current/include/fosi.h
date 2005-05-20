@@ -27,6 +27,7 @@
 #ifndef __FOSI_H
 #define __FOSI_H
 
+#define HAVE_FOSI_API
 
 #ifdef __cplusplus
 extern "C"
@@ -40,7 +41,8 @@ extern "C"
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-    typedef pthread_t RTOS_TASK;
+    struct GNUTask;
+    typedef struct GNUTask RTOS_TASK;
 
 	// Orocos Implementation (i386 specific)
 #include "oro_atomic.h"
@@ -139,6 +141,23 @@ extern "C"
     static inline int rtos_sem_trywait(rt_sem_t* m )
     {
         return sem_trywait(m);
+    }
+
+    static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
+    {
+		NANO_TIME end;
+		TIME_SPEC timevl;
+		end = rtos_get_time_ns() + delay;
+		// sleep for 11 ms.
+		timevl.tv_sec = 0;
+		timevl.tv_nsec = 11000000LL;
+
+		while ( sem_trywait(m) != 0 ) {
+			nanosleep( &timevl, 0);
+			if ( end < rtos_get_time_ns() )
+				return sem_trywait(m);
+		}
+		return 0;
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )

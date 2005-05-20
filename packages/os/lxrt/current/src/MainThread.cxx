@@ -65,8 +65,11 @@ namespace ORO_OS
 //             exit();
 //         }
         struct sched_param param;
-        param.sched_priority = 99;
-        sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_LXRT_SCHEDTYPE, &param);
+        // we set the MT to the highest sched priority to allow the console
+        // to interrupt a loose running thread.
+        param.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE);
+        if (param.sched_priority != -1 )
+            sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_SCHEDTYPE, &param);
         //init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
 
         unsigned long name = nam2num("MAINTHREAD");
@@ -79,14 +82,22 @@ namespace ORO_OS
 	      exit(1);
             }
                 
-        //rt_set_periodic_mode();
-        //start_rt_timer( nano2count( usecs_to_nsecs(100) ) ); // 0.1ms = 100us
-
+#ifdef OROSEM_OS_LXRT_PERIODIC
+        rt_set_periodic_mode();
+        start_rt_timer( nano2count( NANO_TIME(ORODAT_OS_LXRT_PERIODIC_TICK*1000*1000*1000) ) );
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Info << "Sched Policy : RTAI Periodic Timer ticks at "<<ORODAT_OS_LXRT_PERIODIC_TICK<<" seconds." << Logger::endl;
+#endif
+#else
         // XXX Debugging, this works
         // BE SURE TO SET rt_preempt_always(1) when using one shot mode
         rt_set_oneshot_mode();
         rt_preempt_always(1);
         start_rt_timer(0);
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::log() << Logger::Info << "Sched Policy : RTAI Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
+#endif
+#endif
 #ifdef OROPKG_CORELIB_REPORTING
       Logger::log() << Logger::Debug << "Sched Policy : RTAI Task Created" << Logger::endl;
 #endif

@@ -31,23 +31,23 @@
 
 // Our own package config headers.
 #include "pkgconf/os.h"
-#include "pkgconf/os_lxrt.h"
-
 #include <os/fosi.h>
 
 #include <os/RunnableInterface.hpp>
+#include <os/ThreadInterface.hpp>
 
 #include <string>
 
 namespace ORO_OS
 {
     /**
-     * @brief This Thread abstraction class represents
+     * This Thread abstraction class represents
      * a single-shot thread which can be started many times
      * and stops each time the loop() function returns.
-     *
+     * @see RunnableInterface
      */
     class SingleThread 
+        : public ThreadInterface
     {
         friend void* singleThread_f( void* t );
 
@@ -59,6 +59,8 @@ namespace ORO_OS
         SingleThread(int priority, const std::string& name, RunnableInterface* r=0);
     
         virtual ~SingleThread();
+
+        virtual bool run( RunnableInterface* r);
 
         /**
          * Start the thread
@@ -83,14 +85,14 @@ namespace ORO_OS
         /**
          * Set the name of this task
          */
-        virtual void taskNameSet(const char*);
+        void setName(const char*);
 
         /**
          * Read the name of this task
          */
-        virtual const char* taskNameGet() const;
+        virtual const char* getName() const;
 
-        bool makeHardRealtime() 
+        virtual bool makeHardRealtime() 
         { 
             // This construct is so because
             // the thread itself must call the proper RTAI function.
@@ -101,7 +103,7 @@ namespace ORO_OS
             return goRealtime; 
         }
 
-        bool makeSoftRealtime()
+        virtual bool makeSoftRealtime()
         { 
             if ( !running ) 
                 {
@@ -110,7 +112,12 @@ namespace ORO_OS
             return !goRealtime; 
         }
 
-        bool isHardRealtime();
+        virtual bool isHardRealtime() const;
+
+        virtual Seconds getPeriod() const { return 0.0; }
+        virtual nsecs getPeriodNS() const { return 0; }
+
+        virtual int getPriority() const { return priority; }
     protected:
 
         virtual bool breakLoop();
@@ -134,12 +141,17 @@ namespace ORO_OS
         bool goRealtime;
 
         /**
-         * The realtime task
+         * Signal the thread that it should exit.
          */
-        RTOS_TASK* rt_task;
+        bool prepareForExit;
 
         /**
-         * The userspace thread carying the rt_task.
+         * The realtime task structure created by this object.
+         */
+        RTOS_TASK* rtos_task;
+
+        /**
+         * The userspace thread carying the rtos_task.
          */
         pthread_t thread;
 
@@ -149,31 +161,20 @@ namespace ORO_OS
         int priority;
 
         /**
-         * Signal the thread that it should exit.
-         */
-        bool prepareForExit;
-
-        /**
-         * The maximum lenght of the task name.
-         * (in RTAI, only the 6 first chars are used.
-         */
-        static const int TASKNAMESIZE = 64;
-
-        /**
          * The unique name of this task.
          */
-        char taskName[TASKNAMESIZE];
+        std::string taskName;
 
         /**
          * The semaphore used for starting the thread.
          */
-        RTOS_SEM* sem;
+        rt_sem_t sem;
 
         /**
          * The semaphore used for communicating between
          * the thread and the constructor/destructor.
          */
-        RTOS_SEM* confDone;
+        rt_sem_t confDone;
 
         /**
          * The possible Runnable to run in this Component

@@ -12,6 +12,10 @@ can only select one OS Package which is called the
     compile startstop.cxx
     compile StartStopManager.cxx
     compile Mutex.cxx
+    compile ThreadInterface.cxx threads.cxx
+    compile PeriodicThread.cxx
+    compile SingleThread.cxx
+    compile main.cxx
 
     cdl_option OROBLD_OS_AGNOSTIC {
 	display "Hide system includes from Orocos headers."
@@ -45,12 +49,78 @@ std C++ library). It resides in the rt_std namespace."
 	description "
 Enable to compile a C++ RTTI implementation, based on the
 gcc compilers implementation. Only use if your target's
-C++ libraries have no RTTI support *and* use with care."
+C++ libraries have no RTTI support *and* use with care.
+Leave this disabled if unsure."
 	flavor bool
 	default_value 0
 	compile rt_tinfo.cxx rt_tinfo2.cxx
 	active_if OROCFG_CORELIB_EXPERIMENTAL
     }
+
+    cdl_component OROSEM_OS_SCHEDTYPE {
+	display "Scheduling Algorithm for Threads"
+	description "
+This option sets the default scheduling algorithm for the threads. 
+See man sched_setscheduler for
+more information on the available types. Set to SCHED_FIFO for
+reliable applications ( functions not going in an endless loop), 
+for non-realtime testing, set to SCHED_OTHER."
+	flavor data
+	default_value { "SCHED_OTHER" }
+	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
+    }
+
+    cdl_component OROPKG_OS_THREAD_SCOPE {
+	display "Monitoring of Thread Execution"
+	description "
+When enabled, each created thread will set a bit of the 
+selected port high during execution of Orocos tasks. The thread-bit
+mapping is printed to the CoreLib Logger::Info stream if available.
+To enable this option, enable the scope function of a device_driver component (eg the
+Standard IO Ports Device Driver).
+"
+	flavor bool
+	calculated OROINT_DEVICE_INTERFACE_THREAD_SCOPE
+    }
+
+    cdl_component CYGBLD_GLOBAL_OPTIONS {
+	display "Global build options"
+	flavor none
+	parent CYGPKG_NONE
+	description "
+      Global build options including control over
+      compiler flags, linker flags and choice of toolchain."
+
+	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+	    display "Global command prefix"
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description "
+        This option specifies the command prefix used when
+        invoking the build tools."
+	}
+
+	cdl_option OROBLD_GLOBAL_CFLAGS_ADD {
+	    display "User defined global compiler flags"
+	    flavor  data
+	    no_define
+	    default_value {  "-pipe -Wall -Woverloaded-virtual -Wnon-virtual-dtor" }
+	    description   "
+          This option allows you to override some global compiler flags.
+The options you provide here will be appended to the CFLAGS variable below."
+	}
+
+	cdl_option CYGBLD_GLOBAL_LDFLAGS_ADD {
+	    display "User defined linker flags"
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description   "
+          This option allows you to override the global linker flags.
+          The options you provide here will be appended to the LDFLAGS variable.
+          You can add additional library paths and flags here."
+	}
 
     cdl_option OROBLD_OS_ARCHITECTURE {
 	display "Processor Target Architecture"
@@ -59,6 +129,7 @@ This option will be added to the compiler flags.
 Select here the processor architecture for which at least the
 compiled code will run on."
 	flavor data
+	no_define
 	default_value { "pentium" }
         legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" }
     }
@@ -72,8 +143,84 @@ most tuned. We are forced to omit pentium/k6 processors, since this
 would trigger non-thread-safe code generation when compiling. However,
 your program will run on a pentium if selecting pentium4 or even athlon-xp for example."
 	flavor data
+	no_define
 	default_value { "pentium2" }
         legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" }
+    }
+
+    cdl_component OROBLD_OS_OPTIMIZE {
+	display "Optimization Strategy"
+        description "
+This option lets you control optimization of the overall Orocos
+code. You can optimize for debugging or optimize for execution or compilation time. The difference
+in application size and speed can be quite large when toggling this flag."
+	flavor data
+	    no_define
+	default_value { "Compiling" }
+        legal_values { "Execution" "Debugging" "Compiling" }
+	cdl_option OROBLD_OS_OPTIMIZE_DEBUGGING {
+		display "Flags for debugging optimization"
+        	description "
+Compile with debugging info, no optimization flags and debug
+code-checking on. Produces very large code size ( >100MB )."
+		flavor data
+		no_define
+		active_if  { OROBLD_OS_OPTIMIZE == "Debugging" }
+		default_value  { "-g -O0" }
+	}
+	cdl_option OROBLD_OS_OPTIMIZE_COMPILE {
+		display "Flags for compile time optimization"
+        	description "
+Compile for fast compilation and allow debug macros.
+Produces larger code size, but compiles very fast."
+		flavor data
+		no_define
+		active_if { OROBLD_OS_OPTIMIZE == "Compiling" }
+		default_value  { "-O0" }
+	}
+	cdl_option OROBLD_OS_OPTIMIZE_EXECUTION {
+		display "Flags for execution time optimization"
+        	description "
+Compile for fast execution and disable debugging macros.
+This option delivers the smallest code size, but the longest
+compilation times."
+		flavor data
+		no_define
+		active_if { OROBLD_OS_OPTIMIZE == "Execution" }
+		default_value  { "-Os -DNDEBUG" }
+	}
+    }
+
+	cdl_option CYGBLD_GLOBAL_CFLAGS {
+	    display "Global compiler flags"
+	    flavor  data
+	    no_define
+	    calculated { OROBLD_OS_OPTIMIZE_EXECUTION ?
+		OROBLD_OS_OPTIMIZE_EXECUTION." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD
+		: OROBLD_OS_OPTIMIZE_DEBUGGING ?
+		  OROBLD_OS_OPTIMIZE_DEBUGGING." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD
+		  : OROBLD_OS_OPTIMIZE_COMPILE." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD}
+	    description   "
+          This option controls the global compiler flags which
+          are used to compile all packages by
+          default. Individual packages may define
+          options which override these global flags. See also
+	  the 'Optimization Strategy' to influence debugging or
+	  execution speed compiler flags. 
+	  You can not change these
+          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD above."
+	}
+
+	cdl_option CYGBLD_GLOBAL_LDFLAGS {
+	    display "Global linker flags"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description   "
+          This option controls the global linker flags. Individual
+          packages may define options which override these global flags."
+	}
     }
 
     # we need exactly one OS_TARGET
@@ -97,8 +244,8 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
 	define HAVE_MANUAL_MAIN
     }
 
-    cdl_interface OROINT_OS_EVENT_INTERRUPT {
-	display "Support for interrupt based Events"
+    cdl_interface OROINT_OS_LINUX_IOPERM {
+	display "Support for Linux ioperm()"
 	flavor bool
     }
 

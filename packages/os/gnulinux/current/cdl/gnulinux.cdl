@@ -13,24 +13,11 @@ debugging other packages."
     parent OROPKG_OS
 
     compile fosi.c
-    compile PeriodicThread.cxx
-    compile SingleThread.cxx
-    compile main.cxx
 
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
-    implements OROINT_OS_KERNEL_MODULE
+    implements OROINT_OS_LINUX_IOPERM
 
-    cdl_component OROCLS_OS_EVENT_INTERRUPT {
-    }
-
-    cdl_component CYGBLD_GLOBAL_OPTIONS {
-	display "Global build options"
-	flavor none
-	parent CYGPKG_NONE
-	description "
-      Global build options including control over
-      compiler flags, linker flags and choice of toolchain."
 
     cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
 	display "Build Linux kernel Modules"
@@ -38,6 +25,7 @@ debugging other packages."
 Enable this option when Linux KERNEL MODULES need
 to be build and set the correct path, for example
 /usr/src/linux"
+	parent CYGBLD_GLOBAL_OPTIONS
 	flavor bool
 	default_value { 0 }
 	implements OROINT_OS_KERNEL_MODULE
@@ -48,53 +36,6 @@ to be build and set the correct path, for example
 	    no_define
 	    default_value { "/usr/src/linux" }
 	    description "The target linux path."
-	}
-    }
-
-
-	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
-	    display "Global command prefix"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description "
-        This option specifies the command prefix used when
-        invoking the build tools."
-	}
-
-	cdl_option OROBLD_GLOBAL_CFLAGS_ADD {
-	    display "User defined global compiler flags"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description   "
-          This option allows you to override some global compiler flags.
-The options you provide here will be appended to the CFLAGS variable.
-You can add the '-g -O0' flags here for example."
-	}
-
-	cdl_option CYGBLD_GLOBAL_CFLAGS {
-	    display "Global compiler flags"
-	    flavor  data
-	    no_define
-	    calculated { "-pipe -Wall -Woverloaded-virtual -Wnon-virtual-dtor -O2 -march=". OROBLD_OS_ARCHITECTURE . " -mcpu=" .  OROBLD_OS_PROCESSOR . " " . OROBLD_GLOBAL_CFLAGS_ADD }
-	    description   "
-          This option controls the global compiler flags which
-          are used to compile all packages by
-          default. Individual packages may define
-          options which override these global flags.
-	    You can not change these
-          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD"
-	}
-
-	cdl_option CYGBLD_GLOBAL_LDFLAGS {
-	    display "Global linker flags"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description   "
-          This option controls the global linker flags. Individual
-          packages may define options which override these global flags."
 	}
     }
 

@@ -42,9 +42,9 @@ namespace ORO_OS
      * control methods as starting and stopping (periodic) threads.
      * 
      * In a start-run-stop cycle, before step() is called the first time,
-     * initialize() will be called.
+     * initialize() will be called in the thread that started this RunnableInterface.
      * When step() is ran the last time in this cycle, finalize() will be 
-     * called, after it finishes.
+     * called, after it finishes, in the threaad that stopped this RunnableInterface.
      * 
      * A non periodic thread will call \a loop(), which indicates that the
      * RunnableInterface is allowed to block ( step() is not allowed to block ).

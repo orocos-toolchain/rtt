@@ -30,12 +30,10 @@
 
 // Our own package config headers.
 #include "pkgconf/os.h"
-#include "pkgconf/os_lxrt.h"
-
 #include <os/fosi.h>
 
 #include <os/RunnableInterface.hpp>
-#include <os/PeriodicThreadInterface.hpp>
+#include <os/ThreadInterface.hpp>
 
 #include <string>
 
@@ -51,7 +49,7 @@ namespace ORO_OS
      * It has a fixed priority, a name and a periodicity.
      */
     class PeriodicThread 
-        : public PeriodicThreadInterface 
+        : public ThreadInterface 
     {
         friend void* periodicThread( void* t );
 
@@ -66,11 +64,11 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own RunnableInterface functions are executed.
          */
-        PeriodicThread(int priority, std::string name, double period=0.01, RunnableInterface* r=0);
+        PeriodicThread(int priority, std::string name, double period, RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
-        bool run( RunnableInterface* r);
+        virtual bool run( RunnableInterface* r);
 
         /**
          * Start the thread
@@ -84,21 +82,20 @@ namespace ORO_OS
          * Set the periodicity of this thread
          * in seconds.
          */
-        virtual bool setPeriod( Seconds s );
+        bool setPeriod( Seconds s );
         /**
          * Set the periodicity of this thread
          * (seconds, nanoseconds)
          */
-        virtual bool setPeriod( secs s, nsecs ns );
+        bool setPeriod( secs s, nsecs ns );
         /**
          * Get the periodicity of this thread
          * (seconds, nanoseconds)
          */
-        virtual void getPeriod( secs& s, nsecs& ns ) const;
-        /**
-         * Get the periodicity in seconds
-         */
-        virtual double getPeriod() const;
+        void getPeriod( secs& s, nsecs& ns ) const;
+
+        virtual Seconds getPeriod() const;
+        virtual nsecs getPeriodNS() const;
         /**
          * Returns whether the thread is running
          */
@@ -107,32 +104,19 @@ namespace ORO_OS
         /**
          * Set the name of this task
          */
-        virtual void setName(const char*);
+        void setName(const char*);
         /**
          * Read the name of this task
          */
         virtual const char* getName() const;
 
-        /**
-         * Exit the thread 
-         * @pre  this is only called from within the thread
-         * @post the thread does no longer exist
-         */
-        virtual void terminate();
-
-        virtual void step();
-    
-        virtual bool initialize();
-
-        virtual void finalize();
-
-        bool makeHardRealtime();
-        bool makeSoftRealtime();
-        bool isHardRealtime();
+        virtual bool makeHardRealtime();
+        virtual bool makeSoftRealtime();
+        virtual bool isHardRealtime() const;
 
         /**
          * Set the scheduler of the thread to \a sched.
-         * @param sched One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.
+         * @param sched One of SCHED_OTHER, SCHED_RR or SCHED_FIFO, or any other known scheduler type.
          * @pre this->isRunning() == true && this->isHardRealtime() == false
          * @return true if the preconditions were met, false otherwise.
          */
@@ -143,16 +127,23 @@ namespace ORO_OS
          */
         bool setPeriod(  TIME_SPEC p );
 
+        virtual int getPriority() const;
      protected:
+        /**
+         * Exit the thread 
+         * @pre  this is only called from within the thread
+         * @post the thread does no longer exist
+         */
+        void terminate();
+
         virtual void continuousStepping(bool yes_no);
         virtual bool setToStop();
 
-        /**
-         * Wait only for the remaining period, being
-         * getPeriod() - (time_now - start_time_of_this_period)
-         */
-        void periodWaitRemaining();
+        virtual void step();
+    
+        virtual bool initialize();
 
+        virtual void finalize();
      private:
         /**
          * Do configuration actions when the thread is stopped.
@@ -167,7 +158,7 @@ namespace ORO_OS
         /**
          * Periodicity of the thread in ns.
          */
-        TICK_TIME period;
+        NANO_TIME period;
 
         /**
          * When set to 1, the thread will run, when set to 0
@@ -183,7 +174,7 @@ namespace ORO_OS
         /**
          * The realtime task
          */
-        RTOS_TASK* rt_task;
+        RTOS_TASK* rtos_task;
 
         /**
          * The userspace thread carying the rt_task.
@@ -192,14 +183,12 @@ namespace ORO_OS
 
         int priority;
 
-        static const int TASKNAMESIZE = 64;
-
-        char taskName[TASKNAMESIZE];
+        std::string taskName;
 
         volatile bool prepareForExit;
 
-        RTOS_SEM* sem;
-        RTOS_SEM* confDone;
+        rt_sem_t sem;
+        rt_sem_t confDone;
         /**
          * The possible Runnable to run in this Component
          */

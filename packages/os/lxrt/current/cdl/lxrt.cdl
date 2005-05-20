@@ -14,29 +14,13 @@ support for all packages used in Orocos."
 
     hardware
 
-    compile PeriodicThread.cxx
-    compile SingleThread.cxx
     compile MainThread.cxx
-    compile main.cxx
     compile fosi.c
 
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
-
-    cdl_component OROCLS_OS_EVENT_INTERRUPT {
-    }
-
-    cdl_component OROSEM_OS_LXRT_SCHEDTYPE {
-	display "Scheduling Algorithm for NOT realtime threads"
-	description "
-This option sets the scheduling algorithm for the threads
-running in non-realtime. See man sched_setscheduler for
-more information on the available types."
-	flavor data
-	default_value { "SCHED_OTHER" }
-	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
-    }
+    implements OROINT_OS_LINUX_IOPERM
 
     cdl_option OROSEM_OS_LXRT_CHECK {
 	display "Check LXRT calls for null pointers."
@@ -48,25 +32,22 @@ for production code."
 	default_value 1
     }
 
-
-    cdl_component CYGBLD_GLOBAL_OPTIONS {
-	display "Global build options"
-	flavor none
-	parent CYGPKG_NONE
+    cdl_option OROSEM_OS_LXRT_PERIODIC {
+	display "Run RTAI Scheduler in periodic mode"
 	description "
-      Global build options including control over
-      compiler flags, linker flags and choice of toolchain."
+Enable to use the periodic mode of the RTAI scheduler
+instead of the 'one-shot' scheduler. You need to provide
+the periodic scheduler execution period in seconds (s). Leave this
+disabled if unsure."
+	flavor booldata
+	default_value 0
+	define ORODAT_OS_LXRT_PERIODIC_TICK
+    }
 
-# 	cdl_option CYGBLD_GLOBAL_CFLAGS_ADD {
-# 	    display "RTAI build directory include directive"
-# 	    flavor data
-# 	    default_value {"-I/usr/src/rtai"}
-# 	    description "
-# This is the location where rtai.h resides. It must
-# point to a properly configured rtai installation."
-# 	}
+
 	cdl_option ORONUM_RTAI_VERSION {
 	    display "RTAI version"
+	    parent CYGBLD_GLOBAL_OPTIONS
 	    flavor data
 	    #legal_values {"2" "3"}
 	    calculated { OROBLD_SUPPORT_RTAI_VERSION }
@@ -78,18 +59,9 @@ the \"Detected Support Libraries->RTAI Installation\"
 package."
 	}
 
-	cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
-	    display "Global command prefix"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description "
-        This option specifies the command prefix used when
-        invoking the build tools."
-	}
-
 	cdl_option CYGBLD_RTAIDIR {
 	    display "RTAI directory"
+	    parent CYGBLD_GLOBAL_OPTIONS
 	    flavor data
 	    no_define
 	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
@@ -118,6 +90,7 @@ package.
 Enable this option when LXRT KERNEL MODULES need
 to be build and set the correct path, for example
 /usr/src/linux-rt"
+	parent CYGBLD_GLOBAL_OPTIONS
 	flavor bool
 	default_value { 0 }
 	implements OROINT_OS_KERNEL_MODULE
@@ -129,54 +102,6 @@ to be build and set the correct path, for example
 	    default_value { "/usr/src/linux-rt" }
 	    description "Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux-rt."
 	}
-    }
-	cdl_option OROBLD_GLOBAL_CFLAGS_ADD {
-	    display "User defined global compiler flags"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description   "
-          This option allows you to override some global compiler flags.
-The options you provide here will be appended to the CFLAGS variable.
-You can add the '-g -O0' flags here for example."
-	}
-
-	cdl_option CYGBLD_GLOBAL_CFLAGS {
-	    display "Global compiler flags"
-	    flavor  data
-	    no_define
-	    calculated { " -pipe -Wall -Wnon-virtual-dtor -Woverloaded-virtual -O2 -I" . CYGBLD_RTAIDIR . "/include -march=". OROBLD_OS_ARCHITECTURE . " -mcpu=" .  OROBLD_OS_PROCESSOR . " " . OROBLD_GLOBAL_CFLAGS_ADD }
-	    description   "
-          This option shows the global compiler flags which
-          are used to compile all packages by
-          default. Individual packages may define
-          options which override these global flags. You can not change these
-          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD"
-	}
-
-	cdl_option CYGBLD_GLOBAL_LDFLAGS_ADD {
-	    display "User defined linker flags"
-	    flavor  data
-	    no_define
-	    default_value { "" }
-	    description   "
-          This option allows you to override the global linker flags.
-          The options you provide here will be appended to the LDFLAGS variable.
-          You can add additional library paths and flags here."
-	}
-
-	cdl_option CYGBLD_GLOBAL_LDFLAGS {
-	    display "Global linker flags"
-	    flavor  data
-	    no_define
-	    calculated { " -L" . CYGBLD_RTAIDIR . "/lxrt/lib -L". CYGBLD_RTAIDIR. "/lib -llxrt" . CYGBLD_GLOBAL_LDFLAGS_ADD }
-	    description   "
-          This option controls the global linker flags. Individual
-          packages may define options which override these global flags.
-          You can not change these
-          flags but override them in the CYGBLD_GLOBAL_LDFLAGS_ADD"
-	}
-
     }
 
     cdl_option CYGBLD_LINKER_SCRIPT {

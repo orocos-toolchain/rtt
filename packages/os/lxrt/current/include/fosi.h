@@ -31,6 +31,8 @@
 #define _XOPEN_SOURCE 600   // use all Posix features.
 #endif
 
+#define HAVE_FOSI_API
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -176,46 +178,47 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
         CHK_LXRT_CALL();
-        return rt_sem_init(m, value);
+		// store the pointer in m->opaque...
+        m->opaque = (int) rt_sem_init( rt_get_name(0) , value);
+		return m->opaque == 0 ? -1 : 0;
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
     {
         CHK_LXRT_CALL();
-        return rt_sem_delete(m);
+        return rt_sem_delete((rt_sem_t*)(m->opaque));
     }
 
     static inline int rtos_sem_signal(rt_sem_t* m )
     {
         CHK_LXRT_CALL();
-        return rt_sem_signal(m);
+        return rt_sem_signal((rt_sem_t*)m->opaque);
     }
 
     static inline int rtos_sem_wait(rt_sem_t* m )
     {
         CHK_LXRT_CALL();
-        return rt_sem_wait(m);
+        return rt_sem_wait((rt_sem_t*)m->opaque);
     }
 
     static inline int rtos_sem_trywait(rt_sem_t* m )
     {
         CHK_LXRT_CALL();
-        return rt_sem_wait_if(m);
+        return rt_sem_wait_if((rt_sem_t*)m->opaque);
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )
     {
         CHK_LXRT_CALL();
-        return rt_sem_count(m);
+        return rt_sem_count((rt_sem_t*)m->opaque);
     }
 
-#if 0
-    static inline int rtos_sem_wait_timed(rt_sem_t* m, long long delay )
+    static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
         CHK_LXRT_CALL();
-        return rt_sem_wait_timed(m, delay);
+        return rt_sem_wait_timed((rt_sem_t*)m->opaque, nano2count(delay) );
     }
-#endif
+
     static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
     {
         CHK_LXRT_CALL();
@@ -354,6 +357,7 @@ int rtos_sem_signal(rt_sem_t* m );
 int rtos_sem_wait(rt_sem_t* m );
 int rtos_sem_trywait(rt_sem_t* m );
 int rtos_sem_value(rt_sem_t* m );
+int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
 
 #endif // OSBLD_OS_AGNOSTIC
 
