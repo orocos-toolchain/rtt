@@ -26,11 +26,12 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all Beckhoff classes 
- * of the canopen package.
+ * @brief Beckhoff CAN Coupler Drivers
  *
- * This package allows you to acces your Beckhoff modules
- * over a canopen bus.
+ * This package allows you to access to some Beckhoff modules
+ * by sending/receiving CAN messages
+ * to/from a Beckhoff CAN Coupler, using the CAN Abstraction layer of
+ * Orocos
  *
  */
 namespace Beckhoff {}

@@ -10,6 +10,7 @@ based CANOpen bus for an industrial partner."
 
     requires OROPKG_DEVICE_DRIVERS
     requires OROPKG_DEVICE_DRIVERS_CANPIE
+    requires OROINT_DEVICE_DRIVERS_CP_CORE
     requires OROPKG_DEVICE_INTERFACE
     requires OROPKG_DEVICE_INTERFACE_IO
     requires OROPKG_DEVICE_INTERFACE_ENCODER

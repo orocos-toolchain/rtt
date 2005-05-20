@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the canopen package.
+ * @brief CAN Message Abstraction Layer
  *
  * This package provides a C++ CANOpen message and controller layer.
  * The controller is based on the canpie package.
