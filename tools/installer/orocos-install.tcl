@@ -1209,14 +1209,16 @@ proc ecos_install::generate_ecos_script { } {
                 close $newscr_fd
                 make_file_executable "orocosenv.csh"
         }
-        ecos_install::report "---------------------------------------------------------"
-        ecos_install::report "In future, to establish the correct environment for Orocos,"
+        ecos_install::report "--------------------------------------------------------------------"
+        ecos_install::report "In future, to establish the correct environment for building Orocos,"
         ecos_install::report "run one of the following commands:"
         ecos_install::report "   . [file join $idir orocosenv.sh] \t\t(for sh/bash users); or"
         ecos_install::report "   source [file join $idir orocosenv.csh] \t(for csh/tcsh users)\n"
         ecos_install::report "It is recommended you append these commands to the end of your"
-        ecos_install::report "shell startup files such as \$HOME/.profile or \$HOME/.login"
-        ecos_install::report "---------------------------------------------------------"
+        ecos_install::report "shell startup files such as \$HOME/.profile or \$HOME/.login\n"
+        ecos_install::report "Alternatively, you can copy the tools/bin/* programs to your"
+        ecos_install::report "/usr/local/bin or $HOME/bin directory if these paths are available."
+        ecos_install::report "--------------------------------------------------------------------"
 }
 
 # }}}

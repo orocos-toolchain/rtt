@@ -11,6 +11,7 @@ namespace eval installdatav1 {
         array set ecosreleases \
             { \
                   "Linux" { \
+                                { "0.20.0" "packages/0.20.0/orocos-0.20.0.i386linux.tar.bz2" "orocos-0.20.0/packages" { "orocos-0.20.0/tools/bin"} } \
                                 { "0.19.3" "packages/0.19.3/orocos-0.19.3.i386linux.tar.bz2" "orocos-0.19.3/packages" { "orocos-0.19.3/tools/bin"} } \
                                 { "0.19.2" "packages/0.19.2/orocos-0.19.2.i386linux.tar.bz2" "orocos-0.19.2/packages" { "orocos-0.19.2/tools/bin"} } \
                                 { "0.19.1" "packages/0.19.1/orocos-0.19.1.i386linux.tar.bz2" "orocos-0.19.1/packages" { "orocos-0.19.1/tools/bin"} } \

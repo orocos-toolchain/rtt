@@ -56,6 +56,8 @@ cd orocos-$VERSION
   # Build Online documentation and prepare eps files for later
   cd packages
   make doc-dist || exit 1
+  cd ../build
+  make doxygen_headers
   make doxy-dist || exit 1
   cd ..
 
@@ -69,8 +71,8 @@ cd build
   make clean
   make docs
   cd doc
-  make manual
-  tar -czf orocos-manual.tgz *.png *.ps *.pdf *.html ||exit 1
+  make manual control-manual
+  tar -czf orocos-manual.tgz *.png *.pdf *.html ||exit 1
   cd ..
 cd ..
 
@@ -94,30 +96,32 @@ ssh srv04 "mkdir -p pub_html/orocos/packages/$VERSION/doc"
 ssh srv04 "mkdir -p pub_html/orocos/doc/"
 scp orocos-docs.tar srv04:pub_html/orocos/packages/$VERSION/doc || exit 1
 scp ../build/doc/orocos-manual.tgz srv04:pub_html/orocos/packages/$VERSION/doc/orocos-manual.tgz || exit 1
-scp orocos-api.tar.bz2 srv04:pub_html/orocos/ || exit 1
+scp ../build/orocos-api.tar.bz2 srv04:pub_html/orocos/ || exit 1
 ssh srv04 "cd pub_html/orocos/doc && 
 tar -xf ../packages/$VERSION/doc/orocos-docs.tar && 
 cp ../packages/$VERSION/doc/*.tgz .
 for i in \$(ls *.tgz); do tar -xzf \$i; rm -f \$i; done;
 mv orocos-changes.html ../packages/$VERSION/orocos-changes-$VERSION.html
-mv orocos-changes.pdf ../packages/$VERSION/orocos-changes-$VERSION.pdf
-mv orocos-changes.ps ../packages/$VERSION/orocos-changes-$VERSION.ps
 cd ..
 rm -rf doc/api
 tar -xjf orocos-api.tar.bz2
 mv orocos-api.tar.bz2 doc/
  " || exit 1
+#copy the images
+scp -r ../doc/images srv04:pub_html/orocos/doc/
 cd ..
 scp NEWS srv04:pub_html/orocos/packages/$VERSION/NEWS.txt
 else # dev :
 ssh srv04 "mkdir -p pub_html/orocos/doc/latest"
 scp orocos-docs.tar srv04:pub_html/orocos/doc/latest || exit 1
 scp ../build/doc/orocos-manual.tgz srv04:pub_html/orocos/doc/latest/orocos-manual.tgz || exit 1
-scp orocos-api.tar.bz2 srv04:pub_html/orocos/doc/latest || exit 1
+scp ../build/orocos-api.tar.bz2 srv04:pub_html/orocos/doc/latest || exit 1
 ssh srv04 "cd pub_html/orocos/doc/latest
 tar -xf orocos-docs.tar && for i in \$(ls *.tgz); do tar -xzf \$i; rm -f \$i; done;
 rm -rf api && tar -xjf orocos-api.tar.bz2 && mv doc/api api && rmdir doc
  " || exit 1
+#copy the images
+scp -r ../doc/images srv04:pub_html/orocos/doc/latest
 cd ..
 fi
 
