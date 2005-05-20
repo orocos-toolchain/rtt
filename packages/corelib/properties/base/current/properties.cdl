@@ -10,7 +10,40 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
+    requires OROPKG_CORELIB_COMMANDS
 
     compile PropertyBag.cxx  PropertySequence.cxx VectorComposition.cxx
     compile Property.cxx PropertyBase.cxx PropertyBagIntrospector.cxx
+
+    cdl_option OROCLS_CORELIB_PROPERTIES_MOTIONPROPERTIES {
+	    display "Enable Marshalling of Geometry Classes."
+	    description "
+This option is enabled to allow marshalling of the Geometry classes
+such as Frame, Vector and Rotation, if available."
+
+	calculated OROPKG_GEOMETRY
+    }
+
+    cdl_component OROBLD_CORELIB_PROPERTIES_DEFAULT_DECOMPOSE {
+	display "Provide Default decomposeProperty method."
+	description "
+Enable this to allow the compiler to generate a default (empty)
+implementation of decomposeProperty for any Property<T> which
+has that method not defined at place of instantiation of that
+Property<T>. If you do not enable this, you need to implement yourself
+a decomposeProperty method for each class T not known to the Property System.
+If not implemented, you will get a compile-time error."
+	default_value 1
+	
+	cdl_option OROBLD_CORELIB_PROPERTIES_DEFAULT_DECOMPOSE_ERROR {
+	    display "Marshall as Error Message"
+	    description "
+Enable this option to cause the default decomposeProperty to marshall
+to a Property<std::string>, which contains an error message about
+how to resolve the problem. If not enabled, the default decomposeProperty
+will do nothing."
+
+	default_value 1
+	}
+    }
 }

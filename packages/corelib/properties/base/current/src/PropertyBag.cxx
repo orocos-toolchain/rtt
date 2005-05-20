@@ -32,6 +32,88 @@
 namespace ORO_CoreLib
 {
 
+    PropertyBag::PropertyBag( )
+        : _properties(), type("type_less")
+    {}
+
+    PropertyBag::PropertyBag( const std::string& _type)
+        : _properties(), type(_type)
+    {}
+
+    PropertyBag::PropertyBag( const PropertyBag& orig)
+        : _properties( orig.getProperties() ), type( orig.getType() )
+    {
+    }
+
+    void PropertyBag::add(PropertyBase *p)
+    {
+        _properties.push_back(p);
+    }
+
+    void PropertyBag::remove(PropertyBase *p)
+    {
+        iterator i = _properties.begin();
+        i = _properties.end();
+        i = std::find(_properties.begin(), _properties.end(), p);
+        if ( i != _properties.end() )
+            _properties.erase(i);
+    }
+
+    void PropertyBag::clear()
+    {
+        _properties.clear();
+    }
+
+
+    void PropertyBag::list(std::vector<std::string> &names) const
+    {
+        for (
+             const_iterator i = _properties.begin();
+             i != _properties.end();
+             i++ )
+            {
+                names.push_back( (*i)->getName() );
+            }
+    }
+
+    PropertyBase* PropertyBag::find(const std::string& name) const
+    {
+        const_iterator i( std::find_if(_properties.begin(), _properties.end(), std::bind2nd(PropertyBag::FindProp(), name ) ) );
+        if ( i != _properties.end() )
+            return ( *i );
+        return 0;
+    }
+
+    PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
+    {
+        _properties.clear();
+
+        const_iterator i = orig.getProperties().begin();
+        while (i != orig.getProperties().end() )
+            {
+                add( (*i) );
+                ++i;
+            }
+        return *this;
+    }
+
+    PropertyBag& PropertyBag::operator<<=(const PropertyBag& source)
+    {
+        //iterate over orig, update or clone PropertyBases
+        const_iterator it(source.getProperties().begin());
+        while ( it != source.getProperties().end() )
+            {
+                PropertyBase* mine = find( (*it)->getName() );
+                if (mine != 0)
+                    remove(mine);
+                add( (*it) );
+                ++it;
+            }
+        return *this;
+    }
+
+
+
     PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;

@@ -81,12 +81,19 @@ namespace ORO_CoreLib
      */
 
 	/**
-	 * @brief A property represents data of any type.
+	 * @brief A property represents a value of any type.
      *
 	 * A property is a tuple of a name, a description and a variable of any
-	 * type.
+	 * type. It's purpose is to provide an easy to manipulate parameter of an 
+     * object by external entities. They can be grouped in PropertyBag objects
+     * and a Property can contain a PropertyBag itself. See the configuration tool
+     * to influence how the compiler should generate code for unkown
+     * (external to Orocos) classes \a T.
+     *
 	 *
      * @param T The type of the data contained within the Property.
+     * @see decomposeProperty and composeProperty if you want to use properties of
+     * external types \a T.
 	 */
     template<typename T>
     class Property
@@ -326,6 +333,10 @@ namespace ORO_CoreLib
 
         virtual AssignableDataSource<T>* createDataSource() {
             return new detail::PropertyDataSource<T>( this );
+        }
+
+        virtual std::string getType() const {
+            return DataSource<T>::GetType();
         }
     protected:
         value_t _value;

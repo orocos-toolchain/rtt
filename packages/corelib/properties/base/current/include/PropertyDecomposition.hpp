@@ -31,23 +31,23 @@
 
 #include "Property.hpp"
 #include "VectorComposition.hpp"
+#include "MultiVectorComposition.hpp"
 
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
+#include <pkgconf/corelib_properties.h>
+#ifdef OROCLS_CORELIB_PROPERTIES_MOTIONPROPERTIES
 #include <geometry/MotionProperties.hpp>
 #endif
 
 namespace ORO_CoreLib
 {
 	/** 
-	 * @file PropertyDecomposition.hpp
-     * The decomposeProperty function is a helper function which converts composed 
-	 * types into property bags of primitive types. The primitive types are then 
+     * The decomposeProperty function is a helper function which converts classes
+	 * into property bags of native C++ primitive types. The primitive types are then 
      * passed on to the PropertyIntrospection.
 	 *
 	 * Every new type used as a property will automatically get a generated
 	 * function like the one below. It is your task to copy this function and
-     * rewrite it for your type so that <YourType> is decomposed in primitive
+     * rewrite it for your type so that class \a T is decomposed in primitive
      * property types. This enables you to
 	 * use properties of any type without being forced to extend your existing
      * PropertyIntrospection classes.
@@ -55,18 +55,18 @@ namespace ORO_CoreLib
 	 * To be able to introspect this new type, you need to write a
 	 * specialized implementation of this function for your specific type.
 	 * This function should use the PropertyIntrospection interface to identify your
-	 * type. Include then the file containing the new function in your program and
-     * it will be used automatically.
+	 * type. Include then the file containing the new function in each file using
+     * the Property<T> and it will be used automatically.
      *
      * Example for type MyClass :
      * \code 
      *  void decomposeProperty(PropertyIntrospection *pi, const Property< MyClass > &c)
      *  {
      *      // Decode c into primitive properties Var1 and Var2 which are in a PropertyBag of the
-     *      // type "MyClass".
-     *	    Property<PropertyBag> result("Class Name","Description", c.name, PropertyBag("MyClass") );
-     *	    Property<bool>   var1("Var1","", c.var1);
-     *	    Property<double> var2("Var2","", c.var2);
+     *      // bag-type "MyClass" with the same name as the Property 'c'.
+     *	    Property<PropertyBag> result( c.getName() ,"Description", PropertyBag("MyClass") );
+     *	    Property<bool>   var1("Var1","", c.get().var1);
+     *	    Property<double> var2("Var2","", c.get().var2);
      *
      *      // Put var1 and var2 in the bag
      *      result.value().add(var1);
@@ -77,9 +77,10 @@ namespace ORO_CoreLib
      *      // done !
      *  } 
      * \endcode 
-     *  @see PropertyComposition.hpp
+     *  @see composeProperty for the inverse operation
+     *  @see MotionProperties.hpp for examples in the ORO_Geometry libraray.
      * @note If you see this message apearing, and do not know why or where it is generated,
-     *  comment (//... ) this function and recompile, a compile time error will be generated
+     *  disable 'Default Decompose' in the configuration tool and recompile, a compile time error will be generated
      *  at places where this function would have been used. Reasons why the compiler uses this function
      *  instead of yours are : 
      *  <il><li>Your decomposeProperty function does not live in 
@@ -88,16 +89,23 @@ namespace ORO_CoreLib
      *  decomposeProperty function.</li>
      *  <li> At compile time, your decomposeProperty function could not be 'seen' by the compiler.
      *  Solution : write using ORO_CoreLib::decomposeProperty; at top of the file causing this
-     *  error.</li><il>
+     *  error and make sure that your decomposeProperty function is included <em> in every file <em> which
+     *  uses your Property<T>. </li><il>
 	 */
+#if defined(OROBLD_CORELIB_PROPERTIES_DEFAULT_DECOMPOSE) || defined(DOXYGEN) // use the DOXYGEN flag to force include of the function.
 	template<typename T>
 	void decomposeProperty(PropertyIntrospection *pi, const Property<T> &b)
 	{
+#ifdef OROBLD_CORELIB_PROPERTIES_DEFAULT_DECOMPOSE_ERROR
 		Property<std::string> error(b.getName(),
                                     "PropertyIntrospection Error. "+ std::string("Unknown type, see ") + std::string(__FILE__) + std::string(" for more information "),
                                     std::string("Err") );
 		pi->introspect(error);
-	} 
+#endif
+	}
+#else
+    ;
+#endif
 	
 }
 

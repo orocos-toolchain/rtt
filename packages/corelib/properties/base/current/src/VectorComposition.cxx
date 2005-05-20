@@ -45,29 +45,21 @@ namespace ORO_CoreLib
     Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("std::vector<double>") );
 
     std::vector<double> vec = c.get();
-    Property<int>* dimension = new Property<int>("dim","Dimension of the Vector", vec.size() );
+    Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
 
     result.value().add( dimension );
 
-    std::string data_name = "d00";
+    int data_number = 0;
+    std::stringstream data_name;
+    data_name  << data_number;
+
 
     for ( int i=0; i < dimension->get() ; i++)
     {
-        result.value().add( new Property<double>(data_name,"",vec[i]) ); // Put variables in the bag
+        result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
-        // change last number of string
-        if(i < 100)
-        {
-            if( data_name[2] == '9')
-            {
-                data_name[2] = '0';
-                data_name[1] += 1;
-            }
-            else
-            {
-                data_name[2] += 1;
-            }
-        }
+        data_name.clear();
+        ++data_number;
     }
 
     pi->introspect(result); // introspect the bag.
@@ -79,29 +71,20 @@ namespace ORO_CoreLib
     Property<PropertyBag> result(c.getName(),"std::vector<double>", PropertyBag("std::vector<double>") );
 
     std::vector<double> vec = c.get();
-    Property<int>* dimension = new Property<int>("dim","Dimension of the Vector", vec.size() );
+    Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
 
     result.value().add( dimension );
 
-    std::string data_name = "d00";
+    int data_number = 0;
+    std::stringstream data_name;
+    data_name  << data_number;
 
     for ( int i=0; i < dimension->get() ; i++)
     {
-        result.value().add( new Property<double>(data_name,"",vec[i]) ); // Put variables in the bag
+        result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
-        // change last number of string
-        if(i < 100)
-        {
-            if( data_name[2] == '9')
-            {
-                data_name[2] = '0';
-                data_name[1] += 1;
-            }
-            else
-            {
-                data_name[2] += 1;
-            }
-        }
+        data_name.clear();
+        ++data_number;
     }
 
     pi->introspect(result); // introspect the bag.
@@ -116,60 +99,74 @@ namespace ORO_CoreLib
   bool composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result)
   {
     PropertyBase* v_base = bag.find( result.getName() );
+    if ( v_base == 0 )
+        return false;
+
     Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
 
-    if (v_bag != NULL && v_bag->get().getType() == "std::vector<double>")
+    if (v_bag != 0 && v_bag->get().getType() == "std::vector<double>")
     {
-        std::string data_name = "d00";
-        Property<double>* comp;
-
         Property<int>* dim;
-        v_base = v_bag->get().find("dim");
+        v_base = v_bag->get().find("Size");
         if ( v_base == 0 ) {
             Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                          << result.getName() << " : could not find property \"dim\"."<<Logger::endl;
+                          << result.getName() << " : could not find property \"Size\"."<<Logger::endl;
             return false;
         }
         dim = dynamic_cast< Property<int>* >(v_base);
         if ( dim == 0) {
             Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                          << result.getName() << " : Expected \"dim\" to be of type short."<<Logger::endl;
+                          << result.getName() << " : Expected \"Size\" to be of type short."<<Logger::endl;
             return false;
         }
+
         int dimension = dim->get();
         // cerr << dimension << endl;
-
-        if (dimension > 99)
-        {
-	  // cerr << "\033[1;33mWarning: Setting dimension of vector to maximum for properties (99) \033[0m" << endl;
-            dimension = 99;
-        }
-
         // Set dimension
         result.value().resize(dimension);
+
+        Property<double>* comp;
+        int data_number = 0;
+        std::stringstream data_name;
+        data_name  << data_number;
+
 
         // Get values
         for (int i = 0; i < dimension ; i++)
         {
-            comp = dynamic_cast< Property<double>* >(v_bag->get().find(data_name));
+            PropertyBase* element = v_bag->get().find(data_name.str());
+            if ( element == 0 ) {
+                Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
+                              << ": Data element "<< data_name.str() <<" not found !"
+                              <<Logger::endl;
+                return false;
+            }
+            comp = dynamic_cast< Property<double>* >( element );
+            if ( comp == 0 ) {
+                DataSourceBase::shared_ptr ds = element->createDataSource();
+                Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
+                              << ": Exptected data element "<< data_name.str() << " to be of type double"
+                              <<" got type " << ds->getType()
+                              <<Logger::endl;
+                return false;
+            }
             result.value()[i] = comp->get();
 
-            // change last number of string
-            if( data_name[2] == '9')
-            {
-                data_name[2] = '0';
-                data_name[1] += 1;
-            }
-            else
-            {
-                data_name[2] += 1;
-            }
+            data_name.clear();
+            ++data_number;
         }
     }
     else
     {
+        if ( v_bag != 0 ) {
+            Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
+                          << result.getName() << " : type mismatch, got type '"<< v_bag->get().getType()  <<"'"<<Logger::endl;
+        } else {
+            Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
+                          << result.getName() << " : not a PropertyBag."<<Logger::endl;
+        }
       // cerr << "\033[1;33mWarning: Bag was empty! \033[0m" << endl;
-        Logger::log() << Logger::Warning << "Empty PropertyBag given for Property< std::vector<double> > : "<<result.getName()<<Logger::endl;
+        Logger::log() << Logger::Debug << "Could not update Property< std::vector<double> > : "<<result.getName()<<Logger::endl;
         return false;
     }
     return true;

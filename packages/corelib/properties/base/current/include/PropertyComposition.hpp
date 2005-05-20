@@ -31,6 +31,13 @@
 
 #include "Property.hpp"
 #include "PropertyBag.hpp"
+#include "VectorComposition.hpp"
+#include "MultiVectorComposition.hpp"
+
+#include <pkgconf/corelib_properties.h>
+#ifdef OROCLS_CORELIB_PROPERTIES_MOTIONPROPERTIES
+#include <geometry/MotionProperties.hpp>
+#endif
 
 namespace ORO_CoreLib
 {
@@ -52,35 +59,36 @@ namespace ORO_CoreLib
      * \code
      * namespace ORO_CoreLib {
      *
-     *  void composeProperty(const PropertyBag& bag, Property< MyClass > &result)
+     *  bool composeProperty(const PropertyBag& bag, Property< MyClass > &result)
      *  {
-     *     PropertyBase* v_base = bag.find( result.getName() );
-     *     PropertyBag* v_bag = dynamic_cast<PropertyBag*>(v_base);
-     *     if (v_bag != 0)
+     *     Property<PropertyBag>* v_bag = bag.getProperty<PropertyBag>( result.getName()  );
+     *     if (v_bag != 0 && v_bag.getType() == "MyClass" ) // Bag type is extra sanity check
      *     {
-     *             Property<bool>* var1 = dynamic_cast< Property<bool>* >(v_bag->find("Var1"));
-     *             Property<double>* var2 = dynamic_cast< Property<double>* >(v_bag->find("Var2));
+     *             Property<bool>* var1 = v_bag->get()->getProperty<bool>("Var1");
+     *             Property<double>* var2 = v_bag->get()->getProperty<double>("Var2");
      *             if (var1 != 0  && var2 != 0)
      *             {
      *                  result.var1 = var1.get();
      *                  result.var2 = var2.get();
+     *                  return true; // Done !
      *             }
      *     }
-     *     // done !
+     *     return false;
 	 *  }
      * }
      * \endcode
-     *  @see PropertyDecomposion.hpp
+     *  @see decomposeProperty for the inverse operation
      *
      *  @note <b>IMPORTANT ! <br> 
-     *        The PropertyComposition and PropertyDecomposition functions must reside
+     *        The composeProperty and decomposeProperty functions must reside
      *        in the ORO_CoreLib namespace, or the compiler will not find them !</b>
 	 */
 	template<typename T>
 	bool composeProperty(const PropertyBag& bag, Property<T> &result)
 	{
+        // work around GCC < 3.4 bug : can not use getProperty<T> due to parse error.
         Property<T>* newProp = dynamic_cast< Property<T>* >(bag.find( result.getName() ));
-        if ( newProp !=0)
+        if ( newProp !=0 )
         {
             result.set() = newProp->get();
             return true;
