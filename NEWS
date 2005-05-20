@@ -22,6 +22,9 @@ Orocos can be downloaded using this script :
 which is invoked as in :
   $ sh orocos-install.tcl
 
+A '10 minutes overview' of Orocos features and philosophy can be found in the
+PDF Presentation <http://www.orocos.org/documents/OrocosOverview-05-05.pdf>
+
 OROCOS v0.18.2 Release Notes
    http://www.orocos.org
 ----------------------------
