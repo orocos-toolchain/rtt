@@ -31,6 +31,7 @@
 #include "parser-types.hpp"
 #include "CommonParser.hpp"
 #include "PeerParser.hpp"
+#include "PropertyParser.hpp"
 #include "AttributeRepository.hpp"
 
 #include <memory>
@@ -51,6 +52,7 @@ namespace ORO_Execution
       const_string, const_char;
     CommonParser commonparser;
     PeerParser peerparser;
+    PropertyParser propparser;
 
     // a auto_ptr used only to make sure we don't forget to delete
     // the TaskVariableBase it holds..  Here we store a pointer to
@@ -59,12 +61,12 @@ namespace ORO_Execution
     // delete it, as it remains in the values map, however a
     // constant only gets stored temporarily in ret, so this
     // variable makes sure it gets deleted.
-    std::auto_ptr<TaskAttributeBase> deleter;
-    // the TaskVariable we've just parsed..  we only store it and
+    //std::auto_ptr<TaskAttributeBase> deleter;
+    // the DataSource we've just parsed..  we only store it and
     // assume that the ProgramParser will do something useful with
     // it.  We don't ever own it, and don't delete it, or set it to
     // 0..
-    TaskAttributeBase* ret;
+    DataSourceBase::shared_ptr ret;
     // contains the string constant we're parsing ( it has to be
     // parsed char-by-char, because of the way c_escape_ch_p works
     // )..
@@ -78,6 +80,7 @@ namespace ORO_Execution
     void push_str_char( char c );
     void seenstring();
     void seennull();
+    void seenpeer();
 
       TaskContext* context;
   public:
@@ -94,7 +97,7 @@ namespace ORO_Execution
 
     rule_t& parser();
 
-    const TaskAttributeBase* lastParsed() const
+    const DataSourceBase::shared_ptr lastParsed() const
       {
         return ret;
       }

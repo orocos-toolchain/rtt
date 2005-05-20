@@ -21,6 +21,7 @@ is very powerful."
     compile ParsedStateMachine.cxx
     compile StateMachineBuilder.cxx
     compile PeerParser.cxx 
+    compile PropertyParser.cxx 
     compile FunctionFactory.cxx
     compile TaskBrowser.cxx
     compile ProgramLoader.cxx

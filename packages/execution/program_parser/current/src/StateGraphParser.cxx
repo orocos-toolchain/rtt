@@ -299,6 +299,8 @@ namespace ORO_Execution
         // setup the progParser to parse the program body,
         // dynamically assign this parser to body.
         assert( progParser != 0 );
+        // program name, stack, line offset.
+        //cerr << "SGP : Stack is " << curcontext->getName() <<endl;
         progParser->initBodyParser( name, curcontext, ln_offset );
         
         programBody = progParser->bodyParser();

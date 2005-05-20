@@ -34,6 +34,7 @@
 #include "execution/parser-types.hpp"
 
 #include <boost/bind.hpp>
+#include <iostream>
 
 namespace ORO_Execution
 {
@@ -43,13 +44,19 @@ namespace ORO_Execution
     namespace {
         enum PeerErrors { peer_not_found };
         guard<PeerErrors> my_guard;
+
+        /**
+         * set by locatepeer, read by handle_no_peer
+         */
+        static std::ptrdiff_t advance_on_error = 0;
     }
 
     error_status<> handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
     {
-        //std::cerr<<"Returning accept"<<std::endl;
+        //std::cerr<<"Returning accept, advance "<<advance_on_error<<std::endl;
+        scan.first += advance_on_error;
         // ok, got as far as possible, _peer contains the furthest we got.
-        return error_status<>( error_status<>::accept );
+        return error_status<>( error_status<>::accept, advance_on_error  );
     }
 
         void PeerParser::done()
@@ -103,14 +110,14 @@ namespace ORO_Execution
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
             peerpath = 
-                ( +(commonparser.identifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
+                ( +(commonparser.notassertingidentifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
 
             // find as far as possible a peer without throwing an exception
             // outside our interface
             peerlocator =
-                my_guard
-                ( +(commonparser.identifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ])
-                [ &handle_no_peer ];
+                !(my_guard
+                  ( +((commonparser.notassertingidentifier >> ".")[bind( &PeerParser::locatepeer, this, _1, _2 ) ]))
+                [ &handle_no_peer ]);
         }
 
     TaskContext* PeerParser::setContext( TaskContext* tc )
@@ -118,6 +125,7 @@ namespace ORO_Execution
         //std::cerr<< "Peers: context: "<< tc->getName()<<std::endl;
         TaskContext* ret = context;
         context = tc;
+        this->reset();
         return ret;
     }
 
@@ -125,6 +133,7 @@ namespace ORO_Execution
     {
         _peer = context;
         mcurobject = "this";
+        advance_on_error = 0;
     }
 
     void PeerParser::seenobjectname( iter_t begin, iter_t end )
@@ -141,6 +150,7 @@ namespace ORO_Execution
         name.erase( name.length() -1  ); // compensate for extra "."
 
         if ( _peer->hasPeer( name ) ) {
+            advance_on_error += end - begin;
             _peer = _peer->getPeer( name );
         }
         else {

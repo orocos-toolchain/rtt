@@ -708,6 +708,27 @@ namespace ORO_Execution
             return s[index];
         }
     };
+
+    template<class T>
+    struct get_capacity
+        : public std::unary_function<T, int>
+    {
+        int operator()(T cont ) const
+            {
+                return cont.capacity();
+            }
+    };
+
+    template<class T>
+    struct get_size
+        : public std::unary_function<T, int>
+    {
+        int operator()(T cont ) const
+            {
+                return cont.size();
+            }
+    };
+
                     
 
   double double6D_index( Double6D d6,  int index )
@@ -784,6 +805,8 @@ namespace ORO_Execution
     add( newBinaryOperator( "<", std::less<const std::string&>() ) );
     add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
     add( newBinaryOperator( "[]", string_index() ) );
+    add( newDotOperator( "size", get_size<const std::string&>() ) );
+    add( newDotOperator( "capacity", get_capacity<const std::string&>() ) );
 
     // chars
     add( newBinaryOperator( "==", std::equal_to<char>() ) );
@@ -793,6 +816,16 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
     // vectors: I'm simply exporting all those that are available, not
     //          adding any myself..
+    add( newBinaryOperator( "==", std::equal_to<Frame>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Frame>() ) );
+    add( newBinaryOperator( "==", std::equal_to<Vector>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Vector>() ) );
+    add( newBinaryOperator( "==", std::equal_to<Rotation>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Rotation>() ) );
+    add( newBinaryOperator( "==", std::equal_to<Wrench>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Wrench>() ) );
+    add( newBinaryOperator( "==", std::equal_to<Twist>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<Twist>() ) );
     add( newUnaryOperator( "-", std::negate<Vector>() ) );
     add( newBinaryOperator( "*", std::multiplies<Vector>() ) );
     add( newBinaryOperator( "*", std::multiplies<Frame>() ) );
@@ -823,11 +856,12 @@ namespace ORO_Execution
     add( newDotOperator( "vel", twist_vel() ) );
     add( newDotOperator( "force", wrench_torque() ) );
     add( newDotOperator( "torque", wrench_force() ) );
-    add( newDotOperator( "r", rotation_roll() ) );
-    add( newDotOperator( "p", rotation_pitch() ) );
-    add( newDotOperator( "y", rotation_yaw() ) );
+    add( newDotOperator( "roll", rotation_roll() ) );
+    add( newDotOperator( "pitch", rotation_pitch() ) );
+    add( newDotOperator( "yaw", rotation_yaw() ) );
     add( newDotOperator( "p", frame_pos() ) );
     add( newDotOperator( "M", frame_rot() ) );
+    add( newDotOperator( "R", frame_rot() ) );
 
     add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
     add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
@@ -853,7 +887,10 @@ namespace ORO_Execution
     add( newBinaryOperator( "*", mystl::multiplies<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
+
     add( newBinaryOperator( "[]", array_index() ) );
+    add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
+    add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
   }
 
   void OperatorRegistry::add( DotOp* a )

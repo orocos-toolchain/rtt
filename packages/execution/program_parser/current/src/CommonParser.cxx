@@ -71,24 +71,10 @@ namespace ORO_Execution {
             "nothing", // do not exclude 'do nothing' !
             "var",
             "set",
-            "let",
             "alias",
-            "to",
             "sync",
             "return",
             "call",
-            "SubMachine",
-            "RootMachine",
-            "StateMachine",
-            "initial",
-            "final",
-            "state",
-            "preconditions",
-            "entry",
-            "exit",
-            "handle",
-            "transitions",
-            "select",
             "try",
             "catch";
 
@@ -114,8 +100,8 @@ namespace ORO_Execution {
         // both inside and outside of lexeme_d, we need two versions of
         // it.  Those are provided here: lexeme_identifier and
         // identifier..
-        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords];
-        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords];
+        idr  = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keywords;
+        idlr = lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - keywords;
         // #warning " Rule on stack  ?? "
         //RULE( identifier_base, lexeme_d[ alpha_p >> *identchar ][assign( lastparsedident )] - as_lower_d[keywords] );
         //BOOST_SPIRIT_DEBUG_RULE( identifier_base );

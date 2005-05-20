@@ -40,10 +40,22 @@ namespace ORO_Execution
      * REALTIME, since they access the disk and allocate memory.
      * Thus you need to call them from the TaskBrowser or 
      * a non realtime task.
+     *
+     * All the commands and methods are virtual, to allow
+     * detection of invocation in a subclass, and possibly
+     * reject the invocation or tie other operations to it.
      */
     class GenericTaskContext
         :public TaskContext
     {
+    protected:
+        /**
+         * Script assertion method. Use this to check
+         * for consistency and bring the Program Script to
+         * the error state if corruption is detected.
+         * @return The value of \a must_be_true.
+         */
+        bool assertion( bool must_be_true );
     
     public:
         /**
@@ -55,12 +67,18 @@ namespace ORO_Execution
         virtual ~GenericTaskContext();
 
         /**
+         * @defgroup Methods The method interface of this TaskContext.
+         * @{
+         */
+        /**
          * Start is a method which starts the Processor's task.
          * It can not be a command because if the Processor is not running,
          * it does not accept commands. Also, RunnableInterface::initialize()
          * is then called in the context of the caller.
          * You can override this method to do something else or in addition
          * to starting the Processor.
+         * @return false if the Processor was not assigned to a TaskInterface
+         * or if initialize() returned false or it was already started.
          */
         virtual bool start();
         
@@ -70,43 +88,60 @@ namespace ORO_Execution
          * is called in the context of the caller.
          * You can override this method to do something else or in addition
          * to stopping the Processor.
+         * @return false if the Processor was not assigned to a TaskInterface
+         * or if it was not running.
          */
         virtual bool stop();
   
         /**
          * DataSource to inspect if this Task is running.
+         * Defaults to this->getProcessor()->getTask()
+         * && this->getProcessor()->getTask()->isRunning()
          */
-        bool isRunning() const;
+        virtual bool isRunning() const;
 
         /**
          * Read this Task's properties from a file.
+         * You can override this method to check for consistent
+         * Properties.
          */
-        bool readProperties(const std::string& filename);
+        virtual bool readProperties(const std::string& filename);
 
         /**
          * Write this Task's properties to a file.
          */
-        bool writeProperties(const std::string& filename);
+        virtual bool writeProperties(const std::string& filename);
 
         /**
          * Load an Orocos Program Script from disk.
+         * You can override this method to accept or reject new
+         * programs in certain cases.
          */
-        bool loadProgram(const std::string& filename);
+        virtual bool loadProgram(const std::string& filename);
 
         /**
          * Load an Orocos State Description from disk.
+         * You can override this method to accept or reject new
+         * State Machines in certain cases.
          */
-        bool loadStateMachine(const std::string& filename);
+        virtual bool loadStateMachine(const std::string& filename);
 
         /**
          * Unload an Orocos Program Script from disk.
+         * You can override this method to accept or reject unloading
+         * of programs in certain cases.
          */
-        bool unloadProgram(const std::string& progname);
+        virtual bool unloadProgram(const std::string& progname);
 
         /**
          * Unload an Orocos State Description from disk.
+         * You can override this method to accept or reject unloading
+         * of State Machines in certain cases.
          */
-        bool unloadStateMachine(const std::string& instancename);
+        virtual bool unloadStateMachine(const std::string& instancename);
+        /**
+         *@}
+         */
     };
 }
 #endif

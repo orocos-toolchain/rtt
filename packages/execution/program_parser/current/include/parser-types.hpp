@@ -39,6 +39,8 @@ namespace ORO_Execution
 
 namespace ORO_CoreLib
 {
+  template< class T>
+  class Property;
   class PropertyBag;
   class PropertyBase;
   class CommandInterface;
@@ -47,6 +49,8 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
+    class TaskContext;
+
     namespace detail {
         class ExpressionParser;
         class ArgumentsParser;

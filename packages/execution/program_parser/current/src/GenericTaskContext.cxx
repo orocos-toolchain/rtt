@@ -44,6 +44,9 @@ namespace ORO_Execution
 
         // Register our methods :
         TemplateMethodFactory<GenericTaskContext>* mfact = newMethodFactory( this );
+        mfact->add( "assert",
+                    method( &GenericTaskContext::assertion, "Assert will get your program in the error state if the argument is false.",
+                            "MustBeTrue", "The result of a boolean expression which must be true.") );
         mfact->add( "start",
                     method( &GenericTaskContext::start, "Start this GenericTaskContext." ) );
         mfact->add( "stop",
@@ -77,6 +80,11 @@ namespace ORO_Execution
 
     GenericTaskContext::~GenericTaskContext()
     {}
+
+    bool GenericTaskContext::assertion(bool mbt)
+    {
+        return mbt;
+    }
 
     /**
      * Start is a method which starts the Processor's task.

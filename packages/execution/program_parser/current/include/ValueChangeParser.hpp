@@ -34,6 +34,7 @@
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
+#include "PropertyParser.hpp"
 
 namespace ORO_Execution { namespace detail
 {
@@ -78,7 +79,8 @@ namespace ORO_Execution { namespace detail
     void storepeername();
     void seentype( iter_t begin, iter_t end );
     void seenindexassignment();
-    void seensizehint(int i);
+    void seensizehint();
+    void seenproperty(); 
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
       variableassignment, variablechange, paramdefinition, baredefinition;
@@ -86,6 +88,7 @@ namespace ORO_Execution { namespace detail
     TaskContext* context;
     ExpressionParser expressionparser;
     PeerParser peerparser;
+    PropertyParser propparser;
     CommonParser commonparser;
 
     DataSourceBase::shared_ptr index_ds;

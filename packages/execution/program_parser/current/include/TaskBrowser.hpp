@@ -107,6 +107,8 @@ namespace ORO_Execution
 
         static void find_method(std::string::size_type startpos);
 
+        static void find_attribute(std::string::size_type startpos);
+
         static char ** orocos_hmi_completion ( const char *text, int start, int end );
 
         void switchBack();

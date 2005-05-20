@@ -552,9 +552,9 @@ namespace ORO_Execution
 
   void ExpressionParser::seenvalue()
   {
-    DataSourceBase* ds = valueparser.lastParsed()->toDataSource();
-    ds->ref();
-    parsestack.push( ds );
+    DataSourceBase::shared_ptr ds = valueparser.lastParsed();
+    ds.get()->ref();
+    parsestack.push( ds.get() );
   };
 
   void ExpressionParser::seendatacall()

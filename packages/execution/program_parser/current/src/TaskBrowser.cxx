@@ -29,12 +29,14 @@
 
 #pragma implementation
 #include <corelib/Logger.hpp>
+#include <corelib/MultiVector.hpp>
 #include "execution/TaskBrowser.hpp"
 
 #include "execution/TryCommand.hpp"
 #include <execution/TemplateFactories.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Parser.hpp>
+#include <execution/ProgramLoader.hpp>
 #include <execution/parse_exception.hpp>
 #include <execution/PeerParser.hpp>
 
@@ -88,16 +90,7 @@ namespace ORO_Execution
     void ctrl_c_catcher(int sig)
     {
         signal(sig, SIG_IGN);
-        //     sigset_t ss;
-        //     sigset_t ss2;
-        //     sigemptyset( &ss );
-        //     sigaddset( &ss, SIGABRT );
-        //     sigprocmask(SIG_BLOCK,  &ss, &ss2); // block out the abort signal
-        //cerr <<"SIGABRT in set1: "<<sigismember( &ss, SIGABRT) <<endl;
-        //cerr <<"SIGABRT in set2: "<<sigismember( &ss2, SIGABRT) <<endl;
-        //sigprocmask(SIG_SETMASK,  &ss2, &ss); // unblock abort, restore old.
         cerr <<nl<<"TaskBrowser intercepted Ctrl-C. Type 'quit' to exit."<<endl;
-        //     cerr <<sigismember( &ss2, SIGABRT) <<endl;
         signal(SIGINT, ctrl_c_catcher);
     }
 
@@ -250,6 +243,8 @@ namespace ORO_Execution
             // fill with new ones.
             find_method( startpos );
         }
+
+        find_attribute( startpos );
 
         // Only complete peers and objects, not "this" methods.
         std::vector<std::string> comps = peer->attributeRepository.attributes();
@@ -413,6 +408,27 @@ namespace ORO_Execution
                     completes.push_back( peerpath + *i );
                 else
                     completes.push_back( peerpath +object+"."+ *i );
+        }
+    }
+
+    void TaskBrowser::find_attribute(std::string::size_type startpos)
+    {
+        // attribute to complete :
+        std::string _attribute;
+        if (startpos != std::string::npos)
+            _attribute = text.substr( startpos );
+        //cout << "FoundAttribute2 : "<< _attribute << endl;
+            
+        // strip white spaces from _attribute
+        while ( _attribute.find(" ") != std::string::npos )
+            _attribute.replace( _attribute.find(" "),1,"" );
+
+        // all possible completions :
+        std::vector<std::string> attrs;
+        attrs = peer->attributeRepository.attributes();
+        for (std::vector<std::string>::iterator i = attrs.begin(); i!= attrs.end(); ++i ) {
+            if ( i->find( _attribute ) == 0  )
+                completes.push_back( peerpath + *i );
         }
     }
 
@@ -637,103 +653,63 @@ namespace ORO_Execution
         return pp.peer();
     }
 
+#if 0
+    PropertyBase* TaskBrowser::findProperty(std::string c) {
+        // returns the one but last peer, which is the one we want.
+        std::string s( c );
+            
+        our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+        our_pos_iter_t parseend;
+            
+        PropertyParser pp();
+        pp.setPropertyBag( taskcontext.attributeRepository.properties() );
+        try {
+            parse( parsebegin, parseend, pp.locator(), SKIP_PARSER );
+        }
+        catch( ... )
+            {
+                Logger::log()<<Logger::Debug<<"No such property : "<< c <<Logger::endl;
+                return 0;
+            }
+        return pp.property();
+    }
+#endif
+
     void TaskBrowser::browserAction(std::string& act)
     {
         if ( taskcontext->getName() == "programs" || taskcontext->getName() == "states") {
             Logger::log() << Logger::Error << "Refuse to take action in special TaskContext "<< taskcontext->getName() <<Logger::endl;
+            return;
         }
 
         std::stringstream ss(act);
         std::string instr;
         ss >> instr;
+        ProgramLoader loader;
         if ( instr == "loadProgram") {
             std::string arg;
             ss >> arg;
-            Parser parser;
-            Parser::ParsedPrograms pg_list;
-            try {
-                Logger::log() << Logger::Info << "Parsing file "<<arg << Logger::endl;
-                pg_list = parser.parseProgram( arg, taskcontext );
-            }
-            catch( const file_parse_exception& exc )
-                {
-                    Logger::log() << Logger::Error << exc.what() << Logger::endl;
-                }
-            if ( pg_list.empty() )
-                {
-                    Logger::log() << Logger::Info << "No Programs found in "<< arg << Logger::endl;
-                    // no programs were listed, but functions might
-                    // have been exported into tc's command interface
-                } else {
-                    // Load all listed programs in the TaskContext's Processor:
-                    for( Parser::ParsedPrograms::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
-                        try {
-                            Logger::log() << Logger::Info << "Loading Program "<< (*it)->getName() << Logger::endl;
-                            taskcontext->getProcessor()->loadProgram( *it );
-                        } catch (program_load_exception& e ) {
-                            Logger::log() << Logger::Error << "Could not load Program "<< (*it)->getName() << Logger::endl;
-                        }
-                    }
-                    cout << "Done."<<endl;
-                    return;
-                }
+            if ( loader.loadProgram( arg, taskcontext ) )
+                cout << "Done."<<endl;
         }
         if ( instr == "unloadProgram") {
             std::string arg;
             ss >> arg;
-            try {
-                Logger::log() << Logger::Info << "Unloading Program "<< arg << Logger::endl;
-                taskcontext->getProcessor()->deleteProgram(arg);
-            } catch (program_unload_exception& e ) {
-                Logger::log() << Logger::Error << "Could not unload Program "<<arg << Logger::endl;
-            }
-            cout << "Done."<<endl;
-            return;
+            if ( loader.unloadProgram( arg, taskcontext ) )
+                cout << "Done."<<endl;
         }
 
         if ( instr == "loadStateMachine") {
             std::string arg;
             ss >> arg;
-            Parser parser;
-            Parser::ParsedStateMachines pg_list;
-            try {
-                Logger::log() << Logger::Info << "Parsing file "<<arg << Logger::endl;
-                pg_list = parser.parseStateMachine( arg, taskcontext );
-            }
-            catch( const file_parse_exception& exc )
-                {
-                    Logger::log() << Logger::Error << exc.what() << Logger::endl;
-                }
-            if ( pg_list.empty() )
-                {
-                    Logger::log() << Logger::Info << "No StateMachines found in "<< arg << Logger::endl;
-                    // no stateMachines were listed, but functions might
-                    // have been exported into tc's command interface
-                } else {
-                    // Load all listed stateMachines in the TaskContext's Processor:
-                    for( Parser::ParsedStateMachines::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
-                        try {
-                            Logger::log() << Logger::Info << "Loading StateMachine "<< (*it)->getName() << Logger::endl;
-                            taskcontext->getProcessor()->loadStateMachine( *it );
-                        } catch (program_load_exception& e ) {
-                            Logger::log() << Logger::Error << "Could not load StateMachine "<< (*it)->getName() << Logger::endl;
-                        }
-                    }
-                    cout << "Done."<<endl;
-                    return;
-                }
+            if ( loader.loadStateMachine( arg, taskcontext ) )
+                cout << "Done."<<endl;
         }
         if ( instr == "unloadStateMachine") {
             std::string arg;
             ss >> arg;
-            try {
-                Logger::log() << Logger::Info << "Unloading StateMachine "<< arg << Logger::endl;
-                taskcontext->getProcessor()->deleteStateMachine(arg);
-            } catch (program_unload_exception& e ) {
-                Logger::log() << Logger::Error << "Could not unload StateMachine "<<arg << Logger::endl;
-            }
-            cout << "Done."<<endl;
-            return;
+            if ( loader.unloadStateMachine( arg, taskcontext ) )
+                cout << "Done."<<endl;
         }
     }
 
@@ -763,9 +739,11 @@ namespace ORO_Execution
         if ( command_fact || datasource_fact || method_fact )
             return;
                     
-
         Parser _parser;
         std::pair< CommandInterface*, ConditionInterface*> comcon;
+
+        if (debug)
+            cerr << "Trying ValueChange..."<<nl;
         try {
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseValueChange( comm, taskcontext );
@@ -773,13 +751,18 @@ namespace ORO_Execution
             if ( ds.get() != 0 ) {
                 this->printResult( ds.get() );
                 return; // done here
-            }
+            } else if (debug)
+                cerr << "returned zero !"<<nl;
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
+            if (debug)
+                cerr << "fatal_semantic_parse_exception: ";
             cerr << pe.what() <<nl;
             return;
         } catch ( syntactic_parse_exception& pe ) { // wrong content after = sign etc..
             // syntactic errors must be reported immediately
+            if (debug)
+                cerr << "syntactic_parse_exception: ";
             cerr << pe.what() <<nl;
             return;
         } catch ( parse_exception_parser_fail &pe )
@@ -791,9 +774,13 @@ namespace ORO_Execution
                 }
         } catch ( parse_exception& pe ) { 
             // syntactic errors must be reported immediately
+            if (debug)
+                cerr << "parse_exception :";
             cerr << pe.what() <<nl;
             return;
         }
+        if (debug)
+            cerr << "Trying Expression..."<<nl;
         try {
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );
@@ -801,13 +788,18 @@ namespace ORO_Execution
             if ( ds.get() != 0 ) {
                 this->printResult( ds.get() );
                 return; // done here
-            }
+            } else if (debug)
+                cerr << "returned zero !"<<nl;
         } catch ( syntactic_parse_exception& pe ) { // missing brace etc
             // syntactic errors must be reported immediately
+            if (debug)
+                cerr << "syntactic_parse_exception :";
             cerr << pe.what() <<nl;
             return;
         } catch ( fatal_semantic_parse_exception& pe ) { // incorr args, ...
             // way to fatal,  must be reported immediately
+            if (debug)
+                cerr << "fatal_semantic_parse_exception :";
             cerr << pe.what() <<nl;
             return;
         } catch ( parse_exception_parser_fail &pe )
@@ -820,10 +812,12 @@ namespace ORO_Execution
         } catch ( parse_exception& pe ) { 
                 // ignore, try next parser
                 if (debug) {
-                    cerr << "Ignoring Expression exception :"<<nl;
+                    cerr << "Ignoring Expression parse_exception :"<<nl;
                     cerr << pe.what() <<nl;
                 }
         }
+        if (debug)
+            cerr << "Trying Command..."<<nl;
         try {
             comcon = _parser.parseCommand( comm, taskcontext );
             if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
@@ -836,6 +830,8 @@ namespace ORO_Execution
             command = comcon.first;
             condition = comcon.second;
         } catch ( parse_exception& pe ) {
+            if (debug)
+                cerr << "CommandParser parse_exception :"<<nl;
             cerr << pe.what() <<nl;
             return;
         } catch (...) {
@@ -912,12 +908,12 @@ namespace ORO_Execution
         }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
-            cout <<prompt<< dss->get() <<nl;
+            cout <<prompt<<'"'<< dss->get()<<'"'<<nl;
             return;
         }
         DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
         if (dscs) {
-            cout <<prompt<< dscs->get() <<nl;
+            cout <<prompt<<'"'<< dscs->get() << '"' <<nl;
             return;
         }
         DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
@@ -950,6 +946,20 @@ namespace ORO_Execution
         if (dsvd) {
             dsvd->get();
             cout <<prompt<< "(void)" <<nl;
+            return;
+        }
+
+        DataSource<PropertyBag>* dspbag = dynamic_cast<DataSource<PropertyBag>*>(ds);
+        if (dspbag) {
+            PropertyBag bag( dspbag->get() );
+            if ( ! bag.empty() ) {
+                cout <<"   Properties :" <<nl;
+                for( PropertyBag::iterator it= bag.getProperties().begin(); it!=bag.getProperties().end(); ++it) {
+                    cout << "   "<<(*it)->getType()<<" "<< (*it)->getName() <<" - "<< (*it)->getDescription() <<nl;
+                }
+            } else {
+                cout <<prompt<<"(empty PropertyBag)" <<nl;
+            }
             return;
         }
 #ifdef OROPKG_GEOMETRY
@@ -1044,10 +1054,15 @@ namespace ORO_Execution
         cout << "  To see the contents of a task, type "<<comcol("ls")<<nl;
         cout << "  For a detailed argument list (and helpful info) of the object's methods, "<<nl;
         cout <<"   type the name of one of the listed task objects : " <<nl;
-        cout <<"      Kernel [enter]" <<nl;
-        cout <<"   DataSource : isLoaded - Check if this Component is loaded."<<nl;
-        cout <<"   Argument 1 : Name - The name of the Component" <<nl;
-        cout <<"   Method : stop - Stop the Kernel task."<<nl;
+        cout <<"      this [enter]" <<nl<<nl;
+        cout <<"  Command    : bool factor( int number )" <<nl;
+        cout <<"   Factor a value into its primes." <<nl;
+        cout <<"   number : The number to factor in primes." <<nl;
+        cout <<"  DataSource : bool isRunning( )" <<nl;
+        cout <<"   Is this GenericTaskContext started ?" <<nl;
+        cout <<"  Method     : bool loadProgram( const& std::string Filename )" <<nl;
+        cout <<"   Load an Orocos Program Script from a file." <<nl;
+        cout <<"   Filename : An ops file." <<nl;
         cout <<"   ..."<<nl;
 
         cout <<titlecol("Expressions")<<nl;
@@ -1098,11 +1113,15 @@ namespace ORO_Execution
             return;
 
         cout <<nl<<peer->getName()<< " Attributes :"<<nl;
+        PropertyBag* bag = peer->attributeRepository.properties();
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
         for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it)
-            cout <<"   "<< peer->attributeRepository.getValue(*it)->toDataSource()->getType()<< " "<< *it << nl;
+            cout << "   "
+                 << ((bag && bag->find(*it)) ? " (Property   ) " : " (Attribute  ) ")
+                 << peer->attributeRepository.getValue(*it)->toDataSource()->getType()<< " "
+                 << coloron << *it << coloroff << nl;
 
-        cout <<nl<<peer->getName()<< " Objects    :  ";
+        cout <<nl<<peer->getName()<< " Objects    :  "<<coloron;
         objlist = peer->commandFactory.getObjectList();
         std::vector<std::string> objlist2 = peer->dataFactory.getObjectList();
         objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
@@ -1113,10 +1132,10 @@ namespace ORO_Execution
         std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
         copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
 
-        cout <<nl<<peer->getName()<< " Peers      :  ";
+        cout <<coloroff<<nl<<peer->getName()<< " Peers      :  "<<coloron;
         objlist = peer->getPeerList();
         copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
-        cout <<nl;
+        cout <<coloroff<<nl;
     }
         
     void TaskBrowser::printCommand( const std::string m )

@@ -24,8 +24,8 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003,2004</year>
-      <holder>Herman Bruyninckx</holder>
+      <year>2003,2004,2005</year>
+      <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
     
     <abstract>
@@ -86,7 +86,14 @@
 	<revremark>New State Machine paradigm, removed control-kernel specific part. Added array
 	 and size allocators.</revremark>
       </revision>
-    </revhistory>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>May 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Added '.' operator for complex valuetypes. Added ProgramLoader. Added expression-
+	based array and string initialisation.</revremark>
+      </revision> 
+   </revhistory>
 
     <legalnotice>
       <para>
@@ -400,12 +407,25 @@
 	    As the example above demonstrates, a fixed string or array may
 	    only be assigned from another string or array with equal or less elements.
 	  </para>
-	  <note>
+	  <important>
 	    <para>
-	      The integer given upon construction must be a literal constant, because the
-	      memory allocation happens at parse time.
+	      The value given upon construction must be a
+	      <emphasis>legal expression at parse time and is only
+	      evaluated once</emphasis>. The safest method is using a
+	      literal integer ( like in the examples ), but if you
+	      create a Task constant or variable which holds an
+	      integer, you can also use it as in :
+	      <programlisting>  var array example( 5 * task.numberOfItems )</programlisting>
+	      The expression may not contain any
+	      program variables, these will all be zero upon parse
+	      time ! The following example is <emphasis>illegal</emphasis>
+	      also :
+	      <programlisting>  set task.numberOfItems = 10
+  var array example( 5 * task.numberOfItems )</programlisting>
+              Which will not lead to '50', but to '5 times the
+	      value of task.numberOfItems when the program is parsed'.
 	    </para>
-	  </note>
+	    </important>
 	  <para>Another property of container types is that you can index (use []) their
 	    contents. The index may be any expression that return an int.
 	  </para>
@@ -438,6 +458,59 @@
 	  </para>
 	</sect4>
 	<sect4>
+	  <title>The '.' Operator</title>
+	  <para>
+	    Some value types, like vector, rotation, array, string in
+	    the Parser framework are actually containing values
+	    or useful information themselves. For accessing these values, a
+	    value type can have a 'dot' operator which allows you to 
+	    <emphasis>read-only</emphasis> contents of the container :
+	    <programlisting>  var string s1 = "abcdef"
+
+  // retrieve size and capacity of a string :
+  var int size = s1.size()
+  var int cap  = s1.capacity()</programlisting>
+	    <programlisting>  var array a1( 10 )
+  var array a2(20) = a1
+
+  // retrieve size and capacity of a array :
+  var int size = a2.size()      // 10
+  var int cap  = a2.capacity()  // 20</programlisting>
+	  </para>
+	  <para>
+	    Likewise, the following operators are available for the
+	    geometry types :
+	    <programlisting>  var frame f
+  var rotation r
+  var vector   v
+  var twist    t
+  var wrench   w
+  // ...
+  
+  set v = f.p          // read the position
+  set r = f.R          // read the rotation
+
+  set v = t.vel        // read the translational velocity
+  set v = t.rot        // read the rotational velocity
+
+  set v = w.force      // read the force
+  set v = w.torque     // read the torque
+
+  var double x = v.x  // also : v.y or v.z
+
+  var double p = r.roll  // also : r.pitch or r.yaw</programlisting>
+	  </para>
+	  <para>
+	    You can not use the '.' operator in the reverse direction.
+	    thus the following code is invalid :
+	    <programlisting>  set f.p = v         // Invalid !
+  set f.R = r          // Invalid !</programlisting>
+            These are thus read-only accessors and can thus not be written to.
+	    To change them, you'll have to use a constructor from the next
+	    section.
+	  </para>
+	</sect4>
+	<sect4>
 	  <title>Constructors</title>
 	  <para>
 	    For some special types, a special kind of operator is
@@ -459,10 +532,8 @@
 	    <programlisting>
   // alfa, beta and gamma are double expressions, this
   // returns a rotation, that is constructed using the
-  // EulerZYZ convention:
-  // First rotate around Z with alfa, then around the
-  // new Y with beta, then around new Z with gamma.
-  var rotation rot = rotation( alfa, beta, gamma )
+  // Roll-Pitch-Yaw convention in degrees :
+  var rotation rot = rotation( roll, pitch, yaw )
   
   // Vect is a vector expression, rot is a rotation
   // expression.  This returns a frame, constructed
@@ -495,51 +566,28 @@
       <programlisting>
   #include &lt;corelib/TaskPreemptible.hpp&gt;
   #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;execution/Parser.hpp&gt;
-
-  #include &lt;functional&gt;    // std::for_each
-  #include &lt;boost/bind.hpp&gt;// boost::bind
+  #include &lt;execution/ProgramLoader.hpp&gt;
 
   using namespace ORO_CoreLib;
 
   TaskContext   tc;
   ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
-  Parser        parser;
+  ProgramLoader loader;
 
-  // An STL container containing all parsed Programs:
-  Parser::ParsedPrograms pg_list;
-  try {
-      pg_list = parser.parseProgram( "program.ops", &amp;tc );
-  }
-  catch( const file_parse_exception&amp; exc )
-  {
-     std::cerr &lt;&lt; exc.what() &lt;&lt; endl;
-  }
-  if ( pg_list.empty() )
-  {
-     // no programs were listed, but functions might
-     // have been exported into tc's command interface
-  } else {
-     // Load all listed programs in the TaskContext's Processor:
-     std::for_each( pg_list.begin(), pg_list.end(),
-         boost::bind( &amp;Processor::loadProgram, tc.getProcessor(), _1));
+  // Watch Logger output for errors :
+  loader.loadProgram( "program.ops", &amp;tc );
 
-     // start the Processor :
-     ptask->start();
+  // start the Processor :
+  ptask->start();
 
-     // start a program :
-     tc.getProcessor()->startProgram("progname");
-  }</programlisting>
+  // start a program :
+  tc.getProcessor()->startProgram("progname");
+</programlisting>
       <para>
-	The parser returns a vector of <classname>ProgramGraph</classname>'s.
-	It will throw a <classname>file_parse_exception</classname>
-	if a parse error occured.
-	It is possible that the returned list is empty, but that 
-	exported functions were loaded in the TaskContext's command interface.
-	If it's not empty, we load all the programs in the Processor using
-	the boost::bind function. Next we start the task's processor
-	and finally, the program "progname" is started. Programs can also
-	be started from within other scripts.
+	The loader will load all programs and functions into tc. Next
+	we start the task's processor and finally, the program
+	"progname" is started. Programs can also be started from
+	within other scripts.
       </para>
     </sect2>
     <sect2 id="program-semantics">
@@ -1023,7 +1071,7 @@
 	  transition to the 'best' next state. This mechanism is
 	  similar to automatic mode, but only one transition is made
 	  ( or if none, handle is executed ) and then, the state
-	  machine waits again. The step command triggers this behaviour.
+	  machine waits again. The step() command triggers this behaviour.
 	</para>
       </sect3>
     </sect2>
@@ -1044,48 +1092,26 @@
       <programlisting>
   #include &lt;corelib/TaskPreemptible.hpp&gt;
   #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;execution/Parser.hpp&gt;
-
-  #include &lt;functional&gt;    // std::for_each
-  #include &lt;boost/bind.hpp&gt;// boost::bind
+  #include &lt;execution/ProgramLoader.hpp&gt;
 
   using namespace ORO_CoreLib;
 
   TaskContext   tc;
   ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
-  Parser        parser;
+  ProgramLoader loader;
 
-  // An STL container containing all parsed StateMachines:
-  Parser::ParsedStateMachines sc_list;
-  try {
-      sc_list = parser.parseStateMachine( "state-machine.osd", &amp;tc );
-  }
-  catch( const file_parse_exception&amp; exc )
-  {
-     std::cerr &lt;&lt; exc.what() &lt;&lt; endl;
-  }
-  if ( sc_list.empty() )
-  {
-     // No states were 'instantiated', nothing can be loaded.
-  } else {
-     // Load all listed programs in the TaskContext's Processor:
-     std::for_each( sc_list.begin(), sc_list.end(),
-         boost::bind( &amp;Processor::loadStateMachine, tc.getProcessor(), _1));
+  loader.loadStateMachine( "state-machine.osd", &amp;tc );
 
-     // start the task's processor :
-     ptask->start();
+  // start the task's processor :
+  ptask->start();
 
-     // activate a state context :
-     tc.getProcessor()->activateStateMachine("MachineInstanceName");
-     // start a state context (automatic mode) :
-     tc.getProcessor()->startStateMachine("MachineInstanceName");
-  }</programlisting>
+  // activate a state context :
+  tc.getProcessor()->activateStateMachine("MachineInstanceName");
+  // start a state context (automatic mode) :
+  tc.getProcessor()->startStateMachine("MachineInstanceName");</programlisting>
       <para>
-	The parser returns a vector of <classname>ParsedStateMachine</classname>'s.
-	It will throw a <classname>file_parse_exception</classname>
-	if a parse error occured.
-	If the returned vector is not empty, we load all the StateMachines in the Processor using
-	the boost::bind function. Next we start the task's Processor.
+	The loader loads all instantiated state machines in tc.
+	Next we start the task's Processor.
 	StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, 
@@ -1109,8 +1135,8 @@
 	</para>
 	<example>
 	  <title>StateMachine Definition Format</title>
-	  <programlisting>StateMachine <emphasis>MyStateMachineDefinition</emphasis>
-{
+	  <programlisting>  StateMachine <emphasis>MyStateMachineDefinition</emphasis>
+  {
     initial state <emphasis>myInit</emphasis>
     {
         entry {
@@ -1148,10 +1174,10 @@
     }
 
     // ... repeat
-}  
+  }  
 
-// See <xref linkend="instantiating"/> :
-RootMachine MyStateMachineDefinition MachineInstanceName</programlisting>
+  // See <xref linkend="instantiating"/> :
+  RootMachine MyStateMachineDefinition MachineInstanceName</programlisting>
 	  <para>
 	    A StateMachine definition: a StateMachine can have any
 	    number of states.  It needs to have exactly one "initial
@@ -1220,13 +1246,13 @@ RootMachine MyStateMachineDefinition MachineInstanceName</programlisting>
 	    function defines <function>select</function>
 	    statements. These can be guarded by if...then clauses :
 	    <programlisting>  // In state XYZ :
-transitions {
+  transitions {
     // conditionally select the START state
     if HMI.startPushed then
 	select START
     // Fall through state
     select WAIT
-} </programlisting>
+  } </programlisting>
 	    The transitions are checked in the same order as listed.
 	    A transition is allowed to select the current state, but
 	    the onExit and onEntry functions will not be called in that
@@ -1234,32 +1260,43 @@ transitions {
 	    considered valid and this can not be overridden.
 	  </para>
 	</sect3>
-<!-- 	<sect3> -->
-<!-- 	  <title>State Preconditions</title> -->
-<!-- 	  <para> -->
-<!-- 	    Often it's useful to specify some preconditions that need -->
-<!-- 	    to hold before entering a state.  &orocos; states -->
-<!-- 	    explicitly allow for this.  A state's preconditions will -->
-<!-- 	    be checked before the state is entered. -->
-<!-- 	  </para> -->
-<!-- 	  <para> -->
-<!-- 	    Preconditions are specified as follows: -->
-<!-- 	    <programlisting> -->
-<!-- // In state XYZ -->
-<!-- preconditions { -->
-<!--     // make sure the robot is not moving axis 1 when entering this state -->
-<!--     if robot.movingAxis( 1 ) then -->
-<!--         select ERROR_STATE -->
-<!-- } -->
-<!-- 	    </programlisting> -->
-<!-- 	    As you may have noticed, the syntax for preconditions is -->
-<!-- 	    the same as for transitions.  It's simply a set of -->
-<!-- 	    conditional select statements.  The only difference is -->
-<!-- 	    that preconditions are checked once before entry of the -->
-<!-- 	    state, whereas transitions are checked every time the -->
-<!-- 	    state is handled. -->
-<!-- 	  </para> -->
-<!-- 	</sect3> -->
+	<sect3>
+	  <title>State Preconditions (Experimental)</title>
+	  <para>
+	    Often it's useful to specify some preconditions that need
+	    to hold before entering a state.  &orocos; states
+	    explicitly allow for this.  A state's preconditions will
+	    be checked before the state is entered.
+	  </para>
+	  <para>
+	    Preconditions are specified as follows:
+	    <programlisting>  state X {
+    preconditions {
+      // make sure the robot is not moving axis 1 when entering this state
+      if robot.movingAxis( 1 ) then
+          select ERROR_STATE
+    }
+    // ...
+  }</programlisting>
+	    As you may have noticed, the syntax for preconditions is
+	    the same as for transitions.  It's simply a set of
+	    conditional select statements.  The only difference is
+	    that preconditions are checked once before entry of the
+	    state, whereas transitions are checked every time the
+	    state is handled.
+	  </para>
+	  <para>
+	    The preconditions syntax may change in the future since it
+	    is still experimental. Preconditions are only supported in
+	    automatic mode and not in request mode ( it's impossible
+	    to request a state which has preconditions ). Future
+	    implementations may just list the preconditions which must
+	    be true, which will be 'chained' (Logical AND) with the
+	    transitions of the current state. It is the current state
+	    that then should decide what to do if it can not enter the
+	    target state.
+	  </para>
+	</sect3>
       </sect2>
       <sect2 id="instantiating">
 	<title>Instantiating Machines: SubMachines and RootMachines</title>
@@ -1281,21 +1318,19 @@ transitions {
 	    A Root Machine is a normal instantiation of a
 	    StateMachine, one that does not depend on a parent
 	    StateMachine ( see below ).  They are defined as follows:
-	    <programlisting>
-StateMachine SomeStateMachine
-{
-    initial state initState
-    {
+	    <programlisting>  StateMachine SomeStateMachine
+  {
+      initial state initState
+      {
         // ...
-    }
-    final state finalState
-    {
+      }
+      final state finalState
+      {
         // ...
-    }
-}
+      }
+  }
 
-RootMachine SomeStateMachine someSMinstance
-	    </programlisting>
+  RootMachine SomeStateMachine someSMinstance </programlisting>
 	    This makes an instantiation of the StateMachine type
 	    SomeStateMachine by the name of 'someSMinstance', which can then
 	    be accessed from other scripts (by that name) or via the Processor.
@@ -1314,9 +1349,8 @@ RootMachine SomeStateMachine someSMinstance
 	    </para>
 	    <para>
 	      You can define a StateMachine public variable as follows:
-	      <programlisting>
-StateMachine SomeStateMachine
-{
+	      <programlisting>  StateMachine SomeStateMachine
+  {
     // a public constant
     const double pi = 3.1415926535897
     var int counter = 0
@@ -1338,9 +1372,9 @@ StateMachine SomeStateMachine
         }
         // ...
     }
-}
+  }
 
-Rootmachine SomeStateMachine mymachine </programlisting>
+  Rootmachine SomeStateMachine mymachine </programlisting>
 	    This example creates some handy public variables in the
 	    StateMachine SomeStateMachine, and uses them throughout
 	    the state context. They can also be read and modified from 
@@ -1442,7 +1476,7 @@ Rootmachine SomeStateMachine mymachine </programlisting>
           entry
           {
 	      // enter final state :
-              child1.stop()
+              do child1.stop()
           }
       }
   } </programlisting>
@@ -1475,57 +1509,57 @@ Rootmachine SomeStateMachine mymachine </programlisting>
 	      of the parameters afterwards.  The syntax is: "set
 	      someSubMachine.someParam = someExpression".  Here's an
 	      elaborate example:</para>
-	      <programlisting>StateMachine ChildStateMachine
-{
-    param int someValue
-    const double pi = 3.1415926535897
-    initial state initState
-    {
-        // ...
-    }
-    final state finalState
-    {
-        // ...
-    }
-}
+	      <programlisting>  StateMachine ChildStateMachine
+  {
+      param int someValue
+      const double pi = 3.1415926535897
+      initial state initState
+      {
+          // ...
+      }
+      final state finalState
+      {
+          // ...
+      }
+  }
 
-StateMachine ParentStateMachine
-{
-    SubMachine ChildStateMachine child1( someValue = 0 )
-    SubMachine ChildStateMachine child2( someValue = 0 )
-
-    var int counter = 0
-    initial state initState
-    {
-	entry
-        {
-	    do child1.start()
-	    do child2.start()
-            // set the subcontext's parameter
-            set child1.someValue = 2
-        }
-        handle
-        {
-            set counter = counter + 1
-	    // set the subcontext's parameters
-            set child2.someValue = counter
-            // use the subcontext's public variables
-            do someTask.doSomethingCool( child1.someValue )
-        }
-        exit
-        {
-            do child2.stop()
-        }
-    }
-
-    final state finalState
-    {
-        entry
-        {
-            do child1.stop()
-        }
-    }
-}  </programlisting>
+  StateMachine ParentStateMachine
+  {
+      SubMachine ChildStateMachine child1( someValue = 0 )
+      SubMachine ChildStateMachine child2( someValue = 0 )
+  
+      var int counter = 0
+      initial state initState
+      {
+  	  entry
+          {
+  	      do child1.start()
+  	      do child2.start()
+              // set the subcontext's parameter
+              set child1.someValue = 2
+          }
+          handle
+          {
+              set counter = counter + 1
+              // set the subcontext's parameters
+              set child2.someValue = counter
+              // use the subcontext's public variables
+              do someTask.doSomethingCool( child1.someValue )
+          }
+          exit
+          {
+              do child2.stop()
+          }
+      }
+  
+      final state finalState
+      {
+          entry
+          {
+              do child1.stop()
+          }
+      }
+  }</programlisting>
 	  <para>
 	    You can also query if a child State Machine is in a
 	    certain state.  The syntax looks like:

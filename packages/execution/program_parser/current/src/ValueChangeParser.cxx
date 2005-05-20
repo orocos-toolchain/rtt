@@ -34,10 +34,17 @@
 
 #include <boost/bind.hpp>
 
+#include <corelib/Logger.hpp>
+
+#include <sstream>
+#include <iostream>
+
 namespace ORO_Execution
 {
   using boost::bind;
     using namespace detail;
+    using namespace ORO_CoreLib;
+    using namespace std;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");
@@ -49,7 +56,7 @@ namespace ORO_Execution
         assertion<std::string> expect_init("Expected an initialisation value of the variable.");
         assertion<std::string> expect_is("Expected an '=' sign.");
         assertion<std::string> expect_index("Expected an index: [index].");
-        assertion<std::string> expect_integer("Expected a positive integer value.");
+        assertion<std::string> expect_integer("Expected a positive integer expression.");
         assertion<std::string> expect_assign("Expected an assignment after 'set'.");
     }
 
@@ -101,12 +108,19 @@ namespace ORO_Execution
     variableassignment = 
         "set" >> variablechange;
 
-    variablechange =    
-         ( !(peerparser.parser()[ bind( &ValueChangeParser::storepeername, this) ])
-         >> commonparser.identifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ]
-         >> !( '[' >> expect_index( expressionparser.parser() ) >> ']' )[ bind( &ValueChangeParser::seenindexassignment, this) ]
-         >> ch_p( '=' )
-         >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
+    /**
+     * One of the most important parsers in the ValueChangeParser. Variable assignment
+     * syntax is defined here, what can be on the left side of the = sign :
+     */
+    variablechange =
+        ( peerparser.locator()[ bind( &ValueChangeParser::storepeername, this) ] // traverse peers
+          >> propparser.locator()[ bind( &ValueChangeParser::seenproperty, this)] // traverse propertybags
+          // notasserting will just 'fail' to parse.
+          >> commonparser.notassertingidentifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] // final variable after last '.'
+          >> !( '[' >> expect_index( expressionparser.parser() ) >> ']'
+                )[ bind( &ValueChangeParser::seenindexassignment, this) ] // subindex final variable
+          >> ch_p( '=' )
+          >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
     paramdefinition =
         "param"
@@ -115,28 +129,55 @@ namespace ORO_Execution
     baredefinition =
         ( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )]
           >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-          >> !( ch_p('(') >> expect_integer( uint_p[bind( &ValueChangeParser::seensizehint, this, _1)]) >> expect_close( ch_p(')')) ) 
+          >> !( ch_p('(') >> expect_integer( expressionparser.parser()[bind( &ValueChangeParser::seensizehint, this)]) >> expect_close( ch_p(')')) ) 
           )[bind( &ValueChangeParser::seenbaredefinition, this )];
   };
 
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
     {
+        //cerr << "VCP : Stack set to " << tc->getName() <<endl;
         context = tc;
         // DO NOT SET CONTEXT of PEERPARSER TO tc. 
         // Peerparser operates in main task context and not on stack.
+        peerparser.setContext( tc );
         return expressionparser.setStack( tc );
     }
 
     TaskContext* ValueChangeParser::setContext( TaskContext* tc )
     {
+        //cerr << "VCP : Context set to " << tc->getName() <<endl;
         context = tc;
         peerparser.setContext( tc );
         return expressionparser.setContext( tc );
     }
 
-    void ValueChangeParser::seensizehint(int i)
+    void ValueChangeParser::seensizehint()
     {
-        sizehint = i;
+        DataSourceBase::shared_ptr expr = expressionparser.getResult();
+        expressionparser.dropResult();
+        assert( expr.get() );
+        DataSource<int>::shared_ptr i = dynamic_cast<DataSource<int>* >( expr.get() );
+        TaskAttributeBase* var;
+        var = type->buildVariable();
+        std::string typen = var->toDataSource()->getType();
+        delete var;
+        if ( i.get() == 0 ) {
+            throw parse_exception_semantic_error
+                ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getType()+", expected an integer expression." );
+        }
+        if ( i->get() < 0 ) {
+            std::stringstream value;
+            value << i->get();
+            throw parse_exception_semantic_error
+                ("Attempt to initialize "+typen+" "+valuename+" with an expression leading to a negative number "+value.str()
+                 +". Initialization expressions are evaluated once at parse time !" );
+        }
+        if ( i->get() == 0 ) {
+            ORO_CoreLib::Logger::log() << Logger::Warning <<
+                "Attempt to initialize "<<typen<<" "<<valuename<<" with an expression leading to zero (0)"
+                                       <<". Initialization expressions are evaluated once at parse time !" << Logger::endl;
+        }
+        sizehint = i->get();
     }
 
   void ValueChangeParser::seenconstantdefinition()
@@ -220,15 +261,21 @@ namespace ORO_Execution
       type = 0;
   }
 
+    void ValueChangeParser::seenproperty() {
+        //nop, ask propparser lateron. propparser is reset by this->reset()
+    }
+
     void ValueChangeParser::storename( iter_t begin, iter_t end ) {
         valuename = std::string( begin, end );
     }
 
   void ValueChangeParser::storepeername()
   {
-      peername  = peerparser.peer();
+      //peername  = peerparser.peer();
       // the peerparser.object() should contain "this"
-      peerparser.reset();
+      //peerparser.reset();
+      // reset the Property parser to traverse this peers bag :
+      propparser.setPropertyBag( peerparser.peer()->attributeRepository.properties() ); // may be null. ok.
   }
 
   void ValueChangeParser::seenvariabledefinition()
@@ -251,53 +298,81 @@ namespace ORO_Execution
 
   void ValueChangeParser::seenvariableassignment()
   {
-      TaskAttributeBase* var;
-      // is it a peers attribute ?
-      if ( peername ) {
-          var = peername->attributeRepository.getValue( valuename );
-          // now, we must be sure that if this program gets copied,
-          // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute
-          // takes care of this by definition, but the variable of a loaded StateMachine or program
-          // will violate this rule. There are two solutions : change the behavior upon 'instantiation'
-          // of the prog/SM or act here. The former is better from design perspective, but if it does
-          // not work out there, we can wrap var here such that a peers attribute is never copied
-          // upon copy().
-          if ( !var )
-              throw parse_exception_semantic_error( "Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+      TaskAttributeBase* var = 0;
+      PropertyBase*     prop = 0;
+
+      peername = peerparser.peer();
+      peerparser.reset();
+ 
+      // if bag is non-null, 'valuename' must be one of its properties :
+      if ( propparser.bag() && propparser.property() ) {
+          // propparser.property() is the Property<PropertyBag> of a nested bag() :
+          // valuename is the element of this bag.
+          // we need to use Property assignment commands instead of
+          // taskattributebase assignment commands lateron.
+          prop = propparser.bag()->find( valuename );
+          if ( prop == 0 )
+              throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of TaskContext '"+peername->getName()+"'." );
+
+          propparser.reset();
       } else {
-          // local variable, _must_ be copied upon copy().
-          var = context->attributeRepository.getValue( valuename );
+          // not a property case :
+          var = peername->attributeRepository.getValue( valuename );
+          // SIDENOTE: now, we must be sure that if this program gets copied,
+          // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute and Properties
+          // takes care of this by definition, but the variable of a loaded StateMachine or program
+          // must first get an instantiation-copy() before they become uncopyable. 
           if ( !var )
-              throw parse_exception_semantic_error( "Value \"" + valuename + "\" not defined in '"+context->getName()+"'." );
+              throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
       }
-    DataSourceBase::shared_ptr expr = expressionparser.getResult();
-    expressionparser.dropResult();
-    if ( index_ds ) {
-        try {
-            assigncommand = var->assignIndexCommand( index_ds.get(), expr.get() );
-        }
-        catch( const bad_assignment& e) {
-            throw parse_exception_semantic_error(
-                "Impossible to assign "+valuename+"[ "+index_ds->getType()+" ] to value of type "+expr->getType()+".");
-        }
-        if ( !assigncommand )
-            throw parse_exception_semantic_error(
-                "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
-        // allow to restart over...
-        index_ds = 0;
-    } else {
+
+      // collect RHS :
+      DataSourceBase::shared_ptr expr = expressionparser.getResult();
+      expressionparser.dropResult();
+
+      if ( index_ds && prop ) {
+          throw parse_exception_semantic_error(
+              "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as TaskAttribute to allow index assignment." );
+      }
+
+      if ( index_ds && var ) {
+          try {
+              assigncommand = var->assignIndexCommand( index_ds.get(), expr.get() );
+          }
+          catch( const bad_assignment& e) {
+              // type-error :
+              throw parse_exception_semantic_error(
+                    "Impossible to assign "+valuename+"[ "+index_ds->getType()+" ] to value of type "+expr->getType()+".");
+          }
+          // not allowed :
+          if ( !assigncommand )
+              throw parse_exception_semantic_error(
+                     "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
+      } 
+      if ( !index_ds && var) {
         try {
             assigncommand = var->assignCommand( expr.get(), false );
+            // if null, not allowed.
+            if ( ! assigncommand )
+                throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in TaskContext "+ peername->getName()+"." );
         }
         catch( const bad_assignment& e )
             {
+                // type-error :
                 throw parse_exception_semantic_error
                     ( "Attempt to assign variable of type "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
             }
-        if ( ! assigncommand )
-            throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\"." );
-    }
-    assert(assigncommand);
+      }
+      if ( !index_ds && prop) {
+          assigncommand = prop->refreshCommand( expr.get() );
+          if ( ! assigncommand ) {
+              throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getType()+"." );
+          }
+      }
+
+      // allow to restart over...
+      index_ds = 0;
+      assert(assigncommand);
   }
 
   void ValueChangeParser::seenindexassignment()
@@ -315,6 +390,8 @@ namespace ORO_Execution
     index_ds = 0;
     peername = 0;
     sizehint = -1;
+    peerparser.reset();
+    propparser.reset();
   }
 
   rule_t& ValueChangeParser::constantDefinitionParser()
