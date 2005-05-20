@@ -1,3 +1,27 @@
+OROCOS v0.20.0 Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of Orocos 0.20.0,
+a framework for (realtime) robot, process and machine control.
+
+This majore feature release focussed on refactoring of the API,
+validation and improvement of the realtime scripting language and
+improvement of the overall realtime performance. The documentation has
+been reordered to separate the 'Realtime Control Services' from the
+'Robot Control Software'. Usability classes have been added to reduce
+the 'red tape' code required to setup an Orocos application. This
+is demonstrated by a new demo application ('taskintro') which is fully
+interactive and is hardware independent.
+
+Feature improvements, API changes, bugfixes and caveats can be found in :
+  <http://www.orocos.org/releases/orocos-changes-0.20.0.html>
+
+Orocos can be downloaded using this script :
+  <http://www.orocos.org/releases/orocos-install.tcl>
+which is invoked as in :
+  $ sh orocos-install.tcl
+
 OROCOS v0.18.2 Release Notes
    http://www.orocos.org
 ----------------------------
@@ -28,7 +52,7 @@ OROCOS v0.18.0 Release Notes
 We announce the release of Orocos 0.18.0,
 a framework for (realtime) robot, process and machine control
 
-This major feature release introduces a 'task infrastrucure' which allows 
+This major feature release introduces a 'task infrastructure' which allows 
 application writers to design and implement realtime, multi-threaded units of 
 functionality. A task's interface has attributes, methods, commands and 
 events which can be exported to a high-level real-time scripting language.

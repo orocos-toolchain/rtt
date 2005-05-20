@@ -53,6 +53,14 @@ Orocos.org download web page for information on how to obtain
 ecosconfig ( and configtool ).
 ")
 fi
+AC_CHECK_PROG(CONFIGTOOL,configtool,$(which configtool),no)
+if test "x$CONFIGTOOL" = "xno"; then
+AC_MSG_ERROR("The program 'configtool' not found on your system.
+Orocos needs it to configure its packages properly. See the
+Orocos.org download web page for information on how to obtain
+configtool ( and ecosconfig ).
+")
+fi
 
 
 AC_MSG_CHECKING(for repository)
@@ -109,6 +117,7 @@ AC_CONFIG_FILES([
   doc/Makefile
   doc/catalog.xml
   tests/Makefile
+  Doxyfile
   ])
 
 OROCOS_OUTPUT
