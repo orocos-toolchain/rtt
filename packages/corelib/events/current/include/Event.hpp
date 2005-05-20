@@ -168,7 +168,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( task->processor()->connect( l, *this, t ), _mutex );
+            return Handle( task->getEventProcessor()->connect( l, *this, t ), _mutex );
         }
 
         /**
@@ -184,13 +184,13 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( signal_type::connect( l ), task->processor()->connect( c, *this, t ), _mutex );
+            return Handle( signal_type::connect( l ), task->getEventProcessor()->connect( c, *this, t ), _mutex );
         }
 
         /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->processor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
             return Handle( signal_type::connect( l ), ep->connect( c, *this, t ), _mutex );
         }

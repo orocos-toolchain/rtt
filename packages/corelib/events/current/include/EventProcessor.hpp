@@ -426,7 +426,7 @@ namespace ORO_CoreLib
      * the asynchronous callbacks in its RunnableInterface::step(). This class
      * is mostly used internally by Orocos, but users can use it to process
      * asynchronous callbacks in their own implementation. The EventProcessor
-     * must be given as an argument in the Event's connect method.
+     * is an argument in the Event's asynchronous connect method.
      *
      * @see TimerThread, CompletionProcessor
      */
