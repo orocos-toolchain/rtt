@@ -104,6 +104,14 @@ namespace ORO_CoreLib
             if ( it != exporters.end() )
                 exporters.erase(it);
         }
+
+        /**
+         * Return the number of exporter clients.
+         * If zero, this PropertyReporter may safely be destroyed.
+         */
+        virtual int nbOfExporters() const {
+            return exporters.size();
+        }
         
         void streamHeader()
         {

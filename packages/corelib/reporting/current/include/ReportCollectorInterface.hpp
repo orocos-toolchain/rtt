@@ -49,7 +49,7 @@ namespace ORO_CoreLib
             typedef _ReportType ReportType;
             
             /**
-             * Add an object to listen to 
+             * Add an object to read reports from. 
              */
             virtual void exporterAdd(ReportExporterInterface<ReportType>*) = 0;
 
@@ -65,6 +65,12 @@ namespace ORO_CoreLib
              * @return true if the operation could proceed, false otherwise.
              */
             virtual bool trigger() = 0;
+
+        /**
+         * Return the number of exporter clients.
+         * If zero, this PropertyReporter may safely be destroyed.
+         */
+        virtual int nbOfExporters() const = 0;
     };
 
     /**
