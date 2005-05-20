@@ -35,6 +35,7 @@ namespace ORO_CoreLib
      * A reader will always read the last written value, so it is possible
      * the reader won't read all 'messages' sent.
      *
+     * @deprecated by BufferLockFree
      */
     class BufferSimple
         :public BufferInterface

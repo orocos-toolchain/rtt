@@ -43,6 +43,8 @@ namespace ORO_CoreLib
      * No memory allocation is done, but the maximum number
      * of threads which can access this object is defined by
      * MAX_THREADS.
+     * @param T The value type to be stored in the Buffer.
+     * Example : BufferLockFree<A> is a buffer which holds values of type A.
      */
     template< class T>
     class BufferLockFree

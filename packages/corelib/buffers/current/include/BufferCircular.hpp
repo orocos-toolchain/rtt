@@ -36,6 +36,7 @@ namespace ORO_CoreLib
     /**
      * This class implements a blocking ring buffer, it supports writing and reading
      * for temporary storage in a ring buffer of a fixed size.
+     * @deprecated by BufferLockFree
      */
     class BufferCircular
         :public BufferInterface
