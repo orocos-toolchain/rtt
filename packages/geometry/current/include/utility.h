@@ -52,6 +52,7 @@
 #define UTILITY_H
 
 #include <pkgconf/os.h>
+#include <pkgconf/geometry.h>
 
 #include <cassert>
 #include <cmath>
@@ -71,8 +72,15 @@
 #endif
 
 //! defined if the library should use inline functions for Frame-like objects
+#ifdef OROPKG_GEOMETRY_FRAMES_INLINE
 #define FRAMES_INLINE
+#endif
 
+//! if defined then indices to frame structures are checked (only in DEBUG mode).
+//#define FRAMES_CHECK
+
+//! turn on or off frames bounds checking. If turned on, assert() can still
+//! be turned off with -DNDEBUG.
 #ifdef FRAMES_CHECK
     #define FRAMES_CHECKI(a) assert(a)
 #else
@@ -90,9 +98,6 @@
  * Define this if compiler supports it.
  */
 #define FRAMES_IO_EXCEPTION
-
-//! if defined then indices to frame structures are checked (only in DEBUG mode).
-//#define FRAMES_CHECK
 
 /** Fixed size of the RNFrames-classes.  The size is fixed so data can be allocated
  * on the stack for efficiency.  Larger values can lead to inefficiencies
@@ -240,7 +245,7 @@ extern const double deg2rad;
 //! the value 180/pi
 extern const double rad2deg;
 
-//! default precision while comparing with Equal(..,..) functions
+//! default precision while comparing with Equal(..,..) functions. Initialized at 0.0000001.
 extern double       epsilon;
 
 //! the number of derivatives used in the RN-... objects.

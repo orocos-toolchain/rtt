@@ -162,3 +162,8 @@ void Rotation::SetInverse()
     tmp = data[5];data[5]=data[7];data[7]=tmp;
 }
 
+IMETHOD bool operator!=(const Rotation& a,const Rotation& b) {
+	return !operator==(a,b);
+}
+
+

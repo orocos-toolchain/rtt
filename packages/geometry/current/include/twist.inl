@@ -95,6 +95,19 @@ IMETHOD bool Equal(const Twist& a,const Twist& b,double eps) {
                 Equal(a.vel,b.vel,eps)  );
 }
 
+IMETHOD bool operator==(const Twist& a,const Twist& b) {
+#ifdef OROPKG_GEOMETRY_USE_EQUAL
+    return Equal(a,b);
+#else
+        return (a.rot==b.rot &&
+                a.vel==b.vel  );
+#endif
+}
+
+IMETHOD bool operator!=(const Twist& a,const Twist& b) {
+	return !operator==(a,b);
+}
+
 IMETHOD void SetToZero(Twist& v) {
     SetToZero(v.rot);
     SetToZero(v.vel);

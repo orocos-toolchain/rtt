@@ -48,7 +48,7 @@
 #endif
 
 #ifndef FRAMES_INLINE
-    #include <frames/frame.inl>
+    #include <geometry/frame.inl>
 #endif
 
 

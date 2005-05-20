@@ -98,6 +98,19 @@ IMETHOD bool Equal(const Wrench& a,const Wrench& b,double eps) {
                 Equal(a.torque,b.torque,eps)  );
 }
 
+IMETHOD bool operator==(const Wrench& a,const Wrench& b ) {
+#ifdef OROPKG_GEOMETRY_USE_EQUAL
+    return Equal(a,b);
+#else
+    return (a.force==b.force &&
+            a.torque==b.torque );
+#endif
+}
+
+IMETHOD bool operator!=(const Wrench& a,const Wrench& b) {
+	return !operator==(a,b);
+}
+
 IMETHOD void SetToZero(Wrench& v) {
     SetToZero(v.force);
     SetToZero(v.torque);

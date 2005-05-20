@@ -197,11 +197,13 @@ public:
      //! Access to elements, range checked when NDEBUG is not set, from 0..2
      IMETHOD double& operator() (int index); 
 
+	 //! Equivalent to double operator()(int index) const
      double operator[] ( int index ) const
        {
 	 return this->operator() ( index );
        }
 	    
+	 //! Equivalent to double& operator()(int index)
      double& operator[] ( int index )
        {
 	 return this->operator() ( index );
@@ -273,6 +275,11 @@ public:
      //! do not use operator == because the definition of Equal(.,.) is slightly
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      IMETHOD friend bool Equal(const Vector& a,const Vector& b,double eps=epsilon);
+
+	 //! The literal equality operator==(), also identical.
+     IMETHOD friend bool operator==(const Vector& a,const Vector& b);
+	 //! The literal inequality operator!=().
+     IMETHOD friend bool operator!=(const Vector& a,const Vector& b);
 
      friend class Rotation;
      friend class Frame;
@@ -514,6 +521,11 @@ public:
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      friend bool Equal(const Rotation& a,const Rotation& b,double eps=epsilon);
 
+	 //! The literal equality operator==(), also identical.
+     friend bool operator==(const Rotation& a,const Rotation& b);
+	 //! The literal inequality operator!=()
+     friend bool operator!=(const Rotation& a,const Rotation& b);
+
      friend class Frame;
 };
 
@@ -662,6 +674,10 @@ public:
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      IMETHOD friend bool Equal(const Frame& a,const Frame& b,double eps=epsilon);
 
+	 //! The literal equality operator==(), also identical.
+     IMETHOD friend bool operator==(const Frame& a,const Frame& b);
+	 //! The literal inequality operator!=().
+     IMETHOD friend bool operator!=(const Frame& a,const Frame& b);
 };
 
 //! This class represents a twist.  A twist is the combination of translational
@@ -725,6 +741,11 @@ public:
      //! do not use operator == because the definition of Equal(.,.) is slightly
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      IMETHOD friend bool Equal(const Twist& a,const Twist& b,double eps=epsilon);
+
+	 //! The literal equality operator==(), also identical.
+     IMETHOD friend bool operator==(const Twist& a,const Twist& b);
+	 //! The literal inequality operator!=().
+     IMETHOD friend bool operator!=(const Twist& a,const Twist& b);
 
 // = Friends
     friend class Rotation;
@@ -802,6 +823,11 @@ public:
      //! do not use operator == because the definition of Equal(.,.) is slightly
      //! different.  It compares whether the 2 arguments are equal in an eps-interval    
      IMETHOD friend bool Equal(const Wrench& a,const Wrench& b,double eps=epsilon);
+
+	 //! The literal equality operator==(), also identical.
+     IMETHOD friend bool operator==(const Wrench& a,const Wrench& b);
+	 //! The literal inequality operator!=().
+     IMETHOD friend bool operator!=(const Wrench& a,const Wrench& b);
 
     friend class Rotation;
     friend class Frame;

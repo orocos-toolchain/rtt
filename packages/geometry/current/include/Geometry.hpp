@@ -26,9 +26,15 @@
  ***************************************************************************/ 
  
 /**
- * @brief This namespace contains all classes of the geometry package.
+ * @brief 3D Frames, Rotations, Vectors, Trajectories, Velocity Profiles.
  *
  * It is meant to group all packages for geometrical data and
- * operations.
+ * operations. The geometrical representation types are Frame, Rotation, Vector,
+ * Point and Plane. The trajectory generation classes are Trajectory, VelocityProfile and
+ * Path. It does not yet contain online path planning, although replanning of
+ * Trajectory objects is possible online by resetting the parameters.
+ *
+ * This is an imported library, written by Erwin Aertbelien which was formerly
+ * known as 'Leuvens Robotics Library' (LRL).
  */
 namespace ORO_Geometry {}

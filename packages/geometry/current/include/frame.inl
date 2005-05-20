@@ -141,6 +141,18 @@ IMETHOD bool Equal(const Frame& a,const Frame& b,double eps) {
                 Equal(a.M,b.M,eps)   );
 }
 
+IMETHOD bool operator==(const Frame& a,const Frame& b ) {
+#ifdef OROPKG_GEOMETRY_USE_EQUAL
+    return Equal(a,b);
+#else
+        return (a.p == b.p &&
+                a.M == b.M );
+#endif
+}
+
+IMETHOD bool operator!=(const Frame& a,const Frame& b) {
+	return !operator==(a,b);
+}
 
 
 /**

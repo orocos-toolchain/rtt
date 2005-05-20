@@ -181,7 +181,20 @@ IMETHOD bool Equal(const Vector& a,const Vector& b,double eps) {
                 Equal(a.data[2],b.data[2],eps)   );
      }
      
+IMETHOD bool operator==(const Vector& a,const Vector& b) {
+#ifdef OROPKG_GEOMETRY_USE_EQUAL
+    return Equal(a,b);
+#else
+        return (a.data[0]==b.data[0]&&
+                a.data[1]==b.data[1]&&
+                a.data[2]==b.data[2] );
+#endif
+     }
 
+IMETHOD bool operator!=(const Vector& a,const Vector& b) {
+	return !operator==(a,b);
+}
+     
 IMETHOD void SetToZero(Vector& v) {
     v=Vector::Zero();
 }

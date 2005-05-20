@@ -29,6 +29,7 @@
 #include <corelib/PropertyIntrospection.hpp>
 #include "geometry/MotionProperties.hpp"
 #include <pkgconf/geometry.h>
+#include <corelib/Logger.hpp>
 
 namespace ORO_CoreLib
 {
@@ -152,8 +153,24 @@ namespace ORO_CoreLib
                                 res[4] = d5->get();
                                 res[5] = d6->get();
                                 return true;
+                            } else {
+                                std::string element = !d1 ? "D1" : !d2 ? "D2" : !d3 ? "D3" : !d4 ? "D4" : !d5 ? "D5" :  "D6";
+                                Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<<v_bag->getName()
+                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
+                                return false;
                             }
+                    } else {
+                        if ( v_bag == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<< name
+                                          << ": not a PropertyBag." <<Logger::endl;
+                        } else {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<<v_bag->getName()
+                                          << ": Expected type 'MotCon::Double6D', got type '"<< v_bag->get().getType() <<"'."
+                                          <<Logger::endl;
+                        }
+                        return false;
                     }
+
             }
         return false;
     }
@@ -243,7 +260,22 @@ namespace ORO_CoreLib
                             {
                                 res = ORO_Geometry::Vector( px->get(),py->get(),pz->get() );
                                 return true;
+                            } else {
+                                std::string element = !px ? "X" : !py ? "Y" : "Z";
+                                Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<<v_bag->getName()
+                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
+                                return false;
                             }
+                    } else {
+                        if ( v_bag == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<< name
+                                          << ": not a PropertyBag." <<Logger::endl;
+                        } else {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<<v_bag->getName()
+                                          << ": Expected type 'MotCon::Vector', got type '"<< v_bag->get().getType() <<"'."
+                                          <<Logger::endl;
+                        }
+                        return false;
                     }
             }
         return false;
@@ -464,6 +496,11 @@ namespace ORO_CoreLib
                             {
                                 res = ORO_Geometry::Rotation::EulerZYX(_a->get(), _b->get(), _g->get() );
                                 return true;
+                            } else {
+                                std::string element = !_a ? "alpha" : !_b ? "beta" : "gamma";
+                                Logger::log() << Logger::Error << "Aborting composition of (EulerZYX) Property< Rotation > "<<v_bag->getName()
+                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
+                                return false;
                             }
                     }
             }
@@ -552,6 +589,11 @@ namespace ORO_CoreLib
                             {
                                 res = ORO_Geometry::Rotation::RPY(_x->get(), _y->get(), _z->get() );
                                 return true;
+                            } else {
+                                std::string element = !_x ? "R" : !_y ? "P" : "Y";
+                                Logger::log() << Logger::Error << "Aborting composition of (RPY) Property< Rotation > "<<v_bag->getName()
+                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
+                                return false;
                             }
                     }
             }
@@ -587,10 +629,10 @@ namespace ORO_CoreLib
     void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Rotation> &b)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
-#ifdef OROSEM_GEOMETRY_EULERPROPERTIES
+#ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_EULER
         EulerZYXDecomposer rot(b);
 #else
-# ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+# ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_RPY
         RPYDecomposer rot(b);
 # else
         RotationDecomposer rot(b);
@@ -606,7 +648,21 @@ namespace ORO_CoreLib
         EulerZYXComposer eulc(bag);
         RotationComposer rotc(bag);
 
-        return rpyc.getResult( r ) || eulc.getResult( r ) || rotc.getResult( r );
+        if ( rpyc.getResult( r ) || eulc.getResult( r ) || rotc.getResult( r ) )
+            return true;
+        else {
+            Property<PropertyBag>* b = bag.getProperty<PropertyBag>( r.getName() );
+            if ( b == 0 ) {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Rotation > "<< r.getName()
+                              << ": element not found." <<Logger::endl;
+            } else {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Rotation > "<< r.getName()
+                              << ": Expected type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"<< b->get().getType() <<"'."
+                              <<Logger::endl;
+            }
+            return false;
+        }
+
     }
 
     void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t)
@@ -638,6 +694,16 @@ namespace ORO_CoreLib
                         VectorComposer vas_rot( t_bag->get() );
 
                         return vas_vel.getResult( t.value().vel,"Trans_Vel") && vas_rot.getResult( t.value().rot,"Rot_Vel" );
+                    } else {
+                        if ( t_bag == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "<< t.getName()
+                                          << ": not a PropertyBag." <<Logger::endl;
+                        } else {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "<<t_bag->getName()
+                                          << ": Expected type 'MotCon::Twist', got type '"<< t_bag->get().getType() <<"'."
+                                          <<Logger::endl;
+                        }
+                        return false;
                     }
             }
         return false;
@@ -672,6 +738,16 @@ namespace ORO_CoreLib
                         VectorComposer vas_torque( w_bag->get() );
 
                         return vas_force.getResult( w.value().force,"Force") && vas_torque.getResult( w.value().torque, "Torque" );
+                    } else {
+                        if ( w_bag == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "<< w.getName()
+                                          << ": not a PropertyBag." <<Logger::endl;
+                        } else {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "<<w_bag->getName()
+                                          << ": Expected type 'MotCon::Wrench', got type '"<< w_bag->get().getType() <<"'."
+                                          <<Logger::endl;
+                        }
+                        return false;
                     }
             }
         return false;
@@ -683,10 +759,10 @@ namespace ORO_CoreLib
         Property<PropertyBag> result(f.getName(), f.getDescription(), PropertyBag("MotCon::Frame") ); // bag_type
 
         VectorDecomposer vel( f.get().p, "Position" );
-#ifdef OROSEM_GEOMETRY_EULERPROPERTIES
+#ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_EULER
         EulerZYXDecomposer rot( f.get().M, "Rotation" );
 #else
-# ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+# ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_RPY
         RPYDecomposer rot( f.get().M, "Rotation");
 # else
         RotationDecomposer rot( f.get().M, "Rotation" );
@@ -714,10 +790,36 @@ namespace ORO_CoreLib
                         RPYComposer vas_rpy( f_bag->get() );
                         EulerZYXComposer vas_eul( f_bag->get() );
                         RotationComposer vas_rot( f_bag->get() );
-                        return vas_pos.getResult( f.value().p,"Position" ) &&
-                            ( vas_rpy.getResult( f.value().M, "Rotation" ) ||
-                              vas_eul.getResult( f.value().M, "Rotation" ) ||
-                              vas_rot.getResult( f.value().M, "Rotation" ) );
+                        bool result = vas_pos.getResult( f.value().p,"Position" );
+                        if (!result)
+                            return false;
+                        result = vas_rpy.getResult( f.value().M, "Rotation" ) ||
+                            vas_eul.getResult( f.value().M, "Rotation" ) ||
+                            vas_rot.getResult( f.value().M, "Rotation" );
+                        if (!result )
+                            {
+                                Property<PropertyBag>* b = f_bag->get().getProperty<PropertyBag>( "Rotation" );
+                                if ( b == 0 ) {
+                                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
+                                                  << ": element 'Rotation' not found." <<Logger::endl;
+                                } else {
+                                    Logger::log()
+                                        << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
+                                        << ": Could not compose 'Rotation' type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"
+                                        << b->get().getType() <<"'."<<Logger::endl;
+                                }
+                                return false;
+                            }
+                    } else {
+                        if ( f_bag == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
+                                          << ": not a PropertyBag." <<Logger::endl;
+                        } else {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<<f_bag->getName()
+                                          << ": Expected type 'MotCon::Frame', got type '"<< f_bag->get().getType() <<"'."
+                                          <<Logger::endl;
+                        }
+                        return false;
                     }
             }
         return false;
