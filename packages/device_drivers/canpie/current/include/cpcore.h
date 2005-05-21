@@ -64,9 +64,9 @@ extern CpStruct_BitTimingValue code CpStruct_BitTimingTable[];
 extern const CpStruct_BitTimingValue   CpStruct_BitTimingTable[];
 #endif
 
-extern _U08 (* CpInt_ReceiveHandler[]) (_U08, CpStruct_CAN *);
-extern _U08 (* CpInt_TransmitHandler[]) (_U08, CpStruct_CAN *);
-extern _U08 (* CpInt_ErrorHandler[]) (_U08);
+extern _U32 (* CpInt_ReceiveHandler[]) (_U32, CpStruct_CAN *);
+extern _U32 (* CpInt_TransmitHandler[]) (_U32, CpStruct_CAN *);
+extern _U32 (* CpInt_ErrorHandler[]) (_U32);
 
 extern _U16 CpVar_InitFlag;
 
