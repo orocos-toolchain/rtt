@@ -59,13 +59,13 @@ the \"Detected Support Libraries->RTAI Installation\"
 package."
 	}
 
-	cdl_option CYGBLD_RTAIDIR {
-	    display "RTAI directory"
+	cdl_option OROBLD_OS_EXTRA_CFLAGS {
+	    display "RTAI Include Directory"
 	    parent CYGBLD_GLOBAL_OPTIONS
 	    flavor data
 	    no_define
 	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
-	    calculated { OROBLD_SUPPORT_RTAI_DIR }
+	    calculated { "-I".OROBLD_SUPPORT_RTAI_DIR."/include" }
 	    description "
 This is the location of your RTAI installation. It is normally
 detected by the packages configure script and can be specified

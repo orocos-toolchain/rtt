@@ -105,7 +105,7 @@ Standard IO Ports Device Driver).
 	    display "User defined global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value {  "-pipe -Wall -Woverloaded-virtual -Wnon-virtual-dtor" }
+	    default_value {  "-pipe -Wall -Woverloaded-virtual" }
 	    description   "
           This option allows you to override some global compiler flags.
 The options you provide here will be appended to the CFLAGS variable below."
@@ -195,11 +195,13 @@ compilation times."
 	    display "Global compiler flags"
 	    flavor  data
 	    no_define
-	    calculated { OROBLD_OS_OPTIMIZE_EXECUTION ?
-		OROBLD_OS_OPTIMIZE_EXECUTION." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD
-		: OROBLD_OS_OPTIMIZE_DEBUGGING ?
-		  OROBLD_OS_OPTIMIZE_DEBUGGING." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD
-		  : OROBLD_OS_OPTIMIZE_COMPILE." -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".OROBLD_GLOBAL_CFLAGS_ADD}
+	    calculated { (OROBLD_OS_OPTIMIZE_EXECUTION ? OROBLD_OS_OPTIMIZE_EXECUTION : "").
+		(OROBLD_OS_OPTIMIZE_DEBUGGING ? OROBLD_OS_OPTIMIZE_DEBUGGING : "").
+		(OROBLD_OS_OPTIMIZE_COMPILE ? OROBLD_OS_OPTIMIZE_COMPILE : "").
+		" -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".
+		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
+		OROBLD_GLOBAL_CFLAGS_ADD }
+	    
 	    description   "
           This option controls the global compiler flags which
           are used to compile all packages by
