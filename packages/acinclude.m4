@@ -108,7 +108,7 @@ PACKAGES="support/xercesc/current/xercesc.cdl $PACKAGES"
 ],
 [
   AC_MSG_WARN([
-No Xerces-C 2.1 installation found.
+No Xerces-C 2.X installation found.
 XML parsing will be unavailable.
 
 To install Xerces-C, Debian users can do :
@@ -124,25 +124,27 @@ and rerun the bootstrap.sh script
 
 m4_define([DETECT_COMEDIPKG],
 [
-AC_MSG_CHECKING(for comedi dir)
-AC_ARG_WITH(comedi, [ --with-comedi Specify location of comedilib.h ],
-	            [ if test x"$withval" != x; then COMEDI_DIR="$withval"; else COMEDI_DIR="/usr/src/comedi/include/linux/"; fi ])
+AC_MSG_CHECKING(for Comedi dir)
+AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ]) ],
+	            [ if test x"$withval" != x; then COMEDI_DIR="$withval";fi],[ COMEDI_DIR="/usr/src/comedi/include" ])
 
 if test -f $COMEDI_DIR/comedilib.h; then
   # gnu linux comedilib
   PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
   CPPFLAGS="-I$COMEDI_DIR"
-  AC_MSG_RESULT(Comedi for gnulinux found in $COMEDI_DIR)
+  AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
 else
   if test -f $COMEDI_DIR/linux/comedilib.h; then
     # lxrt comede package
     PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
     CPPFLAGS="-I$COMEDI_DIR"
-    AC_MSG_RESULT(Comedi for lxrt found in $COMEDI_DIR/linux)
+    AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
   else
     # no comedi found
-    AC_MSG_WARN([No comedi installation found (comedilib.h). Comedi will be unavailable.])
-    AC_MSG_RESULT(No comedi found)
+    AC_MSG_RESULT(not found)
+   AC_MSG_WARN([No comedi installation found !
+   (tried : $COMEDI_DIR/comedilib.h and $COMEDI_DIR/linux/comedilib.h).
+   Comedi will be unavailable.])
   fi
 fi
 AC_SUBST(COMEDI_DIR)
