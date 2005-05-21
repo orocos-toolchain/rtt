@@ -92,14 +92,14 @@ to be build and set the correct path, for example
 /usr/src/linux-rt"
 	parent CYGBLD_GLOBAL_OPTIONS
 	flavor bool
-	default_value { 0 }
+	default_value 1
 	implements OROINT_OS_KERNEL_MODULE
 
 	cdl_option OROBLD_OS_LINUX_KERNEL {
 	    display "Target Linux Kernel path"
 	    flavor  data
 	    no_define
-	    default_value { "/usr/src/linux-rt" }
+ 	    default_value { "********SET LINUX KERNEL PATH IN GLOBAL BUILD OPTIONS OR DISABLE 'Build Linux Kernel Modules'********" }
 	    description "Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux-rt."
 	}
     }
