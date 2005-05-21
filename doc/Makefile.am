@@ -10,6 +10,9 @@ CLEANXMLDOCS= $(notdir $(EXTRAXMLDOCS))
 # EXTRAJPG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*jpg" )
 EXTRAJPG=$(shell ls $(ECOS_REP)/jpg/*.jpg)
 CLEANJPG=$(notdir $(EXTRAJPG))
+#need gif to include in pdf
+EXTRAGIF=$(shell ls $(ECOS_REP)/gif/*.gif)
+CLEANGIF=$(notdir $(EXTRAGIF))
 # no need to copy png's the html will link to them
 #EXTRAPNG= $(shell find $(ECOS_REP) -path "doc/api" -prune -o -path "*png" )
 
@@ -56,21 +59,21 @@ endif
 
 docs: $(DOC)
 
-manual: pngimages jpgimages
+manual: pngimages gifimages
 	-cp -a $(EXTRAXMLDOCS) .
-	-cp -a $(EXTRAJPG) .
+	-cp -a $(EXTRAGIF) .
 	$(RM)  orocos-manual.html orocos-manual.pdf 
-	$(MAKE) orocos-manual.html orocos-manual.pdf 
+	$(MAKE) orocos-manual.html orocos-manual.pdf XSL_PDF_PARAMS="--stringparam admon.graphics.path ../../doc/images/"
 	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANJPG)
+	$(RM) $(CLEANGIF)
 
-control-manual: pngimages jpgimages
+control-manual: pngimages gifimages
 	-cp -a $(EXTRAXMLDOCS) .
-	-cp -a $(EXTRAJPG) .
+	-cp -a $(EXTRAGIF) .
 	$(RM)  orocos-control-manual.html orocos-control-manual.pdf 
-	$(MAKE) orocos-control-manual.html orocos-control-manual.pdf 
+	$(MAKE) orocos-control-manual.html orocos-control-manual.pdf XSL_PDF_PARAMS="--stringparam admon.graphics.path ../../doc/images/"
 	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANJPG)
+	$(RM) $(CLEANGIF)
 
 docchunks: $(CHUNKSDOCS)
 

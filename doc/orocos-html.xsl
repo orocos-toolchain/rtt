@@ -19,6 +19,9 @@
   <xsl:param name="section.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel.max.depth" select="3"></xsl:param>
 
+<!--   For HTML output, use the standard image size. -->
+  <xsl:param name="ignore.image.scaling" select="1"/>
+
   <xsl:param name="admon.graphics" select="1"/>
   <xsl:param name="admon.graphics.path" select="'images/'"/>
   <xsl:param name="admon.graphics.extension" select="'.png'"/>

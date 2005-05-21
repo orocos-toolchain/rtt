@@ -23,14 +23,14 @@
 <!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
 <!-- assume this xsl sheet is read from a build/doc dir. Otherwise, uncomment online url below -->
-  <xsl:param name="admon.graphics.path" select="'../../doc/images/'"/>
-<!--  <xsl:param name="admon.graphics.path" select="'http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/images/'"/>-->
-  <xsl:param name="admon.graphics.extension" select="'.jpg'"/>
+<!--   <xsl:param name="admon.graphics.path" select="'../../doc/images/'"/> -->
+  <xsl:param name="admon.graphics.path" select="'http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/images/'"/>
+  <xsl:param name="admon.graphics.extension" select="'.gif'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
 <!-- use this to select the image type used for pdf / ps output across all files. -->
-  <xsl:param name="graphic.default.extension" select="'jpg'"></xsl:param>
+  <xsl:param name="graphic.default.extension" select="'gif'"></xsl:param>
 
 <xsl:attribute-set name="monospace.verbatim.properties" 
                    use-attribute-sets="verbatim.properties monospace.properties">

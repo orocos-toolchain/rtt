@@ -2,6 +2,8 @@
 HTML_STYLESHEET   ?= orocos-html.xsl
 FOP_STYLESHEET    ?= orocos.xsl
 XML_CATALOG_FILES ?= catalog.xml
+#XSL_PDF_PARAMS also available.
+#XSL_HTML_PARAMS also available.
 
 XMLPROCESSOR      ?= xsltproc
 DIA               ?= dia
@@ -22,6 +24,7 @@ JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
 TIFFIMGS=$(patsubst %.dia,%.tiff,$(DIAS))
+GIFIMGS=$(patsubst %.dia,%.gif,$(DIAS))
 
 .PHONY=doc-dist docxml dochtml docpdf docps doctxt epsimages pngimages
 
@@ -39,7 +42,7 @@ docxml: dochtml docpdf
 dochtml: pngimages $(XMLDOCS)
 	${MAKE} $(HTMLDOCS)
 
-docpdf: jpgimages $(XMLDOCS)
+docpdf: gifimages $(XMLDOCS)
 	${MAKE} $(PDFDOCS)
 
 docps: jpgimages $(XMLDOCS)
@@ -55,6 +58,8 @@ pngimages: $(PNGIMGS)
 
 tiffimages: $(TIFFIMGS)
 
+gifimages: $(GIFIMGS)
+
 .sgml.html:
 	docbook2html -u $<
 
@@ -66,7 +71,7 @@ tiffimages: $(TIFFIMGS)
 
 %.html:%.xml
 	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
-	$(XMLPROCESSOR)  --xinclude $(HTML_STYLESHEET) $< > $@
+	$(XMLPROCESSOR) $(XSL_HTML_PARAMS) --xinclude $(HTML_STYLESHEET) $< > $@
 
 # %.html:%.xml
 # 	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
@@ -77,7 +82,7 @@ tiffimages: $(TIFFIMGS)
 
 %.fo:%.xml
 	XML_CATALOG_FILES=$(XML_CATALOG_FILES) \
-	$(XMLPROCESSOR) --xinclude $(FOP_STYLESHEET) $< > $@
+	$(XMLPROCESSOR) $(XSL_PDF_PARAMS) --xinclude $(FOP_STYLESHEET) $< > $@
 
 %.ps:%.fo
 	$(FOP) $< $@
@@ -103,6 +108,9 @@ tiffimages: $(TIFFIMGS)
 %.tiff:%.png
 	$(CONVERT) $< $@
 
+%.gif:%.png
+	$(CONVERT) $< $@
+
 doc-clean:
-	rm -f $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PNGIMGS) $(JPGIMGS) $(EPSIMGS) $(TXTDOCS)
+	rm -f $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PNGIMGS) $(JPGIMGS) $(EPSIMGS) $(GIFIMGS) $(TXTDOCS)
 

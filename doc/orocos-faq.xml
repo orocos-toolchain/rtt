@@ -108,6 +108,18 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
+	  <para>Where can a find a quick overview of what features Orocos currently has ?</para>
+	</question>
+	<answer>
+	  <para>
+	    In the <ulink
+	      url="http://www.orocos.org/documents/OrocosOverview-05-05.pdf">10 Minutes Orocos Overview</ulink> 
+	    Presentation.
+	  </para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
 	  <para>Where can I find the latest Orocos documentation?</para>
 	</question>
 	<answer>
@@ -142,8 +154,8 @@ Alex Russell
 	<answer>
 	  <para>
 	    In the <ulink url="http://www.orocos.org/downloads.php">
-	      Download Section</ulink> of the Orocos website. An all
-	    in one manual is available too ( The Complete Orocos Software Manual ).
+	      Download Section</ulink> of the Orocos website for each
+	      use of Orocos.
 	  </para>
 	</answer>
       </qandaentry>
@@ -198,7 +210,7 @@ Alex Russell
 	  <para>
 	    Orocos works with RTAI 3.0r5 ( you need to apply a <ulink
 	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> if you use 3.0r(1-4)
-	    ), RTAI 3.1 and RTAI-3.2-test1 (no patch).
+	    ), RTAI 3.1 and RTAI-3.2 (no patch).
 	  </para>
 	</answer>
       </qandaentry>
@@ -288,13 +300,6 @@ Alex Russell
 	    framework.
 	  </para>
 	</answer>
-	<answer>
-	  <para>
-	    Use <command>make all_packages</command> in your build directory to build
-	    everything, some device drivers will probably not build on your system, consider
-	    using the first answer.
-	  </para>
-	</answer>
       </qandaentry>
       <qandaentry>
 	<question>
@@ -310,7 +315,7 @@ Alex Russell
 	  <para>
 	    For running an Orocos application, you need an Intel Pentium-like Processor with minimum 32MB RAM,
 	    but much depends on the application itself. Orocos has not been tested
-	    on other (PowerPC, ARM,...) processors, but an FPU unit is surely needed.
+	    on other (PowerPC, ARM,...) processors, but an FPU unit (or emulation) is surely needed.
 	  </para>
 	</answer>
       </qandaentry>
@@ -324,7 +329,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    You can download the 'taskintro' application from the download page.
-	    The RealTime Control Services manual gives a short walk-through.
+	    The RealTime Control Services manual gives a short walk-through in Chapter 7.
 	    You need to download, build 'control_services' and install Orocos on your system 
 	    to be able to compile the demo.
 	  </para>
@@ -362,6 +367,17 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>Check if your rtai_lxrt and rtai_sem kernel modules are loaded.</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>Orocos hangs after the first threads are created !</para>
+	</question>
+	<answer>
+	  <para>Check if the LXRT userspace tests work. Orocos should be compiled
+	  with the same compiler as RTAI and Linux. RTAI/LXRT is quite sensitive
+	  about the choosen compiler. Problems have been reported with RedHat's 
+	  GCC 3.4 compiler for example.</para>
 	</answer>
       </qandaentry>
       <qandaentry>
@@ -479,7 +495,7 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    C++ is a fundamental pillar of Orocos' design. If need to
+	    C++ is a fundamental pillar of Orocos' design. If you need to
 	    be convinced that this actually works, take a look at
 	    <ulink url="http://www.orocos.org/applications.php">
 	      Demonstration movies </ulink> , and read <ulink

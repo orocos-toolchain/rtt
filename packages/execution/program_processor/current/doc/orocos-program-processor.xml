@@ -356,7 +356,7 @@
 	<figure><title>A Generic Functor</title>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="Functor" />
+	      <imagedata width="7.5cm" fileref="Functor" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>

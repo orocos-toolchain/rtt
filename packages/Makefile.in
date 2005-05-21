@@ -31,13 +31,13 @@ orocos-dist: doc-dist
 
 doc-dist:
 	@echo "Making doc tarballs..."
-	@for i in $$(find . -path "*/doc/Makefile"); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl doc-dist; done
+	@for i in $$(find . -path "*/doc/Makefile"); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl XSL_PARAMS="--stringparam admon.graphics.path $$(pwd)/../doc/images/" doc-dist; done
 	@rm -rf orocos-docs
-	@rm -rf jpg
+	@rm -rf gif
 	@mkdir  orocos-docs
-	@mkdir  jpg
+	@mkdir  gif
 	@echo "Copying..."
-	@cp $$(find . -path "*/doc/*" -name "*.jpg") jpg
+	cp $$(find . -path "*/doc/*" -name "*.gif") gif
 	@mv $$(find . -name "*.tgz") orocos-docs
 	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz )
 	@echo "Done !"
