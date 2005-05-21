@@ -170,11 +170,12 @@ control_services: test_new_packages
 #Build most of Orocos, except device drivers.
 robot_control: test_new_packages dist_packages
 
-doxygen_headers:
+doxygen_headers: test_new_packages
 	@if test -f packages/ecos.ecc; then \
 	cd packages; \
 	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	$(ECOSCONFIG) template doxygen;\
+	$(ECOSCONFIG) resolve;\
 	$(ECOSCONFIG) tree ;fi
 	$(MAKE) -C . inst-headers
 
