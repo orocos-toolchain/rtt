@@ -95,19 +95,19 @@ ostream& operator << (ostream& os,const Wrench& v) {
 
 
 ostream& operator << (ostream& os,const Rotation& R) {
-#ifdef OROSEM_GEOMETRY_RPYPROPERTIES
+#ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_RPY
     double r,p,y;
     R.GetRPY(r,p,y);
-    os << "[RPY]";
+    os << "[RPY]"<<endl;
     os << "[";
     os << setw(FRAMEWIDTH) << r << ",";
     os << setw(FRAMEWIDTH) << p << ",";
     os << setw(FRAMEWIDTH) << y << "]";
 #else
-# ifdef OROSEM_GEOMETRY_EULERPROPERTIES
+# ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_EULER
     double z,y,x;
     R.GetEulerZYX(z,y,x);
-    os << "[EULERZYX]";
+    os << "[EULERZYX]"<<endl;
     os << "[";
     os << setw(FRAMEWIDTH) << z << ",";
     os << setw(FRAMEWIDTH) << y << ",";
