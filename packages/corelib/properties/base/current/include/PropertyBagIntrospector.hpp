@@ -52,11 +52,9 @@ namespace ORO_CoreLib
         /**
          * @brief Create a new Introspector, saving the results in a bag.
          *
-         * One can choose to save the given properties or a clone.
+         * The \a bag will contain decomposed clones of the original.
          *
          * @param bag The bag to safe the results in.
-         * @param clone True if the bag must contain clones, false (default)
-         * if the bag must contain the original properties.
          */
         PropertyBagIntrospector( PropertyBag& bag )
         {

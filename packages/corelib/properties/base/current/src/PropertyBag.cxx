@@ -158,13 +158,11 @@ namespace ORO_CoreLib
             {
                 //std::cout <<"*******************refresh"<<std::endl;
                 if ( mine->update( (*it) ) == false ) {
-                    DataSourceBase::shared_ptr tgtds = mine->createDataSource();
-                    DataSourceBase::shared_ptr srcds = (*it)->createDataSource();
                     Logger::log() << Logger::Error;
                     Logger::log() << "refreshProperties: Could not refresh Property "
-                                  << tgtds->getType() << " "<< (*it)->getName()
+                                  << mine->getType() << " "<< (*it)->getName()
                                   << ": type mismatch, can not update with type "
-                                  << srcds->getType() << Logger::endl;
+                                  << (*it)->getType() << Logger::endl;
                 }
             }
             ++it;
@@ -206,14 +204,34 @@ namespace ORO_CoreLib
         while ( it != source.getProperties().end() )
         {
             PropertyBase* mine = target.find( (*it)->getName() );
-            if (mine != 0)
-                mine->update( (*it) );  // no need to make new one, just update existing one
+            if (mine != 0) {
+#ifndef NDEBUG
+                Logger::log() << Logger::Debug;
+                Logger::log() << "updateProperties: updating Property "
+                              << (*it)->getType() << " "<< (*it)->getName()
+                              << "." << Logger::endl;
+#endif
+                  // no need to make new one, just update existing one
+                if ( mine->update( (*it) ) == false ) {
+                    Logger::log() << Logger::Error;
+                    Logger::log() << "updateProperties: Could not update Property "
+                                  << mine->getType() << " "<< (*it)->getName()
+                                  << ": type mismatch, can not update with type "
+                                  << (*it)->getType() << Logger::endl;
+                }
+            }
             else
             {
+#ifndef NDEBUG
+                Logger::log() << Logger::Debug;
+                Logger::log() << "updateProperties: created Property "
+                              << (*it)->getType() << " "<< (*it)->getName()
+                              << "." << Logger::endl;
+#endif
                 // step 1 : clone a new instance (non deep copy)
                 PropertyBase* temp = (*it)->create();
-                // step 2 : deep copy clone with original.
-                temp->update( *it );
+                // step 2 : deep copy clone with original, will never fail.
+                mine->update( (*it) );
                 // step 3 : add result to target bag.
                 target.add( temp );
             }

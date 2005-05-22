@@ -31,7 +31,8 @@
 #include <pkgconf/corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
-#include "corelib/Logger.hpp"
+#include <corelib/Logger.hpp>
+#include <corelib/PropertyBagIntrospector.hpp>
 
 using namespace std;
 using namespace ORO_CoreLib;
@@ -143,9 +144,14 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     // Write results
     PropertyBag* compProps = target->attributeRepository.properties();
 
+    // decompose repos into primitive property types.
+    PropertyBag  decompProps;
+    PropertyBagIntrospector pbi( decompProps );
+    pbi.introspect( *compProps );
+
     // merge with target file contents,
     // override allProps.
-    ORO_CoreLib::updateProperties( allProps, *compProps );
+    ORO_CoreLib::updateProperties( allProps, decompProps );
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
     if ( file )
@@ -163,6 +169,8 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     // allProps contains copies (clone()), thus may be safely deleted :
     flattenPropertyBag( allProps );
     deleteProperties( allProps ); 
+    flattenPropertyBag( decompProps );
+    deleteProperties( decompProps ); 
     return true;
 
 }

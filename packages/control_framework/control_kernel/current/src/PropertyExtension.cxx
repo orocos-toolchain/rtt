@@ -27,6 +27,7 @@
 #pragma implementation
 #include "control_kernel/PropertyExtension.hpp"
 #include <corelib/PropertyIntrospection.hpp>
+#include <corelib/PropertyBagIntrospector.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Logger.hpp>
@@ -272,13 +273,18 @@ namespace ORO_ControlKernel
 
         // Write results
         PropertyBag compProps;
+        PropertyBag decompProps;
         // collect component properties
         comp->exportProperties( compProps );
+        // decompose in primitives
+        PropertyBagIntrospector pbi( decompProps );
+        pbi.introspect( compProps );
         // merge with target file contents,
         // override allProps.
-        ORO_CoreLib::updateProperties( allProps, compProps );
+        ORO_CoreLib::updateProperties( allProps, decompProps );
         // serialize and cleanup
         std::ofstream file( filename.c_str() );
+        bool result = true;
         if ( file )
             {
                 CPFMarshaller<std::ostream> marshaller( file );
@@ -287,13 +293,14 @@ namespace ORO_ControlKernel
             }
         else {
             Logger::log() << Logger::Error << "PropertyExtension: Could not open file "<< filename <<" for writing."<<Logger::endl;
-            flattenPropertyBag( allProps );
-            deleteProperties( allProps );
-            return false;
+            result = false;
         }
         // allProps contains copies (clone()), thus may be safely deleted :
         flattenPropertyBag( allProps );
         deleteProperties( allProps ); 
+        // same for decompProps 
+        flattenPropertyBag( decompProps );
+        deleteProperties( decompProps );
         return true;
     }
         

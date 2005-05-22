@@ -70,7 +70,7 @@ namespace ORO_CoreLib
              * Stores the results of the parsing.
              */
             PropertyBag &bag;
-            std::stack< std::pair<PropertyBag*, std::string > > bag_stack;
+            std::stack< std::pair<PropertyBag*, Property<PropertyBag>*> > bag_stack;
 
             enum Tag { TAG_STRUCT, TAG_SIMPLE, TAG_SEQUENCE, TAG_PROPERTIES, TAG_DESCRIPTION, TAG_VALUE};
             std::stack<Tag> tag_stack;
@@ -87,7 +87,8 @@ namespace ORO_CoreLib
 
             SAX2CPFHandler( PropertyBag &b ) : bag( b )
             {
-                bag_stack.push(std::make_pair(&bag,"root"));
+                Property<PropertyBag>* dummy = 0;
+                bag_stack.push(std::make_pair(&bag, dummy));
             }
 
             void endElement( const XMLCh* const uri,
@@ -154,12 +155,11 @@ namespace ORO_CoreLib
                     case TAG_SEQUENCE:
                     case TAG_STRUCT:
                         {
-                            PropertyBag *pb = bag_stack.top().first;
-                            std::string pn = bag_stack.top().second;
+                            Property<PropertyBag>* prop = bag_stack.top().second;
                             bag_stack.pop();
-                            bag_stack.top().first->add
-                            ( new Property<PropertyBag>( pn, description, *pb ) );
-                            delete pb;
+                            bag_stack.top().first->add( prop );
+                            //( new Property<PropertyBag>( pn, description, *pb ) );
+                            //delete pb;
                             tag_stack.pop();
                             description.clear();
                             name.clear();
@@ -167,8 +167,15 @@ namespace ORO_CoreLib
                         }
                         break;
 
-                    case TAG_VALUE:
                     case TAG_DESCRIPTION:
+                        tag_stack.pop();
+                        if ( tag_stack.top() == TAG_STRUCT ) {
+                            // it is a description of a struct that ended
+                            bag_stack.top().second->setDescription(description);
+                            description.clear();
+                        }
+                        break;
+                    case TAG_VALUE:
                     case TAG_PROPERTIES:
                         tag_stack.pop();
                         break;
@@ -230,13 +237,14 @@ namespace ORO_CoreLib
                                     XMLChToStdString( attributes.getValue(ac), type);
                                 }
                             }
-                            PropertyBag *pb;
+                            Property<PropertyBag> *prop;
                             if (hasType)
-                                pb = new PropertyBag(type);
+                                prop = new Property<PropertyBag>(name,"",PropertyBag(type));
                             else
-                                pb = new PropertyBag();
+                                prop = new Property<PropertyBag>(name,"");
                             
-                            bag_stack.push(std::make_pair(pb, std::string(name)));
+                            // take reference to bag itself !
+                            bag_stack.push(std::make_pair( &(prop->value()), prop));
                         }
                         else
                                 if ( ln == "description") 
