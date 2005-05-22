@@ -22,7 +22,7 @@ PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS))
 TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
 
 # convert pngs only only to jpg, gif reduces too much quality of screenshots.
-JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS)) $(patsubst %.png,%.jpg,$(PNGS))
+JPGIMGS= $(patsubst %.png,%.jpg,$(PNGS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS)) $(patsubst %.png,%.png,$(PNGS))
 TIFFIMGS=$(patsubst %.dia,%.tiff,$(DIAS))
