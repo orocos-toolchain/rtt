@@ -15,7 +15,7 @@ cd build
 ../configure
 make new_packages
 make configure_packages
-make all_packages
+make
 
 
 General Instructions
@@ -37,3 +37,4 @@ svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk
 The examples are in :
 
 svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-apps/kernel_sample
+svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-apps/task-intro
