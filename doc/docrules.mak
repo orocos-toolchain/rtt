@@ -9,7 +9,8 @@ XMLPROCESSOR      ?= xsltproc
 DIA               ?= dia
 FOP               ?= fop
 CONVERT           ?= convert
-
+JPGQUALITY        ?= 30
+PNGS              ?=
 #
 # Rules and stuff below
 #
@@ -20,9 +21,10 @@ PDFDOCS= $(patsubst %.xml,%.pdf,$(XMLDOCS))
 PSDOCS= $(patsubst %.xml,%.ps,$(XMLDOCS)) 
 TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
 
-JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS))
+# convert pngs only only to jpg, gif reduces too much quality of screenshots.
+JPGIMGS= $(patsubst %.dia,%.jpg,$(DIAS)) $(patsubst %.png,%.jpg,$(PNGS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
-PNGIMGS= $(patsubst %.dia,%.png,$(DIAS))
+PNGIMGS= $(patsubst %.dia,%.png,$(DIAS)) $(patsubst %.png,%.png,$(PNGS))
 TIFFIMGS=$(patsubst %.dia,%.tiff,$(DIAS))
 GIFIMGS=$(patsubst %.dia,%.gif,$(DIAS))
 
@@ -42,7 +44,7 @@ docxml: dochtml docpdf
 dochtml: pngimages $(XMLDOCS)
 	${MAKE} $(HTMLDOCS)
 
-docpdf: gifimages $(XMLDOCS)
+docpdf: gifimages jpgimages $(XMLDOCS)
 	${MAKE} $(PDFDOCS)
 
 docps: jpgimages $(XMLDOCS)
@@ -103,7 +105,7 @@ gifimages: $(GIFIMGS)
 	if test x$(srcdir) != x -a ! $(srcdir)/. -ef . ;then mv -f $(srcdir)/$@ .; fi
 
 %.jpg:%.png
-	$(CONVERT) -quality 100 $< $@
+	$(CONVERT) -quality $(JPGQUALITY) $< $@
 
 %.tiff:%.png
 	$(CONVERT) $< $@

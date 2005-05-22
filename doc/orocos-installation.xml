@@ -200,17 +200,15 @@
 	<title>Orocos Build and Configuration Tools </title>
 	<para>
 	  The tools you will need are <command>ecosconfig</command>
-	  and <command>configtool</command>. In Debian, you can
-	  use the official Debian version  using
-	  <screen>  apt-get install ecosconfig</screen>
-	  If this does not work for you, you can try the ready-to-use tools
-	  in tools/bin after the archive is unpacked. In that case, you'll have to point
-	  your path to :
-	  <screen>  export PATH=$PATH:(...)/orocos-&oversion;/tools/bin  </screen>
-	  In order to use them.  The
-	  <command>orocos-install.tcl</command> script
-	  will provide a shell script which sets this path for you.
-	  If that does not work, consult the <ulink
+	  and <command>configtool</command>. In Debian, you can use
+	  the official Debian version using <screen>  apt-get install
+	  ecosconfig</screen> If this does not work for you, you can
+	  try the ready-to-use tools in Orocos' tools/bin
+	  subdirectory. The build system will try to locate the tools
+	  in that directory and use them if present.
+	</para>
+	<para>
+	  If the build tools cause problems, consult the <ulink
 	    url="http://www.ecoscentric.com/devzone/configtool.shtml"> eCos
 	    Configuration Tool Version 2</ulink> webpage for source
 	  and binary downloads or consult the <ulink url="http://www.orocos.org/download.php#ecostools">
@@ -235,14 +233,14 @@
 	  written in the <ulink
 	    url="http://sources.redhat.com/ecos/docs-latest/cdl-guide/cdl-guide.html"> 
 	    eCos Component Writer Guide</ulink>.
-	<note>
-	  <para>
-	    In the eCos Operating System, a target is a
-	    hardware platform, in Orocos, a target is RTAI, GNU/Linux,
-	    LXRT and so on, so you can skip all hardware specific
-	    sections in the eCos manuals.
-	  </para>
-	</note>
+	    <note>
+	      <para>
+		In the eCos Operating System, a target is a
+		hardware platform, in Orocos, a target is RTAI, GNU/Linux,
+		LXRT and so on, so you can skip all hardware specific
+		sections in the eCos manuals.
+	      </para>
+	    </note>
 	</para>
       </sect3>
       <sect3>
@@ -324,6 +322,16 @@
 	  specific options.
 	  This is also the stage where you can add/remove packages for compilation.
 	</para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject role="html">
+		<imagedata fileref="ConfigTool" />
+	      </imageobject>
+	      <imageobject role="fo">
+		<imagedata format="JPG" fileref="ConfigTool.jpg" />
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	<para>
 	  When you completed these two stages, you can now <command>make</command>.
 	  For more details, consult <xref linkend="install-configure"/>.
@@ -362,7 +370,6 @@
 	  <listitem><para>Setup the base environment : 
 	      <screen><command>  cd orocos-&oversion;
   EXPORT PATH=$PATH:$(pwd)/tools/bin
-  EXPORT ECOS_REPOSITORY=$(pwd)/packages
   mkdir build
   cd build
   ../configure	</command> </screen>
@@ -538,8 +545,9 @@
 <!-- 	  </tip> -->
 <!-- 	</para> -->
       <para>
-	When running <command>../configure --with-lxrt=/usr/local/realtime</command> (the path is optional)
-	the configure
+	When running
+	<command>../configure --with-lxrt=/usr/local/realtime</command>
+	(the path is optional) the configure
 	script will try to find your installation in <filename>/usr/local/realtime</filename>
 	and select the os/lxrt target. The default path where LXRT is being looked for is
 	<filename>/usr/realtime</filename>. Watch carefully the output to find any errors.
@@ -557,6 +565,16 @@
 	    packages in the repository can be added or removed. <emphasis>This operation does not
 	    remove a package from the repository.</emphasis>
 	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject role="html">
+		<imagedata fileref="ConfigToolPackages" />
+	      </imageobject>
+	      <imageobject role="fo">
+		<imagedata format="JPG" fileref="ConfigToolPackages.jpg" />
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	</listitem>
 	<listitem>
 	  <para>
@@ -565,6 +583,16 @@
 	    <filename>.epk</filename> file from your harddisk, which will be
 	    added to your packages repository.
 	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject role="html">
+		<imagedata fileref="ConfigToolAdmin" />
+	      </imageobject>
+	      <imageobject role="fo">
+		<imagedata format="JPG" fileref="ConfigToolAdmin.jpg" />
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	</listitem>
       </itemizedlist>
     </sect2>
@@ -576,6 +604,16 @@
 	  <guilabel>Global Build Options</guilabel>
 	</menuchoice>
       </para>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="ConfigToolFlags" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata format="JPG" fileref="ConfigToolFlags.jpg" />
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	Furthermore, you <emphasis>MUST SET</emphasis> the Linux directory
 	path in the configtool if you want to compile <emphasis>Linux Kernel Modules</emphasis>.
@@ -600,21 +638,24 @@
 	  interface in its C++ device interface. To use these
 	  classes, the Orocos configure script must first
 	  detect a valid installation. This can be done
-	  by providing two flags :
-	  <screen>  ../configure --with-comedi=/path/to/comedi --with-comedilib=/path/to/comedilib  </screen>
-	  If both are found, the Comedi support package will
+	  by providing this option to configure :
+	  <screen>  ../configure --with-comedi=/path/to/comedi </screen>
+	  If found, the Comedi support package will
 	  be generated, and you will be able to add the
 	  Orocos Comedi Device Driver to your configuration.
 	</para>
 	<para>
-	  If Comedi is installed in <filename>/usr/realtime</filename>
+	  If Comedi is installed in <filename>/usr/realtime</filename>,
+	  <filename>/usr/src/comedi</filename>
 	  or in your default include path, it will also be
 	  detected by the configure script.
 	</para>
 	<para>
 	  Orocos can use ComediLib from the GNU/Linux target
-	  (non realtime interface)
-	  and the LXRT target ( realtime interface).
+	  (non realtime interface), in which case you must
+	  point configure to the 'comedilib' path
+	  and the LXRT target ( realtime interface ), in which
+	  case you must configure to the 'comedi' path.
 	</para>
       </sect3>
       <sect3>
@@ -622,7 +663,7 @@
 	<para>
 	  Orocos has a preliminary CAN Controller implementation
 	  using the CANPie interface. To use it, the <filename>CANPie</filename>
-	  and <filename>CANopen</filename> packages must be 
+	  and <filename>CANOpen</filename> packages must be 
 	  added to your configuration. The device driver
 	  works with RTAI/LXRT.
 	</para>

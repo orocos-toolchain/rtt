@@ -23,6 +23,8 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	kindyn-doc.sgml       robot-api.sgml 
 
 DIAS=ApplicationStack.dia
+PNGS= ConfigTool.png ConfigToolAdmin.png \
+      ConfigToolPackages.png ConfigToolFlags.png
 
 FOP_STYLESHEET := $(srcdir)/orocos.xsl
 HTML_STYLESHEET := $(srcdir)/orocos-html.xsl
@@ -44,10 +46,8 @@ EXTRA_DIST = \
 	$(DOCBOOKS) \
 	$(DIAS) \
 	$(HTMLDOCS) \
-	$(PDFDOCS)
-# we do not distribute the ps files, they are to large,
-# but i make them for the website
-
+	$(PDFDOCS) \
+	$(PNGIMGS)
 
 if HAVE_XMLPROCESSOR
 DOC = docxml
