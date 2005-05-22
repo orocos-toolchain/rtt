@@ -940,17 +940,17 @@ namespace ORO_Execution
         }
         DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
         if (dsvval) {
-            cout<< dsvval->get() ;
+            cout<< setw(0) << dsvval->get() ;
             return;
         }
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
         if (dsv) {
-            cout<< dsv->get() ;
+            cout<< setw(0) << dsv->get() ;
             return;
         }
         DataSource< Double6D >* ds6d = dynamic_cast<DataSource< Double6D >* >(ds);
         if (ds6d) {
-            cout<< ds6d->get() ;
+            cout<< setw(0) << ds6d->get() ;
             return;
         }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
