@@ -40,6 +40,7 @@ namespace ORO_Execution
 {
     using boost::bind;
     using namespace detail;
+    using namespace std;
 
     namespace {
         enum PeerErrors { peer_not_found };
@@ -81,25 +82,7 @@ namespace ORO_Execution
             }
             if ( callqueue.empty() )
                 callqueue.push("this");
-#if 0
-            // from here on : callqueue contains "this" or "objectname".
-            // check if it is an object of the peer, or a method of the peer itself.
-            // Warning : We can not throw because it is allowed to parse nothing.
-            // in that case, just assign "this" to mcurobj.
-            if ( _peer->commandFactory.getObjectFactory( callqueue.front() )
-                 ||
-                 _peer->methodFactory.getObjectFactory( callqueue.front() )
-                 ||
-                 _peer->dataFactory.getObjectFactory( callqueue.front() ) 
-                 ||
-                 _peer->attributeRepository.isDefined( callqueue.front() ) )
-                mcurobject = callqueue.front(); // it is an objectname or this
-            else {
-                // we should only get here if we parsed nothing.
-                // put "this" in mcurobject.
-                mcurobject = callqueue.front();
-            }
-#endif
+
             mcurobject = callqueue.front();
             callqueue.pop();
         }
@@ -150,11 +133,15 @@ namespace ORO_Execution
         name.erase( name.length() -1  ); // compensate for extra "."
 
         if ( _peer->hasPeer( name ) ) {
-            advance_on_error += end - begin;
             _peer = _peer->getPeer( name );
+            advance_on_error += end - begin;
+
+            //cout << "PP located "<<name <<endl;
         }
         else {
+            //cout << "PP failed "<<name <<endl;
             // store object name for higher level access.
+            // do not consume it though.
             mcurobject = name;
             throw_(begin, peer_not_found );
         }

@@ -43,12 +43,14 @@
 
 #include <boost/bind.hpp>
 #include <pkgconf/system.h>
+#include <iostream>
 
 namespace ORO_Execution
 {
     using boost::bind;
     using ORO_CoreLib::ConditionDuration;
     using namespace detail;
+    using namespace std;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");
@@ -81,14 +83,13 @@ namespace ORO_Execution
     // the parser just before it's going to be used, when we know what
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
-    datacall = (
-                !peerparser.parser() >>
-                lexeme_d[
-                         commonparser.lexeme_identifier[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
-                ]
-                [ bind( &DataCallParser::seendataname, this ) ]
-      >> !arguments
-      )[ bind( &DataCallParser::seendatacall, this ) ];
+    datacall = 
+        ( peerparser.locator() >>
+          !(commonparser.identifier >> ".") >>   // just consume, peer locator already has object name
+          commonparser.identifier[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
+          [ bind( &DataCallParser::seendataname, this ) ]
+          >> !arguments
+          )[ bind( &DataCallParser::seendatacall, this ) ];
   };
 
 
@@ -110,6 +111,7 @@ namespace ORO_Execution
       TaskContext* peer = peerparser.peer();
       peerparser.reset();
 
+      //cout << "DCP saw method "<< mmethod <<endl;
       // this is slightly different from CommandParser
     const GlobalDataSourceFactory& gdsf =
       peer->dataFactory;

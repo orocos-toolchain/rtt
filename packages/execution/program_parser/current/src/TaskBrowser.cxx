@@ -415,7 +415,8 @@ namespace ORO_Execution
         std::string _attribute;
         if (startpos != std::string::npos)
             _attribute = text.substr( startpos );
-        //cout << "FoundAttribute2 : "<< _attribute << endl;
+
+        //cout << "startpos "<<startpos<<" attribute : "<< _attribute << endl;
             
         // strip white spaces from _attribute
         while ( _attribute.find(" ") != std::string::npos )
@@ -425,7 +426,7 @@ namespace ORO_Execution
         std::vector<std::string> attrs;
         attrs = peer->attributeRepository.attributes();
         for (std::vector<std::string>::iterator i = attrs.begin(); i!= attrs.end(); ++i ) {
-            if ( i->find( _attribute ) == 0  )
+            if ( i->find( _attribute ) == 0 && !_attribute.empty() )
                 completes.push_back( peerpath + *i );
         }
     }
@@ -689,12 +690,16 @@ namespace ORO_Execution
             ss >> arg;
             if ( loader.loadProgram( arg, taskcontext ) )
                 cout << "Done."<<endl;
+            else
+                cout << "Failed."<<endl;
         }
         if ( instr == "unloadProgram") {
             std::string arg;
             ss >> arg;
             if ( loader.unloadProgram( arg, taskcontext ) )
                 cout << "Done."<<endl;
+            else
+                cout << "Failed."<<endl;
         }
 
         if ( instr == "loadStateMachine") {
@@ -702,12 +707,16 @@ namespace ORO_Execution
             ss >> arg;
             if ( loader.loadStateMachine( arg, taskcontext ) )
                 cout << "Done."<<endl;
+            else
+                cout << "Failed."<<endl;
         }
         if ( instr == "unloadStateMachine") {
             std::string arg;
             ss >> arg;
             if ( loader.unloadStateMachine( arg, taskcontext ) )
                 cout << "Done."<<endl;
+            else
+                cout << "Failed."<<endl;
         }
     }
 
@@ -884,68 +893,81 @@ namespace ORO_Execution
         return os;
     }
 
-    void TaskBrowser::printResult( DataSourceBase* ds, bool recurse) {
+    void TaskBrowser::printResult( DataSourceBase* ds, bool recurse) { 
+        std::string prompt(" = ");
+        // setup prompt :
+        cout <<prompt<< setw(20)<<left;
+        doPrint( ds, recurse );
+        cout << right;
+    }
+
+    void TaskBrowser::doPrint( DataSourceBase* ds, bool recurse) {
         /**
          * If this list of types gets to long, we can still add a virtual
          * printOut( std::ostream& ) = 0 to DataSourceBase.
          */
-        std::string prompt(" = ");
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
         if (dsb) {
-            cout << prompt << boolalpha << dsb->get() << noboolalpha ;
+            cout<< boolalpha << dsb->get() << noboolalpha ;
             return;
         }
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
         if (dsi) {
-            cout <<prompt<< dsi->get() ;
+            cout<< dsi->get() ;
             return;
         }
         DataSource<unsigned int>* dsui = dynamic_cast<DataSource<unsigned int>*>(ds);
         if (dsui) {
-            cout <<prompt<< dsui->get() ;
+            cout<< dsui->get() ;
             return;
         }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
-            cout <<prompt<<'"'<< dss->get()<<'"';
+            int wdth = 19 - dss->get().length();
+            if (wdth < 0)
+                wdth = 0;
+            cout<<setw(0)<<'"'<< dss->get() << setw(wdth)<<'"' ;
             return;
         }
         DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
         if (dscs) {
-            cout <<prompt<<'"'<< dscs->get() << '"' ;
+            int wdth = 19 - dscs->get().length();
+            if (wdth < 0)
+                wdth = 0;
+            cout<<setw(0)<<'"'<< dscs->get() << setw(wdth)<<'"' ;
             return;
         }
         DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
         if (dsvval) {
-            cout <<prompt<< dsvval->get() ;
+            cout<< dsvval->get() ;
             return;
         }
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
         if (dsv) {
-            cout <<prompt<< dsv->get() ;
+            cout<< dsv->get() ;
             return;
         }
         DataSource< Double6D >* ds6d = dynamic_cast<DataSource< Double6D >* >(ds);
         if (ds6d) {
-            cout <<prompt<< ds6d->get() ;
+            cout<< ds6d->get() ;
             return;
         }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
         if (dsd) {
-            cout <<prompt<< dsd->get() ;
+            cout<< dsd->get() ;
             return;
         }
         DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
         if (dsc) {
-            cout <<prompt<< dsc->get() ;
+            cout<<'\''<< dsc->get()<<'\'' ;
             return;
         }
 
         DataSource<void>* dsvd = dynamic_cast<DataSource<void>*>(ds);
         if (dsvd) {
             dsvd->get();
-            cout <<prompt<< "(void)" ;
+            cout<< "(void)" ;
             return;
         }
 
@@ -953,12 +975,14 @@ namespace ORO_Execution
         if (dspbag) {
             PropertyBag bag( dspbag->get() );
             if (!recurse) {
-                cout <<"   contains "<< bag.getProperties().size() << " Properties";
+                int siz = bag.getProperties().size();
+                int wdth = siz ? (20 - (siz / 10 + 1)) : 20;
+                cout <<setw(0)<< siz <<setw( wdth )<< " Properties";
             } else {
             if ( ! bag.empty() ) {
-                cout <<"   Properties :" <<nl;
+                cout <<setw(0)<<nl;
                 for( PropertyBag::iterator it= bag.getProperties().begin(); it!=bag.getProperties().end(); ++it) {
-                    cout <<setw(14)<<(*it)->getType()<<" "<<coloron<<setw(14)<< (*it)->getName()<<coloroff;
+                    cout <<setw(14)<<right<<(*it)->getType()<<" "<<coloron<<setw(14)<< (*it)->getName()<<coloroff;
                     DataSourceBase::shared_ptr propds = (*it)->createDataSource();
                     this->printResult( propds.get(), false );
                     cout <<" ("<<(*it)->getDescription()<<')' << nl;
@@ -972,33 +996,33 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
         DataSource<Vector>* dsgv = dynamic_cast<DataSource<Vector>*>(ds);
         if (dsgv) {
-            cout <<prompt<< dsgv->get() ;
+            cout <<nl<<setw(0)<< dsgv->get() ;
             return;
         }
         DataSource<Twist>* dsgt = dynamic_cast<DataSource<Twist>*>(ds);
         if (dsgt) {
-            cout <<prompt<< dsgt->get() ;
+            cout <<nl<<setw(0)<< dsgt->get() ;
             return;
         }
         DataSource<Wrench>* dsgw = dynamic_cast<DataSource<Wrench>*>(ds);
         if (dsgw) {
-            cout <<prompt<< dsgw->get() ;
+            cout <<nl<<setw(0)<< dsgw->get() ;
             return;
         }
         DataSource<Frame>* dsgf = dynamic_cast<DataSource<Frame>*>(ds);
         if (dsgf) {
-            cout <<prompt<< dsgf->get() ;
+            cout <<nl<<setw(0)<< dsgf->get() ;
             return;
         }
         DataSource<Rotation>* dsgr = dynamic_cast<DataSource<Rotation>*>(ds);
         if (dsgr) {
-            cout <<prompt<< dsgr->get() ;
+            cout <<nl<<setw(0)<< dsgr->get() ;
             return;
         }
 #endif
         if (ds) {
             ds->evaluate();
-            cout <<prompt<< "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
+            cout << "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
         }
 	
     }
@@ -1126,11 +1150,12 @@ namespace ORO_Execution
             DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
             cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
                  << setw(11)<< pds->getType()<< " "
-                 << coloron <<setw(14)<< *it << coloroff;
+                 << coloron <<setw(14)<<left<< *it << coloroff;
             this->printResult( pds.get(), false ); // do not recurse
             if (bag && bag->find(*it)) {
                 cout<<" ("<< bag->find(*it)->getDescription() <<')'<< nl;
-            }
+            } else
+                cout <<nl;
         }
 
         cout <<nl<<peer->getName()<< " Objects    :  "<<coloron;

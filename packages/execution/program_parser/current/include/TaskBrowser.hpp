@@ -119,6 +119,8 @@ namespace ORO_Execution
 
         void browserAction(std::string& act );
 
+        void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
+
         void printResult( ORO_CoreLib::DataSourceBase* ds, bool recurse);
 
         void printHelp();
