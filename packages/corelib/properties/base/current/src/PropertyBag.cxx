@@ -28,6 +28,7 @@
 #pragma implementation
 #include "corelib/PropertyBag.hpp"
 #include "corelib/Property.hpp"
+#include "corelib/Logger.hpp"
 
 namespace ORO_CoreLib
 {
@@ -156,7 +157,15 @@ namespace ORO_CoreLib
             if (mine != 0)
             {
                 //std::cout <<"*******************refresh"<<std::endl;
-                mine->update( (*it) );
+                if ( mine->update( (*it) ) == false ) {
+                    DataSourceBase::shared_ptr tgtds = mine->createDataSource();
+                    DataSourceBase::shared_ptr srcds = (*it)->createDataSource();
+                    Logger::log() << Logger::Error;
+                    Logger::log() << "refreshProperties: Could not refresh Property "
+                                  << tgtds->getType() << " "<< (*it)->getName()
+                                  << ": type mismatch, can not update with type "
+                                  << srcds->getType() << Logger::endl;
+                }
             }
             ++it;
         }

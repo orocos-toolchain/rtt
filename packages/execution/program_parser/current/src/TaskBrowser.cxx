@@ -41,6 +41,7 @@
 #include <execution/PeerParser.hpp>
 
 #include <iostream>
+#include <iomanip>
 #include <deque>
 #include <stdio.h>
 #include <readline/readline.h>
@@ -72,12 +73,9 @@ namespace ORO_Execution
     TaskContext* TaskBrowser::taskcontext = 0;
     TaskContext* TaskBrowser::peer = 0;
 
-    using std::cout;
-    using std::cerr;
-    using std::cin;
-    using std::endl;
     using boost::bind;
     using namespace ORO_CoreLib;
+    using namespace std;
 
     /**
      * Our own defined "\n"
@@ -749,7 +747,7 @@ namespace ORO_Execution
             DataSourceBase::shared_ptr ds = _parser.parseValueChange( comm, taskcontext );
             // methods and DS'es are processed immediately.
             if ( ds.get() != 0 ) {
-                this->printResult( ds.get() );
+                this->printResult( ds.get(), false );
                 return; // done here
             } else if (debug)
                 cerr << "returned zero !"<<nl;
@@ -786,7 +784,7 @@ namespace ORO_Execution
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );
             // methods and DS'es are processed immediately.
             if ( ds.get() != 0 ) {
-                this->printResult( ds.get() );
+                this->printResult( ds.get(), true );
                 return; // done here
             } else if (debug)
                 cerr << "returned zero !"<<nl;
@@ -884,16 +882,16 @@ namespace ORO_Execution
         return os;
     }
 
-    void TaskBrowser::printResult( DataSourceBase* ds) {
+    void TaskBrowser::printResult( DataSourceBase* ds, bool recurse) {
         /**
          * If this list of types gets to long, we can still add a virtual
          * printOut( std::ostream& ) = 0 to DataSourceBase.
          */
-        std::string prompt("   = ");
+        std::string prompt(" = ");
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
         if (dsb) {
-            cout <<prompt<< (dsb->get() ? "true" : "false") <<nl;
+            cout << prompt << boolalpha << dsb->get() << noboolalpha <<nl;
             return;
         }
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
@@ -952,13 +950,20 @@ namespace ORO_Execution
         DataSource<PropertyBag>* dspbag = dynamic_cast<DataSource<PropertyBag>*>(ds);
         if (dspbag) {
             PropertyBag bag( dspbag->get() );
+            if (!recurse) {
+                cout <<"   contains "<< bag.getProperties().size() << " Properties" << nl;
+            } else {
             if ( ! bag.empty() ) {
                 cout <<"   Properties :" <<nl;
                 for( PropertyBag::iterator it= bag.getProperties().begin(); it!=bag.getProperties().end(); ++it) {
-                    cout << "   "<<(*it)->getType()<<" "<< (*it)->getName() <<" - "<< (*it)->getDescription() <<nl;
+                    cout <<setw(14)<<(*it)->getType()<<" "<<coloron<<setw(14)<< (*it)->getName()<<coloroff;
+                    DataSourceBase::shared_ptr propds = (*it)->createDataSource();
+                    this->printResult( propds.get(), false );
+                    cout <<setw(15)<<' '<<(*it)->getDescription() << nl;
                 }
             } else {
                 cout <<prompt<<"(empty PropertyBag)" <<nl;
+            }
             }
             return;
         }
@@ -1115,11 +1120,17 @@ namespace ORO_Execution
         cout <<nl<<peer->getName()<< " Attributes :"<<nl;
         PropertyBag* bag = peer->attributeRepository.properties();
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
-        for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it)
+        for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
+            DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
             cout << "   "
                  << ((bag && bag->find(*it)) ? " (Property   ) " : " (Attribute  ) ")
-                 << peer->attributeRepository.getValue(*it)->toDataSource()->getType()<< " "
-                 << coloron << *it << coloroff << nl;
+                 << setw(11)<< pds->getType()<< " "
+                 << coloron <<setw(14)<< *it << coloroff;
+            this->printResult( pds.get(), false ); // do not recurse
+            if (bag && bag->find(*it)) {
+                cout << setw(18)<<' '<< bag->find(*it)->getDescription() << nl;
+            }
+        }
 
         cout <<nl<<peer->getName()<< " Objects    :  "<<coloron;
         objlist = peer->commandFactory.getObjectList();
@@ -1131,7 +1142,6 @@ namespace ORO_Execution
         sort(objlist.begin(), objlist.end() );
         std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
         copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
-
         cout <<coloroff<<nl<<peer->getName()<< " Peers      :  "<<coloron;
         objlist = peer->getPeerList();
         copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));

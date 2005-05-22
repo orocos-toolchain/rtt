@@ -119,7 +119,7 @@ namespace ORO_Execution
 
         void browserAction(std::string& act );
 
-        void printResult( ORO_CoreLib::DataSourceBase* ds);
+        void printResult( ORO_CoreLib::DataSourceBase* ds, bool recurse);
 
         void printHelp();
         void printInfo(const std::string& peerp);

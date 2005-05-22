@@ -44,7 +44,8 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
     }
 
-    Logger::log() <<Logger::Info << "PropertyLoader: Configuring " <<target->getName()<< Logger::endl;
+    Logger::log() <<Logger::Info << "PropertyLoader: Configuring " <<target->getName()
+                  <<" with "<<filename<<"."<< Logger::endl;
     bool failure = false;
     try
     {
@@ -60,8 +61,13 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
                  ++it)
                 {
                     PropertyBase* v = target->attributeRepository.properties()->find( (*it)->getName() );
-                    if ( v == 0 )
+                    if ( v == 0 ) {
+                        Logger::log() << Logger::Debug;
+                        Logger::log() << "PropertyLoader: Skipping Property " << (*it)->getName()
+                                      <<": not in task "<< target->getName() <<Logger::endl;
+
                         continue;
+                    }
                     DataSourceBase::shared_ptr origds(  (*it)->createDataSource() );
                     CommandInterface* ac = v->refreshCommand( origds.get() );
                     if ( ac )
@@ -74,8 +80,8 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
                         }
                         else
                             Logger::log() << Logger::Info;
-                        Logger::log()<< "PropertyLoader: Could not initialise Property "<< origds->getType() << " " << (*it)->getName()
-                                     <<" with "<< tgtds->getType() << " Property from file." <<Logger::endl;
+                        Logger::log()<< "PropertyLoader: Could not refresh Property '"<< tgtds->getType() << " " << (*it)->getName()
+                                     <<"' with '"<< origds->getType() << " " << (*it)->getName() << "' from file."<<Logger::endl;
                     }
                 }
             // Do all assignments. In strict mode, don't do any upon failure.

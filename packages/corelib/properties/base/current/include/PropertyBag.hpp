@@ -287,6 +287,7 @@ namespace ORO_CoreLib
 
     /**
      * Updating a bag is actually updating the bag.
+     * @see updateProperties()
      */
     inline
     void update(PropertyBag& a, const PropertyBag& b)
@@ -296,6 +297,7 @@ namespace ORO_CoreLib
 
     /**
      * Copying a bag is actually making a deep copy of the bag.
+     * @see copyProperties()
      */
     inline
     void copy(PropertyBag& a, const PropertyBag& b)
@@ -305,11 +307,12 @@ namespace ORO_CoreLib
 
     /**
      * Refresh a bag is actually refreshing a bag.
+     * @see refreshProperties()
      */
     inline
     void refresh(PropertyBag& a, const PropertyBag& b)
     {
-        copyProperties(a,b);
+        refreshProperties(a,b);
     }
 
     /**
