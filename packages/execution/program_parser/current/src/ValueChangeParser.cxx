@@ -57,7 +57,7 @@ namespace ORO_Execution
         assertion<std::string> expect_is("Expected an '=' sign.");
         assertion<std::string> expect_index("Expected an index: [index].");
         assertion<std::string> expect_integer("Expected a positive integer expression.");
-        assertion<std::string> expect_assign("Expected an assignment after 'set'.");
+        assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
     }
 
 
@@ -106,7 +106,7 @@ namespace ORO_Execution
          >> !( (ch_p('=') >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] )));
     
     variableassignment = 
-        "set" >> variablechange;
+        "set" >> expect_change(variablechange);
 
     /**
      * One of the most important parsers in the ValueChangeParser. Variable assignment
@@ -271,6 +271,7 @@ namespace ORO_Execution
 
   void ValueChangeParser::storepeername()
   {
+      //cerr << "seen peer " << peerparser.peer()->getName()<<endl;
       //peername  = peerparser.peer();
       // the peerparser.object() should contain "this"
       //peerparser.reset();

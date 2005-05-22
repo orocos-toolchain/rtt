@@ -748,6 +748,7 @@ namespace ORO_Execution
             // methods and DS'es are processed immediately.
             if ( ds.get() != 0 ) {
                 this->printResult( ds.get(), false );
+                cout << nl;
                 return; // done here
             } else if (debug)
                 cerr << "returned zero !"<<nl;
@@ -785,6 +786,7 @@ namespace ORO_Execution
             // methods and DS'es are processed immediately.
             if ( ds.get() != 0 ) {
                 this->printResult( ds.get(), true );
+                cout << nl;
                 return; // done here
             } else if (debug)
                 cerr << "returned zero !"<<nl;
@@ -891,59 +893,59 @@ namespace ORO_Execution
         // this method can print some primitive DataSource<>'s.
         DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
         if (dsb) {
-            cout << prompt << boolalpha << dsb->get() << noboolalpha <<nl;
+            cout << prompt << boolalpha << dsb->get() << noboolalpha ;
             return;
         }
         DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
         if (dsi) {
-            cout <<prompt<< dsi->get() <<nl;
+            cout <<prompt<< dsi->get() ;
             return;
         }
         DataSource<unsigned int>* dsui = dynamic_cast<DataSource<unsigned int>*>(ds);
         if (dsui) {
-            cout <<prompt<< dsui->get() <<nl;
+            cout <<prompt<< dsui->get() ;
             return;
         }
         DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
         if (dss) {
-            cout <<prompt<<'"'<< dss->get()<<'"'<<nl;
+            cout <<prompt<<'"'<< dss->get()<<'"';
             return;
         }
         DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
         if (dscs) {
-            cout <<prompt<<'"'<< dscs->get() << '"' <<nl;
+            cout <<prompt<<'"'<< dscs->get() << '"' ;
             return;
         }
         DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
         if (dsvval) {
-            cout <<prompt<< dsvval->get() <<nl;
+            cout <<prompt<< dsvval->get() ;
             return;
         }
         DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
         if (dsv) {
-            cout <<prompt<< dsv->get() <<nl;
+            cout <<prompt<< dsv->get() ;
             return;
         }
         DataSource< Double6D >* ds6d = dynamic_cast<DataSource< Double6D >* >(ds);
         if (ds6d) {
-            cout <<prompt<< ds6d->get() <<nl;
+            cout <<prompt<< ds6d->get() ;
             return;
         }
         DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
         if (dsd) {
-            cout <<prompt<< dsd->get() <<nl;
+            cout <<prompt<< dsd->get() ;
             return;
         }
         DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
         if (dsc) {
-            cout <<prompt<< dsc->get() <<nl;
+            cout <<prompt<< dsc->get() ;
             return;
         }
 
         DataSource<void>* dsvd = dynamic_cast<DataSource<void>*>(ds);
         if (dsvd) {
             dsvd->get();
-            cout <<prompt<< "(void)" <<nl;
+            cout <<prompt<< "(void)" ;
             return;
         }
 
@@ -951,7 +953,7 @@ namespace ORO_Execution
         if (dspbag) {
             PropertyBag bag( dspbag->get() );
             if (!recurse) {
-                cout <<"   contains "<< bag.getProperties().size() << " Properties" << nl;
+                cout <<"   contains "<< bag.getProperties().size() << " Properties";
             } else {
             if ( ! bag.empty() ) {
                 cout <<"   Properties :" <<nl;
@@ -959,10 +961,10 @@ namespace ORO_Execution
                     cout <<setw(14)<<(*it)->getType()<<" "<<coloron<<setw(14)<< (*it)->getName()<<coloroff;
                     DataSourceBase::shared_ptr propds = (*it)->createDataSource();
                     this->printResult( propds.get(), false );
-                    cout <<setw(15)<<' '<<(*it)->getDescription() << nl;
+                    cout <<" ("<<(*it)->getDescription()<<')' << nl;
                 }
             } else {
-                cout <<prompt<<"(empty PropertyBag)" <<nl;
+                cout <<prompt<<"(empty PropertyBag)";
             }
             }
             return;
@@ -970,33 +972,33 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
         DataSource<Vector>* dsgv = dynamic_cast<DataSource<Vector>*>(ds);
         if (dsgv) {
-            cout <<prompt<< dsgv->get() <<nl;
+            cout <<prompt<< dsgv->get() ;
             return;
         }
         DataSource<Twist>* dsgt = dynamic_cast<DataSource<Twist>*>(ds);
         if (dsgt) {
-            cout <<prompt<< dsgt->get() <<nl;
+            cout <<prompt<< dsgt->get() ;
             return;
         }
         DataSource<Wrench>* dsgw = dynamic_cast<DataSource<Wrench>*>(ds);
         if (dsgw) {
-            cout <<prompt<< dsgw->get() <<nl;
+            cout <<prompt<< dsgw->get() ;
             return;
         }
         DataSource<Frame>* dsgf = dynamic_cast<DataSource<Frame>*>(ds);
         if (dsgf) {
-            cout <<prompt<< dsgf->get() <<nl;
+            cout <<prompt<< dsgf->get() ;
             return;
         }
         DataSource<Rotation>* dsgr = dynamic_cast<DataSource<Rotation>*>(ds);
         if (dsgr) {
-            cout <<prompt<< dsgr->get() <<nl;
+            cout <<prompt<< dsgr->get() ;
             return;
         }
 #endif
         if (ds) {
             ds->evaluate();
-            cout <<prompt<< "( result type '"+ds->getType()+"' not known to TaskBrowser )" <<nl;
+            cout <<prompt<< "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
         }
 	
     }
@@ -1122,13 +1124,12 @@ namespace ORO_Execution
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
         for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
             DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
-            cout << "   "
-                 << ((bag && bag->find(*it)) ? " (Property   ) " : " (Attribute  ) ")
+            cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
                  << setw(11)<< pds->getType()<< " "
                  << coloron <<setw(14)<< *it << coloroff;
             this->printResult( pds.get(), false ); // do not recurse
             if (bag && bag->find(*it)) {
-                cout << setw(18)<<' '<< bag->find(*it)->getDescription() << nl;
+                cout<<" ("<< bag->find(*it)->getDescription() <<')'<< nl;
             }
         }
 

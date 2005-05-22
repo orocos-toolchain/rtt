@@ -530,9 +530,11 @@
 	    Other constructors currently available are:
 	  </para>
 	    <programlisting>
-  // alfa, beta and gamma are double expressions, this
+  // roll, pitch and yaw are double expressions, this
   // returns a rotation, that is constructed using the
-  // Roll-Pitch-Yaw convention in degrees :
+  // Roll-Pitch-Yaw convention in RADIANS :
+  var double roll = 45.0 * (2.*3.14/360.)         // convert to radians
+  // ...
   var rotation rot = rotation( roll, pitch, yaw )
   
   // Vect is a vector expression, rot is a rotation
