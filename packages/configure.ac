@@ -42,6 +42,16 @@ DETECT_XERCESCPKG
 DETECT_COMEDIPKG
 DETECT_READLINE
 DETECT_RTAI
+#DETECT_GCC
+#if I put this in a macro, the $1 sign disapears, and I could not find out
+# how to properly escape it.
+AC_MSG_CHECKING(for GCC version)
+ORO_GCC_VERSION=gcc$($CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }')
+AC_SUBST(ORO_GCC_VERSION)
+
+PACKAGES="support/gcc/current/gcc.cdl $PACKAGES"
+AC_MSG_RESULT($ORO_GCC_VERSION)
+
 
 AC_CONFIG_FILES([ 
   Makefile

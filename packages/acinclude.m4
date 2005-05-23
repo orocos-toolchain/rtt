@@ -171,6 +171,18 @@ and rerun the bootstrap.sh script
 ])
 ])
 
+m4_define([DETECT_GCC],
+[
+AC_MSG_CHECKING(for GCC version)
+ORO_GCC_VERSION=gcc`$CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }' `
+AC_SUBST(ORO_GCC_VERSION)
+
+PACKAGES="support/gcc/current/gcc.cdl $PACKAGES"
+AC_MSG_RESULT($ORO_GCC_VERSION)
+])
+
+
+
 m4_define([DETECT_RTAI],
 [
 AC_MSG_CHECKING(for RTAI/LXRT Installation)
@@ -282,29 +294,6 @@ m4_define([ACX_VERSION_POST],[
 ]) # ACX_VERSION_POST
 
 
-
-
-dnl AC_PROG_DOXYGEN
-dnl Check if doxygen is available.
-m4_define([AC_PROG_DOXYGEN],[
-AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,no)
-if test "x$DOXYGEN" = "xno"; then
-DOXYGEN="@echo Not generating docs from source code"
-AC_WARN([
-Doxygen was not found on your system. Using doxygen you can generate
-API documentation for the Orocos project.
-
-You can download Doxygen from http://doxygen.sourceforge.net/
-or if you are using Debian GNU/Linux just use: apt-get install doxygen
-to install Doxygen.
-])
-fi
-AC_SUBST(DOXYGEN)
-])
-
-
-
-
 dnl OROCOS_INIT(name,major,minor,micro)
 m4_define([PACKAGES_INIT],[
 # Define the version number of the package
@@ -337,8 +326,28 @@ dnl Checks for programs.
 #AC_PROG_INSTALL
 #AC_PROG_RANLIB
 #AC_PROG_XMLPROCESSOR
-AC_PROG_DOXYGEN
+#AC_PROG_DOXYGEN
 
+dnl Work around dirty Autoconf -g -02 bug
+if test $CFLAGS; then
+ ACX_CFLAGS="$CFLAGS"
+fi
+if test $CXXFLAGS; then
+ ACX_CXXFLAGS="$CXXFLAGS"
+fi
+
+AC_PROG_CXX
+AC_PROG_CC
+
+CFLAGS=""
+CXXFLAGS=""
+dnl End work around
+
+ORO_CFLAGS=$ACX_CFLAGS
+ORO_CXXFLAGS=$ACX_CXXFLAGS
+
+AC_SUBST(ORO_CFLAGS)
+AC_SUBST(ORO_CXXFLAGS)
 ])
 
 m4_define([PACKAGES_OUTPUT_INFO],[
@@ -355,9 +364,6 @@ made some pseudo packages which inform the ecos system what is
 installed on your system. You should only re-run the bootstrap.sh script if
 you have installed new libraries.
 "
-if test "x$DOXYGEN" = "xdoxygen"; then
-echo -e "Run 'doxygen' to build only the API documentation.\n"
-fi
 ])
 
 
