@@ -422,12 +422,12 @@
 	  <command>do Reporter.stop()</command> ). Script methods to
 	  control what is reported were added too ( can only be
 	  changed when the Kernel is not running.) Also some reporting
-	  bugs were fixed and implemented more efficiently.
+	  bugs were fixed and reporting is implemented more efficiently.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The PropertyExtension is far more robust against and informative about
+	  The PropertyExtension is far more robust against, and informative about,
 	  missing or malformed configuration files. Also, if no configuration
 	  file is listed, it tries to configure the components with an empty
 	  PropertyBag. This can be overriden with setting 'IgnoreMissingFiles'
@@ -464,6 +464,13 @@
 	  The Control Kernel exports its DataObjects
 	  (Inputs,SetPoints,...) as DataSources to the Program Parsers
 	  and TaskBrowser.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The Control Kernel exports its Component's Properties as PropertyBags
+	  in its TaskContext, such that the Component's Properties can be read 
+	  and modified from program scripts or the TaskBrowser.
 	</para>
       </listitem>
       <listitem>
