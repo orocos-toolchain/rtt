@@ -73,6 +73,17 @@ for frame-related objects."
             default_value 1
         }
 
+	cdl_option OROSEM_GEOMETRY_DEFAULT_INIT {
+	    display "Initialize Frames objects to Zero()."
+	    description "
+Enable this option if you want newly constructed frame-like
+objects to initialize their internal data structures to Zero().
+If disabled, the default constructors do not initialize their
+data."
+            flavor bool
+            default_value 1
+        }
+
     }
 }
 
