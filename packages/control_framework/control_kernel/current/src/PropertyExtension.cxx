@@ -34,6 +34,7 @@
 #include <corelib/marshalling/CPFMarshaller.hpp>
 #include <corelib/marshalling/CPFDemarshaller.hpp>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include "control_kernel/ExecutionExtension.hpp"
 #include <execution/TemplateFactories.hpp>
 #endif
 
@@ -41,6 +42,9 @@ namespace ORO_ControlKernel
 {
     using namespace std;
     using namespace ORO_CoreLib;
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+    using namespace ORO_Execution;
+#endif
 
     PropertyComponentInterface::PropertyComponentInterface( const std::string& _name )
         : detail::ComponentFacetInterface<PropertyExtension>(_name + std::string("::Property") ),
@@ -368,11 +372,26 @@ namespace ORO_ControlKernel
                 }
 
             }
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        // read in the props of the component :
+        comp->exportProperties( comp->getLocalStore().value() );
+        // put them in the ExecutionExtension.
+        ExecutionExtension* ee = kernel()->getExtension<ExecutionExtension>();
+        if ( ee != 0 ) {
+            bool res = ee->getTaskContext()->attributeRepository.addProperty( &(comp->getLocalStore()) );
+            if (res == false ) {
+                Logger::log()<<Logger::Error <<"PropertyExtension: Failed to add Properties of "
+                             <<comp->getLocalStore().getName() << ". Possible duplicate entry in AttributeRepository of " \
+                             <<ee->getTaskContext()->getName() <<"."<<Logger::endl;
+            }
+        }
+#endif
         return true;
     }
 
     void PropertyExtension::removeComponent(PropertyComponentInterface* comp)
     {
+        comp->getLocalStore().value().clear();
         myMap.erase( comp->getLocalStore().getName() );
     }
 
