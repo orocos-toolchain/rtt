@@ -231,7 +231,7 @@ namespace ORO_CoreLib
                 // step 1 : clone a new instance (non deep copy)
                 PropertyBase* temp = (*it)->create();
                 // step 2 : deep copy clone with original, will never fail.
-                mine->update( (*it) );
+                temp->update( (*it) );
                 // step 3 : add result to target bag.
                 target.add( temp );
             }
