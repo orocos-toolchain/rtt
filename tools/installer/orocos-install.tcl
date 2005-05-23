@@ -1217,7 +1217,7 @@ proc ecos_install::generate_ecos_script { } {
         ecos_install::report "It is recommended you append these commands to the end of your"
         ecos_install::report "shell startup files such as \$HOME/.profile or \$HOME/.login\n"
         ecos_install::report "Alternatively, you can copy the tools/bin/* programs to your"
-        ecos_install::report "/usr/local/bin or $HOME/bin directory if these paths are available."
+        ecos_install::report "/usr/local/bin or \$HOME/bin directory if these paths are available."
         ecos_install::report "--------------------------------------------------------------------"
 }
 
