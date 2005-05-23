@@ -138,7 +138,7 @@ dist_packages:
 packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
-	{ $(MAKE) -C . || exit -1; } &&\
+	{ $(MAKE) -C . CC=$(CC) || exit -1; } &&\
 	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
 

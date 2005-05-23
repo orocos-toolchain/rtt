@@ -38,8 +38,8 @@ fi
 
 # Set the default C flags and C++ flags (in that order)
 OROCOS_DEFAULT_FLAGS(
-  [-pipe -Wall -Wstrict-prototypes -O2],
-  [-pipe -Wall -Wstrict-prototypes -O2])
+  [],
+  [])
 
 
 OROCOS_EXPORT_FLAGS
