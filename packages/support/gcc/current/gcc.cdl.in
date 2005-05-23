@@ -1,0 +1,28 @@
+cdl_package OROPKG_SUPPORT_GCC {
+    display "Support GCC Compiler"
+    parent OROPKG_SUPPORT
+
+    description " 
+The presence of this package indicates that the configure
+script detected a valid GCC installation, which can now
+be used by other packages."
+
+    cdl_option OROPKG_SUPPORT_GCC_VERSION {
+	display "GCC Compiler Version"
+	flavor data
+	calculated { "@ORO_GCC_VERSION@" }
+    }
+
+    cdl_option OROPKG_SUPPORT_CFLAGS {
+	display "C Compiler Flags"
+	flavor data
+	calculated { "@ORO_CFLAGS@" }
+    }
+
+    cdl_option OROPKG_SUPPORT_CXXFLAGS {
+	display "C++ Compiler Flags"
+	flavor data
+	calculated { "@ORO_CXXFLAGS@" }
+    }
+
+}
