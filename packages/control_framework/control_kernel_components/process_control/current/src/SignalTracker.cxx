@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include <control_kernel/SignalTracker.hpp>
 
 namespace ORO_ControlKernel {

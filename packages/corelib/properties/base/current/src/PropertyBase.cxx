@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/PropertyBase.hpp"
 
 namespace ORO_CoreLib {

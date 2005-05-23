@@ -25,5 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "control_kernel/PID_Controller.hpp"

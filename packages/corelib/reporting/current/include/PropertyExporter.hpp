@@ -34,7 +34,9 @@
 #include "ReportExporterInterface.hpp"
 #include "TimeService.hpp"
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
+#endif
 
 namespace ORO_CoreLib
 {

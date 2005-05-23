@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "control_kernel/P_Controller.hpp"
 
 namespace ORO_ControlKernel {

@@ -28,7 +28,9 @@
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "execution/ExpressionParser.hpp"
 
 #include "execution/ArgumentsParser.hpp"

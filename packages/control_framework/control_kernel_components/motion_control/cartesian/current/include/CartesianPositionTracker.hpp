@@ -116,7 +116,9 @@ namespace ORO_ControlKernel
     {
     };
 
-#pragma interface
+#ifdef ORO_PRAGMA_INTERFACE
+ORO_PRAGMA_INTERFACE
+#endif
     
     /**
      * @brief A Cartesian Position Frame / TaskFrame Tracker.

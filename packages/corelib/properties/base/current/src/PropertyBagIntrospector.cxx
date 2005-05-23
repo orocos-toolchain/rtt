@@ -25,5 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/PropertyBagIntrospector.hpp"

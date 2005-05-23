@@ -47,7 +47,9 @@
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
-#pragma interface
+#ifdef ORO_PRAGMA_INTERFACE
+ORO_PRAGMA_INTERFACE
+#endif
     
 namespace ORO_ControlKernel
 {

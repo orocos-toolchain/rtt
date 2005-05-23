@@ -16,7 +16,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "device_interface/AxisInterface.hpp"
 
 namespace ORO_DeviceInterface {

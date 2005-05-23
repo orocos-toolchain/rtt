@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 
 #include <pkgconf/system.h>
 #include "control_kernel/ReportingExtension.hpp"

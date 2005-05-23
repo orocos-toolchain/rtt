@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/PropertyBag.hpp"
 #include "corelib/Property.hpp"
 #include "corelib/Logger.hpp"

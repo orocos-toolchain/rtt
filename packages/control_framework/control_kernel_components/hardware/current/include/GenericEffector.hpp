@@ -43,7 +43,9 @@
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 
-#pragma interface
+#ifdef ORO_PRAGMA_INTERFACE
+ORO_PRAGMA_INTERFACE
+#endif
 
 /**
  * @file GenericEffector.hpp

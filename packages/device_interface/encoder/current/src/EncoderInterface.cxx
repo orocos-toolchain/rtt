@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "device_interface/EncoderInterface.hpp"
 
 namespace ORO_DeviceInterface {

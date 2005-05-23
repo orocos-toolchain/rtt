@@ -27,7 +27,9 @@
  
  
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/TaskEventDriven.hpp"
 #include "corelib/TimerThread.hpp"
 #include <boost/bind.hpp>

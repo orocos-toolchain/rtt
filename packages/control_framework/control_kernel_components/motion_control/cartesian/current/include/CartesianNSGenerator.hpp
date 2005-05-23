@@ -55,7 +55,9 @@
 
 #include "CartesianNSDataObjects.hpp"
 
-#pragma interface
+#ifdef ORO_PRAGMA_INTERFACE
+ORO_PRAGMA_INTERFACE
+#endif
 
 /**
  * @file CartesianNSGenerator.hpp

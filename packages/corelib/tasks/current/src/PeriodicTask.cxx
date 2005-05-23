@@ -25,7 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/Time.hpp"
 #include "corelib/PeriodicTask.hpp"
 #include "os/MutexLock.hpp"

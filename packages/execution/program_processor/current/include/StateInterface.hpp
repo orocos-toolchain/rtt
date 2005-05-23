@@ -29,7 +29,9 @@
 #define EXECUTION_STATEINTERFACE_HPP
 
 #ifdef __GNU__
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
+#endif
 #endif
 
 #include <string>

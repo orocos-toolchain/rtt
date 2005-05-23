@@ -31,7 +31,9 @@
 
 #include "CalibrationInterface.hpp"
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
+#endif
 
 namespace ORO_DeviceInterface
 {

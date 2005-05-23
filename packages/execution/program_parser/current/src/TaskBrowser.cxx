@@ -27,7 +27,9 @@
  
  
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include <corelib/Logger.hpp>
 #include <corelib/MultiVector.hpp>
 #include "execution/TaskBrowser.hpp"

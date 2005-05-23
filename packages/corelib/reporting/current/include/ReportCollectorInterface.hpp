@@ -30,7 +30,9 @@
 
 #include "ReportExporterInterface.hpp"
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
+#endif
 
 namespace ORO_CoreLib
 {

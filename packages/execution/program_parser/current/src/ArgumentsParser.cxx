@@ -26,7 +26,9 @@
  ***************************************************************************/
 
 #include "execution/parser-debug.hpp"
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "execution/ArgumentsParser.hpp"
 
 #include <boost/bind.hpp>

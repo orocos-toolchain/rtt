@@ -45,7 +45,9 @@
 #include "CartesianNSDataObjects.hpp"
 #include <geometry/MotionProperties.hpp>
 
-#pragma interface
+#ifdef ORO_PRAGMA_INTERFACE
+ORO_PRAGMA_INTERFACE
+#endif
 
 /**
  * @file CartesianNSComponents.hpp

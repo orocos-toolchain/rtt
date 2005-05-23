@@ -16,7 +16,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "device_drivers/IncrementalEncoderSensor.hpp"
 
 namespace ORO_DeviceDrivers {

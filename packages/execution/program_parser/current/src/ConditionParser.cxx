@@ -27,7 +27,9 @@
 
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "execution/ConditionParser.hpp"
 
 #include "corelib/ConditionDuration.hpp"
