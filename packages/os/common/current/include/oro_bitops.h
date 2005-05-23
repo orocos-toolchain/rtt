@@ -41,9 +41,9 @@
 // added :
 #include <asm/types.h> // for __u64
 
-
-#include <linux/config.h>
-#include <linux/compiler.h>
+// From glibc 2.3.3 on, these files cause #errors.
+//#include <linux/config.h>
+//#include <linux/compiler.h>
 
 /*
  * These have to be done with inline assembly: that way the bit-setting

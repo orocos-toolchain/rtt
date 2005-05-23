@@ -148,6 +148,31 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
         legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" }
     }
 
+    cdl_option CYGBLD_OS_CONFIG_SMP {
+	    display "Build for SMP Systems"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  bool
+	    no_define
+	    define CONFIG_SMP
+	    default_value 0
+	    description   "
+          Enable this flag if you want to use Orocos on SMP systems."
+    }
+
+    cdl_option CYGBLD_OS_COMPILER {
+	    display "Compiler Features"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  data
+	    legal_values { "gcc2" "gcc3" "gcc4" }
+	    default_value { OROPKG_SUPPORT_GCC_VERSION }
+	    no_define
+	    description   "
+          Here you can configure which compiler you use.
+	This may be detected automatically
+	in combination with the 'configure' script, providing
+	the option : CC=gcc-version"
+    }
+
     cdl_component OROBLD_OS_OPTIMIZE {
 	display "Optimization Strategy"
         description "
@@ -198,8 +223,12 @@ compilation times."
 	    calculated { (OROBLD_OS_OPTIMIZE_EXECUTION ? OROBLD_OS_OPTIMIZE_EXECUTION : "").
 		(OROBLD_OS_OPTIMIZE_DEBUGGING ? OROBLD_OS_OPTIMIZE_DEBUGGING : "").
 		(OROBLD_OS_OPTIMIZE_COMPILE ? OROBLD_OS_OPTIMIZE_COMPILE : "").
-		" -march=".OROBLD_OS_ARCHITECTURE." -mcpu=".OROBLD_OS_PROCESSOR." ".
+		" -march=".OROBLD_OS_ARCHITECTURE.
+		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR." ".
 		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
+		"-D_REENTRANT ".
+		(CYGBLD_OS_COMPILER == "gcc33" ? "-DORO_PRAGMA_INTERFACE " : "").
+		(CYGBLD_OS_COMPILER == "gcc4" ? "-fvisibility-inlines-hidden " : "").
 		OROBLD_GLOBAL_CFLAGS_ADD }
 	    
 	    description   "
@@ -210,7 +239,9 @@ compilation times."
 	  the 'Optimization Strategy' to influence debugging or
 	  execution speed compiler flags. 
 	  You can not change these
-          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD above."
+          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD above.
+	  Furthermore, depending on the compiler you selected, other flags may
+	  be added."
 	}
 
 	cdl_option CYGBLD_GLOBAL_LDFLAGS {

@@ -76,7 +76,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 
 
 
-#else
+#else // OROBLD_OS_AGNOSTIC
 
 // use system headers
 #define new _new
@@ -91,4 +91,4 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 #undef wmb
 #undef rmb
 
-#endif
+#endif // OROBLD_OS_AGNOSTIC

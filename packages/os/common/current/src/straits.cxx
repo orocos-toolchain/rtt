@@ -24,7 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#pragma implementation "std/straits.h"
+#ifdef ORO_PRAGMA_INTERFACE
+#pragma implementation
+#endif "std/straits.h"
 
 #include "corelib/rtstl.hpp"
 #include <string>
