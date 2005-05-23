@@ -178,10 +178,10 @@ namespace ORO_Execution
         if ( line.find(std::string(".")) == 0 ) { 
             // first make a list of all sensible completions.
             std::vector<std::string> tbcoms;
-            tbcoms.push_back(".loadProgram"); 
-            tbcoms.push_back(".unloadProgram"); 
-            tbcoms.push_back(".loadStateMachine"); 
-            tbcoms.push_back(".unloadStateMachine"); 
+            tbcoms.push_back(".loadProgram "); 
+            tbcoms.push_back(".unloadProgram "); 
+            tbcoms.push_back(".loadStateMachine "); 
+            tbcoms.push_back(".unloadStateMachine "); 
 
             // then see which one matches the already typed line :
             for( std::vector<std::string>::iterator it = tbcoms.begin();
@@ -244,30 +244,30 @@ namespace ORO_Execution
 
         find_attribute( startpos );
 
-        // Only complete peers and objects, not "this" methods.
         std::vector<std::string> comps = peer->attributeRepository.attributes();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 )
                 completes.push_back( peerpath+*i );
         }
+        // Only complete peers and objects, not "this" methods.
         comps = peer->commandFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
-            if ( i->find( comp ) == 0 && *i != "this" )
+            if ( i->find( comp ) == 0 )//&& *i != "this" )
                 completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->dataFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
-            if ( i->find( comp ) == 0 && *i != "this"  )
+            if ( i->find( comp ) == 0 )//&& *i != "this"  )
                 completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->methodFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
-            if ( i->find( comp ) == 0 && *i != "this"  )
+            if ( i->find( comp ) == 0 )//&& *i != "this"  )
                 completes.push_back( peerpath+*i + "." ); // +"."
         }
         comps = peer->getPeerList();
         for (TaskContext::PeerList::iterator i = comps.begin(); i!= comps.end(); ++i ) {
-            if ( i->find( comp ) == 0 && *i != "this" )
+            if ( i->find( comp ) == 0 )//&& *i != "this" )
                 completes.push_back( peerpath+ *i + "." ); // +"."
         }
 
@@ -692,6 +692,7 @@ namespace ORO_Execution
                 cout << "Done."<<endl;
             else
                 cout << "Failed."<<endl;
+            return;
         }
         if ( instr == "unloadProgram") {
             std::string arg;
@@ -700,6 +701,7 @@ namespace ORO_Execution
                 cout << "Done."<<endl;
             else
                 cout << "Failed."<<endl;
+            return;
         }
 
         if ( instr == "loadStateMachine") {
@@ -709,6 +711,7 @@ namespace ORO_Execution
                 cout << "Done."<<endl;
             else
                 cout << "Failed."<<endl;
+            return;
         }
         if ( instr == "unloadStateMachine") {
             std::string arg;
@@ -717,7 +720,10 @@ namespace ORO_Execution
                 cout << "Done."<<endl;
             else
                 cout << "Failed."<<endl;
+            return;
         }
+        cerr << "Unknown Browser Action : "<< act <<endl;
+        cerr << "See 'help' for valid syntax."<<endl;
     }
 
     void TaskBrowser::evalCommand(std::string& comm )
@@ -743,6 +749,15 @@ namespace ORO_Execution
                 std::vector<std::string> methods = method_fact->getNames();
                 std::for_each( methods.begin(), methods.end(), boost::bind(&TaskBrowser::printMethod, this, _1) );
             }
+        // Minor hack : also check if it was an attribute of current TC, for example, 
+        // if both the object and attribute with that name exist. the if
+        // statement after this one would return and not give the expr parser
+        // time to evaluate 'comm'. 
+        if ( taskcontext->attributeRepository.getValue( comm ) ) {
+                this->printResult( taskcontext->attributeRepository.getValue( comm )->toDataSource(), true );
+                return;
+        }
+            
         if ( command_fact || datasource_fact || method_fact )
             return;
                     

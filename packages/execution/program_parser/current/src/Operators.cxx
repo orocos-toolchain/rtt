@@ -232,6 +232,23 @@ namespace mystl
         return a/b;
       }
   };
+  template<>
+  struct divides<int, int, int>
+  {
+    typedef int result_type;
+    typedef int first_argument_type;
+    typedef int second_argument_type;
+
+    result_type operator()( int a, int b ) const
+      {
+          //integer division by zero will throw a fatal
+          //exception, aborting the program (SIGFPE). This is 
+          // unacceptable, the problem is however that 
+          // we can not signal an erronous expression in Orocos.
+          // we propagate zero instead.
+        return a == 0 ? 0 : a/b;
+      }
+  };
   template<typename R, typename A, typename B>
   struct adds
   {
@@ -257,7 +274,7 @@ namespace mystl
       }
   };
 #endif
-};
+} // namespace mystl
 
 namespace ORO_Execution
 {
@@ -762,7 +779,7 @@ namespace ORO_Execution
     add( newUnaryOperator( "-", std::negate<int>() ) );
     add( newUnaryOperator( "+", mystl::identity<int>() ) );
     add( newBinaryOperator( "*", std::multiplies<int>() ) );
-    add( newBinaryOperator( "/", std::divides<int>() ) );
+    add( newBinaryOperator( "/", mystl::divides<int,int,int>() ) ); // use our own divides<> which detects div by zero
     add( newBinaryOperator( "%", std::modulus<int>() ) );
     add( newBinaryOperator( "+", std::plus<int>() ) );
     add( newBinaryOperator( "-", std::minus<int>() ) );

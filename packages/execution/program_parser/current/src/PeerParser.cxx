@@ -56,8 +56,10 @@ namespace ORO_Execution
     {
         //std::cerr<<"Returning accept, advance "<<advance_on_error<<std::endl;
         scan.first += advance_on_error;
+        int length = advance_on_error;
+        advance_on_error = 0;
         // ok, got as far as possible, _peer contains the furthest we got.
-        return error_status<>( error_status<>::accept, advance_on_error  );
+        return error_status<>( error_status<>::accept, length  );
     }
 
         void PeerParser::done()
@@ -142,6 +144,7 @@ namespace ORO_Execution
             //cout << "PP failed "<<name <<endl;
             // store object name for higher level access.
             // do not consume it though.
+            //cout << std::string(begin, end +10)<<endl;
             mcurobject = name;
             throw_(begin, peer_not_found );
         }

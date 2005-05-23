@@ -86,7 +86,7 @@ namespace ORO_Execution
     datacall = 
         ( peerparser.locator() >>
           !(commonparser.identifier >> ".") >>   // just consume, peer locator already has object name
-          commonparser.identifier[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
+          expect_ident(commonparser.identifier)[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
           [ bind( &DataCallParser::seendataname, this ) ]
           >> !arguments
           )[ bind( &DataCallParser::seendatacall, this ) ];
@@ -111,7 +111,7 @@ namespace ORO_Execution
       TaskContext* peer = peerparser.peer();
       peerparser.reset();
 
-      //cout << "DCP saw method "<< mmethod <<endl;
+      //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
       // this is slightly different from CommandParser
     const GlobalDataSourceFactory& gdsf =
       peer->dataFactory;
@@ -245,6 +245,7 @@ namespace ORO_Execution
     error_status<> handle_no_datacall(scanner_t const& scan, parser_error<std::string, iter_t>&e )
     {
         // retry with a member :
+        //std::cerr << "No DataCall in EP : "<<e.descriptor<<std::endl;
         return error_status<>( error_status<>::fail );
     }
 

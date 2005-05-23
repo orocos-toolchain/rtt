@@ -46,8 +46,9 @@ namespace ORO_Execution
                _task_proc( proc == 0 ? new Processor : proc  ),
               _task_name(name)
         {
-            // I'll only add this line if there is a good reason for,
+            // I'll only add this line if there is a good reason for (there isn't)
             // for now, it's confusing to see 'this' being listed as peer.
+            // while there is also a this object.
             //_task_map[ "this" ] = this;
         }
 
