@@ -94,7 +94,7 @@ new_packages:
 	echo "Setting up support..." ; \
 	$(ECOSCONFIG) add support 2>&1 > /dev/null ; \
 	for i in $$(find $(ECOS_REP)/support -name "*.cdl" -a -not -name "support.cdl"); do \
-	$(ECOSCONFIG) add support_$$(basename $$i .cdl) 2>/dev/null ; done ;\
+	$(ECOSCONFIG) add support_$$(basename $$i .cdl) 2>&1 >/dev/null ; done ;\
 	{ $(ECOSCONFIG) template dist-packages || $(ECOSCONFIG) template corelib-os; };\
 	echo -e "\n This is now your new configuration :\n" ;\
 	$(ECOSCONFIG) check ;\
