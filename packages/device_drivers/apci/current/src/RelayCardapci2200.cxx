@@ -116,7 +116,7 @@ namespace ORO_DeviceDriver
         return (output_cache >> start_bit) & mask;
     }
 
-    RelayCardapci2200::DWord RelayCardapci2200::nbOfOutputs() const
+    unsigned int RelayCardapci2200::nbOfOutputs() const
     {
 #ifdef OROINT_DEVICE_DRIVERS_APCI2200
         return apci2200_get_number_off_digital_outputs();
