@@ -69,11 +69,10 @@ namespace ORO_Execution
   bool AttributeRepository::setValue( const std::string& name,
                                       TaskAttributeBase* value )
   {
-    std::auto_ptr<TaskAttributeBase> v( value );
     map_t::iterator i = values.find( name );
     if ( i != values.end() )
         return false;
-    values[name] = v.release();
+    values[name] = value;
     return true;
   }
 

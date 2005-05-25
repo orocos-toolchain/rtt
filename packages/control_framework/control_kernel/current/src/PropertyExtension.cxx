@@ -393,8 +393,21 @@ namespace ORO_ControlKernel
 
     void PropertyExtension::removeComponent(PropertyComponentInterface* comp)
     {
-        comp->getLocalStore().value().clear();
         myMap.erase( comp->getLocalStore().getName() );
+
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+        // remove propbag from the ExecutionExtension.
+        ExecutionExtension* ee = kernel()->getExtension<ExecutionExtension>();
+        if ( ee != 0 ) {
+            bool res = ee->getTaskContext()->attributeRepository.removeProperty( &(comp->getLocalStore()) );
+            if (res == false ) {
+                Logger::log()<<Logger::Warning <<"PropertyExtension: Failed to remove Properties of "
+                             <<comp->getLocalStore().getName() << ". Seems to be removed previously."<<Logger::endl;
+            }
+        }
+#endif
+
+        comp->getLocalStore().value().clear();
     }
 
 
