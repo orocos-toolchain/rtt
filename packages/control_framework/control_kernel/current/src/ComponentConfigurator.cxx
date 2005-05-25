@@ -40,15 +40,16 @@ bool ComponentConfigurator::configure(const std::string& filename, PropertyCompo
     try
     {
         CPFDemarshaller demarshaller(filename);
+        PropertyBag resultbag;
 
         // store results in Components own bag if component exists.
-        if ( demarshaller.deserialize( target->getLocalStore().value() ) )
+        if ( demarshaller.deserialize( resultbag ) )
         {
             // instruct component to update.
-            result = target->updateProperties( target->getLocalStore().value() );
+            result = target->updateProperties( resultbag );
             // cleanup
-            flattenPropertyBag( target->getLocalStore().value() );
-            deleteProperties( target->getLocalStore().value() );
+            flattenPropertyBag( resultbag );
+            deleteProperties( resultbag );
         }
         else
             {
