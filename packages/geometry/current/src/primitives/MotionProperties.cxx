@@ -827,6 +827,7 @@ namespace ORO_CoreLib
                                 }
                                 return false;
                             }
+                        return true;
                     } else {
                         if ( f_bag == 0 ) {
                             Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
