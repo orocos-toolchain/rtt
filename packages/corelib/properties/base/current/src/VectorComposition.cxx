@@ -51,14 +51,14 @@ namespace ORO_CoreLib
 
     int data_number = 0;
     std::stringstream data_name;
-    data_name  << data_number;
 
 
     for ( int i=0; i < dimension->get() ; i++)
     {
+        data_name  << data_number;
         result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
-        data_name.clear();
+        data_name.str("");
         ++data_number;
     }
 
@@ -77,13 +77,13 @@ namespace ORO_CoreLib
 
     int data_number = 0;
     std::stringstream data_name;
-    data_name  << data_number;
 
     for ( int i=0; i < dimension->get() ; i++)
     {
+        data_name  << data_number;
         result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
-        data_name.clear();
+        data_name.str("");
         ++data_number;
     }
 
@@ -128,12 +128,12 @@ namespace ORO_CoreLib
         Property<double>* comp;
         int data_number = 0;
         std::stringstream data_name;
-        data_name  << data_number;
 
 
         // Get values
         for (int i = 0; i < dimension ; i++)
         {
+            data_name  << data_number;
             PropertyBase* element = v_bag->get().find(data_name.str());
             if ( element == 0 ) {
                 Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
@@ -152,7 +152,7 @@ namespace ORO_CoreLib
             }
             result.value()[i] = comp->get();
 
-            data_name.clear();
+            data_name.str("");
             ++data_number;
         }
     }
