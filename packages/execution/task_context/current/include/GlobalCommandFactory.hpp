@@ -45,6 +45,7 @@ namespace ORO_Execution
      * command method.  You can think of a CommandFactory as the
      * virtual table of the object, and this class would then be
      * something like a namespace linking names to the objects.
+     * @ingroup globalFactory
      */
     class GlobalCommandFactory
     {

@@ -60,14 +60,14 @@ namespace ORO_Execution
     virtual ~MemberFactoryInterface();
 
     /**
-     * Returns a list of all available names..
+     * Returns a list of all available names.
      * throws nothing.
      */
     virtual std::vector<std::string> getNames() const = 0;
 
     /**
      * Returns true if data is available by the name s.  Equivalent to
-     * checking whether s is in dataNames(), but probably faster..
+     * checking whether s is in dataNames(), but probably faster.
      * throws nothing.
      */
     virtual bool hasMember( const std::string& s ) const = 0;
@@ -99,26 +99,27 @@ namespace ORO_Execution
      * Note that the Properties in the property bag have been
      * constructed using new, and the caller gains their ownership..
      * You should explicitly call deleteProperties on the bag after
-     * you're done with it..  Store the PropertyBag in a
-     * PropertyBagOwner if you're affraid you'll forget it..
+     * you're done with it.  Store the PropertyBag in a
+     * PropertyBagOwner if you're affraid you'll forget it.
      *
      * TODO: fix this requirement somehow ?
      *
-     * throws name_not_found_exception
+     * @exception name_not_found_exception
      */
     virtual ORO_CoreLib::PropertyBag
     getArgumentSpec( const std::string& method ) const = 0;
 
     /**
      * construct the DataSource identified by the name name,
-     * and the arguments args...  The PropertyBag should contain
+     * and the arguments args.  The PropertyBag should contain
      * Properties of the types returned by getArgumentSpec( name ), in
      * the same order.  This method does not delete the Properties, as
      * stated before, if you got them from getArgumentSpec, you're
-     * responsible for that yourself..
+     * responsible for that yourself.
      *
-     * throws name_not_found_exception,
-     * wrong_number_of_args_exception, wrong_types_of_args_exception
+     * @exception name_not_found_exception
+     * @exception wrong_number_of_args_exception
+     * @exception wrong_types_of_args_exception
      */
     virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
@@ -132,10 +133,11 @@ namespace ORO_Execution
      * DataSource should of course keep a reference to the
      * DataSource's it holds.  These are complicated requirements, you
      * are encouraged to look at the TemplateDataSourceFactory to do
-     * the work for you..
+     * the work for you.
      *
-     * throws name_not_found_exception,
-     * wrong_number_of_args_exception, wrong_types_of_args_exception
+     * @exception name_not_found_exception
+     * @exception wrong_number_of_args_exception
+     * @exception wrong_types_of_args_exception
      */
     virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,

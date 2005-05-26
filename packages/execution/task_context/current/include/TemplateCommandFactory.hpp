@@ -59,12 +59,12 @@ namespace ORO_Execution
 
   /**
    * A command that simply calls the functor it was passed every
-   * time..  Very useful for e.g. components that want a command to
-   * call one of their members every time..  They can simply use:
+   * time.  Very useful for e.g. components that want a command to
+   * call one of their members every time. They can simply use:
    * <pre>
    * newFunctorCommand( boost::bind( &Component::memberfun, this, args ) );
    * </pre>
-   * or something similar..
+   * or something similar.
    */
   template<typename FunctorT>
   class FunctorCommand0
@@ -275,7 +275,8 @@ namespace ORO_Execution
   };
 
   /**
-   * helper functions for the FunctorCommand classes above
+   * @internal
+   * @defgroup functorhelpers helper functions for the FunctorCommand classes above
    * @{
    */
   template<typename FunctorT>
@@ -396,7 +397,7 @@ namespace ORO_Execution
   };
 
   /**
-   * Helper function for the ComConComposer class..
+   * Helper function for the ComConComposer class.
    */
   template<typename A, typename B>
   ComConComposer<A, B>
@@ -468,7 +469,7 @@ namespace ORO_Execution
   };
 
   /**
-   * Helper function for the ComNullaryConComposer class..
+   * Helper function for the ComNullaryConComposer class.
    */
   template<typename A, typename B>
   ComConNullaryComposer<A, B>
@@ -522,7 +523,7 @@ namespace ORO_Execution
   };
 
   /**
-   * Helper function for the ComUnaryConComposer class..
+   * Helper function for the ComUnaryConComposer class.
    */
   template<typename A, typename B>
   ComConUnaryComposer<A, B>
@@ -615,7 +616,7 @@ namespace ORO_Execution
     CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b ) const
       {
           //by ps: this creates a FunctorCommand0 !
-          //evaluation is not needed, so store a copy of a and b...
+          //evaluation is not needed, so store a copy of a and b.
         return newFunctorCommand( bind( f, c, a, b ) );
       };
 
@@ -639,7 +640,7 @@ namespace ORO_Execution
 
   /**
    * A condition that calls a boolean functor each time in its
-   * evaluate method..
+   * evaluate method.
    * @todo replace this with a boolean FunctorDataSource, wrapped in
    * a standard ConditionWrapper such as the one in
    * interfacing/src/ConditionBoolDataSource
@@ -735,7 +736,7 @@ namespace ORO_Execution
   /**
    * An extension of FunctorCondition0 to unary functions.  This
    * class stores a pointer to a DataSource, where it will get the
-   * argument for the function from..
+   * argument for the function from.
    */
   template<typename FunctorT, typename Arg1T>
   class FunctorCondition1
@@ -767,7 +768,7 @@ namespace ORO_Execution
   /**
    * An extension of FunctorCondition0 to binary functions.  This
    * class stores pointers to two DataSources, where it will get the
-   * arguments for the function from..
+   * arguments for the function from.
    */
   template<typename FunctorT, typename Arg1T, typename Arg2T>
   class FunctorCondition2
@@ -801,7 +802,7 @@ namespace ORO_Execution
   /**
    * An extension of FunctorCondition0 to ternary functions.  This
    * class stores pointers to three DataSources, where it will get the
-   * arguments for the function from..
+   * arguments for the function from.
    */
   template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T>
   class FunctorCondition3
@@ -835,7 +836,8 @@ namespace ORO_Execution
   };
 
   /**
-   * Helper functions for the FunctorCondition classes..
+   * @internal
+   * @defgroup condfunctorhelper Helper functions for the FunctorCondition classes.
    * @{
    */
   template<typename FunctorT>
@@ -971,6 +973,7 @@ namespace ORO_Execution
   };
 
   /**
+   * @internal
    * helper function for the FunctorConditionGenerator class
    */
   template<typename FunctorT>
@@ -982,28 +985,24 @@ namespace ORO_Execution
 
     }
   /**
-   * @defgroup commandFactories Command Part Factories
-   */
-
-  /**
-   *
+   * @defgroup commandFactories Command Part Factory Functions
+   * @ingroup partFunctions
    * The command function is the function you should use to pass a
    * member function to the TemplateCommandFactory. You can
    * currently only use it with a member function taking a low number
    * of arguments ( current limit is three, but this can be improved
-   * by writing some more overloads )..
+   * by writing some more overloads ).
    *
    * The first function you need to pass is a function that will be
    * called when the command is executed, and the second is a function
-   * that will be called as the default termination condition..
+   * that will be called as the default termination condition.
    * The condition must have the same arguments as the command or
    * none (a Nullary condition) or the one argument which has the same
    * type as the first argument of the command.
    *
    * You should pass a description for the command as the third
    * argument, and a name and description for every argument of the
-   * command as the following arguments..
-   * @ingroup commandFactories
+   * command as the following arguments.
    * @{
    */
   template<typename ComponentT>
@@ -1212,12 +1211,11 @@ namespace ORO_Execution
 
   /**
    * TemplateCommandFactory is a template class, written to facilitate
-   * the addition of a CommandFactory to a Component.  It removes the
+   * the addition of a CommandFactory to a TaskContext.  It removes the
    * need to define a special class, and also takes care of the
    * parsing of the arguments.
+   * @ingroup objectFactory
    *
-   * For using this, please refer to the file orocos-parser.xml in
-   * orocos-tree/parser/doc/
    */
   template<typename ComponentT>
   class TemplateCommandFactory
@@ -1285,7 +1283,7 @@ namespace ORO_Execution
   };
 
   /**
-   * Helper function for constructing a TemplateCommandFactory...
+   * Helper function for constructing a TemplateCommandFactory.
    */
   template<typename ComponentT>
   TemplateCommandFactory<ComponentT>*
@@ -1296,7 +1294,7 @@ namespace ORO_Execution
   };
 
     /**
-     * Specialisation whe Component is stored in a DataSource
+     * Specialisation where Component is stored in a DataSource
      */
   template<typename ComponentT>
   TemplateCommandFactory< DataSource<ComponentT*> >*

@@ -46,7 +46,7 @@
 #include "ArgumentDescription.hpp"
 
 /**
- * @file This file contains some code that is common between
+ * @file TemplateFactory.hpp This file contains some code that is common between
  * TemplateCommandFactory and TemplateDataSourceFactory.
  */
 
@@ -91,8 +91,45 @@ namespace ORO_Execution
   using ORO_CoreLib::PropertyBase;
   using ORO_CoreLib::PropertyBag;
 
+        /**
+         * @defgroup CMDFactories Command, Method and DataSource Factories.
+         * This module groups all factores for commands, methods and 
+         * datasources used in the ORO_Execution namespace. For each command,
+         * method or datasource you wish to add to a factory, you need to generate
+         * a \ref partFunctions. You \a add the part to the respective \ref objectFactory factory, which is in
+         * turn added to a TaskContext's \ref globalFactory factory. 
+         *
+         * Thus : 
+         *    -each \a command,\a dataource,\a method of your TaskContext requires one \a part. 
+         *    -each \a part is inserted in exactly one \a object factory.
+         *    -each \a object factory is inserted in exactly one \a global factory of a TaskContext.
+         */ 
+
+        /**
+         * @defgroup partFunctions Functions to generate a 'Part Factory Object'
+         * @ingroup CMDFactories
+         * This module contains all 'C' functions you can use to generate 'part' object
+         * factories. A part matches exactly one method, command or datasource.
+         */
+
+        /**
+         * @defgroup objectFactory TaskContext Object Factories
+         * @ingroup CMDFactories
+         * An object factory delivers DataSources for the method
+         * or datasource interface of a TaskContext or Command objects for the command
+         * interface of a TaskContext. An object groups multiple 'parts'.
+         */ 
+
+        /**
+         * @defgroup globalFactory TaskContext (Global) Interface Factories
+         * @ingroup CMDFactories
+         * There are only three 'Global' factories in a TaskContext delivering
+         * commands, methods or datasources.
+         */ 
+
   /**
-   * @defgroup TemplateFactoryPart
+   * @internal
+   * @defgroup TemplateFactoryPart Base Classes for parts.
    * @brief Class keeping the information on how to generate one thing that
    * the factory can generate.
    *
@@ -100,7 +137,6 @@ namespace ORO_Execution
    * be linked with one TemplateFactoryPart that knows how to produce
    * the thing that the name is used for..  Below are standard
    * implementations for functors of various signatures.
-   * @internal
    * @{
    */
   template<typename ComponentT, typename ResultT>
@@ -548,6 +584,7 @@ namespace ORO_Execution
      */
 
   /**
+   * @internal
    * @defgroup FactoryFunctorPartNHelper Helper functions for the FactoryFunctorPartN's
    * These functions create new TemplateFactoryFunctorPart instances.
    * @{

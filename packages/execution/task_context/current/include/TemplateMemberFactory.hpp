@@ -33,9 +33,7 @@
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 
-#ifndef MEMBER
-#error "Do not include this file directly. Use TemplateDataSourceFactory.hpp or TemplateMethodFactory.hpp"
-#else
+#ifdef MEMBER
 
 /**
  * @file This file contains the TemplateMemberFactory template,
@@ -289,10 +287,12 @@ namespace ORO_Execution
    */
 
   /**
-   * @internal Helper functions for the use of FunctorDataSource.  This
+   * @internal 
+   * @defgroup datasourcefunctorhelper Helper functions for the use of FunctorDataSource.
+   * This
    * is provided because for classes, C++ compilers never deduce
    * template parameters, only for functions.  This is a common
-   * paradigm, std::back_inserter does the same thing..
+   * paradigm, std::back_inserter does the same thing.
    * @{
    */
   template<typename FunctorT>
@@ -353,11 +353,13 @@ namespace ORO_Execution
    */
 
   /**
-   * @internal These are the classes responsible for the creation of
+   * @internal 
+   * @defgroup FunctorDataSourceGenerators Creates a DataSource object.
+   * These are the classes responsible for the creation of
    * FunctorDataSource's from component member functions.  They are
    * implemented as functors themselves, because that's how we will be
-   * using them..
-   * TODO: add more overloads to support a larger number of arguments..
+   * using them.
+   * TODO: add more overloads to support a larger number of arguments.
    * @{
    */
   template<typename ComponentT, typename ResultT,
@@ -513,8 +515,10 @@ namespace ORO_Execution
    */
 
   /**
-   * @internal FunctorDataSourceGenerator helper functions to let the
-   * compiler do the type deducing for us..
+   * @internal 
+   * @defgroup functordshelpers FunctorDataSourceGenerator.
+   * Helper functions to let the
+   * compiler do the type deducing for us.
    * @{
    */
   template<typename ComponentT, typename ResultT, typename FunctorT>
@@ -586,6 +590,7 @@ namespace ORO_Execution
    * This is the DataSource factory class that is generated
    * by the newDataSourceFactory function..  Use the helper function
    * newDataSourceFactory.
+   * @ingroup objectFactory
    */
   template<typename ComponentT>
   class TEMPLATE_FACTORY_NAME
@@ -663,10 +668,8 @@ namespace ORO_Execution
 
 
   /**
-   * @defgroup data_factories DataSource Part Factories
-   */
-
-  /**
+   * @defgroup data_factories DataSource Part Factory Functions
+   * @ingroup partFunctions
    * The data function is the function you should use to specify a
    * certain property to be added to your TemplateDataSourceFactory..
    * Several overloads are provided, for supporting various numbers of
@@ -680,9 +683,8 @@ namespace ORO_Execution
    * data, and the following arguments are a name and description for
    * each argument of the data.
    *
-   * TODO: more overloads to support a larger number of arguments.
+   * @todo more overloads to support a larger number of arguments.
    * We support zero to four arguments.
-   * @ingroup data_factories
    * @{
    */
   // A component's variable :
@@ -813,4 +815,8 @@ namespace ORO_Execution
 
 }
 
+#else
+// This is a nice work-around for Doxygen.
+#include "TemplateMethodFactory.hpp"
+#include "TemplateDataSourceFactory.hpp"
 #endif // defined(MEMBER)

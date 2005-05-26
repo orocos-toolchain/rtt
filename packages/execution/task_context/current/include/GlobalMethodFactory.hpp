@@ -33,6 +33,10 @@
 #include "GlobalMemberFactory.hpp"
 
 namespace ORO_Execution {
+    /**
+     * A global method factory is a GlobalMemberFactory.
+     * @ingroup globalFactory
+     */
     typedef GlobalMemberFactory GlobalMethodFactory;
 }
 

@@ -31,7 +31,7 @@
 #include <string>
 
 /**
- * \file This files contains some structs that can be thrown by both
+ * \file FactoryExceptions.hpp This files contains some structs that can be thrown by both
  * DataSourceFactory's and CommandFactory's.
  */
 namespace ORO_Execution

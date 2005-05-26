@@ -46,6 +46,7 @@ namespace ORO_Execution
    * info.. Components register and unregister their factories under a
    * certain name, and the parser can ask for the factory registered
    * under a certain name..
+   * @ingroup globalFactory
    */
   class GlobalMemberFactory
   {
