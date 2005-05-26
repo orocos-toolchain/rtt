@@ -202,8 +202,8 @@ namespace ORO_CoreLib
      * If only one thread accesses the DataObject simultaneously (e.g. single
      * threaded systems), then the Get() and Set() methods will never block.
      *
-     * @invar The Set() context has a strictly higher priority than the Get() context.
-     * @invar Set() never blocks.
+     * @invariant The Set() context has a strictly higher priority than the Get() context.
+     * @invariant Set() never blocks.
      */
     template<class _DataType>
     class DataObjectPrioritySet
@@ -311,8 +311,8 @@ namespace ORO_CoreLib
      * If only one thread accesses the DataObject simultaneously (e.g. single
      * threaded systems), then the Get() and Set() methods will never block.
      *
-     * @invar The Set() context has a strictly lower priority than the Get() context.
-     * @invar Get() never blocks.
+     * @invariant The Set() context has a strictly lower priority than the Get() context.
+     * @invariant Get() never blocks.
      */
     template<class _DataType>
     class DataObjectPriorityGet

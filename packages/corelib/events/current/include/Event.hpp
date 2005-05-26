@@ -195,9 +195,13 @@ namespace ORO_CoreLib
             return Handle( signal_type::connect( l ), ep->connect( c, *this, t ), _mutex );
         }
 
+        //! @name EventFire Event Fire methods
+        //! @{
         /**
          * This method is the thread-safe equivalent to the operator() method
-         * of boost::signal.
+         * of boost::signal. You must call the fire( \a Signature ) method corresponding to the
+         * parameter signature of your Event< \a Signature >. The return value can not be collected
+         * and is thus always \c void.
          */
         void fire() {
             ORO_OS::MutexLock lock( _mutex );
@@ -254,6 +258,8 @@ namespace ORO_CoreLib
                       ORO_OS::MutexLock lock( _mutex );
                       signal_type::operator()(a1, a2, a3, a4, a5, a6);
                   }
+
+        //! @}
 
         // repeat for A7,A8,... + same in EventProcessor.hpp
 
