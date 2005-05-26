@@ -49,7 +49,8 @@ namespace ORO_ControlKernel
   nAxesGeneratorPos::~nAxesGeneratorPos()
   {
     for( unsigned int i=0; i<_num_axes; i++)
-      delete _motion_profile[i];
+      // motion profiles are only instantiated if updateProperties is called.
+        if( _motion_profile[i]) delete _motion_profile[i];
   }
   
   

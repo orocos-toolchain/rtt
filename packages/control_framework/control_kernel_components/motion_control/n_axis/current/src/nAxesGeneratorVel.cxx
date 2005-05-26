@@ -60,7 +60,8 @@ namespace ORO_ControlKernel
   nAxesGeneratorVel::~nAxesGeneratorVel()
   {
     for( unsigned int i=0; i<_num_axes; i++)
-      delete _vel_profile[i];
+      // velocity profiles are only instantiated if updateProperties is called.
+      if(_vel_profile[i]) delete _vel_profile[i];
   }
   
 

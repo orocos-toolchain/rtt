@@ -45,8 +45,6 @@ namespace ORO_CoreLib
     /**
      * A decomposeProperty method for decomposing a Property< MultiVector<S,T> >
      * into a PropertyBag with Property<T>'s.
-     * The dimension of the MultiVector must be less than 100 if you want the
-     * Property<double>'s to have a different name.
      */
     template<class T, int S>
     void decomposeProperty(PropertyIntrospection *pi, const Property< MultiVector<S, T> >& c)
@@ -58,15 +56,37 @@ namespace ORO_CoreLib
 
         result.value().add( dimension );
 
-        int data_number = 0;
         std::stringstream data_name;
 
         for ( int i=0; i < dimension->get() ; i++)
             {
-                data_name  << data_number;
+                data_name  << i;
                 result.value().add( new Property<T>(data_name.str(),"",vec[i]) ); // Put variables in the bag
                 data_name.str("");
-                ++data_number;
+            }
+
+        pi->introspect(result); // introspect the bag.
+        deleteProperties( result.value() );
+
+    }
+
+    template<class T, int S>
+    void decomposeProperty(PropertyIntrospection *pi, const Property< const MultiVector<S, T>& >& c)
+    {
+        Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("MultiVector") );
+
+        MultiVector<S,T> vec = c;
+        Property<int>* dimension = new Property<int>("Size","Size of the MultiVector", vec.size() );
+
+        result.value().add( dimension );
+
+        std::stringstream data_name;
+
+        for ( int i=0; i < dimension->get() ; i++)
+            {
+                data_name  << i;
+                result.value().add( new Property<T>(data_name.str(),"",vec[i]) ); // Put variables in the bag
+                data_name.str("");
             }
 
         pi->introspect(result); // introspect the bag.
@@ -76,7 +96,6 @@ namespace ORO_CoreLib
 
     /**
      * A composeProperty method for composing a property of a MultiVector<S, T>
-     * The dimension of the vector must be less than 100.
      */
     template<class T, int S>
     bool composeProperty(const PropertyBag& bag, Property<MultiVector<S,T> >& result)
@@ -106,13 +125,12 @@ namespace ORO_CoreLib
                 }
                 int dimension = dim->get();
 
-                int data_number = 0;
                 std::stringstream data_name;
 
                 // Get values
                 for (int i = 0; i < dimension ; i++)
                     {
-                        data_name  << data_number;
+                        data_name  << i;
                         PropertyBase* element = v_bag->get().find( data_name.str() );
                         if ( element == 0 ) {
                             Logger::log() << Logger::Error << "Aborting composition of Property< MultiVector<S,T> > "<<result.getName()
@@ -132,7 +150,6 @@ namespace ORO_CoreLib
                         result.value()[i] = comp->get();
 
                         data_name.str("");
-                        ++data_number;
                     }
             }
         else

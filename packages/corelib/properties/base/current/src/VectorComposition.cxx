@@ -49,17 +49,15 @@ namespace ORO_CoreLib
 
     result.value().add( dimension );
 
-    int data_number = 0;
     std::stringstream data_name;
 
 
     for ( int i=0; i < dimension->get() ; i++)
     {
-        data_name  << data_number;
+        data_name  << i;
         result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
         data_name.str("");
-        ++data_number;
     }
 
     pi->introspect(result); // introspect the bag.
@@ -68,23 +66,21 @@ namespace ORO_CoreLib
 
   void decomposeProperty(PropertyIntrospection *pi, const Property<const std::vector<double>& >& c)
   {
-    Property<PropertyBag> result(c.getName(),"std::vector<double>", PropertyBag("std::vector<double>") );
+    Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("std::vector<double>") );
 
     std::vector<double> vec = c.get();
     Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
 
     result.value().add( dimension );
 
-    int data_number = 0;
     std::stringstream data_name;
 
     for ( int i=0; i < dimension->get() ; i++)
     {
-        data_name  << data_number;
+        data_name  << i;
         result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
 
         data_name.str("");
-        ++data_number;
     }
 
     pi->introspect(result); // introspect the bag.
@@ -126,14 +122,13 @@ namespace ORO_CoreLib
         result.value().resize(dimension);
 
         Property<double>* comp;
-        int data_number = 0;
         std::stringstream data_name;
 
 
         // Get values
         for (int i = 0; i < dimension ; i++)
         {
-            data_name  << data_number;
+            data_name  << i;
             PropertyBase* element = v_bag->get().find(data_name.str());
             if ( element == 0 ) {
                 Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
@@ -153,7 +148,6 @@ namespace ORO_CoreLib
             result.value()[i] = comp->get();
 
             data_name.str("");
-            ++data_number;
         }
     }
     else

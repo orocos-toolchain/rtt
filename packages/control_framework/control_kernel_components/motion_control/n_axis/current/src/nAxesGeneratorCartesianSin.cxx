@@ -51,7 +51,8 @@ namespace ORO_ControlKernel
   nAxesGeneratorCartesianSin::~nAxesGeneratorCartesianSin()
   {
     for( unsigned int i=0; i<3; i++)
-      delete _amplitude_profile[i];
+      // amplitude profiles are only instantiated if updateProperties is called.
+      if (_amplitude_profile[i])delete _amplitude_profile[i];
   }
   
   

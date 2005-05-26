@@ -45,7 +45,8 @@ namespace ORO_ControlKernel
   nAxesGeneratorCartesianPos::~nAxesGeneratorCartesianPos()
   {
     for( unsigned int i=0; i<6; i++)
-      delete _motion_profile[i];
+      // motion profiles are only instantiated if updateProperties is called.
+      if (_motion_profile[i]) delete _motion_profile[i];
   }
   
   
