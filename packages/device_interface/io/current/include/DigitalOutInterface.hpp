@@ -38,8 +38,8 @@ namespace ORO_DeviceInterface
      * A class representing a Digital Output device which can read or write a maximum of 32
      * bits at once. When there are N bits, the bits are numbered from Zero to N-1.
      *
-     * @invar Bit 0 denotes the first digital output on the card.
-     * @invar No more than 32 bits can be addressed 
+     * @invariant Bit 0 denotes the first digital output on the card.
+     * @invariant No more than 32 bits can be addressed 
      * @see TemplateDigitalOut
      */
     class DigitalOutInterface
