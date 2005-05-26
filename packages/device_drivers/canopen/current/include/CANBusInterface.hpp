@@ -61,7 +61,7 @@ namespace CAN
          *
          * @param dev The device to be removed from the bus.
          * @post      The device will no longer receive messages from the bus.
-         * @invar     During a process(), the device may only remove itself.
+         * @invariant     During a process(), the device may only remove itself.
          */
         virtual void removeDevice(CANDeviceInterface* dev) = 0;
 
@@ -79,7 +79,7 @@ namespace CAN
          *
          * @param dev The listener to be removed from the bus.
          * @post      The listener will no longer receive messages from the bus.
-         * @invar     During a process(), the listener may only remove itself.
+         * @invariant     During a process(), the listener may only remove itself.
          */
         virtual void removeListener(CANListenerInterface* dev) = 0;
 

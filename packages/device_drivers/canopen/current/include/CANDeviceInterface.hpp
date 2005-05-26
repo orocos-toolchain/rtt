@@ -44,7 +44,7 @@ namespace CAN
          * certain CANMessage. You are not the owner of <msg>.
 		 *
 		 * @param msg The message to be processed by this instance.
-         * @invar Only this may be removed from the CANBusInterface during process.
+         * @invariant Only this may be removed from the CANBusInterface during process.
 		 */
         virtual void process(const CANMessage* msg) = 0;
     };
