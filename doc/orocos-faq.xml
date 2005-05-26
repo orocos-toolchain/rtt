@@ -219,14 +219,19 @@ Alex Russell
 	  <para>How should I configure my Linux Kernel?</para>
 	</question>
 	<answer>
-	  <para>The following Linux options must be disabled to guarantee
-	    the most stable performance :
+	  <para>Disable anything that is remotely 'Experimental' or
+	  not necessarily needed.  The following Linux options must be
+	  disabled to guarantee the most stable performance :
 	    <itemizedlist>
 	      <listitem>
 		<para>Disable APM / ACPI. These can interfere with scheduling and RTAI.</para>
 	      </listitem>
 	      <listitem>
 		<para>Disable MTRR. This can interfere when using RTAI.</para>
+	      </listitem>
+	      <listitem>
+		<para>Disable CONFIG_REGPARM. This option causes BIG problems when using LXRT,
+		and renders it completely unusable alltogether.</para>
 	      </listitem>
 	    </itemizedlist>
 	  </para>
