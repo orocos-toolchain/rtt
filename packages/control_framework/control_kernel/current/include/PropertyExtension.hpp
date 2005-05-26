@@ -53,7 +53,6 @@ namespace ORO_ControlKernel
         :public detail::ComponentFacetInterface<PropertyExtension>
     {
         friend class PropertyExtension;
-        friend class ComponentConfigurator;
     protected:
         using detail::ComponentFacetInterface<PropertyExtension>::enableFacet;
         /**
