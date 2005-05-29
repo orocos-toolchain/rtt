@@ -21,6 +21,7 @@
 
 #include <device_interface/AxisInterface.hpp>
 #include <corelib/TimeService.hpp>
+#include <iostream>
 
 namespace ORO_DeviceDriver
 {
@@ -46,6 +47,11 @@ private:
   bool _first_drive;
 
 }; // class
+
+   
+
+// Forward declare; see below
+class SimulationVelocitySensor;
 
 
 
@@ -76,11 +82,35 @@ private:
   bool        _enable;
   double      _velocity;
   double      _max_drive_value;
-  SimulationEncoder*  _encoder;
+  SimulationEncoder*         _encoder;
+  SimulationVelocitySensor*  _velSensor;
   bool _is_locked, _is_stopped, _is_driven;
   
   
 }; // class
+
+class SimulationVelocitySensor : public ORO_DeviceInterface::SensorInterface<double>
+{
+public:
+    SimulationVelocitySensor(SimulationAxis* axis, double maxvel) : _axis(axis), _maxvel(maxvel)
+    {};
+
+    virtual ~SimulationVelocitySensor() { std::cout << "SimulationVelocitySensor destructor" << std::endl; }
+
+    virtual int readSensor( double& vel ) const { vel = _axis->getDriveValue(); return 0; }
+
+    virtual double readSensor() const { return _axis->getDriveValue(); }
+
+    virtual double maxMeasurement() const { return _maxvel; }
+
+    virtual double minMeasurement() const { return - _maxvel; }
+
+    virtual double zeroMeasurement() const { return 0; }
+    
+private:
+    SimulationAxis* _axis;
+    double _maxvel;
+};
 
  
 } // namespace
