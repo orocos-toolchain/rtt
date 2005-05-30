@@ -36,13 +36,13 @@ class FunctionTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( FunctionTest );
     CPPUNIT_TEST( testSimpleFunction );
-    CPPUNIT_TEST( testRecFunction );
+   CPPUNIT_TEST( testRecFunction );
     CPPUNIT_TEST( testCallFunction );
     CPPUNIT_TEST( testExportFunction );
-    CPPUNIT_TEST( testFunctionStack );
+   CPPUNIT_TEST( testFunctionStack );
     CPPUNIT_TEST( testFunctionCallArgs );
     CPPUNIT_TEST( testFunctionExportArgs );
-    CPPUNIT_TEST( testFunctionFail );
+   CPPUNIT_TEST( testFunctionFail );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;

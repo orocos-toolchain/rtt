@@ -82,6 +82,7 @@ program_prof_CXXFLAGS = -g -pg
 program_prof_LDFLAGS = -g -pg
 
 parser_test_SOURCES = test-runner.cpp \
+	template_factory_test.cpp template_factory_test.hpp \
 	dispatch_test.cpp dispatch_test.hpp \
 	types_test.cpp types_test.hpp
 

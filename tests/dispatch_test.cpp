@@ -43,10 +43,14 @@ DispatchTest::setUp()
 {
     // ltc has a test object
     ltc.methodFactory.registerObject("test", this->createMethodFactory() );
+    ltc.commandFactory.registerObject("test", this->createCommandFactory() );
     // mtc has two methods.
     mtc.methodFactory.registerObject("this", this->createMethodFactory() );
+    mtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
+
     gtc.addPeer( &mtc );
     mtc.connectPeers( &ltc );
+
 }
 
 
@@ -81,14 +85,50 @@ MethodFactoryInterface* DispatchTest::createMethodFactory()
     return dat;
 }
 
+DataSourceFactoryInterface* DispatchTest::createDataSourceFactory()
+{
+    // Add the data of the EE:
+    TemplateDataSourceFactory< DispatchTest >* dat =
+        newDataSourceFactory( this );
+
+    dat->add( "isTrue", data( &DispatchTest::assertBool,
+                              "Identity function", "bool", "") );
+    return dat;
+}
+
+CommandFactoryInterface* DispatchTest::createCommandFactory()
+{
+    // Add the data of the EE:
+    TemplateCommandFactory< DispatchTest >* dat =
+        newCommandFactory( this );
+
+    dat->add( "instantDone", command( &DispatchTest::true_genCom,
+                                      &DispatchTest::true_gen,
+                                      "returns immediately") );
+    dat->add( "neverDone", command( &DispatchTest::true_genCom,
+                                    &DispatchTest::false_gen,
+                                    "returns never") );
+    dat->add( "instantNotDone", command( &DispatchTest::true_genCom,
+                                         &DispatchTest::true_gen,
+                                         "returns never", false ) );
+    dat->add( "instantFail", command( &DispatchTest::false_genCom,
+                                      &DispatchTest::true_gen,
+                                      "fails immediately") );
+    dat->add( "totalFail", command( &DispatchTest::false_genCom,
+                                    &DispatchTest::false_gen,
+                                    "fails in command and condition") );
+    return dat;
+}
+
 
 void DispatchTest::testParseDispatch()
 {
-    // this is a global program requesting a command on a local
-    // task/processor (ie assert).
+    // this is a global program requesting a method on a local
+    // task/processor (ie assert) and a command (instantDone)
     string prog = string("program x { do space.subspace.test.assertMsg(true,\"tpdtrue\") \n")
         + " if space.subspace.test.assert(true) then \n"
         + "       do nothing\n"
+        + " do space.subspace.test.instantDone() \n"
 //         + " do space.assertMsg(true,\"tpdfail\")\n"
 //         + " do this.space.assertMsg(true,\"donotreach\")\n"
         + "}";
@@ -105,8 +145,8 @@ void DispatchTest::testParseDispatch()
 void DispatchTest::testDispatchFailure()
 {
     // this is a global program requesting a command on a local
-    // task/processor (ie assert).
-    string prog = string("program x { do space.subspace.test.assert(false) \n")
+    // task/processor (ie instantFail).
+    string prog = string("program x { do space.subspace.test.instantFail() \n")
         + "}";
 
     this->doDispatch( prog, &gtc );
@@ -120,13 +160,13 @@ void DispatchTest::testDispatchCondition()
     // see if checking a remote condition works
     // also tests peerparser in expressions 
     string prog = string("program x { if ( space.subspace.test.assert(true) ) then \n")
-        + "do space.subspace.test.assert(true) \n"
+        + "do space.subspace.test.instantDone() \n"
         + "else \n"
-        + "do space.subspace.test.assert(false) \n"
+        + "do space.subspace.test.instantFail() \n"
         + "if ( space.subspace.test.assert(false) ) then \n"
-        + "do space.subspace.test.assert(false) \n"
+        + "do space.subspace.test.instantFail() \n"
         + "else \n"
-        + "do space.subspace.test.assert(true) \n"
+        + "do space.subspace.test.instantDone() \n"
         + " }";
     this->doDispatch( prog, &gtc );
 
@@ -142,6 +182,9 @@ void DispatchTest::testDispatchAnd()
     string prog = string("program x { do space.subspace.test.assert(true)\n")
         + "and space.subspace.test.assert(true) \n"
         + "and space.subspace.test.assert(true) \n"
+        + "do space.subspace.test.instantDone() \n"
+        + "and space.subspace.test.instantDone() \n"
+        + "and space.subspace.test.instantDone() \n"
         + " }";
     this->doDispatch( prog, &gtc );
 
@@ -158,6 +201,10 @@ void DispatchTest::testDispatchTry()
         + "try space.subspace.test.assert(true) \n"
         + "and space.subspace.test.assert(false) \n"
         + "and space.subspace.test.assert(true) \n"
+        + "try space.subspace.test.instantFail()\n"
+        + "try space.subspace.test.instantDone() \n"
+        + "and space.subspace.test.instantFail() \n"
+        + "and space.subspace.test.instantDone() \n"
         + " }";
     this->doDispatch( prog, &gtc );
 
@@ -170,11 +217,11 @@ void DispatchTest::testDispatchTry()
 void DispatchTest::testDispatchUntil()
 {
     // see if checking a remote condition works
-    string prog = string("program x { do space.subspace.test.assert(true)\n")
+    string prog = string("program x { do space.subspace.test.instantDone()\n")
         + "until { \n"
         + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
         + "} \n"
-        + "do space.subspace.test.assert(true)\n"
+        + "do space.subspace.test.instantDone()\n"
         + "until { \n"
         + " if done then continue \n" 
         + "} \n"
@@ -190,7 +237,7 @@ void DispatchTest::testDispatchUntil()
 void DispatchTest::testDispatchUntilFail()
 {
     // see if checking a remote condition works
-    string prog = string("program x { do space.subspace.test.assert(false)\n")
+    string prog = string("program x { do space.subspace.test.instantFail()\n")
         + "until { \n"
         + " if done then continue \n" //  program should go into error
         + "} \n"
@@ -204,6 +251,7 @@ void DispatchTest::testDispatchUntilFail()
 
 void DispatchTest::testSendDispatch()
 {
+    // XXX not a valid test. send not present in Orocos, this looks like 'try'
     // a program which must not fail, even if the command failes.
     string prog = "program x { send space.subspace.test.assert(false) \n }";
     this->doDispatch( prog, &gtc );

@@ -57,6 +57,16 @@ class DispatchTest : public CppUnit::TestFixture
     TaskContext mtc;
     TaskContext ltc;
     MethodFactoryInterface* createMethodFactory();
+    CommandFactoryInterface* createCommandFactory();
+    DataSourceFactoryInterface* createDataSourceFactory();
+
+    bool true_genCom() { return true; }
+    bool false_genCom() { return false; }
+    bool true_gen() const { return true; }
+    bool false_gen() const { return false; }
+
+    bool bool_gen( bool b ) const { return b; }
+
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     void doDispatch( const std::string& prog, TaskContext* );
