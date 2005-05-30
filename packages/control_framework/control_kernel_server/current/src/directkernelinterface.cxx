@@ -116,65 +116,12 @@ namespace ExecutionClient
 
     std::string DirectKernelInterface::getProgramStatus(const std::string& name )
     {
-        switch ( executionext->getProcessor()->getProgramStatus( name ))
-            {
-            case Processor::ProgramStatus::unloaded:
-                return "unloaded";
-                break;
-            case Processor::ProgramStatus::stopped:
-                return "stopped";
-                break;
-            case Processor::ProgramStatus::running:
-                return "running";
-                break;
-            case Processor::ProgramStatus::stepmode:
-                return "paused";
-                break;
-            case Processor::ProgramStatus::error:
-                return "error";
-                break;
-            }
-        return "na";
+        return executionext->getProcessor()->getProgramStatusStr( name );
     }
+
     std::string DirectKernelInterface::getStateStatus(const std::string& name )
     {
-        switch ( executionext->getProcessor()->getStateMachineStatus( name ))
-            {
-            case Processor::StateMachineStatus::unloaded:
-                return "unloaded";
-                break;
-            case Processor::StateMachineStatus::inactive:
-                return "inactive";
-                break;
-            case Processor::StateMachineStatus::stopping:
-                return "stopping";
-                break;
-            case Processor::StateMachineStatus::stopped:
-                return "stopped";
-                break;
-            case Processor::StateMachineStatus::running:
-                return "running";
-                break;
-            case Processor::StateMachineStatus::paused:
-                return "paused";
-                break;
-            case Processor::StateMachineStatus::active:
-                return "active";
-                break;
-            case Processor::StateMachineStatus::activating:
-                return "activating";
-                break;
-            case Processor::StateMachineStatus::deactivating:
-                return "deactivating";
-                break;
-            case Processor::StateMachineStatus::resetting:
-                return "resetting";
-                break;
-            case Processor::StateMachineStatus::error:
-                return "error";
-                break;
-            }
-        return "na";
+        return  executionext->getProcessor()->getStateMachineStatusStr( name );
     }
 
     std::string DirectKernelInterface::getState(const std::string& name )
