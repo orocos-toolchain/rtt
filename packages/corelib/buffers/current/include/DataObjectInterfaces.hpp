@@ -517,13 +517,17 @@ namespace ORO_CoreLib
 
         /**
          * Get a copy of the data.
+         * This method will allocate memory twice if data is not a value type.
+         * Use Get(DataType&) for the non-allocating version.
          *
-         * @return A reference to a copy of the data.
+         * @return A copy of the data.
          */
         DataType Get() const {DataType cache; Get(cache); return cache; }
             
         /**
-         * Get a copy of the Data (non blocking).
+         * Get a copy of the Data (non allocating).
+         * If pull has reserved enough memory to store the copy,
+         * no memory will be allocated.
          *
          * @param pull A copy of the data.
          */
