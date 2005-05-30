@@ -108,7 +108,7 @@ namespace ORO_Execution { namespace detail
       divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, frameexp, wrenchexp, twistexp, vectorexp, double6Dexp, arrayexp, rotexp, dotexp, groupexp, atomicexpression,
-      constructorexp, framector, wrenchctor, twistctor, vectorctor, double6Dctor, double6Dctor6, arrayctor, rotationctor, time_expression,
+      constructorexp, framector, wrenchctor, twistctor, vectorctor, double6Dctor, double6Dctor6, arrayctor, stringctor, rotationctor, time_expression,
       time_spec, indexexp, comma, open_brace, close_brace;
 
     /**

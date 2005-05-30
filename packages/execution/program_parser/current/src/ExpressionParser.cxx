@@ -401,7 +401,7 @@ namespace ORO_Execution
 #ifdef OROPKG_GEOMETRY
         framector | rotationctor | wrenchctor | twistctor | vectorctor |
 #endif
-        double6Dctor | double6Dctor6 | arrayctor;
+        double6Dctor | double6Dctor6 | arrayctor | stringctor;
 
     framector = (
          str_p( "frame" )
@@ -464,6 +464,12 @@ namespace ORO_Execution
       >> open_brace
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "array" ) ];
+
+    stringctor = (
+        str_p( "string" )
+      >> open_brace
+      >> expression
+      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "string" ) ];
 
     rotationctor = (
          str_p( "rotation" )
