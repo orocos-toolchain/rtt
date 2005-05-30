@@ -48,6 +48,10 @@
 #include "corelib/Logger.hpp"
 using ORO_CoreLib::Logger;
 #endif
+#ifdef OROPKG_CORELIB_TIMING
+#include "corelib/TimeService.hpp"
+using ORO_CoreLib::TimeService;
+#endif
  
 #ifdef HAVE_MANUAL_MAIN
 #include "os/MainThread.hpp"
@@ -102,6 +106,10 @@ void __os_exit(void)
     // Stop logging
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::Release();
+#endif
+    // Stop TimeService if present.
+#ifdef OROPKG_CORELIB_TIMING
+    TimeService::Release();
 #endif
     // Stop Main Thread
 #ifdef HAVE_MANUAL_MAIN
