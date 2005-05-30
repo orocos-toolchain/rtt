@@ -111,6 +111,15 @@ namespace ORO_Execution
                 return one->create(command, args, asyn);
             return other->create(command, args, asyn);
         }
+
+        ComCon create(
+                      const std::string& command,
+                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args, bool asyn=true ) const
+        {
+            if ( one->hasCommand( command ) )
+                return one->create(command, args, asyn);
+            return other->create(command, args, asyn);
+        }
     };
 };
 

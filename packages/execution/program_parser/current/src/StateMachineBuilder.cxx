@@ -40,8 +40,8 @@ namespace ORO_Execution {
 
   StateMachineBuilder::~StateMachineBuilder()
   {
-      // template is owned by __states TC.
-      //delete templatecontext;
+      // template is !owned by __states TC.
+      delete templatecontext;
   }
 
   ParsedStateMachine* StateMachineBuilder::build(bool instantiate)

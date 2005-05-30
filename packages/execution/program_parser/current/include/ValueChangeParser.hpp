@@ -35,6 +35,7 @@
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
+#include "Types.hpp"
 
 namespace ORO_Execution { namespace detail
 {
@@ -94,6 +95,7 @@ namespace ORO_Execution { namespace detail
     DataSourceBase::shared_ptr index_ds;
 
       int sizehint;
+      boost::shared_ptr<TypeInfoRepository> typerepos;
   public:
     ValueChangeParser( TaskContext* tc );
 

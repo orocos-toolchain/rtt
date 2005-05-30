@@ -119,7 +119,7 @@ namespace ORO_Execution
   class TemplateIndexContainerTypeInfo
       : public TemplateIndexTypeInfo<T,IndexType,SetType,Pred>
   {
-      typedef typename mystd::remove_cr<T>::type _T;
+      typedef typename ORO_std::remove_cr<T>::type _T;
   public:
       using TypeInfo::buildConstant;
       using TypeInfo::buildVariable;
@@ -134,15 +134,38 @@ namespace ORO_Execution
       }
   };
 
+    // Identical to above, but for strings.
+  template<typename T, typename IndexType, typename SetType, typename Pred>
+  class TemplateStringTypeInfo
+      : public TemplateIndexTypeInfo<T,IndexType,SetType,Pred>
+  {
+      typedef typename ORO_std::remove_cr<T>::type _T;
+  public:
+      using TypeInfo::buildConstant;
+      using TypeInfo::buildVariable;
+
+    TaskAttributeBase* buildVariable(int size) const
+      {
+          // if a sizehint is given, create a string
+          // which checks capacities.
+          return new detail::ParsedStringVariable<T, IndexType, SetType, Pred>( _T(size, SetType()) );
+      }
+  };
+
 
   TypeInfo::~TypeInfo()
   {
   }
+    namespace {
+        boost::shared_ptr<TypeInfoRepository> typerepos;
+    }
 
-  TypeInfoRepository& TypeInfoRepository::instance()
+  boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::instance()
   {
-    static TypeInfoRepository s;
-    return s;
+      if ( typerepos ) 
+          return typerepos;
+      typerepos.reset( new TypeInfoRepository() );
+      return typerepos;
   }
 
   TypeInfo* TypeInfoRepository::type( const std::string& name ) const
@@ -155,6 +178,9 @@ namespace ORO_Execution
 
   TypeInfoRepository::~TypeInfoRepository()
   {
+    map_t::const_iterator i = data.begin();
+    for( ; i != data.end(); ++i )
+        delete i->second;
   }
 
   // check the validity of an index
@@ -203,10 +229,15 @@ namespace ORO_Execution
 #endif
     data["int"] = new TemplateTypeInfo<int>();
     data["char"] = new TemplateTypeInfo<char>();
-    data["string"] = new TemplateIndexContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
     data["double"] = new TemplateTypeInfo<double>();
     data["bool"] = new TemplateTypeInfo<bool>();
     data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, RangeIndexChecker<Double6D,6> >;
     data["array"] = new TemplateIndexContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> > >;
+
+    // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
+    // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
+    // from a c-style string obviously disables a copy-on-write connection.
+    data["string"] = new TemplateStringTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
+    
   }
 }

@@ -223,7 +223,7 @@ namespace ORO_Execution {
     using ORO_CoreLib::ConditionInterface;
 
     std::vector<std::string> ParsedStateMachine::getSubMachineList() const {
-        return mystd::keys( subMachines );
+        return ORO_std::keys( subMachines );
     }
 
     ParsedStateMachine* ParsedStateMachine::getSubMachine( const std::string& name ) const {
@@ -354,6 +354,11 @@ namespace ORO_Execution {
         for ( SubMachineNameMap::iterator i = subMachines.begin();
               i != subMachines.end(); ++i )
             delete i->second->get();
+        // we own our conditions...
+        for ( TransitionMap::iterator i = stateMap.begin();
+              i != stateMap.end(); ++i )
+            for ( TransList::iterator i2 = i->second.begin(); i2 != i->second.end(); ++i2 )
+                delete get<0>( *i2 );  // delete the condition.
         if ( context && context->getPeer("states") )
             context->getPeer("states")->removePeer( context->getName() );
         delete context;
@@ -361,7 +366,7 @@ namespace ORO_Execution {
     }
 
     std::vector<std::string> ParsedStateMachine::getStateList() const {
-        return mystd::keys( states );
+        return ORO_std::keys( states );
     }
 
     StateDescription* ParsedStateMachine::getState( const std::string& name ) const{
@@ -385,7 +390,7 @@ namespace ORO_Execution {
     };
 
     void ParsedStateMachine::addState( const std::string& name, StateDescription* state ) {
-        assert( states.find( name ) == states.end() );
+        // overwrite is allowed.
         states[name] = state;
     }
 
@@ -437,12 +442,12 @@ namespace ORO_Execution {
 
     std::vector<std::string> ParsedStateMachine::getParameterNames() const
     {
-        return mystd::keys( parametervalues );
+        return ORO_std::keys( parametervalues );
     }
 
     std::vector<std::string> ParsedStateMachine::getReadOnlyValuesNames() const
     {
-        return mystd::keys( visiblereadonlyvalues );
+        return ORO_std::keys( visiblereadonlyvalues );
     }
 
     bool ParsedStateMachine::inState( const std::string& name ) const

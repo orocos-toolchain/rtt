@@ -57,7 +57,7 @@ namespace ORO_Execution
       typedef typename DataSource<S>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignVariableCommand( AssignableDataSource<T>* l, DataSource<S>* r )
+      AssignVariableCommand( LHSSource l, RHSSource r )
           : lhs( l ), rhs( r )
       {
       }
@@ -93,7 +93,7 @@ namespace ORO_Execution
       typedef typename DataSource<S>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignContainerCommand( AssignableDataSource<T>* l, DataSource<S>* r )
+      AssignContainerCommand( LHSSource l, RHSSource r )
           : lhs( l ), rhs( r )
       {
       }
@@ -116,6 +116,44 @@ namespace ORO_Execution
       }
   };
 
+    /**
+     * Assign the contents of one string to another, while maintaining capacity of the original.
+     * This class checks for capacity and fails execution if not sufficient.
+     * @param T Target type
+     * @param S Source type
+     */
+  template<typename T, typename S = T>
+  class AssignStringCommand
+    : public CommandInterface
+  {
+      typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
+      LHSSource lhs;
+      typedef typename DataSource<S>::shared_ptr RHSSource;
+      RHSSource rhs;
+  public:
+      AssignStringCommand( LHSSource l, RHSSource r )
+          : lhs( l ), rhs( r )
+      {
+      }
+
+      bool execute()
+      {
+          if ( lhs->get().capacity() < rhs->get().size() || &(lhs->set()) == 0)
+              return false;
+          lhs->set() = rhs->get().c_str(); // std::string specific ! Does not allocate if S is a (const) std::string&
+          return true;
+      }
+
+      virtual CommandInterface* clone() const
+      {
+          return new AssignStringCommand( lhs.get(), rhs.get() );
+      }
+
+      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+          return new AssignStringCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
+      }
+  };
+
   template<typename T, typename Index, typename SetType, typename Pred>
   class AssignIndexCommand
     : public CommandInterface
@@ -127,7 +165,7 @@ namespace ORO_Execution
       typedef typename DataSource<SetType>::shared_ptr RHSSource;
       RHSSource rhs;
   public:
-      AssignIndexCommand( AssignableDataSource<T>* l, DataSource<Index>* index, DataSource<SetType>* r)
+      AssignIndexCommand( LHSSource l, IndexSource index, RHSSource r)
           : i(index),lhs( l ), rhs( r )
       {
       }

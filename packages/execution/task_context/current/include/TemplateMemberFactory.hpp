@@ -648,6 +648,14 @@ namespace ORO_Execution
         return _TF::produce( name, args );
       };
 
+      DataSourceBase* create(
+                             const std::string& name,
+                             const std::vector<DataSourceBase::shared_ptr>& args ) const
+      {
+          return _TF::produce( name, args );
+      };
+
+
     void add( const std::string& name,
               detail::TemplateFactoryPart<ComponentT, DataSourceBase*>* part )
       {

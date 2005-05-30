@@ -122,12 +122,12 @@ namespace ORO_Execution
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a and \a b.
        */ 
-    BinaryDataSource( DataSource<first_arg_t>* a,
-                      DataSource<second_arg_t>* b,
+    BinaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
+                      typename DataSource<second_arg_t>::shared_ptr b,
                       function f )
       : ma( a ), mb( b ), fun( f )
       {
-      };
+      }
 
     virtual value_t get() const
       {
@@ -174,13 +174,13 @@ namespace ORO_Execution
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a to \a c.
        */ 
-    TernaryDataSource( DataSource<first_arg_t>* a,
-                       DataSource<second_arg_t>* b,
-                       DataSource<third_arg_t>* c,
+    TernaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
+                       typename DataSource<second_arg_t>::shared_ptr b,
+                       typename DataSource<third_arg_t>::shared_ptr c,
                        function f )
       : ma( a ), mb( b ), mc( c ), fun( f )
       {
-      };
+      }
 
     virtual value_t get() const
       {
@@ -237,17 +237,17 @@ namespace ORO_Execution
        * \a f which is given argument \a a to \a f.
        */ 
     SixaryDataSource(
-                     DataSource<first_arg_t>* a,
-                     DataSource<second_arg_t>* b,
-                     DataSource<third_arg_t>* c,
-                     DataSource<fourth_arg_t>* d,
-                     DataSource<fifth_arg_t>* e,
-                     DataSource<sixth_arg_t>* f,
+                     typename DataSource<first_arg_t>::shared_ptr a,
+                     typename DataSource<second_arg_t>::shared_ptr b,
+                     typename DataSource<third_arg_t>::shared_ptr c,
+                     typename DataSource<fourth_arg_t>::shared_ptr d,
+                     typename DataSource<fifth_arg_t>::shared_ptr e,
+                     typename DataSource<sixth_arg_t>::shared_ptr f,
                        function _fun )
       : ma( a ), mb( b ), mc( c ),md( d ), me( e ), mf( f ),
         fun( _fun )
       {
-      };
+      }
 
     virtual value_t get() const
       {
@@ -302,10 +302,10 @@ namespace ORO_Execution
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a.
        */ 
-    UnaryDataSource( DataSource<arg_t>* a, function f )
+    UnaryDataSource( typename DataSource<arg_t>::shared_ptr a, function f )
       : ma( a ), fun( f )
       {
-      };
+      }
 
     virtual value_t get() const
       {

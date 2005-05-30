@@ -42,11 +42,19 @@
 #include <corelib/Property.hpp>
 #include "execution/TaskAttribute.hpp"
 #include "execution/parse_exception.hpp"
+#include <boost/bind.hpp>
 
 namespace ORO_Execution
 {
+    using namespace boost;
+
         FunctionFactory::FunctionFactory(Processor* procs) : proc(procs) {}
-        FunctionFactory::~FunctionFactory() {}
+        FunctionFactory::~FunctionFactory() {
+            while( !funcmap.empty() ) {
+                delete funcmap.begin()->second;
+                funcmap.erase(funcmap.begin());
+            }
+        }
 
         void FunctionFactory::addFunction(const std::string& name, FunctionGraph* f ) 
         {
@@ -61,7 +69,7 @@ namespace ORO_Execution
             std::vector<std::string> ret;
             std::transform( funcmap.begin(), funcmap.end(),
                             std::back_inserter( ret ),
-                            mystd::select1st<map_t::value_type>() );
+                            ORO_std::select1st<map_t::value_type>() );
             return ret;
         }
 
@@ -108,15 +116,28 @@ namespace ORO_Execution
 
         ComCon FunctionFactory::create( const std::string& command,
                        const ORO_CoreLib::PropertyBag& args,
-                       bool asyn  ) const {
-            // this method will become deprecated.
-            return ComCon(0,0);
+                       bool ) const {
+            std::vector<DataSourceBase::shared_ptr> dsVect;
+            std::transform( args.begin(), args.end(),
+                            std::back_inserter( dsVect ),
+                            bind( &ORO_CoreLib::PropertyBase::createDataSource, _1));
+            return this->create( command, dsVect );
         }
 
         ComCon FunctionFactory::create(
                       const std::string& command,
                       const std::vector<DataSourceBase*>& args,
-                      bool asyn  ) const {
+                      bool ) const {
+            std::vector<DataSourceBase::shared_ptr> dsVect;
+            for( std::vector<DataSourceBase*>::const_iterator i = args.begin(); i != args.end(); ++i )
+                dsVect.push_back( DataSourceBase::shared_ptr( *i ));
+            return this->create( command, dsVect );
+        }
+
+        ComCon FunctionFactory::create(
+                      const std::string& command,
+                      const std::vector<DataSourceBase::shared_ptr>& args,
+                      bool ) const {
             // We ignore asyn, since we CommandExecFunction is always asyn itself.
             if ( !hasCommand(command) )
                 throw name_not_found_exception();
@@ -130,13 +151,15 @@ namespace ORO_Execution
             // make a semi-deep copy of the function :
             // copy the local variables, but clone() the remote datasources.
             std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
-            boost::shared_ptr<FunctionGraph> copy( orig->copy( replacementdss ) );
+            assert( orig );
+            boost::shared_ptr<FunctionGraph> fcopy( orig->copy( replacementdss ) );
+            assert( fcopy );
             // create commands that init all the args :
             CommandComposite* icom=  new CommandComposite();
 
             // get the correct pointers.
-            origlist = copy->getArguments(); 
-            std::vector<DataSourceBase*>::const_iterator dit = args.begin();
+            origlist = fcopy->getArguments(); 
+            std::vector<DataSourceBase::shared_ptr>::const_iterator dit = args.begin();
             std::vector<TaskAttributeBase*>::const_iterator tit =  origlist.begin();
             try {
                 for (; dit != args.end(); ++dit, ++tit)
@@ -147,8 +170,12 @@ namespace ORO_Execution
                 int parnb = (dit - args.begin());
                 throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
             }
+
+            // the args of the copy can now safely be removed (saves memory):
+            fcopy->clearArguments();
+                
             // the command gets ownership of the new function :
-            CommandExecFunction* ecom = new CommandExecFunction( copy, proc );
+            CommandExecFunction* ecom = new CommandExecFunction( fcopy, proc );
             ConditionInterface*  con = ecom->createCondition();
             // first init, then dispatch the function.
             // init->execute() : once(asyn), ecom->execute() : until done (syn)

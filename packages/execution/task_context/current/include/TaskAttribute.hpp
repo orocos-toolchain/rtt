@@ -86,7 +86,7 @@ namespace ORO_Execution
      * does allow one assignment at initialization time, but no
      * further assignments..
      */
-    virtual CommandInterface* assignCommand( DataSourceBase* rhs,
+    virtual CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs,
                                              bool initialization ) const;
       /**
        * Create an assignment command of the TaskAttributeBase
@@ -95,8 +95,8 @@ namespace ORO_Execution
        * not applicable. It can not be used for initialisation.
        * @throw bad_assignment if rhs is of the wrong type.
        */
-    virtual CommandInterface* assignIndexCommand( DataSourceBase* index,
-                                                  DataSourceBase* rhs ) const;
+    virtual CommandInterface* assignIndexCommand( DataSourceBase::shared_ptr index,
+                                                  DataSourceBase::shared_ptr rhs ) const;
   };
 
     namespace detail
@@ -197,7 +197,7 @@ namespace ORO_Execution
       {
         return data.get();
       }
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );

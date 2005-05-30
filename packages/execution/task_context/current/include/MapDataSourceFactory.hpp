@@ -60,6 +60,7 @@ namespace ORO_Execution
         ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& method ) const;
         DataSourceBase* create( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const;
         DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
+        DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase::shared_ptr>& args ) const;
         std::string getDescription( const std::string& source ) const;
         std::string getResultType( const std::string& source ) const;
     private:

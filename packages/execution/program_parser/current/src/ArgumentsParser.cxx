@@ -75,20 +75,16 @@ namespace ORO_Execution
   void ArgumentsParser::seen_arg()
   {
     margs.push_back( expressionparser.getResult() );
-    margs.back()->ref();
     expressionparser.dropResult();
   }
 
   void ArgumentsParser::seenarguments()
   {
     mparsed = true;
-  };
+  }
 
   ArgumentsParser::~ArgumentsParser()
   {
-    // we release our reference to the parsed DataSources..
-    std::for_each( margs.begin(), margs.end(),
-                   std::mem_fun( &DataSourceBase::deref ) );
     margs.clear();
-  };
+  }
 }

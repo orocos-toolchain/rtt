@@ -97,13 +97,12 @@ namespace ORO_Execution
              *
              * Note that the Properties in the property bag have been
              * constructed using new, and the caller gains their
-             * ownership..  You should explicitly call
-             * deleteProperties on the bag after you're done with it..
+             * ownership.  You should explicitly call
+             * deleteProperties on the bag after you're done with it.
              * Store the PropertyBag in a PropertyBagOwner if you're
-             * affraid you'll forget it..
+             * affraid you'll forget it.
              *
-             * TODO: fix this requirement somehow..
-             * throws name_not_found_exception
+             * @throw name_not_found_exception
              */
             virtual ORO_CoreLib::PropertyBag
             getArgumentSpec( const std::string& command ) const = 0;
@@ -117,15 +116,15 @@ namespace ORO_Execution
              * @brief The companion to getArgumentSpec().  It takes a
              * PropertyBag, containing Property's of the same type and
              * in the same order as the ones that getArgumentSpec()
-             * returned, and constructs a ComCon with it..
+             * returned, and constructs a ComCon with it.
              *
              * this does not delete the properties in bag, as stated
              * above, if you obtained the propertybag from
              * getArgumentSpec, then you're responsible to delete
-             * it..
-             * throws name_not_found_exception,
-             * wrong_number_of_args_exception, and
-             * wrong_types_of_args_exception
+             * it.
+             * @throw name_not_found_exception
+             * @throw wrong_number_of_args_exception
+             * @throw wrong_types_of_args_exception
              */
             virtual ComCon create( const std::string& command,
                                    const ORO_CoreLib::PropertyBag& args,
@@ -142,10 +141,32 @@ namespace ORO_Execution
              * that they store.  These are rather complicated
              * requirements, you are encouraged to look at the
              * TemplateCommandFactory or its helper classes to do
-             * (some of) the work for you..  throws
-             * name_not_found_exception,
-             * wrong_number_of_args_exception, and
-             * wrong_types_of_args_exception
+             * (some of) the work for you.
+             * @throw name_not_found_exception
+             * @throw wrong_number_of_args_exception
+             * @throw wrong_types_of_args_exception
+             */
+            virtual ComCon create(
+                const std::string& command,
+                const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
+                bool asyn = true ) const = 0;
+
+            /**
+             * @brief Create a Command passing DataSources as the arguments.
+             *
+             * In this case, the command factory should *not* read out
+             * the DataSource's, but it should return a Command and a
+             * Condition that store the DataSources, and read them out
+             * in their execute() and evaluate() methods.  They should
+             * of course both keep a reference to the DataSource's
+             * that they store.  These are rather complicated
+             * requirements, you are encouraged to look at the
+             * TemplateCommandFactory or its helper classes to do
+             * (some of) the work for you.
+             * @throw name_not_found_exception
+             * @throw wrong_number_of_args_exception
+             * @throw wrong_types_of_args_exception
+             * @deprecated by create( const std::string&,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
              */
             virtual ComCon create(
                 const std::string& command,

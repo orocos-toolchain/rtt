@@ -109,7 +109,7 @@ namespace ORO_Execution
 
     std::vector<std::string> AttributeRepository::attributes() const
     {
-        return mystd::keys( values );
+        return ORO_std::keys( values );
     }
 
     PropertyBag* AttributeRepository::properties() const

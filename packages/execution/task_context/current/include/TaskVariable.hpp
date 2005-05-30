@@ -60,7 +60,7 @@ namespace ORO_Execution
       {
         return data.get();
       }
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
@@ -108,7 +108,7 @@ namespace ORO_Execution
         return data.get();
       }
 
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
@@ -117,7 +117,7 @@ namespace ORO_Execution
         return new AssignVariableCommand<T>( data.get(), t );
       }
 
-    CommandInterface* assignIndexCommand( DataSourceBase* index, DataSourceBase* rhs ) const
+    CommandInterface* assignIndexCommand( DataSourceBase::shared_ptr index, DataSourceBase::shared_ptr rhs ) const
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSourceBase::shared_ptr i( index );
@@ -155,12 +155,14 @@ namespace ORO_Execution
     ParsedIndexContainerVariable( T t)
         : ParsedIndexVariable<T,Index,SetType,Pred>( t )
       {
+          data->set().reserve( t.capacity() );
       }
     ParsedIndexContainerVariable( typename VariableDataSource<T>::shared_ptr d )
         : ParsedIndexVariable<T,Index,SetType,Pred>( d )
       {
+          data->set().reserve( d->get().capacity() );
       }
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool ) const
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
@@ -181,6 +183,50 @@ namespace ORO_Execution
               return new ParsedIndexContainerVariable( instds );
           }
         return new ParsedIndexContainerVariable( this->data->copy( replacements ) );
+      }
+  };
+
+    /**
+     * Overload assignCommand to check for string capacity and assign with 'c_str()'
+     */
+  template<typename T, typename Index, typename SetType, typename Pred>
+  struct ParsedStringVariable
+      : public ParsedIndexVariable<T,Index,SetType,Pred>
+  {
+    ParsedStringVariable( T t)
+        : ParsedIndexVariable<T,Index,SetType,Pred>( t )
+      {
+          data->set().reserve( t.capacity() );
+      }
+    ParsedStringVariable( typename VariableDataSource<T>::shared_ptr d )
+        : ParsedIndexVariable<T,Index,SetType,Pred>( d )
+      {
+          data->set().reserve( d->get().capacity() );
+      }
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
+      {
+        DataSourceBase::shared_ptr r( rhs );
+        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        if ( ! t )
+          throw bad_assignment();
+         // this single line causes the existence of this class. I wonder if I could
+        // not refactor the assigncommand out of this class such that all these special
+        // cases can be implemented by 1 class which gets the assigncommand from somewhere else.
+        return new AssignStringCommand<T>( this->data.get(), t );
+      }
+
+    ParsedStringVariable<T, Index, SetType,Pred>* clone() const
+      {
+        return new ParsedStringVariable( this->data );
+      }
+    ParsedStringVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate)
+      {
+          if (instantiate ) {
+              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
+              replacements[ this->data.get() ] = instds;
+              return new ParsedStringVariable( instds );
+          }
+        return new ParsedStringVariable( this->data->copy( replacements ) );
       }
   };
 
@@ -209,7 +255,7 @@ namespace ORO_Execution
       : ParsedVariable<T>( d )
       {
       }
-    CommandInterface* assignCommand( DataSourceBase* rhs, bool init ) const
+    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool init ) const
       {
         if ( init )
           return ParsedVariable<T>::assignCommand( rhs, init );

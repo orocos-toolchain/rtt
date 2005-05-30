@@ -33,6 +33,7 @@
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
 #include "DataSource.hpp"
+#include "Operators.hpp"
 #include "corelib/Time.hpp"
 
 #include <stack>
@@ -116,7 +117,7 @@ namespace ORO_Execution { namespace detail
      * We keep a reference to the DataSources in here, while they're
      * in here..
      */
-    std::stack<DataSourceBase*> parsestack;
+    std::stack<DataSourceBase::shared_ptr> parsestack;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -145,6 +146,7 @@ namespace ORO_Execution { namespace detail
       CommonParser commonparser;
       ValueParser valueparser;
       bool _invert_time;
+      boost::shared_ptr<OperatorRegistry> opreg;
   public:
     ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
@@ -159,7 +161,7 @@ namespace ORO_Execution { namespace detail
 
     rule_t& parser();
 
-    DataSourceBase* getResult();
+    DataSourceBase::shared_ptr getResult();
     // after an expression is parsed, the resultant DataSourceBase will
     // still be on top of the stack, and it should be removed before
     // going back down the parse stack.  This is what this function

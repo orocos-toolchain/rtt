@@ -116,7 +116,7 @@ namespace ORO_Execution
             std::vector<std::string> res;
             std::transform(_task_map.begin(), _task_map.end(),
                            std::back_inserter( res ),
-                           mystd::select1st<PeerMap::value_type>() );
+                           ORO_std::select1st<PeerMap::value_type>() );
             return res;
         }
 

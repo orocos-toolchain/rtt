@@ -334,7 +334,7 @@ namespace ORO_Execution
     };
 
     ProgramGraph::CommandNode ProgramGraph::appendFunction( ConditionInterface* cond, FunctionGraph* fn,
-                                                            std::vector<DataSourceBase*> fnargs )
+                                                            std::vector<DataSourceBase::shared_ptr> fnargs )
     {
         /**
          * This can be used if a function must be called conditionally.
@@ -369,7 +369,7 @@ namespace ORO_Execution
 
         // create commands that init all the args :
         CommandComposite* icom=  new CommandComposite();
-        std::vector<DataSourceBase*>::const_iterator dit = fnargs.begin();
+        std::vector<DataSourceBase::shared_ptr>::const_iterator dit = fnargs.begin();
         std::vector<TaskAttributeBase*>::const_iterator tit =  newlist.begin();
         try {
             for (; dit != fnargs.end(); ++dit, ++tit)
@@ -451,7 +451,7 @@ namespace ORO_Execution
     }
 
     ProgramGraph::CommandNode ProgramGraph::setFunction( FunctionGraph* fn,
-                                                         std::vector<DataSourceBase*> fnargs )
+                                                         std::vector<DataSourceBase::shared_ptr> fnargs )
     {
         /**
          * This function must/should be used when build has no edges yet leaving.

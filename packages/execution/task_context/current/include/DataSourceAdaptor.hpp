@@ -48,6 +48,8 @@ namespace ORO_Execution
      *            |/        |/   (copy to stack)   (copy to heap)
      *-----------------------------------------------------------
      * User  :  value    constref    value           constref
+     *
+     * (note : 2bis, 3bis and 4bis are cases for 'ref' instead of 'const ref')
      * @endverbatim
      *
      * If the internal format is constref and the user chooses value (3)
@@ -63,22 +65,25 @@ namespace ORO_Execution
      * for containers, for example.
      *
      * This implementation Adapts cases (1), (2) and (3). A
-     * specialisation in this same file implements (4).
+     * specialisation in this same file implements (4) and (4bis).
+     *
+     * Specialises for example DataSourceAdaptor<[const] int[&], int>
+     * DataSourceAdaptor<[const] int[&], const int>,
      */
     template<class From, class To>
     struct DataSourceAdaptor
         : public DataSource<To>
     {
-        DataSource<From>* orig_;
+        typename DataSource<From>::shared_ptr orig_;
 
-        DataSourceAdaptor( DataSource<From>* orig)
+        DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
     
-        virtual To get() { return orig_->get(); }
+        virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() { orig_->evaluate(); }
+        virtual void evaluate() const { orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -92,33 +97,34 @@ namespace ORO_Execution
                 return n;
             }
             typedef DataSourceAdaptor<From,To> CastType;
-            assert( dynamic_cast< CastType* >( i->second ) );
-            return static_cast< DataSourceAdaptor<From,To>* >( i->second );
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
         }
     };
 
     /**
-     * DataSourceAdaptor specialisation to not return a reference to a stack
+     * DataSourceAdaptor specialisation to not return a const reference to a stack
      * based variable ( case (4) ).
+     * Specialises for example DataSourceAdaptor<int, const int&>
      */
     template<class From>
     struct DataSourceAdaptor<From,const From&>
         : public DataSource<const From&>
     {
-        typedef From& To;
+        typedef const From& To;
 
-        DataSource<From>* orig_;
+        typename DataSource<From>::shared_ptr orig_;
 
-        DataSourceAdaptor( DataSource<From>* orig)
+        DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
 
-        From copy_;
+        mutable From copy_;  //! Store the result value.
 
-        virtual To get() { copy_ = orig_->get(); return copy_; }
+        virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() { orig_->evaluate(); }
+        virtual void evaluate() const { orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -132,26 +138,189 @@ namespace ORO_Execution
                 return n;
             }
             typedef DataSourceAdaptor<From,To> CastType;
-            assert( dynamic_cast< CastType* >( i->second ) );
-            return static_cast< DataSourceAdaptor<From,To>* >( i->second );
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
         }
 
     };
 
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by value >
+     * DataSourceAdaptor specialisation to not return a reference to a stack
+     * based variable ( case (4bis) ).
+     * Specialises for example 
+     * DataSourceAdaptor<const int, const int&>
      */
-    template< class Result >
+    template<class TFrom>
+    struct DataSourceAdaptor<const TFrom, const TFrom&>
+        : public DataSource<const TFrom&>
+    {
+        typedef const TFrom& To;
+        typedef const TFrom From;
+
+        typename DataSource<From>::shared_ptr orig_;
+
+        DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
+            : orig_(orig) {}
+
+        mutable TFrom copy_;  //! Store the result value.
+
+        virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
+
+        virtual void reset() { orig_->reset(); }
+
+        virtual void evaluate() const { orig_->evaluate(); }
+
+        virtual DataSource<To>* clone() const {
+            return new DataSourceAdaptor( orig_->clone() );
+        }
+
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+            if ( i == alreadyCloned.end() ) {
+                DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
+                alreadyCloned[this] = n;
+                return n;
+            }
+            typedef DataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
+        }
+
+    };
+
+    /**
+     * AssignableDataSourceAdaptor allows a conversion from an AssignableDataSource<T>
+     * to DataSource<[const] T [&]> which will return the result of the AssignableDataSource<T>::set()
+     * method in its get() (thus a reference to a heaped value).
+     */
+    template<class From, class To>
+    struct AssignableDataSourceAdaptor
+        : public DataSource<To>
+    {
+        typename AssignableDataSource<From>::shared_ptr orig_;
+
+        AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
+            : orig_(orig) {}
+
+        virtual typename DataSource<To>::result_t get() const { return orig_->set(); }
+
+        virtual void reset() { orig_->reset(); }
+
+        virtual void evaluate() const { orig_->evaluate(); }
+
+        virtual DataSource<To>* clone() const {
+            return new AssignableDataSourceAdaptor( orig_->clone() );
+        }
+
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+            if ( i == alreadyCloned.end() ) {
+                AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
+                alreadyCloned[this] = n;
+                return n;
+            }
+            typedef AssignableDataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
+        }
+
+    };
+
+    /**
+     * Try to adapt a DataSourceBase to a DataSource< by value >.
+     */
+    template< class TResult >
     struct AdaptDataSource
     {
-        DataSource<Result>* operator()( DataSourceBase* dsb) const
+        typedef TResult Result;
+
+        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
-            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb );
+            // equal case
+            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
             if (t1)
                 return t1;
-            DataSource<const Result&>* t2 = dynamic_cast<DataSource<const Result&>*>( dsb );
+
+            // const ref to value case
+            DataSource<const Result&>* t2 = dynamic_cast<DataSource<const Result&>*>( dsb.get() );
             if ( t2 )
                 return new DataSourceAdaptor<const Result&, Result>( t2 );
+
+            // ref to value case
+            DataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
+            if ( t3 )
+                return new DataSourceAdaptor<Result&, Result>( t3 );
+
+            // const value to value case
+            DataSource<const Result>* t4 = dynamic_cast<DataSource<const Result>*>( dsb.get() );
+            if ( t4 )
+                return new DataSourceAdaptor<const Result, Result>( t4 );
+
+            // complete type failure.
+            return 0;
+        }
+        
+    };
+
+    /**
+     * Try to adapt a DataSourceBase to a DataSource< by const value >.
+     */
+    template< class TResult >
+    struct AdaptDataSource< const TResult >
+    {
+        typedef const TResult Result;
+
+        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        {
+            // equal case
+            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
+            if (t1)
+                return t1;
+
+            // const ref to const value case
+            DataSource<const TResult&>* t2 = dynamic_cast<DataSource<const TResult&>*>( dsb.get() );
+            if ( t2 )
+                return new DataSourceAdaptor<const TResult&, Result>( t2 );
+
+            // ref to const value case
+            DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
+            if ( t3 )
+                return new DataSourceAdaptor<TResult&, Result>( t3 );
+
+            // value to const value case
+            DataSource<TResult>* t4 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
+            if ( t4 )
+                return new DataSourceAdaptor<TResult, Result>( t4 );
+
+            // complete type failure.
+            return 0;
+        }
+        
+    };
+
+    /**
+     * Try to adapt a DataSourceBase to a DataSource< by ref >.
+     * Only allow one 'conversion' : ref to ref. All the others are
+     * illegal in C++ too.
+     */
+    template< class TResult >
+    struct AdaptDataSource< TResult& >
+    {
+        typedef TResult& Result;
+
+        DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
+        {
+            // equal case
+            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
+            if (t1)
+                return t1;
+
+            // assignable case
+            AssignableDataSource<TResult>* t2 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
+            if (t2)
+                return new AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
+            
+            // complete type failure.
             return 0;
         }
         
@@ -159,22 +328,45 @@ namespace ORO_Execution
 
     /**
      * Try to adapt a DataSourceBase to a DataSource< by const reference > 
+     * Allows all conversions.
      */
-    template<class Result>
-    struct AdaptDataSource<const Result&>
+    template<class TResult>
+    struct AdaptDataSource<const TResult&>
     {
-        DataSource<const Result&>* operator()( DataSourceBase* dsb) const
+        DataSource<const TResult&>* operator()( DataSourceBase::shared_ptr dsb) const
         {
-            DataSource<const Result&>* t1 = dynamic_cast< DataSource<const Result&>*>( dsb );
+            // equal case
+            DataSource<const TResult&>* t1 = dynamic_cast< DataSource<const TResult&>*>( dsb.get() );
             if (t1)
                 return t1;
-            DataSource<Result>* t2 = dynamic_cast<DataSource<Result>*>( dsb );
+
+            // value to const ref case
+            DataSource<TResult>* t2 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
             if ( t2 )
-                return new DataSourceAdaptor<Result, const Result&>( t2 );
+                return new DataSourceAdaptor<TResult, const TResult&>( t2 );
+
+            // ref to const ref case
+            DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
+            if ( t3 )
+                return new DataSourceAdaptor<TResult&, const TResult&>( t3 );
+
+            // const value to const ref case
+            DataSource<const TResult>* t4 = dynamic_cast<DataSource<const TResult>*>( dsb.get() );
+            if ( t4 )
+                return new DataSourceAdaptor<const TResult, const TResult&>( t4 );
+
+            // assignable case
+            AssignableDataSource<TResult>* ta1 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
+            if (ta1)
+                return new AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
+            
+
+            // complete type failure.
             return 0;
         }
         
     };
+
     }
 }
 

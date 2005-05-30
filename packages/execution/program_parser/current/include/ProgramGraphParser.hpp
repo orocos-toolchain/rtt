@@ -70,6 +70,11 @@ namespace ORO_Execution { namespace detail
        */
       TaskContext* context;
 
+      /**
+       * The current function context where we are working in.
+       */
+      TaskContext* fcontext;
+
       our_pos_iter_t& mpositer;
 
       // helper variable to detect if we are in 'try' or 'do'
@@ -94,7 +99,7 @@ namespace ORO_Execution { namespace detail
       // current command from the CommandParser..
       ConditionInterface* implcond;
       std::vector<ConditionInterface*> implcond_v;
-      std::vector<DataSourceBase*> callfnargs;
+      std::vector<DataSourceBase::shared_ptr> callfnargs;
 
       // last seen condition
       ConditionInterface* mcondition;

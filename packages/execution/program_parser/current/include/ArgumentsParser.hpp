@@ -55,9 +55,8 @@ namespace ORO_Execution  { namespace detail
    */
   class ArgumentsParser
   {
-    // the arguments we have already parsed.  We take a reference to
-    // them when they reach us, and release it in the destructor
-    std::vector<DataSourceBase*> margs;
+    // the arguments we have already parsed.
+    std::vector<DataSourceBase::shared_ptr> margs;
     bool mparsed;
 
     rule_t arguments, argument;
@@ -89,19 +88,15 @@ namespace ORO_Execution  { namespace detail
     rule_t& parser()
       {
         return arguments;
-      };
+      }
 
     /**
-     * Get the parsed DataSource's..
-     * ArgumentsParser holds a reference to the returned DataSource's,
-     * but releases it in its destructor..  You should take a
-     * reference yourself if you're going to be using them after
-     * that..
+     * Get the parsed DataSource's.
      */
-    std::vector<DataSourceBase*> result()
+    std::vector<DataSourceBase::shared_ptr> result()
       {
         return margs;
-      };
+      }
     /**
      * Some syntaxes allow an argument list to be left out, and then
      * this variable is useful to find out whether an argument list
@@ -110,16 +105,16 @@ namespace ORO_Execution  { namespace detail
     bool parsed() const
       {
         return mparsed;
-      };
+      }
 
     std::string objectname()
       {
         return mobject;
-      };
+      }
     std::string methodname()
       {
         return mmethod;
-      };
+      }
   };
 }}
 

@@ -39,7 +39,6 @@ namespace ORO_Execution {
     // we don't use setEntryProgram cause that deletes the old
     // program...
     mentry = mhandle = mexit = 0;
-    name.clear();
     setDefined( false );
     return ret;
   }

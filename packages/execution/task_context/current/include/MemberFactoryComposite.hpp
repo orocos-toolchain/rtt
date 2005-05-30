@@ -110,6 +110,15 @@ namespace ORO_Execution
                 return one->create(member, args);
             return other->create(member, args);
         }
+
+        ORO_CoreLib::DataSourceBase* create(
+                      const std::string& member,
+                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const
+        {
+            if ( one->hasMember( member ) )
+                return one->create(member, args);
+            return other->create(member, args);
+        }
     };
 }
 

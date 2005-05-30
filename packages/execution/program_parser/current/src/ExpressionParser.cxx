@@ -159,7 +159,9 @@ namespace ORO_Execution
     argparsers.pop();
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
+    std::vector<DataSourceBase::shared_ptr> args = argspar->result();
     TaskContext* peer = argspar->peer();
+    delete argspar;
 
     const GlobalDataSourceFactory& gdsf =
       peer->dataFactory;
@@ -172,14 +174,9 @@ namespace ORO_Execution
     // in seendataname()..
 
     if ( dfi && dfi->hasMember(meth) ) {
-        PropertyBagOwner argsspec( dfi->getArgumentSpec( meth ) );
-        bool needargs = !argsspec.bag.getProperties().empty();
-        if ( ! argspar->parsed() && needargs )
-            throw parse_exception_wrong_number_of_arguments
-                (obj, meth, argsspec.bag.getProperties().size(), 0 );
         try
             {
-                ret = dfi->create( meth, argspar->result() );
+                ret = dfi->create( meth, args );
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -196,14 +193,9 @@ namespace ORO_Execution
                 assert( false );
             };
     } else if (mfi && mfi->hasMember(meth)) {
-        PropertyBagOwner argsspec( mfi->getArgumentSpec( meth ) );
-        bool needargs = !argsspec.bag.getProperties().empty();
-        if ( ! argspar->parsed() && needargs )
-            throw parse_exception_wrong_number_of_arguments
-                (obj, meth, argsspec.bag.getProperties().size(), 0 );
         try
             {
-                ret = mfi->create( meth, argspar->result() );
+                ret = mfi->create( meth, args );
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -262,7 +254,8 @@ namespace ORO_Execution
   ExpressionParser::ExpressionParser( TaskContext* pc )
       : context( pc ), datacallparser( *this, pc ),
         valueparser( pc ),
-        _invert_time(false)
+        _invert_time(false),
+        opreg( OperatorRegistry::instance() )
   {
     BOOST_SPIRIT_DEBUG_RULE( expression );
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );
@@ -527,10 +520,9 @@ namespace ORO_Execution
     case 'u': total = nsecs * 1000;
     };
 
-    DataSourceBase* dsb = new DataSourceCondition(
-      new ConditionDuration( total, _invert_time ) );
+    DataSourceBase::shared_ptr dsb( new DataSourceCondition(
+      new ConditionDuration( total, _invert_time ) ) );
     _invert_time = false;
-    dsb->ref();
     parsestack.push( dsb );
   }
 
@@ -558,52 +550,43 @@ namespace ORO_Execution
   void ExpressionParser::seenvalue()
   {
     DataSourceBase::shared_ptr ds = valueparser.lastParsed();
-    ds.get()->ref();
-    parsestack.push( ds.get() );
-  };
+    parsestack.push( ds );
+  }
 
   void ExpressionParser::seendatacall()
   {
-    DataSourceBase* n = datacallparser.getParseResult();
-    n->ref();
-    parsestack.push( n );
-  };
+      DataSourceBase::shared_ptr n( datacallparser.getParseResult() );
+      parsestack.push( n );
+  }
 
   ExpressionParser::~ExpressionParser()
   {
-    // if parsestack is not empty, then something went wrong, someone
-    // threw an exception, so we clean up..
-    while ( !parsestack.empty() )
-    {
-      parsestack.top()->deref();
-      parsestack.pop();
-    }
-  };
+      // if parsestack is not empty, then something went wrong, someone
+      // threw an exception, so we clean up..
+      while ( !parsestack.empty() )
+          parsestack.pop();
+  }
 
   rule_t& ExpressionParser::parser()
   {
     return expression;
-  };
+  }
 
-  DataSourceBase* ExpressionParser::getResult()
+  DataSourceBase::shared_ptr ExpressionParser::getResult()
   {
     assert( !parsestack.empty() );
     return parsestack.top();
-  };
+  }
 
   void ExpressionParser::seen_unary( const std::string& op )
   {
     DataSourceBase::shared_ptr arg( parsestack.top() );
-    // we still have a reference to this DataSource that we took when
-    // we pushed it up the parsestack..
-    arg->deref();
     parsestack.pop();
-    DataSourceBase* ret =
-      OperatorRegistry::instance().applyUnary( op, arg.get() );
+    DataSourceBase::shared_ptr ret =
+        opreg->applyUnary( op, arg.get() );
     if ( ! ret )
-      throw parse_exception_fatal_semantic_error( "Cannot apply unary operator \"" + op +
-                                            "\" to " + arg->getType() +"." );
-    ret->ref();
+        throw parse_exception_fatal_semantic_error( "Cannot apply unary operator \"" + op +
+                                                    "\" to " + arg->getType() +"." );
     parsestack.push( ret );
   };
 
@@ -612,16 +595,12 @@ namespace ORO_Execution
       std::string member(s,f);
       // inspirired on seen_unary
     DataSourceBase::shared_ptr arg( parsestack.top() );
-    // we still have a reference to this DataSource that we took when
-    // we pushed it up the parsestack..
-    arg->deref();
     parsestack.pop();
-    DataSourceBase* ret =
-      OperatorRegistry::instance().applyDot( member, arg.get() );
+    DataSourceBase::shared_ptr ret =
+      opreg->applyDot( member, arg.get() );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( arg->getType() + " does not have member \"" + member +
                                             "\"." );
-    ret->ref();
     parsestack.push( ret );
   };
 
@@ -632,19 +611,13 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr arg2( parsestack.top() );
     parsestack.pop();
 
-    // we still have a reference to these, that we took when
-    // we pushed it up the parsestack..
-    arg1->deref();
-    arg2->deref();
-
     // Arg2 is the first (!) argument, as it was pushed on the stack
     // first.
-    DataSourceBase* ret =
-      OperatorRegistry::instance().applyBinary( op, arg2.get(), arg1.get() );
+    DataSourceBase::shared_ptr ret =
+      opreg->applyBinary( op, arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
                                             " "+arg1->getType() +"." );
-    ret->ref();
     parsestack.push( ret );
   };
 
@@ -657,21 +630,14 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr arg3( parsestack.top() );
     parsestack.pop();
 
-    // we still have a reference to these, that we took when
-    // we pushed it up the parsestack..
-    arg1->deref();
-    arg2->deref();
-    arg3->deref();
-
     // Arg3 is the first (!) argument, as it was pushed on the stack
     // first.
-    DataSourceBase* ret =
-      OperatorRegistry::instance().applyTernary( op, arg3.get(),
-                                                 arg2.get(), arg1.get() );
+    DataSourceBase::shared_ptr ret =
+      opreg->applyTernary( op, arg3.get(),
+                           arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply ternary operator \"" + op +
                                             "\" to "+ arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
-    ret->ref();
     parsestack.push( ret );
   };
 
@@ -690,32 +656,21 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr arg6( parsestack.top() );
     parsestack.pop();
 
-    // we still have a reference to these, that we took when
-    // we pushed it up the parsestack..
-    arg1->deref();
-    arg2->deref();
-    arg3->deref();
-    arg4->deref();
-    arg5->deref();
-    arg6->deref();
-
     // Arg6 is the first (!) argument, as it was pushed on the stack
     // first.
-    DataSourceBase* ret =
-        OperatorRegistry::instance().applySixary( op,
-                                                  arg6.get(), arg5.get(), arg4.get(),
-                                                  arg3.get(), arg2.get(), arg1.get() );
+    DataSourceBase::shared_ptr ret =
+        opreg->applySixary( op,
+                            arg6.get(), arg5.get(), arg4.get(),
+                            arg3.get(), arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply sixary operator \"" + op +
                                             "\" to "+ arg6->getType()+", " + arg5->getType()+", " + arg4->getType() +", " +
                                             arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
-    ret->ref();
     parsestack.push( ret );
   };
 
   void ExpressionParser::dropResult()
   {
-    parsestack.top()->deref();
     parsestack.pop();
   }
 }

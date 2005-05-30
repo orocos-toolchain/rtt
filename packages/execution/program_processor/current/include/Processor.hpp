@@ -210,6 +210,11 @@ namespace ORO_Execution
         StateMachineStatus::status getStateMachineStatus(const std::string& name) const;
 
         /**
+         * Return the status of a StateMachine as a human readable string
+         */
+        std::string getStateMachineStatusStr(const std::string& name) const;
+
+        /**
          * Load a new Program.
          * @return false if a program with the same name already exists.
          * @throw program_load_exception if a state machine with the same name already exists.
@@ -253,6 +258,11 @@ namespace ORO_Execution
          * Return the status of a Program.
          */
         ProgramStatus::status getProgramStatus(const std::string& name) const;
+
+        /**
+         * Return the status of a Program as a human readable string.
+         */
+        std::string getProgramStatusStr(const std::string& name) const;
 
         /**
          * Use this method to run the Processor in blocked (non periodic) mode.

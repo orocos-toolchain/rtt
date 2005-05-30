@@ -30,6 +30,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/call_traits.hpp>
+#include <boost/bind.hpp>
 
 #include <vector>
 #include <map>
@@ -42,6 +43,7 @@
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Property.hpp>
 #include "DataSource.hpp"
+#include "DataSourceAdaptor.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
 
@@ -173,13 +175,7 @@ namespace ORO_Execution
        * Create one part (function object) for a given component.
        */
     virtual ResultT produce( ComponentT* com,
-                             const PropertyBag& args ) const = 0;
-      /**
-       * Create one part (function object) for a given component.
-       */
-    virtual ResultT produce(
-      ComponentT* com,
-      const std::vector<DataSourceBase*>& args ) const = 0;
+                             const std::vector<DataSourceBase::shared_ptr>& args ) const = 0;
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT>
@@ -209,17 +205,9 @@ namespace ORO_Execution
         return std::vector<ArgumentDescription>();
       }
 
-    ResultT produce( ComponentT* c, const PropertyBag& bag ) const
-      {
-        if ( ! bag.getProperties().empty() )
-          throw wrong_number_of_args_exception(
-           0,  bag.getProperties().size() );
-        return fun( c );
-      }
-
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase*>& args ) const
+      const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
         if ( ! args.empty() )
           throw wrong_number_of_args_exception( 0, args.size() );
@@ -233,7 +221,6 @@ namespace ORO_Execution
     : public TemplateFactoryPart<ComponentT, ResultT>
   {
     typedef FunctorT fun_t;
-//     typedef typename remove_cr<FirstArgumentT>::type first_argument_type;
     typedef FirstArgumentT first_argument_type;
     fun_t fun;
     const char* arg1name;
@@ -265,29 +252,17 @@ namespace ORO_Execution
         return ret;
       }
 
-    ResultT produce( ComponentT* c, const PropertyBag& bag ) const
-      {
-        PropertyBag::PropertyContainerType props = bag.getProperties();
-        if ( props.size() != 1 )
-          throw wrong_number_of_args_exception( 1, props.size() );
-        Property<first_argument_type>* arg1 =
-          dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( ! arg1 )
-          throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
-        return fun( c, arg1->get() );
-      }
-
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase*>& args ) const
+      const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
         if ( args.size() != 1 )
-          throw wrong_number_of_args_exception( 1, args.size() );
-        DataSource<first_argument_type>* a =
-          dynamic_cast<DataSource<first_argument_type>*>( args[0] );
+            throw wrong_number_of_args_exception( 1, args.size() );
+        typename DataSource<first_argument_type>::shared_ptr a =
+            AdaptDataSource<first_argument_type>()( args[0] );
         if ( ! a )
-          throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
-        return fun( comp, a );
+            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
+        return fun( comp, a.get() );
       }
   };
 
@@ -299,10 +274,6 @@ namespace ORO_Execution
     typedef FunctorT fun_t;
     typedef FirstArgumentT first_argument_type;
     typedef SecondArgumentT second_argument_type;
-//     typedef typename remove_cr<FirstArgumentT>::type
-//       first_argument_type;
-//     typedef typename remove_cr<SecondArgumentT>::type
-//       second_argument_type;
     fun_t fun;
     const char* arg1name;
     const char* arg1desc;
@@ -338,32 +309,22 @@ namespace ORO_Execution
         ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
         return ret;
       }
-    ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
-      {
-        PropertyBag::PropertyContainerType props = bag.getProperties();
-        if ( props.size() != 2 )
-          throw wrong_number_of_args_exception( 2, props.size() );
-        Property<first_argument_type>* arg1 =
-          dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( ! arg1 ) throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
-        Property<second_argument_type>* arg2 =
-          dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 ) throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
-        return fun( comp, arg1->get(), arg2->get() );
-      }
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
+
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
         if ( args.size() != 2 )
           throw wrong_number_of_args_exception( 2, args.size() );
-        DataSource<first_argument_type>* a =
-          dynamic_cast<DataSource<first_argument_type>*>( args[0] );
+
+        typename DataSource<first_argument_type>::shared_ptr a =
+          AdaptDataSource<first_argument_type>()( args[0] );
         if ( !a ) 
             throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
-        DataSource<second_argument_type>* b =
-          dynamic_cast<DataSource<second_argument_type>*>( args[1] );
+        typename DataSource<second_argument_type>::shared_ptr b =
+          AdaptDataSource<second_argument_type>()( args[1] );
         if ( !b ) 
             throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
-        return fun( comp, a, b );
+
+        return fun( comp, a.get(), b.get() );
       }
   };
 
@@ -377,12 +338,6 @@ namespace ORO_Execution
     typedef FirstArgumentT first_argument_type;
     typedef SecondArgumentT second_argument_type;
     typedef ThirdArgumentT  third_argument_type;
-//     typedef typename remove_cr<FirstArgumentT>::type
-//       first_argument_type;
-//     typedef typename remove_cr<SecondArgumentT>::type
-//       second_argument_type;
-//     typedef typename remove_cr<ThirdArgumentT>::type
-//       third_argument_type;
 
     fun_t fun;
     const char* arg1name;
@@ -426,42 +381,25 @@ namespace ORO_Execution
           return mlist;
       }
 
-    ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
-      {
-        PropertyBag::PropertyContainerType props = bag.getProperties();
-        if ( props.size() != 3 )
-          throw wrong_number_of_args_exception( 3, props.size() );
-        Property<first_argument_type>* arg1 =
-          dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( !arg1 ) 
-            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
-        Property<second_argument_type>* arg2 =
-          dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 ) 
-            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
-        Property<third_argument_type>* arg3 =
-          dynamic_cast<Property<third_argument_type>*>( props[2] );
-        if ( !arg3 ) 
-            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), props[2]->getName() );
-        return fun( comp, arg1->get(), arg2->get(), arg3->get() );
-      }
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
         if ( args.size() != 3 )
           throw wrong_number_of_args_exception( 3, args.size() );
-        DataSource<first_argument_type>* a =
-          dynamic_cast<DataSource<first_argument_type>*>( args[0] );
-        if ( !a )
+
+        typename DataSource<first_argument_type>::shared_ptr a =
+          AdaptDataSource<first_argument_type>()( args[0] );
+        if ( !a ) 
             throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
-        DataSource<second_argument_type>* b =
-          dynamic_cast<DataSource<second_argument_type>*>( args[1] );
-        if ( !b )
+        typename DataSource<second_argument_type>::shared_ptr b =
+          AdaptDataSource<second_argument_type>()( args[1] );
+        if ( !b ) 
             throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
-        DataSource<third_argument_type>* c =
-          dynamic_cast<DataSource<third_argument_type>*>( args[2] );
-        if ( !c )
+        typename DataSource<third_argument_type>::shared_ptr c =
+          AdaptDataSource<third_argument_type>()( args[2] );
+        if ( !c ) 
             throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
-        return fun( comp, a, b, c );
+
+        return fun( comp, a.get(), b.get(), c.get() );
       }
   };
 
@@ -476,14 +414,6 @@ namespace ORO_Execution
     typedef SecondArgumentT second_argument_type;
     typedef ThirdArgumentT  third_argument_type;
     typedef FourthArgumentT  fourth_argument_type;
-//     typedef typename remove_cr<FirstArgumentT>::type
-//       first_argument_type;
-//     typedef typename remove_cr<SecondArgumentT>::type
-//       second_argument_type;
-//     typedef typename remove_cr<ThirdArgumentT>::type
-//       third_argument_type;
-//     typedef typename remove_cr<FourthArgumentT>::type
-//       fourth_argument_type;
 
     fun_t fun;
     const char* arg1name;
@@ -533,50 +463,28 @@ namespace ORO_Execution
           return mlist;
       }
 
-    ResultT produce( ComponentT* comp, const PropertyBag& bag ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
-        PropertyBag::PropertyContainerType props = bag.getProperties();
-        if ( props.size() != 4 )
-          throw wrong_number_of_args_exception( 4, props.size() );
-        Property<first_argument_type>* arg1 =
-          dynamic_cast<Property<first_argument_type>*>( props[0] );
-        if ( !arg1 )
-            throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), props[0]->getName() );
-        Property<second_argument_type>* arg2 =
-          dynamic_cast<Property<second_argument_type>*>( props[1] );
-        if ( !arg2 )
-            throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), props[1]->getName() );
-        Property<third_argument_type>* arg3 =
-          dynamic_cast<Property<third_argument_type>*>( props[2] );
-        if ( !arg3 )
-            throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), props[2]->getName() );
-        Property<fourth_argument_type>* arg4 =
-          dynamic_cast<Property<fourth_argument_type>*>( props[3] );
-        if ( !arg4 )
-            throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), props[3]->getName() );
-        return fun( comp, arg1->get(), arg2->get(), arg3->get(), arg4->get() );
-      }
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase*>& args ) const
-      {
-        if ( args.size() != 3 )
-          throw wrong_number_of_args_exception( 3, args.size() );
-        DataSource<first_argument_type>* a =
-          dynamic_cast<DataSource<first_argument_type>*>( args[0] );
-        if ( !a )
+        if ( args.size() != 4 )
+          throw wrong_number_of_args_exception( 4, args.size() );
+
+        typename DataSource<first_argument_type>::shared_ptr a =
+          AdaptDataSource<first_argument_type>()( args[0] );
+        if ( !a ) 
             throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
-        DataSource<second_argument_type>* b =
-          dynamic_cast<DataSource<second_argument_type>*>( args[1] );
-        if ( !b )
+        typename DataSource<second_argument_type>::shared_ptr b =
+          AdaptDataSource<second_argument_type>()( args[1] );
+        if ( !b ) 
             throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
-        DataSource<third_argument_type>* c =
-          dynamic_cast<DataSource<third_argument_type>*>( args[2] );
-        if ( !c )
+        typename DataSource<third_argument_type>::shared_ptr c =
+          AdaptDataSource<third_argument_type>()( args[2] );
+        if ( !c ) 
             throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
-        DataSource<fourth_argument_type>* d =
-          dynamic_cast<DataSource<fourth_argument_type>*>( args[3] );
+        typename DataSource<fourth_argument_type>::shared_ptr d =
+          AdaptDataSource<fourth_argument_type>()( args[3] );
         if ( !d )
             throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), args[3]->getType() );
-        return fun( comp, a, b, c, d );
+        return fun( comp, a.get(), b.get(), c.get(), d.get() );
       }
   };
     /**
@@ -691,7 +599,7 @@ namespace ORO_Execution
         std::vector<std::string> ret;
         std::transform( data.begin(), data.end(),
                         std::back_inserter( ret ),
-                        mystd::select1st<typename map_t::value_type>() );
+                        ORO_std::select1st<typename map_t::value_type>() );
         return ret;
       }
 
@@ -704,11 +612,27 @@ namespace ORO_Execution
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();
-        return i->second->produce( comp, args );
+        std::vector<DataSourceBase::shared_ptr> dsVect;
+        std::transform( args.begin(), args.end(),
+                        std::back_inserter( dsVect ),
+                        boost::bind( &ORO_CoreLib::PropertyBase::createDataSource, _1));
+        return i->second->produce( comp, dsVect );
       }
 
     ResultT produce( const std::string& name,
                      const std::vector<DataSourceBase*>& args ) const
+      {
+        typename map_t::const_iterator i = data.find( name );
+        if ( i == data.end() ) throw name_not_found_exception();
+        std::vector<DataSourceBase::shared_ptr> dsVect;
+        std::vector<DataSourceBase*>::const_iterator di(args.begin());
+        for( ; di != args.end(); ++di )
+            dsVect.push_back( DataSourceBase::shared_ptr( *di ) );
+        return i->second->produce( comp, dsVect );
+      }
+
+    ResultT produce( const std::string& name,
+                     const std::vector<DataSourceBase::shared_ptr>& args ) const
       {
         typename map_t::const_iterator i = data.find( name );
         if ( i == data.end() ) throw name_not_found_exception();

@@ -76,6 +76,10 @@ namespace ORO_Execution
         ComCon create(const std::string& command,
                       const std::vector<ORO_CoreLib::DataSourceBase*>& args,
                       bool asyn = true ) const;
+
+        ComCon create(const std::string& command,
+                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
+                      bool asyn = true ) const;
     };
 }
 

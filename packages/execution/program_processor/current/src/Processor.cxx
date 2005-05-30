@@ -44,6 +44,7 @@ namespace ORO_Execution
     using boost::bind;
     using namespace std;
     using ORO_OS::MutexLock;
+    using namespace ORO_CoreLib;
 
         struct Processor::ProgramInfo
         {
@@ -244,6 +245,20 @@ namespace ORO_Execution
 
     Processor::~Processor()
     {
+        while ( !programs->empty() ) {
+            Logger::log() << Logger::Info << "Processor deletes Program "<< programs->begin()->first << "..."<<Logger::endl;
+            this->deleteProgram( programs->begin()->first );
+        }
+        
+
+        while ( !states->empty() ) {
+            // try to unload all
+            try {
+                Logger::log() << Logger::Info << "Processor deletes StateMachine "<< states->begin()->first << "..."<<Logger::endl;
+                this->deleteStateMachine( states->begin()->first );
+            } catch (...) {}
+        }
+            
         delete programs;
         delete states;
         delete a_queue;
@@ -261,6 +276,29 @@ namespace ORO_Execution
         return it->second.pstate;
      }
 
+     std::string Processor::getProgramStatusStr(const std::string& name) const
+     {
+        switch ( getProgramStatus( name ))
+            {
+            case Processor::ProgramStatus::unloaded:
+                return "unloaded";
+                break;
+            case Processor::ProgramStatus::stopped:
+                return "stopped";
+                break;
+            case Processor::ProgramStatus::running:
+                return "running";
+                break;
+            case Processor::ProgramStatus::stepmode:
+                return "paused";
+                break;
+            case Processor::ProgramStatus::error:
+                return "error";
+                break;
+            }
+        return "na";
+     }
+
      Processor::StateMachineStatus::status Processor::getStateMachineStatus(const std::string& name) const
      {
         state_iter it =
@@ -268,6 +306,47 @@ namespace ORO_Execution
         if ( it == states->end() )
             return StateMachineStatus::unloaded;
         return it->second.sstate;
+     }
+
+     std::string Processor::getStateMachineStatusStr(const std::string& name) const
+     {
+        switch ( getStateMachineStatus( name ))
+            {
+            case Processor::StateMachineStatus::unloaded:
+                return "unloaded";
+                break;
+            case Processor::StateMachineStatus::inactive:
+                return "inactive";
+                break;
+            case Processor::StateMachineStatus::stopping:
+                return "stopping";
+                break;
+            case Processor::StateMachineStatus::stopped:
+                return "stopped";
+                break;
+            case Processor::StateMachineStatus::running:
+                return "running";
+                break;
+            case Processor::StateMachineStatus::paused:
+                return "paused";
+                break;
+            case Processor::StateMachineStatus::active:
+                return "active";
+                break;
+            case Processor::StateMachineStatus::activating:
+                return "activating";
+                break;
+            case Processor::StateMachineStatus::deactivating:
+                return "deactivating";
+                break;
+            case Processor::StateMachineStatus::resetting:
+                return "resetting";
+                break;
+            case Processor::StateMachineStatus::error:
+                return "error";
+                break;
+            }
+        return "na";
      }
 
 

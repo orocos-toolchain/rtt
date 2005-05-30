@@ -71,7 +71,7 @@ namespace ORO_Execution
 
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
-      : rootc( t ),context(t), mpositer( positer ),
+      : rootc( t ),context(t), fcontext(0), mpositer( positer ),
         mfunc(0), mcallfunc(0), 
         implcond(0), mcondition(0), try_cond(0), dc(0),
         conditionparser( context ),
@@ -275,6 +275,7 @@ namespace ORO_Execution
         ln_offset = offset;
         // as long as there is no FunctionGraph generator,
         // (ab)use ProgramGraph to factory a function body
+        assert(program_graph == 0 );
         program_graph = new ProgramGraph( name, 0 );
         mfunc = program_graph->startFunction(name);
         this->setStack( stck );
@@ -320,7 +321,6 @@ namespace ORO_Execution
       context->attributeRepository.setValue(
       "done", new detail::ParsedAlias<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
-      dc = 0;
   }
 
   void ProgramGraphParser::seendostatement()
@@ -398,21 +398,25 @@ namespace ORO_Execution
       // referencing.
       std::string funcdef(begin, end);
       // store the function in the TaskContext current.__functions
-      TaskContext* __f = rootc->getPeer("__functions");
-      if ( __f == 0 ) {
-          // install the __functions if not yet present.
-          __f = new TaskContext("__functions", rootc->getProcessor() );
-          rootc->connectPeers( __f );
-      }
+//       TaskContext* __f = rootc->getPeer("__functions");
+//       if ( __f == 0 ) {
+//           // install the __functions if not yet present.
+//           __f = new TaskContext("__functions", rootc->getProcessor() );
+//           rootc->connectPeers( __f );
+//       }
 
-      if ( __f->hasPeer( funcdef ) )
+//       if ( __f->hasPeer( funcdef ) )
+      if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
+
+      if ( exportf && rootc->commandFactory.hasCommand("this", funcdef ))
+          throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfunc = mfuncs[funcdef] = program_graph->startFunction( funcdef );
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      context = new TaskContext(funcdef, rootc->getProcessor() );
+      fcontext = context = new TaskContext(funcdef, rootc->getProcessor() );
       context->addPeer(rootc);
       context->addPeer(rootc,"task");
       // variables are always on foo's 'stack'
@@ -427,7 +431,7 @@ namespace ORO_Execution
       // the ValueChangeParser stores each variable in the
       // current stack's repository, but we need to inform the
       // FunctionGraph itself about its arguments.
-      mfunc->addArgument( valuechangeparser.lastDefinedValue() );
+      mfunc->addArgument( valuechangeparser.lastDefinedValue()->clone() );
       valuechangeparser.reset();
   }
 
@@ -441,22 +445,22 @@ namespace ORO_Execution
 
       // export the function in the context's interface.
       if (exportf) {
-          if (rootc->commandFactory.hasCommand("this", mfunc->getName() ))
-              throw parse_exception_semantic_error("exported function " + mfunc->getName() + " is already defined in "+ rootc->getName()+".");;
           FunctionFactory* cfi = new FunctionFactory( rootc->getProcessor() ); // execute in the processor which has the command.
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           cfi->addFunction( mfunc->getName() , mfunc->copy(dummy) );
           rootc->commandFactory.registerObject("this", cfi );
           // remove from mfuncs :
           // mfuncs.erase( mfunc->getName() );
+          // delete mfunc;
       } else {
           // store for 'call func'
           // all went fine, so cleanup.
           // store the function in __functions 
-          rootc->getPeer("__functions")->addPeer( context );
+          //rootc->getPeer("__functions")->addPeer( fcontext );
       }
 
-      context = 0;
+      delete fcontext;
+      context = fcontext = 0;
 
       // reset
       mfunc = 0;
@@ -476,7 +480,7 @@ namespace ORO_Execution
        // do we need to wrap the condition in a dispatch condition ?
        // if so, mcondition is only evaluated if the command is dispatched.
        if ( dc )
-          mcondition = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), mcondition->clone() );
+          mcondition = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), mcondition );
 
        // leaves the condition in the parser, if we want to use
        // getParseResultAsCommand();
@@ -729,6 +733,7 @@ namespace ORO_Execution
 
     // we need this, because if we encounter a function def,
     // a program_graph must be present.
+    assert(program_graph == 0 );
     program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() )); 
     
     try {
@@ -790,6 +795,7 @@ namespace ORO_Execution
 
     // we need this, because if we encounter a function def,
     // a program_graph must be present.
+    assert(program_graph == 0 );
     program_graph = new ProgramGraph("Default", new TaskContext("Default", rootc->getProcessor() )); 
     
     try {
@@ -848,32 +854,26 @@ namespace ORO_Execution
       try_cond = 0;
       delete dc;
       dc = 0;
-      delete mfunc;
       mfunc = 0;
       delete for_init_command;
       for_init_command = 0;
       delete for_incr_command;
       for_incr_command = 0;
       // cleanup all functions :
+      delete fcontext;
+      fcontext = 0;
       if ( rootc == 0)
           return;
-      TaskContext* __f = rootc->getPeer("__functions");
-      if ( __f != 0 ) {
-          // first remove rootc from __f itself
-          rootc->disconnectPeers( __f->getName() );
-          std::vector<std::string> names = __f->getPeerList();
-          for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
-              //std::cerr <<"removing "<<*it<<std::endl;
-              __f->removePeer( *it );
-              if ( mfuncs.count(*it) != 0 ) {
-                  delete mfuncs[*it];
-                  mfuncs.erase( *it );
-              }
-          }
-          delete __f;
+//       TaskContext* __f = rootc->getPeer("__functions");
+//       if ( __f != 0 ) {
+//           // first remove rootc from __f itself
+//           rootc->disconnectPeers( __f->getName() );
+//           delete __f;
+//       }
+      while ( ! mfuncs.empty() ) {
+          delete mfuncs.begin()->second;
+          mfuncs.erase( mfuncs.begin() );
       }
-
-
   }
 
   void ProgramGraphParser::seencommandcall()
@@ -892,7 +892,7 @@ namespace ORO_Execution
           try_cond = new TryCommandResult( trycommand->result() );
           program_graph->setCommand( trycommand );
           // go further if command failed or if command finished.
-          implcond = new ConditionBinaryComposite< std::logical_or<bool> >(try_cond->clone(), implcond->clone() );
+          implcond = new ConditionBinaryComposite< std::logical_or<bool> >(try_cond->clone(), implcond );
       }
 
     implcond_v.push_back(implcond); // store
@@ -932,7 +932,7 @@ namespace ORO_Execution
     // command is accepted, the branch opens for evaluation.
     if ( commandparser.dispatchCondition() != 0 ) {
         if ( dc )
-            dc = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), commandparser.dispatchCondition()->clone() );
+            dc = new ConditionBinaryComposite< std::logical_and<bool> >( dc, commandparser.dispatchCondition()->clone() );
         else
             dc = commandparser.dispatchCondition()->clone();
     }

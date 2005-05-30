@@ -29,7 +29,7 @@
 #include "execution/MapDataSourceFactory.hpp"
 #include "execution/mystd.hpp"
 
-using namespace mystd;
+using namespace ORO_std;
 using namespace ORO_CoreLib;
 
 namespace ORO_Execution
@@ -46,7 +46,7 @@ namespace ORO_Execution
 
         std::vector<std::string> MapDataSourceFactory::getNames() const
         {
-            return mystd::keys( mmap );
+            return ORO_std::keys( mmap );
         }
 
         bool MapDataSourceFactory::hasMember( const std::string& s ) const
@@ -77,6 +77,17 @@ namespace ORO_Execution
         }
 
         DataSourceBase* MapDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase*>& args ) const
+        {
+            if ( !args.empty() )
+                throw wrong_number_of_args_exception( 0, args.size() );
+            map_t::const_iterator reti = mmap.find( name );
+            if ( reti == mmap.end() )
+                throw name_not_found_exception();
+            else
+                return reti->second.get();
+        }
+
+        DataSourceBase* MapDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
             if ( !args.empty() )
                 throw wrong_number_of_args_exception( 0, args.size() );

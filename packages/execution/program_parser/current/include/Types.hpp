@@ -31,6 +31,7 @@
 #include <map>
 #include <string>
 #include <corelib/DataSource.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution
 {
@@ -78,11 +79,11 @@ namespace ORO_Execution
     class TypeInfoRepository
     {
         TypeInfoRepository();
-        ~TypeInfoRepository();
         typedef std::map<std::string, TypeInfo*> map_t;
         map_t data;
     public:
-        static TypeInfoRepository& instance();
+        ~TypeInfoRepository();
+        static boost::shared_ptr<TypeInfoRepository> instance();
         /**
          * Retrieve a type with a given \a name.
          */

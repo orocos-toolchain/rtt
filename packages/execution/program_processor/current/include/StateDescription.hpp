@@ -72,6 +72,7 @@ namespace ORO_Execution
         virtual ~StateDescription();
 
         const std::string& getName() const { return name; }
+        void setName(const std::string& newname) { name = newname; }
 
         void setEntryPoint(int line) { entrypoint = line; }
         int getEntryPoint() const { return entrypoint; }

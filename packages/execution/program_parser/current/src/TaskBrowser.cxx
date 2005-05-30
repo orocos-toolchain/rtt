@@ -43,6 +43,7 @@
 #include <execution/PeerParser.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <deque>
 #include <stdio.h>
@@ -194,6 +195,28 @@ namespace ORO_Execution
             return;
         }
 
+        if ( line.find(std::string("list ")) == 0 ) { 
+            // first make a list of all sensible completions.
+            std::vector<std::string> progs = taskcontext->getProcessor()->getProgramList();
+            // then see which one matches the already typed line :
+            for( std::vector<std::string>::iterator it = progs.begin();
+                 it != progs.end();
+                 ++it) {
+                string res = "list " + *it;
+                if ( res.find(line) == 0 )
+                    completes.push_back( *it ); // if partial match, add.
+            }
+            progs = taskcontext->getProcessor()->getStateMachineList();
+            for( std::vector<std::string>::iterator it = progs.begin();
+                 it != progs.end();
+                 ++it) {
+                string res = "list " + *it;
+                if ( res.find(line) == 0 )
+                    completes.push_back( *it ); // if partial match, add.
+            }
+            return;
+        }
+
         // check if the user is tabbing on an empty command, then add the console commands :
         if (  line.empty() ) {
             completes.push_back("cd "); 
@@ -202,6 +225,7 @@ namespace ORO_Execution
             completes.push_back("peers");
             completes.push_back("help");
             completes.push_back("quit");
+            completes.push_back("list");
             // go on below to add components and tasks as well.
         }
 
@@ -287,6 +311,8 @@ namespace ORO_Execution
                 completes.push_back("help");
             if ( std::string( "quit" ).find(text) == 0 )
                 completes.push_back("quit");
+            if ( std::string( "list " ).find(text) == 0 )
+                completes.push_back("list ");
         }
     }
         
@@ -547,6 +573,8 @@ namespace ORO_Execution
                     printHelp();
                 } else if ( command == "#debug") {
                     debug = !debug;
+                } else if ( command.find("list ") == 0) {
+                    browserAction(command);
                 } else if ( command.find("ls") == 0 ) {
                     std::string::size_type pos = command.find("ls")+2;
                     command = std::string(command, pos, command.length());
@@ -678,18 +706,22 @@ namespace ORO_Execution
 
     void TaskBrowser::browserAction(std::string& act)
     {
+        std::stringstream ss(act);
+        std::string instr;
+        ss >> instr;
+        std::string arg;
+        ss >> arg;
+        if ( instr == "list" ) {
+            this->printProgram(arg);
+            return;
+        }
+
         if ( taskcontext->getName() == "programs" || taskcontext->getName() == "states") {
             Logger::log() << Logger::Error << "Refuse to take action in special TaskContext "<< taskcontext->getName() <<Logger::endl;
             return;
         }
-
-        std::stringstream ss(act);
-        std::string instr;
-        ss >> instr;
         ProgramLoader loader;
         if ( instr == "loadProgram") {
-            std::string arg;
-            ss >> arg;
             if ( loader.loadProgram( arg, taskcontext ) )
                 cout << "Done."<<endl;
             else
@@ -697,8 +729,6 @@ namespace ORO_Execution
             return;
         }
         if ( instr == "unloadProgram") {
-            std::string arg;
-            ss >> arg;
             if ( loader.unloadProgram( arg, taskcontext ) )
                 cout << "Done."<<endl;
             else
@@ -707,8 +737,6 @@ namespace ORO_Execution
         }
 
         if ( instr == "loadStateMachine") {
-            std::string arg;
-            ss >> arg;
             if ( loader.loadStateMachine( arg, taskcontext ) )
                 cout << "Done."<<endl;
             else
@@ -716,8 +744,6 @@ namespace ORO_Execution
             return;
         }
         if ( instr == "unloadStateMachine") {
-            std::string arg;
-            ss >> arg;
             if ( loader.unloadStateMachine( arg, taskcontext ) )
                 cout << "Done."<<endl;
             else
@@ -1143,7 +1169,7 @@ namespace ORO_Execution
         cout << "     someTask.bar.getNumberOfBeers(\"Palm\") [enter] "<<nl;
         cout << "   = 99" <<nl;
 
-        cout <<titlecol("Program Scripts")<<nl;
+        cout <<titlecol("Program and StateMachine Scripts")<<nl;
         cout << "  To load a program script from local disc, type "<<comcol(".loadProgram <filename>")<<nl;
         cout << "  To load a state machine script from local disc, type "<<comcol(".loadStateMachine <filename>")<<nl;
         cout << "   ( notice the starting dot '.' )"<<nl;
@@ -1152,6 +1178,65 @@ namespace ORO_Execution
         cout << "  You can "<<comcol("cd programs.progname")<<" to your program and type "<<comcol("ls")<<nl;
         cout << "   to see the programs commands, methods and variables. You can manipulate each one of these,."<<nl;
         cout << "   as if the program is a Task itself (see all items above)."<<nl;
+        cout << "  To print a program or state machine listing, use "<<comcol("list progname")<<nl;
+        cout << "   to list the contents of the current program lines begin executed."<<nl;
+        cout << "   A status character shows which line is being executed."<<nl;
+        cout << "   For programs : 'E':Error, 'S':Stopped, 'R':Running, 'P':Paused"<<nl;
+        cout << "   For state machines : <the same as programs> + 'A':Active, 'I':Inactive"<<nl;
+    }
+
+    void TaskBrowser::printProgram(const std::string& progname) {
+        string ps;
+        char s;
+        stringstream txtss;
+        int ln;
+        int start;
+        int end;
+        const ProgramInterface* pr = taskcontext->getProcessor()->getProgram( progname );
+        if ( pr ) {
+            ps = taskcontext->getProcessor()->getProgramStatusStr(progname);
+            s = toupper(ps[0]);
+            txtss.str( pr->getText() );
+            ln = pr->getLineNumber();
+            start = ln < 10 ? 0 : ln - 10;
+            end   = ln + 10;
+            this->listText( txtss, start, end, ln, s);
+        }
+        const StateMachine* sm = taskcontext->getProcessor()->getStateMachine( progname );
+        if ( sm ) {
+            ps = taskcontext->getProcessor()->getStateMachineStatusStr(progname);
+            s = toupper(ps[0]);
+            txtss.str( sm->getText() );
+            ln = sm->getLineNumber();
+            start = ln < 10 ? 0 : ln - 10;
+            end   = ln + 10;
+            this->listText( txtss, start, end, ln, s);
+        }
+        if ( sm == 0 && pr == 0)
+            cerr << "Error : No such program or state machine found : "<<progname<<endl;
+    }
+
+    void TaskBrowser::listText(stringstream& txtss,int start, int end, int ln, char s) {
+        int curln = 0;
+        string line;
+        while ( curln != start ) { // consume lines
+            getline( txtss, line, '\n' );
+            ++curln;
+        }
+        while ( curln != end ) { // print lines
+            getline( txtss, line, '\n' );
+            if ( ! txtss )
+                break; // no more lines, break.
+            if ( curln == ln -1 ) {
+                cout << s<<'>';
+            }
+            else
+                cout << "  ";
+            cout<< setw(int(log(double(end)))) <<right << curln<< left;
+            cout << ' ' << line <<endl;
+            ++curln;
+        }
+        // done !
     }
         
     void TaskBrowser::printInfo(const std::string& peerp)
@@ -1160,7 +1245,7 @@ namespace ORO_Execution
         if ( this->findPeer( peerp+"." ) == 0 )
             return;
 
-        cout <<nl<<peer->getName()<< " Attributes :"<<nl;
+        cout <<nl<<" In "<<peer->getName()<< " - Attributes :"<<nl;
         PropertyBag* bag = peer->attributeRepository.properties();
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
         for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
@@ -1175,19 +1260,33 @@ namespace ORO_Execution
                 cout <<nl;
         }
 
-        cout <<nl<<peer->getName()<< " Objects    :  "<<coloron;
+        cout <<nl<< " Objects      : "<<coloron;
         objlist = peer->commandFactory.getObjectList();
         std::vector<std::string> objlist2 = peer->dataFactory.getObjectList();
         objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
         objlist2 = peer->methodFactory.getObjectList();
         objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
-
         sort(objlist.begin(), objlist.end() );
         std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
         copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
-        cout <<coloroff<<nl<<peer->getName()<< " Peers      :  "<<coloron;
+
+        objlist = peer->getProcessor()->getProgramList();
+        if ( !objlist.empty() ) {
+            cout <<coloroff<<nl<< " Programs     : "<<coloron;
+            copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        }
+        objlist = peer->getProcessor()->getStateMachineList();
+        if ( !objlist.empty() ) {
+            cout <<coloroff<<nl<< " StateMachines: "<<coloron;
+            copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        }
+
+        cout <<coloroff<<nl<< " Peers        : "<<coloron;
         objlist = peer->getPeerList();
-        copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        if ( !objlist.empty() )
+            copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        else
+            cout << "(none)";
         cout <<coloroff<<nl;
     }
         

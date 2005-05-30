@@ -35,6 +35,7 @@
 #include "CommandFactoryInterface.hpp"
 #include <deque>
 #include <string>
+#include <sstream>
 #include <vector>
 
 
@@ -133,6 +134,9 @@ namespace ORO_Execution
         void printSource( const std::string m );
                 
         void printMethod( const std::string m );
+
+        void printProgram( const std::string& pn );
+        void listText(std::stringstream& txtss,int start, int end, int ln, char s);
 
         static char *command_generator( const char *_text, int state );
 

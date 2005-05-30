@@ -70,7 +70,7 @@ namespace ORO_Execution
          * The destructor is virtual since ParsedStateMachine still inherits
          * this class.
          */
-        virtual ~StateMachine() {}
+        virtual ~StateMachine();
 
         /**
          * Create a new StateMachine with an optional parent.

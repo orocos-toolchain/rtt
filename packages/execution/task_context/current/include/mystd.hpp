@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef MYSTD_HPP
-#define MYSTD_HPP
+#ifndef ORO_MYSTD_HPP
+#define ORO_MYSTD_HPP
 
 #include <boost/type_traits.hpp>
 #include <functional>
@@ -35,7 +35,7 @@
 
 // here we define some generally useful template stuff that is missing
 // from the STL..
-namespace mystd {
+namespace ORO_std {
 
     // combines remove_reference and remove_const
     template<typename T>
@@ -44,6 +44,14 @@ namespace mystd {
       typedef typename boost::remove_const<
         typename boost::remove_reference<T>::type>::type type;
     };
+
+  template<typename iter>
+  static void delete_all( iter a, iter b )
+  {
+    for ( ; a < b; a++ )
+      delete *a;
+  };
+
 
     // SGI extension, does not seem present in current GNU STL
     // implementation...

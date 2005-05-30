@@ -63,6 +63,7 @@ namespace ORO_Execution {
             "bool",
             "char",
             "string",
+            "array",
             "vector",
             "double6d",
             "rotation",

@@ -35,14 +35,14 @@ namespace ORO_Execution
   }
 
   CommandInterface* TaskAttributeBase::assignCommand(
-    DataSourceBase*, bool ) const
+    DataSourceBase::shared_ptr, bool ) const
   {
     return 0;
   }
 
   CommandInterface* TaskAttributeBase::assignIndexCommand(
-                                                   DataSourceBase*,
-                                                   DataSourceBase* ) const
+                                                   DataSourceBase::shared_ptr,
+                                                   DataSourceBase::shared_ptr ) const
   {
     return 0;
   }

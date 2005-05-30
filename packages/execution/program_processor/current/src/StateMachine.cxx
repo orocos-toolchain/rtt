@@ -41,6 +41,12 @@ namespace ORO_Execution
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), error(false), evaluating(0)
     {}
 
+    StateMachine::~StateMachine()
+    {
+        delete initc;
+    }
+
+
     bool StateMachine::requestInitialState()
     {
         // all conditions that must be satisfied to enter the initial state :

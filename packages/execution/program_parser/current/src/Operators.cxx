@@ -25,6 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/Operators.hpp"
+#include "execution/DataSourceAdaptor.hpp"
+#include "execution/mystd.hpp"
 
 #include <functional>
 
@@ -162,21 +164,6 @@ namespace mystl
   }
 
 
-  // combines boost::remove_reference and boost::remove_const
-  template<typename T>
-  struct remove_cr
-  {
-    typedef typename boost::remove_const<
-      typename boost::remove_reference<T>::type>::type type;
-  };
-
-  template<typename iter>
-  static void delete_all( iter a, iter b )
-  {
-    for ( ; a < b; a++ )
-      delete *a;
-  };
-
 #if 0
     /** This does not work with RedHat 8.0 **/
   // the STL lacks a functor multiplying two objects of distinct
@@ -294,7 +281,6 @@ namespace ORO_Execution
   class UnaryOperator
     : public UnaryOp
   {
-//     typedef typename mystl::remove_cr<typename function::argument_type>::type arg_t;
     typedef typename function::argument_type arg_t;
     typedef typename function::result_type result_t;
     const char* mop;
@@ -307,8 +293,8 @@ namespace ORO_Execution
     DataSource<result_t>* build( const std::string& op, DataSourceBase* a )
       {
         if ( op != mop ) return 0;
-        DataSource<arg_t>* arg =
-          dynamic_cast<DataSource<arg_t>*>( a );
+        typename DataSource<arg_t>::shared_ptr arg =
+            AdaptDataSource<arg_t>()( a );
         if ( ! arg ) return 0;
         return new UnaryDataSource<function>( arg, fun );
       }
@@ -332,8 +318,6 @@ namespace ORO_Execution
   {
     typedef typename function::first_argument_type arg1_t;
     typedef typename function::second_argument_type arg2_t;
-//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -347,10 +331,10 @@ namespace ORO_Execution
       {
         if ( op != mop ) return 0;
 //         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
-        DataSource<arg1_t>* arg1 =
-          dynamic_cast<DataSource<arg1_t>*>( a );
-        DataSource<arg2_t>* arg2 =
-          dynamic_cast<DataSource<arg2_t>*>( b );
+        typename DataSource<arg1_t>::shared_ptr arg1 =
+            AdaptDataSource<arg1_t>()( a );
+        typename DataSource<arg2_t>::shared_ptr arg2 =
+            AdaptDataSource<arg2_t>()( b );
 //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
 //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
         if ( !arg1 || ! arg2 ) return 0;
@@ -375,9 +359,6 @@ namespace ORO_Execution
     typedef typename function::first_argument_type arg1_t;
     typedef typename function::second_argument_type arg2_t;
     typedef typename function::third_argument_type arg3_t;
-//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
-//     typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -390,12 +371,12 @@ namespace ORO_Execution
                                  DataSourceBase* b, DataSourceBase* c )
       {
         if ( op != mop ) return 0;
-        DataSource<arg1_t>* arg1 =
-          dynamic_cast<DataSource<arg1_t>*>( a );
-        DataSource<arg2_t>* arg2 =
-          dynamic_cast<DataSource<arg2_t>*>( b );
-        DataSource<arg3_t>* arg3 =
-          dynamic_cast<DataSource<arg3_t>*>( c );
+        typename DataSource<arg1_t>::shared_ptr arg1 =
+            AdaptDataSource<arg1_t>()( a );
+        typename DataSource<arg2_t>::shared_ptr arg2 =
+            AdaptDataSource<arg2_t>()( b );
+        typename DataSource<arg3_t>::shared_ptr arg3 =
+            AdaptDataSource<arg3_t>()( c );
         if ( !arg1 || ! arg2 || !arg3 ) return 0;
         return new TernaryDataSource<function>( arg1, arg2, arg3, fun );
       }
@@ -421,12 +402,6 @@ namespace ORO_Execution
     typedef typename function::fourth_argument_type arg4_t;
     typedef typename function::fifth_argument_type arg5_t;
     typedef typename function::sixth_argument_type arg6_t;
-//     typedef typename mystl::remove_cr<typename function::first_argument_type>::type arg1_t;
-//     typedef typename mystl::remove_cr<typename function::second_argument_type>::type arg2_t;
-//     typedef typename mystl::remove_cr<typename function::third_argument_type>::type arg3_t;
-//     typedef typename mystl::remove_cr<typename function::forth_argument_type>::type arg4_t;
-//     typedef typename mystl::remove_cr<typename function::fifth_argument_type>::type arg5_t;
-//     typedef typename mystl::remove_cr<typename function::sixth_argument_type>::type arg6_t;
     typedef typename function::result_type result_t;
     const char* mop;
     function fun;
@@ -440,18 +415,18 @@ namespace ORO_Execution
                                  DataSourceBase* d, DataSourceBase* e, DataSourceBase* f )
       {
         if ( op != mop ) return 0;
-        DataSource<arg1_t>* arg1 =
-          dynamic_cast<DataSource<arg1_t>*>( a );
-        DataSource<arg2_t>* arg2 =
-          dynamic_cast<DataSource<arg2_t>*>( b );
-        DataSource<arg3_t>* arg3 =
-          dynamic_cast<DataSource<arg3_t>*>( c );
-        DataSource<arg4_t>* arg4 =
-          dynamic_cast<DataSource<arg4_t>*>( d );
-        DataSource<arg5_t>* arg5 =
-          dynamic_cast<DataSource<arg5_t>*>( e );
-        DataSource<arg6_t>* arg6 =
-          dynamic_cast<DataSource<arg6_t>*>( f );
+        typename DataSource<arg1_t>::shared_ptr arg1 =
+            AdaptDataSource<arg1_t>()( a );
+        typename DataSource<arg2_t>::shared_ptr arg2 =
+            AdaptDataSource<arg2_t>()( b );
+        typename DataSource<arg3_t>::shared_ptr arg3 =
+            AdaptDataSource<arg3_t>()( c );
+        typename DataSource<arg4_t>::shared_ptr arg4 =
+            AdaptDataSource<arg4_t>()( d );
+        typename DataSource<arg5_t>::shared_ptr arg5 =
+            AdaptDataSource<arg5_t>()( e );
+        typename DataSource<arg6_t>::shared_ptr arg6 =
+            AdaptDataSource<arg6_t>()( f );
         if ( !arg1 || ! arg2 || !arg3 || !arg4 || !arg5 || !arg6 ) return 0;
         return new SixaryDataSource<function>( arg1, arg2, arg3, arg4, arg5, arg6, fun );
       }
@@ -487,8 +462,8 @@ namespace ORO_Execution
       {
         if ( member != memb ) return 0;
 //         Logger::log() << Logger::Debug << "DotOperator: "<< op << Logger::nl;
-        DataSource<arg1_t>* arg1 =
-          dynamic_cast<DataSource<arg1_t>*>( a );
+        typename DataSource<arg1_t>::shared_ptr arg1 =
+            AdaptDataSource<arg1_t>()( a );
         if ( !arg1 ) return 0;
 //         Logger::log() << "success !"<< Logger::endl;
         return new UnaryDataSource<function>( arg1, fun );
@@ -502,12 +477,16 @@ namespace ORO_Execution
     return new DotOperator<function>( member, f );
   }
 
+    namespace {
+        boost::shared_ptr<OperatorRegistry> reg;
+    }
 
-
-  OperatorRegistry& OperatorRegistry::instance()
+  boost::shared_ptr<OperatorRegistry> OperatorRegistry::instance()
   {
-    static OperatorRegistry reg;
-    return reg;
+      if ( reg )
+          return reg;
+      reg.reset( new OperatorRegistry() );
+      return reg;
   }
 
 #ifdef OROPKG_GEOMETRY
@@ -715,6 +694,19 @@ namespace ORO_Execution
         }
     };
 
+    struct string_ctor
+        : public std::unary_function<int, const std::string&>
+    {
+        mutable boost::shared_ptr< std::string > ptr;
+        string_ctor()
+            : ptr( new std::string() ) {}
+        const std::string& operator()( int size ) const
+        {
+            ptr->resize( size );
+            return *(ptr);
+        }
+    };
+
     struct string_index
         : public std::binary_function<const std::string&, int, char>
     {
@@ -817,18 +809,25 @@ namespace ORO_Execution
 
     // strings
 //  add( newBinaryOperator( "+", std::plus<std::string>() ) );
+    add( newUnaryOperator( "string", string_ctor() ) );
     add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
     add( newBinaryOperator( "<", std::less<const std::string&>() ) );
     add( newBinaryOperator( ">", std::greater<const std::string&>() ) );
+    add( newBinaryOperator( "<=", std::less_equal<std::string>() ) );
+    add( newBinaryOperator( ">=", std::greater_equal<std::string>() ) );
     add( newBinaryOperator( "[]", string_index() ) );
     add( newDotOperator( "size", get_size<const std::string&>() ) );
+    add( newDotOperator( "length", get_size<const std::string&>() ) );
     add( newDotOperator( "capacity", get_capacity<const std::string&>() ) );
 
     // chars
     add( newBinaryOperator( "==", std::equal_to<char>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to<char>() ) );
     add( newBinaryOperator( "<", std::less<char>() ) );
+    add( newBinaryOperator( ">", std::greater<char>() ) );
+    add( newBinaryOperator( "<=", std::less_equal<char>() ) );
+    add( newBinaryOperator( ">=", std::greater_equal<char>() ) );
 
 #ifdef OROPKG_GEOMETRY
     // vectors: I'm simply exporting all those that are available, not
@@ -892,7 +891,6 @@ namespace ORO_Execution
 #endif
     add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
     add( newSixaryOperator( "double6D6d", mystl::ptr_fun( &double6D6d ) ) );
-    add( newUnaryOperator( "array", array_ctor() ) );
 
     add( newBinaryOperator( "==", std::equal_to<Double6D>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to<Double6D>() ) );
@@ -902,10 +900,25 @@ namespace ORO_Execution
     add( newBinaryOperator( "-", std::minus<Double6D>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Double6D, double, Double6D>() ) );
     add( newBinaryOperator( "*", mystl::multiplies<Double6D, Double6D, double>() ) );
-    add( newBinaryOperator( "*", mystl::divides<Double6D, Double6D, double>() ) );
+    add( newBinaryOperator( "/", mystl::divides<Double6D, Double6D, double>() ) );
     add( newBinaryOperator( "[]", std::ptr_fun( &double6D_index ) ) );
 
+    // array :
+    add( newUnaryOperator( "array", array_ctor() ) );
     add( newBinaryOperator( "[]", array_index() ) );
+#if 0
+    add( newBinaryOperator( "==", std::equal_to<const std::vector<double>&>() ) );
+    add( newBinaryOperator( "!=", std::not_equal_to<const std::vector<double>&>() ) );
+
+    // causes memory allocation....
+    add( newUnaryOperator( "-", std::negate<const std::vector<double>&>() ) );
+    add( newBinaryOperator( "*", std::multiplies<const std::vector<double>&>() ) );
+    add( newBinaryOperator( "+", std::plus<const std::vector<double>&>() ) );
+    add( newBinaryOperator( "-", std::minus<const std::vector<double>&>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<const std::vector<double>&, double, const std::vector<double>&>() ) );
+    add( newBinaryOperator( "*", mystl::multiplies<const std::vector<double>&, const std::vector<double>&, double>() ) );
+    add( newBinaryOperator( "/", mystl::divides<const std::vector<double>&, const std::vector<double>&, double>() ) );
+#endif
     add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
     add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
   }
@@ -937,10 +950,11 @@ namespace ORO_Execution
 
   OperatorRegistry::~OperatorRegistry()
   {
-    mystl::delete_all( unaryops.begin(), unaryops.end() );
-    mystl::delete_all( binaryops.begin(), binaryops.end() );
-    mystl::delete_all( ternaryops.begin(), ternaryops.end() );
-    mystl::delete_all( sixaryops.begin(), sixaryops.end() ); 
+    ORO_std::delete_all( unaryops.begin(), unaryops.end() );
+    ORO_std::delete_all( dotops.begin(), dotops.end() );
+    ORO_std::delete_all( binaryops.begin(), binaryops.end() );
+    ORO_std::delete_all( ternaryops.begin(), ternaryops.end() );
+    ORO_std::delete_all( sixaryops.begin(), sixaryops.end() ); 
  }
 
   DataSourceBase* OperatorRegistry::applyDot(

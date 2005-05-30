@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include "DataSource.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution { namespace detail
 {
@@ -139,6 +140,10 @@ namespace ORO_Execution { namespace detail
                                    DataSourceBase* a ) = 0;
   };
 
+    /**
+     * This class builds on upon construction all expression
+     * operators known in the script parser.
+     */
   class OperatorRegistry
   {
     std::vector<DotOp*> dotops;
@@ -148,14 +153,14 @@ namespace ORO_Execution { namespace detail
     std::vector<SixaryOp*> sixaryops;
     OperatorRegistry();
     OperatorRegistry( const OperatorRegistry& );
-    ~OperatorRegistry();
     void add( UnaryOp* o );
     void add( DotOp* o );
     void add( BinaryOp* o );
     void add( TernaryOp* o );
     void add( SixaryOp* o );
   public:
-    static OperatorRegistry& instance();
+    ~OperatorRegistry();
+    static boost::shared_ptr<OperatorRegistry> instance();
     DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
     DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
     DataSourceBase* applyBinary(

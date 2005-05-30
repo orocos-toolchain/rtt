@@ -63,7 +63,8 @@ namespace ORO_Execution
 
   ValueChangeParser::ValueChangeParser( TaskContext* pc )
       : assigncommand( 0 ), lastdefinedvalue( 0 ), peername(0),
-        type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1)
+        type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1),
+        typerepos( TypeInfoRepository::instance() )
   {
     BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
@@ -218,7 +219,7 @@ namespace ORO_Execution
   void ValueChangeParser::seentype( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    type = TypeInfoRepository::instance().type( name );
+    type = typerepos->type( name );
     if ( type == 0 )
       throw parse_exception_semantic_error( "\"" + name + "\" is an unknown type..." );
   };

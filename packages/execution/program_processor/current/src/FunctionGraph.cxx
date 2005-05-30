@@ -70,8 +70,11 @@ namespace ORO_Execution
                 break;
         exit = *v1;
 
-        // Copy over the TAB pointers.
-        args = orig.getArguments();
+        // Copy-clone over the TAB pointers.
+        std::vector<TaskAttributeBase*> argsvect = orig.getArguments();
+        std::vector<TaskAttributeBase*>::iterator ita = argsvect.begin();
+        for ( ; ita != argsvect.end(); ++ita)
+            this->args.push_back( (*ita)->clone() );
         this->finish();
     }
 
@@ -97,6 +100,9 @@ namespace ORO_Execution
 
     FunctionGraph::~FunctionGraph()
     {
+        std::vector<TaskAttributeBase*>::iterator it = args.begin();
+        for ( ; it != args.end(); ++it)
+            delete *it;
     }
 
     bool FunctionGraph::executeAll()
@@ -304,5 +310,12 @@ namespace ORO_Execution
                 std::cerr << " " << index << " (null)" << std::endl;
         }
     }
+
+    void FunctionGraph::clearArguments() {
+        for (std::vector<TaskAttributeBase*>::iterator it = args.begin(); it != args.end(); ++it)
+            delete *it;
+        args.clear();
+    }
+
 }
 

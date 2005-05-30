@@ -132,12 +132,31 @@ namespace ORO_Execution
      * reads them out each time in its get() method.  The created
      * DataSource should of course keep a reference to the
      * DataSource's it holds.  These are complicated requirements, you
-     * are encouraged to look at the TemplateDataSourceFactory to do
+     * are encouraged to look at the TemplateMemberFactory to do
      * the work for you.
      *
      * @exception name_not_found_exception
      * @exception wrong_number_of_args_exception
      * @exception wrong_types_of_args_exception
+     */
+    virtual ORO_CoreLib::DataSourceBase* create(
+      const std::string& name,
+      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const = 0;
+
+    /**
+     * We also support passing DataSources as the arguments.  In this
+     * case, the factory should *not* read out the DataSource's, but
+     * it should return a DataSource that stores the DataSources, and
+     * reads them out each time in its get() method.  The created
+     * DataSource should of course keep a reference to the
+     * DataSource's it holds.  These are complicated requirements, you
+     * are encouraged to look at the TemplateMemberFactory to do
+     * the work for you.
+     *
+     * @exception name_not_found_exception
+     * @exception wrong_number_of_args_exception
+     * @exception wrong_types_of_args_exception
+     * @deprecated by create(const std::string&, const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
      */
     virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,

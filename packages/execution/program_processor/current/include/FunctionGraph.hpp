@@ -196,6 +196,11 @@ namespace ORO_Execution
         void addArgument( TaskAttributeBase* a) {
             args.push_back(a);
         }
+
+        /**
+         * Clear the arguments vector and release all TaskAttributeBase resources.
+         */
+        void clearArguments();
     };
 
 

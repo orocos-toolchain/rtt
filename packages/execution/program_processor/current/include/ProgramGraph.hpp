@@ -200,7 +200,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase*> fnargs);
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -209,7 +209,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode setFunction( FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase*> fnargs);
+        CommandNode setFunction( FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Proceed to the 'next' CommandNode.

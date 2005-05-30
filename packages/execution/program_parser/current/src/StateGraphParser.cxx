@@ -51,6 +51,7 @@
 #include <boost/bind.hpp>
 #include <boost/call_traits.hpp>
 #include <iostream>
+#include <memory>
 
 namespace ORO_Execution
 {
@@ -447,7 +448,7 @@ namespace ORO_Execution
                     mpositer.get_position().file, mpositer.get_position().line,
                     mpositer.get_position().column );
             }
-            std::vector<ParsedStateMachine*> ret = mystd::values( rootcontexts );
+            std::vector<ParsedStateMachine*> ret = ORO_std::values( rootcontexts );
             rootcontexts.clear();
             return ret;
         }
@@ -544,15 +545,15 @@ namespace ORO_Execution
         // reuse, since only the TaskContext pointer is stored and not the ParsedSC's.
         TaskContext* __s = context->getPeer("__states");
         if ( __s ) {
-            std::vector<std::string> names = __s->getPeerList();
+//             std::vector<std::string> names = __s->getPeerList();
             context->removePeer("__states");
-            for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
-                if ( rootcontexts.count(*it) != 0 ) {
-                    delete rootcontexts[*it];
-                    rootcontexts.erase(*it);
-                }
-                __s->removePeer( *it );
-            }
+//             for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
+//                 if ( rootcontexts.count(*it) != 0 ) {
+//                     delete rootcontexts[*it];
+//                     rootcontexts.erase(*it);
+//                 }
+//                 __s->removePeer( *it );
+//             }
             delete __s;
         }
 
@@ -613,6 +614,8 @@ namespace ORO_Execution
         // we postpone the current state
         assert( curnonprecstate == 0 );
         curnonprecstate = curstate->postponeState();
+        // add the postponed state in PSM :
+        curtemplatecontext->addState( "__pp__" + curnonprecstate->getName(), curnonprecstate );
     }
 
     void StateGraphParser::seenpreconditions() {
@@ -715,7 +718,8 @@ namespace ORO_Execution
         // Create a full depth copy (including subMachines)
         // if RootMachine, make special copy which fixes attributes such
         // that on subsequent copy() they keep pointing to same var.
-        ParsedStateMachine* nsc = curcontextbuilder->build( isroot );
+        // use auto_ptr to release on throw's below.
+        auto_ptr<ParsedStateMachine> nsc( curcontextbuilder->build( isroot ) );
 
         // we stored the attributes which are params of nsc 
         // in the build operation :
@@ -746,7 +750,8 @@ namespace ORO_Execution
 
         }
 
-        curinstantiatedcontext = nsc;
+        curinstantiatedcontext = nsc.get();
+        nsc.release();
 
         // prepend the commands for initialising the subMachine
         // parameters

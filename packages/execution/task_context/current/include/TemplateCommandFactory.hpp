@@ -811,7 +811,7 @@ namespace ORO_Execution
     FunctorT fun;
     typename DataSource<Arg1T>::shared_ptr aa;
     typename DataSource<Arg2T>::shared_ptr bb;
-    typename DataSource<Arg2T>::shared_ptr cc;
+    typename DataSource<Arg3T>::shared_ptr cc;
       bool invert;
   public:
     FunctorCondition3( FunctorT f, DataSource<Arg1T>* a , DataSource<Arg2T>* b, DataSource<Arg3T>*c, bool _invert )
@@ -822,7 +822,7 @@ namespace ORO_Execution
       {
         Arg1T a = aa->get();
         Arg2T b = bb->get();
-        Arg2T c = cc->get();
+        Arg3T c = cc->get();
         return fun( a, b, c ) != invert;
       }
     ConditionInterface* clone() const
@@ -1273,6 +1273,15 @@ namespace ORO_Execution
         if (asyn)
             res.first = new AsynchCommandDecorator( res.first );
         return res;
+      }
+
+      ComCon create( const std::string& name,
+                     const std::vector<DataSourceBase::shared_ptr>& args, bool asyn=true ) const
+      {
+          ComCon res =  _TF::produce( name, args );
+          if (asyn)
+              res.first = new AsynchCommandDecorator( res.first );
+          return res;
       }
 
     void add( const std::string& name,
