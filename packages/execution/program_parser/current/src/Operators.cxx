@@ -233,7 +233,7 @@ namespace mystl
           // unacceptable, the problem is however that 
           // we can not signal an erronous expression in Orocos.
           // we propagate zero instead.
-        return a == 0 ? 0 : a/b;
+        return b == 0 ? 0 : a/b;
       }
   };
   template<typename R, typename A, typename B>
