@@ -198,6 +198,10 @@ namespace ORO_CoreLib
         PropertyContainerType& getProperties() { return _properties; }
         const PropertyContainerType& getProperties() const { return _properties; }
 
+        iterator begin() { return _properties.begin(); }
+        const_iterator begin() const { return _properties.begin(); }
+        iterator end() { return _properties.end(); }
+        const_iterator end() const { return _properties.end(); }
     protected:
         PropertyContainerType _properties;
 
