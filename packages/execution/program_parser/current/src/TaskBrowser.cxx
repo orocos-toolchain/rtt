@@ -520,7 +520,7 @@ namespace ORO_Execution
         :  condition(0), command(0), command_fact(0), datasource_fact(0),
            debug(0),
            line_read(0),
-           lastc(0)
+           lastc(0), storedname(""), storedline(-1)
     {
         taskcontext = _c;
         rl_completion_append_character = '\0'; // avoid adding spaces
@@ -573,7 +573,7 @@ namespace ORO_Execution
                     printHelp();
                 } else if ( command == "#debug") {
                     debug = !debug;
-                } else if ( command.find("list ") == 0) {
+                } else if ( command.find("list ") == 0 || command == "list" ) {
                     browserAction(command);
                 } else if ( command.find("ls") == 0 ) {
                     std::string::size_type pos = command.find("ls")+2;
@@ -594,8 +594,12 @@ namespace ORO_Execution
                 } else if ( command.find(".") == 0  ) {
                     command = std::string(command, 1, command.length());
                     this->browserAction( command );
-                } else
+                } else {
                     this->evalCommand( command );
+                    // a command was typed... clear storedline such that a next 'list'
+                    // shows the 'IP' again.
+                    storedline = -1;
+                }
                 cout <<endl;
             }
     }
@@ -709,12 +713,37 @@ namespace ORO_Execution
         std::stringstream ss(act);
         std::string instr;
         ss >> instr;
-        std::string arg;
-        ss >> arg;
+
         if ( instr == "list" ) {
-            this->printProgram(arg);
+            int line;
+            ss >> line;
+            if (ss) {
+                this->printProgram(line);
+                return;
+            }
+            ss.clear();
+            string arg;
+            ss >> arg;
+            if (ss) {
+                storedname = arg;
+                ss.clear();
+                ss >> line;
+                if (ss) {
+                    // progname and line given
+                    this->printProgram(arg, line);
+                    return;
+                }
+                // only progname given.
+                this->printProgram( arg );
+                return;
+            }
+            // just 'list' :
+            this->printProgram();
             return;
         }
+
+        std::string arg;
+        ss >> arg;
 
         if ( taskcontext->getName() == "programs" || taskcontext->getName() == "states") {
             Logger::log() << Logger::Error << "Refuse to take action in special TaskContext "<< taskcontext->getName() <<Logger::endl;
@@ -1178,14 +1207,21 @@ namespace ORO_Execution
         cout << "  You can "<<comcol("cd programs.progname")<<" to your program and type "<<comcol("ls")<<nl;
         cout << "   to see the programs commands, methods and variables. You can manipulate each one of these,."<<nl;
         cout << "   as if the program is a Task itself (see all items above)."<<nl;
-        cout << "  To print a program or state machine listing, use "<<comcol("list progname")<<nl;
-        cout << "   to list the contents of the current program lines begin executed."<<nl;
+        cout << "  To print a program or state machine listing, use "<<comcol("list progname [linenumber]")<<nl;
+        cout << "   to list the contents of the current program lines begin executed,"<<nl;
+        cout << "   or 10 lines before or after <linenumber>. When only "<<comcol("list [n]")<<nl;
+        cout << "   is typed, 20 lines of the last listed program are printed from line <n> on "<<nl;
+        cout << "   ( default : list next 20 lines after previous list )."<<nl;
         cout << "   A status character shows which line is being executed."<<nl;
         cout << "   For programs : 'E':Error, 'S':Stopped, 'R':Running, 'P':Paused"<<nl;
         cout << "   For state machines : <the same as programs> + 'A':Active, 'I':Inactive"<<nl;
+
+        cout <<titlecol("Repeating Commands")<<nl;
+        cout << "  You can repeat the last command by "<<comcol(".loadProgram <filename>")<<nl;
+        cout << "  To load a state machine script from local disc, type "<<comcol(".loadStateMachine <filename>")<<nl;
     }
 
-    void TaskBrowser::printProgram(const std::string& progname) {
+    void TaskBrowser::printProgram(const std::string& progname, int cl) {
         string ps;
         char s;
         stringstream txtss;
@@ -1198,8 +1234,9 @@ namespace ORO_Execution
             s = toupper(ps[0]);
             txtss.str( pr->getText() );
             ln = pr->getLineNumber();
-            start = ln < 10 ? 0 : ln - 10;
-            end   = ln + 10;
+            if ( cl < 0 ) cl = ln;
+            start = cl < 10 ? 1 : cl - 10;
+            end   = cl + 10;
             this->listText( txtss, start, end, ln, s);
         }
         const StateMachine* sm = taskcontext->getProcessor()->getStateMachine( progname );
@@ -1208,16 +1245,52 @@ namespace ORO_Execution
             s = toupper(ps[0]);
             txtss.str( sm->getText() );
             ln = sm->getLineNumber();
-            start = ln < 10 ? 0 : ln - 10;
-            end   = ln + 10;
+            if ( cl < 0 ) cl = ln;
+            start = cl <= 10 ? 1 : cl - 10;
+            end   = cl + 10;
             this->listText( txtss, start, end, ln, s);
         }
         if ( sm == 0 && pr == 0)
             cerr << "Error : No such program or state machine found : "<<progname<<endl;
     }
 
+    void TaskBrowser::printProgram(int cl) {
+        string ps;
+        char s;
+        stringstream txtss;
+        int ln;
+        int start;
+        int end;
+        const ProgramInterface* pr = taskcontext->getProcessor()->getProgram( storedname );
+        if ( pr ) {
+            ps = taskcontext->getProcessor()->getProgramStatusStr(storedname);
+            s = toupper(ps[0]);
+            txtss.str( pr->getText() );
+            ln = pr->getLineNumber();
+            if ( cl < 0 ) cl = storedline;
+            if (storedline < 0 ) cl = ln -10;
+            start = cl;
+            end   = cl + 20;
+            this->listText( txtss, start, end, ln, s);
+        }
+        const StateMachine* sm = taskcontext->getProcessor()->getStateMachine( storedname );
+        if ( sm ) {
+            ps = taskcontext->getProcessor()->getStateMachineStatusStr(storedname);
+            s = toupper(ps[0]);
+            txtss.str( sm->getText() );
+            ln = sm->getLineNumber();
+            if ( cl < 0 ) cl = storedline;
+            if (storedline < 0 ) cl = ln -10;
+            start = cl;
+            end   = cl+20;
+            this->listText( txtss, start, end, ln, s);
+        }
+        if ( sm == 0 && pr == 0)
+            cerr << "Error : No such program or state machine found : "<<storedname<<endl;
+    }
+
     void TaskBrowser::listText(stringstream& txtss,int start, int end, int ln, char s) {
-        int curln = 0;
+        int curln = 1;
         string line;
         while ( curln != start ) { // consume lines
             getline( txtss, line, '\n' );
@@ -1227,7 +1300,7 @@ namespace ORO_Execution
             getline( txtss, line, '\n' );
             if ( ! txtss )
                 break; // no more lines, break.
-            if ( curln == ln -1 ) {
+            if ( curln == ln ) {
                 cout << s<<'>';
             }
             else
@@ -1236,6 +1309,7 @@ namespace ORO_Execution
             cout << ' ' << line <<endl;
             ++curln;
         }
+        storedline = curln;
         // done !
     }
         

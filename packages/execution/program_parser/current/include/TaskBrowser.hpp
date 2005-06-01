@@ -77,6 +77,9 @@ namespace ORO_Execution
         char *line_read;
         int lastc; // last command's number
 
+        std::string storedname; //! last program listed to screen
+        int storedline; //!last program line number listed to screen
+
         std::deque<TaskContext*> taskHistory;
 
         /* Read a string, and return a pointer to it.
@@ -135,7 +138,9 @@ namespace ORO_Execution
                 
         void printMethod( const std::string m );
 
-        void printProgram( const std::string& pn );
+        void printProgram( const std::string& pn, int line = -1 );
+        void printProgram( int line = -1 );
+
         void listText(std::stringstream& txtss,int start, int end, int ln, char s);
 
         static char *command_generator( const char *_text, int state );
