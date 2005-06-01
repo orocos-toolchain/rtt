@@ -197,6 +197,7 @@ namespace ORO_Execution
             if ( emap[*ei].evaluate() )
             {
                 current = boost::target(*ei, program);
+                finished = (current == exit);
                 // a new node has been found ...
                 // it will be executed in the next step.
                 return true;
