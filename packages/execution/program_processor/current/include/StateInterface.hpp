@@ -36,20 +36,23 @@
 
 #include <string>
 #include "ProgramInterface.hpp"
+#include <corelib/DataSourceBase.hpp>
 
 namespace ORO_Execution
 {
     /**
-     * A State contains an entry, handle and exit program.
+     * A State contains an entry, run, handle and exit program.
      *
      * The entry and exit programs will be called when
      * the state is entered of left. The handle program will be called each time
-     * the state is requested and no transition is made.
+     * the state is requested and no transition is made. The run program will
+     * be called before any transition is evaluated.
      *
      * Thus when we are in state A and want to switch to state B, the
      * following happens : 
      * @verbatim
-     * in A :
+     * in State A :
+     *   call A->run();
      * if ( transition to B allowed )
      *   call A->onExit();
      *   call B->onEntry();
@@ -59,10 +62,6 @@ namespace ORO_Execution
      *   return false;
      * @endverbatim
      *
-     * If another request for state B is done, the next call is:
-     * @verbatim
-     * call B->handle();
-     * @endverbatim
      * Error recovery can be handled inside these programs, if even that fails,
      * the programs return false and the state machine containing this state is considered
      * in error.
@@ -85,7 +84,12 @@ namespace ORO_Execution
         virtual ProgramInterface* getEntryProgram() const = 0;
 
         /**
-         * Get the exit program of this State.
+         * Get the run program of this State.
+         */
+        virtual ProgramInterface* getRunProgram() const = 0;
+
+        /**
+         * Get the handle program of this State.
          */
         virtual ProgramInterface* getHandleProgram() const = 0;
 
@@ -98,6 +102,9 @@ namespace ORO_Execution
          * Get the beginning definition of this State.
          */
         virtual int getEntryPoint() const = 0;
+
+        virtual StateInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const = 0;
+
     };
 }
 

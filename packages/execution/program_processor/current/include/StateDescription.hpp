@@ -55,6 +55,7 @@ namespace ORO_Execution
         FunctionGraph* mentry;
         FunctionGraph* mexit;
         FunctionGraph* mhandle;
+        FunctionGraph* mrun;
         bool inited;
         std::string name;
         int entrypoint;
@@ -64,7 +65,7 @@ namespace ORO_Execution
          * The StateGraph owning the nodes is needed for processing each state.
          */
         StateDescription(const std::string& _name, int linenr )
-            : mentry(0), mexit(0), mhandle(0),
+            : mentry(0), mexit(0), mhandle(0), mrun(0),
               inited(false), name(_name), entrypoint(linenr)
         {
         }
@@ -86,11 +87,16 @@ namespace ORO_Execution
          * This is used by the parser when it suddenly notices that it
          * needs to insert a dummy state before the current to check
          * preconditions.
+         * @deprecated by new precondition semantics.
          */
         StateDescription* postponeState();
 
         ProgramInterface* getEntryProgram() const {
             return mentry;
+        }
+
+        ProgramInterface* getRunProgram() const {
+            return mrun;
         }
 
         ProgramInterface* getHandleProgram() const {
@@ -104,6 +110,11 @@ namespace ORO_Execution
         void setEntryProgram( FunctionGraph* entry ) {
             delete mentry;
             mentry = entry;
+        }
+
+        void setRunProgram( FunctionGraph* run ) {
+            delete mrun;
+            mrun = run;
         }
 
         void setHandleProgram( FunctionGraph* handle ) {

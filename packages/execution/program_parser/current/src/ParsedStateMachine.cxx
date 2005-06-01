@@ -34,9 +34,14 @@
 #include "execution/TaskContext.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #include "execution/TemplateDataSourceFactory.hpp"
+#include <iostream>
+
+#include <boost/lambda/lambda.hpp>
 
 namespace ORO_Execution {
     using namespace detail;
+    using namespace std;
+    using namespace boost::lambda;
     /**
      * @todo 
      * 1. add copy/clone semantics to StateInterface and StateMachine.
@@ -87,7 +92,7 @@ namespace ORO_Execution {
                       command_ds(&StateMachineCommands::pause, &StateMachineCommands::isPaused,
                                  "Pause this StateMachine, enter paused Mode."));
             fact->add("step",
-                      command_ds(&StateMachineCommands::step, &StateMachineCommands::isPaused,
+                      command_ds(&StateMachineCommands::step, &StateMachineCommands::stepDone,
                                  "Step this StateMachine. When paused, step a single instruction or transition evaluation. \n"
                                  "When in requestMode, evaluate transitions and go to a next state, or if none, run handle."));
             fact->add("reset",
@@ -117,6 +122,7 @@ namespace ORO_Execution {
             f->add("inInitial", data_ds(&StateMachineCommands::inInitial, "Is this StateMachine in the initial state ?") );
             f->add("inFinal", data_ds(&StateMachineCommands::inFinal, "Is this StateMachine in the final state ?") );
             f->add("inRequest", data_ds(&StateMachineCommands::inRequest, "Is this StateMachine ready and waiting for requests ?") );
+            f->add("inTransition", data_ds(&StateMachineCommands::inTransition, "Is this StateMachine executing a entry|handle|exit program ?") );
             return f;
         }
 
@@ -171,6 +177,11 @@ namespace ORO_Execution {
             return _sc->isActive();
         }
 
+        // active and executing a program (entry, handle, exit)
+        bool inTransition() const {
+            return _sc->isActive() && _sc->inTransition();
+        }
+
         bool inInitial() const {
             return _sc->getInitialState() == _sc->currentState() && !_sc->inTransition();
         }
@@ -182,6 +193,13 @@ namespace ORO_Execution {
         bool isRunning() const {
             // are we in run Mode ?
             return _sc->getTaskContext()->getProcessor()->getStateMachineStatus( _sc->getName() ) == Processor::StateMachineStatus::running;
+        }
+
+        bool stepDone() const {
+            // in paused, return isPaused, in requestmode, return isStrictlyActive
+            if ( isPaused() )
+                return true;
+            return isStrictlyActive();
         }
 
         bool isPaused() const {
@@ -220,27 +238,15 @@ namespace ORO_Execution {
 
     }
 
-    using ORO_CoreLib::ConditionInterface;
-
-    std::vector<std::string> ParsedStateMachine::getSubMachineList() const {
-        return ORO_std::keys( subMachines );
-    }
-
-    ParsedStateMachine* ParsedStateMachine::getSubMachine( const std::string& name ) const {
-        SubMachineNameMap::const_iterator i = subMachines.find( name );
-        if ( i == subMachines.end() )
-            return 0;
-        assert( dynamic_cast<ParsedStateMachine*>( i->second->get() ) );
-        return static_cast<ParsedStateMachine*>( i->second->get() );
-    }
-
     ParsedStateMachine* ParsedStateMachine::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) const
     {
         /* Recursive copy :
          * First copy this SC, then its child SC's
          */
-        std::map<const StateInterface*, StateDescription*> statemapping;
-        ParsedStateMachine* ret = new ParsedStateMachine( this->getText() );
+        std::map<const StateInterface*, StateInterface*> statemapping;
+        ParsedStateMachine* ret = new ParsedStateMachine();
+        ret->_text = this->_text;
+        ret->setName( this->_name, false);
 
         // first update the context's stack :
         // this allows us to reference all the ds's of this SC lateron.
@@ -248,9 +254,9 @@ namespace ORO_Execution {
         AttributeRepository* dummy = this->getTaskContext()->attributeRepository.copy( replacements, instantiate );
         ret->getTaskContext()->attributeRepository = *dummy;
         delete dummy;
+
         // next, add the 'this' factories, since they were not copied with the TC.
 
-        ret->nameds = nameds->copy( replacements );
         ret->sc_coms = sc_coms->copy( ret, replacements );
 
         // the parameters of the SC, similar to FunctionGraph's Arguments.
@@ -263,22 +269,18 @@ namespace ORO_Execution {
             ret->parametervalues[i->first] = ret->getTaskContext()->attributeRepository.getValue( i->first );
         }
 
-        // TODO : these DS'es are no longer used, since all goes through the StateGraphCommands now.
-        for ( SubMachineNameMap::const_iterator i = subMachines.begin(); i != subMachines.end(); ++i )
+        //**********************
+        // TODO add copy method to StateMachine itself where all stuff below belongs :
+
+        for ( ChildList::const_iterator i = getChildren().begin(); i != getChildren().end(); ++i )
         {
-            // we first copy the subMachines, and add the datasources
-            // containing their pointers to the replacements map, so
-            // that the new commands will work on the correct
-            // contexts...
-            assert( dynamic_cast<ParsedStateMachine*>(  i->second->get() ) );
-            ParsedStateMachine* oldcontext = static_cast<ParsedStateMachine*>(  i->second->get() );
+            // copy the submachines....
+            assert( dynamic_cast<ParsedStateMachine*>( *i ) == static_cast<ParsedStateMachine*>( *i ));
+            ParsedStateMachine* oldcontext = static_cast<ParsedStateMachine*>( *i );
             ParsedStateMachine* newcontext = oldcontext->copy( replacements );
 
-            DataSource<StateMachine*>::shared_ptr ncds = new VariableDataSource<StateMachine*>( newcontext );
-            ret->subMachines[i->first] = ncds;
             ret->addChild( newcontext ); // also copy tree info to StateMachine !
             newcontext->setParent( ret );
-            replacements[i->second.get()] = ncds.get();
         }
 
         // Copy the InitCommand :
@@ -292,27 +294,11 @@ namespace ORO_Execution {
         // known by their name or by a transition from or to them...
         for ( TransitionMap::const_iterator i = stateMap.begin(); i != stateMap.end(); ++i )
         {
-            assert( dynamic_cast<StateDescription*>( i->first ) );
-            StateDescription* fromState = static_cast<StateDescription*>( i->first );
-            if( statemapping.find( fromState ) == statemapping.end() )
-                statemapping[fromState] = fromState->copy( replacements );
-            for ( TransList::const_iterator j = i->second.begin(); j != i->second.end(); ++j )
-            {
-                assert( dynamic_cast<StateDescription*>( j->get<1>() ) );
-                StateDescription* toState = static_cast<StateDescription*>( j->get<1>() );
-                if( statemapping.find( toState ) == statemapping.end() )
-                    statemapping[toState] = toState->copy( replacements );
+            if( statemapping.find( i->first ) == statemapping.end() ) {
+                StateInterface* cpy = i->first->copy( replacements );
+                ret->addState( cpy );
+                statemapping[i->first] = cpy;
             }
-        }
-        for ( StateNameMap::const_iterator i = states.begin(); i != states.end(); ++i )
-            if ( statemapping.find( i->second ) == statemapping.end() )
-                statemapping[i->second] = i->second->copy( replacements );
-
-        // now link the names to the new states
-        for ( StateNameMap::const_iterator i = states.begin(); i != states.end(); ++i )
-        {
-            assert( statemapping.find( i->second ) != statemapping.end() );
-            ret->states[i->first] = statemapping[i->second];
         }
 
         // next, copy the transitions
@@ -331,12 +317,15 @@ namespace ORO_Execution {
             }
         }
 
-        // put in attributeRepository
-//         for ( VisibleReadOnlyValuesMap::const_iterator i = visiblereadonlyvalues.begin();
-//               i != visiblereadonlyvalues.end(); ++i )
-//         {
-//           ret->visiblereadonlyvalues[i->first] = i->second->copy( replacements );
-//         }
+        // finally, copy the preconditions
+        for ( PreConditionMap::const_iterator i = precondMap.begin(); i != precondMap.end(); ++i )
+        {
+            assert( statemapping.find( i->first ) != statemapping.end() );
+            StateInterface* tgtState = statemapping[i->first];
+            ConditionInterface* condition = i->second.first->copy( replacements );
+            int line = i->second.second;
+            ret->preconditionSet( tgtState, condition, line );
+        }
 
         // init the StateMachine itself :
         ret->setFinalState( statemapping[ getFinalState() ]);
@@ -347,13 +336,13 @@ namespace ORO_Execution {
 
     ParsedStateMachine::~ParsedStateMachine() {
         // we own our states...
-        for ( StateNameMap::iterator i = states.begin();
-              i != states.end(); ++i )
-            delete i->second;
+        for ( TransitionMap::iterator i = stateMap.begin();
+              i != stateMap.end(); ++i )
+            delete i->first;
         // we own our subMachines...
-        for ( SubMachineNameMap::iterator i = subMachines.begin();
-              i != subMachines.end(); ++i )
-            delete i->second->get();
+        for ( ChildList::const_iterator i = getChildren().begin();
+              i != getChildren().end(); ++i )
+            delete *i;
         // we own our conditions...
         for ( TransitionMap::iterator i = stateMap.begin();
               i != stateMap.end(); ++i )
@@ -365,50 +354,13 @@ namespace ORO_Execution {
         delete sc_coms;
     }
 
-    std::vector<std::string> ParsedStateMachine::getStateList() const {
-        return ORO_std::keys( states );
-    }
-
-    StateDescription* ParsedStateMachine::getState( const std::string& name ) const{
-        StateNameMap::const_iterator i = states.find( name );
-        if ( i == states.end() )
-            return 0;
-        else return i->second;
-    }
-
     ParsedStateMachine::ParsedStateMachine()
         : StateMachine( 0 ), context(0), sc_coms(0) // no parent, no task
     {
-        nameds = new VariableDataSource<std::string>( "" );
-    };
-
-    ParsedStateMachine::ParsedStateMachine(const std::string& text)
-        : StateMachine( 0 ) // no parent, no task
-          ,_text(text), context(0), sc_coms(0)
-    {
-        nameds = new VariableDataSource<std::string>( "" );
-    };
-
-    void ParsedStateMachine::addState( const std::string& name, StateDescription* state ) {
-        // overwrite is allowed.
-        states[name] = state;
+        _text.reset( new string("No Text Set.") );
     }
 
-    DataSource<StateMachine*>* ParsedStateMachine::addSubMachine( const std::string& name, ParsedStateMachine* sc ) {
-        assert( subMachines.find( name ) == subMachines.end() );
-        DataSource<StateMachine*>* newds = new VariableDataSource<StateMachine*>( sc );
-        subMachines[name] = newds;
-        this->addChild( sc );
-        sc->setParent( this );
-        context->addPeer( sc->getTaskContext() );
-        return newds;
-    }
 
-    void ParsedStateMachine::addReadOnlyVar( const std::string& name, DataSourceBase* var )
-    {
-        //assert( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() );
-        //visiblereadonlyvalues[name] = var;
-    }
     void ParsedStateMachine::addParameter( const std::string& name, TaskAttributeBase* var )
     {
         assert( parametervalues.find( name ) == parametervalues.end() );
@@ -416,12 +368,7 @@ namespace ORO_Execution {
         // every parameter is also a readonly var...
         // visiblereadonlyvalues[name] = var->toDataSource();
     }
-    DataSourceBase* ParsedStateMachine::getReadOnlyVar( const std::string& name ) const
-    {
-        if( visiblereadonlyvalues.find( name ) == visiblereadonlyvalues.end() )
-            return 0;
-        return visiblereadonlyvalues.find(name)->second.get();
-    }
+
     TaskAttributeBase* ParsedStateMachine::getParameter( const std::string& name ) const
     {
         if( parametervalues.find( name ) == parametervalues.end() )
@@ -434,48 +381,31 @@ namespace ORO_Execution {
         return parametervalues;
     }
 
-    ParsedStateMachine::VisibleReadOnlyValuesMap ParsedStateMachine::getReadOnlyValues() const
-    {
-        assert(false);
-        return visiblereadonlyvalues;
-    }
-
     std::vector<std::string> ParsedStateMachine::getParameterNames() const
     {
         return ORO_std::keys( parametervalues );
     }
 
-    std::vector<std::string> ParsedStateMachine::getReadOnlyValuesNames() const
-    {
-        return ORO_std::keys( visiblereadonlyvalues );
-    }
-
-    bool ParsedStateMachine::inState( const std::string& name ) const
-    {
-        if ( getState( name ) == 0 )
-            return false;
-        return currentState() == getState( name );
-    }
-
-    DataSource<std::string>* ParsedStateMachine::getNameDS() const
-    {
-        return nameds.get();
-    }
-
     void ParsedStateMachine::setName( const std::string& name, bool recursive )
     {
+        // BIG NOTE :
+        // this function should me named 'instantiate' or so because it does more than
+        // settting the name, it also recursively arranges names of children and
+        // sets the parent-child TC connections. Reed the 'recursive' flag as 'instantiate'.
+        // it is used only recursively for instantiating root contexts.
+        //cerr << "Setting name "<< _name << " to " << name<<" rec: "<<recursive<<endl;
         // set the StateMachine name
         this->_name = name;
         // set the datasource's name
-        nameds->set( name );
+        //nameds->set( name );
 
         if ( recursive == false )
             return;
         //this->getTaskContext()->addPeer( this->getTaskContext()->getPeer("states")->getPeer("task") );
-        for ( SubMachineNameMap::iterator i = subMachines.begin(); i != subMachines.end(); ++i )
+        for ( ChildList::const_iterator i = getChildren().begin(); i != getChildren().end(); ++i )
         {
-            std::string subname = name + "." + i->first;
-            ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->second->get() );
+            std::string subname = name + "." + (*i)->getName();
+            ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( *i );
             psc->setName( subname, true );
             this->getTaskContext()->addPeer( psc->getTaskContext() );
         }

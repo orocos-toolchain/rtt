@@ -69,6 +69,7 @@ namespace ORO_Execution { namespace detail
       // The TC of the current StateMachine
       TaskContext* curcontext ;
       our_pos_iter_t& mpositer;
+      our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.
       int ln_offset;
 
@@ -103,7 +104,8 @@ namespace ORO_Execution { namespace detail
        * inserted in the StateMachine.
        */
       int rank;
-      bool isroot; // are we instantiating a rootmachine ?
+      bool isroot; //! are we instantiating a rootmachine ?
+      unsigned int selectln; //! store line number of select's 'if' statement.
 
       rule_t production;
       rule_t newline;
@@ -119,8 +121,10 @@ namespace ORO_Execution { namespace detail
       rule_t statecontentline;
       rule_t entry;
       rule_t preconditions;
-      rule_t handle;
+      rule_t precondition;
+      rule_t run;
       rule_t transitions;
+      rule_t handle;
       rule_t exit;
       rule_t programBody;
       rule_t transline;
@@ -152,10 +156,13 @@ namespace ORO_Execution { namespace detail
       void seenentry();
       void seenexit();
       void seenhandle();
+      void seenrun();
       FunctionGraph* finishProgram();
 
       void seencondition();
+      void seenendcondition();
       void seenselect( iter_t s, iter_t f);
+      void seenprecondition();
 
       void seenstatecontextname( iter_t begin, iter_t end );
       void storeOffset();

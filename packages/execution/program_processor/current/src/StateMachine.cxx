@@ -25,20 +25,25 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/StateMachine.hpp"
+#include "execution/mystd.hpp"
 #include "boost/tuple/tuple.hpp"
 
 #include <functional>
 
 #include <assert.h>
+#include <boost/bind.hpp>
 
 namespace ORO_Execution
 {
     using boost::tuples::get;
+    using namespace std;
+    using namespace boost;
 
-    StateMachine::StateMachine(StateMachine* parent, const std::string& name )
+    StateMachine::StateMachine(StateMachine* parent, const string& name )
         : _parent (parent) , _name(name),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
-          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), error(false), evaluating(0)
+          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0),
+          checking_precond(false), error(false), evaluating(0)
     {}
 
     StateMachine::~StateMachine()
@@ -72,11 +77,13 @@ namespace ORO_Execution
         if ( newState == current )
             {
                 // execute the default action (handle current)
+                // if no transition to another state took place
                 handleState( current );
             }
         else
             {
                 // reset handle, in case it is still set ( during error ).
+                currentRun = 0;
                 currentHandle = 0;
                 // if error in current Exit, skip it.
                 if ( currentExit && currentExit->inError() )
@@ -85,41 +92,92 @@ namespace ORO_Execution
                     leaveState( current );
                 enterState( newState );
             }
-        this->executePending(stepping);
+
+        // if not stepping, try to execute handle directly.
+        // if stepping, postpone this
+        if ( !stepping )
+            this->executePending(stepping);
+
+        // schedule a run for the next 'step'.
+        // if handle above finished, it will be called directly
+        // in the user's executePending. if handle was not finished
+        // or stepping, it will be called after handle.
+        runState( newState );
     }
 
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
-        TransList::const_iterator the_end = stateMap.find( current )->second.end();
         if ( currentProg ) {
             return current; // can not accept request, still in transition.
         }
-        if ( reqstep == the_end ) { // if nothing to evaluate, just handle()
+        if ( reqstep == reqend ) { // if nothing to evaluate, just handle()
             changeState( current, stepping );
             return current;
         }
 
         // if we got here, at least one evaluation to check
         do {
-            evaluating = get<3>(*reqstep);
             if ( get<0>(*reqstep)->evaluate() ) {
-                changeState( get<1>(*reqstep), stepping );
-                break;
+                // check preconds of target state :
+                int cres = checkConditions( get<1>(*reqstep), stepping );
+                if (cres == 0) {
+                    break; // only returned in stepping
+                }
+                if( cres == 1) {
+                    changeState( get<1>(*reqstep), stepping );
+                    break; // valid transition
+                }
+                // if cres == -1 : precondition failed, increment reqstep...
             }
-            if ( reqstep + 1 == the_end ) {
+            if ( reqstep + 1 == reqend ) {
                 // no transition was found, reset and 'schedule' a handle :
                 reqstep = stateMap.find( current )->second.begin();
+                evaluating = get<3>(*reqstep);
                 changeState( current, stepping );
                 break;
             }
-            else
+            else {
                 ++reqstep;
+                evaluating = get<3>(*reqstep);
+            }
         } while ( !stepping );
 
         return current;
     }
+
+    int StateMachine::checkConditions( StateInterface* state, bool stepping ) {
+        // if the preconditions of \a state are checked the first time in stepping mode, reset the iterators.
+        if ( !checking_precond || !stepping ) {
+            prec_it = precondMap.equal_range(state); // state is the _target_ state
+        }
+
+        // will be set to true if stepping below.
+        //checking_precond = false;
+        
+        while ( prec_it.first != prec_it.second ) {
+            if (checking_precond == false && stepping ) {
+                evaluating = prec_it.first->second.second; // indicate we will evaluate this line (if any).
+                checking_precond = true;
+                return 0;
+            }
+            if ( prec_it.first->second.first->evaluate() == false ) {
+                checking_precond = false;
+                return -1; // precondition failed
+            }
+            ++( prec_it.first );
+            if (stepping) {
+                if ( prec_it.first != prec_it.second )
+                    evaluating = prec_it.first->second.second; // indicate we will evaluate the next line (if any).
+                checking_precond = true;
+                return 0; // not done yet.
+            }
+        }
+        checking_precond = false;
+        return 1; // success !
+    }
+        
 
     StateInterface* StateMachine::nextState()
     {
@@ -130,13 +188,27 @@ namespace ORO_Execution
         it2 = stateMap.find( current )->second.end();
 
         for ( ; it1 != it2; ++it1 )
-            if ( get<0>(*it1)->evaluate() )
+            if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1)) == 1 )
                 return get<1>(*it1);
 
         return current;
     }
 
-    StateInterface* StateMachine::getState(const std::string& name) const
+    std::vector<std::string> StateMachine::getStateList() const {
+        vector<string> result;
+        vector<StateInterface*> sl;
+        transform( stateMap.begin(), stateMap.end(), back_inserter(sl), ORO_std::select1st<TransitionMap::value_type>() );
+        transform( sl.begin(), sl.end(), back_inserter(result), bind( &StateInterface::getName, _1 ) );
+        return result;
+    }
+
+    void StateMachine::addState( StateInterface* s )
+    {
+        stateMap[s];
+    }
+
+
+    StateInterface* StateMachine::getState(const string& name) const
     {
         TransitionMap::const_iterator it = stateMap.begin();
         while ( it != stateMap.end() ) {
@@ -186,8 +258,8 @@ namespace ORO_Execution
 
         for ( ; it1 != it2; ++it1 )
             if ( get<1>(*it1) == s_n
-                 && get<0>(*it1)->evaluate() )
-            {
+                 && get<0>(*it1)->evaluate()
+                 && checkConditions( s_n ) == 1 ) {
                 changeState( s_n );
                 // the request was accepted
                 return true;
@@ -213,14 +285,23 @@ namespace ORO_Execution
         return statecopy->getEntryPoint();
     }
 
-    std::string StateMachine::getText() const {
-        return std::string();
+    string StateMachine::getText() const {
+        return string();
+    }
+
+    void StateMachine::preconditionSet(StateInterface* state, ConditionInterface* cnd, int line )
+    {
+        // we must be inactive.
+        assert( current == 0);
+        assert( stateMap.count( state ) == 1 && "Add a state first before setting preconditions !" );
+        precondMap.insert( make_pair(state, make_pair( cnd, line)) );
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
         // we must be inactive.
         assert( current == 0);
+        assert( stateMap.count( from ) == stateMap.count(to) == 1 && "Add a state first before setting transitions !" );
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
@@ -234,18 +315,39 @@ namespace ORO_Execution
         return current;
     }
 
+    ProgramInterface* StateMachine::currentProgram() const
+    {
+        return currentProg;
+    }
+
     void StateMachine::leaveState( StateInterface* s )
     {
         currentExit = s->getExitProgram();
-        if ( currentExit )
+        if ( currentExit ) {
             currentExit->reset();
+            if (currentProg == 0 )
+                currentProg = currentExit;
+        }
+    }
+
+    void StateMachine::runState( StateInterface* s )
+    {
+        currentRun = s->getRunProgram();
+        if ( currentRun ) {
+            currentRun->reset();
+            if (currentProg == 0 )
+                currentProg = currentRun;
+        }
     }
 
     void StateMachine::handleState( StateInterface* s )
     {
         currentHandle = s->getHandleProgram();
-        if ( currentHandle )
+        if ( currentHandle ) {
             currentHandle->reset();
+            if (currentProg == 0 )
+                currentProg = currentHandle;
+        }
     }
 
     void StateMachine::enterState( StateInterface* s )
@@ -257,11 +359,11 @@ namespace ORO_Execution
 
         next = s;
         currentEntry = s->getEntryProgram();
-        if ( currentEntry )
+        if ( currentEntry ) {
             currentEntry->reset();
-//         currentHandle = s->getHandleProgram();
-//         if ( currentHandle )
-//             currentHandle->reset();
+            if (currentProg == 0 )
+                currentProg = currentEntry;
+        }
     }
 
     bool StateMachine::executePending( bool stepping )
@@ -278,22 +380,69 @@ namespace ORO_Execution
         // and a new state may be requested.
 
         // first try exit
-        if ( currentExit && this->executeProgram(currentExit, stepping) == false )
-            return false;
-
-        // make change transition after exit of previous state:
-        current = next;
-        if ( current ) {
-            evaluating = 0; 
-            reqstep = stateMap.find( current )->second.begin();
+        if ( currentExit ) {
+            if ( this->executeProgram(currentExit, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = currentEntry ? currentEntry : currentRun;
+                return false;
+            }
         }
-        else
-            return true; // done if current == 0 !
-                
-        if ( currentEntry && this->executeProgram(currentEntry, stepping) == false )
-            return false;
-        if ( currentHandle && this->executeProgram(currentHandle, stepping) == false )
-            return false;
+
+        // only reset the reqstep if we changed state.
+        // if we did not change state, it will be reset in requestNextState().
+        if ( current != next ) {
+            if ( next ) {
+                reqstep = stateMap.find( next )->second.begin();
+                reqend  = stateMap.find( next )->second.end();
+                // init for getLineNumber() :
+                if ( reqstep == reqend )
+                    evaluating = 0;
+                else
+                    evaluating = get<3>(*reqstep);
+            } else {
+                current = 0;
+                return true;  // done if current == 0 !
+            }
+            // make change transition after exit of previous state:
+            current = next;
+        }
+
+        if ( currentEntry ) {
+            if ( this->executeProgram(currentEntry, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = currentRun;
+                return false;
+            }
+        }
+
+        // Handle is executed after the transitions failed.
+        if ( currentHandle ) {
+            if ( this->executeProgram(currentHandle, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = currentRun;
+                return false;
+            }
+        }
+
+        // Run is executed before the transitions.
+        if ( currentRun ) {
+            if ( this->executeProgram(currentRun, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping )
+                return false;
+
+        }
 
         return true; // all pending is done
     }
@@ -337,6 +486,9 @@ namespace ORO_Execution
         if ( current != 0 )
             return false;
 
+        if ( this->checkConditions( getInitialState() ) != 1 )
+            return false; //preconditions not met.
+
         if ( initc ) {
             initc->reset();
             initc->execute();
@@ -345,7 +497,9 @@ namespace ORO_Execution
         current = getInitialState();
         enterState( current );
         reqstep = stateMap.find( current )->second.begin();
+        reqend = stateMap.find( current )->second.end();
 
+        // execute the entry program of the initial state.
         this->executePending();
 
         return true;
@@ -365,6 +519,7 @@ namespace ORO_Execution
         // do not call enterState( 0 )
         currentEntry = 0;
         currentHandle  = 0;
+        currentRun  = 0;
         next = 0;
 
         // reset error flag.

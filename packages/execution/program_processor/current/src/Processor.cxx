@@ -32,7 +32,9 @@
 #include <corelib/AtomicQueue.hpp>
 #include <corelib/Logger.hpp>
 
-#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/construct.hpp>
 #include <boost/function.hpp>
 #include <os/MutexLock.hpp>
 #include <os/Semaphore.hpp>
@@ -41,7 +43,9 @@
 namespace ORO_Execution
 {
 
-    using boost::bind;
+    //using boost::bind;
+    using namespace boost::lambda;
+    using namespace boost;
     using namespace std;
     using ORO_OS::MutexLock;
     using namespace ORO_CoreLib;
@@ -73,9 +77,10 @@ namespace ORO_Execution
             //Fooptr fooptr = &X::foo;        // no alloc
             //i = (x2.*fooptr)(2);            // no alloc
 
-            // (de)activate may be called directly
-            void activate() {
-                state->activate();
+            // activate may be called directly
+            bool activate() {
+                if ( state->activate() == false )
+                    return false;
                 if ( state->inTransition() ) {
                     action = &StateInfo::goactive;
                     sstate = StateMachineStatus::activating;
@@ -84,6 +89,7 @@ namespace ORO_Execution
                     action = 0;
                     sstate = StateMachineStatus::active;
                 }
+                return true;
             }
             void deactivate() {
                 state->deactivate();
@@ -160,8 +166,8 @@ namespace ORO_Execution
 
             // make from this state a single transition to the next state (or handle() )
             void singleTransition() {
-                if ( state->executePending(true) ) {   // if all steps done,
-                    state->requestNextState(true);
+                if ( state->executePending() ) {   // if all steps done,
+                    state->requestNextState();
                     action = &StateInfo::requestState; // handle remainder in requestState
                 }
                 else {
@@ -183,7 +189,7 @@ namespace ORO_Execution
                 sstate = StateMachineStatus::active;
                 action = 0;
             }
-            // Go through the exit of the final state:
+            // Go through the exit of the current state:
             void goinactive() {
                 if ( state->executePending() == false ) {
                     if ( state->inError() )
@@ -247,10 +253,16 @@ namespace ORO_Execution
     {
         while ( !programs->empty() ) {
             Logger::log() << Logger::Info << "Processor deletes Program "<< programs->begin()->first << "..."<<Logger::endl;
+            programs->begin()->second.pstate = ProgramStatus::stopped; // guarantees deletion :
             this->deleteProgram( programs->begin()->first );
         }
-        
 
+        // first deactivate (hard way) all state machines :
+        for( StateMap::iterator i=states->begin(); i != states->end(); ++i) {
+            i->second.deactivate();
+            i->second.sstate = StateMachineStatus::inactive;
+        }
+    
         while ( !states->empty() ) {
             // try to unload all
             try {
@@ -606,8 +618,7 @@ namespace ORO_Execution
 
         if ( it != states->end() && it->second.sstate == StateMachineStatus::inactive )
             {
-                it->second.activate();
-                return true;
+                return it->second.activate();
             }
         return false;
     }
@@ -776,8 +787,16 @@ namespace ORO_Execution
         {
             if ( s.second.sstate == Processor::StateMachineStatus::paused
                  || s.second.sstate == Processor::StateMachineStatus::active
-                 || s.second.sstate == Processor::StateMachineStatus::running )
+                 || s.second.sstate == Processor::StateMachineStatus::running ) {
                 s.second.stop();
+                if (s.second.sstate != Processor::StateMachineStatus::stopped )
+                    _executeState()( s ); // try one last time
+                if (s.second.sstate != Processor::StateMachineStatus::stopped )
+                    Logger::log() << Logger::Critical << "Processor failed to bring StateMachine "<<s.first
+                                  << " into the final state. Program stalled in state '"
+                                  << s.second.state->currentState()->getName()<<"' line number "
+                                  << s.second.state->getLineNumber()<<Logger::endl; // critical failure !
+            }
         }
     };
 
@@ -871,7 +890,8 @@ namespace ORO_Execution
         {
             MutexLock lock( *loadmonitor );
             for_each(programs->begin(), programs->end(), _stopProgram());
-            for_each(states->begin(), states->end(), _stopState() );
+            // enter final state, this is the safest bet if a SM is still running.
+            for_each(states->begin(), states->end(), _stopState() ); 
         }
     }
 

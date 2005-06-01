@@ -56,6 +56,8 @@ namespace ORO_Execution {
          * Throws wrong_context_params_exception if params is wrong...
          */
         ParsedStateMachine* build( bool instantiate );
+
+        ParsedStateMachine* item() { return templatecontext; }
     private:
         ParsedStateMachine* templatecontext;
     };

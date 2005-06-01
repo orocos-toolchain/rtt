@@ -1010,8 +1010,8 @@
 	  Besides a list of the possible transitions, every state also
 	  keeps record of programs to be executed at certain
 	  occasions.  There are exactly three programs in every state:
-	  the entry program ( which will be executed the first time
-	  that the state becomes active ), the handle program ( which
+	  the entry program ( which will be executed each time the state
+	  is entered ), the handle program ( which
 	  will be executed every time the state is the active state )
 	  and the exit program ( which will be executed when the state
 	  is left and another state is entered ).

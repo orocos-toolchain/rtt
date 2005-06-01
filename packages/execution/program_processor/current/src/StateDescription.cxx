@@ -31,14 +31,15 @@
 namespace ORO_Execution {
   StateDescription* StateDescription::postponeState()
   {
-    StateDescription* ret = new StateDescription( getName(), entrypoint );
+    StateDescription* ret = new StateDescription( "__pp__" + getName(), entrypoint );
     ret->setEntryProgram( mentry );
+    ret->setRunProgram( mrun );
     ret->setHandleProgram( mhandle );
     ret->setExitProgram( mexit );
     ret->setDefined( isDefined() );
     // we don't use setEntryProgram cause that deletes the old
     // program...
-    mentry = mhandle = mexit = 0;
+    mentry = mrun = mhandle = mexit = 0;
     setDefined( false );
     return ret;
   }
@@ -47,6 +48,7 @@ namespace ORO_Execution {
             delete mentry;
             delete mexit;
             delete mhandle;
+            delete mrun;
   }
 
   StateDescription* StateDescription::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
@@ -64,6 +66,10 @@ namespace ORO_Execution {
     if ( mhandle )
     {
       ret->mhandle = mhandle->copy( replacementdss );
+    }
+    if ( mrun )
+    {
+      ret->mrun = mrun->copy( replacementdss );
     }
     return ret;
   }

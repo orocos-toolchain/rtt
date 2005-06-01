@@ -49,6 +49,7 @@
 #include <functional>
 #include <algorithm>
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <boost/call_traits.hpp>
 #include <iostream>
 #include <memory>
@@ -100,6 +101,7 @@ namespace ORO_Execution
           progParser( 0 ),
           curcondition( 0 ),
           isroot(false),
+          selectln(0),
           conditionparser( new ConditionParser( context ) ),
           commonparser( new CommonParser ),
           valuechangeparser( new ValueChangeParser(context) ),
@@ -137,14 +139,18 @@ namespace ORO_Execution
 
         newline = ch_p( '\n' );
 
-        production = *( newline | statecontext[bind( &StateGraphParser::saveText, this, _1, _2)][ bind( &StateGraphParser::seenstatecontextend, this ) ] ) >> *( newline | rootcontextinstantiation ) >> expect_eof(end_p);
+        production = *( (*newline 
+                         >> statecontext[ bind( &StateGraphParser::seenstatecontextend, this ) ]
+                         >> *( *newline >> rootcontextinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
+                         >> *newline
+                         >> expect_eof(end_p);
 
         rootcontextinstantiation =
             str_p("RootMachine")[bind (&StateGraphParser::startrootcontextinstantiation, this) ]
             >> contextinstantiation[ bind( &StateGraphParser::seenrootcontextinstantiation, this ) ];
 
         statecontext =
-            str_p("StateMachine")[bind( &StateGraphParser::storeOffset, this)]
+            str_p("StateMachine") //[bind( &StateGraphParser::storeOffset, this)]
             >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seenstatecontextname, this, _1, _2 )] )
             >> !newline
             >> expect_open( ch_p( '{' ) )
@@ -204,17 +210,24 @@ namespace ORO_Execution
         // necessary, because comment's are skipped, but newline's
         // aren't.  So a line like "/* very interesting comment
         // */\n" will reach us as simply "\n"..
-        statecontentline = !( entry | preconditions | handle | transitions | exit ) >> newline;
+        statecontentline = !( entry | preconditions | run | handle | transitions | exit ) >> newline;
 
-        preconditions = str_p( "preconditions" )[ bind( &StateGraphParser::inpreconditions, this )]
+        precondition = str_p( "precondition")
+            >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
+
+        preconditions = +precondition | (str_p( "preconditions" )[ bind( &StateGraphParser::inpreconditions, this )]
                         >> expect_open( str_p( "{" ))
                         >> *transline
                         >> expect_end( str_p( "}" ) )[
-                            bind( &StateGraphParser::seenpreconditions, this )];
+                            bind( &StateGraphParser::seenpreconditions, this )]);
 
         entry = str_p( "entry" )[ bind( &StateGraphParser::inprogram, this, "entry" )]
                 >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
                     bind( &StateGraphParser::seenentry, this )];
+
+        run = str_p( "run" )[ bind( &StateGraphParser::inprogram, this, "run" )]
+                 >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
+                     bind( &StateGraphParser::seenrun, this )];
 
         exit = str_p( "exit" )[ bind( &StateGraphParser::inprogram, this, "exit" )]
                >> expect_open(str_p("{")) >> programBody >> expect_end(str_p("}"))[
@@ -230,12 +243,13 @@ namespace ORO_Execution
         transline = !selectcommand >> newline;
 
         // You are only allowed to select a new state in transitions :
-        selectcommand = brancher | selector;
+        selectcommand = (brancher | selector)[bind(&StateGraphParser::seenendcondition,this)];
 
         brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
                                 >> expect_if(str_p( "then" ))>> !newline >> expect_if(selector);
 
-        selector = str_p( "select" ) >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ];
+        selector = str_p( "select" ) >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
+                                     >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]);
 
     }
 
@@ -267,7 +281,7 @@ namespace ORO_Execution
         else
         {
             curstate = new StateDescription(def, mpositer.get_position().line - ln_offset ); // create an empty state
-            curtemplatecontext->addState( def, curstate );
+            curtemplatecontext->addState( curstate );
         }
 
     }
@@ -314,17 +328,30 @@ namespace ORO_Execution
 
     void StateGraphParser::seenentry()
     {
+        if ( curstate->getEntryProgram() )
+            throw parse_exception_semantic_error( "Attempt to define entry twice in state "+ curstate->getName() );
         curstate->setEntryProgram( finishProgram() );
     }
 
     void StateGraphParser::seenexit()
     {
+        if ( curstate->getExitProgram() )
+            throw parse_exception_semantic_error( "Attempt to define exit twice in state "+ curstate->getName() );
         curstate->setExitProgram( finishProgram() );
     }
 
     void StateGraphParser::seenhandle()
     {
+        if ( curstate->getHandleProgram() )
+            throw parse_exception_semantic_error( "Attempt to define handle twice in state "+ curstate->getName() );
         curstate->setHandleProgram( finishProgram() );
+    }
+
+    void StateGraphParser::seenrun()
+    {
+        if ( curstate->getRunProgram() )
+            throw parse_exception_semantic_error( "Attempt to define run twice in state "+ curstate->getName() );
+        curstate->setRunProgram( finishProgram() );
     }
 
     void StateGraphParser::seencondition()
@@ -333,12 +360,13 @@ namespace ORO_Execution
         curcondition = conditionparser->getParseResult();
         assert( curcondition );
         conditionparser->reset();
+        selectln = mpositer.get_position().line - ln_offset;
     }
 
     void StateGraphParser::seenselect( iter_t s, iter_t f)
     {
         std::string state_id(s,f);
-        StateDescription* next_state;
+        StateInterface* next_state;
         if ( curtemplatecontext->getState( state_id ) != 0 )
         {
             next_state = curtemplatecontext->getState( state_id );
@@ -346,7 +374,7 @@ namespace ORO_Execution
         else
         {
             next_state = new StateDescription(state_id, 1); // create an empty state
-            curtemplatecontext->addState( state_id, next_state );
+            curtemplatecontext->addState( next_state );
         }
         assert( next_state );
 
@@ -354,9 +382,30 @@ namespace ORO_Execution
             curcondition = new ConditionTrue;
 
         // this transition has a lower priority than the previous one
-        curtemplatecontext->transitionSet( curstate, next_state, curcondition, rank--, mpositer.get_position().line - ln_offset );
+        if ( selectln == 0)
+            selectln = mpositer.get_position().line - ln_offset;
+        curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), rank--, selectln );
+    }
+
+    void StateGraphParser::seenendcondition() {
+        delete curcondition;
+        curcondition = 0;
+        selectln = 0;
+    }
+
+    void StateGraphParser::seenprecondition()
+    {
+        assert( !curcondition );
+        curcondition = conditionparser->getParseResult();
+        assert( curcondition );
+        conditionparser->reset();
+        selectln = mpositer.get_position().line - ln_offset;
+
+        curtemplatecontext->preconditionSet(curstate, curcondition, selectln );
+        selectln = 0;
         curcondition = 0;
     }
+
 
     void StateGraphParser::seenstatecontextend()
     {
@@ -373,13 +422,13 @@ namespace ORO_Execution
             throw parse_exception_semantic_error("No states defined in this state context !");
 
         // Check if all States are defined.
-        const std::map<std::string, StateDescription*>& states = curtemplatecontext->getStates();
-        for( std::map<std::string, StateDescription*>::const_iterator it = states.begin(); it != states.end(); ++it)
+        vector<string> states = curtemplatecontext->getStateList();
+        for( vector<string>::const_iterator it = states.begin(); it != states.end(); ++it)
         {
-            assert( dynamic_cast<StateDescription*>( it->second ) );
-            StateDescription* sd = static_cast<StateDescription*>( it->second );
+            assert( dynamic_cast<StateDescription*>( curtemplatecontext->getState( *it ) ) );
+            StateDescription* sd = static_cast<StateDescription*>( curtemplatecontext->getState( *it ) );
             if ( !sd->isDefined() )
-                throw parse_exception_semantic_error("State " + it->first + " not defined, but referenced to.");
+                throw parse_exception_semantic_error("State " + *it + " not defined, but referenced to.");
         }
 
         // prepend the commands for initialising the subMachine
@@ -421,10 +470,9 @@ namespace ORO_Execution
         StateMachineBuilder* scb = new StateMachineBuilder( curtemplatecontext );
         contextbuilders[curcontextname] = scb;
 
-        curcontextname.clear();
-        curtemplatecontext = 0;
-        curcontextname.clear();
+        // save curcontextname for saveText.
         curcontext = 0;
+        curtemplatecontext = 0;
     }
 
     std::vector<ParsedStateMachine*> StateGraphParser::parse( iter_t& begin, iter_t end )
@@ -436,6 +484,8 @@ namespace ORO_Execution
 
         // reset the condition-transition priority.
         rank = 0;
+
+        this->storeOffset();
 
         try {
             if ( ! production.parse( scanner ) )
@@ -495,6 +545,7 @@ namespace ORO_Execution
     }
 
     void StateGraphParser::clear() {
+        selectln = 0;
         delete curcondition;
         curcondition = 0;
         // we own curstate, but not through this pointer...
@@ -545,22 +596,13 @@ namespace ORO_Execution
         // reuse, since only the TaskContext pointer is stored and not the ParsedSC's.
         TaskContext* __s = context->getPeer("__states");
         if ( __s ) {
-//             std::vector<std::string> names = __s->getPeerList();
             context->removePeer("__states");
-//             for ( std::vector<std::string>::iterator it= names.begin(); it!= names.end(); ++it) {
-//                 if ( rootcontexts.count(*it) != 0 ) {
-//                     delete rootcontexts[*it];
-//                     rootcontexts.erase(*it);
-//                 }
-//                 __s->removePeer( *it );
-//             }
             delete __s;
         }
 
     }
 
     void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
-        assert( curcontextname.empty() );
         // the 'type' of the SC :
         curcontextname = std::string ( begin, end );
 
@@ -602,12 +644,21 @@ namespace ORO_Execution
     }
 
     void StateGraphParser::storeOffset() {
+        // stores the begining of a (possible) new statemachine definition.
+        // start line number :
         ln_offset = mpositer.get_position().line - 1;
+        // start of text :
+        saveStartPos = mpositer;
     }
 
     void StateGraphParser::saveText( iter_t begin, iter_t end ) {
-        assert ( curtemplatecontext != 0 );
-        curtemplatecontext->setText( std::string( begin, end) );
+        assert( curcontextname.length() != 0 );
+        //cerr << std::string(begin, end)<<endl;
+        if ( contextbuilders.count( curcontextname ) == 0 )
+            return; // yes this might be possible
+        // due to the shared-text implementation, we can set the text afterwards.
+        contextbuilders[curcontextname]->item()->setText( std::string( saveStartPos, end) );
+        this->storeOffset();
     }
 
     void StateGraphParser::inpreconditions() {
@@ -615,7 +666,7 @@ namespace ORO_Execution
         assert( curnonprecstate == 0 );
         curnonprecstate = curstate->postponeState();
         // add the postponed state in PSM :
-        curtemplatecontext->addState( "__pp__" + curnonprecstate->getName(), curnonprecstate );
+        curtemplatecontext->addState( curnonprecstate );
     }
 
     void StateGraphParser::seenpreconditions() {
@@ -635,7 +686,9 @@ namespace ORO_Execution
         if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
             throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
+
         // recursively set the name of this SC and all subs :
+        // furthermore, it adds the TC of each child as peer TC to the parent.
         curinstantiatedcontext->setName( curinstcontextname, true );
 
         // add it to the "states" (all instantiated) of the current context :
@@ -651,28 +704,36 @@ namespace ORO_Execution
         if ( __s->hasPeer( curinstcontextname ) )
             throw parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' .");
         __s->connectPeers( curinstantiatedcontext->getTaskContext() );
+        curinstantiatedcontext->getTaskContext()->addPeer(context, "task");
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
     }
 
     void StateGraphParser::seensubMachineinstantiation() {
-        if( curtemplatecontext->getSubMachine( curinstcontextname ) != 0 )
+        if ( find_if( curtemplatecontext->getChildren().begin(),
+                      curtemplatecontext->getChildren().end(),
+                      bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstcontextname )) != curtemplatecontext->getChildren().end() )
             throw parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." );
 
         // Since we parse in the task context, we must _temporarily_
         // make each subMachine a peer of the task so that we can access
         // its methods.
+
         if ( !context->addPeer( curinstantiatedcontext->getTaskContext() ) )
             throw parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
                 "\"  already used as peer name in task '"+context->getName()+"'." );
             
-        curtemplatecontext->addSubMachine( curinstcontextname, curinstantiatedcontext );
+
+        curtemplatecontext->addChild( curinstantiatedcontext );
+        curtemplatecontext->getTaskContext()->addPeer( curinstantiatedcontext->getTaskContext() );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
-        detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
-        context->attributeRepository.setValue( curinstcontextname, pv );
+        //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
+        //context->attributeRepository.setValue( curinstcontextname, pv );
+
+        curinstantiatedcontext->setName(curinstcontextname, false ); // not recursive !
 
         curinstantiatedcontext = 0;
         curinstcontextname.clear();
@@ -773,6 +834,7 @@ namespace ORO_Execution
 
         // set the TaskContext name to the instance name :
         curinstantiatedcontext->getTaskContext()->setName(curinstcontextname );
+
     }
 
     void StateGraphParser::seencontextvariable() {

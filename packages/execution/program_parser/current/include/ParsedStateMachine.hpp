@@ -31,6 +31,7 @@
 
 #include "execution/StateMachine.hpp"
 #include "execution/DataSource.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution {
 
@@ -46,21 +47,6 @@ namespace ORO_Execution {
     class ParsedStateMachine
         : public StateMachine
     {
-        typedef std::map<std::string, StateDescription*> StateNameMap;
-        // We need to keep the pointers to subMachines in a
-        // datasource, so that commands in the state methods can refer
-        // to it using a single datasource.  On copying, we first copy
-        // the subMachines, adding the datasources containing their
-        // pointers to the replacement map, so that the new commands
-        // refer to the correct subMachines...  We store this as a
-        // DataSource refering to a StateMachine, even though we know
-        // that it will only contain ParsedStateMachine's.  This is
-        // because it will be used to call functions that accept
-        // arguments of type StateMachine, and the DataSource's
-        // unfortunately don't know about inheritance or casting...
-        typedef std::map<std::string, DataSource<StateMachine*>::shared_ptr> SubMachineNameMap;
-
-        typedef std::map<std::string, DataSourceBase::shared_ptr> VisibleReadOnlyValuesMap;
         typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
 
     public:
@@ -68,50 +54,15 @@ namespace ORO_Execution {
         virtual ~ParsedStateMachine();
 
         /**
-         * @brief Create a ParsedStateMachine which is parsed from \a text.
-         */
-        ParsedStateMachine(const std::string& text);
-
-        std::vector<std::string> getSubMachineList() const;
-        ParsedStateMachine* getSubMachine( const std::string& name ) const;
-        /**
-         * Add a new SubMachine to this context.  This function
-         * returns the DataSource by which the program can refer to
-         * the given StateMachine...
-         */
-        DataSource<StateMachine*>* addSubMachine( const std::string& name, ParsedStateMachine* sc );
-
-        /**
          * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
          */
         ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
 
-        const std::map<std::string, StateDescription*>& getStates() const {
-            return states;
-        }
-        std::vector<std::string> getStateList() const;
-
-        StateDescription* getState( const std::string& name ) const;
-
-        // is this context currently in the state by the given name ?
-        bool inState( const std::string& name ) const;
-
-        void addState( const std::string& name, StateDescription* state );
-
-        void addReadOnlyVar( const std::string& name, DataSourceBase* var );
         void addParameter( const std::string& name, TaskAttributeBase* var );
-        DataSourceBase* getReadOnlyVar( const std::string& name ) const;
+
         TaskAttributeBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
-        VisibleReadOnlyValuesMap getReadOnlyValues() const;
         std::vector<std::string> getParameterNames() const;
-        std::vector<std::string> getReadOnlyValuesNames() const;
-
-        /**
-         * Return a DataSource which contains the scoped name
-         * of this StateMachine.
-         */
-        DataSource<std::string>* getNameDS() const;
 
         /**
          * Set the name of this context. If \a recurisive == true, this also sets subMachines'
@@ -120,8 +71,8 @@ namespace ORO_Execution {
          */
         void setName( const std::string& name, bool recursive );
 
-        std::string getText() const { return _text; }
-        void setText(const std::string& text) { _text = text; }
+        std::string getText() const { return *_text; }
+        void setText( std::string text) { *_text = text; }
 
         TaskContext* getTaskContext() const {
             return context;
@@ -134,17 +85,9 @@ namespace ORO_Execution {
          */
         void finish();
     private:
-        detail::VariableDataSource<std::string>::shared_ptr nameds;
-
-        SubMachineNameMap subMachines;
-
-        StateNameMap states;
-
         VisibleWritableValuesMap parametervalues;
 
-        VisibleReadOnlyValuesMap visiblereadonlyvalues;
-
-        std::string _text;
+        boost::shared_ptr<std::string> _text;
 
         TaskContext* context;
         detail::StateMachineCommands* sc_coms;

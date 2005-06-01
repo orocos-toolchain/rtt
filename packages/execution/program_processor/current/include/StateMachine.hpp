@@ -36,6 +36,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <utility>
 #include <boost/tuple/tuple.hpp>
 
 namespace ORO_Execution
@@ -48,6 +49,8 @@ namespace ORO_Execution
      * loaded in the Program Processor.
      *
      * A StateMachine can have children and one parent.
+     * @todo Implement the whole transition mechanism with the
+     * Strategy software pattern to allow cleaner implementation.
      */
     class StateMachine
     {
@@ -57,6 +60,7 @@ namespace ORO_Execution
          */
         typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int> > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
+        typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
 
         std::vector<StateMachine*> _children;
         StateMachine* _parent;
@@ -151,9 +155,19 @@ namespace ORO_Execution
         StateInterface* nextState();
 
         /**
+         * Get a list of the names of all the present states.
+         */
+        std::vector<std::string> getStateList() const;
+
+        /**
          * Lookup a State by name. Returns null if not found.
          */
         StateInterface* getState( const std::string & name ) const;
+
+        /**
+         * Add a State. If already present, changes nothing.
+         */
+        void addState( StateInterface* s );
 
         /**
          * Request a state transition to a new state.
@@ -162,9 +176,9 @@ namespace ORO_Execution
          *
          * @param  s_n
          *         The state to change to
-         * @return true
+         * @retval true
          *          if the transition is successfull
-         *         false
+         * @retval false
          *          if the transition is not allowed
          */
         bool requestState( StateInterface * s_n );
@@ -179,10 +193,29 @@ namespace ORO_Execution
          * 
          * @param stepping provide true if the pending programs should 
          * be executed one step at a time.
-         * @return true if nothing was pending, false if there was
+         * @retval true if nothing was pending @retval false if there was
          * some program executing.
          */
         bool executePending( bool stepping = false );
+
+        /**
+         * Express a precondition for entering a state.  The
+         * precondition will be chained (Logical AND) with any
+         * transition to this state. This means that any transition to
+         * this state will only succeed if all preconditions hold. If
+         * \a state is the initial state, the preconditions must be
+         * true to make \a actiate() succeed. If \a state is the final
+         * state, they will not be checked upon \a requestFinalState,
+         * since requestFinalState always succeeds.
+         *
+         * @param state
+         *        The state for which the preconditions must hold
+         * @param cnd
+         *        The Pre-Condition under which a transition to this state may succeed
+         * @param line
+         *        The line number where this precondition was introduced.
+         */
+        void preconditionSet( StateInterface* state, ConditionInterface* cnd, int line);
 
         /**
          * Express a possible transition from one state to another under
@@ -216,20 +249,26 @@ namespace ORO_Execution
         void setFinalState( StateInterface* s );
 
         /**
-         * Retrieve the current state of the context. Returns null if
+         * Retrieve the current state of the state machine. Returns null if
          * the StateMachine is not active.
          */
         StateInterface* currentState() const;
 
         /**
-         * Retrieve the initial state of the context.
+         * Retrieve the current program in execution. Returns null if
+         * the StateMachine is not active or no programs are being run.
+         */
+        ProgramInterface* currentProgram() const;
+
+        /**
+         * Retrieve the initial state of the state machine.
          */
         StateInterface* getInitialState() const {
             return initstate;
         }
 
         /**
-         * Retrieve the final state of the context.
+         * Retrieve the final state of the state machine.
          */
         StateInterface* getFinalState() const {
             return finistate;
@@ -237,7 +276,10 @@ namespace ORO_Execution
 
         /**
          * This was added for extra (non-user visible) initialisation
-         * before the StateMachine is activated.
+         * when the StateMachine is activated.
+         * @param c The command to execute upon each \a activate.
+         * \a c is aggregated by this state machine and deleted in
+         * the destructor.
          */
         void setInitCommand( CommandInterface* c)
         {
@@ -307,6 +349,12 @@ namespace ORO_Execution
          */
         TransitionMap stateMap;
 
+        /**
+         * A map keeping track of all preconditions
+         * of a state.
+         */
+        PreConditionMap precondMap;
+
     private:
         void changeState( StateInterface* s, bool stepping = false );
 
@@ -314,9 +362,13 @@ namespace ORO_Execution
 
         void enterState( StateInterface* s );
 
+        void runState( StateInterface* s );
+
         void handleState( StateInterface* s );
 
         bool executeProgram(ProgramInterface*& cp, bool stepping);
+
+        int checkConditions( StateInterface* state, bool stepping = false );
 
         /**
          * The Initial State.
@@ -330,7 +382,7 @@ namespace ORO_Execution
 
         /**
          * The current state the Machine is in.
-         * current == 0 means that the context is currently inactive...
+         * current == 0 means that the state machine is currently inactive.
          */
         StateInterface* current;
 
@@ -345,8 +397,13 @@ namespace ORO_Execution
         ProgramInterface* currentExit;
         ProgramInterface* currentHandle;
         ProgramInterface* currentEntry;
+        ProgramInterface* currentRun;
 
         TransList::iterator reqstep;
+        TransList::iterator reqend;
+
+        std::pair<PreConditionMap::const_iterator,PreConditionMap::const_iterator> prec_it;
+        bool checking_precond;
 
         bool error;
 
