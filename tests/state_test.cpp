@@ -441,7 +441,7 @@ void StateTest::testStateSubStateVars()
         + "     if t >= 0. then select VARFAIL\n"
         + "     select FINI\n"
         + " }\n"
-        + " }\n"
+        + " }\n" // 10
         + " state ERROR {\n"
         + " }\n"
         + " state PARAMFAIL {\n"
@@ -451,7 +451,7 @@ void StateTest::testStateSubStateVars()
         + " state EXITFAIL {\n"
         + " }\n"
         + " state ENTRYFAIL {\n"
-        + " }\n"
+        + " }\n" // 20
         + " final state FINI {\n"
         + " transitions {\n"
         + "     if isnegative <= 0. then select PARAMFAIL\n"
@@ -461,7 +461,7 @@ void StateTest::testStateSubStateVars()
         + string("StateMachine X {\n")
         + " param double isnegative\n"
         + " var double d_dummy = -2.0\n"
-        + " var int    i_dummy = -1\n"
+        + " var int    i_dummy = -1\n" //30
         + " SubMachine Y y1(isnegative = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
@@ -653,15 +653,15 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     if (test ) {
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() );
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), (*pg_list.begin())->inError() == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_ERROR" + errormsg.str(), (*pg_list.begin())->inState("PRE_ERROR") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_VARFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_VARFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_PARAMFAIL" + errormsg.str(), (*pg_list.begin())->inState("PRE_PARAMFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ERROR" + errormsg.str(), (*pg_list.begin())->inState("ERROR") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:VARFAIL" + errormsg.str(), (*pg_list.begin())->inState("VARFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PARAMFAIL" + errormsg.str(), (*pg_list.begin())->inState("PARAMFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ENTRYFAIL" + errormsg.str(), (*pg_list.begin())->inState("ENTRYFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:EXITFAIL" + errormsg.str(), (*pg_list.begin())->inState("EXITFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:HANDLEFAIL" + errormsg.str(), (*pg_list.begin())->inState("HANDLEFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_ERROR" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_ERROR") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_VARFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_VARFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_PARAMFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_PARAMFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ERROR" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("ERROR") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:VARFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("VARFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PARAMFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PARAMFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ENTRYFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("ENTRYFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:EXITFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("EXITFAIL") == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:HANDLEFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("HANDLEFAIL") == false );
     }
     tc->getProcessor()->stopStateMachine( (*pg_list.begin())->getName() );
     sleep(1);
