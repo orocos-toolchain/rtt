@@ -127,7 +127,7 @@ namespace ORO_Execution
                       error = true;
                   }
               }
-              return error;
+              return !error;
           }
     return true;
   }
@@ -199,7 +199,7 @@ namespace ORO_Execution
                         error = true;
                     }
                 }
-                return error;
+                return !error;
             }
         return true;
     }
