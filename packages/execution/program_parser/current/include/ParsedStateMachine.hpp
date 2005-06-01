@@ -80,6 +80,10 @@ namespace ORO_Execution {
         void setTaskContext(TaskContext* tc) {
             context = tc;
         }
+
+        bool inState( const std::string& name ) {
+            return this->getState()->getName() == name;
+        }
         /**
          * Call this function if the state context is parsed.
          */
