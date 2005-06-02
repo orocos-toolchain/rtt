@@ -225,6 +225,7 @@ namespace ORO_Execution
         }
 
     };
+    }
 
     /**
      * Try to adapt a DataSourceBase to a DataSource< by value >.
@@ -244,17 +245,17 @@ namespace ORO_Execution
             // const ref to value case
             DataSource<const Result&>* t2 = dynamic_cast<DataSource<const Result&>*>( dsb.get() );
             if ( t2 )
-                return new DataSourceAdaptor<const Result&, Result>( t2 );
+                return new detail::DataSourceAdaptor<const Result&, Result>( t2 );
 
             // ref to value case
             DataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
             if ( t3 )
-                return new DataSourceAdaptor<Result&, Result>( t3 );
+                return new detail::DataSourceAdaptor<Result&, Result>( t3 );
 
             // const value to value case
             DataSource<const Result>* t4 = dynamic_cast<DataSource<const Result>*>( dsb.get() );
             if ( t4 )
-                return new DataSourceAdaptor<const Result, Result>( t4 );
+                return new detail::DataSourceAdaptor<const Result, Result>( t4 );
 
             // complete type failure.
             return 0;
@@ -280,17 +281,17 @@ namespace ORO_Execution
             // const ref to const value case
             DataSource<const TResult&>* t2 = dynamic_cast<DataSource<const TResult&>*>( dsb.get() );
             if ( t2 )
-                return new DataSourceAdaptor<const TResult&, Result>( t2 );
+                return new detail::DataSourceAdaptor<const TResult&, Result>( t2 );
 
             // ref to const value case
             DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
             if ( t3 )
-                return new DataSourceAdaptor<TResult&, Result>( t3 );
+                return new detail::DataSourceAdaptor<TResult&, Result>( t3 );
 
             // value to const value case
             DataSource<TResult>* t4 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
             if ( t4 )
-                return new DataSourceAdaptor<TResult, Result>( t4 );
+                return new detail::DataSourceAdaptor<TResult, Result>( t4 );
 
             // complete type failure.
             return 0;
@@ -317,8 +318,8 @@ namespace ORO_Execution
 
             // assignable case
             AssignableDataSource<TResult>* t2 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
-            if (t2)
-                return new AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
+            if (t2 && &(t2->set()) != 0 )
+                return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
             
             // complete type failure.
             return 0;
@@ -343,22 +344,22 @@ namespace ORO_Execution
             // value to const ref case
             DataSource<TResult>* t2 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
             if ( t2 )
-                return new DataSourceAdaptor<TResult, const TResult&>( t2 );
+                return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
 
             // ref to const ref case
             DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
             if ( t3 )
-                return new DataSourceAdaptor<TResult&, const TResult&>( t3 );
+                return new detail::DataSourceAdaptor<TResult&, const TResult&>( t3 );
 
             // const value to const ref case
             DataSource<const TResult>* t4 = dynamic_cast<DataSource<const TResult>*>( dsb.get() );
             if ( t4 )
-                return new DataSourceAdaptor<const TResult, const TResult&>( t4 );
+                return new detail::DataSourceAdaptor<const TResult, const TResult&>( t4 );
 
             // assignable case
             AssignableDataSource<TResult>* ta1 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
-            if (ta1)
-                return new AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
+            if (ta1 && &(ta1->set()) != 0 ) // check for null set()
+                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
             
 
             // complete type failure.
@@ -367,7 +368,6 @@ namespace ORO_Execution
         
     };
 
-    }
 }
 
 #endif
