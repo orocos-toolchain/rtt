@@ -82,7 +82,10 @@ namespace ORO_Execution {
         }
 
         bool inState( const std::string& name ) {
-            return this->getState()->getName() == name;
+            StateInterface* copy = this->currentState();
+            if (copy == 0)
+                return false;
+            return copy->getName() == name;
         }
         /**
          * Call this function if the state context is parsed.

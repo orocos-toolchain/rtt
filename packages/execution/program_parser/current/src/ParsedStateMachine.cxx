@@ -155,16 +155,18 @@ namespace ORO_Execution {
         }
 
         bool inState(const std::string& state) const {
-            if ( !_sc->isActive() )
+            StateInterface* copy = _sc->currentState();
+            if (copy == 0)
                 return false;
-            return _sc->currentState()->getName() == state;
+            return copy->getName() == state;
         }
 
         std::string emptyString;
         const std::string& getState() const {
-            if ( !_sc->isActive() )
+            StateInterface* copy = _sc->currentState();
+            if (copy == 0)
                 return emptyString;
-            return _sc->currentState()->getName();
+            return copy->getName();
         }
 
         // Strictly active, means active and not in a transition.
