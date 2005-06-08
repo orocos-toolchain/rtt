@@ -18,6 +18,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testMethods );
     CPPUNIT_TEST( testData );
     CPPUNIT_TEST( testCommands );
+    CPPUNIT_TEST( testManual );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
@@ -58,6 +59,8 @@ public:
     void testMethods();
     void testData();
     void testCommands();
+
+    void testManual();
 };
 
 #endif

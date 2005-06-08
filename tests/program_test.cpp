@@ -145,7 +145,7 @@ void ProgramTest::testParseProgram()
     // a program which should never fail
     // test this methods, commands etc.
     string prog = string("program x { do test.instantDone() \n")
-        + " and test.instantDone()"
+        + " \n and \n test.instantDone()"
         + " and test.instantDone()\n"
         + " do test.assert( test.isTrue( true ) )\n"
         + " do test.assert( test.i == 0 )\n"
@@ -164,7 +164,7 @@ void ProgramTest::testParseProgram()
         + "    do assert( false )\n"
         + " if true then\n"
         + "    return\n"
-        + " do test.assert(false)\n"  // do not reach
+        + " do test.assert(false)"  // do not reach
         + "}";
 
     this->doProgram( prog, &gtc );
@@ -173,8 +173,9 @@ void ProgramTest::testParseProgram()
 
 void ProgramTest::testProgramFailure()
 {
-    string prog = string("program x { do test.instantFail() until {  \n")
-        + " if true then continue }\n"
+    //also small test for program without newlines
+    string prog = string("program x { do test.instantFail() until { ")
+        + " if true then continue }"
         + "}";
 
     this->doProgram( prog, &gtc, false );
@@ -222,7 +223,7 @@ void ProgramTest::testProgramCondition()
         + "       set trig = true \n"
         + "if test.i != 51 then \n" // require same result as with ISO C
         + "    do test.instantFail() \n"
-        + "return \n"
+        + "return "
         + "}";
     this->doProgram( prog, &gtc );
     this->finishProgram( &gtc, "x");

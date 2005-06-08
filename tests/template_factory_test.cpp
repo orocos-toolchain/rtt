@@ -4,6 +4,9 @@
 #include <iostream>
 #include <execution/ProgramGraph.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <execution/DataSourceAdaptor.hpp>
+#include <execution/DataSourceGenerator.hpp>
+
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
@@ -184,3 +187,33 @@ void Template_FactoryTest::testCommands()
     delete *pg_list.begin();
 }
 
+void Template_FactoryTest::testManual()
+{
+    // test manual invocation of factory methods by users:
+
+    // C++ POD :
+    vector<DataSourceBase::shared_ptr> res;
+    res = GenerateDataSource()( 1 );
+    CPPUNIT_ASSERT( res.size() == 1 );
+    res = GenerateDataSource()(1, 1.0 );
+    CPPUNIT_ASSERT( res.size() == 2 );
+    res = GenerateDataSource()(1, 1.0, true );
+    CPPUNIT_ASSERT( res.size() == 3 );
+    res = GenerateDataSource()(1, 1.0, true, "c" );
+    CPPUNIT_ASSERT( res.size() == 4 );
+
+    // C++ DataSources :
+    DataSourceBase::shared_ptr empty1;
+    DataSource<double>::shared_ptr empty2;
+    AssignableDataSource<bool>::shared_ptr empty3;
+    VariableDataSource<string>::shared_ptr empty4;
+
+    res = GenerateDataSource()( empty1.get() );
+    CPPUNIT_ASSERT( res.size() == 1 );
+    res = GenerateDataSource()( empty1.get(), empty2.get() );
+    CPPUNIT_ASSERT( res.size() == 2 );
+    res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get() );
+    CPPUNIT_ASSERT( res.size() == 3 );
+    res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get(), empty4.get() );
+    CPPUNIT_ASSERT( res.size() == 4 );
+}

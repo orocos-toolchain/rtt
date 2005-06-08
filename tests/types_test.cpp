@@ -117,8 +117,8 @@ void TypesTest::testTypes()
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
     string prog = string("program x {\n") +
-        "var int i = -1\n" +
-        "do test.assert( i == -1 )\n" +
+        "var int i = -1, j = 10, k; set k = 20\n" +
+        "do test.assert( i == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
         "do test.assert( d == 10.0 )\n" +
         "var bool b = false\n"+
@@ -134,14 +134,14 @@ void TypesTest::testTypes()
 //         "do test.assert( double6d(0.01) == double6d(0.01) )\n" +
 //         "do test.assert( d6_2 == double6d(0.01) )\n" +
         "const int ic = i\n" +
-        "do test.assert( ic == -1 )\n" +
-        "const double dc = d\n"+
+        "do test.assert( ic == 0 )\n" + // i was null at parse time !
+        "const double dc = 10.0\n"+     // evaluate 10.0 at parse time
         "do test.assert( dc == 10.0 )\n" +
-        "const bool bc = b\n"+
+        "const bool bc = true && false\n"+
         "do test.assert( bc == false )\n" +
-        "const string sc=s\n"+
-        "do test.assert( s == sc )\n" +
-        "const double6d d6c = d6\n"+
+        "const string sc= \"hello\"\n"+
+        "do test.assert( sc == \"hello\" )\n" +
+        "const double6d d6c = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n" +
         // 20
 //         "do test.assert( d6c == d6 )\n" +
         "set d6[0]=1.0\n"+
@@ -229,7 +229,7 @@ void TypesTest::testOperators()
         "var double6d d6_2 = double6d(0.0)\n"+
         "set d = d+1.0-1.0-2.0*1.0/2.0*0.0/i \n"+
 //         "do test.assert( d == 10.0 )\n" +
-        "set b = b or b and true && false || true\n"+
+        "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
 //         "set s = s+\"abc\"\n"+
         "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
