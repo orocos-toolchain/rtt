@@ -62,14 +62,19 @@ uninstall-local:
 	@rm -fv $(prefix)/lib/libtarget.a
 
 install-exec-local:
-	install -m 755 -d $(prefix)/include
-	for i in ${PATHHEADERS}; do install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i"; done
-	install -m 755 -d $(prefix)/lib
-	for i in $$( ls packages/install/lib/libtarget.a ); do \
+	@echo "Installing new headers..."
+	@install -m 755 -d $(prefix)/include
+	@for i in ${PATHHEADERS};\
+	do if test packages/install/include/$$i -nt $(prefix)/include/$$i ;\
+	then  install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i";fi; done
+	@echo "Installing new library..."
+	@install -m 755 -d $(prefix)/lib
+	@for i in $$( ls packages/install/lib/libtarget.a ); do \
+	if test packages/install/lib/libtarget.a -nt $(prefix)/lib/liborocos-$(ECOS_TARGET).a ; then \
 	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
 	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
-	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; done
-	libtool --mode=finish $(prefix)/lib 
+	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; fi; done
+	@libtool --mode=finish $(prefix)/lib
 
 all-local: test_new_packages test_all_packages
 
