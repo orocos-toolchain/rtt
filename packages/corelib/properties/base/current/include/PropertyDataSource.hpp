@@ -57,7 +57,7 @@ namespace ORO_CoreLib
 
             typename DataSource<T>::result_t get() const
             {
-                return prop->get();
+                return prop->set();
             }
 
             void set( typename AssignableDataSource<T>::param_t t )
