@@ -14,12 +14,18 @@ namespace ORO_CoreLib
    * The DataSource is an object containing Data of any type. It's
    * interface is designed for dynamic build-up and destruction of
    * these objects and allowing Commands, Properties etc to use them
-   * as 'storage' devices which have the dual copy()/clone() semantics
+   * as 'storage' devices which have the dual \a copy() /\a clone() semantics
    * (which is heavily used by the Orocos Task Infrastructure).
    *
-   * DataSource's are reference counted.  Use
+   * @important DataSource's are reference counted and must be allocated on the headp. Use
    * DataSourceBase::shared_ptr or DataSource<T>::shared_ptr to deal
-   * with this automatically, or don't forget to call ref and deref..
+   * with cleanup of allocated DataSources. You are not allowed to delete
+   * a DataSource. If you must have the pointer of a DataSource, use
+   * the \a .get() method of the \a shared_ptr class. 
+   *
+   * Once a newly created DataSource is assigned to a \a shared_ptr,
+   * it will be deleted when that pointer goes out of scope and is not
+   * shared by other \a shared_ptr objects.
    *
    * @see DataSource
    */
@@ -65,8 +71,21 @@ namespace ORO_CoreLib
        * Force an evaluation of the DataSourceBase.
        */
       virtual void evaluate() const = 0;
+
       /**
-       * Create a deep copy of this DataSource, unless it is already cloned and place the association (parent, clone) in \a alreadyCloned.
+       * Return a shallow clone of this DataSource. This method
+       * returns a duplicate of this instance which re-uses the
+       * DataSources this DataSource holds reference to. The
+       * clone() function is thus a non-deep copy.
+       */
+      virtual DataSourceBase* clone() const = 0;
+
+      /**
+       * Create a deep copy of this DataSource, unless it is already
+       * cloned. Places the association (parent, clone) in \a
+       * alreadyCloned.  If the DataSource is non-copyable (for
+       * example it represents the Property of a Task ), \a this may
+       * be returned.
        */
       virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
 

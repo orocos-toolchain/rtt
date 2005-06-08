@@ -28,12 +28,11 @@
 #ifndef CORELIB_DATASOURCE_HPP
 #define CORELIB_DATASOURCE_HPP
 
-#include <boost/type_traits.hpp>
-#include <boost/call_traits.hpp>
-
 #include <map>
-#include <vector>
 #include <string>
+#include <boost/call_traits.hpp>
+#include <boost/type_traits.hpp>
+
 #include "DataSourceTypeInfo.hpp"
 #include "DataSourceBase.hpp"
 
@@ -41,17 +40,18 @@ namespace ORO_CoreLib
 {
 
   /**
-   * DataSource is a base class representing a generic way to get a
-   * piece of data from somewhere.  A standard VariableDataSource,
-   * which just keeps a value and returns it every time in its get()
-   * method is included below ( @ref VariableDataSource ).
+   * DataSource is a base class representing a generic way to read
+   * data of type \a T.
    *
-   * NOTES/TODO: Condition is remarkably similar to DataSource<bool>,
-   * and perhaps it would be useful to somehow merge the two..  Or
-   * perhaps just providing adaptors in two directions will do ?
-   * Currently, the second approach is taken, with adapters in
-   * ConditionBoolDataSource.hpp and
-   * DataSourceCondition.hpp.
+   * A VariableDataSource, which just keeps a value and returns it
+   * every time in its get() method is implemented in ORO_Execution.
+   *
+   * @see DataSourceBase for shared_ptr use.
+   * @param T The type of data returned by \a get(). It does not
+   * necessarily say that the data is stored as a \a T, it only
+   * specifies in which form the get() method returns the data.
+   * Thus a DataSource<const std::string&> returns a const ref to
+   * a string, but may store the string itself by value.
    */
   template<typename T>
   class DataSource
@@ -69,7 +69,7 @@ namespace ORO_CoreLib
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
       /**
-       * Return the data.
+       * Return the data as type \a T.
        */
       virtual result_t get() const = 0;
 
@@ -107,11 +107,14 @@ namespace ORO_CoreLib
 
   /**
    * A DataSource which has set() methods.
+   * @param T See DataSource for the semantics of \a T.
    */
   template<typename T>
   class AssignableDataSource
     : public DataSource<T>
   {
+  protected:
+      ~AssignableDataSource();
   public:
       typedef typename DataSource<T>::value_t value_t;
       typedef typename boost::call_traits<value_t>::param_type param_t;
@@ -141,32 +144,11 @@ namespace ORO_CoreLib
       virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
   };
 
-#if 0
-    namespace detail
-    {
-        struct NoDS {};
-        template<class T>
-        struct isNoDS { enum res { False = 0 }; typedef False Result; }
-        template<>
-        struct isNoDS<NoDS> { enum res { True = 1}; typedef True Result; }
-    }
+  template<typename T>
+  AssignableDataSource<T>::~AssignableDataSource()
+  {}
 
-    /**
-     * A function which returns a vector of DataSources.
-     */
-    template<class A1, class A2 = detail::NoDS, class A3=detail::NoDS>
-    std::vector<DataSourceBase*> GenerateDataSource(A1 a1, A2 a2 = A2(), A3 a3 = A3())
-    {
-        std::vector<DataSourceBase*> res;
-        res.push_back( new DataSource<A1>( a1 ));
-        if ( !isNoDS<A2>::Result )
-            res.push_back( new DataSource<A2>(a2));
-        if ( !isNoDS<A3>::Result )
-            res.push_back( new DataSource<A3>(a3));
-        return res;
-    }
-    
-#endif
+
 }
 
 #endif

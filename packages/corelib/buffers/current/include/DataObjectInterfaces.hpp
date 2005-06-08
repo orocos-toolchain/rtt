@@ -43,17 +43,24 @@ namespace ORO_CoreLib
      * implementations of multi-threaded read/write solutions.
      *
      * @see DataObject
+     * @param T The \a DataType which can be Get() or Set() with this DataObject.
      */
-    template <class _DataType>
+    template <class T>
     struct DataObjectInterface
-        : public AssignableDataSource<_DataType>
+        : public AssignableDataSource<T>
     {
+        typedef typename boost::intrusive_ptr<DataObjectInterface<T> > shared_ptr;
+
+        /**
+         * Destructor. Since the DataObjectInterface has become a DataSource (Orocos 0.20.0)
+         * This will become protected in upcomming releases.
+         */
         virtual ~DataObjectInterface() {}
 
         /**
          * The type of the data.
          */
-        typedef _DataType DataType;
+        typedef T DataType;
             
         /**
          * Get a copy of the Data of this data object.
