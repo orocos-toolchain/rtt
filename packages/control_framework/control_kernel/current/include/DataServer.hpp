@@ -56,15 +56,25 @@ ORO_PRAGMA_INTERFACE
 #include <corelib/DataObjectInterfaces.hpp>
 #include "DataObjectReporting.hpp"
 #include <corelib/PropertyIntrospection.hpp>
-#include "Typelist.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/mpl/list.hpp>
+
+namespace ORO_ControlKernel
+{
+    namespace detail {
+        /**
+         * A place holder to terminate type lists.
+         */
+        typedef boost::mpl::na nil_type;
+    }
+}
 
 namespace ORO_CoreLib
 {
     // this is quite optional, since we will most likely never want to report
     // 'nothing'
     void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
-                           ORO_CoreLib::Property<Loki::NullType> const& nt);
+                           ORO_CoreLib::Property<ORO_ControlKernel::detail::nil_type> const& nt);
 
 }
 
@@ -78,11 +88,6 @@ namespace ORO_ControlKernel
     using ORO_CoreLib::DataObjectLockFree;
     using ORO_CoreLib::DataObjectInterface;
     using ORO_CoreLib::CommandInterface;
-
-
-    using namespace Loki::TL;
-    typedef Loki::NullType nil_type; // Moving to Loki.
-    using Loki::Typelist; // moving to Loki.
 
     namespace detail {
 
@@ -105,7 +110,7 @@ namespace ORO_ControlKernel
     class DataObjectServer
         : public ReportingClient
     {
-        static ORO_CoreLib::NameServer< DataObjectInterface< typename _DataObjectType::DataType>* > ns;
+        static ORO_CoreLib::NameServer< typename DataObjectInterface< typename _DataObjectType::DataType>::shared_ptr > ns;
         std::string prefix;
         /**
          * A server where we reg our dataobjs for reporting.
@@ -114,7 +119,7 @@ namespace ORO_ControlKernel
     public :
         typedef _DataObjectType DataObjectType;
         typedef _DataObjectType* DataObjectType_ptr;
-        typedef DataObjectInterface< typename _DataObjectType::DataType>* NameServerType ;
+        typedef typename DataObjectInterface< typename _DataObjectType::DataType>::shared_ptr NameServerType ;
         
         /**
          * The MemberType is the DataType of the DataObject.
@@ -171,7 +176,7 @@ namespace ORO_ControlKernel
                             ns.getObject( *it1 )->Get(val);
                             Property<MemberType>* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
                                                                                     std::string( "" ), val );
-                            comms.push_back( item->refreshCommand( ns.getObject( *it1 ) ));
+                            comms.push_back( item->refreshCommand( ns.getObject( *it1 ).get() ));
                             bag.add( item );
                         } //else std::cerr << " no."<<endl;
                 }
@@ -191,7 +196,7 @@ namespace ORO_ControlKernel
                             PropertyBase* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
                                                                                     std::string( "" ), val );
                             // return the refresh command which updates orig with the DObj.
-                            CommandInterface* c =  item->refreshCommand( ns.getObject( *it1 ) );
+                            CommandInterface* c =  item->refreshCommand( ns.getObject( *it1 ).get() );
                             return std::make_pair( item, c );
                         }
                 }
@@ -266,8 +271,29 @@ namespace ORO_ControlKernel
          * @param name The name (without prefix) of the DataObject
          * which must be Get.
          * @return true if it could be get, false otherwise.
+         * @deprecated by shared_ptr version.
          */
         bool Get( const std::string& name, DataObjectInterface<MemberType>*& m ) const
+        {
+            NameServerType res;
+            if ( (res = ns.getObject(prefix + name) ) )
+                {
+                    m = res.get();
+                    return true;
+                }
+            m = 0;
+            return false;
+        }
+
+        /**
+         * @brief Get a pointer to a DataObject.
+         *
+         * @param m Returns the resulting DataObject (or null).
+         * @param name The name (without prefix) of the DataObject
+         * which must be Get.
+         * @return true if it could be get, false otherwise.
+         */
+        bool Get( const std::string& name, typename DataObjectInterface<MemberType>::shared_ptr& m ) const
         {
             NameServerType res;
             if ( (res = ns.getObject(prefix + name) ) )
@@ -318,7 +344,7 @@ namespace ORO_ControlKernel
     };
 
     template< class _DataObjectType >
-    NameServer< DataObjectInterface<typename _DataObjectType::DataType>* > DataObjectServer<_DataObjectType>::ns;
+    NameServer< typename DataObjectInterface<typename _DataObjectType::DataType>::shared_ptr > DataObjectServer<_DataObjectType>::ns;
 
 //     template<class T> 
 //     struct is_nil
@@ -348,12 +374,39 @@ namespace ORO_ControlKernel
 //     };
 
 
-//     template<typename First, typename Rest=nil_type> // only last NameList element has Rest==nil_type
-//     struct NameList
-//     {
-//         typedef First first;
-//         typedef Rest rest;
-//     };
+        template
+        <
+            typename T1  = nil_type, typename T2  = nil_type, typename T3  = nil_type,
+            typename T4  = nil_type, typename T5  = nil_type, typename T6  = nil_type,
+            typename T7  = nil_type, typename T8  = nil_type, typename T9  = nil_type,
+            typename T10 = nil_type, typename T11 = nil_type, typename T12 = nil_type,
+            typename T13 = nil_type, typename T14 = nil_type, typename T15 = nil_type,
+            typename T16 = nil_type, typename T17 = nil_type, typename T18 = nil_type
+        > 
+        struct NameList
+        {
+        private:
+            typedef typename NameList
+            <
+                T2 , T3 , T4 , 
+                T5 , T6 , T7 , 
+                T8 , T9 , T10, 
+                T11, T12, T13,
+                T14, T15, T16, 
+                T17, T18
+            >
+            ::type tail_type;
+
+        public:
+            typedef NameList<T1, tail_type> type;
+        };
+
+        template<>
+        struct NameList<>
+        {
+            typedef nil_type type;
+        };
+
 
     template<typename First > class NameSubClass;
 
@@ -366,7 +419,7 @@ namespace ORO_ControlKernel
      * in a DataObjectServer.
      */
     template<typename First, typename Rest>
-    struct NameSubClass< Typelist<First,Rest> >
+    struct NameSubClass< NameList<First,Rest> >
         : public DataObjectServer< DataObjectInterface< typename First::DataType> >,
           public NameSubClass<Rest>
     {
@@ -391,21 +444,8 @@ namespace ORO_ControlKernel
             this->load(t, index);
         }
 
-        /**
-         * The destructor cleans up all its DataObjectServer instances.
-         */
         virtual ~NameSubClass() 
         {
-            //this->unload();
-        }
-
-        void unload() {
-            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
-                {
-                    ServerType::deReg( *it );
-                    delete *it;
-                }
-            fv.clear();
         }
 
         template< typename pair_type, typename index_type>
@@ -421,10 +461,7 @@ namespace ORO_ControlKernel
                             // Check for duplicate entries :
                             if ( ! ServerType::has( it->second ) ) {
                                 First*  item = new First( it->second );
-                                fv.push_back( item );
-                                ServerType::reg( item );
-                            } else {
-                                // store shared_ptr to existing ?
+                                ServerType::reg( item ); // item now owned by server !
                             }
                         }
                 }
@@ -444,11 +481,6 @@ namespace ORO_ControlKernel
             NameSubClass<Rest>::inspectReports(i);
         }
 
-    private:
-        /**
-         * The nameserved DataObject.
-         */
-        std::vector< First* > fv;
     };
 
     /**
@@ -458,7 +490,7 @@ namespace ORO_ControlKernel
      *
      */
     template<typename First>
-    struct NameSubClass< Typelist< First, nil_type > >
+    struct NameSubClass< NameList< First > >
         : public DataObjectServer< DataObjectInterface< typename First::DataType> > 
     {
 
@@ -477,23 +509,9 @@ namespace ORO_ControlKernel
             this->load(t, index);
         }
 
-        /**
-         * The destructor cleans up all its DataObjectServer instances.
-         */
         virtual ~NameSubClass() 
         {
-            //this->unload();
         }
-
-        void unload() {
-            for ( typename std::vector<First*>::iterator it = fv.begin(); it != fv.end(); ++it)
-                {
-                    ServerType::deReg( *it ); 
-                    delete *it;
-                }
-            fv.clear();
-        }
-
         template< typename pair_type, typename index_type>
         void load(const pair_type& t, index_type index)
         {
@@ -507,8 +525,7 @@ namespace ORO_ControlKernel
                             // Check for duplicate entries :
                             if ( ! ServerType::has( it->second ) ) {
                                 First*  item = new First( it->second );
-                                fv.push_back( item );
-                                ServerType::reg( item );
+                                ServerType::reg( item ); // item now owned by server !
                             }
                         }
                 }
@@ -519,8 +536,6 @@ namespace ORO_ControlKernel
         {
             load(t, index);
         }
-    private:
-        std::vector< First* > fv;
     };
 
     /**
@@ -548,8 +563,6 @@ namespace ORO_ControlKernel
 
         void inspectReports( PropertyIntrospection* introspector ) const {}
 
-        void unload() {}
-
         template< typename pair_type, typename index_type>
         void load(const pair_type& t, index_type index) {}
 
@@ -562,7 +575,7 @@ namespace ORO_ControlKernel
      * When a plain nil_type is encountered on all but last template slot.
      */
 //     template<typename First>
-//     struct NameSubClass< Typelist< typename has_nil<First>::type, nil_type> >
+//     struct NameSubClass< NameList< typename has_nil<First>::type, nil_type> >
 //     {
 //         typedef DataObjectServer<nil_type> Server;
 //         typedef DataObjectServer<nil_type> NextServer;
@@ -578,20 +591,20 @@ namespace ORO_ControlKernel
 // //         }
 //     };
 
+
     }
 
     /**
-     * This class is almost the same as MakeTypelist from Loki. The copyright of this
-     * code is in Typename.h.
+     * A common typelist implementation using the boost MPL.
      */
         template
         <
-            typename T1  = nil_type, typename T2  = nil_type, typename T3  = nil_type,
-            typename T4  = nil_type, typename T5  = nil_type, typename T6  = nil_type,
-            typename T7  = nil_type, typename T8  = nil_type, typename T9  = nil_type,
-            typename T10 = nil_type, typename T11 = nil_type, typename T12 = nil_type,
-            typename T13 = nil_type, typename T14 = nil_type, typename T15 = nil_type,
-            typename T16 = nil_type, typename T17 = nil_type, typename T18 = nil_type
+            typename T1  = detail::nil_type, typename T2  = detail::nil_type, typename T3  = detail::nil_type,
+            typename T4  = detail::nil_type, typename T5  = detail::nil_type, typename T6  = detail::nil_type,
+            typename T7  = detail::nil_type, typename T8  = detail::nil_type, typename T9  = detail::nil_type,
+            typename T10 = detail::nil_type, typename T11 = detail::nil_type, typename T12 = detail::nil_type,
+            typename T13 = detail::nil_type, typename T14 = detail::nil_type, typename T15 = detail::nil_type,
+            typename T16 = detail::nil_type, typename T17 = detail::nil_type, typename T18 = detail::nil_type
         > 
         struct ServedTypes : public std::multimap<int, std::string>
         {
@@ -605,16 +618,16 @@ namespace ORO_ControlKernel
                 T14, T15, T16, 
                 T17, T18
             >
-            ::Result TailResult;
+            ::type tail_type;
 
         public:
-            typedef Typelist<T1, TailResult> Result;
+            typedef detail::NameList<T1, tail_type> type;
         };
 
         template<>
         struct ServedTypes<> : public std::multimap<int, std::string>
         {
-            typedef nil_type Result;
+            typedef detail::nil_type type;
         };
 
     namespace detail
@@ -711,7 +724,7 @@ namespace ORO_ControlKernel
         struct NameFrontEnd;
 
         template<class Head, class Tail>
-        struct NameFrontEnd< Typelist<Head, Tail> >
+        struct NameFrontEnd< NameList<Head, Tail> >
             : public DataObjectServer< DataObjectInterface<typename Head::DataType> >,
               public NameFrontEnd<Tail>
         {
@@ -745,7 +758,7 @@ namespace ORO_ControlKernel
         };
 
         template<class Head>
-        struct NameFrontEnd< Typelist<Head, nil_type> >
+        struct NameFrontEnd< NameList<Head, nil_type> >
             : public DataObjectServer< DataObjectInterface< typename Head::DataType> >
         {
             typedef DataObjectServer< DataObjectInterface< typename Head::DataType> > ServerType;
@@ -782,28 +795,28 @@ namespace ORO_ControlKernel
         };
 
         /**
-         * A Typelist operation that wraps each type T
-         * in _Typelist so that it becomes _Wrapper::Wrap<T>
+         * A NameList operation that wraps each type T
+         * in _list so that it becomes _Wrapper::Wrap<T>
          */
-        template<class _Wrapper , class _Typelist >
+        template<class _Wrapper , class _list >
         struct Wrap;
 
         template<class _Wrapper>
         struct Wrap<_Wrapper, nil_type>
         {
-            typedef typename _Wrapper::template Wrap<nil_type>::Result Result;
+            typedef typename _Wrapper::template Wrap<nil_type>::type type;
         };
 
         template<class _Wrapper, class Head, class Tail>
-        struct Wrap<_Wrapper, Typelist<Head, Tail> >
+        struct Wrap<_Wrapper, NameList<Head, Tail> >
         {
-            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, typename Wrap<_Wrapper,Tail>::Result > Result;
+            typedef NameList< typename _Wrapper::template Wrap<Head>::type, typename Wrap<_Wrapper,Tail>::type > type;
         };
 
         template<class _Wrapper, class Head >
-        struct Wrap<_Wrapper, Typelist<Head, nil_type> >
+        struct Wrap<_Wrapper, NameList<Head, nil_type> >
         {
-            typedef Typelist< typename _Wrapper::template Wrap<Head>::Result, nil_type > Result;
+            typedef NameList< typename _Wrapper::template Wrap<Head>::type, nil_type > type;
         };
 
         /**
@@ -812,7 +825,7 @@ namespace ORO_ControlKernel
         struct DataObjectC
         {
             /**
-             * The template parameter is a user supplied Typelist derived type, which
+             * The template parameter is a user supplied NameList derived type, which
              * conains the names and the types of each nameserved DataObject.
              *
              * @param C The class inheriting from ServedTypes and UnServedType.
@@ -829,19 +842,19 @@ namespace ORO_ControlKernel
 
                 /**
                  * This special construct wraps any type T in the
-                 * Typelist NamesTypes with a DataObject.
+                 * NameList NamesTypes with a DataObject.
                  */
                 struct Wrapper
                 {
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObject<T> Result;
+                        typedef ORO_ControlKernel::DataObject<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameSubClass< typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameSubClass< typename Wrap< Wrapper, typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -858,12 +871,12 @@ namespace ORO_ControlKernel
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectLocked<T> Result;
+                        typedef ORO_ControlKernel::DataObjectLocked<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -880,12 +893,12 @@ namespace ORO_ControlKernel
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectPrioritySet<T> Result;
+                        typedef ORO_ControlKernel::DataObjectPrioritySet<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -902,12 +915,12 @@ namespace ORO_ControlKernel
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectPriorityGet<T> Result;
+                        typedef ORO_ControlKernel::DataObjectPriorityGet<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper, typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -924,12 +937,12 @@ namespace ORO_ControlKernel
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectLockFree<T> Result;
+                        typedef ORO_ControlKernel::DataObjectLockFree<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameSubClass<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameSubClass<typename Wrap< Wrapper,typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -946,12 +959,12 @@ namespace ORO_ControlKernel
                     template<class T>
                     struct Wrap
                     {
-                        typedef ORO_ControlKernel::DataObjectInterface<T> Result;
+                        typedef ORO_ControlKernel::DataObjectInterface<T> type;
                     };
                 };
 
-                typedef typename Wrap< Wrapper, typename NamesTypes::Result >::Result WrappedNamesTypes;
-                typedef NameFrontEnd<typename Wrap< Wrapper,typename NamesTypes::Result >::Result > tree;
+                typedef typename Wrap< Wrapper, typename NamesTypes::type >::type WrappedNamesTypes;
+                typedef NameFrontEnd<typename Wrap< Wrapper,typename NamesTypes::type >::type > tree;
             };
         };
 
@@ -963,7 +976,7 @@ namespace ORO_ControlKernel
          * This is purely for aiding in shorter writing of some template
          * code. Its use is optional.
          *
-         * @param DataNames The datatypes (TypeList) of the data exchanged.
+         * @param DataNames The datatypes (NameList) of the data exchanged.
          */
         template <class DataNames>
         struct NamesDOFactory

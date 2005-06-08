@@ -1459,13 +1459,13 @@
   double tool_temp;
   Frame input_f;
 
-  // Pointers to the DataObjects
-  DataObjectInterface<double>* tool_temp_dobj;
-  DataObjectInterface<Frame>* input_f_dobj;
+  // Shared Pointers to the DataObjects
+  DataObjectInterface<double>::shared_ptr tool_temp_dobj;
+  DataObjectInterface<Frame>::shared_ptr input_f_dobj;
 
-  DataObjectInterface<double>* velocity_dobj;
-  DataObjectInterface<Frame>* base_f_dobj;
-  DataObjectInterface<Frame>* end_f_dobj;
+  DataObjectInterface<double>::shared_ptr velocity_dobj;
+  DataObjectInterface<Frame>::shared_ptr base_f_dobj;
+  DataObjectInterface<Frame>::shared_ptr end_f_dobj;
 
 public:
   // See earlier code examples for constructor ...
@@ -1473,7 +1473,7 @@ public:
   bool componentLoaded()
   {
     // called when the component is loaded into the kernel.
-    // Early Resolving of Write DataObjects :
+    // Early Resolving of Writes<> DataObjects :
     if ( !SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
          !SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
          !SetPoint::dObj()->Get("Velocity", velocity_dobj )
@@ -1488,7 +1488,7 @@ public:
   bool componentStartup()
   {
     // called when the component is started in the kernel.
-    // Early Resolving of Expect DataObjects :
+    // Early Resolving of Expects<> DataObjects :
     if ( !Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
 	  !Input::dObj()->Get("EndPosition", input_f_dobj ))
     { 
@@ -1517,6 +1517,13 @@ public:
 };]]>  </programlisting>
 	</example>
 	<para>
+	  No matter which kind of DataObject type the ControlKernel
+	  uses, the Component always communicates with a
+	  <classname>DataObjectInterface&lt;T&gt;::shared_ptr</classname>
+	  object, which is used as if it were a pointer ( with -&gt; ),
+	  but it allows the ControlKernel to track which Components
+	  are using a given DataObject and thus when it can be safely
+	  deleted.
 	</para>
       </sect3>
       <sect3 id="pull-calculate-push">
@@ -3652,31 +3659,7 @@ CascadeControlKernel<>
       </example>      
     </sect1>
   </appendix>
-  <appendix>
-    <title>Legal Notices</title>
-    <para>Orocos ControlKernel contains files from the Loki Library, which requires
-      the following notice :
-    </para>
-    <para>
-      <programlisting>
-////////////////////////////////////////////////////////////////////////////////
-// The Loki Library
-// Copyright (c) 2001 by Andrei Alexandrescu
-// This code accompanies the article:
-// Alexandrescu, Andrei. "Modern C++ Design: Generic Programming and Design
-//     Patterns Applied". Copyright (c) 2001. Addison-Wesley.
-// Permission to use, copy, modify, distribute and sell this software for any
-//     purpose is hereby granted without fee, provided that the above copyright
-//     notice appear in all copies and that both that copyright notice and this
-//     permission notice appear in supporting documentation.
-// The author or Addison-Wesley Longman make no representations about the
-//     suitability of this software for any purpose. It is provided "as is"
-//     without express or implied warranty.
-////////////////////////////////////////////////////////////////////////////////
-      </programlisting>
-    </para>
-  </appendix>
-<bibliography><title>Bibliography</title>
+  <bibliography><title>Bibliography</title>
   <biblioentry xreflabel="corba3">
     <abbrev>CCM</abbrev>
     <title>CORBA Components</title>

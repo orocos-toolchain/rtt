@@ -154,6 +154,14 @@ namespace ORO_ControlKernel
 
         ~BaseKernel()
         {
+            // If kernel destroyed and components present : BAD !
+            // User did not cleanup.
+            // do not touch the components, they might also be destructed
+            // in the meantime. only cleanup internal structures.
+            while ( ! this->components.empty() ) {
+                delete this->components.begin()->second;
+                this->components.erase( this->components.begin() );
+            }
         }
 
         virtual bool isSelected( const std::string& name ) const
@@ -183,7 +191,9 @@ namespace ORO_ControlKernel
 
         /**
          * @name Name Based Select methods
-         * @{
+         * @{ */
+
+        /**
          * @brief Select a previously loaded Controller Component.
          *
          * This will only succeed if isLoadedController(\a c) and
@@ -212,7 +222,9 @@ namespace ORO_ControlKernel
 
         /**
          * @name Name Based Start methods
-         * @{
+         * @{ */
+
+        /**
          * @brief Start a previously loaded Component.
          *
          * This will only succeed if isLoaded(\a c).
@@ -238,7 +250,9 @@ namespace ORO_ControlKernel
 
         /**
          * @name Name Based Stop methods
-         * @{
+         * @{ */
+
+        /**
          * @brief Stop a previously loaded Component.
          *
          * This will only succeed if isLoaded(\a c).
@@ -265,7 +279,9 @@ namespace ORO_ControlKernel
 
         /**
          * @name Name Based Load Query
-         * @{
+         * @{ */
+
+        /**
          * Query if a Component is loaded in the kernel.
          *
          * @param  name The name of the Component to query.
@@ -282,7 +298,9 @@ namespace ORO_ControlKernel
 
         /**
          * @name Component Loaded Queries
-         * @{
+         * @{ */
+
+        /**
          * @brief Query if a Component is loaded in the kernel.
          * @param c The component
          * @return True if it is loaded.
@@ -298,6 +316,9 @@ namespace ORO_ControlKernel
         /**
          * @name General Component State Inspection Methods
          * @(
+         */
+
+        /**
          * @brief Check if a component is loaded or started.
          *
          * There is no difference with the full \a isLoadedX() and
@@ -344,6 +365,9 @@ namespace ORO_ControlKernel
         /**
          * @name Select a Data Flow Component
          * @{
+         */
+
+        /**
          * @brief Select a previously loaded Component.
          *
          * Selecting a Component enables it to write to its
@@ -443,16 +467,6 @@ namespace ORO_ControlKernel
          */
 
         /**
-         * @brief Load a previously added Component.
-         * @param c The Component to load.
-         *
-         * @return true if the component is present and could be loaded.
-         */
-//         bool load( ComponentBaseInterface* c) {
-//             return ( components.count( c ) != 0) && components[c].first->load();
-//         }
-
-        /**
          * @brief Unload a previously added Component.
          * @param c The Component to unload.
          *
@@ -517,6 +531,9 @@ namespace ORO_ControlKernel
         /**
          * @name Component Load Methods
          * @{
+         */
+
+        /**
          * @brief Load a Component in the Control Kernel.
          *
          * When a Component is loaded, it is initialised, registered
@@ -560,6 +577,9 @@ namespace ORO_ControlKernel
         /**
          * @name Component Reload Methods
          * @{
+         */
+
+        /**
          * @brief Reload a Component in the Control Kernel.
          *
          * When a Component is reloaded, all its Facets are disabled,
@@ -590,6 +610,8 @@ namespace ORO_ControlKernel
             c->disableFacets(this);
             if ( ! c->enableFacets(this) )
                 {
+                    KernelBaseFunction::ComponentMap::iterator it = this->Extension::components.find( c->getName() );
+                    delete it->second;
                     this->components.erase( c->getName() );
                     c->erasePorts();
                     return false;
@@ -601,6 +623,9 @@ namespace ORO_ControlKernel
         /**
          * @name Component Unload Methods
          * @{
+         */
+
+        /**
          * @brief Unload a Component from the Control Kernel.
          *
          * When a Component is unloaded, it is deregistered from
@@ -615,6 +640,7 @@ namespace ORO_ControlKernel
             KernelBaseFunction::ComponentMap::iterator it = this->Extension::components.find( c->getName() );
             if (it != this->Extension::components.end() )
                 {
+                    delete it->second;
                     this->Extension::components.erase( it );
                     c->disableFacets(this);
                     c->erasePorts();
@@ -645,9 +671,9 @@ namespace ORO_ControlKernel
             //components[ comp->getName() ]->erase();
         }
 
+        /* @{ */
         /**
-         * @{
-         * The default Components, they do not write to dataobjects.
+         * @brief The default Components, they do not write to dataobjects.
          */
         DefaultController dummy_controller;
         DefaultGenerator dummy_generator;
@@ -656,8 +682,8 @@ namespace ORO_ControlKernel
         DefaultSensor dummy_sensor;
         /* @} */
 
+        /* @{ */
         /**
-         * @{
          * @brief Pointers to the Components which are selected
          */
         ComponentBaseInterface *controller;

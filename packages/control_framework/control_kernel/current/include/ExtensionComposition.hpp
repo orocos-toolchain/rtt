@@ -29,8 +29,9 @@
 #ifndef EXTENSIONCOMPOSITION_HPP
 #define EXTENSIONCOMPOSITION_HPP
 
-#include "TypeManip.h"
 #include "KernelInterfaces.hpp"
+#include <boost/type_traits.hpp>
+#include <boost/mpl/if.hpp>
 
 namespace ORO_ControlKernel
 {
@@ -91,8 +92,8 @@ namespace ORO_ControlKernel
             // is derived from First, call
             // the enableFacet of First's Extension, else, reject it.
             // Ditto for Second
-            typedef typename Loki::Select<SUPERSUBCLASS(FirstExtension, _Extension), First, FacetRejector>::Result  FirstResult;
-            typedef typename Loki::Select<SUPERSUBCLASS(SecondExtension, _Extension), Second, FacetRejector>::Result SecondResult;
+            typedef typename boost::mpl::if_<boost::is_base_and_derived<FirstExtension, _Extension>, First, FacetRejector>::type  FirstResult;
+            typedef typename boost::mpl::if_<boost::is_base_and_derived<SecondExtension, _Extension>, Second, FacetRejector>::type SecondResult;
             // Enable first Facet, if successful, enable second,
             // if also successful, return true, otherwise, disable first
             // Facet (~undo) and return false.

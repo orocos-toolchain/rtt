@@ -34,10 +34,10 @@
 
 namespace ORO_CoreLib
 {
-    // decomposeProperty for the NullType.
+    // decomposeProperty for the nil_type.
     void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
-                           ORO_CoreLib::Property<Loki::NullType> const& nt) {
-        Property<std::string> error(nt.getName(), nt.getDescription(), std::string("NullType") );
+                           ORO_CoreLib::Property<ORO_ControlKernel::detail::nil_type> const& nt) {
+        Property<std::string> error(nt.getName(), nt.getDescription(), std::string("nil_type") );
         pi->introspect(error);
     }
         

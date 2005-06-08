@@ -124,6 +124,13 @@ namespace ORO_ControlKernel
               Model( new ModelPort() ),
               Output( new OutputPort() )
         {}
+
+        ~Controller() {
+            delete SetPoint;
+            delete Input;
+            delete Model;
+            delete Output;
+        }
         
         template< class KernelT >
         bool enableFacets(KernelT* k) {
@@ -204,6 +211,13 @@ namespace ORO_ControlKernel
               SetPoint( new SetPointPort() )
         {}
 
+        ~Generator() {
+            delete SetPoint;
+            delete Input;
+            delete Model;
+            delete Command;
+        }
+        
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->generators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->generators.unregisterObject( this ), false) );
@@ -281,6 +295,12 @@ namespace ORO_ControlKernel
               Model( new ModelPort() )
         {}
 
+        ~Estimator() {
+            delete Input;
+            delete Model;
+            delete Output;
+        }
+        
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->estimators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->estimators.unregisterObject( this ), false) );
@@ -355,6 +375,13 @@ namespace ORO_ControlKernel
               Output( new OutputPort() )
         {}
 
+        ~Effector()
+        {
+            delete Input;
+            delete Model;
+            delete Output;
+        }
+
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->effectors.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->effectors.unregisterObject( this ), false) );
@@ -425,6 +452,10 @@ namespace ORO_ControlKernel
               Input ( new InputPort() )
         {}
 
+        ~Sensor() {
+            delete Input;
+        }
+        
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->sensors.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->sensors.unregisterObject( this ), false) );
