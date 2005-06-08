@@ -557,19 +557,6 @@ cd                  quit
   a_task.attributeRepository.getAttribute&lt;Type>("attrname");
       </programlisting>
     </para>
-    <para>
-    </para>
-<!--     <para> -->
-<!--       The objectfactories create <classname>CommandInterface</classname> -->
-<!--       objects which execute a function call on a C++ class. The arguments -->
-<!--       must be a vector of DataSources. A task's attribute is a DataSource, -->
-<!--       but they can also be created in program scripts, which we will -->
-<!--       demonstrate later on. -->
-<!--       <programlisting> -->
-<!--   std::vector&lt;DataSourceBase*&gt; args = ...; -->
-<!--   a_task.commandFactory.getObjectFactory("objname")->create("membername", args ); -->
-<!--       </programlisting> -->
-<!--     </para> -->
     <sect2>
       <title>The Method Factory</title>
       <para>
@@ -595,6 +582,7 @@ cd                  quit
     void reset() { ... }
     string getName() { ... }
     double changeParameter(double f) { ... }
+    void passByArgument(int&amp; a1, vector&amp; v2) { a1 =...; v2=...; }
     // ...
   };
 
@@ -611,6 +599,11 @@ cd                  quit
              method( &amp;ClassX::changeParameter,
                      &quot;Change a parameter, return the old value.&quot;,
 	             &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
+  fact-&gt;add( &quot;passByArgument&quot;,
+             method( &amp;ClassX::passByArgument,
+                     &quot;Method which passes results by argument.&quot;,
+		     &quot;I&quot;,&quot;Integer passed by reference&quot;,
+	             &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
 
   a_task.methodFactory.registerObject("objname", fact);	</programlisting>
       </para>
@@ -660,7 +653,12 @@ cd                  quit
 	method from a script, one can then write :</para>
       <para>
 	<programlisting>
-  do ATask.objname.changeP( 0.1 )	</programlisting></para>
+  do ATask.objname.changeP( 0.1 )
+  // or :
+  set result = ATask.objname.changeP( 0.1 ) // store return value
+
+  var int a
+</programlisting></para>
       <para>
 	If the method should
 	belong to the task's interface without an object, the
@@ -1921,34 +1919,45 @@ cd                  quit
     </sect2>
   </sect1>
   <sect1>
-    <title>Using C++ Commands</title>
+    <title>Using Commands and Methods Directly in C++</title>
     <para>
-      Besides using scripts, you can directly build C++ commands, although
-      it requires more &quot;red tape&quot;.
+      Besides using scripts, you can directly build C++ commands or
+      methods, although it requires more &quot;red tape&quot;. The
+      advantage is that you are not limited to the scripting
+      language's syntax and do not need to use the script parsers.
     </para>
     <sect2>
       <title>Sending a Task a Command</title>
       <para>
-	To request a command from one task to another task, the command must
-	be fetched from the factories and next passed to the
-	TaskContext which has two methods to accept commands.
-	In a C++ program, this would be : </para>
+	To request a command from one task to another task, the
+	command must be fetched from the factories of a TaskContext
+	and next passed to that TaskContext which has two methods to
+	accept commands. In a C++ program, this would be : </para>
       <para>
 	<programlisting>
+  // for GenerateDataSource :
+  #include &lt;execution/DataSourceGenerator.hpp&gt;
+
+  //...
   TaskContext* peer = this->getPeer("ATask");
 
-  // Create the command argument list :
-  std::vector&lt;DataSourceBase*&gt; args;
-  args.push_back( new DataSource&lt;double&gt;(0.1) );
+  // Create the command argument list.
+  // up to 4 arguments can be given to GenerateDataSource()(...)
+  std::vector&lt;DataSourceBase::shared_ptr&gt; args 
+     = GenerateDataSource()(1.0); 
 
   // Create the command and condition :
-  ComCon comcon =
-     peer->commandFactory.getObjectFactory("objname")->
+  try {
+     ComCon comcon =
+        peer->commandFactory.getObjectFactory("objname")->
 	     create("cleanupMess", args );
+  } catch ( ... ) {
+     // wrong arguments !
+  }
 
-  // Execute the command :
+  // Execute the command (real-time):
   if ( peer->executeCommand( comcon.first ) ==  false ) {
-       // Error !
+       // Processor does not accept commands !
   }
 
   // wait until done :
@@ -1963,15 +1972,11 @@ cd                  quit
 	CommandInterface and the <varname>second</varname> member
 	contains a pointer to the ConditionInterface ( the Completion
 	Condition ).
-	<methodname>executeCommand</methodname> will always execute
-	the command, no matter if the processor is running or not.
-	If it is not running, the command is directly executed and
-	the return value of the command is returned (true or false).
-	If the processor is running, the command is queued and you
-	have no direct way to know what the return value is ( No panic, 
-	a solution is presented lateron !)
-	The alternative is <methodname>queueCommand</methodname>,
-	which will only queue if the Processor is running :</para>
+	<methodname>executeCommand</methodname> passes
+	the command to the task's processor and returns true if
+	accepted by the processor.
+	The alternative is <methodname>queueCommand</methodname> :
+      </para>
       <para>
 	<programlisting>
   // ... see previous listing
@@ -1986,25 +1991,20 @@ cd                  quit
         sleep(1); // wait until the command is done
   // command done, we can now delete it or keep it.	</programlisting></para>
       <para>
-	Again, you only know if it got in the queue, but not
-	if it was accepted by the task itself, meaning, if the
-	command returned true. 
+	You only know if it got in the queue, but not if the command
+	function itself returned true.
       </para>
     </sect2>
     <sect2>
       <title>Advanced Command Queueing</title>
       <para>
-	The previous section showed how a command can be given to
-	a task, but the return value of the Command was lost.
-	In some cases, this does not matter, but when the
-	program logic needs to know the result, two options
-	are possible. One can write a program script, which
-	check command return values (and go into error if
-	the command fails) or wrap the command in a TryCommand.
-	The next sections will discuss the first and easiest
-	option. This sections discusses the second and thoughest
-	option. If you intend to use mainly scripts (or get
-	really confused), please skip this section.
+	The previous section showed how a command can be given to a
+	task, but the return value of the Command was lost.  In some
+	cases, this does not matter, but when the program logic needs
+	to know the result, two options are possible. One can write a
+	program script, which check command return values (and goes
+	into error if the command fails) or wrap the command in a
+	<classname>TryCommand</classname> .
       </para>
       <para>
 	Assume you have a command,condition pair as above :</para>
@@ -2018,13 +2018,13 @@ cd                  quit
 	<programlisting>
   #include &lt;execution/TryCommand.hpp&gt;
   // ...
-  CommandInterface* trycommand
+  TryCommand* trycommand
      = new TryCommand( comcon.first );
 
-  DataSource&lt;bool&gt;* executed
-     = trycommand.executed();
-  DataSource&lt;bool&gt;* accepted 
-     = trycommand.result();
+  DataSource&lt;bool&gt;::shared_ptr executed
+     = trycommand->executed();
+  DataSource&lt;bool&gt;::shared_ptr accepted 
+     = trycommand->result();
 
   peer->queueCommand( trycommand );
   
@@ -2037,8 +2037,76 @@ cd                  quit
      sleep(1); // wait for its completion	</programlisting></para>
       <para>
 	The DataSources are used by the TryCommand to
-	store the result into. We use the get() function
-	to inspect the results.
+	store the result into. We use the <function>get()</function> function
+	to inspect the results. If you want to reuse the
+	trycommand, you need to <function>reset()</function>
+	the trycommand such that <function>executed()</function> and
+	<function>result()</function> functions are reset to their
+	initial values.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Calling a Task's Method</title>
+      <para>
+	To call a task's method, the method must be fetched from the
+	factories of a TaskContext.  In a C++ program, this would be :
+      </para>
+      <para>
+	<programlisting>
+  // for GenerateDataSource() :
+  #include &lt;execution/DataSourceGenerator.hpp&gt;
+  // for AdaptDataSource() :
+  #include &lt;execution/DataSourceAdaptor.hpp&gt;
+
+  //...
+  TaskContext* peer = this->getPeer("ATask");
+
+  // Create the command argument list.
+  // up to 4 arguments can be given to GenerateDataSource()(...)
+  std::vector&lt;DataSourceBase::shared_ptr&gt; args 
+     = GenerateDataSource()(0.1); 
+
+  // Create the method object :
+  try {
+     DataSourceBase::shared_ptr meth =
+        peer->methodFactory.getObjectFactory("objname")->
+	     create("changeP", args );
+  } catch ( ... ) {
+     // wrong arguments !
+  }
+
+  // Call the method (always synchronously):
+  meth->evaluate();
+
+  // OR : to retrieve the return value you need to do :
+  DataSource&gt;double&lt;::shared_ptr meth2 = AdaptDataSource&lt;double&gt;()( meth );
+
+  double result = meth2->get(); // assert that meth2 != 0 !
+</programlisting></para>
+      <para>
+	The method factory can throw exceptions if the number of
+	arguments, the type of arguments or the command names are
+	unknown.  It returns a <classname>DataSourceBase*</classname>
+	pointer which you <emphasis>must</emphasis> store in a
+	<classname>DataSourceBase::shared_ptr</classname> object, such
+	that memory deallocation can be managed. If you want the return
+	value of the method, you need to adapt it first to a DataSource
+	of the correct type. <classname>AdaptDataSource&gt;T&lt;()(arg)</classname>
+	will return null if the argument can not be converted to to T.
+	Upon success you can then use the <function>get()</function>
+	function to execute the method <emphasis>and</emphasis> collect
+	the result; <function>evaluate()</function> on the other hand
+	only executes the method and does not return the result.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Passing results by argument</title>
+      <para>
+	The same rules apply for passing values by argument as with scripts.
+	A method, command or completion condition may store the results in its arguments, given
+	that the DataSources are of type <classname>AssignableDataSource</classname>.
+	After the command or method finished, you find the new values in the objects
+	referenced by <classname>vector&lt;DataSourceBase::shared_ptr&gt;</classname>.
       </para>
     </sect2>
   </sect1>

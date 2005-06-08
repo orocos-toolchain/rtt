@@ -103,14 +103,12 @@ namespace ORO_Execution
         //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
         context = tc;
         peerparser.setContext( tc );
-        //propparser.setPropertyBag( tc->attributeRepository.properties() );
     }
 
     void ValueParser::setContext( TaskContext* tc ) {
         //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
         context = tc;
         peerparser.setContext( tc );
-        //propparser.setPropertyBag( tc->attributeRepository.properties() );
     }
 
   void ValueParser::seenboolconstant( iter_t begin, iter_t end )
@@ -119,11 +117,10 @@ namespace ORO_Execution
     assert( value == "true" || value == "false" );
     if ( value == "true" )
       ret =
-        new VariableDataSource<bool>( true );
+        new ConstantDataSource<bool>( true );
     else
       ret =
-        new VariableDataSource<bool>( false );
-    //deleter.reset( ret );
+        new ConstantDataSource<bool>( false );
   }
 
   void ValueParser::seennamedconstant( iter_t begin, iter_t end )
@@ -154,35 +151,26 @@ namespace ORO_Execution
     }
     else
       ret = peer->attributeRepository.getValue(name)->toDataSource();
-    //deleter.reset( 0 );
   }
 
     void ValueParser::seennull()
     {
-        ret = new VariableDataSource<char>( '\0' );
-        // make the new TaskVariable managed by the auto_ptr..
-        //deleter.reset( ret );
+        ret = new ConstantDataSource<char>( '\0' );
     }
 
     void ValueParser::seencharconstant( iter_t c )
     {
-        ret = new VariableDataSource<char>( *c );
-        // make the new TaskVariable managed by the auto_ptr..
-        //deleter.reset( ret );
+        ret = new ConstantDataSource<char>( *c );
     }
 
   void ValueParser::seenintconstant( int i )
   {
-    ret = new VariableDataSource<int>( i );
-    // make the new TaskVariable managed by the auto_ptr..
-    //deleter.reset( ret );
+    ret = new ConstantDataSource<int>( i );
   }
 
   void ValueParser::seendoubleconstant( double i )
   {
-    ret = new VariableDataSource<double>( i );
-    // make the new TaskVariable managed by the auto_ptr..
-    //deleter.reset( ret );
+    ret = new ConstantDataSource<double>( i );
   }
 
   ValueParser::~ValueParser()
@@ -192,8 +180,6 @@ namespace ORO_Execution
 
   void ValueParser::clear()
   {
-      //ret = 0;
-      //deleter.reset( 0 );
       propparser.reset();
   }
 
@@ -213,7 +199,7 @@ namespace ORO_Execution
     // string will be in mcurstring, and we don't want it, so we
     // remove it..
     mcurstring.erase( mcurstring.end() - 1 );
-    ret = new VariableDataSource<const std::string&>( mcurstring );
+    ret = new ConstantDataSource<const std::string&>( mcurstring );
     //deleter.reset( ret );
     mcurstring.clear();
   }

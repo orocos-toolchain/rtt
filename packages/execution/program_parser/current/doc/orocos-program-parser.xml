@@ -326,20 +326,17 @@
 	  <para>
 	    Constants, variables and aliases allow you to work with
 	    data in an easier way.  A constant is a name which is
-	    assigned a value at the place of its definition, and keeps
-	    that value throughout the rest of the program.  A variable
-	    is like a constant, but its value can be changed at other
+	    assigned a value at <emphasis>parse time</emphasis>, and
+	    keeps that value throughout the rest of the program.  A
+	    variable gets its value assigned at
+	    <emphasis>runtime</emphasis> and can be changed at other
 	    places in the program.  An alias does not carry a value,
 	    it is defined with an expression, for which it acts as an
-	    alias or an <emphasis>abbreviation</emphasis> during the rest of the program.
-	    All of them can always be used as expressions.  Here is
-	    some code showing how to use them.
+	    alias or an <emphasis>abbreviation</emphasis> during the
+	    rest of the program.  All of them can always be used as
+	    expressions.  Here is some code showing how to use them.
 	  </para>
 	    <programlisting>
-  // define a constant of type double, with name "pi",
-  // and value 3.14159265358979
-  const double pi = 3.14159265358979
-  
   // define a variable of type int, called counter,
   // and give it the initial value 0.
   var int counter = 0
@@ -353,11 +350,20 @@
   alias int counterPlusOne = counter + 1
   // you can assign an arbitrarily complex expression
   // to an alias
-  alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position    </programlisting>
+  alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
+
+  // define a constant of type double, with name "pi"
+  const double pi = 3.14159265358979
+  const double pi2 = 2*pi       // ok, pi2 is 6.28...
+  const int turn = counter * pi // error ! turn will be 0 !
+
+  // define a constant at _parse-time_ !
+  const totalParams = table.getNbOfParams()</programlisting>
 	  <para>
-	    Variables, constants and aliases are only supported for
-	    the following types: bool, int, double, string, rotation,
-	    vector, frame, double6D.
+	    Variables, constants and aliases are defined for the
+	    following types: bool, int, double, string, array,
+	    rotation, vector, frame, double6D. See the last section
+	    of the Parser Manual to see how to extend it with custom types.
 	  </para>
 	</sect4>
 	<sect4>

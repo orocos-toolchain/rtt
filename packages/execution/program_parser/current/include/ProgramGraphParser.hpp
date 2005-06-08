@@ -114,7 +114,9 @@ namespace ORO_Execution { namespace detail
       void seencallfunclabel( iter_t begin, iter_t end );
 
       void seencontinue( );
-
+      
+      void skip_eol();
+      void noskip_eol();
       void startofnewstatement( const std::string& type);
       void seencommandcall();
       void seenandcall();

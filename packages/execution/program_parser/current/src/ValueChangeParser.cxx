@@ -32,7 +32,8 @@
 #include "execution/TaskContext.hpp"
 #include "execution/Types.hpp"
 
-#include <boost/bind.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/construct.hpp>
 
 #include <corelib/Logger.hpp>
 
@@ -41,7 +42,7 @@
 
 namespace ORO_Execution
 {
-  using boost::bind;
+    using namespace boost::lambda;
     using namespace detail;
     using namespace ORO_CoreLib;
     using namespace std;
@@ -54,15 +55,17 @@ namespace ORO_Execution
         assertion<std::string> expect_expr("Expected a valid expression.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_init("Expected an initialisation value of the variable.");
-        assertion<std::string> expect_is("Expected an '=' sign.");
+        assertion<std::string> expect_cis("Expected a initialisation ('=') of const.");
+        assertion<std::string> expect_ais("Expected a initialisation ('=') of alias.");
         assertion<std::string> expect_index("Expected an index: [index].");
         assertion<std::string> expect_integer("Expected a positive integer expression.");
         assertion<std::string> expect_change("Expected a variable assignment after 'set'.");
+        assertion<std::string> expect_decl("Expected a declaration list.");
     }
 
 
   ValueChangeParser::ValueChangeParser( TaskContext* pc )
-      : assigncommand( 0 ), lastdefinedvalue( 0 ), peername(0),
+      : peername(0),
         type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1),
         typerepos( TypeInfoRepository::instance() )
   {
@@ -73,6 +76,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( variablechange );
     BOOST_SPIRIT_DEBUG_RULE( paramdefinition );
     BOOST_SPIRIT_DEBUG_RULE( baredefinition );
+    BOOST_SPIRIT_DEBUG_RULE( decl );
 
     // we can't use commonparser.identifier to parse a type name,
     // because that one is meant to be used for identifier used by the
@@ -80,31 +84,29 @@ namespace ORO_Execution
     chset<> identchar( "a-zA-Z-_0-9" );
     RULE( type_name, lexeme_d[ alpha_p >> *identchar ] );
 
-    constantdefinition = (
-         "const"
-         // the type
-	 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-         // next the name for the constant
-	 >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
-	 >> expect_is( ch_p('=') )
-         // and a value to assign to it..
-	 >> expect_init( expressionparser.parser() )[
-           bind( &ValueChangeParser::seenconstantdefinition, this ) ] );
+    constantdefinition =
+        "const"
+        // the type
+            >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+            >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )] 
+            >> *(ch_p(',') >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )] );
+                                                                                   
 
-    aliasdefinition = (
+    aliasdefinition =
          "alias"
          // the type
          >> expect_type(type_name [ bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
          // next the name for the alias
          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 ) ])
-         >> expect_is( ch_p('=') )
+         >> expect_ais( ch_p('=') )
          // and a value to assign to it
-         >> expect_init( expressionparser.parser() )[ bind( &ValueChangeParser::seenaliasdefinition, this ) ] );
+         >> expect_init( expressionparser.parser() )[ bind( &ValueChangeParser::seenaliasdefinition, this ) ];
 
-    variabledefinition = (
+    variabledefinition =
          "var"
-         >> expect_def( baredefinition )
-         >> !( (ch_p('=') >> expect_init( expressionparser.parser() )[bind( &ValueChangeParser::seenvariabledefinition, this ) ] )));
+             >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+             >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ]
+             >> *(ch_p(',') >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
     
     variableassignment = 
         "set" >> expect_change(variablechange);
@@ -118,21 +120,32 @@ namespace ORO_Execution
           >> propparser.locator()[ bind( &ValueChangeParser::seenproperty, this)] // traverse propertybags
           // notasserting will just 'fail' to parse.
           >> commonparser.notassertingidentifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] // final variable after last '.'
-          >> !( '[' >> expect_index( expressionparser.parser() ) >> ']'
-                )[ bind( &ValueChangeParser::seenindexassignment, this) ] // subindex final variable
+          >> !( '[' >> expect_index( expressionparser.parser() ) >>  ch_p(']')
+                [ bind( &ValueChangeParser::seenindexassignment, this) ]) // subindex final variable
           >> ch_p( '=' )
           >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
     paramdefinition =
         "param"
-        >> expect_def( baredefinition );
+            >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
+            >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this ) ]
+            >> *(ch_p(',') >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this ) ] );
 
     baredefinition =
-        ( type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )]
-          >> expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
-          >> !( ch_p('(') >> expect_integer( expressionparser.parser()[bind( &ValueChangeParser::seensizehint, this)]) >> expect_close( ch_p(')')) ) 
-          )[bind( &ValueChangeParser::seenbaredefinition, this )];
-  };
+         type_name[ bind( &ValueChangeParser::seentype, this, _1, _2 )]
+          >> baredecl[bind( &ValueChangeParser::seenbaredefinition, this )];
+
+    baredecl =
+        expect_ident( commonparser.identifier[ bind( &ValueChangeParser::storedefinitionname, this, _1, _2 )] )
+            >> !( ch_p('(') >> expect_integer( expressionparser.parser()[bind( &ValueChangeParser::seensizehint, this)]) >> expect_close( ch_p(')')) ) ;
+
+    vardecl =
+        baredecl >> !( ch_p('=') >> expect_init( expressionparser.parser() ) );
+
+    constdecl =
+        baredecl >> expect_cis( ch_p('=') ) >> expect_init( expressionparser.parser() );
+
+  }
 
     TaskContext* ValueChangeParser::setStack( TaskContext* tc )
     {
@@ -157,18 +170,18 @@ namespace ORO_Execution
         DataSourceBase::shared_ptr expr = expressionparser.getResult();
         expressionparser.dropResult();
         assert( expr.get() );
+        //assert( !expressionparser.hasResult() );
         DataSource<int>::shared_ptr i = dynamic_cast<DataSource<int>* >( expr.get() );
-        TaskAttributeBase* var;
-        var = type->buildVariable();
-        std::string typen = var->toDataSource()->getType();
-        delete var;
+        std::string typen = type->getType();
         if ( i.get() == 0 ) {
+            this->cleanup();
             throw parse_exception_semantic_error
                 ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getType()+", expected an integer expression." );
         }
         if ( i->get() < 0 ) {
             std::stringstream value;
             value << i->get();
+            this->cleanup();
             throw parse_exception_semantic_error
                 ("Attempt to initialize "+typen+" "+valuename+" with an expression leading to a negative number "+value.str()
                  +". Initialization expressions are evaluated once at parse time !" );
@@ -185,36 +198,37 @@ namespace ORO_Execution
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
+    //assert( !expressionparser.hasResult() );
     TaskAttributeBase* var;
+    Logger::log() << Logger::Info << "Building "<<type->getType() <<" "<<valuename; // rest is filled in by buildConstant().
       if (sizehint == -1 )
-          var = type->buildVariable();
+          var = type->buildConstant(expr);
       else {
-          var = type->buildVariable(sizehint);
+          var = type->buildConstant(expr, sizehint);
       }
+      if ( var == 0 ) // bad assignment.
+          {
+              Logger::log() << " failed !"<<Logger::endl;
+              this->cleanup();
+              throw parse_exception_semantic_error
+                  ("Attempt to initialize a const "+type->getType()+" with a "+expr->getType()+"." );
+          }
+
     context->attributeRepository.setValue( valuename, var );
-    try
-    {
-      assigncommand = var->assignCommand( expr.get(), true );
-    }
-    catch( const bad_assignment& e )
-    {
-      throw parse_exception_semantic_error(
-        "Attempt to initialize a const "+var->toDataSource()->getType()+" with a "+expr->getType()+"." );
-    }
-    assert( assigncommand );
-    lastdefinedvalue = var;
-    lastparseddefname = valuename;
-    type = 0;
-  };
+    definedvalues.push_back( var );
+    parseddefnames.push_back( valuename );
+  }
 
   void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    if ( context->attributeRepository.isDefined( name ) )
-      throw parse_exception_semantic_error( "Identifier \"" + name +
-                                            "\" is already defined." );
+    if ( context->attributeRepository.isDefined( name ) ) {
+        this->cleanup();
+        throw parse_exception_semantic_error( "Identifier \"" + name +
+                                              "\" is already defined." );
+    }
     valuename = name;
-  };
+  }
 
   void ValueChangeParser::seentype( iter_t begin, iter_t end )
   {
@@ -222,29 +236,31 @@ namespace ORO_Execution
     type = typerepos->type( name );
     if ( type == 0 )
       throw parse_exception_semantic_error( "\"" + name + "\" is an unknown type..." );
-  };
+  }
 
   void ValueChangeParser::seenaliasdefinition()
   {
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
+    //assert( !expressionparser.hasResult() );
     TaskAttributeBase* alias;
     alias = type->buildAlias( expr.get() );
     if ( ! alias ) {
-        // build variable to get type info workaround :
-        TaskAttributeBase* orig = type->buildVariable();
-        std::string tname;
-        if (orig)
-            tname = orig->toDataSource()->getType();
-        delete orig;
+        this->cleanup();
         throw parse_exception_semantic_error(
-        "Attempt to define an alias of type "+tname+" to an expression of type "+expr->getType()+"." );
+        "Attempt to define an alias of type "+type->getType()+" to an expression of type "+expr->getType()+"." );
     }
     context->attributeRepository.setValue( valuename, alias );
-    lastdefinedvalue = alias;
-    lastparseddefname = valuename;
-    assigncommand = 0;
-  };
+    definedvalues.push_back( alias );
+    parseddefnames.push_back( valuename );
+    CommandInterface* nc(0);
+    assigncommands.push_back( nc );
+  }
+
+    void ValueChangeParser::cleanup()
+    {
+        for_each(assigncommands.begin(), assigncommands.end(), bind(delete_ptr(), _1));
+    }
 
   void ValueChangeParser::seenbaredefinition()
   {
@@ -257,9 +273,8 @@ namespace ORO_Execution
           var = type->buildVariable(sizehint);
       }
       context->attributeRepository.setValue( valuename, var );
-      lastdefinedvalue = var;
-      lastparseddefname = valuename;
-      type = 0;
+      definedvalues.push_back( var );
+      parseddefnames.push_back( valuename );
   }
 
     void ValueChangeParser::seenproperty() {
@@ -282,20 +297,31 @@ namespace ORO_Execution
 
   void ValueChangeParser::seenvariabledefinition()
   {
-    TaskAttributeBase* var =
-        context->attributeRepository.getValue( valuename );
-    DataSourceBase::shared_ptr expr = expressionparser.getResult();
-    expressionparser.dropResult();
-    try
-    {
-        assigncommand = var->assignCommand( expr.get(), true );
-    }
-    catch( const bad_assignment& e )
-    {
-      throw parse_exception_semantic_error
-          ( "Attempt to initialize a var "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
-    }
-    assert( assigncommand );
+      // build type.
+      TaskAttributeBase* var;
+      if (sizehint == -1 )
+          var = type->buildVariable();
+      else {
+          var = type->buildVariable(sizehint);
+      }
+      context->attributeRepository.setValue( valuename, var );
+      definedvalues.push_back( var );
+      parseddefnames.push_back( valuename );
+
+      if ( expressionparser.hasResult() ) {
+          DataSourceBase::shared_ptr expr = expressionparser.getResult();
+          expressionparser.dropResult();
+          //assert( !expressionparser.hasResult() );
+          try {
+              CommandInterface* ac = var->assignCommand( expr.get(), true );
+              assigncommands.push_back( ac );
+          }
+          catch( const bad_assignment& e ) {
+              this->cleanup();
+              throw parse_exception_semantic_error
+                  ( "Attempt to initialize a var "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
+          }
+      }
   }
 
   void ValueChangeParser::seenvariableassignment()
@@ -331,6 +357,7 @@ namespace ORO_Execution
       // collect RHS :
       DataSourceBase::shared_ptr expr = expressionparser.getResult();
       expressionparser.dropResult();
+      //assert( !expressionparser.hasResult() );
 
       if ( index_ds && prop ) {
           throw parse_exception_semantic_error(
@@ -338,8 +365,10 @@ namespace ORO_Execution
       }
 
       if ( index_ds && var ) {
+          CommandInterface* ac;
           try {
-              assigncommand = var->assignIndexCommand( index_ds.get(), expr.get() );
+              ac = var->assignIndexCommand( index_ds.get(), expr.get() );
+              assigncommands.push_back( ac );
           }
           catch( const bad_assignment& e) {
               // type-error :
@@ -347,13 +376,14 @@ namespace ORO_Execution
                     "Impossible to assign "+valuename+"[ "+index_ds->getType()+" ] to value of type "+expr->getType()+".");
           }
           // not allowed :
-          if ( !assigncommand )
+          if ( !ac )
               throw parse_exception_semantic_error(
                      "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
       } 
       if ( !index_ds && var) {
         try {
-            assigncommand = var->assignCommand( expr.get(), false );
+            CommandInterface* assigncommand = var->assignCommand( expr.get(), false );
+            assigncommands.push_back(assigncommand);
             // if null, not allowed.
             if ( ! assigncommand )
                 throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in TaskContext "+ peername->getName()+"." );
@@ -366,7 +396,8 @@ namespace ORO_Execution
             }
       }
       if ( !index_ds && prop) {
-          assigncommand = prop->refreshCommand( expr.get() );
+          CommandInterface* assigncommand = prop->refreshCommand( expr.get() );
+          assigncommands.push_back(assigncommand);
           if ( ! assigncommand ) {
               throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getType()+"." );
           }
@@ -374,7 +405,6 @@ namespace ORO_Execution
 
       // allow to restart over...
       index_ds = 0;
-      assert(assigncommand);
   }
 
   void ValueChangeParser::seenindexassignment()
@@ -382,11 +412,14 @@ namespace ORO_Execution
     index_ds = expressionparser.getResult();
     expressionparser.dropResult();
     assert(index_ds);
+    //assert( !expressionparser.hasResult() );
   }
 
   void ValueChangeParser::reset()
   {
-    assigncommand = 0;
+    assigncommands.clear();
+    definedvalues.clear();
+    parseddefnames.clear();
     valuename = "";
     type = 0;
     index_ds = 0;

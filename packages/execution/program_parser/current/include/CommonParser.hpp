@@ -53,6 +53,15 @@ namespace ORO_Execution { namespace detail
       rule_t notassertingidentifier;
       lexeme_rule_t lexeme_identifier;
       lexeme_rule_t lexeme_notassertingidentifier;
+      
+      //@{
+      /**
+       * End Of Statement Parser. Identifies the end of a statement
+       * in Orocos scripting.
+       */
+      rule_t eos;
+      lexeme_rule_t leos;
+      //@}
 
       CommonParser();
 

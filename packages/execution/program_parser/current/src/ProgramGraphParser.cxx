@@ -36,12 +36,14 @@
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ConditionComposite.hpp"
+#include "execution/CommandComposite.hpp"
 #include "execution/TryCommand.hpp"
 #include "execution/FunctionFactory.hpp"
 #include "execution/CommandBinary.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 namespace ORO_Execution
 {
@@ -67,6 +69,7 @@ namespace ORO_Execution
         assertion<std::string> expect_and_command("Expected a command after 'and'.");
         assertion<std::string> expect_nl("Expected a newline after statement.");
         assertion<std::string> expect_eof("Invalid input in file.");
+        assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
     }
 
 
@@ -119,7 +122,7 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( ifblock );
     BOOST_SPIRIT_DEBUG_RULE( funcargs );
 
-    newline = ch_p( '\n' );
+    //newline = ch_p( '\n' );
     openbrace = expect_open( ch_p('(') );
     closebrace = expect_close( ch_p(')') );
     opencurly = expect_opencurly( ch_p('{') );
@@ -138,15 +141,14 @@ namespace ORO_Execution
 
     // a function is very similar to a program, but it also has a name
     function = (
-       *newline
-       >> !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
+       !str_p( "export" )[bind(&ProgramGraphParser::exportdef, this)]
        >> str_p( "function" )
        >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::functiondef, this, _1, _2 ) ] )
-       >> *newline >> !funcargs >> *newline
+       >> !funcargs
        >> opencurly
        >> content
        >> closecurly[ bind( &ProgramGraphParser::seenfunctionend, this ) ]
-       >> *newline );
+       );
 
     // the function's definition args :
     funcargs = ch_p('(') >> ( ch_p(')') || (
@@ -155,15 +157,12 @@ namespace ORO_Execution
         >> closebrace ));
 
     // a program looks like "program { content }".
-    program = (
-      *newline
-      >> str_p( "program" )[ bind( &ProgramGraphParser::startofprogram, this)]
+    program =
+        str_p( "program" )[ bind( &ProgramGraphParser::startofprogram, this)]
       >> expect_ident( commonparser.identifier[ bind( &ProgramGraphParser::programdef, this, _1, _2 ) ] )
-      >> *newline
       >> opencurly
       >> content
-      >> closecurly[ bind( &ProgramGraphParser::seenprogramend, this ) ]
-      >> *newline );
+      >> closecurly[ bind( &ProgramGraphParser::seenprogramend, this ) ];
 
     // the content of a program can be any number of lines
     content = *line;
@@ -172,7 +171,8 @@ namespace ORO_Execution
     // necessary, because comment's are skipped, but newline's
     // aren't.  So a line like "/* very interesting comment
     // */\n" will reach us as simply "\n"..
-    line = !( statement ) >> newline;
+    //line = !( statement ) >> eol_p;
+    line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
 
     statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement;
 
@@ -198,10 +198,10 @@ namespace ORO_Execution
          ) [ bind( &ProgramGraphParser::seendostatement, this ) ]
          >> !catchpart;
 
-    andpart = *newline >> str_p("and")
+    andpart = str_p("and")
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
-    catchpart = *newline >> (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
+    catchpart = (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
                  >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
 
     // a function statement : "call functionname"
@@ -224,11 +224,9 @@ namespace ORO_Execution
     // terminationclauses }".  The termination clause part is
     // everything starting at "until"..
     terminationpart =
-        *newline >>
         str_p( "until" )
-        >> *newline >> opencurly >> *newline
-        >> terminationclause
-        >> *(newline >> !terminationclause)
+        >> opencurly
+        >> expect_term(+terminationclause)
         >> closecurly;
 
     forstatement = ( str_p("for") >> openbrace
@@ -242,11 +240,11 @@ namespace ORO_Execution
                    >> condition
                    >> expect_then( str_p("then")[bind(&ProgramGraphParser::seenifstatement, this)] )
                    >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endifblock, this) ] )
-                   >> !( *newline >> str_p("else") >> expect_elseblock(ifblock) )
+                   >> !( str_p("else") >> expect_elseblock(ifblock) )
                    )[ bind(&ProgramGraphParser::endifstatement, this) ];
 
     // ifblock is used for a group of statements or one statement (see also whilestatement)
-    ifblock = ( *newline >> ch_p('{') >> *line >> closecurly ) | ( *newline >> statement );
+    ifblock = ( ch_p('{') >> *line >> closecurly ) | statement;
 
     whilestatement =
         (str_p("while")
@@ -259,8 +257,9 @@ namespace ORO_Execution
     terminationclause =
         str_p( "if" )
             >> condition
-            >> expect_then( str_p("then") ) >> *newline
-            >> (callpart | returnpart | continuepart);
+            >> expect_then( str_p("then") )
+            >> (callpart | returnpart | continuepart)[lambda::var(eol_skip_functor::skipeol) = false]
+            >> commonparser.eos[lambda::var(eol_skip_functor::skipeol) = true];
 
     continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
 
@@ -585,6 +584,14 @@ namespace ORO_Execution
       program_graph->proceedToNext(mpositer.get_position().line - ln_offset);
   }
 
+    void ProgramGraphParser::skip_eol() {
+        eol_skip_functor::skipeol = true;
+    }
+
+    void ProgramGraphParser::noskip_eol() {
+        eol_skip_functor::skipeol = false;
+    }
+
   void ProgramGraphParser::startofnewstatement(const std::string& type)
   {
       // cleanup previous left conds (should do this in endofnewstatement func)
@@ -660,14 +667,33 @@ namespace ORO_Execution
     {
         // the for loop is different from the while and if branch
         // structures in that it places an init command before the loop.
-        for_init_command = valuechangeparser.assignCommand();
-        valuechangeparser.reset();
+      CommandInterface* ac = 0;
+      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      // and not forget to reset()..
+      valuechangeparser.reset();
+      if ( acv.size() == 1) {
+          ac = acv.front();
+      }
+      else if (acv.size() > 1) {
+          ac = new CommandComposite( acv );
+      }
+      for_init_command = ac;
     }
 
     void ProgramGraphParser::seenforincr()
     {
-        for_incr_command = valuechangeparser.assignCommand();
-        valuechangeparser.reset();
+      CommandInterface* ac = 0;
+      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      // and not forget to reset()..
+      valuechangeparser.reset();
+      if ( acv.size() == 1) {
+          ac = acv.front();
+      }
+      else if (acv.size() > 1) {
+          ac = new CommandComposite( acv );
+      }
+      for_incr_command = ac;
+      valuechangeparser.reset();
     }
 
     void ProgramGraphParser::seenforstatement() {
@@ -944,16 +970,22 @@ namespace ORO_Execution
   {
     // some value changes generate a command, we need to add it to
     // the program.
-    CommandInterface* ac = valuechangeparser.assignCommand();
-    // and not forget to reset()..
-    valuechangeparser.reset();
-    if ( ac )
-    {
-      program_graph->setCommand( ac );
-      // Since a valuechange does not add edges, we use this variant
-      // to create one.
-      program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
-    }
+      CommandInterface* ac = 0;
+      std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
+      // and not forget to reset()..
+      valuechangeparser.reset();
+      if ( acv.size() == 1) {
+          ac = acv.front();
+      }
+      else if (acv.size() > 1) {
+          ac = new CommandComposite(acv);
+      }
+      if (ac) {
+          program_graph->setCommand( ac );
+          // Since a valuechange does not add edges, we use this variant
+          // to create one.
+          program_graph->proceedToNext( new ConditionTrue, mpositer.get_position().line - ln_offset );
+      }
   }
 
     void ProgramGraphParser::seencallfunclabel( iter_t begin, iter_t end )

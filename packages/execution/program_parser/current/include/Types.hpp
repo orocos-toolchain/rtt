@@ -57,8 +57,8 @@ namespace ORO_Execution
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual TaskAttributeBase* buildConstant(int sizehint) const;
-        virtual TaskAttributeBase* buildConstant() const = 0;
+        virtual TaskAttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr, int sizehint) const;
+        virtual TaskAttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr) const = 0;
         /**
          * Build a modifyable instance of this type.
          * @param sizehint For variable size instances, use it to hint
@@ -71,6 +71,11 @@ namespace ORO_Execution
          * 0 will be returned..
          */
         virtual TaskAttributeBase* buildAlias( ORO_CoreLib::DataSourceBase* b ) const = 0;
+
+        /**
+         * Return the type name in a human readable format.
+         */
+        virtual std::string getType() const = 0;
     };
 
     /**

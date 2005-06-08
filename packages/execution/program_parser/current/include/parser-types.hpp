@@ -72,6 +72,65 @@ namespace ORO_Execution
   // might change some time in the future..
   typedef our_pos_iter_t iter_t;
 
+  // a macro using GCC's C++ extension typeof that is used to not have
+  // to specify impossibly long type names..  See the Boost.Spirit
+  // documentation for more details, as that's where I got it from..
+  // we use __typeof__ instead of typeof because it is not disabled by
+  // using gcc -ansi
+#   define RULE( name, def ) \
+      __typeof__( (def) ) name = (def)
+
+
+#if 1
+    /**
+     * Parser used in skip parser. Set skipeol to 'true' to
+     * skip newlines, set skipeol to false to not skip newlines.
+     */
+    struct eol_skip_functor
+    {
+        /**
+         * By default, eol are skipped.
+         */
+        static bool skipeol;
+        typedef nil_t result_t;
+
+        template <typename ScannerT>
+        std::ptrdiff_t
+        operator()(ScannerT const& scan, result_t& result) const {
+            if (scan.at_end() || skipeol == false )
+                return -1;
+
+            std::size_t len = 0;
+
+            if ( *scan == '\r') {
+                ++scan;
+                ++len;
+            }
+
+            if ( !scan.at_end() && *scan == '\n') {
+                ++scan;
+                ++len;
+            }
+            if ( len > 0 ) {
+                return len;
+            }
+
+            return -1;
+        }
+    };
+
+    /**
+     * Use this global parser to skip newlines inside statements.
+     */
+    extern functor_parser<eol_skip_functor> eol_skip_p;
+
+#   define SKIP_PARSER \
+      ( comment_p( "#" ) | comment_p( "//" ) | \
+        comment_p( "/*", "*/" ) | (space_p - eol_p) | eol_skip_p  )
+
+  // here are the typedef's for the scanner, and the rule types..
+  typedef __typeof__( SKIP_PARSER ) skip_parser_t;
+#else
   // we need to know what type the skip parser will be in order to be
   // able to know what types the scanner and rule will be exactly.
   // So we have to put a typedef here, and in order to not put the skip
@@ -85,18 +144,11 @@ namespace ORO_Execution
 
 #   define SKIP_PARSER \
       ( comment_p( "#" ) | comment_p( "//" ) | \
-        comment_p( "/*", "*/" ) | ( space_p - ch_p( '\n' ) ) )
-
-  // a macro using GCC's C++ extension typeof that is used to not have
-  // to specify impossibly long type names..  See the Boost.Spirit
-  // documentation for more details, as that's where I got it from..
-  // we use __typeof__ instead of typeof because it is not disabled by
-  // using gcc -ansi
-#   define RULE( name, def ) \
-      __typeof__( (def) ) name = (def)
+        comment_p( "/*", "*/" ) | (space_p - eol_p) )
 
   // here are the typedef's for the scanner, and the rule types..
   typedef __typeof__( SKIP_PARSER ) skip_parser_t;
+#endif
   typedef skip_parser_iteration_policy<skip_parser_t> iter_pol_t;
   typedef scanner_policies<iter_pol_t> scanner_pol_t;
   typedef scanner<iter_t, scanner_pol_t> scanner_t;

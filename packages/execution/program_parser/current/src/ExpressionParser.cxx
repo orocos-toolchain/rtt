@@ -437,27 +437,22 @@ namespace ORO_Execution
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
 
-    double6Dctor = (
+    double6Dctor =
         str_p( "double6d" )
       >> open_brace
       >> expression
-      >> ')' )[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ];
-
-    double6Dctor6 = (
-        str_p( "double6d" )
-      >> open_brace
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ];
+      >>(  ch_p(')')[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ]
+           | ( comma
+               >> expression
+               >> comma
+               >> expression
+               >> comma
+               >> expression
+               >> comma
+               >> expression
+               >> comma
+               >> expression
+               >> close_brace )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ]);
 
     arrayctor = (
         str_p( "array" )

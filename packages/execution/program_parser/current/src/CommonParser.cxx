@@ -34,6 +34,12 @@ namespace ORO_Execution {
     using boost::bind;
     using namespace detail;
 
+    // see parser-types.hpp
+    functor_parser<eol_skip_functor> eol_skip_p;
+
+    bool eol_skip_functor::skipeol = true;
+
+
     CommonParser::CommonParser()
     {
         // we reserve a few words
@@ -84,6 +90,8 @@ namespace ORO_Execution {
 
         BOOST_SPIRIT_DEBUG_RULE( idr );
         BOOST_SPIRIT_DEBUG_RULE( idlr );
+        BOOST_SPIRIT_DEBUG_RULE( eos );
+        BOOST_SPIRIT_DEBUG_RULE( leos );
         BOOST_SPIRIT_DEBUG_RULE( keywords );
         BOOST_SPIRIT_DEBUG_RULE( identifier );
         BOOST_SPIRIT_DEBUG_RULE( notassertingidentifier );
@@ -111,6 +119,11 @@ namespace ORO_Execution {
 
         notassertingidentifier = idr;
         identifier = idr | keywords[bind( &CommonParser::seenillegalidentifier, this )];
+
+        // end of statement is on a newline or a ';'
+        //eos = lexeme_d[ *(space_p - eol_p) >> (eol_p | ch_p(';')) ];
+        eos = eol_p | ch_p(';') | eps_p(ch_p('}')); // detect } as eos, but do not consume.
+        leos = *(space_p - eol_p) >> (eol_p | ch_p(';') | eps_p(ch_p('}')));
     }
 
     void CommonParser::seenillegalidentifier()

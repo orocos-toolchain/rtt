@@ -107,11 +107,12 @@ namespace ORO_Execution
      * based variable ( case (4) ).
      * Specialises for example DataSourceAdaptor<int, const int&>
      */
-    template<class From>
-    struct DataSourceAdaptor<From,const From&>
-        : public DataSource<const From&>
+    template<class TFrom>
+    struct DataSourceAdaptor<TFrom,const TFrom&>
+        : public DataSource<const TFrom&>
     {
-        typedef const From& To;
+        typedef const TFrom& To;
+        typedef TFrom  From;
 
         typename DataSource<From>::shared_ptr orig_;
 

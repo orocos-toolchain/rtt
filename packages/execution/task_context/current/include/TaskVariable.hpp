@@ -230,49 +230,37 @@ namespace ORO_Execution
       }
   };
 
-
-
   /**
    * This represents a constant value, does not allow assignment,
    * only initialization.
-   * It inherits from ParsedVariable, purely for implementation reuse,
-   * not for semantic correctness :-).
    */
   template<typename T>
   class ParsedConstant
-    : public ParsedVariable<T>
+    : public TaskAttributeBase
   {
   public:
-    ParsedConstant()
-      : ParsedVariable<T>()
-      {
-      }
+    typename ConstantDataSource<T>::shared_ptr cdata;
     ParsedConstant(T t)
-      : ParsedVariable<T>(t)
+      : cdata( new ConstantDataSource<T>( t ) )
       {
       }
-    ParsedConstant( VariableDataSource<T>* d )
-      : ParsedVariable<T>( d )
+    ParsedConstant( ConstantDataSource<T>* d )
+      : cdata( d )
       {
       }
-    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool init ) const
+    ConstantDataSource<T>* toDataSource() const
       {
-        if ( init )
-          return ParsedVariable<T>::assignCommand( rhs, init );
-        else return 0;
+        return cdata.get();
       }
     ParsedConstant<T>* clone() const
       {
-        return new ParsedConstant<T>( this->data.get() );
+        return new ParsedConstant<T>( this->cdata.get() );
       }
-    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+
+    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool )
       {
-          if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
-              replacements[ this->data.get() ] = instds;
-              return new ParsedConstant( instds );
-          }
-        return new ParsedConstant<T>( this->data->copy( replacements ) );
+          // no copy needed, pass on original
+          return new ParsedConstant<T>( this->cdata.get() );
       }
   };
     }

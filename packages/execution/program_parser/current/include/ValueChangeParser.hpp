@@ -48,15 +48,15 @@ namespace ORO_Execution { namespace detail
    */
   class ValueChangeParser
   {
-    // the AssignVariableCommand we've built..
-    CommandInterface* assigncommand;
+    // all the AssignVariableCommand we've built..
+    std::vector<CommandInterface*> assigncommands;
 
-    // the last defined value...
-    TaskAttributeBase* lastdefinedvalue;
+    // the defined values...
+    std::vector<TaskAttributeBase*> definedvalues;
 
-    // the last parsed variable or constant or alias or param
+    // the parsed variable or constant or alias or param
     // definition name
-    std::string lastparseddefname;
+    std::vector<std::string> parseddefnames;
 
     // the name of the value of which we're currently parsing the
     // definition or assignment..
@@ -84,7 +84,8 @@ namespace ORO_Execution { namespace detail
     void seenproperty(); 
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
-      variableassignment, variablechange, paramdefinition, baredefinition;
+        variableassignment, variablechange, paramdefinition, baredefinition,
+        vardecl, constdecl, baredecl;
 
     TaskContext* context;
     ExpressionParser expressionparser;
@@ -96,6 +97,9 @@ namespace ORO_Execution { namespace detail
 
       int sizehint;
       boost::shared_ptr<TypeInfoRepository> typerepos;
+
+      // call this before throwing.
+      void cleanup();
   public:
     ValueChangeParser( TaskContext* tc );
 
@@ -117,17 +121,38 @@ namespace ORO_Execution { namespace detail
      */
     CommandInterface* assignCommand()
       {
-        return assigncommand;
+          if ( assigncommands.empty() )
+              return 0;
+          return assigncommands.back();
+      }
+
+    std::vector<CommandInterface*> assignCommands()
+      {
+          return assigncommands;
       }
 
     TaskAttributeBase* lastDefinedValue()
       {
-        return lastdefinedvalue;
+          if ( definedvalues.empty() )
+              return 0;
+          return definedvalues.back();
+      }
+
+    std::vector<TaskAttributeBase*> definedValues()
+      {
+          return definedvalues;
       }
 
     std::string lastParsedDefinitionName()
       {
-        return lastparseddefname;
+          if ( parseddefnames.empty() )
+              return "";
+          return parseddefnames.back();
+      }
+
+    std::vector<std::string> parsedDefinitionNames()
+      {
+          return parseddefnames;
       }
 
     /**

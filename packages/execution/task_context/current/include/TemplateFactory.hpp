@@ -144,10 +144,10 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   class TemplateFactoryPart
   {
-    const char* mdesc;
+      const char* mdesc;
   public:
-    TemplateFactoryPart( const char* desc )
-      : mdesc( desc )
+      TemplateFactoryPart( const char* desc )
+          : mdesc( desc )
       {
       }
 
@@ -165,17 +165,24 @@ namespace ORO_Execution
        * Get a description of the desired arguments in
        * the property format.
        */
-    virtual PropertyBag getArgumentSpec() const = 0;
+      virtual PropertyBag getArgumentSpec() const = 0;
       /**
        * Get a description of the desired arguments in
        * the ArgumentDescription format.
        */
-    virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
+      virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
       /**
        * Create one part (function object) for a given component.
+       * @param com The target object whose function is called.
+       * @param args The arguments for the target object's function.
+       * @param read_now true : Read-out the \a args right now (and store). 
+       *                 false: store pointers to \a args and read out upon invocation.
+       * @return An object which (internally) invokes the function of \a com with
+       *         arguments \a args. Examples are DataSourceBase, ConditionInterface and CommandInterface.
        */
-    virtual ResultT produce( ComponentT* com,
-                             const std::vector<DataSourceBase::shared_ptr>& args ) const = 0;
+      virtual ResultT produce( ComponentT* com,
+                               const std::vector<DataSourceBase::shared_ptr>& args,
+                               bool read_now = false ) const = 0;
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT>
@@ -207,7 +214,7 @@ namespace ORO_Execution
 
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase::shared_ptr>& args ) const
+      const std::vector<DataSourceBase::shared_ptr>& args, bool ) const
       {
         if ( ! args.empty() )
           throw wrong_number_of_args_exception( 0, args.size() );
@@ -254,7 +261,7 @@ namespace ORO_Execution
 
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase::shared_ptr>& args ) const
+      const std::vector<DataSourceBase::shared_ptr>& args, bool read_now  ) const
       {
         if ( args.size() != 1 )
             throw wrong_number_of_args_exception( 1, args.size() );
@@ -262,6 +269,8 @@ namespace ORO_Execution
             AdaptDataSource<first_argument_type>()( args[0] );
         if ( ! a )
             throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
+        if ( read_now )
+            return fun( comp, a->get() );
         return fun( comp, a.get() );
       }
   };
@@ -282,7 +291,7 @@ namespace ORO_Execution
   public:
     TemplateFactoryFunctorPart2( fun_t f, const char* desc, const char* a1n,
                                  const char* a1d, const char* a2n,
-                                 const char* a2d )
+                                 const char* a2d)
       : TemplateFactoryPart<ComponentT,ResultT>( desc ), fun( f ),
         arg1name( a1n ), arg1desc( a1d ), arg2name( a2n ),
         arg2desc( a2d )
@@ -310,7 +319,7 @@ namespace ORO_Execution
         return ret;
       }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
         if ( args.size() != 2 )
           throw wrong_number_of_args_exception( 2, args.size() );
@@ -324,6 +333,8 @@ namespace ORO_Execution
         if ( !b ) 
             throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
 
+        if ( read_now )
+            return fun( comp, a->get(), b->get() );
         return fun( comp, a.get(), b.get() );
       }
   };
@@ -381,7 +392,7 @@ namespace ORO_Execution
           return mlist;
       }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
         if ( args.size() != 3 )
           throw wrong_number_of_args_exception( 3, args.size() );
@@ -399,6 +410,8 @@ namespace ORO_Execution
         if ( !c ) 
             throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
 
+        if ( read_now )
+            return fun( comp, a->get(), b->get(), c->get() );
         return fun( comp, a.get(), b.get(), c.get() );
       }
   };
@@ -463,7 +476,7 @@ namespace ORO_Execution
           return mlist;
       }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
         if ( args.size() != 4 )
           throw wrong_number_of_args_exception( 4, args.size() );
@@ -484,6 +497,9 @@ namespace ORO_Execution
           AdaptDataSource<fourth_argument_type>()( args[3] );
         if ( !d )
             throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), args[3]->getType() );
+
+        if ( read_now )
+            return fun( comp, a->get(), b->get(), c->get(), d->get() );
         return fun( comp, a.get(), b.get(), c.get(), d.get() );
       }
   };
@@ -616,7 +632,7 @@ namespace ORO_Execution
         std::transform( args.begin(), args.end(),
                         std::back_inserter( dsVect ),
                         boost::bind( &ORO_CoreLib::PropertyBase::createDataSource, _1));
-        return i->second->produce( comp, dsVect );
+        return i->second->produce( comp, dsVect, true );
       }
 
     ResultT produce( const std::string& name,

@@ -79,6 +79,7 @@ namespace ORO_Execution
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_open("Open brace expected.");
         assertion<std::string> expect_eof("Invalid input in file.");
+        assertion<std::string> expect_eol("Newline expected at end of statement.");
         assertion<std::string> expect_semicolon("Semi colon expected after statement.");
         assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
         assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
@@ -108,7 +109,6 @@ namespace ORO_Execution
           expressionparser( new ExpressionParser(context) )
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
-        BOOST_SPIRIT_DEBUG_RULE( newline );
         BOOST_SPIRIT_DEBUG_RULE( rootcontextinstantiation );
         BOOST_SPIRIT_DEBUG_RULE( statecontext );
         BOOST_SPIRIT_DEBUG_RULE( contextinstantiation );
@@ -137,12 +137,8 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( contextalias );
         BOOST_SPIRIT_DEBUG_RULE( subMachinevarchange );
 
-        newline = ch_p( '\n' );
-
-        production = *( (*newline 
-                         >> statecontext[ bind( &StateGraphParser::seenstatecontextend, this ) ]
-                         >> *( *newline >> rootcontextinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
-                         >> *newline
+        production = *( (statecontext[ bind( &StateGraphParser::seenstatecontextend, this ) ]
+                         >> *( rootcontextinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
                          >> expect_eof(end_p);
 
         rootcontextinstantiation =
@@ -152,16 +148,14 @@ namespace ORO_Execution
         statecontext =
             str_p("StateMachine") //[bind( &StateGraphParser::storeOffset, this)]
             >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seenstatecontextname, this, _1, _2 )] )
-            >> !newline
             >> expect_open( ch_p( '{' ) )
             >> statecontextcontent
-            >> expect_end( ch_p( '}' ) )
-            >> newline;
+            >> expect_end( ch_p( '}' ) );
 
         // Zero or more declarations and Zero or more states
-        statecontextcontent = ( *varline >> *( state | newline ) );
+        statecontextcontent = *( varline | state );
 
-        varline = !vardec >> newline;
+        varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
         vardec = subMachinedecl | contextmemvar | contextparam;
 
@@ -195,22 +189,16 @@ namespace ORO_Execution
              | str_p( "final" )[bind( &StateGraphParser::seenfinalstate,this )] )
           >> str_p( "state" )
           >> expect_ident(commonparser->identifier[ bind( &StateGraphParser::statedef, this, _1, _2 ) ])
-          >> !newline
           >> expect_open(ch_p( '{' ))
           >> statecontent
-          >> expect_end(ch_p( '}' ))
-          >> newline[ bind( &StateGraphParser::seenstateend, this ) ];
+          >> expect_end(ch_p( '}' ))[ bind( &StateGraphParser::seenstateend, this ) ];
 
         // the content of a program can be any number of lines
-        // a line is not strictly defined in the sense of text-line,
-        // a line can contain newlines.
+        // a line is not strictly defined in the sense of text-line.
         statecontent = *statecontentline;
 
-        // a line can be empty or contain a statement. Empty is
-        // necessary, because comment's are skipped, but newline's
-        // aren't.  So a line like "/* very interesting comment
-        // */\n" will reach us as simply "\n"..
-        statecontentline = !( entry | preconditions | run | handle | transitions | exit ) >> newline;
+        // a can contain a statement.
+        statecontentline = entry | preconditions | run | handle | transitions | exit;
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
@@ -240,16 +228,18 @@ namespace ORO_Execution
         transitions = str_p( "transitions" )
                       >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
 
-        transline = !selectcommand >> newline;
+        transline = selectcommand;
 
         // You are only allowed to select a new state in transitions :
         selectcommand = (brancher | selector)[bind(&StateGraphParser::seenendcondition,this)];
 
         brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
-                                >> expect_if(str_p( "then" ))>> !newline >> expect_if(selector);
+                                >> expect_if(str_p( "then" )) >> expect_if(selector);
 
-        selector = str_p( "select" ) >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
-                                     >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]);
+        selector = str_p( "select" ) >> ( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
+                                          >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
+                                          )[lambda::var(eol_skip_functor::skipeol) = false]
+                                     >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
     }
 
@@ -838,16 +828,19 @@ namespace ORO_Execution
     }
 
     void StateGraphParser::seencontextvariable() {
-        CommandInterface* assigncommand = valuechangeparser->assignCommand();
-        // if an assignment was given, add it.
-        if ( assigncommand )
-            varinitcommands.push_back( assigncommand );
+        std::vector<CommandInterface*> acv = valuechangeparser->assignCommands();
+        for(std::vector<CommandInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
+            varinitcommands.push_back( *it );
         valuechangeparser->reset();
     }
 
   void StateGraphParser::seencontextparam() {
-    curtemplatecontext->addParameter( valuechangeparser->lastParsedDefinitionName(), valuechangeparser->lastDefinedValue() );
-    valuechangeparser->reset();
+      std::vector<std::string> pnames = valuechangeparser->parsedDefinitionNames();
+      std::vector<TaskAttributeBase*> tbases = valuechangeparser->definedValues();
+      assert( pnames.size() == tbases.size() );
+      for (unsigned int i = 0; i < pnames.size(); ++i)
+          curtemplatecontext->addParameter( pnames[i] , tbases[i] );
+      valuechangeparser->reset();
   }
 
   void StateGraphParser::seenscvcsubMachinename( iter_t begin, iter_t end )

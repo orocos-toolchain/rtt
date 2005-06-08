@@ -36,19 +36,23 @@ namespace ORO_Execution
     using ORO_CoreLib::DataSource;
     using ORO_CoreLib::AssignableDataSource;
 
-    namespace detail {
-
   /**
    * A simple, yet very useful DataSource, which keeps a value, and
    * returns it in its get() method. 
-   * The VariableDataSource acts like a non-const variable, which
+   * The VariableDataSource is an AssignableDataSource, which
    * thus can be changed.
+   * @param T The result data type of get().
    */
   template<typename T>
   class VariableDataSource
     : public AssignableDataSource<T>
   {
       typename DataSource<T>::value_t mdata;
+  protected:
+      /**
+       * Use shared_ptr.
+       */
+      ~VariableDataSource() {}
   public:
       typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
 
@@ -88,8 +92,51 @@ namespace ORO_Execution
               alreadyCloned[this] = n;
               return n;
           }
-          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) );
+          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) == static_cast<VariableDataSource<T>*>( i->second ) );
           return static_cast<VariableDataSource<T>*>( i->second );
+      }
+  };
+
+  /**
+   * A DataSource which holds a constant value and
+   * returns it in its get() method. It can not be changed after creation.
+   * @param T Any type of data, except being a non-const reference.
+   */
+  template<typename T>
+  class ConstantDataSource
+    : public DataSource<T>
+  {
+      /**
+       * Assure that mdata is const, such that T is forced
+       * to not be a non-const reference.
+       */
+      typename boost::add_const<typename DataSource<T>::value_t>::type mdata;
+  protected:
+      /**
+       * Use shared_ptr.
+       */
+      ~ConstantDataSource() {}
+  public:
+      typedef boost::intrusive_ptr< ConstantDataSource<T> > shared_ptr;
+
+      ConstantDataSource( T value )
+          : mdata( value )
+      {
+      }
+
+      typename DataSource<T>::result_t get() const
+      {
+          return mdata;
+      }
+
+      virtual ConstantDataSource<T>* clone() const
+      {
+          return new ConstantDataSource<T>(mdata);
+      }
+
+      virtual ConstantDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+          // no copy needed, share this with all instances.
+          return this;
       }
   };
 
@@ -327,6 +374,14 @@ namespace ORO_Execution
       }
   };
 
-}}
+    namespace detail {
+        // backwards compatibility with 0.20.0
+        using ::ORO_Execution::VariableDataSource;
+        using ::ORO_Execution::UnaryDataSource;
+        using ::ORO_Execution::BinaryDataSource;
+        using ::ORO_Execution::TernaryDataSource;
+        using ::ORO_Execution::SixaryDataSource;
+    }
+}
 
 #endif

@@ -33,8 +33,11 @@
 #endif
 
 #include <corelib/MultiVector.hpp>
+#include <corelib/Logger.hpp>
 #include "execution/TaskVariable.hpp"
+#include "execution/DataSourceAdaptor.hpp"
 #include "execution/mystd.hpp"
+#include <corelib/TypeStream.hpp>
 #include <functional>
 
 namespace ORO_Execution
@@ -46,7 +49,8 @@ namespace ORO_Execution
   using ORO_Geometry::Wrench;
   using ORO_Geometry::Twist;
 #endif
-  using ORO_CoreLib::Double6D;
+  using namespace ORO_CoreLib;
+  using namespace std;
 
     using namespace detail;
 
@@ -54,8 +58,8 @@ namespace ORO_Execution
         return this->buildVariable();
     }
 
-    TaskAttributeBase* TypeInfo::buildConstant( int ) const {
-        return this->buildConstant();
+    TaskAttributeBase* TypeInfo::buildConstant(DataSourceBase::shared_ptr dsb, int ) const {
+        return this->buildConstant( dsb );
     }
 
   template<typename T>
@@ -66,9 +70,15 @@ namespace ORO_Execution
       using TypeInfo::buildConstant;
       using TypeInfo::buildVariable;
 
-    TaskAttributeBase* buildConstant() const
+    TaskAttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
       {
-        return new detail::ParsedConstant<T>();
+          typename DataSource<T>::shared_ptr res = AdaptDataSource<T>()(dsb);
+          if ( res ) {
+              Logger::log() << Logger::Info << " constant with value " << res->get() <<Logger::endl;
+              return new detail::ParsedConstant<T>( res->get() );
+          }
+          else
+              return 0;
       }
     TaskAttributeBase* buildVariable() const
       {
@@ -81,6 +91,8 @@ namespace ORO_Execution
           return 0;
         return new detail::ParsedAlias<T>( ds );
       }
+
+      virtual string getType() const { return DataSource<T>::GetType(); }
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type.
@@ -94,9 +106,15 @@ namespace ORO_Execution
       using TypeInfo::buildConstant;
       using TypeInfo::buildVariable;
 
-    TaskAttributeBase* buildConstant() const
+    TaskAttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
       {
-        return new detail::ParsedConstant<T>();
+          typename DataSource<T>::shared_ptr res = AdaptDataSource<T>()(dsb);
+          if ( res ) {
+              Logger::log() << Logger::Info << " constant with value " << res->get() <<Logger::endl;
+              return new detail::ParsedConstant<T>( res->get() );
+          }
+          else
+              return 0;
       }
 
     TaskAttributeBase* buildVariable() const
@@ -111,6 +129,8 @@ namespace ORO_Execution
           return 0;
         return new detail::ParsedAlias<T>( ds );
       }
+
+      virtual string getType() const { return DataSource<T>::GetType(); }
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type

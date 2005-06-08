@@ -133,7 +133,7 @@ namespace ORO_Execution
             virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
                 // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
                 if ( replace[this] != 0 ) {
-                    assert ( dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] ) );
+                    assert ( dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] ) == static_cast<TaskAttributeDataSource<T>*>( replace[this] ) );
                     return static_cast<TaskAttributeDataSource<T>*>( replace[this] );
                 }
                 // Other pieces in the code rely on insertion in the map :
@@ -142,7 +142,6 @@ namespace ORO_Execution
                 return this;
             }
         };
-
     }
 
     /**
@@ -246,17 +245,14 @@ namespace ORO_Execution
     : public TaskAttributeBase
   {
   public:
-    typename detail::TaskAttributeDataSource<T>::shared_ptr data;
+    typename ConstantDataSource<T>::shared_ptr data;
 
-    TaskConstant()
-      : data( new detail::TaskAttributeDataSource<T>() )
-      {
-      }
     TaskConstant(T t)
-      : data( new detail::TaskAttributeDataSource<T>( t ) )
+      : data( new ConstantDataSource<T>( t ) )
       {
       }
-    TaskConstant( detail::TaskAttributeDataSource<T>* d )
+
+    TaskConstant( ConstantDataSource<T>* d )
       : data( d )
       {
       }
@@ -279,12 +275,8 @@ namespace ORO_Execution
       }
     TaskConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) 
       {
-          // a bit special... The TaskConstant's DataSource is designed to be not copyable,
-          // but if the copy request is on the TaskConstant itself, forcefully make a copy
-          // of the underlying DataSource. Hence, TaskConstant must be copied before all
-          // other DataSources...
-          //          TaskConstant<T>* ret = new TaskConstant<T>( data->get() );
-          TaskConstant<T>* ret = new TaskConstant<T>( data->copy(replacements) );
+          // 'symbolic' copy, ConstantDataSource returns 'this' on copy...
+          TaskConstant<T>* ret = new TaskConstant<T>( data.get() );
           return ret;
       }
   };

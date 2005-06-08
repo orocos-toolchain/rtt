@@ -43,6 +43,10 @@ namespace ORO_Execution
         public:
         CommandComposite() {}
 
+        CommandComposite(std::vector<CommandInterface*> cv )
+            : vect( cv )
+        {}
+
         /**
          * Copy-Construct a clone() of all commands
          */
