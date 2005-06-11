@@ -30,6 +30,7 @@
 // Include geometry support
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
+#include <geometry/frames_io.h>
 #endif
 
 #include <corelib/MultiVector.hpp>
