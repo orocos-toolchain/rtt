@@ -15,8 +15,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-// #include <PMA_xytable_config.h>
 #include "KryptonK600PositionInterfaceThread.hpp"
+#include <corelib/Logger.hpp>
 #include <cassert>
 
 
@@ -30,6 +30,9 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+using namespace ORO_CoreLib;
+
 
 namespace ORO_DeviceDriver
 {
@@ -92,8 +95,8 @@ namespace ORO_DeviceDriver
       }
     else 
       {
-	rtos_printf("K600PositionInterface<Data>::How many Leds????? %d\n",*g);
-	rtos_printf("Prepare for Segfault :-))\n");
+	Logger::log() << Logger::Error << "K600PositionInterface: How many Leds?????" << Logger::endl;
+	Logger::log() << Logger::Error << "K600PositionInterface: Prepare for Segfault :-)" << Logger::endl;
 	return -1;
       }
   }
@@ -112,7 +115,7 @@ namespace ORO_DeviceDriver
 	_coordinates[i] = new double;
       }
 
-    rtos_printf( "\tK600PI::Constructor: Starting SingleThread...\n" );
+    Logger::log() << Logger::Info << "K600PositionInterface: Constructor: Starting SingleThread..." << Logger::endl;
     // this->makeHardRealtime();
     this->start();
   };
@@ -120,7 +123,7 @@ namespace ORO_DeviceDriver
   template <class Data>
   K600PositionInterface<Data>::~K600PositionInterface()
   {
-    rtos_printf( "\tK600PI::Destructor\n" );
+    Logger::log() << Logger::Info << "K600PositionInterface: Destructor" << Logger::endl;
     // In the while loop, we might be waiting for the sem, so first
     // post it...
     SEM * udp_message_arrived;
@@ -137,6 +140,7 @@ namespace ORO_DeviceDriver
     return 0;
   }
 
+
   // Don't forget: Step of SingleThread is only executed once
   template <class Data>
   void K600PositionInterface<Data>::loop()
@@ -144,10 +148,10 @@ namespace ORO_DeviceDriver
     SEM * udp_message_arrived;
     MBX * udp_message;
     int ret;
-#define BUFSIZE 1500
+    #define BUFSIZE 1500
     char msg[MAX_MESSAGE_LENGTH];
 
-    rtos_printf("K600PositionInterface Step\n");
+    Logger::log() << Logger::Info << "K600PositionInterface: Step" << Logger::endl;
 
     // If kernel Module is not loaded yet, Print error message and
     // wait for one second
@@ -155,7 +159,7 @@ namespace ORO_DeviceDriver
 	      (udp_message = (MBX *) rt_get_adr(nam2num("KEDMBX")))	      )
 	   )
       {
-	rtos_printf("K600PositionInterface Step: Can't find sem/mbx; sleep one second\n");
+	Logger::log() << Logger::Info << "K600PositionInterface: Can't find sem/mbx; sleep one second" << Logger::endl;
 	rt_sleep(nano2count(1000000000));
       }
 
@@ -172,9 +176,8 @@ namespace ORO_DeviceDriver
 	// udp_message_arrived was posted by the destructor
 	if (!_exit)
 	  {
-	    // rtos_printf("K600PositionInterface Step: Got UDP packet\n");
 	    if ((ret = rt_mbx_receive_if(udp_message,(void *) &msg, MAX_MESSAGE_LENGTH)) < 0 )
-	      rtos_printf("K600PositionInterface step: Error rcv message from mbx\n");
+	      Logger::log() << Logger::Info << "K600PositionInterface: Error rcv message from mbx" << Logger::endl;
 	    else
 	      {
 		// Interprete Message
@@ -182,10 +185,7 @@ namespace ORO_DeviceDriver
 		  {
 		    // #define __DEBUG__
 #ifdef __DEBUG__
-		    rtos_printf("Received message: %u, %u, %u, %u, %c, %u, %u, %u, ", a, b, c, d, mychar, e, f, g);
-		    for (int i = 0 ; i < g*3 ; i++)
-		      rtos_printf("%f, ",*(_coordinates[i]));
-		    rtos_printf("\n");
+		    Logger::log() << Logger::Info << "K600PositionInterface: Received message from mbx" << Logger::endl;
 #endif // __DEBUG__
 		    // Check if message numleds corresponds to numleds given by user,
 		    assert(_num_leds == g);
@@ -198,17 +198,16 @@ namespace ORO_DeviceDriver
 			// Maybe you want to convert to float?
 			(*_writeBuffer_p)[i] = static_cast<Data>(*(_coordinates[i]));
 		      }
-		    // rtos_printf("K600PositionInterface::step() Buffer = %f\n", *_writeBuffer_p);
 		    // Switch buffers
 		    switchBuffers();
 		  }
-		else rtos_printf("K600PositionInterface step: Bad message, or something went wrong in decoding\n");
+		else Logger::log() << Logger::Info << "K600PositionInterface: Bad message, or something went wrong in decoding" << Logger::endl;
 	      }
 	  }
 	// Sem was posted by destructor, so just leave the while loop
 	else break;
       }
-    rtos_printf("K600PositionInterface Step: Got signal from Destructor (or something went wrong), exiting Step\n");
+    Logger::log() << Logger::Info << "K600PositionInterface: Got signal from Destructor (or something went wrong), exiting Step" << Logger::endl;
   }
 
   template <class Data>
