@@ -302,9 +302,32 @@ namespace ORO_CoreLib
     CPFDemarshaller::CPFDemarshaller( const std::string& filename )
         : name(0), fis(0)
     {
-        XMLPlatformUtils::Initialize();
+        try
+            {
+                XMLPlatformUtils::Initialize();
+            }
+        catch ( const XMLException & toCatch )
+            {
+                std::string error;
+                XMLChToStdString(toCatch.getMessage(), error);
+                Logger::log() << Logger::Error << "CPFDemarshaller initialization : "
+                              << error << Logger::endl;
+            }
+        catch ( ... )
+            {
+                Logger::log() << Logger::Error << "CPFDemarshaller : General System Exception !" << Logger::endl;
+            }
+
         name =  XMLString::transcode( filename.c_str() );
-        fis  = new LocalFileInputSource( name );
+
+        try {
+            fis  = new LocalFileInputSource( name );
+        }
+        catch ( ... )
+            {
+                Logger::log() << Logger::Error << "CPFDemarshaller : Failed to open file " <<filename << Logger::endl;
+                fis = 0;
+            }
         delete[] name;
     }
 
@@ -316,24 +339,10 @@ namespace ORO_CoreLib
     
     bool CPFDemarshaller::deserialize( PropertyBag &v )
     {
-        try
-            {
-                XMLPlatformUtils::Initialize();
-            }
-        catch ( const XMLException & toCatch )
-            {
-                std::string error;
-                XMLChToStdString(toCatch.getMessage(), error);
-                Logger::log() << Logger::Error << "CPFDemarshaller initialization : "
-                              << error << Logger::endl;
-                return false;
-            }
-        catch ( ... )
-            {
-                Logger::log() << Logger::Error << "CPFDemarshaller : General System Exception !" << Logger::endl;
-                return false;
-            }
+        if ( fis == 0 )
+            return false;
 
+        XMLPlatformUtils::Initialize();
         SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
 
         int errorCount = 0;
