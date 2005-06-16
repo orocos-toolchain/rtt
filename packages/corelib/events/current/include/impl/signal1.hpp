@@ -5,10 +5,10 @@
 #define OROCOS_SIGNAL_NUM_ARGS 1
 #define OROCOS_SIGNAL_TEMPLATE_PARMS typename T1
 #define OROCOS_SIGNAL_TEMPLATE_ARGS T1
-#define OROCOS_SIGNAL_PARMS T1 a1
+#define OROCOS_SIGNAL_PARMS arg1_type a1
 #define OROCOS_SIGNAL_ARGS a1
 #define OROCOS_SIGNAL_ARG_TYPES typedef T1 arg1_type;
-#define OROCOS_SIGNAL_CONNECTION_TYPEDEFS typedef slot_function::arg1_type arg1_type;
+#define OROCOS_SIGNAL_CONNECTION_TYPEDEFS typedef typename slot_function::arg1_type arg1_type;
 
 #include "signal_template.hpp"
 

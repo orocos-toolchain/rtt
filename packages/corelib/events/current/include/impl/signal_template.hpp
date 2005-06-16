@@ -1,10 +1,12 @@
 
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
+#include "signal_base.hpp"
+#include <os/MutexLock.hpp>
 #endif // !OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 
 // Include the appropriate functionN header
-#define OROCOS_SIGNAL_FUNCTION_N_HEADER BOOST_JOIN(<boost/function/function,OROCOS_NUM_ARGS.hpp>)
+#define OROCOS_SIGNAL_FUNCTION_N_HEADER BOOST_JOIN(<boost/function/function,OROCOS_SIGNAL_NUM_ARGS.hpp>)
 #include OROCOS_SIGNAL_FUNCTION_N_HEADER
 
 // Determine if a comma should follow a listing of the arguments/parameters
@@ -15,9 +17,9 @@
 #endif // OROCOS_NUM_ARGS > 0
 
 // Define class names used
-#define OROCOS_SIGNAL_N BOOST_JOIN(signal,OROCOS_NUM_ARGS)
-#define OROCOS_SIGNAL_FUNCTION_N BOOST_JOIN(boost::function,OROCOS_NUM_ARGS)
-#define OROCOS_SIGNAL_CONNECTION_N BOOST_JOIN(connection,OROCOS_NUM_ARGS)
+#define OROCOS_SIGNAL_N BOOST_JOIN(signal,OROCOS_SIGNAL_NUM_ARGS)
+#define OROCOS_SIGNAL_FUNCTION_N BOOST_JOIN(boost::function,OROCOS_SIGNAL_NUM_ARGS)
+#define OROCOS_SIGNAL_CONNECTION_N BOOST_JOIN(connection,OROCOS_SIGNAL_NUM_ARGS)
 
 
 namespace sigslot {
@@ -36,7 +38,7 @@ namespace sigslot {
             {
             }
 
-            void emit(OROCOS_SIGNAL_PARAMS)
+            void emit(OROCOS_SIGNAL_PARMS)
             {
                 func(OROCOS_SIGNAL_ARGS);
             }
@@ -50,7 +52,7 @@ namespace sigslot {
              class SlotFunction = OROCOS_SIGNAL_FUNCTION_N< R OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS OROCOS_SIGNAL_TEMPLATE_ARGS> >
 	class OROCOS_SIGNAL_N : public detail::signal_base
 	{
-		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNAL_TEMPLATE_PARMS OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
+		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNAL_TEMPLATE_ARGS OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
 	public:
         typedef SlotFunction slot_function_type;
         typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunction> connection_impl;
@@ -62,7 +64,7 @@ namespace sigslot {
 		{
 		}
 
-        handle connect(const SlotFunction& f )
+        handle connect(const slot_function_type& f )
         {
             handle h = this->setup(f);
             h.connect();
@@ -73,131 +75,42 @@ namespace sigslot {
 		{
 			connection_t conn = 
 				new connection_impl(this, f);
-            //mconnections.allocator.grow( 1 );
+            this->conn_setup( conn );
             return handle(conn);
 		}
 
-		void emit(OROCOS_SIGNAL_PARAMS)
+		void emit(OROCOS_SIGNAL_PARMS)
 		{
 			//lock_block<mt_policy> lock(this);
-
+            ORO_OS::MutexLock lock(m);
             iterator it = mconnections.begin();
             const_iterator end = mconnections.end();
             for (; it != end; ++it ) {
                 connection_impl* ci = static_cast<connection_impl*>( it->get() );
-                if ( ci )
-                    ci->emit(OROCOS_SIGNAL_ARGS);
+                if (ci)
+                    ci->emit(OROCOS_SIGNAL_ARGS); // this if... race is guarded by the mutex.
             }
 
             this->cleanup();
 		}
 
-		void operator()(OROCOS_SIGNAL_PARAMS)
+		void operator()(OROCOS_SIGNAL_PARMS)
+		{
+            this->emit(OROCOS_SIGNAL_ARGS);
+		}
+
+		void fire(OROCOS_SIGNAL_PARMS)
 		{
             this->emit(OROCOS_SIGNAL_ARGS);
 		}
 	};
 
-    // TO BE REMOVED :
-#if 0
-	template<class arg1_type, class SlotFunction = boost::function1<void,arg1_type> >
-	class signal1 : public detail::signal_base
-	{
-		signal1(const signal1<arg1_type, SlotFunction>& s);
-	public:
-        typedef SlotFunction            slot_function_type;
-        typedef detail::connection1<SlotFunction> connection_impl;
-
-		signal1()
-		{
-		}
-
-        handle connect(const SlotFunction& f)
-		{
-            handle h = this->setup(f);
-            h.connect();
-            return h;
-		}
-
-        handle setup(const SlotFunction& f)
-		{
-			connection_t conn = 
-				new connection_impl(this, f);
-            //mconnections.allocator.grow( 1 );
-            return handle( conn );
-		}
-
-		void emit(arg1_type a1)
-		{
-			//lock_block<mt_policy> lock(this);
-
-            iterator it = mconnections.begin();
-            const_iterator end = mconnections.end();
-            for (; it != end; ++it ) {
-                connection_impl* ci = static_cast<connection_impl*>( it->get() );
-                if ( ci )
-                    ci->emit(a1);
-            }
-
-            this->cleanup();
-		}
-
-		void operator()(arg1_type a1)
-		{
-            this->emit( a1 );
-		}
-	};
-
-	template<class arg1_type, class arg2_type, class SlotFunction = boost::function1<void,arg1_type, arg2_type> >
-	class signal2 : public detail::signal_base
-	{
-		signal2(const signal2<arg1_type, arg2_type, SlotFunction>& s);
-	public:
-        typedef SlotFunction            slot_function_type;
-        typedef detail::connection2<SlotFunction> connection_impl;
-
-		signal2()
-		{
-		}
-
-        handle connect(const SlotFunction& f)
-		{
-            handle h = this->setup(f);
-            h.connect();
-            return h;
-		}
-
-        handle setup(const SlotFunction& f)
-		{
-			connection_t conn = 
-				new connection_impl(this, f);
-            //mconnections.allocator.grow( 1 );
-            return handle( conn );
-		}
-
-		void emit(arg1_type a1, arg2_type a2)
-		{
-// 			lock_block<mt_policy> lock(this);
-
-            iterator it = mconnections.begin();
-            const_iterator end = mconnections.end();
-            for (; it != end; ++it ) {
-                connection_impl* ci = static_cast<connection_impl*>( it->get() );
-                if ( ci )
-                    ci->emit(a1,a2);
-            }
-
-            this->cleanup();
-		}
-
-		void operator()(arg1_type a1, arg2_type a2)
-		{
-            this->emit( a1, a2 );
-		}
-	};
-#endif
-
 } // namespace sigslot
 
 
+#undef OROCOS_SIGNAL_FUNCTION_N_HEADER
+#undef OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS
+#undef OROCOS_SIGNAL_N 
+#undef OROCOS_SIGNAL_FUNCTION_N 
+#undef OROCOS_SIGNAL_CONNECTION_N
 

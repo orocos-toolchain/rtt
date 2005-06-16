@@ -1,12 +1,21 @@
 #ifndef ORO_SIGNAL_BASE_HPP
 #define ORO_SIGNAL_BASE_HPP
 
-#include <list>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/function.hpp>
+#include <os/Mutex.hpp>
+
+#define ORO_SIGNAL_USE_RT_LIST
+
+#ifdef ORO_SIGNAL_USE_RT_LIST
+#include <os/rt_list.hpp>
+#else
+#include <list>
+#endif
 
 namespace sigslot
 {
+    namespace detail {
         class signal_base;
 
         /**
@@ -25,29 +34,28 @@ namespace sigslot
             /**
              * Increase the reference count by one.
              */
-            void ref() { ++refcount; };
+            void ref();
             /**
              * Decrease the reference count by one and delete this on zero.
              */
-            void deref() { if ( --refcount <= 0 ) delete this; };
+            void deref();
 
             connection_base(const connection_base&);
+        protected:
+            virtual ~connection_base();
         public:
-            connection_base(signal_base* sig)
-                : mconnected(false), m_sig(sig), refcount(0)
-            {
-            }
+            connection_base(signal_base* sig);
 
             typedef boost::intrusive_ptr<connection_base> shared_ptr;
 
-            bool connected() { return mconnected && m_sig; }
+            inline bool connected() { return mconnected && m_sig; }
             bool connect();
             bool disconnect();
             void destroy();
         };
 
-        void intrusive_ptr_add_ref( connection_base* p ) { p->ref(); }
-        void intrusive_ptr_release( connection_base* p ) { p->deref(); }
+        void intrusive_ptr_add_ref( connection_base* p );
+        void intrusive_ptr_release( connection_base* p );
 
         /**
          * The base signal class which stores connection objects.
@@ -56,71 +64,38 @@ namespace sigslot
         {
         public:
             typedef connection_base::shared_ptr        connection_t;
-            typedef std::list< connection_t >    connections_list;
+#ifdef ORO_SIGNAL_USE_RT_LIST
+            typedef ORO_OS::rt_list< connection_t >    connections_list;
+#else
+            typedef std::list< connection_t > connections_list;
+#endif
             typedef connections_list::iterator iterator;
             typedef connections_list::iterator const_iterator;
-        private:
+        protected:
             friend class connection_base;
 
-            void conn_connect( connection_t conn ) {
-                assert( conn && "virtually impossible ! only connection base should call this function !" );
-                mconnections.push_back( conn );
-            }
+            void conn_setup( connection_t conn );
 
-            void conn_disconnect( connection_t conn ) {
-                assert( conn && "virtually impossible ! only connection base should call this function !" );
+            void conn_connect( connection_t conn );
 
-                iterator tgt;
+            void conn_disconnect( connection_t conn );
 
-                if ( (tgt = std::find( mconnections.begin(),
-                                       mconnections.end(),
-                                       conn)) != mconnections.end() ) {
-                    //mconnections.erase( tgt );
-                    connection_t d(0);
-                    *tgt = d; // clear out, no erase, keep all iterators valid !
-                }
-            }
-
+            void conn_destroy( connection_t conn );
         protected:
             /**
              * Erase all empty list items.
              */
-            void cleanup() {
-                iterator it = mconnections.begin();
-                const_iterator itend = mconnections.end();
-                while( it != itend ) {
-                    iterator nxt_it = it;
-                    ++nxt_it;
-                    if ( !(*it) )
-                        mconnections.erase( it );
-                    it = nxt_it;
-                }
-            }
+            void cleanup();
 
+            ORO_OS::MutexRecursive m;
             connections_list mconnections;
+            iterator itend;
+            int concount;
+            signal_base();
         public:
-            virtual ~signal_base(){
-                // call destroy on all connections.
-                while ( !mconnections.empty() ) {
-                    if ( mconnections.front() )
-                        mconnections.front()->destroy(); // this calls-back conn_disconnect.
-                    mconnections.erase( mconnections.begin() );
-                }
-            }
-
+            virtual ~signal_base();
         };
-
-        bool connection_base::connect() { if( !m_sig ) return false; mconnected = true; m_sig->conn_connect(this); return true; }
-        bool connection_base::disconnect() { if (!m_sig) return false; mconnected = false; m_sig->conn_disconnect(this); return true; }
-        void connection_base::destroy() {
-            if( !m_sig ) return;
-            mconnected = false;
-            signal_base* copy = m_sig;
-            m_sig = 0; 
-            copy->conn_disconnect(this);
-            // after this point this object may be destructed !
-        }
-
+    }// namespace detail
 
 }
 #endif
