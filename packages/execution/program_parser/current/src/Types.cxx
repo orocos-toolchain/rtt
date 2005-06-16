@@ -155,6 +155,7 @@ namespace ORO_Execution
       }
   };
 
+#if 0
     // Identical to above, but for strings.
   template<typename T, typename IndexType, typename SetType, typename Pred>
   class TemplateStringTypeInfo
@@ -172,6 +173,7 @@ namespace ORO_Execution
           return new detail::ParsedStringVariable<T, IndexType, SetType, Pred>( _T(size, SetType()) );
       }
   };
+#endif
 
 
   TypeInfo::~TypeInfo()
@@ -258,7 +260,8 @@ namespace ORO_Execution
     // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
     // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
     // from a c-style string obviously disables a copy-on-write connection.
-    data["string"] = new TemplateStringTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
+    // This is solved by the VariableDataSource<const std::string&>
+    data["string"] = new TemplateIndexContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
     
   }
 }

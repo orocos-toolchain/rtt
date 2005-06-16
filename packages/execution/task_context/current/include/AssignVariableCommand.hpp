@@ -116,6 +116,7 @@ namespace ORO_Execution
       }
   };
 
+#if 0
     /**
      * Assign the contents of one string to another, while maintaining capacity of the original.
      * This class checks for capacity and fails execution if not sufficient.
@@ -153,6 +154,7 @@ namespace ORO_Execution
           return new AssignStringCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
+#endif
 
   template<typename T, typename Index, typename SetType, typename Pred>
   class AssignIndexCommand

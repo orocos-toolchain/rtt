@@ -31,7 +31,7 @@
 #include <string>
 
 /**
- * \file FactoryExceptions.hpp This files contains some structs that can be thrown by both
+ * \file FactoryExceptions.hpp This file contains some structs that can be thrown by both
  * DataSourceFactory's and CommandFactory's.
  */
 namespace ORO_Execution
@@ -59,6 +59,18 @@ namespace ORO_Execution
       std::string received_;
       wrong_types_of_args_exception( int w, const std::string& expected, const std::string& received )
           : whicharg( w ), expected_(expected), received_(received)
+      {
+      };
+  };
+
+  struct non_lvalue_args_exception
+  {
+      // thrown when a factory expects an AssignableDataSource (lvalue), but only
+      // found a DataSource (rvalue).
+      int whicharg;
+      std::string received_;
+      non_lvalue_args_exception( int w, const std::string& received )
+          : whicharg( w ), received_(received)
       {
       };
   };

@@ -58,7 +58,7 @@ namespace ORO_Execution
     class FunctorDataSource0
       : public DataSource< typename ReturnType<typename FunctorT::result_type>::type >
     {
-      FunctorT gen;
+      mutable FunctorT gen;
       typedef typename ReturnType<typename FunctorT::result_type>::type value_t;
     public:
       FunctorDataSource0( FunctorT g )
@@ -85,7 +85,7 @@ namespace ORO_Execution
   class FunctorDataSource1
       : public DataSource< typename FunctorT::result_type >
   {
-    FunctorT gen;
+    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
     typename DataSource<Arg1T>::shared_ptr arg1;
   public:
@@ -126,7 +126,7 @@ namespace ORO_Execution
       : public DataSource< typename FunctorT::result_type >
     {
       typename DataSource<ComponentT*>::shared_ptr ds;
-      FunctorT gen;
+      mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
     public:
       FunctorDataSourceDS0(DataSource<ComponentT*>*c, FunctorT g )
@@ -155,7 +155,7 @@ namespace ORO_Execution
       : public DataSource< typename FunctorT::result_type >
   {
       typename DataSource<ComponentT*>::shared_ptr ds;
-      FunctorT gen;
+      mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
       typename DataSource<Arg1T>::shared_ptr arg1;
   public:
@@ -185,7 +185,7 @@ namespace ORO_Execution
   class FunctorDataSource2
       : public DataSource< typename FunctorT::result_type >
   {
-    FunctorT gen;
+    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
@@ -216,7 +216,7 @@ namespace ORO_Execution
   class FunctorDataSource3
       : public DataSource< typename FunctorT::result_type >
   {
-    FunctorT gen;
+    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
@@ -249,7 +249,7 @@ namespace ORO_Execution
   class FunctorDataSource4
       : public DataSource< typename FunctorT::result_type >
   {
-    FunctorT gen;
+    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;

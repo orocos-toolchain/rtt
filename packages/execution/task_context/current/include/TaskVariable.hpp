@@ -186,6 +186,7 @@ namespace ORO_Execution
       }
   };
 
+#if 0
     /**
      * Overload assignCommand to check for string capacity and assign with 'c_str()'
      */
@@ -229,6 +230,7 @@ namespace ORO_Execution
         return new ParsedStringVariable( this->data->copy( replacements ) );
       }
   };
+#endif
 
   /**
    * This represents a constant value, does not allow assignment,

@@ -98,6 +98,64 @@ namespace ORO_Execution
   };
 
   /**
+   * Specialisation for const std::string& to keep capacity when set( ... ) is called.
+   */
+  template<>
+  class VariableDataSource< const std::string& >
+    : public AssignableDataSource<const std::string&>
+  {
+      typedef const std::string& T;
+      DataSource<T>::value_t mdata;
+  protected:
+      /**
+       * Use shared_ptr.
+       */
+      ~VariableDataSource() {}
+  public:
+      typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
+
+      VariableDataSource( T data )
+          : mdata( data )
+      {
+      }
+
+      VariableDataSource( )
+          : mdata()
+      {
+      }
+
+      DataSource<T>::result_t get() const
+      {
+          return mdata;
+      }
+
+      void set(  AssignableDataSource<T>::param_t t )
+      {
+          mdata = t.c_str();
+      }
+
+      AssignableDataSource<T>::reference_t set() {
+          return mdata;
+      }
+
+      virtual VariableDataSource<T>* clone() const
+      {
+          return new VariableDataSource<T>(mdata);
+      }
+
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+          std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+          if ( i == alreadyCloned.end() ) {
+              VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
+              alreadyCloned[this] = n;
+              return n;
+          }
+          assert( dynamic_cast<VariableDataSource<T>*>( i->second ) == static_cast<VariableDataSource<T>*>( i->second ) );
+          return static_cast<VariableDataSource<T>*>( i->second );
+      }
+  };
+
+  /**
    * A DataSource which holds a constant value and
    * returns it in its get() method. It can not be changed after creation.
    * @param T Any type of data, except being a non-const reference.
