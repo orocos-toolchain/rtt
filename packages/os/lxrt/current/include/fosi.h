@@ -128,7 +128,10 @@ extern "C" {
 	typedef long long NANO_TIME;
 	typedef long long TICK_TIME;
 	typedef struct timespec TIME_SPEC;
-	
+
+// rtai undef
+#undef DS	
+
 #ifndef OROBLD_OS_AGNOSTIC
 	
 	// hrt is in ticks
