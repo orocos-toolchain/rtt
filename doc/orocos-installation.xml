@@ -919,8 +919,8 @@
 	  <para>
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
-	    <programlisting>  CXXFLAGS=-O2 -I/usr/local/orocos/include
-  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis>.a -lstdc++ -lpthreads -lboost-signals -lreadline -lncurses
+	    <programlisting>  CXXFLAGS=-O2 -I/usr/local/orocos/include -D_REENTRANT
+  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis> -lstdc++ -lpthread -lboost_signals -lreadline -lncurses
 
   all: myprogram.cpp
         gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
@@ -929,9 +929,17 @@
 	    be developped fully out of the Orocos (build) directory.
 	  </para>
 	<para>
+	  <important>
+	    <para>The <option>LDFLAGS</option> option must be placed after
+	    the <filename>.cpp</filename> or <filename>.o</filename>
+	    files in the gcc command. Furthermore, the <option>-D_REENTRANT</option>
+	    option is necessary if Orocos is also compiled with this flag
+	    ( which is the default ).</para>
+	  </important>
 	  <note>
 	    <para>Make sure you have read <xref linkend="install-configure" />
-	      for your target if you application has compilation errors.
+	      for your target if you application has compilation or link errors
+	      ( for example when using LXRT ).
 	    </para>
 	  </note>
 	</para>
