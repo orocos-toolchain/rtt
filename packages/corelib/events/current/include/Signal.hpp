@@ -1,6 +1,24 @@
 #ifndef ORO_CORELIB_SIGNAL_HPP
 #define ORO_CORELIB_SIGNAL_HPP
 
+#define OROCOS_SIGNAL_MAX_ARGS 10
+
+#include <boost/type_traits/function_traits.hpp>
+#include <boost/function.hpp>
+#include "Handle.hpp"
+#include "impl/signal0.hpp"
+#include "impl/signal1.hpp"
+#include "impl/signal2.hpp"
+#include "impl/signal3.hpp"
+#include "impl/signal4.hpp"
+#include "impl/signal5.hpp"
+#include "impl/signal6.hpp"
+#include "impl/signal7.hpp"
+#include "impl/signal8.hpp"
+#include "impl/signal9.hpp"
+#include "impl/signal10.hpp"
+
+
 namespace sigslot {
     namespace detail {
       template<int Arity,
@@ -13,7 +31,7 @@ namespace sigslot {
       class real_get_signal_impl<0, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal0<typename traits::result_type,
@@ -25,7 +43,7 @@ namespace sigslot {
       class real_get_signal_impl<1, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal1<typename traits::result_type,
@@ -38,7 +56,7 @@ namespace sigslot {
       class real_get_signal_impl<2, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal2<typename traits::result_type,
@@ -52,7 +70,7 @@ namespace sigslot {
       class real_get_signal_impl<3, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal3<typename traits::result_type,
@@ -67,7 +85,7 @@ namespace sigslot {
       class real_get_signal_impl<4, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal4<typename traits::result_type,
@@ -83,7 +101,7 @@ namespace sigslot {
       class real_get_signal_impl<5, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal5<typename traits::result_type,
@@ -100,7 +118,7 @@ namespace sigslot {
       class real_get_signal_impl<6, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal6<typename traits::result_type,
@@ -118,7 +136,7 @@ namespace sigslot {
       class real_get_signal_impl<7, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal7<typename traits::result_type,
@@ -137,7 +155,7 @@ namespace sigslot {
       class real_get_signal_impl<8, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal8<typename traits::result_type,
@@ -157,7 +175,7 @@ namespace sigslot {
       class real_get_signal_impl<9, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal9<typename traits::result_type,
@@ -178,7 +196,7 @@ namespace sigslot {
       class real_get_signal_impl<10, Signature,
                                  SlotFunction>
       {
-        typedef function_traits<Signature> traits;
+        typedef boost::function_traits<Signature> traits;
 
       public:
         typedef signal10<typename traits::result_type,
@@ -198,7 +216,7 @@ namespace sigslot {
       template<typename Signature,
                typename SlotFunction>
       struct get_signal_impl :
-        public real_get_signal_impl<(function_traits<Signature>::arity),
+        public real_get_signal_impl<(boost::function_traits<Signature>::arity),
                                     Signature,
                                     SlotFunction>
       {

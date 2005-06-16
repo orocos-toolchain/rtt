@@ -18,64 +18,40 @@ namespace sigslot
         /**
          * Create an empty handle.
          */
-		handle()
-            : m_conn(0)
-		{
-			;
-		}
+		handle();
 
-        handle(connection_t conn)
-            : m_conn(conn)
-        {
-        }
+        handle(connection_t conn);
 
         /**
          * Create a copy-equivalent handle.
          */
-        handle(const handle& hs)
-            : m_conn( hs.m_conn )
-		{
-		} 
+        handle(const handle& hs);
 
         /**
          * No-op destructor, does not change signal/slot state.
          */
-		~handle()
-		{
-		}
+		~handle();
 
         /**
          * (Re-)Connect the slot with the signal.
          * @retval true the slot is connected.
          * @retval false no valid signal or slot in this handle
          */
-		bool connect()
-		{
-            if ( connected() )
-                return true;
-            return m_conn->connect();
-		}
+		bool connect();
 
         /**
          * Disconnect the slot from the signal.
          * @retval true the slot is disconnected.
          * @retval false no valid signal or slot in this handle
          */
-		bool disconnect()
-		{
-            if ( !connected() )
-                return true;
-            return m_conn->disconnect();
-		}
+		bool disconnect();
 
         /** 
          * Inspect if this handle represents a connected signal and slot.
          * 
          * @return true if a connection is present.
          */
-        bool connected() const {
-            return m_conn->connected();
-        }
+        bool connected() const;
 	protected:
         /**
          * This is actually a smart pointer which always
@@ -94,19 +70,12 @@ namespace sigslot
 		scoped_handle();
     public:
 
-        scoped_handle(const handle& hs)
-            : handle( hs )
-		{
-		} 
-
+        scoped_handle(const handle& hs);
 
         /**
          * If connected, disconnect the slot from the signal.
          */
-		~scoped_handle()
-		{
-            this->disconnect();
-		}
+		~scoped_handle();
     };
 
     /**
@@ -120,22 +89,60 @@ namespace sigslot
 		cleanup_handle();
     public:
 
-        cleanup_handle(const handle& hs)
-            : handle( hs )
-		{
-		} 
+        cleanup_handle(const handle& hs);
 
         /**
          * Cleanup all signal and slot connection resources.
          * If connected, disconnect the slot from the signal.
          */
-		~cleanup_handle()
-		{
-            m_conn->destroy();
-		}
+		~cleanup_handle();
     };
 
 
 }
 
+namespace ORO_CoreLib
+{
+    /**
+     * @brief The Handle holds the information of a connection
+     * between an Event Handler function and the Event itself.
+     *
+     * It is returned by the connect() and setup() methods of Event and can
+     * be used to disconnect a handler function from the event.
+     */
+    class Handle
+    {
+        sigslot::handle _c;
+        sigslot::handle _c2;
+    public:
+        Handle( const sigslot::handle & c,
+                const sigslot::handle & c2 );
+
+        Handle( const sigslot::handle & c );
+        Handle( const Handle& h );
+        Handle();
+        ~Handle();
+
+#if 0
+        Handle& operator=(const Handle& h);
+
+        bool operator==(const Handle& h) const;
+
+        bool operator<(const Handle& h) const;
+#endif
+
+        bool connected() const;
+
+        /**
+         * Disconnect syn and asyn handlers.
+         */
+        bool disconnect();
+
+        /**
+         * (Re-)Connect syn and asyn handlers.
+         */
+        bool connect();
+
+    };
+}
 #endif
