@@ -1,283 +1,12 @@
 #ifndef EVENT_SERVICE_HPP
 #define EVENT_SERVICE_HPP
 
-#include "Event.hpp"
+#include "TemplateEventFactory.hpp"
 
 namespace ORO_Execution
 {
 
     namespace detail {
-        using ORO_CoreLib::Handle;
-
-        /**
-         * Create end-user event handles.
-         * An EventHook is dedicated to \b 1 Event with \b 1 SYN and/or ASYN
-         * event receptors. When the connection object is destroyed,
-         * this hook is destroyed. A smart pointer trick makes sure
-         * that connection will clean us up during its destruction.
-         */
-        struct EventHookBase
-        {
-            virtual ~EventHookBase() {}
-
-            Handle setupSyn(boost::function<void(void)> sfunc ) {
-                msfunc = sfunc;
-                return msetupSyn();
-            }
-
-            Handle setupAsyn(boost::function<void(void)> afunc ) {
-                mafunc = afunc;
-                return msetypAsyn();
-            }
-
-            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc ) {
-                msfunc = sfunc;
-                mafunc = afunc;
-                return msetupSynAsyn();
-            }
-        protected:
-            boost::function<void(void)> msfunc;
-            boost::function<void(void)> mafunc;
-
-            virtual Handle msetupSyn( ) = 0;
-
-            virtual Handle msetupAsyn( ) = 0;
-
-            virtual Handle msetupSynAsyn( ) = 0;
-        };
-
-        template<typename EventT>
-        struct EventHook0 : public EventHookBase
-        {
-        protected:
-            // The default copy constructor is ok for this class,
-            // a copy is equivalent to the original.
-            typedef EventT::SlotFunction::result_type Ret;
-            typedef EventHook0<EventT> This;
-            EventT* msource;
-
-            //boost::shared_ptr<EventHookBase> seh;
-            
-        public:
-            EventHook0( EventT* source )
-                : msource(source) //, seh(this)
-            {}
-        protected:
-            Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this)) );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupAsyn( ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this)), t );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupSynAsyn( ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh), boost::bind(This::asynop,seh), t );
-                seh = 0;
-                return h;
-            }
-
-            Ret synop() 
-            {
-                msfunc();
-                return Ret();
-            }
-
-            Ret asynop() 
-            {
-                mafunc();
-                return Ret();
-            }
-        };
-
-        template<typename EventT>
-        struct EventHook1 : public EventHookBase
-        {
-        protected:
-            // The default copy constructor is ok for this class,
-            // a copy is equivalent to the original.
-            typedef EventT::SlotFunction::arg1_type A1;
-            typedef EventT::SlotFunction::result_type Ret;
-            typedef EventHook1<EventT> This;
-            EventT* msource;
-            AssignableDataSource<A1>::shared_ptr ma1;
-
-            //boost::shared_ptr<EventHookBase> seh;
-            
-        public:
-            EventHook1( EventT* source, AssignableDataSource<A1>::shared_ptr a1 )
-                : msource(source), ma1(a1) //, seh(this)
-            {
-            }
-        protected:
-            Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1) );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupAsyn( ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1), t );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupSynAsyn( ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1), boost::bind(This::asynop,seh,_1), t );
-                seh = 0;
-                return h;
-            }
-
-            Ret synop(A1 arg1) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                msfunc();
-                return Ret();
-            }
-
-            Ret asynop(A1 arg1) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                mafunc();
-                return Ret();
-            }
-        };
-
-        template<typename EventT>
-        struct EventHook2 : public EventHookBase
-        {
-        protected:
-            // The default copy constructor is ok for this class,
-            // a copy is equivalent to the original.
-            typedef EventT::SlotFunction::arg1_type A1;
-            typedef EventT::SlotFunction::arg2_type A2;
-            typedef EventT::SlotFunction::result_type Ret;
-            typedef EventHook2<EventT> This;
-            EventT* msource;
-            AssignableDataSource<A1>::shared_ptr ma1;
-            AssignableDataSource<A2>::shared_ptr ma2;
-
-            //boost::shared_ptr<EventHookBase> seh;
-            
-        public:
-            EventHook2( EventT* source,
-                        AssignableDataSource<A1>::shared_ptr a1,
-                        AssignableDataSource<A2>::shared_ptr a2)
-                : msource(source), ma1(a1), ma2(a2) //, seh(this)
-            {
-            }
-        protected:
-            Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1,_2) );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupAsyn( ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1,_2), t );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupSynAsyn( ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1,_2), boost::bind(This::asynop,seh,_1,_2), t );
-                seh = 0;
-                return h;
-            }
-
-            Ret synop(A1 arg1, A2 arg2) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                msfunc();
-                return Ret();
-            }
-            Ret asynop(A1 arg1, A2 arg2) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                mafunc();
-                return Ret();
-            }
-        };
-
-        template<typename EventT>
-        struct EventHook3 : public EventHookBase
-        {
-        protected:
-            // The default copy constructor is ok for this class,
-            // a copy is equivalent to the original.
-            typedef EventT::SlotFunction::arg1_type A1;
-            typedef EventT::SlotFunction::arg2_type A2;
-            typedef EventT::SlotFunction::arg3_type A3;
-            typedef EventT::SlotFunction::result_type Ret;
-            typedef EventHook3<EventT> This;
-
-            EventT* msource;
-            AssignableDataSource<A1>::shared_ptr ma1;
-            AssignableDataSource<A2>::shared_ptr ma2
-            AssignableDataSource<A3>::shared_ptr ma3;
-
-            //boost::shared_ptr<EventHookBase> seh;
-            
-        public:
-            EventHook3( EventT* source,
-                        AssignableDataSource<A1>::shared_ptr a1,
-                        AssignableDataSource<A2>::shared_ptr a2,
-                        AssignableDataSource<A3>::shared_ptr a3)
-                : msource(source), ma1(a1), ma2(a2), ma3(a3) //, seh(this)
-            {
-            }
-        protected:
-            Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1,_2,_3) );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupAsyn( ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t );
-                //seh = 0;
-                return h;
-            }
-
-            Handle msetupSynAsyn( ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1,_2,_3), boost::bind(This::asynop,seh,_1,_2,_3), t );
-                seh = 0;
-                return h;
-            }
-
-            Ret synop(A1 arg1, A2 arg2, A3 arg3) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                ma3->set(arg3);
-                msfunc();
-                return Ret();
-            }
-            Ret asynop(A1 arg1, A2 arg2, A3 arg3) 
-            {
-                // set the received args.
-                ma1->set(arg1);
-                ma2->set(arg2);
-                ma3->set(arg3);
-                mafunc();
-                return Ret();
-            }
-        };
 
         /**
          * Factory interface creating intermediate EventHookBase objects.
@@ -285,7 +14,8 @@ namespace ORO_Execution
         struct EventStubInterface
         {
             virtual ~EventStubInterface() {}
-            virtual EventHookBase* createReceptor(const vector<DataSourceBase::shared_ptr>& args ) = 0;
+            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
+            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
         };
 
     
@@ -294,13 +24,23 @@ namespace ORO_Execution
             public EventStubInterface
         {
             EventT* me;
-            detail::TemplateFactoryPart<EventT*, EventHookBase*> mfact;
-            // the factory is copy-constructed !
-            EventStub( EventT* e, detail::TemplateFactoryPart<EventT*, EventHookBase*> fact)
-                : me(e), mfact(fact) {}
+            detail::TemplateFactoryPart<EventT*, EventHookBase*>*  mrfact;
+            detail::TemplateFactoryPart<EventT*, DataSourceBase*>* mefact;
+            EventStub( EventT* e,
+                       detail::TemplateFactoryPart<EventT*, EventHookBase*>* rfact,
+                       detail::TemplateFactoryPart<EventT*, DataSourceBase*>* efact)
+                : me(e), mrfact(rfact), mefact(efact) {}
+            virtual ~EventStub() {
+                delete mrfact;
+                delete mefact;
+            }
 
-            virtual EventHookBase* createReceptor(const vector<DataSourceBase::shared_ptr>& args ) {
-                return mfact->produce( me, args );
+            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) {
+                return mrfact->produce( me, args );
+            }
+
+            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) {
+                return mefact->produce( me, args );
             }
         };
 
@@ -324,7 +64,9 @@ namespace ORO_Execution
         bool addEvent( const std::string& ename, EventT* e ) {
             if ( fact.count(ename) != 0 )
                 return false;
-            fact[ename] = new detail::EventStub( e, detail::EventHookFactoryGenerator<EventT>()() );
+            fact[ename] = new detail::EventStub<EventT>( e,
+                                                         detail::EventHookFactoryGenerator<EventT>().receptor(),
+                                                         detail::EventHookFactoryGenerator<EventT>().emittor() );
             return true;
         }
 
@@ -339,6 +81,11 @@ namespace ORO_Execution
             fact.erase(it);
             return true;
         }
+        
+        ~EventService() {
+            for (Factories::iterator it = fact.begin(); it !=fact.end(); ++it )
+                delete *it;
+        }
 
         /**
          * Setup a synchronous Event handler which will set \a args and
@@ -349,11 +96,11 @@ namespace ORO_Execution
          * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
          * where \a Tn is the type of the n'th argument of the Event.
          */
-        virtual Handle setupSyn(const std::string& ename,
+        ORO_CoreLib::Handle setupSyn(const std::string& ename,
                                 boost::function<void(void)> func,          
-                                vector<DataSourceBase::shared_ptr> args ) {
+                                std::vector<DataSourceBase::shared_ptr> args ) {
             if ( fact.count(ename) != 1 )
-                return Handle(); // empty handle.
+                return ORO_CoreLib::Handle(); // empty handle.
             detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
 
             // ehi is stored _inside_ the connection object !
@@ -370,16 +117,16 @@ namespace ORO_Execution
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
          */
-        virtual Handle setupASyn(const std::string& ename,
-                                 boost::function<void(void)> afunc,          
-                                 vector<DataSourceBase::shared_ptr> args,
-                                 TaskInterface* t) {
+        ORO_CoreLib::Handle setupAsyn(const std::string& ename,
+                                      boost::function<void(void)> afunc,          
+                                      const std::vector<DataSourceBase::shared_ptr>& args,
+                                      ORO_CoreLib::TaskInterface* t) {
             if ( fact.count(ename) != 1 )
-                return Handle(); // empty handle.
+                return ORO_CoreLib::Handle(); // empty handle.
             detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
 
             // ehi is stored _inside_ the connection object !
-            return ehi->setupASyn( afunc, t ); 
+            return ehi->setupAsyn( afunc, t ); 
         }
         
         /**
@@ -395,19 +142,42 @@ namespace ORO_Execution
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
          */
-        virtual Handle setupSynASyn(const std::string& ename,
+        ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                     boost::function<void(void)> sfunc,
                                     boost::function<void(void)> afunc,
-                                    vector<DataSourceBase::shared_ptr> args,
-                                    TaskInterface* t) {
+                                    const std::vector<DataSourceBase::shared_ptr>& args,
+                                    ORO_CoreLib::TaskInterface* t) {
             if ( fact.count(ename) != 1 )
-                return Handle(); // empty handle.
+                return ORO_CoreLib::Handle(); // empty handle.
             detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
 
             // ehi is stored _inside_ the connection object !
-            return ehi->setupSynASyn( sfunc, afunc, t ); 
+            return ehi->setupSynAsyn( sfunc, afunc, t ); 
         }
-        
+
+        /**
+         * Setup an Event::emit() invocation wrapped in a DataSource.
+         * Call \a result.evaluate() to emit the event with the given \a args.
+         *
+         * @param ename The name of the previously added Event.
+         * @param args  DataSources holding the values for each parameter of the event's emit().
+         * They be read at the moment of emit().
+         * @see DataSourceGenerator for creating the arguments from variables or plain literals.
+         */
+        DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args)
+        {
+            if ( fact.count(ename) != 1 )
+                return DataSourceBase::shared_ptr();
+
+            DataSourceBase::shared_ptr result( fact[ename]->createEmittor( args ) );
+
+            return result;
+        }
+
+        /**
+         * The Global EventService, in which global Events are stored.
+         */
+        static EventService Global;
     };
 
 
