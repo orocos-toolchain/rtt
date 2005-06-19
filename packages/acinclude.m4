@@ -190,16 +190,26 @@ AC_ARG_WITH(rtai, [ --with-rtai[=/usr/realtime] Specify location of RTAI/LXRT ],
 	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
 AC_ARG_WITH(lxrt, [ --with-lxrt[=/usr/realtime] Equivalent to --with-rtai ],
 	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
+AC_ARG_WITH(linux,
+	 [AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux directory (without /include).])],
+	 [ if test x"$withval" != x; then LINUX_KERNEL_DIR="$withval"; fi ])
 
 if test x"$RTAI_DIR" = x; then
    RTAI_DIR="/usr/realtime"
 fi
-AC_MSG_RESULT($RTAI_DIR)
-AC_SUBST(RTAI_DIR)
+if test x"$LINUX_KERNEL_DIR" = x; then
+   LINUX_KERNEL_DIR="/usr/src/linux"
+fi
+LINUX_KERNEL_HEADERS="$LINUX_KERNEL_DIR/include"
+AC_MSG_RESULT($RTAI_DIR with kernel headers in $LINUX_KERNEL_HEADERS)
 
-CPPFLAGS="-I$RTAI_DIR/include"
-AC_CHECK_HEADER([rtai_config.h], [
-  AC_CHECK_HEADER([rtai_lxrt.h],
+AC_SUBST(RTAI_DIR)
+AC_SUBST(LINUX_KERNEL_HEADERS)
+AC_SUBST(LINUX_KERNEL_DIR)
+
+CPPFLAGS="-I$RTAI_DIR/include -I$LINUX_KERNEL_HEADERS"
+AC_CHECK_HEADERS([rtai_config.h], [
+  AC_CHECK_HEADERS([rtai_lxrt.h],
   [
     PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
     RTAI_VERSION=3
@@ -209,7 +219,7 @@ AC_CHECK_HEADER([rtai_config.h], [
   ])
 ],[
 dnl try old rtai style
-  AC_CHECK_HEADER([rtai_lxrt_user.h], 
+  AC_CHECK_HEADERS([rtai_lxrt_user.h], 
   [
     PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
     RTAI_VERSION=2

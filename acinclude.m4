@@ -497,6 +497,13 @@ OROCOS_OUTPUT_INFO
             [
             AC_MSG_RESULT(RTAI)
 	    ECOS_TARGET=rtai
+    	    AC_ARG_WITH(linux,
+            	[AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux path (non-LXRT)])],
+            	[],[
+		AC_MSG_ERROR([
+You must specify the location of your patched linux kernel headers when using RTAI.
+For example : --with-linux=/usr/src/linux-rtai				
+])])
     ],
     [
     AC_ARG_WITH(lxrt,
@@ -508,6 +515,13 @@ OROCOS_OUTPUT_INFO
 	    ECOS_TARGET=lxrt
 	    TARGET_LIBS="-L$RTAI_DIR/lib -llxrt"
 	    TARGET_FLAGS="-I$RTAI_DIR/include"
+    	    AC_ARG_WITH(linux,
+            	[AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux path (LXRT)])],
+            	[],[
+		AC_MSG_ERROR([
+You must specify the location of your patched linux kernel headers when using RTAI/LXRT.
+For example : --with-linux=/usr/src/linux-rtai				
+])])
     ],
     [
     AC_ARG_WITH(ecos,

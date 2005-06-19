@@ -53,6 +53,12 @@ extern "C" {
 #include "pkgconf/os_lxrt.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
 
+	// force inlining if internal and internal to avoid an extra indirection.
+	// otherwise, the inlining is selected by the user in his rtai configuration
+#if defined(OROBLD_OS_LXRT_INTERNAL)
+#define CONFIG_RTAI_LXRT_INLINE 1
+#endif
+
 // include custom redirect-like include
 #if ORONUM_RTAI_VERSION == 3
 #include <rtai_config.h>

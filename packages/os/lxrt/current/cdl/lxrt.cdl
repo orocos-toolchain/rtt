@@ -65,11 +65,11 @@ package."
 	    flavor data
 	    no_define
 	    define -format="\\\"%s\/include\/config.h\\\"" ORO_RTAI_CONFIG
-	    calculated { "-I".OROBLD_SUPPORT_RTAI_DIR."/include" }
+	    calculated { "-I".OROBLD_SUPPORT_RTAI_DIR."/include -I".OROBLD_SUPPORT_RTAI_LINUX_HEADERS." " }
 	    description "
-This is the location of your RTAI installation. It is normally
+This is the location of your RTAI and Linux kernel installation. It is normally
 detected by the packages configure script and can be specified
-with the argument --with-lxrt=path  and modifyable in
+with the argument --with-lxrt=path --with-linux=path  and modifyable in
 the \"Detected Support Libraries->RTAI Installation\" 
 package.
 "
@@ -88,8 +88,7 @@ package.
 	display "Build LXRT kernel Modules"
 	description "
 Enable this option when LXRT KERNEL MODULES need
-to be build and set the correct path, for example
-/usr/src/linux-rt"
+to be build."
 	parent CYGBLD_GLOBAL_OPTIONS
 	flavor bool
 	default_value 1
@@ -99,8 +98,9 @@ to be build and set the correct path, for example
 	    display "Target Linux Kernel path"
 	    flavor  data
 	    no_define
- 	    default_value { "********SET LINUX KERNEL PATH IN GLOBAL BUILD OPTIONS OR DISABLE 'Build Linux Kernel Modules'********" }
-	    description "Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux-rt."
+ 	    calculated { OROBLD_SUPPORT_RTAI_LINUX_KERNEL }
+	    description "The path to the linux kernel when building kernel modules. For LXRT, this is set in 
+	\"Detected Support Libraries->Kernel Directory\" package"
 	}
     }
 
