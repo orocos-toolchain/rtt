@@ -688,7 +688,7 @@
 	kernel version can be found in the <filename>rtai-core/arch/i386/patches</filename> directory. You should
 	apply
 	the <filename>hal12-X.Y.Z.patch</filename> (or later) for RTAI  to a clean
-	Linux kernel.  We refer to the RTAI installation instructions for more
+	<filename>Linux-X.Y.Z</filename> kernel.  We refer to the RTAI installation instructions for more
 	details.
       </para>
       <para>
@@ -697,25 +697,32 @@
       <sect3>
 	<title> RTAI settings </title>
 	<para>
-	  RTAI comes with  documentation for configuration and
-	  installation.
-	  In the configuration process, make sure that you enable the following
-	  options:
+	  RTAI comes with documentation for configuration and
+	  installation.  In the configuration process, make sure that
+	  you enable the following options (<emphasis>in addition to
+	  options you feel you need for your application</emphasis>) :
 	  <itemizedlist>
 	    <listitem>
-	      <para>Floating Point support</para>
+	      <para>General -&gt; 'Enable extended configuration mode'</para>
 	    </listitem>
 	    <listitem>
-	      <para>Semaphores, Fifos, Bits or Events and Mailboxes</para>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      Scheduler options -&gt; 'Number of LXRT slots' ('500') </para>
 	    </listitem>
 	    <listitem>
-	      <para>POSIX API</para>
+	      <para>Machine -&gt; 'Enable FPU support'</para>
 	    </listitem>
 	    <listitem>
-	      <para>LXRT</para>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      IPC support -&gt; Semaphores, Fifos, Bits (or Events) and Mailboxes</para>
 	    </listitem>
 	    <listitem>
-	      <para>C++ support</para>
+	      <para>Add-ons -&gt; 'Comedi Support over LXRT' (if you intend to use the
+	      Orocos Comedi Drivers)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      'LXRT scheduler (kernel and user-space tasks)'</para>
 	    </listitem>
 	  </itemizedlist>
 	  After configuring you can run 'make' and 'make install' in your RTAI directory
@@ -724,12 +731,6 @@
 	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
 	  specify during the Orocos configure step the alternative if you chose so.
 	</para>
-	<important>
-	  <para>
-	    You need to set the path to your Linux source tree (on which the
-	    patch was applied ) in the <command>make configure_packages</command> step.
-	  </para>	
-	</important>
       </sect3>
 <!--       <sect3> -->
 <!-- 	<title> Loading RTAI without LXRT (not recommended)</title> -->
@@ -780,6 +781,14 @@
       </sect3>
       <sect3>
 	<title>Compiling Applications with LXRT</title>
+<!-- 	<important><title>Fedora Core (RedHat) and other distributions</title> -->
+<!-- 	  <para> -->
+<!-- 	    Because the RTAI/LXRT headers (which Orocos needs) include kernel-specific headers, you -->
+<!-- 	    need to enable the 'LXRT with Kernel Headers Workaround' option in the -->
+<!-- 	    configuration tool. You need to set the path to your Linux source tree (on which the -->
+<!-- 	    patch was applied ) in the <command>make configure_packages</command> step. -->
+<!-- 	  </para>	 -->
+<!-- 	</important> -->
 	<para>
 	  Application which use LXRT as a target need special flags when being
 	  compiled and linked. Especially :
