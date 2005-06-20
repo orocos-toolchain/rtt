@@ -42,10 +42,11 @@
 
 namespace ORO_Execution
 {
-    using namespace boost::lambda;
     using namespace detail;
     using namespace ORO_CoreLib;
     using namespace std;
+
+    using namespace boost::lambda;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");
@@ -259,7 +260,7 @@ namespace ORO_Execution
 
     void ValueChangeParser::cleanup()
     {
-        for_each(assigncommands.begin(), assigncommands.end(), bind(delete_ptr(), _1));
+        for_each(assigncommands.begin(), assigncommands.end(), boost::lambda::bind(boost::lambda::delete_ptr(), boost::lambda::_1));
     }
 
   void ValueChangeParser::seenbaredefinition()
