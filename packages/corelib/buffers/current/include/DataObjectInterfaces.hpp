@@ -115,16 +115,16 @@ namespace ORO_CoreLib
      * that. Use the DataObjectPrioritySet and DataObjectPriorityGet classes for non
      * blocking Set or Get operations.
      */
-    template<class _DataType>
+    template<class T>
     class DataObjectLocked
-        : public DataObjectInterface< _DataType >
+        : public DataObjectInterface<T>
     {
         mutable ORO_OS::Mutex lock;
             
         /**
          * One element of Data.
          */
-        _DataType data;
+        T data;
 
         std::string name;
     public:
@@ -152,7 +152,7 @@ namespace ORO_CoreLib
         /**
          * The type of the data.
          */
-        typedef _DataType DataType;
+        typedef T DataType;
             
         /**
          * Get a copy of the Data of the module.
@@ -167,7 +167,7 @@ namespace ORO_CoreLib
          *
          * @return The result of the module.
          */
-        DataType Get() const { _DataType cache;  Get(cache); return cache; }
+        DataType Get() const { DataType cache;  Get(cache); return cache; }
 
         /**
          * Set the data to a certain value.
@@ -212,9 +212,9 @@ namespace ORO_CoreLib
      * @invariant The Set() context has a strictly higher priority than the Get() context.
      * @invariant Set() never blocks.
      */
-    template<class _DataType>
+    template<class T>
     class DataObjectPrioritySet
-        : public DataObjectInterface< _DataType >
+        : public DataObjectInterface<T>
     {
         mutable ORO_OS::Mutex lock;
         mutable bool dirty_flag;
@@ -222,8 +222,8 @@ namespace ORO_CoreLib
         /**
          * One element of Data.
          */
-        _DataType data;
-        _DataType mcopy;
+        T data;
+        T mcopy;
 
         std::string name;
     public:
@@ -251,7 +251,7 @@ namespace ORO_CoreLib
         /**
          * The type of the data.
          */
-        typedef _DataType DataType;
+        typedef T DataType;
             
         /**
          * Get a copy of the Data of the module.
@@ -321,17 +321,17 @@ namespace ORO_CoreLib
      * @invariant The Set() context has a strictly lower priority than the Get() context.
      * @invariant Get() never blocks.
      */
-    template<class _DataType>
+    template<class T>
     class DataObjectPriorityGet
-        : public DataObjectInterface< _DataType >
+        : public DataObjectInterface<T>
     {
         mutable ORO_OS::Mutex lock;
             
         /**
          * One element of Data.
          */
-        _DataType data;
-        _DataType mcopy;
+        T data;
+        T mcopy;
 
         std::string name;
     public:
@@ -359,7 +359,7 @@ namespace ORO_CoreLib
         /**
          * The type of the data.
          */
-        typedef _DataType DataType;
+        typedef T DataType;
             
         /**
          * Get a copy of the Data of the module.
@@ -436,11 +436,16 @@ namespace ORO_CoreLib
      * a write operation simultaneously. The buffer needs readers+3
      * elements to be guaranteed non blocking.
      */
-    template<class _DataType>
+    template<class T>
     class DataObjectLockFree
-        : public DataObjectInterface< _DataType >
+        : public DataObjectInterface<T>
     {
     public:
+        /**
+         * The type of the data.
+         */
+        typedef T DataType;
+
         /** 
          * @brief The maximum number of threads.
          *
@@ -469,7 +474,7 @@ namespace ORO_CoreLib
             {
                 atomic_set(&counter, 0);
             }
-            _DataType data; mutable atomic_t counter; DataBuf* next;
+            DataType data; mutable atomic_t counter; DataBuf* next;
         };
 
         typedef DataBuf* volatile VolPtrType;
@@ -516,11 +521,6 @@ namespace ORO_CoreLib
         {
             name = _name;
         }
-
-        /**
-         * The type of the data.
-         */
-        typedef _DataType DataType;
 
         /**
          * Get a copy of the data.
@@ -606,14 +606,14 @@ namespace ORO_CoreLib
      * It is the most simple form of the DataObjectInterface implementation and
      * hence also the fastest. It is however not thread safe.
      */
-    template<class _DataType>
+    template<class T>
     class DataObject
-        : public DataObjectInterface< _DataType >
+        : public DataObjectInterface<T>
     {
         /**
          * One element of Data.
          */
-        _DataType data;
+        T data;
 
         std::string name;
     public:
@@ -641,7 +641,7 @@ namespace ORO_CoreLib
         /**
          * The type of the data.
          */
-        typedef _DataType DataType;
+        typedef T DataType;
             
         /**
          * Get a copy of the Data of the module.
