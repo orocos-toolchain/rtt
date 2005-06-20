@@ -28,9 +28,12 @@
  
 
 #include "execution/PropertyLoader.hpp"
+#include <pkgconf/system.h>
+#ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
 #include <pkgconf/corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
+#endif
 #include <corelib/Logger.hpp>
 #include <corelib/PropertyBagIntrospector.hpp>
 
@@ -40,6 +43,11 @@ using namespace ORO_Execution;
 
 bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool strict ) const
 {
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+        Logger::log() <<Logger::Error << "PropertyLoader: No Property Demarshaller configured !" << Logger::endl;
+        return false;
+    
+#else
     if ( target->attributeRepository.properties() == 0) {
         Logger::log() <<Logger::Error << "PropertyLoader: TaskContext " <<target->getName()<<" has no Properties to configure." << Logger::endl;
         return false;
@@ -110,11 +118,17 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
     }
     return !failure;
+#endif // OROPKG_CORELIB_PROPERTIES_MARSHALLING
 
 }
 
 bool PropertyLoader::save(const std::string& filename, TaskContext* target) const
 {
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+        Logger::log() <<Logger::Error << "PropertyLoader: No Property Marshaller configured !" << Logger::endl;
+        return false;
+    
+#else
     if ( target->attributeRepository.properties() == 0 ) {
         Logger::log() << Logger::Error << "PropertyLoader : TaskContext "<< target->getName()
                       << " does not have Properties to save." << Logger::endl;
@@ -151,7 +165,10 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
 
     // merge with target file contents,
     // override allProps.
-    ORO_CoreLib::updateProperties( allProps, decompProps );
+    bool updater = ORO_CoreLib::updateProperties( allProps, decompProps );
+    if (updater == false) {
+        Logger::log() << Logger::Error << "PropertyLoader: Could update properties of file "<< filename <<"."<<Logger::endl;
+    }        
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
     if ( file )
@@ -172,5 +189,5 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     flattenPropertyBag( decompProps );
     deleteProperties( decompProps ); 
     return true;
-
+#endif
 }
