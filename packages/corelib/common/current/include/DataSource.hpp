@@ -101,8 +101,8 @@ namespace ORO_CoreLib
   template< typename T>
   std::string DataSource<T>::GetType()
   {
-      return detail::DataSourceTypeInfo< T >::getQualifier()
-          + detail::DataSourceTypeInfo< T >::getType();
+      return detail::DataSourceTypeInfo< T >::getType() + detail::DataSourceTypeInfo< T >::getQualifier();
+          
   }
 
   /**

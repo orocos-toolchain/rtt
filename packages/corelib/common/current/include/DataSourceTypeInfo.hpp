@@ -75,7 +75,7 @@ namespace ORO_CoreLib
         };
 
         template< class T >
-        const std::string DataSourceTypeInfo<const T&>::qual("const& ");
+        const std::string DataSourceTypeInfo<const T&>::qual(" const&");
 
         template< class T>
         struct DataSourceTypeInfo<T&> {
@@ -85,7 +85,7 @@ namespace ORO_CoreLib
         };
 
         template< class T >
-        const std::string DataSourceTypeInfo<T&>::qual("& ");
+        const std::string DataSourceTypeInfo<T&>::qual(" &");
 
         template< class T>
         struct DataSourceTypeInfo<const T> {
@@ -95,7 +95,7 @@ namespace ORO_CoreLib
         };
 
         template< class T >
-        const std::string DataSourceTypeInfo<const T>::qual("const ");
+        const std::string DataSourceTypeInfo<const T>::qual(" const");
 
         template< class T>
         struct DataSourceTypeInfo<T*> {
@@ -105,7 +105,7 @@ namespace ORO_CoreLib
         };
 
         template< class T >
-        const std::string DataSourceTypeInfo<T*>::qual("* ");
+        const std::string DataSourceTypeInfo<T*>::qual(" *");
 
         template< class T>
         struct DataSourceTypeInfo<const T*> {
@@ -115,7 +115,7 @@ namespace ORO_CoreLib
         };
 
         template< class T >
-        const std::string DataSourceTypeInfo<const T*>::qual("const* ");
+        const std::string DataSourceTypeInfo<const T*>::qual(" const*");
 
         template<>
         struct DataSourceTypeInfo<void> {
@@ -147,6 +147,13 @@ namespace ORO_CoreLib
 
         template<>
         struct DataSourceTypeInfo<double> {
+            static const std::string type;
+            static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<float> {
             static const std::string type;
             static const std::string& getType()  { return type; }
             static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
