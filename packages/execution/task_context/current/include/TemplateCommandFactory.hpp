@@ -50,8 +50,6 @@
  */
 namespace ORO_Execution
 {
-    using boost::mem_fn;
-    using boost::bind;
     using ORO_CoreLib::ConditionInterface;
     using ORO_CoreLib::CommandInterface;
 
@@ -554,7 +552,7 @@ namespace ORO_Execution
     template<typename ComponentT>
     CommandInterface* operator()( ComponentT* c ) const
       {
-        return newFunctorCommand( bind( f, c ) );
+        return newFunctorCommand( boost::bind( f, c ) );
       };
 
     template<typename ComponentT >
@@ -576,7 +574,7 @@ namespace ORO_Execution
                                   DataSource<Arg1T>* a
       ) const
       {
-        return newFunctorCommand( bind( f, c, _1 ), a );
+        return newFunctorCommand( boost::bind( f, c, _1 ), a );
       };
 
     template<typename ComponentT, typename Arg1T, typename Arg2T>
@@ -587,14 +585,14 @@ namespace ORO_Execution
           //by ps: We use _1 and _2 so that both arguments are not bound yet.
           // we need to evaluate lateron, otherwise it would evaluate the DS now !
           // I really see no other way (not even overriding the Arg1T() operator)
-        return newFunctorCommand( bind( f, c, _1, _2 ), a, b );
+        return newFunctorCommand( boost::bind( f, c, _1, _2 ), a, b );
       };
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     CommandInterface* operator()( ComponentT* c,
                                   DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* d
       ) const
       {
-        return newFunctorCommand( bind( f, c, _1, _2, _3 ), a, b, d );
+        return newFunctorCommand( boost::bind( f, c, _1, _2, _3 ), a, b, d );
       };
 
       /**
@@ -603,13 +601,13 @@ namespace ORO_Execution
     template<typename ComponentT, typename Arg1T>
     CommandInterface* operator()( ComponentT* c, Arg1T a ) const
       {
-        return newFunctorCommand( bind( f, c, a ) );
+        return newFunctorCommand( boost::bind( f, c, a ) );
       };
 
     template<typename ComponentT, typename Arg1T>
     CommandInterface* operator()( DataSource<ComponentT*>* c, Arg1T a ) const
       {
-        return newFunctorCommand( c, bind( f, _1, a ) );
+        return newFunctorCommand( c, boost::bind( f, _1, a ) );
       };
 
     template<typename ComponentT, typename Arg1T, typename Arg2T>
@@ -617,13 +615,13 @@ namespace ORO_Execution
       {
           //by ps: this creates a FunctorCommand0 !
           //evaluation is not needed, so store a copy of a and b.
-        return newFunctorCommand( bind( f, c, a, b ) );
+        return newFunctorCommand( boost::bind( f, c, a, b ) );
       };
 
     template<typename ComponentT, typename Arg1T, typename Arg2T, typename Arg3T>
     CommandInterface* operator()( ComponentT* c, Arg1T a, Arg2T b, Arg3T d ) const
       {
-        return newFunctorCommand( bind( f, c, a, b, d ) );
+        return newFunctorCommand( boost::bind( f, c, a, b, d ) );
       };
 
   };
