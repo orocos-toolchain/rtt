@@ -52,6 +52,12 @@ namespace sigslot
          * @return true if a connection is present.
          */
         bool connected() const;
+
+        /**
+         * Inspect if this handle is pointing to a valid (existing) connection.
+         * @return false if no connection is associated with this handle.
+         */
+        operator bool() const;
 	protected:
         /**
          * This is actually a smart pointer which always
@@ -104,11 +110,24 @@ namespace sigslot
 namespace ORO_CoreLib
 {
     /**
-     * @brief The Handle holds the information of a connection
+     * @brief The Handle holds the information, and allows manipulation, of a connection
      * between an Event Handler function and the Event itself.
      *
      * It is returned by the connect() and setup() methods of Event and can
-     * be used to disconnect a handler function from the event.
+     * be used to (dis)connect a handler function from the event.
+     * Handle objects may be assigned to each other and will always point
+     * to the same connection. If the last Handle object is destroyed,
+     * and is not connected, the connection is destroyed. Thus the
+     * resource management (deallocation) is handled by Orocos itself.
+     *
+     * To inspect if the Handle points to a valid, existing connection, one can use :
+     * @verbatim
+     Handle handle;
+     // ...
+     if ( !handle ) {
+        // not valid !
+     }
+     * @endverbatim
      */
     class Handle
     {
@@ -131,17 +150,35 @@ namespace ORO_CoreLib
         bool operator<(const Handle& h) const;
 #endif
 
+        operator sigslot::handle() const {
+            return _c;
+        }
+
+        /**
+         * Inspect if the connection(s) of this handle is connected
+         * to an Event.
+         * @return false if no valid connection exists or if the
+         * connection is not connected to the event.
+         */
         bool connected() const;
 
         /**
          * Disconnect syn and asyn handlers.
+         * @return false if no valid connection exists.
          */
         bool disconnect();
 
         /**
          * (Re-)Connect syn and asyn handlers.
+         * @return false if no valid connection exists.
          */
         bool connect();
+
+        /**
+         * Inspect if this handle is pointing to valid (existing) connection(s).
+         * @return false if no connection(s) is associated with this handle.
+         */
+        operator bool() const;
 
     };
 }

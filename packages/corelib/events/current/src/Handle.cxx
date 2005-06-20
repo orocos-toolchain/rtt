@@ -41,6 +41,11 @@ namespace sigslot
         return m_conn && m_conn->connected();
     }
 
+    handle::operator bool() const {
+        return m_conn;
+    }
+
+
     scoped_handle::scoped_handle(const handle& hs)
         : handle( hs )
     {
@@ -102,5 +107,10 @@ namespace ORO_CoreLib
         return _c.connect() &&
             _c2.connect();
     }
+
+    Handle::operator bool() const {
+        return _c && _c2;
+    }
+
 
 }

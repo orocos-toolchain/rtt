@@ -237,6 +237,7 @@ namespace sigslot {
         public detail::get_signal_impl<Signature,
                                        SlotFunction>::type
     {
+    protected:
         typedef typename detail::get_signal_impl< Signature,
                                                   SlotFunction>::type base_type;
         

@@ -60,6 +60,14 @@ namespace sigslot {
         typedef R result_type;
         OROCOS_SIGNAL_ARG_TYPES
 
+#if OROCOS_SIGNAL_NUM_ARGS == 1
+        typedef arg1_type first_argument_type;
+#endif
+#if OROCOS_SIGNAL_NUM_ARGS == 2
+        typedef arg1_type first_argument_type;
+        typedef arg2_type second_argument_type;
+#endif
+
 		OROCOS_SIGNAL_N()
 		{
 		}
