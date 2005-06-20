@@ -558,8 +558,18 @@ namespace ORO_Execution
                 cout << " In Task "<< taskcontext->getName() << ". (Status of last Command : ";
                 if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
                     cout << "queued )";
-                else
-                    cout << (condition == 0 ? "none )" : accepted->get() == false ? "fail )" : condition->evaluate() == true ? "done )" : "busy )" );
+                else {
+                    cout << (command == 0 ? "none )" : ( condition == 0 ? "done )"  : (accepted->get() == false ? "fail )" : ( condition->evaluate() == true ? "done )" : "busy )"))));
+                    if ( condition != 0 && accepted->get() && condition->evaluate() ) {
+                        // at this point the command is out of the Processor queue...
+                        // dispose condition, condition might evaluate an invalidated object,
+                        // like a deleted program or state machine.
+                        delete condition;
+                        accepted = 0;
+                        condition = 0;
+                        // we leave command to non-zero such that the above cout displays "done"
+                    }
+                }
                 // This 'endl' is important because it flushes the whole output to screen of all
                 // processing that previously happened, which was using 'nl'.
                 cout << endl;
@@ -619,8 +629,9 @@ namespace ORO_Execution
             Logger::log()<<Logger::Warning
                          << "Previous command was not yet processed by previous Processor." <<Logger::nl
                          << " Can not track command status across tasks."<< Logger::endl;
-            // memleak it...
+            // memleak command...
             command = 0;
+            delete condition;
             condition = 0;
         } else {
             delete command;
@@ -651,6 +662,7 @@ namespace ORO_Execution
                          << " Can not track command status across tasks."<< Logger::endl;
             // memleak it...
             command = 0;
+            delete condition;
             condition = 0;
         } else {
             delete command;
@@ -904,7 +916,8 @@ namespace ORO_Execution
             comcon = _parser.parseCommand( comm, taskcontext );
             if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
                 cerr << "Warning : previous command is not yet processed by Processor." <<nl;
-                // memleak it...
+                // memleak the command, dispose condition...
+                delete condition;
             } else {
                 delete command;
                 delete condition;
