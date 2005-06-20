@@ -195,6 +195,8 @@ namespace ORO_CoreLib
 
         const std::string& getType() const { return type;}
 
+        void setType(const std::string& newtype) { type = newtype; }
+
         PropertyContainerType& getProperties() { return _properties; }
         const PropertyContainerType& getProperties() const { return _properties; }
 
@@ -213,7 +215,7 @@ namespace ORO_CoreLib
             bool operator()(const PropertyBase* b1, const std::string& b2) const { return b1->getName() == b2; }
         };
 
-        const std::string type;
+        std::string type;
     };
 
 
@@ -242,12 +244,12 @@ namespace ORO_CoreLib
      *
      * You can use this function to update the properties of a fixed bag.
      */
-    void refreshProperties(PropertyBag& target, const PropertyBag& source);
+    bool refreshProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * Refresh one Property in the target bag with the new value.
      */
-    void refreshProperty( PropertyBag& target, const PropertyBase& source);
+    bool refreshProperty( PropertyBag& target, const PropertyBase& source);
 
     /**
      * This function copies (recursively) the Properties of one Bag into
@@ -256,7 +258,7 @@ namespace ORO_CoreLib
      * duplicates and update exiting Properties.
      *
      */
-    void copyProperties(PropertyBag& target, const PropertyBag& source);
+    bool copyProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * This function updates (recursively) the values of Property objects of one Bag with the
@@ -266,7 +268,7 @@ namespace ORO_CoreLib
      *
      * Use copyProperties if you want complete duplication.
      */
-    void updateProperties(PropertyBag& target, const PropertyBag& source);
+    bool updateProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
@@ -296,9 +298,9 @@ namespace ORO_CoreLib
      * @see updateProperties()
      */
     inline
-    void update(PropertyBag& a, const PropertyBag& b)
+    bool update(PropertyBag& a, const PropertyBag& b)
     {
-        updateProperties(a,b);
+        return updateProperties(a,b);
     }
 
     /**
@@ -306,9 +308,9 @@ namespace ORO_CoreLib
      * @see copyProperties()
      */
     inline
-    void copy(PropertyBag& a, const PropertyBag& b)
+    bool copy(PropertyBag& a, const PropertyBag& b)
     {
-        copyProperties(a,b);
+        return copyProperties(a,b);
     }
 
     /**
@@ -316,9 +318,9 @@ namespace ORO_CoreLib
      * @see refreshProperties()
      */
     inline
-    void refresh(PropertyBag& a, const PropertyBag& b)
+    bool refresh(PropertyBag& a, const PropertyBag& b)
     {
-        refreshProperties(a,b);
+        return refreshProperties(a,b);
     }
 
     /**

@@ -149,7 +149,7 @@ namespace ORO_CoreLib
         return 0; // failure
     }
 
-    void refreshProperties(PropertyBag& target, const PropertyBag& source)
+    bool refreshProperties(PropertyBag& target, const PropertyBag& source)
     {
         //iterate over source, update PropertyBases
         PropertyBag::const_iterator it( source.getProperties().begin() );
@@ -159,29 +159,32 @@ namespace ORO_CoreLib
             if (mine != 0)
             {
                 //std::cout <<"*******************refresh"<<std::endl;
-                if ( mine->update( (*it) ) == false ) {
+                if ( mine->refresh( (*it) ) == false ) {
                     Logger::log() << Logger::Error;
                     Logger::log() << "refreshProperties: Could not refresh Property "
                                   << mine->getType() << " "<< (*it)->getName()
                                   << ": type mismatch, can not update with type "
                                   << (*it)->getType() << Logger::endl;
+                    return false;
                 }
             }
             ++it;
         }
+        return true;
     }
 
-    void refreshProperty(PropertyBag& target, const PropertyBase& source)
+    bool refreshProperty(PropertyBag& target, const PropertyBase& source)
     {
         PropertyBase* target_prop;
         // dynamic_cast ?
         if ( 0 != (target_prop = target.find( source.getName() ) ) )
             {
-                target_prop->update( &source );
+                return target_prop->refresh( &source );
             }
+        return false;
     }
 
-    void copyProperties(PropertyBag& target, const PropertyBag& source)
+    bool copyProperties(PropertyBag& target, const PropertyBag& source)
     {
         // Make a full deep copy.
         //iterate over source, clone all PropertyBases
@@ -196,10 +199,23 @@ namespace ORO_CoreLib
             target.add( temp );
             ++it;
         }
+        return true;
     }
 
-    void updateProperties(PropertyBag& target, const PropertyBag& source)
+    bool updateProperties(PropertyBag& target, const PropertyBag& source)
     {
+        // check type consistency...
+        if ( target.getType() != source.getType() ) {
+            // if different types, discard the old contents and
+            // put in the new contents...
+            // update type info...
+            target.setType( source.getType() );
+            // delete old type contents...
+            flattenPropertyBag(target);
+            deleteProperties(target);
+            // now continue 'updating'
+        }
+
         // Make an updated if present, create if not present
         //iterate over source, update or clone PropertyBases
         PropertyBag::const_iterator it( source.getProperties().begin() );
@@ -220,6 +236,7 @@ namespace ORO_CoreLib
                                   << mine->getType() << " "<< (*it)->getName()
                                   << ": type mismatch, can not update with type "
                                   << (*it)->getType() << Logger::endl;
+                    return false;
                 }
             }
             else
@@ -239,6 +256,7 @@ namespace ORO_CoreLib
             }
             ++it;
         }
+        return true;
     }
 
     void deleteProperties(PropertyBag& target)

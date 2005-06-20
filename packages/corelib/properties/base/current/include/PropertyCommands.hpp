@@ -52,8 +52,7 @@ namespace ORO_CoreLib
                 : target(tgt), source(src) {}
             bool execute()
             {
-                target->update( *source );
-                return true;
+                return target->update( *source );
             }
 
             virtual UpdatePropertyCommand<T,S>* clone() const {
@@ -75,8 +74,7 @@ namespace ORO_CoreLib
                 : target(tgt), source(src) {}
             bool execute()
             {
-                target->copy( *source );
-                return true;
+                return target->copy( *source );
             }
 
             virtual CopyPropertyCommand<T,S>* clone() const {
@@ -98,8 +96,7 @@ namespace ORO_CoreLib
                 : target(tgt), source(src) {}
             bool execute()
             {
-                target->refresh( *source );
-                return true;
+                return target->refresh( *source );
             }
 
             virtual RefreshPropertyCommand<T,S>* clone() const {
@@ -121,8 +118,7 @@ namespace ORO_CoreLib
                 : target(tgt), source(src) {}
             bool execute()
             {
-                target->refresh( *source );
-                return true;
+                return target->refresh( *source );
             }
 
             virtual RefreshPropertyFromDSCommand<T,S>* clone() const {

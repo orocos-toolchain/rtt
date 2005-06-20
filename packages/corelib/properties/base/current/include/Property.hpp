@@ -62,21 +62,24 @@ namespace ORO_CoreLib
      * @{
      */
     template< class T, class S>
-    inline void copy(T& a, const S& b)
+    inline bool copy(T& a, const S& b)
     {
         a = b;
+        return true;
     }
 
     template< class T, class S>
-    inline void update(T& a, const S& b)
+    inline bool update(T& a, const S& b)
     {
         a = b;
+        return true;
     }
 
     template< class T, class S>
-    inline void refresh(T& a, const S& b)
+    inline bool refresh(T& a, const S& b)
     {
         a = b;
+        return true;
     }
     /**
      * @}
@@ -201,8 +204,7 @@ namespace ORO_CoreLib
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 ) {
-                this->update( *origin );
-                return true;
+                return this->update( *origin );
             }
             return false;
         }
@@ -223,8 +225,7 @@ namespace ORO_CoreLib
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 ) {
-                this->refresh( *origin );
-                return true;
+                return this->refresh( *origin );
             }
             return false;
         }
@@ -245,8 +246,7 @@ namespace ORO_CoreLib
             const DataSource<T>* origin = dynamic_cast< const DataSource<T>* >( other );
             if (origin == 0 )
                 return false;
-            _value = origin->get();
-            return true;
+            return this->refresh( *origin );
         }
 
         virtual CommandInterface* refreshCommand( DataSourceBase* other) {
@@ -264,8 +264,7 @@ namespace ORO_CoreLib
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 ) {
-                this->copy( *origin );
-                return true;
+                return this->copy( *origin );
             }
             return false;
         }
@@ -287,40 +286,40 @@ namespace ORO_CoreLib
          * description is empty.
          */
         template<class S>
-        void update( const Property<S>& orig)
+        bool update( const Property<S>& orig)
         {
             if ( _description.empty() )
                 _description = orig.getDescription();
-            ORO_CoreLib::update( _value, orig.get() );
+            return ORO_CoreLib::update( _value, orig.get() );
         }
 
         /**
          * Refresh only the value from a Property.
          */
         template<class S>
-        void refresh( const Property<S>& orig)
+        bool refresh( const Property<S>& orig)
         {
-            ORO_CoreLib::refresh( _value, orig.get() );
+            return ORO_CoreLib::refresh( _value, orig.get() );
         }
 
         /**
          * Refresh only the value from a DataSource.
          */
         template<class S>
-        void refresh( const DataSource<S>& orig)
+        bool refresh( const DataSource<S>& orig)
         {
-            ORO_CoreLib::refresh( _value, orig.get() );
+            return ORO_CoreLib::refresh( _value, orig.get() );
         }
 
         /**
          * Make a full copy.
          */
         template<class S>
-        void copy( const Property<S>& orig)
+        bool copy( const Property<S>& orig)
         {
             _name = orig.getName();
             _description = orig.getDescription();
-            ORO_CoreLib::copy( _value, orig.get() );
+            return ORO_CoreLib::copy( _value, orig.get() );
         }
 
         virtual PropertyBase* clone() const
