@@ -24,11 +24,11 @@ namespace ORO_Execution
             public EventStubInterface
         {
             EventT* me;
-            detail::TemplateFactoryPart<EventT*, EventHookBase*>*  mrfact;
-            detail::TemplateFactoryPart<EventT*, DataSourceBase*>* mefact;
+            detail::TemplateFactoryPart<EventT, EventHookBase*>*  mrfact;
+            detail::TemplateFactoryPart<EventT, DataSourceBase*>* mefact;
             EventStub( EventT* e,
-                       detail::TemplateFactoryPart<EventT*, EventHookBase*>* rfact,
-                       detail::TemplateFactoryPart<EventT*, DataSourceBase*>* efact)
+                       detail::TemplateFactoryPart<EventT, EventHookBase*>* rfact,
+                       detail::TemplateFactoryPart<EventT, DataSourceBase*>* efact)
                 : me(e), mrfact(rfact), mefact(efact) {}
             virtual ~EventStub() {
                 delete mrfact;
@@ -84,7 +84,7 @@ namespace ORO_Execution
         
         ~EventService() {
             for (Factories::iterator it = fact.begin(); it !=fact.end(); ++it )
-                delete *it;
+                delete it->second;
         }
 
         /**
@@ -116,18 +116,28 @@ namespace ORO_Execution
          * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
+         * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
+         * @{
          */
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
                                       ORO_CoreLib::TaskInterface* t) {
+            return this->setupAsyn(ename, afunc, args, t->getEventProcessor() );
+        }
+        
+        ORO_CoreLib::Handle setupAsyn(const std::string& ename,
+                                      boost::function<void(void)> afunc,          
+                                      const std::vector<DataSourceBase::shared_ptr>& args,
+                                      ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) {
             if ( fact.count(ename) != 1 )
                 return ORO_CoreLib::Handle(); // empty handle.
             detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
 
             // ehi is stored _inside_ the connection object !
-            return ehi->setupAsyn( afunc, t ); 
+            return ehi->setupAsyn( afunc, ep ); 
         }
+        //!@}
         
         /**
          * Setup a synchronous and asynchronous Event handler which will set \a args and
@@ -141,19 +151,30 @@ namespace ORO_Execution
          * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
+         * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
+         * @{
          */
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                     boost::function<void(void)> sfunc,
                                     boost::function<void(void)> afunc,
                                     const std::vector<DataSourceBase::shared_ptr>& args,
                                     ORO_CoreLib::TaskInterface* t) {
+            return this->setupSynAsyn(ename, sfunc, afunc, args, t->getEventProcessor() );
+        }
+
+        ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
+                                    boost::function<void(void)> sfunc,
+                                    boost::function<void(void)> afunc,
+                                    const std::vector<DataSourceBase::shared_ptr>& args,
+                                    ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) {
             if ( fact.count(ename) != 1 )
                 return ORO_CoreLib::Handle(); // empty handle.
             detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
 
             // ehi is stored _inside_ the connection object !
-            return ehi->setupSynAsyn( sfunc, afunc, t ); 
+            return ehi->setupSynAsyn( sfunc, afunc, ep ); 
         }
+        //! @}
 
         /**
          * Setup an Event::emit() invocation wrapped in a DataSource.

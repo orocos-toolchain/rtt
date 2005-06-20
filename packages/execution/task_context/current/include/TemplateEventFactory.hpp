@@ -5,6 +5,7 @@
 #include <corelib/Event.hpp>
 #include <corelib/TaskInterface.hpp>
 #include "TemplateFactory.hpp"
+#include "TemplateMethodFactory.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
@@ -20,7 +21,7 @@ namespace ORO_Execution{
     namespace detail {
 
         using ORO_CoreLib::Handle;
-        using ORO_CoreLib::TaskInterface;
+        using ORO_CoreLib::EventProcessor;
 
         /**
          * Create end-user event handles.
@@ -38,12 +39,12 @@ namespace ORO_Execution{
                 return msetupSyn();
             }
 
-            Handle setupAsyn(boost::function<void(void)> afunc, TaskInterface* t ) {
+            Handle setupAsyn(boost::function<void(void)> afunc, EventProcessor* t ) {
                 mafunc = afunc;
                 return msetupAsyn(t);
             }
 
-            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc, TaskInterface* t ) {
+            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc, EventProcessor* t ) {
                 msfunc = sfunc;
                 mafunc = afunc;
                 return msetupSynAsyn(t);
@@ -54,9 +55,9 @@ namespace ORO_Execution{
 
             virtual Handle msetupSyn( ) = 0;
 
-            virtual Handle msetupAsyn( TaskInterface* t ) = 0;
+            virtual Handle msetupAsyn( EventProcessor* t ) = 0;
 
-            virtual Handle msetupSynAsyn( TaskInterface* t ) = 0;
+            virtual Handle msetupSynAsyn( EventProcessor* t ) = 0;
         };
 
         template<typename EventT>
@@ -77,21 +78,20 @@ namespace ORO_Execution{
             {}
         protected:
             Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this)) );
+                Handle h = msource->setup( boost::bind(&This::synop,boost::shared_ptr<This>(this)) );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupAsyn( TaskInterface* t ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this)), t );
+            Handle msetupAsyn( EventProcessor* t ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this)), t );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupSynAsyn( TaskInterface* t ) {
+            Handle msetupSynAsyn( EventProcessor* t ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh), boost::bind(This::asynop,seh), t );
-                seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,seh), boost::bind(&This::asynop,seh), t );
                 return h;
             }
 
@@ -129,21 +129,20 @@ namespace ORO_Execution{
             }
         protected:
             Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1) );
+                Handle h = msource->setup( boost::bind(&This::synop,boost::shared_ptr<This>(this),_1) );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupAsyn( TaskInterface* t ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1), t );
+            Handle msetupAsyn( EventProcessor* t ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1), t );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupSynAsyn( TaskInterface* t ) {
+            Handle msetupSynAsyn( EventProcessor* t ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1), boost::bind(This::asynop,seh,_1), t );
-                seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1), boost::bind(&This::asynop,seh,_1), t );
                 return h;
             }
 
@@ -189,21 +188,18 @@ namespace ORO_Execution{
             }
         protected:
             Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1,_2) );
-                //seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,boost::shared_ptr<This>(this),_1,_2) );
                 return h;
             }
 
-            Handle msetupAsyn( TaskInterface* t ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1,_2), t );
-                //seh = 0;
+            Handle msetupAsyn( EventProcessor* t ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2), t );
                 return h;
             }
 
-            Handle msetupSynAsyn( TaskInterface* t ) {
+            Handle msetupSynAsyn( EventProcessor* t ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1,_2), boost::bind(This::asynop,seh,_1,_2), t );
-                seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2), boost::bind(&This::asynop,seh,_1,_2), t );
                 return h;
             }
 
@@ -254,21 +250,18 @@ namespace ORO_Execution{
             }
         protected:
             Handle msetupSyn( ) {
-                Handle h = msource->setup( boost::bind(This::synop,boost::shared_ptr<This>(this),_1,_2,_3) );
-                //seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,boost::shared_ptr<This>(this),_1,_2,_3) );
                 return h;
             }
 
-            Handle msetupAsyn( TaskInterface* t ) {
-                Handle h = msource->setup( boost::bind(This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t );
-                //seh = 0;
+            Handle msetupAsyn( EventProcessor* t ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t );
                 return h;
             }
 
-            Handle msetupSynAsyn( TaskInterface* t ) {
+            Handle msetupSynAsyn( EventProcessor* t ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(This::synop,seh,_1,_2,_3), boost::bind(This::asynop,seh,_1,_2,_3), t );
-                seh = 0;
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2,_3), boost::bind(&This::asynop,seh,_1,_2,_3), t );
                 return h;
             }
 
@@ -298,13 +291,33 @@ namespace ORO_Execution{
         class EventHookGenerator
         {
         public:
+            typedef EventHookBase* result_type;
+
             template<class EventT>
-            EventHookBase* operator()( EventT* e ) {
+            EventHookBase* operator()( EventT* e ) const {
                 return new EventHook0<EventT>(e); // called by TemplateFactoryPart0
             }
 
             template<class EventT, class Arg1T>
-            EventHookBase* operator()( EventT* e, DataSource<Arg1T>* arg1 )
+            EventHookBase* operator()( EventT* , Arg1T ) const
+            {
+                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
+            }
+
+            template<class EventT, class Arg1T, class Arg2T>
+            EventHookBase* operator()( EventT* , Arg1T, Arg2T ) const
+            {
+                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
+            }
+
+            template<class EventT, class Arg1T, class Arg2T, class Arg3T>
+            EventHookBase* operator()( EventT* , Arg1T, Arg2T, Arg3T ) const
+            {
+                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
+            }
+
+            template<class EventT, class Arg1T>
+            EventHookBase* operator()( EventT* e, DataSource<Arg1T>* arg1 ) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -318,7 +331,7 @@ namespace ORO_Execution{
             template<class EventT, class Arg1T, class Arg2T>
             EventHookBase* operator()( EventT* e,
                                             DataSource<Arg1T>* arg1,
-                                            DataSource<Arg2T>* arg2)
+                                            DataSource<Arg2T>* arg2) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -336,7 +349,7 @@ namespace ORO_Execution{
             EventHookBase* operator()( EventT* e,
                                             DataSource<Arg1T>* arg1,
                                             DataSource<Arg2T>* arg2,
-                                            DataSource<Arg3T>* arg3)
+                                            DataSource<Arg3T>* arg3) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -357,38 +370,38 @@ namespace ORO_Execution{
         template<class EventT, class Enable = void>
         struct EventHookFactoryGenerator
         {
-            TemplateFactoryPart<EventT*,EventHookBase*>* receptor() {
-                return new TemplateFactoryFunctorPart0<EventT*,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
+            TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
+                return new TemplateFactoryFunctorPart0<EventT,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
             }
-            TemplateFactoryPart<EventT*,DataSourceBase*>* emittor() {
-                return method(EventT::emit, "Event Emittor");
+            TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                return method<EventT,typename EventT::result_type>(&EventT::emit, "Event Emittor");
             }
         };
         
         
         template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::Arity == 1 >::type >
+        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 1 >::type >
         {
-                TemplateFactoryPart<EventT*,EventHookBase*>* receptor() {
+                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
                     return new TemplateFactoryFunctorPart1<
-                        EventT*,
+                        EventT,
                         EventHookBase*,
                         EventHookGenerator,
                         typename EventT::SlotFunction::arg1_type>( EventHookGenerator(), "Event Hook", "arg1", "description" );
                 }
 
-                TemplateFactoryPart<EventT*,DataSourceBase*>* emittor() {
-                    return method(EventT::emit, "Event Emittor",
+                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description");
                 }
         };
 
         template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::Arity == 2 >::type >
+        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 2 >::type >
         {
-                TemplateFactoryPart<EventT*,EventHookBase*>* receptor() {
+                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
                     return new TemplateFactoryFunctorPart2<
-                        EventT*,
+                        EventT,
                         EventHookBase*,
                         EventHookGenerator,
                         typename EventT::SlotFunction::arg1_type,
@@ -396,19 +409,19 @@ namespace ORO_Execution{
                                                           "arg1", "description", "arg2", "description" );
                 }
 
-                TemplateFactoryPart<EventT*,DataSourceBase*>* emittor() {
-                    return method(EventT::emit, "Event Emittor",
+                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description");
                 }
         };
 
         template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::Arity == 3 >::type >
+        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 3 >::type >
         {
-                TemplateFactoryPart<EventT*,EventHookBase*>* receptor() {
+                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
                     return new TemplateFactoryFunctorPart3<
-                        EventT*,
+                        EventT,
                         EventHookBase*,
                         EventHookGenerator,
                         typename EventT::SlotFunction::arg1_type,
@@ -418,8 +431,9 @@ namespace ORO_Execution{
                                                           "arg3", "description");
                 }
 
-                TemplateFactoryPart<EventT*,DataSourceBase*>* emittor() {
-                    return method(EventT::emit, "Event Emittor",
+                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type, typename EventT::arg2_type, 
+                        typename EventT::arg3_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description",
                                   "arg3", "description");
