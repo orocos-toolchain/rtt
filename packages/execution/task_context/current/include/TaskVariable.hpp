@@ -155,12 +155,12 @@ namespace ORO_Execution
     ParsedIndexContainerVariable( T t)
         : ParsedIndexVariable<T,Index,SetType,Pred>( t )
       {
-          data->set().reserve( t.capacity() );
+          this->data->set().reserve( t.capacity() );
       }
     ParsedIndexContainerVariable( typename VariableDataSource<T>::shared_ptr d )
         : ParsedIndexVariable<T,Index,SetType,Pred>( d )
       {
-          data->set().reserve( d->get().capacity() );
+          this->data->set().reserve( d->get().capacity() );
       }
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
@@ -197,12 +197,12 @@ namespace ORO_Execution
     ParsedStringVariable( T t)
         : ParsedIndexVariable<T,Index,SetType,Pred>( t )
       {
-          data->set().reserve( t.capacity() );
+          this->data->set().reserve( t.capacity() );
       }
     ParsedStringVariable( typename VariableDataSource<T>::shared_ptr d )
         : ParsedIndexVariable<T,Index,SetType,Pred>( d )
       {
-          data->set().reserve( d->get().capacity() );
+          this->data->set().reserve( d->get().capacity() );
       }
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
