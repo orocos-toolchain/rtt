@@ -46,6 +46,7 @@
 
 using namespace ORO_ControlKernel;
 using namespace ORO_CoreLib;
+using boost::bind;
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         using namespace ORO_Execution;
