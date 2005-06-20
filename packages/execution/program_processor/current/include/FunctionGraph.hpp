@@ -35,15 +35,6 @@
 
 namespace ORO_Execution
 {
-    using boost::tie;
-    using boost::graph_traits;
-    using boost::property_map;
-    using std::find_if;
-    using std::bind2nd;
-    using boost::get;
-    using boost::put;
-    using ORO_CoreLib::CommandNOP;
-
     class TaskAttributeBase; // defined in TaskContext...
 
     /**
@@ -63,8 +54,8 @@ namespace ORO_Execution
                                       boost::directedS,
                                       VertProperty,
                                       EdgeProperty> Graph;
-        typedef graph_traits<Graph>::vertex_descriptor Vertex;
-        typedef graph_traits<Graph>::edge_descriptor Edge;
+        typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+        typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 
     private:
         /**

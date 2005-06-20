@@ -35,20 +35,20 @@
 
 #include <boost/graph/adjacency_list.hpp>
 
-enum vertex_command_t { vertex_command };
-enum vertex_exec_t { vertex_exec };
+namespace ORO_Execution {
+    enum vertex_command_t { vertex_command };
+    enum vertex_exec_t { vertex_exec };
+}
 
 namespace boost {
+    using ORO_Execution::vertex_command_t;
+    using ORO_Execution::vertex_exec_t;
     BOOST_INSTALL_PROPERTY(vertex, command);
     BOOST_INSTALL_PROPERTY(vertex, exec);
 }
 
 namespace ORO_Execution
 {
-    using boost::property;
-    using boost::vertex_index_t;
-    using boost::vertex_index;
-
 	class ProcessorControlInterface;
 	class ProcessorInterface;
     class StateDescription;
@@ -66,9 +66,9 @@ namespace ORO_Execution
        * The vertex_exec_t property values.
        */
       enum NodeTypes { normal_node, prog_start_node, prog_exit_node, func_start_node, func_exit_node };
-      typedef property<vertex_command_t, VertexNode,
-                       property<vertex_exec_t, int,
-                                property<vertex_index_t, int> > > VertProperty;
+      typedef boost::property<vertex_command_t, VertexNode,
+                       boost::property<vertex_exec_t, int,
+                                boost::property<boost::vertex_index_t, int> > > VertProperty;
 
       /**
        * Construct an empty program node with no command,

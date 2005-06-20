@@ -40,10 +40,6 @@
 
 namespace ORO_Execution
 {
-    using boost::adjacency_list;
-    using boost::property;
-    using boost::graph_traits;
-
     class ProgramCommands;
     class TaskContext;
 
@@ -60,9 +56,9 @@ namespace ORO_Execution
         typedef EdgeCondition::EdgeProperty EdgeProperty;
         typedef VertexNode::VertProperty    VertProperty;
 
-        typedef adjacency_list<boost::vecS, boost::listS, boost::directedS, VertProperty, EdgeProperty> Graph;
-        typedef graph_traits<Graph>::vertex_descriptor Vertex;
-        typedef graph_traits<Graph>::edge_descriptor Edge;
+        typedef boost::adjacency_list<boost::vecS, boost::listS, boost::directedS, VertProperty, EdgeProperty> Graph;
+        typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+        typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 
         /**
          * A CommandNode serves as a token to construct

@@ -33,14 +33,6 @@
 
 namespace ORO_Execution
 {
-    using boost::tie;
-    using boost::graph_traits;
-    using boost::property_map;
-    using std::find_if;
-    using std::bind2nd;
-    using boost::get;
-    using boost::put;
-
     /**
      * @brief This class represents a state with all actions stored
      * in an external StateGraph.
