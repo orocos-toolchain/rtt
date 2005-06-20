@@ -67,7 +67,7 @@ namespace ORO_Execution
         virtual ~GenericTaskContext();
 
         /**
-         * @name Methods The method interface of this TaskContext.
+         * @name Script Methods
          * @{
          */
         /**
