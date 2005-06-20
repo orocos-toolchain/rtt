@@ -193,7 +193,7 @@ namespace ORO_ControlKernel
         void removeComponent( ReportingComponent* rep );
 
         /**
-         * @defgroup methods Script Methods.
+         * @name Script Methods
          * @{
          */
 
