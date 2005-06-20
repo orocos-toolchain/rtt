@@ -199,6 +199,55 @@ namespace ORO_Execution
   };
 
   /**
+   * A DataSource which is used to manipulate a reference to an
+   * external value.
+   * @param T The result data type of get().
+   */
+  template<typename T>
+  class ReferenceDataSource
+    : public AssignableDataSource<T>
+  {
+      // a reference to a value_t
+      typename AssignableDataSource<T>::reference_t mref;
+  protected:
+      /**
+       * Use shared_ptr.
+       */
+      ~ReferenceDataSource() {}
+  public:
+      typedef boost::intrusive_ptr<ReferenceDataSource<T> > shared_ptr;
+
+      ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref )
+          : mref( ref )
+      {
+      }
+
+      typename DataSource<T>::result_t get() const
+      {
+          return mref;
+      }
+
+      void set( typename AssignableDataSource<T>::param_t t )
+      {
+          mref = t;
+      }
+
+      typename AssignableDataSource<T>::reference_t set() {
+          return mref;
+      }
+
+      virtual ReferenceDataSource<T>* clone() const
+      {
+          return new ReferenceDataSource<T>(mref);
+      }
+
+      virtual ReferenceDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+          return this; // no copy needed, data is outside.
+      }
+  };
+
+
+  /**
    * A generic binary composite DataSource.  It takes a function
    * object which is a model of the STL Adaptable Binary Function
    * concept, and two DataSource's with result types matching the

@@ -405,7 +405,7 @@ namespace ORO_Execution
                 return t1;
 
             // ref to assignable value case
-            AssignableDataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
+            DataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
 
@@ -432,7 +432,7 @@ namespace ORO_Execution
                 return t1;
 
             // ref to assignable value case
-            AssignableDataSource<Result>* t3 = dynamic_cast<DataSource<Result>*>( dsb.get() );
+            DataSource<Result>* t3 = dynamic_cast<DataSource<Result>*>( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result, Result>( t3 ); // will return AssignableDS !
 
