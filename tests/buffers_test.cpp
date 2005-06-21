@@ -109,6 +109,7 @@ void BuffersTest::testAtomic()
     CPPUNIT_ASSERT( aqueue->isFull() == false );
     CPPUNIT_ASSERT( aqueue->isEmpty() == true );
 
+    delete d;
 }
 void BuffersTest::testAtomicCounted()
 {
@@ -139,6 +140,7 @@ void BuffersTest::testAtomicCounted()
     CPPUNIT_ASSERT( aqueue->isFull() == false );
     CPPUNIT_ASSERT( aqueue->isEmpty() == true );
 
+    delete d;
 }
 
 void BuffersTest::testBufLockFree()
