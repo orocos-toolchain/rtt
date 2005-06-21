@@ -83,6 +83,27 @@ Standard IO Ports Device Driver).
 	calculated OROINT_DEVICE_INTERFACE_THREAD_SCOPE
     }
 
+    cdl_component OROSEM_OS_LOCK_MEMORY {
+	display "Lock all virtual address space into RAM"
+	description "
+Enabling this option forces the OS kernel to reserve and
+lock all current virtual memory in physical RAM. This guarantees
+that no memory is swapped."
+	flavor bool
+	default_value 1
+	cdl_option OROSEM_OS_LOCK_MEMORY_FUTURE {
+	display "Lock future stack and heap virtual address space into RAM"
+	description "
+DANGER ! Enabling this option forces the OS kernel to reserve and
+lock all future virtual memory in physical RAM and prevents any stack
+and heap growth beyond these reserved boundaries, causing SIGSEGV if
+violated. Only enable if you know what you are doing."
+	flavor bool
+	default_value 0
+	}
+
+    }
+
     cdl_component CYGBLD_GLOBAL_OPTIONS {
 	display "Global build options"
 	flavor none

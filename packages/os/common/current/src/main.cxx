@@ -55,6 +55,10 @@ using namespace ORO_DeviceDriver;
 #endif
 #endif
 
+#ifdef OROSEM_OS_LOCK_MEMORY
+#include <sys/mman.h>
+#endif
+
 using namespace std;
 
 const char* catchflag = "--nocatch";
@@ -93,6 +97,15 @@ int main(int argc, char** argv)
 #endif
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "ORO_main starting..." << Logger::endl;
+#endif
+
+    // locking of all memory for this process
+#ifdef OROSEM_OS_LOCK_MEMORY
+        int locktype = MCL_CURRENT;
+#ifdef OROSEM_OS_LOCK_MEMORY_FUTURE
+        locktype |= MCL_FUTURE;
+#endif
+        mlockall(locktype);
 #endif
         
     if ( dotry ) {

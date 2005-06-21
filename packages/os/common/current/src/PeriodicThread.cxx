@@ -41,8 +41,10 @@
 #include "corelib/Logger.hpp"
 #endif
 
+#include "pkgconf/os.h"
+
 #include <iostream>
-#include <sys/mman.h>
+
 #include "corelib/Time.hpp"
 #include "os/threads.hpp"
 #include "pkgconf/os.h"
@@ -111,9 +113,6 @@ namespace ORO_OS
 #endif
 
         rtos_task_make_periodic(task->rtos_task, task->period );
-
-        // locking of all memory for this process
-        mlockall(MCL_CURRENT|MCL_FUTURE);
 
         while ( !task->prepareForExit ) {
             try {

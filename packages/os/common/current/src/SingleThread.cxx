@@ -39,11 +39,12 @@
 using ORO_CoreLib::Logger;
 #endif
 
+#include "pkgconf/os.h"
+
 #include <iostream>
-#include <sys/mman.h>
+
 #include "corelib/Time.hpp"
 #include "os/threads.hpp"
-#include "pkgconf/os.h"
 #ifdef OROPKG_DEVICE_INTERFACE
 #include "pkgconf/device_interface.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -93,8 +94,6 @@ namespace ORO_OS
         }
 #endif
 
-        // locking of all memory for this process
-        mlockall(MCL_CURRENT|MCL_FUTURE);
         /**
          * The real task starts here.
          */
