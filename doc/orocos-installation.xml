@@ -419,8 +419,8 @@
 	  distribution, or download and install it from the <ulink
 	    url="http://www.boost.org">Boost project.</ulink> As soon as the
 	  configure step succeeds, all the rest will succeed too. Please use the
-	  mailinglist at <email>orocos-dev@mail.mech.kuleuven.ac.be</email> for
-	  technical support.
+	  mailinglist at <email>orocos-dev@lists.mech.kuleuven.be</email> for
+	  support questions.
 	</para>
 	<para>
 	  The <command>make docs</command> and
@@ -546,11 +546,17 @@
 <!-- 	</para> -->
       <para>
 	When running
-	<command>../configure --with-lxrt=/usr/local/realtime</command>
+	<command>../configure --with-lxrt=/usr/local/realtime --with-linux=/usr/src/linux</command>
 	(the path is optional) the configure
-	script will try to find your installation in <filename>/usr/local/realtime</filename>
-	and select the os/lxrt target. The default path where LXRT is being looked for is
-	<filename>/usr/realtime</filename>. Watch carefully the output to find any errors.
+	script will try to find your RTAI installation in <filename>/usr/local/realtime</filename>
+	and select the os/lxrt target. You need to specify the path to your <emphasis>RTAI patched</emphasis>
+	Linux Kernel in case Orocos needs it to build properly.
+	The default path where LXRT is being looked for is
+	<filename>/usr/realtime</filename>, while the default Linux path is
+	<filename>/usr/src/linux</filename>. To use the LibC Kernel headers in
+	<filename>/usr/include/linux</filename>, specify
+	<option>--with-linux=/usr</option>.
+	Watch carefully the output to find any errors.
       </para>
       <para>
 	When the target is selected with configure, you can run
@@ -677,7 +683,7 @@
 	  page</ulink> if you are not familiar with RTAI installation
       </para>
       <para>
-	RTAI 3.1 with Linux 2.6 is the most stable combination in our experience, 
+	RTAI 3.1 with Linux 2.6 and later versions are the most stable combination in our experience, 
 	however you can also use RTAI 3.0 for less resource consuming applications.
 	You can obtain it from 
 	<ulink url="http://www.aero.polimi.it/projects/rtai/">
@@ -932,7 +938,7 @@
   LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis> -lstdc++ -lpthread -lboost_signals -lreadline -lncurses
 
   all: myprogram.cpp
-        gcc myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
+        g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
 	    As you can see, your application does not have to be
 	    inside the packages directory at all. Applications can
 	    be developped fully out of the Orocos (build) directory.
@@ -972,14 +978,14 @@
 <!--         for starting and stopping the framework in kernel space. -->
       </sect2>
     <sect2>
-      <title>Some Important Header Files</title>
+      <title>Header Files Overview</title>
       <para>
 	People new to the eCos build system might be unfamiliar with locating
 	the headers they need. Especially if you want to develop your own package
 	or have more control on what is happening inside Orocos, these files will
 	be needed.
 	<table>
-	  <title>Important header files</title>
+	  <title>Header Files</title>
 	  <tgroup cols="2">
 	    <thead>
 	      <row>
@@ -1026,8 +1032,8 @@
 		<!-- one of (entrytbl entry) -->
 		<entry>corelib/*.hpp</entry>
 		<entry>The corelib headers are documented by Doxygen and
-		  the corelib manual. All Orocos applications will at least
-		  use events, tasks and timing from the corelib.
+		  the CoreLib manual. Most Orocos applications will
+		  use events, tasks and timing from the CoreLib.
 		</entry>
 	      </row>
 	      <row>
@@ -1038,6 +1044,58 @@
 		  a thread. Read the OS manual carefully before
 		  using these headers, they are mostly used internally
 		  in the corelib's implementation.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>execution/*.hpp</entry>
+		<entry>The program and command execution headers enable
+		parsing and execution of script programs and state machines.
+		It provides a framework for setting up logical tasks which
+		can communicate in a peer-to-peer way.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>control_kernel/*.hpp</entry>
+		<entry>The Feedback Control Kernel and Components Headers.
+		The Open Robot Control Software framework, a framework for
+		implementing configurable, interactive control loops. Uses
+		much of the fucntionality of the execution package.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>device_drivers/*.h[pp]</entry>
+		<entry>Headers of any device drivers you enabled and some
+		common headers.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>device_interface/*.hpp</entry>
+		<entry>Headers of the C++ device interfaces for Orocos,
+		such as encoders, IO, and Sensors.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>geometry/*.h[pp]</entry>
+		<entry>The Orocos Geometry library defines Frames, Vectors,
+		Twists, Paths, VelocityProfiles,... for 2D and 3D path planning.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>kindyn/*.hpp</entry>
+		<entry>An implementation of a stateful and stateless Kinematics
+		Component for 6DOF robots.
+		</entry>
+	      </row>
+	      <row>
+		<!-- one of (entrytbl entry) -->
+		<entry>can/*.hpp, comedi/*.hpp</entry>
+		<entry>Headers for Comedi and CANOpen device communication.
 		</entry>
 	      </row>
 	    </tbody>
