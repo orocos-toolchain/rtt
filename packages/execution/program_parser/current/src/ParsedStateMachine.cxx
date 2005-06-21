@@ -41,6 +41,7 @@
 namespace ORO_Execution {
     using namespace detail;
     using namespace std;
+    using boost::tuples::get;
     using namespace boost::lambda;
     /**
      * @todo 
