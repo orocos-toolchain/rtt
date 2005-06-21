@@ -22,7 +22,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+//#define NOPARSER
+#ifndef NOPARSER
 #include <execution/Parser.hpp>
+#endif
+
 #include <execution/Processor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
@@ -45,7 +49,9 @@ class StateTest : public CppUnit::TestFixture
 //     CPPUNIT_TEST( testStateUntilFail );
     CPPUNIT_TEST_SUITE_END();
 
+#ifndef NOPARSER
     Parser parser;
+#endif
     Processor gprocessor;
     TaskContext gtc;
     TaskSimulation gtask;

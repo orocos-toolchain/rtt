@@ -22,10 +22,13 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
+#ifndef NOPARSER
 #include <execution/ParsedStateMachine.hpp>
+#endif
 #include <corelib/SimulationThread.hpp>
 #include <corelib/CommandFunctor.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <execution/StateMachine.hpp>
 
 using namespace std;
 
@@ -597,10 +600,18 @@ void StateTest::testStateUntilFail()
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     stringstream progs(prog);
+#ifndef NOPARSER
     std::vector<ParsedStateMachine*> pg_list;
+#else
+    std::vector<StateMachine*> pg_list;
+    sleep(5);
+#endif
     try {
+#ifndef NOPARSER
         pg_list = parser.parseStateMachine( progs, tc );
+#endif
     }
+#ifndef NOPARSER
     catch( const file_parse_exception& exc )
         {
             CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
@@ -609,6 +620,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         {
             CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
         }
+#endif
     catch( ... ) {
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Parse Exception", false );
     }
