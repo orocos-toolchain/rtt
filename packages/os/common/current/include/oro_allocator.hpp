@@ -146,7 +146,7 @@ namespace ORO_OS
         template <class U>
         struct rebind { typedef local_allocator<U, typename Alloc::template rebind<U>::other > other; };
     private:
-        static ORO_OS::Mutex pool_lock;
+        ORO_OS::Mutex pool_lock;
         /**
          * Allocate for at least \a n additional items.
          */
@@ -186,8 +186,8 @@ namespace ORO_OS
     template< class T, class A>
     typename local_allocator<T,A>::pool_wrapper_type local_allocator<T,A>::pool;
 
-    template< class T, class A>
-    ORO_OS::Mutex local_allocator<T,A>::pool_lock;
+//     template< class T, class A>
+//     ORO_OS::Mutex local_allocator<T,A>::pool_lock;
 
     template <class T, class A, class A2>
     inline bool operator==(const local_allocator<T,A>& , 
