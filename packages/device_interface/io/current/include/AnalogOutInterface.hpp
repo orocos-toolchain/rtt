@@ -44,7 +44,6 @@
 
 namespace ORO_DeviceInterface
 {
-    using namespace ORO_CoreLib;
 
     /**
      * An interface for writing analog output, like
@@ -55,7 +54,7 @@ namespace ORO_DeviceInterface
      */
     template < class T>
     class AnalogOutInterface
-                : private NameServerRegistrator<AnalogOutInterface<T>*>
+        : private ORO_CoreLib::NameServerRegistrator<AnalogOutInterface<T>*>
     {
         public:
             /**
@@ -68,7 +67,8 @@ namespace ORO_DeviceInterface
              * Create a nameserved AnalogOutInterface. When <name> is not "" and
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
-            AnalogOutInterface( const std::string& name ) : NameServerRegistrator<AnalogOutInterface<T>*>( nameserver, name, this )
+            AnalogOutInterface( const std::string& name )
+                : ORO_CoreLib::NameServerRegistrator<AnalogOutInterface<T>*>( nameserver, name, this )
             {}
 
             virtual ~AnalogOutInterface()
@@ -142,12 +142,12 @@ namespace ORO_DeviceInterface
              * The NameServer for this interface.
              * @see NameServer
              */
-            static NameServer<AnalogOutInterface<T> *> nameserver;
+            static ORO_CoreLib::NameServer<AnalogOutInterface<T> *> nameserver;
 
     };
 
     template <class T>
-    NameServer<AnalogOutInterface<T> *> AnalogOutInterface<T>::nameserver;
+    ORO_CoreLib::NameServer<AnalogOutInterface<T> *> AnalogOutInterface<T>::nameserver;
 }
 
 #endif

@@ -45,9 +45,6 @@
 
 namespace ORO_DeviceInterface
 {
-
-    using namespace ORO_CoreLib;
-
     /**
      * An interface for reading analog input, like
      * for addressing a whole subdevice in comedi
@@ -57,7 +54,7 @@ namespace ORO_DeviceInterface
      */
     template < class T>
     class AnalogInInterface
-                : private NameServerRegistrator<AnalogInInterface<T>*>
+        : private ORO_CoreLib::NameServerRegistrator<AnalogInInterface<T>*>
     {
         public:
             
@@ -71,7 +68,8 @@ namespace ORO_DeviceInterface
              * Create a nameserved AnalogInInterface. When <name> is not "" and
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
-            AnalogInInterface( const std::string& name ) : NameServerRegistrator<AnalogInInterface<T>*>( nameserver, name, this )
+            AnalogInInterface( const std::string& name )
+                : ORO_CoreLib::NameServerRegistrator<AnalogInInterface<T>*>( nameserver, name, this )
             {}
 
             virtual ~AnalogInInterface()
@@ -144,14 +142,14 @@ namespace ORO_DeviceInterface
              * The NameServer for this interface.
              * @see NameServer
              */
-            static NameServer<AnalogInInterface<T> *> nameserver;
+            static ORO_CoreLib::NameServer<AnalogInInterface<T> *> nameserver;
 
         private:
 
     };
 
     template <class T>
-    NameServer<AnalogInInterface<T> *> AnalogInInterface<T>::nameserver;
+    ORO_CoreLib::NameServer<AnalogInInterface<T> *> AnalogInInterface<T>::nameserver;
 };
 
 #endif
