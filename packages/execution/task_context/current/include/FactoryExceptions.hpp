@@ -29,6 +29,7 @@
 #define FACTORYEXCEPTIONS_HPP
 
 #include <string>
+#include <exception>
 
 /**
  * \file FactoryExceptions.hpp This file contains some structs that can be thrown by both
@@ -36,43 +37,52 @@
  */
 namespace ORO_Execution
 {
-  struct name_not_found_exception
+    struct name_not_found_exception 
+        : public std::exception
   {
+      name_not_found_exception( const std::string& n="name" );
+      ~name_not_found_exception() throw();
+      std::string name;
+      std::string whatstr;
+      virtual const char* what() const throw();
   };
 
   struct wrong_number_of_args_exception
+      : public std::exception
   {
-    int wanted;
-    int received;
-    wrong_number_of_args_exception( int w, int r )
-      : wanted( w ), received( r )
-      {
-      };
+      int wanted;
+      int received;
+      std::string whatstr;
+      wrong_number_of_args_exception( int w, int r );
+      ~wrong_number_of_args_exception() throw();
+      virtual const char* what() const throw();
   };
 
   struct wrong_types_of_args_exception
+      : public std::exception
   {
       // this contains the number of the argument that had the wrong
       // type.  The first argument has number 1.
       int whicharg;
       std::string expected_;
       std::string received_;
-      wrong_types_of_args_exception( int w, const std::string& expected, const std::string& received )
-          : whicharg( w ), expected_(expected), received_(received)
-      {
-      };
+      std::string whatstr;
+      wrong_types_of_args_exception( int w, const std::string& expected, const std::string& received );
+      ~wrong_types_of_args_exception() throw();
+      virtual const char* what() const throw();
   };
 
   struct non_lvalue_args_exception
+      : public std::exception
   {
       // thrown when a factory expects an AssignableDataSource (lvalue), but only
       // found a DataSource (rvalue).
       int whicharg;
       std::string received_;
-      non_lvalue_args_exception( int w, const std::string& received )
-          : whicharg( w ), received_(received)
-      {
-      };
+      std::string whatstr;
+      non_lvalue_args_exception( int w, const std::string& received );
+      ~non_lvalue_args_exception() throw();
+      virtual const char* what() const throw();
   };
 }
 

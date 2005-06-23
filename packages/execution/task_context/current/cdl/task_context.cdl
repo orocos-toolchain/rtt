@@ -25,5 +25,6 @@ task programs."
     compile CommandFactoryInterface.cxx
     compile PropertyLoader.cxx
     compile MapDataSourceFactory.cxx
+    compile FactoryExceptions.cxx
 
 }
