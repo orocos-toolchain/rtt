@@ -57,6 +57,7 @@ namespace ORO_ControlKernel
     }
 
     class KernelBaseFunction;
+    class ComponentBaseInterface;
 
     /**
      * @brief This is the base class of any kernel.
