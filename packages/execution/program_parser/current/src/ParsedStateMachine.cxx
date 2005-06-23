@@ -41,8 +41,8 @@
 namespace ORO_Execution {
     using namespace detail;
     using namespace std;
-    using boost::tuples::get;
     using namespace boost::lambda;
+    using boost::tuples::get;
     /**
      * @todo 
      * 1. add copy/clone semantics to StateInterface and StateMachine.
@@ -317,6 +317,32 @@ namespace ORO_Execution {
                 int rank = j->get<2>();
                 int line = j->get<3>();
                 ret->transitionSet(fromState, toState, condition, rank, line );
+            }
+        }
+
+        // next, copy/recreate the events
+        for ( EventMap::const_iterator i = eventMap.begin(); i != eventMap.end(); ++i )
+        {
+            assert( statemapping.find( i->first ) != statemapping.end() );
+            StateInterface* fromState = statemapping[i->first];
+            for ( EventList::const_iterator j = i->second.begin(); j != i->second.end(); ++j )
+            {
+                EventService* es = j->get<0>();
+                string ename = j->get<1>();
+                vector<DataSourceBase::shared_ptr> origargs( j->get<2>() );
+                vector<DataSourceBase::shared_ptr> newargs;
+                for ( vector<DataSourceBase::shared_ptr>::const_iterator vit = origargs.begin();
+                      vit != origargs.end(); ++vit)
+                    newargs.push_back( (*vit)->copy(replacements) );
+                StateInterface* toState = statemapping[j->get<3>()];
+                ConditionInterface* condition = j->get<4>()->copy( replacements );
+                ProgramInterface* tprog = 0;
+                FunctionGraph* tgraph =  dynamic_cast<FunctionGraph*>( j->get<5>() );
+                if (tgraph)
+                    tprog = tgraph->copy(replacements);
+
+                bool eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog );
+                assert( eresult );
             }
         }
 

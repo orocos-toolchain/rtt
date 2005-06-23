@@ -32,6 +32,8 @@
 #include "StateInterface.hpp"
 #include "corelib/ConditionInterface.hpp"
 #include "corelib/CommandInterface.hpp"
+#include "corelib/DataSourceBase.hpp"
+#include "corelib/Handle.hpp"
 
 #include <map>
 #include <vector>
@@ -43,6 +45,9 @@ namespace ORO_Execution
 {
     using ORO_CoreLib::ConditionInterface;
     using ORO_CoreLib::CommandInterface;
+
+    class TaskContext;
+    class EventService;
 
     /**
      * @brief A hierarchical StateMachine which is
@@ -56,16 +61,21 @@ namespace ORO_Execution
     {
         /**
          * The key is the current state, the value is the transition condition to
-         * another state with a certain priority (int).
+         * another state with a certain priority (int), on a line (int), with a transition program
          */
-        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int> > TransList;
+        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, ProgramInterface*> > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
-
+        typedef std::vector< boost::tuple<EventService*,
+                                          std::string, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>,
+                                          StateInterface*,
+                                          ConditionInterface*, ProgramInterface*, ORO_CoreLib::Handle> > EventList;
+        typedef std::map< StateInterface*, EventList > EventMap;
         std::vector<StateMachine*> _children;
         StateMachine* _parent;
     protected:
         std::string _name;
+        TaskContext* taskcontext;
     public:
 
         typedef std::vector<StateMachine*> ChildList;
@@ -82,6 +92,13 @@ namespace ORO_Execution
          * a StateMachine is always inactive.
          */
         StateMachine(StateMachine* parent, const std::string& name="Default");
+
+        /**
+         * Create a new StateMachine in a TaskContext with an optional parent.
+         * Set \a parent to zero for the top state machine. The initial Status of
+         * a StateMachine is always inactive.
+         */
+        StateMachine(StateMachine* parent, TaskContext* tc, const std::string& name="Default");
 
         /**
          * Get the active status of this StateMachine.
@@ -233,10 +250,59 @@ namespace ORO_Execution
          *        priority are traversed in an unspecified way.
          * @param line
          *        The line number where this transition was introduced.
-         * @post  All transitions from <from> to <to> will succeed under
-         *        condition <cnd>
+         * @post  All transitions from \a from to \a to will succeed under
+         *        condition \a cnd
          */
         void transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line);
+
+        /**
+         * Express a possible transition from one state to another under
+         * a certain condition.
+         *
+         * @param from
+         *        The state which should be left
+         * @param to
+         *        The state which should be entered
+         * @param cnd
+         *        The Condition under which the transition may succeed
+         * @param transprog
+         *        The program to be executed between exit of \a from and entry of \a to.
+         * @param priority
+         *        The priority of this transition; low number (like -1000) is low priority
+         *        high number is high priority (like + 1000). Transitions of equal
+         *        priority are traversed in an unspecified way.
+         * @param line
+         *        The line number where this transition was introduced.
+         * @post  All transitions from \a from to \a to will succeed under
+         *        condition \a cnd
+         */
+        void transitionSet( StateInterface* from, StateInterface* to,
+                            ConditionInterface* cnd, ProgramInterface* transprog,
+                            int priority, int line);
+
+        /**
+         * Express a possible transition from one state to another
+         * when an Event is fired under a certain condition (guard).
+         *
+         * @param ename
+         *        The name of the ORO_CoreLib::Event under which a transition should be made
+         * @param args
+         *        The arguments which the event handler must set upon occurence.
+         * @param from
+         *        The state which should be left
+         * @param to
+         *        The state which should be entered
+         * @param guard
+         *        The Condition under which the transition may succeed
+         * @param transprog
+         *        The program to be executed between exit of \a from and entry of \a to.
+         * @param es
+         *        The EventService in which \a ename can be found.
+         */
+        bool createEventTransition( EventService* es,
+                                    const std::string& ename, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args,
+                                    StateInterface* from, StateInterface* to,
+                                    ConditionInterface* guard, ProgramInterface* transprog );
 
         /**
          * Set the initial state of this StateMachine.
@@ -337,26 +403,34 @@ namespace ORO_Execution
 
         /**
          * Inspect if the StateMachine is performing a state transition.
-         * @return true if it is executing a program, false if it
-         * is not executing a program.
+         * A transition is in progress if entry, handle or exit programs are executed.
+         * @return true if it is executing a program (except run program), false if it
+         * is not executing a program OR executing the run program.
          */
         bool inTransition() const;
 
     protected:
         /**
-         * A map keeping track of all conditional transitions
-         * between two states
+         * A map keeping track of all States and conditional transitions
+         * between two states. Every state of this StateMachine must be]
+         * present as a \em key in this map.
          */
         TransitionMap stateMap;
 
         /**
-         * A map keeping track of all preconditions
-         * of a state.
+         * A map keeping track of all preconditions of a state. Not
+         * all states need to be present as a \em key in this map.
          */
         PreConditionMap precondMap;
 
+        /**
+         * A map keeping track of all events of a state. Not all
+         * states need to be present as a \em key in this map.
+         */
+        EventMap eventMap;
+
     private:
-        void changeState( StateInterface* s, bool stepping = false );
+        void changeState( StateInterface* s, ProgramInterface* tprog, bool stepping = false );
 
         void leaveState( StateInterface* s );
 
@@ -369,6 +443,14 @@ namespace ORO_Execution
         bool executeProgram(ProgramInterface*& cp, bool stepping);
 
         int checkConditions( StateInterface* state, bool stepping = false );
+
+        void enableEvents( StateInterface* s );
+        void disableEvents( StateInterface* s );
+
+        /**
+         * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.
+         */
+        void eventTransition( ConditionInterface* c,  ProgramInterface* p, StateInterface* to );
 
         /**
          * The Initial State.
@@ -398,6 +480,7 @@ namespace ORO_Execution
         ProgramInterface* currentHandle;
         ProgramInterface* currentEntry;
         ProgramInterface* currentRun;
+        ProgramInterface* currentTrans;
 
         TransList::iterator reqstep;
         TransList::iterator reqend;

@@ -32,6 +32,7 @@
 #include "execution/TaskContext.hpp"
 #include "execution/Types.hpp"
 
+#include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/construct.hpp>
 
@@ -46,7 +47,7 @@ namespace ORO_Execution
     using namespace ORO_CoreLib;
     using namespace std;
 
-    using namespace boost::lambda;
+    using namespace boost;;
 
     namespace {
         assertion<std::string> expect_open("Open brace expected.");

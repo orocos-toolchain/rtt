@@ -25,28 +25,38 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/StateMachine.hpp"
+#include "execution/TaskContext.hpp"
+#include "execution/EventService.hpp"
 #include "execution/mystd.hpp"
-#include "boost/tuple/tuple.hpp"
-
+#include <corelib/DataSource.hpp>
 #include <functional>
 
 #include <assert.h>
 #include <boost/bind.hpp>
+#include <boost/tuple/tuple.hpp>
 
 namespace ORO_Execution
 {
     using boost::tuples::get;
     using namespace std;
     using namespace boost;
+    using namespace ORO_CoreLib;
 
     StateMachine::StateMachine(StateMachine* parent, const string& name )
-        : _parent (parent) , _name(name),
+        : _parent (parent) , _name(name), taskcontext(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
-          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0),
+          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
+          checking_precond(false), error(false), evaluating(0)
+    {}
+ 
+    StateMachine::StateMachine(StateMachine* parent, TaskContext* tc, const string& name )
+        : _parent (parent) , _name(name), taskcontext(tc),
+          initstate(0), finistate(0), current( 0 ), next(0), initc(0),
+          currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), error(false), evaluating(0)
     {}
 
-    StateMachine::~StateMachine()
+   StateMachine::~StateMachine()
     {
         delete initc;
     }
@@ -57,7 +67,7 @@ namespace ORO_Execution
         // all conditions that must be satisfied to enter the initial state :
         if ( !currentProg && ( current == initstate || current == finistate ) )
         {
-            changeState( initstate );
+            this->requestState( initstate );
             return true;
         }
         return false;
@@ -70,10 +80,10 @@ namespace ORO_Execution
             return;
 
         error = false;
-        changeState( finistate );
+        this->requestState( finistate );
     }
 
-    void StateMachine::changeState(StateInterface* newState, bool stepping) {
+    void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
         if ( newState == current )
             {
                 // execute the default action (handle current)
@@ -82,9 +92,15 @@ namespace ORO_Execution
             }
         else
             {
-                // reset handle, in case it is still set ( during error ).
+                // disable all events of current state.
+                disableEvents(current);
+                // reset handle and run, in case it is still set ( during error 
+                // or when an event arrived ).
                 currentRun = 0;
                 currentHandle = 0;
+                if ( transProg )
+                    transProg->reset();
+                currentTrans = transProg;
                 // if error in current Exit, skip it.
                 if ( currentExit && currentExit->inError() )
                     currentExit = 0;
@@ -105,15 +121,34 @@ namespace ORO_Execution
         runState( newState );
     }
 
+    void StateMachine::enableEvents( StateInterface* s )
+    {
+        EventMap::mapped_type& hlist = eventMap[s];
+        for (EventList::iterator eit = hlist.begin();
+             eit != hlist.end();
+             ++eit)
+            get<6>(*eit).connect();
+    }
+    void StateMachine::disableEvents( StateInterface* s )
+    {
+        EventMap::mapped_type& hlist = eventMap[s];
+        for (EventList::iterator eit = hlist.begin();
+             eit != hlist.end();
+             ++eit)
+            get<6>(*eit).disconnect();
+    }
+
+
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
-        if ( currentProg ) {
+        // only a run program may be interrupted...
+        if ( currentProg && currentProg != currentRun ) {
             return current; // can not accept request, still in transition.
         }
         if ( reqstep == reqend ) { // if nothing to evaluate, just handle()
-            changeState( current, stepping );
+            changeState( current, 0, stepping );
             return current;
         }
 
@@ -126,7 +161,7 @@ namespace ORO_Execution
                     break; // only returned in stepping
                 }
                 if( cres == 1) {
-                    changeState( get<1>(*reqstep), stepping );
+                    changeState( get<1>(*reqstep), get<4>(*reqstep), stepping );
                     break; // valid transition
                 }
                 // if cres == -1 : precondition failed, increment reqstep...
@@ -135,7 +170,7 @@ namespace ORO_Execution
                 // no transition was found, reset and 'schedule' a handle :
                 reqstep = stateMap.find( current )->second.begin();
                 evaluating = get<3>(*reqstep);
-                changeState( current, stepping );
+                changeState( current, 0, stepping );
                 break;
             }
             else {
@@ -224,7 +259,7 @@ namespace ORO_Execution
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
 
-        if ( currentProg ) {
+        if ( currentProg && currentProg != currentRun ) {
             return false; // can not accept request, still in transition
         }
 
@@ -233,25 +268,11 @@ namespace ORO_Execution
         // to current state
         if ( current == s_n )
         {
-            changeState( s_n );
+            changeState( s_n, 0 );
             return true;
         }
 
-        // to final state
-        if ( finistate == s_n )
-        {
-            changeState( s_n );
-            return true;
-        }
-
-        // to inital state from final state
-        if ( initstate == s_n && current == finistate)
-        {
-            changeState( s_n );
-            return true;
-        }
-
-        // between 2 specific states
+        // between 2 states specified by the user.
         TransList::iterator it1, it2;
         it1 = stateMap.find( current )->second.begin();
         it2 = stateMap.find( current )->second.end();
@@ -260,10 +281,25 @@ namespace ORO_Execution
             if ( get<1>(*it1) == s_n
                  && get<0>(*it1)->evaluate()
                  && checkConditions( s_n ) == 1 ) {
-                changeState( s_n );
+                changeState( s_n, get<4>(*it1) );
                 // the request was accepted
                 return true;
             }
+
+        // to final state
+        if ( finistate == s_n )
+        {
+            changeState( s_n, 0 );
+            return true;
+        }
+
+        // to inital state from final state
+        if ( initstate == s_n && current == finistate)
+        {
+            changeState( s_n, 0 );
+            return true;
+        }
+
         // the request has failed.
         return false;
     }
@@ -295,20 +331,96 @@ namespace ORO_Execution
         assert( current == 0);
         assert( stateMap.count( state ) == 1 && "Add a state first before setting preconditions !" );
         precondMap.insert( make_pair(state, make_pair( cnd, line)) );
+        stateMap[state]; // add to state map.
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
         // we must be inactive.
         assert( current == 0);
-        assert( stateMap.count( from ) == stateMap.count(to) == 1 && "Add a state first before setting transitions !" );
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
             ; // this ';' is intentional 
-        stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line ) );
+        ProgramInterface* transprog = 0;
+        stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line, transprog ) );
         stateMap[to]; // insert empty vector for 'to' state.
     }
+
+    void StateMachine::transitionSet( StateInterface* from, StateInterface* to,
+                                      ConditionInterface* cnd, ProgramInterface* transprog,
+                                      int priority, int line )
+    {
+        // we must be inactive.
+        assert( current == 0);
+        // insert both from and to in the statemap
+        TransList::iterator it;
+        for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
+            ; // this ';' is intentional 
+        stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line, transprog ) );
+        stateMap[to]; // insert empty vector for 'to' state.
+    }
+
+    bool StateMachine::createEventTransition( EventService* es,
+                                              const std::string& ename, vector<DataSourceBase::shared_ptr> args,
+                                              StateInterface* from, StateInterface* to,
+                                              ConditionInterface* guard, ProgramInterface* transprog )
+    {
+        if (taskcontext == 0 )
+            return false;
+
+        assert( es && from && to && guard ); // transprog may be zero !.
+
+        // get ename from event service, provide args as arguments
+        // event should be activated upon entry of 'from'
+        // guard is evaluated to get final 'ok'.
+        // event does a requestState( to );
+        // if 'ok', execute transprog during transition.
+
+        // Store guard and transprog for copy/clone semantics.
+        // upon SM copy, recreate the handles for the copy SM with a copy of guard/transprog.
+        // Same for args. I guess we need to store all arguments of this function to allow
+        // proper copy semantics, such that the event handle can be created for each new SM
+        // instance. Ownership of guard and transprog is to be determined, but seems to ly
+        // with the SM. handle.destroy() can be called upon SM destruction.
+        Handle handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, guard, transprog, to), args,
+                                                    taskcontext->getProcessor()->getTask() );
+        if ( !handle )
+            return false; // event does not exist...
+        // BIG NOTE : we MUST store handle otherwise, the connection is destroyed (cfr setup vs connect).
+        // Off course, we also need it to connect/disconnect the event.
+        eventMap[from].push_back( boost::make_tuple( es, ename, args, to, guard, transprog, handle) );
+        // add the states to the statemap.
+        stateMap[from];
+        stateMap[to];
+        return true;
+    }
+
+    void StateMachine::eventTransition(ConditionInterface* c, ProgramInterface* p, StateInterface* to )
+    {
+        // called by event to begin Transition to 'to'.
+        // This interrupts the current run program at an interruption point ? 
+        // the transition and/or exit program can cleanup...
+
+        // this will never be called if the event connection is destroyed.
+
+        if ( c->evaluate() && checkConditions(to, false) == 1 ) {
+            // valid transition to 'to'.
+            changeState( to, p );
+        }
+    }
+
+#if 0
+    bool StateMachine::setHandle( Handle h,
+                                  StateInterface* state )
+    {
+        // handle.connect() is called after entry program of 'from'.
+        // and handle.disconnect() is called before exit program of 'from'.
+        // guard is evaled by event to get final 'ok' to switch to 'to' from 'state'.
+        // event does a sm->eventTransition( transprog, to );
+        return false;
+    }
+#endif
 
     StateInterface* StateMachine::currentState() const
     {
@@ -373,15 +485,27 @@ namespace ORO_Execution
         // do on basis of the contents of variables (like current*, next,...).
         // This is a somewhat
         // fragile implementation but requires very little bookkeeping.
+        // if returns true : a transition (exit/entry) is done
+        // and a new state may be requested.
 
         if ( error )
             return false;
-        // if returns true : a transition (exit/entry) is done
-        // and a new state may be requested.
 
         // first try exit
         if ( currentExit ) {
             if ( this->executeProgram(currentExit, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = currentTrans ? currentTrans : (currentEntry ? currentEntry : currentRun);
+                return false;
+            }
+        }
+
+        // next execute transition program on behalf of current state.
+        if ( currentTrans ) {
+            if ( this->executeProgram(currentTrans, stepping) == false )
                 return false;
             // done.
             // in stepping mode, delay 'true' one executePending().
@@ -408,18 +532,22 @@ namespace ORO_Execution
             }
             // make change transition after exit of previous state:
             current = next;
+            if ( !currentEntry )
+                enableEvents( current ); // see also below
         }
 
         if ( currentEntry ) {
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
+            enableEvents( current ); // see also above
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
                 return false;
             }
         }
+        // from this point on, events must be enabled.
 
         // Handle is executed after the transitions failed.
         if ( currentHandle ) {
@@ -466,7 +594,7 @@ namespace ORO_Execution
 
 
     bool StateMachine::inTransition() const {
-        return currentProg != 0;
+        return currentProg != 0  && currentProg != currentRun;
     }
 
     void StateMachine::setInitialState( StateInterface* s )
