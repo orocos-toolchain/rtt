@@ -37,15 +37,17 @@ namespace ORO_CoreLib
         using ORO_OS::Semaphore;
 
         EventCatcher::EventCatcher(Semaphore* s)
-            : sem(s), enabled(false)
+            : mep(0), sem(s), enabled(false), refCount(0) // special trick !
         {}
 
-        EventCatcher::~EventCatcher() {}
-
-        boost::signals::connection EventCatcher::getConnection() const
-        {
-            return h;
+        EventCatcher::~EventCatcher() {
+            // notify EP that we were deleted :
+            if (mep)
+                mep->destroyed(this);
         }
+
+        void intrusive_ptr_add_ref( EventCatcher* p ) { ++p->refCount; }
+        void intrusive_ptr_release( EventCatcher* p ) { if ( --p->refCount == 0) delete p; }
 
     }
 
@@ -63,17 +65,29 @@ namespace ORO_CoreLib
     }
 
     EventProcessor::~EventProcessor() {
-        // TODO All slots are only deleted on destruction. Disconnected
-        // slots remain in the list. We could fix this by signal connection tracking
-        // and/or defining our own asyn connection object.
+        ORO_OS::MutexLock lock(m);
         for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            delete *it;
+            if (*it)
+                (*it)->mep = 0; // clear us out
+        catchers.clear();
+    }
+
+    void EventProcessor::destroyed( detail::EventCatcher* eci )
+    {
+        ORO_OS::MutexLock lock(m);
+        
+        List::iterator it = std::find(catchers.begin(), catchers.end(), eci );
+        if ( it != catchers.end() ) {
+            *it = 0;
+        }
     }
 
     bool EventProcessor::initialize() {
         active = true;
+        ORO_OS::MutexLock lock(m);
         for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            (*it)->enabled = true;
+            if (*it)
+                (*it)->enabled = true;
         return true;
     }
 
@@ -82,14 +96,17 @@ namespace ORO_CoreLib
             return;
         ORO_OS::MutexLock lock(m);
         for( List::iterator it = catchers.begin(); it != catchers.end(); ++it) {
-            (*it)->complete();
+            if (*it)
+                (*it)->complete();
         }
     }
 
     void EventProcessor::finalize() {
         active = false;
+        ORO_OS::MutexLock lock(m);
         for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            (*it)->enabled = false;
+            if (*it)
+                (*it)->enabled = false;
     }
 
     BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s )

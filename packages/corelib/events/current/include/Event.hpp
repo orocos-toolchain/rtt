@@ -21,7 +21,8 @@
 #define ORO_CORELIB_EVENT_HPP
 
 #include "os/fosi.h"
-#include <boost/signal.hpp>
+#include "Signal.hpp"
+#include "Handle.hpp"
 #include <boost/call_traits.hpp>
 #include "NameServerRegistrator.hpp"
 
@@ -31,99 +32,41 @@
 #include "EventProcessor.hpp"
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
-#include <assert.h>
+#include <cassert>
 
 namespace ORO_CoreLib
 {
 
-        /**
-         * @brief The Handle holds the information of a connection
-         * between an Event Handler function and the Event itself.
-         *
-         * It is returned by the connection() method of Event and can
-         * be used to disconnect a handler function from the event.
-         */
-        class Handle
-        {
-        public:
-            boost::signals::connection _c;
-            boost::signals::connection _c2;
-            ORO_OS::MutexRecursive* _mutex;
-            Handle( const boost::signals::connection & c,
-                    const boost::signals::connection & c2,
-                    ORO_OS::MutexRecursive& mutex) : _c(c), _c2(c2), _mutex(&mutex) {}
-            Handle( const boost::signals::connection & c, ORO_OS::MutexRecursive& mutex ) : _c(c), _c2(c), _mutex(&mutex){}
-            Handle( const Handle& h ) : _c(h._c), _c2(h._c2), _mutex(h._mutex) {}
-            Handle() : _mutex(0) {}
-
-            Handle& operator=(const Handle& h) {
-                _c = h._c;
-                _c2 = h._c2;
-                _mutex = h._mutex;
-                return *this;
-            }
-
-            bool operator==(const Handle& h) const {
-                return (_c == h._c) && (_c2 == h._c2);
-            }
-
-            bool operator<(const Handle& h) const {
-                return (_c < h._c) && (_c2 < h._c2);
-            }
-
-            bool connected() const {
-                return _c.connected() && _c2.connected();
-            }
-
-            void disconnect() {
-                if ( _mutex == 0 )
-                    return; // nothing to disconnect
-                    
-                ORO_OS::MutexLock lock(*_mutex); // can lock on fire(), unless it is self-removal.
-                _c.disconnect();
-                _c2.disconnect();
-            }
-        };
-
     /**
-     * The Orocos Event is a thread-safe wrapper around the boost::signal library
+     * The Orocos Event is a thread-safe wrapper around the signal class
      * and extends its connection syntax with asynchronous event handling.
      * @see The Orocos CoreLib manual for usage.
      */
     template<
         typename _Signature, // function type R (T1, T2, ..., TN)
-        typename Combiner = boost::last_value<typename boost::function_traits<_Signature>::result_type>,
-        typename Group = int,
-        typename GroupCompare = std::less<Group>,
         typename _SlotFunction = boost::function<_Signature>
     >
     class Event
-        : public boost::signal<_Signature, Combiner, Group, GroupCompare, _SlotFunction>,
+        : public sigslot::signal<_Signature, _SlotFunction>,
           private NameServerRegistrator<Event<_Signature,
-            Combiner,
-            Group,
-            GroupCompare,
-            _SlotFunction>*>
+                                              _SlotFunction>*>
     {
-        ORO_OS::MutexRecursive _mutex;
     public:
         /**
          * @see EventProcessor::AsynStorageType
          */
         typedef EventProcessor::AsynStorageType AsynStorageType;
 
-        typedef boost::signal<
+        typedef typename sigslot::signal<
             _Signature,
-            Combiner,
-            Group,
-            GroupCompare,
-            _SlotFunction> signal_type;
+            _SlotFunction>::base_type signal_type;
+
+        typedef typename sigslot::signal<
+            _Signature,
+            _SlotFunction> signal_base_type;
 
         typedef Event<
             _Signature,
-            Combiner,
-            Group,
-            GroupCompare,
             _SlotFunction> EventType;
 
         typedef _Signature Signature;
@@ -135,32 +78,33 @@ namespace ORO_CoreLib
          * Create a named Synchronous/Asynchronous Event.
          * @see boost::signals library
          */
-        explicit Event(const std::string name,
-                       const Combiner& combiner = Combiner(),
-                       const GroupCompare& group_compare = GroupCompare())
-            : signal_type(combiner, group_compare),
+        explicit Event(const std::string name )
+            : signal_base_type(),
               NameServerRegistrator<EventType*>(nameserver, name, this)
         {
             Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;
         }
 
         /**
-         * Create a Synchronous/Asynchrnous Event.
+         * Create a Synchronous/Asynchronous Event.
          * @see boost::signals library
          */
-        explicit Event(const Combiner& combiner = Combiner(),
-                       const GroupCompare& group_compare = GroupCompare()) :
-            signal_type(combiner, group_compare)
+        Event()
+            : signal_base_type()
         {
             Logger::log() << Logger::Debug << "Nameless Event Created." << Logger::endl;
         }
+
+        using signal_base_type::emit;
+        using signal_base_type::fire;
+        using signal_base_type::operator();
 
         /**
          * @brief Connect a synchronous event slot to this event.
          */
         Handle connect(const SlotFunction& f)
         {
-            return Handle(signal_type::connect( f ), _mutex);
+            return Handle( signal_type::connect( f ) );
         }
 
         /**
@@ -168,7 +112,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( task->getEventProcessor()->connect( l, *this, t ), _mutex );
+            return this->connect( l, task->getEventProcessor(), t );
         }
 
         /**
@@ -176,7 +120,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( ep->connect( l, *this, t ), _mutex );
+            return Handle( ep->connect( l, *this, t ) );
         }
 
         /**
@@ -184,7 +128,7 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( signal_type::connect( l ), task->getEventProcessor()->connect( c, *this, t ), _mutex );
+            return this->connect( l,c, task->getEventProcessor(), t );
         }
 
         /**
@@ -192,79 +136,53 @@ namespace ORO_CoreLib
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
-            return Handle( signal_type::connect( l ), ep->connect( c, *this, t ), _mutex );
+            return Handle( signal_type::connect( l ), ep->connect( c, *this, t ) );
         }
 
-        //! @name EventFire Event Fire methods
-        //! @{
         /**
-         * This method is the thread-safe equivalent to the operator() method
-         * of boost::signal. You must call the fire( \a Signature ) method corresponding to the
-         * parameter signature of your Event< \a Signature >. The return value can not be collected
-         * and is thus always \c void.
+         * @brief Setup a synchronous event slot to this event.
          */
-        void fire() {
-            ORO_OS::MutexLock lock( _mutex );
-            signal_type::operator()();
+        Handle setup(const SlotFunction& f)
+        {
+            return Handle( signal_type::setup( f ) );
         }
 
-        template<class A1>
-        void fire(A1 a1) {
-            ORO_OS::MutexLock lock( _mutex );
-            signal_type::operator()(a1);
+        /**
+         * @brief Setup an Asynchronous event slot to this event.
+         */
+        Handle setup( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return this->setup( l, task->getEventProcessor(), t );
         }
 
-        template<class A1, class A2>
-        void fire(A1 a1,
-                  A2 a2) {
-                      ORO_OS::MutexLock lock( _mutex );
-                      signal_type::operator()(a1, a2);
-                  }
+        /**
+         * @brief Setup an Asynchronous event slot to this event.
+         */
+        Handle setup( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return Handle( ep->setup( l, *this, t ) );
+        }
 
-        template<class A1, class A2, class A3>
-        void fire(A1 a1,
-                  A2 a2,
-                  A3 a3) {
-                      ORO_OS::MutexLock lock( _mutex );
-                      signal_type::operator()(a1, a2, a3);
-                  }
+        /**
+         * @brief Setup a Synchronous and Asynchronous event slot to this event.
+         */
+        Handle setup( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return this->setup( l,c, task->getEventProcessor(), t );
+        }
 
-        template<class A1, class A2, class A3, class A4>
-        void fire(A1 a1,
-                  A2 a2,
-                  A3 a3,
-                  A4 a4) {
-                      ORO_OS::MutexLock lock( _mutex );
-                      signal_type::operator()(a1, a2, a3, a4);
-                  }
-
-        template<class A1, class A2, class A3, class A4, class A5>
-        void fire(A1 a1,
-                  A2 a2,
-                  A3 a3,
-                  A4 a4,
-                  A5 a5) {
-                      ORO_OS::MutexLock lock( _mutex );
-                      signal_type::operator()(a1, a2, a3, a4, a5);
-                  }
-
-        template<class A1, class A2, class A3, class A4, class A5, class A6>
-        void fire(A1 a1,
-                  A2 a2,
-                  A3 a3,
-                  A4 a4,
-                  A5 a5,
-                  A6 a6) {
-                      ORO_OS::MutexLock lock( _mutex );
-                      signal_type::operator()(a1, a2, a3, a4, a5, a6);
-                  }
-
-        //! @}
-
-        // repeat for A7,A8,... + same in EventProcessor.hpp
+        /**
+         * @brief Setup a Synchronous and Asynchronous event slot to this event.
+         */
+        Handle setup( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        {
+            return Handle( signal_type::setup( l ), ep->setup( c, *this, t ) );
+        }
 
         /**
          * @brief Public nameserver for Events.
+         * @see also ORO_Execution::EventService for a 'type-less'/universal
+         * Event nameserver.
          */
         static NameServer<EventType*> nameserver;
     };
@@ -272,13 +190,10 @@ namespace ORO_CoreLib
 
     template<
         typename _Signature,
-        typename Combiner,
-        typename Group,
-        typename GroupCompare,
         typename _SlotFunction
     >
-    NameServer<Event< _Signature,Combiner, Group, GroupCompare, _SlotFunction>*>
-    Event<_Signature, Combiner, Group, GroupCompare, _SlotFunction>::nameserver;
+    NameServer<Event< _Signature, _SlotFunction>*>
+    Event<_Signature, _SlotFunction>::nameserver;
 
 }
 

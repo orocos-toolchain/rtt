@@ -148,11 +148,11 @@ namespace ORO_CoreLib
         bool operator==(const Handle& h) const;
 
         bool operator<(const Handle& h) const;
-#endif
 
         operator sigslot::handle() const {
             return _c;
         }
+#endif
 
         /**
          * Inspect if the connection(s) of this handle is connected

@@ -89,7 +89,6 @@ namespace sigslot {
 
 		void emit(OROCOS_SIGNAL_PARMS)
 		{
-			//lock_block<mt_policy> lock(this);
             ORO_OS::MutexLock lock(m);
             iterator it = mconnections.begin();
             const_iterator end = mconnections.end();

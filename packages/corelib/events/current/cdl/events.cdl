@@ -12,6 +12,8 @@ synchronous and asynchronous event handling."
     implements OROINT_CORELIB_EVENT_INTERFACE
 
     compile EventProcessor.cxx
+    compile signal_base.cxx
+    compile Handle.cxx
 
     cdl_option OROSEM_CORELIB_EVENTS_ASYN {
 	display "Enable asynchronous event completion."

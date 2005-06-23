@@ -30,8 +30,9 @@
 #define ORO_EVENTPROCESSOR_HPP
 
 #include <os/RunnableInterface.hpp>
-#include <boost/signal.hpp>
+#include "Signal.hpp"
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 #include <os/MutexLock.hpp>
 #include <os/Semaphore.hpp>
 #include <vector>
@@ -40,6 +41,8 @@
 
 namespace ORO_CoreLib
 {
+    class EventProcessor;
+
     namespace detail {
         using ORO_OS::Semaphore;
         using boost::make_tuple;
@@ -49,16 +52,21 @@ namespace ORO_CoreLib
             virtual ~EventCatcher();
             virtual void complete() = 0;
 
-            boost::signals::connection h;
-
-            boost::signals::connection getConnection() const;
-
+            EventProcessor* mep;
             // optionally signal this semaphore in non blocking mode
             Semaphore* sem;
             // if the catcher is not enabled ( EventProcessor not running)
             // do not accept 'work'
             bool enabled;
+
+            int refCount;
+
+            typedef boost::intrusive_ptr< EventCatcher > shared_ptr;
+            
         };
+
+        void intrusive_ptr_add_ref( EventCatcher* p );
+        void intrusive_ptr_release( EventCatcher* p );
 
         using boost::tuples::get;
 
@@ -72,6 +80,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<0, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<0, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -81,15 +90,11 @@ namespace ORO_CoreLib
             EventCatcherImpl(const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_), work(false)
             {
-                // What happens if a h.disconnect() or this connect occurs when the
-                // event is fired ? This will probably lead to corruption,
-                // since boost::signal is not thread-safe in itself. We
-                // do wrap h in a handle object which could block during fire if
-                // Handle had a pointer to Event...
-
-                // Call the underlying connect of Event (to avoid recursion!) :
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<0, SignalType, ContainerType>::handler,
-                                                                       this) );
+            }
+            
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<0, SignalType, ContainerType>::handler,
+                                                                        shared_ptr(this)) );
             }
 
             Result handler( void ) {
@@ -111,18 +116,20 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<1, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<1, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
             typename ContainerType::template Data<typename Function::arg1_type> _a1;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
             {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<1, SignalType, ContainerType>::handler,
-                                                                       this, _1) );
+            }
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<1, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1) );
             }
 
             Result handler( typename Function::arg1_type a1 ) {
@@ -205,6 +212,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<2, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<2, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -212,13 +220,13 @@ namespace ORO_CoreLib
                                  typename Function::arg2_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
-            {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
-                                                                       this, _1, _2) );
+            {}
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1, _2) );
             }
 
             Result handler( typename Function::arg1_type a1,
@@ -243,6 +251,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<3, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<3, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -251,13 +260,14 @@ namespace ORO_CoreLib
                                  typename Function::arg3_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
-            {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<3, SignalType, ContainerType>::handler,
-                                                                       this, _1, _2, _3) );
+            {}
+
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<3, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1, _2, _3) );
             }
 
             Result handler( typename Function::arg1_type a1,
@@ -283,6 +293,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<4, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<4, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -296,13 +307,14 @@ namespace ORO_CoreLib
                                  typename Function::arg4_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
             {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<4, SignalType, ContainerType>::handler,
-                                                                       this, _1, _2, _3, _4) );
+            }
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<4, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1, _2, _3, _4) );
             }
 
             Result handler( typename Function::arg1_type a1,
@@ -329,6 +341,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<5, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<5, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -344,13 +357,15 @@ namespace ORO_CoreLib
                                  typename Function::arg5_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
             {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<5, SignalType, ContainerType>::handler,
-                                                                       this, _1, _2, _3, _4, _5) );
+            }
+
+            sigslot::handle setup( SignalType& sig ) {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<5, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1, _2, _3, _4, _5) );
             }
 
             Result handler( typename Function::arg1_type a1,
@@ -378,6 +393,7 @@ namespace ORO_CoreLib
         struct EventCatcherImpl<6, SignalType, ContainerType>
             : public EventCatcher
         {
+            typedef boost::intrusive_ptr< EventCatcherImpl<6, SignalType, ContainerType> > shared_ptr;
             typedef typename SignalType::SlotFunction Function;
             typedef typename Function::result_type Result;
 
@@ -389,13 +405,16 @@ namespace ORO_CoreLib
                                  typename Function::arg6_type> Args;
             typename ContainerType::template Data< Args > args;
             Function f;
-            
 
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
             {
-                h = sig.SignalType::signal_type::connect( boost::bind( &EventCatcherImpl<6, SignalType, ContainerType>::handler,
-                                                                       this, _1, _2, _3, _4, _5, _6) );
+            }
+
+            sigslot::handle setup( SignalType& sig )
+            {
+                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<6, SignalType, ContainerType>::handler,
+                                               shared_ptr(this), _1, _2, _3, _4, _5, _6) );
             }
 
             Result handler( typename Function::arg1_type a1,
@@ -434,15 +453,22 @@ namespace ORO_CoreLib
         : public ORO_OS::RunnableInterface
     {
     protected:
+        /**
+         * The EC is released when the connection it is used in is
+         * deleted *and* it is removed from this vector.
+         */
         typedef std::vector<detail::EventCatcher*> List;
         List catchers;
-        ORO_OS::Mutex m;
+        mutable ORO_OS::MutexRecursive m;
         boost::shared_ptr<ORO_OS::Semaphore> sem;
         bool active;
         /**
          *  Used by derived classes.
          */
         EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s);
+
+        friend class detail::EventCatcher;
+        void destroyed( detail::EventCatcher* ec );
 
     public:
         /**
@@ -470,27 +496,50 @@ namespace ORO_CoreLib
             OnlyLast   /** < Only call the callback once with the last fire() call's arguments */
         };
 
+        /**
+         * Connect a function to a signal and process upon each event the function in this
+         * event processor.
+         */
         template<class SignalType>
-        boost::signals::connection connect(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
+        sigslot::handle connect(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
         {
-            detail::EventCatcher* eci;
+            sigslot::handle h = this->setup( f, sig, t);
+            h.connect();
+            return h;
+        }
+
+        template<class SignalType>
+        sigslot::handle setup(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
+        {
+            detail::EventCatcher::shared_ptr eci;
+            sigslot::handle h;
             switch ( t ) {
             case OnlyFirst:
-                // Use function arity to select implementation :
-                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem.get());
-                eci->enabled = this->active;
+                {
+                    // Use function arity to select implementation :
+                    typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>::shared_ptr ecf
+                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem.get()));
+                    h = ecf->setup( sig );
+                    eci = ecf;
+                }
                 break;
             case OnlyLast:
-                // Use function arity to select implementation :
-                eci = new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem.get());
-                eci->enabled = this->active;
+                {
+                    // Use function arity to select implementation :
+                    typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>::shared_ptr ecl
+                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem.get()));
+                    h = ecl->setup( sig );
+                    eci = ecl;
+                }
                 break;
             }
             {
                 ORO_OS::MutexLock lock(m);
-                catchers.push_back( eci );
+                catchers.push_back( eci.get() );
             }
-            return eci->getConnection();
+            eci->enabled = this->active;
+            eci->mep = this;
+            return h;
         }
 
     };
