@@ -140,7 +140,7 @@ namespace ORO_DeviceDriver
   
         /** 
          * @brief Add a counter to the Axis (position, turns,...).
-	 * The SensorInterface object is aggregated.
+         * The SensorInterface object is aggregated.
          * is aggregated.
          * 
          * @param name The name of the counter.
