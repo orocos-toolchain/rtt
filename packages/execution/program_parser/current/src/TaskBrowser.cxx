@@ -1284,6 +1284,8 @@ namespace ORO_Execution
         string line;
         while ( curln != start ) { // consume lines
             getline( txtss, line, '\n' );
+            if ( ! txtss )
+                break; // no more lines, break.
             ++curln;
         }
         while ( curln != end ) { // print lines
