@@ -31,6 +31,7 @@
 
 #include "Factories.hpp"
 #include "AttributeRepository.hpp"
+#include "EventService.hpp"
 
 #include <string>
 #include <map>
@@ -171,7 +172,12 @@ namespace ORO_Execution
         /**
          * The task-local values ( attributes ) of this TaskContext.
          */
-        AttributeRepository         attributeRepository;
+        AttributeRepository     attributeRepository;
+
+        /**
+         * The task-local events ( 'signals' ) of this TaskContext.
+         */
+        EventService            eventService;
     };
 }
 
