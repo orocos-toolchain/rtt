@@ -4,13 +4,13 @@ SUBDIRS = .
 
 #global includes
 INCLUDES = -I$(top_builddir)/packages/install/include $(TARGET_FLAGS)
-LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread $(TARGET_LIBS)
+LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthread $(TARGET_LIBS)
 AM_CXXFLAGS= $(CPPUNIT_CFLAGS) -g 
 AM_CPPFLAGS=-D_REENTRANT
 
 # Rules for the test code (use `make check` to execute)
 if DOTESTS
-TESTS = core-test task-test parser-test program-test state-test
+TESTS = core-test task-test event-test parser-test program-test state-test
 else
 TESTS = 
 endif
@@ -23,7 +23,7 @@ PROFTESTS =
 endif
 
 check_PROGRAMS = $(TESTS) $(PROFTESTS)
-EXTRA_PROGRAMS = core-test parser-test program-test state-test event-prof tasks-prof mtasks-prof buffers-prof \
+EXTRA_PROGRAMS = core-test event-test parser-test program-test state-test event-prof tasks-prof mtasks-prof buffers-prof \
 	state-prof dispatch-prof function-prof types-prof program-prof task-test
 
 #LD_ADDS= $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread -L/usr/realtime/lib
@@ -32,7 +32,6 @@ EXTRA_PROGRAMS = core-test parser-test program-test state-test event-prof tasks-
 core_test_SOURCES = test-runner.cpp \
 	time_test.cpp time_test.hpp \
 	property_test.cpp property_test.hpp \
-	event_test.cpp event_test.hpp \
 	buffers_test.cpp buffers_test.hpp \
 	logger_test.cpp logger_test.hpp
 
@@ -40,6 +39,11 @@ task_test_SOURCES = test-runner.cpp \
 	tasks_test.cpp tasks_test.hpp \
 	taskthread_test.cpp taskthread_test.hpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp
+
+event_test_SOURCES = test-runner.cpp \
+	eventservice_test.cpp eventservice_test.hpp \
+	event_test.cpp event_test.hpp
+
 
 #core_test_LDADD = $(LD_ADDS)
 #core_test_CXXFLAGS = $(CXX_FLAGS)

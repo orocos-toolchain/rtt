@@ -28,6 +28,7 @@
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
+#include <boost/scoped_ptr.hpp>
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
@@ -286,6 +287,71 @@ void EventTest::testCompletionProcessor()
     // both must be called.
     CPPUNIT_ASSERT( t_listener_value );
     CPPUNIT_ASSERT( t_completer_value );
+}
+
+void EventTest::testRTEvent()
+{
+    reset();
+    event_proc->initialize();
+    Handle hl( t_event->setup( boost::bind(&EventTest::listener,this) ) );
+    Handle hc( t_event->setup( boost::bind(&EventTest::completer,this), event_proc ) );
+    Handle hlc( t_event->setup( boost::bind(&EventTest::listener,this),
+                                boost::bind(&EventTest::completer,this), event_proc ) );
+    CPPUNIT_ASSERT( !hl.connected() );
+    CPPUNIT_ASSERT( !hc.connected() );
+    CPPUNIT_ASSERT( !hlc.connected() );
+
+    hl.connect();
+    hc.connect();
+    CPPUNIT_ASSERT( hl.connected() );
+    CPPUNIT_ASSERT( hc.connected() );
+
+    t_event->fire();
+    
+
+    hl.disconnect();
+    CPPUNIT_ASSERT( !hl.connected() );
+    CPPUNIT_ASSERT( t_listener_value );
+    CPPUNIT_ASSERT( !t_completer_value );
+
+    event_proc->step();
+    CPPUNIT_ASSERT( t_completer_value );
+    hc.disconnect();
+    CPPUNIT_ASSERT( !hc.connected() );
+
+    reset();
+    t_event->fire();
+    event_proc->step();
+
+    CPPUNIT_ASSERT( t_completer_value == false );
+    CPPUNIT_ASSERT( t_listener_value == false );
+
+    hl.connect();
+    hc.connect();
+    t_event->fire();
+
+    hl.disconnect();
+    CPPUNIT_ASSERT( !hl.connected() );
+    CPPUNIT_ASSERT( t_listener_value == true );
+    CPPUNIT_ASSERT( t_completer_value == false );
+
+    event_proc->step();
+    hc.disconnect();
+    CPPUNIT_ASSERT( !hc.connected() );
+    CPPUNIT_ASSERT( t_completer_value == true );
+
+    reset();
+    hlc.connect();
+    CPPUNIT_ASSERT( hlc.connected() );
+    t_event->fire();
+    CPPUNIT_ASSERT( t_listener_value == true );
+    CPPUNIT_ASSERT( t_completer_value == false );
+
+    event_proc->step();
+    hlc.disconnect();
+    CPPUNIT_ASSERT( !hlc.connected() );
+    CPPUNIT_ASSERT( t_completer_value == true );
+
 }
 
     

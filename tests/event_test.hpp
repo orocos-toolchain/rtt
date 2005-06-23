@@ -35,6 +35,7 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testTask );
     CPPUNIT_TEST( testBlockingTask );
     CPPUNIT_TEST( testEventArgs );
+    CPPUNIT_TEST( testRTEvent );
     CPPUNIT_TEST_SUITE_END();
 
     ORO_CoreLib::Event<void( void )>* t_event;
@@ -67,6 +68,8 @@ public:
     void testTask();
     void testBlockingTask();
     void testEventArgs();
+    void testRTEvent();
 };
+
 
 #endif  // EVENTTEST_H
