@@ -65,7 +65,7 @@ namespace ORO_DeviceInterface
             {}
 
             /**
-             * Create a nameserved AnalogInInterface. When <name> is not "" and
+             * Create a nameserved AnalogInInterface. When \a name is not "" and
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
             AnalogInInterface( const std::string& name )
@@ -98,7 +98,7 @@ namespace ORO_DeviceInterface
 				 unsigned int aref) = 0;
 
             /**
-             * Read <value> from channel <chan>
+             * Read \a value from channel \a chan
              */
             virtual void read( unsigned int chan, T& value ) const = 0;
 

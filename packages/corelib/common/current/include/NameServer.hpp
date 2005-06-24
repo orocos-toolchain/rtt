@@ -101,7 +101,7 @@ namespace ORO_CoreLib
          *
          * @param s the name to check
          *
-         * @return true if <s> is registered, false otherwise
+         * @return true if \a s is registered, false otherwise
          */
         bool isNameRegistered( const NameType& s ) const
         {
@@ -113,7 +113,7 @@ namespace ORO_CoreLib
          *
          * @param o the object to check
          *
-         * @return true if <o> is registered, false otherwise
+         * @return true if \a o is registered, false otherwise
          */
         bool isObjectRegistered( const ValueType o ) const
         {

@@ -170,7 +170,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Find the PropertyBase with name <name>.
+         * Find the PropertyBase with name \a name.
          *
          * @param  name The name of the property to search for.
          * @return The PropertyBase with this name, zero
@@ -226,7 +226,7 @@ namespace ORO_CoreLib
      * @param bag The bag to look for a Property.
      * @param nameSequence A sequence of names, separated by
      *        a double colon indicating the path in the bag to a property,
-     *        omitting the name of the <bag> itself.
+     *        omitting the name of the \a bag itself.
      */
     PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator = std::string("::") );
 
@@ -284,8 +284,8 @@ namespace ORO_CoreLib
      * The names of the Propety objects of the included bags are
      * placed in this bag with the included bag's name prefixed. If the Property object
      * in that bag is also a bag, the same operation is performed recursively.
-     * So any bag in <target> will show up at the
-     * root of <target> with the path prefixed.
+     * So any bag in \a target will show up at the
+     * root of \a target with the path prefixed.
      */
     void flattenPropertyBag(PropertyBag& target, const std::string& separator="::");
 

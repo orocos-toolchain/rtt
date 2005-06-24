@@ -98,8 +98,8 @@ namespace ORO_CoreLib
         /**
          * Get clicks passed since a certain moment
          * 
-         * @return ticks passed since <relativeTime> unless <relativeTime>
-         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         * @return ticks passed since \a relativeTime unless \a relativeTime
+         *         is zero, then sets \a relativeTime = timeGet() and returns zero
          * @deprecated by getTicks()
          */
         ticks ticksGet( ticks &relativeTime ) const { return getTicks( relativeTime ); }
@@ -107,16 +107,16 @@ namespace ORO_CoreLib
         /**
          * Get clicks passed since a certain moment
          * 
-         * @return ticks passed since <relativeTime> unless <relativeTime>
-         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         * @return ticks passed since \a relativeTime unless \a relativeTime
+         *         is zero, then sets \a relativeTime = timeGet() and returns zero
          */
         ticks getTicks( ticks &relativeTime ) const;
 
         /**
          * Get clicks passed since a certain moment.
-         * If <relativeTime> is zero, the absolute system time is given.
+         * If \a relativeTime is zero, the absolute system time is given.
          * 
-         * @return ticks passed since <relativeTime>.
+         * @return ticks passed since \a relativeTime.
          */
         ticks ticksSince( ticks relativeTime ) const;
 
@@ -125,8 +125,8 @@ namespace ORO_CoreLib
          * 
          * @realtime
          * @runtime
-         * @return seconds passed since <relativeTime> unless <relativeTime>
-         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         * @return seconds passed since \a relativeTime unless \a relativeTime
+         *         is zero, then sets \a relativeTime = timeGet() and returns zero
          * @deprecated by getSeconds()
          */
         Seconds secondsGet( ticks &relativeTime ) const { return getSeconds(relativeTime); }
@@ -136,16 +136,16 @@ namespace ORO_CoreLib
          * 
          * @realtime
          * @runtime
-         * @return seconds passed since <relativeTime> unless <relativeTime>
-         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         * @return seconds passed since \a relativeTime unless \a relativeTime
+         *         is zero, then sets \a relativeTime = timeGet() and returns zero
          */
         Seconds getSeconds( ticks &relativeTime ) const;
 
         /**
          * Get Seconds passed since a certain moment.
-         * If <relativeTime> is zero, the absolute syteme time is given.
+         * If \a relativeTime is zero, the absolute syteme time is given.
          * 
-         * @return Seconds passed since <relativeTime>.
+         * @return Seconds passed since \a relativeTime.
          */
         Seconds secondsSince( ticks relativeTime ) const;
 
@@ -172,8 +172,8 @@ namespace ORO_CoreLib
         /**
          * Get nsecs passed since a certain moment
          * 
-         * @return nsecs passed since <relativeTime> unless <relativeTime>
-         *         is zero, then sets <relativeTime> = timeGet() and returns zero
+         * @return nsecs passed since \a relativeTime unless \a relativeTime
+         *         is zero, then sets \a relativeTime = timeGet() and returns zero
          */
         nsecs getNSecs( nsecs &relativeTime ) const;
 

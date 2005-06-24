@@ -68,7 +68,7 @@ namespace ORO_OS
         public:
 
             /**
-             * Locks the <lock> object.
+             * Locks the \a lock object.
              */
 
             SpinLocker( spinlock_t &lock )

@@ -100,8 +100,8 @@ namespace ORO_DeviceInterface
              *
              * @param start_bit The first bit to check.
              * @param stop_bit  The last bit (inclusive) to check.
-             * @return a bit pattern denoting the bit status from <start_bit> to <stop_bit>
-             *         where bit zero equals the value of <start_bit>.
+             * @return a bit pattern denoting the bit status from \a start_bit to \a stop_bit
+             *         where bit zero equals the value of \a start_bit.
              */
             virtual unsigned int readSequence(unsigned int start_bit, unsigned int stop_bit) const = 0;
             

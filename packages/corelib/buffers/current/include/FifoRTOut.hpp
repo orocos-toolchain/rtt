@@ -45,8 +45,8 @@ namespace ORO_CoreLib
     {
         public:
             /**
-             * Create an output fifo with a size of <bytes> bytes,
-             * associated with fifo-number <fifoNr>.
+             * Create an output fifo with a size of \a bytes bytes,
+             * associated with fifo-number \a fifoNr.
              * When deleted, it will destroy the fifo
              *
              * @post when there already existed a fifo with nr fifoNr before
@@ -56,7 +56,7 @@ namespace ORO_CoreLib
 
             /**
              * Wrap an output fifo around an already created rtosf
-             * (associated with fifo-number <fifoNr>).
+             * (associated with fifo-number \a fifoNr).
              * When this object is deleted, it won't destroy the fifo.
              */
             FifoRTOut( unsigned int fifoNr );

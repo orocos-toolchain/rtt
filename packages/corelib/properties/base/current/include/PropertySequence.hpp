@@ -151,7 +151,7 @@ namespace ORO_CoreLib
             }
 
             /**
-             * Find the PropertyBase with name <name>.
+             * Find the PropertyBase with name \a name.
              *
              * @param  name The name of the property to search for.
              * @return The PropertyBase with this name, zero

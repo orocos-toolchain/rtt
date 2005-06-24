@@ -57,7 +57,7 @@ namespace CAN
   {
   public:
     /**
-     * Create a CANPie Controller on channel <channel> and
+     * Create a CANPie Controller on channel \a channel and
      * indicate if received messages are put on the bus with
      * an interrupt or if they are polled.
      */

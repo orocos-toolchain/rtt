@@ -77,7 +77,7 @@ namespace Beckhoff
         { return binaryRange() / 20.; }
              
         /**
-         * Returns the value of a channel <chan>.
+         * Returns the value of a channel \a chan.
          */
         unsigned int value(unsigned int chan)
         {

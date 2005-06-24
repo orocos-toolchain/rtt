@@ -48,7 +48,7 @@ namespace ORO_CoreLib
     {
     public:
         /**
-         * Construct a PriorityTask with a periodicity <period>
+         * Construct a PriorityTask with a periodicity \a period
          * Seconds
          */
         PriorityTask(Seconds period, RunnableInterface* r=0, bool private_event_processor = false )
@@ -58,7 +58,7 @@ namespace ORO_CoreLib
 
         /**
          * Construct a PriorityTask with a periodicity of
-         * <s> seconds and <ns> nanoseconds
+         * \a s seconds and \a ns nanoseconds
          */
         PriorityTask(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false )
             :PeriodicTask(s, ns, PriorityThread<Priority>::Instance(), r, private_event_processor)

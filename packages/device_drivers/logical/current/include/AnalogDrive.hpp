@@ -56,7 +56,7 @@ namespace ORO_DeviceDriver
     public:
         /**
          * Construct an Analog Drive object and aggregate
-         * <an_out> and <dig_out>. The voltage sent to the AnalogOutput
+         * \a an_out and \a dig_out. The voltage sent to the AnalogOutput
          * is calculated as :
          * @verbatim
          * volt = (setpoint + offset)/scale

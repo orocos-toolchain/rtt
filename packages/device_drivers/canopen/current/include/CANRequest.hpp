@@ -146,7 +146,7 @@ namespace CAN
         }
 
         /**
-         * Returns true if databyte <pos> matches the expected value.
+         * Returns true if databyte \a pos matches the expected value.
          */
         bool matchDataByte(unsigned int pos) const
         {
@@ -156,8 +156,8 @@ namespace CAN
         }
 
         /**
-         * Returns true if databytes <start> to <end> matches the expected value.
-         * <start> and <end> should be numbers from 0 to 7,  denoting the byte
+         * Returns true if databytes \a start to \a end matches the expected value.
+         * \a start and \a end should be numbers from 0 to 7,  denoting the byte
          * positions.
          */
         bool matchDataByte(unsigned int start, unsigned int end) const

@@ -36,8 +36,8 @@ using namespace std;
  * 
  * @param s
  *    string to be converted
- * @return the integer value of <s>
- * @return 0 when faulty <s> found
+ * @return the integer value of \a s
+ * @return 0 when faulty \a s found
  */
 int string_to_int( const string& s )
 {

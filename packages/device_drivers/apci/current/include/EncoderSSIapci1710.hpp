@@ -47,9 +47,9 @@ namespace ORO_DeviceDriver
  * 
  *
  * unsigned int read( unsigned int encNr ) returns the encoder ticks
- * of encoder <encNr>.
+ * of encoder \a encNr.
  * 
- * Since there are 3 encoders pro SSI module, <encNr> is:
+ * Since there are 3 encoders pro SSI module, \a encNr is:
  *      1,  2 or  3 for the encoders of module <mNr1>;
  *
  * and, if available:
@@ -110,8 +110,8 @@ protected:
  * on an apci1710 board.
  *
  * 
- * Its encoder number <encNr> should be 1 to 3 * <nrSSI>, with
- * <nrSSI> the number of modules on the apci1710 that are
+ * Its encoder number \a encNr should be 1 to 3 * \a nrSSI, with
+ * \a nrSSI the number of modules on the apci1710 that are
  * configured for SSI.
  *
  * @TODO: positionSet()

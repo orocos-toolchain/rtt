@@ -138,7 +138,7 @@ namespace ORO_ControlKernel
         typedef GenericInput InputDataObject;
             
         /**
-         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelValues" and
+         * @brief Create a Sensor with maximum \a max_chan virtual channels in "ChannelValues" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
         GenericSensor( int max_chan = 32, const std::string& name="GenericSensor") 

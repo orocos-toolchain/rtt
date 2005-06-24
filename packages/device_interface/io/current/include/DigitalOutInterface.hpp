@@ -49,7 +49,7 @@ namespace ORO_DeviceInterface
         public:
             /**
              * Create a DigitalOutInterface with an optional name.
-             * When <name> is not "", and unique, it can be retrieved
+             * When \a name is not "", and unique, it can be retrieved
              * through DigitalOutInterface::nameserver .
              */
             DigitalOutInterface( const std::string& name )
@@ -86,24 +86,24 @@ namespace ORO_DeviceInterface
             virtual void switchOff( unsigned int n ) = 0;
 
             /**
-             * Sets the n'th output to <value>.
+             * Sets the n'th output to \a value
              */
             virtual void setBit( unsigned int bit, bool value ) = 0;
                 
             /**
-             * Sets a sequence of bits to pattern <value> between <start_bit> and <stop_bit> inclusive.
+             * Sets a sequence of bits to pattern \a value between \a start_bit and \a stop_bit inclusive.
              * For example, setSequence(3, 3, 1) is equivalent to setBit(3, 1).
              */
             virtual void setSequence(unsigned int start_bit, unsigned int stop_bit, unsigned int value) = 0;
 
             /**
-             * Returns the status of bit <n>, starting from zero.
+             * Returns the status of bit \a n, starting from zero.
              * @return true if the bit is 1, false otherwise.
              */
             virtual bool checkBit(unsigned int n) const = 0;
 
             /**
-             * Returns the sequence of bits between <start_bit> and <stop_bit> inclusive,
+             * Returns the sequence of bits between \a start_bit and \a stop_bit inclusive,
              * where start_bit occurs at position zero in the returned result.
              */
             virtual unsigned int checkSequence( unsigned int start_bit, unsigned int stop_bit ) const = 0;

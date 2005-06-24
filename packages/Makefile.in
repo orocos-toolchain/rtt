@@ -2,8 +2,8 @@
 .PHONY: db clean orocos-dist doc-dist html-dist doc-dist-clean doxy-dist etags
 
 etags:
-	-etags $$(find . -name *.hpp -o -name *.cxx -o -name *.h -o -name *.c )
-	-ebrowse $$(find . -name *.hpp -o -name *.cxx -o -name *.h -o -name *.c )
+	-etags $$(find . -name "*.hpp" -o -name *.cxx -o -name "*.h" -o -name *.c )
+	-ebrowse $$(find . -name "*.hpp" -o -name *.cxx -o -name "*.h" -o -name *.c )
 
 db: configure
 	@find support -name "*.cdl" | xargs rm -f

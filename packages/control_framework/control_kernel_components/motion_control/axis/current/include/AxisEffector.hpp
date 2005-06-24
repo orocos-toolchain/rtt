@@ -108,13 +108,13 @@ namespace ORO_ControlKernel
          * @brief Add an Axis object with a name and create a Drive Velocity Output and a
          * Drive Enable Output
          *
-         * A DigitalOutput is created with name "<name>.Drive" representing
+         * A DigitalOutput is created with name "\a name.Drive" representing
          * the Drive enable.
          *
-         * A DigitalOutput is created with name "<name>.Break" representing
+         * A DigitalOutput is created with name "\a name.Break" representing
          * the Drive mechanical break.
          *
-         * A Drive Output is created with name "<name>.Velocity" representing
+         * A Drive Output is created with name "\a name.Velocity" representing
          * the Drive velocity.
          */
         bool addAxis( const std::string& name, Axis* ax );
@@ -122,10 +122,10 @@ namespace ORO_ControlKernel
         /**
          * @brief Add an Axis object with a name on a Channel
          *
-         * A DigitalOutput is created with name "<name>.Drive" representing
+         * A DigitalOutput is created with name "\a name.Drive" representing
          * the Drive enable.
          *
-         * A Channel is added representing the Drive velocity on channel <virt_channel>.
+         * A Channel is added representing the Drive velocity on channel \a virt_channel.
          */
         bool addAxisOnChannel( const std::string& name, int virt_channel );
 

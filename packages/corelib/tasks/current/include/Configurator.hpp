@@ -58,7 +58,7 @@ namespace ORO_CoreLib
         
         /**
          * Creates a Configurator with configuration
-         * period of <period>.
+         * period of \a period.
          *
          * @param period The period between each configuration step.
          */

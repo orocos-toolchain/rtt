@@ -56,7 +56,7 @@ namespace ORO_DeviceInterface
         /**
          * @brief Create a EncoderInterface with a name.
          *
-         * When <name> is not "", and unique, it can be retrieved
+         * When \a name is not "", and unique, it can be retrieved
          * through EncoderInterface::nameserver .
          */
         EncoderInterface( const std::string& name )

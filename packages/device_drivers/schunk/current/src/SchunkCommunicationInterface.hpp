@@ -38,7 +38,7 @@ namespace ORO_DeviceDriver
 
         public:
             /**
-             * Sends <count> bytes from <buf> to the output stream.
+             * Sends \a count bytes from \a buf to the output stream.
              * Always flush the inputbuffer before you send. That
              * way you are sure of the position of the answer of the
              * controller in the buffer.
@@ -53,7 +53,7 @@ namespace ORO_DeviceDriver
             virtual int flushInput() = 0;
 
             /**
-             * Reads <count> bytes from the input buffer.
+             * Reads \a count bytes from the input buffer.
              * This must be a blocking read that returns all requested 
              * bytes.
              * @return the number of bytes actually read

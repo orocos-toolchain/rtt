@@ -42,7 +42,7 @@ namespace ORO_CoreLib
     {
         public:
             /**
-             * Create a buffer of size <length>.
+             * Create a buffer of size \a length.
              */
             BufferSimple( size_t size );
 
@@ -52,7 +52,7 @@ namespace ORO_CoreLib
             ~BufferSimple();
 
             /**
-             * Write <length> bytes of buffer.
+             * Write \a length bytes of buffer.
              * The next read will receive the bytes from buffer.
              * All data pending to be read will be overwritten.
              * If the length specified is larger than the capacity of
@@ -61,7 +61,7 @@ namespace ORO_CoreLib
             int write( const char* buffer, size_t length );
 
             /**
-             * Read <length> bytes of buffer.
+             * Read \a length bytes of buffer.
              * Only the number of bytes from the last write will be read.
              * If length is smaller than the current data stored, 
              * the remaining data is lost.

@@ -48,13 +48,13 @@ namespace ORO_CoreLib
     {
     public:
         /**
-         * Construct a TaskSimulation with a periodicity <period>
+         * Construct a TaskSimulation with a periodicity \a period
          * Seconds
          */
         TaskSimulation(Seconds period, RunnableInterface* r=0 );
         /**
          * Construct a TaskSimulation with a periodicity of
-         * <s> seconds and <ns> nanoseconds
+         * \a s seconds and \a ns nanoseconds
          */
         TaskSimulation(secs s, nsecs ns, RunnableInterface* r=0 );
 

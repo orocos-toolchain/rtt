@@ -46,14 +46,14 @@ namespace ORO_CoreLib
     {
     public:
         /**
-         * Construct a TaskNonPreemptible with a periodicity <period>
+         * Construct a TaskNonPreemptible with a periodicity \a period
          * Seconds
          */
         TaskNonPreemptible(Seconds period, RunnableInterface* r=0, bool private_event_processor = false );
 
         /**
          * Construct a TaskNonPreemptible with a periodicity of
-         * <s> seconds and <ns> nanoseconds
+         * \a s seconds and \a ns nanoseconds
          */
         TaskNonPreemptible(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false );
 

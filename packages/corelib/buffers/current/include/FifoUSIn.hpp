@@ -53,7 +53,7 @@ namespace ORO_CoreLib
 
             /**
              * Wrap an input fifo around an already created rtosf
-             * (associated with fifo-number <fifoNr>).
+             * (associated with fifo-number \a fifoNr).
              * When this object is deleted, it won't destroy the fifo.
              */
             FifoUSIn( unsigned int fNr );

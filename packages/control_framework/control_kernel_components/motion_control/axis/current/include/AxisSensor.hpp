@@ -120,7 +120,7 @@ namespace ORO_ControlKernel
         typedef std::vector<double> ChannelType;
 
         /**
-         * @brief Create a Sensor with maximum <max_chan> virtual channels in "ChannelMeasurements" and
+         * @brief Create a Sensor with maximum \a max_chan virtual channels in "ChannelMeasurements" and
          * an unlimited number of DataObjects representing analog/digital channels
          */
         AxisSensor( int max_chan = 1 , const std::string& name = "AxisSensor" );

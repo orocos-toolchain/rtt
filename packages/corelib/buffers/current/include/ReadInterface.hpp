@@ -41,12 +41,12 @@ namespace ORO_CoreLib
         typedef unsigned int size_t;
     public:
         /**
-         * Read <length> bytes into <buf>.
+         * Read \a length bytes into \a buf.
          *
-         * @param <buf> the buffer where the bytes needs to be written.
+         * @param buf the buffer where the bytes needs to be written.
          *              This must garantee to have at least a capacity of
-         *              <length> bytes.
-         * @param <length> the number of bytes to be read
+         *              \a length bytes.
+         * @param length the number of bytes to be read
          *
          * @return -1 on failure,
          *         the number of bytes read on success

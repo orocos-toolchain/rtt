@@ -59,7 +59,7 @@ namespace ORO_CoreLib
     public:
         /**
          * Creates an TaskTimerSequencer which will have step() all tasks after
-         * <average_period> / <trigger_period> times it is ticked.
+         * \a average_period / \a trigger_period times it is ticked.
          *
          * @param average_period The Average time between step()'ing each
          *        registered listener.
@@ -70,11 +70,11 @@ namespace ORO_CoreLib
 
         /**
          * Creates an TaskTimerSequencer which will have step()'ed each task
-         * after tick() was called <divider> times.
+         * after tick() was called \a divider times.
          *
          * @param divider The average number of times tick() is called before
          *        each task is step()'ed. ( So N Tasks will all be 
-         *        step()'ed after tick() was called <divider> times. )
+         *        step()'ed after tick() was called \a divider times. )
          */
         TaskTimerSequencer( unsigned int divider );
 

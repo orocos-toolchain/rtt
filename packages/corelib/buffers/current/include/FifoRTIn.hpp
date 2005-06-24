@@ -48,8 +48,8 @@ namespace ORO_CoreLib
 
         public:
             /**
-             * Create an input fifo with a size of <bytes> bytes and
-             * associated with fifo-number <fifoNr>.
+             * Create an input fifo with a size of \a bytes bytes and
+             * associated with fifo-number \a fifoNr.
             * When deleted, it will destroy the fifo
             *
             * @post  when there already existed a fifo with nr fifoNr before
@@ -59,7 +59,7 @@ namespace ORO_CoreLib
 
             /**
              * Wrap an input fifo around an already created rtosf 
-             * (associated with fifo-number <fifoNr>).
+             * (associated with fifo-number \a fifoNr).
              * When this object is deleted, it won't destroy the fifo.
              */
             FifoRTIn( unsigned int fifoNr );

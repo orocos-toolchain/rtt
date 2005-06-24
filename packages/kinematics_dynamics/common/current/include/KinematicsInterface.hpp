@@ -61,7 +61,7 @@ namespace ORO_KinDyn
              * @param q
              *        The joint positions for which the Jacobian has to be calculated
              * @param J
-             *        The resulting Jacobian for jointpositions <q>
+             *        The resulting Jacobian for jointpositions \a q
              * @param s
              *        The detected singularities of q
              * @return true if the the result could be calculated, false otherwise
@@ -74,7 +74,7 @@ namespace ORO_KinDyn
              * @param q
              *        The joint positions for which the inverse Jacobian has to be calculated
              * @param J
-             *        The resulting inverse Jacobian for jointpositions <q>
+             *        The resulting inverse Jacobian for jointpositions \a q
              * @param s
              *        The detected singularities of q
              * @return true if the the result could be calculated, false otherwise
@@ -122,10 +122,10 @@ namespace ORO_KinDyn
 	     * @param conf
 	     *        The current configuration of the robot.
              * @param q
-             *        The resulting joint positions with end effector position <pos_base>
+             *        The resulting joint positions with end effector position \a pos_base
              * @param qdot
-             *        The resulting joint velocities with end effector positions <pos_base>
-             *        and end effector velocity <vel_base>
+             *        The resulting joint velocities with end effector positions \a pos_base
+             *        and end effector velocity \a vel_base
              * @param s
              *        The detected singularities of pos_base
              * @return true if the the result could be calculated, false otherwise
@@ -141,8 +141,8 @@ namespace ORO_KinDyn
              * @param vel_base
              *        The given end effector Twist expressed in the robot base frame
              * @param qdot
-             *        The resulting joint velocities with joint positions <q>
-             *        and end effector velocity <vel_base>
+             *        The resulting joint velocities with joint positions \a q
+             *        and end effector velocity \a vel_base
              * @param s
              *        The detected singularities of q
              * @return true if the the result could be calculated, false otherwise
@@ -157,10 +157,10 @@ namespace ORO_KinDyn
              * @param qdot
              *        The given joint velocities
              * @param pos_base
-             *        The resulting end effector position with joint positions <q>,
+             *        The resulting end effector position with joint positions \a q,
              *        expressed in the robot base frame
              * @param vel_base
-             *        The resulting end effector Twist with joint positions <q> and joint velocities <qdot>
+             *        The resulting end effector Twist with joint positions \a q and joint velocities \a qdot
              *        expressed in the robot base frame
              * @param s
              *        The detected singularities of q
@@ -176,7 +176,7 @@ namespace ORO_KinDyn
         */
 
         /**
-         * Calculates the configuration <c> of joint positions <q>.
+         * Calculates the configuration \a c of joint positions \a q.
          *
          * @param q
          *        The joint positions of which the configuration must be known.

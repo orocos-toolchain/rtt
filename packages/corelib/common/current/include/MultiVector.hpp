@@ -91,7 +91,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Creates a vector with all elements initialized to <d>.
+         * Creates a vector with all elements initialized to \a d.
          *
          * @param d
          *        The value to be used for initialisation of all elements

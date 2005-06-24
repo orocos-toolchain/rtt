@@ -49,7 +49,7 @@ namespace ORO_CoreLib
 
     public:
         /**
-         * Open a fifo with number <fNr> for writing.
+         * Open a fifo with number \a fNr for writing.
          * 
          * @param fNr
          *        The fifo number

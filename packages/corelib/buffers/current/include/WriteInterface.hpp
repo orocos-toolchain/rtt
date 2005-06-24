@@ -41,10 +41,10 @@ namespace ORO_CoreLib
 
     public:
         /**
-         * Write <length> bytes from <buf>.
+         * Write \a length bytes from \a buf.
          *
-         * @param <buf> the buffer containing the bytes to be written 
-         * @param <length> the number of bytes to be written
+         * @param buf the buffer containing the bytes to be written 
+         * @param length the number of bytes to be written
          *
          * @return -1 on failure,
          *         the number of bytes written on success

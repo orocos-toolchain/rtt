@@ -74,7 +74,7 @@ namespace ORO_CoreLib
         virtual ConditionInterface* clone() const = 0;
 
         /**
-         * When copying an &orocos; program, we want identical
+         * When copying an Orocos program, we want identical
          * DataSource's to be mapped to identical DataSources, in
          * order for the program to work correctly.  This is different
          * from the clone function, where we simply want a new Command

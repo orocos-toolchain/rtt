@@ -44,7 +44,7 @@ namespace ORO_CoreLib
 
         public:
             /**
-             * Creates a BufferCircular of size <size>.
+             * Creates a BufferCircular of size \a size.
              * @param size the size of the buffer
              */
             BufferCircular( size_t size );

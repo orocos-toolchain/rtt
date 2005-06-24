@@ -39,10 +39,10 @@ namespace ORO_CoreLib
 
         public:
             /**
-             * Write <length> bytes from <buf> to cout.
+             * Write \a length bytes from \a buf to cout.
              *
-             * @param <buf> the buffer where the bytes need to be read from
-             * @param <length> the number of bytes to be written
+             * @param \a buf the buffer where the bytes need to be read from
+             * @param \a length the number of bytes to be written
              *
              * @return -1 on failure,
              *         the number of bytes written on success

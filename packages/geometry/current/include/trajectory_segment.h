@@ -67,13 +67,13 @@ namespace ORO_Geometry {
 		bool aggregate;
 	public:
 		/**
-		 * This constructor assumes that <geom> and <_motprof> are initialised correctly.
+		 * This constructor assumes that \a geom and <_motprof> are initialised correctly.
 		 */
 		Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, bool _aggregate=true);
 
 		/**
-		 * This constructor assumes that <geom> is initialised and <_motprof> needs to be
-		 * set according to <duration>.
+		 * This constructor assumes that \a geom is initialised and <_motprof> needs to be
+		 * set according to \a duration.
 		 */
 		Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, double duration, bool _aggregate=true);
 

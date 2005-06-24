@@ -33,7 +33,7 @@
 
 typedef char c;
 
-//template class string_char_traits <c>;
+//template class string_char_traits<c>;
 
 // This will kill us sooner or later
 // it should point to an array. see ctype.h

@@ -72,7 +72,7 @@ namespace ORO_KinDyn
         }
 
         /**
-         * Check if the robot is in singularity <sing>.
+         * Check if the robot is in singularity \a sing.
          *
          * @param sing
          *        The singularity to be checked.

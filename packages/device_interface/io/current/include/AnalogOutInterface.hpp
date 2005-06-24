@@ -64,7 +64,7 @@ namespace ORO_DeviceInterface
             {}
 
             /**
-             * Create a nameserved AnalogOutInterface. When <name> is not "" and
+             * Create a nameserved AnalogOutInterface. When \a name is not "" and
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
             AnalogOutInterface( const std::string& name )
@@ -97,7 +97,7 @@ namespace ORO_DeviceInterface
 				 unsigned int aref) = 0;
 
             /**
-             * Write <value> to channel <chan>
+             * Write \a value to channel \a chan
              */
             virtual void write( unsigned int chan, T value ) = 0;
 

@@ -73,7 +73,7 @@ namespace ORO_ControlKernel
         
             /**
              * @brief Instructs the component to enable an Facet so that this Facet can
-             * deliver a service to the Extension <ext> of the ControlKernel.
+             * deliver a service to the Extension \a ext of the ControlKernel.
              *
              * This will be called when the component is loaded into the kernel.
              */

@@ -86,7 +86,7 @@ namespace CAN
         /**
          * Write a CANMessage to the bus. CANDevices can use this to put data
          * on the CANBus. When this call returns, you are still the owner of
-         * <msg>.
+         * \a msg.
          *
          * @param msg A CANMessage which will be put on the bus.
          */

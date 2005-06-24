@@ -219,7 +219,7 @@ namespace ORO_DeviceDriver
     ComediDevice* myCard;
 
     /**
-     * The subdevice number of this instance in <myDrive>
+     * The subdevice number of this instance in \a myDrive
      */
     unsigned int _subDevice;
     unsigned int * _sd_range;

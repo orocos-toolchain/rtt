@@ -45,7 +45,7 @@ namespace ORO_DeviceDriver
              * Create a new Relay acting on a digital output device.
              * 
              * @param dig_out The digital output device to use
-             * @param relay_nr The bit number to use on <dig_out>
+             * @param relay_nr The bit number to use on \a dig_out
              */
             DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert=false )
                 : board( dig_out ), relaynumber( relay_nr ), invert(_invert)

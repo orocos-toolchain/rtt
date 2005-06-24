@@ -41,7 +41,7 @@ namespace CAN
 
 		/**
 		 * This method instructs the CANDeviceInterface instance to process a
-         * certain CANMessage. You are not the owner of <msg>.
+         * certain CANMessage. You are not the owner of \a msg.
 		 *
 		 * @param msg The message to be processed by this instance.
          * @invariant Only this may be removed from the CANBusInterface during process.
