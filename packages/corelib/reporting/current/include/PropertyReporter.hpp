@@ -72,11 +72,13 @@ namespace ORO_CoreLib
          */
         PropertyReporter( MarshallConfig& m, const std::string& name ) :
             NameServerRegistrator<PropertyReporter<MarshallConfig>*>(nameserver, name, this),
-        adaptor(m) {}
+            adaptor(m) {
+            this->resetTime( 0 );
+        }
         virtual bool initialize()
         {
-            time = TimeService::Instance()->getTicks();
-            refreshAll(0);
+            //time = TimeService::Instance()->getTicks();
+            refreshAll( TimeService::Instance()->secondsSince(time) );
             streamHeader();
             return true;
         }
