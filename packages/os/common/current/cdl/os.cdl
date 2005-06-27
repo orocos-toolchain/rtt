@@ -31,6 +31,19 @@ will be used instead of the system header files.
         default_value 1
     }
 
+    cdl_option ORONUM_OS_MAX_THREADS {
+	display "The maximum number of threads in an Application."
+	description "
+This number is used by some buffers classes to pre-allocate per thread
+data in order to allow real-time buffer operations. Most buffer
+implementations have a per-buffer constructor parameter to tune this
+number more precisely, meaning, to set the number of threads which 
+will access a particular buffer instance concurrently.
+"
+	flavor data
+        default_value 8
+    }
+
     cdl_option OROCLS_OS_MINIMAL_STREAMS {
 	display "Minimal streams implementation"
 	description "
@@ -222,7 +235,7 @@ Produces larger code size, but compiles very fast."
 		flavor data
 		no_define
 		active_if { OROBLD_OS_OPTIMIZE == "Compiling" }
-		default_value  { "-O0" }
+		default_value  { "-O" }
 	}
 	cdl_option OROBLD_OS_OPTIMIZE_EXECUTION {
 		display "Flags for execution time optimization"
