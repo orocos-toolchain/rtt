@@ -110,7 +110,7 @@ Having the one but highest priority (e.g. 1)."
             legal_values (ORONUM_CORELIB_TASKS_ZTT_PRIORITY+1) to 255
 	}
 	cdl_option ORONUM_CORELIB_TASKS_ZLT_PERIOD {
-	    display "The period of the ZeroTimeThread in sec"
+	    display "The period of the ZeroLatencyThread in sec"
 	    description "
 Indicates the time between processing all tasks. No 
 TaskPreemptible can have a smaller periodicity
