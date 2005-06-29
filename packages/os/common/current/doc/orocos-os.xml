@@ -270,12 +270,11 @@
 	don't know what LXRT is.
       </para>
       <para>
-	The common rule when using such an OS as a target is
-	that any present library can be used and any header included
-	as long as not realtime functionality is not called from
-	within a hard realtime thread. For LXRT specifically, 
-	this means that all the RTAI (and Orocos) OS primitives
-	may be used, but not the native Linux ones from within
+	The common rule when using LXRT is that any userspace (GNU/Linux)
+	library can be used and any header included as long as their non-realtime
+	functions are not called from within a hard realtime thread.
+	Specifically, this means that all the RTAI (and Orocos) OS functions,
+	but not the native Linux ones, may be called from within
 	a hard realtime thread. Fortunately these system calls
 	can be done from a not hard realtime thread within the
 	same program. <emphasis>Using the Orocos provided C++ primitives
