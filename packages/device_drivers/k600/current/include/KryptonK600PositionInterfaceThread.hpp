@@ -30,6 +30,7 @@
 #define NUM_COORD_PER_LED 3 // Number of coordinates per led 
 #define MAX_NUM_COORD (MAX_NUM_LEDS*NUM_COORD_PER_LED)
 
+
 namespace ORO_DeviceDriver
 {
   /**

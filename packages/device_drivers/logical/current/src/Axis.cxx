@@ -74,8 +74,10 @@ namespace ORO_DeviceDriver
               stop();
               lock();
 	    }
-	    else
+	    else{
 	      _max_drive_event->fire();
+	      Logger::log() << Logger::Error << "(Axis) Maximum velocity treshold exceeded!" << Logger::endl;	      
+	    }
 	    return false;
           }
       }

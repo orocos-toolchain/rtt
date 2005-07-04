@@ -19,7 +19,6 @@
 #include <corelib/Logger.hpp>
 #include <cassert>
 
-
 #ifdef __cplusplus
 extern "C"
 {
