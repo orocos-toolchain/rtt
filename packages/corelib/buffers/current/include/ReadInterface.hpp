@@ -29,38 +29,40 @@
 #ifndef ORO_CORELIB_READINTERFACE_HPP
 #define ORO_CORELIB_READINTERFACE_HPP
 
+#include <boost/call_traits.hpp>
+#include <vector>
+
 namespace ORO_CoreLib
 {
 
     /**
-     * This interface describes a read interface for byte data.
+     * This interface describes a read interface for value types.
+     * @param T The value type read from this buffer.
      */
+    template<class T>
     class ReadInterface
     {
-    protected:
-        typedef unsigned int size_t;
     public:
-        /**
-         * Read \a length bytes into \a buf.
-         *
-         * @param buf the buffer where the bytes needs to be written.
-         *              This must garantee to have at least a capacity of
-         *              \a length bytes.
-         * @param length the number of bytes to be read
-         *
-         * @return -1 on failure,
-         *         the number of bytes read on success
-         */
-        virtual int read( char* buf, size_t length ) = 0;
+        typedef T value_t;
+        typedef typename boost::call_traits<T>::reference reference_t;
+
+        typedef unsigned int size_t;
 
         /**
-         * Read one byte.
-         *
-         * @param c the result of the read.
-         * @return -1 if reading failed, zero otherwise.
+         * Read the oldest value from the buffer.
+         * @param item is to be set with a value from the buffer.
+         * @return true if something was read.
          */
-        virtual int get( char& c ) = 0;
-            
+        virtual bool Pop( reference_t item) = 0;
+
+        /**
+         * Read the whole buffer.
+         * @param items is to be filled with all values in the buffer,
+         * with \a items.begin() the oldest value.
+         * @return the number of items read.
+         */
+        virtual size_t Pop( std::vector<value_t>& items ) = 0;
+
         virtual ~ReadInterface()
         {}
 

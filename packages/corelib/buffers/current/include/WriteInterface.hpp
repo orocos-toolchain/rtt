@@ -28,40 +28,43 @@
 #ifndef ORO_CORELIB_WRITEINTERFACE_HPP
 #define ORO_CORELIB_WRITEINTERFACE_HPP
 
+#include <boost/call_traits.hpp>
+#include <vector>
+
 namespace ORO_CoreLib
 {
-
     /**
-     * This interface describes a write interface for byte data.
+     * This interface describes a write interface for value types.
+     * @param T The value type write into this buffer.
      */
+    template<class T>
     class WriteInterface
     {
-    protected:
+    public:
+        typedef T value_t;
+        typedef typename boost::call_traits<T>::param_type param_t;
+
         typedef unsigned int size_t;
 
-    public:
         /**
-         * Write \a length bytes from \a buf.
-         *
-         * @param buf the buffer containing the bytes to be written 
-         * @param length the number of bytes to be written
-         *
-         * @return -1 on failure,
-         *         the number of bytes written on success
+         * Write a single value to the buffer.
+         * @param item the value to write
+         * @return false if the buffer is full.
          */
-        virtual int write( const char* buf, size_t length ) = 0;
+        virtual bool Push( param_t item) = 0;
 
         /**
-         * Write a byte.
-         *
-         * @param c The byte to be written.
-         * @return -1 on failure, zero on success
+         * Write a sequence of values to the buffer. 
+         * @param items the values to write
+         * @return the number of values written (may be less than items.size())
          */
-        virtual int put( char c ) = 0;
+        virtual size_t Push( const std::vector<value_t>& items ) = 0;
 
         virtual ~WriteInterface()
         {}
+
     };
+
 }
 
 #endif // WRITEINTERFACE_HPP

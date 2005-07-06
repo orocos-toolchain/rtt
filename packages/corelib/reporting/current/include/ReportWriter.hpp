@@ -47,6 +47,7 @@ namespace ORO_CoreLib
      * Should run in a TaskNonRealTime if the WriteInterface is a non realtime
      * device, like WriteCout. Use this class in conjunction with ReportingPropertyBag for
      * example, which generates the reports.
+     * @deprecated
      */
     class ReportWriter 
         : public StringCollectorInterface,
@@ -59,7 +60,7 @@ namespace ORO_CoreLib
              *
              * @param f The object to write the results to.
              */
-            ReportWriter(WriteInterface* f);
+            ReportWriter(WriteInterface<std::string>* f);
 
             /**
              * Destroy a ReportWriter object
@@ -81,7 +82,7 @@ namespace ORO_CoreLib
         private:
             ReportWriter() {}
 
-            WriteInterface* rtf;
+            WriteInterface<std::string>* rtf;
 
             const static int DEFAULT_EXPLIST_SIZE = 32;
             const static int DEFAULT_MESSAGE_SIZE = 1024;

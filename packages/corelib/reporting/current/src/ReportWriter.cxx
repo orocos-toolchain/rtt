@@ -32,7 +32,7 @@
 
 namespace ORO_CoreLib
 {
-     ReportWriter::ReportWriter(WriteInterface* f)
+     ReportWriter::ReportWriter(WriteInterface<std::string>* f)
          : rtf(f), localTime( TimeService::Instance()->getTicks() )
      {
          expList.reserve(DEFAULT_EXPLIST_SIZE);
@@ -72,7 +72,7 @@ namespace ORO_CoreLib
                  (*itl)->reportGet(message);
                  //s = inttostring( message.length() ); NO LONGER NEEDED
                  //rtf->write(s.data(), s.length() );
-                 rtf->write(message.data(), message.length() );
+                 rtf->Push( message );
              }
 
      }

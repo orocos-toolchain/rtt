@@ -30,20 +30,28 @@
 #define ORO_CORELIB_ATOMIC_QUEUE_HPP
 
 #include <os/CAS.hpp>
+#include "BufferPolicy.hpp"
 #include <utility>
 
 namespace ORO_CoreLib 
 {
     /**
-     * Create an atomic queue (FIFO) for storing
+     * Create an atomic, non-blocking single ended queue (FIFO) for storing
      * a pointer \a T by value. It is a 
      * Many Readers, Many Writers implementation
-     * based on the atomic Compare And Swap instruction.
-     * WARNING : You can not store null pointers.
+     * based on the atomic Compare And Swap instruction. Any number of threads
+     * may access the queue concurrently.
+     * @warning You can not store null pointers.
      * @param T The pointer type to be stored in the Queue.
      * Example : AtomicQueue< A* > is a queue of pointers to A.
+     * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
+     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * This does not influence partial filled queue behaviour.
+     * @param WritePolicy The Policy to block (wait) on \a full (during enqueue), 
+     * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
+     * This does not influence partial filled buffer behaviour.
      */
-    template<class T>
+    template<class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
     class AtomicQueue
     {
         //typedef _T* T;
@@ -72,6 +80,9 @@ namespace ORO_CoreLib
          * set it to zero to indicate it has been read.
          */
         WriteType _rptr;
+
+        WritePolicy write_policy;
+        ReadPolicy read_policy;
 
         /**
          * Atomic advance and wrap of the Write pointer.
@@ -128,8 +139,8 @@ namespace ORO_CoreLib
          * Create an AtomicQueue with queue size \a size.
          * @param size The size of the queue, should be 1 or greater.
          */
-        AtomicQueue(int size)
-            : _size(size+1)
+        AtomicQueue( unsigned int size )
+            : _size(size+1), write_policy(size), read_policy(0)
         {
             _buf= new C[_size];
             this->clear();
@@ -140,6 +151,10 @@ namespace ORO_CoreLib
             delete[] _buf;
         }
 
+        /**
+         * Inspect if the Queue is full.
+         * @return true if full, false otherwise.
+         */
         bool isFull()
         {
             // two cases where the queue is full : 
@@ -148,70 +163,112 @@ namespace ORO_CoreLib
             return _wptr->first != 0 || _wptr == _rptr - 1 || _wptr == _rptr+_size - 1;
         }
         
+        /**
+         * Inspect if the Queue is empty.
+         * @return true if empty, false otherwise.
+         */
         bool isEmpty()
         {
             // empty if nothing to read.
             return _rptr->first == 0;
         }
 
+        /**
+         * Return the maximum number of items this queue can contain.
+         */
         int capacity()
         {
             return _size -1;
         }
 
+        /**
+         * Enqueue an item.
+         * @param value The value to enqueue.
+         * @return false if queue is full, true if queued.
+         */
         bool enqueue(const T& value)
         {
             if ( value == 0 )
                 return false;
+            write_policy.pop();
             CachePtrType loc = advance_w();
             if ( loc == 0 )
                 return false;
             loc->first = value;
+            read_policy.push();
             return true;
         }
 
+        /**
+         * Enqueue an item and return its 'ticket' number.
+         * @param value The value to enqueue.
+         * @return zero if the queue is full, the 'ticket' number otherwise.
+         */
         int enqueueCounted(const T& value)
         {
             if ( value == 0 )
                 return 0;
+            write_policy.pop();
             CachePtrType loc = advance_w();
             if ( loc == 0 )
                 return 0;
             loc->first = value;
+            read_policy.push();
             return loc->second;
         }
 
+        /**
+         * Dequeue an item.
+         * @param value The value dequeued.
+         * @return false if queue is empty, true if dequeued.
+         */
         bool dequeue( T& result )
         {
+            read_policy.pop();
             CachePtrType loc = advance_r();
             if ( loc == 0 )
                 return false;
             result = loc->first;
-            loc->first   = 0; // this releases the cell to write to.
             loc->second += _size; // give the cell a new number.
+            loc->first   = 0; // this releases the cell to write to.
+            write_policy.push();
             return true;
         }
 
+        /**
+         * Dequeue an item and return the same 'ticket' number when it was queued.
+         * @param value The value dequeued.
+         * @return zero if the queue is empty, the 'ticket' number otherwise.
+         */
         int dequeueCounted( T& result )
         {
+            read_policy.pop();
             CachePtrType loc = advance_r();
             if ( loc == 0 )
                 return false;
             result = loc->first;
             int nr = loc->second;
-            loc->first = 0; // this releases the cell to write to.
             loc->second += _size; // give the cell a new number.
+            loc->first = 0; // this releases the cell to write to.
+            write_policy.push();
             return nr;
         }
 
+        /**
+         * Clear all contents of the Queue and thus make it empty.
+         */
         void clear()
         {
             for(int i = 0 ; i != _size; ++i) {
-                _buf[i].first  = 0;
+                if ( _buf[i].first != 0 ) {
+                    _buf[i].first  = 0;
+                }
                 _buf[i].second = i+1; // init the counters
             }
             _rptr = _buf;
             _wptr = _buf;
+            write_policy.reset( _size - 1 );
+            read_policy.reset(0);
         }
             
     };

@@ -28,16 +28,15 @@
 #ifndef WRITECOUT_HPP
 #define WRITECOUT_HPP
 
-#include "WriteInterface.hpp"
-
 namespace ORO_CoreLib
 {
 
-    class WriteCout :
-        public WriteInterface
+    class WriteCout
     {
 
         public:
+        typedef unsigned int size_t;
+
             /**
              * Write \a length bytes from \a buf to cout.
              *

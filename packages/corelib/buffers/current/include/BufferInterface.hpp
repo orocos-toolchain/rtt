@@ -34,24 +34,34 @@
 namespace ORO_CoreLib
 {
     /**
-     * A buffer is a object where you can write byte data to and read byte data from.
+     * A Buffer is an object which is used to store (Push) and retrieve (Pop) values from.
+     * @param T The value type stored in this buffer.
      */
+    template<class T>
     class BufferInterface :
-        public ReadInterface,
-        public WriteInterface
+        public ReadInterface<T>,
+        public WriteInterface<T>
     {
-    protected:
-        typedef unsigned int size_t;
     public:
+        typedef T value_t;
+        typedef unsigned int size_t;
+
         virtual ~BufferInterface()
         {}
 
         /**
-         * Returns the maximum number of bytes that can be stored in the
+         * Returns the maximum number of items that can be stored in the
          * buffer.
-         * @return maximum number of bytes
+         * @return maximum number of items.
          */
-        virtual size_t capacityGet() = 0;
+        virtual size_t capacity() const = 0;
+
+        /**
+         * Returns the actual number of items that are stored in the
+         * buffer.
+         * @return number of items.
+         */
+        virtual size_t size() const = 0;
 
     };
 }

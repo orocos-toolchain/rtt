@@ -39,7 +39,6 @@ namespace ORO_CoreLib
      * @deprecated by BufferLockFree
      */
     class BufferCircular
-        :public BufferInterface
     {
 
         public:

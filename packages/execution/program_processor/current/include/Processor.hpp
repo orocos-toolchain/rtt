@@ -30,10 +30,12 @@
 
 #include "corelib/RunnableInterface.hpp"
 #include "corelib/CommandInterface.hpp"
+#include "corelib/BufferPolicy.hpp"
 
 #include <list>
 #include <string>
 #include <vector>
+#include <exception>
 
 #include <pkgconf/execution_program_processor.h>
 
@@ -46,7 +48,7 @@ namespace ORO_OS
 
 namespace ORO_CoreLib
 {
-    template< class T>
+    template< class T, class RP, class WP>
     class AtomicQueue;
 }
 
@@ -59,6 +61,7 @@ namespace ORO_Execution
     using ORO_CoreLib::CommandInterface;
 
     class program_load_exception
+        : public std::exception
     {
         std::string merror;
     public:
@@ -66,13 +69,15 @@ namespace ORO_Execution
             : merror( error )
         {
         }
-        const std::string what() const
+        ~program_load_exception() throw() {}
+        const char* what() const throw()
         {
-            return merror;
+            return merror.c_str();
         }
     };
 
     class program_unload_exception
+        : public std::exception
     {
         std::string merror;
     public:
@@ -80,9 +85,10 @@ namespace ORO_Execution
             : merror( error )
         {
         }
-        const std::string what() const
+        ~program_unload_exception() throw() {}
+        const char* what() const throw()
         {
-            return merror;
+            return merror.c_str();
         }
     };
 
@@ -362,8 +368,8 @@ namespace ORO_Execution
         std::vector<ProgramInterface*> funcs;
 
         bool accept;
-        ORO_CoreLib::AtomicQueue<CommandInterface*>* a_queue;
-        ORO_CoreLib::AtomicQueue<ProgramInterface*>* f_queue;
+        ORO_CoreLib::AtomicQueue<CommandInterface*,ORO_CoreLib::NonBlockingPolicy,ORO_CoreLib::NonBlockingPolicy>* a_queue;
+        ORO_CoreLib::AtomicQueue<ProgramInterface*,ORO_CoreLib::NonBlockingPolicy,ORO_CoreLib::NonBlockingPolicy>* f_queue;
 
         /**
          * Counting how much commands we processed.

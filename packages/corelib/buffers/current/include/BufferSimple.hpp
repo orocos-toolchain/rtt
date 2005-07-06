@@ -38,7 +38,6 @@ namespace ORO_CoreLib
      * @deprecated by BufferLockFree
      */
     class BufferSimple
-        :public BufferInterface
     {
         public:
             /**
