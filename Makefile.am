@@ -189,7 +189,7 @@ doxy-dist: test_new_packages
 	@echo "Running Doxygen... (warnings in doxygen.warnings)"
 	@rm -rf doc/api
 	@mkdir -p doc/api	
-	@doxygen >/dev/null || (echo "doxygen failed !" ; exit 1)
+	@@DOXYGEN@ || (echo "doxygen failed !" ; exit 1)
 	@if [ -d doc ] ; then echo "Tarring API docs..." ;\
 	tar -cjf orocos-api.tar.bz2 doc/api; fi
 
