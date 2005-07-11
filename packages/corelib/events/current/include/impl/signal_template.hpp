@@ -90,6 +90,9 @@ namespace sigslot {
 		void emit(OROCOS_SIGNAL_PARMS)
 		{
             ORO_OS::MutexLock lock(m);
+            if (this->emitting)
+                return; // avoid uglyness : handlers calling emit.
+            this->emitting = true;
             iterator it = mconnections.begin();
             const_iterator end = mconnections.end();
             for (; it != end; ++it ) {
@@ -97,7 +100,7 @@ namespace sigslot {
                 if (ci)
                     ci->emit(OROCOS_SIGNAL_ARGS); // this if... race is guarded by the mutex.
             }
-
+            this->emitting = false;
             this->cleanup();
 		}
 

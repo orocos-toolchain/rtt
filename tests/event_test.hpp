@@ -36,6 +36,8 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testBlockingTask );
     CPPUNIT_TEST( testEventArgs );
     CPPUNIT_TEST( testRTEvent );
+    CPPUNIT_TEST( testSelfRemoval );
+    CPPUNIT_TEST( testCrossRemoval );
     CPPUNIT_TEST_SUITE_END();
 
     ORO_CoreLib::Event<void( void )>* t_event;
@@ -69,6 +71,8 @@ public:
     void testBlockingTask();
     void testEventArgs();
     void testRTEvent();
+    void testSelfRemoval();
+    void testCrossRemoval();
 };
 
 

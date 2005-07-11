@@ -83,14 +83,19 @@ namespace sigslot
             void conn_destroy( connection_t conn );
         protected:
             /**
-             * Erase all empty list items.
+             * Erase all empty list items after emit().
              */
             void cleanup();
 
             ORO_OS::MutexRecursive m;
             connections_list mconnections;
             iterator itend;
+#ifdef ORO_SIGNAL_USE_RT_LIST
+            int disconcount;
+#else
             int concount;
+#endif
+            bool emitting;
             signal_base();
         public:
             virtual ~signal_base();

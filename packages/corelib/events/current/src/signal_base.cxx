@@ -57,6 +57,8 @@ namespace sigslot {
             // derived class must make sure that list contained enough list items !
             //assert( itend != mconnections.end() );
 
+            // connection (push_back) in emit() does not invalidate iterators, so this 
+            // function is straightforwardly implemented.
             ORO_OS::MutexLock lock(m);
 
 #ifdef ORO_SIGNAL_USE_RT_LIST
@@ -88,15 +90,21 @@ namespace sigslot {
             assert( conn && "virtually impossible ! only connection base should call this function !" );
             iterator tgt;
 
+            // avoid invalidating iterator of emit() upon self or cross removal of conn.
             ORO_OS::MutexLock lock(m);
             if ( (tgt = std::find( mconnections.begin(),
                                    mconnections.end(),
                                    conn)) != mconnections.end() ) {
 #ifdef ORO_SIGNAL_USE_RT_LIST
-                mconnections.erase( tgt );
+                if ( !emitting ) {
+                    mconnections.erase( tgt ); // safe to remove we hold mutex + no self removal.
+                    return;
+                }
+                // only done when in emit(). cleanup() is guaranteed to be called afterwards.
+                ++disconcount; // used in cleanup() to detect self-disconnections.
 #else
                 connection_t d(0);
-                *tgt = d; // clear out, no erase, keep all iterators valid !
+                *tgt = d; //clear out, no erase, keep all iterators valid !
 #endif
             }
         }
@@ -105,6 +113,24 @@ namespace sigslot {
             // this is called from within emit().
             // mutex already locked !
 #ifdef ORO_SIGNAL_USE_RT_LIST
+            // this construct allows self+cross removal in emit().
+            iterator it = mconnections.begin();
+            iterator newit(it);
+            const_iterator end = mconnections.end();
+            for (; newit != end && disconcount > 0 ; it=newit ) {
+                if (!*it) {
+                    // it & newit become invalid after erase !
+                    // do not change this construct unthoughtfully !
+                    if ( it == mconnections.begin() ) {
+                        mconnections.erase( it );
+                        newit = mconnections.begin();
+                    } else {
+                        ++newit;
+                        mconnections.erase( it );
+                    }
+                    --disconcount;
+                }
+            }
 #else
             while ( concount > 0 ) {
                 mconnections.erase( --(mconnections.end()) );
@@ -116,7 +142,12 @@ namespace sigslot {
         }
 
     signal_base::signal_base()
-        : concount(0)
+        : emitting(false)
+#ifdef ORO_SIGNAL_USE_RT_LIST
+          ,disconcount(0)
+#else
+          ,concount(0)
+#endif
     {
         itend = mconnections.end();
     }

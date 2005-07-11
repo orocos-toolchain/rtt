@@ -135,6 +135,86 @@ struct Runner : public RunnableInterface
     }
 };
         
+struct SelfRemover : public RunnableInterface
+{
+    Event<void(void)>& e;
+    Handle h;
+    SelfRemover( Event<void(void)>& e_ ) : e(e_) {}
+    bool initialize() {
+        // connect sync and async handler with event
+        // and run async handler in thread of this task.
+        h = e.setup( bind(&SelfRemover::handle,this), bind(&SelfRemover::complete,this), this->getTask() );
+        return true;
+    }
+    void step() {
+        h.connect();
+        e.emit();
+        // repeat for complete :
+        h.connect();
+    }
+
+    void finalize() {
+    }
+
+    void handle(void) {
+        // this is dirty, user !
+        // first disconnect self, then emit() within emit() !
+        h.disconnect();
+        e.emit();
+        h.connect();
+        // emit within emit should not come through (possible recursive stack blowup).
+        e.emit();
+        h.disconnect();
+    }
+    void complete(void) {
+        h.disconnect();
+    }
+};
+        
+struct CrossRemover : public RunnableInterface
+{
+    Event<void(void)>& e;
+    Handle h;
+    CrossRemover( Event<void(void)>& e_ ) : e(e_), count(0) {}
+    int count;
+    bool initialize() {
+        // connect sync and async handler with event
+        // and run async handler in thread of this task.
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
+        h = e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
+        return true;
+    }
+    void step() {
+        // for syn :
+        count = 0;
+        e.emit();
+        h.disconnect(); // disconnect !
+        // for asyn :
+        count = 0;
+    }
+
+    void finalize() {
+    }
+
+    void handle(void) {
+        if ( count == 0 )
+            h.disconnect(); // remove next handler
+        if ( count == 1 )
+            h.connect();  // insert again
+    }
+    void complete(void) {
+        // these connect/disconnect have no effect on times the complete
+        // function is called, since it is already queued in the CP.
+        if ( count == 0 )
+            h.connect();  // insert a handler
+        if ( count == 1 ) // remove it again
+            h.disconnect();
+        if ( count == 2 ) // add it again
+            h.connect();
+    }
+};
+        
 
 void EventTest::testTask()
 {
@@ -148,6 +228,26 @@ void EventTest::testTask()
     SimulationThread::Instance()->stop();
 
     CPPUNIT_ASSERT( runobj.result );
+}
+
+void EventTest::testSelfRemoval()
+{
+    SelfRemover runobj(*t_event);
+    TaskSimulation task(0.01, &runobj);
+    task.start();
+    sleep(1);
+    task.stop();
+    SimulationThread::Instance()->stop();
+}
+
+void EventTest::testCrossRemoval()
+{
+    CrossRemover runobj(*t_event);
+    TaskSimulation task(0.01, &runobj);
+    task.start();
+    sleep(1);
+    task.stop();
+    SimulationThread::Instance()->stop();
 }
 
 void EventTest::testBlockingTask()

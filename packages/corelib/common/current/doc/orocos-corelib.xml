@@ -328,7 +328,7 @@ ORO_main( int argc, char** argv)
 	  <listitem>
 	    <para>
 	      Implementing the <classname>RunnableInterface</classname>  in another class
-	      ( functions initialize, step and finalize ). The RunnableInterface object (i.e. run_impl) can
+	      ( functions initialize, step or loop/breakLoop and finalize ). The RunnableInterface object (i.e. run_impl) can
 	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
 	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
 	      <programlisting>  #include &lt;corelib/RunnableInterface.hpp>
@@ -341,13 +341,21 @@ ORO_main( int argc, char** argv)
     // ...
     bool initialize() {
        // your init stuff
-       double myperiod = this->getTask()->getPeriod();
+       myperiod = this->getTask()->getPeriod();
+       isperiodic = this->getTask()->isPeriodic();
+       
        // ...
        return true; // if all went well
     }
 
+    // executed when isPeriodic() == true
     void step() {
        // periodic actions
+    }
+
+    // executed when isPeriodic() == false
+    void loop() {
+       // 'blocking' version of step(). Implement also breakLoop()
     }
 
     void finalize() {
@@ -356,11 +364,16 @@ ORO_main( int argc, char** argv)
   };
 
   // ...
-  MyPeriodicTask run_impl;
+  MyPeriodicTask run_impl_1;
+  MyPeriodicTask run_impl_2;
 
   TaskNonPreemptible task( 0.01 ); // 100Hz
-  task.run( &amp;run_impl );
-  task.start();
+  task.run( &amp;run_impl_1 );
+  task.start(); // calls 'step()'
+
+  TaskNonPeriodic nptask(12); // priority = 12
+  nptask.run( &amp;run_impl_2);
+  task.start(); // calls 'loop()'
 
   // etc...  </programlisting>
 	    </para>
@@ -657,7 +670,7 @@ ORO_main( int argc, char** argv)
 	An alternative way to use non periodic tasks is to use
 	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
 	which can be bound to an <classname>Event</classname> (see <xref linkend="corelib-events" /> )
-	and each time the Event is fired up, the step() method will be invoked
+	and each time the Event is emitted, the step() method will be invoked
 	asynchronously in a given thread.
 	This will happen from the moment the task's start method is called
 	until the stop method is called. The following example shows
@@ -668,10 +681,10 @@ ORO_main( int argc, char** argv)
   Event&lt;void(void)> task_event;
   TaskEventDriven task( &amp;task_event, ZeroTimeThread::Instance(), &amp;run_obj);
 
-  task_event.fire(); // nothing happens
+  task_event.emit(); // nothing happens
 
   task.start();      // initialize()s task
-  task_event.fire(); // task's step() will be executed once in ZeroTimeThread
+  task_event.emit(); // task's step() will be executed once in ZeroTimeThread
 
   task.stop();       // finalize()s task</programlisting>
       </para>
@@ -727,7 +740,7 @@ ORO_main( int argc, char** argv)
 	      </entry>
 	    </row>
 	    <row>
-	      <entry>Event::fire()</entry>
+	      <entry>Event::emit()</entry>
 	      <entry>
 		<para>Uses Mutex for serialising concurrent access.
 		No Alternative implementation is possible, callback execution
@@ -815,6 +828,9 @@ ORO_main( int argc, char** argv)
 	A RunnableInterface can get the same information
 	through the <function>this->getTask()->thread()</function> method calls.
       </para>
+      <para>
+	
+      </para>
     </sect2>
   </sect1>
   <sect1 id="corelib-events">
@@ -825,11 +841,11 @@ ORO_main( int argc, char** argv)
       after the other. An Event can carry data and deliver it to the
       function's arguments. Orocos allows two possibilities of
       calling the function : synchronous and asynchronous. The former
-      means that when the raise method is called, all synchronous
+      means that when the emit() method is called, all synchronous
       handlers are called in the same thread. The latter means that
       the data is stored and the callback function is called in another
       thread. The thread which will execute the deferred callback
-      is chosen at connection time.
+      is chosen at connection or setup time.
     </para>
     <figure><title>Event Handling</title>
     <mediaobject>
@@ -839,27 +855,27 @@ ORO_main( int argc, char** argv)
       <caption><para>Task T1 runs in PeriodicThread (a) while Task T2
       runs in PeriodicThread (b). At some time, T1 registers a
       synchonous and asynchronous callback function ( reaction ) with
-      task T2's Event. When T2 fires (emits) the Event, the
+      task T2's Event. When T2 emits the Event, the
       synchronous Event callback is executed first ( within Thread (b)
       ), while the asynchronous ( deferred ) callback is queued and
       executed after T1 has run, in Thread (a).  </para></caption>
     </mediaobject>
     </figure>
     <para>
-      The Orocos Event system has been adapted since version 0.18 to 
+      The Orocos Event system in versions 0.18.x and 0.20.x
       use the <ulink url="http://www.boost.org/">boost::signals</ulink> library.
-      An Orocos <classname>Event</classname> is derived from the
-      <classname>boost::signal</classname> class. 
-      A <ulink url="http://www.boost.org/doc/html/signals.html">tutorial</ulink>
-      is located on the boost webpage.
+      Later versions (from 0.22.0 on) use a specially crafted signals implementation
+      which allows hard real-time connection of handlers.
     </para>
     <para>
-      The Orocos Event extends the boost signal with asynchronous event handling. 
+      The Orocos Event extends the signal with asynchronous event handling. 
       Any kind of function can be connected to the event as long as it has the
-      same signature as the Event. The 'raise' or 'emit' method of an Orocos Event is
-      called <methodname>fire()</methodname>.
+      same signature as the Event. The 'raise' or 'fire' method of an Orocos Event is
+      called <methodname>emit()</methodname> (fire() and operator() are present as well).
     </para>
-    <example id="core-event-example">
+    <sect2>
+      <title>Event Basics</title>
+      <example id="core-event-example">
       <title>Using Events</title>
       <para>
 	This example shows how a synchronous and asynchronous handler
@@ -902,8 +918,8 @@ emergencyHandle =
    emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety),
 	                  bind( &NotifyUser::handle_later, &notify) );
 
-std::cout << "Fire the event\n";
-emergencyStop.fire();
+std::cout << "Emit the event\n";
+emergencyStop.emit();
 
 // Disconnecting the callbacks...
 emergencyHandle.disconnect();
@@ -913,12 +929,12 @@ emergencyHandle =
    emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety) );
 
 std::cout << "Doing a quiet safety stop..."<<std::endl;
-emergencyStop.fire(); // User not notified
+emergencyStop.emit(); // User not notified
 
 ...]]>     </programlisting>
       <screen>
 	  Register apropriate handlers to the Emergency Stop Event
-	  Fire the event
+	  Emit the event
 	   Putting the robot in a safe state fast !
 	  The program stopped the robot !
 	  Doing a quiet safety stop...
@@ -932,7 +948,7 @@ emergencyStop.fire(); // User not notified
 	<programlisting>  ClassName object;
   boost::bind( &amp;ClassName::FunctionName, &amp;object)	</programlisting>
 	Where ClassName::FunctionName must have the same signature as the Event.
-	When the Event is <function>fire( args )</function>'d,
+	When the Event is <function>emit( args )</function>'ed,
 	<programlisting>
   object->FunctionName( args )</programlisting>
 	is executed by the Event.
@@ -956,17 +972,17 @@ emergencyStop.fire(); // User not notified
       construction. This can no longer be changed once the
       <classname>Event</classname> is created. The type is the
       same for the synchronous and asynchronous methods. If the type changes,
-      the fire() method must given other arguments. For example :
+      the emit() method must given other arguments. For example :
       <example>
 	<title>Event Types</title>
 	<programlisting><![CDATA[  Event<void(void)> e_1;
-  e_1.fire();
+  e_1.emit();
 
   Event<void(int)>  e_2;
-  e_2.fire( 3 );
+  e_2.emit( 3 );
 
   Event<void(double,double,double)>  positionEvent;
-  positionEvent.fire( x, y, z);]]></programlisting>
+  positionEvent.emit( x, y, z);]]></programlisting>
       </example>
     </para>
     <para>
@@ -977,16 +993,57 @@ emergencyStop.fire(); // User not notified
   Event&lt;void(int, float)&gt; event;
 
   // notice that for each Event argument, you need to supply _1, _2, _3, etc...
-  event.connect( boost::bind( &amp;SomeClass::foo, someclass, _1, _2 );
+  event.connect( boost::bind( &amp;SomeClass::foo, someclass, _1, _2 ) );
 
-  event.fire( 1, 2.0 );</programlisting>
+  event.emit( 1, 2.0 );</programlisting>
     </para>
     <important>
     <para>
       The return type for synchronous and asynchronous callbacks is ignored
-      and can not be recovered from fire(), which always returns void.
+      and can not be recovered from emit(), which always returns void.
     </para>
     </important>
+    </sect2>
+    <sect2>
+      <title><function>setup()</function> and the <classname>Handle</classname> object</title>
+      <para>
+	Event connections can be managed by using a Handle which both <function>connect()</function>
+	and <function>setup()</function> return :
+	<programlisting>  Event&lt;void(int, float)&gt; event;
+  Handle eh;
+
+  // store the connection in 'eh'
+  eh = event.connect( ... );
+  assert( eh.connected() );
+
+  // disconnect the function(s) :
+  eh.disconnect();
+  assert( !eh.connected() );
+
+  // reconnect the function(s) :
+  eh.connect();
+  // connected again !
+	</programlisting>
+	Handle objects can be copied and will all show the same status.
+	To have a connection setup, but not connected, one can write :
+	<programlisting>  Event&lt;void(int, float)&gt; event;
+  Handle eh;
+
+  // setup : store the connection in 'eh'
+  eh = event.setup( ... );
+  assert( !eh.connected() );
+
+  // now connect the function(s) :
+  eh.connect();
+  assert( eh.connected() );  // connected !
+	</programlisting>
+	If you do not store the connection of setup(), the connection will never
+	be established and no memory is leaked. If you do not use 'eh' to connect
+	and destroy this object, the connection is also cleaned up. If you use
+	'eh' to connect and then destroy 'eh', you can never terminate the connection,
+	except by destroying the Event itself.
+      </para>
+    </sect2>
     <sect2>
       <title>Choosing the Asynchronous Thread</title>
       <para>
@@ -1000,7 +1057,9 @@ emergencyStop.fire(); // User not notified
 	  For brevity, we will not use boost::bind in the following
 	  examples and only use 'free' ( <emphasis>C</emphasis> ) functions as callbacks.
 	  Asynchronous callbacks are bound in the same way as synchronous
-	  callbacks ( <xref linkend="core-event-example"/> ).
+	  callbacks ( <xref linkend="core-event-example"/> ) :
+	  <programlisting>  void syn_func( int, double ) { /* .. */ }
+  void asyn_func( int, double )  { /* .. */ }</programlisting>
 	</para>
       </note>
       <para>
@@ -1010,11 +1069,11 @@ emergencyStop.fire(); // User not notified
 	thread, which means that the reaction time is not bounded.
 	If you want to execute the callback in another thread,
 	an additional argument can be given in the
-	<methodname>connect</methodname> method :
+	<methodname>connect</methodname> or <methodname>setup</methodname> method :
 	<programlisting>
   event.connect(&amp;syn_func, &amp;asyn_func, ZeroLatencyThread::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
-	asyn_func if event is fired(). It will do this after it has processed
+	asyn_func if event is emit()'ed. It will do this after it has processed
 	all its tasks. The other Orocos threads can do this likewise :
 	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, ZeroTimeThread::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, NonRealTimeThread::Instance() );
@@ -1022,7 +1081,7 @@ emergencyStop.fire(); // User not notified
   event.connect(&amp;syn_func, &amp;asyn_func, PriorityThread&lt;N&gt;::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_task );	</programlisting>
 	If you would write above listings in a real program, on <function>
-	  event.fire()</function>, the syn_func will be called directly
+	  event.emit()</function>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
 	preempting itself.
       </para>
@@ -1079,10 +1138,10 @@ emergencyStop.fire(); // User not notified
 
   event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );
   
-  event.fire(); // calls only syn_func.
+  event.emit(); // calls only syn_func.
 
   mytask.start();
-  event.fire(); // calls syn_func and after mytask's step(), asyn_func.</programlisting>
+  event.emit(); // calls syn_func and after mytask's step(), asyn_func.</programlisting>
        <para>
 	 The private EventProcessor is disabled by default.
        </para>
@@ -1090,10 +1149,10 @@ emergencyStop.fire(); // User not notified
     <sect2>
       <title>Event Overrun Policy</title>
       <para>
-	An Event can only be fire()'d by one thread at the same time.
+	An Event can only be emit()'ed by one thread at the same time.
 	The synchronous handlers will always be executed
-	as much times as the event is fire()'d. This is not the case
-	for asynchronous handlers. If an Event is fire()'d multiple
+	as much times as the event is emit()'ed. This is not the case
+	for asynchronous handlers. If an Event is emit()'ed multiple
 	times before the completion thread executes, the asynchronous
 	handler will be called only once in the completion thread's execution
 	step.
