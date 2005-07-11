@@ -847,14 +847,12 @@ namespace ORO_Execution
 
     void Processor::loop()
     {
-        loopmode = true;
         while ( doloop )
             {
                 queuesem->wait();
                 // execute step with semaphore management.
                 this->step();
             }
-        loopmode = false; 
     }
 
     bool Processor::breakLoop()
@@ -878,7 +876,10 @@ namespace ORO_Execution
         a_queue->clear();
         f_queue->clear();
         accept = true;
-        doloop = true; // doloop is here and not in loop() to avoid race condition with breakLoop()
+        // doloop is set here and not in loop() to avoid race condition with breakLoop()
+        // if not periodic, loop() will be called.
+        doloop = !this->getTask()->isPeriodic(); 
+        loopmode = doloop;
         return true;
     }
 
@@ -886,6 +887,7 @@ namespace ORO_Execution
     {
         accept = false;
         doloop = false;
+        loopmode = false;
         // stop all programs and SCs.
         {
             MutexLock lock( *loadmonitor );
