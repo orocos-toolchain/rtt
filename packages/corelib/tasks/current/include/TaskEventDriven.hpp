@@ -89,6 +89,8 @@ namespace ORO_CoreLib
          * of this task, once started.
          */
         bool setEvent( Event<void(void)>* _event);
+
+        bool isPeriodic() const;
     protected:
 
         void handler();

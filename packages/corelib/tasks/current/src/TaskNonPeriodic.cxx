@@ -75,6 +75,8 @@ namespace ORO_CoreLib
 
     ORO_OS::ThreadInterface* TaskNonPeriodic::thread() { return this; }
 
+    bool TaskNonPeriodic::isPeriodic() const { return false; }
+
     bool TaskNonPeriodic::initialize() {
         bool result = proc->initialize();
         if ( runner && result )

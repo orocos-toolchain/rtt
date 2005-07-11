@@ -182,4 +182,7 @@ namespace ORO_CoreLib
 
     EventProcessor* PeriodicTask::getEventProcessor() const { return eprocessor_ == 0 ? thread_ : eprocessor_; }
 
+    bool PeriodicTask::isPeriodic() const {
+        return true;
+    }
 }

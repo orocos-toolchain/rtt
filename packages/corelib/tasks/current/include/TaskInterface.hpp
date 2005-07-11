@@ -58,6 +58,7 @@ namespace ORO_CoreLib
          * success, effectively start the task, by running the
          * RunnableInterface::step() or RunnableInterface::loop() in
          * a thread.
+         * @see isPeriodic()
          * 
          * @return true if the task is started, false otherwise
          */
@@ -68,6 +69,7 @@ namespace ORO_CoreLib
          * This will stop the task by removing it from the 'run-queue'
          * of a thread or call RunnableInterface::breakLoop().
          * If no errors occured, RunnableInterface::finalize() is called.
+         * @see isPeriodic()
          *
          * @return true if the task is stopped, false otherwise
          */
@@ -83,9 +85,17 @@ namespace ORO_CoreLib
         /**
          * Get the periodicity of this task in Seconds
          *
-         * @return The execution period of this task (zero if non periodic).
+         * @return The execution period of this task (zero if !this->isPeriodic() ).
          */
         virtual Seconds getPeriod() const = 0;
+
+        /**
+         * Inspect if this task is periodic. If so, it will call RunnableInterface::step().
+         * If the task is not periodic, it will call RunnableInterface::loop().
+         *
+         * @return true if periodic.
+         */
+        virtual bool isPeriodic() const = 0;
 
         /**
          * Returns a pointer to the EventProcessor which will

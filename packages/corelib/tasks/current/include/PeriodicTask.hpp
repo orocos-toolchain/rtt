@@ -120,6 +120,8 @@ namespace ORO_CoreLib
 
         virtual bool isRunning() const;
 
+        virtual bool isPeriodic() const;
+
         virtual Seconds getPeriod() const;
 
         virtual ORO_OS::ThreadInterface* thread();

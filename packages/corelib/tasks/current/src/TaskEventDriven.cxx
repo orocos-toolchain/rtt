@@ -94,4 +94,9 @@ namespace ORO_CoreLib
         else 
             this->step();
     }
+
+    bool TaskEventDriven::isPeriodic() const
+    {
+        return true;
+    }
 }
