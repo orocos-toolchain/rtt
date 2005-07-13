@@ -1228,12 +1228,14 @@
       </para>
       <para>
 	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
-	Package Tree from the Subversion tree.
-	<screen width="60">  svn co http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 
+	Package Tree from the Subversion tree (read-only)
+	<screen width="60">  svn co http://svn.mech.kuleuven.ac.be/repos/orocos/orocos-trunk 
   cd orocos-trunk </screen>
 	So, make sure you have
 	the Subversion program installed, i.e., the command "svn" works on your
-	 system.
+	 system. The repository is web-browsable through a
+	 <ulink url="http://svn.mech.kuleuven.ac.be/browse/orocos">ViewCVS frontend
+	 </ulink>.
       </para>
       <para>
 	The next step requires that you use
