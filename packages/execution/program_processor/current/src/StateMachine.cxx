@@ -93,6 +93,8 @@ namespace ORO_Execution
         else
             {
                 // disable all events of current state.
+                // WARNING : asyn events may still come in, check in the event handler
+                // for 'late' events.
                 disableEvents(current);
                 // reset handle and run, in case it is still set ( during error 
                 // or when an event arrived ).
@@ -383,7 +385,7 @@ namespace ORO_Execution
         // proper copy semantics, such that the event handle can be created for each new SM
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
-        Handle handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, guard, transprog, to), args,
+        Handle handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to), args,
                                                     taskcontext->getProcessor()->getTask() );
         if ( !handle )
             return false; // event does not exist...
@@ -396,15 +398,17 @@ namespace ORO_Execution
         return true;
     }
 
-    void StateMachine::eventTransition(ConditionInterface* c, ProgramInterface* p, StateInterface* to )
+    void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to )
     {
         // called by event to begin Transition to 'to'.
         // This interrupts the current run program at an interruption point ? 
         // the transition and/or exit program can cleanup...
 
-        // this will never be called if the event connection is destroyed.
-
-        if ( c->evaluate() && checkConditions(to, false) == 1 ) {
+        // this will never be called if the event connection is destroyed, unless called from the
+        // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
+        // only transition if this event was meant for this state and we are not
+        // in transition already.
+        if ( from == current && !this->inTransition() && c->evaluate() && checkConditions(to, false) == 1 ) {
             // valid transition to 'to'.
             changeState( to, p );
         }
@@ -594,7 +598,7 @@ namespace ORO_Execution
 
 
     bool StateMachine::inTransition() const {
-        return currentProg != 0  && currentProg != currentRun;
+        return currentProg != 0  && currentProg != currentRun && currentProg != currentHandle;
     }
 
     void StateMachine::setInitialState( StateInterface* s )

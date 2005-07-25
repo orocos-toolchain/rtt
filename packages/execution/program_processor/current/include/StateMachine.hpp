@@ -403,9 +403,9 @@ namespace ORO_Execution
 
         /**
          * Inspect if the StateMachine is performing a state transition.
-         * A transition is in progress if entry, handle or exit programs are executed.
-         * @return true if it is executing a program (except run program), false if it
-         * is not executing a program OR executing the run program.
+         * A transition is in progress if entry, transition or exit programs are executed.
+         * @return true if it is executing a program (except run or handle program), false if it
+         * is not executing a program OR executing the run/handle program.
          */
         bool inTransition() const;
 
@@ -449,8 +449,9 @@ namespace ORO_Execution
 
         /**
          * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.
+         * if from != current or in transition already, discard transition.
          */
-        void eventTransition( ConditionInterface* c,  ProgramInterface* p, StateInterface* to );
+        void eventTransition( StateInterface* from, ConditionInterface* c,  ProgramInterface* p, StateInterface* to );
 
         /**
          * The Initial State.
