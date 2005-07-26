@@ -267,6 +267,7 @@ namespace ORO_Execution
          *        The Condition under which the transition may succeed
          * @param transprog
          *        The program to be executed between exit of \a from and entry of \a to.
+         *        May be null to indicate the empty program.
          * @param priority
          *        The priority of this transition; low number (like -1000) is low priority
          *        high number is high priority (like + 1000). Transitions of equal

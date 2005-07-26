@@ -59,9 +59,9 @@ namespace ORO_Execution
    * A command that simply calls the functor it was passed every
    * time.  Very useful for e.g. components that want a command to
    * call one of their members every time. They can simply use:
-   * <pre>
-   * newFunctorCommand( boost::bind( &Component::memberfun, this, args ) );
-   * </pre>
+   * @verbatim
+    newFunctorCommand( boost::bind( &Component::memberfun, this, args ) );
+   * @endverbatim
    * or something similar.
    */
   template<typename FunctorT>

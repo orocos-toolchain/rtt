@@ -60,7 +60,7 @@ namespace ORO_Execution
          * Construct a new decorator with given command.
          *
          * @pre cmd != 0
-         * @param <cmd> The command to be decorated
+         * @param cmd The command to be decorated
          * @post The given command is decorated as an
          * 		 asynchronous command.
          */

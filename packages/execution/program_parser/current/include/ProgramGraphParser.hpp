@@ -31,6 +31,7 @@
 #include "parser-types.hpp"
 
 #include "CommonParser.hpp"
+#include "PeerParser.hpp"
 #include "ConditionParser.hpp"
 #include "CommandParser.hpp"
 #include "ExpressionParser.hpp"
@@ -74,6 +75,11 @@ namespace ORO_Execution { namespace detail
        * The current function context where we are working in.
        */
       TaskContext* fcontext;
+
+      /**
+       * peer context for events.
+       */
+      TaskContext* peer;
 
       our_pos_iter_t& mpositer;
 
@@ -137,6 +143,10 @@ namespace ORO_Execution { namespace detail
       void seencallfuncstatement();
       void seencallfuncargs();
 
+      void seeneventidentifier( iter_t begin, iter_t end);
+      void seeneventstatement();
+      void seeneventargs();
+
       void seenreturnstatement();
       void seenreturnlabel();
 
@@ -167,7 +177,7 @@ namespace ORO_Execution { namespace detail
           production, valuechange, returnstatement, function, functions, arguments, funcstatement,
           continuepart, returnpart, callpart, ifstatement, ifblock, whilestatement, breakstatement,
           openbrace, closebrace, opencurly, closecurly, forstatement, semicolon,
-          condition, catchpart, funcargs, functionarg ;
+          condition, catchpart, funcargs, functionarg, emitstatement ;
 
       ConditionParser conditionparser;
       CommonParser commonparser;
@@ -175,6 +185,7 @@ namespace ORO_Execution { namespace detail
       ValueChangeParser valuechangeparser;
       ExpressionParser expressionparser;
       ArgumentsParser* argsparser;
+      PeerParser peerparser;
 
       ProgramGraph* program_graph;
       std::vector<ProgramGraph*> program_list;

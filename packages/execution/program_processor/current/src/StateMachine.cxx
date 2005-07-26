@@ -111,7 +111,7 @@ namespace ORO_Execution
                 enterState( newState );
             }
 
-        // if not stepping, try to execute handle directly.
+        // if not stepping, try to execute exit/entry directly.
         // if stepping, postpone this
         if ( !stepping )
             this->executePending(stepping);
@@ -338,15 +338,7 @@ namespace ORO_Execution
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
-        // we must be inactive.
-        assert( current == 0);
-        // insert both from and to in the statemap
-        TransList::iterator it;
-        for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
-            ; // this ';' is intentional 
-        ProgramInterface* transprog = 0;
-        stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line, transprog ) );
-        stateMap[to]; // insert empty vector for 'to' state.
+        this->transitionSet( from, to, cnd, 0, priority, line);
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to,

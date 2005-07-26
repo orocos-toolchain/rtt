@@ -39,6 +39,7 @@
 #include <algorithm>
 
 #include "corelib/CommandNOP.hpp"
+#include "corelib/CommandDataSource.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/ConditionOnce.hpp"
 #include "execution/GlobalCommandFactory.hpp"
@@ -150,52 +151,6 @@ namespace ORO_Execution
                                       mcurobject, mcurmethod );
     arguments = argsparser->parser();
   }
-    namespace {
-        struct CommandDataSource :
-            public CommandInterface
-        {
-            DataSourceBase::shared_ptr _dsb;
-            CommandDataSource( DataSourceBase* dsb )
-                : _dsb(dsb) {}
-            bool execute() {
-                _dsb->evaluate();
-                return true;
-            }
-            void reset() {
-                _dsb->reset();
-            }
-            CommandInterface* clone() const {
-                return new CommandDataSource( _dsb.get() );
-            }
-
-            CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandDataSource( _dsb->copy( alreadyCloned ) );
-            }
-            
-        };
-        struct CommandDataSourceBool :
-            public CommandInterface
-        {
-            DataSource<bool>::shared_ptr _dsb;
-            CommandDataSourceBool( DataSource<bool>* dsb )
-                : _dsb(dsb) {}
-            bool execute() {
-                return _dsb->get();
-            }
-            void reset() {
-                _dsb->reset();
-            }
-            CommandInterface* clone() const {
-                return new CommandDataSourceBool( _dsb.get() );
-            }
-
-            CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new CommandDataSourceBool( _dsb->copy( alreadyCloned ) );
-            }
-            
-        };
-
-    }
 
   void CommandParser::seencallcommand()
   {

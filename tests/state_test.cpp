@@ -186,13 +186,13 @@ void StateTest::testParseState()
         + "     select ERROR\n" // do not reach
         + " }\n"
         + " }\n"
-        + " state PRE_ERROR {\n"
+        + " state PRE_ERROR { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state PRE_PARAMFAIL {\n"
+        + " state PRE_PARAMFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state PRE_VARFAIL {\n"
+        + " state PRE_VARFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state ERROR {\n"
+        + " state ERROR { entry { do test.assert(false) }\n"
         + " }\n"
         + " state PARAMFAIL {\n"
         + "      entry { \n"
@@ -202,11 +202,11 @@ void StateTest::testParseState()
         + "      do test.assertMsg( isnegative == -1.0, \"isnegative parameter not correctly initialised\")\n"
         + "      }\n"
         + " }\n"
-        + " state VARFAIL {\n"
+        + " state VARFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state EXITFAIL {\n"
+        + " state EXITFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state ENTRYFAIL {\n"
+        + " state ENTRYFAIL { entry { do test.assert(false) }\n"
         + " }\n"
         + " final state FINI {\n"
         + " preconditions {\n"
@@ -260,7 +260,7 @@ void StateTest::testStateFailure()
         + "     select FINI\n"
         + " }\n"
         + " }\n"
-        + " state ERROR {\n"
+        + " state ERROR { entry { do test.assert(false) }\n"
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
@@ -305,15 +305,15 @@ void StateTest::testStateChildren()
         + "     select FINI\n"
         + " }\n"
         + " }\n"
-        + " state ERROR {\n"
+        + " state ERROR { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state PARAMFAIL {\n"
+        + " state PARAMFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state VARFAIL {\n"
+        + " state VARFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state EXITFAIL {\n"
+        + " state EXITFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state ENTRYFAIL {\n"
+        + " state ENTRYFAIL { entry { do test.assert(false) }\n"
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
@@ -332,7 +332,7 @@ void StateTest::testStateChildren()
         + "     select FINI\n"
         + " }\n"
         + " }\n"
-        + " state PARAMFAIL {\n"
+        + " state PARAMFAIL { entry { do test.assert(false) }\n"
         + " }\n"
         + " final state FINI {\n"
         + " transitions {\n"
@@ -366,7 +366,7 @@ void StateTest::testStateChildren()
         + "     select FINI\n"
         + " }\n"
         + " }\n"
-        + " state ERROR {\n"
+        + " state ERROR { entry { do test.assert(false) }\n"
         + " }\n"
         + " state PARAMFAIL {\n"
         + "      entry { \n"
@@ -376,11 +376,11 @@ void StateTest::testStateChildren()
         + "      do test.assertMsg( z1.neg == d_dummy, \"z1 parameter not correctly initialised\")\n"
         + "      }\n"
         + " }\n"
-        + " state VARFAIL {\n"
+        + " state VARFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state EXITFAIL {\n"
+        + " state EXITFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state ENTRYFAIL {\n"
+        + " state ENTRYFAIL { entry { do test.assert(false) }\n"
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
@@ -444,17 +444,18 @@ void StateTest::testStateSubStateVars()
         + "     if t >= 0. then select VARFAIL\n"
         + "     select FINI\n"
         + " }\n"
-        + " }\n" // 10
-        + " state ERROR {\n"
+        + " exit { set isnegative = +1.0 }\n"
+        + " }\n" // 11
+        + " state ERROR { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state PARAMFAIL {\n"
+        + " state PARAMFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state VARFAIL {\n"
+        + " state VARFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state EXITFAIL {\n"
+        + " state EXITFAIL { entry { do test.assert(false) }\n"
         + " }\n"
-        + " state ENTRYFAIL {\n"
-        + " }\n" // 20
+        + " state ENTRYFAIL { entry { do test.assert(false) }\n"
+        + " }\n" // 21
         + " final state FINI {\n"
         + " transitions {\n"
         + "     if isnegative <= 0. then select PARAMFAIL\n"
@@ -464,15 +465,14 @@ void StateTest::testStateSubStateVars()
         + string("StateMachine X {\n")
         + " param double isnegative\n"
         + " var double d_dummy = -2.0\n"
-        + " var int    i_dummy = -1\n" //30
+        + " var int    i_dummy = -1\n" //31
         + " SubMachine Y y1(isnegative = d_dummy)\n"
         + " initial state INIT {\n"
         + " entry {\n"
-        + "     set y1.t = -1.0 \n"
         + "     do y1.activate()\n"
+        + "     set y1.t = -1.0 \n"
         + " }\n"
         + " exit {\n"
-        + "     set y1.isnegative = +1.0 \n"
         + "     do y1.start()\n"
         + " }\n"
         + " transitions {\n"
@@ -484,6 +484,7 @@ void StateTest::testStateSubStateVars()
         + "     do y1.stop()\n"
         + " }\n"
         + " exit {\n"
+        + "     set y1.isnegative = -1.0 \n"
         + "     do y1.deactivate()\n"
         + " }\n"
         + " transitions {\n"
@@ -660,26 +661,33 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //         tc->getPeer("__states")->getPeer("Y")->debug(false);
 //     cerr << "               x.y1 running : "<< (gprocessor.getStateMachineStatus("x.y1") == Processor::StateMachineStatus::running) << endl;
 //     cerr << "               x running : "<< (gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::running) << endl;
-    stringstream errormsg;
-    errormsg << " on line " <<  (*pg_list.begin())->getLineNumber() <<"."<<endl;
     if (test ) {
+        // check error status of parent :
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() );
+        stringstream errormsg;
+        errormsg <<" in StateContext "+(*pg_list.begin())->getName()
+                 <<" in state "<< (*pg_list.begin())->currentState()->getName()
+                 <<" on line " << (*pg_list.begin())->getLineNumber() <<" of that StateContext."<<endl;
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), (*pg_list.begin())->inError() == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_ERROR" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_ERROR") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_VARFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_VARFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PRE_PARAMFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PRE_PARAMFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ERROR" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("ERROR") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:VARFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("VARFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:PARAMFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("PARAMFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:ENTRYFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("ENTRYFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:EXITFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("EXITFAIL") == false );
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered:HANDLEFAIL" + errormsg.str(), (*pg_list.begin())->currentState()->getName() == string("HANDLEFAIL") == false );
+        // check error status of all children:
+        StateMachine::ChildList cl = (*pg_list.begin())->getChildren();
+        StateMachine::ChildList::iterator clit = cl.begin();
+        while( clit != cl.end() ) {
+            stringstream cerrormsg;
+            if ( (*clit)->currentState() )
+                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl;
+            else
+                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl;
+            CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered in child "+(*clit)->getName() + cerrormsg.str(), (*clit)->inError() == false );
+            ++clit;
+        }
     }
     tc->getProcessor()->stopStateMachine( (*pg_list.begin())->getName() );
     sleep(1);
     // after gtask.stop() it must be stopped.
     CPPUNIT_ASSERT( gtask.stop() );
     SimulationThread::Instance()->stop();
+    stringstream errormsg;
     errormsg << " on line " << (*pg_list.begin())->getLineNumber() <<", status is "<< int(gprocessor.getStateMachineStatus("x")) <<endl;
     CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::stopped );
 }

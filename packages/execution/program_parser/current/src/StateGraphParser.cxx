@@ -33,6 +33,8 @@
 #include "execution/CommandParser.hpp"
 #include "execution/ValueChangeParser.hpp"
 #include "execution/ProgramGraphParser.hpp"
+#include "execution/PeerParser.hpp"
+#include "execution/ArgumentsParser.hpp"
 #include "execution/StateMachineBuilder.hpp"
 #include "execution/DataSourceFactory.hpp"
 #include "execution/TaskContext.hpp"
@@ -100,13 +102,17 @@ namespace ORO_Execution
           curstate( 0 ),
           curnonprecstate( 0 ),
           progParser( 0 ),
+          transProgram( 0 ),
           curcondition( 0 ),
           isroot(false),
           selectln(0),
+          evname(""),
           conditionparser( new ConditionParser( context ) ),
           commonparser( new CommonParser ),
           valuechangeparser( new ValueChangeParser(context) ),
-          expressionparser( new ExpressionParser(context) )
+          expressionparser( new ExpressionParser(context) ),
+          argsparser(0),
+          peerparser( new PeerParser(context) )
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( rootcontextinstantiation );
@@ -121,8 +127,10 @@ namespace ORO_Execution
         BOOST_SPIRIT_DEBUG_RULE( statecontentline );
         BOOST_SPIRIT_DEBUG_RULE( entry );
         BOOST_SPIRIT_DEBUG_RULE( preconditions );
+        BOOST_SPIRIT_DEBUG_RULE( precondition );
         BOOST_SPIRIT_DEBUG_RULE( handle );
         BOOST_SPIRIT_DEBUG_RULE( transitions );
+        BOOST_SPIRIT_DEBUG_RULE( transition );
         BOOST_SPIRIT_DEBUG_RULE( exit );
         BOOST_SPIRIT_DEBUG_RULE( transline );
         BOOST_SPIRIT_DEBUG_RULE( selectcommand );
@@ -172,16 +180,16 @@ namespace ORO_Execution
         contextinstantiation =
             expect_ident( commonparser->identifier[ bind( &StateGraphParser::seencontexttypename, this, _1, _2 )] )
             >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seeninstcontextname, this, _1, _2 )] )
-            >> ( ! ( str_p( "(" )
+            >> ( ! ( ch_p( '(' )
                      >> !contextinstarguments
-                     >> expect_close_parenth( str_p( ")" ) ) ) )[ bind( &StateGraphParser::seencontextinstantiation, this )];
+                     >> expect_close_parenth( ch_p( ')' ) ) ) )[ bind( &StateGraphParser::seencontextinstantiation, this )];
 
         contextinstarguments =
-            contextinstargument >> *( "," >> contextinstargument );
+            contextinstargument >> *( ',' >> contextinstargument );
 
         contextinstargument =
             commonparser->identifier[ bind( &StateGraphParser::seencontextinstargumentname, this, _1, _2 )]
-            >> "="
+            >> '='
             >> expressionparser->parser()[ bind( &StateGraphParser::seencontextinstargumentvalue, this )];
 
         state =
@@ -203,30 +211,38 @@ namespace ORO_Execution
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
 
-        preconditions = +precondition | (str_p( "preconditions" )[ bind( &StateGraphParser::inpreconditions, this )]
-                        >> expect_open( str_p( "{" ))
+        preconditions = (str_p( "preconditions" )[ bind( &StateGraphParser::inpreconditions, this )]
+                        >> expect_open( ch_p( '{' ))
                         >> *transline
-                        >> expect_end( str_p( "}" ) )[
-                            bind( &StateGraphParser::seenpreconditions, this )]);
+                        >> expect_end( ch_p( '}' ) )[
+                            bind( &StateGraphParser::seenpreconditions, this )]) | precondition;
 
         entry = str_p( "entry" )[ bind( &StateGraphParser::inprogram, this, "entry" )]
-                >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
+                >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                     bind( &StateGraphParser::seenentry, this )];
 
         run = str_p( "run" )[ bind( &StateGraphParser::inprogram, this, "run" )]
-                 >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
+                 >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                      bind( &StateGraphParser::seenrun, this )];
 
         exit = str_p( "exit" )[ bind( &StateGraphParser::inprogram, this, "exit" )]
-               >> expect_open(str_p("{")) >> programBody >> expect_end(str_p("}"))[
+               >> expect_open(ch_p('{')) >> programBody >> expect_end(ch_p('}'))[
                    bind( &StateGraphParser::seenexit, this )];
 
         handle = str_p( "handle" )[ bind( &StateGraphParser::inprogram, this, "handle" )]
-                 >> expect_open(str_p("{"))>> programBody >> expect_end(str_p("}"))[
+                 >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                      bind( &StateGraphParser::seenhandle, this )];
 
-        transitions = str_p( "transitions" )
-                      >> expect_open(str_p("{"))>> *transline >> expect_end(str_p("}"));
+        // event based transition
+        transition = str_p("transition")
+            >> peerparser->locator() >> commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)]
+            >> argslist[ bind( &StateGraphParser::seeneventargs, this)]
+            >> selectcommand[ bind( &StateGraphParser::seeneventtrans, this)];
+
+        // condition based transition.
+        // the order of rule "transition" vs "transitions" is important
+        transitions = ( str_p( "transitions" )
+                        >> expect_open(ch_p('{'))>> *transline >> expect_end(ch_p('}')) ) | transition;
 
         transline = selectcommand;
 
@@ -234,12 +250,19 @@ namespace ORO_Execution
         selectcommand = (brancher | selector)[bind(&StateGraphParser::seenendcondition,this)];
 
         brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
-                                >> expect_if(str_p( "then" )) >> expect_if(selector);
+                                >> expect_if(str_p( "then" ))
+                                >> !transprog
+                                >> expect_if(selector);
+        transprog =
+            ch_p('{')[ bind( &StateGraphParser::inprogram, this, "transition" )]
+                >> programBody
+                >> expect_end(ch_p('}'))[bind( &StateGraphParser::seentransprog, this )];
+
 
         selector = str_p( "select" ) >> ( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
                                           >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
                                           )[lambda::var(eol_skip_functor::skipeol) = false]
-                                     >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
+                                     >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]; // if eos fails skipeol stays false !, see cleanup() !
 
     }
 
@@ -344,6 +367,11 @@ namespace ORO_Execution
         curstate->setRunProgram( finishProgram() );
     }
 
+    void StateGraphParser::seentransprog()
+    {
+        transProgram = finishProgram();
+    }
+
     void StateGraphParser::seencondition()
     {
         assert( !curcondition );
@@ -351,6 +379,26 @@ namespace ORO_Execution
         assert( curcondition );
         conditionparser->reset();
         selectln = mpositer.get_position().line - ln_offset;
+    }
+
+    void StateGraphParser::seeneventname(iter_t s, iter_t f)
+    {
+        evname = string(s,f);
+        // seenselect() will use evname to see if event is causing transition
+        assert(evname.length());
+        peer    = peerparser->peer();
+        peerparser->reset();
+        argsparser =
+            new ArgumentsParser( *expressionparser, peer,
+                                 evname, "handle" );
+        argslist = argsparser->parser();
+    }
+
+    void StateGraphParser::seeneventargs()
+    {
+        evargs = argsparser->result();
+        delete argsparser;
+        argsparser = 0;
     }
 
     void StateGraphParser::seenselect( iter_t s, iter_t f)
@@ -371,16 +419,29 @@ namespace ORO_Execution
         if (curcondition == 0)
             curcondition = new ConditionTrue;
 
-        // this transition has a lower priority than the previous one
-        if ( selectln == 0)
-            selectln = mpositer.get_position().line - ln_offset;
-        curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), rank--, selectln );
+        if (evname.empty()) {
+            // this transition has a lower priority than the previous one
+            if ( selectln == 0)
+                selectln = mpositer.get_position().line - ln_offset;
+            curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
+        } else {
+            bool res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            if (res == false)
+                throw parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() );
+        }
     }
 
     void StateGraphParser::seenendcondition() {
         delete curcondition;
         curcondition = 0;
         selectln = 0;
+        transProgram = 0;
+    }
+
+    void StateGraphParser::seeneventtrans() {
+        // cleanup all event related state.
+        evname.clear();
+        evargs.clear();
     }
 
     void StateGraphParser::seenprecondition()
@@ -532,10 +593,19 @@ namespace ORO_Execution
         delete valuechangeparser;
         delete expressionparser;
         delete conditionparser;
+        delete peerparser;
     }
 
     void StateGraphParser::clear() {
+
+        // in case of corrupt file, skipeol could have remained on false,
+        // so make sure it is set correctly again (I hate this global variable approach, it should be a member of commonparser !)
+        eol_skip_functor::skipeol = true;
         selectln = 0;
+        delete transProgram;
+        transProgram = 0;
+        delete argsparser;
+        argsparser = 0;
         delete curcondition;
         curcondition = 0;
         // we own curstate, but not through this pointer...

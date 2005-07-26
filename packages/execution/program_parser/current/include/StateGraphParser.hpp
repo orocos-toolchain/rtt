@@ -42,6 +42,7 @@ namespace ORO_Execution
     class TaskAttributeBase;
     class FunctionGraph;
     class ParsedStateMachine;
+    class ProgramInterface;
 }
 namespace ORO_Execution { namespace detail
 {
@@ -51,6 +52,8 @@ namespace ORO_Execution { namespace detail
     class ValueChangeParser;
     class ExpressionParser;
     class CommonParser;
+    class PeerParser;
+    class ArgumentsParser;
 
   /**
    * This is not a parser in the Boost.spirit sense of the word, it's
@@ -68,6 +71,7 @@ namespace ORO_Execution { namespace detail
       TaskContext* context;
       // The TC of the current StateMachine
       TaskContext* curcontext ;
+      TaskContext* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.
@@ -95,6 +99,7 @@ namespace ORO_Execution { namespace detail
       StateDescription* curstate;
       StateDescription* curnonprecstate;
       ProgramGraphParser* progParser;
+      ProgramInterface* transProgram;
       ConditionInterface* curcondition;
       std::string curscvccontextname;
       std::string curscvcparamname;
@@ -106,6 +111,9 @@ namespace ORO_Execution { namespace detail
       int rank;
       bool isroot; //! are we instantiating a rootmachine ?
       unsigned int selectln; //! store line number of select's 'if' statement.
+
+      std::vector<DataSourceBase::shared_ptr> evargs;
+      std::string evname;
 
       rule_t production;
       rule_t newline;
@@ -124,6 +132,9 @@ namespace ORO_Execution { namespace detail
       rule_t precondition;
       rule_t run;
       rule_t transitions;
+      rule_t transition;
+      rule_t transprog;
+      rule_t argslist;
       rule_t handle;
       rule_t exit;
       rule_t programBody;
@@ -144,6 +155,8 @@ namespace ORO_Execution { namespace detail
       CommonParser* commonparser;
       ValueChangeParser* valuechangeparser;
       ExpressionParser* expressionparser;
+      ArgumentsParser* argsparser;
+      PeerParser* peerparser;
 
       void clear();
 
@@ -161,8 +174,12 @@ namespace ORO_Execution { namespace detail
 
       void seencondition();
       void seenendcondition();
+      void seentransprog();
       void seenselect( iter_t s, iter_t f);
       void seenprecondition();
+      void seeneventname(iter_t s, iter_t f);
+      void seeneventtrans();
+      void seeneventargs();
 
       void seenstatecontextname( iter_t begin, iter_t end );
       void storeOffset();

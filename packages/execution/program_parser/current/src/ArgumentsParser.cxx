@@ -61,7 +61,7 @@ namespace ORO_Execution
     // a series of arguments; a command-separated list of arguments
     // between parentheses..
     arguments = (
-      "("
+      ch_p('(')
       >> !( argument >> *( ch_p( ',' ) >> expect_arg( argument ) ) )
       >> expect_close(ch_p(')')) )[
         bind( &ArgumentsParser::seenarguments, this ) ];

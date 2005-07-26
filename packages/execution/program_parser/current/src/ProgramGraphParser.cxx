@@ -32,6 +32,7 @@
 
 #include "execution/Processor.hpp"
 #include "corelib/CommandNOP.hpp"
+#include "corelib/CommandDataSource.hpp"
 #include "execution/ProgramGraph.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "execution/DataSourceCondition.hpp"
@@ -82,6 +83,7 @@ namespace ORO_Execution
         valuechangeparser( context ),
         expressionparser( context ),
         argsparser(0),
+        peerparser(rootc),
         program_graph(0),
         for_init_command(0),
         for_incr_command(0),
@@ -174,7 +176,7 @@ namespace ORO_Execution
     //line = !( statement ) >> eol_p;
     line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
 
-    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement;
+    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | emitstatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -210,6 +212,13 @@ namespace ORO_Execution
       >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
       >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
       )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
+
+    // emit an existing event.
+    emitstatement = (
+      str_p( "emit" )
+      >> peerparser.locator() >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seeneventidentifier, this, _1, _2) ] )
+      >> !arguments[ bind( &ProgramGraphParser::seeneventargs, this )]
+      )[ bind( &ProgramGraphParser::seeneventstatement, this ) ];
 
     // a return statement : "return"
     returnstatement =
@@ -582,6 +591,62 @@ namespace ORO_Execution
       // The exit node of the function is already connected
       // to program->nextNode().
       program_graph->proceedToNext(mpositer.get_position().line - ln_offset);
+  }
+
+  void ProgramGraphParser::seeneventidentifier( iter_t begin, iter_t end )
+  {
+      // store the part after 'call'
+      std::string ename(begin, end);
+      peer = peerparser.peer();
+      peerparser.reset();
+
+      if ( peer->eventService.hasEvent(ename) == false )
+          throw parse_exception_semantic_error("emitting Event " + ename + " but it is not defined in Task "+peer->getName()+".");
+
+      // Parse the event's args in the programs context.
+      argsparser = new ArgumentsParser( expressionparser, context,
+                                        "this", ename ); // store ename as methodname()
+      arguments = argsparser->parser();
+
+  }
+
+  void ProgramGraphParser::seeneventargs()
+  {
+      callfnargs = argsparser->result();
+  }
+
+  void ProgramGraphParser::seeneventstatement()
+  {
+      // This function is called if the 'call func' is outside
+      // a termination clause.
+
+      // add it to the main program line of execution.
+      assert( argsparser );
+      try
+          {
+              DataSourceBase::shared_ptr emitds = peer->eventService.setupEmit( argsparser->methodname(), callfnargs);
+              assert( emitds );
+              program_graph->setCommand( new CommandDataSource( emitds ) );
+              program_graph->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
+              // only delete parser, when the args are used.
+              delete argsparser;
+              argsparser = 0;
+              callfnargs.clear();
+          }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    ( peer->getName(), argsparser->methodname(), e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( peer->getName(), argsparser->methodname(), e.whicharg, e.expected_, e.received_ );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
   }
 
     void ProgramGraphParser::skip_eol() {

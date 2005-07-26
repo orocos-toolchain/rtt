@@ -71,6 +71,16 @@ namespace ORO_Execution
         }
 
         /**
+         * Query for the existence of an Event in this Service.
+         */
+        bool hasEvent(const std::string& ename)
+        {
+            if ( fact.count(ename) == 0 )
+                return false;
+            return true;
+        }
+
+        /**
          * Add an added Event from this Service.
          */
         bool removeEvent( const std::string& ename ) {
