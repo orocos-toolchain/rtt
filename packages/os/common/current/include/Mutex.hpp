@@ -34,6 +34,10 @@
 
 namespace ORO_OS
 {
+    class MutexLock;
+    class MutexTryLock;
+    class ConditionVariableTimed;
+
     /**
      * @brief An object oriented wrapper around a non recursive mutex.
      *
