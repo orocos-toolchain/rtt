@@ -18,6 +18,8 @@ real-time userspace applications"
 
     requires OROPKG_SUPPORT_FUSION
 
+    hardware
+
     cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
 	display "Build Linux kernel Modules"
 	description "
