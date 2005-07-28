@@ -49,7 +49,7 @@ namespace ORO_OS
      * It has a fixed priority, a name and a periodicity.
      */
     class PeriodicThread 
-        : public ThreadInterface 
+        : public ORO_OS::ThreadInterface 
     {
         friend void* periodicThread( void* t );
 
@@ -64,11 +64,11 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own RunnableInterface functions are executed.
          */
-        PeriodicThread(int priority, std::string name, double period, RunnableInterface* r=0);
+        PeriodicThread(int priority, std::string name, double period, ORO_OS::RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
-        virtual bool run( RunnableInterface* r);
+        virtual bool run( ORO_OS::RunnableInterface* r);
 
         /**
          * Start the thread
@@ -192,7 +192,7 @@ namespace ORO_OS
         /**
          * The possible Runnable to run in this Component
          */
-        RunnableInterface* runComp;
+        ORO_OS::RunnableInterface* runComp;
 
         ORO_CoreLib::Handle* h;
         // We cannot include Event.hpp inhere,

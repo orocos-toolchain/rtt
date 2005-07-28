@@ -47,7 +47,7 @@ namespace ORO_OS
      * @see RunnableInterface
      */
     class SingleThread 
-        : public ThreadInterface
+        : public ORO_OS::ThreadInterface
     {
         friend void* singleThread_f( void* t );
 
@@ -56,11 +56,11 @@ namespace ORO_OS
          * Create a single-shot Thread with priority \a priority, a \a name and optionally,
          * an object to execute.
          */
-        SingleThread(int priority, const std::string& name, RunnableInterface* r=0);
+        SingleThread(int priority, const std::string& name, ORO_OS::RunnableInterface* r=0);
     
         virtual ~SingleThread();
 
-        virtual bool run( RunnableInterface* r);
+        virtual bool run( ORO_OS::RunnableInterface* r);
 
         /**
          * Start the thread
@@ -179,7 +179,7 @@ namespace ORO_OS
         /**
          * The possible Runnable to run in this Component
          */
-        RunnableInterface* runComp;
+        ORO_OS::RunnableInterface* runComp;
     };
 
 }

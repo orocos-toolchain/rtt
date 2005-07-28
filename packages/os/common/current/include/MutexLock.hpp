@@ -47,7 +47,7 @@ namespace ORO_OS
              * 
              * @param mutex The Mutex to be locked.
              */
-            MutexLock( Mutex &mutex )
+            MutexLock( ORO_OS::Mutex &mutex )
             {
                 _mutex = &mutex;
                 _mutex->lock ();
@@ -62,7 +62,7 @@ namespace ORO_OS
             }
 
         protected:
-            Mutex *_mutex;
+            ORO_OS::Mutex *_mutex;
 
             MutexLock()
             {}
@@ -83,7 +83,7 @@ namespace ORO_OS
              *
              * @param mutex The Mutex which should be attempted to be locked
              */
-            MutexTryLock( Mutex &mutex )
+            MutexTryLock( ORO_OS::Mutex &mutex )
                     : _mutex( &mutex), successful( mutex.trylock() )
             {
             }
@@ -111,7 +111,7 @@ namespace ORO_OS
             /**
              * The Mutex to lock and unlock
              */
-            Mutex *_mutex;
+            ORO_OS::Mutex *_mutex;
 
         MutexTryLock()
         {}

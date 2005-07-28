@@ -46,11 +46,11 @@ namespace ORO_OS
      */
     class Mutex 
     {
-        friend class MutexLock;
+        friend class ORO_OS::MutexLock;
 
-        friend class MutexTryLock;
+        friend class ORO_OS::MutexTryLock;
 
-        friend class ConditionVariableTimed;
+        friend class ORO_OS::ConditionVariableTimed;
     protected:
         /**
          * The empty constructor, used for derived classes.
@@ -113,7 +113,7 @@ namespace ORO_OS
      *
      * @see MutexLock, MutexTryLock, Mutex
      */
-    class MutexRecursive : public Mutex
+    class MutexRecursive : public ORO_OS::Mutex
     {
         public:
         /**

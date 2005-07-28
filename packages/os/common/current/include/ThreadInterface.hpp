@@ -54,7 +54,7 @@ namespace ORO_OS
          * @param r The object to run or zero to clear.
          * @return true if accepted, false if the thread is running.
          */
-        virtual bool run( RunnableInterface* r) = 0;
+        virtual bool run( ORO_OS::RunnableInterface* r) = 0;
 
         /**
          * Start the Thread.
