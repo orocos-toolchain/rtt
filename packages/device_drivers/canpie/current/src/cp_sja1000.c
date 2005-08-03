@@ -49,9 +49,9 @@
 */
 static _U08    CpVar_CAN_Status[CP_CHANNEL_MAX];
 
-_U08 (* CpInt_ReceiveHandler[CP_CHANNEL_MAX] )(_TsCpCanMsg *);
-_U08 (* CpInt_TransmitHandler[CP_CHANNEL_MAX])(_TsCpCanMsg *);
-_U08 (* CpInt_ErrorHandler[CP_CHANNEL_MAX]   )(_U08);
+_U32 (* CpInt_ReceiveHandler[CP_CHANNEL_MAX] )(_TsCpCanMsg *);
+_U32 (* CpInt_TransmitHandler[CP_CHANNEL_MAX])(_TsCpCanMsg *);
+_U32 (* CpInt_ErrorHandler[CP_CHANNEL_MAX]   )(_U32);
 
 _TsCpCanMsg    tsCpMsgBufferTableG[BUFFER_SIZE_MAX];
 

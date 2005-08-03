@@ -76,9 +76,9 @@
 */
 static _U08    CpVar_CAN_Status[CP_CHANNEL_MAX];
 
-_U08 (* CpInt_ReceiveHandler[CP_CHANNEL_MAX] )(_U08, CpStruct_CAN *);
-_U08 (* CpInt_TransmitHandler[CP_CHANNEL_MAX])(_U08, CpStruct_CAN *);
-_U08 (* CpInt_ErrorHandler[CP_CHANNEL_MAX]   )(_U08);
+_U32 (* CpInt_ReceiveHandler[CP_CHANNEL_MAX] )(_U32, CpStruct_CAN *);
+_U32 (* CpInt_TransmitHandler[CP_CHANNEL_MAX])(_U32, CpStruct_CAN *);
+_U32 (* CpInt_ErrorHandler[CP_CHANNEL_MAX]   )(_U32);
 
 //-------------------------------------------------------------------
 // the ´CpVar_InitFlag´ is used to keep track if a channel
