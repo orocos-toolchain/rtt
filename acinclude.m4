@@ -517,7 +517,7 @@ For example : --with-linux=/usr/src/linux-rtai
     AC_ARG_WITH(lxrt,
             [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use RTAI/LXRT, specify installation directory])],
             [
-		if test x"$withval" != x; then RTAI_DIR="$withval"; else RTAI_DIR="/usr/realtime"; fi
+		if test x"$withval" != xyes; then RTAI_DIR="$withval"; else RTAI_DIR="/usr/realtime"; fi
 
             AC_MSG_RESULT(LXRT)
 	    ECOS_TARGET=lxrt
