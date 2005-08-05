@@ -645,24 +645,20 @@
 	  classes, the Orocos configure script must first
 	  detect a valid installation. This can be done
 	  by providing this option to configure :
-	  <screen>  ../configure --with-comedi=/path/to/comedi </screen>
+	  <screen>  ../configure --with-comedi=/path/to/comedi/include </screen>
 	  If found, the Comedi support package will
 	  be generated, and you will be able to add the
 	  Orocos Comedi Device Driver to your configuration.
 	</para>
-	<para>
-	  If Comedi is installed in <filename>/usr/realtime</filename>,
-	  <filename>/usr/src/comedi</filename>
-	  or in your default include path, it will also be
-	  detected by the configure script.
-	</para>
-	<para>
-	  Orocos can use ComediLib from the GNU/Linux target
-	  (non realtime interface), in which case you must
-	  point configure to the 'comedilib' path
-	  and the LXRT target ( realtime interface ), in which
-	  case you must configure to the 'comedi' path.
-	</para>
+	<important>
+	  <para>
+	    Orocos can use ComediLib from the GNU/Linux target
+	    (non realtime interface), in which case you must
+	    point configure to the 'comedilib' path (for example <filename>/usr/src/comedilib/include</filename>)
+	    and the LXRT target ( realtime interface ), in which
+	    case you must configure to the 'comedi' path (for example <filename>/usr/src/comedi/include</filename>).
+	  </para>
+	</important>
       </sect3>
       <sect3>
 	<title>Philips SJA1000 CAN Controller</title>
