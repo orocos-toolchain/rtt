@@ -121,8 +121,6 @@ namespace ORO_Execution
 
         void switchTask(std::string& c);
 
-        void evalCommand(std::string& comm );
-
         void browserAction(std::string& act );
 
         void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
@@ -177,6 +175,12 @@ namespace ORO_Execution
          * The 'turn color off' escape sequence.
          */
         static std::string coloroff;
+
+        /** 
+         * Evaluate command
+         */
+        void evalCommand(std::string& comm );
+
 
     };
 
