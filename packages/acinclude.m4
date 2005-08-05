@@ -126,7 +126,7 @@ m4_define([DETECT_COMEDIPKG],
 [
 AC_MSG_CHECKING(for Comedi dir)
 AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ]) ],
-	            [ if test x"$withval" != x; then COMEDI_DIR="$withval";fi],[ COMEDI_DIR="/usr/src/comedi/include" ])
+	            [ if test x"$withval" != xyes; then COMEDI_DIR="$withval";fi],[ COMEDI_DIR="/usr/src/comedi/include" ])
 
 if test -f $COMEDI_DIR/comedilib.h; then
   # gnu linux comedilib
@@ -135,7 +135,7 @@ if test -f $COMEDI_DIR/comedilib.h; then
   AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
 else
   if test -f $COMEDI_DIR/linux/comedilib.h; then
-    # lxrt comede package
+    # lxrt comedi package
     PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
     CPPFLAGS="-I$COMEDI_DIR"
     AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
@@ -187,12 +187,12 @@ m4_define([DETECT_RTAI],
 [
 AC_MSG_CHECKING(for RTAI/LXRT Installation)
 AC_ARG_WITH(rtai, [ --with-rtai[=/usr/realtime] Specify location of RTAI/LXRT ],
-	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
+	[ if test x"$withval" != xyes; then RTAI_DIR="$withval"; fi ])
 AC_ARG_WITH(lxrt, [ --with-lxrt[=/usr/realtime] Equivalent to --with-rtai ],
-	[ if test x"$withval" != x; then RTAI_DIR="$withval"; fi ])
+	[ if test x"$withval" != xyes; then RTAI_DIR="$withval"; fi ])
 AC_ARG_WITH(linux,
 	 [AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux directory (without /include).])],
-	 [ if test x"$withval" != x; then LINUX_KERNEL_DIR="$withval"; fi ])
+	 [ if test x"$withval" != xyes; then LINUX_KERNEL_DIR="$withval"; fi ])
 
 if test x"$RTAI_DIR" = x; then
    RTAI_DIR="/usr/realtime"
