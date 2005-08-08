@@ -62,6 +62,7 @@ ORO_PRAGMA_INTERFACE
 namespace ORO_ControlKernel
 {
     namespace detail {
+#undef na // remove crap from macro namespace.
         /**
          * A place holder to terminate type lists.
          */
