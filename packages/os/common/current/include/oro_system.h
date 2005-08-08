@@ -83,8 +83,8 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 #ifndef CONFIG_X86_CMPXCHG
 #define CONFIG_X86_CMPXCHG
 #endif
-#include <asm/bitops.h>
-#include <asm/system.h>
+#include "asm/bitops.h"
+#include "asm/system.h"
 #undef new
 #undef mb
 #undef alternative

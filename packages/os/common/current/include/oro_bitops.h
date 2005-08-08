@@ -25,6 +25,8 @@
  *                                                                         *
  ***************************************************************************/
  
+#include "pkgconf/os.h"
+#ifdef OROBLD_OS_AGNOSTIC
  
 #ifndef _I386_BITOPS_H
 #define _I386_BITOPS_H
@@ -460,3 +462,7 @@ static __inline__ unsigned long __ffs(unsigned long word)
 #define fls(x) generic_fls(x)
 
 #endif /* _I386_BITOPS_H */
+
+#else /* !OROBLD_OS_AGNOSTIC */
+#include "asm/bitops.h"
+#endif
