@@ -35,8 +35,8 @@
  */
 
 #include "pkgconf/os.h"
-#include "os/oro_bitops.h"
 #ifdef OROBLD_OS_AGNOSTIC
+#include "os/oro_bitops.h"
 // do not rely on system headers :
 // i386 :
 
@@ -83,6 +83,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 #ifndef CONFIG_X86_CMPXCHG
 #define CONFIG_X86_CMPXCHG
 #endif
+#include <asm/bitops.h>
 #include <asm/system.h>
 #undef new
 #undef mb
