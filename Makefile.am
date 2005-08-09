@@ -60,6 +60,7 @@ uninstall-local:
 	@for i in ${PATHHEADERS}; do rm -fv $(prefix)/include/$$i; done
 	@rm -fv $(prefix)/lib/liborocos-$(ECOS_TARGET).a
 	@rm -fv $(prefix)/lib/libtarget.a
+	@rm -rf $(prefix)/modules/
 
 install-exec-local:
 	@echo "Installing new headers..."
@@ -75,6 +76,10 @@ install-exec-local:
 	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
 	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; fi; done
 	@libtool --mode=finish $(prefix)/lib
+	@echo "Installing new modules"
+	if test -d packages/install/modules; then install -m 755 -d $(prefix)/modules ; fi
+	@for i in $$( find packages/install/modules/ -type f ); do \
+	install -p -m 644 $$i $(prefix)/modules/; echo "install $$i $(prefix)/modules"; done
 
 all-local: test_new_packages test_all_packages
 
