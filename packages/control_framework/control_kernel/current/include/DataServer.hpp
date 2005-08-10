@@ -63,7 +63,7 @@ namespace ORO_ControlKernel
 {
     namespace detail {
 
-#if BOOST_VERSION < 103200
+#if BOOST_VERSION >= 103200
         /**
          * A place holder to terminate type lists.
          */
