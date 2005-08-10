@@ -210,7 +210,8 @@ typedef void apci1710_module;
 #include <os/fosi.h>
 #undef OROBLD_OS_LXRT_INTERNAL
 
-union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
+#include <asm/rtai_lxrt.h>
+	//union rtai_lxrt_t rtai_lxrt(short int dynx, short int lsize, int srq, void *arg);
 
 #define SIZARG sizeof(arg)
 
