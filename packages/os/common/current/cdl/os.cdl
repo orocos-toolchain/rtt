@@ -165,7 +165,7 @@ compiled code will run on."
 	flavor data
 	no_define
 	default_value { "pentium" }
-        legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" }
+        legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" "athlon64" }
     }
 
     cdl_option OROBLD_OS_PROCESSOR {
@@ -179,7 +179,7 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
 	flavor data
 	no_define
 	default_value { "pentium2" }
-        legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" }
+        legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" "athlon64" }
     }
 
     cdl_option CYGBLD_OS_CONFIG_SMP {
