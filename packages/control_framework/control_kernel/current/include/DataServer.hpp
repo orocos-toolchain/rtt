@@ -62,11 +62,22 @@ ORO_PRAGMA_INTERFACE
 namespace ORO_ControlKernel
 {
     namespace detail {
-#undef na // remove crap from macro namespace.
+
+#if BOOST_VERSION < 103200
         /**
          * A place holder to terminate type lists.
          */
         typedef boost::mpl::na nil_type;
+#else
+        /**
+         * A place holder to terminate type lists.
+         */
+        struct nil_type
+        {
+            typedef nil_type type;
+            enum { value = 0 };
+        };
+#endif
     }
 }
 
