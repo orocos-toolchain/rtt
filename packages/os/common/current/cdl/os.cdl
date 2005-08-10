@@ -165,7 +165,7 @@ compiled code will run on."
 	flavor data
 	no_define
 	default_value { "pentium" }
-        legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" "athlon64" }
+        legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" "athlon64" "none" }
     }
 
     cdl_option OROBLD_OS_PROCESSOR {
@@ -179,7 +179,7 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
 	flavor data
 	no_define
 	default_value { "pentium2" }
-        legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" "athlon64" }
+        legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" "athlon64" "none" }
     }
 
     cdl_option CYGBLD_OS_CONFIG_SMP {
@@ -257,8 +257,10 @@ compilation times."
 	    calculated { (OROBLD_OS_OPTIMIZE_EXECUTION ? OROBLD_OS_OPTIMIZE_EXECUTION : "").
 		(OROBLD_OS_OPTIMIZE_DEBUGGING ? OROBLD_OS_OPTIMIZE_DEBUGGING : "").
 		(OROBLD_OS_OPTIMIZE_COMPILE ? OROBLD_OS_OPTIMIZE_COMPILE : "").
-		" -march=".OROBLD_OS_ARCHITECTURE.
-		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR." ".
+		(OROBLD_OS_ARCHITECTURE == "none" ? "" :
+		" -march=".OROBLD_OS_ARCHITECTURE).
+		(OROBLD_OS_PROCESSOR == "none" ? "" : 
+		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR)." ".
 		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
 		"-D_REENTRANT ".
 		(CYGBLD_OS_COMPILER == "gcc33" ? "-DORO_PRAGMA_INTERFACE " : "").
