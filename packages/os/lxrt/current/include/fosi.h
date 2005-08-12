@@ -141,8 +141,14 @@ extern "C" {
 	typedef long long TICK_TIME;
 	typedef struct timespec TIME_SPEC;
 
-// rtai undef
+// rtai undef cfr boost::graph library adjacency_list.hpp:443
 #undef DS	
+#undef OEL
+#undef VL
+#undef VP
+#undef EP
+#undef GP
+#undef EL
 
 #ifndef OROBLD_OS_AGNOSTIC
 	
