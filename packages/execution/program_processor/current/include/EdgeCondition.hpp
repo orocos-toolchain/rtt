@@ -32,6 +32,15 @@
 #include <corelib/ConditionInterface.hpp>
 #include <corelib/DataSource.hpp>
 
+// adjacency_list has some very short template parameter names,
+// which may be defined as macros on some OS's. So undef here.
+#undef DS	
+#undef OEL
+#undef VL
+#undef VP
+#undef EP
+#undef GP
+#undef EL
 #include <boost/graph/adjacency_list.hpp>
 using boost::property;
 
