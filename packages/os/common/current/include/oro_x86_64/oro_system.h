@@ -61,7 +61,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 				     : "memory");
 		return prev;
 	case 4:
-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
+		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %k1,%2"
 				     : "=a"(prev)
 				     : "q"(_new), "m"(*__xg(ptr)), "0"(old)
 				     : "memory");
