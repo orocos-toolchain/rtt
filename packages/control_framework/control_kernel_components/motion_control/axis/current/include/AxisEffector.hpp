@@ -53,7 +53,6 @@ namespace ORO_ControlKernel
     using namespace ORO_CoreLib;
 
     using ORO_DeviceInterface::SensorInterface;
-    using ORO_DeviceDriver::Axis;
     using ORO_DeviceDriver::DigitalOutput;
     using boost::bind;
     using std::make_pair;
@@ -114,16 +113,21 @@ namespace ORO_ControlKernel
          * A DigitalOutput is created with name "\a name.Break" representing
          * the Drive mechanical break.
          *
-         * A Drive Output is created with name "\a name.Velocity" representing
+         * A Drive Output is created with name "\a name_Velocity" representing
          * the Drive velocity.
          */
-        bool addAxis( const std::string& name, Axis* ax );
+        bool addAxis( const std::string& name, ORO_DeviceDriver::Axis* ax );
+
+        /**
+         * @brief Add an Axis object with a name and create a Drive Velocity Output.
+         *
+         * A Drive Output is created with name "\a name_Velocity" representing
+         * the Drive velocity.
+         */
+        bool addAxis( const std::string& name, ORO_DeviceInterface::AxisInterface* ax );
 
         /**
          * @brief Add an Axis object with a name on a Channel
-         *
-         * A DigitalOutput is created with name "\a name.Drive" representing
-         * the Drive enable.
          *
          * A Channel is added representing the Drive velocity on channel \a virt_channel.
          */
@@ -156,6 +160,11 @@ namespace ORO_ControlKernel
         bool disableAxis( const std::string& name );
 
         /**
+         * @brief Stop an Axis.
+         */
+        bool stopAxis( const std::string& name );
+
+        /**
          * @brief Switch on a Digital Output.
          */
         bool switchOn( const std::string& name );
@@ -175,23 +184,23 @@ namespace ORO_ControlKernel
         /**
          * Write to Data to AnalogDrives.
          */
-        void write_to_drive( pair<std::string, pair<Axis*, DataObjectInterface<double>* > > dd );
+        void write_to_drive( pair<std::string, pair<ORO_DeviceInterface::AxisInterface*, DataObjectInterface<double>* > > dd );
 
         /**
          * Check if the Output DataObject lacks a user requested AnalogDrive.
          */
-        bool lacksDrive( pair<std::string,pair<Axis*, DataObjectInterface<double>* > > dd );
+        bool lacksDrive( pair<std::string,pair<ORO_DeviceInterface::AxisInterface*, DataObjectInterface<double>* > > dd );
             
         Property<int> max_channels;
 
-        std::vector< Axis* > channels;
+        std::vector< ORO_DeviceInterface::AxisInterface* > channels;
         std::vector<double> chan_out;
         DataObjectInterface< std::vector<double> >* chan_DObj;
 
         std::map<std::string, DigitalOutput* > d_out;
 
-        std::map<std::string, pair<Axis*, DataObjectInterface<double>* > > drive;
-        std::map<std::string, pair<Axis*, int> > axes;
+        std::map<std::string, pair<ORO_DeviceInterface::AxisInterface*, DataObjectInterface<double>* > > drive;
+        std::map<std::string, pair<ORO_DeviceInterface::AxisInterface*, int> > axes;
         
         int usingChannels;
     };

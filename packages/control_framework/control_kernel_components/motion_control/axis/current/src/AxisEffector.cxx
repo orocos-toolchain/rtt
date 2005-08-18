@@ -32,7 +32,8 @@
 
 namespace ORO_ControlKernel {
 
-    using ORO_DeviceDriver::AnalogDrive;
+    using namespace ORO_DeviceDriver;
+    using namespace ORO_DeviceInterface;
 
     AxisEffector::AxisEffector(int max_chan, const std::string& name  ) 
         :  Base( name ),
@@ -87,6 +88,20 @@ namespace ORO_ControlKernel {
 
         d_out[ name + ".Drive" ] = ax->getDrive()->enableGet();
         d_out[ name + ".Brake" ] = ax->getBrake();
+        // we will fill in the dataobject pointer in componentStartup()
+        DataObjectInterface<double>* tmp = 0;
+        drive[name + "_Velocity" ] = make_pair( ax, tmp);
+
+        return true;
+    }
+
+    bool AxisEffector::addAxis( const std::string& name, AxisInterface* ax )
+    {
+        if ( axes.count(name) != 0 || this->kernel()->isRunning() )
+            return false;
+
+        axes[name] = make_pair(ax, -1);
+
         // we will fill in the dataobject pointer in componentStartup()
         DataObjectInterface<double>* tmp = 0;
         drive[name + "_Velocity" ] = make_pair( ax, tmp);
@@ -149,6 +164,13 @@ namespace ORO_ControlKernel {
         return axes[name].first->unlock();
     }
 
+    bool AxisEffector::stopAxis( const std::string& name )
+    {
+        if ( axes.count(name) != 1 )
+            return false;
+        return axes[name].first->stop();
+    }
+
     bool AxisEffector::disableAxis( const std::string& name )
     {
         if ( axes.count(name) != 1 )
@@ -192,19 +214,34 @@ namespace ORO_ControlKernel {
                            ) ); 
         ret->add( "enableAxis",
                   method( &AxisEffector::enableAxis,
-                           "Enable an Axis",
+                           "Enable an Axis ( equivalent to unlockAxis() )",
+                           "Name","The Name of the Axis."
+                           ) ); 
+        ret->add( "unlockAxis",
+                  method( &AxisEffector::enableAxis,
+                           "Unlock an Axis. Enters 'stopped' state.",
+                           "Name","The Name of the Axis."
+                           ) ); 
+        ret->add( "stopAxis",
+                  method( &AxisEffector::stopAxis,
+                           "Stop an Axis from driven. Enters 'stopped' state.",
+                           "Name","The Name of the Axis."
+                           ) ); 
+        ret->add( "lockAxis",
+                  method( &AxisEffector::disableAxis,
+                           "Disable (lock) an Axis. Enters 'locked' state/",
                            "Name","The Name of the Axis."
                            ) ); 
         ret->add( "disableAxis",
                   method( &AxisEffector::disableAxis,
-                           "Disable (lock) an Axis",
+                           "Disable (lock) an Axis (equivalent to lockAxis() )",
                            "Name","The Name of the Axis."
                            ) ); 
         return ret;
     }
 #endif
             
-    void AxisEffector::write_to_drive( pair<std::string, pair<Axis*, DataObjectInterface<double>* > > dd )
+    void AxisEffector::write_to_drive( pair<std::string, pair<AxisInterface*, DataObjectInterface<double>* > > dd )
     {
         // This only do something if the Controller component has an AxisName.Drive DataObject
         // If it does not lack the Axis.Drive dataobject :
@@ -212,7 +249,7 @@ namespace ORO_ControlKernel {
             dd.second.first->drive( dd.second.second->Get() );
     }
 
-    bool AxisEffector::lacksDrive( pair<std::string,pair<Axis*, DataObjectInterface<double>* > > dd )
+    bool AxisEffector::lacksDrive( pair<std::string,pair<AxisInterface*, DataObjectInterface<double>* > > dd )
     {
         // fill in the dataobject, if it fails, abort startup...
         if ( !Output->dObj()->Get(dd.first, dd.second.second) )

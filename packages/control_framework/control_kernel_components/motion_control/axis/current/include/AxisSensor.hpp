@@ -29,6 +29,7 @@
 #define AXIS_SENSOR_HPP
 
 #include <device_drivers/Axis.hpp>
+#include <device_interface/AxisInterface.hpp>
 #include <device_drivers/AnalogDrive.hpp>
 #include <device_drivers/DigitalInput.hpp>
 #include <device_drivers/DigitalOutput.hpp>
@@ -138,10 +139,16 @@ namespace ORO_ControlKernel
 
         /**
          * @brief Add an Axis object with a name and create a Drive Velocity Input and
-         * all Axis status info (homed, enabled, breaked, ...)
+         * all Axis status info (homed, enabled, breaked, ...).
          *
          */
         bool addAxis( const std::string& name, Axis* ax );
+
+        /**
+         * @brief Add an AxisInterface object with a name with minimal state information
+         * ( stopped, locked, driven ).
+         */
+        bool addAxis( const std::string& name, ORO_DeviceInterface::AxisInterface* axis_i );
 
         /** 
          * @brief Add a sensor of an Axis object on a Channel.
@@ -175,9 +182,24 @@ namespace ORO_ControlKernel
          * @{
          */
         /**
-         * @brief Inspect if an axis is enabled.
+         * @brief Inspect if an axis is enabled (equivalent to !isLocked()).
          */
         bool isEnabled( const std::string& name ) const;
+
+        /**
+         * @brief Inspect if an axis is 'driven' (in movement).
+         */
+        bool isDriven( const std::string& name ) const;
+
+        /**
+         * @brief Inspect if an axis is 'stopped' (electronical stand still).
+         */
+        bool isStopped( const std::string& name ) const;
+
+        /**
+         * @brief Inspect if an axis is 'locked' (mechanical stand still).
+         */
+        bool isLocked( const std::string& name ) const;
 
         /**
          * @brief Inspect the position of an Axis.
@@ -233,7 +255,7 @@ namespace ORO_ControlKernel
         /**
          * Write Analog input to DataObject.
          */
-        void drive_to_do( std::pair<std::string,std::pair<AnalogDrive*,
+        void drive_to_do( std::pair<std::string,std::pair<ORO_DeviceInterface::AxisInterface*,
                           DataObjectInterface<double>* > > dd );
             
         void sensor_to_do( std::pair<std::string,std::pair< const SensorInterface<double>*,
@@ -241,7 +263,7 @@ namespace ORO_ControlKernel
             
         Property<int> max_channels;
 
-        std::vector< std::pair< const SensorInterface<double>*, Axis* > > channels;
+        std::vector< std::pair< const SensorInterface<double>*, ORO_DeviceInterface::AxisInterface* > > channels;
         ChannelType chan_meas;
         DataObjectInterface< ChannelType >* chan_DObj;
 
@@ -249,13 +271,13 @@ namespace ORO_ControlKernel
         std::map<std::string, DigitalOutput* > d_out;
 
         typedef
-        std::map<std::string, std::pair<AnalogDrive*, DataObjectInterface<double>* > > DriveMap;
+        std::map<std::string, std::pair<ORO_DeviceInterface::AxisInterface*, DataObjectInterface<double>* > > DriveMap;
         DriveMap drive;
         typedef
         std::map<std::string, std::pair< SensorInterface<double>*, DataObjectInterface<double>* > > SensorMap;
         SensorMap sensor;
         typedef
-        std::map<std::string, Axis* > AxisMap;
+        std::map<std::string, ORO_DeviceInterface::AxisInterface* > AxisMap;
         AxisMap axes;
 
         std::string axis_to_remove;

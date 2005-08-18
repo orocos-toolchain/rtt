@@ -30,6 +30,9 @@
 #endif
 #include "control_kernel/AxisSensor.hpp"
 
+
+using namespace ORO_DeviceInterface;
+
 namespace ORO_ControlKernel {
 
     AxisSensor::AxisSensor( int max_chan , const std::string& name ) 
@@ -38,7 +41,7 @@ namespace ORO_ControlKernel {
            axis_to_remove(""),
            usingChannels(0)
     {
-        Axis* _a = 0;
+        AxisInterface* _a = 0;
         SensorInterface<double>* _d = 0;
         channels.resize(max_chan, std::make_pair(_d,_a) );
         chan_meas.resize(max_chan, 0.0);
@@ -60,7 +63,7 @@ namespace ORO_ControlKernel {
                 if ( this->Input->dObj()->Get( ax->first+"_Velocity", d) == false )
                     std::cout << "AxisSensor::componentLoaded : Velocity of "+ax->first+" not found !"<<std::endl;
 
-                drive[ ax->first ] = std::make_pair( ax->second->getDrive(), d );
+                drive[ ax->first ] = std::make_pair( ax->second, d );
 
                 std::vector<std::string> res( ax->second->sensorList() );
                 for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
@@ -147,6 +150,32 @@ namespace ORO_ControlKernel {
         return true;
     }
 
+    bool AxisSensor::addAxis( const std::string& name, AxisInterface* axis_i )
+    {
+        if ( !this->inKernel() || axes.count(name) != 0 || this->kernel()->isRunning() )
+            return false;
+
+        // no channel tied == -1
+        axes[name] = axis_i;
+
+        // Before Reload, Add All DataObjects :
+        assert( this->Input->dObj() );
+        this->Input->dObj()->addDouble(name+"_Velocity");
+
+        // Repeat for each additional sensor...
+        std::vector<std::string> res( axis_i->sensorList() );
+        for ( std::vector<std::string>::iterator it = res.begin(); it != res.end(); ++it)
+            {
+                std::string sname( name+"_"+*it );
+                this->Input->dObj()->addDouble( sname );
+            }
+
+        if ( this->inKernel() )
+            this->kernel()->reload(this);
+
+        return true;
+    }
+
     bool AxisSensor::addSensorOnChannel(const std::string& axis_name, const std::string& sensor_name, int virtual_channel )
     {
         if ( virtual_channel >= max_channels ||
@@ -172,7 +201,7 @@ namespace ORO_ControlKernel {
 
         --usingChannels;
 
-        Axis* _a = 0;
+        AxisInterface* _a = 0;
         SensorInterface<double>* _d = 0;
         // Reset the channel
         channels[virtual_channel] = std::make_pair( _d, _a);
@@ -183,7 +212,7 @@ namespace ORO_ControlKernel {
         if ( axes.count(name) != 1 || this->kernel()->isRunning() )
             return false;
 
-        for ( std::vector< std::pair< const SensorInterface<double>*, Axis* > >::iterator it = channels.begin();
+        for ( std::vector< std::pair< const SensorInterface<double>*, AxisInterface* > >::iterator it = channels.begin();
               it != channels.end();
               ++it )
             if ( it->second == axes[name] )
@@ -225,6 +254,30 @@ namespace ORO_ControlKernel {
         AxisMap::const_iterator it = axes.find(name);
         if ( it != axes.end() )
             return ! it->second->isLocked(); // not locked == enabled
+        return false;
+    }
+
+    bool AxisSensor::isLocked( const std::string& name ) const
+    {
+        AxisMap::const_iterator it = axes.find(name);
+        if ( it != axes.end() )
+            return it->second->isLocked();
+        return false;
+    }
+
+    bool AxisSensor::isStopped( const std::string& name ) const
+    {
+        AxisMap::const_iterator it = axes.find(name);
+        if ( it != axes.end() )
+            return it->second->isStopped(); 
+        return false;
+    }
+
+    bool AxisSensor::isDriven( const std::string& name ) const
+    {
+        AxisMap::const_iterator it = axes.find(name);
+        if ( it != axes.end() )
+            return it->second->isDriven();
         return false;
     }
 
@@ -306,7 +359,22 @@ namespace ORO_ControlKernel {
                         ) );
         ret->add( "isEnabled", 
                   data( &AxisSensor::isEnabled,
-                        "Inspect the status of an Axis.",
+                        "Inspect if an Axis is not locked.",
+                        "Name", "The Name of the Axis."
+                        ) );
+        ret->add( "isLocked", 
+                  data( &AxisSensor::isLocked,
+                        "Inspect if an Axis is mechanically locked.",
+                        "Name", "The Name of the Axis."
+                        ) );
+        ret->add( "isStopped", 
+                  data( &AxisSensor::isStopped,
+                        "Inspect if an Axis is electronically stopped.",
+                        "Name", "The Name of the Axis."
+                        ) );
+        ret->add( "isDriven", 
+                  data( &AxisSensor::isDriven,
+                        "Inspect if an Axis is in movement.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "axes", 
@@ -333,10 +401,10 @@ namespace ORO_ControlKernel {
         return ret;
     }
 #endif
-    void AxisSensor::drive_to_do( std::pair<std::string,std::pair<AnalogDrive*,
+    void AxisSensor::drive_to_do( std::pair<std::string,std::pair<AxisInterface*,
                                   DataObjectInterface<double>* > > dd )
     {
-        dd.second.second->Set( dd.second.first->driveGet() );
+        dd.second.second->Set( dd.second.first->getDriveValue() );
     }
             
     void AxisSensor::sensor_to_do( std::pair<std::string,std::pair< const SensorInterface<double>*,
