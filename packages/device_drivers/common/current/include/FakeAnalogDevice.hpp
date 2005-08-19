@@ -43,13 +43,24 @@ namespace ORO_DeviceDriver
         public AnalogInInterface<unsigned int>,
         public AnalogOutInterface<unsigned int>
     {
-        const static int chans = 32;
-        unsigned int channels[chans];
+        unsigned int nbofchans;
+        unsigned int* mchannels;
+        unsigned int mbin_range;
+        double mlowest, mhighest;
 
-        FakeAnalogDevice()
+        FakeAnalogDevice(unsigned int channels=32, unsigned int bin_range=4096, double lowest = -5.0, double highest = +5.0)
             : AnalogInInterface<unsigned int>("FakeAnalogDevice"),
-              AnalogOutInterface<unsigned int>("FakeAnalogDevice")
+              AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
+              nbofchans(channels),
+              mchannels( new unsigned int[channels] ),
+              mbin_range( bin_range),
+              mlowest( lowest),
+              mhighest( highest)
         {}
+
+        ~FakeAnalogDevice() {
+            delete[] mchannels;
+        }
 
         virtual void rangeSet(unsigned int chan, 
                               unsigned int range) {}
@@ -58,21 +69,23 @@ namespace ORO_DeviceDriver
                              unsigned int aref) {}
 
         virtual unsigned int nbOfChannels() const {
-            return chans;
+            return nbofchans;
         }
 
         virtual void read( unsigned int chan, unsigned int& value ) const 
         {
-            value = channels[chan];
+            if (chan < nbofchans)
+                value = mchannels[chan];
         }
 
         virtual void write( unsigned int chan, unsigned int value ) {
-            channels[chan] = value;
+            if (chan < nbofchans)
+                mchannels[chan] = value;
         }
 
         virtual unsigned int binaryRange() const
         {
-            return 4096;
+            return mbin_range;
         }
 
         virtual unsigned int binaryLowest() const 
@@ -82,22 +95,22 @@ namespace ORO_DeviceDriver
 
         virtual unsigned int binaryHighest() const
         {
-            return 4096;
+            return mbin_range;
         }
 
         virtual double lowest(unsigned int chan) const
         {
-            return -5.0;
+            return mlowest;
         }
 
         virtual double highest(unsigned int chan) const
         {
-            return +5.0;
+            return mhighest;
         }
 
         virtual double resolution(unsigned int chan) const
         {
-            return 4096/10.0;
+            return mbin_range/(mhighest-mlowest);
         }
 
     };    

@@ -36,82 +36,101 @@ namespace ORO_DeviceDriver
 {
     using namespace ORO_DeviceInterface;
 
+    /**
+     * A Fake (Simulated) Digital Input/Output Device which replicates the inputs
+     * on its outputs.
+     */
     class FakeDigitalDevice
         : public DigitalInInterface,
           public DigitalOutInterface
     {
     public:
-        const static int chans = 32;
-        bool channels[chans];
+        std::vector<bool> mchannels;
 
-        FakeDigitalDevice()
+        FakeDigitalDevice(unsigned int channels=32)
             : DigitalInInterface("FakeDigitalDevice"),
-              DigitalOutInterface("FakeDigitalDevice")
+              DigitalOutInterface("FakeDigitalDevice"),
+              mchannels(channels, false)
         {}
         
         virtual void switchOn( unsigned int n )
         {
-            channels[n] = true;
+            if ( n < mchannels.size() ) 
+                mchannels[n] = true;
         }
 
         virtual void switchOff( unsigned int n )
         {
-            channels[n] = false;
+            if ( n < mchannels.size() ) 
+                mchannels[n] = false;
         }
 
         virtual void setBit( unsigned int bit, bool value )
         {
-            channels[bit] = value;
+            if ( bit < mchannels.size() ) 
+                mchannels[bit] = value;
         }
                 
         virtual void setSequence(unsigned int start_bit, unsigned int stop_bit, unsigned int value)
         {
-            for (unsigned int i = start_bit; i <= stop_bit; ++i)
-                channels[i] = value & ( 1<<( i - start_bit ) );
+            if ( start_bit < mchannels.size() && stop_bit < mchannels.size() ) 
+                for (unsigned int i = start_bit; i <= stop_bit; ++i)
+                    mchannels[i] = value & ( 1<<( i - start_bit ) );
         }
 
         virtual bool checkBit(unsigned int n) const
         {
-            return channels[n];
+            if ( n < mchannels.size() ) 
+                return mchannels[n];
+            return false;
         }
 
 
         virtual unsigned int checkSequence( unsigned int start_bit, unsigned int stop_bit ) const
         {
             unsigned int result = 0;
-            for (unsigned int i = start_bit; i <= stop_bit; ++i)
-                result += (channels[i] & 1)<<i;
+            if ( start_bit < mchannels.size() && stop_bit < mchannels.size() ) 
+                for (unsigned int i = start_bit; i <= stop_bit; ++i)
+                    result += (mchannels[i] & 1)<<i;
             return result;
         }
             
         virtual unsigned int nbOfOutputs() const
         {
-            return chans;
+            return mchannels.size();
         }
 
         virtual unsigned int nbOfInputs() const
         {
-            return chans;
+            return mchannels.size();
         }
 
         virtual bool isOn( unsigned int bit = 0) const 
         {
-            return channels[bit];
+            if ( bit < mchannels.size() ) 
+                return mchannels[bit];
+            return false;
         }
 
         virtual bool isOff( unsigned int bit = 0) const
         {
-            return !channels[bit];
+            if ( bit < mchannels.size() ) 
+                return !mchannels[bit];
+            return true;
         }
             
         virtual bool readBit( unsigned int bit = 0) const
         {
-            return channels[bit];
+            if ( bit < mchannels.size() ) 
+                return mchannels[bit];
+            return false;
         }
 
         virtual unsigned int readSequence(unsigned int start_bit, unsigned int stop_bit) const
         {
-            return checkSequence(start_bit, stop_bit);
+            if ( start_bit < mchannels.size() && stop_bit < mchannels.size() ) 
+                return checkSequence(start_bit, stop_bit);
+            return 0;
         }
             
     };

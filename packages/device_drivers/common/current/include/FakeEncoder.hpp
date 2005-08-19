@@ -39,8 +39,13 @@ namespace ORO_DeviceDriver
         : public ORO_DeviceInterface::EncoderInterface
     {
         int turn, pos;
+        unsigned int mresolution;
+        bool mupcounting;
     public:
-        FakeEncoder() : turn(0), pos(0) {}
+        FakeEncoder(unsigned int resolution = 4096, bool upcounting = true)
+            : turn(0), pos(0),
+              mresolution(resolution), mupcounting(upcounting)
+        {}
         virtual ~FakeEncoder() {}
 
         /**
@@ -68,7 +73,7 @@ namespace ORO_DeviceDriver
          * can be negative or positive and denotes the
          * the maximal or minimal value positionGet().
          */
-        virtual int resolution() const { return 4096; }
+        virtual int resolution() const { return mresolution; }
 
         /**
          * Returns true if after a positive turn increment,
@@ -76,7 +81,7 @@ namespace ORO_DeviceDriver
          * Meaning from 0 to |resolution()| or from
          * resolution() to zero if resolution() < 0
          */
-        virtual bool upcounting() const { return true; }
+        virtual bool upcounting() const { return mupcounting; }
     };
 }
 
