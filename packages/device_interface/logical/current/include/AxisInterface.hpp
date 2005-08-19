@@ -70,6 +70,11 @@ public:
   virtual bool drive( double v ) = 0;
 
   /**
+   * @brief Get the drive value (eg velocity, torque,...).
+   */
+  virtual double getDriveValue() const = 0;
+
+  /**
    * @brief Return true if the drive is disabled, and brakes are on.
    */
   virtual bool isLocked() const = 0;
@@ -95,12 +100,12 @@ public:
   virtual std::vector<std::string> sensorList() const = 0;
   
   /**
-   * @brief Retrieve a switch from the Axis.
+   * @brief Retrieve a switch (digital input) from the Axis.
    */
   virtual ORO_DeviceDriver::DigitalInput* getSwitch(const std::string& name) const = 0;
 
   /**
-   * @brief Retrieve a list of the switch from the Axis.
+   * @brief Retrieve a list of the digital input switches from the Axis.
    */
   virtual std::vector<std::string> switchList() const = 0;
   
