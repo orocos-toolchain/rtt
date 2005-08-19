@@ -141,13 +141,13 @@ namespace sigslot {
             //itend = std::remove( mconnections.begin(), itend, 0);
         }
 
-    signal_base::signal_base()
-        : emitting(false)
+        signal_base::signal_base() :
 #ifdef ORO_SIGNAL_USE_RT_LIST
-          ,disconcount(0)
+            disconcount(0)
 #else
-          ,concount(0)
+            concount(0)
 #endif
+            ,emitting(false)
     {
         itend = mconnections.end();
     }
