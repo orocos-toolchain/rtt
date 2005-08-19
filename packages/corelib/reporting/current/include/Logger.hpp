@@ -62,7 +62,13 @@ namespace ORO_CoreLib
      * 
      * If you set an environment variable \a ORO_LOGLEVEL=0..6, this value will be used
      * to determine the output level until overriden by the application (if so).
-     * The \a ORO_LOGLEVEL has no effect on the 'orocos.log' file.
+     * The \a ORO_LOGLEVEL has the same effect on the 'orocos.log' file, but can not lower it below "Info".
+     *
+     * @warning
+     * Use Logger::RealTime to log from real-time threads. As long as the output LogLevel
+     * is 6 or lower, these messages will not appear and do no harm to real-time performance.
+     * You need to call @verbatim Logger::log().allowRealTime(); @endverbatim once in your program
+     * to confirm this choice. AGAIN: THIS WILL BREAK REAL-TIME PERFORMANCE.
      */
     class Logger 
     {
@@ -72,8 +78,50 @@ namespace ORO_CoreLib
          * everything.
          * @warning If you enable 'RealTime' logging, this may break realtime performance. Use With Care and NOT
          * on production systems.
+         * @see allowRealTime()
          */
         enum LogLevel { Never = 0, Fatal, Critical, Error, Warning, Info, Debug, RealTime };
+
+        /**
+         * Allow messages of the LogLevel 'RealTime' to appear on the console.
+         */
+        void allowRealTime();
+
+        /**
+         * Disallow messages of the LogLevel 'RealTime' to appear on the console.
+         */
+        void disallowRealTime();
+
+        /**
+         * Notify the Logger in which 'module' the message occured. This returns an object
+         * whose scope (i.e. {...} ) is indicative for the boundaries of the module.
+         * This is reset to 'Logger' after the in object is destroyed. Practical
+         * usage must thus have the form:
+         * @verbatim
+         {
+             Logger::In("Mymodule");
+             Logger::log() << Logger::Warning << "My warning message"<<Logger::nl;
+             Logger::log() << "A second message, still in MyModule"<<Logger::nl;
+         }
+         Logger::log() << Logger::Info << "A message in module 'Logger'..."<<Logger::endl;
+         @endverbatim
+        */
+        struct In {
+            In(const std::string& module);
+            ~In();
+        };
+
+        /**
+         * Inform the Logger of the entry of a module.
+         * @see In. Use Logger::In(\a modname) for management.
+         */
+        Logger& in(const std::string& modname);
+
+        /**
+         * The counterpart of in().
+         * @see In. Use Logger::In(\a modname) for management.
+         */
+        Logger& out();
 
         /**
          * Insert a newline '\n' in the ostream. (Why is this not in the standard ?)
@@ -139,14 +187,13 @@ namespace ORO_CoreLib
         template< class T>
         Logger& operator<<( T t ) {
 #ifndef OROBLD_DISABLE_LOGGING
-            if (!started)
+            if ( !maylog() )
                 return *this;
             ORO_OS::MutexLock lock( inpguard );
-            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) {
+            if ( maylogStdOut() ) {
                 input << t;
             }
-            // log Info or better to log file, even if not started.
-            if ( inloglevel <= Info || inloglevel <= outloglevel )
+            if ( maylogFile() )
                 filedata << t;
 #endif
             return *this;
@@ -206,6 +253,9 @@ namespace ORO_CoreLib
         void lognl();
 
     private:
+        bool maylog() const;
+        bool maylogStdOut() const;
+        bool maylogFile() const;
         void logit(std::ostream& (*pf)(std::ostream&));
 
         std::stringstream input;
@@ -230,9 +280,17 @@ namespace ORO_CoreLib
          */
         std::string showLevel( LogLevel ll) const;
 
+        std::string showModule() const;
+
         bool started;
 
         bool showtime;
+
+        bool allowRT;
+
+        const std::string loggermodule;
+        std::string module;
+        const std::string* moduleptr;
 
         ORO_OS::Mutex inpguard;
         ORO_OS::Mutex startguard;
