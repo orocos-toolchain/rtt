@@ -203,6 +203,7 @@ SimulationAxis::sensorList() const
 {
   std::vector<std::string> result;
   result.push_back("Position");
+  result.push_back("Velocity");
   return result;
 }
 
