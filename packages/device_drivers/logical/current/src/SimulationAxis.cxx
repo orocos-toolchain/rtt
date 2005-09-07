@@ -106,7 +106,7 @@ SimulationAxis::drive( double vel )
 {
   if (_is_stopped || _is_driven){
     if ( (vel < -_max_drive_value) || (vel > _max_drive_value) ){
-      std::cerr << "(SimulationAxis)  Maximum drive value exceeded. Axis.disable()" << std::endl;
+      //std::cerr << "(SimulationAxis)  Maximum drive value exceeded. Axis.disable()" << std::endl;
       stop();
       lock();
       return false;
