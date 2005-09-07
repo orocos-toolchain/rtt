@@ -95,7 +95,7 @@ public:
     SimulationVelocitySensor(SimulationAxis* axis, double maxvel) : _axis(axis), _maxvel(maxvel)
     {};
 
-  virtual ~SimulationVelocitySensor() { //std::cout << "SimulationVelocitySensor destructor" << std::endl; }
+  virtual ~SimulationVelocitySensor() {} //std::cout << "SimulationVelocitySensor destructor" << std::endl; }
 
     virtual int readSensor( double& vel ) const { vel = _axis->getDriveValue(); return 0; }
 
