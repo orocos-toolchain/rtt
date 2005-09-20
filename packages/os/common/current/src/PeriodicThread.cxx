@@ -27,6 +27,7 @@
 
 #include "os/fosi_internal.hpp"
 #include <os/PeriodicThread.hpp>
+#include <os/Time.hpp>
 
 // extern package config headers.
 #include "pkgconf/system.h"
@@ -212,8 +213,7 @@ namespace ORO_OS
 #endif
 
         // Do not call setPeriod(), since the semaphores are not yet used !
-        double s = periods;
-        period = long(s) + long( (s - long(s) )* 1000*1000*1000);
+        period = Seconds_to_nsecs(periods);
 
         pthread_create( &thread, 0, periodicThread, this);
         rtos_sem_wait(&confDone);
@@ -475,7 +475,7 @@ namespace ORO_OS
 
     double PeriodicThread::getPeriod() const
     {
-        return double(period)/(1000.0*1000.0*1000.0);
+        return nsecs_to_Seconds(period);
     }
 
     nsecs PeriodicThread::getPeriodNS() const

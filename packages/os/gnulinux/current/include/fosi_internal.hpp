@@ -77,17 +77,18 @@ namespace ORO_OS
 
         INTERNAL_QUAL void rtos_task_wait_period( RTOS_TASK* task )
         {
+            //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
             // CALCULATE in nsecs
-            NANO_TIME timeRemaining = task->period - ( rtos_get_time_ns() - task->periodMark );
+            NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
-            //rtos_printf("Waiting for %d nsec\n",timeRemaining);
+            //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
 
             if ( timeRemaining > 0 ) {
                 TIME_SPEC ts( ticks2timespec( timeRemaining ) );
                 rtos_nanosleep( &ts , NULL );
             }
-            else
-                ;//rtos_printf( "%s did not get deadline !", taskNameGet() );
+//             else
+//                 rtos_printf( "GNULinux task did not get deadline !\n" );
 
             // next wake-up time :
             task->periodMark += task->period;
