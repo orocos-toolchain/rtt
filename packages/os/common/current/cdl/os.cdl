@@ -182,6 +182,16 @@ your program will run on a pentium if selecting pentium4 or even athlon-xp for e
         legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" "athlon64" "none" }
     }
 
+    cdl_option OROBLD_OS_ARCH {
+	display "Architecture Selection Macro"
+	description "
+Depending on the above options (which modify compiler flags),
+a different processor architecture is identified to enable processor
+specific assembler instructions in Orocos."
+	flavor data
+	calculated { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
+    }
+
     cdl_option CYGBLD_OS_CONFIG_SMP {
 	    display "Build for SMP Systems"
 	    parent CYGBLD_GLOBAL_OPTIONS
