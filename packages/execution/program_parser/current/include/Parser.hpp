@@ -64,6 +64,8 @@ namespace ORO_Execution
      * Orocos Program Parser Framework. It parsers Orocos program scripts,
      * Orocos State Contexts and allows to parse a text Command, Condition or Expression
      * to the respective objects.
+     * @see ProgramLoader. Use the ProgramLoader for a more user friendly loading of scripts
+     * into TaskContexts.
      */
     class Parser
     {
@@ -94,14 +96,14 @@ namespace ORO_Execution
 
         /**
          * @brief Reads out the stream, parses it, and returns a new @ref
-         * ProgramGraph..
+         * ProgramGraph.
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
         ParsedPrograms parseProgram( std::istream& s, TaskContext*, const std::string& filename = "stream" );
 
         /**
          * @brief Open a file read-only, parses it, and returns a new @ref
-         * ProgramGraph..
+         * ProgramGraph.
          * @throw parse_exception Throws exceptions of type parse_exception.
          */
         ParsedPrograms parseProgram( const std::string& filename, TaskContext* );
@@ -113,26 +115,25 @@ namespace ORO_Execution
 
         /**
          * @brief Reads out the stream, parses it, and returns a new @ref
-         * ParsedStateMachine ..
+         * ParsedStateMachine.
          * @throw file_parse_exception Throws exceptions of type file_parse_exception.
          */
         ParsedStateMachines parseStateMachine(std::istream& s, TaskContext*, const std::string& filename = "stream" );
 
         /**
          * @brief Opens a file read-only, parses it, and returns a new @ref
-         * ParsedStateMachine ..
+         * ParsedStateMachine.
          * @throw file_parse_exception Throws exceptions of type file_parse_exception.
          */
         ParsedStateMachines parseStateMachine(const std::string& filename, TaskContext* );
 
         /**
          * @brief Parses the string as a condition, and returns a new
-         * ConditionInterface..  Will throw parse_exception on
-         * failure... Use ext to get the data from the components..
+         * ConditionInterface.  Will throw parse_exception on
+         * failure. Use ext to get the data from the components.
          * @throw parse_exception
          */
-        ORO_CoreLib::ConditionInterface* parseCondition(
-                                                        std::string& s, TaskContext* );
+        ORO_CoreLib::ConditionInterface* parseCondition(std::string& s, TaskContext* );
 
         /**
          * @brief Parses the command in s.
