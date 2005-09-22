@@ -95,7 +95,7 @@ namespace ORO_CoreLib
         /**
          * Notify the Logger in which 'module' the message occured. This returns an object
          * whose scope (i.e. {...} ) is indicative for the boundaries of the module.
-         * This is reset to 'Logger' after the in object is destroyed. Practical
+         * This is reset to the previous module name (default is 'Logger') after the in object is destroyed. Practical
          * usage must thus have the form:
          * @verbatim
          {
@@ -107,21 +107,27 @@ namespace ORO_CoreLib
          @endverbatim
         */
         struct In {
-            In(const std::string& module);
+            In(const char* module);
             ~In();
+            const char* oldmod;
         };
 
         /**
          * Inform the Logger of the entry of a module.
          * @see In. Use Logger::In(\a modname) for management.
          */
-        Logger& in(const std::string& modname);
+        Logger& in(const char* modname);
 
         /**
          * The counterpart of in().
          * @see In. Use Logger::In(\a modname) for management.
          */
         Logger& out();
+
+        /**
+         * Get the name of the current Log generating Module.
+         */
+        const char* getLogModule() const;
 
         /**
          * Insert a newline '\n' in the ostream. (Why is this not in the standard ?)
@@ -288,9 +294,8 @@ namespace ORO_CoreLib
 
         bool allowRT;
 
-        const std::string loggermodule;
-        std::string module;
-        const std::string* moduleptr;
+        const char* loggermodule;
+        const char* moduleptr;
 
         ORO_OS::Mutex inpguard;
         ORO_OS::Mutex startguard;

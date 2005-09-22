@@ -51,7 +51,7 @@ namespace ORO_CoreLib
           outloglevel(Warning),
           timestamp(0),
           started(false), showtime(true), allowRT(false), 
-          loggermodule("Logger"), moduleptr(&loggermodule)
+          loggermodule("Logger"), moduleptr(loggermodule)
     {
       this->startup();
     }
@@ -84,27 +84,31 @@ namespace ORO_CoreLib
         allowRT = false;
     }
 
-    Logger::In::In(const std::string& modname)
+    Logger::In::In(const char* modname)
+        : oldmod( Logger::log().getLogModule() )
     {
         Logger::log().in(modname);
     }
 
     Logger::In::~In() 
     {
-        Logger::log().out();
+        Logger::log().in( oldmod );
     }
 
-    Logger& Logger::in(const std::string& modname) 
+    Logger& Logger::in(const char* modname) 
     {
-        module = modname;
-        moduleptr = &module;
+        moduleptr = modname;
         return *this;
     }
 
     Logger& Logger::out()
     {
-        moduleptr = &loggermodule;
+        moduleptr = loggermodule;
         return *this;
+    }
+
+    const char* Logger::getLogModule() const {
+        return moduleptr;
     }
 
 
@@ -248,7 +252,7 @@ namespace ORO_CoreLib
     }
 
     std::string Logger::showModule() const {
-        return "["+*moduleptr+"]";
+        return "["+std::string(moduleptr)+"]";
     }
 
     Logger& Logger::operator<<( const char* t ) {
