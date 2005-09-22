@@ -46,7 +46,8 @@ namespace ORO_Execution
   {
       std::ifstream inputfile(file.c_str());
       if ( !inputfile ) {
-          Logger::log() << Logger::Error << "ProgramLoader::executeFunction : Script "+file+" does not exist." << Logger::endl;
+          Logger::In in("ProgramLoader::loadFunction");
+          Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
           return ProgramLoader::Functions();
       }
       return this->loadFunction( inputfile, c, file );
@@ -54,43 +55,44 @@ namespace ORO_Execution
 
   ProgramLoader::Functions ProgramLoader::loadFunction( std::istream& s, TaskContext* c, const std::string& filename)
   {
+      Logger::In in("ProgramLoader::loadFunction");
       Parser p;
       Functions exec;
       Functions ret;
       try {
-          Logger::log() << Logger::Info << "ProgramLoader: Parsing file "<<filename << Logger::endl;
+          Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
           ret = p.parseFunction(s, c, filename);
       }
       catch( const file_parse_exception& exc )
           {
-              Logger::log() << Logger::Error <<filename<<" :"<< exc.what() << Logger::endl;
+              Logger::log() << Logger::Error << filename<<" :"<< exc.what() << Logger::endl;
               return Functions();
           }
       if ( ret.empty() )
           {
-              Logger::log() << Logger::Info << "No Functions executed from "<< filename << Logger::endl;
+              Logger::log()  << Logger::Info << "No Functions executed from "<< filename << Logger::endl;
               return Functions();
           } else {
               // Load all listed functions in the TaskContext's Processor:
               for( Parser::ParsedFunctions::iterator it = ret.begin(); it != ret.end(); ++it) {
-                  Logger::log() << Logger::Info << "Queueing Function "<< (*it)->getName() << Logger::endl;
+                  Logger::log() << "Queueing Function "<< (*it)->getName() << Logger::endl;
                   if ( c->getProcessor()->runFunction( *it ) == false) {
                       Logger::log() << Logger::Error << "Could not run Function "<< (*it)->getName() <<" :" << Logger::nl;
-                      Logger::log() << Logger::Error << "Processor not accepting or function queue is full." << Logger::endl;
+                      Logger::log() << "Processor not accepting or function queue is full." << Logger::endl;
                       delete *it;
                   } else
                       exec.push_back( *it ); // is being executed.
               }
-              return exec;
           }
-    return exec;
+      return exec;
   }
 
   bool ProgramLoader::loadProgram( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
       if ( !inputfile ) {
-          Logger::log() << Logger::Error << "ProgramLoader::loadProgram : Script "+file+" does not exist." << Logger::endl;
+          Logger::In in("ProgramLoader::loadProgram");
+          Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
           return false;
       }
       return this->loadProgram( inputfile, c, file );
@@ -98,10 +100,11 @@ namespace ORO_Execution
 
   bool ProgramLoader::loadProgram( std::istream& s, TaskContext* c, const std::string& filename)
   {
+      Logger::In in("ProgramLoader::loadProgram");
       Parser parser;
       Parser::ParsedPrograms pg_list;
       try {
-          Logger::log() << Logger::Info << "ProgramLoader: Parsing file "<<filename << Logger::endl;
+          Logger::log() << Logger::Info << "Parsing file "<<filename << Logger::endl;
           pg_list = parser.parseProgram( s, c, filename );
       }
       catch( const file_parse_exception& exc )
@@ -122,24 +125,25 @@ namespace ORO_Execution
                       c->getProcessor()->loadProgram( *it );
                   } catch (program_load_exception& e ) {
                       Logger::log() << Logger::Error << "Could not load Program "<< (*it)->getName() <<" :" << Logger::nl;
-                      Logger::log() << Logger::Error << e.what() << Logger::endl;
+                      Logger::log() << e.what() << Logger::endl;
                       delete *it;
                       error = true;
                   }
               }
               return !error;
           }
-    return true;
+      // never reached
   }
 
     bool ProgramLoader::unloadProgram( const std::string& name, TaskContext* target)
     {
+        Logger::In in("ProgramLoader::unloadProgram");
         try {
             Logger::log() << Logger::Info << "Unloading Program "<< name << Logger::endl;
             target->getProcessor()->deleteProgram(name);
         } catch (program_unload_exception& e ) {
             Logger::log() << Logger::Error << "Could not unload Program "<< name <<" :" << Logger::nl;
-            Logger::log() << Logger::Error << e.what() << Logger::endl;
+            Logger::log() << e.what() << Logger::endl;
             return false;
         }
         return true;
@@ -147,12 +151,13 @@ namespace ORO_Execution
 
     bool ProgramLoader::unloadStateMachine( const std::string& name, TaskContext* target)
     {
+        Logger::In in("ProgramLoader::unloadStateMachine");
         try {
             Logger::log() << Logger::Info << "Unloading StateMachine "<< name << Logger::endl;
             target->getProcessor()->deleteStateMachine(name);
         } catch (program_unload_exception& e ) {
             Logger::log() << Logger::Error << "Could not unload StateMachine "<< name <<" :" << Logger::nl;
-            Logger::log() << Logger::Error << e.what() << Logger::endl;
+            Logger::log() << e.what() << Logger::endl;
             return false;
         }
         return true;
@@ -162,7 +167,8 @@ namespace ORO_Execution
   {
       std::ifstream inputfile(file.c_str());
       if ( !inputfile ) {
-          Logger::log() << Logger::Error << "ProgramLoader::loadStateMachine : Script "+file+" does not exist." << Logger::endl;
+          Logger::In in("ProgramLoader::loadStateMachine");
+          Logger::log() << Logger::Error << "Script "+file+" does not exist." << Logger::endl;
           return false;
       }
       return this->loadStateMachine( inputfile, c, file );
@@ -170,6 +176,7 @@ namespace ORO_Execution
 
     bool ProgramLoader::loadStateMachine( std::istream& s, TaskContext* c, const std::string& filename)
     {
+        Logger::In in("ProgramLoader::loadStateMachine");
         Parser parser;
         Parser::ParsedStateMachines pg_list;
         try {
@@ -194,13 +201,13 @@ namespace ORO_Execution
                         c->getProcessor()->loadStateMachine( *it );
                     } catch (program_load_exception& e ) {
                         Logger::log() << Logger::Error << "Could not load StateMachine "<< (*it)->getName()<<" :" << Logger::nl;
-                        Logger::log() << Logger::Error << e.what() << Logger::endl;
+                        Logger::log() << e.what() << Logger::endl;
                         delete *it;
                         error = true;
                     }
                 }
                 return !error;
             }
-        return true;
+        // never reached
     }
 }
