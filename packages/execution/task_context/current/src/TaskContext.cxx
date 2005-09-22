@@ -132,5 +132,17 @@ namespace ORO_Execution
             return 0;
         }
 
+        void TaskContext::setProcessor(Processor* newProc) 
+        {
+            if ( _task_proc_owner )
+                delete _task_proc;
+            _task_proc_owner = false;
+            if ( newProc == 0 ) {
+                _task_proc = new Processor();
+                _task_proc_owner=true;
+            } else
+                _task_proc = newProc;
+        }
+
 }
 

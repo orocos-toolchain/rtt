@@ -149,12 +149,17 @@ namespace ORO_Execution
         TaskContext* getPeer(const std::string& peer_name ) const;
 
         /**
-         * Returns the processor of this task.
+         * Returns the Processor of this task.
          */
         Processor* getProcessor() const
         {
             return _task_proc;
         }
+
+        /**
+         * Sets a new Processor of this task.
+         */
+        void setProcessor(Processor* newProc);
 
         /**
          * The Command Factory of this TaskContext.
