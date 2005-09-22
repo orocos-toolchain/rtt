@@ -43,17 +43,18 @@ using namespace ORO_Execution;
 
 bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool strict ) const
 {
+    Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        Logger::log() <<Logger::Error << "PropertyLoader: No Property Demarshaller configured !" << Logger::endl;
+        Logger::log() <<Logger::Error << "No Property Demarshaller configured !" << Logger::endl;
         return false;
     
 #else
     if ( target->attributeRepository.properties() == 0) {
-        Logger::log() <<Logger::Error << "PropertyLoader: TaskContext " <<target->getName()<<" has no Properties to configure." << Logger::endl;
+        Logger::log() <<Logger::Error << "TaskContext " <<target->getName()<<" has no Properties to configure." << Logger::endl;
         return false;
     }
 
-    Logger::log() <<Logger::Info << "PropertyLoader: Configuring " <<target->getName()
+    Logger::log() <<Logger::Info << "Configuring " <<target->getName()
                   <<" with "<<filename<<"."<< Logger::endl;
     bool failure = false;
     try
@@ -72,7 +73,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
                     PropertyBase* v = target->attributeRepository.properties()->find( (*it)->getName() );
                     if ( v == 0 ) {
                         Logger::log() << Logger::Debug;
-                        Logger::log() << "PropertyLoader: Skipping Property " << (*it)->getName()
+                        Logger::log() << "Skipping Property " << (*it)->getName()
                                       <<": not in task "<< target->getName() <<Logger::endl;
 
                         continue;
@@ -89,7 +90,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
                         }
                         else
                             Logger::log() << Logger::Info;
-                        Logger::log()<< "PropertyLoader: Could not refresh Property '"<< tgtds->getType() << " " << (*it)->getName()
+                        Logger::log()<< "Could not refresh Property '"<< tgtds->getType() << " " << (*it)->getName()
                                      <<"' with '"<< origds->getType() << " " << (*it)->getName() << "' from file."<<Logger::endl;
                     }
                 }
@@ -108,13 +109,13 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         else
             {
                 Logger::log() << Logger::Error
-                              << "PropertyLoader: Some error occured while parsing "<< filename.c_str() <<Logger::endl;
+                              << "Some error occured while parsing "<< filename.c_str() <<Logger::endl;
                 return false;
             }
     } catch (...)
     {
         Logger::log() << Logger::Error
-                      << "PropertyLoader: Could not find "<< filename << endl;
+                      << "Could not find "<< filename << endl;
         return false;
     }
     return !failure;
@@ -124,13 +125,14 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
 bool PropertyLoader::save(const std::string& filename, TaskContext* target) const
 {
+    Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        Logger::log() <<Logger::Error << "PropertyLoader: No Property Marshaller configured !" << Logger::endl;
+        Logger::log() <<Logger::Error << "No Property Marshaller configured !" << Logger::endl;
         return false;
     
 #else
     if ( target->attributeRepository.properties() == 0 ) {
-        Logger::log() << Logger::Error << "PropertyLoader : TaskContext "<< target->getName()
+        Logger::log() << Logger::Error << "TaskContext "<< target->getName()
                       << " does not have Properties to save." << Logger::endl;
         return false;
     }
@@ -142,17 +144,17 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
         // if target file does not exist, skip this step.
         if ( ifile ) {
             ifile.close();
-            Logger::log() << Logger::Info << "PropertyLoader: "<< target->getName()<<" updating of file "<< filename << Logger::endl;
+            Logger::log() << Logger::Info << target->getName()<<" updating of file "<< filename << Logger::endl;
             // The demarshaller itself will open the file.
             OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
             if ( demarshaller.deserialize( allProps ) == false ) {
                 // Parse error, abort writing of this file.
-                Logger::log() << Logger::Error << "PropertyLoader: While updating "<< target->getName() <<" : Failed to read "<< filename << Logger::endl;
+                Logger::log() << Logger::Error << "While updating "<< target->getName() <<" : Failed to read "<< filename << Logger::endl;
                 return false;
             }
         }
         else
-            Logger::log() << Logger::Info << "PropertyLoader: Creating "<< filename << Logger::endl;
+            Logger::log() << Logger::Info << "Creating "<< filename << Logger::endl;
     }
 
     // Write results
@@ -167,7 +169,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     // override allProps.
     bool updater = ORO_CoreLib::updateProperties( allProps, decompProps );
     if (updater == false) {
-        Logger::log() << Logger::Error << "PropertyLoader: Could update properties of file "<< filename <<"."<<Logger::endl;
+        Logger::log() << Logger::Error << "Could update properties of file "<< filename <<"."<<Logger::endl;
     }        
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
@@ -175,10 +177,10 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
         {
             OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
             marshaller.serialize( allProps );
-            Logger::log() << Logger::Info << "PropertyLoader: Wrote "<< filename <<Logger::endl;
+            Logger::log() << Logger::Info << "Wrote "<< filename <<Logger::endl;
         }
     else {
-        Logger::log() << Logger::Error << "PropertyLoader: Could not open file "<< filename <<" for writing."<<Logger::endl;
+        Logger::log() << Logger::Error << "Could not open file "<< filename <<" for writing."<<Logger::endl;
         flattenPropertyBag( allProps );
         deleteProperties( allProps );
         return false;
