@@ -47,26 +47,6 @@ apt-get install libboost-graph-dev
 and rerun the configure script
 ])
 ])
-# Check for boost Signal
-AC_CHECK_HEADERS([boost/signal.hpp],
-[
-   ORO_BOOST_SIGNALS_DETECT=1
-],
-[
-   ORO_BOOST_SIGNALS_DETECT=0
-AC_MSG_WARN([
-
-Could not find the Boost Signal Library headers.
-Please install Boost and Boost Signal.
-
-You can find Boost at http://www.boost.org/
-or if you are a Debian GNU/Linux user, just do:
-
-apt-get install libboost-signals-dev
-
-and rerun the configure script
-])
-])
 # Check for boost Spirit
 AC_CHECK_HEADERS([boost/spirit.hpp],
 [
@@ -91,7 +71,6 @@ AC_LANG_C
 
 AC_SUBST(ORO_BOOST_DETECT)
 AC_SUBST(ORO_BOOST_GRAPH_DETECT)
-AC_SUBST(ORO_BOOST_SIGNALS_DETECT)
 AC_SUBST(ORO_BOOST_PARSER_DETECT)
 ])
 
@@ -271,11 +250,11 @@ m4_define([ACX_VERSION_POST],[
        *) AC_MSG_ERROR(bad value ${subvsn} for --enable-subversion) ;;
      esac],[ subvsn=no ])
 
- if test $subvsn = yes -a x$SVN != x; then
+ if test x$subvsn = xyes -a x$SVN != x; then
 
- echo "{ print $""1  }" > print-svn.awk
- SVN_VERSION=$(svn log http://cvs.mech.kuleuven.ac.be/svn/orocos/orocos-trunk 2>/dev/null \
-	| head -2 |tail -1 | awk -f print-svn.awk )
+ echo "{ print $""2  }" > print-svn.awk
+ SVN_VERSION=$(svn info . 2>/dev/null \
+	| grep "Revision" | awk -f print-svn.awk )
  fi;
  rm -f print-svn.awk
 
