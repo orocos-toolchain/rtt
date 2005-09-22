@@ -414,13 +414,11 @@ echo "
    Compiler:                            ${CXX}
    C compiler flags:                    ${AM_CFLAGS} ${CFLAGS}
    C++ compiler flags:                  ${AM_CXXFLAGS} ${CXXFLAGS}
-   Preprocessor flags:                  ${AM_CPPFLAGS} ${CPPFLAGS}
-   Includes:                            ${INCLUDES}
 "
 echo Run \'make docs\' to generate the documentation.
 echo Type \'make new_packages\' to create a package build directory
-echo Type \'make configure_packages\' to configure the packages
-echo Type \'make all_packages\' to build the configured system
+echo Type \'make configure_packages\' to configure the packages in a GUI
+echo Type \'make\' to build the configured system
 echo
 echo Alternatively, you can \'make all\' to use the default configuration.
 echo
@@ -438,8 +436,8 @@ OROCOS_ARG_TARGETOS
 
 dnl add debugging flags at the end
 ACX_ARG_DEBUG
-
-CXXFLAGS="$CXXFLAGS $GENERAL_CXXFLAGS "
+dnl gcov flags
+ACX_GCOV
 
 # Checks for libraries.
 dnl AC_CHECK_LIB(pthread,pthread_create)
@@ -460,7 +458,7 @@ Could not find Boost headers. Please install Boost.
 You can find Boost at http://www.boost.org/
 or if you are a Debian GNU/Linux user, just do:
 
-apt-get install libboost-dev libboost-graph-dev libboost-signals-dev
+apt-get install libboost-dev libboost-graph-dev
 ])
 ])
 AC_LANG_C
@@ -474,6 +472,15 @@ dnl the flags to the packages configure script.
 m4_define([ACX_COMEDI],[
 AC_ARG_WITH(comedi, [AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ])],
 	[ ])
+])
+
+dnl Check for gcov flag
+m4_define([ACX_GCOV],[
+AC_ARG_ENABLE(gcov, [AC_HELP_STRING([--enable-gcov],[Generate code for gcov ])],
+	[ 
+	CFLAGS="$CFLAGS -ftest-coverage -fprofile-arcs"
+	CXXFLAGS="$CXXFLAGS -ftest-coverage -fprofile-arcs"
+	])
 ])
 
 m4_define([OROCOS_OUTPUT],[
