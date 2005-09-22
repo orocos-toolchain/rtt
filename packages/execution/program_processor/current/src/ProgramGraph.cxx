@@ -67,7 +67,7 @@ namespace ORO_Execution
             fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start or continue this program") );
             fact->add("pause", command(&ProgramCommands::pause, &ProgramCommands::paused,"Pause this program") );
             fact->add("step", command(&ProgramCommands::step, &ProgramCommands::paused,"Step this program") );
-            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop and reset this program", false) );
+            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop and reset this program", true) );
 
             progcont->commandFactory.registerObject("this", fact);
 
