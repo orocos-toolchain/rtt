@@ -346,14 +346,19 @@ namespace ORO_Execution
 
           propparser.reset();
       } else {
-          // not a property case :
-          var = peername->attributeRepository.getValue( valuename );
-          // SIDENOTE: now, we must be sure that if this program gets copied,
-          // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute and Properties
-          // takes care of this by definition, but the variable of a loaded StateMachine or program
-          // must first get an instantiation-copy() before they become uncopyable. 
-          if ( !var )
-              throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+          // first check if it is a property :
+          if ( peername->attributeRepository.hasProperty( valuename ) ) {
+              prop =  peername->attributeRepository.properties()->find( valuename );
+          } else {
+              // not a property case :
+              var = peername->attributeRepository.getValue( valuename );
+              // SIDENOTE: now, we must be sure that if this program gets copied,
+              // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute and Properties
+              // takes care of this by definition, but the variable of a loaded StateMachine or program
+              // must first get an instantiation-copy() before they become uncopyable. 
+              if ( !var )
+                  throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+          }
       }
 
       // collect RHS :

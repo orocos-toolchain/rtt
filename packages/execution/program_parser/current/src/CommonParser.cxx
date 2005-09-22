@@ -39,6 +39,9 @@ namespace ORO_Execution {
 
     bool eol_skip_functor::skipeol = true;
 
+    namespace {
+        assertion<std::string> expect_eos("End of statement expected. Use a newline or ';' to separate statements.");
+    }
 
     CommonParser::CommonParser()
     {
@@ -122,7 +125,7 @@ namespace ORO_Execution {
 
         // end of statement is on a newline or a ';'
         //eos = lexeme_d[ *(space_p - eol_p) >> (eol_p | ch_p(';')) ];
-        eos = eol_p | ch_p(';') | eps_p(ch_p('}')); // detect } as eos, but do not consume.
+        eos = expect_eos( eol_p | ch_p(';') | eps_p(ch_p('}')) ); // detect } as eos, but do not consume.
         leos = *(space_p - eol_p) >> (eol_p | ch_p(';') | eps_p(ch_p('}')));
     }
 

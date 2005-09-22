@@ -142,15 +142,20 @@ namespace ORO_Execution
     }
 
     // non-nested property or attribute case :
-    if ( !peer->attributeRepository.isDefined( name ) ) {
-        //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+    if ( peer->attributeRepository.hasAttribute( name ) ) {
+      ret = peer->attributeRepository.getValue(name)->toDataSource();
+      return;
+    }
+    if ( peer->attributeRepository.hasProperty( name ) ) {
+        ret = peer->attributeRepository.properties()->find(name)->createDataSource();
+        return;
+    }
+
+    //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
 //         peerparser.peer()->debug(true);
 //         peer->debug(true);
-        throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
-        //      throw parse_exception_undefined_value( name );
-    }
-    else
-      ret = peer->attributeRepository.getValue(name)->toDataSource();
+    throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
+    //      throw parse_exception_undefined_value( name );
   }
 
     void ValueParser::seennull()
