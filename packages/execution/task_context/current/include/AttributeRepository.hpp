@@ -64,9 +64,20 @@ namespace ORO_Execution
         void clear();
 
         /**
-         * Check if a value is present.
+         * Check if an attribute is present.
+         * @deprecated by hasAttribute
          */
         bool isDefined( const std::string& name ) const;
+
+        /**
+         * Check if an attribute is present.
+         */
+        bool hasAttribute( const std::string& name ) const;
+
+        /**
+         * Check if a property is present.
+         */
+        bool hasProperty( const std::string& name ) const;
 
         /**
          * Add a TaskConstant with a given value.
@@ -121,6 +132,17 @@ namespace ORO_Execution
         }
 
         /**
+         * Add an ORO_CoreLib::PropertyBase as a property.
+         * This is an 'inferior' method compared to the above addProperty, since
+         * the property does not become available as an attribute. The Parsers can work
+         * a bit better with attributes than with properties, but this may improve in the
+         * future.
+         * @return false if an attribute or property with the same name already exists.
+         * @see removeProperty
+         */
+        bool addProperty( ORO_CoreLib::PropertyBase* pb );
+
+        /**
          * Remove a previously added Property and associated attribute.
          * @return false if no such property by that name exists.
          */
@@ -150,7 +172,7 @@ namespace ORO_Execution
         void removeValue( const std::string& name );
 
         /**
-         * Get the value with name name.  If no such value exists, this
+         * Get the value with name \a name.  If no such value exists, this
          * returns 0.
          */
         TaskAttributeBase* getValue( const std::string& name );
@@ -160,6 +182,7 @@ namespace ORO_Execution
          * @param instantiate set to true if you want a copy which will upon any future
          * copy return the same DataSources, thus 'fixating' or 'instantiating' the DataSources.
          * @see CommandInterface
+         * @note this does not copy the properties() within this repository.
          */
         AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;
 

@@ -76,12 +76,22 @@ namespace ORO_Execution
     return true;
   }
 
+    bool AttributeRepository::addProperty( ORO_CoreLib::PropertyBase* pb ) {
+        if ( isDefined( pb->getName() ) || (bag && bag->find( pb->getName() ) != 0) )
+            return false;
+        if ( bag == 0 )
+            bag = new ORO_CoreLib::PropertyBag();
+        bag->add( pb );
+        return true;
+    }
+
   void AttributeRepository::removeValue( const std::string& name )
   {
     map_t::iterator i = values.find( name );
-    if ( i != values.end() )
-      delete i->second;
-    values.erase( name );
+    if ( i != values.end() ) {
+        delete i->second;
+        values.erase( name );
+    }
   }
 
   TaskAttributeBase* AttributeRepository::getValue( const std::string& name )
@@ -94,6 +104,16 @@ namespace ORO_Execution
   bool AttributeRepository::isDefined( const std::string& name ) const
   {
     return values.find( name ) != values.end();
+  }
+
+  bool AttributeRepository::hasAttribute( const std::string& name ) const
+  {
+    return values.find( name ) != values.end();
+  }
+
+  bool AttributeRepository::hasProperty( const std::string& name ) const
+  {
+      return (bag && bag->find(name) != 0);
   }
 
     bool AttributeRepository::removeProperty( PropertyBase* p )
