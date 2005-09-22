@@ -1233,9 +1233,6 @@ namespace ORO_Execution
         cout << "   For programs : 'E':Error, 'S':Stopped, 'R':Running, 'P':Paused"<<nl;
         cout << "   For state machines : <the same as programs> + 'A':Active, 'I':Inactive"<<nl;
 
-        cout <<titlecol("Repeating Commands")<<nl;
-        cout << "  You can repeat the last command by "<<comcol(".loadProgram <filename>")<<nl;
-        cout << "  To load a state machine script from local disc, type "<<comcol(".loadStateMachine <filename>")<<nl;
     }
 
     void TaskBrowser::printProgram(const std::string& progname, int cl) {
