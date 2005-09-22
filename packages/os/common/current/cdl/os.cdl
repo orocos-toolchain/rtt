@@ -273,7 +273,7 @@ compilation times."
 		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR)." ".
 		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
 		"-D_REENTRANT ".
-		(CYGBLD_OS_COMPILER == "gcc33" ? "-DORO_PRAGMA_INTERFACE " : "").
+		(CYGBLD_OS_COMPILER == "gcc3" ? "-DORO_PRAGMA_INTERFACE " : "").
 		(CYGBLD_OS_COMPILER == "gcc4" ? "-fvisibility-inlines-hidden " : "").
 		OROBLD_GLOBAL_CFLAGS_ADD }
 	    
