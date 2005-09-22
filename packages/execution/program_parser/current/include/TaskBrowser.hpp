@@ -57,7 +57,10 @@ namespace ORO_Execution
      * peers of a TaskContext and execute commands.
      * If your console does not support colors or you want a different
      * prompt, the member variables which control these 'escape sequences'
-     * are public and may be changed.
+     * are public and may be changed. The TaskBrowser is most commonly used
+     * with its loop() method, but prior to/after calling loop(), you can 
+     * invoke some other commands, to control what is displayed or to
+     * execute a fixed set of commands prior to showng the prompt.
      */
     class TaskBrowser
     {
@@ -117,33 +120,79 @@ namespace ORO_Execution
 
         static char ** orocos_hmi_completion ( const char *text, int start, int end );
 
-        void switchBack();
+        static char *command_generator( const char *_text, int state );
 
-        void switchTask(std::string& c);
-
-        void browserAction(std::string& act );
-
-        void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
-
-        void printResult( ORO_CoreLib::DataSourceBase* ds, bool recurse);
-
-        void printHelp();
-        void printInfo(const std::string& peerp);
-        
-        void printCommand( const std::string m );
-                
-        void printSource( const std::string m );
-                
-        void printMethod( const std::string m );
-
-        void printProgram( const std::string& pn, int line = -1 );
-        void printProgram( int line = -1 );
+    protected:
 
         void listText(std::stringstream& txtss,int start, int end, int ln, char s);
 
-        static char *command_generator( const char *_text, int state );
+        void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
 
-    public :
+    public:
+        /**
+         * Switch to a peer TaskContext using a \a path . For
+         * example, "mypeer.otherpeer.targetpeer".
+         * @param path The path to the target peer.
+         */
+        void switchTaskContext(std::string& path);
+
+        /**
+         * Connect the TaskBrowser to another Taskcontext.
+         */
+        void switchTaskContext(TaskContext* tc);
+
+        /**
+         * Go to the previous peer in the visit history.
+         */
+        void switchBack();
+
+        /**
+         * Execute a specific browser action, such as
+         * "loadProgram pname", "loadStateMachine smname", "unloadProgram pname", 
+         * "unloadStateMachine smname"
+         */
+        void browserAction(std::string& act );
+
+        /**
+         * Evaluate a DataSource and print the result.
+         */
+        void printResult( ORO_CoreLib::DataSourceBase* ds, bool recurse);
+
+        /**
+         * Print the help page.
+         */
+        void printHelp();
+        
+        /**
+         * Print info this peer or another peer at "peerpath".
+         */
+        void printInfo(const std::string& peerpath);
+        
+        /**
+         * Print the synopsis of a command.
+         */
+        void printCommand( const std::string c );
+                
+        /**
+         * Print the synopsis of a DataSource.
+         */
+        void printSource( const std::string m );
+                
+        /**
+         * Print the synopsis of a Method.
+         */
+        void printMethod( const std::string m );
+
+        /**
+         * Print a program listing of a loaded program centered at line \a line.
+         */
+        void printProgram( const std::string& pn, int line = -1 );
+
+        /**
+         * Print the program listing of the last shown program centered at line \a line.
+         */
+        void printProgram( int line = -1 );
+
         /**
          * Create a TaskBrowser which initially visits a given
          * TaskContext \a c.
@@ -158,6 +207,19 @@ namespace ORO_Execution
          * TaskBrowser.
          */
         void loop();
+
+        /**
+         * Execute/evaluate a string which may be a command,
+         * method, expression etc.
+         * The string does not need the script prefixes such as 'do', 'set', etc.
+         * For example "x = 1 + 1" or "myobject.doStuff(1, 2, true)".
+         */
+        void evaluate(std::string& comm );
+
+        /**
+         * Switch to a new TaskContext.
+         */
+        void switchTask(TaskContext* c);
 
         /**
          * The prompt.

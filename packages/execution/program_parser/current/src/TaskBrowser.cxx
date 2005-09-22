@@ -276,6 +276,14 @@ namespace ORO_Execution
             if ( i->find( comp ) == 0 )
                 completes.push_back( peerpath+*i );
         }
+
+        if (peer->attributeRepository.properties() != 0 ) {
+            peer->attributeRepository.properties()->list(comps);
+            for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
+                if ( i->find( comp ) == 0 )
+                    completes.push_back( peerpath+*i );
+            }
+        }
         // Only complete peers and objects, not "this" methods.
         comps = peer->commandFactory.getObjectList();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
@@ -451,12 +459,21 @@ namespace ORO_Execution
         while ( _attribute.find(" ") != std::string::npos )
             _attribute.replace( _attribute.find(" "),1,"" );
 
-        // all possible completions :
+        // all attributes :
         std::vector<std::string> attrs;
         attrs = peer->attributeRepository.attributes();
         for (std::vector<std::string>::iterator i = attrs.begin(); i!= attrs.end(); ++i ) {
             if ( i->find( _attribute ) == 0 && !_attribute.empty() )
                 completes.push_back( peerpath + *i );
+        }
+        // all properties :
+        if (peer->attributeRepository.properties() != 0 ) {
+            std::vector<std::string> props;
+            peer->attributeRepository.properties()->list(props);
+            for (std::vector<std::string>::iterator i = props.begin(); i!= props.end(); ++i ) {
+                if ( i->find( _attribute ) == 0 && !_attribute.empty() )
+                    completes.push_back( peerpath + *i );
+            }
         }
     }
 
@@ -601,7 +618,7 @@ namespace ORO_Execution
                 } else if ( command.find("cd ") == 0  ) {
                     std::string::size_type pos = command.find("cd")+2;
                     command = std::string(command, pos, command.length());
-                    this->switchTask( command );
+                    this->switchTaskContext( command );
                 } else if ( command.find(".") == 0  ) {
                     command = std::string(command, 1, command.length());
                     this->browserAction( command );
@@ -644,11 +661,16 @@ namespace ORO_Execution
         taskHistory.pop_front();
     }
 
-    void TaskBrowser::switchTask(std::string& c) {
+    void TaskBrowser::switchTaskContext(std::string& c) {
         // if nothing new found, return.
         if ( this->findPeer( c + "." ) == 0  || peer == taskcontext )
             return;
             
+        // findPeer has set 'peer' :
+        this->switchTaskContext( peer );
+    }
+
+    void TaskBrowser::switchTaskContext(TaskContext* tc) {
         // put current on the stack :
         if (taskHistory.size() == 20 )
             taskHistory.pop_back();
@@ -672,10 +694,11 @@ namespace ORO_Execution
         }
 
         // now switch to new one :
-        taskcontext = peer; // peer is the new taskcontext.
+        taskcontext = tc; // peer is the new taskcontext.
         lastc = 0;
 
         cerr << "   Switched to : " << taskcontext->getName() <<endl;
+
     }
 
     TaskContext* TaskBrowser::findPeer(std::string c) {
@@ -794,6 +817,10 @@ namespace ORO_Execution
         }
         cerr << "Unknown Browser Action : "<< act <<endl;
         cerr << "See 'help' for valid syntax."<<endl;
+    }
+
+    void TaskBrowser::evaluate(std::string& comm) {
+        this->evalCommand(comm);
     }
 
     void TaskBrowser::evalCommand(std::string& comm )
@@ -1314,6 +1341,7 @@ namespace ORO_Execution
         cout <<nl<<" In "<<peer->getName()<< " - Attributes :"<<nl;
         PropertyBag* bag = peer->attributeRepository.properties();
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
+        // Print Attributes:
         for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
             DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
             cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
@@ -1324,6 +1352,19 @@ namespace ORO_Execution
                 cout<<" ("<< bag->find(*it)->getDescription() <<')'<< nl;
             } else
                 cout <<nl;
+        }
+        // Print Properties:
+        if (bag) {
+            for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
+                if (peer->attributeRepository.getValue( (*it)->getName() ) )
+                    continue; // atributes were already printed above
+                DataSourceBase::shared_ptr pds = (*it)->createDataSource();
+                cout << " (Property ) "
+                     << setw(11)<< pds->getType()<< " "
+                     << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
+                this->printResult( pds.get(), false ); // do not recurse
+                cout<<" ("<< (*it)->getDescription() <<')'<< nl;
+            }
         }
 
         cout <<nl<< " Objects      : "<<coloron;
