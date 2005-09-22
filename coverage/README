@@ -1,0 +1,18 @@
+Test phase
+==========
+
+* Only the percentage of the "*.cxx" files coverage is taken into account
+
+* The countless .gcov for headers are ignored for html output (but generated)
+  Since a lot of code is in headers (templates) a lot of files are ignored
+
+* gcov does not handle well template code: tags it as 'not executable' in
+  .gcov listings.
+
+* gcov overwrites existing .gcov files, need to use the -l flag to avoid that,
+  which prefixes the .gcov file with the source file calling it, but even then,
+  DataSource.hpp occurs twice in Orocos.
+
+* gcov does not generate data for .o files like PropertyBase.o in GCC 4.0.
+  if the .o file contains no code, then the .hpp.gcov file contains the relevant
+  source listing.
