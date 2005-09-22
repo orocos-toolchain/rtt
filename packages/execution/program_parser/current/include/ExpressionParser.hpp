@@ -140,6 +140,7 @@ namespace ORO_Execution { namespace detail
     void seentimespec( int n );
     void seentimeunit( iter_t begin, iter_t end );
       void inverttime();
+      void seentimeexpr();
 
       TaskContext* context;
       DataCallParser datacallparser;

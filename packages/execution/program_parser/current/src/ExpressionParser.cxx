@@ -40,6 +40,7 @@
 #include "execution/TaskAttribute.hpp"
 
 #include "corelib/ConditionDuration.hpp"
+#include "corelib/ConditionDSDuration.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/PeerParser.hpp"
 
@@ -50,7 +51,7 @@
 namespace ORO_Execution
 {
     using boost::bind;
-    using ORO_CoreLib::ConditionDuration;
+    using namespace ORO_CoreLib;
     using namespace detail;
     using namespace std;
 
@@ -62,7 +63,7 @@ namespace ORO_Execution
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_init("Expected an initialisation value of the value.");
         assertion<std::string> expect_comma("Expected the ',' separator after expression.");
-        assertion<std::string> expect_timespec("Expected a time specification (e.g. > 10s) after 'time' .");
+        assertion<std::string> expect_timespec("Expected a time specification (e.g. > 10s or > varname ) after 'time' .");
 
         guard<std::string> my_guard;
     }
@@ -494,17 +495,29 @@ namespace ORO_Execution
                             (str_p("<=") | "<")[bind( &ExpressionParser::inverttime, this)])
         >> time_spec);
 
-    time_spec = //lexeme_d[
-        uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ] // ]
+    time_spec =
+        ( uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
         >>
       ( str_p( "s" ) | "ms" | "us" | "ns" )[
-        bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ];
+        bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ) | expression[bind(&ExpressionParser::seentimeexpr, this)];
 
   };
 
     void ExpressionParser::inverttime()
     {
         _invert_time = true;
+    }
+
+    void ExpressionParser::seentimeexpr()
+    {
+        DataSourceBase::shared_ptr res = parsestack.top();
+        parsestack.pop();
+        DataSource<double>::shared_ptr dres = dynamic_cast<DataSource<double>*>( res.get() );
+        if ( !dres )
+            throw parse_exception_semantic_error("Expected time in seconds but expression is not a floating point number.");
+        DataSourceBase::shared_ptr dsb( new DataSourceCondition( new ConditionDSDuration( dres, _invert_time ) ) );
+        _invert_time = false;
+        parsestack.push( dsb );
     }
 
   void ExpressionParser::seentimeunit( iter_t begin, iter_t )
