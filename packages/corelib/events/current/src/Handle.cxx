@@ -27,7 +27,7 @@ namespace sigslot
     {
         if ( connected() )
             return true;
-        return m_conn->connect();
+        return m_conn && m_conn->connect();
     }
 
     bool handle::disconnect()
