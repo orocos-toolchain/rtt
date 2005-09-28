@@ -189,7 +189,8 @@ Depending on the above options (which modify compiler flags),
 a different processor architecture is identified to enable processor
 specific assembler instructions in Orocos."
 	flavor data
-	calculated { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
+	default_value { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
+	legal_values { "x86_64" "i386" }
     }
 
     cdl_option CYGBLD_OS_CONFIG_SMP {
