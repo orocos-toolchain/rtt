@@ -339,7 +339,7 @@ namespace ORO_CoreLib
     void Logger::logit(std::ostream& (*pf)(std::ostream&)) {
         // only on Logger::nl or Logger::endl, a time+log-line is written.
         ORO_OS::MutexLock lock( inpguard );
-        std:: string res = showTime() +" " + showModule() + showLevel(inloglevel)+" ";
+        std:: string res = showTime() +" " + showLevel(inloglevel) + showModule() + " ";
 
         // do not log if not wanted.
         if ( maylogStdOut() ) {
