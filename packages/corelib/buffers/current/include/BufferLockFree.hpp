@@ -24,7 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
+#ifndef ORO_BUFFER_LOCK_FREE_HPP
+#define ORO_BUFFER_LOCK_FREE_HPP
  
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
@@ -97,7 +99,7 @@ namespace ORO_CoreLib
          * read or write this buffer. Defaults to ORONUM_OS_MAX_THREADS, but you
          * may lower this number in case not all threads will read this buffer.
          * A lower number will consume less memory.
-         */
+'         */
         BufferLockFree(unsigned int bufsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
             : MAX_THREADS( threads ), write_policy( bufsize ), read_policy(0)
         {
@@ -295,3 +297,5 @@ namespace ORO_CoreLib
 
     extern template class BufferLockFree<double>;
 }
+
+#endif
