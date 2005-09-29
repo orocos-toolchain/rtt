@@ -56,7 +56,18 @@ namespace ORO_DeviceInterface
     class AnalogOutInterface
         : private ORO_CoreLib::NameServerRegistrator<AnalogOutInterface<T>*>
     {
-        public:
+    public:
+
+      /**
+       * This enum can be used to configure the \a arefSet() function.
+       * @see http://www.comedi.org
+       */
+      enum AnalogReference { Ground = 0, /** Reference to ground */
+			     Common, /** Common reference */
+			     Differential, /** Differential reference */
+			     Other /** Undefined */
+      };
+
             /**
              * Create a not nameserved AnalogOutInterface instance.
              */
@@ -88,10 +99,8 @@ namespace ORO_DeviceInterface
 	      * Set the analog reference of a particular channel.  We took (for
 	      * now) the comedi API for this, where every aref
 	      * (eg. Analog reference set to ground (aka AREF_GROUND)
-	      * corresponds to an unsigned int (more particular, a
-	      * #define statement (like #define AREF_GROUND 0).  You
-	      * should provide a mapping from that int to a particular
-	      * analog reference in your driver documentation
+	      * corresponds to an unsigned int.
+	      * @see AnalogReference.
 	      */
 	    virtual void arefSet(unsigned int chan, 
 				 unsigned int aref) = 0;
