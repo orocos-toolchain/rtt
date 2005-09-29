@@ -33,7 +33,6 @@
 
 #define HAVE_FOSI_API
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -175,7 +174,7 @@ inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
         } while(0)
 #else
 #define CHK_LXRT_CALL()
-#define CHK_LXRT_PTR()
+#define CHK_LXRT_PTR( a )
 #endif
     
 inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }

@@ -55,7 +55,7 @@ TIME_SPEC ticks2timespec(RTIME hrt)
         } while(0)
 #else
 #define CHK_LXRT_CALL()
-#define CHK_LXRT_PTR()
+#define CHK_LXRT_PTR( a )
 #endif
 
     
