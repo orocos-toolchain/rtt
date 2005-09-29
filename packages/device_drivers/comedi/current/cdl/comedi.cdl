@@ -20,6 +20,8 @@ detection of the packages configure script"
     requires OROPKG_DEVICE_INTERFACE_ENCODER
     
     compile ComediDevice.cxx ComediEncoder.cxx
+    compile ComediSubDeviceDOut.cxx ComediSubDeviceAOut.cxx
+    compile ComediSubDeviceDIn.cxx ComediSubDeviceAIn.cxx
 
     cdl_component OROOPT_DEVICE_DRIVERS_COMEDI_THREAD_SCOPE {
 	display "Use Comedi driver as Thread Scope"

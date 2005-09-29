@@ -44,6 +44,8 @@
 #include "comedi/ComediEncoder.hpp"
 #include <os/fosi.h>
 
+#include "comedi_internal.h"
+
 namespace ORO_DeviceDriver
 {
   ComediEncoder::ComediEncoder(ComediDevice * cd, unsigned int subd, 

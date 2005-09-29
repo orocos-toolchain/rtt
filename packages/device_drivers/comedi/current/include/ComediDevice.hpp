@@ -23,23 +23,10 @@
 #define COMEDIDEVICE_HPP
 
 #include <pkgconf/system.h>
-
-#ifdef __KERNEL__
-extern "C"{
-#include <linux/comedilib.h>
-}
-
+#ifdef OROPKG_OS_LXRT
+typedef void comedi_t;
 #else
- #ifdef OROPKG_OS_LXRT
-    #define __KERNEL__
-    extern "C"
-    {
-#include <linux/comedilib.h>
-    }
-    #undef __KERNEL__
- #else
-    #include <comedilib.h>
- #endif
+struct comedi_t;
 #endif
 
 namespace ORO_DeviceDriver
@@ -50,7 +37,6 @@ namespace ORO_DeviceDriver
    */
   class ComediDevice
   {
-
   public:
     typedef unsigned int Data;
 

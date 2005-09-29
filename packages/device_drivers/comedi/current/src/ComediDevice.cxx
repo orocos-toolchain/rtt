@@ -48,9 +48,11 @@
 #include "comedi/ComediDevice.hpp"
 #include <os/fosi.h>
 
+#include "comedi_internal.h"
+
 extern "C"
 {
-#include <errno.h>
+#include <cerrno>
 }
 
 namespace ORO_DeviceDriver

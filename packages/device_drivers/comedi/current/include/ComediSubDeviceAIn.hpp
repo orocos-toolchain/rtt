@@ -36,20 +36,15 @@
 
 #include <device_interface/AnalogInInterface.hpp>
 #include "ComediDevice.hpp"
-#include <pkgconf/system.h>
 
 namespace ORO_DeviceDriver
 {
 
-  using namespace ORO_CoreLib;
-  using namespace ORO_DeviceInterface;
-
   /**
    * This logical device represents one subdevice of a Comedi device.
    */
-
   class ComediSubDeviceAIn
-    : public AnalogInInterface<unsigned int>
+    : public ORO_DeviceInterface::AnalogInInterface<unsigned int>
   {
 
   public:
@@ -61,159 +56,34 @@ namespace ORO_DeviceDriver
      * @param subdevice The subdevice number for this comedi device (usually 1)
      * @param name The name of this instance
      */
-    ComediSubDeviceAIn( ComediDevice* cd, const std::string& name, unsigned int subdevice=0)
-      : AnalogInInterface<unsigned int>( name ),
-	myCard( cd ), _subDevice( subdevice )
-    {
-      init();
-    }
+    ComediSubDeviceAIn( ComediDevice* cd, const std::string& name, unsigned int subdevice=0);
 
-    ComediSubDeviceAIn( ComediDevice* cd, unsigned int subdevice=0 )
-      : myCard( cd ), _subDevice( subdevice )
-    {
-      init();
-    }
+    ComediSubDeviceAIn( ComediDevice* cd, unsigned int subdevice=0 );
 
-    void init()
-    {
-      if ( myCard->getSubDeviceType( _subDevice ) != COMEDI_SUBD_AI )
-	{
-	  _error = -1;
-	  rtos_printf( "comedi_get_subdevice_type failed\n" );
-	}
-      int num_chan = this->nbOfChannels();
-      _sd_range = new unsigned int[num_chan];
-      _aref = new unsigned int[num_chan];
-      // Put default range and _aref into every channel
-      for (int i = 0; i < num_chan ; i++)
-	{
-	  _sd_range[i] = 0;
-	  _aref[i] = AREF_GROUND;
-	}
-    }
+    ~ComediSubDeviceAIn();
 
-    virtual void rangeSet(unsigned int chan, unsigned int range=0)
-    {
-      if ( chan < this->nbOfChannels() )
-	{
-	  _sd_range[chan] = range;
-	}
-      else rtos_printf("Go away, channel does not exist\n");
-    }
+    void init();
 
-    virtual void arefSet(unsigned int chan, unsigned int aref=AREF_GROUND)
-    {
-      if ( chan < this->nbOfChannels() )
-	{
-	  _aref[chan] = aref;
-	}
-      else rtos_printf("Go away, channel does not exist\n");
-    }
+    virtual void rangeSet(unsigned int chan, unsigned int range=0);
 
-    virtual void read( unsigned int chan, unsigned int& value ) const
-    {
-      if ( myCard->read( _subDevice,chan, _sd_range[chan],
-			 _aref[chan], value ) != -1);
-      else rtos_printf("read on subdevAIn failed\n");
-    }
+    virtual void arefSet(unsigned int chan, unsigned int aref=ORO_DeviceInterface::AnalogInInterface<unsigned int>::Ground);
 
-    virtual unsigned int binaryRange() const
-    {
-      return myCard->getMaxData(_subDevice);
-    }
+    virtual void read( unsigned int chan, unsigned int& value ) const;
 
-    virtual unsigned int binaryLowest() const 
-    {
-      return 0;
-    }
+    virtual unsigned int binaryRange() const;
 
-    virtual unsigned int binaryHighest() const
-    {
-      return myCard->getMaxData(_subDevice);
-    }
+    virtual unsigned int binaryLowest() const;
+
+    virtual unsigned int binaryHighest() const;
         
-    virtual double lowest(unsigned int chan) const
-    {
-      /* Damned: kcomedilib does not know comedi_range structure but
-	 uses as comedi_krange struct (probably not to enforce
-	 floating point support in your RT threads?)
-      */
-#ifdef __KERNEL__
-      // See file:/usr/src/comedilib/doc/html/x3563.html#REF-TYPE-COMEDI-KRANGE
-      comedi_krange range;
-      comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
-			_sd_range[chan], &range);
-      return (double) range.min / 1000000;
-#else
-#ifdef OROPKG_OS_LXRT
-//#define __KERNEL__
-      comedi_krange range;
-      comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
-			_sd_range[chan], &range);
-      return (double) range.min / 1000000;
-#else // Userspace
-      comedi_range * range_p;
-      if ((range_p = comedi_get_range(myCard->getDevice(), 
-				      _subDevice, chan, 
-				      _sd_range[chan])) != 0)
-	{
-	  return range_p->min;
-	}
-      else
-	{
-	  rtos_printf("Error getting comedi_range struct\n");
-	  return -1.0;
-	}
-#endif // Userspace
-#endif // __KERNEL__
-    }
+    virtual double lowest(unsigned int chan) const;
 
-    virtual double highest(unsigned int chan) const
-    {
-      /* Damned: kcomedilib does not know comedi_range structure but
-	 uses as comedi_krange struct (probably not to enforce
-	 floating point support in your RT threads?)
-      */
-#ifdef __KERNEL__
-      // See file:/usr/src/comedilib/doc/html/x3563.html#REF-TYPE-COMEDI-KRANGE
-      comedi_krange range;
-      comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
-			_sd_range[chan], &range);
-      return (double) range.max / 1000000;
-#else
-#ifdef OROPKG_OS_LXRT
-//#define __KERNEL__
-      comedi_krange range;
-      comedi_get_krange(myCard->getDevice(), _subDevice, chan, 
-			_sd_range[chan], &range);
-      return (double) range.max / 1000000;
-      }
-#else // Userspace
-      comedi_range * range_p;
-      if ((range_p = comedi_get_range(myCard->getDevice(), 
-				      _subDevice, chan, 
-				      _sd_range[chan])) != 0)
-	{
-	  return range_p->max;
-	}
-      else
-	{
-	  rtos_printf("Error getting comedi_range struct\n");
-	  return -1.0;
-	}
-#endif // Userspace
-#endif // __KERNEL__
-    }
+    virtual double highest(unsigned int chan) const;
 
-    virtual double resolution(unsigned int chan) const
-    {
-      return binaryRange() / ( highest(chan) - lowest(chan) );
-    }
+    virtual double resolution(unsigned int chan) const;
 
-    virtual unsigned int nbOfChannels() const
-    {
-      return comedi_get_n_channels(myCard->getDevice(), _subDevice);
-    }
+    virtual unsigned int nbOfChannels() const;
+
   protected:
     /**
      * The output device to write to
@@ -226,7 +96,7 @@ namespace ORO_DeviceDriver
     unsigned int _subDevice;
     unsigned int * _sd_range;
     unsigned int * _aref;
-    int _error;
+    unsigned int channels;
   };
 
 };
