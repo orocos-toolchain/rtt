@@ -13,13 +13,13 @@ namespace ORO_DeviceDriver
 
     ComediSubDeviceDOut::ComediSubDeviceDOut( ComediDevice* cd, const std::string& name, unsigned int subdevice)
       : DigitalOutInterface( name ),
-	myCard( cd ), subDevice( subdevice ), channels(0), error(0)
+	myCard( cd ), subDevice( subdevice ), channels(0)
     {
       init();
     }
 
     ComediSubDeviceDOut::ComediSubDeviceDOut( ComediDevice* cd, unsigned int subdevice )
-      : myCard( cd ), subDevice( subdevice ), channels(0), error(0)
+      : myCard( cd ), subDevice( subdevice ), channels(0)
     {
       init();
     }
@@ -29,9 +29,10 @@ namespace ORO_DeviceDriver
       if ( ( myCard->getSubDeviceType( subDevice ) != COMEDI_SUBD_DO ) &&
 	   ( myCard->getSubDeviceType( subDevice ) != COMEDI_SUBD_DIO) )
 	{
-	  error = -1;
 	  rtos_printf( "Comedi Digital Out : comedi_get_subdevice_type failed\n" );
 	  rtos_printf( "Type = %d \n", myCard->getSubDeviceType( subDevice ));
+	  // channels remains '0'.
+	  return;
 	}
       rtos_printf("Setting all dio on subdevice %d to output\n",subDevice);
 
@@ -51,7 +52,7 @@ namespace ORO_DeviceDriver
     void ComediSubDeviceDOut::switchOff( unsigned int bit)
     {
       if (bit < channels)
-	comedi_dio_write( myCard->getDevice(),subDevice,bit,1);
+	comedi_dio_write( myCard->getDevice(),subDevice,bit,0);
     }
 
     void ComediSubDeviceDOut::setBit( unsigned int bit, bool value)
@@ -71,6 +72,7 @@ namespace ORO_DeviceDriver
       if ((start_bit > stop_bit) || (stop_bit >= channels))
 	{
 	  rtos_printf( "Comedi Digital Out : start_bit should be less than stop_bit) and stopbit can be bigger than the number of channels\n" );
+	  return;
 	}
       else
 	{

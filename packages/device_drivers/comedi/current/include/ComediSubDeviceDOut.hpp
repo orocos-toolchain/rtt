@@ -80,7 +80,6 @@ namespace ORO_DeviceDriver
      */
     unsigned int subDevice;
     unsigned int channels;
-    int error;
   };
 
 }
