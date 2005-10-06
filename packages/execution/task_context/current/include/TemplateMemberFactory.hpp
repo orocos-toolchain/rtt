@@ -712,7 +712,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
-  MEMBER( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc )
+  MEMBER( ResultT (ComponentT::*fun)() const, const char* desc )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
       DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
@@ -722,7 +722,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
-  MEMBER( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
@@ -736,7 +736,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
                       DataSourceBase*>*
-  MEMBER_DS( ResultT (ComponentT::*fun)() MEMBER_CONST, const char* desc)
+  MEMBER_DS( ResultT (ComponentT::*fun)() const, const char* desc)
   {
     return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*>
         (
@@ -748,7 +748,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
                       DataSourceBase*>*
-  MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) MEMBER_CONST, const char* desc,
+  MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
   {
     return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*, typename detail::ArgType<Arg1T>::type>
@@ -763,7 +763,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
-  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) MEMBER_CONST, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) const, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d)
   {
@@ -780,7 +780,7 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
-  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) MEMBER_CONST, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) const, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d)
@@ -799,7 +799,118 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
                       DataSourceBase*>*
-  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) MEMBER_CONST, const char* desc,
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) const, const char* desc,
+        const char* a1n, const char* a1d,
+        const char* a2n, const char* a2d,
+        const char* a3n, const char* a3d,
+        const char* a4n, const char* a4d)
+  {
+      return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type,
+        typename detail::ArgType<Arg3T>::type,
+        typename detail::ArgType<Arg4T>::type>
+        (
+          boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d, a4n, a4d );
+  };
+
+    /**
+     * Same methods, but without 'const'
+     */
+  template<typename ComponentT, typename ResultT>
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
+                      DataSourceBase*>*
+  MEMBER( ResultT (ComponentT::*fun)() , const char* desc )
+  {
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
+                          boost::mem_fn( fun ) ), desc );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T>
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
+                      DataSourceBase*>*
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T ) , const char* desc,
+        const char* a1n, const char* a1d )
+  {
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*, Arg1T>(
+        detail::fun_datasource_gen<ComponentT, 
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type>(
+          boost::mem_fn( fun ) ), desc, a1n, a1d );
+  };
+
+  template<typename ComponentT, typename ResultT>
+  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+                      DataSourceBase*>*
+  MEMBER_DS( ResultT (ComponentT::*fun)() , const char* desc)
+  {
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*>
+        (
+         detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >( boost::mem_fn( fun ) ),
+         desc
+         );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T>
+  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+                      DataSourceBase*>*
+  MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) , const char* desc,
+        const char* a1n, const char* a1d )
+  {
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*, typename detail::ArgType<Arg1T>::type>
+        (
+         detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type,
+         typename detail::ReturnType<ResultT>::type,
+         typename detail::ArgType<Arg1T>::type >( boost::mem_fn( fun ) ),
+         desc, a1n, a1d 
+         );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
+                      DataSourceBase*>*
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) , const char* desc,
+        const char* a1n, const char* a1d,
+        const char* a2n, const char* a2d)
+  {
+    return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*, Arg1T, Arg2T>(
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type>
+        (
+          boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d );
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
+                      DataSourceBase*>*
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) , const char* desc,
+        const char* a1n, const char* a1d,
+        const char* a2n, const char* a2d,
+        const char* a3n, const char* a3d)
+  {
+      return detail::fun_fact<typename detail::CompType<ComponentT>::type,
+      DataSourceBase*, Arg1T, Arg2T, Arg3T>(
+        detail::fun_datasource_gen<ComponentT,
+        typename detail::ReturnType<ResultT>::type,
+        typename detail::ArgType<Arg1T>::type,
+        typename detail::ArgType<Arg2T>::type,
+        typename detail::ArgType<Arg3T>::type>
+        (
+          boost::mem_fn( fun ) ), desc, a1n, a1d, a2n, a2d, a3n, a3d);
+  };
+
+  template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+  detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
+                      DataSourceBase*>*
+  MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) , const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d,
