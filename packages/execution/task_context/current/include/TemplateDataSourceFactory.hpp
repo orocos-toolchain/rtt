@@ -33,7 +33,7 @@
 
 #define MEMBER data
 #define MEMBER_DS data_ds
-#define MEMBER_CONST 
+#define MEMBER_CONST const
 #define TEMPLATE_FACTORY_NAME TemplateDataSourceFactory
 #define NEW_MEMBER_FACTORY newDataSourceFactory
 #include "TemplateMemberFactory.hpp"
