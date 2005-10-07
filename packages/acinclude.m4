@@ -129,6 +129,30 @@ fi
 AC_SUBST(COMEDI_DIR)
 ])
 
+m4_define([DETECT_CORBAPKG],
+[
+AC_MSG_CHECKING(for ace dir)
+AC_ARG_WITH(ace, [ AC_HELP_STRING([--with-ace=/usr/include],[Specify location of ace/config-all.h ]) ],
+	[ if test x"$withval" != xyes; then ACE_DIR="$withval";fi],[ ACE_DIR="/usr/include" ])
+AC_MSG_CHECKING(for tao dir)
+AC_ARG_WITH(tao, [ AC_HELP_STRING([--with-tao=/usr/include],[Specify location of tao/ORB.h ]) ],
+	[ if test x"$withval" != xyes; then TAO_DIR="$withval";fi],[ TAO_DIR="/usr/include" ])
+
+if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h ] ; then
+  # corbalib
+  PACKAGES="support/corba/current/corba.cdl $PACKAGES"
+  CPPFLAGS="-I$ACE_DIR -I$TAO_DIR"
+  AC_MSG_RESULT(Ace/Tao headers found)
+else
+  # no corba found
+  AC_MSG_RESULT(not found)
+  AC_MSG_WARN([No ace/tao installation found !
+   (tried : $ACE_DIR/ace/config-all.h and $TAO_DIR/tao/ORB.h).
+   Corba will be unavailable.])
+fi
+AC_SUBST(ACE_DIR)
+AC_SUBST(TAO_DIR)
+])
 
 
 m4_define([DETECT_READLINE],

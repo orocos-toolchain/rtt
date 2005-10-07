@@ -37,6 +37,7 @@ fi;
 # the support top directory
 PACKAGES=support/common/current/support.cdl
 
+DETECT_CORBAPKG
 DETECT_BOOSTPKG
 DETECT_XERCESCPKG
 DETECT_COMEDIPKG

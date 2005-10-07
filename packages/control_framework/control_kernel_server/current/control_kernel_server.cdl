@@ -5,6 +5,15 @@ A CORBA server which allows your kernel to be used with the KernelClient GUI.
 "
     parent   OROPKG_CONTROL_FRAMEWORK
     requires OROPKG_CONTROL_FRAMEWORK
+    requires OROPKG_SUPPORT_CORBA
+
+    cdl_option OROPKG_CONTROL_KERNEL_SERVER_CFLAGS_ADD {
+        display "ACE/TAO include path"
+	description "The path is derived from the
+detection of the packages configure script"
+	flavor data
+        default_value { "-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR }
+    }
 
     include_dir control_kernel
 
