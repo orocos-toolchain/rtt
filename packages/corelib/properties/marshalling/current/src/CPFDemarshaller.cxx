@@ -302,6 +302,7 @@ namespace ORO_CoreLib
     CPFDemarshaller::CPFDemarshaller( const std::string& filename )
         : name(0), fis(0)
     {
+        Logger::In in("CPFDemarshaller");
         try
             {
                 XMLPlatformUtils::Initialize();
@@ -310,12 +311,12 @@ namespace ORO_CoreLib
             {
                 std::string error;
                 XMLChToStdString(toCatch.getMessage(), error);
-                Logger::log() << Logger::Error << "CPFDemarshaller initialization : "
+                Logger::log() << Logger::Error << "XML Initialization : "
                               << error << Logger::endl;
             }
         catch ( ... )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller : General System Exception !" << Logger::endl;
+                Logger::log() << Logger::Error << "General System Exception !" << Logger::endl;
             }
 
         name =  XMLString::transcode( filename.c_str() );
@@ -323,9 +324,11 @@ namespace ORO_CoreLib
         try {
             fis  = new LocalFileInputSource( name );
         }
-        catch ( ... )
+        catch ( XMLException& xe )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller : Failed to open file " <<filename << Logger::endl;
+                Logger::log() << Logger::Error << "Failed to open file " <<filename << Logger::endl;
+                Logger::log() << Logger::Error << xe.getMessage() << Logger::endl;
+                
                 fis = 0;
             }
         delete[] name;
@@ -346,6 +349,8 @@ namespace ORO_CoreLib
         SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
 
         int errorCount = 0;
+
+        Logger::In in("CPFDemarshaller");
 
         try
             {
@@ -370,7 +375,7 @@ namespace ORO_CoreLib
             }
         catch ( const XMLException & toCatch )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller: An XML parsing error occurred processing file " <<Logger::nl;
+                Logger::log() << Logger::Error << "An XML parsing error occurred processing file " <<Logger::nl;
                 if ( XMLString::transcode(toCatch.getSrcFile()) )
                     Logger::log() <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<Logger::nl ;
                 Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
@@ -380,7 +385,7 @@ namespace ORO_CoreLib
             }
         catch ( const SAXParseException & toCatch )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller: An XML SAX parsing error occurred processing file " <<Logger::nl;
+                Logger::log() << Logger::Error << "An XML SAX parsing error occurred processing file " <<Logger::nl;
                 Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
                 if ( toCatch.getPublicId() )
                     {
@@ -395,7 +400,7 @@ namespace ORO_CoreLib
             }
         catch ( const SAXException & toCatch )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller: An XML SAX exception occurred processing file " <<Logger::nl;
+                Logger::log() << Logger::Error << "An XML SAX exception occurred processing file " <<Logger::nl;
                 Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
                 delete parser;
                 XMLPlatformUtils::Terminate();
@@ -403,7 +408,7 @@ namespace ORO_CoreLib
             }
         catch ( ... )
             {
-                Logger::log() << Logger::Error << "CPFDemarshaller: General System Exception !" << Logger::endl;
+                Logger::log() << Logger::Error << "General System Exception !" << Logger::endl;
                 delete parser;
                 XMLPlatformUtils::Terminate();
                 return false;
