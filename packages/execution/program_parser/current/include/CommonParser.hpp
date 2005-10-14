@@ -42,7 +42,12 @@ namespace ORO_Execution { namespace detail
   {
       std::string lastparsedident;
   public:
+      // The characters of an identifier after the first char.
+      chset<> identchar;
+
       symbols<nil_t> keywords;
+      // parses any reserved keyword
+      rule_t keyword;
 
       // the normal identifier throws an error if it fails to match
       // because a keyword was used.  Normally this is no problem, but

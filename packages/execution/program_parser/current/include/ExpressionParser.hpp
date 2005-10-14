@@ -127,8 +127,8 @@ namespace ORO_Execution { namespace detail
     // from the object with name mobjectname.
     std::string mpropname;
 
-    // the amount of nanoseconds specified for a ConditionDuration
-    ORO_CoreLib::nsecs nsecs;
+    // time specification
+    ORO_CoreLib::nsecs tsecs;
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );

@@ -39,8 +39,7 @@
 #include "execution/DataSourceFactoryInterface.hpp"
 #include "execution/TaskAttribute.hpp"
 
-#include "corelib/ConditionDuration.hpp"
-#include "corelib/ConditionDSDuration.hpp"
+#include "corelib/DataSourceTime.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/PeerParser.hpp"
 
@@ -300,11 +299,9 @@ namespace ORO_Execution
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
     BOOST_SPIRIT_DEBUG_RULE( comma );
     BOOST_SPIRIT_DEBUG_RULE( close_brace );
-    BOOST_SPIRIT_DEBUG_RULE( open_brace );
 
     comma = expect_comma( ch_p(',') );
     close_brace = expect_close( ch_p(')') );
-    open_brace = expect_open( ch_p('(') );
     expression = ifthenelseexp;
 
     // We parse expressions without regard of the types.  First we
@@ -404,9 +401,15 @@ namespace ORO_Execution
 #endif
         double6Dctor | double6Dctor6 | arrayctor | stringctor;
 
+    /**
+     * About constructors : 
+     * Since they start with a keyword, the opening brace _must_ trigger
+     * a rule failure if not present, such that user vars like "frame_mypos" are valid.
+     * (otherwise, 'brace' is expected).
+     */
     framector = (
          str_p( "frame" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> comma
       >> expression
@@ -414,7 +417,7 @@ namespace ORO_Execution
 
     wrenchctor = (
          str_p( "wrench" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> comma
       >> expression
@@ -422,7 +425,7 @@ namespace ORO_Execution
 
     twistctor = (
          str_p( "twist" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> comma
       >> expression
@@ -430,7 +433,7 @@ namespace ORO_Execution
 
     vectorctor = (
          str_p( "vector" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> comma
       >> expression
@@ -440,7 +443,7 @@ namespace ORO_Execution
 
     double6Dctor =
         str_p( "double6d" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >>(  ch_p(')')[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ]
            | ( comma
@@ -457,19 +460,19 @@ namespace ORO_Execution
 
     arrayctor = (
         str_p( "array" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "array" ) ];
 
     stringctor = (
         str_p( "string" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "string" ) ];
 
     rotationctor = (
          str_p( "rotation" )
-      >> open_brace
+      >> ch_p('(')
       >> expression
       >> comma
       >> expression
@@ -482,24 +485,22 @@ namespace ORO_Execution
     // the stack, where it should be..
     groupexp = '(' >> expression >> close_brace;
 
-    // a time_condition.  This will result in a ConditionDuration
-    // being output as a DataSource<bool>.  The format looks like:
-    // "time > time_spec" where time is the literal word "time", ">"
-    // can optionally be replaced by ">=" with the normal difference
-    // in meaning, and time_spec is an amount of time, specified in
-    // seconds ( "123s" ), milliseconds ( "123ms" ), microseconds(
-    // "123us" ) or nanoseconds ( "123ns" ).
-    time_expression = "time"
-        >> expect_timespec( (( str_p( ">=" ) | ">" )
-                            |
-                            (str_p("<=") | "<")[bind( &ExpressionParser::inverttime, this)])
-        >> time_spec);
-
-    time_spec =
+    time_expression =
+        (str_p("time")>>eps_p(~commonparser.identchar | eol_p | end_p ))[bind(&ExpressionParser::seentimeexpr, this)]
+        |
         ( uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
-        >>
-      ( str_p( "s" ) | "ms" | "us" | "ns" )[
-        bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ) | expression[bind(&ExpressionParser::seentimeexpr, this)];
+          >> (str_p( "s" ) | "ms" | "us" | "ns" )[bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ]);
+
+//         >> expect_timespec( (( str_p( ">=" ) | ">" )
+//                             |
+//                             (str_p("<=") | "<")[bind( &ExpressionParser::inverttime, this)])
+//         >> time_spec);
+
+//     time_spec =
+//         ( uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
+//         >>
+//       ( str_p( "s" ) | "ms" | "us" | "ns" )[
+//         bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ] ) | expression[bind(&ExpressionParser::seentimeexpr, this)];
 
   };
 
@@ -510,34 +511,45 @@ namespace ORO_Execution
 
     void ExpressionParser::seentimeexpr()
     {
-        DataSourceBase::shared_ptr res = parsestack.top();
-        parsestack.pop();
-        DataSource<double>::shared_ptr dres = dynamic_cast<DataSource<double>*>( res.get() );
-        if ( !dres )
-            throw parse_exception_semantic_error("Expected time in seconds but expression is not a floating point number.");
-        DataSourceBase::shared_ptr dsb( new DataSourceCondition( new ConditionDSDuration( dres, _invert_time ) ) );
-        _invert_time = false;
-        parsestack.push( dsb );
+        parsestack.push( new DataSourceTime() );
+
+//         DataSourceBase::shared_ptr res = parsestack.top();
+//         parsestack.pop();
+//         DataSource<double>::shared_ptr dres = dynamic_cast<DataSource<double>*>( res.get() );
+//         if ( !dres )
+//             throw parse_exception_semantic_error("Expected time in seconds but expression is not a floating point number.");
+//         DataSourceBase::shared_ptr dsb( new DataSourceCondition( new ConditionDSDuration( dres, _invert_time ) ) );
+//         _invert_time = false;
+//         parsestack.push( dsb );
     }
 
-  void ExpressionParser::seentimeunit( iter_t begin, iter_t )
+  void ExpressionParser::seentimeunit( iter_t begin, iter_t end)
   {
     // the string starting at begin, ending at end is either ms, us,
     // ns or s, so we only need to check the first letter...
-      ORO_CoreLib::nsecs total = 0;
+      // Convert to seconds...
+      TimeService::Seconds total = 0;
     switch( *begin )
     {
-    case 's': total = nsecs * 1000000000;
+    case 's': total = tsecs;
         break;
-    case 'm': total = nsecs * 1000000;
+    case 'm': total = tsecs / 1000.0;
         break;
-    case 'u': total = nsecs * 1000;
+    case 'u': total = tsecs / 1000000.0;
+        break;
+    case 'n': total = tsecs / 1000000000.0;
+        break;
+    default: 
+        std::string arg(begin, end);
+        throw parse_exception_semantic_error("Expected time expression 's', 'ms', 'us' or 'ns' after integer value, got "+arg);
     };
 
-    DataSourceBase::shared_ptr dsb( new DataSourceCondition(
-      new ConditionDuration( total, _invert_time ) ) );
-    _invert_time = false;
-    parsestack.push( dsb );
+    parsestack.push( new ConstantDataSource<double>( total ) ); 
+
+//     DataSourceBase::shared_ptr dsb( new DataSourceCondition(
+//       new ConditionDuration( total, _invert_time ) ) );
+//     _invert_time = false;
+//     parsestack.push( dsb );
   }
 
     TaskContext* ExpressionParser::setStack( TaskContext* tc )
@@ -558,7 +570,7 @@ namespace ORO_Execution
 
   void ExpressionParser::seentimespec( int n )
   {
-    nsecs = n;
+    tsecs = n;
   }
 
   void ExpressionParser::seenvalue()

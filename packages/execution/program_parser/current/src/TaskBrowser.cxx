@@ -991,6 +991,10 @@ namespace ORO_Execution
     }
 
     void TaskBrowser::doPrint( DataSourceBase* ds, bool recurse) {
+        // this is needed for ds's that rely on initialision.
+        // e.g. eval true once or time measurements.
+        // becomes only really handy for 'watches' (todo).
+        ds->reset();
         /**
          * If this list of types gets to long, we can still add a virtual
          * printOut( std::ostream& ) = 0 to DataSourceBase.
@@ -1235,7 +1239,7 @@ namespace ORO_Execution
 
     }
 
-    void TaskBrowser::printProgram(const std::string& progname, int cl) {
+    void TaskBrowser::printProgram(const std::string& progname, int cl /*= -1*/) {
         string ps;
         char s;
         stringstream txtss;
@@ -1306,13 +1310,13 @@ namespace ORO_Execution
     void TaskBrowser::listText(stringstream& txtss,int start, int end, int ln, char s) {
         int curln = 1;
         string line;
-        while ( curln != start ) { // consume lines
+        while ( start > 1 && curln != start ) { // consume lines
             getline( txtss, line, '\n' );
             if ( ! txtss )
                 break; // no more lines, break.
             ++curln;
         }
-        while ( curln != end ) { // print lines
+        while ( end > start && curln != end ) { // print lines
             getline( txtss, line, '\n' );
             if ( ! txtss )
                 break; // no more lines, break.
