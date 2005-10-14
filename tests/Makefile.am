@@ -4,7 +4,7 @@ SUBDIRS = .
 
 #global includes
 INCLUDES = -I$(top_builddir)/packages/install/include $(TARGET_FLAGS)
-LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthread $(TARGET_LIBS)
+LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthread $(TARGET_LIBS) -lstdc++
 AM_CXXFLAGS= $(CPPUNIT_CFLAGS) -g 
 AM_CPPFLAGS=-D_REENTRANT
 
