@@ -14,7 +14,7 @@ namespace ORO_CoreLib
 
     bool ConditionDSDuration::evaluate()
     {
-        return _invert != ( time->get() < hb->secondsSince( mark ) );
+        return _invert != ( time->get() > hb->secondsSince( mark ) );
     }
 
     void ConditionDSDuration::reset()
