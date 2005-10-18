@@ -26,10 +26,12 @@
 #include <execution/Processor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
+#include <geometry/frames.h>
 #include <string>
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
+using namespace ORO_Geometry;
 
 class TypesTest : public CppUnit::TestFixture
 {
@@ -46,6 +48,8 @@ class TypesTest : public CppUnit::TestFixture
     Processor processor;
     MethodFactoryInterface* createMethodFactory();
     bool assertBool( bool );
+    bool equalFrames(const Frame& f1, Frame& f2);
+    bool equalVectors(const Vector& f1, Vector& f2);
     bool assertMsg( bool, const std::string& msg);
 public:
 

@@ -37,8 +37,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( StateTest );
 
 
     StateTest::StateTest()
-        : gtc("root", &gprocessor),
-          gtask( 0.01, &gprocessor )
+        :gtc("root"),
+         gtask( 0.01, gtc.getExecutionEngine() )
     {}
 
 
@@ -50,6 +50,8 @@ StateTest::setUp()
     gtc.commandFactory.registerObject("test", this->createCommandFactory() );
     gtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
 
+    gtc.eventService.addEvent( "d_event", &d_event );
+    gtc.eventService.addEvent( "b_event", &b_event );
     i = 0;
 }
 
@@ -285,7 +287,7 @@ void StateTest::testStateFailure()
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        CPPUNIT_ASSERT( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
+        CPPUNIT_ASSERT( gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == Processor::StateMachineStatus::error );
         
         this->finishState( &gtc, "x");
     }
@@ -583,6 +585,97 @@ void StateTest::testStateSubStateCommands()
      this->finishState( &gtc, "x");
 }
 
+void StateTest::testStateEvents()
+{
+    // test event reception in sub states.
+    string prog = string("StateMachine Y {\n")
+        + " var   double t = 0.0\n"
+        + " var   double et = 0.0\n"
+        + " var   bool eb = false\n"
+        + " initial state INIT {\n"
+        + " transition d_event(et)\n"
+        + "     if et < 0. then select ISNEGATIVE\n"
+        + "     else select ISPOSITIVE\n"
+        + " transition b_event(eb)\n"
+        + "     if eb == false then select ISFALSE\n"
+        + "     else select ISTRUE\n"
+        + " }\n"
+        + " state ISNEGATIVE {\n"
+        + " transitions {\n"
+        + "      select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " state ISPOSITIVE {\n"
+        + " transitions {\n"
+        + "      select INIT\n" // 20
+        + "      }\n"
+        + " }\n"
+        + " state ISTRUE {\n"
+        + " transitions {\n"
+        + "      select INIT\n"
+        + "      }\n"
+        + " }\n"
+        + " state ISFALSE {\n"
+        + " transitions {\n"
+        + "      select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " state DEFAULT {\n"
+        + " transitions {\n"
+        + "      select FINI\n"
+        + "      }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " }\n"
+        + " }\n" // 40
+        + string("StateMachine X {\n")
+        + " SubMachine Y y1()\n"
+        + " initial state INIT {\n"
+        + " run {\n"
+        + "     do y1.activate()\n"
+        + "     emit d_event(-1.0)\n"
+        + "     do nothing\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + "     emit d_event(+1.0)\n"
+//         + "     do nothing\n"
+        + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + "     emit b_event(true)\n"
+//         + "     do nothing\n"
+        + "     do test.assert( y1.inState(\"ISTRUE\") )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + "     emit b_event(false)\n"
+//         + "     do nothing\n"
+        + "     do test.assert( y1.inState(\"ISFALSE\") )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select FINI\n"
+        + " }\n"
+        + " }\n"
+        + " final state FINI {\n"
+        + " entry {\n"
+        + "     do y1.deactivate()\n"
+        + " }\n"
+        + " transitions {\n"
+        + "     select INIT\n"
+        + " }\n"
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x() \n" // instantiate a hierarchical SC
+        ;
+
+     this->doState( prog, &gtc );
+     this->finishState( &gtc, "x");
+}
+
 void StateTest::testStateUntil()
 {
 //     this->doState( prog, &gtc );
@@ -649,7 +742,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+(*pg_list.begin())->getName()+"' did not have effect.", (*pg_list.begin())->isActive() );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    CPPUNIT_ASSERT( gprocessor.process( cs ) != 0 );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getCommandProcessor()->process( cs ) != 0 );
 //     while (1)
     sleep(1);
     delete ca;
@@ -665,9 +758,19 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         // check error status of parent :
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() );
         stringstream errormsg;
+        int line = (*pg_list.begin())->getLineNumber();
         errormsg <<" in StateContext "+(*pg_list.begin())->getName()
                  <<" in state "<< (*pg_list.begin())->currentState()->getName()
-                 <<" on line " << (*pg_list.begin())->getLineNumber() <<" of that StateContext."<<endl;
+                 <<" on line " << line <<" of that StateContext:"<<endl;
+        stringstream sctext( (*pg_list.begin())->getText() );
+        int cnt = 1;
+        while ( cnt++ <line && sctext ) {
+            string garbage;
+            getline( sctext, garbage, '\n' );
+        }
+        string sline;
+        getline( sctext, sline, '\n' );
+        errormsg <<"here  > " << sline << endl;
         CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), (*pg_list.begin())->inError() == false );
         // check error status of all children:
         StateMachine::ChildList cl = (*pg_list.begin())->getChildren();
@@ -688,8 +791,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     CPPUNIT_ASSERT( gtask.stop() );
     SimulationThread::Instance()->stop();
     stringstream errormsg;
-    errormsg << " on line " << (*pg_list.begin())->getLineNumber() <<", status is "<< int(gprocessor.getStateMachineStatus("x")) <<endl;
-    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::stopped );
+    errormsg << " on line " << (*pg_list.begin())->getLineNumber() <<", status is "<< int(gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x")) <<endl;
+    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == Processor::StateMachineStatus::stopped );
 }
 
 void StateTest::finishState(TaskContext* tc, std::string prog_name)

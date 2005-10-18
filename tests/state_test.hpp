@@ -45,16 +45,17 @@ class StateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testStateEmpty );
     CPPUNIT_TEST( testStateSubStateVars );
     CPPUNIT_TEST( testStateSubStateCommands );
-//     CPPUNIT_TEST( testStateUntil );
+    CPPUNIT_TEST( testStateEvents );
 //     CPPUNIT_TEST( testStateUntilFail );
     CPPUNIT_TEST_SUITE_END();
 
 #ifndef NOPARSER
     Parser parser;
 #endif
-    Processor gprocessor;
     TaskContext gtc;
     TaskSimulation gtask;
+    Event<void(double)> d_event;
+    Event<void(bool)> b_event;
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
@@ -84,6 +85,7 @@ public:
     void testStateEmpty();
     void testStateSubStateVars();
     void testStateSubStateCommands();
+    void testStateEvents();
     void testStateUntil();
     void testStateUntilFail();
 

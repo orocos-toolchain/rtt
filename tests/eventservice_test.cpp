@@ -31,7 +31,7 @@ EventServiceTest::setUp()
 
     event_proc = new EventProcessor();
     event_proc->initialize();
-    es = new EventService();
+    es = new EventService(event_proc);
     reset();
 }
 

@@ -64,13 +64,26 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         TemplateMethodFactory< TypesTest >* dat =
             newMethodFactory( this );
 
-        dat->add( "assert", data( &TypesTest::assertBool,
+        dat->add( "assert", method( &TypesTest::assertBool,
                                   "Assert", "bool", "") );
-        dat->add( "assertMsg", data( &TypesTest::assertMsg,
+        dat->add( "assertMsg", method( &TypesTest::assertMsg,
                                      "Assert message", "bool", "", "text", "text" ) );
+        dat->add( "equalFrames", method( &TypesTest::equalFrames,
+                                     "Assert equal frames", "f1", "", "f2", "" ) );
+        dat->add( "equalVectors", method( &TypesTest::equalVectors,
+                                     "Assert equal vectors", "v1", "", "v2", "" ) );
         return dat;
     }
 
+bool TypesTest::equalFrames(const Frame& f1, Frame& f2)
+{
+    return f1 == f2;
+}
+
+bool TypesTest::equalVectors(const Vector& f1, Vector& f2)
+{
+    return f1 == f2;
+}
 
 void TypesTest::testEmptyProgram()
 {
@@ -164,6 +177,8 @@ void TypesTest::testTypes()
         "const vector vc = v\n"+
         "const rotation rc = r\n"+
         "const frame fc = f\n"+
+        "do test.equalFrames(fc, f)\n"+
+        "do test.equalVectors(vc, v)\n"+
 #endif
         "var array ar(10)\n"+
         "set ar[0] = 0.0\n"+

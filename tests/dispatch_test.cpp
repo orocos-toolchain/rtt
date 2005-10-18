@@ -219,7 +219,7 @@ void DispatchTest::testDispatchUntil()
     // see if checking a remote condition works
     string prog = string("program x { do space.subspace.test.instantDone()\n")
         + "until { \n"
-        + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
+        + " if time > 10 ms then continue \n" //  test in simulation takes far less than 1 second
         + "} \n"
         + "do space.subspace.test.instantDone()\n"
         + "until { \n"
