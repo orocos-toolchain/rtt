@@ -46,17 +46,40 @@ namespace ORO_Execution
 
     }
 
+    class ExecutionEngine;
 
     /**
-     * Stores Events of any type and connects SYN/ASYN Event handlers to them.
-     * 
+     * The function of this service is twofold.  As a factory and
+     * event producer, it stores Events of any type and connects
+     * SYN/ASYN Event handlers to them.  As an event consumer, it also
+     * offers access to an EventProcessor which may process (external
+     * or own) events for this service.
      */
     class EventService
     {
         typedef std::map<std::string, detail::EventStubInterface* > Factories;
         Factories fact;
-        
+
+        ExecutionEngine* eeproc;
+        ORO_CoreLib::EventProcessor* eproc;
     public:
+        /**
+         * Create an EventService with an associated ExecutionEngine.
+         * If you want the owner task of this object to process an event use
+         * EventService::getEventProcessor() in the \a setup functions below.
+         */
+        EventService( ExecutionEngine* ee );
+
+        /**
+         * Create an EventService with an associated EventService.
+         * This EventProcessor optional and defaults to the CompletionProcessor.
+         * If you want the owner task of this object to process an event use
+         * EventService::getEventProcessor() in the \a setup functions below.
+         */
+        EventService( ORO_CoreLib::EventProcessor* ep = 0 );
+
+        ORO_CoreLib::EventProcessor* getEventProcessor();
+            
         /**
          * Add an arbitrary Event to this Service.
          */

@@ -25,10 +25,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/StateMachine.hpp"
-#include "execution/TaskContext.hpp"
+#include <corelib/EventProcessor.hpp>
 #include "execution/EventService.hpp"
 #include "execution/mystd.hpp"
 #include <corelib/DataSource.hpp>
+#include <corelib/Logger.hpp>
 #include <functional>
 
 #include <assert.h>
@@ -43,14 +44,14 @@ namespace ORO_Execution
     using namespace ORO_CoreLib;
 
     StateMachine::StateMachine(StateMachine* parent, const string& name )
-        : _parent (parent) , _name(name), taskcontext(0),
+        : _parent (parent) , _name(name), eproc(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), error(false), evaluating(0)
     {}
  
-    StateMachine::StateMachine(StateMachine* parent, TaskContext* tc, const string& name )
-        : _parent (parent) , _name(name), taskcontext(tc),
+    StateMachine::StateMachine(StateMachine* parent, EventProcessor* tc, const string& name )
+        : _parent (parent) , _name(name), eproc(tc),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), error(false), evaluating(0)
@@ -86,9 +87,23 @@ namespace ORO_Execution
     void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
         if ( newState == current )
             {
-                // execute the default action (handle current)
-                // if no transition to another state took place
-                handleState( current );
+                // this is only true if current state was selected in a transition of current.
+                if ( transProg ) {
+                    transProg->reset();
+                    currentTrans = transProg;
+                    currentProg = transProg;
+                    // from now on, we are in transition to self !
+                    // currentRun is _not_ set to zero or reset.
+                    // it is/may be interrupted by trans, then continued.
+                    // if already in handle, it is completed before trans, then trans is executed.
+                    // since a transProg was given, no handle is executed.
+                } else {
+                    // execute the default action (schedule handle )
+                    // if no transition to another state took place and no transprog specified.
+                    // only schedule a handle if not yet in progress.
+                    if (currentHandle == 0)
+                        handleState( current );
+                }
             }
         else
             {
@@ -117,7 +132,7 @@ namespace ORO_Execution
             this->executePending(stepping);
 
         // schedule a run for the next 'step'.
-        // if handle above finished, it will be called directly
+        // if handle above finished, run will be called directly
         // in the user's executePending. if handle was not finished
         // or stepping, it will be called after handle.
         runState( newState );
@@ -128,16 +143,18 @@ namespace ORO_Execution
         EventMap::mapped_type& hlist = eventMap[s];
         for (EventList::iterator eit = hlist.begin();
              eit != hlist.end();
-             ++eit)
+             ++eit) {
             get<6>(*eit).connect();
+        }
     }
     void StateMachine::disableEvents( StateInterface* s )
     {
         EventMap::mapped_type& hlist = eventMap[s];
         for (EventList::iterator eit = hlist.begin();
              eit != hlist.end();
-             ++eit)
+             ++eit) {
             get<6>(*eit).disconnect();
+        }
     }
 
 
@@ -330,8 +347,8 @@ namespace ORO_Execution
     void StateMachine::preconditionSet(StateInterface* state, ConditionInterface* cnd, int line )
     {
         // we must be inactive.
-        assert( current == 0);
-        assert( stateMap.count( state ) == 1 && "Add a state first before setting preconditions !" );
+        if ( current != 0)
+            return;
         precondMap.insert( make_pair(state, make_pair( cnd, line)) );
         stateMap[state]; // add to state map.
     }
@@ -346,7 +363,9 @@ namespace ORO_Execution
                                       int priority, int line )
     {
         // we must be inactive.
-        assert( current == 0);
+        if ( current != 0)
+            return;
+
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
@@ -358,12 +377,29 @@ namespace ORO_Execution
     bool StateMachine::createEventTransition( EventService* es,
                                               const std::string& ename, vector<DataSourceBase::shared_ptr> args,
                                               StateInterface* from, StateInterface* to,
-                                              ConditionInterface* guard, ProgramInterface* transprog )
+                                              ConditionInterface* guard, ProgramInterface* transprog, 
+                                              StateInterface* elseto, ProgramInterface* elseprog )
     {
-        if (taskcontext == 0 )
+        Logger::In in("StateMachine::createEventTransition");
+        if (eproc == 0 ) {
+            Logger::log() << Logger::Error << "Can not receive event '"<< ename <<"' in StateMachine without EventProcessor."<<Logger::endl;
             return false;
+        }
 
-        assert( es && from && to && guard ); // transprog may be zero !.
+        if ( !( es && from && guard ) ) {
+            Logger::log() << Logger::Error << "Invalid arguments for event '"<< ename <<"'. ";
+            if (!es) 
+                Logger::log() <<"EventService was null. ";
+            if (!from) 
+                Logger::log() <<"From State was null. ";
+            if (!guard) 
+                Logger::log() <<"Guard Condition was null. ";
+            Logger::log()<<Logger::endl;
+            return false;
+        }
+
+        if ( to == 0 ) 
+            to = from;
 
         // get ename from event service, provide args as arguments
         // event should be activated upon entry of 'from'
@@ -377,20 +413,31 @@ namespace ORO_Execution
         // proper copy semantics, such that the event handle can be created for each new SM
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
-        Handle handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to), args,
-                                                    taskcontext->getProcessor()->getTask() );
-        if ( !handle )
+        Handle handle;
+        if ( es->getEventProcessor() != eproc ) {// asyn if not same proc.
+            Logger::log() << Logger::Debug << "Creating Asynchronous handler for '"<< ename <<"'."<<Logger::endl;
+            handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to, elseprog, elseto), args,
+                                    eproc );
+        }
+        else {
+            Logger::log() << Logger::Debug << "Creating Synchronous handler for '"<< ename <<"'."<<Logger::endl;
+            handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to, elseprog, elseto), args );
+        }
+
+        if ( !handle ) {
+            Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
             return false; // event does not exist...
+        }
         // BIG NOTE : we MUST store handle otherwise, the connection is destroyed (cfr setup vs connect).
         // Off course, we also need it to connect/disconnect the event.
-        eventMap[from].push_back( boost::make_tuple( es, ename, args, to, guard, transprog, handle) );
+        eventMap[from].push_back( boost::make_tuple( es, ename, args, to, guard, transprog, handle, elseto, elseprog) );
         // add the states to the statemap.
         stateMap[from];
         stateMap[to];
         return true;
     }
 
-    void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to )
+    void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
     {
         // called by event to begin Transition to 'to'.
         // This interrupts the current run program at an interruption point ? 
@@ -400,10 +447,15 @@ namespace ORO_Execution
         // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
         // only transition if this event was meant for this state and we are not
         // in transition already.
-        if ( from == current && !this->inTransition() && c->evaluate() && checkConditions(to, false) == 1 ) {
-            // valid transition to 'to'.
-            changeState( to, p );
-        }
+        // If condition failse, check precondition 'else' state (if present) and
+        // execute else program (may be null).
+        if ( from == current && !this->inTransition() )
+            if ( c->evaluate() && checkConditions(to, false) == 1 ) {
+                changeState( to, p );                // valid transition to 'to'.
+            }
+            else if ( elseto && checkConditions(elseto, false) == 1 ) {
+                changeState( elseto, elsep );        // valid transition to 'elseto'.
+            }
     }
 
 #if 0
@@ -451,7 +503,7 @@ namespace ORO_Execution
     void StateMachine::handleState( StateInterface* s )
     {
         currentHandle = s->getHandleProgram();
-        if ( currentHandle ) {
+        if ( currentHandle ) { 
             currentHandle->reset();
             if (currentProg == 0 )
                 currentProg = currentHandle;
@@ -501,6 +553,11 @@ namespace ORO_Execution
 
         // next execute transition program on behalf of current state.
         if ( currentTrans ) {
+            // exception : transition during handle, first finish handle !
+            if ( currentHandle ) {
+                if ( this->executeProgram(currentHandle, stepping) == false )
+                return false;
+            } else
             if ( this->executeProgram(currentTrans, stepping) == false )
                 return false;
             // done.
@@ -590,7 +647,7 @@ namespace ORO_Execution
 
 
     bool StateMachine::inTransition() const {
-        return currentProg != 0  && currentProg != currentRun && currentProg != currentHandle;
+        return currentProg != 0  && currentProg != currentRun;
     }
 
     void StateMachine::setInitialState( StateInterface* s )
@@ -618,10 +675,10 @@ namespace ORO_Execution
             initc->execute();
         }
 
-        current = getInitialState();
-        enterState( current );
-        reqstep = stateMap.find( current )->second.begin();
-        reqend = stateMap.find( current )->second.end();
+        //current = getInitialState();
+        enterState( getInitialState() );
+        reqstep = stateMap.find( next )->second.begin();
+        reqend = stateMap.find( next )->second.end();
 
         // execute the entry program of the initial state.
         this->executePending();
@@ -654,4 +711,3 @@ namespace ORO_Execution
         return true;
     }
 }
-

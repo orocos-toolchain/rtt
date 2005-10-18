@@ -27,5 +27,6 @@ task programs."
     compile MapDataSourceFactory.cxx
     compile EventService.cxx
     compile FactoryExceptions.cxx
+    compile ExecutionEngine.cxx
 
 }

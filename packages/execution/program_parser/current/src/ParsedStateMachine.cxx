@@ -340,8 +340,13 @@ namespace ORO_Execution {
                 FunctionGraph* tgraph =  dynamic_cast<FunctionGraph*>( j->get<5>() );
                 if (tgraph)
                     tprog = tgraph->copy(replacements);
+                StateInterface* elseState = statemapping[j->get<7>()];
+                ProgramInterface* eprog = 0;
+                FunctionGraph* egraph =  dynamic_cast<FunctionGraph*>( j->get<8>() );
+                if (egraph)
+                    eprog = egraph->copy(replacements);
 
-                bool eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog );
+                bool eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
                 assert( eresult );
             }
         }
@@ -438,6 +443,34 @@ namespace ORO_Execution {
             psc->setName( subname, true );
             this->getTaskContext()->addPeer( psc->getTaskContext() );
         }
+    }
+
+    std::string ParsedStateMachine::getText() const
+    {
+        return *_text;
+    }
+
+    void ParsedStateMachine::setText( std::string text)
+    {
+        *_text = text;
+    }
+
+    TaskContext* ParsedStateMachine::getTaskContext() const {
+        return context;
+    }
+    void ParsedStateMachine::setTaskContext(TaskContext* tc) {
+        context = tc;
+        if ( tc->getProcessor()->getTask() )
+            this->eproc = tc->getProcessor()->getTask()->getEventProcessor();
+        else
+            this->eproc = 0;
+    }
+
+    bool ParsedStateMachine::inState( const std::string& name ) {
+        StateInterface* copy = this->currentState();
+        if (copy == 0)
+            return false;
+        return copy->getName() == name;
     }
 
     void ParsedStateMachine::finish()

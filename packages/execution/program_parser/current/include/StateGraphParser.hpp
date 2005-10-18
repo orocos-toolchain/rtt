@@ -100,6 +100,8 @@ namespace ORO_Execution { namespace detail
       StateDescription* curnonprecstate;
       ProgramGraphParser* progParser;
       ProgramInterface* transProgram;
+      StateDescription* elsestate;
+      ProgramInterface* elseProgram;
       ConditionInterface* curcondition;
       std::string curscvccontextname;
       std::string curscvcparamname;
@@ -134,6 +136,7 @@ namespace ORO_Execution { namespace detail
       rule_t transitions;
       rule_t transition;
       rule_t transprog;
+      rule_t elseprog;
       rule_t argslist;
       rule_t handle;
       rule_t exit;
@@ -175,6 +178,8 @@ namespace ORO_Execution { namespace detail
       void seencondition();
       void seenendcondition();
       void seentransprog();
+      void seenelseprog();
+      void seenelse();
       void seenselect( iter_t s, iter_t f);
       void seenprecondition();
       void seeneventname(iter_t s, iter_t f);

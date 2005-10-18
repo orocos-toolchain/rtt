@@ -85,8 +85,8 @@ namespace ORO_Execution
                     action = &StateInfo::goactive;
                     sstate = StateMachineStatus::activating;
                 } else {
-                    // wait for start() or requestState()
-                    action = 0;
+                    // poll for events and wait for start() or requestState()
+                    action = &StateInfo::eventpolling;
                     sstate = StateMachineStatus::active;
                 }
                 return true;
@@ -187,7 +187,7 @@ namespace ORO_Execution
                     return;
                 }
                 sstate = StateMachineStatus::active;
-                action = 0;
+                action = &StateInfo::eventpolling;
             }
             // Go through the exit of the current state:
             void goinactive() {
@@ -209,6 +209,15 @@ namespace ORO_Execution
                 sstate = StateMachineStatus::stopped;
                 action = 0;
             }
+
+            void eventpolling() {
+                if ( state->executePending() == false ) {
+                    if ( state->inError() )
+                        sstate = StateMachineStatus::error;
+                    return;
+                }
+            }
+
             void run() {
                 if ( state->executePending() == false ) {
                     if ( state->inError() )

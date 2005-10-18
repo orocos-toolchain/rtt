@@ -29,6 +29,7 @@
 
 #include "execution/TaskContext.hpp"
 #include <corelib/CommandInterface.hpp>
+#include <corelib/CompletionProcessor.hpp>
 
 #include "execution/Factories.hpp"
 #include "execution/Processor.hpp"
@@ -40,17 +41,27 @@
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
 
-        TaskContext::TaskContext(const std::string& name, Processor* proc )
-            :  _task_proc_owner( proc == 0 ? true : false ),
-               _task_proc( proc == 0 ? new Processor : proc  ),
-              _task_name(name)
-        {
-            // I'll only add this line if there is a good reason for (there isn't)
-            // for now, it's confusing to see 'this' being listed as peer.
-            // while there is also a this object.
-            //_task_map[ "this" ] = this;
-        }
+    TaskContext::TaskContext(const std::string& name)
+        :  _task_name(name),
+           commandFactory( &ee ),
+           eventService( &ee )
+    {
+        // I'll only add  this line if there is  a good reason for
+        // (there  isn't) for  now, it's  confusing to  see 'this'
+        // being  listed as  peer.   while there  is  also a  this
+        // object.  //_task_map[ "this" ] = this;
+    }
+
+    TaskContext::TaskContext(const std::string& name, Processor* cproc, Processor* pproc /* = 0*/, Processor* smproc /*= 0*/ )
+        :  _task_name(name),
+           ee( cproc, pproc, smproc ),
+           commandFactory( &ee ),
+           eventService( &ee )
+    {
+        
+    }
 
 
         TaskContext::~TaskContext()
@@ -59,19 +70,17 @@ namespace ORO_Execution
             // they we do not know who they are. A callback / event mechanism
             // could be used though, but parsed programs would still contain
             // pointers to non existing peers.
-            if ( _task_proc_owner )
-                delete _task_proc;
             attributeRepository.clear();
         }
 
         bool TaskContext::executeCommand( CommandInterface* c)
         {
-            return _task_proc->process( c ) != 0;
+            return ee.getCommandProcessor()->process( c ) != 0;
         }
 
         int TaskContext::queueCommand( CommandInterface* c)
         {
-            return _task_proc->process( c );
+            return ee.getCommandProcessor()->process( c );
         }
 
         bool TaskContext::addPeer( TaskContext* peer, std::string alias )
@@ -134,14 +143,7 @@ namespace ORO_Execution
 
         void TaskContext::setProcessor(Processor* newProc) 
         {
-            if ( _task_proc_owner )
-                delete _task_proc;
-            _task_proc_owner = false;
-            if ( newProc == 0 ) {
-                _task_proc = new Processor();
-                _task_proc_owner=true;
-            } else
-                _task_proc = newProc;
+            ee.setCommandProcessor( newProc );
         }
 
 }

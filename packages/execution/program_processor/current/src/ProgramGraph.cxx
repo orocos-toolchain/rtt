@@ -64,10 +64,10 @@ namespace ORO_Execution
             TemplateCommandFactory<ProgramCommands>* fact =
                 newCommandFactory( this );
 
-            fact->add("start", command(&ProgramCommands::start, &ProgramCommands::running,"Start or continue this program") );
-            fact->add("pause", command(&ProgramCommands::pause, &ProgramCommands::paused,"Pause this program") );
-            fact->add("step", command(&ProgramCommands::step, &ProgramCommands::paused,"Step this program") );
-            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::running,"Stop and reset this program", true) );
+            fact->add("start", command(&ProgramCommands::start, &ProgramCommands::true_gen,"Start or continue this program.") );
+            fact->add("pause", command(&ProgramCommands::pause, &ProgramCommands::paused,"Pause this program.") );
+            fact->add("step", command(&ProgramCommands::step, &ProgramCommands::true_gen,"Step this program.") );
+            fact->add("stop", command(&ProgramCommands::stop, &ProgramCommands::true_gen,"Stop and reset this program.") );
 
             progcont->commandFactory.registerObject("this", fact);
 
@@ -81,6 +81,12 @@ namespace ORO_Execution
 
             progcont->dataFactory.registerObject("this", dfact);
         }
+
+        /**
+         * Used by start/step/stop to indicate that the effects of the
+         * command are immediate.
+         */
+        bool true_gen() const { return true; }
 
         bool start() {
             return _progcont->getProcessor()->startProgram( _progcont->getName() );

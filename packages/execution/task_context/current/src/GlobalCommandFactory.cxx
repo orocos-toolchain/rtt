@@ -26,6 +26,7 @@
  ***************************************************************************/
 #include "execution/GlobalCommandFactory.hpp"
 #include "execution/CommandFactoryComposite.hpp"
+#include "execution/ExecutionEngine.hpp"
 
 #include <cassert>
 
@@ -50,7 +51,8 @@ namespace ORO_Execution {
     mdata[objectname] = cif;
   };
 
-  GlobalCommandFactory::GlobalCommandFactory()
+  GlobalCommandFactory::GlobalCommandFactory(ExecutionEngine* ee)
+      :eproc(ee)
   {
   }
 
@@ -84,5 +86,8 @@ namespace ORO_Execution {
             mlist.push_back( r->first );
         return mlist;
     }
-            
+
+    Processor* GlobalCommandFactory::getCommandProcessor() const {
+        return eproc->getCommandProcessor();
+    }
 }

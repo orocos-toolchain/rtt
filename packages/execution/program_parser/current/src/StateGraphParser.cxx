@@ -43,6 +43,7 @@
 #include "execution/Processor.hpp"
 #include "execution/CommandComposite.hpp"
 #include "corelib/ConditionTrue.hpp"
+#include "corelib/ConditionInvert.hpp"
 #include "execution/StateDescription.hpp"
 #include "execution/ProgramGraph.hpp"
 #include "execution/ParsedStateMachine.hpp"
@@ -77,6 +78,7 @@ namespace ORO_Execution
         assertion<GraphSyntaxErrors> expect_transition(transition_expected);
         assertion<std::string> expect_end("Ending brace expected ( or could not find out what this line means ).");
         assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
+        assertion<std::string> expect_select("'select' statement required after emty transition program.");
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_open("Open brace expected.");
@@ -103,6 +105,8 @@ namespace ORO_Execution
           curnonprecstate( 0 ),
           progParser( 0 ),
           transProgram( 0 ),
+          elsestate(0),
+          elseProgram(0),
           curcondition( 0 ),
           isroot(false),
           selectln(0),
@@ -252,11 +256,17 @@ namespace ORO_Execution
         brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
                                 >> expect_if(str_p( "then" ))
                                 >> !transprog
-                                >> expect_if(selector);
+                                >> !selector
+                                >> !(str_p("else")[bind( &StateGraphParser::seenelse, this )] >> expect_select( (elseprog >> !selector) | selector));
         transprog =
             ch_p('{')[ bind( &StateGraphParser::inprogram, this, "transition" )]
                 >> programBody
                 >> expect_end(ch_p('}'))[bind( &StateGraphParser::seentransprog, this )];
+
+        elseprog = 
+            ch_p('{')[ bind( &StateGraphParser::inprogram, this, "elsetransition" )]
+                >> programBody
+                >> expect_end(ch_p('}'))[bind( &StateGraphParser::seenelseprog, this )];
 
 
         selector = str_p( "select" ) >> ( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
@@ -372,6 +382,18 @@ namespace ORO_Execution
         transProgram = finishProgram();
     }
 
+    void StateGraphParser::seenelseprog()
+    {
+        // reuse transProgram to store else progr. See seenselect().
+        transProgram = finishProgram();
+    }
+
+    void StateGraphParser::seenelse()
+    {
+        assert( curcondition);
+        curcondition = new ConditionInvert( curcondition );
+    }
+
     void StateGraphParser::seencondition()
     {
         assert( !curcondition );
@@ -423,9 +445,18 @@ namespace ORO_Execution
             // this transition has a lower priority than the previous one
             if ( selectln == 0)
                 selectln = mpositer.get_position().line - ln_offset;
+//             if ( elsestate != 0)
+//                 curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram, rank--, selectln );
+//             else
             curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
         } else {
-            bool res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            bool res;
+//             if ( elsestate != 0)
+//                 res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
+//             else
+            res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            elsestate = 0;
+            elseProgram = 0;
             if (res == false)
                 throw parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() );
         }

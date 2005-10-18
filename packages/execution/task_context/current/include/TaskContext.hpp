@@ -32,6 +32,7 @@
 #include "Factories.hpp"
 #include "AttributeRepository.hpp"
 #include "EventService.hpp"
+#include "ExecutionEngine.hpp"
 
 #include <string>
 #include <map>
@@ -60,22 +61,33 @@ namespace ORO_Execution
     {
         // non copyable
         TaskContext( TaskContext& );
-        bool           _task_proc_owner;
     protected:
-        Processor*     _task_proc;
         std::string    _task_name;
     
         typedef std::map< std::string, TaskContext* > PeerMap;
         PeerMap         _task_map;
 
+        ExecutionEngine ee;
     public:
         typedef std::vector< std::string > PeerList;
 
         /**
-         * Create a TaskContext visible with \a name, which commands are processed
-         * by \a proc. If no Processor is given, a default one is constructed.
+         * Create a TaskContext visible with \a name.
+         * It's ExecutionEngine will be newly constructed with private command, event,
+         * program and state machine processors.
          */
-        TaskContext(const std::string& name, Processor* proc = 0 );
+        TaskContext( const std::string& name );
+
+        /**
+         * Create a TaskContext visible with \a name, which commands are processed
+         * by \a cproc, programs by \a pproc and state machines by \a smproc.
+         * If a null Processor is given, a default one is constructed.
+         * Use this constructor to share processors among task contexts, such that
+         * the execution of their functionality is serialised (executed in the same thread).
+         * @todo \a pproc and \a smproc are still unused. The ExecutionEngine only uses the first Processor to
+         * execute commands, programs and state machines.
+         */
+        TaskContext(const std::string& name, Processor* cproc, Processor* pproc = 0, Processor* smproc = 0 );
 
         ~TaskContext();
 
@@ -148,16 +160,23 @@ namespace ORO_Execution
          */
         TaskContext* getPeer(const std::string& peer_name ) const;
 
+        ExecutionEngine* getExecutionEngine()
+        {
+            return &ee;
+        }
+
         /**
          * Returns the Processor of this task.
+         * @deprecated by getExecutionEngine()
          */
         Processor* getProcessor() const
         {
-            return _task_proc;
+            return ee.getCommandProcessor();
         }
 
         /**
          * Sets a new Processor of this task.
+         * @deprecated by getExecutionEngine()
          */
         void setProcessor(Processor* newProc);
 

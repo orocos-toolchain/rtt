@@ -34,6 +34,7 @@
 #include "corelib/CommandInterface.hpp"
 #include "corelib/DataSourceBase.hpp"
 #include "corelib/Handle.hpp"
+#include "corelib/EventProcessor.hpp"
 
 #include <map>
 #include <vector>
@@ -69,13 +70,15 @@ namespace ORO_Execution
         typedef std::vector< boost::tuple<EventService*,
                                           std::string, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>,
                                           StateInterface*,
-                                          ConditionInterface*, ProgramInterface*, ORO_CoreLib::Handle> > EventList;
+                                          ConditionInterface*, ProgramInterface*, 
+                                          ORO_CoreLib::Handle,
+                                          StateInterface*, ProgramInterface*> > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
         std::vector<StateMachine*> _children;
         StateMachine* _parent;
     protected:
         std::string _name;
-        TaskContext* taskcontext;
+        ORO_CoreLib::EventProcessor* eproc;
     public:
 
         typedef std::vector<StateMachine*> ChildList;
@@ -97,8 +100,9 @@ namespace ORO_Execution
          * Create a new StateMachine in a TaskContext with an optional parent.
          * Set \a parent to zero for the top state machine. The initial Status of
          * a StateMachine is always inactive.
+         * @param ep The EventProcessor of this StateMachine when transition events are used.
          */
-        StateMachine(StateMachine* parent, TaskContext* tc, const std::string& name="Default");
+        StateMachine(StateMachine* parent, ORO_CoreLib::EventProcessor* ep, const std::string& name="Default");
 
         /**
          * Get the active status of this StateMachine.
@@ -303,7 +307,8 @@ namespace ORO_Execution
         bool createEventTransition( EventService* es,
                                     const std::string& ename, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
-                                    ConditionInterface* guard, ProgramInterface* transprog );
+                                    ConditionInterface* guard, ProgramInterface* transprog,
+                                    StateInterface* elseto = 0, ProgramInterface* elseprog = 0 );
 
         /**
          * Set the initial state of this StateMachine.
@@ -410,6 +415,12 @@ namespace ORO_Execution
          */
         bool inTransition() const;
 
+        /**
+         * Inspect if the StateMachine is interruptible by events.
+         * Only the run program may be interrupted, or if no program is
+         * currently executed.
+         */ 
+        bool interruptible() const;
     protected:
         /**
          * A map keeping track of all States and conditional transitions
@@ -452,7 +463,9 @@ namespace ORO_Execution
          * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.
          * if from != current or in transition already, discard transition.
          */
-        void eventTransition( StateInterface* from, ConditionInterface* c,  ProgramInterface* p, StateInterface* to );
+        void eventTransition( StateInterface* from, ConditionInterface* c,
+                              ProgramInterface* p, StateInterface* to,
+                              ProgramInterface* elsep, StateInterface* elseto );
 
         /**
          * The Initial State.

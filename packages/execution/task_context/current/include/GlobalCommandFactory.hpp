@@ -31,8 +31,9 @@
 #include "CommandFactoryInterface.hpp"
 #include <map>
 
-namespace ORO_Execution
-	{
+namespace ORO_Execution 
+{
+    class ExecutionEngine;
 
     /**
      * @brief This class is sort of a registry for command factories..
@@ -52,8 +53,13 @@ namespace ORO_Execution
       typedef std::map<std::string, CommandFactoryInterface*> map_t;
       typedef map_t::iterator iter_t;
       typedef map_t::const_iterator const_iter_t;
+        ExecutionEngine* eproc;
     public:
-      GlobalCommandFactory();
+        /**
+         * Create a command factory which produces commands which must
+         * be executed by \a cp.
+         */
+      GlobalCommandFactory(ExecutionEngine* ee);
       ~GlobalCommandFactory();
 
       /**
@@ -90,6 +96,8 @@ namespace ORO_Execution
         const std::string& objectname ) const;
 
         std::vector<std::string> getObjectList() const;
+
+        Processor* getCommandProcessor() const;
     private:
       /**
        * our data..

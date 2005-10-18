@@ -71,22 +71,15 @@ namespace ORO_Execution {
          */
         void setName( const std::string& name, bool recursive );
 
-        std::string getText() const { return *_text; }
-        void setText( std::string text) { *_text = text; }
+        std::string getText() const;
 
-        TaskContext* getTaskContext() const {
-            return context;
-        }
-        void setTaskContext(TaskContext* tc) {
-            context = tc;
-        }
+        void setText( std::string text);
 
-        bool inState( const std::string& name ) {
-            StateInterface* copy = this->currentState();
-            if (copy == 0)
-                return false;
-            return copy->getName() == name;
-        }
+        TaskContext* getTaskContext() const;
+
+        void setTaskContext(TaskContext* tc);
+
+        bool inState( const std::string& name );
         /**
          * Call this function if the state context is parsed.
          */
