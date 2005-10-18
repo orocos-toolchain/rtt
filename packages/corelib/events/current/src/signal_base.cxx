@@ -102,10 +102,10 @@ namespace sigslot {
                 }
                 // only done when in emit(). cleanup() is guaranteed to be called afterwards.
                 ++disconcount; // used in cleanup() to detect self-disconnections.
-#else
+#endif
+                // cfr for loop in cleanup()
                 connection_t d(0);
                 *tgt = d; //clear out, no erase, keep all iterators valid !
-#endif
             }
         }
 
@@ -113,7 +113,7 @@ namespace sigslot {
             // this is called from within emit().
             // mutex already locked !
 #ifdef ORO_SIGNAL_USE_RT_LIST
-            // this construct allows self+cross removal in emit().
+            // this construct allows self+cross removal (cfr conn_disconnect) in emit().
             iterator it = mconnections.begin();
             iterator newit(it);
             const_iterator end = mconnections.end();
@@ -129,7 +129,8 @@ namespace sigslot {
                         mconnections.erase( it );
                     }
                     --disconcount;
-                }
+                } else
+                    ++newit;
             }
 #else
             while ( concount > 0 ) {

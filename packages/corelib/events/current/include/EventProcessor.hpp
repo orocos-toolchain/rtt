@@ -145,7 +145,7 @@ namespace ORO_CoreLib
             virtual void complete() {
                 if ( !_a1 )
                     return;
-                f( _a1 );
+                f( _a1.val() );
                 _a1.clear();
             }
         };
@@ -161,9 +161,6 @@ namespace ORO_CoreLib
                 typedef T type;
                 operator bool() const {
                     return work;
-                }
-                operator T() const {
-                    return val_;
                 }
                 T val() const {
                     return val_;
@@ -195,9 +192,6 @@ namespace ORO_CoreLib
                 void operator=(const T& t) {
                     val_.Set(t);
                     work = true;
-                }
-                operator T() const {
-                    return val_.Get();
                 }
                 T val() const {
                     return val_.Get();
