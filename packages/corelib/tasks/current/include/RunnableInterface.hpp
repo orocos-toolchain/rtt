@@ -70,7 +70,7 @@ namespace ORO_CoreLib
          *
          * @param task The TaskInterface running this interface.
          */
-        void setTask( TaskInterface* task ) {
+        virtual void setTask( TaskInterface* task ) {
             owner_task = task;
         }
     };
