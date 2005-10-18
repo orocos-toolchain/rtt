@@ -124,7 +124,7 @@ namespace ORO_Execution
           >> commonparser.notassertingidentifier[ bind( &ValueChangeParser::storename, this, _1, _2 ) ] // final variable after last '.'
           >> !( '[' >> expect_index( expressionparser.parser() ) >>  ch_p(']')
                 [ bind( &ValueChangeParser::seenindexassignment, this) ]) // subindex final variable
-          >> ch_p( '=' )
+          >> ch_p( '=' ) >> eps_p(~ch_p( '=' )) // prevent parsing first '=' of "=="
           >> expect_expr( expressionparser.parser()) )[ bind( &ValueChangeParser::seenvariableassignment, this ) ];
 
     paramdefinition =

@@ -43,6 +43,8 @@
 #include "execution/TaskContext.hpp"
 #include "execution/PeerParser.hpp"
 
+#include <boost/lambda/lambda.hpp>
+
 #include <boost/bind.hpp>
 #include <pkgconf/system.h>
 #include <iostream>
@@ -485,11 +487,16 @@ namespace ORO_Execution
     // the stack, where it should be..
     groupexp = '(' >> expression >> close_brace;
 
+    // the day i find a clean way to temporarily disable 'eol' skipping, a lot of
+    // grammar will look better...
     time_expression =
         (str_p("time")>>eps_p(~commonparser.identchar | eol_p | end_p ))[bind(&ExpressionParser::seentimeexpr, this)]
         |
-        ( uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
-          >> (str_p( "s" ) | "ms" | "us" | "ns" )[bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ]);
+        ( (eps_p[boost::lambda::var(eol_skip_functor::skipeol) = false] >> uint_p[ bind( &ExpressionParser::seentimespec, this, _1 ) ]
+           >> (str_p( "s" ) | "ms" | "us" | "ns" )[boost::lambda::var(eol_skip_functor::skipeol) = true][bind( &ExpressionParser::seentimeunit, this, _1, _2 ) ])
+          | (eps_p[boost::lambda::var(eol_skip_functor::skipeol) = true] >> nothing_p) // eps_p succeeds always, then fail.
+          )
+          ; // enable skipeol.
 
 //         >> expect_timespec( (( str_p( ">=" ) | ">" )
 //                             |
