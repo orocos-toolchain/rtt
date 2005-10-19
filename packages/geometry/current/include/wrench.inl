@@ -11,7 +11,7 @@ void Wrench::ReverseSign()
     force.ReverseSign();
 }
 
-Wrench Wrench::RefPoint(const Vector& v_base_AB)
+Wrench Wrench::RefPoint(const Vector& v_base_AB) const
      // Changes the reference point of the Wrench.
      // The vector v_base_AB is expressed in the same base as the twist
      // The vector v_base_AB is a vector from the old point to

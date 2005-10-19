@@ -735,7 +735,7 @@ public:
      //! the new point.
      //!
      //! Complexity : 6M+6A
-     IMETHOD Twist RefPoint(const Vector& v_base_AB);
+     IMETHOD Twist RefPoint(const Vector& v_base_AB) const;
 
 
      //! do not use operator == because the definition of Equal(.,.) is slightly
@@ -817,7 +817,7 @@ public:
      //! the new point.
      //!
      //! Complexity : 6M+6A
-     IMETHOD Wrench RefPoint(const Vector& v_base_AB);
+     IMETHOD Wrench RefPoint(const Vector& v_base_AB) const;
 
 
      //! do not use operator == because the definition of Equal(.,.) is slightly
