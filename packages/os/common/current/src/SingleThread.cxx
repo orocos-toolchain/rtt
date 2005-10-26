@@ -78,7 +78,14 @@ namespace ORO_OS
 
         boost::scoped_ptr<DigitalOutInterface> pp;
         try {
-            pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER() );
+            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
+                pp.reset( DigitalOutInterface::nameserver.getObject("ThreadScope") );
+            else
+# ifdef OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER
+                pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+# else
+                Logger::log() << Logger::Error<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+# endif
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING

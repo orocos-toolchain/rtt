@@ -81,7 +81,14 @@ int main(int argc, char** argv)
         try {
             // this is the device users can use across all threads to control the
             // scope's output.
-            pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
+                pp.reset( DigitalOutInterface::nameserver.getObject("ThreadScope") );
+            else
+# ifdef OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER
+                pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+# else
+                Logger::log() << Logger::Error<< "main() : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+# endif
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING
