@@ -23,7 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/#ifndef DIGITAL_OUTPUT_HPP
+ ***************************************************************************/
+#ifndef DIGITAL_OUTPUT_HPP
 #define DIGITAL_OUTPUT_HPP
  
  
@@ -46,10 +47,20 @@ namespace ORO_DeviceDriver
              * 
              * @param dig_out The digital output device to use
              * @param relay_nr The bit number to use on \a dig_out
+	     * @param _invert Set to true if \a isOn() must return inverted signal
              */
             DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert=false )
                 : board( dig_out ), relaynumber( relay_nr ), invert(_invert)
             {}
+      /**
+       * Create a virtual (software) relay
+       * 
+       */
+      DigitalOutput ( )
+                : board( 0 ), relaynumber( 0 ), invert(false)
+      {}
+      
+      
 
             /**
              * Destruct a DigitalOutpuputt
@@ -62,16 +73,22 @@ namespace ORO_DeviceDriver
              */
             void switchOn()
             {
+	      if(board)
                 board->setBit( relaynumber, !invert );
-            }
+	      else
+		invert=true;
+	    }
 
             /**
              * Set the bit low of the digital output.
              */
             void switchOff()
             {
+	      if(board)
                 board->setBit( relaynumber, invert );
-            }
+	      else
+		invert=false;
+	    }
 
             /**
              * Check if the output is on (high).
@@ -80,8 +97,11 @@ namespace ORO_DeviceDriver
              */
             bool isOn() const
             {
+	      if(board)
                 return invert != board->checkBit( relaynumber );
-            }
+	      else
+		return invert;
+	    }
 
         private:
         DigitalOutInterface *board;
