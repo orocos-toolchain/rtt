@@ -46,14 +46,18 @@ using ORO_CoreLib::Logger;
 #include "corelib/Time.hpp"
 #include "os/threads.hpp"
 #ifdef OROPKG_DEVICE_INTERFACE
-#include "pkgconf/device_interface.h"
-#ifdef OROPKG_OS_THREAD_SCOPE
-#include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-using namespace ORO_DeviceInterface;
-using namespace ORO_DeviceDriver;
-#include <boost/scoped_ptr.hpp>
+# include "pkgconf/device_interface.h"
+# include <boost/scoped_ptr.hpp>
+# ifdef OROPKG_OS_THREAD_SCOPE
+#  include "device_interface/DigitalOutInterface.hpp"
+   using namespace ORO_DeviceInterface;
+#  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
+#   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
+    using namespace ORO_DeviceDriver;
+#  endif
+# endif
 #endif
-#endif
+
 
 namespace ORO_OS 
 {
@@ -83,12 +87,16 @@ namespace ORO_OS
 #endif
 
         boost::scoped_ptr<DigitalOutInterface> pp;
+        DigitalOutInterface* d = 0;
         try {
             if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
-                pp.reset( DigitalOutInterface::nameserver.getObject("ThreadScope") );
+                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
             else
 # ifdef OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER
-                pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+                {
+                    pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
+                    d = pp.get();
+                }
 # else
                 Logger::log() << Logger::Error<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
@@ -98,12 +106,12 @@ namespace ORO_OS
                 Logger::log() << Logger::Error<< "SingleThread : Failed to create ThreadScope." << Logger::endl;
 #endif
             }
-        if ( pp ) {
+        if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
                           << "ThreadScope : Single Thread "<< task->taskName <<" toggles bit "<< bit << Logger::endl;
 #endif
-            pp->switchOff( bit );
+            d->switchOff( bit );
         }
 #endif
 
@@ -133,13 +141,13 @@ namespace ORO_OS
                         } else {
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( pp )
-                                pp->switchOn( bit );
+                            if ( d )
+                                d->switchOn( bit );
 #endif
                             task->loop();
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( pp )
-                                pp->switchOff( bit );
+                            if ( d )
+                                d->switchOff( bit );
 #endif
 
                             // We do this to be able to safely
@@ -156,8 +164,8 @@ namespace ORO_OS
                     }
             } catch( ... ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
-                if ( pp )
-                    pp->switchOff( bit );
+                if ( d )
+                    d->switchOff( bit );
 #endif
                 if ( task->isHardRealtime() )
                     rtos_task_make_soft_real_time( task->rtos_task );
