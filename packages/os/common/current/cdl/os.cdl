@@ -93,7 +93,8 @@ To enable this option, enable the scope function of a device_driver component (e
 Standard IO Ports Device Driver).
 "
 	flavor bool
-	calculated OROINT_DEVICE_INTERFACE_THREAD_SCOPE
+	#calculated OROINT_DEVICE_INTERFACE_THREAD_SCOPE
+	default_value 0
     }
 
     cdl_component OROSEM_OS_LOCK_MEMORY {
