@@ -74,7 +74,13 @@ namespace ORO_OS
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-        unsigned int bit = task->threadnb;
+#ifdef OROPKG_OS_THREAD_SCOPE_THREAD_ORDER
+	// order thread scope toggle bit on thread number
+	unsigned int bit = task->threadnb;
+#else
+        // order thread scope toggle bit on priority
+        unsigned int bit = task->getPriority();
+#endif
 
         boost::scoped_ptr<DigitalOutInterface> pp;
         try {
