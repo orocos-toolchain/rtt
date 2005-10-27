@@ -7,7 +7,7 @@ using namespace ORO_CoreLib;
 
 namespace ORO_Execution
 {
-    EventService EventService::Global(CompletionProcessor::Instance()->getEventProcessor());
+    //EventService EventService::Global(CompletionProcessor::Instance()->getEventProcessor());
 
     EventService::EventService( ExecutionEngine* ee ) : eeproc(ee), eproc(0) {}
     EventService::EventService( EventProcessor* ep ) : eeproc(0), eproc( ep ) {} // ep may be null.

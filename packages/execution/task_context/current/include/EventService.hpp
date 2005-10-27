@@ -228,10 +228,10 @@ namespace ORO_Execution
             return result;
         }
 
-        /**
+        /*
          * The Global EventService, in which global Events are stored.
          */
-        static EventService Global;
+        //static EventService Global;
     };
 
 
