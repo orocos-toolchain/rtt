@@ -54,7 +54,7 @@ namespace ORO_CoreLib
         {
             ORO_OS::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
-            while ( size() != buf.capacity() && itl != items.end() ) {
+            while ( buf.size() != buf.capacity() && itl != items.end() ) {
                 buf.push_back( *itl );
                 ++itl;
             }
@@ -93,6 +93,10 @@ namespace ORO_CoreLib
             return buf.size();
         }
 
+        void clear() {
+            ORO_OS::MutexLock locker(lock);
+            buf.clear();
+        }
     private:
         std::vector<T> buf;
         mutable ORO_OS::Mutex lock;

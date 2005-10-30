@@ -12,9 +12,9 @@ namespace ORO_CoreLib
     struct NonBlockingPolicy
     {
         NonBlockingPolicy(unsigned int ) {}
-        void push(int i = 0 ) {
+        void push(int i = 1 ) {
         }
-        void pop(int i = 0 ) {
+        void pop(int i = 1 ) {
         }
         void reset( int i ) {
         }
@@ -27,12 +27,12 @@ namespace ORO_CoreLib
     struct BlockingPolicy
     {
         BlockingPolicy(unsigned int c) : count(c) {}
-        void push(int add = 0) {
+        void push(int add = 1) {
             while (add-- > 0) {
                 count.signal();
             }
         }
-        void pop(int sub = 0) {
+        void pop(int sub = 1) {
             while (sub-- > 0) {
                 count.wait();
             }

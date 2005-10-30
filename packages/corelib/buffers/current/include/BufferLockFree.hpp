@@ -127,6 +127,25 @@ namespace ORO_CoreLib
             return active->data.size();
         }
 
+        void clear()
+        {
+            Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
+            nextbuf->data.clear();
+            Item* orig=0;
+            int items = 0;
+            do {
+                if (orig)
+                    atomic_dec(&orig->count);
+                orig = lockAndGetActive();
+                items = orig->data.size();
+            } while ( CAS(&active, orig, nextbuf ) == false );
+            atomic_dec( &orig->count ); // lockAndGetActive
+            atomic_dec( &orig->count ); // ref count
+            // update policies.
+            read_policy.pop(items);
+            write_policy.push(items);
+        }
+
         /**
          * Write a single value to the buffer.
          * @param d the value to write
