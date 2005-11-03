@@ -50,6 +50,8 @@ namespace ORO_OS
                 std::cerr << "Exiting this thread." <<std::endl;
                 exit (-1); // can not return 0 because main is blocked on sem.
             }
+            // a task must be runnable when rtos_task_init returns.
+            //rt_task_resume( mytask );
             return mytask;
         }
 
@@ -67,7 +69,17 @@ namespace ORO_OS
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
         {
-            rt_task_make_periodic_relative_ns(mytask, 0, nanosecs);
+            if (nanosecs == 0) {
+                // in RTAI, to drop from periodic to non periodic, do a 
+                // suspend/resume cycle.
+                rt_task_suspend( mytask );
+                rt_task_resume( mytask );
+            }
+            else {
+	        // same for the inverse
+	        rt_task_suspend( mytask );
+                rt_task_make_periodic_relative_ns(mytask, 0, nanosecs);
+	    }
         }
 
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, RTIME nanosecs )

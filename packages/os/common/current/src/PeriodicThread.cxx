@@ -136,8 +136,6 @@ namespace ORO_OS
         }
 #endif
 
-        rtos_task_make_periodic(task->rtos_task, task->period );
-
         while ( !task->prepareForExit ) {
             try {
                 /**
@@ -147,6 +145,8 @@ namespace ORO_OS
                     {
                         if( !task->running ) { // more efficient than calling isRunning()
                             // consider this the 'configuration state'
+                            // drop out of periodic mode:
+                            rtos_task_set_period(task->rtos_task, 0);
 //                             Logger::log() << Logger::Info <<task->taskName<<"  signals done !" << Logger::endl;
                             rtos_sem_signal( &(task->confDone) ); // signal we are ready for command
 //                             Logger::log() << Logger::Info <<task->taskName<<"  sleeps !" << Logger::endl;
@@ -293,9 +293,12 @@ namespace ORO_OS
         // could be in case stop() times out.
         rtos_sem_trywait( &confDone );
         // signal start :
+        rtos_task_make_periodic(rtos_task, period );
         int ret = rtos_sem_signal(&sem);
+#ifdef OROPKG_CORELIB_REPORTING
         if ( ret != 0 )
             Logger::log() << Logger::Critical <<"PeriodicThread::start(): sem_signal returns "<< ret << Logger::endl;
+#endif
         // do not wait, we did our job.
 
         return true;
@@ -315,7 +318,6 @@ namespace ORO_OS
 
         // wait until the loop detects running == false
         // we wait 10 times 5*period.
-#if 1
         while ( ret != 0 && cnt < 10 )
             {
                 // given time in argument is relative to 'now'
@@ -323,10 +325,7 @@ namespace ORO_OS
                 // if ret == 0, confDone was signaled.
                 cnt++;
             } 
-#else
-        // dangerous, unconditionally waiting might/will lock up your program !
-        rtos_sem_wait( &confDone );
-#endif
+
 #ifdef OROPKG_CORELIB_REPORTING
         if ( ret != 0 ) {
             Logger::log() << Logger::Debug << " failed."<<Logger::endl;
@@ -335,6 +334,9 @@ namespace ORO_OS
         else
             Logger::log() << Logger::Debug << " done."<<Logger::endl;
 #endif
+        // drop out of periodic mode.
+        rtos_task_make_periodic(rtos_task, 0);
+
         //std::cout <<"Finalizing thread after "<<cnt<<" tries !"<<std::endl;
         // from now on, the thread waits on sem.
 

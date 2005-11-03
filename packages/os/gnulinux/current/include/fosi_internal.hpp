@@ -81,9 +81,8 @@ namespace ORO_OS
             // CALCULATE in nsecs
             NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
-            //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-
             if ( timeRemaining > 0 ) {
+                //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
                 TIME_SPEC ts( ticks2timespec( timeRemaining ) );
                 rtos_nanosleep( &ts , NULL );
             }

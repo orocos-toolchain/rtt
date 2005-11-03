@@ -8,5 +8,13 @@
 #  error "Unknown Processor Architecture"
 # endif
 #else
-#include <asm/system.h>
+#define new _new
+#include "asm/bitops.h"
+#include "asm/system.h"
+#undef new
+#undef mb
+#undef alternative
+#undef alternative_input
+#undef wmb
+#undef rmb
 #endif
