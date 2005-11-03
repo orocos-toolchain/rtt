@@ -626,6 +626,15 @@ namespace ORO_Execution
             }
     };
 
+    struct frame_inv
+        : public std::unary_function<Frame, Frame>
+    {
+        Frame operator()(const Frame& f ) const
+            {
+                return f.Inverse();
+            }
+    };
+
     struct rotation_roll
         : public std::unary_function<Rotation, double>
     {
@@ -656,6 +665,15 @@ namespace ORO_Execution
                 double r,p,y;
                 rot.GetRPY(r,p,y);
                 return y;
+            }
+    };
+
+    struct rotation_inv
+        : public std::unary_function<Rotation, Rotation>
+    {
+        Rotation operator()(const Rotation& rot ) const
+            {
+	      return rot.Inverse();
             }
     };
 
@@ -859,6 +877,7 @@ namespace ORO_Execution
     add (newBinaryOperator( "*", mystl::multiplies<Wrench, Frame, Wrench>() ) );
     add (newBinaryOperator( "*", mystl::multiplies<Twist, Frame, Twist>() ) );
     add (newBinaryOperator( "*", mystl::multiplies<Vector, Frame, Vector>() ) );
+    add (newBinaryOperator( "*", mystl::multiplies<Vector, Rotation, Vector>() ) );
 
     add( newBinaryOperator( "[]", vector_index() ) );
     add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
@@ -875,9 +894,11 @@ namespace ORO_Execution
     add( newDotOperator( "roll", rotation_roll() ) );
     add( newDotOperator( "pitch", rotation_pitch() ) );
     add( newDotOperator( "yaw", rotation_yaw() ) );
+    add( newDotOperator( "inv", rotation_inv() ) );
     add( newDotOperator( "p", frame_pos() ) );
     add( newDotOperator( "M", frame_rot() ) );
     add( newDotOperator( "R", frame_rot() ) );
+    add( newDotOperator( "inv", frame_inv() ) );
 
     add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
     add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
