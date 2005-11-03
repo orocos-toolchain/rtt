@@ -38,6 +38,9 @@ struct TestSelfRemove;
 class TasksTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TasksTest );
+    // Thread Test :
+    CPPUNIT_TEST( testThreads );
+
     // Timer Test :
     CPPUNIT_TEST( testTimer );
 
@@ -76,6 +79,8 @@ public:
 
     void setUp();
     void tearDown();
+
+    void testThreads();
 
     void testStartStop();
     void testStart();

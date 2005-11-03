@@ -39,13 +39,47 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksTest );
 using namespace ORO_CoreLib;
 using namespace ORO_CoreLib::detail;
 
+struct TestPeriodic
+    : public ORO_OS::RunnableInterface
+{
+    int fail;
+    bool stepped;
+
+  TimeService::ticks ts;
+  ORO_OS::ThreadInterface* th;
+
+  TestPeriodic(ORO_OS::ThreadInterface* t_) : th(t_)
+    {
+    }
+
+    bool initialize() {
+        this->reset();
+	return true;
+    }
+    void step() {
+      if (stepped = false ) {
+	ts = TimeService::Instance()->getTicks();
+	stepped = true;
+      } else {
+	TimeService::Seconds s = TimeService::Instance()->secondsSince( ts );
+	  if ( s < th->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
+	    ++fail;
+      }
+    }
+    void finalize() {
+    }
+
+    void reset() {
+      fail = 0;
+      stepped = false;
+    }
+};
+
 struct TestRunnableInterface
     : public RunnableInterface
 {
     bool result;
     bool init, stepped, fini;
-
-    TaskInterface* owner;
 
     TestRunnableInterface(bool fail)
     {
@@ -155,6 +189,40 @@ TasksTest::tearDown()
     delete t_run_allocate;
     delete t_self_remove;
     delete tti;
+}
+
+void TasksTest::testThreads()
+{
+  bool r = false;
+  // create
+  boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"PThread", 0.1) );
+  boost::scoped_ptr<TestPeriodic> run( new TestPeriodic( t.get() ) );
+  t->run( run.get() );
+
+  r = t->start();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
+  r = t->stop();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure !", run->fail, 0);
+  r = t->start();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
+  sleep(1);
+  r = t->stop();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE( "Periodic Failure !", run->fail, 0);
+  r = t->start();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
+  sleep(1);
+  r = t->stop();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE( "Periodic Failure !", run->fail, 0);
+  sleep(1);
+  r = t->start();
+  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread after long stop", r);
+  sleep(1);
+  r = t->stop();
+  CPPUNIT_ASSERT_MESSAGE("Failed to stop Thread", r);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure !",  run->fail, 0);
 }
 
 void TasksTest::testTimer()
