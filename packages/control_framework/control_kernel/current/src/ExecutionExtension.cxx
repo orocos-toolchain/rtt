@@ -66,7 +66,8 @@ namespace ORO_ControlKernel
           running_progr(false),count(0), base( _base ),
           interval("Interval", "The relative interval of executing a program node \
 with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
-          tc(_base->getKernelName(), &proc) // pass task name, runnableinterface and processor.
+          tc(_base->getKernelName(), &proc), // pass task name, runnableinterface and processor.
+          initcomms(false)
     {
     }
 
@@ -227,10 +228,9 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     {
         // I wish I could do this cleaner, but I can not do it
         // in the constructor (to early) and not in initialize (to late).
-        static bool is_called = false;
-        if ( is_called )
+        if ( initcomms )
             return;
-        is_called = true;
+        initcomms = true;
 
         std::vector<detail::ExtensionInterface*>::const_iterator it = base->getExtensions().begin();
         while ( it != base->getExtensions().end() )

@@ -278,6 +278,8 @@ namespace ORO_ControlKernel
         Property<int> interval;
 
         TaskContext tc;
+
+        bool initcomms;
     };
 
 }
