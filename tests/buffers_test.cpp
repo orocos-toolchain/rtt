@@ -40,6 +40,11 @@ struct Dummy {
         return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
     }
 
+    bool operator<(const Dummy& d) const
+    {
+        return d1+d2+d3 < d.d1 + d.d2 + d.d3;
+    }
+
 //     volatile Dummy& operator=(const Dummy& d) volatile
 //     {
 //         d1 = d.d1;
@@ -66,6 +71,8 @@ BuffersTest::setUp()
     lockfree = new BufferLockFree<Dummy>(QS);
 
     dataobj  = new DataObjectLockFree<Dummy>("name");
+
+    mslist =  new SortedList<Dummy>();
 }
 
 
@@ -78,6 +85,8 @@ BuffersTest::tearDown()
     delete lockfree;
 
     delete dataobj;
+
+    delete mslist;
 }
 
 void BuffersTest::testAtomic()
@@ -301,4 +310,83 @@ void BuffersTest::testDObjLockFree()
     CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
 
     delete c;
+}
+
+void addOne(Dummy& d)
+{
+    ++d.d1;
+    ++d.d2;
+    ++d.d3;
+}
+
+void subOne(Dummy& d)
+{
+    --d.d1;
+    --d.d2;
+    --d.d3;
+}
+
+void BuffersTest::testSortedList()
+{
+    // 7 elements.
+    mslist->reserve(7);
+    CPPUNIT_ASSERT( mslist->empty() );
+    
+    // empty list has no keys.
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy()) == false );
+
+    // empty list fails to erase key.
+    CPPUNIT_ASSERT( mslist->erase(Dummy()) == false );
+
+    // insert element once
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
+
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == false );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
+
+    // erase element once
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == false );
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == false );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == false );
+
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,2)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,3)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,4)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,5)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,6)) == true );
+    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,7)) == true );
+
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,7)) == true );
+
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,7)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,7)) == false );
+    
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,4)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == false );
+
+    mslist->apply( &addOne );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,2)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,3)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,4)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,6)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,7)) == true );
+
+    mslist->apply( &subOne );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,2)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,3)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,5)) == true );
+    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,6)) == true );
+    
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == true );
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,6)) == true );
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,5)) == true );
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,2)) == true );
+    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,3)) == true );
+    
+    CPPUNIT_ASSERT( mslist->empty() );
 }

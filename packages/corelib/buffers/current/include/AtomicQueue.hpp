@@ -134,6 +134,9 @@ namespace ORO_CoreLib
             // return the old position to read from :
             return oldval;
         }
+
+        // non-copyable !
+        AtomicQueue( const AtomicQueue<T>& );
     public:
         /**
          * Create an AtomicQueue with queue size \a size.
