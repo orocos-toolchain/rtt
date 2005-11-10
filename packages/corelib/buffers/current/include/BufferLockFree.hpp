@@ -103,7 +103,9 @@ namespace ORO_CoreLib
         BufferLockFree(unsigned int bufsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
             : MAX_THREADS( threads ), write_policy( bufsize ), read_policy(0)
         {
-            const unsigned int BUF_NUM = MAX_THREADS + 1;
+            // each thread has one 'working' buffer, and one 'active' buffer
+            // lock.
+            const unsigned int BUF_NUM = MAX_THREADS * 2;
             bufs = new Item[ BUF_NUM ];
             for (unsigned int i=0; i < BUF_NUM; ++i) {
                 bufs[i].data.reserve( bufsize ); // pre-allocate
@@ -168,6 +170,7 @@ namespace ORO_CoreLib
                 if ( orig->data.size() == orig->data.capacity() ) { // check for full
                     atomic_dec( &orig->count );
                     atomic_dec( &usingbuf->count );
+                    write_policy.push();
                     return false;
                 }
                 usingbuf->data = orig->data;
@@ -202,8 +205,8 @@ namespace ORO_CoreLib
                 orig = lockAndGetActive();
                 int maxwrite = orig->data.capacity() - orig->data.size();
                 if ( maxwrite == 0 ) {
-                    atomic_dec( &orig->count );
-                    atomic_dec( &usingbuf->count );
+                    atomic_dec( &orig->count ); // lockAndGetActive()
+                    atomic_dec( &usingbuf->count ); // findEmptyBuf()
                     return 0;
                 }
                 if ( towrite > maxwrite )
@@ -242,6 +245,7 @@ namespace ORO_CoreLib
                 if ( orig->data.empty() ) {
                     atomic_dec( &orig->count );
                     atomic_dec( &nextbuf->count );
+		    read_policy.push();
                     return false;
                 }
                 item = orig->data.front();
@@ -279,7 +283,7 @@ namespace ORO_CoreLib
             } while ( CAS(&active, orig, nextbuf ) == false );
             atomic_dec( &orig->count ); //lockAndGetActive
             atomic_dec( &orig->count ); //ref count
-            read_policy.pop( -1 + items.size() ); // pop additional read data.
+            read_policy.pop( items.size() ); // pop additional read data.
             write_policy.push( items.size() );
             return items.size();
         }
@@ -293,7 +297,7 @@ namespace ORO_CoreLib
                     break;
                 atomic_dec( &start->count );
                 ++start;
-                if (start == bufs+MAX_THREADS+1) // BUF_NUM
+                if (start == bufs+MAX_THREADS*2 ) // BUF_NUM
                     start = bufs; // in case of races, rewind
             }
             return start; // unique pointer across all threads
