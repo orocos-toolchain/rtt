@@ -151,5 +151,8 @@ void PropertyTest::testMarshalling()
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::X" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Y" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Z" ) != 0 );
+
+    flattenPropertyBag(bag);
+    deleteProperties(bag);
 #endif
 }
