@@ -39,6 +39,21 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksTest );
 using namespace ORO_CoreLib;
 using namespace ORO_CoreLib::detail;
 
+struct TestOverrun
+  : public ORO_OS::RunnableInterface
+{
+  bool fini;
+  bool initialize() { fini = false; return true; }
+
+  void step() {
+    sleep(1);
+  }
+
+  void finalize() {
+    fini = true;
+  }
+};
+
 struct TestPeriodic
     : public ORO_OS::RunnableInterface
 {
@@ -46,9 +61,8 @@ struct TestPeriodic
     bool stepped;
 
   TimeService::ticks ts;
-  ORO_OS::ThreadInterface* th;
 
-  TestPeriodic(ORO_OS::ThreadInterface* t_) : th(t_)
+  TestPeriodic()
     {
     }
 
@@ -57,12 +71,12 @@ struct TestPeriodic
 	return true;
     }
     void step() {
-      if (stepped = false ) {
+      if (stepped == false ) {
 	ts = TimeService::Instance()->getTicks();
 	stepped = true;
       } else {
 	TimeService::Seconds s = TimeService::Instance()->secondsSince( ts );
-	  if ( s < th->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
+	  if ( s < this->getThread()->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
 	    ++fail;
       }
     }
@@ -191,12 +205,35 @@ TasksTest::tearDown()
     delete tti;
 }
 
+void TasksTest::testOverrun()
+{
+  bool r = false;
+  // create
+  boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
+  boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"ORThread", 0.1) );
+  t->run( run.get() );
+
+  t->start();
+  sleep(2);
+
+  r = !t->isRunning();
+
+  t->run(0);
+
+  CPPUNIT_ASSERT_MESSAGE( "Failed to detect step overrun in Thread", r);
+
+  CPPUNIT_ASSERT_MESSAGE( "Failed to execute finalize in emergencyStop", run->fini );
+  
+}
+
+
 void TasksTest::testThreads()
 {
   bool r = false;
   // create
+  boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
+
   boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"PThread", 0.1) );
-  boost::scoped_ptr<TestPeriodic> run( new TestPeriodic( t.get() ) );
   t->run( run.get() );
 
   r = t->start();
@@ -223,6 +260,7 @@ void TasksTest::testThreads()
   r = t->stop();
   CPPUNIT_ASSERT_MESSAGE("Failed to stop Thread", r);
   CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure !",  run->fail, 0);
+  t->run(0);
 }
 
 void TasksTest::testTimer()

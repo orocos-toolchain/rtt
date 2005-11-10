@@ -38,8 +38,12 @@ struct TestSelfRemove;
 class TasksTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TasksTest );
-    // Thread Test :
+    // Periodic Thread Test :
     CPPUNIT_TEST( testThreads );
+
+    // Periodic Overrun Thread Test :
+    // Does not work in GNU/Linux nor RAI
+    //CPPUNIT_TEST( testOverrun );
 
     // Timer Test :
     CPPUNIT_TEST( testTimer );
@@ -81,6 +85,7 @@ public:
     void tearDown();
 
     void testThreads();
+    void testOverrun();
 
     void testStartStop();
     void testStart();
