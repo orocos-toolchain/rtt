@@ -1,5 +1,7 @@
 /***************************************************************************
   tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  CascadeControlKernel.hpp 
+       Erwin Aertbelien, oct 2005 : small changes to have same functionality
+                                    as StandardControlKernel
 
                         CascadeControlKernel.hpp -  description
                            -------------------
@@ -76,17 +78,36 @@ namespace ORO_ControlKernel
                    prefix + "::SetPoints", prefix + "::Commands")
         {
         }
+        /**
+         * Define loadComponent with your kernel and component type
+         * in a separate implementation file, allowing to compile
+         * smaller units of software.
+         */
+        template< class ComponentT >
+        bool preloadComponent( ComponentT* c);
+
 
     protected:
+        template<class T>
+        struct Updater {
+            void operator() (T* t) {
+                if ( t->isSelected() )
+                    t->update();
+            }
+        };
 
         virtual void updateComponents()
         {
-            this->sensor->update();
-            this->estimator->update();
-            this->generator->update();
-            this->controller->update();
-            this->effector->update();
+            // This is called from the KernelBaseFunction
+            // one step is one control cycle
+            // The figure is a unidirectional graph
+            std::for_each(this->sensors.getValueBegin(), this->sensors.getValueEnd(), Updater<ComponentBaseInterface>() );
+            std::for_each(this->estimators.getValueBegin(), this->estimators.getValueEnd(), Updater<ComponentBaseInterface>() );
+            std::for_each(this->generators.getValueBegin(), this->generators.getValueEnd(), Updater<ComponentBaseInterface>() );
+            std::for_each(this->controllers.getValueBegin(), this->controllers.getValueEnd(), Updater<ComponentBaseInterface>() );
+            std::for_each(this->effectors.getValueBegin(), this->effectors.getValueEnd(), Updater<ComponentBaseInterface>() );
         }
+
     };
 
 }
