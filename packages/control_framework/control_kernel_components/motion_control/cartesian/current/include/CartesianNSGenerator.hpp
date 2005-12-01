@@ -292,7 +292,7 @@ namespace ORO_ControlKernel
                     cur_tr =  new Trajectory_Segment( new Path_Line( mp_base_frame, cur_tr->Vel( _time ),
                                                                      new RotationalInterpolation_SingleAxis(),
                                                                      1.0), 
-                                                      interpol->Clone() );
+                                                      interpol->Clone(), 0.1 ); // try to stop in 0.1s
                     return true;
                 }
             return false;
@@ -452,6 +452,10 @@ namespace ORO_ControlKernel
                       command( &CartesianGenerator::home,
                                &CartesianGenerator::isHomed,
                                "Move the robot to its home position" ) );
+            ret->add( "safeStop", 
+                      command( &CartesianGenerator::safeStop,
+                               &CartesianGenerator::trajectoryDone,
+                               "Stop the robot movement safely as fast as possible" ) );
             ret->add( "loadTrajectory",
                       command( &CartesianGenerator::loadTrajectory,
                                &CartesianGenerator::trajectoryDone,

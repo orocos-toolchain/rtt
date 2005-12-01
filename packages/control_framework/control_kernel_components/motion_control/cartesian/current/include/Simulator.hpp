@@ -85,37 +85,43 @@ namespace ORO_ControlKernel
              * implementation.
              */
             Simulator( KinematicsInterface* klib)
-                : kineComp(klib) 
+                : kineComp(klib), jpos(6, 0.0)
                 {}
             
             void setStartFrame( const Frame& f, const Configuration& c )
             {
                 kineComp.stateSet(f, c);
                 frame = f;
-                kineComp.jointsGet(q6);
+                kineComp.jointsGet(jpos);
             }
-            
+
             void setStartPosition( const Double6D& q )
             {
-                kineComp.stateSet(q);
-                kineComp.jointsGet(q6);
+                q.getVector( jpos );
+                kineComp.stateSet(jpos);
+                kineComp.jointsGet( jpos );
+                q6.setVector(jpos);
             }
             
             virtual void setQDots(const Double6D& qdot6, double time)
             {
                 q6 += qdot6 * time;
-                kineComp.stateSet(q6);
+                q6.getVector( jpos );
+                kineComp.stateSet( jpos );
             }
             
             virtual void setTwist(const Twist& t, double time)
             {
                 //cout << t<<endl;
-                if (kineComp.positionForward(q6, frame) )
+                q6.getVector( jpos );
+                if (kineComp.positionForward(jpos, frame) )
                 {
                     frame.Integrate(t, (1.0/time) );
                     //cout << frame <<endl;
-                    if ( kineComp.positionInverse(frame, q6) )
+                    if ( kineComp.positionInverse(frame, jpos) ) {
+                        q6.setVector(jpos);
                         return;
+                    }
                     std::cout << "Inverse failed... ";
                 }
                 std::cout <<" Wrong setTwist"<<std::endl;
@@ -123,13 +129,16 @@ namespace ORO_ControlKernel
             
             virtual Double6D& getJointPositions()
             { 
-                kineComp.jointsGet(q6);
+                q6.getVector(jpos);
+                kineComp.jointsGet( jpos );
+                q6.setVector(jpos);
                 return q6;
             }
-        protected:
-            Frame frame;
-            Double6D q6;
-            KinematicsComponent kineComp;
+    protected:
+        Frame frame;
+        Double6D q6;
+        KinematicsComponent kineComp;
+        ORO_KinDyn::JointPositions jpos;
     };
 }
 #endif

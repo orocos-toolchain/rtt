@@ -32,6 +32,7 @@
 #include <geometry/frames.h>
 #include <geometry/trajectory.h>
 #include <corelib/MultiVector.hpp>
+#include <kindyn/KinematicsTypes.hpp>
 
 #include <control_kernel/DataServer.hpp>
 
@@ -46,13 +47,11 @@
 namespace ORO_ControlKernel
 {
     using namespace ORO_Geometry;
-    using ORO_CoreLib::Double6D;
-
     /**
      * @brief The Nameserved Input DataObjects.
      */
     struct CartesianNSSensorInput
-        : public ServedTypes<Double6D>
+        : public ServedTypes<ORO_KinDyn::JointValues>
     {
         CartesianNSSensorInput()
         {
@@ -103,7 +102,7 @@ namespace ORO_ControlKernel
      * Calculated joint velocities.
      */
     struct CartesianNSDriveOutput
-        : public ServedTypes<Double6D>
+        : public ServedTypes<ORO_KinDyn::JointValues>
     {
         CartesianNSDriveOutput()
         {

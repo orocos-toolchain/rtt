@@ -39,10 +39,12 @@
 #include <control_kernel/BaseComponents.hpp>
 #include <corelib/PropertyComposition.hpp>
 
-// #include <pkgconf/control_kernel.h>
-// #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-// #include "execution/TemplateFactories.hpp"
-// #endif
+#include <pkgconf/control_kernel.h>
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
+#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateCommandFactory.hpp"
+#endif
 
 #include "CartesianNSDataObjects.hpp"
 
@@ -76,19 +78,33 @@ namespace ORO_ControlKernel
                             Expects<CartesianNSModel>,
                             Expects<CartesianNSSetPoint>,
                             Writes<CartesianNSDriveOutput>,
-                            MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result >
+                            MakeFacet<PropertyExtension, KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                      ExecutionExtension,
+#endif
+                                      ReportingExtension>::Result >
     {
         typedef Controller<Expects<CartesianNSSensorInput>,
                            Expects<CartesianNSModel>,
                            Expects<CartesianNSSetPoint>,
                            Writes<CartesianNSDriveOutput>,
-                           MakeFacet<PropertyExtension, KernelBaseFunction, ReportingExtension>::Result > Base;
+                           MakeFacet<PropertyExtension,
+                                     KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                     ExecutionExtension,
+#endif
+                                     ReportingExtension>::Result > Base;
     public:
             
         CartesianController(KinematicsInterface* k) 
             :  Base("CartesianController"),gain("Gain","The error gain.",0),
-              end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints","")
-        {}
+               end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints",""),
+               jpos(k->getNumberOfJoints(),0.0)
+        {
+            q_err.value().resize(k->getNumberOfJoints(), 0.0);
+            q_dot.resize(k->getNumberOfJoints(), 0.0);
+            q_des.resize(k->getNumberOfJoints(), 0.0);
+        }
 
         virtual bool componentStartup()
         {
@@ -106,11 +122,10 @@ namespace ORO_ControlKernel
          */
         virtual void pull()      
         {
-            jpos_DObj->Get( q6 );
+            jpos_DObj->Get( jpos );
             curFrame_DObj->Get( mp_base_frame );
             desFrame_DObj->Get( setpoint_frame );
-                
-            kineComp.stateSet( q6 );
+            kineComp.setPosition( jpos );
         }
             
         /**
@@ -122,9 +137,17 @@ namespace ORO_ControlKernel
             ee_base = mp_base_frame;
             //ee_base.p = Vector::Zero();
                 
-            kineComp.positionInverse(setpoint_frame, q_des );
-            q_err = q_des - q6; 
-            q_dot = q_err.value() * gain ;
+            if (kineComp.positionInverse(setpoint_frame, q_des ) == false) {
+                for (unsigned int i = 0; i < jpos.size(); ++i) {
+                    q_dot[i] = 0.0;
+                }
+                return; // emitting an event would be far more sane here.
+            }
+                
+            for (unsigned int i = 0; i < jpos.size(); ++i) {
+                q_err.value()[i] = q_des[i] - jpos[i]; 
+                q_dot[i] = q_err.value()[i] * gain;
+            }
             // ( goal_frame, current_frame )
 #if 0
             mp_base_twist.vel = FrameDifference(setpoint_frame, mp_base_frame).vel*gain;
@@ -168,12 +191,12 @@ namespace ORO_ControlKernel
         Property<double> gain;
         Frame ee_base;
         Property<Twist> end_twist;
-        Double6D q_des;
+        ORO_KinDyn::JointPositions q_des;
         KinematicsComponent kineComp;
-        Property<Double6D> q_err;
+        Property<ORO_KinDyn::JointPositions> q_err;
 
-        Double6D q6;
-        DataObjectInterface<Double6D>* jpos_DObj;
+        ORO_KinDyn::JointPositions jpos;
+        DataObjectInterface<ORO_KinDyn::JointPositions>* jpos_DObj;
 
         Frame mp_base_frame;
         DataObjectInterface<Frame>* curFrame_DObj;
@@ -181,8 +204,9 @@ namespace ORO_ControlKernel
         Frame setpoint_frame;
         DataObjectInterface<Frame>* desFrame_DObj;
 
-        Double6D q_dot;
-        DataObjectInterface<Double6D>* jvel_DObj;
+        ORO_KinDyn::JointVelocities q_dot;
+        DataObjectInterface<ORO_KinDyn::JointVelocities>* jvel_DObj;
+
     };
 
 }

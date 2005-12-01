@@ -38,6 +38,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -72,17 +73,29 @@ namespace ORO_ControlKernel
      */
     class CartesianSensor
         : public Sensor< Writes<CartesianNSSensorInput>,
-                         MakeFacet<ReportingExtension, KernelBaseFunction>::Result >
+                         MakeFacet<ReportingExtension,
+                                   KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                   ExecutionExtension
+#endif
+                                   >::Result >
     {
         typedef Sensor< Writes<CartesianNSSensorInput>,
-            MakeFacet<ReportingExtension, KernelBaseFunction>::Result > Base;
+            MakeFacet<ReportingExtension,
+                      KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                      ExecutionExtension
+#endif
+                      >::Result > Base;
     public:
             
         CartesianSensor(SimulatorInterface* _sim = 0) 
             : Base("CartesianSensor"),
               sensorError( "CartesianSensor::SensorError"),
-              q6("JointPositions",""), sim(_sim)
-        {}
+              jpos("JointPositions",""), sim(_sim)
+        {
+            jpos.set().resize(6, 0.0);
+        }
             
         virtual bool componentStartup()
         {
@@ -101,10 +114,11 @@ namespace ORO_ControlKernel
             /*
              * Fake physical sensor data.
              */
-            if (sim != 0)
+            if (sim != 0) {
+                Double6D q6;
                 q6 = sim->getJointPositions();
-            else
-                q6 = 0;
+                q6.getVector( jpos.set() );
+            }
         }
 
         /**
@@ -112,7 +126,7 @@ namespace ORO_ControlKernel
          */
         virtual void push()      
         {
-            jpos_DObj->Set( q6 );
+            jpos_DObj->Set( jpos.get() );
         }
 
             
@@ -121,15 +135,15 @@ namespace ORO_ControlKernel
          */
         virtual void exportReports(PropertyBag& bag)
         {
-            bag.add(&q6);
+            bag.add(&jpos);
         }
 
             
     protected:
         Event<void(void)> sensorError;
 
-        Property<Double6D> q6;
-        DataObjectInterface<Double6D>* jpos_DObj;
+        Property<ORO_KinDyn::JointPositions> jpos;
+        DataObjectInterface<ORO_KinDyn::JointPositions>* jpos_DObj;
 
         SimulatorInterface* sim;
     };

@@ -39,6 +39,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -71,15 +72,25 @@ namespace ORO_ControlKernel
      */
     class CartesianEffector
         : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
-                                     MakeFacet<KernelBaseFunction, ReportingExtension>::Result >
+                                     MakeFacet<KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                               ExecutionExtension,
+#endif
+                                               ReportingExtension>::Result >
     {
         typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
-                          MakeFacet<KernelBaseFunction, ReportingExtension>::Result > Base;
+                          MakeFacet<KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                    ExecutionExtension,
+#endif
+                                    ReportingExtension>::Result > Base;
     public:
             
         CartesianEffector(SimulatorInterface* _sim) 
             :  Base("CartesianEffector"),endTwist("Twist","The End Effector twist"), sim(_sim)
-        {}
+        {
+            q_dot.resize(6, 0.0);
+        }
 
         virtual bool componentStartup()
         {
@@ -104,8 +115,11 @@ namespace ORO_ControlKernel
             /*
              * Acces device drivers
              */
-            if (sim !=0)
-                sim->setQDots(q_dot, 0.05);
+            if (sim !=0) {
+                Double6D q6;
+                q6.setVector( q_dot );
+                sim->setQDots(q6, 0.05);
+            }
             //endTwist = output.mp_base_twist;
         }
             
@@ -121,8 +135,8 @@ namespace ORO_ControlKernel
         Property<Twist> endTwist;
         SimulatorInterface* sim;
 
-        Double6D q_dot;
-        DataObjectInterface<Double6D>* qdot_DObj;
+        ORO_KinDyn::JointVelocities q_dot;
+        DataObjectInterface<ORO_KinDyn::JointVelocities>* qdot_DObj;
     };
 
 }

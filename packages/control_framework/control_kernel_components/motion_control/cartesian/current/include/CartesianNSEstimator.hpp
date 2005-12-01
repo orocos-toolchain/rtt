@@ -43,6 +43,7 @@
 
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+#include <control_kernel/ExecutionExtension.hpp>
 #include "execution/TemplateDataSourceFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
@@ -77,17 +78,27 @@ namespace ORO_ControlKernel
         : public Estimator<Expects<CartesianNSSensorInput>,
                            Expects<NoOutput>,
                            Writes<CartesianNSModel>,
-                           MakeFacet<PropertyExtension, KernelBaseFunction>::Result >
+                           MakeFacet<PropertyExtension,
+                                     KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                     ExecutionExtension
+#endif
+                                     >::Result >
     {
         typedef Estimator<Expects<CartesianNSSensorInput>,
                           Expects<NoOutput>,
                           Writes<CartesianNSModel>,
-                          MakeFacet<PropertyExtension, KernelBaseFunction>::Result > Base;
+                          MakeFacet<PropertyExtension, KernelBaseFunction,
+#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
+                                    ExecutionExtension
+#endif
+                                    >::Result > Base;
     public:
             
         CartesianEstimator() 
             : Base("CartesianEstimator"),
-              kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0)
+              kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0),
+              jpos(6,0.0)
         {
             kine = KinematicsFactory::create( kineName );
             if (kine)
@@ -96,7 +107,6 @@ namespace ORO_ControlKernel
 
         virtual ~CartesianEstimator()
         {
-            delete kine;
             delete kineComp;
         }
 
@@ -107,7 +117,7 @@ namespace ORO_ControlKernel
                  !Model->dObj()->Get( "EndEffPosition", endframe_DObj ) )
                 return false;
             pull();
-            if ( !kineComp->positionForward( q6, mp_base_frame) )
+            if ( !kineComp->positionForward( jpos, mp_base_frame) )
                 return false;
             push();
             return true;
@@ -118,7 +128,7 @@ namespace ORO_ControlKernel
          */
         virtual void pull()      
         {
-            jpos_DObj->Get( q6 );
+            jpos_DObj->Get( jpos );
         }
             
         /**
@@ -126,7 +136,7 @@ namespace ORO_ControlKernel
          */
         virtual void calculate() 
         {
-            if ( !kineComp->positionForward( q6, mp_base_frame) )
+            if ( !kineComp->positionForward( jpos, mp_base_frame) )
                 {
                     Event<void(void)>* es = Event<void(void)>::nameserver.getObject("SingularityDetected");
                     if ( es != 0 )
@@ -165,7 +175,6 @@ namespace ORO_ControlKernel
             KinematicsInterface* _k;
             if ( (_k = KinematicsFactory::create(name)) != 0 )
                 {
-                    delete kine;
                     delete kineComp;
                     kineName =  name;
                     kine = _k;
@@ -180,11 +189,12 @@ namespace ORO_ControlKernel
         KinematicsInterface* kine;
         KinematicsComponent* kineComp;
 
-        Double6D q6;
-        DataObjectInterface<Double6D>* jpos_DObj;
+        ORO_KinDyn::JointPositions jpos;
+        DataObjectInterface<ORO_KinDyn::JointPositions>* jpos_DObj;
 
         Frame mp_base_frame;
         DataObjectInterface<Frame>* endframe_DObj;
+
     };
 
 }
