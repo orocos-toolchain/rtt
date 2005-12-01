@@ -75,6 +75,7 @@
 namespace ORO_KinDyn
 {
 
+    using namespace ORO_CoreLib;
 
     bool SerialZXXZXZ::velocityInverse( const Double6D& q, const ORO_Geometry::Twist& vel, Double6D& qdot, Singularity& s) const
     {
@@ -87,10 +88,10 @@ namespace ORO_KinDyn
 		Double6D qout;
 		Configuration c;
 		configurationGet(q, c);
-    	return velocityInverse(pos_base, vel, c,  qout, qdot, s);
+    	return velocityInverse(pos_base, c, vel,  qout, qdot, s);
     }
 
-    bool SerialZXXZXZ::velocityInverse ( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel, Configuration c, Double6D& q, Double6D& qdot, Singularity& s ) const
+    bool SerialZXXZXZ::velocityInverse ( const ORO_Geometry::Frame& pos_base, Configuration c, const ORO_Geometry::Twist& vel, Double6D& q, Double6D& qdot, Singularity& s ) const
     {
         double P6x, P6y, P6z; /* Coordinates (in the base frame) of the 6th link */
         double Vwx, Vwy, Vwz; /* Translational velocity components of wrist */

@@ -56,6 +56,10 @@ namespace ORO_KinDyn
 			currentSing |= sing.currentSing;
 			return (*this);
 		}
+
+        Singularity()
+            : currentSing( None )
+        {}
 		
         /**
          * Set the singularity the robot is in.

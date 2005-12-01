@@ -31,6 +31,7 @@
 
 #include "KinematicsComponent.hpp"
 #include "KinematicsInterface.hpp"
+#include "Kinematics6DWrapper.hpp"
 #include "Singularity.hpp"
 #include "Serial321Configuration.hpp"
 
@@ -69,13 +70,11 @@ namespace ORO_KinDyn
      * for all kinds of 6DOF Robots
      *
      */
-
     class Serial321
-        : public KinematicsInterface
+        : public Kinematics6DWrapper
     {
 
     public:
-
         /**
          * Construct a model for a robot with offset = 0 and eccentricity = 0 and
          * all links of length = 1.

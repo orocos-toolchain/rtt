@@ -29,6 +29,8 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
+
     SerialZXXDWH::~SerialZXXDWH() {}
 
     void SerialZXXDWH::configurationGet(const Double6D& q, Configuration& c) const

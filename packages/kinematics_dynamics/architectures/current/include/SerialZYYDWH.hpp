@@ -46,6 +46,18 @@ namespace ORO_KinDyn
     {
 
     public:
+        /**
+         * This is only in order to silent -Woverloaded-virtual 
+         * compiler warnings.
+         */
+        using Kinematics6DWrapper::jacobianForward;
+        using Kinematics6DWrapper::jacobianInverse;
+        using Kinematics6DWrapper::positionForward;
+        using Kinematics6DWrapper::positionInverse;
+        using Kinematics6DWrapper::velocityForward;
+        using Kinematics6DWrapper::velocityInverse;
+        using Kinematics6DWrapper::configurationGet;
+
         virtual ~SerialZYYDWH();
 
         virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
@@ -56,7 +68,7 @@ namespace ORO_KinDyn
 
         virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, Configuration c, ORO_CoreLib::Double6D& q, Singularity& s ) const;
 
-        virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, Configuration c,  ORO_CoreLib::Double6D& q, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
+        virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, Configuration c, const ORO_Geometry::Twist& vel_base,  ORO_CoreLib::Double6D& q, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
 
         virtual bool velocityInverse( const ORO_CoreLib::Double6D& q, const ORO_Geometry::Twist& vel_base, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
 

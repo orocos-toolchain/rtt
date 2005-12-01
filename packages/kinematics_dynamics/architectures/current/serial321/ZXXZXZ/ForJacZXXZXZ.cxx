@@ -73,6 +73,7 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
 
     bool SerialZXXZXZ::jacobianForward( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const
     {
@@ -82,7 +83,7 @@ namespace ORO_KinDyn
         double Pwx, Pwy, Pwz; /* Coordinates of the wrist */
         double dWv, dWh;
         
-        
+        s.singularitySet( Singularity::None );
   
         c1 = cos( q[ 0 ] );
         s1 = sin( q[ 0 ] );

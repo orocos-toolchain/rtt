@@ -74,6 +74,7 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
 
     bool SerialZXXDWH::jacobianInverse ( const Double6D& q, double JInv[ 6 ][ 6 ], Singularity& s ) const
     {
@@ -85,6 +86,9 @@ namespace ORO_KinDyn
         double c5_eq, q_eq[ 6 ], alpha;
         double dWv, dWh;
         int i;
+
+        s.singularitySet( Singularity::None );
+
         c5 = cos( q[ 4 ] );
         s5 = sin( q[ 4 ] );
         c5_eq = ( c5 + 3. ) / 4;

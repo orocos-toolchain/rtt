@@ -28,87 +28,181 @@
 #pragma implementation
 #endif
 #include "kindyn/KinematicsComponent.hpp"
+#include "kindyn/KinematicsJointConverter.hpp"
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_Geometry;
+    using namespace ORO_CoreLib;
 
-    void KinematicsComponent::setKinematics( KinematicsInterface *k,
-                                             Double6D _signs, 
-                                             Double6D _offsets )
+    KinematicsComponent::KinematicsComponent( KinematicsInterface* stateless, 
+                                              JointVelocities _signs /* = JointVelocities() */, 
+                                              JointPositions  _offsets /* = JointPositions()*/ )
+        : kine(0),
+          deltaX(0.5)
     {
-        kine = k;
-        signs = _signs;
-        offsets = _offsets;
-    }
-
-    bool KinematicsComponent::jacobianForward( const Double6D& q, double J[ 6 ][ 6 ] )
-    {
-        jointState = q;
-        return kine->jacobianForward(q,J, sings);
+        this->setKinematics(stateless, _signs, _offsets);
     }
   
-    bool KinematicsComponent::jacobianInverse( const Double6D& q, double J[ 6 ][ 6 ] )
+    KinematicsComponent::~KinematicsComponent()
     {
-        jointState = q;
-        return kine->jacobianInverse(q, J, sings);
     }
-    bool KinematicsComponent::positionForward( const Double6D& q, ORO_Geometry::Frame& mp_base )
+
+    void KinematicsComponent::setKinematics( KinematicsInterface *k,
+                                             const JointVelocities& _signs, 
+                                             const JointPositions& _offsets )
     {
+        delete kine;
+        kine = k;
+        if ( kine == 0 ) 
+            return;
+        mjoints = kine->maxNumberOfJoints();
+        // if sizes are correct, nothing happens.
+        jointDirection.resize( mjoints, 1.0);
+        jointVel.resize( mjoints, 0.0);
+        jointState.resize( mjoints, 0.0 );
+        jointDirection.resize( mjoints, 1.0);
+        jointOffset.resize( mjoints, 0.0);
+        if (_signs.size() != 0 || _offsets.size() != 0) {
+            kine = new KinematicsJointConverter( kine, _signs, _offsets );
+        }
+        kine = k;
+    }
+
+    bool KinematicsComponent::jacobianForward( const JointPositions& q, Jacobian& j )
+    {
+        if ( kine == 0 )
+            return false;
+        jointState = q;
+        return kine->jacobianForward(q,j, sings);
+    }
+  
+    bool KinematicsComponent::jacobianInverse( const JointPositions& q, Jacobian& j )
+    {
+        if ( kine == 0 )
+            return false;
+        jointState = q;
+        return kine->jacobianInverse(q, j, sings);
+    }
+    bool KinematicsComponent::positionForward( const JointPositions& q, ORO_Geometry::Frame& mp_base )
+    {
+        if ( kine == 0 )
+            return false;
         jointState = q;
         return kine->positionForward(q,mp_base,sings);
     }
   
-    bool KinematicsComponent::positionInverse( const ORO_Geometry::Frame& mp_base, Double6D& q )
+    bool KinematicsComponent::positionInverse( const ORO_Geometry::Frame& mp_base, JointPositions& q )
     {
+        if ( kine == 0 )
+            return false;
         bool res =  kine->positionInverse(mp_base, configState, q, sings);
-        if ( !adaptJoints(q) ) return false;
+        if ( !res || !adaptJoints(q) ) return false;
         return res;
     }
   
-    bool KinematicsComponent::velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, Double6D& q, Double6D& qdot )
+    bool KinematicsComponent::velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, JointPositions& q, JointVelocities& qdot )
     {
-        bool res= kine->velocityInverse(pos_base, vel_base, configState, q, qdot,sings);
-        if (! adaptJoints(q) ) return false;
+        if ( kine == 0 )
+            return false;
+        bool res = kine->velocityInverse(pos_base, configState, vel_base, q, qdot,sings);
+        if ( !res || !adaptJoints(q) ) return false;
         return res;
     }
 
-    bool KinematicsComponent::velocityInverse( const Double6D& q, const ORO_Geometry::Twist& vel_base, Double6D& qdot )
+    bool KinematicsComponent::velocityInverse( const JointPositions& q, const ORO_Geometry::Twist& vel_base, JointVelocities& qdot )
     {
+        if ( kine == 0 )
+            return false;
         jointState = q;
         return kine->velocityInverse(q, vel_base,qdot,sings);	    
     }
 
-    bool KinematicsComponent::velocityForward( const Double6D& q, const Double6D& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base )
+    bool KinematicsComponent::velocityForward( const JointPositions& q, const JointVelocities& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base )
     {
+        if ( kine == 0 )
+            return false;
         jointState = q;
         return kine->velocityForward( q, qdot, pos_base, vel_base, sings);
     }
 
-    /**
-     * Set the current joint positions for future estimations
-     * The configuration represented by these joints will be used 
-     * in inverse calculations
-     */
-    void KinematicsComponent::stateSet(const Double6D& q_new)
+    bool KinematicsComponent::stateSet(const JointPositions& q_new)
     {
+        return this->setPosition(q_new);
+    }
+
+    bool KinematicsComponent::stateSet(const ORO_Geometry::Frame& f, Configuration c)
+    {
+        return this->setPosition(f,c);
+    }
+
+    bool KinematicsComponent::setPosition(const JointPositions& q_new)
+    {
+        if ( kine == 0 || jointState.size() != q_new.size() )
+            return false;
         jointState = q_new;
         kine->configurationGet(jointState, configState);
+        return true;
     }
 
-    void KinematicsComponent::stateSet(const ORO_Geometry::Frame& f, Configuration c)
+    bool KinematicsComponent::setPosition(const ORO_Geometry::Frame& f, Configuration c)
     {
-        kine->positionInverse(f,c,jointState,sings);
+        if ( kine == 0 )
+            return false;
+        bool res = kine->positionInverse(f,c,jointState,sings);
+        if ( !res )
+            return false;
         configurationSet(c);
+        return true;
     }
 
-    void KinematicsComponent::jointsGet(Double6D& q) const
+    bool KinematicsComponent::getPosition(JointPositions& q) const
     {
+        if ( q.size() != jointState.size() )
+            return false;
         q = jointState;
+        return true;
+    }
+
+    bool KinematicsComponent::jointsGet(JointPositions& q) const
+    {
+        return this->getPosition( q );
+    }
+
+    Frame KinematicsComponent::getFrame() const {
+        Frame eff;
+        Singularity tmps;
+        if (kine == 0 || false ==  kine->positionForward( jointState, eff, tmps ) )
+            return Frame::Identity();
+        return eff;
     }
    
-    bool KinematicsComponent::adaptJoints( Double6D& qtheoretic)
+    Twist KinematicsComponent::getTwist() const {
+        Frame eff;
+        Twist tw;
+        Singularity tmps;
+        if ( kine == 0 || false == kine->velocityForward( jointState, jointVel, eff, tw, tmps ) ) {
+            return Twist::Zero();
+        }
+        return tw;
+    }
+
+    bool KinematicsComponent::setVelocity(const JointVelocities& qdot ) {
+        if ( qdot.size() != jointVel.size() )
+            return false;
+        jointVel = qdot;
+        return true;
+    }
+
+    bool KinematicsComponent::setVelocity(const Twist& t ) {
+        if ( kine == 0 )
+            return false;
+        return kine->velocityInverse(jointState, t, jointVel, sings);
+    }
+   
+    bool KinematicsComponent::adaptJoints( JointPositions& qtheoretic)
     {
-        for (int i=0; i<6; ++i)
+        for (int i=0; i< mjoints; ++i)
             {
                 double delta = qtheoretic[i] + jointOffset[i] - jointState[i];
                 // detect delta > deltaX, which means to large for nominal movement

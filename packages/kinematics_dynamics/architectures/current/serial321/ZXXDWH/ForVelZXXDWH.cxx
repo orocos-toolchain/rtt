@@ -69,6 +69,7 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
 
     bool SerialZXXDWH::velocityForward ( const Double6D& q, const Double6D& qdot, ORO_Geometry::Frame& mp_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const
     {
@@ -200,6 +201,7 @@ namespace ORO_KinDyn
 #endif
 
         /* CALCULATION OF SINGULARITIES: */
+        s.singularitySet( Singularity::None );
         if ( fabs( dWh ) < EPS_WRIST_ABOVE_BASE )
             s.singularitySet( Singularity::WristAboveBase );
 

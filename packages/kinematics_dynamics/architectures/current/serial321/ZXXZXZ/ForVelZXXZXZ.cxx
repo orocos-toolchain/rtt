@@ -65,6 +65,7 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
 
     bool SerialZXXZXZ::velocityForward ( const Double6D& q, const Double6D& qdot, ORO_Geometry::Frame& mp_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const
     {
@@ -77,6 +78,7 @@ namespace ORO_KinDyn
         double dWv, dWh;
         double Pwx, Pwy, Pwz;
 
+        s.singularitySet( Singularity::None );
 
         c1 = cos( q[ 0 ] );
         s1 = sin( q[ 0 ] );

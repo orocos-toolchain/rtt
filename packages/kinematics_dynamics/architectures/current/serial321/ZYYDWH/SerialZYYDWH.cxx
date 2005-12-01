@@ -29,6 +29,8 @@
 
 namespace ORO_KinDyn
 {
+    using namespace ORO_CoreLib;
+
     SerialZYYDWH::~SerialZYYDWH() 
     {}
 
@@ -72,10 +74,10 @@ namespace ORO_KinDyn
         return zxxdwh.velocityForward( q, qdot, mp_base, vel_base, s);
     }
 
-    bool SerialZYYDWH::velocityInverse ( const ORO_Geometry::Frame& vel_base, const ORO_Geometry::Twist& vel, Configuration c, Double6D& q, Double6D& qdot, Singularity& s ) const
+    bool SerialZYYDWH::velocityInverse ( const ORO_Geometry::Frame& vel_base, Configuration c, const ORO_Geometry::Twist& vel, Double6D& q, Double6D& qdot, Singularity& s ) const
     {
 
-        bool result = zxxdwh.velocityInverse(vel_base, vel, c, q, qdot, s);
+        bool result = zxxdwh.velocityInverse(vel_base, c, vel, q, qdot, s);
 
         if (result)
             {
