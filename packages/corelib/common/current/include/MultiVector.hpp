@@ -35,6 +35,10 @@
 #include <ostream>
 #endif
 
+#if OROINT_OS_STDCXXLIB
+#include <vector>
+#endif
+
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
@@ -110,6 +114,24 @@ namespace ORO_CoreLib
             for ( unsigned int i = 0; i < S;++i )
                 data[ i ] = 0;
         }
+
+#if OROINT_OS_STDCXXLIB
+        /**
+         * Creates a vector from a std::vector.
+         * If there are more items in vect than the size of this
+         * Multivector, they are ignored, if there are less items
+         * in vect, the remainder is filled with zeros.
+         */
+        template<class Alloc>
+        MultiVector(const std::vector<T,Alloc>& vect)
+        {
+            for ( unsigned int i = 0; i < S;++i )
+                if ( i < vect.size() )
+                    data[ i ] = vect[i];
+                else
+                    data[ i ] = 0;
+        }
+#endif
 
         /**
          * Adds another MultiVector to this MultiVector
@@ -281,6 +303,34 @@ namespace ORO_CoreLib
                     return true;
             return false;
         }
+
+#if OROINT_OS_STDCXXLIB
+        /**
+         * Return the contents of this MultiVector as an std::vector
+         * Resizes \a vect to the size of this MultiVector.
+         */
+        template<class Alloc>
+        void getVector( std::vector<T, Alloc>& vect ) const
+        {
+            vect.resize(S);
+            for ( unsigned int i = 0; i < S; ++i )
+                vect[i] = data[i];
+        }
+
+        /**
+         * Set the contents of this MultiVector from an std::vector
+         * @return false if \a vect has wrong size.
+         */
+        template<class Alloc>
+        bool setVector(const std::vector<T, Alloc>& vect )
+        {
+            if ( vect.size() != S )
+                return false;
+            for ( unsigned int i = 0; i < S; ++i )
+                data[i] = vect[i];
+            return true;
+        }
+#endif
 
         /*
          * This is just plain wrong since assignment with integer
