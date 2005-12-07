@@ -9,7 +9,6 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
     requires OROPKG_DEVICE_INTERFACE
     requires OROPKG_DEVICE_INTERFACE_IO
     requires OROPKG_DEVICE_INTERFACE_ENCODER
-    requires OROINT_OS_KERNEL_MODULE
 
     include_dir device_drivers
     # result to nop-classes if source compile option not enabled.
