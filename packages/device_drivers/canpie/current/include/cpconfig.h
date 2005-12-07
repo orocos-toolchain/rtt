@@ -32,5 +32,6 @@
 #ifdef OROBLD_DEVICE_DRIVERS_CANPIE_SJA1000
 #include "cpconfig_sja.h"
 #else
-#error unable to determine cpconfig file !
+#include "cpconfig_default.h"
+//#error unable to determine cpconfig file !
 #endif

@@ -77,7 +77,6 @@ cdl_component OROBLD_DEVICE_DRIVERS_CANPIE_KM {
     description "
 This option enables the build of a separate kernel module
 when the target requires it."
-    #requires !OROINT_OS_KERNEL
     calculated !OROINT_OS_KERNEL && OROINT_OS_KERNEL_MODULE
     requires   OROINT_DEVICE_DRIVERS_CP_CORE
 
@@ -112,8 +111,6 @@ and must be unique within the system."
 	legal_values 11 to 15
 	active_if OROPKG_OS_LXRT
     }
-}
-	
 
     make -priority=100 {
 	cpuser.o: $(REPOSITORY)/$(PACKAGE)/src/cpuser.c
@@ -136,4 +133,6 @@ and must be unique within the system."
 	mkdir -p $$(dirname $@)
 	${LD} -r -o $@ $+
     }
+
+  }
 }
