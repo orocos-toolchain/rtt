@@ -66,7 +66,7 @@ namespace ORO_ControlKernel
   void nAxesEffectorCartesianVel::calculate()
   {
     // inverse velocity kinematics
-    vector<double> q, q_dot;
+    vector<double> q(_num_axes), q_dot(_num_axes);
     for (unsigned int i=0; i<_num_axes; i++)
       q[i] = _position_joint_local[i];
     _kinematics->velocityInverse(q, _velocity_cartesian_local.RefPoint(_position_cartesian_local.p * -1), q_dot);

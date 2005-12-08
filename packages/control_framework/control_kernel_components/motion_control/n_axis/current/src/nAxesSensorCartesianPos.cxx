@@ -68,7 +68,7 @@ namespace ORO_ControlKernel
   void nAxesSensorCartesianPos::calculate()
   {
     // forwarard kinematics
-    ORO_CoreLib::Double6D temp;
+    vector<double> temp(_num_axes);
     for (unsigned int i=0; i<_num_axes; i++)
       temp[i] = _position_joint[i];
 
