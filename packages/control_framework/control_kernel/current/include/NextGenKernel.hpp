@@ -32,6 +32,7 @@
 #include <corelib/DataObjectInterfaces.hpp>
 #include "PortInterfaces.hpp"
 #include "BaseComponents.hpp"
+#include "ControlKernelProcess.hpp"
 #include "ComponentStateInterface.hpp"
 #include "corelib/Logger.hpp"
 
@@ -176,6 +177,18 @@ namespace ORO_ControlKernel
 
         virtual bool initialize() 
         { 
+            /**
+             * We give the user the option to load his own DefaultProcess
+             * if none loaded, use the ControlKernelProcess as DefaultProcess.
+             */
+            this->default_process = this->processes.getObject("DefaultProcess");
+            if (this->default_process == 0) {
+                ControlKernelProcess* ckp = new ControlKernelProcess("DefaultProcess");
+                this->loadComponent(ckp);
+                this->default_process = ckp;
+                this->process_owner = true;
+                // the KBF will start the component.
+            }
             return Extension::initialize();
         }
 
@@ -187,6 +200,12 @@ namespace ORO_ControlKernel
         virtual void finalize() 
         {
             Extension::finalize();
+            if ( this->process_owner ) {
+                unload(this->default_process);
+                delete this->default_process;
+                this->default_process = 0;
+                this->process_owner = false;
+            }
         }
 
         /**
@@ -194,12 +213,12 @@ namespace ORO_ControlKernel
          * @{ */
 
         /**
-         * @brief Select a previously loaded Controller Component.
+         * @brief Select a previously loaded Component.
          *
-         * This will only succeed if isLoadedController(\a c) and
-         * this->isRunning(). Furthermore, if the Controller 
+         * This will only succeed if isLoaded(\a c) and
+         * this->isRunning(). Furthermore, if the Components 
          * componentStartup() method returns false, the previous
-         * selected controller is again started.
+         * selected component is again started.
          *
          */
         virtual bool selectComponent( const std::string& name ) {
@@ -237,11 +256,11 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /**
+         * Equivalent to bool startup( ComponentBaseInterface* c ).
+         */
         virtual bool startComponent( ComponentBaseInterface* c ) {
-            KernelBaseFunction::ComponentMap::iterator it = this->components.find( c->getName() );
-            if ( it != this->Extension::components.end() )
-                return startup( it->second->component() );
-            return false;
+            return startup( c );
         }
 
         /**
@@ -265,11 +284,11 @@ namespace ORO_ControlKernel
             return false;
         }
 
+        /**
+         * Equivalent to bool shutdown( ComponentBaseInterface* c ).
+         */
         virtual bool stopComponent( ComponentBaseInterface* c ) {
-            KernelBaseFunction::ComponentMap::iterator it = this->components.find( c->getName() );
-            if ( it != this->Extension::components.end() )
-                return shutdown( it->second->component() );
-            return false;
+            return shutdown( c );
         }
 
         /**
@@ -487,7 +506,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * @brief Shutdown (deselect) a previously added Component.
+         * @brief Shutdown a previously added Component.
          * @param c The Component to shutdown.
          * @post  The default component will be selected.
          *
@@ -502,7 +521,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * @brief Startup (select) a previously added Component.
+         * @brief Startup a previously added Component.
          * @param c The Component to startup.
          *
          * @return true if the component is present and could be started.
@@ -512,7 +531,7 @@ namespace ORO_ControlKernel
         }
 
         /**
-         * @brief Restart (deselect + select) a previously added Component.
+         * @brief Restart (shutdown + startup) a previously added Component.
          * @param c The Component to restart.
          *
          * @return true if the component is present and could be restarted.
@@ -523,6 +542,19 @@ namespace ORO_ControlKernel
                 return this->startupComponent(c);
             }
             return false;
+        }
+
+        /**
+         * @brief Select (switch) a previously added Component.
+         * Equivalent to bool selectComponent( ComponentBaseInterface* c)
+         * @param c The Component to select.
+         *
+         * @return true if the component is present and could be selected.
+         * false indicates that selection failed and that the previously selected component
+         * is running again.
+         */
+        bool select( ComponentBaseInterface* c) {
+            return this->selectComponent( c );
         }
 
 

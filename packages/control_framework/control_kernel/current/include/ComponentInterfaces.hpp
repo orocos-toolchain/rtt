@@ -38,6 +38,8 @@ namespace ORO_ControlKernel
 {
     using namespace ORO_CoreLib;
 
+    class ComponentBaseInterface;
+
     namespace detail 
     {
 
@@ -90,7 +92,18 @@ namespace ORO_ControlKernel
             virtual const std::string& getFacetName() { return FacetName.get(); }
 
         protected:
+            /**
+             * Return a pointer to the component base interface.
+             */
+            ComponentBaseInterface* component() const { return comp; }
+
+            /**
+             * Set the pointer to the component base interface.
+             */
+            void component(ComponentBaseInterface* cbi) { comp = cbi; }
+            
             const Property<std::string> FacetName;
+            ComponentBaseInterface* comp;
         };
     }
 
@@ -107,8 +120,7 @@ namespace ORO_ControlKernel
      * 
      */
     class ComponentBaseInterface 
-        :public DataFlowInterface,
-         public detail::ComponentFacetInterface< KernelBaseFunction >
+        : public detail::ComponentFacetInterface< KernelBaseFunction >
     {
         friend class KernelBaseFunction;
         using detail::ComponentFacetInterface< KernelBaseFunction >::enableFacet;
@@ -190,6 +202,34 @@ namespace ORO_ControlKernel
         virtual void disableFacet();
 
         /**
+         * @brief Shutdown (deselect) this Component.
+         *
+         * @return true if the component was loaded and could be shutdowned.
+         */
+        bool shutdown();
+
+        /**
+         * @brief Startup (select) this Component.
+         *
+         * @return true if the component was loaded and could be started.
+         */
+        bool startup();
+
+        /**
+         * @brief Restart (deselect + select) this Component.
+         *
+         * @return true if the component was loaded and could be restarted.
+         */
+        bool restart();
+
+        /*
+         * @brief Select ( startup ) this Component.
+         *
+         * @return true if the component was loaded and could be selected
+         */
+        bool select();
+
+        /**
          * @brief Query if this component is selected in the kernel.
          */
         bool isSelected() { return selected; }
@@ -198,6 +238,13 @@ namespace ORO_ControlKernel
          * @brief Query if this component is started and running.
          */
         bool isRunning() { return selected; }
+
+        /**
+         * This method is called once in each period of the kernel.
+         * A Data Flow Component will then by default pull()/calculate()/push() data,
+         * while a Process Component may perform its execution flow activity.
+         */
+        virtual void update() = 0;
 
     protected:
         bool selected;

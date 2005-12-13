@@ -47,6 +47,7 @@ namespace ORO_ControlKernel
     /**
      * @brief A SupportComponent does not 'run' actually in the control loop,
      * but it gets the same functionality as any other control component.
+     * @deprecated by ProcessComponent
      * @ingroup kcomps kcomp_support
      */
     template < class _Facet = DefaultBase >
@@ -61,7 +62,16 @@ namespace ORO_ControlKernel
          */
         SupportComponent(const std::string& name ) 
             : Facet( name )
-        {}
+        {
+            Facet::component(this);
+        }
+
+        /**
+         * @brief update() contains (optionally) execution flow activity of this Component.
+         */
+        virtual void update()
+        {
+        }
 
         template< class KernelT >
         bool enableFacets(KernelT* k) {
@@ -83,13 +93,119 @@ namespace ORO_ControlKernel
 
         template< class KernelT >
         bool select(KernelT* ) {
-            return true;
+            return false;
         }
 
         template< class KernelT >
         void createDataObject( KernelT* ) {
         }
 
+    };
+
+    /**
+     * @defgroup kcomp_process All Available ControlKernel Process Components
+     */
+
+    /**
+     * @brief A Process Component does not 'run' actually in the control loop,
+     * but has read access to all Data Objects. Furthermore, it may control
+     * Data Flow Components and provide services (like Kinematics)
+     * to Data Flow Components.
+     * @ingroup kcomps kcomp_process
+     */
+    template <class _CommandType, class _InputType, class _ModelType, class _SetPointType, class _OutputType, class _Facet = DefaultBase >
+    class Process
+        :  public _Facet
+    {
+    public:
+        typedef typename _CommandType::DataType CommandType;
+        typedef typename _InputType::DataType InputType;
+        typedef typename _ModelType::DataType ModelType;
+        typedef typename _SetPointType::DataType SetPointType;
+        typedef typename _OutputType::DataType OutputType;
+        typedef _Facet Facet;
+
+        typedef typename _CommandType::ReadPort CommandPort;
+        typedef typename _InputType::ReadPort InputPort;
+        typedef typename _ModelType::ReadPort ModelPort;
+        typedef typename _SetPointType::ReadPort SetPointPort;
+        typedef typename _OutputType::ReadPort OutputPort;
+
+        /**
+         * A Process Component.
+         * The name is used for scripting and NameServer lookups.
+         */
+        Process(const std::string& name ) 
+            : Facet( name ),
+              Command( new CommandPort() ),
+              SetPoint( new SetPointPort() ),
+              Input( new InputPort() ),
+              Model( new ModelPort() ),
+              Output( new OutputPort() )
+        {
+            Facet::component(this);
+        }
+
+        ~Process() {
+            delete Command;
+            delete SetPoint;
+            delete Input;
+            delete Model;
+            delete Output;
+        }
+
+        /**
+         * @brief update() contains (optionally) execution flow activity of this Component.
+         */
+        virtual void update()
+        {
+        }
+
+
+        template< class KernelT >
+        bool enableFacets(KernelT* k) {
+            return k->processes.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->processes.unregisterObject( this ), false) );
+        }
+
+        template< class KernelT >
+        void disableFacets(KernelT* k) {
+             _Facet::disableFacet();
+             k->processes.unregisterObject( this );
+        }
+
+        template< class KernelT >
+        void createDataObject( KernelT* k) {
+            // The ProcessComponent does not write to any Data Objects
+        }
+
+        template< class KernelT >
+        void createPorts(KernelT* k ) {
+            // This Component reads all Data Objects.
+            Input->createPort( k->getKernelName()+"::Inputs", k->getInputPrefix() );
+            Model->createPort( k->getKernelName()+"::Models", k->getModelPrefix() );
+            Command->createPort( k->getKernelName()+"::Commands", k->getCommandPrefix() );
+            SetPoint->createPort( k->getKernelName()+"::SetPoints", k->getSetPointPrefix() );
+            Output->createPort( k->getKernelName()+"::Outputs", k->getOutputPrefix() );
+        }
+
+        void erasePorts() {
+            Input->erasePort();
+            Model->erasePort();
+            Command->erasePort();
+            SetPoint->erasePort();
+            Output->erasePort();
+        }
+
+        template< class KernelT >
+        bool select(KernelT* ) {
+            return false;
+        }
+
+        CommandPort* Command;
+        SetPointPort* SetPoint;
+        InputPort*  Input;
+        ModelPort*  Model;
+        OutputPort* Output;
     };
 
     /**
@@ -103,7 +219,7 @@ namespace ORO_ControlKernel
      */
     template <class _InputType, class _ModelType, class _SetPointType, class _OutputType, class _Facet = DefaultBase >
     class Controller
-        : public _Facet
+        : public DataFlowInterface, public _Facet
     {
     public:
         typedef typename _SetPointType::DataType SetPointType;
@@ -123,7 +239,24 @@ namespace ORO_ControlKernel
               Input( new InputPort() ),
               Model( new ModelPort() ),
               Output( new OutputPort() )
-        {}
+        {
+            Facet::component(this);
+        }
+
+        /**
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
+         *
+         * It will pull
+         * new data, do the required calculations and push them
+         * to the output data object. 
+         */
+        virtual void update()
+        {
+            pull();
+            calculate();
+            push();
+        }
 
         ~Controller() {
             delete SetPoint;
@@ -189,7 +322,7 @@ namespace ORO_ControlKernel
      */
     template <class _InputType, class _ModelType, class _CommandType, class _SetPointType, class _Facet = DefaultBase >
     class Generator
-        : public _Facet
+        : public DataFlowInterface, public _Facet
     {
     public:
         typedef typename _CommandType::DataType CommandType;
@@ -209,7 +342,9 @@ namespace ORO_ControlKernel
               Input( new InputPort() ),
               Model( new ModelPort() ),
               SetPoint( new SetPointPort() )
-        {}
+        {
+            Facet::component(this);
+        }
 
         ~Generator() {
             delete SetPoint;
@@ -218,6 +353,21 @@ namespace ORO_ControlKernel
             delete Command;
         }
         
+        /**
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
+         *
+         * It will pull
+         * new data, do the required calculations and push them
+         * to the output data object. 
+         */
+        virtual void update()
+        {
+            pull();
+            calculate();
+            push();
+        }
+
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->generators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->generators.unregisterObject( this ), false) );
@@ -276,7 +426,7 @@ namespace ORO_ControlKernel
      */
     template <class _InputType, class _OutputType, class _ModelType, class _Facet = DefaultBase >
     class Estimator
-        : public _Facet
+        : public DataFlowInterface, public _Facet
     {
     public:
         typedef typename _InputType::DataType InputType;
@@ -293,7 +443,9 @@ namespace ORO_ControlKernel
               Input( new InputPort() ),
               Output( new OutputPort() ),
               Model( new ModelPort() )
-        {}
+        {
+            Facet::component(this);
+        }
 
         ~Estimator() {
             delete Input;
@@ -301,6 +453,21 @@ namespace ORO_ControlKernel
             delete Output;
         }
         
+        /**
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
+         *
+         * It will pull
+         * new data, do the required calculations and push them
+         * to the output data object. 
+         */
+        virtual void update()
+        {
+            pull();
+            calculate();
+            push();
+        }
+
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->estimators.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->estimators.unregisterObject( this ), false) );
@@ -356,7 +523,7 @@ namespace ORO_ControlKernel
      */
     template <class _InputType, class _ModelType, class _OutputType, class _Facet = DefaultBase >
     class Effector
-        : public _Facet
+        : public DataFlowInterface, public _Facet
     {
     public:
         typedef typename _InputType::DataType InputType;
@@ -373,13 +540,30 @@ namespace ORO_ControlKernel
               Input( new InputPort() ),
               Model( new ModelPort() ),
               Output( new OutputPort() )
-        {}
+        {
+            Facet::component(this);
+        }
 
         ~Effector()
         {
             delete Input;
             delete Model;
             delete Output;
+        }
+
+        /**
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
+         *
+         * It will pull
+         * new data, do the required calculations and push them
+         * to the output data object. 
+         */
+        virtual void update()
+        {
+            pull();
+            calculate();
+            push();
         }
 
         template< class KernelT >
@@ -439,7 +623,7 @@ namespace ORO_ControlKernel
      */
     template <class _InputType, class _Facet = DefaultBase >
     class Sensor
-        : public _Facet
+        : public DataFlowInterface, public _Facet
     {
     public:
         typedef typename _InputType::DataType  InputType;
@@ -450,12 +634,29 @@ namespace ORO_ControlKernel
         Sensor(const std::string& name ) 
             : Facet( name ),
               Input ( new InputPort() )
-        {}
+        {
+            Facet::component(this);
+        }
 
         ~Sensor() {
             delete Input;
         }
         
+        /**
+         * @brief update() calls pull(), calculate(), push()
+         * sequentially and can be overriden by the user to change this behaviour.
+         *
+         * It will pull
+         * new data, do the required calculations and push them
+         * to the output data object. 
+         */
+        virtual void update()
+        {
+            pull();
+            calculate();
+            push();
+        }
+
         template< class KernelT >
         bool enableFacets(KernelT* k) {
             return k->sensors.registerObject( this, this->getName() ) && ( _Facet::enableFacet(k) || (k->sensors.unregisterObject( this ), false) );

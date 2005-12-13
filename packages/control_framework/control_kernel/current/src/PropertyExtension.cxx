@@ -97,6 +97,16 @@ namespace ORO_ControlKernel
             delete *it;
     }
 
+    PropertyBag PropertyExtension::getComponentProperties(const std::string& comp_name)
+    {
+        if ( myMap.find( comp_name ) == myMap.end() )
+            return PropertyBag();
+        PropertyComponentInterface* comp = myMap[comp_name];
+        PropertyBag result;
+        comp->exportProperties( result );
+        return result;
+    }
+
 //     TaskInterface* PropertyExtension::getTask() const
 //     {
 //         return base->getTask();
@@ -147,13 +157,14 @@ namespace ORO_ControlKernel
 
     bool PropertyExtension::updateProperties(const PropertyBag& bag)
     {
+        Logger::In in("PropertyExtension::updateProperties");
         composeProperty(bag, save_props);
         composeProperty(bag, saveFilePrefix);
         composeProperty(bag, saveFileExtension);
         composeProperty(bag, ignoreMissingFiles);
         composeProperty(bag, configureOnLoad);
 
-        Logger::log() << Logger::Info << "PropertyExtension Properties : "<<Logger::nl
+        Logger::log() << Logger::Info << "Properties : "<<Logger::nl
                       << save_props.getName()<< " : " << save_props.get() << Logger::nl
                       << saveFilePrefix.getName()<< " : " << saveFilePrefix.get() << Logger::nl
                       << saveFileExtension.getName()<< " : " << saveFileExtension.get() << Logger::nl
@@ -181,7 +192,7 @@ namespace ORO_ControlKernel
             }
         else
             {
-                Logger::log() << Logger::Warning << "PropertyExtension : sequence \"PropertyFiles\" not found !"<< Logger::endl;
+                Logger::log() << Logger::Warning << "sequence \"PropertyFiles\" not found !"<< Logger::endl;
                 return true;
             }
         return true;
@@ -235,14 +246,18 @@ namespace ORO_ControlKernel
 
     bool PropertyExtension::writeProperties( const std::string& compname )
     {
+        Logger::In in("PropertyExtension::writeProperties");
         if ( myMap.find( compname ) == myMap.end() ){
-            Logger::log() << Logger::Error << "PropertyExtension::writeProperties: Unknown Component: "<< compname << Logger::endl;
+            Logger::log() << Logger::Error << "Unknown Component: "<< compname << Logger::endl;
             return false;
         }
+#if 0
+        // There is no reason to enforce this
         if ( ( kernel()->base() && kernel()->base()->isStarted( compname ) ) ) {
-            Logger::log() << Logger::Error << "PropertyExtension::writeProperties: Can not write properties of a running Component : "<< compname << Logger::endl;
+            Logger::log() << Logger::Error << "Can not write properties of a running Component : "<< compname << Logger::endl;
             return false;
         }
+#endif
 
         PropertyComponentInterface* comp = myMap[ compname ];
         PropertyBag allProps;
@@ -264,17 +279,17 @@ namespace ORO_ControlKernel
             // if target file does not exist, skip this step.
             if ( ifile ) {
                 ifile.close();
-                Logger::log() << Logger::Info << "PropertyExtension: Updating "<< filename << Logger::endl;
+                Logger::log() << Logger::Info << "Updating "<< filename << Logger::endl;
                 // The demarshaller itself will open the file.
                 CPFDemarshaller demarshaller( filename );
                 if ( demarshaller.deserialize( allProps ) == false ) {
                     // Parse error, abort writing of this file.
-                    Logger::log() << Logger::Error << "PropertyExtension: While updating "<< compname <<" : Failed to read "<< filename << Logger::endl;
+                    Logger::log() << Logger::Error << "While updating "<< compname <<" : Failed to read "<< filename << Logger::endl;
                     return false;
                 }
             }
             else
-                Logger::log() << Logger::Info << "PropertyExtension: Creating "<< filename << Logger::endl;
+                Logger::log() << Logger::Info << "Creating "<< filename << Logger::endl;
         }
 
         // Write results
@@ -295,10 +310,10 @@ namespace ORO_ControlKernel
             {
                 CPFMarshaller<std::ostream> marshaller( file );
                 marshaller.serialize( allProps );
-                Logger::log() << Logger::Info << "PropertyExtension: Wrote "<< filename <<Logger::endl;
+                Logger::log() << Logger::Info << "Wrote "<< filename <<Logger::endl;
             }
         else {
-            Logger::log() << Logger::Error << "PropertyExtension: Could not open file "<< filename <<" for writing."<<Logger::endl;
+            Logger::log() << Logger::Error << "Could not open file "<< filename <<" for writing."<<Logger::endl;
             result = false;
         }
         // allProps contains copies (clone()), thus may be safely deleted :
@@ -315,7 +330,8 @@ namespace ORO_ControlKernel
         if (configureOnLoad)
             return true; // All is done.
 
-        Logger::log() << Logger::Info << "PropertyExtension : initialize on Kernel.start()."<< Logger::endl;
+        Logger::In in("PropertyExtension::initialize");
+        Logger::log() << Logger::Info << "Starting..."<< Logger::endl;
         // read xml file for each component, if we know it.
 //         for ( CompNames::iterator it = componentFileNames.begin(); it!= componentFileNames.end(); ++it)
 //             {
@@ -335,9 +351,10 @@ namespace ORO_ControlKernel
     bool PropertyExtension::configureComponent(const std::string& filename, PropertyComponentInterface* target)
     {
         ComponentConfigurator cc;
+        Logger::In in("PropertyExtension::configureComponent");
         if ( !cc.configure( filename, target) )
             {
-                Logger::log() << Logger::Error << "PropertyExtension : ";
+                Logger::log() << Logger::Error;
                 Logger::log() << "Component "<<target->getFacetName() 
                               << " does not accept properties from file '"+filename+"'." << Logger::nl
                               << "Fix your Component property config file first."<< Logger::endl;
@@ -353,9 +370,10 @@ namespace ORO_ControlKernel
 
     void PropertyExtension::finalize()
     {
+        Logger::In in("PropertyExtension::finalize");
         if ( save_props )
             {
-                Logger::log() << Logger::Debug << "PropertyExtension: Saving Component Properties to files..."<<Logger::endl;
+                Logger::log() << Logger::Debug << "Saving Component Properties to files..."<<Logger::endl;
                 this->writeAllProperties( );
             }
     }
@@ -374,38 +392,12 @@ namespace ORO_ControlKernel
                 }
 
             }
-#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        // read in the props of the component :
-        comp->exportProperties( comp->getLocalStore().value() );
-        // put them in the ExecutionExtension.
-        ExecutionExtension* ee = kernel()->getExtension<ExecutionExtension>();
-        if ( ee != 0 ) {
-            bool res = ee->getTaskContext()->attributeRepository.addProperty( &(comp->getLocalStore()) );
-            if (res == false ) {
-                Logger::log()<<Logger::Error <<"PropertyExtension: Failed to add Properties of "
-                             <<comp->getLocalStore().getName() << ". Possible duplicate entry in AttributeRepository of " \
-                             <<ee->getTaskContext()->getName() <<"."<<Logger::endl;
-            }
-        }
-#endif
         return true;
     }
 
     void PropertyExtension::removeComponent(PropertyComponentInterface* comp)
     {
         myMap.erase( comp->getLocalStore().getName() );
-
-#ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        // remove propbag from the ExecutionExtension.
-        ExecutionExtension* ee = kernel()->getExtension<ExecutionExtension>();
-        if ( ee != 0 ) {
-            bool res = ee->getTaskContext()->attributeRepository.removeProperty( &(comp->getLocalStore()) );
-            if (res == false ) {
-                Logger::log()<<Logger::Warning <<"PropertyExtension: Failed to remove Properties of "
-                             <<comp->getLocalStore().getName() << ". Seems to be removed previously."<<Logger::endl;
-            }
-        }
-#endif
 
         comp->getLocalStore().value().clear();
     }

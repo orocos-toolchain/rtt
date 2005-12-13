@@ -45,6 +45,7 @@ namespace ORO_ControlKernel
                 }
                 void disableFacet( ) {
                 }
+                void component(ComponentBaseInterface*) {}
             };
     }
                 
@@ -108,6 +109,14 @@ namespace ORO_ControlKernel
             Second::disableFacet();
         }
 
+        /**
+         * This method is called during component construction
+         * to inform all facets of the ComponentBaseInterface.
+         */
+        void component(ComponentBaseInterface* cbi) {
+            First::component(cbi);
+            Second::component(cbi);
+        }
     };
     
     /**

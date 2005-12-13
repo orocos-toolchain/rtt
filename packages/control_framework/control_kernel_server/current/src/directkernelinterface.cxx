@@ -71,19 +71,19 @@ namespace ExecutionClient
 
   std::vector<std::string> DirectKernelInterface::getProgramNames()
   {
-    Processor* proc = executionext->getProcessor();
+    ProgramProcessor* proc = task->engine()->programs();
     return proc->getProgramList();
   }
 
   std::vector<std::string> DirectKernelInterface::getStateMachineNames()
   {
-    Processor* proc = executionext->getProcessor();
+    StateMachineProcessor* proc = task->engine()->states();
     return proc->getStateMachineList();
   }
 
  std::string DirectKernelInterface::getProgramText(const std::string& name )
  {
-     const ProgramInterface* pi = executionext->getProgram(name);
+     const ProgramInterfacePtr pi = task->engine()->programs()->getProgram(name);
      if (pi)
          return pi->getText();
      return std::string("Error, could not find ")+name;
@@ -91,7 +91,7 @@ namespace ExecutionClient
 
  int DirectKernelInterface::getProgramLine(const std::string& name )
  {
-     const ProgramInterface* pi = executionext->getProgram(name);
+     const ProgramInterfacePtr pi = task->engine()->programs()->getProgram(name);
      if (pi)
          return pi->getLineNumber();
      return -1;
@@ -99,7 +99,7 @@ namespace ExecutionClient
 
  std::string DirectKernelInterface::getStateText(const std::string& name )
  {
-     const StateMachine* ps = executionext->getStateMachine(name);
+     const StateMachinePtr ps = task->engine()->states()->getStateMachine(name);
      if (ps)
          return ps->getText();
      return std::string("Error, could not find ")+name;
@@ -107,7 +107,7 @@ namespace ExecutionClient
 
  int DirectKernelInterface::getStateLine(const std::string& name )
  {
-     const StateMachine* ps = executionext->getStateMachine(name);
+     const StateMachinePtr ps = task->engine()->states()->getStateMachine(name);
      if (ps)
        return ps->getLineNumber();
      return -1;
@@ -116,17 +116,17 @@ namespace ExecutionClient
 
     std::string DirectKernelInterface::getProgramStatus(const std::string& name )
     {
-        return executionext->getProcessor()->getProgramStatusStr( name );
+        return task->engine()->programs()->getProgramStatusStr( name );
     }
 
     std::string DirectKernelInterface::getStateStatus(const std::string& name )
     {
-        return  executionext->getProcessor()->getStateMachineStatusStr( name );
+        return  task->engine()->states()->getStateMachineStatusStr( name );
     }
 
     std::string DirectKernelInterface::getState(const std::string& name )
     {
-     const StateMachine* ps = executionext->getStateMachine(name);
+     const StateMachinePtr ps = task->engine()->states()->getStateMachine(name);
      if (ps && ps->isActive() )
          return ps->currentState()->getName();
      return std::string("na");
@@ -158,9 +158,9 @@ namespace ExecutionClient
         }
 
         // this can throw a program_load_exception
-        std::vector<ParsedStateMachine*>::iterator it;
+        Parser::ParsedStateMachines::iterator it;
         for( it= contexts.begin(); it !=contexts.end(); ++it) {
-            executionext->getProcessor()->loadStateMachine( *it );
+            task->engine()->states()->loadStateMachine( *it );
         }
 
         Logger::log() << Logger::Info << "ExecutionExtension : "
@@ -201,7 +201,7 @@ namespace ExecutionClient
             // since functions can be present, this is not so exceptional.
             //throw program_load_exception( "Warning : No Programs defined in inputfile." );
         }
-        for_each(pg_list.begin(), pg_list.end(), boost::bind( &Processor::loadProgram, executionext->getProcessor(), _1) );
+        for_each(pg_list.begin(), pg_list.end(), boost::bind( &ProgramProcessor::loadProgram, task->engine()->programs(), _1) );
         Logger::log() << Logger::Info << "ExecutionExtension : "
                       << "loadProgram loaded "<< pg_list.end() - pg_list.begin()<<" program(s) from " << filename << Logger::endl;
       }
@@ -216,7 +216,7 @@ namespace ExecutionClient
   bool ExecutionClient::DirectKernelInterface::unloadStateMachine( const std::string& name )
   {
       try {
-          return executionext->getProcessor()->deleteStateMachine( name );
+          return task->engine()->states()->unloadStateMachine( name );
       }
       catch ( program_unload_exception& e) {
           throw load_exception( e.what() );
@@ -226,7 +226,7 @@ namespace ExecutionClient
   bool ExecutionClient::DirectKernelInterface::unloadProgram( const std::string& name )
   {
       try {
-          return executionext->getProcessor()->deleteProgram( name );
+          return task->engine()->programs()->unloadProgram( name );
       }
       catch ( program_unload_exception& e) {
           throw load_exception( e.what() );
@@ -365,13 +365,13 @@ namespace ExecutionClient
             return 0;
         }
         // It is for sure a real command, dispatch to target processor :
-        int id = task->getProcessor()->process( parseresult.first );
+        int id = task->engine()->commands()->process( parseresult.first );
         // returns null if Processor not running or not accepting.
         if ( id == 0 ) {
-            Logger::log() << Logger::Error << "Command '"<< code <<"' not accepted by "<<task->getName()<<"'s Processor." <<Logger::endl;
+            Logger::log() << Logger::Error << "Command '"<< code <<"' not accepted by "<<task->getName()<<"'s CommandProcessor." <<Logger::endl;
             delete parseresult.first;
             delete parseresult.second;
-            throw load_exception( "Command '"+ code +"' not accepted by "+task->getName()+"'s Processor." );
+            throw load_exception( "Command '"+ code +"' not accepted by "+task->getName()+"'s CommandProcessor." );
         } else {
             Logger::log() << Logger::Debug << "Queueing Command "<<id<<" : '" << code << "'" <<Logger::endl;
             commandlist[ id ] = parseresult;
@@ -391,7 +391,7 @@ namespace ExecutionClient
       return;
     CommandInterface* command = i->second.first;
     ConditionInterface* condition = i->second.second;
-    if ( command && executionext->getProcessor()->isProcessed( id ) &&
+    if ( command && task->engine()->commands()->isProcessed( id ) &&
          condition->evaluate() )
     {
         Logger::log() << Logger::Info << "Command " << id <<" finished."<<Logger::endl;
@@ -406,7 +406,7 @@ namespace ExecutionClient
     commandlist_t::iterator i = commandlist.find( id );
     if ( i == commandlist.end() )
       return;
-    if ( executionext->getProcessor()->isProcessed( id ) ) {
+    if ( task->engine()->commands()->isProcessed( id ) ) {
         Logger::log() << Logger::Debug << "Command " << id << " was processed."<<Logger::endl;
         delete i->second.first;
         delete i->second.second;

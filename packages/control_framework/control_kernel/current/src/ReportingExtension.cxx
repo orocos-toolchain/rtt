@@ -166,25 +166,27 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::initialize()
     {
+        Logger::In in("ReportingExtension");
         // check for existing servers
         reporter = PropertyReporter<MarshallTableType>::nameserver.getObject( reportServer );
+        // tmp_run is used to check if the reportserver is started already.
+        RunnableInterface* tmp_run = PropertyReporter<MarshallTableType>::nameserver.getObject( reportServer );
         if ( !reporter )
             {
                 reporter = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObject( reportServer );
+                tmp_run  = PropertyReporter<NoHeaderMarshallTableType>::nameserver.getObject( reportServer );
                 if ( !reporter )
                     {
                         // no server found, create it.
 #ifdef OROINT_OS_STDIOSTREAM
                         if ( toFile && toStdOut )
                             {
-                                Logger::log() <<Logger::Info << "ReportingExtension : ";
                                 Logger::log() <<Logger::Info << "Reporting to file "<<repFile<<" and std output."<< Logger::endl;
                                 fileStream = new ofstream( repFile.get().c_str() );
                                 splitStream = new SplitStream( fileStream, &std::cout);
                             } else
                                 if ( toFile )
                                     {
-                                        Logger::log() <<Logger::Info << "ReportingExtension : ";
                                         Logger::log() <<Logger::Info << "Reporting to file "<< repFile <<"."<< Logger::endl;
                                         fileStream = new ofstream( repFile.get().c_str() );
                                         splitStream = new SplitStream(fileStream);
@@ -192,12 +194,10 @@ namespace ORO_ControlKernel
 #endif
                                         if (toStdOut)
                                             {
-                                                Logger::log() <<Logger::Info << "ReportingExtension : ";
                                                 Logger::log() <<Logger::Info << "Reporting to std output."<< Logger::endl;
                                                 splitStream = new SplitStream( &std::cout );
                                             } else
                                                 {
-                                                    Logger::log() <<Logger::Info << "ReportingExtension : ";
                                                     Logger::log() <<Logger::Info << "Not Reporting."<< Logger::endl;
                                                     // do nothing.
                                                     return true;
@@ -209,7 +209,6 @@ namespace ORO_ControlKernel
                             nh_config = new NoHeaderMarshallTableType( *splitStream );
 
 
-                        RunnableInterface* tmp_run;
                         if ( writeHeader )
                             {
                                 PropertyReporter<MarshallTableType>* tmp_ptr;
@@ -229,9 +228,16 @@ namespace ORO_ControlKernel
                     }
             }
         if ( serverOwner == false ) {
-            Logger::log() << Logger::Info << "ReportingExtension : "
+            Logger::log() << Logger::Info
                           << "Re-using running ReportServer \""
-                          << reportServer <<"\". Properties for Reportin of this Kernel have no effect !"<< Logger::endl;
+                          << reportServer <<"\". Properties for Reporting of this Kernel have no effect !"<< Logger::endl;
+            if ( tmp_run->getTask()->isRunning() ) {
+                Logger::log() << Logger::Warning <<"ReportServer "<<reportServer<<" already running."<<Logger::nl;
+                Logger::log() << "The data of this kernel will only be reported after a "<<reportServer
+                              << ".stop() and then "<<reportServer<<".start() again." <<Logger::nl;
+                Logger::log() << "Alternatively, set the 'AutoStart' property of reporting to '0' and start"
+                              << "the ReportServer in your application scipts when all kernels are running."<<Logger::endl;
+            }
         }
         // from here on, we got a pointer to 'reporter' being it our own or a remote server.
                 
@@ -251,8 +257,7 @@ namespace ORO_ControlKernel
                         reporter->exporterAdd( ic->second->getExporter() );
                     }
                 else 
-                    Logger::log() <<Logger::Error << "ReportingExtension : "
-                                  << *it << " not found !"<< Logger::endl;
+                    Logger::log() <<Logger::Error << *it << " not found !"<< Logger::endl;
             }
 
         // iterate over all xml-listed dataobjects :
@@ -306,8 +311,7 @@ namespace ORO_ControlKernel
                             //std::cerr <<" checking if '"+ std::string( *it, pos+2 )+"' is present in DataObject : "<<endl;
                             // if the DataName is in the server, but not in the reports yet, add it to the reports.
                             if ( do_server->reportItem( std::string( *it, pos+2 ) ) == false ) {
-                                Logger::log() <<Logger::Error << "ReportingExtension : "
-                                              << " Looking up '"<< *it <<"' : "
+                                Logger::log() <<Logger::Error << " Looking up '"<< *it <<"' : "
                                               << std::string( *it, pos+2 ) << " not found in "<< do_server->getName() <<"."<< Logger::endl;
                             }
 
@@ -315,13 +319,13 @@ namespace ORO_ControlKernel
                         }
                 }
                 else {
-                    Logger::log() << Logger::Error << "ReportingExtension : Looking up '"<< *it <<"' : not found !" << Logger::nl
+                    Logger::log() << Logger::Error << "Looking up '"<< *it <<"' : not found !" << Logger::nl
                                   <<"Tried " + base->getKernelName()+"::" + std::string( *it, 0, pos ) << Logger::endl;
                 }
             }
         if (serverOwner && autostart.get() )
             reporterTask->start();
-        Logger::log() <<Logger::Debug << "ReportingExtension successfully initialized()."<< Logger::endl;
+        Logger::log() <<Logger::Debug << "Successfully initialized()."<< Logger::endl;
         return true;
     }
 
@@ -346,7 +350,7 @@ namespace ORO_ControlKernel
 
     void ReportingExtension::finalize()
     {
-                
+        Logger::In in("ReportingExtension");
         // stop reporter.
         if (reporter )
             {
@@ -369,7 +373,7 @@ namespace ORO_ControlKernel
                     }
                 if ( serverOwner && reporter->nbOfExporters() == 0 ) // safe to cleanup
                     {
-                        Logger::log() << Logger::Info << "ReportingExtension : "
+                        Logger::log() << Logger::Info
                                       << "No more clients present, cleaning up ReportServer \""
                                       << reportServer <<"\"."<< Logger::endl;
                         PropertyReporter<NoHeaderMarshallTableType>::nameserver.unregisterName( reportServer );
@@ -394,7 +398,7 @@ namespace ORO_ControlKernel
                         serverOwner = false;
                     }
                 else
-                    Logger::log() << Logger::Info << "ReportingExtension : "
+                    Logger::log() << Logger::Info
                                   << "Other clients present in ReportServer \""
                                   << reportServer <<"\". Not cleaning up."<< Logger::endl;
 
@@ -568,6 +572,7 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::updateProperties(const PropertyBag& bag)
     {
+        Logger::In in("ReportingExtension");
         composeProperty(bag, period);
         composeProperty(bag, interval);
         composeProperty(bag, repFile);
@@ -579,7 +584,7 @@ namespace ORO_ControlKernel
 #endif
         composeProperty(bag, autostart);
 
-        Logger::log() << Logger::Info << "ReportingExtension Properties : "<<Logger::nl
+        Logger::log() << Logger::Info << "Properties : "<<Logger::nl
                       << period.getName()<< " : " << period.get() << Logger::nl
                       << interval.getName()<< " : " << interval.get() << Logger::nl
                       << repFile.getName()<< " : " << repFile.get() << Logger::nl
@@ -604,16 +609,14 @@ namespace ORO_ControlKernel
                     {
                         Property<std::string>* compName = dynamic_cast<Property<std::string>* >( *it );
                         if ( !compName )
-                            Logger::log() << Logger::Error << "ReportingExtension : "
-                                          << "Expected property \""
+                            Logger::log() << Logger::Error << "Expected Property \""
                                           << (*it)->getName() <<"\" to be of type string."<< Logger::endl;
                         else if ( compName->getName() == "Component" )
                             rep_comps.push_back( compName->value() );
                         else if ( compName->getName() == "DataObject" )
                             rep_dos.push_back( compName->value() );
                         else
-                            Logger::log() << Logger::Error << "ReportingExtension : "
-                                          << "Expected \"Component\" Or \"DataObject\", got "
+                            Logger::log() << Logger::Error << "Expected \"Component\" Or \"DataObject\", got "
                                           << compName->getName() << Logger::endl;
                         ++it;
                     }

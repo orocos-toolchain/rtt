@@ -41,29 +41,12 @@ namespace ORO_ControlKernel
      * external 'triggers' to set a certain behaviour in action.
      * push() and pull() are meant to trigger external communication
      * with other components, while calculate() should perform its
-     * operation without external interaction. update() will be called
-     * to perform optimized local functioning of the component, under
-     * the assumption that communication has no cost.
+     * operation without external interaction. 
      *
      */
     struct DataFlowInterface
     {
         virtual ~DataFlowInterface() {}
-
-        /**
-         * @brief update() calls pull(), calculate(), push()
-         * sequentially and can be overriden by the user to change this behaviour.
-         *
-         * It will pull
-         * new data, do the required calculations and push them
-         * to the output data object. 
-         */
-        virtual void update()
-        {
-            pull();
-            calculate();
-            push();
-        }
 
         /**
          * @brief This will refresh the internals of the Component so that the

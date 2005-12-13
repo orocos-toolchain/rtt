@@ -138,6 +138,11 @@ namespace ORO_ControlKernel
 
         bool configureComponent(const std::string& filename, PropertyComponentInterface* target);
 
+        /**
+         * Return a bag with the properties of a Component or an
+         * empty bag if no such component is present.
+         */
+        PropertyBag getComponentProperties(const std::string& comp_name);
     protected:
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
         virtual bool exportProperties( ORO_Execution::AttributeRepository& bag );

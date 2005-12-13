@@ -48,3 +48,22 @@ void ComponentBaseInterface::disableFacet()
         }
 }
 
+bool ComponentBaseInterface::startup()
+{
+    return kern->startup(this);
+}
+
+bool ComponentBaseInterface::restart()
+{
+    return kern->restart(this);
+}
+
+bool ComponentBaseInterface::shutdown()
+{
+    return kern->shutdown(this);
+}
+
+bool ComponentBaseInterface::select()
+{
+    return kern->select(this);
+}

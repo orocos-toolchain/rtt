@@ -87,11 +87,13 @@ bool ControlKernelInterface::updateKernelProperties(const PropertyBag& bag)
 KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* ckip )
     : detail::ExtensionInterface( ckip, "Kernel"),
       frequency("frequency","The periodic execution frequency of this kernel",0),
-      startupSensor("Sensor", "", "DefaultSensor"),
-      startupEstimator("Estimator", "", "DefaultEstimator"),
-      startupGenerator("Generator", "", "DefaultGenerator"),
-      startupController("Controller", "", "DefaultController"),
-      startupEffector("Effector", "", "DefaultEffector")
+      default_process(0),
+      process_owner(false),
+      startupSensor("Sensor", "!Deprecated: Use DefaultProcess!", "DefaultSensor"),
+      startupEstimator("Estimator", "!Deprecated: Use DefaultProcess!", "DefaultEstimator"),
+      startupGenerator("Generator", "!Deprecated: Use DefaultProcess!", "DefaultGenerator"),
+      startupController("Controller", "!Deprecated: Use DefaultProcess!", "DefaultController"),
+      startupEffector("Effector", "!Deprecated: Use DefaultProcess!", "DefaultEffector")
 {
     // inform the ControlKernelInterface that we are the KernelBaseFunction.
     kernel()->base( this );
@@ -119,12 +121,14 @@ bool KernelBaseFunction::initialize()
     NameServer<ComponentBaseInterface*>::value_iterator itl = this->supports.getValueBegin();
     for( ; itl != this->supports.getValueEnd(); ++itl)
         this->startupComponent( *itl );
-                
+
+    // Deprecated ! Use DefaultProcess !
     if ( selectComponent(startupSensor) )
         if ( selectComponent(startupEstimator) )
             if ( selectComponent(startupGenerator) )
                 if ( selectComponent(startupController) )
                     if (selectComponent(startupEffector) ) {
+                        default_process->startup();
                         Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " started."<< Logger::endl;
                         return true;
                     }
@@ -135,7 +139,7 @@ bool KernelBaseFunction::initialize()
 
 void KernelBaseFunction::step() 
 { 
-    // update the components 
+    // update the default process component 
     updateComponents();
 }
 
@@ -146,6 +150,8 @@ void KernelBaseFunction::finalize()
     selectComponent("DefaultGenerator");
     selectComponent("DefaultController");
     selectComponent("DefaultEffector");
+
+    default_process->shutdown();
     
     ComponentMap::iterator itl;
     for( itl = components.begin(); itl != components.end(); ++itl)
@@ -164,20 +170,22 @@ void KernelBaseFunction::setPeriod( double p )
 
 bool KernelBaseFunction::updateProperties(const PropertyBag& bag)
 {
-    composeProperty(bag, startupSensor);
-    composeProperty(bag, startupEstimator);
-    composeProperty(bag, startupGenerator);
-    composeProperty(bag, startupController);
-    composeProperty(bag, startupEffector);
+    bool result(false);
+    result = composeProperty(bag, startupSensor);
+    result = composeProperty(bag, startupEstimator) || result;
+    result = composeProperty(bag, startupGenerator) || result;
+    result = composeProperty(bag, startupController) || result;
+    result = composeProperty(bag, startupEffector) || result;
     composeProperty(bag, frequency);
 
-    Logger::log() << Logger::Info << "KernelBaseFunction Properties : " << Logger::nl
-                  << frequency.getName()<<" : "<< frequency.get()<< Logger::nl
-                  << startupEffector.getName()<<" : "<< startupEffector.get()<< Logger::nl
-                  << startupEstimator.getName()<<" : "<< startupEstimator.get()<< Logger::nl
-                  << startupGenerator.getName()<<" : "<< startupGenerator.get()<< Logger::nl
-                  << startupController.getName()<<" : "<< startupController.get()<< Logger::nl
-                  << startupSensor.getName()<<" : "<< startupSensor.get()<< Logger::endl;
+    Logger::In("KernelBaseFunction::updateProperties");
+    if (result) {
+        Logger::log() << Logger::Warning << "Deprecated use detected !"<<Logger::nl;
+        Logger::log() << Logger::Warning << "Set the startup components in the DefaultProcess component's Property file !"<<Logger::nl;
+    }
+
+    Logger::log() << Logger::Info << "Properties set to : " << Logger::nl
+                  << frequency.getName()<<" : "<< frequency.get()<< Logger::endl;
 
     return frequency > 0;
 }

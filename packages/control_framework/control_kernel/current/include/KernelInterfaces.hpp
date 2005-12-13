@@ -107,10 +107,26 @@ namespace ORO_ControlKernel
         /**
          * Returns a pointer to the base interface of this kernel.
          * May return zero if not found.
+         * @deprecated by KernelBaseFunction* base() const
          */
         KernelBaseFunction* base() const;
 
+        /**
+         * Set the KernelBaseFunction.
+         * @deprecated by void function(KernelBaseFunction*)
+         */
         void base(KernelBaseFunction* );
+
+        /**
+         * Returns a pointer to the kernel base function interface of this kernel.
+         * May return zero if not found.
+         */
+        KernelBaseFunction* function() const;
+
+        /**
+         * Set the KernelBaseFunction.
+         */
+        void function(KernelBaseFunction* );
     protected:
        
         /**
@@ -175,9 +191,16 @@ namespace ORO_ControlKernel
 
             virtual ORO_Execution::MethodFactoryInterface* createMethodFactory()  { return 0; }
 #endif
+
+            /**
+             * Return a pointer of the kernel of this Extension.
+             */
+            ControlKernelInterface* base() const { return _kernel; }
+
         protected:
             /**
              * Return a pointer of the kernel of this Extension.
+             * @deprecated by ControlKernelInterface* base() const
              */
             ControlKernelInterface* kernel() const { return _kernel; }
 
@@ -387,7 +410,7 @@ namespace ORO_ControlKernel
          * @{
          */
 
-        /**
+        /*
          * @brief Load a previously added Component.
          * @param c The Component to load.
          *
@@ -412,16 +435,15 @@ namespace ORO_ControlKernel
         virtual bool reload( ComponentBaseInterface* c)  = 0;
 
         /**
-         * @brief Shutdown (deselect) a previously added Component.
+         * @brief Shutdown a previously added Component.
          * @param c The Component to shutdown.
-         * @post  The default component will be selected.
          *
          * @return true if the component is present and could be shutdowned.
          */
         virtual bool shutdown( ComponentBaseInterface* c) = 0;
 
         /**
-         * @brief Startup (select) a previously added Component.
+         * @brief Startup a previously added Component.
          * @param c The Component to startup.
          *
          * @return true if the component is present and could be started.
@@ -429,28 +451,41 @@ namespace ORO_ControlKernel
         virtual bool startup( ComponentBaseInterface* c) = 0;
 
         /**
-         * @brief Restart (deselect + select) a previously added Component.
+         * @brief Restart ( shutdown + startup ) a previously added Component.
          * @param c The Component to restart.
          *
          * @return true if the component is present and could be restarted.
          */
         virtual bool restart( ComponentBaseInterface* c) = 0;
 
-        /*
-         * @brief Select ( startup ) a previously added Component.
+        /**
+         * @brief Select ( switch in ) a previously added Component.
          * @param c The Component to select.
          *
-         * @return true if the component is present and could be restarted.
+         * @return true if the component is present and could be selected.
          */
-        //virtual bool select( ComponentBaseInterface* c) = 0;
+        virtual bool select( ComponentBaseInterface* c) = 0;
 
         /** @} */
+
+        /**
+         * Query the Control Kernel for the presence of a Process
+         * Component with a given name.
+         * @param procname The name of the Process Component instance.
+         * @return null if not loaded or not found, the Component instance otherwise.
+         * @param P The class Type of the Process Component.
+         */
+        template<class P>
+        P* getProcess(const std::string& procname) const {
+            return dynamic_cast<P>(processes.getObject(procname));
+        }
 
         /**
          * @{
          * @brief Nameserved components
          *
          */
+        NameServer<ComponentBaseInterface*> processes;
         NameServer<ComponentBaseInterface*> controllers;
         NameServer<ComponentBaseInterface*>  generators;
         NameServer<ComponentBaseInterface*>   effectors;
@@ -471,6 +506,8 @@ namespace ORO_ControlKernel
          * We can not update the components in this class because
          * the order is unknown. The order in which the components
          * must be updated is known in the Kernel subclass.
+         * @deprecated The Process components will be executed
+         * in the KernelBaseFunction itself in future versions.
          */
         virtual void updateComponents() = 0;
 
@@ -537,6 +574,12 @@ namespace ORO_ControlKernel
                 getTask()->stop();
         }
     protected:
+        /**
+         * The main Control Kernel Process, executes the Data Flow Components.
+         */
+        ComponentBaseInterface* default_process;
+        bool process_owner;
+
         ComponentMap components;
 
         Event<void(void)> abortKernelEvent;
