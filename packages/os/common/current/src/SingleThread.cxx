@@ -98,7 +98,7 @@ namespace ORO_OS
                     d = pp.get();
                 }
 # else
-                Logger::log() << Logger::Error<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+                Logger::log() << Logger::Warning<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
         } catch( ... )
             {
@@ -144,22 +144,13 @@ namespace ORO_OS
                             if ( d )
                                 d->switchOn( bit );
 #endif
+                            task->inloop = true;
                             task->loop();
+                            task->inloop = false;
 #ifdef OROPKG_OS_THREAD_SCOPE
                             if ( d )
                                 d->switchOff( bit );
 #endif
-
-                            // We do this to be able to safely
-                            // process the finalize method
-                            if ( task->isHardRealtime() )
-                                rtos_task_make_soft_real_time( task->rtos_task );
-
-                            task->finalize();
-                            task->running = false;
-                            // if goRealtime, wait on sem in RT.
-                            if ( task->goRealtime )
-                                rtos_task_make_hard_real_time( task->rtos_task );
                         }
                     }
             } catch( ... ) {
@@ -170,6 +161,7 @@ namespace ORO_OS
                 if ( task->isHardRealtime() )
                     rtos_task_make_soft_real_time( task->rtos_task );
                 // set state to not running
+                task->inloop = false;
                 task->running = false;
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Single Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
@@ -197,7 +189,7 @@ namespace ORO_OS
     }
 
     SingleThread::SingleThread(int _priority, const std::string& name, RunnableInterface* r) :
-        running(false), goRealtime(false), prepareForExit(false), priority(_priority),
+        running(false), goRealtime(false), prepareForExit(false), inloop(false), priority(_priority),
         runComp(r)
     {
         rtos_thread_init( this, name);
@@ -217,6 +209,7 @@ namespace ORO_OS
         this->stop();
 
         // Send the message to the thread...
+        running = false;
         prepareForExit = true;
         rtos_sem_signal( &sem );
         
@@ -252,9 +245,14 @@ namespace ORO_OS
 
     bool SingleThread::start() 
     {
-        if ( isRunning() ) return false;
+        // just signal if already running.
+        if ( isRunning() ) {
+            rtos_sem_signal(&sem);
+            return true;
+        }
 
-        this->initialize();
+        if ( this->initialize() == false )
+            return false;
 
         running=true;
         rtos_sem_signal(&sem);
@@ -266,9 +264,14 @@ namespace ORO_OS
     {
         if ( !isRunning() ) return false;
 
-        if ( this->breakLoop() == true )
-            running = false;
-        return !running;
+        // if inloop and breakloop does not work, sorry.
+        if ( inloop && this->breakLoop() == false ) {
+            return false;
+        }
+
+        running = false;
+        this->finalize();
+        return true;
     }
 
     bool SingleThread::isRunning() const

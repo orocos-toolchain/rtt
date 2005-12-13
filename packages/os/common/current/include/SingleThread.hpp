@@ -41,9 +41,26 @@
 namespace ORO_OS
 {
     /**
-     * This Thread abstraction class represents
-     * a single-shot thread which can be started many times
-     * and stops each time the loop() function returns.
+     * This Thread abstraction class represents a single-shot thread
+     * which can be started many times.  The first invocation of
+     * start() invokes the initialize() function and runs the loop()
+     * method in the thread.  When loop() returns the thread waits for
+     * another start() to execute loop() again. When stop() is called
+     * when the thread is still executing loop() and breakLoop()
+     * returns \a true (\b not the default), the stop() function
+     * succeeds and the finalize() method is called by stop(). A next
+     * invocation of start() will again call initialize() before
+     * loop() is executed and so on. The user must provide an
+     * implementation of breakLoop() returning \a true to make stop()
+     * work while loop() is being executed. stop() will not execute
+     * finalize() if the thread executes loop() and breakLoop() is not
+     * reimplemented to return true. If the thread was not executing
+     * loop(), stop will always call finalize() and return success. 
+     *
+     * When a RunnableInterface object is given, the above methods
+     * initialize(), loop(), breakLoop() and finalize() are called
+     * on that object instead of on the SingleThread's virtual functions.
+     * 
      * @see RunnableInterface
      */
     class SingleThread 
@@ -64,6 +81,11 @@ namespace ORO_OS
 
         /**
          * Start the thread
+         * @post if !this->isRunning(), then execute
+         * initialize() and execute loop() in the thread.
+         * @post if this->isRunning(), then schedule a start of loop()
+         * in the thread.
+         * @post this->isRunning is true
          *
          * @return true if successfull.
          */
@@ -72,6 +94,11 @@ namespace ORO_OS
         /**
          * Stop the thread. The return value of stop, is the
          * same as the return value of RunnableInterface::breakLoop().
+         * @pre this->isRunning()
+         * @post if breakLoop() returns \a true, then execute
+         * finalize() and this->isRunning() == false
+         * @post if breakLoop() returns \a false (the default),
+         * then do nothing.
          *
          * @return true if successfull.
          */
@@ -145,6 +172,10 @@ namespace ORO_OS
          */
         bool prepareForExit;
 
+        /**
+         * Is true when in the loop.
+         */
+        bool inloop;
         /**
          * The realtime task structure created by this object.
          */
