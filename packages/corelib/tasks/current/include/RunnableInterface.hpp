@@ -51,8 +51,12 @@ namespace ORO_CoreLib
     {
         TaskInterface* owner_task;
     public:
-        RunnableInterface() : owner_task(0) {}
+        RunnableInterface();
 
+        /**
+         * Checks if this is still in a task and if so, issues a critical warning.
+         */
+        ~RunnableInterface();
         /**
          * @brief Query for the task this interface is run in.
          *
@@ -61,7 +65,7 @@ namespace ORO_CoreLib
          *
          * @return The Task which runs this RunnableInterface.
          */
-        TaskInterface* getTask() const { return owner_task; }
+        TaskInterface* getTask() const;
 
         /**
          * @brief Set the task this interface is run in.
@@ -70,9 +74,7 @@ namespace ORO_CoreLib
          *
          * @param task The TaskInterface running this interface.
          */
-        virtual void setTask( TaskInterface* task ) {
-            owner_task = task;
-        }
+      virtual void setTask( TaskInterface* task );
     };
 }
 

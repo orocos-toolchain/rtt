@@ -34,6 +34,7 @@
 namespace ORO_CoreLib
 {
     class EventProcessor;
+    class RunnableInterface;
 
     /**
      * @brief Interface to start/stop and query a Task.
@@ -49,8 +50,18 @@ namespace ORO_CoreLib
      */
     class TaskInterface
     {
+
     public:
         virtual ~TaskInterface() {}
+
+        /**
+         * Run exclusively this RunnableInterface.
+         * @pre this->isRunning() == false
+         * @param r
+         *        The RunnableInterface to run exclusively.
+         * @return true if succeeded, false otherwise
+         */
+        virtual bool run( RunnableInterface* r ) = 0;
 
         /**
          * Start the task.
