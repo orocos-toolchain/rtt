@@ -248,7 +248,7 @@ namespace ORO_CoreLib
             read_policy.pop();
             CachePtrType loc = advance_r();
             if ( loc == 0 )
-                return false;
+                return 0;
             result = loc->first;
             int nr = loc->second;
             loc->second += _size; // give the cell a new number.

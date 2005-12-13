@@ -1,5 +1,5 @@
-#ifndef ORO_SORTED_LIST_HPP
-#define ORO_SORTED_LIST_HPP
+#ifndef ORO_SINGLE_LIST_HPP
+#define ORO_SINGLE_LIST_HPP
 
 #include <os/CAS.hpp>
 #include <boost/shared_ptr.hpp>
@@ -8,21 +8,23 @@
 namespace ORO_CoreLib
 {
     /**
-     * A single-linked sorted list algorithm invented by Timothy
+     * A single-linked single list algorithm invented by Timothy
      * L. Harris. It will never work on 8bit computers as implemented
      * here but 16, 32, 64,... computers are fine. You may \b not insert
      * the same item more than once.
+     * @note This list is not, and should not, be used in the Orocos Framework. 
+     * @see ListLockFree for a far better lock-free list implementation.
      *
      * The difference between this implementation and Harris' is that we
      * use a self-invented memory pool (MemoryPool) for lock-free/hard real-time memory
-     * management and an apply() function to manipulate the data within the SortedList.
+     * management and an apply() function to manipulate the data within the SingleList.
      *
      * @param DataType_ Must be a pointer type or integer or any
      * object which has or for which you defined an operator<() and operator==()
-     * since the list is sorted.
+     * since the list is single.
      */
     template<class DataType_>
-    class SortedList
+    class SingleList
     {
     public:
         typedef DataType_ DataType;
@@ -56,7 +58,7 @@ namespace ORO_CoreLib
         Node_sptr head;
         Node_sptr tail;
 
-        Node_sptr search(const DataType& search_key, Node_sptr& left_node)
+        Node_sptr searchKey(const DataType& search_key, Node_sptr& left_node)
         {
             Node_sptr left_node_next, right_node;
         search_again:
@@ -73,7 +75,10 @@ namespace ORO_CoreLib
                     if (t == this->tail)
                         break;
                     t_next = t->next;
-                } while (is_marked_reference(t_next) || (t->key < search_key));
+                    // search as long as key is not found, or end is not reached.
+                } while ( is_marked_reference(t_next) ||
+                          !(t->key == search_key ||
+                            t == this->tail));
                 right_node = t;
                 
                 if (left_node_next == right_node)
@@ -90,6 +95,40 @@ namespace ORO_CoreLib
                         return right_node;
                 }
             } while (true);
+        }
+
+        // apply.
+        template< class F>
+        Node_sptr searchEnd(const F& foo, Node_sptr& left_node)
+        {
+            Node_sptr left_node_next;
+            // start one after head.
+            Node_sptr t = this->head->next;
+            Node_sptr t_next = t->next;
+
+            if ( t == tail ) {
+                left_node = head;
+                return tail;
+            }
+
+            do {
+                DataType data( t->key );
+                if (!is_marked_reference(t_next)) {
+                    left_node = t;
+                    left_node_next = t_next;
+                    //if (!is_marked_reference( t_next ) ) // check *again* for invalidation.
+                    foo( data ); // apply on copy.
+                }
+                t = get_unmarked_reference(t_next);
+                if (t == this->tail)
+                    break;
+                t_next = t->next;
+                // search as long as end is not reached.
+            } while ( is_marked_reference(t_next) ||
+                      t != this->tail );
+            // t == tail.
+                
+            return t;
         }
 
         bool is_marked_reference(Node* n)
@@ -114,7 +153,7 @@ namespace ORO_CoreLib
         /**
          * Create an empty list.
          */
-        SortedList()
+        SingleList()
         {
             mpool.reserve();
             mpool.reserve();
@@ -124,7 +163,7 @@ namespace ORO_CoreLib
             head->next = tail;
         }
 
-        ~SortedList()
+        ~SingleList()
         {
             mpool.deallocate(head);
             mpool.deallocate(tail);
@@ -162,7 +201,7 @@ namespace ORO_CoreLib
 
             new_node->key = key;
             do {
-                right_node = this->search(key, left_node);
+                right_node = this->searchKey(key, left_node);
                 if ((right_node != tail) && (right_node->key == key )) {
                     mpool.deallocate( new_node );
                     return false;
@@ -183,7 +222,7 @@ namespace ORO_CoreLib
             Node_sptr right_node, right_node_next, left_node;
 
             do {
-                right_node = search(search_key, left_node);
+                right_node = searchKey(search_key, left_node);
                 if (( right_node == tail) || !(right_node->key == search_key) )
                     return false;
                 right_node_next = right_node->next;
@@ -207,7 +246,7 @@ namespace ORO_CoreLib
         {
             Node_sptr right_node, left_node;
 
-            right_node = search( search_key, left_node);
+            right_node = searchKey( search_key, left_node);
             if ((right_node == tail) || !(right_node->key == search_key))
                 return false;
             else
@@ -218,7 +257,7 @@ namespace ORO_CoreLib
          * Applies a function to all elements.
          * For example:
          @verbatim
-         SortedList<CallBackInterface*> sl;
+         SingleList<CallBackInterface*> sl;
          // insert elements...
          // call the 'callback' function on each element:
          sl.apply( boost::bind(&CallBackInterface::callback, _1) );

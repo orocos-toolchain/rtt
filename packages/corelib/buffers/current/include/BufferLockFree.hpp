@@ -129,6 +129,11 @@ namespace ORO_CoreLib
             return active->data.size();
         }
 
+        bool empty() const
+        {
+            return active->data.empty();
+        }
+
         void clear()
         {
             Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
@@ -312,7 +317,10 @@ namespace ORO_CoreLib
                     atomic_dec( &orig->count );
                 orig = active;
                 atomic_inc( &orig->count );
-            } while ( CAS(&active, orig, orig ) == false );
+                // this synchronisation point is 'aggressive' (a _sufficient_ condition)
+                // if active is still equal to orig, the increase of orig->count is
+                // surely valid, since no contention (change of active) occured.
+            } while ( active != orig );
             return orig;
         }
 

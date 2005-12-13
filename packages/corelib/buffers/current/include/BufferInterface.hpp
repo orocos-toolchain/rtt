@@ -64,6 +64,12 @@ namespace ORO_CoreLib
         virtual size_t size() const = 0;
 
         /**
+         * Check if this buffer is empty.
+         * @return true if empty
+         */
+        virtual bool empty() const = 0;
+
+        /**
          * Clears all contents of this buffer.
          */
         virtual void clear() = 0;

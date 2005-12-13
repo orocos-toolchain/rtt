@@ -15,6 +15,7 @@ of all kinds of buffers for inter-thread or
 
     compile WriteCout.cxx
     compile BufferLockFree.cxx
+    compile ListLockFree.cxx
     compile DataObjectInterfaces.cxx	
 
     cdl_component OROPKG_CORELIB_BUFFERS_BUFFERS {

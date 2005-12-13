@@ -15,6 +15,8 @@ namespace ORO_CoreLib
      * Any number of concurrent threads may invoke allocate() and deallocate(),
      * however, reserve() and shrink() may not be concurrently invoked.
      * @param T A class type for which memory will be allocated.
+     * @note Do not use this implementation, there is far better memory
+     * management built-in into BufferLockFree and ListLockFree.
      */
     template<class T>
     class MemoryPool

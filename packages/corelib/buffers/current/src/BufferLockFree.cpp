@@ -1,5 +1,7 @@
 
+#ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
+#endif
 #include "corelib/BufferLockFree.hpp"
 
 namespace ORO_CoreLib {
