@@ -29,7 +29,7 @@
 #ifndef ORO_EVENTPROCESSOR_HPP
 #define ORO_EVENTPROCESSOR_HPP
 
-#include <os/RunnableInterface.hpp>
+#include "RunnableInterface.hpp"
 #include "Signal.hpp"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -444,7 +444,7 @@ namespace ORO_CoreLib
      * @see TimerThread, CompletionProcessor
      */
     class EventProcessor
-        : public ORO_OS::RunnableInterface
+        : public RunnableInterface
     {
     protected:
         /**

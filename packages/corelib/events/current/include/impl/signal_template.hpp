@@ -2,7 +2,13 @@
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #include "signal_base.hpp"
+#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
+#include <boost/lambda/bind.hpp>
+#include <boost/bind.hpp>
+#include <boost/lambda/casts.hpp>
+#else
 #include <os/MutexLock.hpp>
+#endif
 #endif // !OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 
 // Include the appropriate functionN header
@@ -53,6 +59,7 @@ namespace sigslot {
 	class OROCOS_SIGNAL_N : public detail::signal_base
 	{
 		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNAL_TEMPLATE_ARGS OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
+
 	public:
         typedef SlotFunction slot_function_type;
         typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunction> connection_impl;
@@ -67,6 +74,14 @@ namespace sigslot {
         typedef arg1_type first_argument_type;
         typedef arg2_type second_argument_type;
 #endif
+    private:
+#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
+        // required for GCC 4.0.2
+        static connection_impl* applyEmit( connection_t c ) {
+            return static_cast<connection_impl*> (c.get() );
+        }
+#endif
+    public:
 
 		OROCOS_SIGNAL_N()
 		{
@@ -81,14 +96,31 @@ namespace sigslot {
 
         handle setup(const SlotFunction& f )
 		{
-			connection_t conn = 
-				new connection_impl(this, f);
+			connection_t conn(
+				new connection_impl(this, f) );
             this->conn_setup( conn );
             return handle(conn);
 		}
 
 		void emit(OROCOS_SIGNAL_PARMS)
 		{
+#ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
+            if (this->emitting)
+                return; // avoid uglyness : handlers calling emit.
+            this->emitting = true;
+            
+            // this code did initially not work under gcc 4.0/ubuntu breezy.
+            // connection_t::get() const becomes an undefined symbol.
+            // works under gcc 3.4
+            mconnections.apply( boost::lambda::bind(&connection_impl::emit,
+                                                    boost::lambda::bind( &applyEmit, boost::lambda::_1) // works for any compiler
+                                                    //not in gcc 4.0.2: boost::lambda::ll_static_cast<connection_impl*>(boost::lambda::bind(&connection_t::get, boost::lambda::_1))
+#if OROCOS_SIGNAL_NUM_ARGS != 0
+                                                    ,OROCOS_SIGNAL_ARGS
+#endif
+                                                    ) );
+            this->emitting = false;
+#else
             ORO_OS::MutexLock lock(m);
             if (this->emitting)
                 return; // avoid uglyness : handlers calling emit.
@@ -102,6 +134,7 @@ namespace sigslot {
             }
             this->emitting = false;
             this->cleanup();
+#endif
 		}
 
 		void operator()(OROCOS_SIGNAL_PARMS)
@@ -113,6 +146,8 @@ namespace sigslot {
 		{
             this->emit(OROCOS_SIGNAL_ARGS);
 		}
+
+        virtual int arity() const { return OROCOS_SIGNAL_NUM_ARGS; }
 	};
 
 } // namespace sigslot
